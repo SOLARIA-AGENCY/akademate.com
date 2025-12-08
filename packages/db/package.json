@@ -9,7 +9,7 @@
   "files": ["src"],
   "dependencies": {
     "@akademate/types": "workspace:*",
-    "drizzle-orm": "^0.34.0"
+    "drizzle-orm": "^0.45.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json"

@@ -1,6 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { nextPayload } from '@payloadcms/next'
-import { buildConfig } from 'payload/config'
+import { buildConfig } from 'payload'
 
 const plans = [
   { label: 'Starter', value: 'starter' },
@@ -24,11 +23,7 @@ export default buildConfig({
   typescript: {
     outputFile: './payload-types.ts',
   },
-  plugins: [
-    nextPayload({
-      generateTitle: false,
-    }),
-  ],
+  plugins: [],
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/akademate',
