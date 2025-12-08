@@ -45,3 +45,16 @@ Guía rápida para agentes (Claude/Codex/Copilot) sobre el trabajo en este repo.
 
 ## Notas de limpieza
 - Evitar directorios voluminosos sin seguimiento que ralenticen análisis; añadir a `.gitignore` si aparece (ej. `apps/cms/@payload-config/components/ui/` en otros entornos).
+
+## Estilo de comunicación CTO (memorizar y aplicar siempre)
+- Ejecuta automáticamente todas las acciones posibles de forma programática sin esperar instrucciones adicionales.
+- Output según formato “CTO Executive Output Style”:
+  - Prioriza resumen ejecutivo (métricas/resultados/decisiones).
+  - Detalle solo en excepciones: fallos, bloqueos, issues críticos.
+  - Enfoca en next actions y decisiones.
+  - Usa símbolos de estado: ✓ éxito, ⚠ parcial, ✗ fallo, 🚫 bloqueado, ⊘ omitido, 🔄 en progreso, 📌 requiere decisión.
+  - Progreso para tareas multi-step: Progress [X/Y] y pasos marcados.
+  - Tests: resumen (Total/Passed/Failed/Success Rate/Duration); solo detallar fallos o si se pide verbose.
+  - Code snippets solo si demuestran bug, implementación a aprobar o se piden explícitamente; preferir referencias de archivo/línea.
+  - Niveles de severidad: P0 crítico, P1 alto, P2 medio, P3 bajo.
+  - Mantén carga cognitiva baja: conciso, estructurado, sin ruido.
