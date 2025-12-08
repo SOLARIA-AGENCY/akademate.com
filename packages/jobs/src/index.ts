@@ -1,0 +1,19 @@
+import type { TenantId } from '@akademate/types'
+
+export type JobName = 'send-email' | 'sync-search' | 'webhook'
+
+export type TenantJob<TPayload = unknown> = {
+  tenantId: TenantId
+  name: JobName
+  payload: TPayload
+  runAt?: Date
+  traceId?: string
+}
+
+export const defaultQueueName = 'akademate-jobs'
+
+export const buildTenantJob = <TPayload>(tenantId: TenantId, name: JobName, payload: TPayload): TenantJob<TPayload> => ({
+  tenantId,
+  name,
+  payload,
+})

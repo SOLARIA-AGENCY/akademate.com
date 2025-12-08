@@ -5,6 +5,7 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
 ## Documentación
 - Especificación inicial: `docs/specs/ACADEIMATE_SPEC.md` (v1.5)
 - ADRs: `docs/adr/` (pendiente)
+- Informe SaaS enterprise: `docs/INFORME_SAAS_MULTITENANT_ENTERPRISE.md`
 - Runbooks: `docs/runbooks/` (pendiente)
 - UI Kit de referencia: `https://github.com/SOLARIA-AGENCY/Academate-ui`
 - Referencia visual/funcional CEP: `https://github.com/SOLARIA-AGENCY/www.cepcomunicacion.com`

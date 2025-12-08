@@ -5,12 +5,42 @@
   "description": "Academate SaaS multitenant for training institutions",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "lint": "echo \"Add app-level lint scripts\"",
-    "test": "echo \"Add app-level tests\"",
-    "dev": "echo \"Run app-specific dev scripts from apps/*\""
+    "lint": "pnpm exec eslint . --ext .ts,.tsx,.js,.cjs,.mjs --max-warnings=0",
+    "lint:fix": "pnpm exec eslint . --ext .ts,.tsx,.js,.cjs,.mjs --fix",
+    "format": "pnpm exec prettier . --check",
+    "format:fix": "pnpm exec prettier . --write",
+    "dev": "pnpm -r --parallel dev",
+    "test": "pnpm exec vitest run",
+    "test:watch": "pnpm exec vitest",
+    "db:generate": "pnpm exec drizzle-kit generate --config packages/db/drizzle.config.ts",
+    "db:migrate": "pnpm exec drizzle-kit migrate --config packages/db/drizzle.config.ts",
+    "db:studio": "pnpm exec drizzle-kit studio --config packages/db/drizzle.config.ts"
   },
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "drizzle-kit": "^0.24.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "prettier": "^3.4.2",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.49.0",
+    "vitest": "^2.1.4"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "^3.67.0",
+    "@payloadcms/next": "^3.67.0",
+    "drizzle-orm": "^0.34.0",
+    "payload": "^3.67.0",
+    "pg": "^8.13.1"
   }
 }
