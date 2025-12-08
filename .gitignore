@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+.pnp*
+.turbo
+.next
+/.yarn
+
+# Output
+dist
+build
+coverage
+
+# Env / logs
+.env
+.env.*
+.pnpm-debug.log*
+npm-debug.log*
+yarn-error.log*
+
+# Editor/OS
+.DS_Store
+.idea
+.vscode
+
+# Misc
+*.tsbuildinfo

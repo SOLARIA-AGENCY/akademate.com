@@ -1,0 +1,16 @@
+{
+  "name": "academate",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Academate SaaS multitenant for training institutions",
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "lint": "echo \"Add app-level lint scripts\"",
+    "test": "echo \"Add app-level tests\"",
+    "dev": "echo \"Run app-specific dev scripts from apps/*\""
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
