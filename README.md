@@ -3,7 +3,7 @@
 SaaS multitenant para gestión integral de academias/escuelas. Dominio principal: `akademate.com`. Stack base: Next.js 15 + Payload 3.67+ + Postgres 16 + Drizzle + Tailwind v4/shadcn + Redis/BullMQ + R2/MinIO.
 
 ## Documentación
-- Especificación inicial: `docs/specs/ACADEIMATE_SPEC.md` (v1.4)
+- Especificación inicial: `docs/specs/ACADEIMATE_SPEC.md` (v1.5)
 - ADRs: `docs/adr/` (pendiente)
 - Runbooks: `docs/runbooks/` (pendiente)
 - UI Kit de referencia: `https://github.com/SOLARIA-AGENCY/Academate-ui`
@@ -40,3 +40,6 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
 2) Crear packages compartidos (db/types/ui/api-client/jobs) siguiendo la spec.
 3) Definir ADRs iniciales (multitenancy, auth, storage, UI kit).
 4) Configurar CI/CD (GitHub Actions) y plantillas de Docker.
+
+## Nota Codex / Limpieza
+- Aviso de snapshot: evitar arrastrar directorios voluminosos sin seguimiento (ej. `apps/cms/@payload-config/components/ui/`) para no ralentizar el análisis; añádelos al `.gitignore` si aparecen en futuros módulos.
