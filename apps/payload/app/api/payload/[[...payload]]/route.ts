@@ -1,18 +1,38 @@
-import {
-  REST_DELETE,
-  REST_GET,
-  REST_OPTIONS,
-  REST_PATCH,
-  REST_POST,
-  REST_PUT,
-} from '@payloadcms/next/routes'
-import configPromise from '../../../../payload.config'
+import { handleEndpoints, type PayloadRequest } from 'payload'
+import type { Config as PayloadConfig } from 'payload/config'
 
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/await-thenable */
 export const dynamic = 'force-dynamic'
 
-export const GET = REST_GET({ config: configPromise })
-export const POST = REST_POST({ config: configPromise })
-export const PUT = REST_PUT({ config: configPromise })
-export const PATCH = REST_PATCH({ config: configPromise })
-export const DELETE = REST_DELETE({ config: configPromise })
-export const OPTIONS = REST_OPTIONS({ config: configPromise })
+const loadConfig = async (): Promise<PayloadConfig> => {
+  const mod = await import('../../../../payload.config')
+  return mod.default as PayloadConfig
+}
+
+const configPromise = loadConfig()
+
+const buildHandler =
+  () =>
+  async (request: PayloadRequest, args: { params?: { slug?: string[] } }) => {
+    const awaitedConfig = await configPromise
+    const endpoints = Array.isArray(awaitedConfig.endpoints) ? awaitedConfig.endpoints : []
+    awaitedConfig.endpoints = endpoints
+
+    const awaitedParams = await args.params
+    const path = awaitedParams?.slug?.length
+      ? `${awaitedConfig.routes.api}/${awaitedParams.slug.join('/')}`
+      : undefined
+
+    return handleEndpoints({
+      config: awaitedConfig,
+      path,
+      request,
+    })
+  }
+
+export const GET = buildHandler()
+export const POST = buildHandler()
+export const PUT = buildHandler()
+export const PATCH = buildHandler()
+export const DELETE = buildHandler()
+export const OPTIONS = buildHandler()

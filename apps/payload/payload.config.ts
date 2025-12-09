@@ -14,19 +14,20 @@ const tenantStatus = [
   { label: 'Cancelled', value: 'cancelled' },
 ]
 
-export default buildConfig({
-  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3003',
-  secret: process.env.PAYLOAD_SECRET || 'development-secret-change-me',
+const config = buildConfig({
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3003',
+  secret: process.env.PAYLOAD_SECRET ?? 'development-secret-change-me',
   admin: {
     user: 'users',
   },
   typescript: {
     outputFile: './payload-types.ts',
   },
+  endpoints: [],
   plugins: [],
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/akademate',
+      connectionString: process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/akademate',
     },
   }),
   collections: [
@@ -36,7 +37,7 @@ export default buildConfig({
         read: () => true,
         create: () => true,
         update: () => true,
-        delete: ({ req }) => Boolean(req?.user?.roles?.includes?.('superadmin')),
+        delete: ({ req }) => Array.isArray(req?.user?.roles) && req.user.roles.includes('superadmin'),
       },
       fields: [
         { name: 'name', type: 'text', required: true },
@@ -127,3 +128,7 @@ export default buildConfig({
     },
   ],
 })
+
+config.endpoints ??= []
+
+export default config
