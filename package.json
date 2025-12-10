@@ -16,22 +16,20 @@
     "db:migrate": "pnpm exec drizzle-kit migrate --config packages/db/drizzle.config.ts",
     "db:studio": "pnpm exec drizzle-kit studio --config packages/db/drizzle.config.ts",
     "mcp:playwright": "pnpm exec mcp-server-playwright",
-    "mcp:browserbase": "pnpm exec mcp-server-browserbase"
+    "mcp:context7": "pnpm exec context7-mcp --transport http --port 8793"
   },
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=9.0.0"
   },
   "devDependencies": {
-    "@browserbasehq/mcp-server-browserbase": "^2.4.1",
     "@eslint/js": "^9.39.1",
     "@playwright/mcp": "^0.0.51",
     "@tailwindcss/postcss": "^4.1.17",
-    "@upstash/context7": "github:upstash/context7",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
-    "@upstash/context7": "github:upstash/context7",
+    "@upstash/context7-mcp": "1.0.31",
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.0",
     "eslint": "^9.39.1",
