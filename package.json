@@ -14,14 +14,18 @@
     "test:watch": "pnpm exec vitest",
     "db:generate": "pnpm exec drizzle-kit generate --config packages/db/drizzle.config.ts",
     "db:migrate": "pnpm exec drizzle-kit migrate --config packages/db/drizzle.config.ts",
-    "db:studio": "pnpm exec drizzle-kit studio --config packages/db/drizzle.config.ts"
+    "db:studio": "pnpm exec drizzle-kit studio --config packages/db/drizzle.config.ts",
+    "mcp:playwright": "pnpm exec mcp-server-playwright",
+    "mcp:browserbase": "pnpm exec mcp-server-browserbase"
   },
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=9.0.0"
   },
   "devDependencies": {
+    "@browserbasehq/mcp-server-browserbase": "^2.4.1",
     "@eslint/js": "^9.39.1",
+    "@playwright/mcp": "^0.0.51",
     "@tailwindcss/postcss": "^4.1.17",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.1",
@@ -31,6 +35,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "playwright": "1.48.2",
     "prettier": "^3.4.2",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
