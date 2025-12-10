@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "PAYLOAD_DISABLE_DB_WIZARD=true next dev",
     "build": "next build",
     "start": "next start",
     "lint": "pnpm exec eslint . --ext .ts,.tsx --max-warnings=0"
