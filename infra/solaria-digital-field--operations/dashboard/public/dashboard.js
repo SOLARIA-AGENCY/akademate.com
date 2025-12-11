@@ -294,6 +294,23 @@ class SolariaDashboard {
         return capabilities[role] || ['General AI'];
     }
 
+    parseAgentCapabilities(agent) {
+        if (agent.capabilities) {
+            try {
+                const caps = typeof agent.capabilities === 'string'
+                    ? JSON.parse(agent.capabilities)
+                    : agent.capabilities;
+                const parsed = Object.entries(caps)
+                    .filter(([key, value]) => value === true)
+                    .map(([key]) => key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+                if (parsed.length > 0) return parsed;
+            } catch (e) {
+                console.warn('Error parsing agent capabilities:', e);
+            }
+        }
+        return this.getAgentCapabilities(agent.role);
+    }
+
     // Overview Section - Cards Interactivas
     async loadOverview() {
         const totalTasks = this.tasksData.length;
@@ -564,21 +581,26 @@ class SolariaDashboard {
         modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4';
         modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 
+        // Use escapeHtml for all user-provided content
+        const safeName = this.escapeHtml(project.name || 'Proyecto');
+        const safeClient = this.escapeHtml(project.client || 'SOLARIA Agency');
+        const safeDesc = this.escapeHtml(project.description || '');
+
         modal.innerHTML = `
             <div class="bg-card rounded-2xl border border-border w-full max-w-xl">
                 <div class="p-6 border-b border-border flex items-center justify-between">
-                    <h2 class="text-xl font-bold text-foreground">Editar Proyecto</h2>
+                    <h2 class="text-xl font-bold text-foreground">Editar: ${safeName}</h2>
                     <button onclick="document.getElementById('projectModal').remove()" class="p-2 rounded-lg hover:bg-secondary"><i class="fa-solid fa-times text-muted-foreground"></i></button>
                 </div>
                 <div class="p-6 space-y-4">
-                    <div><label class="block text-sm font-medium text-foreground mb-2">Nombre</label><input type="text" id="editProjectName" value="${this.escapeHtml(project.name || '')}" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
-                    <div><label class="block text-sm font-medium text-foreground mb-2">Cliente</label><input type="text" id="editProjectClient" value="${this.escapeHtml(project.client || 'SOLARIA Agency')}" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
+                    <div><label class="block text-sm font-medium text-foreground mb-2">Nombre</label><input type="text" id="editProjectName" value="${safeName}" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
+                    <div><label class="block text-sm font-medium text-foreground mb-2">Cliente</label><input type="text" id="editProjectClient" value="${safeClient}" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
                     <div><label class="block text-sm font-medium text-foreground mb-2">Presupuesto ($)</label><input type="number" id="editProjectBudget" value="${project.budget || 150000}" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="block text-sm font-medium text-foreground mb-2">Fecha Inicio</label><input type="date" id="editProjectStart" value="${project.start_date?.split('T')[0] || ''}" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
                         <div><label class="block text-sm font-medium text-foreground mb-2">Deadline</label><input type="date" id="editProjectDeadline" value="${project.deadline?.split('T')[0] || ''}" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
                     </div>
-                    <div><label class="block text-sm font-medium text-foreground mb-2">Descripcion</label><textarea id="editProjectDesc" rows="3" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground resize-none">${this.escapeHtml(project.description || '')}</textarea></div>
+                    <div><label class="block text-sm font-medium text-foreground mb-2">Descripcion</label><textarea id="editProjectDesc" rows="3" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground resize-none">${safeDesc}</textarea></div>
                 </div>
                 <div class="p-6 border-t border-border flex justify-end gap-3">
                     <button onclick="document.getElementById('projectModal').remove()" class="px-4 py-2 rounded-lg bg-secondary text-muted-foreground">Cancelar</button>
@@ -587,6 +609,78 @@ class SolariaDashboard {
             </div>
         `;
         document.body.appendChild(modal);
+    }
+
+    showNewProjectModal() {
+        const modal = document.createElement('div');
+        modal.id = 'projectModal';
+        modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+        modal.innerHTML = `
+            <div class="bg-card rounded-2xl border border-border w-full max-w-xl">
+                <div class="p-6 border-b border-border flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-foreground">Nuevo Proyecto</h2>
+                    <button onclick="document.getElementById('projectModal').remove()" class="p-2 rounded-lg hover:bg-secondary"><i class="fa-solid fa-times text-muted-foreground"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div><label class="block text-sm font-medium text-foreground mb-2">Nombre *</label><input type="text" id="newProjectName" placeholder="Nombre del proyecto" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
+                    <div><label class="block text-sm font-medium text-foreground mb-2">Cliente</label><input type="text" id="newProjectClient" placeholder="Nombre del cliente" value="SOLARIA Agency" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-foreground mb-2">Presupuesto ($)</label><input type="number" id="newProjectBudget" value="50000" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
+                        <div><label class="block text-sm font-medium text-foreground mb-2">Prioridad</label><select id="newProjectPriority" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"><option value="medium">Media</option><option value="high">Alta</option><option value="critical">Critica</option><option value="low">Baja</option></select></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-foreground mb-2">Fecha Inicio</label><input type="date" id="newProjectStart" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
+                        <div><label class="block text-sm font-medium text-foreground mb-2">Deadline</label><input type="date" id="newProjectDeadline" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground"></div>
+                    </div>
+                    <div><label class="block text-sm font-medium text-foreground mb-2">Descripcion</label><textarea id="newProjectDesc" rows="3" placeholder="Descripcion del proyecto" class="w-full px-4 py-2 rounded-lg bg-secondary border border-border text-foreground resize-none"></textarea></div>
+                </div>
+                <div class="p-6 border-t border-border flex justify-end gap-3">
+                    <button onclick="document.getElementById('projectModal').remove()" class="px-4 py-2 rounded-lg bg-secondary text-muted-foreground">Cancelar</button>
+                    <button onclick="dashboard.createNewProject()" class="px-4 py-2 rounded-lg bg-solaria text-white">Crear Proyecto</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    async createNewProject() {
+        const name = document.getElementById('newProjectName').value.trim();
+        if (!name) {
+            alert('El nombre del proyecto es requerido');
+            return;
+        }
+
+        const data = {
+            name,
+            client: document.getElementById('newProjectClient').value || 'SOLARIA Agency',
+            budget: parseFloat(document.getElementById('newProjectBudget').value) || 0,
+            priority: document.getElementById('newProjectPriority').value || 'medium',
+            start_date: document.getElementById('newProjectStart').value || null,
+            deadline: document.getElementById('newProjectDeadline').value || null,
+            description: document.getElementById('newProjectDesc').value || ''
+        };
+
+        try {
+            const response = await fetch(`${this.apiBase}/projects`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${this.token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                document.getElementById('projectModal')?.remove();
+                await this.fetchProject();
+                this.showSection('projects');
+                this.loadProjects();
+            } else {
+                const err = await response.json();
+                alert('Error: ' + (err.error || 'No se pudo crear el proyecto'));
+            }
+        } catch (error) {
+            console.error('Error creating project:', error);
+            alert('Error de conexion al servidor');
+        }
     }
 
     async saveProjectEdit() {
@@ -1007,7 +1101,7 @@ class SolariaDashboard {
                 <div class="grid grid-cols-3 gap-6">
                     <div class="bg-card rounded-xl p-6 border border-border">
                         <h3 class="text-lg font-semibold text-foreground mb-4"><i class="fa-solid fa-star text-solaria mr-2"></i>Capacidades</h3>
-                        <div class="flex flex-wrap gap-2">${this.getAgentCapabilities(agent.role).map(cap => `<span class="px-3 py-1 rounded-full text-sm bg-solaria/20 text-solaria">${cap}</span>`).join('')}</div>
+                        <div class="flex flex-wrap gap-2">${this.parseAgentCapabilities(agent).map(cap => `<span class="px-3 py-1 rounded-full text-sm bg-solaria/20 text-solaria">${this.escapeHtml(cap)}</span>`).join('')}</div>
                     </div>
 
                     <div class="bg-card rounded-xl p-6 border border-border col-span-2">
@@ -1128,9 +1222,18 @@ class SolariaDashboard {
 
     // Analytics, Logs, Alerts
     async loadAnalyticsData() {
-        const totalTasks = this.tasksData.length;
-        const completed = this.tasksData.filter(t => t.status === 'completed').length;
-        const avgProgress = totalTasks > 0 ? Math.round(this.tasksData.reduce((sum, t) => sum + (t.progress || 0), 0) / totalTasks) : 0;
+        const timeframe = parseInt(document.getElementById('analyticsTimeframe')?.value || '30', 10);
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - timeframe);
+
+        const filteredTasks = this.tasksData.filter(t => {
+            const taskDate = new Date(t.created_at || t.updated_at);
+            return taskDate >= cutoffDate;
+        });
+
+        const totalTasks = filteredTasks.length;
+        const completed = filteredTasks.filter(t => t.status === 'completed').length;
+        const avgProgress = totalTasks > 0 ? Math.round(filteredTasks.reduce((sum, t) => sum + (t.progress || 0), 0) / totalTasks) : 0;
         const activeAgents = this.agentsData.filter(a => a.status === 'active').length;
 
         const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
@@ -1139,18 +1242,29 @@ class SolariaDashboard {
         set('analyticsAvgProgress', avgProgress + '%');
         set('analyticsActiveAgents', activeAgents);
 
-        this.renderProductivityChart();
-        this.renderTasksByStatusChart();
-        this.renderAgentPerformanceTable();
+        this.renderProductivityChart(timeframe);
+        this.renderTasksByStatusChart(filteredTasks);
+        this.renderAgentPerformanceTable(filteredTasks);
     }
 
-    renderProductivityChart() {
+    renderProductivityChart(timeframe = 7) {
         const ctx = document.getElementById('productivityChart');
         if (!ctx) return;
         if (this.charts.productivity) this.charts.productivity.destroy();
 
+        const daysToShow = Math.min(timeframe, 30);
         const labels = []; const data = [];
-        for (let i = 6; i >= 0; i--) { const date = new Date(); date.setDate(date.getDate() - i); labels.push(date.toLocaleDateString('es-ES', { weekday: 'short' })); data.push(Math.floor(Math.random() * 5) + 1); }
+        for (let i = daysToShow - 1; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dayStr = date.toISOString().split('T')[0];
+            labels.push(date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' }));
+            const tasksOnDay = this.tasksData.filter(t => {
+                const taskDate = t.completed_at || t.updated_at;
+                return taskDate && taskDate.startsWith(dayStr) && t.status === 'completed';
+            }).length;
+            data.push(tasksOnDay);
+        }
 
         const isDark = document.documentElement.classList.contains('dark');
         const gridColor = isDark ? '#27272a' : '#e5e7eb';
@@ -1201,15 +1315,16 @@ class SolariaDashboard {
         });
     }
 
-    renderTasksByStatusChart() {
+    renderTasksByStatusChart(tasks = null) {
         const ctx = document.getElementById('tasksByStatusChart');
         if (!ctx) return;
         if (this.charts.taskStatus) this.charts.taskStatus.destroy();
 
-        const completed = this.tasksData.filter(t => t.status === 'completed').length;
-        const inProgress = this.tasksData.filter(t => t.status === 'in_progress').length;
-        const pending = this.tasksData.filter(t => t.status === 'pending').length;
-        const blocked = this.tasksData.filter(t => t.status === 'blocked').length;
+        const taskSet = tasks || this.tasksData;
+        const completed = taskSet.filter(t => t.status === 'completed').length;
+        const inProgress = taskSet.filter(t => t.status === 'in_progress').length;
+        const pending = taskSet.filter(t => t.status === 'pending').length;
+        const blocked = taskSet.filter(t => t.status === 'blocked').length;
 
         const isDark = document.documentElement.classList.contains('dark');
         const labelColor = isDark ? '#a1a1aa' : '#6b7280';
@@ -1250,16 +1365,17 @@ class SolariaDashboard {
         });
     }
 
-    renderAgentPerformanceTable() {
+    renderAgentPerformanceTable(filteredTasks = null) {
         const container = document.getElementById('agentPerformanceTable');
         if (!container) return;
 
+        const taskSet = filteredTasks || this.tasksData;
         container.innerHTML = `
             <table class="w-full">
                 <thead><tr class="border-b border-border"><th class="text-left py-3 text-sm font-medium text-muted-foreground">Agente</th><th class="text-center py-3 text-sm font-medium text-muted-foreground">Tareas</th><th class="text-center py-3 text-sm font-medium text-muted-foreground">Completadas</th><th class="text-center py-3 text-sm font-medium text-muted-foreground">Exito</th></tr></thead>
                 <tbody>
                     ${this.agentsData.map(agent => {
-                        const tasks = this.tasksData.filter(t => t.assigned_agent_id === agent.id);
+                        const tasks = taskSet.filter(t => t.assigned_agent_id === agent.id);
                         const completed = tasks.filter(t => t.status === 'completed').length;
                         const rate = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
                         return `

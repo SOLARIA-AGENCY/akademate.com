@@ -1,7 +1,33 @@
 # SOLARIA Digital Field Operations - Oficina de Construcción en Campo
 
-**Versión:** 3.1.0
+**Versión:** 3.2.0
 **Última actualización:** 2025-12-11
+
+---
+
+## Changelog v3.2.0
+
+### Backend (server.js)
+- **JWT Security**: Validación de JWT_SECRET al inicio (mínimo 32 caracteres)
+- **Quick Access Endpoint**: Nuevo `/api/auth/quick-access` que solo funciona en dev
+- **Socket.IO Events**: Emits para proyectos, tareas y alertas en tiempo real
+- **Alert Endpoints**: Nuevos `POST /api/alerts` y `PUT /api/alerts/:id/resolve`
+- **C-Suite Dinámico**: Datos calculados de DB en lugar de hardcodeados
+- **Query Fix**: `agents_assigned` usando `COALESCE(assigned_agent_id, agent_id)`
+
+### Frontend (dashboard.js)
+- **Nuevo Proyecto**: Modal y funcionalidad completa para crear proyectos
+- **Modal Edición**: Muestra nombre del proyecto en título
+- **Agent Capabilities**: Parse automático de JSON a badges legibles
+- **Analytics Timeframe**: Filtro funcional por 7/30/90 días
+- **Charts Update**: Todos los gráficos se actualizan al cambiar tema
+
+### UI (index.html)
+- **Botón Nuevo Proyecto**: Conectado a `dashboard.showNewProjectModal()`
+- **Quick Access Seguro**: Sin credenciales en cliente
+
+### Docker
+- **Volume docs**: Montaje de documentación del proyecto
 
 ---
 

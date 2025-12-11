@@ -293,6 +293,104 @@ const testDashboardAlerts = test('Dashboard: Get alerts', async () => {
     assert(Array.isArray(data), 'Response should be an array');
 });
 
+// ==================== NEW v3.2 TESTS ====================
+
+// Quick Access (non-production only)
+const testQuickAccess = test('Auth: Quick access endpoint works', async () => {
+    const { status, data } = await fetchJson(`${API_BASE}/auth/quick-access`, {
+        method: 'POST'
+    });
+    // Should work in dev/test environment
+    if (status === 200) {
+        assert(data.token, 'Response should contain token');
+        assert(data.user, 'Response should contain user');
+    } else if (status === 403) {
+        // Production mode - expected
+        assert(data.error, 'Should have error message for production');
+    }
+});
+
+// Project Creation
+const testProjectCreate = test('Projects: Create new project', async () => {
+    const newProject = {
+        name: 'Test Project ' + Date.now(),
+        client: 'Test Client',
+        description: 'Test project created by API tests',
+        priority: 'medium',
+        budget: 10000
+    };
+    const { status, data } = await fetchJson(`${API_BASE}/projects`, {
+        method: 'POST',
+        body: JSON.stringify(newProject)
+    });
+    assertEqual(status, 201, 'Status should be 201 for created');
+    assert(data.id, 'Response should contain project ID');
+});
+
+// Alert Creation
+const testAlertCreate = test('Alerts: Create new alert', async () => {
+    const newAlert = {
+        title: 'Test Alert ' + Date.now(),
+        message: 'This is a test alert from API tests',
+        severity: 'info'
+    };
+    const { status, data } = await fetchJson(`${API_BASE}/alerts`, {
+        method: 'POST',
+        body: JSON.stringify(newAlert)
+    });
+    assertEqual(status, 201, 'Status should be 201 for created');
+    assert(data.id, 'Response should contain alert ID');
+});
+
+// C-Suite Dashboards
+const testCEODashboard = test('C-Suite: CEO dashboard returns data', async () => {
+    const { status, data } = await fetchJson(`${API_BASE}/csuite/ceo`);
+    assertEqual(status, 200, 'Status should be 200');
+    assert(data.overview, 'Should have overview');
+    assert(data.metrics, 'Should have metrics');
+});
+
+const testCTODashboard = test('C-Suite: CTO dashboard with dynamic architecture decisions', async () => {
+    const { status, data } = await fetchJson(`${API_BASE}/csuite/cto`);
+    assertEqual(status, 200, 'Status should be 200');
+    assert(data.techStack, 'Should have techStack');
+    assert(data.architectureDecisions !== undefined, 'Should have architectureDecisions');
+});
+
+const testCOODashboard = test('C-Suite: COO dashboard with dynamic alerts', async () => {
+    const { status, data } = await fetchJson(`${API_BASE}/csuite/coo`);
+    assertEqual(status, 200, 'Status should be 200');
+    assert(data.operations, 'Should have operations');
+    assert(data.operationalAlerts !== undefined, 'Should have operationalAlerts');
+});
+
+const testCFODashboard = test('C-Suite: CFO dashboard with dynamic KPIs', async () => {
+    const { status, data } = await fetchJson(`${API_BASE}/csuite/cfo`);
+    assertEqual(status, 200, 'Status should be 200');
+    assert(data.financials, 'Should have financials');
+    assert(data.kpis !== undefined, 'Should have kpis');
+});
+
+// Task Creation
+const testTaskCreate = test('Tasks: Create new task', async () => {
+    // First get a project ID
+    const { data: projects } = await fetchJson(`${API_BASE}/projects`);
+    const projectId = projects[0]?.id || 1;
+
+    const newTask = {
+        title: 'Test Task ' + Date.now(),
+        description: 'Test task created by API tests',
+        project_id: projectId,
+        priority: 'medium'
+    };
+    const { status, data } = await fetchJson(`${API_BASE}/tasks`, {
+        method: 'POST',
+        body: JSON.stringify(newTask)
+    });
+    assertEqual(status, 201, 'Status should be 201 for created');
+    assert(data.id, 'Response should contain task ID');
+});
+
 // ==================== RUN ALL TESTS ====================
 
 async function runTests() {
@@ -331,7 +429,16 @@ async function runTests() {
         testLogsHaveRequiredFields,
         // Dashboard
         testDashboardOverview,
-        testDashboardAlerts
+        testDashboardAlerts,
+        // v3.2 New Features
+        testQuickAccess,
+        testProjectCreate,
+        testAlertCreate,
+        testTaskCreate,
+        testCEODashboard,
+        testCTODashboard,
+        testCOODashboard,
+        testCFODashboard
     ];
 
     for (const runTest of tests) {

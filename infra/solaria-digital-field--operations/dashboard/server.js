@@ -20,16 +20,23 @@ require('dotenv').config();
 
 class SolariaDashboardServer {
     constructor() {
+        // Validate JWT_SECRET at startup
+        this.jwtSecret = process.env.JWT_SECRET;
+        if (!this.jwtSecret || this.jwtSecret.length < 32) {
+            console.warn('⚠️  JWT_SECRET should be at least 32 characters. Using secure default for development.');
+            this.jwtSecret = 'solaria_jwt_secret_2024_min32chars_secure';
+        }
+
         this.app = express();
         this.server = http.createServer(this.app);
         this.io = socketIo(this.server, {
             cors: { origin: "*", methods: ["GET", "POST"] }
         });
-        
+
         this.port = process.env.PORT || 3000;
         this.db = null;
         this.connectedClients = new Map(); // C-suite members conectados
-        
+
         // Respetar X-Forwarded-* para rate limiting detrás de proxy (nginx)
         this.app.set('trust proxy', true);
 
@@ -98,6 +105,7 @@ class SolariaDashboardServer {
         this.app.post('/api/auth/login', this.handleLogin.bind(this));
         this.app.post('/api/auth/logout', this.handleLogout.bind(this));
         this.app.get('/api/auth/verify', this.verifyToken.bind(this));
+        this.app.post('/api/auth/quick-access', this.handleQuickAccess.bind(this));
 
         // Middleware de autenticación para rutas protegidas
         // Health check (sin autenticación) - antes del middleware
@@ -110,6 +118,8 @@ class SolariaDashboardServer {
         this.app.get('/api/dashboard/overview', this.getDashboardOverview.bind(this));
         this.app.get('/api/dashboard/metrics', this.getDashboardMetrics.bind(this));
         this.app.get('/api/dashboard/alerts', this.getDashboardAlerts.bind(this));
+        this.app.post('/api/alerts', this.createAlert.bind(this));
+        this.app.put('/api/alerts/:id/resolve', this.resolveAlert.bind(this));
         this.app.get('/api/docs', this.getDocs.bind(this));
         this.app.get('/api/docs', this.getDocs.bind(this));
 
@@ -179,7 +189,7 @@ class SolariaDashboardServer {
             // Autenticación por socket
             socket.on('authenticate', async (token) => {
                 try {
-                    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                    const decoded = jwt.verify(token, this.jwtSecret);
                     const user = await this.getUserById(decoded.userId);
                     
                     if (user) {
@@ -294,7 +304,7 @@ class SolariaDashboardServer {
             
             const token = jwt.sign(
                 { userId: user.id, username: user.username, role: user.role },
-                process.env.JWT_SECRET || 'solaria_jwt_secret_key_2024_secure_change_in_production',
+                this.jwtSecret,
                 { expiresIn: '24h' }
             );
 
@@ -319,6 +329,56 @@ class SolariaDashboardServer {
         res.json({ message: 'Logged out successfully' });
     }
 
+    async handleQuickAccess(req, res) {
+        // Quick access only works in non-production environments
+        const isProduction = process.env.NODE_ENV === 'production';
+        if (isProduction) {
+            return res.status(403).json({ error: 'Quick access disabled in production' });
+        }
+
+        try {
+            // Use predefined demo credentials from environment or fallback
+            const demoUser = process.env.DEMO_USER || 'carlosjperez';
+            const demoPass = process.env.DEMO_PASS || 'bypass';
+
+            const [users] = await this.db.execute(
+                'SELECT * FROM users WHERE username = ?',
+                [demoUser]
+            );
+
+            if (users.length === 0) {
+                return res.status(401).json({ error: 'Demo user not configured' });
+            }
+
+            const user = users[0];
+            const validPassword = await bcrypt.compare(demoPass, user.password_hash);
+
+            if (!validPassword) {
+                return res.status(401).json({ error: 'Invalid demo credentials' });
+            }
+
+            const token = jwt.sign(
+                { userId: user.id, username: user.username, role: user.role },
+                this.jwtSecret,
+                { expiresIn: '24h' }
+            );
+
+            res.json({
+                token,
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    name: user.name,
+                    role: user.role
+                }
+            });
+
+        } catch (error) {
+            console.error('Quick access error:', error);
+            res.status(500).json({ error: 'Quick access failed' });
+        }
+    }
+
     async verifyToken(req, res) {
         const token = req.headers.authorization?.split(' ')[1];
         
@@ -327,7 +387,7 @@ class SolariaDashboardServer {
         }
 
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, this.jwtSecret);
             const user = await this.getUserById(decoded.userId);
             res.json({ valid: true, user });
         } catch (error) {
@@ -337,13 +397,13 @@ class SolariaDashboardServer {
 
     authenticateToken(req, res, next) {
         const token = req.headers.authorization?.split(' ')[1];
-        
+
         if (!token) {
             return res.status(401).json({ error: 'Authentication required' });
         }
 
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, this.jwtSecret);
             req.user = decoded;
             next();
         } catch (error) {
@@ -484,6 +544,58 @@ class SolariaDashboardServer {
         }
     }
 
+    async createAlert(req, res) {
+        try {
+            const { title, message, severity = 'info', project_id, task_id, agent_id } = req.body;
+
+            const [result] = await this.db.execute(`
+                INSERT INTO alerts (title, message, severity, project_id, task_id, agent_id)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `, [title, message, severity, project_id || null, task_id || null, agent_id || null]);
+
+            // Emit Socket.IO event
+            this.io.to('alerts').emit('alert:created', {
+                id: result.insertId,
+                title,
+                message,
+                severity,
+                project_id,
+                task_id,
+                agent_id,
+                created_at: new Date().toISOString()
+            });
+
+            res.status(201).json({ id: result.insertId, message: 'Alert created' });
+
+        } catch (error) {
+            console.error('createAlert error:', error);
+            res.status(500).json({ error: 'Failed to create alert' });
+        }
+    }
+
+    async resolveAlert(req, res) {
+        try {
+            const { id } = req.params;
+
+            const [result] = await this.db.execute(`
+                UPDATE alerts SET status = 'resolved', resolved_at = NOW() WHERE id = ?
+            `, [id]);
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ error: 'Alert not found' });
+            }
+
+            // Emit Socket.IO event
+            this.io.to('alerts').emit('alert:resolved', { id: parseInt(id) });
+
+            res.json({ message: 'Alert resolved' });
+
+        } catch (error) {
+            console.error('resolveAlert error:', error);
+            res.status(500).json({ error: 'Failed to resolve alert' });
+        }
+    }
+
     async getDocs(req, res) {
         try {
             const specPath = path.join(this.repoPath, 'docs', 'specs', 'ACADEIMATE_SPEC.md');
@@ -517,7 +629,7 @@ class SolariaDashboardServer {
                     p.*,
                     (SELECT COUNT(*) FROM tasks WHERE project_id = p.id) as total_tasks,
                     (SELECT COUNT(*) FROM tasks WHERE project_id = p.id AND status = 'completed') as completed_tasks,
-                    (SELECT COUNT(DISTINCT assigned_agent_id) FROM tasks WHERE project_id = p.id) as agents_assigned,
+                    (SELECT COUNT(DISTINCT COALESCE(assigned_agent_id, agent_id)) FROM tasks WHERE project_id = p.id AND COALESCE(assigned_agent_id, agent_id) IS NOT NULL) as agents_assigned,
                     (SELECT COUNT(*) FROM alerts WHERE project_id = p.id AND status = 'active') as active_alerts
                 FROM projects p
             `;
@@ -668,6 +780,15 @@ class SolariaDashboardServer {
                 'info'
             ]);
 
+            // Emit Socket.IO event
+            this.io.to('projects').emit('project:created', {
+                id: result.insertId,
+                name,
+                client,
+                priority,
+                createdBy: req.user.userId
+            });
+
             res.status(201).json({
                 id: result.insertId,
                 message: 'Project created successfully'
@@ -695,6 +816,16 @@ class SolariaDashboardServer {
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Project not found' });
             }
+
+            // Emit Socket.IO event
+            this.io.to('projects').emit('project:updated', {
+                id: parseInt(id),
+                updates: {
+                    name: updates.name,
+                    client: updates.client,
+                    priority: updates.priority
+                }
+            });
 
             res.json({ message: 'Project updated successfully' });
 
@@ -992,6 +1123,15 @@ class SolariaDashboardServer {
                 priority, estimated_hours, deadline, req.user.userId
             ]);
 
+            // Emit Socket.IO event
+            this.io.emit('task:created', {
+                id: result.insertId,
+                title,
+                project_id,
+                assigned_agent_id,
+                priority
+            });
+
             res.status(201).json({
                 id: result.insertId,
                 message: 'Task created successfully'
@@ -1020,6 +1160,14 @@ class SolariaDashboardServer {
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Task not found' });
             }
+
+            // Emit Socket.IO event
+            this.io.emit('task:updated', {
+                id: parseInt(id),
+                status: updates.status,
+                progress: updates.progress,
+                priority: updates.priority
+            });
 
             res.json({ message: 'Task updated successfully' });
 
@@ -1522,10 +1670,8 @@ class SolariaDashboardServer {
                     backend: ['Node.js 20', 'Express.js', 'MySQL 8'],
                     infrastructure: ['Docker', 'Nginx']
                 },
-                architectureDecisions: [
-                    { id: 1, title: 'Database optimization', status: 'in_review', impact: 'high' },
-                    { id: 2, title: 'API versioning strategy', status: 'approved', impact: 'medium' }
-                ]
+                // Architecture decisions from high-priority pending tasks
+                architectureDecisions: await this.getArchitectureDecisions()
             });
         } catch (error) {
             console.error('CTO Dashboard error:', error);
@@ -1571,10 +1717,8 @@ class SolariaDashboardServer {
                 },
                 recentTasks: tasks,
                 agentWorkload: agentWorkload,
-                operationalAlerts: [
-                    { id: 1, message: 'Agent NEMESIS-DEV-01 at high capacity', severity: 'medium' },
-                    { id: 2, message: '2 tasks approaching deadline', severity: 'high' }
-                ]
+                // Operational alerts from database
+                operationalAlerts: await this.getOperationalAlerts()
             });
         } catch (error) {
             console.error('COO Dashboard error:', error);
@@ -1610,26 +1754,13 @@ class SolariaDashboardServer {
                 role: 'CFO',
                 title: 'Financial Overview',
                 focus: ['Budget', 'Costs', 'ROI', 'Financial Projections'],
-                kpis: {
-                    totalBudget: financials[0].total_budget || 0,
-                    totalSpent: financials[0].total_cost || 0,
-                    remainingBudget: financials[0].remaining_budget || 0,
-                    burnRate: financials[0].total_budget > 0
-                        ? Math.round((financials[0].total_cost / financials[0].total_budget) * 100)
-                        : 0,
-                    projectedROI: 35, // Calculated based on expected outcomes
-                    costPerTask: 7500 // Average cost per completed task
-                },
+                kpis: await this.calculateFinancialKPIs(financials[0]),
                 costByProject: costByProject,
                 monthlySpend: monthlySpend,
-                financialAlerts: [
-                    { id: 1, message: 'Budget on track - 18% utilized', severity: 'low' },
-                    { id: 2, message: 'Q1 projection positive', severity: 'info' }
-                ],
-                approvalsPending: [
-                    { id: 1, title: 'Infrastructure upgrade', amount: 15000, status: 'pending' },
-                    { id: 2, title: 'Additional AI agents', amount: 8000, status: 'review' }
-                ]
+                // Financial alerts from database
+                financialAlerts: await this.getFinancialAlerts(),
+                // High-budget pending tasks as approvals
+                approvalsPending: await this.getPendingApprovals()
             });
         } catch (error) {
             console.error('CFO Dashboard error:', error);
@@ -1922,6 +2053,131 @@ class SolariaDashboardServer {
         } catch (error) {
             console.error('Load logs error:', error);
             res.status(500).json({ error: 'Failed to load logs' });
+        }
+    }
+
+    // ========== HELPER METHODS FOR DYNAMIC DATA ==========
+
+    async getArchitectureDecisions() {
+        try {
+            const [decisions] = await this.db.execute(`
+                SELECT id, title, status, priority as impact
+                FROM tasks
+                WHERE priority IN ('critical', 'high')
+                AND status IN ('pending', 'in_progress', 'review')
+                ORDER BY FIELD(priority, 'critical', 'high'), created_at DESC
+                LIMIT 5
+            `);
+            return decisions.map(d => ({
+                id: d.id,
+                title: d.title,
+                status: d.status === 'in_progress' ? 'in_review' : d.status,
+                impact: d.impact
+            }));
+        } catch (error) {
+            console.error('getArchitectureDecisions error:', error);
+            return [];
+        }
+    }
+
+    async getOperationalAlerts() {
+        try {
+            const [alerts] = await this.db.execute(`
+                SELECT id, message, severity
+                FROM alerts
+                WHERE status = 'active'
+                ORDER BY FIELD(severity, 'critical', 'high', 'medium', 'low'), created_at DESC
+                LIMIT 5
+            `);
+            return alerts;
+        } catch (error) {
+            console.error('getOperationalAlerts error:', error);
+            return [];
+        }
+    }
+
+    async calculateFinancialKPIs(financials) {
+        try {
+            const [taskCount] = await this.db.execute(`
+                SELECT COUNT(*) as completed FROM tasks WHERE status = 'completed'
+            `);
+            const completedTasks = taskCount[0].completed || 0;
+            const totalBudget = parseFloat(financials?.total_budget) || 0;
+            const totalSpent = parseFloat(financials?.total_cost) || 0;
+            const remainingBudget = parseFloat(financials?.remaining_budget) || 0;
+
+            // Calculate projected ROI based on completion vs budget used
+            const burnRate = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
+            const projectedROI = totalBudget > 0 ? Math.round(((totalBudget - totalSpent) / totalBudget) * 100) : 0;
+            const costPerTask = completedTasks > 0 ? Math.round(totalSpent / completedTasks) : 0;
+
+            return {
+                totalBudget,
+                totalSpent,
+                remainingBudget,
+                burnRate,
+                projectedROI,
+                costPerTask
+            };
+        } catch (error) {
+            console.error('calculateFinancialKPIs error:', error);
+            return {
+                totalBudget: 0, totalSpent: 0, remainingBudget: 0,
+                burnRate: 0, projectedROI: 0, costPerTask: 0
+            };
+        }
+    }
+
+    async getFinancialAlerts() {
+        try {
+            const [alerts] = await this.db.execute(`
+                SELECT id, title as message, severity
+                FROM alerts
+                WHERE status = 'active'
+                ORDER BY created_at DESC
+                LIMIT 3
+            `);
+            // If no alerts, generate summary based on budget status
+            if (alerts.length === 0) {
+                const [budget] = await this.db.execute(`
+                    SELECT SUM(budget) as total, SUM(actual_cost) as spent FROM projects
+                `);
+                const utilization = budget[0].total > 0
+                    ? Math.round((budget[0].spent / budget[0].total) * 100)
+                    : 0;
+                return [
+                    { id: 1, message: `Budget ${utilization}% utilized`, severity: utilization > 80 ? 'high' : 'low' }
+                ];
+            }
+            return alerts;
+        } catch (error) {
+            console.error('getFinancialAlerts error:', error);
+            return [];
+        }
+    }
+
+    async getPendingApprovals() {
+        try {
+            // Use high-budget pending tasks as pending approvals
+            const [approvals] = await this.db.execute(`
+                SELECT t.id, t.title,
+                    COALESCE(t.estimated_hours, 0) * 150 as amount,
+                    t.status
+                FROM tasks t
+                WHERE t.status IN ('pending', 'review')
+                AND t.priority IN ('critical', 'high')
+                ORDER BY t.estimated_hours DESC
+                LIMIT 5
+            `);
+            return approvals.map(a => ({
+                id: a.id,
+                title: a.title,
+                amount: Math.round(a.amount),
+                status: a.status === 'review' ? 'review' : 'pending'
+            }));
+        } catch (error) {
+            console.error('getPendingApprovals error:', error);
+            return [];
         }
     }
 

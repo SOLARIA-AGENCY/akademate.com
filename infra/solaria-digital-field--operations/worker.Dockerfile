@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY workers/package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy worker code
 COPY workers/ ./

@@ -14,9 +14,11 @@ services:
       - JWT_SECRET=solaria_jwt_secret_2024_min32chars_secure
       - PORT=3030
       - REDIS_URL=redis://redis:6379
+      - REPO_PATH=/repo
     volumes:
       - office_mysql_data:/var/lib/mysql
       - ./logs:/app/logs
+      - ../../docs:/repo/docs:ro
     depends_on:
       - redis
     restart: unless-stopped

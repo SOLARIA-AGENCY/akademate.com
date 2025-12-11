@@ -648,7 +648,7 @@
                 <section id="projectsSection" class="hidden">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-lg font-semibold text-foreground">Gestión de Proyectos</h2>
-                        <button class="btn-primary px-4 py-2 rounded-lg text-white text-sm font-medium flex items-center gap-2">
+                        <button onclick="dashboard.showNewProjectModal()" class="btn-primary px-4 py-2 rounded-lg text-white text-sm font-medium flex items-center gap-2">
                             <i class="fa-solid fa-plus"></i>
                             Nuevo Proyecto
                         </button>
@@ -1106,6 +1106,8 @@
                         setTimeout(() => {
                             if (dashboard.charts.progress) dashboard.renderProgressChart();
                             if (dashboard.charts.agent) dashboard.renderAgentChart();
+                            if (dashboard.charts.productivity) dashboard.renderProductivityChart();
+                            if (dashboard.charts.taskStatus) dashboard.renderTasksByStatusChart();
                         }, 100);
                     }
                 });
@@ -1137,17 +1139,18 @@
             if (quickAccessBtn) {
                 quickAccessBtn.addEventListener('click', async function() {
                     try {
-                        const response = await fetch('/api/auth/login', {
+                        // Use secure server-side quick-access endpoint
+                        const response = await fetch('/api/auth/quick-access', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId: 'carlosjperez', password: 'bypass' })
+                            headers: { 'Content-Type': 'application/json' }
                         });
                         if (response.ok) {
                             const data = await response.json();
                             localStorage.setItem('solaria_token', data.token);
                             window.location.reload();
                         } else {
-                            alert('Error de acceso. Use credenciales.');
+                            const error = await response.json();
+                            alert('Error: ' + (error.error || 'Acceso rápido no disponible'));
                         }
                     } catch (error) {
                         console.error('Quick access error:', error);
