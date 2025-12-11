@@ -18,7 +18,8 @@
     "db:studio": "pnpm exec drizzle-kit studio --config packages/db/drizzle.config.ts",
     "mcp:playwright": "pnpm exec mcp-server-playwright",
     "mcp:dfo": "pnpm -C infra/solaria-digital-field--operations/mcp-server start",
-    "mcp:context7": "pnpm exec context7-mcp --transport http --port 8793"
+    "mcp:context7": "pnpm exec context7-mcp --transport http --port 8793",
+    "office:bootstrap": "bash scripts/office-bootstrap.sh"
   },
   "engines": {
     "node": ">=22.0.0",
