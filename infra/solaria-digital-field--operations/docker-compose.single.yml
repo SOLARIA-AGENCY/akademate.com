@@ -1,0 +1,51 @@
+services:
+  office:
+    build:
+      context: .
+      dockerfile: office.Dockerfile
+    ports:
+      - "3030:3030"
+      - "33060:3306"
+    environment:
+      - DB_PASSWORD=solaria2024
+      - MYSQL_ROOT_PASSWORD=SolariaRoot2024
+      - DB_NAME=solaria_construction
+      - DB_USER=solaria_user
+      - JWT_SECRET=solaria_jwt_secret_2024_min32chars_secure
+      - PORT=3030
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - office_mysql_data:/var/lib/mysql
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker.Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DB_HOST=office
+      - DB_PORT=3306
+      - DB_USER=solaria_user
+      - DB_PASSWORD=solaria2024
+      - DB_NAME=solaria_construction
+    depends_on:
+      - office
+      - redis
+    restart: unless-stopped
+
+volumes:
+  office_mysql_data:
+  redis_data:

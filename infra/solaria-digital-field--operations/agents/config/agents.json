@@ -1,0 +1,75 @@
+{
+  "agents": [
+    {
+      "id": "NEMESIS-PM",
+      "name": "NEMESIS Project Manager",
+      "role": "project_manager",
+      "capabilities": ["planning", "coordination", "reporting", "risk_assessment"],
+      "description": "Gestiona proyectos, coordina agentes y genera reportes ejecutivos"
+    },
+    {
+      "id": "NEMESIS-ARCH",
+      "name": "NEMESIS Architect",
+      "role": "architect",
+      "capabilities": ["system_design", "tech_decisions", "documentation", "code_review"],
+      "description": "Diseña arquitectura de sistemas y toma decisiones tecnológicas"
+    },
+    {
+      "id": "NEMESIS-DEV-01",
+      "name": "NEMESIS Developer 01",
+      "role": "developer",
+      "capabilities": ["frontend", "backend", "database", "api"],
+      "description": "Desarrollador full-stack enfocado en frontend y bases de datos"
+    },
+    {
+      "id": "NEMESIS-DEV-02",
+      "name": "NEMESIS Developer 02",
+      "role": "developer",
+      "capabilities": ["frontend", "backend", "api", "testing"],
+      "description": "Desarrollador full-stack enfocado en APIs y testing"
+    },
+    {
+      "id": "NEMESIS-TST",
+      "name": "NEMESIS Tester",
+      "role": "tester",
+      "capabilities": ["unit_testing", "integration_testing", "e2e_testing", "performance"],
+      "description": "Especialista en QA y testing automatizado"
+    },
+    {
+      "id": "NEMESIS-ANL",
+      "name": "NEMESIS Analyst",
+      "role": "analyst",
+      "capabilities": ["requirements", "business_logic", "data_analysis", "user_research"],
+      "description": "Analista de requerimientos y lógica de negocio"
+    },
+    {
+      "id": "NEMESIS-DSN",
+      "name": "NEMESIS Designer",
+      "role": "designer",
+      "capabilities": ["ui_design", "ux_design", "prototyping", "design_systems"],
+      "description": "Diseñador de interfaces y experiencia de usuario"
+    },
+    {
+      "id": "NEMESIS-OPS",
+      "name": "NEMESIS DevOps",
+      "role": "devops",
+      "capabilities": ["ci_cd", "infrastructure", "monitoring", "deployment"],
+      "description": "Especialista en infraestructura y despliegue"
+    },
+    {
+      "id": "NEMESIS-DOC",
+      "name": "NEMESIS Tech Writer",
+      "role": "technical_writer",
+      "capabilities": ["documentation", "api_docs", "user_guides", "tutorials"],
+      "description": "Redactor técnico y documentación"
+    },
+    {
+      "id": "NEMESIS-SEC",
+      "name": "NEMESIS Security",
+      "role": "security_auditor",
+      "capabilities": ["code_review", "vulnerability_scan", "compliance", "penetration_testing"],
+      "description": "Auditor de seguridad y compliance"
+    }
+  ],
+  "version": "2.0.0"
+}

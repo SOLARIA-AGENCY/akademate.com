@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "solaria-dashboard": {
+      "command": "node",
+      "args": [
+        "/path/to/solaria-digital-field--operations/mcp-server/server.js"
+      ],
+      "env": {
+        "DASHBOARD_API_URL": "http://localhost:3030/api",
+        "DASHBOARD_USER": "carlosjperez",
+        "DASHBOARD_PASS": "bypass"
+      }
+    }
+  }
+}

@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-gray-900 text-gray-100 font-sans antialiased;
+  }
+}
+
+@layer components {
+  .construction-card {
+    @apply bg-gray-800 border border-gray-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200;
+  }
+  
+  .construction-button {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900;
+  }
+  
+  .construction-button-primary {
+    @apply bg-solaria-600 hover:bg-solaria700 text-white focus:ring-solaria-500;
+  }
+  
+  .construction-button-secondary {
+    @apply bg-gray-700 hover:bg-gray-600 text-gray-200 focus:ring-gray-500;
+  }
+  
+  .status-badge {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .status-planning {
+    @apply bg-blue-900 text-blue-200;
+  }
+  
+  .status-in-progress {
+    @apply bg-yellow-900 text-yellow-200;
+  }
+  
+  .status-completed {
+    @apply bg-green-900 text-green-200;
+  }
+  
+  .status-blocked {
+    @apply bg-red-900 text-red-200;
+  }
+  
+  .priority-high {
+    @apply bg-red-900 text-red-200;
+  }
+  
+  .priority-medium {
+    @apply bg-yellow-900 text-yellow-200;
+  }
+  
+  .priority-low {
+    @apply bg-green-900 text-green-200;
+  }
+  
+  .agent-card {
+    @apply bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-solaria-500 transition-colors duration-200;
+  }
+  
+  .metric-card {
+    @apply bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-6;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-solaria-400 to-solaria-600 bg-clip-text text-transparent;
+  }
+  
+  .border-gradient {
+    @apply border border-transparent bg-gradient-to-r from-solaria-600 to-solaria-400 p-[1px] rounded-lg;
+  }
+}
