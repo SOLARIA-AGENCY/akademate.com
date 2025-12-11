@@ -1,23 +1,14 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import { LogOut, ChevronDown, Bell, Search, Settings } from 'lucide-react'
+import { OpsSidebar, OpsSidebarInset, OpsSidebarShell, OpsSidebarTrigger } from '@/components/sidebar'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 
 const SESSION_KEY = 'akademate-ops-user'
-
-const navItems = [
-  { name: 'Dashboard', href: '/dashboard' },
-  { name: 'Tenants', href: '/dashboard/tenants' },
-  { name: 'Facturación', href: '/dashboard/facturacion' },
-  { name: 'Suscripciones', href: '/dashboard/suscripciones' },
-  { name: 'API', href: '/dashboard/api' },
-  { name: 'Estado', href: '/dashboard/estado' },
-  { name: 'Impersonar', href: '/dashboard/impersonar' },
-  { name: 'Media', href: '/dashboard/media' },
-  { name: 'Soporte', href: '/dashboard/soporte' },
-  { name: 'Configuración', href: '/dashboard/configuracion' },
-]
 
 type Session = {
   email: string
@@ -26,15 +17,17 @@ type Session = {
   tenantId?: string
 }
 
+const roleLabels: Record<string, string> = {
+  superadmin: 'Super Admin',
+  admin: 'Administrador',
+  support: 'Soporte',
+  viewer: 'Solo Lectura',
+}
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
   const router = useRouter()
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const devLoginEnabled = useMemo(
-    () => process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === 'true',
-    []
-  )
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -48,8 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     try {
       const parsed = JSON.parse(stored) as Session
       setSession(parsed)
-    } catch (error) {
-      console.warn('Sesión inválida, reiniciando', error)
+    } catch {
       localStorage.removeItem(SESSION_KEY)
       router.replace('/login')
       return
@@ -65,99 +57,121 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/login')
   }
 
+  const initials = useMemo(() => {
+    if (session?.name) {
+      return session.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+    }
+    return session?.email?.charAt(0).toUpperCase() ?? 'A'
+  }, [session])
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-300">
-        Cargando sesión...
+      <div className="min-h-screen flex items-center justify-center bg-canvas">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-primary to-cyan-600 rounded-xl flex items-center justify-center animate-pulse shadow-lg">
+            <span className="text-white font-bold text-xl">A</span>
+          </div>
+          <div className="text-center">
+            <p className="text-foreground font-medium">Akademate Ops</p>
+            <p className="text-muted-foreground text-sm mt-1">Cargando sesión...</p>
+          </div>
+        </div>
       </div>
     )
   }
 
-  if (!session) {
-    return null
-  }
+  if (!session) return null
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col overflow-hidden">
-      <header className="bg-slate-900/80 border-b border-slate-800/80 flex-shrink-0 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/dashboard" className="flex items-center gap-4 hover:opacity-90 transition-opacity">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <span className="text-white font-bold text-lg">A</span>
+    <OpsSidebarShell>
+      <OpsSidebar />
+      <OpsSidebarInset>
+        {/* Header - Left/Right structure */}
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm px-6">
+          {/* Left side */}
+          <div className="flex items-center gap-4">
+            <OpsSidebarTrigger />
+            <div className="hidden sm:block">
+              <h1 className="text-sm font-semibold text-foreground">Panel de Operaciones</h1>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">Akademate Ops</h1>
-              <p className="text-xs text-slate-400">Panel superadmin multitenant</p>
-            </div>
-          </Link>
-          <div className="flex items-center gap-3 text-xs">
-            {devLoginEnabled ? (
-              <span className="px-2 py-1 rounded bg-amber-500/15 text-amber-300 font-semibold">DEV LOGIN</span>
-            ) : null}
-            <span className="px-2 py-1 rounded bg-slate-800 text-slate-200 font-semibold">
-              {session.email}
-            </span>
-            <span className="px-2 py-1 rounded bg-primary/20 text-primary font-semibold">
-              {session.role || 'superadmin'}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="px-3 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
-            >
-              Cerrar sesión
-            </button>
           </div>
-        </div>
-      </header>
 
-      <nav className="bg-slate-900/70 border-b border-slate-800/80 flex-shrink-0 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-1 overflow-x-auto">
-            {navItems.map(item => {
-              const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href))
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-                    isActive
-                      ? 'text-white bg-slate-800 rounded-t-lg'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/70 rounded-t-lg'
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </nav>
+          {/* Right side */}
+          <div className="flex items-center gap-3">
+            {/* Search button */}
+            <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
+              <Search className="h-4 w-4" />
+            </Button>
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-          {children}
-        </div>
-      </main>
+            {/* Notifications */}
+            <Button variant="ghost" size="icon" className="relative h-9 w-9 text-muted-foreground hover:text-foreground">
+              <Bell className="h-4 w-4" />
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
+            </Button>
 
-      <footer className="bg-slate-900/80 border-t border-slate-800/80 flex-shrink-0 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">A</span>
+            {/* Divider */}
+            <div className="h-8 w-px bg-border mx-1" />
+
+            {/* User dropdown */}
+            <div className="flex items-center gap-3 pl-2">
+              <Avatar className="h-8 w-8 border-2 border-primary/20">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-cyan-600 text-white text-xs font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden md:flex flex-col">
+                <span className="text-sm font-medium leading-tight text-foreground">
+                  {session.name || session.email.split('@')[0]}
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  {roleLabels[session.role] || session.role}
+                </span>
               </div>
-              <div>
-                <span className="text-white font-semibold">Akademate</span>
-                <span className="text-slate-500 text-xs ml-2">ops • multitenant</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-xs">
-              <span className="badge-dot" style={{ color: '#22c55e' }}>Sistemas operativos</span>
-              <span className="text-slate-500">© {new Date().getFullYear()} Solaria / Akademate</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                title="Cerrar sesión"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </header>
+
+        {/* Main content */}
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+
+        {/* Footer - 3 column layout */}
+        <footer className="border-t border-border bg-card/50 px-6 py-4">
+          <div className="flex items-center justify-between text-xs">
+            {/* Left: Branding */}
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 bg-gradient-to-br from-primary to-cyan-600 rounded flex items-center justify-center">
+                <span className="text-white font-bold text-[10px]">A</span>
+              </div>
+              <span className="font-semibold text-foreground">Akademate</span>
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
+                v1.0.0
+              </Badge>
+            </div>
+
+            {/* Center: System status */}
+            <div className="flex items-center gap-4 text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                Todos los sistemas operativos
+              </span>
+            </div>
+
+            {/* Right: Copyright */}
+            <div className="text-muted-foreground">
+              © {new Date().getFullYear()} SOLARIA Agency
+            </div>
+          </div>
+        </footer>
+      </OpsSidebarInset>
+    </OpsSidebarShell>
   )
 }

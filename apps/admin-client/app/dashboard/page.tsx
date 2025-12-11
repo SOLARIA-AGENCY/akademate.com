@@ -2,9 +2,33 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import {
+  ArrowRight,
+  Users,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  UserPlus,
+  Headphones,
+  CreditCard,
+  Target,
+  TrendingUp,
+} from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { MockDataBanner } from '@/components/mock-data-banner'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { KPICard } from '@/components/ui/kpi-card'
+import { ActionCard } from '@/components/ui/action-card'
+import { Progress } from '@/components/ui/progress'
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableBody,
+  DataTableRow,
+  DataTableHead,
+  DataTableCell,
+} from '@/components/ui/data-table'
 
 interface Tenant {
   id: string
@@ -54,6 +78,21 @@ const mockTenants: Tenant[] = [
   },
 ]
 
+const planStyles: Record<string, string> = {
+  starter: 'bg-muted text-muted-foreground',
+  professional: 'bg-primary/10 text-primary',
+  enterprise: 'bg-accent text-accent-foreground',
+}
+
+type TenantStatus = 'active' | 'trial' | 'suspended' | 'cancelled'
+
+const statusStyles: Record<TenantStatus, { bg: string; text: string; label: string }> = {
+  active: { bg: 'bg-success/10', text: 'text-success', label: 'Activo' },
+  trial: { bg: 'bg-warning/10', text: 'text-warning', label: 'Trial' },
+  suspended: { bg: 'bg-destructive/10', text: 'text-destructive', label: 'Suspendido' },
+  cancelled: { bg: 'bg-muted', text: 'text-muted-foreground', label: 'Cancelado' },
+}
+
 export default function DashboardPage() {
   const [tenants] = useState<Tenant[]>(mockTenants)
 
@@ -62,41 +101,9 @@ export default function DashboardPage() {
   const trialTenants = tenants.filter(t => t.status === 'trial').length
   const hasMock = useMemo(() => true, [])
 
-  const getPlanBadge = (plan: Tenant['plan']) => {
-    const styles: Record<string, string> = {
-      starter: 'bg-muted/50 text-muted-foreground',
-      professional: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
-      enterprise: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-    }
-    return (
-      <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${styles[plan]}`}>
-        {plan.charAt(0).toUpperCase() + plan.slice(1)}
-      </span>
-    )
-  }
-
-  const getStatusBadge = (status: Tenant['status']) => {
-    const styles: Record<string, string> = {
-      active: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-      trial: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-      suspended: 'bg-red-500/10 text-red-600 dark:text-red-400',
-      cancelled: 'bg-muted/50 text-muted-foreground',
-    }
-    const labels: Record<string, string> = {
-      active: 'Activo',
-      trial: 'Trial',
-      suspended: 'Suspendido',
-      cancelled: 'Cancelado',
-    }
-    return (
-      <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${styles[status]}`}>
-        {labels[status]}
-      </span>
-    )
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Page Header */}
       <PageHeader
         title="Dashboard"
         description="Vista general de la plataforma Akademate"
@@ -104,117 +111,157 @@ export default function DashboardPage() {
         {hasMock && <MockDataBanner />}
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-panel p-5">
-          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Total Tenants</p>
-          <p className="text-3xl font-bold text-foreground mt-2">{tenants.length}</p>
-        </div>
-        <div className="glass-panel p-5">
-          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Activos</p>
-          <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">{activeTenants}</p>
-        </div>
-        <div className="glass-panel p-5">
-          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">En Trial</p>
-          <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">{trialTenants}</p>
-        </div>
-        <div className="glass-panel p-5">
-          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">MRR Total</p>
-          <p className="text-3xl font-bold text-foreground mt-2">${totalMRR}</p>
-        </div>
-      </div>
+      {/* KPI Cards Grid */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard
+          label="Total Tenants"
+          value={tenants.length}
+          icon={<Users className="h-5 w-5 text-primary" />}
+          trend={{ value: 12, direction: 'up', label: 'vs mes anterior' }}
+        />
+        <KPICard
+          label="Activos"
+          value={activeTenants}
+          icon={<CheckCircle2 className="h-5 w-5 text-success" />}
+          variant="success"
+        />
+        <KPICard
+          label="En Trial"
+          value={trialTenants}
+          icon={<Clock className="h-5 w-5 text-warning" />}
+          variant="warning"
+        />
+        <KPICard
+          label="MRR Total"
+          value={`$${totalMRR.toLocaleString()}`}
+          icon={<DollarSign className="h-5 w-5 text-primary" />}
+          trend={{ value: 8.5, direction: 'up', label: 'crecimiento' }}
+        />
+      </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-5 rounded-xl">
-          <h3 className="text-white font-semibold">Onboarding pendiente</h3>
-          <p className="text-indigo-100 text-sm mt-1">2 tenants necesitan completar setup</p>
-          <button className="mt-4 px-4 py-2 bg-white/95 text-indigo-700 rounded-lg text-sm font-medium hover:bg-white transition-colors">
-            Ver pendientes
-          </button>
-        </div>
-        <div className="glass-panel p-5">
-          <h3 className="text-foreground font-semibold">Tickets de soporte</h3>
-          <p className="text-muted-foreground text-sm mt-1">3 tickets abiertos requieren atencion</p>
-          <button className="mt-4 px-4 py-2 bg-muted/50 text-foreground rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-            Ver tickets
-          </button>
-        </div>
-        <div className="glass-panel p-5">
-          <h3 className="text-foreground font-semibold">Pagos fallidos</h3>
-          <p className="text-muted-foreground text-sm mt-1">1 pago rechazado en los ultimos 7 dias</p>
-          <button className="mt-4 px-4 py-2 bg-muted/50 text-foreground rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-            Gestionar
-          </button>
-        </div>
-      </div>
+      {/* Action Cards Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <ActionCard
+          variant="gradient"
+          icon={<UserPlus className="h-5 w-5 text-white" />}
+          title="Onboarding pendiente"
+          description="2 tenants necesitan completar el proceso de setup inicial"
+          href="/dashboard/tenants"
+          badge={{ text: '2 pendientes', variant: 'warning' }}
+        />
+        <ActionCard
+          variant="warning"
+          icon={<Headphones className="h-5 w-5" />}
+          title="Tickets de soporte"
+          description="3 tickets abiertos requieren atención inmediata"
+          href="/dashboard/soporte"
+          badge={{ text: '3 abiertos', variant: 'warning' }}
+        />
+        <ActionCard
+          variant="danger"
+          icon={<CreditCard className="h-5 w-5" />}
+          title="Pagos fallidos"
+          description="1 pago rechazado en los últimos 7 días"
+          href="/dashboard/facturacion"
+          badge={{ text: '$299', variant: 'danger' }}
+        />
+      </section>
 
-      {/* Link to Roadmap */}
-      <Link
-        href="/dashboard/roadmap"
-        className="glass-panel p-5 flex items-center justify-between group hover:shadow-lg transition-shadow"
-      >
-        <div>
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-foreground">Enterprise Readiness</h2>
-            <span className="px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold">
-              Score 32/100
-            </span>
+      {/* Enterprise Readiness Card */}
+      <Card className="overflow-hidden">
+        <Link
+          href="/dashboard/roadmap"
+          className="block p-6 group transition-colors hover:bg-muted/30"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-4 flex-1">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-warning/10">
+                <Target className="h-6 w-6 text-warning" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h2 className="text-lg font-semibold text-foreground">Enterprise Readiness</h2>
+                  <Badge variant="outline" className="badge-warning">
+                    Score 32/100
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Ver mapa de gaps y roadmap para alcanzar $1M+ ARR
+                </p>
+                <Progress value={32} max={100} variant="warning" size="md" />
+              </div>
+            </div>
+            <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all mt-2" />
           </div>
-          <p className="text-muted-foreground text-sm mt-1">Ver mapa de gaps y roadmap para $1M+ ARR</p>
-        </div>
-        <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
-      </Link>
+        </Link>
+      </Card>
 
-      <div className="glass-panel overflow-hidden">
-        <div className="px-6 py-4 flex justify-between items-center">
+      {/* Tenants Table */}
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-border px-6 py-4">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Tenants recientes</h2>
-            <p className="text-muted-foreground text-sm">Gestiona academias registradas</p>
+            <CardTitle className="text-lg">Tenants recientes</CardTitle>
+            <p className="text-muted-foreground text-sm mt-1">Gestiona academias registradas en la plataforma</p>
           </div>
-          <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
-            + Nuevo tenant
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted/30">
-              <tr>
-                <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">Tenant</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">Plan</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">Estado</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">Usuarios</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">Cursos</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">MRR</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tenants.map((tenant, idx) => (
-                <tr key={tenant.id} className={`hover:bg-muted/20 transition-colors ${idx < tenants.length - 1 ? 'border-b border-muted/20' : ''}`}>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">{tenant.name.charAt(0)}</span>
-                      </div>
-                      <div>
-                        <p className="text-foreground font-medium">{tenant.name}</p>
-                        <p className="text-muted-foreground text-sm">{tenant.slug}.akademate.com</p>
-                      </div>
+          <Link
+            href="/dashboard/tenants"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <UserPlus className="h-4 w-4" />
+            Nuevo tenant
+          </Link>
+        </CardHeader>
+        <DataTable>
+          <DataTableHeader>
+            <DataTableRow>
+              <DataTableHead>Tenant</DataTableHead>
+              <DataTableHead>Plan</DataTableHead>
+              <DataTableHead>Estado</DataTableHead>
+              <DataTableHead align="right">Usuarios</DataTableHead>
+              <DataTableHead align="right">Cursos</DataTableHead>
+              <DataTableHead align="right">MRR</DataTableHead>
+            </DataTableRow>
+          </DataTableHeader>
+          <DataTableBody>
+            {tenants.map((tenant) => (
+              <DataTableRow key={tenant.id}>
+                <DataTableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-gradient-to-br from-primary to-cyan-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                      {tenant.name.charAt(0)}
                     </div>
-                  </td>
-                  <td className="px-6 py-4">{getPlanBadge(tenant.plan)}</td>
-                  <td className="px-6 py-4">{getStatusBadge(tenant.status)}</td>
-                  <td className="px-6 py-4 text-foreground">{tenant.usersCount}</td>
-                  <td className="px-6 py-4 text-foreground">{tenant.coursesCount}</td>
-                  <td className="px-6 py-4">
-                    <span className={`font-medium ${tenant.mrr > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}>
-                      {tenant.mrr > 0 ? `$${tenant.mrr}/mo` : 'Trial'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                    <div>
+                      <p className="text-foreground font-medium">{tenant.name}</p>
+                      <p className="text-muted-foreground text-xs">{tenant.slug}.akademate.com</p>
+                    </div>
+                  </div>
+                </DataTableCell>
+                <DataTableCell>
+                  <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${planStyles[tenant.plan]}`}>
+                    {tenant.plan.charAt(0).toUpperCase() + tenant.plan.slice(1)}
+                  </span>
+                </DataTableCell>
+                <DataTableCell>
+                  <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${statusStyles[tenant.status].bg} ${statusStyles[tenant.status].text}`}>
+                    {statusStyles[tenant.status].label}
+                  </span>
+                </DataTableCell>
+                <DataTableCell align="right" numeric>
+                  {tenant.usersCount}
+                </DataTableCell>
+                <DataTableCell align="right" numeric>
+                  {tenant.coursesCount}
+                </DataTableCell>
+                <DataTableCell align="right" numeric>
+                  <span className={tenant.mrr > 0 ? 'text-success font-semibold' : 'text-muted-foreground'}>
+                    {tenant.mrr > 0 ? `$${tenant.mrr}` : 'Trial'}
+                  </span>
+                </DataTableCell>
+              </DataTableRow>
+            ))}
+          </DataTableBody>
+        </DataTable>
+      </Card>
     </div>
   )
 }
