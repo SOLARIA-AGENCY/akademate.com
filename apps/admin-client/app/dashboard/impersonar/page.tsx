@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { PageHeader } from '@/components/page-header';
+import { MockDataBanner } from '@/components/mock-data-banner';
 
 interface Tenant {
   id: string;
@@ -93,14 +95,14 @@ export default function ImpersonarPage() {
       active: 'bg-green-500',
       trial: 'bg-yellow-500',
       suspended: 'bg-red-500',
-      cancelled: 'bg-slate-500',
+      cancelled: 'bg-muted',
     };
     return colors[status];
   };
 
   const getPlanBadge = (plan: Tenant['plan']) => {
     const styles = {
-      starter: 'bg-slate-600 text-slate-200',
+      starter: 'bg-muted text-foreground',
       professional: 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30',
       enterprise: 'bg-purple-600/20 text-purple-400 border border-purple-500/30',
     };
@@ -109,19 +111,12 @@ export default function ImpersonarPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Impersonar Tenant</h1>
-          <p className="text-slate-400 mt-1">Accede al dashboard de Payload CMS como administrador del tenant</p>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-          <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-          </svg>
-          <span className="text-amber-500 text-sm font-medium">Modo Super Admin</span>
-        </div>
-      </div>
+      <PageHeader
+        title="Impersonar Tenant"
+        description="Accede al dashboard de Payload CMS como administrador del tenant"
+      >
+        <MockDataBanner message="Modo Super Admin" />
+      </PageHeader>
 
       {/* Warning Banner */}
       <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
@@ -143,7 +138,7 @@ export default function ImpersonarPage() {
 
       {/* Search */}
       <div className="relative">
-        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
@@ -151,7 +146,7 @@ export default function ImpersonarPage() {
           placeholder="Buscar por nombre, slug o email del admin..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="w-full pl-12 pr-4 py-3 bg-muted/50 border border-muted/30 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
       </div>
 
@@ -160,16 +155,16 @@ export default function ImpersonarPage() {
         {filteredTenants.map((tenant) => (
           <div
             key={tenant.id}
-            className="bg-slate-800/50 backdrop-blur border border-slate-700/50 rounded-xl p-5 hover:border-indigo-500/50 transition-all"
+            className="bg-muted/50 backdrop-blur border border-muted/30/50 rounded-xl p-5 hover:border-indigo-500/50 transition-all"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">{tenant.name.charAt(0)}</span>
+                  <span className="text-foreground font-bold text-lg">{tenant.name.charAt(0)}</span>
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold">{tenant.name}</h3>
-                  <p className="text-slate-500 text-sm">{tenant.slug}.akademate.com</p>
+                  <h3 className="text-foreground font-semibold">{tenant.name}</h3>
+                  <p className="text-muted-foreground text-sm">{tenant.slug}.akademate.com</p>
                 </div>
               </div>
               <div className={`w-3 h-3 rounded-full ${getStatusColor(tenant.status)}`} title={tenant.status}></div>
@@ -177,29 +172,29 @@ export default function ImpersonarPage() {
 
             <div className="space-y-3 mb-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Plan</span>
+                <span className="text-muted-foreground">Plan</span>
                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${getPlanBadge(tenant.plan)}`}>
                   {tenant.plan.charAt(0).toUpperCase() + tenant.plan.slice(1)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Admin</span>
-                <span className="text-slate-300">{tenant.adminEmail}</span>
+                <span className="text-muted-foreground">Admin</span>
+                <span className="text-foreground">{tenant.adminEmail}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Usuarios</span>
-                <span className="text-slate-300">{tenant.usersCount}</span>
+                <span className="text-muted-foreground">Usuarios</span>
+                <span className="text-foreground">{tenant.usersCount}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Ultimo acceso</span>
-                <span className="text-slate-300">{tenant.lastAccess}</span>
+                <span className="text-muted-foreground">Ultimo acceso</span>
+                <span className="text-foreground">{tenant.lastAccess}</span>
               </div>
             </div>
 
             <div className="space-y-2">
               <button
                 onClick={() => handleImpersonate(tenant, 'dashboard')}
-                className="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                className="w-full px-4 py-2.5 bg-indigo-600 text-foreground rounded-lg hover:bg-indigo-500 transition-colors text-sm font-medium flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
@@ -208,7 +203,7 @@ export default function ImpersonarPage() {
               </button>
               <button
                 onClick={() => handleImpersonate(tenant, 'payload')}
-                className="w-full px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-500 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                className="w-full px-4 py-2.5 bg-orange-600 text-foreground rounded-lg hover:bg-orange-500 transition-colors text-sm font-medium flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
@@ -223,16 +218,16 @@ export default function ImpersonarPage() {
       {/* Impersonation Confirmation Modal */}
       {selectedTenant && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div className="glass-panel border border-muted/30 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
             {!isImpersonating ? (
               <>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-xl">{selectedTenant.name.charAt(0)}</span>
+                    <span className="text-foreground font-bold text-xl">{selectedTenant.name.charAt(0)}</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white">{selectedTenant.name}</h3>
-                    <p className="text-slate-400 text-sm">{selectedTenant.slug}.akademate.com</p>
+                    <h3 className="text-xl font-bold text-foreground">{selectedTenant.name}</h3>
+                    <p className="text-muted-foreground text-sm">{selectedTenant.slug}.akademate.com</p>
                   </div>
                 </div>
 
@@ -245,10 +240,10 @@ export default function ImpersonarPage() {
                   {accessType === 'payload' ? 'Acceso Payload Admin (Base de Datos)' : 'Acceso Dashboard CMS'}
                 </div>
 
-                <div className="bg-slate-900/50 rounded-xl p-4 mb-6">
-                  <h4 className="text-white font-medium mb-3">Acceso que obtendras:</h4>
+                <div className="bg-muted/20/50 rounded-xl p-4 mb-6">
+                  <h4 className="text-foreground font-medium mb-3">Acceso que obtendras:</h4>
                   {accessType === 'payload' ? (
-                    <ul className="space-y-2 text-sm text-slate-300">
+                    <ul className="space-y-2 text-sm text-foreground">
                       <li className="flex items-center gap-2">
                         <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -281,7 +276,7 @@ export default function ImpersonarPage() {
                       </li>
                     </ul>
                   ) : (
-                    <ul className="space-y-2 text-sm text-slate-300">
+                    <ul className="space-y-2 text-sm text-foreground">
                       <li className="flex items-center gap-2">
                         <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -313,13 +308,13 @@ export default function ImpersonarPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setSelectedTenant(null)}
-                    className="flex-1 px-4 py-3 bg-slate-700 text-white rounded-xl hover:bg-slate-600 transition-colors font-medium"
+                    className="flex-1 px-4 py-3 bg-muted/50 text-foreground rounded-xl hover:bg-muted transition-colors font-medium"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={confirmImpersonate}
-                    className={`flex-1 px-4 py-3 text-white rounded-xl transition-colors font-medium flex items-center justify-center gap-2 ${
+                    className={`flex-1 px-4 py-3 text-foreground rounded-xl transition-colors font-medium flex items-center justify-center gap-2 ${
                       accessType === 'payload'
                         ? 'bg-orange-600 hover:bg-orange-500'
                         : 'bg-indigo-600 hover:bg-indigo-500'
@@ -340,8 +335,8 @@ export default function ImpersonarPage() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Iniciando sesion...</h3>
-                <p className="text-slate-400">Accediendo como admin de {selectedTenant.name}</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">Iniciando sesion...</h3>
+                <p className="text-muted-foreground">Accediendo como admin de {selectedTenant.name}</p>
               </div>
             )}
           </div>
@@ -349,8 +344,8 @@ export default function ImpersonarPage() {
       )}
 
       {/* Info Panel */}
-      <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-5">
-        <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+      <div className="glass-panel/30 border border-muted/30/50 rounded-xl p-5">
+        <h3 className="text-foreground font-semibold mb-3 flex items-center gap-2">
           <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -362,8 +357,8 @@ export default function ImpersonarPage() {
               <span className="text-indigo-400 font-bold">1</span>
             </div>
             <div>
-              <p className="text-white font-medium">Selecciona tenant</p>
-              <p className="text-slate-400">Elige la academia a la que quieres acceder</p>
+              <p className="text-foreground font-medium">Selecciona tenant</p>
+              <p className="text-muted-foreground">Elige la academia a la que quieres acceder</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
@@ -371,8 +366,8 @@ export default function ImpersonarPage() {
               <span className="text-indigo-400 font-bold">2</span>
             </div>
             <div>
-              <p className="text-white font-medium">Confirma acceso</p>
-              <p className="text-slate-400">Se generara un token temporal de acceso</p>
+              <p className="text-foreground font-medium">Confirma acceso</p>
+              <p className="text-muted-foreground">Se generara un token temporal de acceso</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
@@ -380,8 +375,8 @@ export default function ImpersonarPage() {
               <span className="text-indigo-400 font-bold">3</span>
             </div>
             <div>
-              <p className="text-white font-medium">Accede al CMS</p>
-              <p className="text-slate-400">Payload CMS se abrira en nueva pestana</p>
+              <p className="text-foreground font-medium">Accede al CMS</p>
+              <p className="text-muted-foreground">Payload CMS se abrira en nueva pestana</p>
             </div>
           </div>
         </div>

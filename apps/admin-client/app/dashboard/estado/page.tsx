@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { PageHeader } from '@/components/page-header';
+import { MockDataBanner } from '@/components/mock-data-banner';
 
 interface ServiceStatus {
   name: string;
@@ -228,13 +230,12 @@ export default function EstadoPage() {
 
   return (
     <>
-      {/* Mock Data Indicator */}
-      <div className="mb-4 px-3 py-2 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center gap-2">
-        <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-        </svg>
-        <span className="text-amber-500 text-sm font-medium">Mock Data - Desarrollo</span>
-      </div>
+      <PageHeader
+        title="Estado del Sistema"
+        description="Monitorea el estado de todos los servicios de la plataforma"
+      >
+        <MockDataBanner />
+      </PageHeader>
 
       {/* Overall Status Banner */}
       <div className={`mb-6 p-6 rounded-xl border ${
@@ -255,13 +256,13 @@ export default function EstadoPage() {
                 {overallStatus === 'operational' ? 'Todos los sistemas operativos' :
                  overallStatus === 'degraded' ? 'Algunos sistemas degradados' : 'Interrupciones detectadas'}
               </h2>
-              <p className="text-slate-400 text-sm">
+              <p className="text-muted-foreground text-sm">
                 {operationalCount}/{services.length} servicios operativos
               </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 text-sm text-slate-300">
+            <label className="flex items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
                 checked={autoRefresh}
@@ -271,8 +272,8 @@ export default function EstadoPage() {
               Auto-actualizar
             </label>
             <div className="text-right">
-              <p className="text-slate-500 text-xs">Última actualización</p>
-              <p className="text-slate-300 text-sm">{formatDate(lastUpdate)}</p>
+              <p className="text-muted-foreground text-xs">Última actualización</p>
+              <p className="text-foreground text-sm">{formatDate(lastUpdate)}</p>
             </div>
           </div>
         </div>
@@ -281,13 +282,13 @@ export default function EstadoPage() {
       {/* System Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
         {metrics.map((metric) => (
-          <div key={metric.name} className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-            <p className="text-slate-400 text-xs mb-2">{metric.name}</p>
+          <div key={metric.name} className="glass-panel p-4 rounded-xl border border-muted/30">
+            <p className="text-muted-foreground text-xs mb-2">{metric.name}</p>
             <div className="flex items-end gap-1">
-              <span className="text-2xl font-bold text-white">{metric.value}</span>
-              {metric.unit && <span className="text-slate-400 text-sm mb-1">{metric.unit}</span>}
+              <span className="text-2xl font-bold text-foreground">{metric.value}</span>
+              {metric.unit && <span className="text-muted-foreground text-sm mb-1">{metric.unit}</span>}
             </div>
-            <div className="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
+            <div className="mt-2 h-2 bg-muted/50 rounded-full overflow-hidden">
               <div
                 className={`h-full ${getMetricColor(metric)} transition-all`}
                 style={{ width: `${(metric.value / metric.max) * 100}%` }}
@@ -300,24 +301,24 @@ export default function EstadoPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Services Status */}
         <div className="lg:col-span-2">
-          <div className="bg-slate-800 rounded-xl border border-slate-700">
-            <div className="p-4 border-b border-slate-700">
-              <h3 className="text-lg font-semibold text-white">Estado de Servicios</h3>
+          <div className="glass-panel rounded-xl border border-muted/30">
+            <div className="p-4 border-b border-muted/30">
+              <h3 className="text-lg font-semibold text-foreground">Estado de Servicios</h3>
             </div>
-            <div className="divide-y divide-slate-700">
+            <div className="divide-y divide-muted/20">
               {services.map((service) => (
                 <div key={service.name} className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className={`w-3 h-3 rounded-full ${getStatusColor(service.status)}`}></div>
                     <div>
-                      <p className="text-white font-medium">{service.name}</p>
-                      <p className="text-slate-400 text-sm">{service.details}</p>
+                      <p className="text-foreground font-medium">{service.name}</p>
+                      <p className="text-muted-foreground text-sm">{service.details}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
                     {service.latency !== null && (
                       <div className="text-right">
-                        <p className="text-slate-500 text-xs">Latencia</p>
+                        <p className="text-muted-foreground text-xs">Latencia</p>
                         <p className={`text-sm font-medium ${
                           service.latency < 100 ? 'text-green-400' :
                           service.latency < 500 ? 'text-yellow-400' : 'text-red-400'
@@ -327,7 +328,7 @@ export default function EstadoPage() {
                       </div>
                     )}
                     <div className="text-right">
-                      <p className="text-slate-500 text-xs">Uptime</p>
+                      <p className="text-muted-foreground text-xs">Uptime</p>
                       <p className={`text-sm font-medium ${
                         service.uptime >= 99.9 ? 'text-green-400' :
                         service.uptime >= 99 ? 'text-yellow-400' : 'text-red-400'
@@ -352,17 +353,17 @@ export default function EstadoPage() {
 
         {/* Incidents */}
         <div>
-          <div className="bg-slate-800 rounded-xl border border-slate-700">
-            <div className="p-4 border-b border-slate-700">
-              <h3 className="text-lg font-semibold text-white">Incidentes Recientes</h3>
+          <div className="glass-panel rounded-xl border border-muted/30">
+            <div className="p-4 border-b border-muted/30">
+              <h3 className="text-lg font-semibold text-foreground">Incidentes Recientes</h3>
             </div>
-            <div className="divide-y divide-slate-700">
+            <div className="divide-y divide-muted/20">
               {incidents.length === 0 ? (
                 <div className="p-6 text-center">
                   <svg className="w-12 h-12 text-green-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <p className="text-slate-400">Sin incidentes activos</p>
+                  <p className="text-muted-foreground">Sin incidentes activos</p>
                 </div>
               ) : (
                 incidents.map((incident) => (
@@ -371,15 +372,15 @@ export default function EstadoPage() {
                       {getIncidentStatusBadge(incident.status)}
                       {getSeverityBadge(incident.severity)}
                     </div>
-                    <h4 className="text-white font-medium mb-1">{incident.title}</h4>
-                    <p className="text-slate-400 text-sm mb-2">{incident.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <h4 className="text-foreground font-medium mb-1">{incident.title}</h4>
+                    <p className="text-muted-foreground text-sm mb-2">{incident.description}</p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>Inicio: {formatDate(incident.createdAt)}</span>
                       <span>Actualizado: {formatDate(incident.updatedAt)}</span>
                     </div>
                     <div className="flex gap-1 mt-2">
                       {incident.affectedServices.map((service) => (
-                        <span key={service} className="px-2 py-0.5 bg-slate-700 text-slate-300 text-xs rounded">
+                        <span key={service} className="px-2 py-0.5 bg-muted/50 text-foreground text-xs rounded">
                           {service}
                         </span>
                       ))}
@@ -391,10 +392,10 @@ export default function EstadoPage() {
           </div>
 
           {/* Uptime History */}
-          <div className="bg-slate-800 rounded-xl border border-slate-700 mt-6">
-            <div className="p-4 border-b border-slate-700">
-              <h3 className="text-lg font-semibold text-white">Historial de Disponibilidad</h3>
-              <p className="text-slate-400 text-sm">Últimos 30 días</p>
+          <div className="glass-panel rounded-xl border border-muted/30 mt-6">
+            <div className="p-4 border-b border-muted/30">
+              <h3 className="text-lg font-semibold text-foreground">Historial de Disponibilidad</h3>
+              <p className="text-muted-foreground text-sm">Últimos 30 días</p>
             </div>
             <div className="p-4">
               <div className="flex gap-0.5">
@@ -410,22 +411,22 @@ export default function EstadoPage() {
                   );
                 })}
               </div>
-              <div className="flex justify-between mt-2 text-xs text-slate-500">
+              <div className="flex justify-between mt-2 text-xs text-muted-foreground">
                 <span>30 días atrás</span>
                 <span>Hoy</span>
               </div>
               <div className="mt-4 flex items-center justify-center gap-6 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded bg-green-500"></div>
-                  <span className="text-slate-400">Operativo</span>
+                  <span className="text-muted-foreground">Operativo</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded bg-yellow-500"></div>
-                  <span className="text-slate-400">Degradado</span>
+                  <span className="text-muted-foreground">Degradado</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded bg-red-500"></div>
-                  <span className="text-slate-400">Fuera de servicio</span>
+                  <span className="text-muted-foreground">Fuera de servicio</span>
                 </div>
               </div>
             </div>
@@ -434,15 +435,15 @@ export default function EstadoPage() {
       </div>
 
       {/* Response Times Chart Placeholder */}
-      <div className="mt-6 bg-slate-800 rounded-xl border border-slate-700 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Tiempos de Respuesta (24h)</h3>
-        <div className="h-48 flex items-center justify-center bg-slate-750 rounded-lg">
+      <div className="mt-6 glass-panel rounded-xl border border-muted/30 p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Tiempos de Respuesta (24h)</h3>
+        <div className="h-48 flex items-center justify-center bg-muted/30 rounded-lg">
           <div className="text-center">
-            <svg className="w-12 h-12 text-slate-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-12 h-12 text-muted-foreground mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <p className="text-slate-400">Gráfico de tiempos de respuesta</p>
-            <p className="text-slate-500 text-sm">Próximamente con Recharts</p>
+            <p className="text-muted-foreground">Gráfico de tiempos de respuesta</p>
+            <p className="text-muted-foreground text-sm">Próximamente con Recharts</p>
           </div>
         </div>
       </div>
