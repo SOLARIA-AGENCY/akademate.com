@@ -72,6 +72,8 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
   # Config de ejemplo (Claude/Codex):
   # "mcpServers": { "solaria-dashboard": { "command": "pnpm", "args": ["-C", "/Users/carlosjperez/Documents/GitHub/akademate.com", "mcp:dfo"] } }
   ```
+- MCP UI (opcional, navegación/playwright): `pnpm mcp:playwright` (servidor MCP headless para abrir dashboard/health).
+- Smoke UI/ API con Playwright: `pnpm test:ui:dfo` (requiere oficina corriendo en http://localhost:3030).
 
 ## Próximos pasos sugeridos
 1) Inicializar configuraciones base (TS, ESLint/Prettier, Tailwind v4/PostCSS) por app.

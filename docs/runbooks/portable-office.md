@@ -56,6 +56,10 @@ Lee `docs/PROJECT_MILESTONES.md` y la spec para registrar proyecto/tareas/métri
    ```bash
    nohup pnpm exec mcp-server-playwright --port 8793 --headless --host 127.0.0.1 >/tmp/mcp-playwright.log 2>&1 &
    ```
+3) Smoke UI/API con Playwright (oficina corriendo en :3030):  
+   ```bash
+   pnpm test:ui:dfo
+   ```
 
 ## Apagar y desmontar
 ```bash
