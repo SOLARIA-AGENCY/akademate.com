@@ -1000,7 +1000,9 @@ class SolariaDashboard {
         if (!container) return;
         if (this.agentsData.length === 0) await this.fetchAgents();
 
-        container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${this.agentsData.map(agent => this.renderAgentCard(agent)).join('')}</div>`;
+        // Update container classes for responsive grid (don't nest grids)
+        container.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+        container.innerHTML = this.agentsData.map(agent => this.renderAgentCard(agent)).join('');
     }
 
     renderAgentCard(agent) {
