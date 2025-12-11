@@ -122,9 +122,9 @@ function DashboardCard({ dashboard }: { dashboard: DashboardItem }) {
         colors.border,
         "hover:bg-slate-800/80"
       )}>
-        <CardHeader className="relative pb-4">
+        <CardHeader className="relative pb-6 p-8">
           {/* Status indicator */}
-          <div className="absolute right-6 top-6">
+          <div className="absolute right-8 top-8">
             <span
               className={cn(
                 "inline-block h-2.5 w-2.5 rounded-full",
@@ -137,21 +137,21 @@ function DashboardCard({ dashboard }: { dashboard: DashboardItem }) {
 
           {/* Icon */}
           <div className={cn(
-            "mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110",
+            "mb-6 inline-flex h-16 w-16 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110",
             colors.bg
           )}>
-            <Icon className={cn("h-7 w-7", colors.icon)} />
+            <Icon className={cn("h-8 w-8", colors.icon)} />
           </div>
 
-          <CardTitle className="text-lg">{dashboard.title}</CardTitle>
+          <CardTitle className="text-xl mb-3">{dashboard.title}</CardTitle>
         </CardHeader>
 
-        <CardContent className="flex-1">
-          <CardDescription>{dashboard.description}</CardDescription>
+        <CardContent className="flex-1 px-8 pb-8">
+          <CardDescription className="text-base leading-relaxed">{dashboard.description}</CardDescription>
         </CardContent>
 
-        <CardFooter className="border-t border-slate-700/50 pt-4 mt-auto justify-between">
-          <span className={cn("rounded-full px-3 py-1.5 text-xs font-semibold", colors.badge)}>
+        <CardFooter className="border-t border-slate-700/50 pt-6 pb-8 px-8 mt-auto justify-between">
+          <span className={cn("rounded-full px-4 py-2 text-xs font-semibold", colors.badge)}>
             localhost:{dashboard.port}
           </span>
           <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-cyan-300">
@@ -168,17 +168,17 @@ export default function PortalPage() {
   const DevToolIcon = devTools.icon
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-transparent p-8 sm:p-12 lg:p-16 xl:p-20">
-      <div className="mx-auto flex w-full max-w-screen-xl flex-col items-center">
+    <div className="flex min-h-screen w-full items-center justify-center bg-transparent p-8 sm:p-12 lg:p-16 xl:p-24">
+      <div className="mx-auto flex w-full max-w-screen-2xl flex-col items-center py-16">
         {/* Header */}
-        <header className="mb-16 w-full text-center">
-          <div className="mb-8 flex justify-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-5 py-2.5 backdrop-blur-sm">
+        <header className="mb-24 w-full text-center">
+          <div className="mb-12 flex justify-center">
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-6 py-3 backdrop-blur-sm">
               <Sparkles className="h-4 w-4 text-cyan-300" />
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Development Portal</span>
             </div>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl">
             <span className="bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent uppercase tracking-wider">
               WWW.AKADEMATE.COM
             </span>
@@ -186,8 +186,8 @@ export default function PortalPage() {
         </header>
 
         {/* Main Dashboards Grid - 2x2 */}
-        <section className="w-full">
-          <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 xl:gap-10">
+        <section className="w-full mb-24">
+          <div className="grid w-full grid-cols-1 gap-12 md:grid-cols-2 xl:gap-16">
             {mainDashboards.map((dashboard) => (
               <DashboardCard key={dashboard.title} dashboard={dashboard} />
             ))}
@@ -195,16 +195,16 @@ export default function PortalPage() {
         </section>
 
         {/* Divider */}
-        <div className="my-16 w-full">
+        <div className="my-24 w-full">
           <div className="mx-auto h-px w-full max-w-md bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
         </div>
 
         {/* Development Tools Section */}
-        <section className="w-full">
-          <h3 className="mb-8 text-center text-xs font-semibold uppercase tracking-[0.25em] text-orange-400/80">
+        <section className="w-full mb-24">
+          <h3 className="mb-12 text-center text-xs font-semibold uppercase tracking-[0.25em] text-orange-400/80">
             Herramientas de Desarrollo
           </h3>
-          <div className="mx-auto max-w-xl">
+          <div className="mx-auto max-w-2xl">
             <a
               href={devTools.href}
               target="_blank"
@@ -216,28 +216,28 @@ export default function PortalPage() {
                 devToolColors.border,
                 "hover:bg-slate-800/80"
               )}>
-                <CardHeader className="relative">
+                <CardHeader className="relative p-10 pb-8">
                   {/* Status indicator */}
-                  <div className="absolute right-6 top-6">
+                  <div className="absolute right-10 top-10">
                     <span className="inline-block h-2.5 w-2.5 rounded-full bg-slate-500" />
                   </div>
 
-                  <div className="flex items-start gap-5">
+                  <div className="flex items-start gap-6">
                     <div className={cn(
-                      "inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110",
+                      "inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110",
                       devToolColors.bg
                     )}>
-                      <DevToolIcon className={cn("h-6 w-6", devToolColors.icon)} />
+                      <DevToolIcon className={cn("h-7 w-7", devToolColors.icon)} />
                     </div>
                     <div className="flex-1 pt-1">
-                      <CardTitle className="text-base mb-2">{devTools.title}</CardTitle>
-                      <CardDescription>{devTools.description}</CardDescription>
+                      <CardTitle className="text-lg mb-4">{devTools.title}</CardTitle>
+                      <CardDescription className="text-base leading-relaxed">{devTools.description}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
 
-                <CardFooter className="border-t border-slate-700/50 pt-4 justify-between">
-                  <span className={cn("rounded-full px-3 py-1.5 text-xs font-semibold", devToolColors.badge)}>
+                <CardFooter className="border-t border-slate-700/50 pt-6 pb-10 px-10 justify-between">
+                  <span className={cn("rounded-full px-4 py-2 text-xs font-semibold", devToolColors.badge)}>
                     localhost:{devTools.port}
                   </span>
                   <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-orange-300">
@@ -250,8 +250,8 @@ export default function PortalPage() {
         </section>
 
         {/* Footer */}
-        <footer className="mt-24 w-full text-center">
-          <div className="mx-auto mb-6 h-px w-full max-w-lg bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+        <footer className="mt-32 w-full text-center pb-12">
+          <div className="mx-auto mb-10 h-px w-full max-w-lg bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.15em] text-slate-500">
             <span>Next.js 15</span>
             <span className="text-slate-700">•</span>
@@ -263,7 +263,7 @@ export default function PortalPage() {
             <span className="text-slate-700">•</span>
             <span>pnpm workspaces</span>
           </div>
-          <p className="mt-4 text-sm font-semibold tracking-[0.2em] text-cyan-400">SOLARIA AGENCY</p>
+          <p className="mt-6 text-sm font-semibold tracking-[0.2em] text-cyan-400">SOLARIA AGENCY</p>
         </footer>
       </div>
     </div>
