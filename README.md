@@ -10,14 +10,15 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
 - UI Kit de referencia: `https://github.com/SOLARIA-AGENCY/Academate-ui`
 - Referencia visual/funcional CEP: `https://github.com/SOLARIA-AGENCY/www.cepcomunicacion.com`
 
-## Estructura propuesta
+## Estructura actual
 ```
 /
 ├─ apps/
-│  ├─ ops/             # Dashboard global
-│  ├─ admin-client/    # Dashboard cliente
-│  ├─ campus/          # Campus alumno
-│  └─ payload/         # Next + Payload API
+│  ├─ portal/          # Portal desarrollo (localhost:3008) - Acceso a todos los dashboards
+│  ├─ admin-client/    # Akademate Admin SaaS (localhost:3004) - Gestión multitenant
+│  ├─ tenant-admin/    # Dashboard Cliente (localhost:3009) - Gestión academias (CEP template)
+│  ├─ campus/          # Campus alumno (localhost:3005)
+│  └─ payload/         # Next + Payload API (localhost:3003)
 ├─ packages/
 │  ├─ db/              # Drizzle schema/migrations/seeds
 │  ├─ types/           # TS + zod
@@ -75,11 +76,38 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
 - MCP UI (opcional, navegación/playwright): `pnpm mcp:playwright` (servidor MCP headless para abrir dashboard/health).
 - Smoke UI/ API con Playwright: `pnpm test:ui:dfo` (requiere oficina corriendo en http://localhost:3030).
 
+## Dashboards disponibles
+
+| Dashboard | Puerto | URL | Descripción |
+|-----------|--------|-----|-------------|
+| Portal | 3008 | http://localhost:3008 | Centro de acceso a todos los dashboards |
+| Akademate Admin | 3004 | http://localhost:3004 | Dashboard SaaS multitenant (gestión negocio) |
+| Tenant Admin | 3009 | http://localhost:3009 | Dashboard cliente/academias (template CEP) |
+| Payload CMS | 3003 | http://localhost:3003/admin | Backoffice y API |
+| Campus Virtual | 3005 | http://localhost:3005 | Portal del alumno |
+| SOLARIA DFO | 3030 | http://localhost:3030 | Digital Field Operations |
+
+## Arranque desarrollo
+```bash
+# Instalar dependencias
+pnpm install
+
+# Levantar todos los dashboards
+pnpm dev
+
+# O individualmente:
+pnpm --filter @akademate/portal dev      # Portal :3008
+pnpm --filter @akademate/admin-client dev # Admin :3004
+pnpm --filter @akademate/tenant-admin dev # Tenant :3009
+pnpm --filter @akademate/payload dev      # Payload :3003
+pnpm --filter @akademate/campus dev       # Campus :3005
+```
+
 ## Próximos pasos sugeridos
-1) Inicializar configuraciones base (TS, ESLint/Prettier, Tailwind v4/PostCSS) por app.
-2) Crear packages compartidos (db/types/ui/api-client/jobs) siguiendo la spec.
-3) Definir ADRs iniciales (multitenancy, auth, storage, UI kit).
-4) Configurar CI/CD (GitHub Actions) y plantillas de Docker.
+1) Personalización de branding por tenant (ver `apps/tenant-admin/BRANDING_CUSTOMIZATION_ROADMAP.md`)
+2) Definir ADRs iniciales (multitenancy, auth, storage, UI kit)
+3) Configurar CI/CD (GitHub Actions) y plantillas de Docker
+4) Integración completa Payload <-> Tenant Admin
 
 ## Nota Codex / Limpieza
 - Aviso de snapshot: evitar arrastrar directorios voluminosos sin seguimiento (ej. `apps/cms/@payload-config/components/ui/`) para no ralentizar el análisis; añádelos al `.gitignore` si aparecen en futuros módulos.

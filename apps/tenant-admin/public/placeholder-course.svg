@@ -1,0 +1,33 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:rgb(66,133,244);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(52,109,219);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#grad1)"/>
+
+  <!-- Icon (Book) -->
+  <g transform="translate(300, 200)">
+    <rect x="0" y="0" width="200" height="160" rx="10" fill="white" opacity="0.2"/>
+    <rect x="10" y="10" width="180" height="140" rx="8" fill="white" opacity="0.3"/>
+    <line x1="100" y1="30" x2="100" y2="140" stroke="white" stroke-width="4" opacity="0.5"/>
+    <line x1="50" y1="60" x2="90" y2="60" stroke="white" stroke-width="3" opacity="0.4"/>
+    <line x1="110" y1="60" x2="150" y2="60" stroke="white" stroke-width="3" opacity="0.4"/>
+    <line x1="50" y1="90" x2="90" y2="90" stroke="white" stroke-width="3" opacity="0.4"/>
+    <line x1="110" y1="90" x2="150" y2="90" stroke="white" stroke-width="3" opacity="0.4"/>
+    <line x1="50" y1="120" x2="90" y2="120" stroke="white" stroke-width="3" opacity="0.4"/>
+    <line x1="110" y1="120" x2="150" y2="120" stroke="white" stroke-width="3" opacity="0.4"/>
+  </g>
+
+  <!-- Text -->
+  <text x="400" y="420" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle" opacity="0.9">
+    Curso de Formación
+  </text>
+  <text x="400" y="460" font-family="Arial, sans-serif" font-size="20" fill="white" text-anchor="middle" opacity="0.7">
+    Imagen no disponible
+  </text>
+</svg>

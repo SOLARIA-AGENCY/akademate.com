@@ -1,0 +1,1 @@
+{"version":3,"file":"canDeleteLead.js","sourceRoot":"","sources":["canDeleteLead.ts"],"names":[],"mappings":"AAEA;;;;;;;;;;;;;;;;;;;;;;;GAuBG;AACH,MAAM,CAAC,MAAM,aAAa,GAAW,CAAC,EAAE,GAAG,EAAE,EAAE,IAAI,EAAE,EAAE,EAAE,EAAE;IACzD,wBAAwB;IACxB,IAAI,CAAC,IAAI,EAAE,CAAC;QACV,OAAO,KAAK,CAAC;IACf,CAAC;IAED,4DAA4D;IAC5D,OAAO,IAAI,CAAC,IAAI,KAAK,OAAO,CAAC;AAC/B,CAAC,CAAC"}

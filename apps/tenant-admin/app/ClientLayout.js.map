@@ -1,0 +1,1 @@
+{"version":3,"file":"ClientLayout.js","sourceRoot":"","sources":["ClientLayout.tsx"],"names":[],"mappings":"AAAA,YAAY,CAAA;AAEZ,OAAO,EAAE,aAAa,EAAE,MAAM,oDAAoD,CAAA;AAElF,MAAM,UAAU,YAAY,CAAC,EAAE,QAAQ,EAAiC;IACtE,OAAO,CAAC,aAAa,CAAC,CAAC,QAAQ,CAAC,EAAE,aAAa,CAAC,CAAA;AAClD,CAAC"}
