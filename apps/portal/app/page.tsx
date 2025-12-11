@@ -9,8 +9,10 @@ import {
   ExternalLink,
   Sparkles,
 } from 'lucide-react'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
-interface DashboardCard {
+interface DashboardItem {
   title: string
   description: string
   icon: React.ComponentType<{ className?: string }>
@@ -21,7 +23,7 @@ interface DashboardCard {
 }
 
 // Main dashboards (product)
-const mainDashboards: DashboardCard[] = [
+const mainDashboards: DashboardItem[] = [
   {
     title: 'Akademate Admin',
     description: 'Dashboard multitenant SaaS. Gestión completa del negocio: tenants, facturación, suscripciones, soporte y configuración global.',
@@ -61,7 +63,7 @@ const mainDashboards: DashboardCard[] = [
 ]
 
 // Development tools (separate category)
-const devTools: DashboardCard = {
+const devTools: DashboardItem = {
   title: 'SOLARIA DFO',
   description: 'Digital Field Operations. Centro de comando para gestión de desarrollo: agentes AI, monitoreo de proyectos, métricas y automatización.',
   icon: Cog,
@@ -74,42 +76,37 @@ const devTools: DashboardCard = {
 const colorClasses = {
   cyan: {
     border: 'border-cyan-500/30 hover:border-cyan-400/60',
-    bg: 'bg-cyan-500/10',
+    bg: 'bg-cyan-500/15',
     icon: 'text-cyan-400',
     badge: 'bg-cyan-500/20 text-cyan-300',
-    glow: 'hover:shadow-cyan-500/10',
   },
   teal: {
     border: 'border-teal-500/30 hover:border-teal-400/60',
-    bg: 'bg-teal-500/10',
+    bg: 'bg-teal-500/15',
     icon: 'text-teal-400',
     badge: 'bg-teal-500/20 text-teal-300',
-    glow: 'hover:shadow-teal-500/10',
   },
   sky: {
     border: 'border-sky-500/30 hover:border-sky-400/60',
-    bg: 'bg-sky-500/10',
+    bg: 'bg-sky-500/15',
     icon: 'text-sky-400',
     badge: 'bg-sky-500/20 text-sky-300',
-    glow: 'hover:shadow-sky-500/10',
   },
   emerald: {
     border: 'border-emerald-500/30 hover:border-emerald-400/60',
-    bg: 'bg-emerald-500/10',
+    bg: 'bg-emerald-500/15',
     icon: 'text-emerald-400',
     badge: 'bg-emerald-500/20 text-emerald-300',
-    glow: 'hover:shadow-emerald-500/10',
   },
   orange: {
     border: 'border-orange-500/30 hover:border-orange-400/60',
-    bg: 'bg-orange-500/10',
+    bg: 'bg-orange-500/15',
     icon: 'text-orange-400',
     badge: 'bg-orange-500/20 text-orange-300',
-    glow: 'hover:shadow-orange-500/10',
   },
 }
 
-function DashboardCardComponent({ dashboard }: { dashboard: DashboardCard }) {
+function DashboardCard({ dashboard }: { dashboard: DashboardItem }) {
   const colors = colorClasses[dashboard.color]
   const Icon = dashboard.icon
 
@@ -118,40 +115,50 @@ function DashboardCardComponent({ dashboard }: { dashboard: DashboardCard }) {
       href={dashboard.href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`
-        group relative flex h-full min-h-[280px] flex-col rounded-2xl border p-8 lg:p-10
-        shadow-[0_8px_30px_-12px_rgba(0,0,0,0.65)]
-        transition-all duration-250 ease-out
-        ${colors.border} ${colors.glow}
-        bg-slate-900/70 backdrop-blur
-        hover:-translate-y-1 hover:scale-[1.02] hover:bg-slate-800/80
-        focus:outline-none focus:ring-2 focus:ring-cyan-500/60
-      `}
+      className="group block h-full transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02]"
     >
-      <div className="absolute right-6 top-6">
-        <span
-          className={`
-            inline-block h-2.5 w-2.5 rounded-full
-            ${dashboard.status === 'running' ? 'bg-emerald-400 shadow shadow-emerald-400/60 animate-pulse' : ''}
-            ${dashboard.status === 'stopped' ? 'bg-red-400 shadow shadow-red-400/60' : ''}
-            ${dashboard.status === 'unknown' ? 'bg-slate-500' : ''}
-          `}
-        />
-      </div>
+      <Card className={cn(
+        "h-full flex flex-col transition-all duration-300",
+        colors.border,
+        "hover:bg-slate-800/80"
+      )}>
+        <CardHeader className="relative pb-4">
+          {/* Status indicator */}
+          <div className="absolute right-6 top-6">
+            <span
+              className={cn(
+                "inline-block h-2.5 w-2.5 rounded-full",
+                dashboard.status === 'running' && 'bg-emerald-400 shadow shadow-emerald-400/60 animate-pulse',
+                dashboard.status === 'stopped' && 'bg-red-400 shadow shadow-red-400/60',
+                dashboard.status === 'unknown' && 'bg-slate-500'
+              )}
+            />
+          </div>
 
-      <div className={`mb-6 inline-flex h-16 w-16 items-center justify-center rounded-xl ${colors.bg} transition-transform duration-200 group-hover:scale-110`}>
-        <Icon className={`h-8 w-8 ${colors.icon}`} />
-      </div>
+          {/* Icon */}
+          <div className={cn(
+            "mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110",
+            colors.bg
+          )}>
+            <Icon className={cn("h-7 w-7", colors.icon)} />
+          </div>
 
-      <h2 className="mb-3 text-xl font-semibold text-white">{dashboard.title}</h2>
-      <p className="mb-8 flex-1 text-sm leading-relaxed text-slate-400">{dashboard.description}</p>
+          <CardTitle className="text-lg">{dashboard.title}</CardTitle>
+        </CardHeader>
 
-      <div className="mt-auto flex items-center justify-between border-t border-slate-700/50 pt-5">
-        <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${colors.badge}`}>localhost:{dashboard.port}</span>
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-cyan-300">
-          Abrir <ExternalLink className="h-3.5 w-3.5" />
-        </span>
-      </div>
+        <CardContent className="flex-1">
+          <CardDescription>{dashboard.description}</CardDescription>
+        </CardContent>
+
+        <CardFooter className="border-t border-slate-700/50 pt-4 mt-auto justify-between">
+          <span className={cn("rounded-full px-3 py-1.5 text-xs font-semibold", colors.badge)}>
+            localhost:{dashboard.port}
+          </span>
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-cyan-300">
+            Abrir <ExternalLink className="h-3.5 w-3.5" />
+          </span>
+        </CardFooter>
+      </Card>
     </a>
   )
 }
@@ -165,29 +172,24 @@ export default function PortalPage() {
       <div className="mx-auto flex w-full max-w-screen-xl flex-col items-center">
         {/* Header */}
         <header className="mb-16 w-full text-center">
-          <div className="mb-6 flex justify-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 backdrop-blur-sm">
+          <div className="mb-8 flex justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-5 py-2.5 backdrop-blur-sm">
               <Sparkles className="h-4 w-4 text-cyan-300" />
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Development Portal</span>
             </div>
           </div>
-          <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            <span className="bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent">
-              www.akademate.com
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+            <span className="bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent uppercase tracking-wider">
+              WWW.AKADEMATE.COM
             </span>
           </h1>
-          <p className="mx-auto max-w-2xl text-center text-base leading-relaxed text-slate-400 sm:text-lg">
-            Centro de control y acceso directo a todos los dashboards del proyecto.
-            <br className="hidden sm:block" />
-            Selecciona un módulo para comenzar.
-          </p>
         </header>
 
         {/* Main Dashboards Grid - 2x2 */}
         <section className="w-full">
-          <div className="grid w-full grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 xl:gap-10">
+          <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 xl:gap-10">
             {mainDashboards.map((dashboard) => (
-              <DashboardCardComponent key={dashboard.title} dashboard={dashboard} />
+              <DashboardCard key={dashboard.title} dashboard={dashboard} />
             ))}
           </div>
         </section>
@@ -202,47 +204,53 @@ export default function PortalPage() {
           <h3 className="mb-8 text-center text-xs font-semibold uppercase tracking-[0.25em] text-orange-400/80">
             Herramientas de Desarrollo
           </h3>
-          <div className="mx-auto max-w-lg">
+          <div className="mx-auto max-w-xl">
             <a
               href={devTools.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={`
-                group relative flex min-h-[200px] flex-col rounded-2xl border p-8
-                shadow-[0_8px_30px_-12px_rgba(0,0,0,0.65)]
-                transition-all duration-250 ease-out
-                ${devToolColors.border} ${devToolColors.glow}
-                bg-slate-900/70 backdrop-blur
-                hover:-translate-y-1 hover:scale-[1.02] hover:bg-slate-800/80
-                focus:outline-none focus:ring-2 focus:ring-orange-500/60
-              `}
+              className="group block transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02]"
             >
-              <div className="absolute right-6 top-6">
-                <span className="inline-block h-2.5 w-2.5 rounded-full bg-slate-500" />
-              </div>
+              <Card className={cn(
+                "transition-all duration-300",
+                devToolColors.border,
+                "hover:bg-slate-800/80"
+              )}>
+                <CardHeader className="relative">
+                  {/* Status indicator */}
+                  <div className="absolute right-6 top-6">
+                    <span className="inline-block h-2.5 w-2.5 rounded-full bg-slate-500" />
+                  </div>
 
-              <div className="flex items-start gap-6">
-                <div className={`inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${devToolColors.bg} transition-transform duration-200 group-hover:scale-110`}>
-                  <DevToolIcon className={`h-7 w-7 ${devToolColors.icon}`} />
-                </div>
-                <div className="flex-1">
-                  <h2 className="mb-2 text-lg font-semibold text-white">{devTools.title}</h2>
-                  <p className="text-sm leading-relaxed text-slate-400">{devTools.description}</p>
-                </div>
-              </div>
+                  <div className="flex items-start gap-5">
+                    <div className={cn(
+                      "inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110",
+                      devToolColors.bg
+                    )}>
+                      <DevToolIcon className={cn("h-6 w-6", devToolColors.icon)} />
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <CardTitle className="text-base mb-2">{devTools.title}</CardTitle>
+                      <CardDescription>{devTools.description}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
 
-              <div className="mt-auto flex items-center justify-between border-t border-slate-700/50 pt-5">
-                <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${devToolColors.badge}`}>localhost:{devTools.port}</span>
-                <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-orange-300">
-                  Abrir <ExternalLink className="h-3.5 w-3.5" />
-                </span>
-              </div>
+                <CardFooter className="border-t border-slate-700/50 pt-4 justify-between">
+                  <span className={cn("rounded-full px-3 py-1.5 text-xs font-semibold", devToolColors.badge)}>
+                    localhost:{devTools.port}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-orange-300">
+                    Abrir <ExternalLink className="h-3.5 w-3.5" />
+                  </span>
+                </CardFooter>
+              </Card>
             </a>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="mt-20 w-full text-center">
+        <footer className="mt-24 w-full text-center">
           <div className="mx-auto mb-6 h-px w-full max-w-lg bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.15em] text-slate-500">
             <span>Next.js 15</span>
@@ -255,7 +263,7 @@ export default function PortalPage() {
             <span className="text-slate-700">•</span>
             <span>pnpm workspaces</span>
           </div>
-          <p className="mt-4 text-sm font-semibold tracking-[0.18em] text-cyan-400">SOLARIA AGENCY</p>
+          <p className="mt-4 text-sm font-semibold tracking-[0.2em] text-cyan-400">SOLARIA AGENCY</p>
         </footer>
       </div>
     </div>
