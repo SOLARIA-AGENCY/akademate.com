@@ -36,6 +36,43 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
 - pnpm workspaces (`pnpm-workspace.yaml`)
 - Node 22+, pnpm 9+
 
+## Oficina digital de obra (DFO) para seguimiento
+- Ubicación única **dentro de este repo**: `infra/solaria-digital-field--operations` (no clonar fuera).
+- Arranque mínimo (dashboard + MySQL):  
+  ```bash
+  cd infra/solaria-digital-field--operations
+  cp .env.example .env    # solo la primera vez; ya viene uno listo para Akademate.com
+  docker-compose up -d dashboard-backend mysql
+  # Dashboard: http://localhost:3030  (Acceso rápido o carlosjperez / SolariaAdmin2024!)
+  ```
+- Arranque completo (agentes, minio, redis, postgres, nginx):  
+  ```bash
+  docker-compose up -d
+  ```
+- Ingestar progreso de Akademate al dashboard:  
+  ```bash
+  pnpm ingest-akademate
+  ```
+- MCP listo para agentes (Codex/Claude/Gemini CLI):  
+  ```bash
+  # Desde la raíz de akademate.com
+  nohup pnpm exec mcp-server-playwright --port 8793 --headless --host 127.0.0.1 >/tmp/mcp-playwright.log 2>&1 &
+  # Config de cliente:
+  # "mcpServers": { "playwright": { "url": "http://127.0.0.1:8793/mcp" } }
+  ```
+- Modo todo-en-uno (un solo contenedor):  
+  ```bash
+  cd infra/solaria-digital-field--operations
+  docker compose -f docker-compose.single.yml up -d   # arranca MySQL + dashboard en el mismo contenedor
+  ```
+- Desmontar la oficina al cerrar proyecto: `docker-compose down -v` (o con `-f docker-compose.single.yml`).
+- MCP DFO (API completa: proyectos/tareas/alertas/logs):  
+  ```bash
+  pnpm mcp:dfo    # expone MCP por stdio; usar en tu cliente MCP
+  # Config de ejemplo (Claude/Codex):
+  # "mcpServers": { "solaria-dashboard": { "command": "pnpm", "args": ["-C", "/Users/carlosjperez/Documents/GitHub/akademate.com", "mcp:dfo"] } }
+  ```
+
 ## Próximos pasos sugeridos
 1) Inicializar configuraciones base (TS, ESLint/Prettier, Tailwind v4/PostCSS) por app.
 2) Crear packages compartidos (db/types/ui/api-client/jobs) siguiendo la spec.
