@@ -25,8 +25,8 @@ const dashboards: DashboardCard[] = [
     title: 'Akademate Admin',
     description: 'Dashboard multitenant SaaS. Gestión completa del negocio: tenants, facturación, suscripciones, soporte y configuración global.',
     icon: LayoutDashboard,
-    href: 'http://localhost:3004',
-    port: 3004,
+    href: 'http://localhost:3050/dashboard',
+    port: 3050,
     color: 'cyan',
     status: 'running',
   },
@@ -108,29 +108,27 @@ const colorClasses = {
 
 export default function PortalPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-8 py-20 sm:px-12 lg:px-16">
-      <div className="w-full max-w-7xl mx-auto">
+    <div className="flex min-h-screen w-full items-center justify-center bg-transparent p-8 sm:p-12 lg:p-16 xl:p-20">
+      <div className="mx-auto flex w-full max-w-screen-2xl flex-col items-center">
         {/* Header */}
-        <header className="mb-24 text-center">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-5 py-2 backdrop-blur-sm">
-            <Sparkles className="h-4 w-4 text-cyan-400" />
-            <span className="text-sm font-medium tracking-wide text-cyan-300">Development Portal</span>
+        <header className="w-full text-center">
+          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 backdrop-blur-sm">
+            <Sparkles className="h-4 w-4 text-cyan-300" />
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Development portal</span>
           </div>
-          <h1 className="mb-8 text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+          <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
             <span className="bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent">
               www.akademate.com
             </span>
           </h1>
-          <p className="mx-auto mt-8 max-w-2xl text-center text-lg leading-relaxed text-slate-400">
-            Centro de control y acceso directo a todos los dashboards del proyecto.
-            <br className="hidden sm:block" />
-            Selecciona un módulo para comenzar.
+          <p className="mx-auto max-w-3xl text-base text-slate-300 sm:text-lg">
+            Centro de control y acceso directo a todos los dashboards del proyecto. Selecciona un módulo para comenzar.
           </p>
         </header>
 
-        {/* Dashboard Grid */}
-        <div className="mx-auto grid max-w-7xl gap-10 sm:grid-cols-2 lg:grid-cols-3 py-8">
-          {dashboards.map((dashboard) => {
+        {/* Grid - First row: 3 cards */}
+        <div className="mt-16 grid w-full grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3 xl:gap-10">
+          {dashboards.slice(0, 3).map((dashboard) => {
             const colors = colorClasses[dashboard.color]
             const Icon = dashboard.icon
 
@@ -141,75 +139,111 @@ export default function PortalPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`
-                  group relative flex flex-col items-center rounded-2xl border p-10
-                  transition-all duration-300 ease-out
-                  ${colors.border}
-                  bg-slate-900/60 backdrop-blur-sm
-                  hover:bg-slate-800/80 hover:shadow-2xl ${colors.glow}
-                  hover:-translate-y-2 hover:scale-[1.02]
-                  focus:outline-none focus:ring-2 focus:ring-cyan-500/50
+                  group relative flex h-full min-h-[280px] flex-col rounded-2xl border p-8 lg:p-10
+                  shadow-[0_8px_30px_-12px_rgba(0,0,0,0.65)]
+                  transition-all duration-250 ease-out
+                  ${colors.border} ${colors.glow}
+                  bg-slate-900/70 backdrop-blur
+                  hover:-translate-y-1 hover:scale-[1.02] hover:bg-slate-800/80
+                  focus:outline-none focus:ring-2 focus:ring-cyan-500/60
                 `}
               >
-                {/* Status indicator */}
                 <div className="absolute right-6 top-6">
                   <span
                     className={`
                       inline-block h-2.5 w-2.5 rounded-full
-                      ${dashboard.status === 'running' ? 'bg-emerald-400 shadow-lg shadow-emerald-400/50 animate-pulse' : ''}
-                      ${dashboard.status === 'stopped' ? 'bg-red-400 shadow-lg shadow-red-400/50' : ''}
+                      ${dashboard.status === 'running' ? 'bg-emerald-400 shadow shadow-emerald-400/60 animate-pulse' : ''}
+                      ${dashboard.status === 'stopped' ? 'bg-red-400 shadow shadow-red-400/60' : ''}
                       ${dashboard.status === 'unknown' ? 'bg-slate-500' : ''}
                     `}
                   />
                 </div>
 
-                {/* Icon */}
-                <div className={`mb-8 inline-flex h-16 w-16 items-center justify-center rounded-xl ${colors.bg} transition-transform duration-300 group-hover:scale-110`}>
+                <div className={`mb-6 inline-flex h-16 w-16 items-center justify-center rounded-xl ${colors.bg} transition-transform duration-200 group-hover:scale-110`}>
                   <Icon className={`h-8 w-8 ${colors.icon}`} />
                 </div>
 
-                {/* Content */}
-                <h2 className="mb-6 text-center text-xl font-semibold text-white group-hover:text-cyan-50 transition-colors">
-                  {dashboard.title}
-                </h2>
-                <p className="mb-8 flex-1 text-center text-sm leading-relaxed text-slate-400" style={{ lineHeight: '1.8' }}>
-                  {dashboard.description}
-                </p>
+                <h2 className="mb-3 text-xl font-semibold text-white">{dashboard.title}</h2>
+                <p className="mb-8 flex-1 text-sm leading-relaxed text-slate-400">{dashboard.description}</p>
 
-                {/* Footer */}
-                <div className="flex w-full items-center justify-between border-t border-slate-700/50 pt-6">
-                  <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${colors.badge}`}>
-                    localhost:{dashboard.port}
+                <div className="mt-auto flex items-center justify-between border-t border-slate-700/50 pt-5">
+                  <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${colors.badge}`}>localhost:{dashboard.port}</span>
+                  <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-cyan-300">
+                    Abrir <ExternalLink className="h-3.5 w-3.5" />
                   </span>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 transition-colors group-hover:text-cyan-400">
-                    <span>Abrir</span>
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </div>
                 </div>
               </a>
             )
           })}
         </div>
 
-        {/* Footer Info */}
-        <footer className="mt-24 text-center">
-          <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-          <div className="flex flex-col items-center gap-4 text-sm text-slate-500">
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-              <span>Next.js 15</span>
-              <span className="text-slate-700">+</span>
-              <span>Payload 3</span>
-              <span className="text-slate-700">+</span>
-              <span>TailwindCSS 4</span>
-              <span className="text-slate-700">+</span>
-              <span>TypeScript</span>
-            </div>
-            <p className="text-slate-600">
-              Monorepo con pnpm workspaces
-            </p>
-            <p className="mt-3 font-medium tracking-wider text-cyan-600">
-              SOLARIA AGENCY
-            </p>
+        {/* Grid - Second row: 2 cards centered */}
+        <div className="mt-6 flex w-full flex-col items-center justify-center gap-6 sm:mt-8 sm:gap-8 md:flex-row xl:gap-10">
+          {dashboards.slice(3).map((dashboard) => {
+            const colors = colorClasses[dashboard.color]
+            const Icon = dashboard.icon
+
+            return (
+              <a
+                key={dashboard.title}
+                href={dashboard.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`
+                  group relative flex w-full min-h-[280px] flex-col rounded-2xl border p-8 lg:p-10
+                  shadow-[0_8px_30px_-12px_rgba(0,0,0,0.65)]
+                  transition-all duration-250 ease-out
+                  ${colors.border} ${colors.glow}
+                  bg-slate-900/70 backdrop-blur
+                  hover:-translate-y-1 hover:scale-[1.02] hover:bg-slate-800/80
+                  focus:outline-none focus:ring-2 focus:ring-cyan-500/60
+                  md:w-[calc(33.333%-1rem)] lg:w-[calc(33.333%-1.25rem)]
+                `}
+              >
+                <div className="absolute right-6 top-6">
+                  <span
+                    className={`
+                      inline-block h-2.5 w-2.5 rounded-full
+                      ${dashboard.status === 'running' ? 'bg-emerald-400 shadow shadow-emerald-400/60 animate-pulse' : ''}
+                      ${dashboard.status === 'stopped' ? 'bg-red-400 shadow shadow-red-400/60' : ''}
+                      ${dashboard.status === 'unknown' ? 'bg-slate-500' : ''}
+                    `}
+                  />
+                </div>
+
+                <div className={`mb-6 inline-flex h-16 w-16 items-center justify-center rounded-xl ${colors.bg} transition-transform duration-200 group-hover:scale-110`}>
+                  <Icon className={`h-8 w-8 ${colors.icon}`} />
+                </div>
+
+                <h2 className="mb-3 text-xl font-semibold text-white">{dashboard.title}</h2>
+                <p className="mb-8 flex-1 text-sm leading-relaxed text-slate-400">{dashboard.description}</p>
+
+                <div className="mt-auto flex items-center justify-between border-t border-slate-700/50 pt-5">
+                  <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${colors.badge}`}>localhost:{dashboard.port}</span>
+                  <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-cyan-300">
+                    Abrir <ExternalLink className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              </a>
+            )
+          })}
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-20 w-full text-center">
+          <div className="mx-auto mb-5 h-px w-full max-w-4xl bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.15em] text-slate-500">
+            <span>Next.js 15</span>
+            <span className="text-slate-700">•</span>
+            <span>Payload 3</span>
+            <span className="text-slate-700">•</span>
+            <span>Tailwind 4</span>
+            <span className="text-slate-700">•</span>
+            <span>TypeScript</span>
+            <span className="text-slate-700">•</span>
+            <span>pnpm workspaces</span>
           </div>
+          <p className="mt-3 text-sm font-semibold tracking-[0.18em] text-cyan-400">SOLARIA AGENCY</p>
         </footer>
       </div>
     </div>
