@@ -5,267 +5,281 @@ import {
   Building2,
   Database,
   GraduationCap,
-  Cog,
+  Terminal,
   ExternalLink,
-  Sparkles,
+  Code2,
 } from 'lucide-react'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
-interface DashboardItem {
+interface PortalCardProps {
   title: string
   description: string
+  port: number
   icon: React.ComponentType<{ className?: string }>
   href: string
-  port: number
-  color: 'cyan' | 'teal' | 'sky' | 'emerald' | 'orange'
-  status: 'running' | 'stopped' | 'unknown'
+  status?: 'online' | 'offline' | 'unknown'
+  variant?: 'cyan' | 'teal' | 'sky' | 'emerald' | 'orange'
 }
 
-// Main dashboards (product)
-const mainDashboards: DashboardItem[] = [
-  {
-    title: 'Akademate Admin',
-    description: 'Dashboard multitenant SaaS. Gestión completa del negocio: tenants, facturación, suscripciones, soporte y configuración global.',
-    icon: LayoutDashboard,
-    href: 'http://localhost:3004/dashboard',
-    port: 3004,
-    color: 'cyan',
-    status: 'running',
-  },
-  {
-    title: 'Tenant Admin',
-    description: 'Dashboard del cliente (academias). Gestión de cursos, leads, contenido, inscripciones, branding y usuarios del tenant.',
-    icon: Building2,
-    href: 'http://localhost:3009',
-    port: 3009,
-    color: 'teal',
-    status: 'running',
-  },
-  {
-    title: 'Payload CMS',
-    description: 'Backoffice y base de datos. Acceso directo a collections, API REST/GraphQL, usuarios y configuración del CMS.',
-    icon: Database,
-    href: 'http://localhost:3003/admin',
-    port: 3003,
-    color: 'sky',
-    status: 'running',
-  },
-  {
-    title: 'Campus Virtual',
-    description: 'Portal del alumno. Acceso a cursos, materiales, evaluaciones, progreso y certificados por tenant.',
-    icon: GraduationCap,
-    href: 'http://localhost:3005',
-    port: 3005,
-    color: 'emerald',
-    status: 'running',
-  },
-]
-
-// Development tools (separate category)
-const devTools: DashboardItem = {
-  title: 'SOLARIA DFO',
-  description: 'Digital Field Operations. Centro de comando para gestión de desarrollo: agentes AI, monitoreo de proyectos, métricas y automatización.',
-  icon: Cog,
-  href: 'http://localhost:3030',
-  port: 3030,
-  color: 'orange',
-  status: 'unknown',
-}
-
-const colorClasses = {
+const variantStyles = {
   cyan: {
-    border: 'border-cyan-500/30 hover:border-cyan-400/60',
-    bg: 'bg-cyan-500/15',
+    border: 'hover:border-cyan-500/50',
+    iconBg: 'bg-cyan-500/15',
     icon: 'text-cyan-400',
-    badge: 'bg-cyan-500/20 text-cyan-300',
+    badge: 'border-cyan-500/30 text-cyan-400',
+    hoverText: 'group-hover:text-cyan-400',
   },
   teal: {
-    border: 'border-teal-500/30 hover:border-teal-400/60',
-    bg: 'bg-teal-500/15',
+    border: 'hover:border-teal-500/50',
+    iconBg: 'bg-teal-500/15',
     icon: 'text-teal-400',
-    badge: 'bg-teal-500/20 text-teal-300',
+    badge: 'border-teal-500/30 text-teal-400',
+    hoverText: 'group-hover:text-teal-400',
   },
   sky: {
-    border: 'border-sky-500/30 hover:border-sky-400/60',
-    bg: 'bg-sky-500/15',
+    border: 'hover:border-sky-500/50',
+    iconBg: 'bg-sky-500/15',
     icon: 'text-sky-400',
-    badge: 'bg-sky-500/20 text-sky-300',
+    badge: 'border-sky-500/30 text-sky-400',
+    hoverText: 'group-hover:text-sky-400',
   },
   emerald: {
-    border: 'border-emerald-500/30 hover:border-emerald-400/60',
-    bg: 'bg-emerald-500/15',
+    border: 'hover:border-emerald-500/50',
+    iconBg: 'bg-emerald-500/15',
     icon: 'text-emerald-400',
-    badge: 'bg-emerald-500/20 text-emerald-300',
+    badge: 'border-emerald-500/30 text-emerald-400',
+    hoverText: 'group-hover:text-emerald-400',
   },
   orange: {
-    border: 'border-orange-500/30 hover:border-orange-400/60',
-    bg: 'bg-orange-500/15',
+    border: 'hover:border-orange-500/50',
+    iconBg: 'bg-orange-500/15',
     icon: 'text-orange-400',
-    badge: 'bg-orange-500/20 text-orange-300',
+    badge: 'border-orange-500/30 text-orange-400',
+    hoverText: 'group-hover:text-orange-400',
   },
 }
 
-function DashboardCard({ dashboard }: { dashboard: DashboardItem }) {
-  const colors = colorClasses[dashboard.color]
-  const Icon = dashboard.icon
+function PortalCard({
+  title,
+  description,
+  port,
+  icon: Icon,
+  href,
+  status = 'online',
+  variant = 'cyan',
+}: PortalCardProps) {
+  const styles = variantStyles[variant]
 
   return (
     <a
-      href={dashboard.href}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block h-full transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02]"
+      className={cn(
+        'group relative flex flex-col rounded-xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-sm',
+        'transition-all duration-200',
+        'hover:bg-slate-900 hover:shadow-lg hover:shadow-cyan-500/5',
+        styles.border
+      )}
     >
-      <Card className={cn(
-        "h-full flex flex-col transition-all duration-300",
-        colors.border,
-        "hover:bg-slate-800/80"
-      )}>
-        <CardHeader className="relative pb-6 p-8">
-          {/* Status indicator */}
-          <div className="absolute right-8 top-8">
-            <span
-              className={cn(
-                "inline-block h-2.5 w-2.5 rounded-full",
-                dashboard.status === 'running' && 'bg-emerald-400 shadow shadow-emerald-400/60 animate-pulse',
-                dashboard.status === 'stopped' && 'bg-red-400 shadow shadow-red-400/60',
-                dashboard.status === 'unknown' && 'bg-slate-500'
-              )}
-            />
-          </div>
-
-          {/* Icon */}
-          <div className={cn(
-            "mb-6 inline-flex h-16 w-16 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110",
-            colors.bg
-          )}>
-            <Icon className={cn("h-8 w-8", colors.icon)} />
-          </div>
-
-          <CardTitle className="text-xl mb-3">{dashboard.title}</CardTitle>
-        </CardHeader>
-
-        <CardContent className="flex-1 px-8 pb-8">
-          <CardDescription className="text-base leading-relaxed">{dashboard.description}</CardDescription>
-        </CardContent>
-
-        <CardFooter className="border-t border-slate-700/50 pt-6 pb-8 px-8 mt-auto justify-between">
-          <span className={cn("rounded-full px-4 py-2 text-xs font-semibold", colors.badge)}>
-            localhost:{dashboard.port}
+      {/* Status indicator */}
+      <div className="absolute right-4 top-4">
+        <div className="flex items-center gap-2">
+          <div
+            className={cn(
+              'h-2 w-2 rounded-full',
+              status === 'online' && 'animate-pulse bg-emerald-500',
+              status === 'offline' && 'bg-red-500',
+              status === 'unknown' && 'bg-slate-500'
+            )}
+          />
+          <span className="text-xs text-slate-500">
+            {status === 'online' ? 'Online' : status === 'offline' ? 'Offline' : 'Unknown'}
           </span>
-          <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-cyan-300">
-            Abrir <ExternalLink className="h-3.5 w-3.5" />
-          </span>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
+
+      {/* Icon */}
+      <div
+        className={cn(
+          'mb-4 flex h-12 w-12 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110',
+          styles.iconBg
+        )}
+      >
+        <Icon className={cn('h-6 w-6', styles.icon)} />
+      </div>
+
+      {/* Content */}
+      <div className="flex-1">
+        <h3 className="mb-2 text-lg font-semibold text-white">{title}</h3>
+        <p className="text-sm leading-relaxed text-slate-400">{description}</p>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-4">
+        <code
+          className={cn(
+            'rounded border bg-slate-800/50 px-2 py-1 text-xs',
+            styles.badge
+          )}
+        >
+          localhost:{port}
+        </code>
+        <span
+          className={cn(
+            'flex items-center gap-1.5 text-sm font-medium text-slate-400 transition-all duration-200',
+            'group-hover:translate-x-1',
+            styles.hoverText
+          )}
+        >
+          Abrir
+          <ExternalLink className="h-4 w-4" />
+        </span>
+      </div>
     </a>
   )
 }
 
-export default function PortalPage() {
-  const devToolColors = colorClasses[devTools.color]
-  const DevToolIcon = devTools.icon
+// Portal data
+const portals = [
+  {
+    title: 'Akademate Admin',
+    description:
+      'Dashboard multitenant SaaS. Gestión completa del negocio: tenants, facturación, suscripciones, soporte y configuración global.',
+    port: 3004,
+    icon: LayoutDashboard,
+    href: 'http://localhost:3004/dashboard',
+    variant: 'cyan' as const,
+    status: 'online' as const,
+  },
+  {
+    title: 'Tenant Admin',
+    description:
+      'Dashboard del cliente (academias). Gestión de cursos, leads, contenido, inscripciones, branding y usuarios del tenant.',
+    port: 3009,
+    icon: Building2,
+    href: 'http://localhost:3009',
+    variant: 'teal' as const,
+    status: 'online' as const,
+  },
+  {
+    title: 'Payload CMS',
+    description:
+      'Backoffice y base de datos. Acceso directo a collections, API REST/GraphQL, usuarios y configuración del CMS.',
+    port: 3003,
+    icon: Database,
+    href: 'http://localhost:3003/admin',
+    variant: 'sky' as const,
+    status: 'online' as const,
+  },
+  {
+    title: 'Campus Virtual',
+    description:
+      'Portal del alumno. Acceso a cursos, materiales, evaluaciones, progreso y certificados por tenant.',
+    port: 3005,
+    icon: GraduationCap,
+    href: 'http://localhost:3005',
+    variant: 'emerald' as const,
+    status: 'online' as const,
+  },
+]
 
+const devTools = [
+  {
+    title: 'SOLARIA DFO',
+    description:
+      'Digital Field Operations. Centro de comando para gestión de desarrollo: agentes AI, monitoreo de proyectos, métricas y automatización.',
+    port: 3030,
+    icon: Terminal,
+    href: 'http://localhost:3030',
+    variant: 'orange' as const,
+    status: 'unknown' as const,
+  },
+]
+
+const techStack = [
+  'Next.js 15',
+  'Payload 3',
+  'Tailwind 4',
+  'TypeScript',
+  'PNPM Workspaces',
+]
+
+export default function PortalPage() {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-transparent p-8 sm:p-12 lg:p-16 xl:p-24">
-      <div className="mx-auto flex w-full max-w-screen-2xl flex-col items-center py-16">
+    <div className="min-h-screen bg-transparent text-white">
+      <main className="mx-auto max-w-6xl px-6 py-12 lg:px-8">
         {/* Header */}
-        <header className="mb-24 w-full text-center">
-          <div className="mb-12 flex justify-center">
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-6 py-3 backdrop-blur-sm">
-              <Sparkles className="h-4 w-4 text-cyan-300" />
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Development Portal</span>
-            </div>
-          </div>
-          <h1 className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl">
-            <span className="bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent uppercase tracking-wider">
-              WWW.AKADEMATE.COM
+        <header className="mb-16 text-center">
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <Code2 className="h-5 w-5 text-cyan-400" />
+            <span className="text-sm font-medium uppercase tracking-wider text-cyan-400">
+              Development Portal
             </span>
+          </div>
+          <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
+            Akademate
           </h1>
+          <p className="text-lg text-slate-400">
+            Centro de control para el ecosistema de desarrollo
+          </p>
         </header>
 
-        {/* Main Dashboards Grid - 2x2 */}
-        <section className="w-full mb-24">
-          <div className="grid w-full grid-cols-1 gap-12 md:grid-cols-2 xl:gap-16">
-            {mainDashboards.map((dashboard) => (
-              <DashboardCard key={dashboard.title} dashboard={dashboard} />
+        {/* Portales del Sistema */}
+        <section className="mb-16">
+          <h2 className="mb-6 text-xl font-bold text-white">Portales del Sistema</h2>
+          <div className="grid gap-6 md:grid-cols-2">
+            {portals.map((portal) => (
+              <PortalCard key={portal.title} {...portal} />
             ))}
           </div>
         </section>
 
-        {/* Divider */}
-        <div className="my-24 w-full">
-          <div className="mx-auto h-px w-full max-w-md bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-        </div>
-
-        {/* Development Tools Section */}
-        <section className="w-full mb-24">
-          <h3 className="mb-12 text-center text-xs font-semibold uppercase tracking-[0.25em] text-orange-400/80">
+        {/* Herramientas de Desarrollo */}
+        <section className="mb-16">
+          <h2 className="mb-6 text-xl font-bold text-white">
             Herramientas de Desarrollo
-          </h3>
-          <div className="mx-auto max-w-2xl">
-            <a
-              href={devTools.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02]"
-            >
-              <Card className={cn(
-                "transition-all duration-300",
-                devToolColors.border,
-                "hover:bg-slate-800/80"
-              )}>
-                <CardHeader className="relative p-10 pb-8">
-                  {/* Status indicator */}
-                  <div className="absolute right-10 top-10">
-                    <span className="inline-block h-2.5 w-2.5 rounded-full bg-slate-500" />
-                  </div>
-
-                  <div className="flex items-start gap-6">
-                    <div className={cn(
-                      "inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110",
-                      devToolColors.bg
-                    )}>
-                      <DevToolIcon className={cn("h-7 w-7", devToolColors.icon)} />
-                    </div>
-                    <div className="flex-1 pt-1">
-                      <CardTitle className="text-lg mb-4">{devTools.title}</CardTitle>
-                      <CardDescription className="text-base leading-relaxed">{devTools.description}</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardFooter className="border-t border-slate-700/50 pt-6 pb-10 px-10 justify-between">
-                  <span className={cn("rounded-full px-4 py-2 text-xs font-semibold", devToolColors.badge)}>
-                    localhost:{devTools.port}
-                  </span>
-                  <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors group-hover:text-orange-300">
-                    Abrir <ExternalLink className="h-3.5 w-3.5" />
-                  </span>
-                </CardFooter>
-              </Card>
-            </a>
+          </h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {devTools.map((tool) => (
+              <PortalCard key={tool.title} {...tool} />
+            ))}
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="mt-32 w-full text-center pb-12">
-          <div className="mx-auto mb-10 h-px w-full max-w-lg bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.15em] text-slate-500">
-            <span>Next.js 15</span>
-            <span className="text-slate-700">•</span>
-            <span>Payload 3</span>
-            <span className="text-slate-700">•</span>
-            <span>Tailwind 4</span>
-            <span className="text-slate-700">•</span>
-            <span>TypeScript</span>
-            <span className="text-slate-700">•</span>
-            <span>pnpm workspaces</span>
+        <footer className="border-t border-slate-800 pt-8">
+          <div className="mb-6">
+            <h3 className="mb-4 text-sm font-medium uppercase tracking-wider text-slate-400">
+              Stack Tecnológico
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {techStack.map((tech) => (
+                <span
+                  key={tech}
+                  className="rounded-full border border-slate-700 bg-slate-800/50 px-4 py-1.5 text-sm text-slate-300"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
           </div>
-          <p className="mt-6 text-sm font-semibold tracking-[0.2em] text-cyan-400">SOLARIA AGENCY</p>
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-6 sm:flex-row">
+            <p className="text-sm text-slate-400">
+              Desarrollado por{' '}
+              <a
+                href="https://solaria.agency"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-cyan-400 transition-colors hover:text-cyan-300 hover:underline"
+              >
+                Solaria Agency
+              </a>
+            </p>
+            <p className="text-xs text-slate-500">Akademate Development Environment</p>
+          </div>
         </footer>
-      </div>
+      </main>
     </div>
   )
 }
