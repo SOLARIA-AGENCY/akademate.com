@@ -16,6 +16,7 @@ export const subscriptionStatusEnum = pgEnum('subscription_status', ['trialing',
 
 // Catalog enums
 export const courseStatusEnum = pgEnum('course_status', ['draft', 'published', 'archived'])
+export const publicationStatusEnum = pgEnum('publication_status', ['draft', 'review', 'published', 'archived'])
 export const modalityEnum = pgEnum('modality', ['presential', 'online', 'hybrid'])
 export const courseRunStatusEnum = pgEnum('course_run_status', ['scheduled', 'enrolling', 'in_progress', 'completed', 'cancelled'])
 
@@ -73,7 +74,21 @@ export const courses = pgTable('courses', {
     .references(() => tenants.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
   slug: text('slug').notNull(),
-  status: text('status').default('draft').notNull(),
+  description: text('description'),
+  shortDescription: text('short_description'),
+  status: publicationStatusEnum('status').default('draft').notNull(),
+  featuredImage: text('featured_image'),
+  duration: integer('duration'), // total hours
+  price: decimal('price', { precision: 10, scale: 2 }),
+  currency: text('currency').default('EUR').notNull(),
+  objectives: jsonb('objectives').$type<string[]>().default([]).notNull(),
+  requirements: jsonb('requirements').$type<string[]>().default([]).notNull(),
+  targetAudience: text('target_audience'),
+  seoTitle: text('seo_title'),
+  seoDescription: text('seo_description'),
+  seoKeywords: jsonb('seo_keywords').$type<string[]>().default([]).notNull(),
+  publishedAt: timestamp('published_at', { withTimezone: true }),
+  publishedBy: uuid('published_by').references(() => users.id, { onDelete: 'set null' }),
   metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
