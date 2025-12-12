@@ -36,12 +36,12 @@ const tenantMiddleware = createTenantMiddleware({
     // TODO: Implement actual API lookup: GET /api/tenants?slug={slug}
     console.log('[middleware] Looking up tenant:', slug)
 
-    // In development, use a deterministic UUID based on slug
+    // In development, use a deterministic ID based on slug
     // This allows RLS to work correctly with a consistent tenant_id
     if (isDev) {
-      // Use a well-known development tenant UUID
-      // This should match a seeded tenant in the development database
-      const DEV_TENANT_ID = '00000000-0000-0000-0000-000000000001'
+      // Use the well-known development tenant ID (INTEGER, not UUID)
+      // This should match the seeded tenant in the development database (ID=1)
+      const DEV_TENANT_ID = '1'
       console.log('[middleware] Dev mode - using tenant:', DEV_TENANT_ID)
       return DEV_TENANT_ID
     }
