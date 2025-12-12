@@ -1,0 +1,101 @@
+services:
+  # Payload CMS Backend
+  - type: web
+    name: cms
+    runtime: node
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PAYLOAD_SECRET
+        generateValue: true
+      - key: DATABASE_URI
+        fromDatabase:
+          name: cep-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cep-redis
+          property: connectionString
+      - key: S3_ENDPOINT
+        fromService:
+          type: pserv
+          name: minio
+          property: host
+      - key: S3_ACCESS_KEY_ID
+        fromService:
+          type: pserv
+          name: minio
+          property: accessKeyId
+      - key: S3_SECRET_ACCESS_KEY
+        fromService:
+          type: pserv
+          name: minio
+          property: secretAccessKey
+
+  # Redis Cache & Queue
+  - type: redis
+    name: cep-redis
+    ipAllowList: [] # only accessible by other services
+
+  # PostgreSQL Database
+  - type: pserv
+    name: cep-db
+    runtime: postgresql
+    version: 15
+    ipAllowList: [] # only accessible by other services
+
+  # MinIO Object Storage
+  - type: pserv
+    name: minio
+    runtime: docker
+    dockerfilePath: ./infra/docker/Dockerfile.minio
+    ipAllowList: [] # only accessible by other services
+
+  # Background Workers
+  - type: worker
+    name: automation-worker
+    runtime: node
+    buildCommand: npm run build:worker
+    startCommand: npm run start:worker
+    envVars:
+      - key: DATABASE_URI
+        fromDatabase:
+          name: cep-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cep-redis
+          property: connectionString
+
+  - type: worker
+    name: llm-worker
+    runtime: node
+    buildCommand: npm run build:llm-worker
+    startCommand: npm run start:llm-worker
+    envVars:
+      - key: DATABASE_URI
+        fromDatabase:
+          name: cep-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cep-redis
+          property: connectionString
+      - key: OPENAI_API_KEY
+        value: ${{ OPENAI_API_KEY }}
+
+  - type: worker
+    name: stats-worker
+    runtime: node
+    buildCommand: npm run build:stats-worker
+    startCommand: npm run start:stats-worker
+    envVars:
+      - key: DATABASE_URI
+        fromDatabase:
+          name: cep-db
+          property: connectionString

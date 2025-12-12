@@ -2,7 +2,7 @@ const colors = require('tailwindcss/colors')
 
 /** @type {import('tailwindcss').Config} */
 const config = {
-  content: ['./apps/**/*.{ts,tsx,mdx}', './packages/**/*.{ts,tsx,mdx}'],
+  content: ['./apps/**/*.{ts,tsx,mdx}', './packages/**/*.{ts,tsx,mdx}', './node_modules/tw-animate-css/index.css'],
   theme: {
     colors: {
       background: 'hsl(var(--background))',
@@ -22,6 +22,12 @@ const config = {
       ring: 'hsl(var(--ring))',
       card: 'hsl(var(--card))',
       'card-foreground': 'hsl(var(--card-foreground))',
+      sidebar: 'hsl(var(--sidebar))',
+      'sidebar-foreground': 'hsl(var(--sidebar-foreground))',
+      header: 'hsl(var(--header))',
+      'header-border': 'hsl(var(--header-border))',
+      popover: 'hsl(var(--popover))',
+      'popover-foreground': 'hsl(var(--popover-foreground))',
       white: '#ffffff',
       black: '#000000',
       transparent: 'transparent',

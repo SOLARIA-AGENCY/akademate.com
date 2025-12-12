@@ -1,5 +1,6 @@
 import {
   boolean,
+  decimal,
   integer,
   jsonb,
   pgEnum,
@@ -12,6 +13,22 @@ import {
 export const planEnum = pgEnum('plan', ['starter', 'pro', 'enterprise'])
 export const tenantStatusEnum = pgEnum('tenant_status', ['trial', 'active', 'suspended', 'cancelled'])
 export const subscriptionStatusEnum = pgEnum('subscription_status', ['trialing', 'active', 'past_due', 'canceled'])
+
+// Catalog enums
+export const courseStatusEnum = pgEnum('course_status', ['draft', 'published', 'archived'])
+export const modalityEnum = pgEnum('modality', ['presential', 'online', 'hybrid'])
+export const courseRunStatusEnum = pgEnum('course_run_status', ['scheduled', 'enrolling', 'in_progress', 'completed', 'cancelled'])
+
+// LMS enums
+export const enrollmentStatusEnum = pgEnum('enrollment_status', ['pending', 'active', 'completed', 'withdrawn', 'failed'])
+export const lessonTypeEnum = pgEnum('lesson_type', ['video', 'text', 'quiz', 'assignment', 'live_session'])
+export const materialTypeEnum = pgEnum('material_type', ['pdf', 'video', 'audio', 'document', 'link', 'other'])
+export const assignmentTypeEnum = pgEnum('assignment_type', ['quiz', 'essay', 'project', 'exam', 'practice'])
+export const submissionStatusEnum = pgEnum('submission_status', ['draft', 'submitted', 'grading', 'graded', 'returned'])
+
+// Marketing enums
+export const leadStatusEnum = pgEnum('lead_status', ['new', 'contacted', 'qualified', 'converted', 'lost'])
+export const leadSourceEnum = pgEnum('lead_source', ['website', 'referral', 'social', 'ads', 'event', 'other'])
 
 export const tenants = pgTable('tenants', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -134,7 +151,317 @@ export const webhooks = pgTable('webhooks', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+// ============================================================================
+// CATALOG TABLES
+// ============================================================================
+
+export const cycles = pgTable('cycles', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  slug: text('slug').notNull(),
+  description: text('description'),
+  level: text('level'), // e.g., "Grado Superior", "Grado Medio"
+  duration: integer('duration'), // in hours
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const centers = pgTable('centers', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  slug: text('slug').notNull(),
+  address: text('address'),
+  city: text('city'),
+  postalCode: text('postal_code'),
+  country: text('country').default('ES').notNull(),
+  phone: text('phone'),
+  email: text('email'),
+  coordinates: jsonb('coordinates').$type<{ lat: number; lng: number }>(),
+  capacity: integer('capacity'),
+  facilities: jsonb('facilities').$type<string[]>().default([]).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const instructors = pgTable('instructors', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  phone: text('phone'),
+  bio: text('bio'),
+  specializations: jsonb('specializations').$type<string[]>().default([]).notNull(),
+  avatar: text('avatar'),
+  isActive: boolean('is_active').default(true).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const courseRuns = pgTable('course_runs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  courseId: uuid('course_id')
+    .notNull()
+    .references(() => courses.id, { onDelete: 'cascade' }),
+  cycleId: uuid('cycle_id').references(() => cycles.id, { onDelete: 'set null' }),
+  centerId: uuid('center_id').references(() => centers.id, { onDelete: 'set null' }),
+  instructorId: uuid('instructor_id').references(() => instructors.id, { onDelete: 'set null' }),
+  name: text('name').notNull(),
+  modality: modalityEnum('modality').default('presential').notNull(),
+  status: courseRunStatusEnum('status').default('scheduled').notNull(),
+  startDate: timestamp('start_date', { withTimezone: true }),
+  endDate: timestamp('end_date', { withTimezone: true }),
+  enrollmentDeadline: timestamp('enrollment_deadline', { withTimezone: true }),
+  maxStudents: integer('max_students'),
+  minStudents: integer('min_students'),
+  price: decimal('price', { precision: 10, scale: 2 }),
+  currency: text('currency').default('EUR').notNull(),
+  schedule: jsonb('schedule').$type<Record<string, unknown>>().default({}).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+// ============================================================================
+// LMS / CAMPUS TABLES
+// ============================================================================
+
+export const modules = pgTable('modules', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  courseId: uuid('course_id')
+    .notNull()
+    .references(() => courses.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  slug: text('slug').notNull(),
+  description: text('description'),
+  order: integer('order').default(0).notNull(),
+  duration: integer('duration'), // estimated minutes
+  isPublished: boolean('is_published').default(false).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const lessons = pgTable('lessons', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  moduleId: uuid('module_id')
+    .notNull()
+    .references(() => modules.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  slug: text('slug').notNull(),
+  type: lessonTypeEnum('type').default('text').notNull(),
+  content: text('content'),
+  videoUrl: text('video_url'),
+  duration: integer('duration'), // minutes
+  order: integer('order').default(0).notNull(),
+  isPublished: boolean('is_published').default(false).notNull(),
+  isFree: boolean('is_free').default(false).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const materials = pgTable('materials', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  lessonId: uuid('lesson_id').references(() => lessons.id, { onDelete: 'cascade' }),
+  moduleId: uuid('module_id').references(() => modules.id, { onDelete: 'cascade' }),
+  courseId: uuid('course_id').references(() => courses.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  type: materialTypeEnum('type').default('document').notNull(),
+  fileUrl: text('file_url'),
+  fileSize: integer('file_size'), // bytes
+  mimeType: text('mime_type'),
+  description: text('description'),
+  downloadCount: integer('download_count').default(0).notNull(),
+  isPublic: boolean('is_public').default(false).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const assignments = pgTable('assignments', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  lessonId: uuid('lesson_id').references(() => lessons.id, { onDelete: 'cascade' }),
+  moduleId: uuid('module_id').references(() => modules.id, { onDelete: 'cascade' }),
+  courseId: uuid('course_id')
+    .notNull()
+    .references(() => courses.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  type: assignmentTypeEnum('type').default('practice').notNull(),
+  instructions: text('instructions'),
+  maxScore: decimal('max_score', { precision: 5, scale: 2 }).default('100').notNull(),
+  passingScore: decimal('passing_score', { precision: 5, scale: 2 }),
+  dueDate: timestamp('due_date', { withTimezone: true }),
+  allowLateSubmission: boolean('allow_late_submission').default(false).notNull(),
+  maxAttempts: integer('max_attempts').default(1).notNull(),
+  timeLimit: integer('time_limit'), // minutes
+  isPublished: boolean('is_published').default(false).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const enrollments = pgTable('enrollments', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  courseRunId: uuid('course_run_id')
+    .notNull()
+    .references(() => courseRuns.id, { onDelete: 'cascade' }),
+  status: enrollmentStatusEnum('status').default('pending').notNull(),
+  enrolledAt: timestamp('enrolled_at', { withTimezone: true }).defaultNow().notNull(),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+  expiresAt: timestamp('expires_at', { withTimezone: true }),
+  progress: decimal('progress', { precision: 5, scale: 2 }).default('0').notNull(),
+  lastAccessAt: timestamp('last_access_at', { withTimezone: true }),
+  certificateUrl: text('certificate_url'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const lessonProgress = pgTable('lesson_progress', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  enrollmentId: uuid('enrollment_id')
+    .notNull()
+    .references(() => enrollments.id, { onDelete: 'cascade' }),
+  lessonId: uuid('lesson_id')
+    .notNull()
+    .references(() => lessons.id, { onDelete: 'cascade' }),
+  isCompleted: boolean('is_completed').default(false).notNull(),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+  timeSpent: integer('time_spent').default(0).notNull(), // seconds
+  lastPosition: integer('last_position'), // video position in seconds
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const submissions = pgTable('submissions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  enrollmentId: uuid('enrollment_id')
+    .notNull()
+    .references(() => enrollments.id, { onDelete: 'cascade' }),
+  assignmentId: uuid('assignment_id')
+    .notNull()
+    .references(() => assignments.id, { onDelete: 'cascade' }),
+  status: submissionStatusEnum('status').default('draft').notNull(),
+  attemptNumber: integer('attempt_number').default(1).notNull(),
+  content: text('content'),
+  fileUrl: text('file_url'),
+  submittedAt: timestamp('submitted_at', { withTimezone: true }),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const grades = pgTable('grades', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  submissionId: uuid('submission_id')
+    .notNull()
+    .references(() => submissions.id, { onDelete: 'cascade' }),
+  graderId: uuid('grader_id').references(() => users.id, { onDelete: 'set null' }),
+  score: decimal('score', { precision: 5, scale: 2 }).notNull(),
+  maxScore: decimal('max_score', { precision: 5, scale: 2 }).notNull(),
+  feedback: text('feedback'),
+  isPass: boolean('is_pass').default(false).notNull(),
+  gradedAt: timestamp('graded_at', { withTimezone: true }).defaultNow().notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+// ============================================================================
+// MARKETING TABLES
+// ============================================================================
+
+export const leads = pgTable('leads', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  name: text('name'),
+  phone: text('phone'),
+  source: leadSourceEnum('source').default('website').notNull(),
+  status: leadStatusEnum('status').default('new').notNull(),
+  courseRunId: uuid('course_run_id').references(() => courseRuns.id, { onDelete: 'set null' }),
+  campaignId: uuid('campaign_id'),
+  notes: text('notes'),
+  tags: jsonb('tags').$type<string[]>().default([]).notNull(),
+  score: integer('score').default(0).notNull(),
+  convertedAt: timestamp('converted_at', { withTimezone: true }),
+  convertedUserId: uuid('converted_user_id').references(() => users.id, { onDelete: 'set null' }),
+  gdprConsent: boolean('gdpr_consent').default(false).notNull(),
+  gdprConsentAt: timestamp('gdpr_consent_at', { withTimezone: true }),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const campaigns = pgTable('campaigns', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  slug: text('slug').notNull(),
+  description: text('description'),
+  type: text('type').notNull(), // email, social, ads, event
+  status: text('status').default('draft').notNull(),
+  startDate: timestamp('start_date', { withTimezone: true }),
+  endDate: timestamp('end_date', { withTimezone: true }),
+  budget: decimal('budget', { precision: 10, scale: 2 }),
+  targetAudience: jsonb('target_audience').$type<Record<string, unknown>>().default({}).notNull(),
+  metrics: jsonb('metrics').$type<Record<string, unknown>>().default({}).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const schema = {
+  // Core
   tenants,
   users,
   memberships,
@@ -144,4 +471,21 @@ export const schema = {
   auditLogs,
   subscriptions,
   webhooks,
+  // Catalog
+  cycles,
+  centers,
+  instructors,
+  courseRuns,
+  // LMS
+  modules,
+  lessons,
+  materials,
+  assignments,
+  enrollments,
+  lessonProgress,
+  submissions,
+  grades,
+  // Marketing
+  leads,
+  campaigns,
 }

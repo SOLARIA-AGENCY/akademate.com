@@ -1,19 +1,50 @@
 import type { TenantId } from '@akademate/types'
 import {
+  // Core tables
   apiKeys,
   auditLogs,
   courses,
   featureFlags,
   memberships,
-  planEnum,
   schema,
   subscriptions,
   tenants,
   users,
   webhooks,
+  // Catalog tables
+  cycles,
+  centers,
+  instructors,
+  courseRuns,
+  // LMS tables
+  modules,
+  lessons,
+  materials,
+  assignments,
+  enrollments,
+  lessonProgress,
+  submissions,
+  grades,
+  // Marketing tables
+  leads,
+  campaigns,
+  // Enums
+  planEnum,
+  tenantStatusEnum,
+  subscriptionStatusEnum,
+  courseStatusEnum,
+  modalityEnum,
+  courseRunStatusEnum,
+  enrollmentStatusEnum,
+  lessonTypeEnum,
+  materialTypeEnum,
+  assignmentTypeEnum,
+  submissionStatusEnum,
+  leadStatusEnum,
+  leadSourceEnum,
 } from './schema'
 
-export const schemaVersion = '0.0.1'
+export const schemaVersion = '0.1.0' // Bumped for new tables
 
 export type TenantScopedRecord = {
   tenant_id: TenantId
@@ -37,7 +68,9 @@ export const defaultAuditColumns = {
 }
 
 export {
+  // Schema object
   schema,
+  // Core tables
   tenants,
   users,
   memberships,
@@ -47,5 +80,35 @@ export {
   auditLogs,
   subscriptions,
   webhooks,
+  // Catalog tables
+  cycles,
+  centers,
+  instructors,
+  courseRuns,
+  // LMS tables
+  modules,
+  lessons,
+  materials,
+  assignments,
+  enrollments,
+  lessonProgress,
+  submissions,
+  grades,
+  // Marketing tables
+  leads,
+  campaigns,
+  // Enums
   planEnum,
+  tenantStatusEnum,
+  subscriptionStatusEnum,
+  courseStatusEnum,
+  modalityEnum,
+  courseRunStatusEnum,
+  enrollmentStatusEnum,
+  lessonTypeEnum,
+  materialTypeEnum,
+  assignmentTypeEnum,
+  submissionStatusEnum,
+  leadStatusEnum,
+  leadSourceEnum,
 }

@@ -37,7 +37,8 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
   const devLoginEnabled = process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== 'false'
 
   if (usePayloadAuth) {
-    const res = await fetch(`${API_URL.replace(/\\/$/, '')}/api/users/login`, {
+    const baseUrl = API_URL || 'http://localhost:3003'
+    const res = await fetch(`${baseUrl.replace(/\/$/, '')}/api/users/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: credentials.email, password: credentials.password }),
@@ -100,7 +101,8 @@ export async function getCurrentUser() {
 
   if (usePayloadAuth) {
     try {
-      const res = await fetch(`${API_URL.replace(/\\/$/, '')}/api/users/me`, {
+      const baseUrl = API_URL || 'http://localhost:3003'
+      const res = await fetch(`${baseUrl.replace(/\/$/, '')}/api/users/me`, {
         credentials: 'include',
       })
       if (!res.ok) return null

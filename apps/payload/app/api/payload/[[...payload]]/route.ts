@@ -1,19 +1,20 @@
 import { handleEndpoints, type PayloadRequest } from 'payload'
-import type { Config as PayloadConfig } from 'payload/config'
+import type { SanitizedConfig } from 'payload'
 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/await-thenable */
 export const dynamic = 'force-dynamic'
 
-const loadConfig = async (): Promise<PayloadConfig> => {
+const loadConfig = async (): Promise<SanitizedConfig> => {
   const mod = await import('../../../../payload.config')
-  return mod.default as PayloadConfig
+  // buildConfig returns a Promise<SanitizedConfig>
+  const config = await mod.default
+  return config
 }
 
 const configPromise = loadConfig()
 
 const buildHandler =
   () =>
-  async (request: PayloadRequest, args: { params?: { slug?: string[] } }) => {
+  async (request: Request, args: { params?: Promise<{ slug?: string[] }> }) => {
     const awaitedConfig = await configPromise
     const endpoints = Array.isArray(awaitedConfig.endpoints) ? awaitedConfig.endpoints : []
     awaitedConfig.endpoints = endpoints
@@ -26,7 +27,7 @@ const buildHandler =
     return handleEndpoints({
       config: awaitedConfig,
       path,
-      request,
+      request: request as PayloadRequest,
     })
   }
 

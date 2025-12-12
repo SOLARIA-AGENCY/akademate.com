@@ -1,18 +1,30 @@
 import type { Metadata } from 'next'
 import React from 'react'
 
+import { ThemeProvider } from '@/components/theme-provider'
+import { TooltipProvider } from '@/components/ui/tooltip'
+
 import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Akademate Ops | Dashboard multitenant',
-  description: 'Panel superadmin para tenants, facturación y soporte multitenant.',
+  description: 'Panel superadmin para tenants, facturacion y soporte multitenant.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body className="bg-background text-foreground antialiased">
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          storageKey="akademate-ops-theme"
+        >
+          <TooltipProvider delayDuration={0}>
+            {children}
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

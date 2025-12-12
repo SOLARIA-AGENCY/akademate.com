@@ -6,7 +6,9 @@
     "dev": "PAYLOAD_DISABLE_DB_WIZARD=true next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "pnpm exec eslint . --ext .ts,.tsx --max-warnings=0"
+    "lint": "pnpm exec eslint . --ext .ts,.tsx --max-warnings=0",
+    "seed": "tsx scripts/seed.ts",
+    "generate:types": "payload generate:types"
   },
   "dependencies": {
     "@akademate/ui": "workspace:*",
@@ -18,5 +20,8 @@
     "pg": "^8.13.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0"
   }
 }
