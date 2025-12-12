@@ -33,32 +33,33 @@ const tenantMiddleware = createTenantMiddleware({
   debug: isDev,
   // Lookup tenant ID from slug (implement with your API)
   lookupTenantId: async (slug: string) => {
-    // In production, this would call your API to lookup the tenant
-    // For now, we'll use a simple placeholder that works in dev
-    // TODO: Implement actual API lookup
+    // TODO: Implement actual API lookup: GET /api/tenants?slug={slug}
     console.log('[middleware] Looking up tenant:', slug)
 
-    // Placeholder: In development, accept any tenant slug
-    // In production, this should call: GET /api/tenants?slug={slug}
+    // In development, use a deterministic UUID based on slug
+    // This allows RLS to work correctly with a consistent tenant_id
     if (isDev) {
-      // For development, return a mock ID based on slug
-      return `dev-tenant-${slug}`
+      // Use a well-known development tenant UUID
+      // This should match a seeded tenant in the development database
+      const DEV_TENANT_ID = '00000000-0000-0000-0000-000000000001'
+      console.log('[middleware] Dev mode - using tenant:', DEV_TENANT_ID)
+      return DEV_TENANT_ID
     }
 
+    // Production: lookup tenant from API
+    // const response = await fetch(`${process.env.API_URL}/api/tenants?slug=${slug}`)
+    // const tenant = await response.json()
+    // return tenant?.id ?? null
     return null
   },
 })
 
 export async function middleware(request: NextRequest) {
-  // In development, bypass tenant check completely for localhost
-  if (isDev) {
-    const host = request.headers.get('host') || ''
-    if (host.startsWith('localhost')) {
-      return NextResponse.next()
-    }
-  }
+  // SECURITY: Never bypass tenant checks completely.
+  // In development, we use a default dev tenant instead of bypassing.
+  // This ensures RLS isolation is tested even in development.
 
-  // Run tenant middleware
+  // Run tenant middleware (handles dev tenant internally via lookupTenantId)
   const tenantResponse = await tenantMiddleware(request)
 
   // If tenant middleware returned a response (redirect/404), use it

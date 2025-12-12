@@ -67,6 +67,16 @@ export const defaultAuditColumns = {
   updated_at: 'updated_at',
 }
 
+// RLS utilities for multi-tenant data isolation
+export {
+  withTenantContext,
+  withTenantRead,
+  getCurrentTenantId,
+  assertTenantContext,
+  type TenantContext,
+  type TenantScopedResult,
+} from './rls'
+
 export {
   // Schema object
   schema,
