@@ -548,6 +548,22 @@ importers:
         specifier: workspace:*
         version: link:../types
 
+  packages/auth:
+    dependencies:
+      '@akademate/db':
+        specifier: workspace:*
+        version: link:../db
+      '@akademate/types':
+        specifier: workspace:*
+        version: link:../types
+      jose:
+        specifier: ^5.9.6
+        version: 5.9.6
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.1
+
   packages/db:
     dependencies:
       '@akademate/types':

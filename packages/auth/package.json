@@ -1,0 +1,26 @@
+{
+  "name": "@akademate/auth",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./jwt": "./src/jwt.ts",
+    "./password": "./src/password.ts",
+    "./rbac": "./src/rbac.ts",
+    "./session": "./src/session.ts"
+  },
+  "files": ["src"],
+  "dependencies": {
+    "@akademate/db": "workspace:*",
+    "@akademate/types": "workspace:*",
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  }
+}
