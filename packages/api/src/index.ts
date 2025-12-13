@@ -138,3 +138,35 @@ export {
   type RouteDefinition,
   type OpenApiMetadata,
 } from './handlers'
+
+// ============================================================================
+// GDPR Compliance Exports
+// ============================================================================
+
+export {
+  // Types
+  type ExportFormat,
+  type UserProfileExport,
+  type MembershipExport,
+  type EnrollmentExport,
+  type LessonProgressExport,
+  type SubmissionExport,
+  type CertificateExport,
+  type BadgeExport,
+  type PointsTransactionExport,
+  type StreakExport,
+  type AttendanceExport,
+  type LeadDataExport,
+  type AuditLogExport,
+  type UserDataExport,
+  type ExportRequest,
+  type ExportResponse,
+  type GdprExportDependencies,
+  type ExportSection,
+  // Schemas
+  ExportFormatSchema,
+  ExportRequestSchema,
+  // Service
+  GdprExportService,
+  createGdprExportService,
+} from './gdpr'
