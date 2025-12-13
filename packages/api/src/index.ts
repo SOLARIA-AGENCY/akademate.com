@@ -144,7 +144,7 @@ export {
 // ============================================================================
 
 export {
-  // Types
+  // Article 15 - Export Types
   type ExportFormat,
   type UserProfileExport,
   type MembershipExport,
@@ -163,10 +163,52 @@ export {
   type ExportResponse,
   type GdprExportDependencies,
   type ExportSection,
-  // Schemas
+  // Article 15 - Export Schemas
   ExportFormatSchema,
   ExportRequestSchema,
-  // Service
+  // Article 15 - Export Service
   GdprExportService,
   createGdprExportService,
+  // Article 17 - Anonymization Types
+  type AnonymizationResult,
+  type AnonymizationDependencies,
+  type AnonymizeRequest,
+  // Article 17 - Anonymization Schemas
+  AnonymizeRequestSchema,
+  // Article 17 - Anonymization Service
+  GdprAnonymizationService,
+  createGdprAnonymizationService,
+  // Article 7 - Consent Types
+  type ConsentType,
+  type ConsentRecord,
+  type ConsentHistoryEntry,
+  type UserConsents,
+  type ConsentDependencies,
+  type UpdateConsentsRequest,
+  type WithdrawConsentRequest,
+  type ConsentAuditRequest,
+  // Article 7 - Consent Schemas
+  ConsentTypeSchema,
+  UpdateConsentsRequestSchema,
+  WithdrawConsentRequestSchema,
+  ConsentAuditRequestSchema,
+  // Article 7 - Consent Service
+  GdprConsentService,
+  createGdprConsentService,
+  // Article 5(1)(e) - Retention Types
+  type DataCategory,
+  type RetentionPolicy,
+  type RetentionJobResult,
+  type RetentionCandidate,
+  type RetentionDependencies,
+  type UpdateRetentionPolicyRequest,
+  type ExecuteRetentionRequest,
+  // Article 5(1)(e) - Retention Schemas
+  DataCategorySchema,
+  DEFAULT_RETENTION_POLICIES,
+  UpdateRetentionPolicySchema,
+  ExecuteRetentionSchema,
+  // Article 5(1)(e) - Retention Service
+  GdprRetentionService,
+  createGdprRetentionService,
 } from './gdpr'
