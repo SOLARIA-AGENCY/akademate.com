@@ -627,6 +627,28 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
+  packages/lms:
+    dependencies:
+      '@akademate/db':
+        specifier: workspace:*
+        version: link:../db
+      drizzle-orm:
+        specifier: ^0.38.4
+        version: 0.38.4(@opentelemetry/api@1.9.0)(@types/pg@8.10.2)(@types/react@19.2.7)(mysql2@3.15.3)(pg@8.16.3)(postgres@3.4.7)(react@19.2.1)
+      zod:
+        specifier: ^3.25.0
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.19.0
+        version: 22.19.1
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
+
   packages/operations:
     dependencies:
       '@akademate/db':
