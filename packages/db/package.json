@@ -6,13 +6,16 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "dependencies": {
     "@akademate/types": "workspace:*",
     "drizzle-orm": "^0.45.0"
   },
   "devDependencies": {
-    "postgres": "^3.4.7"
+    "postgres": "^3.4.7",
+    "vitest": "^4.0.15"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

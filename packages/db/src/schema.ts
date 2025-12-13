@@ -31,6 +31,32 @@ export const submissionStatusEnum = pgEnum('submission_status', ['draft', 'submi
 export const leadStatusEnum = pgEnum('lead_status', ['new', 'contacted', 'qualified', 'converted', 'lost'])
 export const leadSourceEnum = pgEnum('lead_source', ['website', 'referral', 'social', 'ads', 'event', 'other'])
 
+// Gamification enums
+export const badgeTypeEnum = pgEnum('badge_type', [
+  'course_complete',
+  'module_complete',
+  'streak',
+  'first_lesson',
+  'perfect_score',
+  'early_bird',
+  'night_owl',
+  'speed_learner',
+  'dedicated',
+  'custom',
+])
+export const pointsSourceTypeEnum = pgEnum('points_source_type', [
+  'lesson',
+  'resource',
+  'badge',
+  'streak',
+  'bonus',
+  'manual',
+])
+
+// Operations enums
+export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent', 'late', 'excused'])
+export const calendarEventTypeEnum = pgEnum('calendar_event_type', ['class', 'exam', 'holiday', 'meeting', 'deadline', 'other'])
+
 export const tenants = pgTable('tenants', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
@@ -475,6 +501,161 @@ export const campaigns = pgTable('campaigns', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+// ============================================================================
+// GAMIFICATION TABLES
+// ============================================================================
+
+export const badgeDefinitions = pgTable('badge_definitions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }), // null = global
+  code: text('code').notNull(),
+  name: text('name').notNull(),
+  description: text('description'),
+  type: badgeTypeEnum('type').notNull(),
+  iconUrl: text('icon_url'),
+  pointsValue: integer('points_value').default(0).notNull(),
+  criteria: jsonb('criteria').$type<Record<string, unknown>>().default({}).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const userBadges = pgTable('user_badges', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  badgeId: uuid('badge_id')
+    .notNull()
+    .references(() => badgeDefinitions.id, { onDelete: 'cascade' }),
+  earnedAt: timestamp('earned_at', { withTimezone: true }).defaultNow().notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+})
+
+export const pointsTransactions = pgTable('points_transactions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  points: integer('points').notNull(),
+  reason: text('reason').notNull(),
+  sourceType: pointsSourceTypeEnum('source_type').notNull(),
+  sourceId: uuid('source_id'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const userStreaks = pgTable('user_streaks', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  currentStreak: integer('current_streak').default(0).notNull(),
+  longestStreak: integer('longest_streak').default(0).notNull(),
+  lastActivityAt: timestamp('last_activity_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+// ============================================================================
+// OPERATIONS TABLES
+// ============================================================================
+
+export const attendance = pgTable('attendance', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  enrollmentId: uuid('enrollment_id')
+    .notNull()
+    .references(() => enrollments.id, { onDelete: 'cascade' }),
+  sessionDate: timestamp('session_date', { withTimezone: true }).notNull(),
+  status: attendanceStatusEnum('status').default('present').notNull(),
+  checkInAt: timestamp('check_in_at', { withTimezone: true }),
+  checkOutAt: timestamp('check_out_at', { withTimezone: true }),
+  notes: text('notes'),
+  recordedBy: uuid('recorded_by').references(() => users.id, { onDelete: 'set null' }),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const calendarEvents = pgTable('calendar_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  courseRunId: uuid('course_run_id').references(() => courseRuns.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  type: calendarEventTypeEnum('type').default('class').notNull(),
+  startAt: timestamp('start_at', { withTimezone: true }).notNull(),
+  endAt: timestamp('end_at', { withTimezone: true }).notNull(),
+  location: text('location'),
+  isAllDay: boolean('is_all_day').default(false).notNull(),
+  isRecurring: boolean('is_recurring').default(false).notNull(),
+  recurrenceRule: text('recurrence_rule'),
+  color: text('color'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const liveSessions = pgTable('live_sessions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  courseRunId: uuid('course_run_id')
+    .notNull()
+    .references(() => courseRuns.id, { onDelete: 'cascade' }),
+  lessonId: uuid('lesson_id').references(() => lessons.id, { onDelete: 'set null' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  provider: text('provider').notNull(), // zoom, google_meet, teams, custom
+  joinUrl: text('join_url').notNull(),
+  hostUrl: text('host_url'),
+  scheduledAt: timestamp('scheduled_at', { withTimezone: true }).notNull(),
+  durationMinutes: integer('duration_minutes').notNull(),
+  recordingUrl: text('recording_url'),
+  recordingAvailableAt: timestamp('recording_available_at', { withTimezone: true }),
+  maxParticipants: integer('max_participants'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const certificates = pgTable('certificates', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  enrollmentId: uuid('enrollment_id')
+    .notNull()
+    .references(() => enrollments.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  courseRunId: uuid('course_run_id')
+    .notNull()
+    .references(() => courseRuns.id, { onDelete: 'cascade' }),
+  templateId: uuid('template_id'),
+  verificationHash: text('verification_hash').notNull().unique(),
+  issuedAt: timestamp('issued_at', { withTimezone: true }).defaultNow().notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }),
+  pdfUrl: text('pdf_url'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const schema = {
   // Core
   tenants,
@@ -503,4 +684,14 @@ export const schema = {
   // Marketing
   leads,
   campaigns,
+  // Gamification
+  badgeDefinitions,
+  userBadges,
+  pointsTransactions,
+  userStreaks,
+  // Operations
+  attendance,
+  calendarEvents,
+  liveSessions,
+  certificates,
 }

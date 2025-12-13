@@ -28,6 +28,16 @@ import {
   // Marketing tables
   leads,
   campaigns,
+  // Gamification tables
+  badgeDefinitions,
+  userBadges,
+  pointsTransactions,
+  userStreaks,
+  // Operations tables
+  attendance,
+  calendarEvents,
+  liveSessions,
+  certificates,
   // Enums
   planEnum,
   tenantStatusEnum,
@@ -42,6 +52,10 @@ import {
   submissionStatusEnum,
   leadStatusEnum,
   leadSourceEnum,
+  badgeTypeEnum,
+  pointsSourceTypeEnum,
+  attendanceStatusEnum,
+  calendarEventTypeEnum,
 } from './schema'
 
 export const schemaVersion = '0.1.0' // Bumped for new tables
@@ -107,6 +121,16 @@ export {
   // Marketing tables
   leads,
   campaigns,
+  // Gamification tables
+  badgeDefinitions,
+  userBadges,
+  pointsTransactions,
+  userStreaks,
+  // Operations tables
+  attendance,
+  calendarEvents,
+  liveSessions,
+  certificates,
   // Enums
   planEnum,
   tenantStatusEnum,
@@ -121,4 +145,8 @@ export {
   submissionStatusEnum,
   leadStatusEnum,
   leadSourceEnum,
+  badgeTypeEnum,
+  pointsSourceTypeEnum,
+  attendanceStatusEnum,
+  calendarEventTypeEnum,
 }
