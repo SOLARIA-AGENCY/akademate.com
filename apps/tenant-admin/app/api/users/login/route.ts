@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import {
+  checkRateLimit,
+  resetRateLimit,
+  getClientIP,
+  createRateLimitHeaders,
+} from '@/lib/rateLimit'
 
 /**
  * Custom Login API Route
@@ -9,8 +15,30 @@ import config from '@payload-config'
  * POST /api/users/login
  * Body: { email: string, password: string }
  * Returns: { user, token, exp } on success
+ *
+ * Rate limiting: 5 attempts per 15 minutes per IP
  */
 export async function POST(request: Request) {
+  // Get client IP for rate limiting
+  const clientIP = getClientIP(request)
+
+  // Check rate limit
+  const rateLimitResult = checkRateLimit(clientIP)
+  const rateLimitHeaders = createRateLimitHeaders(rateLimitResult)
+
+  if (rateLimitResult.isLimited) {
+    return NextResponse.json(
+      {
+        error: 'Too many login attempts. Please try again later.',
+        retryAfter: rateLimitResult.retryAfterSeconds,
+      },
+      {
+        status: 429,
+        headers: rateLimitHeaders,
+      }
+    )
+  }
+
   try {
     // Manually parse JSON body
     const body = await request.json()
@@ -20,7 +48,7 @@ export async function POST(request: Request) {
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
-        { status: 400 }
+        { status: 400, headers: rateLimitHeaders }
       )
     }
 
@@ -39,9 +67,12 @@ export async function POST(request: Request) {
     if (!result.user || !result.token) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
-        { status: 401 }
+        { status: 401, headers: rateLimitHeaders }
       )
     }
+
+    // Reset rate limit on successful login
+    resetRateLimit(clientIP)
 
     // Create response with user data
     const response = NextResponse.json({
@@ -76,13 +107,13 @@ export async function POST(request: Request) {
     if (error.message?.includes('Invalid login')) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
-        { status: 401 }
+        { status: 401, headers: rateLimitHeaders }
       )
     }
 
     return NextResponse.json(
       { error: 'Login failed', details: error.message },
-      { status: 500 }
+      { status: 500, headers: rateLimitHeaders }
     )
   }
 }
