@@ -42,7 +42,8 @@ export function resolveTenantFromHost(
   customDomains?: Map<string, string> // domain -> tenantSlug
 ): TenantResolution {
   // Remove port if present
-  const hostname = host.split(':')[0].toLowerCase()
+  const hostPart = host.split(':')[0]
+  const hostname = hostPart?.toLowerCase() ?? ''
 
   // Check if it's a custom domain
   if (customDomains?.has(hostname)) {
@@ -94,10 +95,11 @@ export function resolveTenantFromHost(
   if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
     // In development, check for subdomain pattern like "demo.localhost"
     const parts = hostname.split('.')
-    if (parts.length > 1 && !SYSTEM_SUBDOMAINS.includes(parts[0])) {
+    const firstPart = parts[0]
+    if (parts.length > 1 && firstPart && !SYSTEM_SUBDOMAINS.includes(firstPart)) {
       return {
         tenantId: null,
-        tenantSlug: parts[0],
+        tenantSlug: firstPart,
         source: 'subdomain',
         isValid: true,
       }

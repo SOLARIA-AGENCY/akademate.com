@@ -3,14 +3,10 @@
   "version": "1.0.0",
   "description": "Academic catalog domain module - courses, cycles, centers, course runs",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
+    ".": "./src/index.ts"
   },
+  "files": ["src"],
   "scripts": {
     "build": "tsc",
     "test": "vitest run",

@@ -284,13 +284,14 @@ export class GdprExportService {
   /**
    * Convert array of objects to CSV string
    */
-  private objectToCSV(data: Record<string, unknown>[]): string {
+  private objectToCSV<T extends object>(data: T[]): string {
     if (data.length === 0) return ''
 
-    const headers = Object.keys(data[0])
+    const firstRow = data[0] as object
+    const headers = Object.keys(firstRow)
     const rows = data.map((row) =>
       headers.map((header) => {
-        const value = row[header]
+        const value = (row as Record<string, unknown>)[header]
         if (value === null || value === undefined) return ''
         if (typeof value === 'string') {
           // Escape quotes and wrap in quotes if contains comma or newline

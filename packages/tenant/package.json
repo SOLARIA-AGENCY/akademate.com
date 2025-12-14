@@ -7,7 +7,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./middleware": "./src/middleware.ts",
-    "./context": "./src/context.ts"
+    "./context": "./src/context.tsx"
   },
   "dependencies": {
     "@akademate/types": "workspace:*"

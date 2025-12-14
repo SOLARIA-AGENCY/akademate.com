@@ -66,15 +66,16 @@ export const ContextHeaders = {
 export function extractTenantFromHost(host: string): string | null {
   // Pattern: {tenant}.akademate.com or {tenant}.localhost
   const match = host.match(/^([a-z0-9-]+)\.(akademate\.com|localhost)/i)
-  return match ? match[1] : null
+  return match?.[1] ?? null
 }
 
 export function extractIpAddress(headers: Headers): string | null {
   const forwarded = headers.get(ContextHeaders.FORWARDED_FOR)
   if (forwarded) {
-    return forwarded.split(',')[0].trim()
+    const firstIp = forwarded.split(',')[0]
+    return firstIp ? firstIp.trim() : null
   }
-  return headers.get(ContextHeaders.REAL_IP)
+  return headers.get(ContextHeaders.REAL_IP) ?? null
 }
 
 export function generateRequestId(): string {
