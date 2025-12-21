@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import {
   Card,
   CardContent,
@@ -22,128 +21,36 @@ import {
   AlertTriangle,
   Info,
   Clock,
+  Wifi,
+  WifiOff,
+  RefreshCw,
 } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
+import { Button } from '@payload-config/components/ui/button'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-
-interface DashboardMetrics {
-  total_courses: number
-  active_courses: number
-  active_students: number
-  total_students: number
-  leads_this_month: number
-  total_leads: number
-  conversion_rate: number
-  total_revenue: number
-  active_convocations: number
-  total_convocations: number
-  total_teachers: number
-  total_staff: number
-  total_campuses: number
-  classroom_utilization: number
-}
-
-interface Convocation {
-  id: number
-  codigo: string
-  course_title: string
-  campus_name: string
-  start_date: string
-  end_date: string
-  status: string
-  enrolled: number
-  capacity_max: number
-}
-
-interface Campaign {
-  id: number
-  name: string
-  leads_generated: number
-  conversion_rate: number
-  cost_per_lead: number
-  status: string
-}
-
-interface Activity {
-  type: 'lead' | 'enrollment' | 'convocation'
-  title: string
-  entity_name: string
-  timestamp: string
-}
-
-interface Alert {
-  severity: 'warning' | 'info'
-  message: string
-  count: number
-}
-
-interface CampusDistribution {
-  campus_name: string
-  student_count: number
-}
-
-interface WeeklyMetrics {
-  leads: number[]
-  enrollments: number[]
-  courses_added: number[]
-}
+import { useDashboardMetrics, type Convocation, type Campaign } from '@payload-config/hooks'
 
 export default function DashboardPage() {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [metrics, setMetrics] = useState<DashboardMetrics>({
-    total_courses: 0,
-    active_courses: 0,
-    active_students: 0,
-    total_students: 0,
-    leads_this_month: 0,
-    total_leads: 0,
-    conversion_rate: 0,
-    total_revenue: 0,
-    active_convocations: 0,
-    total_convocations: 0,
-    total_teachers: 0,
-    total_staff: 0,
-    total_campuses: 0,
-    classroom_utilization: 0,
-  })
-  const [convocations, setConvocations] = useState<Convocation[]>([])
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [recentActivities, setRecentActivities] = useState<Activity[]>([])
-  const [weeklyMetrics, setWeeklyMetrics] = useState<WeeklyMetrics>({ leads: [], enrollments: [], courses_added: [] })
-  const [alerts, setAlerts] = useState<Alert[]>([])
-  const [campusDistribution, setCampusDistribution] = useState<CampusDistribution[]>([])
+  // Use the combined hook for initial fetch + real-time updates
+  const {
+    data,
+    loading,
+    error,
+    isConnected,
+    lastUpdate,
+    refresh,
+  } = useDashboardMetrics({ tenantId: 1, enableRealtime: true })
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        setLoading(true)
-        const response = await fetch('/api/dashboard')
-        if (!response.ok) throw new Error('Failed to load dashboard data')
-
-        const result = await response.json()
-        if (result.success) {
-          setMetrics(result.data.metrics)
-          setConvocations(result.data.upcoming_convocations || [])
-          setCampaigns(result.data.campaigns || [])
-          setRecentActivities(result.data.recent_activities || [])
-          setWeeklyMetrics(result.data.weekly_metrics || { leads: [], enrollments: [], courses_added: [] })
-          setAlerts(result.data.alerts || [])
-          setCampusDistribution(result.data.campus_distribution || [])
-          setError(null)
-        } else {
-          throw new Error(result.error || 'Error loading dashboard')
-        }
-      } catch (err) {
-        console.error('Error loading dashboard:', err)
-        setError(err instanceof Error ? err.message : 'Unknown error')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadDashboardData()
-  }, [])
+  // Destructure data for easier access
+  const {
+    metrics,
+    convocations,
+    campaigns,
+    recentActivities,
+    weeklyMetrics,
+    alerts,
+    campusDistribution,
+  } = data
 
   // Format current date in Spanish
   const formattedDate = new Intl.DateTimeFormat('es-ES', {
@@ -266,8 +173,35 @@ export default function DashboardPage() {
               Vista general de la operativa de CEP Comunicación
             </p>
           </div>
-          <div className="text-right">
+          <div className="text-right space-y-2">
             <p className="text-sm text-muted-foreground capitalize">{formattedDate}</p>
+            {/* Real-time connection status */}
+            <div className="flex items-center justify-end gap-2">
+              {isConnected ? (
+                <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                  <Wifi className="h-3 w-3" />
+                  <span>En vivo</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <WifiOff className="h-3 w-3" />
+                  <span>Sin conexión</span>
+                </div>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2"
+                onClick={() => refresh()}
+              >
+                <RefreshCw className="h-3 w-3" />
+              </Button>
+            </div>
+            {lastUpdate && (
+              <p className="text-xs text-muted-foreground">
+                Actualizado: {lastUpdate.toLocaleTimeString('es-ES')}
+              </p>
+            )}
           </div>
         </div>
       </div>

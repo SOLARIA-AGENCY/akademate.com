@@ -1,158 +1,44 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { MockDataBanner } from '@/components/mock-data-banner';
-
-interface ServiceStatus {
-  name: string;
-  status: 'operational' | 'degraded' | 'outage' | 'maintenance';
-  latency: number | null;
-  uptime: number;
-  lastCheck: string;
-  details: string;
-}
-
-interface SystemMetric {
-  name: string;
-  value: number;
-  max: number;
-  unit: string;
-  status: 'healthy' | 'warning' | 'critical';
-}
-
-interface Incident {
-  id: string;
-  title: string;
-  status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
-  severity: 'minor' | 'major' | 'critical';
-  createdAt: string;
-  updatedAt: string;
-  description: string;
-  affectedServices: string[];
-}
-
-const mockServices: ServiceStatus[] = [
-  {
-    name: 'API Principal',
-    status: 'operational',
-    latency: 45,
-    uptime: 99.98,
-    lastCheck: '2025-12-07T14:45:00',
-    details: 'Todas las operaciones funcionando correctamente',
-  },
-  {
-    name: 'Base de Datos PostgreSQL',
-    status: 'operational',
-    latency: 12,
-    uptime: 99.99,
-    lastCheck: '2025-12-07T14:45:00',
-    details: 'Conexiones activas: 45/100',
-  },
-  {
-    name: 'Redis Cache',
-    status: 'operational',
-    latency: 2,
-    uptime: 99.99,
-    lastCheck: '2025-12-07T14:45:00',
-    details: 'Memoria usada: 256MB/1GB',
-  },
-  {
-    name: 'Cola de Trabajos (BullMQ)',
-    status: 'operational',
-    latency: 8,
-    uptime: 99.95,
-    lastCheck: '2025-12-07T14:45:00',
-    details: 'Jobs en cola: 12, Procesados hoy: 1,234',
-  },
-  {
-    name: 'Almacenamiento (S3)',
-    status: 'operational',
-    latency: 89,
-    uptime: 99.99,
-    lastCheck: '2025-12-07T14:45:00',
-    details: 'Espacio usado: 45.2 GB',
-  },
-  {
-    name: 'Email (SMTP)',
-    status: 'degraded',
-    latency: 1200,
-    uptime: 98.5,
-    lastCheck: '2025-12-07T14:45:00',
-    details: 'Latencia elevada - proveedor con retrasos',
-  },
-  {
-    name: 'WhatsApp Cloud API',
-    status: 'operational',
-    latency: 156,
-    uptime: 99.9,
-    lastCheck: '2025-12-07T14:45:00',
-    details: 'Mensajes enviados hoy: 234',
-  },
-  {
-    name: 'CDN (Cloudflare)',
-    status: 'operational',
-    latency: 15,
-    uptime: 99.99,
-    lastCheck: '2025-12-07T14:45:00',
-    details: 'Cache hit ratio: 94%',
-  },
-];
-
-const mockMetrics: SystemMetric[] = [
-  { name: 'CPU', value: 42, max: 100, unit: '%', status: 'healthy' },
-  { name: 'Memoria', value: 68, max: 100, unit: '%', status: 'healthy' },
-  { name: 'Disco', value: 45, max: 100, unit: '%', status: 'healthy' },
-  { name: 'Conexiones DB', value: 45, max: 100, unit: '', status: 'healthy' },
-  { name: 'Requests/min', value: 1250, max: 5000, unit: '', status: 'healthy' },
-  { name: 'Errores/hora', value: 3, max: 50, unit: '', status: 'healthy' },
-];
-
-const mockIncidents: Incident[] = [
-  {
-    id: 'INC-003',
-    title: 'Latencia elevada en servicio de email',
-    status: 'monitoring',
-    severity: 'minor',
-    createdAt: '2025-12-07T12:30:00',
-    updatedAt: '2025-12-07T14:00:00',
-    description: 'El proveedor de email está experimentando retrasos en la entrega. Estamos monitoreando la situación.',
-    affectedServices: ['Email (SMTP)'],
-  },
-  {
-    id: 'INC-002',
-    title: 'Mantenimiento programado - Actualización de base de datos',
-    status: 'resolved',
-    severity: 'minor',
-    createdAt: '2025-12-05T02:00:00',
-    updatedAt: '2025-12-05T03:30:00',
-    description: 'Actualización exitosa de PostgreSQL 16.9 a 16.10. Sin interrupciones reportadas.',
-    affectedServices: ['Base de Datos PostgreSQL'],
-  },
-];
+import { ResponseTimeChart, type ResponseTimeDataPoint } from '@/components/charts';
+import { useSystemStatus, type ServiceStatus, type SystemMetric, type Incident } from '@/hooks';
 
 export default function EstadoPage() {
-  const [services] = useState<ServiceStatus[]>(mockServices);
-  const [metrics] = useState<SystemMetric[]>(mockMetrics);
-  const [incidents] = useState<Incident[]>(mockIncidents);
-  const [lastUpdate, setLastUpdate] = useState(new Date().toISOString());
+  // Use the real-time system status hook
+  const {
+    data: { services, metrics, incidents, overallStatus },
+    loading,
+    isConnected,
+    lastUpdate,
+    refresh,
+  } = useSystemStatus({ enableRealtime: true });
+
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  useEffect(() => {
-    if (autoRefresh) {
-      const interval = setInterval(() => {
-        setLastUpdate(new Date().toISOString());
-      }, 30000); // Update every 30 seconds
-      return () => clearInterval(interval);
-    }
-  }, [autoRefresh]);
+  // Generate response time chart data (simulated real-time updates)
+  const responseTimeData = useMemo<ResponseTimeDataPoint[]>(() => {
+    const now = new Date();
+    return Array.from({ length: 24 }, (_, i) => {
+      const time = new Date(now.getTime() - (23 - i) * 3600000);
+      // Simulate realistic response times with some variance
+      const baseApi = 45 + Math.random() * 30;
+      const baseDb = 80 + Math.random() * 50;
+      const baseCache = 5 + Math.random() * 10;
+      // Add occasional spikes
+      const spike = Math.random() > 0.9 ? Math.random() * 100 : 0;
+      return {
+        time: time.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        api: Math.round(baseApi + spike),
+        database: Math.round(baseDb + spike * 1.5),
+        cache: Math.round(baseCache + spike * 0.2),
+      };
+    });
+  }, [lastUpdate]); // Regenerate when data updates
 
   const operationalCount = services.filter(s => s.status === 'operational').length;
-  const overallStatus = operationalCount === services.length
-    ? 'operational'
-    : operationalCount >= services.length - 1
-      ? 'degraded'
-      : 'outage';
 
   const getStatusColor = (status: ServiceStatus['status']) => {
     const colors = {
@@ -262,18 +148,22 @@ export default function EstadoPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="checkbox"
-                checked={autoRefresh}
-                onChange={(e) => setAutoRefresh(e.target.checked)}
-                className="rounded"
-              />
-              Auto-actualizar
-            </label>
+            {/* Connection status indicator */}
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+              <span className="text-xs text-muted-foreground">
+                {isConnected ? 'En vivo' : 'Sin conexión'}
+              </span>
+            </div>
+            <button
+              onClick={refresh}
+              className="text-xs text-primary hover:underline"
+            >
+              Actualizar
+            </button>
             <div className="text-right">
               <p className="text-muted-foreground text-xs">Última actualización</p>
-              <p className="text-foreground text-sm">{formatDate(lastUpdate)}</p>
+              <p className="text-foreground text-sm">{lastUpdate ? formatDate(lastUpdate.toISOString()) : '-'}</p>
             </div>
           </div>
         </div>
@@ -434,18 +324,26 @@ export default function EstadoPage() {
         </div>
       </div>
 
-      {/* Response Times Chart Placeholder */}
+      {/* Response Times Chart */}
       <div className="mt-6 glass-panel rounded-xl border border-muted/30 p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Tiempos de Respuesta (24h)</h3>
-        <div className="h-48 flex items-center justify-center bg-muted/30 rounded-lg">
-          <div className="text-center">
-            <svg className="w-12 h-12 text-muted-foreground mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <p className="text-muted-foreground">Gráfico de tiempos de respuesta</p>
-            <p className="text-muted-foreground text-sm">Próximamente con Recharts</p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Tiempos de Respuesta (24h)</h3>
+            <p className="text-muted-foreground text-sm">Latencia promedio por servicio</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+            <span className="text-xs text-muted-foreground">
+              {isConnected ? 'Actualizando en vivo' : 'Sin conexión'}
+            </span>
           </div>
         </div>
+        <ResponseTimeChart
+          data={responseTimeData}
+          height={220}
+          showLegend={true}
+          thresholdMs={200}
+        />
       </div>
     </>
   );

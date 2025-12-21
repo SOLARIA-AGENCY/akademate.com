@@ -9,6 +9,8 @@ import {
   MAX_FILE_SIZE,
   validateFilenameExtension,
   sanitizeFilename,
+  type MimeType,
+  type BlockedMimeType,
 } from '../Media.validation';
 
 // Initialize DOMPurify with jsdom for Node.js environment
@@ -147,14 +149,14 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
   }
 
   // 5.1: Check if MIME type is explicitly blocked (executables)
-  if (BLOCKED_MIME_TYPES.includes(mimeType as any)) {
+  if (BLOCKED_MIME_TYPES.includes(mimeType as BlockedMimeType)) {
     throw new Error(
       `Security Error: MIME type ${mimeType} is not allowed. Executable and script files are blocked for security reasons.`
     );
   }
 
   // 5.2: Check if MIME type is in allowed list
-  if (!ALLOWED_MIME_TYPES.includes(mimeType as any)) {
+  if (!ALLOWED_MIME_TYPES.includes(mimeType as MimeType)) {
     throw new Error(
       `Invalid MIME type: ${mimeType}. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`
     );

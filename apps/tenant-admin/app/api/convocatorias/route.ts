@@ -2,6 +2,7 @@ import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ScheduleEntry } from '@payload-config/components/ui/ScheduleBuilder';
+import { CourseRun } from '@/payload-types';
 
 interface CreateConvocationRequest {
   courseId: string;
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
 
     // Crear convocatoria en Payload
     const convocation = await payload.create({
-      collection: 'course-runs' as any,
+      collection: 'course-runs',
       data: {
         course: parseInt(courseId),
         campus: campusId, // Validated campus ID
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
         schedule_days: horario.map((e: ScheduleEntry) => e.day), // Array de días (english weekdays)
         schedule_time_start: earliestStart, // Earliest start time across all days
         schedule_time_end: latestEnd, // Latest end time across all days
-        status: estado === 'abierta' ? 'enrollment_open' : 'draft' as any,
+        status: (estado === 'abierta' ? 'enrollment_open' : 'draft') as CourseRun['status'],
         min_students: 5, // Valor por defecto
         max_students: plazasTotales,
         current_enrollments: 0,
@@ -173,7 +174,7 @@ export async function GET(request: NextRequest) {
     }
 
     const convocations = await payload.find({
-      collection: 'course-runs' as any,
+      collection: 'course-runs',
       where: whereClause,
       limit: 100,
       sort: '-start_date',

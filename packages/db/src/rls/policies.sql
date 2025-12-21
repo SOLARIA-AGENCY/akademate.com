@@ -39,6 +39,18 @@ ALTER TABLE grades ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
 
+-- Gamification tables
+ALTER TABLE badge_definitions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE points_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_streaks ENABLE ROW LEVEL SECURITY;
+
+-- Operations tables
+ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
+ALTER TABLE calendar_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE live_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE certificates ENABLE ROW LEVEL SECURITY;
+
 -- ============================================================================
 -- STEP 2: Create standard tenant isolation policies
 -- ============================================================================
@@ -178,6 +190,62 @@ CREATE POLICY tenant_isolation_leads ON leads
 
 -- Campaigns: Marketing campaigns
 CREATE POLICY tenant_isolation_campaigns ON campaigns
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- -----------------------------------------------------------------------------
+-- Gamification Tables
+-- -----------------------------------------------------------------------------
+
+-- Badge Definitions: Achievements settings
+CREATE POLICY tenant_isolation_badge_definitions ON badge_definitions
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- User Badges: Earned achievements
+CREATE POLICY tenant_isolation_user_badges ON user_badges
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- Points Transactions: Ledger of points earned
+CREATE POLICY tenant_isolation_points_transactions ON points_transactions
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- User Streaks: Engagement metrics
+CREATE POLICY tenant_isolation_user_streaks ON user_streaks
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- -----------------------------------------------------------------------------
+-- Operations Tables
+-- -----------------------------------------------------------------------------
+
+-- Attendance: Class attendance records
+CREATE POLICY tenant_isolation_attendance ON attendance
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- Calendar Events: Schedule for the tenant
+CREATE POLICY tenant_isolation_calendar_events ON calendar_events
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- Live Sessions: Zoom/Teams links
+CREATE POLICY tenant_isolation_live_sessions ON live_sessions
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- Certificates: Generated PDFs
+CREATE POLICY tenant_isolation_certificates ON certificates
   FOR ALL
   USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
   WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);

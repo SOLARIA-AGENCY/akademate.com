@@ -13,9 +13,11 @@ import {
   CreditCard,
   Target,
   TrendingUp,
+  Activity,
 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { MockDataBanner } from '@/components/mock-data-banner'
+import { MetricsBarChart, type MetricDataPoint } from '@/components/charts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { KPICard } from '@/components/ui/kpi-card'
@@ -101,6 +103,17 @@ export default function DashboardPage() {
   const trialTenants = tenants.filter(t => t.status === 'trial').length
   const hasMock = useMemo(() => true, [])
 
+  // Weekly activity metrics for chart
+  const weeklyMetrics = useMemo<MetricDataPoint[]>(() => [
+    { name: 'Lun', value: 45, color: 'hsl(142 76% 36%)' },
+    { name: 'Mar', value: 52, color: 'hsl(142 76% 36%)' },
+    { name: 'Mié', value: 38, color: 'hsl(142 76% 36%)' },
+    { name: 'Jue', value: 65, color: 'hsl(142 76% 36%)' },
+    { name: 'Vie', value: 48, color: 'hsl(142 76% 36%)' },
+    { name: 'Sáb', value: 22, color: 'hsl(217 91% 60%)' },
+    { name: 'Dom', value: 15, color: 'hsl(217 91% 60%)' },
+  ], [])
+
   return (
     <div className="space-y-8">
       {/* Page Header */}
@@ -165,6 +178,55 @@ export default function DashboardPage() {
           href="/dashboard/facturacion"
           badge={{ text: '$299', variant: 'danger' }}
         />
+      </section>
+
+      {/* Activity Chart */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" />
+                <CardTitle className="text-base">Actividad Semanal</CardTitle>
+              </div>
+              <Badge variant="outline">Esta semana</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <MetricsBarChart data={weeklyMetrics} height={180} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-success" />
+                <CardTitle className="text-base">Crecimiento</CardTitle>
+              </div>
+              <Badge variant="outline" className="text-success border-success/30">+15%</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-foreground">287</p>
+                <p className="text-xs text-muted-foreground">Nuevos usuarios este mes</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-foreground">42</p>
+                <p className="text-xs text-muted-foreground">Cursos completados</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-success">98.5%</p>
+                <p className="text-xs text-muted-foreground">Uptime del sistema</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-foreground">4.8</p>
+                <p className="text-xs text-muted-foreground">Satisfacción media</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </section>
 
       {/* Enterprise Readiness Card */}

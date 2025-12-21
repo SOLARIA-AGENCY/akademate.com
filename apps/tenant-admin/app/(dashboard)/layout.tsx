@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Search, User } from 'lucide-react'
+import { Bell, Search, User, Wifi, WifiOff } from 'lucide-react'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import {
@@ -21,6 +21,7 @@ import { AppSidebar } from '@payload-config/components/layout/AppSidebar' // FOR
 import { DashboardFooter } from '@payload-config/components/layout/DashboardFooter'
 import { ThemeToggle } from '@payload-config/components/ui/ThemeToggle'
 import { ChatbotWidget } from '@payload-config/components/ui/ChatbotWidget'
+import { RealtimeProvider } from '@payload-config/components/providers'
 
 export default function DashboardLayout({
   children,
@@ -41,6 +42,7 @@ export default function DashboardLayout({
   return (
     <html lang="es">
       <body>
+        <RealtimeProvider tenantId={1}>
         <div className="flex h-screen overflow-hidden bg-background text-foreground overscroll-none">
         {/* Sidebar */}
         <aside
@@ -158,6 +160,7 @@ export default function DashboardLayout({
         {/* Chatbot Widget - Fixed Position */}
         <ChatbotWidget />
         </div>
+        </RealtimeProvider>
       </body>
     </html>
   )

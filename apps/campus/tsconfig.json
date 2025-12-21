@@ -6,6 +6,11 @@
       "node"
     ],
     "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
     "incremental": true,
     "plugins": [
       {
@@ -15,6 +20,10 @@
   },
   "include": [
     "app/**/*",
+    "components/**/*",
+    "hooks/**/*",
+    "providers/**/*",
+    "lib/**/*",
     "next-env.d.ts",
     ".next/types/**/*.ts"
   ],

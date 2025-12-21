@@ -1,0 +1,23 @@
+{
+  "name": "@akademate/notifications",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./templates": "./src/templates/index.ts",
+    "./service": "./src/email-service.ts"
+  },
+  "files": ["src"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@akademate/types": "workspace:*",
+    "resend": "^4.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.0"
+  }
+}

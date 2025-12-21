@@ -8,14 +8,17 @@
     "start": "next start",
     "lint": "pnpm exec eslint . --ext .ts,.tsx --max-warnings=0",
     "seed": "tsx scripts/seed.ts",
-    "generate:types": "payload generate:types"
+    "generate:types": "payload generate:types",
+    "socket": "tsx socket/server.ts",
+    "socket:dev": "SKIP_AUTH=true tsx watch socket/server.ts"
   },
   "dependencies": {
+    "@akademate/realtime": "workspace:*",
     "@akademate/ui": "workspace:*",
     "@akademate/types": "workspace:*",
     "@payloadcms/db-postgres": "^3.67.0",
     "@payloadcms/next": "^3.67.0",
-    "next": "^15.0.0",
+    "next": "^15.5.9",
     "payload": "^3.67.0",
     "pg": "^8.13.1",
     "react": "^19.0.0",

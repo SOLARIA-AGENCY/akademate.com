@@ -1,3 +1,4 @@
+
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { buildConfig, type CollectionConfig } from 'payload'
 import { injectTenantId, preventTenantChange } from './hooks/injectTenantId'
@@ -10,6 +11,32 @@ import {
   authenticated,
   publicRead,
 } from './access/tenantAccess'
+
+// Import new collections
+import {
+  Modules,
+  Lessons,
+  Materials,
+  Assignments,
+  Submissions,
+  Grades,
+  LessonProgress,
+  Enrollments,
+} from './collections/lms'
+
+import {
+  BadgeDefinitions,
+  UserBadges,
+  PointsTransactions,
+  UserStreaks,
+} from './collections/gamification'
+
+import {
+  Attendance,
+  CalendarEvents,
+  LiveSessions,
+  Certificates,
+} from './collections/operations'
 
 // ============================================================================
 // ENUMS / OPTIONS
@@ -46,14 +73,6 @@ const courseRunStatus = [
   { label: 'In Progress', value: 'in_progress' },
   { label: 'Completed', value: 'completed' },
   { label: 'Cancelled', value: 'cancelled' },
-]
-
-const enrollmentStatus = [
-  { label: 'Pending', value: 'pending' },
-  { label: 'Active', value: 'active' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Withdrawn', value: 'withdrawn' },
-  { label: 'Failed', value: 'failed' },
 ]
 
 const leadStatus = [
@@ -394,46 +413,6 @@ const CourseRuns: CollectionConfig = {
 }
 
 // ============================================================================
-// LMS / CAMPUS COLLECTIONS
-// ============================================================================
-
-const Enrollments: CollectionConfig = {
-  slug: 'enrollments',
-  admin: {
-    group: 'LMS',
-  },
-  access: {
-    read: readOwnTenant,
-    create: createWithTenant,
-    update: updateOwnTenant,
-    delete: deleteOwnTenant,
-  },
-  hooks: {
-    beforeValidate: [injectTenantId, preventTenantChange],
-  },
-  fields: [
-    tenantField,
-    { name: 'user', type: 'relationship', relationTo: 'users', required: true },
-    { name: 'courseRun', type: 'relationship', relationTo: 'course-runs', required: true },
-    {
-      name: 'status',
-      type: 'select',
-      defaultValue: 'pending',
-      options: enrollmentStatus,
-    },
-    { name: 'enrolledAt', type: 'date', defaultValue: () => new Date().toISOString() },
-    { name: 'startedAt', type: 'date' },
-    { name: 'completedAt', type: 'date' },
-    { name: 'expiresAt', type: 'date' },
-    { name: 'progress', type: 'number', defaultValue: 0 },
-    { name: 'lastAccessAt', type: 'date' },
-    { name: 'certificateUrl', type: 'text' },
-    { name: 'metadata', type: 'json', defaultValue: {} },
-    ...timestampFields,
-  ],
-}
-
-// ============================================================================
 // MARKETING COLLECTIONS
 // ============================================================================
 
@@ -652,7 +631,24 @@ const config = buildConfig({
     Instructors,
     CourseRuns,
     // LMS
+    Modules,
+    Lessons,
+    Materials,
+    Assignments,
+    Submissions,
+    Grades,
+    LessonProgress,
     Enrollments,
+    // Gamification
+    BadgeDefinitions,
+    UserBadges,
+    PointsTransactions,
+    UserStreaks,
+    // Operations
+    Attendance,
+    CalendarEvents,
+    LiveSessions,
+    Certificates,
     // Marketing
     Leads,
     Campaigns,

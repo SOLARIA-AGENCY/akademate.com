@@ -120,6 +120,8 @@ export const ALLOWED_MIME_TYPES = [
   'application/pdf',
 ] as const;
 
+export type MimeType = typeof ALLOWED_MIME_TYPES[number];
+
 /**
  * Blocked MIME Types (Security)
  * - Executables and scripts
@@ -137,6 +139,8 @@ export const BLOCKED_MIME_TYPES = [
   'application/x-msi', // Windows installer
   'application/octet-stream', // Generic binary (too risky)
 ] as const;
+
+export type BlockedMimeType = typeof BLOCKED_MIME_TYPES[number];
 
 /**
  * Dangerous File Extensions
@@ -207,11 +211,11 @@ export const filenameSchema = z
 export const mimeTypeSchema = z
   .string()
   .refine(
-    (mimeType) => ALLOWED_MIME_TYPES.includes(mimeType as any),
+    (mimeType): mimeType is MimeType => ALLOWED_MIME_TYPES.includes(mimeType as MimeType),
     `MIME type must be one of: ${ALLOWED_MIME_TYPES.join(', ')}`
   )
   .refine(
-    (mimeType) => !BLOCKED_MIME_TYPES.includes(mimeType as any),
+    (mimeType) => !BLOCKED_MIME_TYPES.includes(mimeType as BlockedMimeType),
     'Executable and script file types are not allowed for security reasons'
   );
 

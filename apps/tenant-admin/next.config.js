@@ -78,6 +78,12 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // HSTS: Force HTTPS for 1 year, include subdomains, allow preload
+          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
+          // Prevent XSS attacks
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          // Permissions Policy (formerly Feature-Policy)
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
         ],
       },
     ]

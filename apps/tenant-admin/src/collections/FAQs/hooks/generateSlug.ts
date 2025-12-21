@@ -124,7 +124,7 @@ export const generateSlug: FieldHook = async ({ data, req, operation, value }) =
   // Auto-generate slug from question
   if (data?.question && typeof data.question === 'string') {
     const baseSlug = slugify(data.question);
-    const currentId = operation === 'update' ? (data as any).id : undefined;
+    const currentId = operation === 'update' ? (data as { id?: string | number }).id?.toString() : undefined;
 
     const uniqueSlug = await generateUniqueSlug(baseSlug, req, currentId);
 

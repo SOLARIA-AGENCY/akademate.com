@@ -1,0 +1,82 @@
+/**
+ * @fileoverview Subscription Management API
+ * Create and list subscriptions
+ */
+
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import {
+  createSubscription,
+  createStripeCustomer,
+  isStripeConfigured,
+} from '@/lib/stripe'
+
+// ============================================================================
+// Schemas
+// ============================================================================
+
+const CreateSubscriptionSchema = z.object({
+  tenantId: z.string().uuid(),
+  planTier: z.enum(['starter', 'pro', 'enterprise']),
+  interval: z.enum(['month', 'year']),
+  email: z.string().email(),
+  name: z.string().optional(),
+  paymentMethodId: z.string().optional(),
+  trialDays: z.number().int().min(0).max(30).optional(),
+  stripeCustomerId: z.string().optional(),
+})
+
+// ============================================================================
+// POST /api/billing/subscriptions
+// ============================================================================
+
+export async function POST(request: NextRequest) {
+  try {
+    if (!isStripeConfigured()) {
+      return NextResponse.json(
+        { error: 'Stripe is not configured' },
+        { status: 503 }
+      )
+    }
+
+    const body = await request.json()
+    const validation = CreateSubscriptionSchema.safeParse(body)
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Invalid request', details: validation.error.flatten() },
+        { status: 400 }
+      )
+    }
+
+    const { tenantId, planTier, interval, email, name, paymentMethodId, trialDays, stripeCustomerId } = validation.data
+
+    // Get or create Stripe customer
+    let customerId = stripeCustomerId
+    if (!customerId) {
+      const customer = await createStripeCustomer({
+        tenantId,
+        email,
+        name,
+      })
+      customerId = customer.id
+    }
+
+    const result = await createSubscription({
+      tenantId,
+      planTier,
+      interval,
+      paymentMethodId,
+      trialDays,
+      stripeCustomerId: customerId,
+    })
+
+    return NextResponse.json(result, { status: 201 })
+  } catch (error) {
+    console.error('Create subscription error:', error)
+    return NextResponse.json(
+      { error: 'Failed to create subscription' },
+      { status: 500 }
+    )
+  }
+}

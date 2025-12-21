@@ -42,10 +42,11 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
 - Ubicación única **dentro de este repo**: `infra/solaria-digital-field--operations` (no clonar fuera).
 - Arranque mínimo (dashboard + MySQL):  
   ```bash
-  cd infra/solaria-digital-field--operations
-  cp .env.example .env    # solo la primera vez; ya viene uno listo para Akademate.com
-  docker-compose up -d dashboard-backend mysql
-  # Dashboard: http://localhost:3030  (Acceso rápido o carlosjperez / SolariaAdmin2024!)
+- Acceso a la oficina remota **SOLARIA DFO Cloud**:
+  - URL: `https://dfo.solaria.agency`
+  - Usuario: `carlosjperez`
+  - Password: `bypass`
+  - **Nota para Agentes**: Para acceso programático (curl/MCP), es necesario autenticarse y usar el token JWT retornado.
   ```
 - Arranque completo (agentes, minio, redis, postgres, nginx):  
   ```bash
@@ -86,7 +87,7 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
 | Tenant Admin | 3009 | http://localhost:3009 | Dashboard cliente/academias (template CEP) |
 | Payload CMS | 3003 | http://localhost:3003/admin | Backoffice y API |
 | Campus Virtual | 3005 | http://localhost:3005 | Portal del alumno |
-| SOLARIA DFO | 3030 | http://localhost:3030 | Digital Field Operations |
+| SOLARIA DFO | Cloud | https://dfo.solaria.agency | Digital Field Operations & Project Tracking |
 
 ## Arranque desarrollo
 ```bash

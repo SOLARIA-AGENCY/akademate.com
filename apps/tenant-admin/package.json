@@ -19,6 +19,7 @@
     "generate:types": "payload generate:types"
   },
   "dependencies": {
+    "@akademate/realtime": "workspace:*",
     "@payloadcms/db-postgres": "^3.67.0",
     "@payloadcms/drizzle": "3.67.0",
     "@payloadcms/graphql": "3.67.0",
@@ -56,7 +57,7 @@
     "isomorphic-dompurify": "^2.30.1",
     "jsdom": "^27.0.1",
     "lucide-react": "^0.553.0",
-    "next": "15.4.8",
+    "next": "15.5.9",
     "payload": "^3.67.0",
     "postgres": "^3.4.7",
     "react": "^19.2.0",
