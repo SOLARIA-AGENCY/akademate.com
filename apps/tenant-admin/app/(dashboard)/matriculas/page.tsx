@@ -50,7 +50,9 @@ import {
   AlertCircle,
   User,
   GraduationCap,
+  Upload,
 } from 'lucide-react'
+import { BulkEnrollmentDialog } from './components/BulkEnrollmentDialog'
 
 // Mock data de matrículas
 const matriculasData = [
@@ -206,6 +208,7 @@ export default function MatriculasPage() {
   const [estadoFilter, setEstadoFilter] = useState('todos')
   const [sedeFilter, setSedeFilter] = useState('todas')
   const [tipoFilter, setTipoFilter] = useState('todos')
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false)
 
   const filteredMatriculas = matriculasData.filter((m) => {
     const matchesSearch =
@@ -242,6 +245,10 @@ export default function MatriculasPage() {
           <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Exportar
+          </Button>
+          <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Importar CSV
           </Button>
           <Button style={{ backgroundColor: '#F2014B' }}>
             <UserPlus className="mr-2 h-4 w-4" />
@@ -571,6 +578,16 @@ export default function MatriculasPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Bulk Enrollment Dialog */}
+      <BulkEnrollmentDialog
+        open={bulkDialogOpen}
+        onOpenChange={setBulkDialogOpen}
+        onComplete={() => {
+          // TODO: Refresh data when connected to real API
+          console.log('Bulk enrollment completed')
+        }}
+      />
     </div>
   )
 }
