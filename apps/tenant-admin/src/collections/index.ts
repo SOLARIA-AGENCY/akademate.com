@@ -40,7 +40,21 @@ export { Media } from './Media/Media';
 export { AuditLogs } from './AuditLogs/AuditLogs';
 export { AreasFormativas } from './AreasFormativas';
 export { Staff } from './Staff/Staff';
-// ... more collections to come
+
+// LMS Collections
+export { Modules } from './Modules/Modules';
+export { Lessons } from './Lessons/Lessons';
+export { LessonProgress } from './LessonProgress/LessonProgress';
+export { Materials } from './Materials/Materials';
+export { Submissions } from './Submissions/Submissions';
+export { Attendance } from './Attendance/Attendance';
+export { Certificates } from './Certificates/Certificates';
+
+// Gamification Collections
+export { Badges } from './Badges/Badges';
+export { UserBadges } from './UserBadges/UserBadges';
+export { PointsTransactions } from './PointsTransactions/PointsTransactions';
+export { UserStreaks } from './UserStreaks/UserStreaks';
 
 export const collections = [
   // Collections will be added here as they are implemented

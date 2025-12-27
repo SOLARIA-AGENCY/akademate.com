@@ -77,7 +77,7 @@ importers:
         version: 8.49.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       vitest:
         specifier: ^2.1.9
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   apps/admin-client:
     dependencies:
@@ -207,7 +207,7 @@ importers:
         version: 27.3.0(bufferutil@4.0.9)(postcss@8.5.6)
       vitest:
         specifier: ^4.0.16
-        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2)
+        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2)
 
   apps/ops:
     dependencies:
@@ -323,7 +323,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.8
-        version: 2.1.9(@types/node@20.19.26)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@20.19.26)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   apps/tenant-admin:
     dependencies:
@@ -408,6 +408,9 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
       bullmq:
         specifier: ^5.30.3
         version: 5.66.0
@@ -487,6 +490,9 @@ importers:
       '@testing-library/user-event':
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
+      '@types/bcryptjs':
+        specifier: ^3.0.0
+        version: 3.0.0
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
@@ -531,7 +537,7 @@ importers:
         version: 4.20.6
       vitest:
         specifier: ^4.0.8
-        version: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2)
+        version: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2)
 
   apps/web:
     dependencies:
@@ -657,7 +663,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.0
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   packages/api-client:
     dependencies:
@@ -701,7 +707,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.8
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   packages/db:
     dependencies:
@@ -717,7 +723,7 @@ importers:
         version: 3.4.7
       vitest:
         specifier: ^4.0.15
-        version: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2)
+        version: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2)
 
   packages/imports:
     dependencies:
@@ -739,7 +745,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.0
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   packages/jobs:
     dependencies:
@@ -767,7 +773,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.8
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   packages/lms:
     dependencies:
@@ -789,7 +795,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.0
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   packages/notifications:
     dependencies:
@@ -802,7 +808,7 @@ importers:
     devDependencies:
       vitest:
         specifier: ^2.1.0
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   packages/operations:
     dependencies:
@@ -824,7 +830,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.8
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   packages/realtime:
     dependencies:
@@ -864,7 +870,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.0
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   packages/reports:
     dependencies:
@@ -892,7 +898,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.0
-        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)
+        version: 2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)
 
   packages/tenant:
     dependencies:
@@ -3549,6 +3555,10 @@ packages:
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
 
+  '@types/bcryptjs@3.0.0':
+    resolution: {integrity: sha512-WRZOuCuaz8UcZZE4R5HXTco2goQSI2XxjGY3hbM/xDvwmqFWd4ivooImsMx65OKM6CtNKbnZ5YL+YwAwK7c1dg==}
+    deprecated: This is a stub types definition. bcryptjs provides its own type definitions, so you do not need this installed.
+
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
 
@@ -4077,6 +4087,10 @@ packages:
 
   baseline-browser-mapping@2.9.5:
     resolution: {integrity: sha512-D5vIoztZOq1XM54LUdttJVc96ggEsIfju2JBvht06pSzpckp3C7HReun67Bghzrtdsq9XdMGbSSB3v3GhMNmAA==}
+    hasBin: true
+
+  bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
     hasBin: true
 
   bidi-js@1.0.3:
@@ -7152,6 +7166,7 @@ packages:
 
   scmp@2.1.0:
     resolution: {integrity: sha512-o/mRQGk9Rcer/jEEw/yw4mwo3EU/NvYvp577/Btqrym9Qy5/MdWGBqipbALgd2lrdWTJ5/gqDusxfnQBxOxT2Q==}
+    deprecated: Just use Node.js's crypto.timingSafeEqual()
 
   sdp@3.2.1:
     resolution: {integrity: sha512-lwsAIzOPlH8/7IIjjz3K0zYBk7aBVVcvjMwt3M4fLxpjMYyy7i3I97SLHebgn4YBjirkzfp3RvRDWSKsh/+WFw==}
@@ -11760,6 +11775,10 @@ snapshots:
     dependencies:
       '@babel/types': 7.28.5
 
+  '@types/bcryptjs@3.0.0':
+    dependencies:
+      bcryptjs: 3.0.3
+
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
@@ -12424,6 +12443,8 @@ snapshots:
   base64id@2.0.0: {}
 
   baseline-browser-mapping@2.9.5: {}
+
+  bcryptjs@3.0.3: {}
 
   bidi-js@1.0.3:
     dependencies:
@@ -16798,7 +16819,7 @@ snapshots:
       tsx: 4.20.6
       yaml: 2.8.2
 
-  vitest@2.1.9(@types/node@20.19.26)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4):
+  vitest@2.1.9(@types/node@20.19.26)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4):
     dependencies:
       '@vitest/expect': 2.1.9
       '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@20.19.26)(lightningcss@1.30.2)(sass@1.77.4))
@@ -16835,7 +16856,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4):
+  vitest@2.1.9(@types/node@22.19.1)(happy-dom@20.0.11)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4):
     dependencies:
       '@vitest/expect': 2.1.9
       '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@22.19.1)(lightningcss@1.30.2)(sass@1.77.4))
@@ -16872,7 +16893,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2):
+  vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.15
       '@vitest/mocker': 4.0.15(vite@7.2.7(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2))
@@ -16912,7 +16933,7 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@4.0.16(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9)(postcss@8.5.6))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2):
+  vitest@4.0.16(@opentelemetry/api@1.9.0)(@types/node@22.19.1)(happy-dom@20.0.11)(jiti@2.6.1)(jsdom@27.3.0(bufferutil@4.0.9))(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.16
       '@vitest/mocker': 4.0.16(vite@7.2.7(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.77.4)(tsx@4.20.6)(yaml@2.8.2))

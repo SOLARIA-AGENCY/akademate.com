@@ -28,6 +28,21 @@ import { Media } from './collections/Media';
 import { AuditLogs } from './collections/AuditLogs/AuditLogs';
 import { Staff } from './collections/Staff/Staff';
 import { Tenants } from './collections/Tenants/Tenants';
+
+// LMS Collections
+import { Modules } from './collections/Modules/Modules';
+import { Lessons } from './collections/Lessons/Lessons';
+import { LessonProgress } from './collections/LessonProgress/LessonProgress';
+import { Materials } from './collections/Materials/Materials';
+import { Submissions } from './collections/Submissions/Submissions';
+import { Attendance } from './collections/Attendance/Attendance';
+import { Certificates } from './collections/Certificates/Certificates';
+
+// Gamification Collections
+import { Badges } from './collections/Badges/Badges';
+import { UserBadges } from './collections/UserBadges/UserBadges';
+import { PointsTransactions } from './collections/PointsTransactions/PointsTransactions';
+import { UserStreaks } from './collections/UserStreaks/UserStreaks';
 // import { SEOMetadata } from './collections/SEOMetadata/SEOMetadata';
 
 // Export factory function for lazy evaluation (ESM + --env-file compatibility)
@@ -70,6 +85,21 @@ export const getPayloadConfig = () => buildConfig({
     BlogPosts, // ✅ Blog content with SEO optimization
     FAQs, // ✅ Frequently Asked Questions
     Media, // ✅ File uploads with S3 storage
+
+    // LMS - Learning Management System
+    Modules, // ✅ Course modules (structural units)
+    Lessons, // ✅ Individual lessons within modules
+    LessonProgress, // ✅ Student progress tracking per lesson
+    Materials, // ✅ Learning materials and downloadable resources
+    Submissions, // ✅ Assignment and quiz submissions
+    Attendance, // ✅ Student attendance tracking
+    Certificates, // ✅ Course completion certificates
+
+    // Gamification
+    Badges, // ✅ Badge definitions
+    UserBadges, // ✅ Badges earned by users
+    PointsTransactions, // ✅ Points ledger (earned/spent)
+    UserStreaks, // ✅ Learning streak tracking
 
     // Compliance & System
     AuditLogs, // ✅ GDPR Article 30 compliance - Immutable audit trail

@@ -77,6 +77,7 @@ export const emailSchema = z
  * IMPORTANT: Keep this synchronized with actual collections in the system
  */
 export const VALID_COLLECTION_NAMES = [
+  // Core collections
   'users',
   'cycles',
   'campuses',
@@ -91,6 +92,21 @@ export const VALID_COLLECTION_NAMES = [
   'faqs',
   'media',
   'audit-logs', // Self-referential for meta-auditing
+  'areas-formativas',
+  'staff',
+  // LMS collections
+  'modules',
+  'lessons',
+  'lesson-progress',
+  'materials',
+  'submissions',
+  'attendance',
+  'certificates',
+  // Gamification collections
+  'badges',
+  'user-badges',
+  'points-transactions',
+  'user-streaks',
 ] as const;
 
 export const collectionNameSchema = z.enum(VALID_COLLECTION_NAMES, {
@@ -102,7 +118,7 @@ export const collectionNameSchema = z.enum(VALID_COLLECTION_NAMES, {
 // ============================================================================
 
 /**
- * Audit action types covering CRUD + security events
+ * Audit action types covering CRUD + security events + GDPR
  */
 export const VALID_ACTIONS = [
   'create',
@@ -113,6 +129,9 @@ export const VALID_ACTIONS = [
   'login',
   'logout',
   'permission_change',
+  // GDPR-specific actions (Article 15 & 17)
+  'gdpr_export', // Article 15 - Right of Access
+  'gdpr_erasure', // Article 17 - Right to be Forgotten
 ] as const;
 
 export const actionSchema = z.enum(VALID_ACTIONS, {

@@ -123,7 +123,7 @@ export default function ProfesoresPage() {
     console.log('Crear nuevo profesor')
   }
 
-  const handleViewTeacher = (teacherId: string) => {
+  const handleViewTeacher = (teacherId: number) => {
     router.push(`/profesores/${teacherId}`)
   }
 
@@ -133,8 +133,8 @@ export default function ProfesoresPage() {
   // Filtrado de profesores
   const filteredTeachers = teachersExpanded.filter((teacher) => {
     const matchesSearch =
-      teacher.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      teacher.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      teacher.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       teacher.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       teacher.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
       teacher.specialties.some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -342,7 +342,7 @@ export default function ProfesoresPage() {
                     {teacher.photo ? (
                       <img
                         src={teacher.photo}
-                        alt={`${teacher.first_name} ${teacher.last_name}`}
+                        alt={`${teacher.firstName} ${teacher.lastName}`}
                         className="h-16 w-16 rounded-full object-cover"
                       />
                     ) : (
@@ -356,7 +356,7 @@ export default function ProfesoresPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-lg leading-tight truncate">
-                      {teacher.first_name} {teacher.last_name}
+                      {teacher.firstName} {teacher.lastName}
                     </h3>
                     <p className="text-sm text-muted-foreground">{teacher.department}</p>
                   </div>

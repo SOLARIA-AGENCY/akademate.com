@@ -1,40 +1,42 @@
-'use client'
-
-import { useState, useEffect, useCallback } from 'react'
-
-export type ViewType = 'grid' | 'list'
-
 /**
- * Hook para manejar la preferencia de visualización (grid/lista) por sección
- * Guarda la preferencia en localStorage para persistencia
+ * View Preference Hook
  *
- * @param sectionKey - Identificador único de la sección (ej: 'cursos', 'ciclos', 'sedes')
- * @returns [view, setView] - Estado actual y función para cambiarlo
+ * Persists user's view preference (grid/list) per page in localStorage.
  */
-export const useViewPreference = (sectionKey: string) => {
-  const [view, setView] = useState<ViewType>('grid')
-  const [isInitialized, setIsInitialized] = useState(false)
 
+import { useState, useEffect, useCallback } from 'react';
+
+export type ViewMode = 'grid' | 'list';
+export type ViewType = ViewMode; // Alias for backward compatibility
+
+export function useViewPreference(
+  pageKey: string,
+  defaultView: ViewMode = 'grid'
+): [ViewMode, (view: ViewMode) => void] {
+  const storageKey = `viewPreference_${pageKey}`;
+
+  const [view, setViewState] = useState<ViewMode>(defaultView);
+
+  // Load from localStorage on mount
   useEffect(() => {
-    // Solo ejecutar en el cliente
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`view-preference-${sectionKey}`)
-      if (saved === 'grid' || saved === 'list') {
-        setView(saved)
-      }
-      setIsInitialized(true)
-    }
-  }, [sectionKey])
+    if (typeof window === 'undefined') return;
 
-  const updateView = useCallback(
-    (newView: ViewType) => {
-      setView(newView)
+    const stored = localStorage.getItem(storageKey);
+    if (stored === 'grid' || stored === 'list') {
+      setViewState(stored);
+    }
+  }, [storageKey]);
+
+  // Save to localStorage on change
+  const setView = useCallback(
+    (newView: ViewMode) => {
+      setViewState(newView);
       if (typeof window !== 'undefined') {
-        localStorage.setItem(`view-preference-${sectionKey}`, newView)
+        localStorage.setItem(storageKey, newView);
       }
     },
-    [sectionKey]
-  )
+    [storageKey]
+  );
 
-  return [view, updateView, isInitialized] as const
+  return [view, setView];
 }

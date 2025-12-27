@@ -5,18 +5,18 @@ import { Button } from '@payload-config/components/ui/button'
 import { Mail, Phone, BookOpen, Award } from 'lucide-react'
 
 interface TeacherExpanded {
-  id: string
-  first_name: string
-  last_name: string
+  id: number
+  firstName: string
+  lastName: string
   initials: string
   email: string
-  phone: string
+  phone?: string
   photo: string
   department: string
   specialties: string[]
-  bio: string
+  bio?: string
   active: boolean
-  courses_count: number
+  courseRunsCount: number
   certifications: Array<{
     title: string
     institution: string
@@ -54,7 +54,7 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
       <div className="flex-shrink-0 w-20 h-20 overflow-hidden rounded-full bg-muted ml-4">
         <img
           src={teacher.photo}
-          alt={`${teacher.first_name} ${teacher.last_name}`}
+          alt={`${teacher.firstName} ${teacher.lastName}`}
           className="w-full h-full object-cover"
         />
       </div>
@@ -64,7 +64,7 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
         {/* Name + Department */}
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-sm truncate leading-tight mb-0.5">
-            {teacher.first_name} {teacher.last_name}
+            {teacher.firstName} {teacher.lastName}
           </h3>
           <p className="text-xs text-muted-foreground truncate">{teacher.department}</p>
         </div>
@@ -106,7 +106,7 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
         {/* Courses Count - Compacto */}
         <div className="hidden sm:flex items-center gap-1 text-xs w-28">
           <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="font-medium">{teacher.courses_count}</span>
+          <span className="font-medium">{teacher.courseRunsCount}</span>
           <span className="text-muted-foreground">cursos</span>
         </div>
 
