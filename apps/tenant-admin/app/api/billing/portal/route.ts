@@ -8,7 +8,7 @@ import { z } from 'zod'
 import {
   createBillingPortalSession,
   isStripeConfigured,
-} from '@/lib/stripe'
+} from '@/@payload-config/lib/stripe'
 
 // ============================================================================
 // Schemas

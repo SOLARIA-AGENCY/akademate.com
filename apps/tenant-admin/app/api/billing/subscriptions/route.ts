@@ -9,7 +9,7 @@ import {
   createSubscription,
   createStripeCustomer,
   isStripeConfigured,
-} from '@/lib/stripe'
+} from '@/@payload-config/lib/stripe'
 
 // ============================================================================
 // Schemas

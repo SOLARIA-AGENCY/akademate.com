@@ -10,7 +10,7 @@ import {
   attachPaymentMethod,
   setDefaultPaymentMethod,
   isStripeConfigured,
-} from '@/lib/stripe'
+} from '@/@payload-config/lib/stripe'
 
 // ============================================================================
 // Schemas

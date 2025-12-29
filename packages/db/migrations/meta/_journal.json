@@ -8,6 +8,13 @@
       "when": 1765232301903,
       "tag": "0000_mighty_puff_adder",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766924803278,
+      "tag": "0001_slim_rick_jones",
+      "breakpoints": true
     }
   ]
 }

@@ -25,3 +25,6 @@ export type AuditEvent = {
   createdAt: Date
   metadata?: Record<string, unknown>
 }
+
+// Re-export billing types
+export * from './billing'

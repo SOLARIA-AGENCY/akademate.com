@@ -10,7 +10,7 @@ import {
   getUpcomingInvoice,
   formatCurrency,
   isStripeConfigured,
-} from '@/lib/stripe'
+} from '@/@payload-config/lib/stripe'
 
 // ============================================================================
 // Schemas
@@ -65,12 +65,15 @@ export async function GET(request: NextRequest) {
         )
       }
 
+      // Calculate total tax from total_taxes array (Stripe API 2025-12-15.clover)
+      const totalTax = upcomingInvoice.total_taxes?.reduce((sum, tax) => sum + tax.amount, 0) ?? 0
+
       return NextResponse.json({
         id: 'upcoming',
         status: 'upcoming',
         currency: upcomingInvoice.currency,
         subtotal: upcomingInvoice.subtotal,
-        tax: upcomingInvoice.tax ?? 0,
+        tax: totalTax,
         total: upcomingInvoice.total,
         subtotalFormatted: formatCurrency(upcomingInvoice.subtotal, upcomingInvoice.currency.toUpperCase()),
         totalFormatted: formatCurrency(upcomingInvoice.total, upcomingInvoice.currency.toUpperCase()),
@@ -88,26 +91,31 @@ export async function GET(request: NextRequest) {
     const invoices = await listInvoices(validCustomerId, validLimit)
 
     return NextResponse.json({
-      invoices: invoices.map(invoice => ({
-        id: invoice.id,
-        number: invoice.number,
-        status: invoice.status,
-        currency: invoice.currency,
-        subtotal: invoice.subtotal,
-        tax: invoice.tax ?? 0,
-        total: invoice.total,
-        amountPaid: invoice.amount_paid,
-        amountDue: invoice.amount_due,
-        subtotalFormatted: formatCurrency(invoice.subtotal, invoice.currency.toUpperCase()),
-        totalFormatted: formatCurrency(invoice.total, invoice.currency.toUpperCase()),
-        hostedInvoiceUrl: invoice.hosted_invoice_url,
-        invoicePdfUrl: invoice.invoice_pdf,
-        created: new Date(invoice.created * 1000),
-        dueDate: invoice.due_date ? new Date(invoice.due_date * 1000) : null,
-        paidAt: invoice.status_transitions?.paid_at
-          ? new Date(invoice.status_transitions.paid_at * 1000)
-          : null,
-      })),
+      invoices: invoices.map(invoice => {
+        // Calculate total tax from total_taxes array (Stripe API 2025-12-15.clover)
+        const totalTax = invoice.total_taxes?.reduce((sum, tax) => sum + tax.amount, 0) ?? 0
+
+        return {
+          id: invoice.id,
+          number: invoice.number,
+          status: invoice.status,
+          currency: invoice.currency,
+          subtotal: invoice.subtotal,
+          tax: totalTax,
+          total: invoice.total,
+          amountPaid: invoice.amount_paid,
+          amountDue: invoice.amount_due,
+          subtotalFormatted: formatCurrency(invoice.subtotal, invoice.currency.toUpperCase()),
+          totalFormatted: formatCurrency(invoice.total, invoice.currency.toUpperCase()),
+          hostedInvoiceUrl: invoice.hosted_invoice_url,
+          invoicePdfUrl: invoice.invoice_pdf,
+          created: new Date(invoice.created * 1000),
+          dueDate: invoice.due_date ? new Date(invoice.due_date * 1000) : null,
+          paidAt: invoice.status_transitions?.paid_at
+            ? new Date(invoice.status_transitions.paid_at * 1000)
+            : null,
+        }
+      }),
       hasMore: invoices.length === validLimit,
     })
   } catch (error) {

@@ -5,22 +5,38 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { z } from 'zod'
+import type Stripe from 'stripe'
+import {
+  isStripeConfigured,
+  resetStripeInstance,
+  createStripeCustomer,
+  createSubscription,
+  getSubscriptions,
+  cancelSubscription,
+  createCheckoutSession,
+  createBillingPortalSession,
+  getInvoices,
+  getPaymentMethods,
+  constructWebhookEvent,
+} from '@/@payload-config/lib/stripe'
 
 // ============================================================================
 // Mock Stripe SDK
 // ============================================================================
 
-const mockStripe = vi.hoisted(() => ({
+const mockStripe = {
   customers: {
     create: vi.fn(),
     retrieve: vi.fn(),
     update: vi.fn(),
+    list: vi.fn(),
   },
   subscriptions: {
     create: vi.fn(),
     retrieve: vi.fn(),
     update: vi.fn(),
     cancel: vi.fn(),
+    list: vi.fn(),
   },
   checkout: {
     sessions: {
@@ -45,10 +61,14 @@ const mockStripe = vi.hoisted(() => ({
   webhooks: {
     constructEvent: vi.fn(),
   },
-}))
+}
 
 vi.mock('stripe', () => ({
-  default: vi.fn(() => mockStripe),
+  default: class MockStripe {
+    constructor() {
+      return mockStripe
+    }
+  },
 }))
 
 // ============================================================================
@@ -1397,6 +1417,483 @@ describe('API Response Structures', () => {
       }
 
       expect(response).toHaveProperty('error')
+    })
+  })
+})
+
+// ============================================================================
+// lib/stripe.ts Function Tests
+// ============================================================================
+
+describe('Stripe Library Functions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // Set environment variables before each test
+    vi.stubEnv('STRIPE_SECRET_KEY', 'sk_test_mock123456789')
+    vi.stubEnv('STRIPE_WEBHOOK_SECRET', 'whsec_test_mock123456789')
+
+    // Reset Stripe instance to pick up new env vars
+    resetStripeInstance()
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  describe('isStripeConfigured', () => {
+    it('returns true when STRIPE_SECRET_KEY is set', () => {
+      expect(isStripeConfigured()).toBe(true)
+    })
+
+    it('returns false when STRIPE_SECRET_KEY is missing', () => {
+      vi.unstubAllEnvs()
+      vi.stubEnv('STRIPE_SECRET_KEY', '')
+      resetStripeInstance()
+      expect(isStripeConfigured()).toBe(false)
+    })
+
+    it('returns false when STRIPE_SECRET_KEY is invalid', () => {
+      vi.unstubAllEnvs()
+      vi.stubEnv('STRIPE_SECRET_KEY', 'invalid_key')
+      resetStripeInstance()
+      expect(isStripeConfigured()).toBe(false)
+    })
+  })
+
+  describe('createStripeCustomer', () => {
+    it('creates customer with email only', async () => {
+      const mockCustomer = {
+        id: 'cus_123',
+        email: testEmail,
+        object: 'customer',
+        metadata: { tenantId: testTenantId },
+      } as unknown as Stripe.Customer
+
+      mockStripe.customers.create.mockResolvedValue(mockCustomer)
+
+      const result = await createStripeCustomer({
+        tenantId: testTenantId,
+        email: testEmail,
+      })
+
+      expect(mockStripe.customers.create).toHaveBeenCalledWith({
+        email: testEmail,
+        name: undefined,
+        metadata: { tenantId: testTenantId },
+      })
+      expect(result.id).toBe('cus_123')
+    })
+
+    it('creates customer with name and metadata', async () => {
+      const mockCustomer = {
+        id: 'cus_123',
+        email: testEmail,
+        name: 'Test Company',
+        metadata: { tenantId: testTenantId },
+        object: 'customer',
+      } as unknown as Stripe.Customer
+
+      mockStripe.customers.create.mockResolvedValue(mockCustomer)
+
+      const result = await createStripeCustomer({
+        tenantId: testTenantId,
+        email: testEmail,
+        name: 'Test Company',
+      })
+
+      expect(mockStripe.customers.create).toHaveBeenCalledWith({
+        email: testEmail,
+        name: 'Test Company',
+        metadata: { tenantId: testTenantId },
+      })
+      expect(result.name).toBe('Test Company')
+    })
+
+    it('throws error on invalid email', async () => {
+      await expect(
+        createStripeCustomer({
+          tenantId: testTenantId,
+          email: 'invalid-email',
+        })
+      ).rejects.toThrow()
+    })
+
+    it('handles Stripe API errors', async () => {
+      mockStripe.customers.create.mockRejectedValue(new Error('Stripe API error'))
+
+      await expect(
+        createStripeCustomer({
+          tenantId: testTenantId,
+          email: testEmail,
+        })
+      ).rejects.toThrow('Failed to create Stripe customer')
+    })
+  })
+
+  describe('createSubscription', () => {
+    it('creates subscription without trial', async () => {
+      mockStripe.subscriptions.create.mockResolvedValue(mockSubscription)
+
+      const result = await createSubscription({
+        tenantId: testTenantId,
+        planTier: 'pro',
+        interval: 'month',
+        stripeCustomerId: testCustomerId,
+      })
+
+      expect(mockStripe.subscriptions.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customer: testCustomerId,
+          items: [{ price: 'price_pro_month' }],
+          metadata: {
+            tenantId: testTenantId,
+            planTier: 'pro',
+            interval: 'month',
+          },
+        })
+      )
+      expect(result.id).toBe(testSubscriptionId)
+    })
+
+    it('creates subscription with trial period', async () => {
+      mockStripe.subscriptions.create.mockResolvedValue(mockSubscription)
+
+      await createSubscription({
+        tenantId: testTenantId,
+        planTier: 'pro',
+        interval: 'month',
+        stripeCustomerId: testCustomerId,
+        trialDays: 14,
+      })
+
+      expect(mockStripe.subscriptions.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customer: testCustomerId,
+          items: [{ price: 'price_pro_month' }],
+          trial_period_days: 14,
+          metadata: {
+            tenantId: testTenantId,
+            planTier: 'pro',
+            interval: 'month',
+          },
+        })
+      )
+    })
+
+    it('validates trial days range', async () => {
+      await expect(
+        createSubscription({
+          tenantId: testTenantId,
+          planTier: 'pro',
+          interval: 'month',
+          stripeCustomerId: testCustomerId,
+          trialDays: 400,
+        })
+      ).rejects.toThrow()
+    })
+  })
+
+  describe('getSubscriptions', () => {
+    it('retrieves all customer subscriptions', async () => {
+      mockStripe.subscriptions.list.mockResolvedValue({
+        data: [mockSubscription],
+        has_more: false,
+        object: 'list',
+        url: '/v1/subscriptions',
+      })
+
+      const result = await getSubscriptions(testCustomerId)
+
+      expect(mockStripe.subscriptions.list).toHaveBeenCalledWith({
+        customer: testCustomerId,
+        limit: 100,
+      })
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe(testSubscriptionId)
+    })
+
+    it('throws error for empty customer ID', async () => {
+      await expect(getSubscriptions('')).rejects.toThrow('Customer ID is required')
+    })
+
+    it('handles Stripe API errors', async () => {
+      mockStripe.subscriptions.list.mockRejectedValue(new Error('API error'))
+
+      await expect(getSubscriptions(testCustomerId)).rejects.toThrow(
+        'Failed to retrieve subscriptions'
+      )
+    })
+  })
+
+  describe('cancelSubscription', () => {
+    it('cancels subscription at period end by default', async () => {
+      mockStripe.subscriptions.update.mockResolvedValue({
+        ...mockSubscription,
+        cancel_at_period_end: true,
+      })
+
+      const result = await cancelSubscription(testSubscriptionId, false)
+
+      expect(mockStripe.subscriptions.update).toHaveBeenCalledWith(testSubscriptionId, {
+        cancel_at_period_end: true,
+      })
+      expect(result.cancel_at_period_end).toBe(true)
+    })
+
+    it('cancels subscription immediately when requested', async () => {
+      mockStripe.subscriptions.cancel.mockResolvedValue({
+        ...mockSubscription,
+        status: 'canceled',
+        canceled_at: Math.floor(Date.now() / 1000),
+      })
+
+      const result = await cancelSubscription(testSubscriptionId, true)
+
+      expect(mockStripe.subscriptions.cancel).toHaveBeenCalledWith(testSubscriptionId)
+      expect(result.status).toBe('canceled')
+    })
+
+    it('throws error for empty subscription ID', async () => {
+      await expect(cancelSubscription('')).rejects.toThrow('Subscription ID is required')
+    })
+  })
+
+  describe('createCheckoutSession', () => {
+    it('creates checkout session with valid params', async () => {
+      const mockSession = {
+        id: 'cs_123',
+        url: 'https://checkout.stripe.com/session/cs_123',
+        object: 'checkout.session',
+      } as Stripe.Checkout.Session
+
+      mockStripe.checkout.sessions.create.mockResolvedValue(mockSession)
+
+      const result = await createCheckoutSession({
+        tenantId: testTenantId,
+        planTier: 'pro',
+        interval: 'month',
+        successUrl: 'https://example.com/success',
+        cancelUrl: 'https://example.com/cancel',
+        stripeCustomerId: testCustomerId,
+      })
+
+      expect(mockStripe.checkout.sessions.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mode: 'subscription',
+          line_items: [{ price: 'price_pro_month', quantity: 1 }],
+          success_url: 'https://example.com/success',
+          cancel_url: 'https://example.com/cancel',
+          billing_address_collection: 'required',
+          payment_method_collection: 'always',
+          metadata: {
+            tenantId: testTenantId,
+            planTier: 'pro',
+            interval: 'month',
+          },
+        })
+      )
+      expect(result.url).toBe('https://checkout.stripe.com/session/cs_123')
+    })
+
+    it('validates URL format', async () => {
+      await expect(
+        createCheckoutSession({
+          tenantId: testTenantId,
+          planTier: 'pro',
+          interval: 'month',
+          successUrl: 'invalid-url',
+          cancelUrl: 'also-invalid',
+        })
+      ).rejects.toThrow()
+    })
+
+    it('throws error when session URL not generated', async () => {
+      mockStripe.checkout.sessions.create.mockResolvedValue({
+        id: 'cs_123',
+        url: null,
+        object: 'checkout.session',
+      } as any)
+
+      await expect(
+        createCheckoutSession({
+          tenantId: testTenantId,
+          planTier: 'pro',
+          interval: 'month',
+          successUrl: 'https://example.com/success',
+          cancelUrl: 'https://example.com/cancel',
+        })
+      ).rejects.toThrow('Checkout session URL not generated')
+    })
+  })
+
+  describe('createBillingPortalSession', () => {
+    it('creates billing portal session', async () => {
+      const mockPortal = {
+        id: 'bps_123',
+        url: 'https://billing.stripe.com/session/bps_123',
+        object: 'billing_portal.session',
+      } as Stripe.BillingPortal.Session
+
+      mockStripe.billingPortal.sessions.create.mockResolvedValue(mockPortal)
+
+      const result = await createBillingPortalSession({
+        tenantId: testTenantId,
+        stripeCustomerId: testCustomerId,
+        returnUrl: 'https://example.com/account',
+      })
+
+      expect(mockStripe.billingPortal.sessions.create).toHaveBeenCalledWith({
+        customer: testCustomerId,
+        return_url: 'https://example.com/account',
+      })
+      expect(result.url).toBe('https://billing.stripe.com/session/bps_123')
+    })
+
+    it('validates return URL format', async () => {
+      await expect(
+        createBillingPortalSession({
+          tenantId: testTenantId,
+          stripeCustomerId: testCustomerId,
+          returnUrl: 'invalid-url',
+        })
+      ).rejects.toThrow()
+    })
+  })
+
+  describe('getInvoices', () => {
+    it('retrieves customer invoices', async () => {
+      mockStripe.invoices.list.mockResolvedValue({
+        data: [mockInvoice],
+        has_more: false,
+        object: 'list',
+        url: '/v1/invoices',
+      })
+
+      const result = await getInvoices(testCustomerId)
+
+      expect(mockStripe.invoices.list).toHaveBeenCalledWith({
+        customer: testCustomerId,
+        limit: 100,
+      })
+      expect(result).toHaveLength(1)
+    })
+
+    it('respects custom limit', async () => {
+      mockStripe.invoices.list.mockResolvedValue({
+        data: [],
+        has_more: false,
+        object: 'list',
+        url: '/v1/invoices',
+      })
+
+      await getInvoices(testCustomerId, 50)
+
+      expect(mockStripe.invoices.list).toHaveBeenCalledWith({
+        customer: testCustomerId,
+        limit: 50,
+      })
+    })
+
+    it('caps limit at 100', async () => {
+      mockStripe.invoices.list.mockResolvedValue({
+        data: [],
+        has_more: false,
+        object: 'list',
+        url: '/v1/invoices',
+      })
+
+      await getInvoices(testCustomerId, 500)
+
+      expect(mockStripe.invoices.list).toHaveBeenCalledWith({
+        customer: testCustomerId,
+        limit: 100,
+      })
+    })
+
+    it('throws error for empty customer ID', async () => {
+      await expect(getInvoices('')).rejects.toThrow('Customer ID is required')
+    })
+  })
+
+  describe('getPaymentMethods', () => {
+    it('retrieves customer payment methods', async () => {
+      mockStripe.paymentMethods.list.mockResolvedValue({
+        data: [mockPaymentMethod],
+        has_more: false,
+        object: 'list',
+        url: '/v1/payment_methods',
+      })
+
+      const result = await getPaymentMethods(testCustomerId)
+
+      expect(mockStripe.paymentMethods.list).toHaveBeenCalledWith({
+        customer: testCustomerId,
+        type: 'card',
+        limit: 100,
+      })
+      expect(result).toHaveLength(1)
+    })
+
+    it('allows specifying payment method type', async () => {
+      mockStripe.paymentMethods.list.mockResolvedValue({
+        data: [],
+        has_more: false,
+        object: 'list',
+        url: '/v1/payment_methods',
+      })
+
+      await getPaymentMethods(testCustomerId, 'sepa_debit')
+
+      expect(mockStripe.paymentMethods.list).toHaveBeenCalledWith({
+        customer: testCustomerId,
+        type: 'sepa_debit',
+        limit: 100,
+      })
+    })
+
+    it('throws error for empty customer ID', async () => {
+      await expect(getPaymentMethods('')).rejects.toThrow('Customer ID is required')
+    })
+  })
+
+  describe('constructWebhookEvent', () => {
+    it('constructs valid webhook event', () => {
+      const mockEvent = { id: 'evt_123', type: 'invoice.paid' } as Stripe.Event
+      mockStripe.webhooks.constructEvent.mockReturnValue(mockEvent)
+
+      const payload = JSON.stringify({ id: 'evt_123', type: 'invoice.paid' })
+      const signature = 't=123456,v1=signature'
+
+      const result = constructWebhookEvent(payload, signature)
+
+      expect(mockStripe.webhooks.constructEvent).toHaveBeenCalledWith(
+        payload,
+        signature,
+        'whsec_test_mock123456789'
+      )
+      expect(result.id).toBe('evt_123')
+    })
+
+    it('throws error for invalid signature', () => {
+      mockStripe.webhooks.constructEvent.mockImplementation(() => {
+        throw new Error('Invalid signature')
+      })
+
+      const payload = JSON.stringify({ id: 'evt_123' })
+      const signature = 'invalid'
+
+      expect(() => constructWebhookEvent(payload, signature)).toThrow(
+        'Webhook signature verification failed'
+      )
+    })
+
+    it('throws error for missing signature', () => {
+
+      const payload = JSON.stringify({ id: 'evt_123' })
+
+      expect(() => constructWebhookEvent(payload, '')).toThrow(
+        'Webhook signature is missing'
+      )
     })
   })
 })

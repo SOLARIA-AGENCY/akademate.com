@@ -1,7 +1,7 @@
 import React from 'react'
 
-export const Card = ({ children, className }: { children?: React.ReactNode; className?: string }) => (
-  <div className={className} data-testid="card">{children}</div>
+export const Card = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={className} data-testid="card" {...props}>{children}</div>
 )
 
 export const CardHeader = ({ children, className }: { children?: React.ReactNode; className?: string }) => (

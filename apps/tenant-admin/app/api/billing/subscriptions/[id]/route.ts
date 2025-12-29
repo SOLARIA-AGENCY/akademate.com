@@ -11,7 +11,7 @@ import {
   cancelSubscription,
   resumeSubscription,
   isStripeConfigured,
-} from '@/lib/stripe'
+} from '@/@payload-config/lib/stripe'
 
 // ============================================================================
 // Schemas
@@ -61,11 +61,16 @@ export async function GET(
       )
     }
 
+    // In Stripe API 2025-12-15.clover, current_period_* properties are on subscription items
+    const firstItem = subscription.items.data[0]
+    const currentPeriodStart = firstItem?.current_period_start ?? 0
+    const currentPeriodEnd = firstItem?.current_period_end ?? 0
+
     return NextResponse.json({
       id: subscription.id,
       status: subscription.status,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date(currentPeriodStart * 1000),
+      currentPeriodEnd: new Date(currentPeriodEnd * 1000),
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       trialStart: subscription.trial_start ? new Date(subscription.trial_start * 1000) : null,
       trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,

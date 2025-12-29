@@ -12,7 +12,12 @@ import {
 
 export const planEnum = pgEnum('plan', ['starter', 'pro', 'enterprise'])
 export const tenantStatusEnum = pgEnum('tenant_status', ['trial', 'active', 'suspended', 'cancelled'])
-export const subscriptionStatusEnum = pgEnum('subscription_status', ['trialing', 'active', 'past_due', 'canceled'])
+export const subscriptionStatusEnum = pgEnum('subscription_status', ['trialing', 'active', 'past_due', 'canceled', 'incomplete', 'incomplete_expired', 'unpaid'])
+
+// Billing enums
+export const invoiceStatusEnum = pgEnum('invoice_status', ['draft', 'open', 'paid', 'void', 'uncollectible'])
+export const paymentMethodTypeEnum = pgEnum('payment_method_type', ['card', 'sepa_debit', 'bank_transfer'])
+export const paymentStatusEnum = pgEnum('payment_status', ['pending', 'processing', 'succeeded', 'failed', 'canceled', 'refunded'])
 
 // Catalog enums
 export const courseStatusEnum = pgEnum('course_status', ['draft', 'published', 'archived'])
@@ -170,14 +175,114 @@ export const subscriptions = pgTable('subscriptions', {
   plan: planEnum('plan').notNull(),
   status: subscriptionStatusEnum('status').default('trialing').notNull(),
   stripeSubscriptionId: text('stripe_subscription_id'),
+  stripeCustomerId: text('stripe_customer_id'),
   currentPeriodStart: timestamp('current_period_start', { withTimezone: true }),
   currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
   cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false).notNull(),
+  canceledAt: timestamp('canceled_at', { withTimezone: true }),
+  trialStart: timestamp('trial_start', { withTimezone: true }),
+  trialEnd: timestamp('trial_end', { withTimezone: true }),
   usageMeter: jsonb('usage_meter')
     .$type<{ metric: string; value: number }[]>()
     .default([])
     .notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const invoices = pgTable('invoices', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  subscriptionId: uuid('subscription_id').references(() => subscriptions.id, { onDelete: 'set null' }),
+  stripeInvoiceId: text('stripe_invoice_id'),
+  number: text('number').notNull(),
+  status: invoiceStatusEnum('status').default('draft').notNull(),
+  currency: text('currency').default('EUR').notNull(),
+  subtotal: integer('subtotal').notNull(), // cents
+  tax: integer('tax').default(0).notNull(), // cents
+  total: integer('total').notNull(), // cents
+  amountPaid: integer('amount_paid').default(0).notNull(), // cents
+  amountDue: integer('amount_due').notNull(), // cents
+  dueDate: timestamp('due_date', { withTimezone: true }),
+  paidAt: timestamp('paid_at', { withTimezone: true }),
+  hostedInvoiceUrl: text('hosted_invoice_url'),
+  invoicePdfUrl: text('invoice_pdf_url'),
+  lineItems: jsonb('line_items')
+    .$type<
+      Array<{
+        description: string
+        quantity: number
+        unitAmount: number
+        amount: number
+      }>
+    >()
+    .default([])
+    .notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const paymentMethods = pgTable('payment_methods', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  stripePaymentMethodId: text('stripe_payment_method_id').notNull(),
+  type: paymentMethodTypeEnum('type').notNull(),
+  isDefault: boolean('is_default').default(false).notNull(),
+  card: jsonb('card')
+    .$type<{
+      brand: string
+      last4: string
+      expMonth: number
+      expYear: number
+    }>(),
+  sepaDebit: jsonb('sepa_debit')
+    .$type<{
+      bankCode: string
+      last4: string
+      country: string
+    }>(),
+  billingDetails: jsonb('billing_details')
+    .$type<{
+      name: string | null
+      email: string | null
+      phone: string | null
+      address: {
+        line1: string | null
+        line2: string | null
+        city: string | null
+        state: string | null
+        postalCode: string | null
+        country: string | null
+      } | null
+    }>(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const paymentTransactions = pgTable('payment_transactions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  invoiceId: uuid('invoice_id').references(() => invoices.id, { onDelete: 'set null' }),
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  stripeChargeId: text('stripe_charge_id'),
+  amount: integer('amount').notNull(), // cents
+  currency: text('currency').default('EUR').notNull(),
+  status: paymentStatusEnum('status').default('pending').notNull(),
+  paymentMethodType: text('payment_method_type'),
+  description: text('description'),
+  failureCode: text('failure_code'),
+  failureMessage: text('failure_message'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
 export const webhooks = pgTable('webhooks', {
@@ -666,6 +771,9 @@ export const schema = {
   featureFlags,
   auditLogs,
   subscriptions,
+  invoices,
+  paymentMethods,
+  paymentTransactions,
   webhooks,
   // Catalog
   cycles,
