@@ -16,10 +16,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [
-    ['list'],
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
-  ],
+  reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   outputDir: 'playwright-results',
   timeout: 30_000,
   expect: {
@@ -34,7 +31,6 @@ export default defineConfig({
   },
 
   projects: [
-    // Web Portal Tests (Public-facing site)
     {
       name: 'web-chromium',
       testDir: './e2e/web',
@@ -52,23 +48,57 @@ export default defineConfig({
       },
     },
 
-    // Admin Client Tests
+    {
+      name: 'payload-chromium',
+      testDir: './e2e/payload',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.PAYLOAD_URL || 'http://localhost:3003',
+      },
+    },
+
+    {
+      name: 'campus-chromium',
+      testDir: './e2e/campus',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.CAMPUS_URL || 'http://localhost:3005',
+      },
+    },
+
     {
       name: 'admin-chromium',
       testDir: './e2e/admin',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.ADMIN_URL || 'http://localhost:3001',
+        baseURL: process.env.ADMIN_CLIENT_URL || 'http://localhost:3001',
       },
     },
 
-    // Portal Tests (Tenant-facing)
+    {
+      name: 'tenant-admin-chromium',
+      testDir: './e2e/tenant-admin',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.TENANT_ADMIN_URL || 'http://localhost:3009',
+      },
+    },
+
     {
       name: 'portal-chromium',
       testDir: './e2e/portal',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.PORTAL_URL || 'http://localhost:3002',
+        baseURL: process.env.PORTAL_URL || 'http://localhost:3008',
+      },
+    },
+
+    {
+      name: 'ops-chromium',
+      testDir: './e2e/ops',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.OPS_URL || 'http://localhost:3070',
       },
     },
   ],
