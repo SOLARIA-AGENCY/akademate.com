@@ -19,6 +19,8 @@
   "dependencies": {
     "@akademate/db": "workspace:*",
     "@akademate/types": "workspace:*",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.1",
     "zod": "^3.25.0"
   },
   "devDependencies": {
