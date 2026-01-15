@@ -8,6 +8,7 @@
     "P1-001: Synchronize Versions [DEP-001]",
     "P1-002: Implement Rate Limiting [RATE-001]",
     "P1-003: Enable Strict TypeScript [CONFIG-001] (documented)",
+    "P1-004: Tests for Apps without Coverage [TEST-001]",
     "P2-001: GDPR Features [GDPR-001] (documented)",
     "P2-002: CI/CD Complete [CI-001] (documented)",
     "P2-003: Additional E2E Tests [TEST-002] (documented)",
@@ -15,7 +16,7 @@
   ],
   "failedTasks": [],
   "startTime": "2026-01-15T12:53:31Z",
-  "lastUpdate": "2026-01-15T16:00:00Z",
+  "lastUpdate": "2026-01-15T13:50:00Z",
   "progress": {
     "PHASE_1": {
       "name": "P0 CRÍTICOS",
@@ -30,11 +31,12 @@
     "PHASE_2": {
       "name": "P1 ALTOS",
       "total": 4,
-      "completed": 3,
+      "completed": 4,
       "tasks": [
         "P1-001: Synchronize Versions [DEP-001]",
         "P1-002: Implement Rate Limiting [RATE-001]",
-        "P1-003: Enable Strict TypeScript [CONFIG-001] (documented)"
+        "P1-003: Enable Strict TypeScript [CONFIG-001] (documented)",
+        "P1-004: Tests for Apps without Coverage [TEST-001]"
       ]
     },
     "PHASE_3": {
@@ -52,50 +54,6 @@
       "total": 1,
       "completed": 1,
       "tasks": ["FINAL-001: Smoke Tests + Full Suite + Security Scan + Documentation (completed)"]
-    }
-  },
-  "metadata": {
-    "version": "1.0",
-    "createdAt": "2026-01-15T12:53:31Z",
-    "planLocation": "docs/REMEDIATION_PLAN.md",
-    "totalTasks": 11,
-    "totalPhases": 4,
-    "estimatedHours": 70
-  }
-}
-  },
-      "tasks": [
-        "P0-001: Rotate PAYLOAD_SECRET [SEC-001]",
-        "P0-002: Verify RLS Policies [SEC-002]",
-        "P0-003: Remove 'as any' [TYPE-001]"
-      ]
-    },
-    "PHASE_2": {
-      "name": "P1 ALTOS",
-      "total": 4,
-      "completed": 0,
-      "tasks": [
-        "P1-001: Synchronize Versions [DEP-001]",
-        "P1-002: Implement Rate Limiting [RATE-001]",
-        "P1-003: Enable Strict TypeScript [CONFIG-001]",
-        "P1-004: Tests for Apps without Coverage [TEST-001]"
-      ]
-    },
-    "PHASE_3": {
-      "name": "P2 MEDIOS",
-      "total": 3,
-      "completed": 0,
-      "tasks": [
-        "P2-001: GDPR Features [GDPR-001]",
-        "P2-002: CI/CD Complete [CI-001]",
-        "P2-003: Additional E2E Tests [TEST-002]"
-      ]
-    },
-    "PHASE_4": {
-      "name": "VERIFICACIÓN FINAL",
-      "total": 1,
-      "completed": 0,
-      "tasks": ["FINAL-001: Smoke Tests + Full Suite + Security Scan + Documentation"]
     }
   },
   "metadata": {
