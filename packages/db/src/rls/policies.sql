@@ -19,6 +19,11 @@ ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE webhooks ENABLE ROW LEVEL SECURITY;
 
+-- Billing tables
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payment_methods ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payment_transactions ENABLE ROW LEVEL SECURITY;
+
 -- Catalog tables
 ALTER TABLE cycles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE centers ENABLE ROW LEVEL SECURITY;
@@ -94,6 +99,28 @@ CREATE POLICY tenant_isolation_subscriptions ON subscriptions
 
 -- Webhooks: Integration endpoints per tenant
 CREATE POLICY tenant_isolation_webhooks ON webhooks
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- -----------------------------------------------------------------------------
+-- Billing Tables
+-- -----------------------------------------------------------------------------
+
+-- Invoices: Billing records per tenant
+CREATE POLICY tenant_isolation_invoices ON invoices
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- Payment Methods: Stored payment details per tenant
+CREATE POLICY tenant_isolation_payment_methods ON payment_methods
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
+
+-- Payment Transactions: Transaction history per tenant
+CREATE POLICY tenant_isolation_payment_transactions ON payment_transactions
   FOR ALL
   USING (tenant_id = current_setting('app.tenant_id', true)::uuid)
   WITH CHECK (tenant_id = current_setting('app.tenant_id', true)::uuid);
@@ -284,15 +311,16 @@ CREATE POLICY public_read_courses ON courses
 -- ============================================================================
 
 -- Check RLS is enabled on all tenant tables
--- SELECT schemaname, tablename, rowsecurity
--- FROM pg_tables
--- WHERE schemaname = 'public'
--- AND tablename IN (
---   'memberships', 'courses', 'api_keys', 'audit_logs', 'subscriptions',
---   'webhooks', 'cycles', 'centers', 'instructors', 'course_runs',
---   'modules', 'lessons', 'materials', 'assignments', 'enrollments',
---   'lesson_progress', 'submissions', 'grades', 'leads', 'campaigns'
--- );
+SELECT schemaname, tablename, rowsecurity
+FROM pg_tables
+WHERE schemaname = 'public'
+  AND tablename IN (
+    'memberships', 'courses', 'api_keys', 'audit_logs', 'subscriptions',
+    'webhooks', 'cycles', 'centers', 'instructors', 'course_runs',
+    'modules', 'lessons', 'materials', 'assignments', 'enrollments',
+    'lesson_progress', 'submissions', 'grades', 'leads', 'campaigns',
+    'invoices', 'payment_methods', 'payment_transactions'
+  );
 
 -- List all policies
 -- SELECT tablename, policyname, permissive, roles, cmd, qual
