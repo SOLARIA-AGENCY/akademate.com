@@ -312,3 +312,8 @@
 - ⚠️ Security checklist parcial: trufflehog ausente; RLS/rate-limit requieren env/servicios.
 - Tests: pnpm --filter @akademate/tenant-admin test -- gdpr (20/20) PASS.
 
+
+## Iteracion 75 - 2026-01-17
+
+- ⚠️ Env check: no variables DATABASE_URL/REDIS_URL/MINIO/SMTP presentes (0). Bloquea RLS y rate limit verification.
+
