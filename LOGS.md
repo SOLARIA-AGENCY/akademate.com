@@ -317,3 +317,8 @@
 
 - ⚠️ Env check: no variables DATABASE_URL/REDIS_URL/MINIO/SMTP presentes (0). Bloquea RLS y rate limit verification.
 
+
+## Iteracion 76 - 2026-01-17
+
+- ⚠️ Secret scan: `pnpm dlx trufflehog` no es el binario esperado (prompt interactivo). Requiere instalación oficial de trufflehog.
+
