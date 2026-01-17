@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Mail, Phone, MapPin, Clock } from 'lucide-react'
+import { ContactForm } from '@/components/forms/contact-form'
 
 export const metadata: Metadata = {
   title: 'Contacto',
@@ -38,106 +39,7 @@ export default function ContactPage() {
                   Rellena el formulario y te responderemos en menos de 24 horas.
                 </p>
 
-                <form className="mt-8 space-y-6">
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium">
-                        Nombre *
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                        className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="Tu nombre"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium">
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="tu@email.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="phone" className="block text-sm font-medium">
-                      Teléfono
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="+34 612 345 678"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="subject" className="block text-sm font-medium">
-                      Asunto *
-                    </label>
-                    <select
-                      id="subject"
-                      name="subject"
-                      required
-                      className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="">Selecciona un asunto</option>
-                      <option value="demo">Solicitar demo</option>
-                      <option value="pricing">Información de precios</option>
-                      <option value="support">Soporte técnico</option>
-                      <option value="partnership">Colaboraciones</option>
-                      <option value="other">Otro</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium">
-                      Mensaje *
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      required
-                      rows={5}
-                      className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="¿En qué podemos ayudarte?"
-                    />
-                  </div>
-
-                  <div className="flex items-start gap-2">
-                    <input
-                      type="checkbox"
-                      id="gdpr"
-                      name="gdpr"
-                      required
-                      className="mt-1 rounded border-gray-300"
-                    />
-                    <label htmlFor="gdpr" className="text-sm text-muted-foreground">
-                      Acepto la{' '}
-                      <a href="/privacidad" className="text-primary hover:underline">
-                        política de privacidad
-                      </a>{' '}
-                      y el tratamiento de mis datos para gestionar mi consulta. *
-                    </label>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                  >
-                    Enviar mensaje
-                  </button>
-                </form>
+                <ContactForm />
               </div>
 
               {/* Contact info */}

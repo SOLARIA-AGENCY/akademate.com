@@ -239,3 +239,7 @@
 ## Iteracion 59 (17-01-2026)
 - Accion: Conecte catálogo público de cursos (/cursos) a CMS y normalice labels.
 - Resultado: Página de cursos usa CMS real; tsc apps/web en verde.
+
+## Iteracion 60 (17-01-2026)
+- Accion: Implementé formulario de contacto con envío a leads (UTM + GDPR + anti-spam) y API proxy.
+- Resultado: /contacto envía leads a Payload vía /api/leads; tsc apps/web en verde.
