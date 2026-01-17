@@ -107,3 +107,7 @@
 ## Iteracion 26 (17-01-2026)
 - Accion: Verifique claims JWT con tenant_id y roles en packages/auth.
 - Resultado: TASKS_TODO.md actualizado.
+
+## Iteracion 27 (17-01-2026)
+- Accion: Verifique hooks de tenant y access controls RLS en Payload + SDK.
+- Resultado: TASKS_TODO.md actualizado.

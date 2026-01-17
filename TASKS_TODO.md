@@ -37,7 +37,7 @@
 ## 5) Multitenancy core (docs/specs/ACADEIMATE_SPEC.md)
 - [x] Resolver dominio -> tenant (subdominio + custom domain).
 - [x] Claims JWT con tenant_id + roles.
-- [ ] RLS hooks en Payload + SDK con tenant_id obligatorio.
+- [x] RLS hooks en Payload + SDK con tenant_id obligatorio.
 - [ ] Theming por tenant via CSS vars.
 - [ ] Assets en R2/MinIO namespaced por tenant.
 
