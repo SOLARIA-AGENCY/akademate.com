@@ -215,3 +215,7 @@
 ## Iteracion 53 (17-01-2026)
 - Accion: Conecte campañas a datos reales (/api/campaigns) y actualice métricas.
 - Resultado: Campañas dashboard con fetch real y KPIs calculados; tsc tenant-admin en verde.
+
+## Iteracion 54 (17-01-2026)
+- Accion: Habilite listado general en /api/convocatorias y conecte Programación a datos reales.
+- Resultado: Programación muestra convocatorias reales con filtros dinámicos; tsc tenant-admin en verde.

@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@payload-config/components/ui/card'
 import { Input } from '@payload-config/components/ui/input'
@@ -27,31 +27,94 @@ import {
   BookOpen,
   TrendingUp,
 } from 'lucide-react'
-// TODO: Fetch from Payload API
-// import { convocatoriasMockData, type Convocatoria } from '@payload-config/data/mockConvocatorias'
-const convocatoriasMockData: any[] = []
-type Convocatoria = any
+
+interface Convocatoria {
+  id: string
+  curso: string
+  codigo_curso: string
+  profesor_principal: string
+  sede: string
+  aula: string
+  horario_resumen: string
+  fecha_inicio: string
+  fecha_fin: string
+  plazas_totales: number
+  plazas_ocupadas: number
+  estado: 'planificada' | 'abierta' | 'en_curso' | 'completada' | 'cancelada'
+  tiene_conflictos?: boolean
+  conflictos?: string[]
+}
 
 export default function ProgramacionPage() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const [sedeFilter, setSedeFilter] = useState<string>('todas')
   const [estadoFilter, setEstadoFilter] = useState<string>('todos')
+  const [convocatorias, setConvocatorias] = useState<Convocatoria[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchConvocatorias = async () => {
+      try {
+        setErrorMessage(null)
+        const response = await fetch('/api/convocatorias', { cache: 'no-cache' })
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar las convocatorias')
+        }
+
+        const payload = await response.json()
+        const data = Array.isArray(payload?.data) ? payload.data : []
+        const mapped = data.map((conv: any) => {
+          const estadoMap: Record<string, Convocatoria['estado']> = {
+            draft: 'planificada',
+            enrollment_open: 'abierta',
+            in_progress: 'en_curso',
+            completed: 'completada',
+            cancelled: 'cancelada',
+          }
+          return {
+            id: String(conv.id),
+            curso: conv.cursoNombre ?? 'Curso',
+            codigo_curso: conv.cursoTipo ?? '—',
+            profesor_principal: conv.profesor ?? 'Sin asignar',
+            sede: conv.campusNombre ?? 'Sin sede',
+            aula: conv.modalidad ?? 'Sin aula',
+            horario_resumen: conv.horario ?? '—',
+            fecha_inicio: conv.fechaInicio ?? '',
+            fecha_fin: conv.fechaFin ?? '',
+            plazas_totales: conv.plazasTotales ?? 0,
+            plazas_ocupadas: conv.plazasOcupadas ?? 0,
+            estado: estadoMap[conv.estado] ?? 'planificada',
+            tiene_conflictos: false,
+            conflictos: [],
+          }
+        })
+
+        setConvocatorias(mapped)
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Error al cargar convocatorias')
+        setConvocatorias([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchConvocatorias()
+  }, [])
 
   // Calcular estadísticas
-  const totalConvocatorias = convocatoriasMockData.length
-  const convocatoriasActivas = convocatoriasMockData.filter(
+  const totalConvocatorias = convocatorias.length
+  const convocatoriasActivas = convocatorias.filter(
     (c) => c.estado === 'abierta' || c.estado === 'en_curso'
   ).length
-  const conflictosDetectados = convocatoriasMockData.filter((c) => c.tiene_conflictos).length
-  const tasaOcupacion = Math.round(
-    (convocatoriasMockData.reduce((sum, c) => sum + c.plazas_ocupadas, 0) /
-      convocatoriasMockData.reduce((sum, c) => sum + c.plazas_totales, 0)) *
-      100
-  )
+  const conflictosDetectados = convocatorias.filter((c) => c.tiene_conflictos).length
+  const totalPlazas = convocatorias.reduce((sum, c) => sum + c.plazas_totales, 0)
+  const totalOcupadas = convocatorias.reduce((sum, c) => sum + c.plazas_ocupadas, 0)
+  const tasaOcupacion = totalPlazas > 0 ? Math.round((totalOcupadas / totalPlazas) * 100) : 0
 
   // Filtrar convocatorias
-  const convocatoriasFiltradas = convocatoriasMockData.filter((convocatoria) => {
+  const convocatoriasFiltradas = convocatorias.filter((convocatoria) => {
     const matchesSearch =
       searchTerm === '' ||
       convocatoria.curso.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -80,12 +143,28 @@ export default function ProgramacionPage() {
     }
   }
 
+  const sedesDisponibles = Array.from(new Set(convocatorias.map((c) => c.sede))).filter(
+    Boolean
+  ) as string[]
+
   const handleNuevaConvocatoria = () => {
     router.push('/programacion/nueva')
   }
 
   return (
     <div className="space-y-8 p-8">
+      {isLoading && (
+        <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          Cargando convocatorias...
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+          {errorMessage}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -173,9 +252,11 @@ export default function ProgramacionPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todas">Todas las sedes</SelectItem>
-              <SelectItem value="CEP Norte">CEP Norte</SelectItem>
-              <SelectItem value="CEP Sur">CEP Sur</SelectItem>
-              <SelectItem value="CEP Santa Cruz">CEP Santa Cruz</SelectItem>
+              {sedesDisponibles.map((sede) => (
+                <SelectItem key={sede} value={sede}>
+                  {sede}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -216,9 +297,10 @@ export default function ProgramacionPage() {
       {/* Lista de Convocatorias */}
       <div className="space-y-4">
         {convocatoriasFiltradas.map((convocatoria) => {
-          const ocupacionPercentage = Math.round(
-            (convocatoria.plazas_ocupadas / convocatoria.plazas_totales) * 100
-          )
+          const ocupacionPercentage =
+            convocatoria.plazas_totales > 0
+              ? Math.round((convocatoria.plazas_ocupadas / convocatoria.plazas_totales) * 100)
+              : 0
 
           return (
             <Card

@@ -153,13 +153,6 @@ export async function GET(request: NextRequest) {
     const courseId = searchParams.get('courseId');
     const campusId = searchParams.get('campusId');
 
-    if (!courseId && !campusId) {
-      return NextResponse.json(
-        { success: false, error: 'courseId o campusId requerido' },
-        { status: 400 }
-      );
-    }
-
     const payload = await getPayloadHMR({ config: configPromise });
 
     // Build dynamic where clause
