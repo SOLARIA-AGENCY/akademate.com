@@ -151,3 +151,7 @@
 ## Iteracion 37 (17-01-2026)
 - Accion: Aplique suspension por impago via webhooks Stripe (tenant status) y ajuste tests de webhooks.
 - Resultado: Webhooks actualizados; Vitest (stripe-webhooks.test.ts) en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 38 (17-01-2026)
+- Accion: Agregue API de usage metering (GET/POST) y tipos base; agregue tests de usage.
+- Resultado: Vitest (usage route) en verde; TASKS_TODO.md actualizado.

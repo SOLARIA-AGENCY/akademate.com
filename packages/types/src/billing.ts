@@ -169,6 +169,16 @@ export const PaymentTransactionSchema = z.object({
   updatedAt: z.date(),
 })
 
+export const UsageMetricSchema = z.object({
+  metric: z.string().min(1),
+  value: z.number().nonnegative(),
+  unit: z.string().optional(),
+  limit: z.union([z.number().nonnegative(), z.string().min(1)]).optional(),
+  updatedAt: z.date().optional(),
+})
+
+export const UsageMeterSchema = z.record(z.string(), UsageMetricSchema)
+
 // ============================================================================
 // Type Inferences
 // ============================================================================
@@ -178,6 +188,8 @@ export type Subscription = z.infer<typeof SubscriptionSchema>
 export type Invoice = z.infer<typeof InvoiceSchema>
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>
 export type PaymentTransaction = z.infer<typeof PaymentTransactionSchema>
+export type UsageMetric = z.infer<typeof UsageMetricSchema>
+export type UsageMeter = z.infer<typeof UsageMeterSchema>
 
 // ============================================================================
 // Request/Response Types
