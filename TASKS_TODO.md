@@ -42,7 +42,8 @@
 - [x] Assets en R2/MinIO namespaced por tenant.
 
 ## 6) Auth + seguridad (docs/PROJECT_MILESTONES.md)
-- [ ] Cookies httpOnly/secure + CORS por tenant.
+- [x] Cookies httpOnly/secure.
+- [ ] CORS por tenant.
 - [ ] RBAC por tenant (staff/alumno/ops).
 - [ ] MFA TOTP para ops (SESSION_HANDOFF task 32).
 - [ ] Auditoria de operaciones sensibles.

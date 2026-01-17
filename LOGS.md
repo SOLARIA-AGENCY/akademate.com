@@ -119,3 +119,7 @@
 ## Iteracion 29 (17-01-2026)
 - Accion: Namespacie uploads S3/MinIO por tenant en admin-client.
 - Resultado: apps/admin-client/app/api/upload/route.ts actualizado; TASKS_TODO.md actualizado.
+
+## Iteracion 30 (17-01-2026)
+- Accion: Ajuste cookies httpOnly/secure en login tenant-admin segun entorno.
+- Resultado: apps/tenant-admin/app/api/users/login/route.ts actualizado; TASKS_TODO.md actualizado.

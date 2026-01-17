@@ -88,11 +88,10 @@ export async function POST(request: Request) {
     })
 
     // Set auth cookie (same as Payload's default)
-    // NOTE: secure: false because we're using HTTP (not HTTPS yet)
-    // TODO: Change to secure: true when SSL is configured
+    const isSecure = process.env.NODE_ENV === 'production'
     response.cookies.set('payload-token', result.token, {
       httpOnly: true,
-      secure: false, // HTTP mode - change to true when HTTPS is ready
+      secure: isSecure,
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
