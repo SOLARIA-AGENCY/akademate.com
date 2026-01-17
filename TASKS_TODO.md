@@ -35,7 +35,7 @@
 - [x] Agregar data seeding/fixtures estables.
 
 ## 5) Multitenancy core (docs/specs/ACADEIMATE_SPEC.md)
-- [ ] Resolver dominio -> tenant (subdominio + custom domain).
+- [x] Resolver dominio -> tenant (subdominio + custom domain).
 - [ ] Claims JWT con tenant_id + roles.
 - [ ] RLS hooks en Payload + SDK con tenant_id obligatorio.
 - [ ] Theming por tenant via CSS vars.

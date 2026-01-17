@@ -99,3 +99,7 @@
 ## Iteracion 24 (17-01-2026)
 - Accion: Agregue fixtures base para E2E.
 - Resultado: e2e/fixtures/ creada; TASKS_TODO.md actualizado.
+
+## Iteracion 25 (17-01-2026)
+- Accion: Verifique resolver de tenant por dominio/subdominio en packages/tenant.
+- Resultado: TASKS_TODO.md actualizado.
