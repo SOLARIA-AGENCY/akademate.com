@@ -55,3 +55,7 @@
 ## Iteracion 13 (17-01-2026)
 - Accion: Implemente API GDPR consent con ruta por userId y extendi tests en tenant-admin.
 - Resultado: Vitest (tenant-admin) en verde para gdpr.test.ts; TASKS_TODO.md actualizado.
+
+## Iteracion 14 (17-01-2026)
+- Accion: Cree pagina UI de GDPR en configuracion para gestionar consentimientos y acciones.
+- Resultado: UI GDPR disponible en tenant-admin; TASKS_TODO.md actualizado.
