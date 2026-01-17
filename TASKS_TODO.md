@@ -51,7 +51,8 @@
 ## 7) Billing & Stripe (BILLING_UI_IMPLEMENTATION.md, SESSION_HANDOFF)
 - [x] Stripe checkout + portal server-side.
 - [x] Stripe webhooks handlers (task 35).
-- [ ] Metering basico + suspension por impago.
+ - [x] Suspension por impago (webhooks invoice.payment_failed/paid -> tenant status).
+ - [ ] Metering basico (usage_meter + limites).
 - [ ] Integrar UI billing con backend real.
 
 ## 8) Jobs/infra (SESSION_HANDOFF tasks 33,34,37)

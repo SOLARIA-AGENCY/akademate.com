@@ -15,6 +15,7 @@ import {
   subscriptions,
   invoices,
   paymentTransactions,
+  tenants,
 } from '@/lib/db'
 import type Stripe from 'stripe'
 
@@ -92,6 +93,19 @@ function mapInvoiceStatus(
     default:
       return 'open' // fallback
   }
+}
+
+async function updateTenantStatus(
+  tenantId: string,
+  status: 'trial' | 'active' | 'suspended' | 'cancelled'
+): Promise<void> {
+  await db
+    .update(tenants)
+    .set({
+      status,
+      updatedAt: new Date(),
+    })
+    .where(eq(tenants.id, tenantId))
 }
 
 /**
@@ -336,6 +350,8 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       description: `Payment for invoice ${invoice.number || invoice.id}`,
       metadata: invoice.metadata as Record<string, unknown>,
     })
+
+    await updateTenantStatus(tenantId, 'active')
   } catch (error) {
     console.error('[Stripe Webhook] Error handling invoice.paid:', error)
     throw error
@@ -385,6 +401,8 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     })
 
     console.log(`[Stripe Webhook] Payment failed for invoice: ${invoice.id}`)
+
+    await updateTenantStatus(tenantId, 'suspended')
   } catch (error) {
     console.error('[Stripe Webhook] Error handling invoice.payment_failed:', error)
     throw error

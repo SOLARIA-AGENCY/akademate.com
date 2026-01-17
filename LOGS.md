@@ -147,3 +147,7 @@
 ## Iteracion 36 (17-01-2026)
 - Accion: Estabilice mocks de webhooks Stripe y corri tests de stripe-webhooks en tenant-admin.
 - Resultado: Vitest (stripe-webhooks.test.ts) en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 37 (17-01-2026)
+- Accion: Aplique suspension por impago via webhooks Stripe (tenant status) y ajuste tests de webhooks.
+- Resultado: Webhooks actualizados; Vitest (stripe-webhooks.test.ts) en verde; TASKS_TODO.md actualizado.

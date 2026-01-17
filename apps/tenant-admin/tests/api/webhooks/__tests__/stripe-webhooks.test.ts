@@ -440,6 +440,10 @@ describe('Invoice Webhook Handlers', () => {
           currency: invoice.currency.toUpperCase(),
           status: 'succeeded',
         })
+
+        await mockDbOperations.update({}).set({
+          status: 'active',
+        })
       }
 
       await handler(mockInvoice)
@@ -449,6 +453,12 @@ describe('Invoice Webhook Handlers', () => {
         expect.objectContaining({
           status: 'succeeded',
           amount: mockInvoice.amount_paid,
+        })
+      )
+      expect(mockDbOperations.update).toHaveBeenCalled()
+      expect(mockDbOperations.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 'active',
         })
       )
     })
@@ -521,6 +531,10 @@ describe('Invoice Webhook Handlers', () => {
           failureCode,
           failureMessage,
         })
+
+        await mockDbOperations.update({}).set({
+          status: 'suspended',
+        })
       }
 
       await handler(failedInvoice)
@@ -530,6 +544,12 @@ describe('Invoice Webhook Handlers', () => {
           status: 'failed',
           failureCode: 'card_declined',
           failureMessage: 'Insufficient funds',
+        })
+      )
+      expect(mockDbOperations.update).toHaveBeenCalled()
+      expect(mockDbOperations.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 'suspended',
         })
       )
     })
