@@ -75,3 +75,7 @@
 ## Iteracion 18 (17-01-2026)
 - Accion: Agregue job E2E (Playwright) en CI con flag RUN_E2E.
 - Resultado: .github/workflows/ci.yml actualizado; TASKS_TODO.md actualizado.
+
+## Iteracion 19 (17-01-2026)
+- Accion: Agregue job build con artifacts en CI.
+- Resultado: .github/workflows/ci.yml actualizado; TASKS_TODO.md actualizado.
