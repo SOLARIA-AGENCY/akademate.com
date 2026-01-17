@@ -32,7 +32,6 @@ export default function LessonPage({ params }: PageProps) {
     const [marking, setMarking] = useState(false)
     const [lesson, setLesson] = useState<LessonContent | null>(null)
     const [isCompleted, setIsCompleted] = useState(false)
-    const [allLessons, setAllLessons] = useState<Array<{ id: string; title: string }>>([])
 
     // Real-time hooks
     const {
@@ -89,7 +88,6 @@ export default function LessonPage({ params }: PageProps) {
                             resources: lessonData.resources,
                         })
                         setIsCompleted(lessonData.progress?.status === 'completed')
-                        setAllLessons(moduleData.lessons || [])
                     }
                 }
             } catch (err: any) {

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Wifi, WifiOff } from 'lucide-react'
 import { ProgressBar } from '@/components/ProgressBar'
 import { LevelBadge, StreakIndicator, PointsAnimation } from '@/components/gamification'
-import { fetchEnrollmentDetail, type EnrollmentDetailData } from '@/lib/api'
+import { fetchEnrollmentDetail } from '@/lib/api'
 import { useCourseProgress, useGamification } from '@/hooks'
 
 interface PageProps {

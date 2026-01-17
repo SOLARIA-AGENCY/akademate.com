@@ -39,7 +39,7 @@ type QRCheckinRequest = z.infer<typeof QRCheckinSchema>
 
 interface CheckinResult {
   success: boolean
-  status: 'present' | 'late' | 'error'
+  status: 'present' | 'late' | 'pending'
   message: string
   attendance?: {
     id: string
@@ -142,8 +142,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
       return NextResponse.json(
         {
           success: false,
-          status: 'error' as const,
-          message: validation.error.errors[0].message,
+          status: 'pending' as const,
+          message: validation.error.issues[0]?.message ?? 'Solicitud inválida',
         },
         { status: 400 }
       )
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
       return NextResponse.json(
         {
           success: false,
-          status: 'error' as const,
+          status: 'pending' as const,
           message: 'Codigo QR invalido o expirado',
         },
         { status: 403 }
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
       return NextResponse.json(
         {
           success: false,
-          status: 'error' as const,
+          status: 'pending' as const,
           message: 'Firma del codigo QR requerida',
         },
         { status: 400 }
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
       return NextResponse.json(
         {
           success: false,
-          status: 'error' as const,
+          status: 'pending' as const,
           message: 'Matricula no encontrada',
         },
         { status: 404 }
@@ -208,7 +208,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
       return NextResponse.json(
         {
           success: false,
-          status: 'error' as const,
+          status: 'pending' as const,
           message: 'No estas matriculado en este curso',
         },
         { status: 403 }
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
       return NextResponse.json(
         {
           success: false,
-          status: 'error' as const,
+          status: 'pending' as const,
           message: 'Tu matricula no esta activa',
         },
         { status: 403 }
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
       return NextResponse.json(
         {
           success: false,
-          status: 'error' as const,
+          status: 'pending' as const,
           message: windowCheck.reason!,
         },
         { status: 400 }
@@ -323,7 +323,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
     return NextResponse.json(
       {
         success: false,
-        status: 'error' as const,
+        status: 'pending' as const,
         message: 'Error interno del servidor',
       },
       { status: 500 }

@@ -14,7 +14,7 @@ const mockUserId = 'user-001'
 
 interface CheckinResponse {
   success: boolean
-  status: 'present' | 'late' | 'error'
+  status: 'present' | 'late' | 'pending'
   message: string
   attendance?: {
     id: string

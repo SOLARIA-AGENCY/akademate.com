@@ -243,3 +243,7 @@
 ## Iteracion 60 (17-01-2026)
 - Accion: Implementé formulario de contacto con envío a leads (UTM + GDPR + anti-spam) y API proxy.
 - Resultado: /contacto envía leads a Payload vía /api/leads; tsc apps/web en verde.
+
+## Iteracion 61 (17-01-2026)
+- Accion: Conecté home de campus a matrículas reales y ajusté typecheck (campus).
+- Resultado: Campus muestra cursos por matrícula; tsc apps/campus en verde tras fixes.

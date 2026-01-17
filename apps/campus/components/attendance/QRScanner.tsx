@@ -78,6 +78,7 @@ export function QRScanner({ onScan, onError, enabled = true, className }: QRScan
       if (!enabled || isProcessing || detectedCodes.length === 0) return
 
       const code = detectedCodes[0]
+      if (!code?.rawValue) return
       const rawData = code.rawValue
 
       // Debounce: prevent re-scanning same code within 3 seconds
@@ -133,7 +134,6 @@ export function QRScanner({ onScan, onError, enabled = true, className }: QRScan
         }}
         formats={['qr_code']}
         components={{
-          audio: false,
           torch: true,
           finder: true,
         }}
