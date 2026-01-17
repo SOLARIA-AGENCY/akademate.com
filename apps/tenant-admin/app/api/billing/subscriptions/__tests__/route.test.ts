@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { POST } from '../route'
+import { GET, POST } from '../route'
 import { NextRequest } from 'next/server'
 
 // ============================================================================
@@ -19,6 +19,43 @@ vi.mock('@/@payload-config/lib/stripe', () => ({
 }))
 
 import { isStripeConfigured, createSubscription, createStripeCustomer } from '@/@payload-config/lib/stripe'
+
+const { mockDbOperations, resetDbMocks, setExecuteQueue } = vi.hoisted(() => {
+  let executeQueue: unknown[] = []
+
+  const mockDbOperations = {
+    select: vi.fn().mockReturnThis(),
+    from: vi.fn().mockReturnThis(),
+    where: vi.fn().mockReturnThis(),
+    orderBy: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    execute: vi.fn(async () => executeQueue.shift()),
+  }
+
+  const resetDbMocks = () => {
+    vi.clearAllMocks()
+    executeQueue = []
+    mockDbOperations.execute.mockImplementation(async () => executeQueue.shift())
+  }
+
+  const setExecuteQueue = (queue: unknown[]) => {
+    executeQueue = queue
+  }
+
+  return {
+    mockDbOperations,
+    resetDbMocks,
+    setExecuteQueue,
+  }
+})
+
+vi.mock('@/@payload-config/lib/db', () => ({
+  db: mockDbOperations,
+  subscriptions: {
+    tenantId: 'tenant_id',
+    updatedAt: 'updated_at',
+  },
+}))
 
 // ============================================================================
 // Test Data
@@ -55,6 +92,24 @@ const mockSubscription = {
       },
     }],
   },
+}
+
+const mockDbSubscription = {
+  id: 'sub_db_123',
+  tenantId: validTenantId,
+  plan: 'pro',
+  status: 'active',
+  stripeSubscriptionId: validSubscriptionId,
+  stripeCustomerId: validCustomerId,
+  currentPeriodStart: new Date('2024-12-01'),
+  currentPeriodEnd: new Date('2025-01-01'),
+  cancelAtPeriodEnd: false,
+  canceledAt: null,
+  trialStart: null,
+  trialEnd: null,
+  metadata: {},
+  createdAt: new Date('2024-12-01'),
+  updatedAt: new Date('2024-12-01'),
 }
 
 // ============================================================================
@@ -737,5 +792,46 @@ describe('POST /api/billing/subscriptions', () => {
 
       expect(response.status).toBe(201)
     })
+  })
+})
+
+// ============================================================================
+// GET /api/billing/subscriptions
+// ============================================================================
+
+describe('GET /api/billing/subscriptions', () => {
+  beforeEach(() => {
+    resetDbMocks()
+  })
+
+  it('returns 400 when tenantId is missing', async () => {
+    const request = new NextRequest('http://localhost/api/billing/subscriptions')
+    const response = await GET(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(data.error).toBe('Invalid tenantId')
+  })
+
+  it('returns 404 when subscription is not found', async () => {
+    setExecuteQueue([[]])
+
+    const request = new NextRequest(`http://localhost/api/billing/subscriptions?tenantId=${validTenantId}`)
+    const response = await GET(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(404)
+    expect(data.error).toBe('Subscription not found')
+  })
+
+  it('returns subscription when found', async () => {
+    setExecuteQueue([[mockDbSubscription]])
+
+    const request = new NextRequest(`http://localhost/api/billing/subscriptions?tenantId=${validTenantId}`)
+    const response = await GET(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.id).toBe(mockDbSubscription.id)
   })
 })

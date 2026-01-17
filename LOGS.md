@@ -155,3 +155,7 @@
 ## Iteracion 38 (17-01-2026)
 - Accion: Agregue API de usage metering (GET/POST) y tipos base; agregue tests de usage.
 - Resultado: Vitest (usage route) en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 39 (17-01-2026)
+- Accion: Integre UI de facturacion con backend (subscription/invoices/payment methods/transactions) y agregue endpoint de transacciones.
+- Resultado: Nuevos endpoints y hooks actualizados; Vitest (transactions route) en verde; TASKS_TODO.md actualizado.

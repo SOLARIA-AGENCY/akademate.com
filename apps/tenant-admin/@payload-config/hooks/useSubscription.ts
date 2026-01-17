@@ -11,19 +11,30 @@ interface SubscriptionActions {
   resumeSubscription: () => Promise<void>
 }
 
-export function useSubscription(): SubscriptionActions {
+export function useSubscription(options: {
+  tenantId?: string
+  subscriptionId?: string
+  stripeCustomerId?: string
+} = {}): SubscriptionActions {
   const { mutate } = useSWRConfig()
+  const { tenantId, subscriptionId, stripeCustomerId } = options
 
   const changePlan = useCallback(
     async (planTier: PlanTier, interval: 'month' | 'year') => {
+      if (!tenantId) {
+        throw new Error('Missing tenantId')
+      }
+
       const res = await fetch('/api/billing/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          tenantId,
           planTier,
           interval,
           successUrl: `${window.location.origin}/facturacion?success=true`,
           cancelUrl: `${window.location.origin}/facturacion?canceled=true`,
+          stripeCustomerId: stripeCustomerId ?? undefined,
         }),
       })
 
@@ -43,13 +54,12 @@ export function useSubscription(): SubscriptionActions {
 
   const cancelSubscription = useCallback(
     async (reason?: string, immediately = false) => {
-      const res = await fetch('/api/billing/subscriptions', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cancelAtPeriodEnd: !immediately,
-          cancelReason: reason,
-        }),
+      if (!subscriptionId) {
+        throw new Error('Missing subscriptionId')
+      }
+
+      const res = await fetch(`/api/billing/subscriptions/${subscriptionId}?immediately=${immediately}`, {
+        method: 'DELETE',
       })
 
       if (!res.ok) {
@@ -57,13 +67,19 @@ export function useSubscription(): SubscriptionActions {
       }
 
       // Refresh subscription data
-      mutate('/api/billing/subscriptions')
+      if (tenantId) {
+        mutate(`/api/billing/subscriptions?tenantId=${tenantId}`)
+      }
     },
-    [mutate]
+    [mutate, subscriptionId, tenantId]
   )
 
   const resumeSubscription = useCallback(async () => {
-    const res = await fetch('/api/billing/subscriptions', {
+    if (!subscriptionId) {
+      throw new Error('Missing subscriptionId')
+    }
+
+    const res = await fetch(`/api/billing/subscriptions/${subscriptionId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -76,14 +92,22 @@ export function useSubscription(): SubscriptionActions {
     }
 
     // Refresh subscription data
-    mutate('/api/billing/subscriptions')
-  }, [mutate])
+    if (tenantId) {
+      mutate(`/api/billing/subscriptions?tenantId=${tenantId}`)
+    }
+  }, [mutate, subscriptionId, tenantId])
 
   const openBillingPortal = useCallback(async () => {
+    if (!tenantId || !stripeCustomerId) {
+      throw new Error('Missing billing context')
+    }
+
     const res = await fetch('/api/billing/portal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        tenantId,
+        stripeCustomerId,
         returnUrl: window.location.href,
       }),
     })
@@ -98,7 +122,7 @@ export function useSubscription(): SubscriptionActions {
     if (data.url) {
       window.location.href = data.url
     }
-  }, [])
+  }, [tenantId, stripeCustomerId])
 
   return {
     changePlan,

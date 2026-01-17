@@ -53,7 +53,7 @@
 - [x] Stripe webhooks handlers (task 35).
  - [x] Suspension por impago (webhooks invoice.payment_failed/paid -> tenant status).
  - [x] Metering basico (usage_meter + limites).
-- [ ] Integrar UI billing con backend real.
+ - [x] Integrar UI billing con backend real.
 
 ## 8) Jobs/infra (SESSION_HANDOFF tasks 33,34,37)
 - [ ] Worker email (BullMQ).

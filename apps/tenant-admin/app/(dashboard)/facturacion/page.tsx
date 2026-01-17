@@ -12,47 +12,10 @@ import { InvoicesTable } from './components/InvoicesTable'
 import { PaymentMethodsList } from './components/PaymentMethodsList'
 import { TransactionHistory } from './components/TransactionHistory'
 import { CancelSubscriptionDialog } from './components/CancelSubscriptionDialog'
-import type { PlanTier, PaymentTransaction } from '@payload-config/types/billing'
-
-// Mock transactions for development
-const mockTransactions: PaymentTransaction[] = [
-  {
-    id: '1',
-    tenantId: 'tenant-1',
-    invoiceId: 'inv-1',
-    stripePaymentIntentId: 'pi_1234567890',
-    stripeChargeId: 'ch_1234567890',
-    amount: 29900,
-    currency: 'EUR',
-    status: 'succeeded',
-    paymentMethodType: 'card',
-    description: 'Pago de suscripción Pro - Mensual',
-    failureCode: null,
-    failureMessage: null,
-    metadata: {},
-    createdAt: new Date('2024-12-20T10:00:00Z'),
-    updatedAt: new Date('2024-12-20T10:00:00Z'),
-  },
-  {
-    id: '2',
-    tenantId: 'tenant-1',
-    invoiceId: 'inv-2',
-    stripePaymentIntentId: 'pi_0987654321',
-    stripeChargeId: 'ch_0987654321',
-    amount: 19900,
-    currency: 'EUR',
-    status: 'succeeded',
-    paymentMethodType: 'card',
-    description: 'Pago de suscripción Starter - Mensual',
-    failureCode: null,
-    failureMessage: null,
-    metadata: {},
-    createdAt: new Date('2024-11-20T10:00:00Z'),
-    updatedAt: new Date('2024-11-20T10:00:00Z'),
-  },
-]
+import type { PlanTier } from '@payload-config/types/billing'
 
 export default function FacturacionPage() {
+  const tenantId = '123e4567-e89b-12d3-a456-426614174001'
   const [activeTab, setActiveTab] = useState('subscription')
   const [showPlanComparison, setShowPlanComparison] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
@@ -65,15 +28,20 @@ export default function FacturacionPage() {
     invoicesLoading,
     paymentMethods,
     paymentMethodsLoading,
+    transactions,
+    transactionsLoading,
     mutate,
-  } = useBillingData()
+  } = useBillingData({ tenantId })
+
+  const subscriptionId = subscription?.stripeSubscriptionId ?? undefined
+  const stripeCustomerId = subscription?.stripeCustomerId ?? undefined
 
   const {
     changePlan,
     cancelSubscription,
     resumeSubscription,
     openBillingPortal,
-  } = useSubscription()
+  } = useSubscription({ tenantId, subscriptionId, stripeCustomerId })
 
   // Check for success/canceled params from Stripe redirect
   useEffect(() => {
@@ -179,11 +147,42 @@ export default function FacturacionPage() {
   }
 
   const handleSetDefaultPaymentMethod = async (id: string) => {
-    // TODO: Implement when API is ready
-    toast({
-      title: 'Funcionalidad en desarrollo',
-      description: 'Esta función estará disponible próximamente',
-    })
+    if (!stripeCustomerId) {
+      toast({
+        title: 'Error',
+        description: 'No hay cliente de Stripe asociado',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    try {
+      const res = await fetch('/api/billing/payment-methods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: stripeCustomerId,
+          paymentMethodId: id,
+          setAsDefault: true,
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to set default payment method')
+      }
+
+      toast({
+        title: 'Método actualizado',
+        description: 'Método de pago actualizado correctamente',
+      })
+      mutate()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo actualizar el método de pago',
+        variant: 'destructive',
+      })
+    }
   }
 
   const handleDeletePaymentMethod = async (id: string) => {
@@ -260,8 +259,8 @@ export default function FacturacionPage() {
         {/* Transaction History Tab */}
         <TabsContent value="history">
           <TransactionHistory
-            transactions={mockTransactions}
-            loading={false}
+            transactions={transactions}
+            loading={transactionsLoading || subscriptionLoading}
           />
         </TabsContent>
       </Tabs>

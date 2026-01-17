@@ -1,26 +1,32 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { useBillingData } from '../../@payload-config/hooks/useBillingData'
-import type { Subscription, Invoice, PaymentMethod } from '../../../packages/types/src/index'
+import type { Subscription, Invoice, PaymentMethod, PaymentTransaction } from '../../../packages/types/src/index'
 
 // Mock SWR
 jest.mock('swr', () => ({
   __esModule: true,
   default: jest.fn((url: string) => {
     const mockData = {
-      '/api/billing/subscriptions': {
+      '/api/billing/subscriptions?tenantId=tenant-1': {
         data: mockSubscription,
         error: null,
         isLoading: false,
         mutate: jest.fn(),
       },
-      '/api/billing/invoices': {
-        data: mockInvoices,
+      '/api/billing/invoices?customerId=cus_123': {
+        data: { invoices: mockInvoices },
         error: null,
         isLoading: false,
         mutate: jest.fn(),
       },
-      '/api/billing/payment-methods': {
-        data: mockPaymentMethods,
+      '/api/billing/payment-methods?customerId=cus_123': {
+        data: { paymentMethods: mockPaymentMethods },
+        error: null,
+        isLoading: false,
+        mutate: jest.fn(),
+      },
+      '/api/billing/transactions?tenantId=tenant-1': {
+        data: { transactions: mockTransactions },
         error: null,
         isLoading: false,
         mutate: jest.fn(),
@@ -91,9 +97,29 @@ const mockPaymentMethods: PaymentMethod[] = [
   },
 ]
 
+const mockTransactions: PaymentTransaction[] = [
+  {
+    id: 'txn-1',
+    tenantId: 'tenant-1',
+    invoiceId: 'inv-1',
+    stripePaymentIntentId: 'pi_123',
+    stripeChargeId: 'ch_123',
+    amount: 29900,
+    currency: 'EUR',
+    status: 'succeeded',
+    paymentMethodType: 'card',
+    description: 'Pago de suscripción Pro',
+    failureCode: null,
+    failureMessage: null,
+    metadata: {},
+    createdAt: new Date('2024-12-01'),
+    updatedAt: new Date('2024-12-01'),
+  },
+]
+
 describe('useBillingData', () => {
   it('returns subscription data', async () => {
-    const { result } = renderHook(() => useBillingData())
+    const { result } = renderHook(() => useBillingData({ tenantId: 'tenant-1' }))
 
     await waitFor(() => {
       expect(result.current.subscription).toEqual(mockSubscription)
@@ -103,7 +129,7 @@ describe('useBillingData', () => {
   })
 
   it('returns invoices data', async () => {
-    const { result } = renderHook(() => useBillingData())
+    const { result } = renderHook(() => useBillingData({ tenantId: 'tenant-1' }))
 
     await waitFor(() => {
       expect(result.current.invoices).toEqual(mockInvoices)
@@ -113,7 +139,7 @@ describe('useBillingData', () => {
   })
 
   it('returns payment methods data', async () => {
-    const { result } = renderHook(() => useBillingData())
+    const { result } = renderHook(() => useBillingData({ tenantId: 'tenant-1' }))
 
     await waitFor(() => {
       expect(result.current.paymentMethods).toEqual(mockPaymentMethods)
@@ -122,8 +148,18 @@ describe('useBillingData', () => {
     })
   })
 
+  it('returns transactions data', async () => {
+    const { result } = renderHook(() => useBillingData({ tenantId: 'tenant-1' }))
+
+    await waitFor(() => {
+      expect(result.current.transactions).toEqual(mockTransactions)
+      expect(result.current.transactionsLoading).toBe(false)
+      expect(result.current.transactionsError).toBe(null)
+    })
+  })
+
   it('provides mutate function', async () => {
-    const { result } = renderHook(() => useBillingData())
+    const { result } = renderHook(() => useBillingData({ tenantId: 'tenant-1' }))
 
     await waitFor(() => {
       expect(typeof result.current.mutate).toBe('function')
