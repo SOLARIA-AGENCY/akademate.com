@@ -131,3 +131,7 @@
 ## Iteracion 32 (17-01-2026)
 - Accion: Verifique RBAC por tenant y auditoria existente en colecciones Payload.
 - Resultado: TASKS_TODO.md actualizado.
+
+## Iteracion 33 (17-01-2026)
+- Accion: Verifique ADRs iniciales existentes en docs/adr.
+- Resultado: TASKS_TODO.md actualizado.
