@@ -123,3 +123,7 @@
 ## Iteracion 30 (17-01-2026)
 - Accion: Ajuste cookies httpOnly/secure en login tenant-admin segun entorno.
 - Resultado: apps/tenant-admin/app/api/users/login/route.ts actualizado; TASKS_TODO.md actualizado.
+
+## Iteracion 31 (17-01-2026)
+- Accion: Aplique CORS dinamico por tenant en login tenant-admin.
+- Resultado: apps/tenant-admin/app/api/users/login/route.ts actualizado; TASKS_TODO.md actualizado.

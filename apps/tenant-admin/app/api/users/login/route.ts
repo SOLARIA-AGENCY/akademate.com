@@ -118,18 +118,40 @@ export async function POST(request: Request) {
 }
 
 // OPTIONS for CORS preflight
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin')
   const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:3002',
-    'http://46.62.222.138',
-    'https://cepcomunicacion.com',
-    'https://www.cepcomunicacion.com'
   ]
+
+  const isTenantOrigin = (value: string) => {
+    try {
+      const url = new URL(value)
+      return (
+        url.hostname.endsWith('.akademate.com') ||
+        url.hostname.endsWith('.akademate.io') ||
+        url.hostname.endsWith('.localhost')
+      )
+    } catch {
+      return false
+    }
+  }
+
+  const isAllowed =
+    origin &&
+    (allowedOrigins.includes(origin) || isTenantOrigin(origin) || origin === 'https://akademate.com')
+
+  if (!isAllowed) {
+    return NextResponse.json(
+      { error: 'Origin not allowed' },
+      { status: 403 }
+    )
+  }
 
   return NextResponse.json({}, {
     headers: {
-      'Access-Control-Allow-Origin': allowedOrigins.join(', '),
+      'Access-Control-Allow-Origin': origin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Allow-Credentials': 'true',

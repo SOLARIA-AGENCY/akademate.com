@@ -43,7 +43,7 @@
 
 ## 6) Auth + seguridad (docs/PROJECT_MILESTONES.md)
 - [x] Cookies httpOnly/secure.
-- [ ] CORS por tenant.
+- [x] CORS por tenant.
 - [ ] RBAC por tenant (staff/alumno/ops).
 - [ ] MFA TOTP para ops (SESSION_HANDOFF task 32).
 - [ ] Auditoria de operaciones sensibles.
