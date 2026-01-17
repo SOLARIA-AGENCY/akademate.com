@@ -83,3 +83,7 @@
 ## Iteracion 20 (17-01-2026)
 - Accion: Agregue job security scan en CI con TruffleHog y pnpm audit.
 - Resultado: .github/workflows/ci.yml actualizado; TASKS_TODO.md actualizado.
+
+## Iteracion 21 (17-01-2026)
+- Accion: Documente variables y secretos requeridos para CI.
+- Resultado: docs/CI_CD_PIPELINE.md actualizado; TASKS_TODO.md actualizado.

@@ -251,6 +251,26 @@ deploy:
 
 ---
 
+## Variables & Secrets (CI)
+
+### Repository Variables
+
+- `RUN_E2E`: habilita el job E2E en CI (`true`/`false`).
+- `RUN_SECURITY`: habilita el job de security scan en CI (`true`/`false`).
+- `WEB_URL`: baseURL para tests Playwright (web).
+- `TENANT_ADMIN_URL`: baseURL para tests Playwright (tenant-admin).
+- `ADMIN_CLIENT_URL`: baseURL para tests Playwright (admin-client).
+- `PORTAL_URL`: baseURL para tests Playwright (portal).
+- `CAMPUS_URL`: baseURL para tests Playwright (campus).
+- `PAYLOAD_URL`: baseURL para tests Playwright (payload).
+- `OPS_URL`: baseURL para tests Playwright (ops).
+
+### Repository Secrets
+
+- `SNYK_TOKEN`: opcional si se activa Snyk en el job de seguridad.
+
+---
+
 ## Configuration Files to Create
 
 ### .eslintrc.js

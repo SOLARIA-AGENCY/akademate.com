@@ -27,7 +27,7 @@
 - [x] Agregar paso E2E (Playwright) en CI.
 - [x] Agregar build artifacts.
 - [x] Agregar security scan (SCA/SAST) basico.
-- [ ] Documentar variables/secretos requeridos.
+- [x] Documentar variables/secretos requeridos.
 
 ## 4) E2E criticos (docs/E2E_TESTS.md)
 - [ ] Auditar E2E existentes vs escenarios requeridos.
