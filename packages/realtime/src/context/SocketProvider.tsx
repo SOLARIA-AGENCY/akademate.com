@@ -7,7 +7,7 @@
  * Provides socket instance and connection status to all children.
  */
 
-import React, {
+import {
   createContext,
   useContext,
   useEffect,

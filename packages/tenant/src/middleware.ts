@@ -13,7 +13,6 @@ import {
   getFullTenantResolution,
   TENANT_HEADER,
   TENANT_COOKIE,
-  type TenantResolution,
 } from './resolver'
 
 export type TenantMiddlewareConfig = {

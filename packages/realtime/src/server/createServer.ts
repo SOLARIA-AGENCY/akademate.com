@@ -18,7 +18,6 @@ import {
   createAuthMiddleware,
   createRateLimitMiddleware,
   createTenantIsolationMiddleware,
-  type AuthMiddlewareOptions,
   type RateLimitOptions,
 } from './middleware';
 import { handleConnection, type TypedServer } from './handlers';

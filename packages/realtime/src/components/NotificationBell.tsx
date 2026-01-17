@@ -7,7 +7,7 @@
  * Opens dropdown panel with recent notifications.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { NotificationPayload, AlertPayload } from '../types/payloads';
 
 // ============================================================================

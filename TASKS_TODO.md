@@ -12,7 +12,7 @@
 - [x] Corregir null checks y mocks en tests de packages/realtime.
 - [x] Corregir tipos en packages/reports (pdf.ts).
 - [x] Corregir zod enums en packages/types.
-- [ ] Limpiar variables no usadas (packages/realtime, packages/tenant).
+- [x] Limpiar variables no usadas (packages/realtime, packages/tenant).
 
 ## 2) GDPR end-to-end (docs/GDPR_FEATURES.md)
 - [ ] API export: apps/tenant-admin/app/api/gdpr/[userId]/export/route.ts.

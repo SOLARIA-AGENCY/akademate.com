@@ -11,7 +11,7 @@ import type {
   InterServerEvents,
   SocketData,
 } from '../types/events';
-import { canJoinRoom, parseRoom } from '../types/rooms';
+import { canJoinRoom } from '../types/rooms';
 
 // ============================================================================
 // TYPES
@@ -142,13 +142,7 @@ function handleNotificationEvents(ctx: HandlerContext) {
 // ============================================================================
 
 function handlePresenceEvents(ctx: HandlerContext) {
-  const { io, socket, debug } = ctx;
-
-  const log = (...args: unknown[]) => {
-    if (debug) {
-      console.log(`[Socket ${socket.id}]`, ...args);
-    }
-  };
+  const { socket } = ctx;
 
   // Broadcast presence to tenant room on connect
   const tenantRoom = `tenant:${socket.data.tenantId}:presence`;

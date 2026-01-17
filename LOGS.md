@@ -39,3 +39,7 @@
 ## Iteracion 9 (17-01-2026)
 - Accion: Alinee enums Zod con fuentes tipadas y actualice z.record a firma v4 en packages/types.
 - Resultado: packages/types tsc --noEmit en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 10 (17-01-2026)
+- Accion: Elimine imports/vars no usados en packages/realtime y packages/tenant.
+- Resultado: packages/realtime y packages/tenant tsc --noEmit en verde; TASKS_TODO.md actualizado.

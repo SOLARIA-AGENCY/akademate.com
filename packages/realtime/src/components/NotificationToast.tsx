@@ -7,7 +7,7 @@
  * Auto-dismisses after a configurable duration.
  */
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { NotificationPayload } from '../types/payloads';
 
 // ============================================================================
