@@ -28,6 +28,7 @@ vi.mock('@payload-config', () => ({ default: {} }));
 import { POST as exportHandler } from '../export/route';
 import { GET as exportByIdHandler } from '../[userId]/export/route';
 import { POST as deleteByIdHandler } from '../[userId]/delete/route';
+import { GET as consentGetHandler, POST as consentPostHandler } from '../[userId]/consent/route';
 import { POST as erasureHandler } from '../erasure/route';
 
 describe('GDPR Export API', () => {
@@ -340,5 +341,70 @@ describe('GDPR Delete API (User Param)', () => {
         expect(data.data.fieldsAnonymized).toContain('email');
         expect(data.data.anonymizedAt).toBeDefined();
         expect(data.data.verificationToken).toBeDefined();
+    });
+});
+
+describe('GDPR Consent API (User Param)', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('should return 400 if userId is missing', async () => {
+        const request = new NextRequest('http://localhost/api/gdpr/user/consent', {
+            method: 'GET',
+        });
+
+        const response = await consentGetHandler(request, { params: { userId: '' } });
+        const data = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(data.success).toBe(false);
+        expect(data.error).toContain('userId');
+    });
+
+    it('should return default consents when no history exists', async () => {
+        mockPayload.find.mockResolvedValue({ docs: [] });
+
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/consent', {
+            method: 'GET',
+        });
+
+        const response = await consentGetHandler(request, { params: { userId: 'user-123' } });
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(data.success).toBe(true);
+        expect(data.data.consents.marketing_email).toBe(false);
+    });
+
+    it('should return 400 if consents payload is missing', async () => {
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/consent', {
+            method: 'POST',
+            body: JSON.stringify({}),
+        });
+
+        const response = await consentPostHandler(request, { params: { userId: 'user-123' } });
+        const data = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(data.success).toBe(false);
+        expect(data.error).toContain('consents');
+    });
+
+    it('should update consent successfully', async () => {
+        mockPayload.create.mockResolvedValue({});
+
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/consent', {
+            method: 'POST',
+            body: JSON.stringify({ consents: { marketing_email: true } }),
+        });
+
+        const response = await consentPostHandler(request, { params: { userId: 'user-123' } });
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(data.success).toBe(true);
+        expect(data.data.consents.marketing_email).toBe(true);
+        expect(data.data.updatedAt).toBeDefined();
     });
 });

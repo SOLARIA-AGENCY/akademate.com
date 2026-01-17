@@ -17,7 +17,7 @@
 ## 2) GDPR end-to-end (docs/GDPR_FEATURES.md)
 - [x] API export: apps/tenant-admin/app/api/gdpr/[userId]/export/route.ts.
 - [x] API delete: apps/tenant-admin/app/api/gdpr/[userId]/delete/route.ts.
-- [ ] API consent: apps/tenant-admin/app/api/gdpr/[userId]/consent/route.ts.
+- [x] API consent: apps/tenant-admin/app/api/gdpr/[userId]/consent/route.ts.
 - [ ] UI GDPR settings page (tenant-admin).
 - [ ] Jobs retention en packages/jobs (BullMQ).
 - [ ] Tests unitarios + e2e para flujos GDPR.

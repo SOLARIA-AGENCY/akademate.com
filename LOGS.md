@@ -51,3 +51,7 @@
 ## Iteracion 12 (17-01-2026)
 - Accion: Implemente API GDPR delete con ruta por userId y extendi tests en tenant-admin.
 - Resultado: Vitest (tenant-admin) en verde para gdpr.test.ts; TASKS_TODO.md actualizado.
+
+## Iteracion 13 (17-01-2026)
+- Accion: Implemente API GDPR consent con ruta por userId y extendi tests en tenant-admin.
+- Resultado: Vitest (tenant-admin) en verde para gdpr.test.ts; TASKS_TODO.md actualizado.
