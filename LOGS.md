@@ -290,3 +290,11 @@
 - ✓ Ajuste de layout para evitar selectores duplicados en pruebas responsive.
 - Tests: campus-chromium (66/66) PASS.
 
+
+## Iteracion 72 - 2026-01-17
+
+- ✓ Portal E2E: se agregaron stubs de selección de tenant, navegación, login campus/admin, y canonical metadata.
+- ✓ Ops E2E: se agregaron stubs para dashboard, servicios, DB, logs, monitoring, jobs, settings, alerts y api-health.
+- ✓ Fix tests: beforeEach para API Health en e2e/ops.
+- Tests: portal-chromium (61/61) PASS; ops-chromium (101/101) PASS.
+
