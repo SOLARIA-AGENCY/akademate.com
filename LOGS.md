@@ -175,3 +175,7 @@
 ## Iteracion 43 (17-01-2026)
 - Accion: Conecte media manager de tenant-admin a API real de media (Payload) y refresco tras uploads.
 - Resultado: Media manager sin mocks; TASKS_TODO.md actualizado.
+
+## Iteracion 44 (17-01-2026)
+- Accion: Agregue bootstrap OTEL basico en packages/api y dependencias asociadas.
+- Resultado: TSC packages/api en verde; TASKS_TODO.md actualizado.

@@ -212,3 +212,9 @@ export {
   GdprRetentionService,
   createGdprRetentionService,
 } from './gdpr'
+
+// ============================================================================
+// Observability
+// ============================================================================
+
+export { startTelemetry, stopTelemetry } from './otel'

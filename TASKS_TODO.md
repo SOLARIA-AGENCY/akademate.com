@@ -59,7 +59,7 @@
 - [x] Worker email (BullMQ).
 - [x] Worker webhooks (BullMQ).
 - [x] Worker search sync (BullMQ).
-- [ ] Observabilidad OTEL basica.
+- [x] Observabilidad OTEL basica.
 
 ## 9) Storage & media (SESSION_HANDOFF task 23)
 - [x] Integrar R2/MinIO + presigned uploads.
