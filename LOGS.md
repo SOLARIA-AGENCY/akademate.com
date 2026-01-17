@@ -305,3 +305,10 @@
 - ✓ Dependencias: bump @upstash/context7-mcp a 2.1.0 y overrides para @modelcontextprotocol/sdk, esbuild y qs.
 - Tests: pnpm audit --audit-level=moderate (PASS con 3 low).
 
+
+## Iteracion 74 - 2026-01-17
+
+- ✓ GDPR verification: vitest gdpr suite en tenant-admin (20/20) PASS.
+- ⚠️ Security checklist parcial: trufflehog ausente; RLS/rate-limit requieren env/servicios.
+- Tests: pnpm --filter @akademate/tenant-admin test -- gdpr (20/20) PASS.
+
