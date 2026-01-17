@@ -2,78 +2,171 @@
 
 export const dynamic = 'force-dynamic'
 
-import { MockupTable } from '@payload-config/components/mockup/MockupTable'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
+import { useEffect, useState } from 'react'
+import { Button } from '@payload-config/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@payload-config/components/ui/table'
+import { Download, Plus } from 'lucide-react'
+
+type Lead = {
+  id: string
+  first_name?: string | null
+  last_name?: string | null
+  email?: string | null
+  phone?: string | null
+  status?: 'new' | 'contacted' | 'qualified' | 'converted' | 'rejected' | 'spam'
+  utm?: {
+    source?: string | null
+    medium?: string | null
+    campaign?: string | null
+  }
+  createdAt?: string | null
+}
+
+const statusStyles: Record<string, string> = {
+  new: 'bg-blue-100 text-blue-800',
+  contacted: 'bg-green-100 text-green-800',
+  qualified: 'bg-yellow-100 text-yellow-800',
+  converted: 'bg-emerald-100 text-emerald-800',
+  rejected: 'bg-red-100 text-red-800',
+  spam: 'bg-slate-100 text-slate-800',
+}
+
+const statusLabels: Record<string, string> = {
+  new: 'Nuevo',
+  contacted: 'Contactado',
+  qualified: 'Calificado',
+  converted: 'Convertido',
+  rejected: 'Rechazado',
+  spam: 'Spam',
+}
+
+const formatOrigin = (lead: Lead) => {
+  const parts = [lead.utm?.source, lead.utm?.medium, lead.utm?.campaign].filter(Boolean)
+  if (parts.length === 0) return '—'
+  return parts.join(' · ')
+}
+
+const formatDate = (value?: string | null) => {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleString('es-ES')
+}
 
 export default function LeadsPage() {
-  const columns = ['Nombre', 'Email', 'Teléfono', 'Estado', 'Origen', 'Fecha Registro']
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const rows = [
-    [
-      'María García López',
-      'maria.garcia@email.com',
-      '+34 612 345 678',
-      <span key="1" className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Contactado</span>,
-      'Web - Formulario Contacto',
-      '23/11/2025 14:30'
-    ],
-    [
-      'Juan Martínez Ruiz',
-      'juan.martinez@email.com',
-      '+34 623 456 789',
-      <span key="2" className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Nuevo</span>,
-      'Meta Ads - Campaña Marketing Digital',
-      '23/11/2025 12:15'
-    ],
-    [
-      'Ana Sánchez Torres',
-      'ana.sanchez@email.com',
-      '+34 634 567 890',
-      <span key="3" className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Seguimiento</span>,
-      'Web - Descargar Brochure',
-      '22/11/2025 18:45'
-    ],
-    [
-      'Pedro López Fernández',
-      'pedro.lopez@email.com',
-      '+34 645 678 901',
-      <span key="4" className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Contactado</span>,
-      'WhatsApp - Consulta Curso',
-      '22/11/2025 10:20'
-    ],
-    [
-      'Laura Rodríguez Gil',
-      'laura.rodriguez@email.com',
-      '+34 656 789 012',
-      <span key="5" className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Nuevo</span>,
-      'Meta Ads - Campaña Ciclos FP',
-      '21/11/2025 16:30'
-    ],
-    [
-      'Carlos Gómez Martín',
-      'carlos.gomez@email.com',
-      '+34 667 890 123',
-      <span key="6" className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Seguimiento</span>,
-      'Web - Formulario Info',
-      '21/11/2025 09:15'
-    ]
-  ]
+  useEffect(() => {
+    const fetchLeads = async () => {
+      try {
+        setErrorMessage(null)
+        const response = await fetch('/api/leads?limit=25&sort=-createdAt')
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar los leads')
+        }
+
+        const payload = await response.json()
+        setLeads(Array.isArray(payload?.docs) ? payload.docs : [])
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Error al cargar leads')
+        setLeads([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchLeads()
+  }, [])
 
   return (
     <div className="p-6 space-y-6">
-      <MockDataIndicator
-        variant="banner"
-        label="Este módulo usa datos de demostración. Pendiente integración con formularios web y Meta Ads."
-      />
-      <MockupTable
-        title="Gestión de Leads"
-        description="Control y seguimiento de leads capturados desde formularios, campañas y canales digitales"
-        columns={columns}
-        rows={rows}
-        onAdd={() => console.log('Añadir lead')}
-        addButtonText="Añadir Lead"
-        onExport={() => console.log('Exportar CSV')}
-      />
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Gestión de Leads</h1>
+          <p className="text-muted-foreground">
+            Control y seguimiento de leads capturados desde formularios y campañas
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => console.log('Exportar CSV')} disabled={isLoading}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar CSV
+          </Button>
+          <Button onClick={() => console.log('Añadir lead')} disabled={isLoading}>
+            <Plus className="mr-2 h-4 w-4" />
+            Añadir lead
+          </Button>
+        </div>
+      </div>
+
+      {errorMessage && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+          {errorMessage}
+        </div>
+      )}
+
+      <div className="rounded-lg border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Teléfono</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Origen</TableHead>
+              <TableHead>Fecha registro</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                  Cargando leads...
+                </TableCell>
+              </TableRow>
+            )}
+
+            {!isLoading && leads.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                  No hay leads disponibles.
+                </TableCell>
+              </TableRow>
+            )}
+
+            {leads.map((lead) => {
+              const statusKey = lead.status ?? 'new'
+              return (
+                <TableRow key={lead.id}>
+                  <TableCell>
+                    {[lead.first_name, lead.last_name].filter(Boolean).join(' ') || '—'}
+                  </TableCell>
+                  <TableCell>{lead.email ?? '—'}</TableCell>
+                  <TableCell>{lead.phone ?? '—'}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyles[statusKey] ?? 'bg-muted text-muted-foreground'}`}
+                    >
+                      {statusLabels[statusKey] ?? 'Nuevo'}
+                    </span>
+                  </TableCell>
+                  <TableCell>{formatOrigin(lead)}</TableCell>
+                  <TableCell>{formatDate(lead.createdAt)}</TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }

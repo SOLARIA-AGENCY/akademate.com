@@ -199,3 +199,7 @@
 ## Iteracion 49 (17-01-2026)
 - Accion: Agregue configuracion de dominios por tenant (API + UI) en tenant-admin.
 - Resultado: API /api/config section=domains + pagina configuracion/dominios; tsc tenant-admin en verde.
+
+## Iteracion 50 (17-01-2026)
+- Accion: Conecte CRM de leads a datos reales desde /api/leads y reemplace mock table por tabla nativa.
+- Resultado: Leads dashboard con fetch real, estados y origen UTM; tsc tenant-admin en verde.
