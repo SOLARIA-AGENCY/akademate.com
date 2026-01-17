@@ -127,3 +127,7 @@
 ## Iteracion 31 (17-01-2026)
 - Accion: Aplique CORS dinamico por tenant en login tenant-admin.
 - Resultado: apps/tenant-admin/app/api/users/login/route.ts actualizado; TASKS_TODO.md actualizado.
+
+## Iteracion 32 (17-01-2026)
+- Accion: Verifique RBAC por tenant y auditoria existente en colecciones Payload.
+- Resultado: TASKS_TODO.md actualizado.

@@ -44,9 +44,9 @@
 ## 6) Auth + seguridad (docs/PROJECT_MILESTONES.md)
 - [x] Cookies httpOnly/secure.
 - [x] CORS por tenant.
-- [ ] RBAC por tenant (staff/alumno/ops).
+- [x] RBAC por tenant (staff/alumno/ops).
 - [ ] MFA TOTP para ops (SESSION_HANDOFF task 32).
-- [ ] Auditoria de operaciones sensibles.
+- [x] Auditoria de operaciones sensibles.
 
 ## 7) Billing & Stripe (BILLING_UI_IMPLEMENTATION.md, SESSION_HANDOFF)
 - [ ] Stripe checkout + portal server-side.
