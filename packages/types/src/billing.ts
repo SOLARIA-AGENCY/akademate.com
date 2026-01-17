@@ -40,6 +40,13 @@ export const PaymentStatus = {
 
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
+const planTierValues = Object.values(PlanTier) as [PlanTier, ...PlanTier[]]
+const subscriptionStatusValues = Object.values(SubscriptionStatus) as [
+  SubscriptionStatus,
+  ...SubscriptionStatus[]
+]
+const paymentStatusValues = Object.values(PaymentStatus) as [PaymentStatus, ...PaymentStatus[]]
+
 // ============================================================================
 // Zod Schemas
 // ============================================================================
@@ -47,7 +54,7 @@ export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 export const PlanSchema = z.object({
   id: z.string(),
   name: z.string(),
-  tier: z.enum(['starter', 'pro', 'enterprise']),
+  tier: z.enum(planTierValues),
   priceMonthly: z.number().positive(),
   priceYearly: z.number().positive(),
   currency: z.string().length(3).default('EUR'),
@@ -67,8 +74,8 @@ export const PlanSchema = z.object({
 export const SubscriptionSchema = z.object({
   id: z.string().uuid(),
   tenantId: z.string().uuid(),
-  plan: z.enum(['starter', 'pro', 'enterprise']),
-  status: z.enum(['trialing', 'active', 'past_due', 'canceled', 'incomplete', 'incomplete_expired', 'unpaid']),
+  plan: z.enum(planTierValues),
+  status: z.enum(subscriptionStatusValues),
   stripeSubscriptionId: z.string().nullable(),
   stripeCustomerId: z.string().nullable(),
   currentPeriodStart: z.date(),
@@ -77,7 +84,7 @@ export const SubscriptionSchema = z.object({
   canceledAt: z.date().nullable().optional(),
   trialStart: z.date().nullable().optional(),
   trialEnd: z.date().nullable().optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
@@ -105,7 +112,7 @@ export const InvoiceSchema = z.object({
     unitAmount: z.number().int(), // cents
     amount: z.number().int(), // cents
   })),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
@@ -152,12 +159,12 @@ export const PaymentTransactionSchema = z.object({
   stripeChargeId: z.string().nullable(),
   amount: z.number().int(), // cents
   currency: z.string().length(3).default('EUR'),
-  status: z.enum(['pending', 'processing', 'succeeded', 'failed', 'canceled', 'refunded']),
+  status: z.enum(paymentStatusValues),
   paymentMethodType: z.string(),
   description: z.string().nullable(),
   failureCode: z.string().nullable(),
   failureMessage: z.string().nullable(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   createdAt: z.date(),
   updatedAt: z.date(),
 })

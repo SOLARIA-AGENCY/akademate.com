@@ -11,7 +11,7 @@
 - [x] Agregar jsx a tsconfig de packages/ui.
 - [x] Corregir null checks y mocks en tests de packages/realtime.
 - [x] Corregir tipos en packages/reports (pdf.ts).
-- [ ] Corregir zod enums en packages/types.
+- [x] Corregir zod enums en packages/types.
 - [ ] Limpiar variables no usadas (packages/realtime, packages/tenant).
 
 ## 2) GDPR end-to-end (docs/GDPR_FEATURES.md)

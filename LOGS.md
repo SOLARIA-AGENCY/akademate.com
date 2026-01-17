@@ -35,3 +35,7 @@
 ## Iteracion 8 (17-01-2026)
 - Accion: Corrigi tipos en packages/reports/src/pdf.ts (pageSize y estilos de fila alterna) y valide con tsc.
 - Resultado: packages/reports tsc --noEmit en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 9 (17-01-2026)
+- Accion: Alinee enums Zod con fuentes tipadas y actualice z.record a firma v4 en packages/types.
+- Resultado: packages/types tsc --noEmit en verde; TASKS_TODO.md actualizado.
