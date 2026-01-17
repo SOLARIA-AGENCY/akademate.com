@@ -211,3 +211,7 @@
 ## Iteracion 52 (17-01-2026)
 - Accion: Conecte vista de sedes a datos reales (/api/campuses) con estados de carga y errores.
 - Resultado: Sedes dashboard consume Payload campus y mantiene layout; tsc tenant-admin en verde.
+
+## Iteracion 53 (17-01-2026)
+- Accion: Conecte campañas a datos reales (/api/campaigns) y actualice métricas.
+- Resultado: Campañas dashboard con fetch real y KPIs calculados; tsc tenant-admin en verde.
