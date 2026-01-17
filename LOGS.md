@@ -95,3 +95,7 @@
 ## Iteracion 23 (17-01-2026)
 - Accion: Agregue E2E de billing para tenant-admin.
 - Resultado: e2e/tenant-admin/billing.spec.ts creado; TASKS_TODO.md actualizado.
+
+## Iteracion 24 (17-01-2026)
+- Accion: Agregue fixtures base para E2E.
+- Resultado: e2e/fixtures/ creada; TASKS_TODO.md actualizado.
