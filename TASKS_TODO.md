@@ -67,8 +67,8 @@
 - [ ] Thumbs opcionales.
 
 ## 10) Feature flags (SESSION_HANDOFF task 24)
-- [ ] Flags por tenant/plan.
-- [ ] UI de rollout (% + kill switch).
+- [x] Flags por tenant/plan.
+- [x] UI de rollout (% + kill switch).
 
 ## 11) Apps producto
 - [ ] Dashboard Ops (metrics, tenants, domains, billing overview).

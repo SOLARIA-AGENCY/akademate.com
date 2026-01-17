@@ -159,3 +159,7 @@
 ## Iteracion 39 (17-01-2026)
 - Accion: Integre UI de facturacion con backend (subscription/invoices/payment methods/transactions), agregue endpoint de transacciones y actualice docs del modulo.
 - Resultado: Nuevos endpoints y hooks actualizados; Vitest (transactions route) en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 40 (17-01-2026)
+- Accion: Implemente feature flags tenant-aware (API eval + overrides) y UI de rollout en tenant-admin.
+- Resultado: API/ UI de flags listas; Vitest (feature-flags route) en verde; TASKS_TODO.md actualizado.

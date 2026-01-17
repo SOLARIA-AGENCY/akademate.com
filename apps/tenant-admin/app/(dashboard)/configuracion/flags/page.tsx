@@ -1,0 +1,168 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Switch } from '@payload-config/components/ui/switch'
+import { Input } from '@payload-config/components/ui/input'
+import { Button } from '@payload-config/components/ui/button'
+import { useToast } from '@payload-config/hooks/use-toast'
+
+interface FeatureFlag {
+  key: string
+  type: 'boolean' | 'percentage' | 'variant'
+  defaultValue: unknown
+  overrideValue: unknown | null
+  effectiveValue: unknown
+  planRequirement?: string | null
+  eligible: boolean
+}
+
+export default function FeatureFlagsPage() {
+  const tenantId = '123e4567-e89b-12d3-a456-426614174001'
+  const { toast } = useToast()
+  const [flags, setFlags] = useState<FeatureFlag[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchFlags = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/feature-flags?tenantId=${tenantId}`)
+      if (!response.ok) {
+        throw new Error('Failed to load flags')
+      }
+      const data = await response.json()
+      setFlags(data.flags ?? [])
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar los feature flags',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchFlags()
+  }, [])
+
+  const updateFlag = async (key: string, value: unknown) => {
+    try {
+      const response = await fetch('/api/feature-flags', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenantId, key, value }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update flag')
+      }
+
+      await fetchFlags()
+      toast({
+        title: 'Flag actualizado',
+        description: `Se actualizó ${key} correctamente`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: `No se pudo actualizar ${key}`,
+        variant: 'destructive',
+      })
+    }
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Feature Flags</CardTitle>
+          <CardDescription>Gestiona activaciones y rollouts</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-10">
+            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Feature Flags</CardTitle>
+          <CardDescription>Rollouts por tenant y plan</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {flags.map((flag) => (
+              <div key={flag.key} className="flex flex-col gap-3 rounded-lg border p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold">{flag.key}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Tipo: {flag.type} {flag.planRequirement ? `· Plan mínimo: ${flag.planRequirement}` : ''}
+                    </p>
+                  </div>
+                  {!flag.eligible && (
+                    <span className="text-xs text-destructive">No elegible</span>
+                  )}
+                </div>
+
+                {flag.type === 'boolean' && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Activado</span>
+                    <Switch
+                      checked={Boolean(flag.overrideValue ?? flag.effectiveValue)}
+                      onCheckedChange={(value) => updateFlag(flag.key, value)}
+                    />
+                  </div>
+                )}
+
+                {flag.type === 'percentage' && (
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      defaultValue={Number(flag.overrideValue ?? flag.defaultValue ?? 0)}
+                      onBlur={(event) => {
+                        const nextValue = Number(event.target.value)
+                        if (!Number.isNaN(nextValue)) {
+                          updateFlag(flag.key, nextValue)
+                        }
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">% rollout</span>
+                  </div>
+                )}
+
+                {flag.type === 'variant' && (
+                  <div className="text-xs text-muted-foreground break-all">
+                    {JSON.stringify(flag.overrideValue ?? flag.defaultValue)}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Valor efectivo:</span>
+                  <span className="text-xs font-medium">
+                    {JSON.stringify(flag.effectiveValue)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex justify-end">
+            <Button variant="outline" onClick={fetchFlags}>
+              Recargar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

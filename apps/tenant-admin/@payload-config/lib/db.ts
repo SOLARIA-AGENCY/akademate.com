@@ -5,7 +5,7 @@
 
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { subscriptions, invoices, paymentMethods, paymentTransactions, tenants } from '../../../../packages/db/src/schema'
+import { subscriptions, invoices, paymentMethods, paymentTransactions, tenants, featureFlags } from '../../../../packages/db/src/schema'
 
 /**
  * Gets the database URL from environment variables
@@ -42,7 +42,7 @@ export const db = drizzle(queryClient, { schema })
 /**
  * Export table references for convenience
  */
-export { subscriptions, invoices, paymentMethods, paymentTransactions, tenants }
+export { subscriptions, invoices, paymentMethods, paymentTransactions, tenants, featureFlags }
 
 /**
  * Graceful shutdown helper
