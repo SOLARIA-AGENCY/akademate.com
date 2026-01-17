@@ -183,3 +183,7 @@
 ## Iteracion 45 (17-01-2026)
 - Accion: Implemente MFA TOTP para ops (endpoint setup/verify, soporte auth, migracion DB) y corregi warnings TS en auth.
 - Resultado: TSC packages/auth en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 46 (17-01-2026)
+- Accion: Conecte dashboard ops a datos reales (metrics + tenants recientes), y unifique dependencias drizzle/@types/pg; tsc ops en verde.
+- Resultado: Ops dashboard con datos y fallback sin DB; tsc apps/ops en verde.

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
-import { db, users } from '../../../../lib/db'
+import { getDb, users } from '../../../../lib/db'
 import { verifyTotpToken } from '@akademate/auth'
 
 const VerifySchema = z.object({
@@ -22,6 +22,8 @@ export async function POST(request: NextRequest) {
     }
 
     const { userId, token } = validation.data
+
+    const db = getDb()
 
     const [user] = await db
       .select()

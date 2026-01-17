@@ -9,6 +9,7 @@
     "lint": "pnpm exec eslint . --ext .ts,.tsx --max-warnings=0"
   },
   "dependencies": {
+    "@akademate/auth": "workspace:^",
     "@akademate/types": "workspace:*",
     "@akademate/ui": "workspace:*",
     "drizzle-orm": "^0.45.0",

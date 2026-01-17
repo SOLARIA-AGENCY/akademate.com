@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
-import { db, users } from '../../../../lib/db'
+import { getDb, users } from '../../../../lib/db'
 import { generateTotpSecret } from '@akademate/auth'
 
 const SetupSchema = z.object({
@@ -24,6 +24,8 @@ export async function POST(request: NextRequest) {
 
     const { userId, email, issuer } = validation.data
     const { secret, otpauthUrl } = generateTotpSecret(email, issuer)
+
+    const db = getDb()
 
     await db
       .update(users)
