@@ -10,11 +10,14 @@
     "./rbac": "./src/rbac.ts",
     "./session": "./src/session.ts"
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "dependencies": {
     "@akademate/db": "workspace:*",
     "@akademate/types": "workspace:*",
-    "jose": "^5.9.6"
+    "jose": "^5.9.6",
+    "otplib": "^13.1.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0"

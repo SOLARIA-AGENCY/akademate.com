@@ -131,9 +131,9 @@ export async function verifyPassword(
     return false
   }
 
-  const iterations = parseInt(parts[2], 10)
-  const salt = Buffer.from(parts[3], 'base64')
-  const storedHashBuffer = Buffer.from(parts[4], 'base64')
+  const iterations = parseInt(parts[2] ?? '', 10)
+  const salt = Buffer.from(parts[3] ?? '', 'base64')
+  const storedHashBuffer = Buffer.from(parts[4] ?? '', 'base64')
 
   if (isNaN(iterations) || iterations < 1) {
     return false
@@ -160,7 +160,7 @@ export function needsRehash(storedHash: string): boolean {
     return true // Unknown format, needs rehash
   }
 
-  const iterations = parseInt(parts[2], 10)
+  const iterations = parseInt(parts[2] ?? '', 10)
   return iterations < ITERATIONS
 }
 
@@ -176,7 +176,8 @@ export function generateRandomPassword(length: number = 16): string {
   let password = ''
 
   for (let i = 0; i < length; i++) {
-    password += charset[bytes[i] % charset.length]
+    const byte = bytes[i] ?? 0
+    password += charset[byte % charset.length]
   }
 
   return password

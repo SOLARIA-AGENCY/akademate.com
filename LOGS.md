@@ -179,3 +179,7 @@
 ## Iteracion 44 (17-01-2026)
 - Accion: Agregue bootstrap OTEL basico en packages/api y dependencias asociadas.
 - Resultado: TSC packages/api en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 45 (17-01-2026)
+- Accion: Implemente MFA TOTP para ops (endpoint setup/verify, soporte auth, migracion DB) y corregi warnings TS en auth.
+- Resultado: TSC packages/auth en verde; TASKS_TODO.md actualizado.

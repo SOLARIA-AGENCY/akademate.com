@@ -80,3 +80,10 @@ export {
   type CreateSessionInput,
   type SessionResult,
 } from './session'
+
+// MFA utilities
+export {
+  generateTotpSecret,
+  verifyTotpToken,
+  type TotpSecret,
+} from './mfa'

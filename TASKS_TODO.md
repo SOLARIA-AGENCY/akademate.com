@@ -45,7 +45,7 @@
 - [x] Cookies httpOnly/secure.
 - [x] CORS por tenant.
 - [x] RBAC por tenant (staff/alumno/ops).
-- [ ] MFA TOTP para ops (SESSION_HANDOFF task 32).
+- [x] MFA TOTP para ops (SESSION_HANDOFF task 32).
 - [x] Auditoria de operaciones sensibles.
 
 ## 7) Billing & Stripe (BILLING_UI_IMPLEMENTATION.md, SESSION_HANDOFF)

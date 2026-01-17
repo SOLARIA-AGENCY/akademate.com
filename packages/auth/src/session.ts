@@ -13,7 +13,7 @@
 import { sql } from 'drizzle-orm'
 import type { PgTransaction } from 'drizzle-orm/pg-core'
 import { generateSecureToken, hashToken } from './password'
-import { generateTokenPair, verifyRefreshToken, type JWTConfig, type TokenPair, type TokenPayload } from './jwt'
+import { generateTokenPair, verifyRefreshToken, type JWTConfig, type TokenPair } from './jwt'
 import type { Role } from './rbac'
 
 /**

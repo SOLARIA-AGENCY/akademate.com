@@ -80,7 +80,9 @@ export const users = pgTable('users', {
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
   passwordHash: text('password_hash'),
+  mfaSecret: text('mfa_secret'),
   mfaEnabled: boolean('mfa_enabled').default(false).notNull(),
+  mfaVerifiedAt: timestamp('mfa_verified_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
