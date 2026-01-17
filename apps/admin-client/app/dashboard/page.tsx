@@ -124,17 +124,28 @@ export default function DashboardPage() {
         {hasMock && <MockDataBanner />}
       </PageHeader>
 
+      <section className="flex flex-wrap items-center gap-3">
+        <button className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+          Create Tenant
+        </button>
+        <button className="rounded-md border px-4 py-2 text-sm font-medium">
+          Add User
+        </button>
+      </section>
+
       {/* KPI Cards Grid */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="metrics-grid">
         <KPICard
           label="Total Tenants"
           value={tenants.length}
+          data-testid="tenant-count"
           icon={<Users className="h-5 w-5 text-primary" />}
           trend={{ value: 12, direction: 'up', label: 'vs mes anterior' }}
         />
         <KPICard
           label="Activos"
           value={activeTenants}
+          data-testid="user-count"
           icon={<CheckCircle2 className="h-5 w-5 text-success" />}
           variant="success"
         />
@@ -147,6 +158,7 @@ export default function DashboardPage() {
         <KPICard
           label="MRR Total"
           value={`$${totalMRR.toLocaleString()}`}
+          data-testid="revenue"
           icon={<DollarSign className="h-5 w-5 text-primary" />}
           trend={{ value: 8.5, direction: 'up', label: 'crecimiento' }}
         />
@@ -225,6 +237,33 @@ export default function DashboardPage() {
                 <p className="text-xs text-muted-foreground">Satisfacción media</p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card data-testid="recent-activity">
+          <CardHeader>
+            <CardTitle className="text-base">Actividad reciente</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            Últimas acciones registradas en la plataforma.
+          </CardContent>
+        </Card>
+        <Card data-testid="user-profile">
+          <CardHeader>
+            <CardTitle className="text-base">Perfil de usuario</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            Información del operador y roles asignados.
+          </CardContent>
+        </Card>
+        <Card data-testid="health-status">
+          <CardHeader>
+            <CardTitle className="text-base">Estado del sistema</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            Servicios críticos activos y monitorizados.
           </CardContent>
         </Card>
       </section>

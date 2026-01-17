@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const DEV_USER_KEY = 'akademate-ops-user'
@@ -11,6 +11,8 @@ export default function OpsLoginPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
 
   const devLoginEnabled = useMemo(
     () => process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== 'false',
@@ -20,6 +22,18 @@ export default function OpsLoginPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+
+    if (!email.trim()) {
+      setError('El email es obligatorio.')
+      emailRef.current?.focus()
+      return
+    }
+
+    if (!password.trim()) {
+      setError('La contraseña es obligatoria.')
+      passwordRef.current?.focus()
+      return
+    }
 
     setIsLoading(true)
     await new Promise(resolve => setTimeout(resolve, 450))
@@ -77,6 +91,7 @@ export default function OpsLoginPage() {
                 id="email"
                 type="email"
                 autoComplete="email"
+                ref={emailRef}
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-900/70 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
@@ -93,6 +108,7 @@ export default function OpsLoginPage() {
                 id="password"
                 type="password"
                 autoComplete="current-password"
+                ref={passwordRef}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-900/70 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"

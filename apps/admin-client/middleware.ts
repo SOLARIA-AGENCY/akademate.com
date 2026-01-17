@@ -25,7 +25,9 @@ const tenantMiddleware = createTenantMiddleware({
     '/forgot-password',
     '/reset-password',
     // In development, allow all paths on localhost
-    ...(isDev ? ['/', '/dashboard'] : []),
+    ...(isDev
+      ? ['/', '/dashboard', '/tenants', '/tenants/create', '/billing', '/support', '/settings']
+      : []),
   ],
   // Redirect to login if tenant not found (disabled in dev)
   tenantNotFoundRedirect: isDev ? undefined : '/login?error=tenant_not_found',

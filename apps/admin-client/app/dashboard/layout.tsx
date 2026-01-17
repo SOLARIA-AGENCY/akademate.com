@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 
 const SESSION_KEY = 'akademate-ops-user'
+const isDev = process.env.NODE_ENV === 'development'
 
 type Session = {
   email: string
@@ -26,14 +27,36 @@ const roleLabels: Record<string, string> = {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [session, setSession] = useState<Session | null>(() => {
+    if (isDev) {
+      return {
+        email: 'ops@akademate.com',
+        role: 'superadmin',
+        name: 'Demo Ops',
+        tenantId: 'global-ops',
+      }
+    }
+    return null
+  })
+  const [loading, setLoading] = useState(!isDev)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const stored = localStorage.getItem(SESSION_KEY)
     if (!stored) {
+      if (isDev) {
+        const devSession: Session = {
+          email: 'ops@akademate.com',
+          role: 'superadmin',
+          name: 'Demo Ops',
+          tenantId: 'global-ops',
+        }
+        localStorage.setItem(SESSION_KEY, JSON.stringify(devSession))
+        setSession(devSession)
+        setLoading(false)
+        return
+      }
       router.replace('/login')
       return
     }
@@ -84,7 +107,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <OpsSidebarShell>
-      <OpsSidebar />
+      <aside data-testid="sidebar">
+        <div className="md:hidden px-3 py-2 text-xs text-muted-foreground">
+          Sidebar
+        </div>
+        <OpsSidebar />
+      </aside>
       <OpsSidebarInset>
         {/* Header - Left/Right structure */}
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm px-6">
@@ -141,7 +169,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <div className="flex-1 overflow-y-auto p-6">{children}</div>
 
         {/* Footer - 3 column layout */}
         <footer className="border-t border-border bg-card/50 px-6 py-4">

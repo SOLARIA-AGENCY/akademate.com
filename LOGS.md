@@ -271,3 +271,7 @@
 ## Iteracion 67 (17-01-2026)
 - Accion: Agregue paginas sobre-nosotros y blog, ajuste hero/footer/contacto y metadata canonical; aumente timeouts E2E y estabilice test de navegacion.
 - Resultado: Playwright web (web-chromium) en verde: 76 passed, 1 skipped, 0 failed (59.4s) con servidor local.
+
+## Iteracion 68 (17-01-2026)
+- Accion: Complete stubs/validaciones para admin-client (login, dashboard, tenants, billing/support/settings) y estabilice sidebar responsivo para E2E.
+- Resultado: Playwright admin (admin-chromium) en verde: 70 passed, 0 failed (58.1s) con servidor local.

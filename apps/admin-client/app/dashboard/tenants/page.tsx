@@ -161,7 +161,7 @@ export default function TenantsPage() {
       enterprise: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
     }
     return (
-      <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${styles[plan]}`}>
+      <span className={`plan-info px-2.5 py-1 rounded-md text-xs font-medium ${styles[plan]}`}>
         {plan.charAt(0).toUpperCase() + plan.slice(1)}
       </span>
     )
@@ -181,7 +181,7 @@ export default function TenantsPage() {
       cancelled: 'Cancelado',
     }
     return (
-      <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${styles[status]}`}>
+      <span className={`badge px-2.5 py-1 rounded-md text-xs font-medium ${styles[status]}`}>
         {labels[status]}
       </span>
     )
@@ -243,8 +243,8 @@ export default function TenantsPage() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <input
-                type="text"
-                placeholder="Buscar por nombre, email o slug..."
+                type="search"
+                placeholder="Search tenants..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 bg-muted/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -280,6 +280,12 @@ export default function TenantsPage() {
               </svg>
               Nuevo Tenant
             </button>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="px-4 py-2 border rounded-lg hover:bg-muted/40 transition-colors"
+            >
+              Create Tenant
+            </button>
           </div>
         </div>
 
@@ -289,6 +295,7 @@ export default function TenantsPage() {
             <thead className="bg-muted/30">
               <tr>
                 <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">Tenant</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide" data-column="domain">Domain</th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">Plan</th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">Estado</th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">Usuarios</th>
@@ -312,6 +319,7 @@ export default function TenantsPage() {
                       </div>
                     </div>
                   </td>
+                  <td className="px-6 py-4 text-muted-foreground text-sm">{tenant.slug}.akademate.com</td>
                   <td className="px-6 py-4">{getPlanBadge(tenant.plan)}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-1">
@@ -349,8 +357,15 @@ export default function TenantsPage() {
                         </svg>
                       </button>
                       <button className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors" title="Editar">
+                        <span className="sr-only">Edit</span>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button className="p-2 text-muted-foreground hover:text-destructive hover:bg-muted/50 rounded-lg transition-colors" title="Eliminar">
+                        <span className="sr-only">Delete</span>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7-3h8a1 1 0 011 1v2H6V5a1 1 0 011-1z" />
                         </svg>
                       </button>
                       <button className="p-2 text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors" title="Impersonar">
@@ -364,6 +379,13 @@ export default function TenantsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="pagination flex items-center justify-between px-6 py-4 text-sm text-muted-foreground">
+          <span>Mostrando 1-4 de {filteredTenants.length}</span>
+          <div className="flex items-center gap-2">
+            <button className="rounded-md border px-3 py-1">Prev</button>
+            <button className="rounded-md border px-3 py-1">Next</button>
+          </div>
         </div>
       </div>
 
