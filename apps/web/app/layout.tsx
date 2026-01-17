@@ -35,12 +35,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const themeCookie = cookies().get('akademate_theme')?.value
+  const cookieStore = await cookies()
+  const themeCookie = cookieStore.get('akademate_theme')?.value
   const themeVars: Record<string, string> = {}
 
   if (themeCookie) {

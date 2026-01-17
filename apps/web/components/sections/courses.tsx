@@ -1,48 +1,10 @@
 import Link from 'next/link'
 import { Clock, Users, Star, ArrowRight } from 'lucide-react'
+import { cms } from '@/lib/cms'
 import { formatCurrency } from '@/lib/utils'
 
-// Mock data - will be replaced with CMS content
-const courses = [
-  {
-    id: '1',
-    title: 'Desarrollo Web Full Stack',
-    description: 'Aprende HTML, CSS, JavaScript, React y Node.js desde cero hasta nivel profesional.',
-    image: '/images/courses/fullstack.jpg',
-    price: 1299,
-    duration: 320,
-    students: 1240,
-    rating: 4.9,
-    instructor: 'María García',
-    category: 'Desarrollo',
-  },
-  {
-    id: '2',
-    title: 'Data Science con Python',
-    description: 'Análisis de datos, machine learning y visualización con las herramientas más demandadas.',
-    image: '/images/courses/datascience.jpg',
-    price: 999,
-    duration: 200,
-    students: 856,
-    rating: 4.8,
-    instructor: 'Carlos Ruiz',
-    category: 'Data',
-  },
-  {
-    id: '3',
-    title: 'UX/UI Design Professional',
-    description: 'Diseño de interfaces y experiencia de usuario con Figma, investigación y prototipado.',
-    image: '/images/courses/uxui.jpg',
-    price: 799,
-    duration: 160,
-    students: 623,
-    rating: 4.9,
-    instructor: 'Ana Martínez',
-    category: 'Diseño',
-  },
-]
-
-export function CoursesSection() {
+export async function CoursesSection() {
+  const courses = await cms.getFeaturedCourses(3).catch(() => [])
   return (
     <section className="bg-muted/30 py-20 sm:py-32" id="courses">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -88,15 +50,15 @@ export function CoursesSection() {
                     {course.category}
                   </span>
                   <span>•</span>
-                  <span>{course.instructor}</span>
+                  <span>{course.instructor.name}</span>
                 </div>
 
                 <h3 className="mt-3 text-lg font-semibold group-hover:text-primary">
-                  <Link href={`/cursos/${course.id}`}>{course.title}</Link>
+                  <Link href={`/cursos/${course.slug}`}>{course.title}</Link>
                 </h3>
 
                 <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                  {course.description}
+                  {course.shortDescription || course.description}
                 </p>
 
                 {/* Stats */}
@@ -107,11 +69,11 @@ export function CoursesSection() {
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    <span>{course.students}</span>
+                    <span>{course.studentsCount ?? 0}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span>{course.rating}</span>
+                    <span>{course.rating ?? '—'}</span>
                   </div>
                 </div>
 
@@ -121,7 +83,7 @@ export function CoursesSection() {
                     {formatCurrency(course.price)}
                   </span>
                   <Link
-                    href={`/cursos/${course.id}`}
+                    href={`/cursos/${course.slug}`}
                     className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                   >
                     Ver curso

@@ -231,3 +231,7 @@
 ## Iteracion 57 (17-01-2026)
 - Accion: Conecte ciclos de grado superior a datos reales (/api/cycles) con estado y métricas.
 - Resultado: Ciclos superior con fetch real y filtros actualizados; tsc tenant-admin en verde.
+
+## Iteracion 58 (17-01-2026)
+- Accion: Conecte cursos destacados en web pública a CMS y ajuste tsconfig/layout para typecheck.
+- Resultado: CoursesSection usa CMS real; tsc apps/web en verde tras excluir tests y ajustar cookies().
