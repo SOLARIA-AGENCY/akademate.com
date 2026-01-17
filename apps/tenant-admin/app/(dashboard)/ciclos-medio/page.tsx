@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
@@ -17,7 +17,7 @@ import {
 import { Plus, Search, GraduationCap, Calendar, Users, BookOpen, Clock, Award } from 'lucide-react'
 
 // Datos de Ciclos Formativos de Grado Medio
-const ciclosMedioData = [
+const mockCiclosMedioData = [
   {
     id: 'cfgm-gestion-administrativa',
     nombre: 'Gestión Administrativa',
@@ -145,10 +145,61 @@ const ciclosMedioData = [
 
 export default function CiclosMedioPage() {
   const router = useRouter()
+  const [ciclosData, setCiclosData] = useState(mockCiclosMedioData)
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const [searchTerm, setSearchTerm] = useState('')
   const [filterFamilia, setFilterFamilia] = useState('all')
   const [filterModalidad, setFilterModalidad] = useState('all')
+
+  useEffect(() => {
+    const fetchCycles = async () => {
+      try {
+        setErrorMessage(null)
+        const response = await fetch('/api/cycles?limit=100&sort=order_display', {
+          cache: 'no-cache',
+        })
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar los ciclos')
+        }
+
+        const payload = await response.json()
+        const docs = Array.isArray(payload?.docs) ? payload.docs : []
+        const mapped = docs
+          .filter((cycle: any) => cycle.level === 'grado_medio')
+          .map((cycle: any) => ({
+            id: String(cycle.id),
+            nombre: cycle.name ?? 'Ciclo sin nombre',
+            codigo: cycle.slug ?? String(cycle.id),
+            familia: 'Formación Profesional',
+            duracion: '2000 horas (2 años)',
+            modalidad: 'Presencial',
+            plazas: 0,
+            plazas_ocupadas: 0,
+            cursos_activos: 0,
+            nivel: 'Grado Medio',
+            imagen:
+              'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=400&fit=crop',
+            descripcion: cycle.description ?? '',
+            competencias: [],
+            salidas_profesionales: [],
+            requisitos: '',
+            active: true,
+          }))
+
+        if (mapped.length > 0) {
+          setCiclosData(mapped)
+        }
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Error al cargar ciclos')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCycles()
+  }, [])
 
   const handleAdd = () => {
     console.log('Crear nuevo ciclo medio')
@@ -159,9 +210,9 @@ export default function CiclosMedioPage() {
   }
 
   // Extraer familias únicas
-  const familias = Array.from(new Set(ciclosMedioData.map((c) => c.familia)))
+  const familias = Array.from(new Set(ciclosData.map((c) => c.familia)))
 
-  const filteredCiclos = ciclosMedioData.filter((ciclo) => {
+  const filteredCiclos = ciclosData.filter((ciclo) => {
     const matchesSearch =
       ciclo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ciclo.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -174,17 +225,31 @@ export default function CiclosMedioPage() {
   })
 
   const stats = {
-    total: ciclosMedioData.length,
-    activos: ciclosMedioData.filter((c) => c.active).length,
-    totalPlazas: ciclosMedioData.reduce((sum, c) => sum + c.plazas, 0),
-    plazasOcupadas: ciclosMedioData.reduce((sum, c) => sum + c.plazas_ocupadas, 0),
-    cursosActivos: ciclosMedioData.reduce((sum, c) => sum + c.cursos_activos, 0),
+    total: ciclosData.length,
+    activos: ciclosData.filter((c) => c.active).length,
+    totalPlazas: ciclosData.reduce((sum, c) => sum + c.plazas, 0),
+    plazasOcupadas: ciclosData.reduce((sum, c) => sum + c.plazas_ocupadas, 0),
+    cursosActivos: ciclosData.reduce((sum, c) => sum + c.cursos_activos, 0),
   }
 
-  const tasaOcupacion = ((stats.plazasOcupadas / stats.totalPlazas) * 100).toFixed(1)
+  const tasaOcupacion =
+    stats.totalPlazas > 0
+      ? ((stats.plazasOcupadas / stats.totalPlazas) * 100).toFixed(1)
+      : '0.0'
 
   return (
     <div className="space-y-6">
+      {isLoading && (
+        <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          Cargando ciclos...
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+          {errorMessage}
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -194,7 +259,7 @@ export default function CiclosMedioPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Ciclos Formativos de Grado Medio</h1>
             <p className="text-muted-foreground mt-1">
-              {filteredCiclos.length} ciclos de {ciclosMedioData.length} totales
+              {filteredCiclos.length} ciclos de {ciclosData.length} totales
             </p>
           </div>
         </div>

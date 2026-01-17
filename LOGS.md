@@ -223,3 +223,7 @@
 ## Iteracion 55 (17-01-2026)
 - Accion: Conecte vista de alumnos a datos reales (/api/students) con filtros y estados.
 - Resultado: Alumnos dashboard consume Payload students; tsc tenant-admin en verde.
+
+## Iteracion 56 (17-01-2026)
+- Accion: Conecte ciclos de grado medio a datos reales (/api/cycles) con estado y métricas.
+- Resultado: Ciclos medio con fetch real y filtros actualizados; tsc tenant-admin en verde.
