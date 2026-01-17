@@ -268,9 +268,14 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const [openSections, setOpenSections] = React.useState<string[]>([])
   const [logoUrl, setLogoUrl] = React.useState('/logos/cep-logo-alpha.png')
   const [academyName, setAcademyName] = React.useState('ACADEMIX')
+  const isDev = process.env.NODE_ENV === 'development'
 
   // Fetch logo config from API
   React.useEffect(() => {
+    if (isDev) {
+      return
+    }
+
     const fetchConfig = async () => {
       try {
         const response = await fetch('/api/config?section=logos')
@@ -289,7 +294,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
       }
     }
     fetchConfig()
-  }, [])
+  }, [isDev])
 
   // Accordion behavior: only one section open at a time
   const toggleSection = (title: string) => {

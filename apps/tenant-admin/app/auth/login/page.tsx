@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@payload-config/components/ui/card'
@@ -24,6 +24,8 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [logoUrl, setLogoUrl] = useState('/logos/cep-logo-alpha.png')
   const [academyName, setAcademyName] = useState('CEP Formación')
+  const emailRef = useRef<HTMLInputElement | null>(null)
+  const passwordRef = useRef<HTMLInputElement | null>(null)
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
@@ -63,6 +65,19 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (!credentials.email.trim()) {
+      setError('Ingresa tu correo electrónico.')
+      emailRef.current?.focus()
+      return
+    }
+
+    if (!credentials.password.trim()) {
+      setError('Ingresa tu contraseña.')
+      passwordRef.current?.focus()
+      return
+    }
+
     setIsLoading(true)
 
     // DEV MODE: Bypass authentication
@@ -81,7 +96,7 @@ export default function LoginPage() {
 
       // Small delay for UX
       setTimeout(() => {
-        router.push('/')
+        router.push('/dashboard')
         router.refresh()
       }, 500)
       return
@@ -108,7 +123,7 @@ export default function LoginPage() {
         localStorage.setItem('cep_user', JSON.stringify(data.user))
 
         // Redirect to dashboard
-        router.push('/')
+        router.push('/dashboard')
         router.refresh()
       } else {
         setError(data.message || 'Email o contraseña incorrectos')
@@ -169,44 +184,44 @@ export default function LoginPage() {
                     placeholder="usuario@cepcomunicacion.com"
                     value={credentials.email}
                     onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                    ref={emailRef}
                     className="pl-10"
                     required
                   />
                 </div>
               </div>
 
-              {!isDev && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Contraseña</Label>
-                    <a
-                      href="/auth/forgot-password"
-                      className="text-sm text-primary hover:underline"
-                    >
-                      ¿Olvidaste tu contraseña?
-                    </a>
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      value={credentials.password}
-                      onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                      className="pl-10 pr-10"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Contraseña</Label>
+                  <a
+                    href="/auth/forgot-password"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </a>
                 </div>
-              )}
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={credentials.password}
+                    onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                    ref={passwordRef}
+                    className="pl-10 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
 
               {isDev && (
                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-lg">

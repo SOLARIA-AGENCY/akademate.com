@@ -275,3 +275,7 @@
 ## Iteracion 68 (17-01-2026)
 - Accion: Complete stubs/validaciones para admin-client (login, dashboard, tenants, billing/support/settings) y estabilice sidebar responsivo para E2E.
 - Resultado: Playwright admin (admin-chromium) en verde: 70 passed, 0 failed (58.1s) con servidor local.
+
+## Iteracion 69 (17-01-2026)
+- Accion: Ajuste tenant-admin para smoke E2E (login validado, stubs dashboard/usuarios/cursos/etc, bypass DB en dev para payload/billing, cleanup overlay).
+- Resultado: Playwright tenant-admin (tenant-admin-chromium) en verde: 82 passed, 0 failed (1.2m) con servidor local.

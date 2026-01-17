@@ -3,7 +3,15 @@ import { REST_DELETE, REST_GET, REST_PATCH, REST_POST } from '@payloadcms/next/r
 
 import config from '@payload-config'
 
-export const GET = REST_GET(config)
-export const POST = REST_POST(config)
-export const DELETE = REST_DELETE(config)
-export const PATCH = REST_PATCH(config)
+const isDbConfigured = Boolean(process.env.DATABASE_URL)
+
+const disabledResponse = async () =>
+  new Response(JSON.stringify({ error: 'Payload API disabled without DATABASE_URL.' }), {
+    status: 503,
+    headers: { 'content-type': 'application/json' },
+  })
+
+export const GET = isDbConfigured ? REST_GET(config) : disabledResponse
+export const POST = isDbConfigured ? REST_POST(config) : disabledResponse
+export const DELETE = isDbConfigured ? REST_DELETE(config) : disabledResponse
+export const PATCH = isDbConfigured ? REST_PATCH(config) : disabledResponse

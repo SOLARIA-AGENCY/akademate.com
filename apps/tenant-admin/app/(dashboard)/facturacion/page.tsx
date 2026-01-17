@@ -16,6 +16,8 @@ import type { PlanTier } from '@payload-config/types/billing'
 
 export default function FacturacionPage() {
   const tenantId = '123e4567-e89b-12d3-a456-426614174001'
+  const isDev = process.env.NODE_ENV === 'development'
+  const effectiveTenantId = isDev ? undefined : tenantId
   const [activeTab, setActiveTab] = useState('subscription')
   const [showPlanComparison, setShowPlanComparison] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
@@ -31,7 +33,7 @@ export default function FacturacionPage() {
     transactions,
     transactionsLoading,
     mutate,
-  } = useBillingData({ tenantId })
+  } = useBillingData({ tenantId: effectiveTenantId })
 
   const subscriptionId = subscription?.stripeSubscriptionId ?? undefined
   const stripeCustomerId = subscription?.stripeCustomerId ?? undefined
@@ -41,7 +43,7 @@ export default function FacturacionPage() {
     cancelSubscription,
     resumeSubscription,
     openBillingPortal,
-  } = useSubscription({ tenantId, subscriptionId, stripeCustomerId })
+  } = useSubscription({ tenantId: effectiveTenantId, subscriptionId, stripeCustomerId })
 
   // Check for success/canceled params from Stripe redirect
   useEffect(() => {

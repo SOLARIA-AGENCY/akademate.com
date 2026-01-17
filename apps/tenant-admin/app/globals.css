@@ -269,3 +269,8 @@ body:not([data-payload-admin]) {
 .course-instance-card button {
   margin-top: auto;
 }
+
+/* Allow interactions during dev overlay rendering in Playwright runs. */
+nextjs-portal {
+  pointer-events: none;
+}
