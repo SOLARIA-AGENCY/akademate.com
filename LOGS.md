@@ -63,3 +63,7 @@
 ## Iteracion 15 (17-01-2026)
 - Accion: Agregue job de retention GDPR en packages/jobs con politicas y handler.
 - Resultado: Export de retention job en packages/jobs; TASKS_TODO.md actualizado.
+
+## Iteracion 16 (17-01-2026)
+- Accion: Agregue E2E de GDPR para tenant-admin (pagina de configuracion).
+- Resultado: Spec e2e/tenant-admin/gdpr.spec.ts creado; TASKS_TODO.md actualizado.
