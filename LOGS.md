@@ -195,3 +195,7 @@
 ## Iteracion 48 (17-01-2026)
 - Accion: Normalice hooks y validaciones en tenant-admin (Campaigns/FAQs/BlogPosts/Courses/tenantField) y ajuste tipado de errores; resolvi typecheck tenant-admin.
 - Resultado: `pnpm -C apps/tenant-admin exec tsc --noEmit` en verde.
+
+## Iteracion 49 (17-01-2026)
+- Accion: Agregue configuracion de dominios por tenant (API + UI) en tenant-admin.
+- Resultado: API /api/config section=domains + pagina configuracion/dominios; tsc tenant-admin en verde.

@@ -11,6 +11,7 @@ const PersonalizacionSchema = z.object({
   warning: z.string().min(4),
   danger: z.string().min(4),
 })
+const DomainsSchema = z.array(z.string().min(3))
 
 interface ConfigData {
   academia: {
@@ -40,6 +41,7 @@ interface ConfigData {
     favicon: string
   }
   personalizacion: z.infer<typeof PersonalizacionSchema>
+  domains?: z.infer<typeof DomainsSchema>
 }
 
 // Mock data
@@ -78,6 +80,7 @@ const mockConfig: ConfigData = {
     warning: '#f59e0b',
     danger: '#ef4444',
   },
+  domains: ['cepformacion.com', 'www.cepformacion.com'],
 }
 
 export async function GET(request: NextRequest) {
@@ -137,6 +140,37 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         data: personalizacion.success ? personalizacion.data : mockConfig.personalizacion,
+      })
+    }
+
+    if (section === 'domains') {
+      const tenantId = searchParams.get('tenantId')
+      if (!tenantId) {
+        return NextResponse.json(
+          { success: false, error: 'tenantId parameter is required' },
+          { status: 400 }
+        )
+      }
+
+      const [tenant] = await db
+        .select({ domains: tenants.domains })
+        .from(tenants)
+        .where(eq(tenants.id, tenantId))
+        .limit(1)
+        .execute()
+
+      if (!tenant) {
+        return NextResponse.json(
+          { success: false, error: 'Tenant not found' },
+          { status: 404 }
+        )
+      }
+
+      const domains = DomainsSchema.safeParse(tenant.domains ?? [])
+
+      return NextResponse.json({
+        success: true,
+        data: domains.success ? domains.data : mockConfig.domains ?? [],
       })
     }
 
@@ -204,6 +238,35 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Configuracion actualizada correctamente',
+        data: parsed.data,
+      })
+    }
+
+    if (section === 'domains') {
+      if (!tenantId) {
+        return NextResponse.json(
+          { success: false, error: 'tenantId is required' },
+          { status: 400 }
+        )
+      }
+
+      const parsed = DomainsSchema.safeParse(data)
+      if (!parsed.success) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid domains payload', details: parsed.error.flatten() },
+          { status: 400 }
+        )
+      }
+
+      await db
+        .update(tenants)
+        .set({ domains: parsed.data, updatedAt: new Date() })
+        .where(eq(tenants.id, tenantId))
+        .execute()
+
+      return NextResponse.json({
+        success: true,
+        message: 'Dominios actualizados correctamente',
         data: parsed.data,
       })
     }
