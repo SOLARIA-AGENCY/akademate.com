@@ -7,24 +7,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock getPayloadHMR
-const mockPayload = {
-    findByID: vi.fn(),
-    find: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-    count: vi.fn(),
-};
+const { mockPayload } = vi.hoisted(() => ({
+    mockPayload: {
+        findByID: vi.fn(),
+        find: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
+        count: vi.fn(),
+    },
+}));
 
 vi.mock('@payloadcms/next/utilities', () => ({
     getPayloadHMR: vi.fn().mockResolvedValue(mockPayload),
 }));
 
-vi.mock('@payload-config', () => ({}));
+vi.mock('@payload-config', () => ({ default: {} }));
 
 // Import after mocking
 import { POST as exportHandler } from '../export/route';
+import { GET as exportByIdHandler } from '../[userId]/export/route';
 import { POST as erasureHandler } from '../erasure/route';
 
 describe('GDPR Export API', () => {
@@ -81,6 +83,66 @@ describe('GDPR Export API', () => {
         });
 
         const response = await exportHandler(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(data.success).toBe(true);
+        expect(data.data.profile.email).toBe('test@example.com');
+        expect(data.data.exportedAt).toBeDefined();
+    });
+});
+
+describe('GDPR Export API (User Param)', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('should return 400 if userId is missing', async () => {
+        const request = new NextRequest('http://localhost/api/gdpr/user/export', {
+            method: 'GET',
+        });
+
+        const response = await exportByIdHandler(request, { params: { userId: '' } });
+        const data = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(data.success).toBe(false);
+        expect(data.error).toContain('userId');
+    });
+
+    it('should return 404 if user is not found', async () => {
+        mockPayload.findByID.mockResolvedValue(null);
+        mockPayload.find.mockResolvedValue({ docs: [] });
+
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/export', {
+            method: 'GET',
+        });
+
+        const response = await exportByIdHandler(request, { params: { userId: 'user-123' } });
+        const data = await response.json();
+
+        expect(response.status).toBe(404);
+        expect(data.success).toBe(false);
+    });
+
+    it('should export user data successfully', async () => {
+        const mockUser = {
+            id: 'user-123',
+            email: 'test@example.com',
+            name: 'Test User',
+            createdAt: '2025-01-01',
+            updatedAt: '2025-01-01',
+        };
+
+        mockPayload.findByID.mockResolvedValue(mockUser);
+        mockPayload.find.mockResolvedValue({ docs: [] });
+        mockPayload.create.mockResolvedValue({});
+
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/export', {
+            method: 'GET',
+        });
+
+        const response = await exportByIdHandler(request, { params: { userId: 'user-123' } });
         const data = await response.json();
 
         expect(response.status).toBe(200);

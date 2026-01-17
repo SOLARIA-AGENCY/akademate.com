@@ -15,7 +15,7 @@
 - [x] Limpiar variables no usadas (packages/realtime, packages/tenant).
 
 ## 2) GDPR end-to-end (docs/GDPR_FEATURES.md)
-- [ ] API export: apps/tenant-admin/app/api/gdpr/[userId]/export/route.ts.
+- [x] API export: apps/tenant-admin/app/api/gdpr/[userId]/export/route.ts.
 - [ ] API delete: apps/tenant-admin/app/api/gdpr/[userId]/delete/route.ts.
 - [ ] API consent: apps/tenant-admin/app/api/gdpr/[userId]/consent/route.ts.
 - [ ] UI GDPR settings page (tenant-admin).
