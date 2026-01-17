@@ -23,7 +23,7 @@ facturacion/
 
 ## Hooks Personalizados
 
-### `useBillingData()`
+### `useBillingData({ tenantId })`
 
 Hook para obtener todos los datos de facturación del tenant actual.
 
@@ -39,10 +39,10 @@ const {
   paymentMethodsLoading,
   paymentMethodsError,
   mutate,                // Función para revalidar todos los datos
-} = useBillingData()
+} = useBillingData({ tenantId })
 ```
 
-### `useSubscription()`
+### `useSubscription({ tenantId, subscriptionId, stripeCustomerId })`
 
 Hook para ejecutar acciones sobre la suscripción.
 
@@ -52,7 +52,7 @@ const {
   cancelSubscription,   // Cancelar suscripción
   resumeSubscription,   // Reanudar suscripción cancelada
   openBillingPortal,    // Abrir Stripe Billing Portal
-} = useSubscription()
+} = useSubscription({ tenantId, subscriptionId, stripeCustomerId })
 ```
 
 ## Flujos de Usuario
