@@ -62,7 +62,7 @@
 - [ ] Observabilidad OTEL basica.
 
 ## 9) Storage & media (SESSION_HANDOFF task 23)
-- [ ] Integrar R2/MinIO + presigned uploads.
+- [x] Integrar R2/MinIO + presigned uploads.
 - [ ] Media manager (tenant-admin).
 - [ ] Thumbs opcionales.
 

@@ -16,6 +16,7 @@
     "@akademate/types": "workspace:*",
     "@akademate/ui": "workspace:*",
     "@aws-sdk/client-s3": "^3.565.0",
+    "@aws-sdk/s3-request-presigner": "^3.971.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-avatar": "^1.1.7",
     "@radix-ui/react-dialog": "^1.1.11",

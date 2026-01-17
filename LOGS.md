@@ -167,3 +167,7 @@
 ## Iteracion 41 (17-01-2026)
 - Accion: Agregue workers BullMQ base para email/webhooks/search en packages/jobs y dependencias asociadas.
 - Resultado: TSC packages/jobs en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 42 (17-01-2026)
+- Accion: Agregue endpoint de presigned uploads para MinIO/R2 en admin-client y dependencia de presigner.
+- Resultado: Presigned uploads listos; TASKS_TODO.md actualizado.
