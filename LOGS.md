@@ -139,3 +139,7 @@
 ## Iteracion 34 (17-01-2026)
 - Accion: Cree runbooks base para backup/restore, incident y deploy.
 - Resultado: docs/runbooks/*.md creados; TASKS_TODO.md actualizado.
+
+## Iteracion 35 (17-01-2026)
+- Accion: Verifique endpoints Stripe checkout/portal server-side en tenant-admin.
+- Resultado: TASKS_TODO.md actualizado.

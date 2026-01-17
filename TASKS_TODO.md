@@ -49,7 +49,7 @@
 - [x] Auditoria de operaciones sensibles.
 
 ## 7) Billing & Stripe (BILLING_UI_IMPLEMENTATION.md, SESSION_HANDOFF)
-- [ ] Stripe checkout + portal server-side.
+- [x] Stripe checkout + portal server-side.
 - [ ] Stripe webhooks handlers (task 35).
 - [ ] Metering basico + suspension por impago.
 - [ ] Integrar UI billing con backend real.
