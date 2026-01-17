@@ -23,3 +23,7 @@
 ## Iteracion 5 (17-01-2026)
 - Accion: Corregi await en test de packages/realtime (useSocket) para evitar warning futuro.
 - Resultado: Vitest en verde sin advertencia de await pendiente.
+
+## Iteracion 6 (17-01-2026)
+- Accion: Verifique tsconfig de packages/tenant y marque tarea de jsx como completada.
+- Resultado: TASKS_TODO.md actualizado.

@@ -7,7 +7,7 @@
 
 ## 1) TS strict (docs/STRICT_TYPES_MIGRATION.md)
 - [x] Agregar jsx a tsconfig de packages/realtime.
-- [ ] Agregar jsx a tsconfig de packages/tenant.
+- [x] Agregar jsx a tsconfig de packages/tenant.
 - [ ] Agregar jsx a tsconfig de packages/ui.
 - [x] Corregir null checks y mocks en tests de packages/realtime.
 - [ ] Corregir tipos en packages/reports (pdf.ts).
