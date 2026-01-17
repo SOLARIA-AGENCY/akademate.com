@@ -163,3 +163,7 @@
 ## Iteracion 40 (17-01-2026)
 - Accion: Implemente feature flags tenant-aware (API eval + overrides) y UI de rollout en tenant-admin.
 - Resultado: API/ UI de flags listas; Vitest (feature-flags route) en verde; TASKS_TODO.md actualizado.
+
+## Iteracion 41 (17-01-2026)
+- Accion: Agregue workers BullMQ base para email/webhooks/search en packages/jobs y dependencias asociadas.
+- Resultado: TSC packages/jobs en verde; TASKS_TODO.md actualizado.

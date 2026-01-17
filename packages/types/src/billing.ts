@@ -177,7 +177,7 @@ export const UsageMetricSchema = z.object({
   updatedAt: z.date().optional(),
 })
 
-export const UsageMeterSchema = z.record(z.string(), UsageMetricSchema)
+export const UsageMeterStateSchema = z.record(z.string(), UsageMetricSchema)
 
 // ============================================================================
 // Type Inferences
@@ -189,7 +189,7 @@ export type Invoice = z.infer<typeof InvoiceSchema>
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>
 export type PaymentTransaction = z.infer<typeof PaymentTransactionSchema>
 export type UsageMetric = z.infer<typeof UsageMetricSchema>
-export type UsageMeter = z.infer<typeof UsageMeterSchema>
+export type UsageMeterState = z.infer<typeof UsageMeterStateSchema>
 
 // ============================================================================
 // Request/Response Types

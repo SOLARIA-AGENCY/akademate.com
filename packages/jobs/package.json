@@ -6,9 +6,12 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "dependencies": {
-    "@akademate/types": "workspace:*"
+    "@akademate/types": "workspace:*",
+    "bullmq": "^5.66.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json"

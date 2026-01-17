@@ -791,6 +791,9 @@ importers:
       '@akademate/types':
         specifier: workspace:*
         version: link:../types
+      bullmq:
+        specifier: ^5.66.0
+        version: 5.66.0
 
   packages/leads:
     dependencies:

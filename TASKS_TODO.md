@@ -56,9 +56,9 @@
  - [x] Integrar UI billing con backend real.
 
 ## 8) Jobs/infra (SESSION_HANDOFF tasks 33,34,37)
-- [ ] Worker email (BullMQ).
-- [ ] Worker webhooks (BullMQ).
-- [ ] Worker search sync (BullMQ).
+- [x] Worker email (BullMQ).
+- [x] Worker webhooks (BullMQ).
+- [x] Worker search sync (BullMQ).
 - [ ] Observabilidad OTEL basica.
 
 ## 9) Storage & media (SESSION_HANDOFF task 23)

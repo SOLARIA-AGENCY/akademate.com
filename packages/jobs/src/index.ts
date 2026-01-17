@@ -19,6 +19,13 @@ export const buildTenantJob = <TPayload>(tenantId: TenantId, name: JobName, payl
 })
 
 export {
+  type TenantJobHandler,
+  createEmailWorker,
+  createWebhookWorker,
+  createSearchSyncWorker,
+} from './workers'
+
+export {
   type RetentionDataType,
   type RetentionPolicy,
   type GdprRetentionJobPayload,
