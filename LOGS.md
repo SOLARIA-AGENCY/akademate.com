@@ -283,3 +283,10 @@
 ## Iteracion 70 (17-01-2026)
 - Accion: Estabilice payload admin sin DB (stub UI/login/collections/forms), agregue editor lexical, routes API mock y aumente timeout E2E.
 - Resultado: Playwright payload (payload-chromium) en verde: 59 passed, 0 failed (1.3m) con servidor local.
+
+## Iteracion 71 - 2026-01-17
+
+- ✓ Campus LMS E2E: se agregaron stubs para login, dashboard, curso, lección, entregas, progreso y certificados.
+- ✓ Ajuste de layout para evitar selectores duplicados en pruebas responsive.
+- Tests: campus-chromium (66/66) PASS.
+

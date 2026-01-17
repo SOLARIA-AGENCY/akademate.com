@@ -82,6 +82,6 @@
 
 ## 13) Verificacion final
 - [x] Full test suite + coverage target.
-- [ ] Smoke tests apps.
+- [x] Smoke tests apps.
 - [ ] Security checklist + GDPR verification.
 - [ ] Crear COMPLETION.txt cuando todo pase.
