@@ -203,3 +203,7 @@
 ## Iteracion 50 (17-01-2026)
 - Accion: Conecte CRM de leads a datos reales desde /api/leads y reemplace mock table por tabla nativa.
 - Resultado: Leads dashboard con fetch real, estados y origen UTM; tsc tenant-admin en verde.
+
+## Iteracion 51 (17-01-2026)
+- Accion: Conecte vista de ciclos a datos reales (/api/cycles) con fallback y ajuste de métricas.
+- Resultado: Ciclos dashboard con fetch real, estados de carga y errores; tsc tenant-admin en verde.

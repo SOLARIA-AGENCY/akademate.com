@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { Card } from '@/components/ui/card'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -47,7 +46,7 @@ interface Ciclo {
   requisitos: string
 }
 
-const todosLosCiclosData: Ciclo[] = [
+const mockCiclosData: Ciclo[] = [
   // GRADO MEDIO
   {
     id: 'cfgm-gestion-administrativa',
@@ -325,21 +324,86 @@ export default function TodosLosCiclosPage() {
   const [nivelFilter, setNivelFilter] = React.useState<string>('todos')
   const [familiaFilter, setFamiliaFilter] = React.useState<string>('todas')
   const [modalidadFilter, setModalidadFilter] = React.useState<string>('todas')
+  const [ciclosData, setCiclosData] = React.useState<Ciclo[]>(mockCiclosData)
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
 
   // Calculate stats
-  const totalCiclos = todosLosCiclosData.length
-  const ciclosMedio = todosLosCiclosData.filter((c) => c.nivel === 'Grado Medio').length
-  const ciclosSuperior = todosLosCiclosData.filter((c) => c.nivel === 'Grado Superior').length
-  const totalPlazas = todosLosCiclosData.reduce((sum, c) => sum + c.plazas, 0)
-  const totalOcupadas = todosLosCiclosData.reduce((sum, c) => sum + c.plazas_ocupadas, 0)
-  const totalCursosActivos = todosLosCiclosData.reduce((sum, c) => sum + c.cursos_activos, 0)
-  const ocupacionPromedio = Math.round((totalOcupadas / totalPlazas) * 100)
+  React.useEffect(() => {
+    const fetchCycles = async () => {
+      try {
+        setErrorMessage(null)
+        const response = await fetch('/api/cycles?limit=100&sort=order_display', {
+          cache: 'no-cache',
+        })
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar los ciclos')
+        }
+
+        const payload = await response.json()
+        const docs = Array.isArray(payload?.docs) ? payload.docs : []
+        const mapped: Ciclo[] = docs.map((cycle: any) => {
+          const level = cycle.level as string | undefined
+          const nivelLabel = (() => {
+            switch (level) {
+              case 'grado_superior':
+                return 'Grado Superior'
+              case 'grado_medio':
+                return 'Grado Medio'
+              case 'fp_basica':
+                return 'Grado Medio'
+              case 'certificado_profesionalidad':
+                return 'Grado Medio'
+              default:
+                return 'Grado Medio'
+            }
+          })()
+
+          return {
+            id: cycle.id,
+            nombre: cycle.name ?? 'Ciclo sin nombre',
+            codigo: cycle.slug ?? cycle.id,
+            familia: 'Formación Profesional',
+            duracion: '2000 horas',
+            modalidad: 'Presencial',
+            plazas: 0,
+            plazas_ocupadas: 0,
+            cursos_activos: 0,
+            nivel: nivelLabel,
+            imagen:
+              'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=400&fit=crop',
+            competencias: [],
+            salidas_profesionales: [],
+            requisitos: '',
+          }
+        })
+
+        if (mapped.length > 0) {
+          setCiclosData(mapped)
+        }
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Error al cargar ciclos')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCycles()
+  }, [])
+
+  const totalCiclos = ciclosData.length
+  const ciclosMedio = ciclosData.filter((c) => c.nivel === 'Grado Medio').length
+  const ciclosSuperior = ciclosData.filter((c) => c.nivel === 'Grado Superior').length
+  const totalPlazas = ciclosData.reduce((sum, c) => sum + c.plazas, 0)
+  const totalOcupadas = ciclosData.reduce((sum, c) => sum + c.plazas_ocupadas, 0)
+  const totalCursosActivos = ciclosData.reduce((sum, c) => sum + c.cursos_activos, 0)
+  const ocupacionPromedio = totalPlazas > 0 ? Math.round((totalOcupadas / totalPlazas) * 100) : 0
 
   // Get unique familias
-  const familiasProfesionales = Array.from(new Set(todosLosCiclosData.map((c) => c.familia)))
+  const familiasProfesionales = Array.from(new Set(ciclosData.map((c) => c.familia)))
 
   // Filter ciclos
-  const filteredCiclos = todosLosCiclosData.filter((ciclo) => {
+  const filteredCiclos = ciclosData.filter((ciclo) => {
     const matchesSearch =
       searchTerm === '' ||
       ciclo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -365,11 +429,17 @@ export default function TodosLosCiclosPage() {
 
   return (
     <div className="space-y-8 p-8">
-      {/* Mock Data Banner */}
-      <MockDataIndicator
-        variant="banner"
-        label="Este módulo usa datos de demostración. Pendiente conexión con API de Ciclos Formativos."
-      />
+      {isLoading && (
+        <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          Cargando ciclos...
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+          {errorMessage}
+        </div>
+      )}
 
       {/* Header */}
       <PageHeader
@@ -526,7 +596,8 @@ export default function TodosLosCiclosPage() {
       {view === 'grid' ? (
         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {filteredCiclos.map((ciclo) => {
-            const ocupacionPercentage = Math.round((ciclo.plazas_ocupadas / ciclo.plazas) * 100)
+            const ocupacionPercentage =
+              ciclo.plazas > 0 ? Math.round((ciclo.plazas_ocupadas / ciclo.plazas) * 100) : 0
 
             return (
               <Card
