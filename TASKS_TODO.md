@@ -50,7 +50,7 @@
 
 ## 7) Billing & Stripe (BILLING_UI_IMPLEMENTATION.md, SESSION_HANDOFF)
 - [x] Stripe checkout + portal server-side.
-- [ ] Stripe webhooks handlers (task 35).
+- [x] Stripe webhooks handlers (task 35).
 - [ ] Metering basico + suspension por impago.
 - [ ] Integrar UI billing con backend real.
 

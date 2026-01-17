@@ -143,3 +143,7 @@
 ## Iteracion 35 (17-01-2026)
 - Accion: Verifique endpoints Stripe checkout/portal server-side en tenant-admin.
 - Resultado: TASKS_TODO.md actualizado.
+
+## Iteracion 36 (17-01-2026)
+- Accion: Estabilice mocks de webhooks Stripe y corri tests de stripe-webhooks en tenant-admin.
+- Resultado: Vitest (stripe-webhooks.test.ts) en verde; TASKS_TODO.md actualizado.

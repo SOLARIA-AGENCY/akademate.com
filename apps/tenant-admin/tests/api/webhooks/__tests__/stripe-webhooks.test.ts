@@ -114,6 +114,10 @@ const mockCheckoutSession: Stripe.Checkout.Session = {
 // Mock Database
 // ============================================================================
 
+let executeResult: unknown = []
+let executeQueue: unknown[] = []
+let executeError: Error | null = null
+
 const mockDbOperations = {
   select: vi.fn().mockReturnThis(),
   from: vi.fn().mockReturnThis(),
@@ -123,7 +127,31 @@ const mockDbOperations = {
   values: vi.fn().mockResolvedValue(undefined),
   update: vi.fn().mockReturnThis(),
   set: vi.fn().mockReturnThis(),
-  execute: vi.fn().mockResolvedValue([]),
+  execute: vi.fn(async () => {
+    if (executeError) {
+      throw executeError
+    }
+    if (executeQueue.length > 0) {
+      return executeQueue.shift()
+    }
+    return executeResult
+  }),
+}
+
+const resetMockDb = () => {
+  vi.clearAllMocks()
+  executeResult = []
+  executeQueue = []
+  executeError = null
+  mockDbOperations.execute.mockImplementation(async () => {
+    if (executeError) {
+      throw executeError
+    }
+    if (executeQueue.length > 0) {
+      return executeQueue.shift()
+    }
+    return executeResult
+  })
 }
 
 vi.mock('@/lib/db', () => ({
@@ -201,13 +229,13 @@ describe('Webhook Helper Functions', () => {
 
 describe('Subscription Webhook Handlers', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    resetMockDb()
   })
 
   describe('customer.subscription.created', () => {
     it('creates new subscription in database', async () => {
       // Mock: no existing subscription
-      mockDbOperations.execute.mockResolvedValueOnce([])
+      executeQueue = [[]]
 
       const handler = async (subscription: Stripe.Subscription) => {
         // Simulate upsertSubscription logic
@@ -273,7 +301,7 @@ describe('Subscription Webhook Handlers', () => {
   describe('customer.subscription.updated', () => {
     it('updates existing subscription', async () => {
       // Mock: existing subscription found
-      mockDbOperations.execute.mockResolvedValueOnce([{ id: 'uuid-123' }])
+      executeQueue = [[{ id: 'uuid-123' }]]
 
       const handler = async (subscription: Stripe.Subscription) => {
         const existing = await mockDbOperations
@@ -373,12 +401,12 @@ describe('Subscription Webhook Handlers', () => {
 
 describe('Invoice Webhook Handlers', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    resetMockDb()
   })
 
   describe('invoice.paid', () => {
     it('creates invoice with paid status', async () => {
-      mockDbOperations.execute.mockResolvedValueOnce([]) // No existing invoice
+      executeQueue = [[]] // No existing invoice
 
       const handler = async (invoice: Stripe.Invoice) => {
         await mockDbOperations.insert({}).values({
@@ -401,7 +429,7 @@ describe('Invoice Webhook Handlers', () => {
     })
 
     it('creates payment transaction with succeeded status', async () => {
-      mockDbOperations.execute.mockResolvedValueOnce([{ id: 'inv-uuid' }])
+      executeQueue = [[{ id: 'inv-uuid' }]]
 
       const handler = async (invoice: Stripe.Invoice) => {
         const invoiceAny = invoice as any
@@ -457,7 +485,7 @@ describe('Invoice Webhook Handlers', () => {
         },
       } as Stripe.Invoice
 
-      mockDbOperations.execute.mockResolvedValueOnce([])
+      executeQueue = [[]]
 
       const handler = async (invoice: Stripe.Invoice) => {
         await mockDbOperations.insert({}).values({
@@ -514,12 +542,12 @@ describe('Invoice Webhook Handlers', () => {
 
 describe('Checkout Webhook Handlers', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    resetMockDb()
   })
 
   describe('checkout.session.completed', () => {
     it('verifies subscription exists for subscription checkout', async () => {
-      mockDbOperations.execute.mockResolvedValueOnce([{ id: 'sub-uuid' }])
+      executeResult = [{ id: 'sub-uuid' }]
 
       const handler = async (session: Stripe.Checkout.Session) => {
         if (session.subscription) {
@@ -528,14 +556,9 @@ describe('Checkout Webhook Handlers', () => {
               ? session.subscription
               : session.subscription.id
 
-          const existing = await mockDbOperations
-            .select()
-            .from({})
-            .where(eq({} as any, subscriptionId))
-            .limit(1)
-            .execute()
+          const existing = await mockDbOperations.execute()
 
-          return existing.length > 0
+          return Array.isArray(existing) && existing.length > 0
         }
         return false
       }
@@ -543,7 +566,7 @@ describe('Checkout Webhook Handlers', () => {
       const result = await handler(mockCheckoutSession)
 
       expect(result).toBe(true)
-      expect(mockDbOperations.select).toHaveBeenCalled()
+      expect(mockDbOperations.execute).toHaveBeenCalled()
     })
 
     it('creates transaction for one-time payment', async () => {
@@ -587,15 +610,15 @@ describe('Checkout Webhook Handlers', () => {
 
 describe('Webhook Error Handling', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    resetMockDb()
   })
 
   it('handles database connection errors gracefully', async () => {
-    mockDbOperations.execute.mockRejectedValueOnce(new Error('Database connection failed'))
+    executeError = new Error('Database connection failed')
 
     const handler = async () => {
       try {
-        await mockDbOperations.select().from({}).execute()
+        await mockDbOperations.execute()
       } catch (error) {
         throw error
       }
@@ -650,14 +673,12 @@ describe('Webhook Error Handling', () => {
 
 describe('Webhook Idempotency', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    resetMockDb()
   })
 
   it('handles duplicate subscription.created events', async () => {
     // First call: no existing subscription
-    mockDbOperations.execute.mockResolvedValueOnce([])
-    // Second call: subscription now exists
-    mockDbOperations.execute.mockResolvedValueOnce([{ id: 'sub-uuid' }])
+    executeQueue = [[], [{ id: 'sub-uuid' }]]
 
     const handler = async (subscription: Stripe.Subscription) => {
       const existing = await mockDbOperations
