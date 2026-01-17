@@ -187,3 +187,7 @@
 ## Iteracion 46 (17-01-2026)
 - Accion: Conecte dashboard ops a datos reales (metrics + tenants recientes), y unifique dependencias drizzle/@types/pg; tsc ops en verde.
 - Resultado: Ops dashboard con datos y fallback sin DB; tsc apps/ops en verde.
+
+## Iteracion 47 (17-01-2026)
+- Accion: Agregue overview de billing en ops con conteo de suscripciones y complete dashboard ops.
+- Resultado: Ops dashboard con billing overview; TASKS_TODO.md actualizado.

@@ -71,7 +71,7 @@
 - [x] UI de rollout (% + kill switch).
 
 ## 11) Apps producto
-- [ ] Dashboard Ops (metrics, tenants, domains, billing overview).
+- [x] Dashboard Ops (metrics, tenants, domains, billing overview).
 - [ ] Dashboard Cliente (CRM, branding, domains, catalog CRUD completo).
 - [ ] Front publica tenant (SEO, paginas, forms UTM/captcha).
 - [ ] Campus virtual (inscripciones, progreso, certificados).

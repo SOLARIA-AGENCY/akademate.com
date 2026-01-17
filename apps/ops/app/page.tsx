@@ -1,5 +1,5 @@
 import { desc, sql } from 'drizzle-orm'
-import { getDb, tenants } from '../lib/db'
+import { getDb, subscriptions, tenants } from '../lib/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,6 +8,12 @@ const emptyMetrics = {
   activeCount: 0,
   suspendedCount: 0,
   mrrTotal: 0,
+}
+
+const emptyBilling = {
+  active: 0,
+  trialing: 0,
+  pastDue: 0,
 }
 
 const formatNumber = (value: number) => value.toLocaleString('es-ES')
@@ -32,6 +38,7 @@ export default async function Page() {
     domains: string[]
     updatedAt: Date
   }> = []
+  let billing = emptyBilling
   let hasData = true
 
   try {
@@ -62,6 +69,16 @@ export default async function Page() {
       .from(tenants)
       .orderBy(desc(tenants.updatedAt))
       .limit(8)
+
+    const [billingRow] = await db
+      .select({
+        active: sql<number>`count(*) filter (where ${subscriptions.status} = 'active')`,
+        trialing: sql<number>`count(*) filter (where ${subscriptions.status} = 'trialing')`,
+        pastDue: sql<number>`count(*) filter (where ${subscriptions.status} = 'past_due')`,
+      })
+      .from(subscriptions)
+
+    billing = billingRow ?? emptyBilling
   } catch (error) {
     console.error('Ops dashboard error:', error)
     hasData = false
@@ -143,6 +160,24 @@ export default async function Page() {
               </div>
             ))
           )}
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border bg-background/60 p-4">
+        <p className="text-sm font-semibold">Billing overview</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <div className="rounded-lg border border-border/60 bg-background/80 p-3">
+            <p className="text-xs text-muted-foreground">Suscripciones activas</p>
+            <p className="text-2xl font-semibold">{formatNumber(billing.active)}</p>
+          </div>
+          <div className="rounded-lg border border-border/60 bg-background/80 p-3">
+            <p className="text-xs text-muted-foreground">En trial</p>
+            <p className="text-2xl font-semibold">{formatNumber(billing.trialing)}</p>
+          </div>
+          <div className="rounded-lg border border-border/60 bg-background/80 p-3">
+            <p className="text-xs text-muted-foreground">Past due</p>
+            <p className="text-2xl font-semibold">{formatNumber(billing.pastDue)}</p>
+          </div>
         </div>
       </div>
     </div>
