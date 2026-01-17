@@ -23,7 +23,7 @@
 - [x] Tests unitarios + e2e para flujos GDPR.
 
 ## 3) CI/CD completo (docs/CI_CD_PIPELINE.md)
-- [ ] Actualizar workflows: lint, typecheck, unit tests + coverage.
+- [x] Actualizar workflows: lint, typecheck, unit tests + coverage.
 - [ ] Agregar paso E2E (Playwright) en CI.
 - [ ] Agregar build artifacts.
 - [ ] Agregar security scan (SCA/SAST) basico.

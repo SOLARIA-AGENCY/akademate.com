@@ -67,3 +67,7 @@
 ## Iteracion 16 (17-01-2026)
 - Accion: Agregue E2E de GDPR para tenant-admin (pagina de configuracion).
 - Resultado: Spec e2e/tenant-admin/gdpr.spec.ts creado; TASKS_TODO.md actualizado.
+
+## Iteracion 17 (17-01-2026)
+- Accion: Actualice workflow CI con lint, typecheck y unit tests con coverage.
+- Resultado: .github/workflows/ci.yml actualizado; TASKS_TODO.md actualizado.

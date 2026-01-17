@@ -1,4 +1,4 @@
-name: CI (placeholder)
+name: CI
 
 on:
   push:
@@ -20,7 +20,10 @@ jobs:
         with:
           version: 9
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile=false
-      - name: Placeholder tasks
-        run: |
-          echo "TODO: add lint/typecheck/test/build steps"
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm -r exec tsc --noEmit
+      - name: Unit tests
+        run: pnpm exec vitest run --coverage
