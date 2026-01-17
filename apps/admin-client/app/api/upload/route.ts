@@ -39,11 +39,19 @@ export async function POST(request: NextRequest) {
     // Parse form data
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const tenantId = request.headers.get('x-tenant-id')?.trim();
 
     // Validate file exists
     if (!file) {
       return NextResponse.json(
         { success: false, error: 'No file provided' },
+        { status: 400 }
+      );
+    }
+
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, error: 'Tenant header (x-tenant-id) is required' },
         { status: 400 }
       );
     }
@@ -59,6 +67,7 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const filename = generateUniqueFilename(file.name);
+    const objectKey = `${tenantId}/${filename}`;
 
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
@@ -67,11 +76,12 @@ export async function POST(request: NextRequest) {
     // Upload to MinIO
     const command = new PutObjectCommand({
       Bucket: UPLOAD_BUCKET,
-      Key: filename,
+      Key: objectKey,
       Body: buffer,
       ContentType: file.type,
       Metadata: {
         originalName: file.name,
+        tenantId,
         uploadedAt: new Date().toISOString(),
       },
     });
@@ -81,7 +91,7 @@ export async function POST(request: NextRequest) {
     // Construct public URL
     // MinIO public URL format: http://minio:9000/bucket/key
     const minioPublicUrl = process.env.S3_PUBLIC_URL || 'http://localhost:9000';
-    const fileUrl = `${minioPublicUrl}/${UPLOAD_BUCKET}/${filename}`;
+    const fileUrl = `${minioPublicUrl}/${UPLOAD_BUCKET}/${objectKey}`;
 
     // TODO: Save file metadata to database
     // await db.insert(media).values({
@@ -95,7 +105,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      filename,
+      filename: objectKey,
       url: fileUrl,
       size: file.size,
       type: file.type,

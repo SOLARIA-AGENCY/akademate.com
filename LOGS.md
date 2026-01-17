@@ -115,3 +115,7 @@
 ## Iteracion 28 (17-01-2026)
 - Accion: Agregue soporte de theming por tenant via cookie CSS vars en apps/web.
 - Resultado: apps/web/app/layout.tsx actualizado; TASKS_TODO.md actualizado.
+
+## Iteracion 29 (17-01-2026)
+- Accion: Namespacie uploads S3/MinIO por tenant en admin-client.
+- Resultado: apps/admin-client/app/api/upload/route.ts actualizado; TASKS_TODO.md actualizado.

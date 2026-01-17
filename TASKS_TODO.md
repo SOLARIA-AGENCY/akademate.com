@@ -39,7 +39,7 @@
 - [x] Claims JWT con tenant_id + roles.
 - [x] RLS hooks en Payload + SDK con tenant_id obligatorio.
 - [x] Theming por tenant via CSS vars.
-- [ ] Assets en R2/MinIO namespaced por tenant.
+- [x] Assets en R2/MinIO namespaced por tenant.
 
 ## 6) Auth + seguridad (docs/PROJECT_MILESTONES.md)
 - [ ] Cookies httpOnly/secure + CORS por tenant.
