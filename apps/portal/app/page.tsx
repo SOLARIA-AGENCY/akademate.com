@@ -1,285 +1,173 @@
-'use client'
+import Link from 'next/link'
 
-import {
-  LayoutDashboard,
-  Building2,
-  Database,
-  GraduationCap,
-  Terminal,
-  ExternalLink,
-  Code2,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-
-interface PortalCardProps {
-  title: string
-  description: string
-  port: number
-  icon: React.ComponentType<{ className?: string }>
-  href: string
-  status?: 'online' | 'offline' | 'unknown'
-  variant?: 'cyan' | 'teal' | 'sky' | 'emerald' | 'orange'
-}
-
-const variantStyles = {
-  cyan: {
-    border: 'hover:border-cyan-500/50',
-    iconBg: 'bg-cyan-500/15',
-    icon: 'text-cyan-400',
-    badge: 'border-cyan-500/30 text-cyan-400',
-    hoverText: 'group-hover:text-cyan-400',
-  },
-  teal: {
-    border: 'hover:border-teal-500/50',
-    iconBg: 'bg-teal-500/15',
-    icon: 'text-teal-400',
-    badge: 'border-teal-500/30 text-teal-400',
-    hoverText: 'group-hover:text-teal-400',
-  },
-  sky: {
-    border: 'hover:border-sky-500/50',
-    iconBg: 'bg-sky-500/15',
-    icon: 'text-sky-400',
-    badge: 'border-sky-500/30 text-sky-400',
-    hoverText: 'group-hover:text-sky-400',
-  },
-  emerald: {
-    border: 'hover:border-emerald-500/50',
-    iconBg: 'bg-emerald-500/15',
-    icon: 'text-emerald-400',
-    badge: 'border-emerald-500/30 text-emerald-400',
-    hoverText: 'group-hover:text-emerald-400',
-  },
-  orange: {
-    border: 'hover:border-orange-500/50',
-    iconBg: 'bg-orange-500/15',
-    icon: 'text-orange-400',
-    badge: 'border-orange-500/30 text-orange-400',
-    hoverText: 'group-hover:text-orange-400',
-  },
-}
-
-function PortalCard({
-  title,
-  description,
-  port,
-  icon: Icon,
-  href,
-  status = 'online',
-  variant = 'cyan',
-}: PortalCardProps) {
-  const styles = variantStyles[variant]
-
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={cn(
-        'group relative flex flex-col rounded-xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-sm',
-        'transition-all duration-200',
-        'hover:bg-slate-900 hover:shadow-lg hover:shadow-cyan-500/5',
-        styles.border
-      )}
-    >
-      {/* Status indicator */}
-      <div className="absolute right-4 top-4">
-        <div className="flex items-center gap-2">
-          <div
-            className={cn(
-              'h-2 w-2 rounded-full',
-              status === 'online' && 'animate-pulse bg-emerald-500',
-              status === 'offline' && 'bg-red-500',
-              status === 'unknown' && 'bg-slate-500'
-            )}
-          />
-          <span className="text-xs text-slate-500">
-            {status === 'online' ? 'Online' : status === 'offline' ? 'Offline' : 'Unknown'}
-          </span>
-        </div>
-      </div>
-
-      {/* Icon */}
-      <div
-        className={cn(
-          'mb-4 flex h-12 w-12 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110',
-          styles.iconBg
-        )}
-      >
-        <Icon className={cn('h-6 w-6', styles.icon)} />
-      </div>
-
-      {/* Content */}
-      <div className="flex-1">
-        <h3 className="mb-2 text-lg font-semibold text-white">{title}</h3>
-        <p className="text-sm leading-relaxed text-slate-400">{description}</p>
-      </div>
-
-      {/* Footer */}
-      <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-4">
-        <code
-          className={cn(
-            'rounded border bg-slate-800/50 px-2 py-1 text-xs',
-            styles.badge
-          )}
-        >
-          localhost:{port}
-        </code>
-        <span
-          className={cn(
-            'flex items-center gap-1.5 text-sm font-medium text-slate-400 transition-all duration-200',
-            'group-hover:translate-x-1',
-            styles.hoverText
-          )}
-        >
-          Abrir
-          <ExternalLink className="h-4 w-4" />
-        </span>
-      </div>
-    </a>
-  )
-}
-
-// Portal data
-const portals = [
+const tenants = [
   {
-    title: 'Akademate Admin',
-    description:
-      'Dashboard multitenant SaaS. Gestión completa del negocio: tenants, facturación, suscripciones, soporte y configuración global.',
-    port: 3004,
-    icon: LayoutDashboard,
-    href: 'http://localhost:3004/dashboard',
-    variant: 'cyan' as const,
-    status: 'online' as const,
+    id: 'cepfp',
+    name: 'CEFP Akademate',
+    type: 'FP',
+    status: 'Activa',
+    href: '/campus/cepfp',
   },
   {
-    title: 'Tenant Admin',
-    description:
-      'Dashboard del cliente (academias). Gestión de cursos, leads, contenido, inscripciones, branding y usuarios del tenant.',
-    port: 3009,
-    icon: Building2,
-    href: 'http://localhost:3009',
-    variant: 'teal' as const,
-    status: 'online' as const,
+    id: 'solaria',
+    name: 'Solaria Academy',
+    type: 'Bootcamp',
+    status: 'Activa',
+    href: '/campus/solaria',
   },
   {
-    title: 'Payload CMS',
-    description:
-      'Backoffice y base de datos. Acceso directo a collections, API REST/GraphQL, usuarios y configuración del CMS.',
-    port: 3003,
-    icon: Database,
-    href: 'http://localhost:3003/admin',
-    variant: 'sky' as const,
-    status: 'online' as const,
+    id: 'nova',
+    name: 'Nova School',
+    type: 'Corporate',
+    status: 'Activa',
+    href: '/admin/nova',
   },
-  {
-    title: 'Campus Virtual',
-    description:
-      'Portal del alumno. Acceso a cursos, materiales, evaluaciones, progreso y certificados por tenant.',
-    port: 3005,
-    icon: GraduationCap,
-    href: 'http://localhost:3005',
-    variant: 'emerald' as const,
-    status: 'online' as const,
-  },
-]
-
-const devTools = [
-  {
-    title: 'SOLARIA DFO',
-    description:
-      'Digital Field Operations. Centro de comando para gestión de desarrollo: agentes AI, monitoreo de proyectos, métricas y automatización.',
-    port: 3030,
-    icon: Terminal,
-    href: 'http://localhost:3030',
-    variant: 'orange' as const,
-    status: 'unknown' as const,
-  },
-]
-
-const techStack = [
-  'Next.js 15',
-  'Payload 3',
-  'Tailwind 4',
-  'TypeScript',
-  'PNPM Workspaces',
 ]
 
 export default function PortalPage() {
   return (
     <div className="min-h-screen bg-transparent text-white">
-      <main className="mx-auto max-w-6xl px-6 py-12 lg:px-8">
-        {/* Header */}
-        <header className="mb-16 text-center">
-          <div className="mb-4 flex items-center justify-center gap-2">
-            <Code2 className="h-5 w-5 text-cyan-400" />
-            <span className="text-sm font-medium uppercase tracking-wider text-cyan-400">
-              Development Portal
-            </span>
-          </div>
-          <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
-            Akademate
-          </h1>
-          <p className="text-lg text-slate-400">
-            Centro de control para el ecosistema de desarrollo
-          </p>
-        </header>
-
-        {/* Portales del Sistema */}
-        <section className="mb-16">
-          <h2 className="mb-6 text-xl font-bold text-white">Portales del Sistema</h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            {portals.map((portal) => (
-              <PortalCard key={portal.title} {...portal} />
-            ))}
-          </div>
-        </section>
-
-        {/* Herramientas de Desarrollo */}
-        <section className="mb-16">
-          <h2 className="mb-6 text-xl font-bold text-white">
-            Herramientas de Desarrollo
-          </h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {devTools.map((tool) => (
-              <PortalCard key={tool.title} {...tool} />
-            ))}
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-slate-800 pt-8">
-          <div className="mb-6">
-            <h3 className="mb-4 text-sm font-medium uppercase tracking-wider text-slate-400">
-              Stack Tecnológico
-            </h3>
-            <div className="flex flex-wrap gap-3">
-              {techStack.map((tech) => (
-                <span
-                  key={tech}
-                  className="rounded-full border border-slate-700 bg-slate-800/50 px-4 py-1.5 text-sm text-slate-300"
-                >
-                  {tech}
-                </span>
-              ))}
+      <header className="border-b border-slate-800 bg-slate-950/60">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+          <div className="flex items-center gap-3">
+            <img
+              className="logo h-10 w-10 rounded-lg bg-slate-900 p-1"
+              data-testid="logo"
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2306b6d4'/%3E%3Cpath d='M16 44V20l16-8 16 8v24l-16 8-16-8z' fill='white'/%3E%3C/svg%3E"
+              alt="Akademate"
+            />
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-400">Akademate</p>
+              <h1 className="text-xl font-semibold">Portal de acceso</h1>
             </div>
           </div>
-          <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-6 sm:flex-row">
-            <p className="text-sm text-slate-400">
-              Desarrollado por{' '}
-              <a
-                href="https://solaria.agency"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-cyan-400 transition-colors hover:text-cyan-300 hover:underline"
-              >
-                Solaria Agency
-              </a>
+          <nav className="flex items-center gap-4 text-sm" data-testid="navigation">
+            <Link className="hover:text-cyan-300" href="/">Inicio</Link>
+            <Link className="hover:text-cyan-300" href="/about">Sobre</Link>
+            <Link className="hover:text-cyan-300" href="/contact">Contacto</Link>
+            <Link className="rounded-full border border-slate-700 px-3 py-1 text-xs" href="/login">
+              Login
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-6xl space-y-10 px-6 py-10">
+        <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-8">
+            <h2 className="text-3xl font-semibold">Selecciona tu academia</h2>
+            <p className="mt-2 text-sm text-slate-400">
+              Encuentra tu campus virtual o panel administrativo para continuar.
             </p>
-            <p className="text-xs text-slate-500">Akademate Development Environment</p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="text-xs text-slate-400">
+                Academia
+                <button
+                  className="mt-2 flex w-full items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm"
+                  data-testid="tenant-selector"
+                  type="button"
+                >
+                  Selecciona una academia
+                  <span className="text-slate-500">▾</span>
+                </button>
+              </div>
+              <div className="text-xs text-slate-400">
+                Tipo
+                <button
+                  className="mt-2 flex w-full items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm"
+                  data-testid="tenant-filter"
+                  type="button"
+                >
+                  Todos
+                  <span className="text-slate-500">▾</span>
+                </button>
+              </div>
+            </div>
+            <div className="mt-4">
+              <input
+                className="w-full rounded-lg border border-slate-800 bg-slate-950/60 px-4 py-3 text-sm"
+                type="search"
+                placeholder="Search academies"
+              />
+            </div>
           </div>
-        </footer>
+
+          <aside className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+            <h3 className="text-lg font-semibold">Accesos rápidos</h3>
+            <p className="mt-2 text-xs text-slate-400">
+              Usa estos enlaces si ya conoces tu destino.
+            </p>
+            <div className="mt-4 grid gap-3">
+              <Link className="rounded-lg border border-slate-800 px-4 py-2 text-sm" href="/campus/cepfp" role="button">
+                Campus alumno
+              </Link>
+              <Link className="rounded-lg border border-slate-800 px-4 py-2 text-sm" href="/admin/cepfp" role="button">
+                Admin academia
+              </Link>
+              <Link className="rounded-lg border border-slate-800 px-4 py-2 text-sm" href="/login" role="button">
+                Login centralizado
+              </Link>
+            </div>
+          </aside>
+        </section>
+
+        <section className="rounded-3xl border border-slate-800 bg-slate-900/50 p-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-semibold">Academias disponibles</h3>
+              <p className="text-sm text-slate-400">Selecciona para acceder.</p>
+            </div>
+          </div>
+          <div className="academy-list mt-6 grid gap-4 md:grid-cols-2" data-testid="academy-list">
+            {tenants.map((tenant) => (
+              <article
+                key={tenant.id}
+                className="tenant-card rounded-2xl border border-slate-800 bg-slate-950/60 p-5"
+                data-testid="tenant-card"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    className="tenant-logo h-10 w-10 rounded-lg bg-slate-800 p-2"
+                    data-testid="tenant-logo"
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230f172a'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%2306b6d4'/%3E%3C/svg%3E"
+                    alt={`${tenant.name} logo`}
+                  />
+                  <div>
+                    <div className="tenant-name text-sm font-semibold" data-testid="tenant-name">
+                      {tenant.name}
+                    </div>
+                    <div className="text-xs text-slate-400">Tipo: {tenant.type}</div>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="badge rounded-full border border-emerald-500/30 px-3 py-1 text-xs text-emerald-400" data-testid="status-badge">
+                    {tenant.status}
+                  </span>
+                  <Link
+                    className="rounded-lg bg-cyan-500 px-4 py-2 text-xs font-semibold text-slate-950"
+                    href="/login"
+                    role="button"
+                  >
+                    Acceder
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
       </main>
+
+      <footer className="border-t border-slate-800 bg-slate-950/60" data-testid="footer">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row">
+          <p className="text-sm text-slate-400" data-testid="copyright">
+            © 2026 Akademate. Todos los derechos reservados.
+          </p>
+          <div className="flex items-center gap-4 text-xs text-slate-500">
+            <Link href="/privacy">Privacidad</Link>
+            <Link href="/terms">Términos</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

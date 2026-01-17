@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="rounded-full bg-secondary/20 px-3 py-1 text-secondary">audit ready</span>
             </div>
           </header>
-          <main className="mt-6">{children}</main>
+          <div className="mt-6">{children}</div>
         </div>
       </body>
     </html>

@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Akademate - Portal de Desarrollo',
-  description: 'Centro de control y acceso a todos los dashboards del proyecto Akademate',
+  title: 'Akademate - Portal',
+  description: 'Portal de acceso para academias y alumnos en Akademate.',
 }
 
 export default function RootLayout({
@@ -13,6 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <head>
+        <link rel="canonical" href="https://akademate.com/portal" />
+      </head>
       <body>{children}</body>
     </html>
   )

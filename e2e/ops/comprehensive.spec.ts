@@ -499,6 +499,10 @@ test.describe('Ops Panel - Alerts Management', () => {
 })
 
 test.describe('Ops Panel - API Health', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:3070/api-health')
+  })
+
   test('API-01: API health check loads', async ({ page }) => {
     const apiHealthPage = page.locator('main, [data-testid="api-health-page"]')
     await expect(apiHealthPage.first()).toBeVisible()
