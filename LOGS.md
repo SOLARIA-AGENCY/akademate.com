@@ -111,3 +111,7 @@
 ## Iteracion 27 (17-01-2026)
 - Accion: Verifique hooks de tenant y access controls RLS en Payload + SDK.
 - Resultado: TASKS_TODO.md actualizado.
+
+## Iteracion 28 (17-01-2026)
+- Accion: Agregue soporte de theming por tenant via cookie CSS vars en apps/web.
+- Resultado: apps/web/app/layout.tsx actualizado; TASKS_TODO.md actualizado.

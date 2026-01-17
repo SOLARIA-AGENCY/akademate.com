@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { Manrope, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
@@ -39,10 +40,35 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const themeCookie = cookies().get('akademate_theme')?.value
+  const themeVars: Record<string, string> = {}
+
+  if (themeCookie) {
+    try {
+      const parsed = JSON.parse(decodeURIComponent(themeCookie)) as Record<string, string>
+      const mapping: Record<string, string> = {
+        primary: '--primary',
+        secondary: '--secondary',
+        accent: '--accent',
+        background: '--background',
+        foreground: '--foreground',
+      }
+      for (const [key, cssVar] of Object.entries(mapping)) {
+        const value = parsed[key]
+        if (typeof value === 'string' && value.trim().length > 0) {
+          themeVars[cssVar] = value.trim()
+        }
+      }
+    } catch {
+      // Ignore malformed theme cookie
+    }
+  }
+
   return (
     <html lang="es" suppressHydrationWarning>
       <body
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased min-h-screen`}
+        style={Object.keys(themeVars).length ? themeVars : undefined}
       >
         {children}
       </body>
