@@ -162,12 +162,12 @@ describe('Event Handler Types', () => {
 // ============================================================================
 
 describe('Room Subscription Types', () => {
-  it('should support subscribe function signature', () => {
+  it('should support subscribe function signature', async () => {
     const subscribe = vi.fn(async (room: string): Promise<boolean> => {
       return room.startsWith('tenant:');
     });
 
-    expect(subscribe('tenant:1:dashboard')).resolves.toBe(true);
+    await expect(subscribe('tenant:1:dashboard')).resolves.toBe(true);
   });
 
   it('should support unsubscribe function signature', () => {
