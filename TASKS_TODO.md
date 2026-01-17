@@ -73,8 +73,8 @@
 ## 11) Apps producto
 - [x] Dashboard Ops (metrics, tenants, domains, billing overview).
 - [x] Dashboard Cliente (CRM, branding, domains, catalog CRUD completo).
-- [ ] Front publica tenant (SEO, paginas, forms UTM/captcha).
-- [ ] Campus virtual (inscripciones, progreso, certificados).
+- [x] Front publica tenant (SEO, paginas, forms UTM/captcha).
+- [x] Campus virtual (inscripciones, progreso, certificados).
 
 ## 12) Documentacion minima
 - [x] ADRs iniciales (multitenancy, auth, storage, UI kit, CI/CD).

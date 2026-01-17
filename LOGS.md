@@ -255,3 +255,7 @@
 ## Iteracion 63 (17-01-2026)
 - Accion: Agregué estado de certificados en detalle de curso del campus.
 - Resultado: Curso muestra disponibilidad de certificado; tsc apps/campus en verde.
+
+## Iteracion 64 (17-01-2026)
+- Accion: Marqué front pública y campus virtual como completados tras integración CMS, formularios y campus.
+- Resultado: TASKS_TODO.md actualizado.
