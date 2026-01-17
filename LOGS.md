@@ -263,3 +263,7 @@
 ## Iteracion 65 (17-01-2026)
 - Accion: Ejecuté suite de unit tests (vitest run).
 - Resultado: 36 files, 895 passed, 14 skipped, 0 failed; duración 3.22s.
+
+## Iteracion 66 (17-01-2026)
+- Accion: Habilite coverage en vitest instalando @vitest/coverage-v8 y ejecute suite completa con coverage.
+- Resultado: vitest run --coverage en verde (36 files, 895 passed, 14 skipped, 0 failed); coverage global 78.59% statements.

@@ -41,6 +41,7 @@
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "@upstash/context7-mcp": "1.0.31",
+    "@vitest/coverage-v8": "^4.0.16",
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.0",
     "eslint": "^9.39.1",

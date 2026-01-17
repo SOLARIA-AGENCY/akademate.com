@@ -81,7 +81,7 @@
 - [x] Runbooks base (backup/restore, incident, deploy).
 
 ## 13) Verificacion final
-- [ ] Full test suite + coverage target.
+- [x] Full test suite + coverage target.
 - [ ] Smoke tests apps.
 - [ ] Security checklist + GDPR verification.
 - [ ] Crear COMPLETION.txt cuando todo pase.
