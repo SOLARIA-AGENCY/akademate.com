@@ -12,12 +12,14 @@ Comprehensive end-to-end testing for critical user and admin flows to ensure pro
 
 ---
 
-## Current State
+## Current State (Audit 17 Enero 2026)
 
-✅ **VITEST EXISTS** for unit tests (packages/api, packages/db)
-✅ **PLAYWRIGHT DEPENDENCY** in package.json
-⚠️ **NO E2E TESTS** exist for critical flows
-⚠️ **NO E2E TEST SETUP** (no playwright.config.ts)
+✅ **PLAYWRIGHT CONFIG** (`playwright.config.ts`) con proyectos por app  
+✅ **E2E EXISTENTES** en `e2e/` (tenant-admin, web, portal, campus, ops, payload)  
+✅ **TENANT-ADMIN** smoke checks (login, dashboard, users, courses)  
+✅ **GDPR E2E** básico en tenant-admin (`e2e/tenant-admin/gdpr.spec.ts`)  
+⚠️ **FALTA** cobertura de flujos completos (auth real, billing, campus, admin-client)  
+⚠️ **FALTA** data seeding/fixtures estables para entornos CI  
 
 ---
 

@@ -87,3 +87,7 @@
 ## Iteracion 21 (17-01-2026)
 - Accion: Documente variables y secretos requeridos para CI.
 - Resultado: docs/CI_CD_PIPELINE.md actualizado; TASKS_TODO.md actualizado.
+
+## Iteracion 22 (17-01-2026)
+- Accion: Audite estado de E2E y actualice docs/E2E_TESTS.md.
+- Resultado: Estado actual y gaps documentados; TASKS_TODO.md actualizado.

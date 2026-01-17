@@ -30,7 +30,7 @@
 - [x] Documentar variables/secretos requeridos.
 
 ## 4) E2E criticos (docs/E2E_TESTS.md)
-- [ ] Auditar E2E existentes vs escenarios requeridos.
+- [x] Auditar E2E existentes vs escenarios requeridos.
 - [ ] Implementar escenarios faltantes (auth, campus, admin, billing, GDPR).
 - [ ] Agregar data seeding/fixtures estables.
 
