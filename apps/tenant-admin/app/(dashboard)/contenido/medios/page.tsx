@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { Upload, Image as ImageIcon, HardDrive, FileImage } from 'lucide-react'
 import { MediaGallery, type MediaItem } from './components/MediaGallery'
 import { MediaUpload } from './components/MediaUpload'
@@ -20,123 +19,11 @@ import {
   PaginationPrevious,
 } from '@payload-config/components/ui/pagination'
 
-// Mock data for development
-const mockMediaData: MediaItem[] = [
-  {
-    id: '1',
-    filename: 'campus-norte-exterior.jpg',
-    mimeType: 'image/jpeg',
-    filesize: 2457600, // 2.4 MB
-    width: 1920,
-    height: 1080,
-    alt: 'Vista exterior del Campus Norte CEP',
-    url: 'https://images.unsplash.com/photo-1562774053-701939374585?w=800',
-    thumbnailURL: 'https://images.unsplash.com/photo-1562774053-701939374585?w=400',
-    sizes: {
-      thumbnail: { url: 'https://images.unsplash.com/photo-1562774053-701939374585?w=400', width: 400, height: 300 },
-      card: { url: 'https://images.unsplash.com/photo-1562774053-701939374585?w=768', width: 768, height: 576 },
-      hero: { url: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1920', width: 1920, height: 1080 },
-    },
-    createdAt: '2024-12-20T10:30:00Z',
-    updatedAt: '2024-12-20T10:30:00Z',
-  },
-  {
-    id: '2',
-    filename: 'aula-informatica.jpg',
-    mimeType: 'image/jpeg',
-    filesize: 1856000, // 1.8 MB
-    width: 1920,
-    height: 1080,
-    alt: 'Aula de informática equipada con ordenadores modernos',
-    url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800',
-    thumbnailURL: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400',
-    sizes: {
-      thumbnail: { url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400', width: 400, height: 300 },
-      card: { url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=768', width: 768, height: 576 },
-      hero: { url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1920', width: 1920, height: 1080 },
-    },
-    createdAt: '2024-12-19T15:45:00Z',
-    updatedAt: '2024-12-19T15:45:00Z',
-  },
-  {
-    id: '3',
-    filename: 'estudiantes-grupo.jpg',
-    mimeType: 'image/jpeg',
-    filesize: 3145728, // 3 MB
-    width: 2400,
-    height: 1600,
-    alt: 'Grupo de estudiantes trabajando en proyecto colaborativo',
-    url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800',
-    thumbnailURL: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400',
-    sizes: {
-      thumbnail: { url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400', width: 400, height: 300 },
-      card: { url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=768', width: 768, height: 576 },
-      hero: { url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920', width: 1920, height: 1080 },
-    },
-    createdAt: '2024-12-18T09:15:00Z',
-    updatedAt: '2024-12-18T09:15:00Z',
-  },
-  {
-    id: '4',
-    filename: 'logo-cep.png',
-    mimeType: 'image/png',
-    filesize: 524288, // 512 KB
-    width: 800,
-    height: 800,
-    alt: 'Logo oficial CEP Comunicación',
-    url: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=800',
-    thumbnailURL: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=400',
-    sizes: {
-      thumbnail: { url: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=400', width: 400, height: 300 },
-      card: { url: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=768', width: 768, height: 576 },
-      hero: { url: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=1920', width: 1920, height: 1080 },
-    },
-    createdAt: '2024-12-15T12:00:00Z',
-    updatedAt: '2024-12-22T16:30:00Z',
-  },
-  {
-    id: '5',
-    filename: 'certificado-plantilla.png',
-    mimeType: 'image/png',
-    filesize: 1048576, // 1 MB
-    width: 3508,
-    height: 2480,
-    alt: 'Plantilla de certificado de finalización de curso',
-    url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800',
-    thumbnailURL: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400',
-    sizes: {
-      thumbnail: { url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400', width: 400, height: 300 },
-      card: { url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=768', width: 768, height: 576 },
-      hero: { url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920', width: 1920, height: 1080 },
-    },
-    createdAt: '2024-12-10T08:20:00Z',
-    updatedAt: '2024-12-10T08:20:00Z',
-  },
-  {
-    id: '6',
-    filename: 'profesor-clase.jpg',
-    mimeType: 'image/jpeg',
-    filesize: 2097152, // 2 MB
-    width: 1920,
-    height: 1280,
-    alt: 'Profesor impartiendo clase en el aula',
-    url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800',
-    thumbnailURL: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400',
-    sizes: {
-      thumbnail: { url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400', width: 400, height: 300 },
-      card: { url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=768', width: 768, height: 576 },
-      hero: { url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1920', width: 1920, height: 1080 },
-    },
-    createdAt: '2024-12-25T14:00:00Z',
-    updatedAt: '2024-12-25T14:00:00Z',
-  },
-]
-
 const ITEMS_PER_PAGE = 20
 
 export default function MediaPage() {
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>(mockMediaData)
-  const [loading, setLoading] = useState(false)
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
@@ -150,6 +37,45 @@ export default function MediaPage() {
     sortOrder: 'desc',
     dateRange: 'all',
   })
+
+  const fetchMedia = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/media?limit=200&sort=-createdAt')
+      if (!response.ok) {
+        throw new Error('Failed to fetch media')
+      }
+      const data = await response.json()
+      const items = (data.docs ?? []).map((doc: any) => ({
+        id: doc.id,
+        filename: doc.filename ?? doc.file?.filename ?? 'media',
+        mimeType: doc.mimeType ?? doc.file?.mimeType ?? 'application/octet-stream',
+        filesize: doc.filesize ?? doc.file?.filesize ?? 0,
+        width: doc.width,
+        height: doc.height,
+        alt: doc.alt ?? doc.filename ?? 'Media',
+        url: doc.url ?? doc.file?.url ?? '',
+        thumbnailURL: doc.sizes?.thumbnail?.url,
+        sizes: doc.sizes,
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
+      }))
+
+      setMediaItems(items)
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo cargar la biblioteca de medios',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchMedia()
+  }, [])
 
   // Filter and sort logic
   const filteredItems = useMemo(() => {
@@ -251,47 +177,53 @@ export default function MediaPage() {
   }
 
   const handleUpdateItem = async (id: string, data: Partial<MediaItem>) => {
-    // TODO: Replace with actual API call
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        setMediaItems((prev) =>
-          prev.map((item) =>
-            item.id === id ? { ...item, ...data, updatedAt: new Date().toISOString() } : item
-          )
-        )
-        if (selectedItem?.id === id) {
-          setSelectedItem((prev) => (prev ? { ...prev, ...data } : null))
-        }
-        resolve()
-      }, 500)
+    const response = await fetch(`/api/media/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
     })
+
+    if (!response.ok) {
+      throw new Error('Failed to update media')
+    }
+
+    const updated = await response.json()
+    setMediaItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, ...updated, updatedAt: updated.updatedAt ?? item.updatedAt } : item
+      )
+    )
+    if (selectedItem?.id === id) {
+      setSelectedItem((prev) => (prev ? { ...prev, ...updated } : null))
+    }
   }
 
   const handleDeleteItem = async (id: string) => {
-    // TODO: Replace with actual API call
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        setMediaItems((prev) => prev.filter((item) => item.id !== id))
-        resolve()
-      }, 500)
+    const response = await fetch(`/api/media/${id}`, {
+      method: 'DELETE',
     })
+
+    if (!response.ok) {
+      throw new Error('Failed to delete media')
+    }
+
+    setMediaItems((prev) => prev.filter((item) => item.id !== id))
+    if (selectedItem?.id === id) {
+      setSelectedItem(null)
+      setDetailsDialogOpen(false)
+    }
   }
 
   const handleUploadComplete = () => {
-    // TODO: Refresh data from API
     toast({
       title: 'Subida completada',
       description: 'Los archivos se han subido correctamente',
     })
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000)
+    fetchMedia()
   }
 
   return (
     <div className="space-y-6">
-      <MockDataIndicator />
 
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

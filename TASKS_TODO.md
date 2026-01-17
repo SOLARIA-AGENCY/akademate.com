@@ -63,8 +63,8 @@
 
 ## 9) Storage & media (SESSION_HANDOFF task 23)
 - [x] Integrar R2/MinIO + presigned uploads.
-- [ ] Media manager (tenant-admin).
-- [ ] Thumbs opcionales.
+- [x] Media manager (tenant-admin).
+- [x] Thumbs opcionales.
 
 ## 10) Feature flags (SESSION_HANDOFF task 24)
 - [x] Flags por tenant/plan.

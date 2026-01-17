@@ -171,3 +171,7 @@
 ## Iteracion 42 (17-01-2026)
 - Accion: Agregue endpoint de presigned uploads para MinIO/R2 en admin-client y dependencia de presigner.
 - Resultado: Presigned uploads listos; TASKS_TODO.md actualizado.
+
+## Iteracion 43 (17-01-2026)
+- Accion: Conecte media manager de tenant-admin a API real de media (Payload) y refresco tras uploads.
+- Resultado: Media manager sin mocks; TASKS_TODO.md actualizado.
