@@ -91,3 +91,7 @@
 ## Iteracion 22 (17-01-2026)
 - Accion: Audite estado de E2E y actualice docs/E2E_TESTS.md.
 - Resultado: Estado actual y gaps documentados; TASKS_TODO.md actualizado.
+
+## Iteracion 23 (17-01-2026)
+- Accion: Agregue E2E de billing para tenant-admin.
+- Resultado: e2e/tenant-admin/billing.spec.ts creado; TASKS_TODO.md actualizado.

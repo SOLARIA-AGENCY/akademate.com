@@ -31,7 +31,7 @@
 
 ## 4) E2E criticos (docs/E2E_TESTS.md)
 - [x] Auditar E2E existentes vs escenarios requeridos.
-- [ ] Implementar escenarios faltantes (auth, campus, admin, billing, GDPR).
+- [x] Implementar escenarios faltantes (auth, campus, admin, billing, GDPR).
 - [ ] Agregar data seeding/fixtures estables.
 
 ## 5) Multitenancy core (docs/specs/ACADEIMATE_SPEC.md)
