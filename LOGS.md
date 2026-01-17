@@ -31,3 +31,7 @@
 ## Iteracion 7 (17-01-2026)
 - Accion: Verifique tsconfig de packages/ui y marque tarea de jsx como completada.
 - Resultado: TASKS_TODO.md actualizado.
+
+## Iteracion 8 (17-01-2026)
+- Accion: Corrigi tipos en packages/reports/src/pdf.ts (pageSize y estilos de fila alterna) y valide con tsc.
+- Resultado: packages/reports tsc --noEmit en verde; TASKS_TODO.md actualizado.

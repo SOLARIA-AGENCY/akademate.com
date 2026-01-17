@@ -8,6 +8,7 @@ import type {
   ReportResult,
   ReportColumn,
   PdfStyles,
+  ReportSize,
 } from './types';
 
 // =============================================================================
@@ -135,7 +136,11 @@ export class PdfReportGenerator {
         null,
         React.createElement(
           Page,
-          { size: options.meta.pageSize || 'A4', orientation: options.meta.orientation || 'portrait', style: styles.page },
+          {
+            size: mapPageSize(options.meta.pageSize),
+            orientation: options.meta.orientation || 'portrait',
+            style: styles.page,
+          },
           // Watermark
           options.watermark &&
             React.createElement(Text, { style: styles.watermark }, options.watermark),
@@ -181,7 +186,8 @@ export class PdfReportGenerator {
                 View,
                 {
                   key: rowIndex,
-                  style: [styles.tableRow, rowIndex % 2 === 1 && styles.tableRowAlt],
+                  style:
+                    rowIndex % 2 === 1 ? [styles.tableRow, styles.tableRowAlt] : styles.tableRow,
                 },
                 columns.map((col, colIndex) =>
                   React.createElement(
@@ -274,6 +280,20 @@ function formatDate(date: Date): string {
     month: '2-digit',
     year: 'numeric',
   }).format(date);
+}
+
+function mapPageSize(size?: ReportSize): 'A4' | 'LETTER' | 'LEGAL' | undefined {
+  if (!size) return undefined;
+  switch (size) {
+    case 'letter':
+      return 'LETTER';
+    case 'legal':
+      return 'LEGAL';
+    case 'A4':
+      return 'A4';
+    default:
+      return undefined;
+  }
 }
 
 // =============================================================================

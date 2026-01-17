@@ -10,7 +10,7 @@
 - [x] Agregar jsx a tsconfig de packages/tenant.
 - [x] Agregar jsx a tsconfig de packages/ui.
 - [x] Corregir null checks y mocks en tests de packages/realtime.
-- [ ] Corregir tipos en packages/reports (pdf.ts).
+- [x] Corregir tipos en packages/reports (pdf.ts).
 - [ ] Corregir zod enums en packages/types.
 - [ ] Limpiar variables no usadas (packages/realtime, packages/tenant).
 
