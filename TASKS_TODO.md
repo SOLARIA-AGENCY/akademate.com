@@ -6,7 +6,7 @@
 - [x] Crear checklist global de release (pre-prod/prod).
 
 ## 1) TS strict (docs/STRICT_TYPES_MIGRATION.md)
-- [ ] Agregar jsx a tsconfig de packages/realtime.
+- [x] Agregar jsx a tsconfig de packages/realtime.
 - [ ] Agregar jsx a tsconfig de packages/tenant.
 - [ ] Agregar jsx a tsconfig de packages/ui.
 - [ ] Corregir null checks y mocks en tests de packages/realtime.

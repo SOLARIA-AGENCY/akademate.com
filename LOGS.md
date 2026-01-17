@@ -15,3 +15,7 @@
 ## Iteracion 3 (17-01-2026)
 - Accion: Corrigi mocks de Resend en tests de notifications y ajuste RLS integration tests para requerir DATABASE_URL + RUN_DB_TESTS.
 - Resultado: Vitest en verde (unit), integration RLS skip por defecto sin DB local.
+
+## Iteracion 4 (17-01-2026)
+- Accion: Verifique tsconfig de packages/realtime y marque tarea de jsx como completada.
+- Resultado: TASKS_TODO.md actualizado.
