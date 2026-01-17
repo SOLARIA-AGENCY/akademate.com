@@ -7,6 +7,7 @@ on:
 
 env:
   RUN_E2E: ${{ vars.RUN_E2E }}
+  RUN_SECURITY: ${{ vars.RUN_SECURITY }}
 
 jobs:
   lint-typecheck-test-build:
@@ -80,3 +81,28 @@ jobs:
           path: |
             packages/*/dist
             apps/*/.next
+
+  security:
+    if: ${{ env.RUN_SECURITY == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog-action@v3
+        with:
+          path: ./
+          base: ${{ github.ref_name }}
+          head: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Dependency audit
+        run: pnpm audit --audit-level=moderate

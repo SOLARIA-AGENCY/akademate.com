@@ -26,7 +26,7 @@
 - [x] Actualizar workflows: lint, typecheck, unit tests + coverage.
 - [x] Agregar paso E2E (Playwright) en CI.
 - [x] Agregar build artifacts.
-- [ ] Agregar security scan (SCA/SAST) basico.
+- [x] Agregar security scan (SCA/SAST) basico.
 - [ ] Documentar variables/secretos requeridos.
 
 ## 4) E2E criticos (docs/E2E_TESTS.md)

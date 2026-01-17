@@ -79,3 +79,7 @@
 ## Iteracion 19 (17-01-2026)
 - Accion: Agregue job build con artifacts en CI.
 - Resultado: .github/workflows/ci.yml actualizado; TASKS_TODO.md actualizado.
+
+## Iteracion 20 (17-01-2026)
+- Accion: Agregue job security scan en CI con TruffleHog y pnpm audit.
+- Resultado: .github/workflows/ci.yml actualizado; TASKS_TODO.md actualizado.
