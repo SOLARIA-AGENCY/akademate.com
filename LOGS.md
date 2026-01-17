@@ -11,3 +11,7 @@
 ## Iteracion 2 (17-01-2026)
 - Accion: Defini criterios de "done" por modulo y checklist de release.
 - Resultado: docs/DEFINITION_OF_DONE.md y docs/RELEASE_CHECKLIST.md creados.
+
+## Iteracion 3 (17-01-2026)
+- Accion: Corrigi mocks de Resend en tests de notifications y ajuste RLS integration tests para requerir DATABASE_URL + RUN_DB_TESTS.
+- Resultado: Vitest en verde (unit), integration RLS skip por defecto sin DB local.

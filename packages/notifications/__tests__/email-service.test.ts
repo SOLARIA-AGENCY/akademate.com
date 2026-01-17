@@ -19,11 +19,13 @@ import type {
 
 // Mock Resend
 vi.mock('resend', () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: {
-      send: vi.fn().mockResolvedValue({ data: { id: 'resend-msg-123' } }),
-    },
-  })),
+  Resend: vi.fn().mockImplementation(function ResendMock() {
+    return {
+      emails: {
+        send: vi.fn().mockResolvedValue({ data: { id: 'resend-msg-123' } }),
+      },
+    };
+  }),
 }));
 
 describe('EmailService', () => {
@@ -132,9 +134,11 @@ describe('EmailService', () => {
     it('should send email via Resend', async () => {
       const { Resend } = await import('resend');
       const mockSend = vi.fn().mockResolvedValue({ data: { id: 'resend-123' } });
-      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-        emails: { send: mockSend },
-      }));
+      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+        function ResendMock() {
+          return { emails: { send: mockSend } };
+        }
+      );
 
       const service = new EmailService(resendConfig);
 
@@ -153,9 +157,11 @@ describe('EmailService', () => {
       const mockSend = vi.fn().mockResolvedValue({
         error: { message: 'Rate limit exceeded' },
       });
-      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-        emails: { send: mockSend },
-      }));
+      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+        function ResendMock() {
+          return { emails: { send: mockSend } };
+        }
+      );
 
       const service = new EmailService(resendConfig);
 
@@ -172,9 +178,11 @@ describe('EmailService', () => {
     it('should pass correct parameters to Resend', async () => {
       const { Resend } = await import('resend');
       const mockSend = vi.fn().mockResolvedValue({ data: { id: 'test' } });
-      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-        emails: { send: mockSend },
-      }));
+      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+        function ResendMock() {
+          return { emails: { send: mockSend } };
+        }
+      );
 
       const service = new EmailService(resendConfig);
 
@@ -233,9 +241,11 @@ describe('EmailService', () => {
     it('should include notification type in tags', async () => {
       const { Resend } = await import('resend');
       const mockSend = vi.fn().mockResolvedValue({ data: { id: 'test' } });
-      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-        emails: { send: mockSend },
-      }));
+      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+        function ResendMock() {
+          return { emails: { send: mockSend } };
+        }
+      );
 
       const service = new EmailService({
         ...baseConfig,
@@ -315,17 +325,21 @@ describe('EmailService', () => {
     it('should handle batch errors gracefully', async () => {
       const { Resend } = await import('resend');
       let callCount = 0;
-      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-        emails: {
-          send: vi.fn().mockImplementation(() => {
-            callCount++;
-            if (callCount === 2) {
-              return Promise.resolve({ error: { message: 'Failed' } });
-            }
-            return Promise.resolve({ data: { id: `msg-${callCount}` } });
-          }),
-        },
-      }));
+      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+        function ResendMock() {
+          return {
+            emails: {
+              send: vi.fn().mockImplementation(() => {
+                callCount++;
+                if (callCount === 2) {
+                  return Promise.resolve({ error: { message: 'Failed' } });
+                }
+                return Promise.resolve({ data: { id: `msg-${callCount}` } });
+              }),
+            },
+          };
+        }
+      );
 
       const service = new EmailService({
         ...baseConfig,
@@ -362,11 +376,15 @@ describe('EmailService', () => {
   describe('Error Handling', () => {
     it('should catch and return network errors', async () => {
       const { Resend } = await import('resend');
-      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-        emails: {
-          send: vi.fn().mockRejectedValue(new Error('Network error')),
-        },
-      }));
+      (Resend as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+        function ResendMock() {
+          return {
+            emails: {
+              send: vi.fn().mockRejectedValue(new Error('Network error')),
+            },
+          };
+        }
+      );
 
       const service = new EmailService({
         ...baseConfig,

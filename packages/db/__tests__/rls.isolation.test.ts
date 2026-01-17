@@ -26,9 +26,9 @@ import {
 } from '../src/rls'
 import { courses } from '../src/schema'
 
-// Skip integration tests if no DATABASE_URL
-const DATABASE_URL = process.env.DATABASE_URL || 'postgres://carlosjperez@localhost:5432/akademate'
-const shouldRunIntegration = Boolean(DATABASE_URL)
+// Skip integration tests unless explicitly enabled with DATABASE_URL + RUN_DB_TESTS=true
+const DATABASE_URL = process.env.DATABASE_URL
+const shouldRunIntegration = Boolean(DATABASE_URL && process.env.RUN_DB_TESTS === 'true')
 
 // Test tenant IDs (integers)
 const TENANT_A_ID = 100

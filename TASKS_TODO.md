@@ -2,8 +2,8 @@
 
 ## 0) Preparacion y control
 - [x] Consolidar backlog unico desde docs (remediation, handoff, milestones) -> TASKS_TODO atomico.
-- [ ] Definir criterios de "done" por modulo (tests, features, docs, seguridad).
-- [ ] Crear checklist global de release (pre-prod/prod).
+- [x] Definir criterios de "done" por modulo (tests, features, docs, seguridad).
+- [x] Crear checklist global de release (pre-prod/prod).
 
 ## 1) TS strict (docs/STRICT_TYPES_MIGRATION.md)
 - [ ] Agregar jsx a tsconfig de packages/realtime.
