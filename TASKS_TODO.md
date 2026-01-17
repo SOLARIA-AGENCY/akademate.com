@@ -24,7 +24,7 @@
 
 ## 3) CI/CD completo (docs/CI_CD_PIPELINE.md)
 - [x] Actualizar workflows: lint, typecheck, unit tests + coverage.
-- [ ] Agregar paso E2E (Playwright) en CI.
+- [x] Agregar paso E2E (Playwright) en CI.
 - [ ] Agregar build artifacts.
 - [ ] Agregar security scan (SCA/SAST) basico.
 - [ ] Documentar variables/secretos requeridos.

@@ -71,3 +71,7 @@
 ## Iteracion 17 (17-01-2026)
 - Accion: Actualice workflow CI con lint, typecheck y unit tests con coverage.
 - Resultado: .github/workflows/ci.yml actualizado; TASKS_TODO.md actualizado.
+
+## Iteracion 18 (17-01-2026)
+- Accion: Agregue job E2E (Playwright) en CI con flag RUN_E2E.
+- Resultado: .github/workflows/ci.yml actualizado; TASKS_TODO.md actualizado.
