@@ -235,3 +235,7 @@
 ## Iteracion 58 (17-01-2026)
 - Accion: Conecte cursos destacados en web pública a CMS y ajuste tsconfig/layout para typecheck.
 - Resultado: CoursesSection usa CMS real; tsc apps/web en verde tras excluir tests y ajustar cookies().
+
+## Iteracion 59 (17-01-2026)
+- Accion: Conecte catálogo público de cursos (/cursos) a CMS y normalice labels.
+- Resultado: Página de cursos usa CMS real; tsc apps/web en verde.

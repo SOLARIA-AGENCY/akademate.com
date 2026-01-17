@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Clock, Users, Star, Filter, Search } from 'lucide-react'
+import { cms } from '@/lib/cms'
 import { formatCurrency } from '@/lib/utils'
 
 export const metadata: Metadata = {
@@ -10,92 +11,20 @@ export const metadata: Metadata = {
   description: 'Explora nuestro catálogo de cursos de formación profesional',
 }
 
-// Mock data - will be replaced with CMS/API content
-const categories = [
-  'Todos',
-  'Desarrollo',
-  'Data',
-  'Diseño',
-  'Marketing',
-  'Negocios',
-]
-
-const courses = [
-  {
-    id: '1',
-    title: 'Desarrollo Web Full Stack',
-    description: 'Aprende HTML, CSS, JavaScript, React y Node.js desde cero hasta nivel profesional.',
-    price: 1299,
-    duration: 320,
-    students: 1240,
-    rating: 4.9,
-    instructor: 'María García',
-    category: 'Desarrollo',
-    level: 'Principiante',
-  },
-  {
-    id: '2',
-    title: 'Data Science con Python',
-    description: 'Análisis de datos, machine learning y visualización con las herramientas más demandadas.',
-    price: 999,
-    duration: 200,
-    students: 856,
-    rating: 4.8,
-    instructor: 'Carlos Ruiz',
-    category: 'Data',
-    level: 'Intermedio',
-  },
-  {
-    id: '3',
-    title: 'UX/UI Design Professional',
-    description: 'Diseño de interfaces y experiencia de usuario con Figma, investigación y prototipado.',
-    price: 799,
-    duration: 160,
-    students: 623,
-    rating: 4.9,
-    instructor: 'Ana Martínez',
-    category: 'Diseño',
-    level: 'Principiante',
-  },
-  {
-    id: '4',
-    title: 'Marketing Digital Avanzado',
-    description: 'SEO, SEM, redes sociales, email marketing y analítica digital para profesionales.',
-    price: 699,
-    duration: 120,
-    students: 445,
-    rating: 4.7,
-    instructor: 'Pedro López',
-    category: 'Marketing',
-    level: 'Avanzado',
-  },
-  {
-    id: '5',
-    title: 'Gestión de Proyectos con Scrum',
-    description: 'Metodologías ágiles, Scrum Master certification prep, liderazgo de equipos.',
-    price: 599,
-    duration: 80,
-    students: 312,
-    rating: 4.8,
-    instructor: 'Laura Sánchez',
-    category: 'Negocios',
-    level: 'Intermedio',
-  },
-  {
-    id: '6',
-    title: 'Ciberseguridad Empresarial',
-    description: 'Protección de sistemas, ethical hacking, compliance y gestión de riesgos.',
-    price: 1199,
-    duration: 180,
-    students: 289,
-    rating: 4.9,
-    instructor: 'Miguel Torres',
-    category: 'Desarrollo',
-    level: 'Avanzado',
-  },
-]
-
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const courseResponse = await cms.getCourses({ limit: 20 }).catch(() => ({
+    docs: [],
+  }))
+  const courses = courseResponse.docs
+  const categories = [
+    'Todos',
+    ...Array.from(new Set(courses.map((course) => course.category))).filter(Boolean),
+  ]
+  const levelLabels: Record<string, string> = {
+    beginner: 'Principiante',
+    intermediate: 'Intermedio',
+    advanced: 'Avanzado',
+  }
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -168,15 +97,15 @@ export default function CoursesPage() {
                         {course.category}
                       </span>
                       <span>•</span>
-                      <span>{course.level}</span>
+                      <span>{levelLabels[course.level] ?? course.level}</span>
                     </div>
 
                     <h2 className="mt-3 text-lg font-semibold group-hover:text-primary">
-                      <Link href={`/cursos/${course.id}`}>{course.title}</Link>
+                      <Link href={`/cursos/${course.slug}`}>{course.title}</Link>
                     </h2>
 
                     <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                      {course.description}
+                      {course.shortDescription || course.description}
                     </p>
 
                     <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
@@ -186,11 +115,11 @@ export default function CoursesPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
-                        <span>{course.students}</span>
+                        <span>{course.studentsCount ?? 0}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>{course.rating}</span>
+                        <span>{course.rating ?? '—'}</span>
                       </div>
                     </div>
 
@@ -199,7 +128,7 @@ export default function CoursesPage() {
                         {formatCurrency(course.price)}
                       </span>
                       <Link
-                        href={`/cursos/${course.id}`}
+                        href={`/cursos/${course.slug}`}
                         className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                       >
                         Ver curso
