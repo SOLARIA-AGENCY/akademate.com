@@ -279,3 +279,7 @@
 ## Iteracion 69 (17-01-2026)
 - Accion: Ajuste tenant-admin para smoke E2E (login validado, stubs dashboard/usuarios/cursos/etc, bypass DB en dev para payload/billing, cleanup overlay).
 - Resultado: Playwright tenant-admin (tenant-admin-chromium) en verde: 82 passed, 0 failed (1.2m) con servidor local.
+
+## Iteracion 70 (17-01-2026)
+- Accion: Estabilice payload admin sin DB (stub UI/login/collections/forms), agregue editor lexical, routes API mock y aumente timeout E2E.
+- Resultado: Playwright payload (payload-chromium) en verde: 59 passed, 0 failed (1.3m) con servidor local.

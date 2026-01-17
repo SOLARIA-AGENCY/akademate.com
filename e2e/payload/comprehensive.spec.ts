@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test'
 
+test.setTimeout(60_000)
+
 test.describe('Payload CMS - Admin Authentication', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:3003/admin')

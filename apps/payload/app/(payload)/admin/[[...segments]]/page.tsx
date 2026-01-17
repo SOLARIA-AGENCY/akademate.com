@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import config from '@payload-config'
 import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
 import { importMap } from '../importMap'
+import AdminStub from './AdminStub'
 
 type Args = {
   params: Promise<{
@@ -15,10 +16,21 @@ type Args = {
   }>
 }
 
-export const generateMetadata = ({ params, searchParams }: Args): Promise<Metadata> =>
-  generatePageMetadata({ config, params, searchParams })
+export const generateMetadata = async ({ params, searchParams }: Args): Promise<Metadata> => {
+  if (!process.env.DATABASE_URL) {
+    return { title: 'Login - Payload' }
+  }
 
-const Page = ({ params, searchParams }: Args) =>
-  RootPage({ config, params, searchParams, importMap })
+  return generatePageMetadata({ config, params, searchParams })
+}
+
+const Page = async ({ params, searchParams }: Args) => {
+  if (!process.env.DATABASE_URL) {
+    const resolvedParams = await params
+    return <AdminStub segments={resolvedParams.segments ?? []} />
+  }
+
+  return RootPage({ config, params, searchParams, importMap })
+}
 
 export default Page

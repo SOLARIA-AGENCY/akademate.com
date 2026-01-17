@@ -1,5 +1,6 @@
 
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { buildConfig, type CollectionConfig } from 'payload'
 import { injectTenantId, preventTenantChange } from './hooks/injectTenantId'
 import {
@@ -608,6 +609,7 @@ const config = buildConfig({
       titleSuffix: '- Akademate',
     },
   },
+  editor: lexicalEditor({}),
   typescript: {
     outputFile: './payload-types.ts',
   },
