@@ -52,6 +52,7 @@ export default function CoursePage({ params }: PageProps) {
     })
 
     const isConnected = progressConnected || gamificationConnected
+    const certificateReady = progress >= 100
 
     useEffect(() => {
         params.then(p => setEnrollmentId(p.enrollmentId))
@@ -250,6 +251,23 @@ export default function CoursePage({ params }: PageProps) {
                                     <div className="h-16 bg-muted rounded-lg"></div>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Certificate */}
+                        <div className="rounded-xl border border-border bg-card/80 p-4">
+                            <h3 className="text-sm font-medium text-muted-foreground mb-3">Certificado</h3>
+                            <div className="space-y-2 text-sm">
+                                <p className={certificateReady ? 'text-green-600' : 'text-muted-foreground'}>
+                                    {certificateReady ? 'Disponible para descargar' : 'Completa el 100% para habilitarlo'}
+                                </p>
+                                <button
+                                    type="button"
+                                    disabled={!certificateReady}
+                                    className="w-full rounded-lg border border-primary/40 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    Descargar certificado
+                                </button>
+                            </div>
                         </div>
 
                         {/* Badges */}

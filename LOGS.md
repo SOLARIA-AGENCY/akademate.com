@@ -251,3 +251,7 @@
 ## Iteracion 62 (17-01-2026)
 - Accion: Marqué Dashboard Cliente como completado tras integrar CRM, branding, dominios y catálogo real.
 - Resultado: TASKS_TODO.md actualizado.
+
+## Iteracion 63 (17-01-2026)
+- Accion: Agregué estado de certificados en detalle de curso del campus.
+- Resultado: Curso muestra disponibilidad de certificado; tsc apps/campus en verde.
