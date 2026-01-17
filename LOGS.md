@@ -207,3 +207,7 @@
 ## Iteracion 51 (17-01-2026)
 - Accion: Conecte vista de ciclos a datos reales (/api/cycles) con fallback y ajuste de métricas.
 - Resultado: Ciclos dashboard con fetch real, estados de carga y errores; tsc tenant-admin en verde.
+
+## Iteracion 52 (17-01-2026)
+- Accion: Conecte vista de sedes a datos reales (/api/campuses) con estados de carga y errores.
+- Resultado: Sedes dashboard consume Payload campus y mantiene layout; tsc tenant-admin en verde.

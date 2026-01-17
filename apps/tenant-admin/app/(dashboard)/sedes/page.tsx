@@ -1,8 +1,8 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -11,7 +11,7 @@ import { SedeListItem } from '@payload-config/components/ui/SedeListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 
-const sedesData = [
+const mockSedesData = [
   {
     id: 'cep-norte',
     nombre: 'CEP Norte',
@@ -62,6 +62,55 @@ const sedesData = [
 export default function SedesPage() {
   const router = useRouter()
   const [view, setView] = useViewPreference('sedes')
+  const [sedes, setSedes] = useState(mockSedesData)
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchCampuses = async () => {
+      try {
+        setErrorMessage(null)
+        const response = await fetch('/api/campuses?limit=100&sort=createdAt', {
+          cache: 'no-cache',
+        })
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar las sedes')
+        }
+
+        const payload = await response.json()
+        const docs = Array.isArray(payload?.docs) ? payload.docs : []
+        const mapped = docs.map((campus: any) => {
+          const addressParts = [campus.address, campus.postal_code, campus.city].filter(Boolean)
+          return {
+            id: campus.id,
+            nombre: campus.name ?? 'Sede',
+            direccion: addressParts.join(', ') || 'Dirección pendiente',
+            telefono: campus.phone ?? '—',
+            email: campus.email ?? '—',
+            horario: 'Lunes a Viernes 08:00 - 20:00',
+            aulas: 0,
+            capacidad: 0,
+            cursosActivos: 0,
+            profesores: Array.isArray(campus.staff_members) ? campus.staff_members.length : 0,
+            color: 'bg-[#ff2014]',
+            borderColor: 'border-[#ff2014]',
+            imagen:
+              'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&h=400&fit=crop',
+          }
+        })
+
+        if (mapped.length > 0) {
+          setSedes(mapped)
+        }
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Error al cargar sedes')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCampuses()
+  }, [])
 
   const handleViewSede = (sedeId: string) => {
     router.push(`/sedes/${sedeId}`)
@@ -72,24 +121,30 @@ export default function SedesPage() {
   }
 
   const totalStats = {
-    aulas: sedesData.reduce((sum, s) => sum + s.aulas, 0),
-    capacidad: sedesData.reduce((sum, s) => sum + s.capacidad, 0),
-    cursosActivos: sedesData.reduce((sum, s) => sum + s.cursosActivos, 0),
-    profesores: sedesData.reduce((sum, s) => sum + s.profesores, 0),
+    aulas: sedes.reduce((sum, s) => sum + s.aulas, 0),
+    capacidad: sedes.reduce((sum, s) => sum + s.capacidad, 0),
+    cursosActivos: sedes.reduce((sum, s) => sum + s.cursosActivos, 0),
+    profesores: sedes.reduce((sum, s) => sum + s.profesores, 0),
   }
 
   return (
     <div className="space-y-6">
-      {/* Mock Data Banner */}
-      <MockDataIndicator
-        variant="banner"
-        label="Este módulo usa datos de demostración. Pendiente conexión con API de Sedes."
-      />
+      {isLoading && (
+        <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          Cargando sedes...
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+          {errorMessage}
+        </div>
+      )}
 
       {/* Header */}
       <PageHeader
         title="Sedes"
-        description={`${sedesData.length} centros educativos`}
+        description={`${sedes.length} centros educativos`}
         icon={MapPin}
         showAddButton
         addButtonText="Nueva Sede"
@@ -97,7 +152,7 @@ export default function SedesPage() {
         filters={
           <div className="flex items-center justify-between w-full">
             <p className="text-sm text-muted-foreground">
-              {sedesData.length} {sedesData.length === 1 ? 'sede' : 'sedes'}
+              {sedes.length} {sedes.length === 1 ? 'sede' : 'sedes'}
             </p>
             <ViewToggle view={view} onViewChange={setView} />
           </div>
@@ -151,7 +206,7 @@ export default function SedesPage() {
       {/* Sedes Grid o Lista */}
       {view === 'grid' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {sedesData.map((sede) => (
+          {sedes.map((sede) => (
             <Card
               key={sede.id}
               className={`cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden border-2 ${sede.borderColor}`}
@@ -248,7 +303,7 @@ export default function SedesPage() {
       </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {sedesData.map((sede) => (
+          {sedes.map((sede) => (
             <SedeListItem
               key={sede.id}
               sede={sede}
