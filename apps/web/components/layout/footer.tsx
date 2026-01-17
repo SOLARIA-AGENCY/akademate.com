@@ -32,12 +32,16 @@ export function Footer() {
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2">
               <GraduationCap className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl">Akademate</span>
+              <span className="footer-company-name font-bold text-xl">Akademate</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
               Plataforma SaaS para academias y centros de formación.
               Gestiona cursos, alumnos y matrículas en un solo lugar.
             </p>
+            <div className="mt-4 space-y-1 text-sm text-muted-foreground">
+              <p className="footer-email">hola@akademate.com</p>
+              <p className="footer-phone">+34 912345678</p>
+            </div>
           </div>
 
           {/* Platform links */}

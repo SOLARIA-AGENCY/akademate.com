@@ -14,6 +14,7 @@ const fontMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://akademate.com'),
   title: {
     default: 'Akademate - Plataforma de Formación',
     template: '%s | Akademate',
@@ -22,9 +23,13 @@ export const metadata: Metadata = {
   keywords: ['formación', 'cursos', 'academia', 'educación', 'lms'],
   authors: [{ name: 'SOLARIA Agency' }],
   openGraph: {
+    title: 'Akademate - Plataforma de Formación',
     type: 'website',
     locale: 'es_ES',
     siteName: 'Akademate',
+  },
+  alternates: {
+    canonical: '/',
   },
   twitter: {
     card: 'summary_large_image',

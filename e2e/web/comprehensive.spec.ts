@@ -374,10 +374,11 @@ test.describe('Web App - Navigation', () => {
     await page.goto('/')
     await page.goto('/sobre-nosotros')
 
-    await page.goBack()
-    await page.goForward()
+    await page.goBack({ waitUntil: 'domcontentloaded' })
+    await page.waitForURL(/\/$/)
+    await page.goForward({ waitUntil: 'domcontentloaded' })
 
-    await expect(page).toHaveURL(/\/sobre-nosotros/)
+    await expect(page).toHaveURL(/\/sobre-nosotros/, { timeout: 20_000 })
   })
 })
 

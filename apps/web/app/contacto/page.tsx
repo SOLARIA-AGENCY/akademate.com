@@ -43,7 +43,7 @@ export default function ContactPage() {
               </div>
 
               {/* Contact info */}
-              <div className="space-y-8">
+              <div className="contact-info space-y-8">
                 <div>
                   <h2 className="text-xl font-semibold">Información de contacto</h2>
                   <p className="mt-2 text-sm text-muted-foreground">
@@ -74,7 +74,7 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-medium">Teléfono</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        +34 912 345 678
+                        +34 912345678
                       </p>
                     </div>
                   </div>

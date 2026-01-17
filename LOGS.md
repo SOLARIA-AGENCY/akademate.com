@@ -267,3 +267,7 @@
 ## Iteracion 66 (17-01-2026)
 - Accion: Habilite coverage en vitest instalando @vitest/coverage-v8 y ejecute suite completa con coverage.
 - Resultado: vitest run --coverage en verde (36 files, 895 passed, 14 skipped, 0 failed); coverage global 78.59% statements.
+
+## Iteracion 67 (17-01-2026)
+- Accion: Agregue paginas sobre-nosotros y blog, ajuste hero/footer/contacto y metadata canonical; aumente timeouts E2E y estabilice test de navegacion.
+- Resultado: Playwright web (web-chromium) en verde: 76 passed, 1 skipped, 0 failed (59.4s) con servidor local.

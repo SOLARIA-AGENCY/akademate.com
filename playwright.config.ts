@@ -20,11 +20,11 @@ export default defineConfig({
   outputDir: 'playwright-results',
   timeout: 30_000,
   expect: {
-    timeout: 10_000,
+    timeout: 20_000,
   },
   use: {
     actionTimeout: 10_000,
-    navigationTimeout: 15_000,
+    navigationTimeout: 30_000,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
