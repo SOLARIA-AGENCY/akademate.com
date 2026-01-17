@@ -17,3 +17,13 @@ export const buildTenantJob = <TPayload>(tenantId: TenantId, name: JobName, payl
   name,
   payload,
 })
+
+export {
+  type RetentionDataType,
+  type RetentionPolicy,
+  type GdprRetentionJobPayload,
+  type RetentionDeletionResult,
+  type RetentionJobDependencies,
+  RetentionPolicies,
+  runGdprRetentionJob,
+} from './gdpr/retention'

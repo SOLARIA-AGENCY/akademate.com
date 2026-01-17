@@ -59,3 +59,7 @@
 ## Iteracion 14 (17-01-2026)
 - Accion: Cree pagina UI de GDPR en configuracion para gestionar consentimientos y acciones.
 - Resultado: UI GDPR disponible en tenant-admin; TASKS_TODO.md actualizado.
+
+## Iteracion 15 (17-01-2026)
+- Accion: Agregue job de retention GDPR en packages/jobs con politicas y handler.
+- Resultado: Export de retention job en packages/jobs; TASKS_TODO.md actualizado.

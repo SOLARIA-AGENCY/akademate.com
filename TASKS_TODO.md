@@ -19,7 +19,7 @@
 - [x] API delete: apps/tenant-admin/app/api/gdpr/[userId]/delete/route.ts.
 - [x] API consent: apps/tenant-admin/app/api/gdpr/[userId]/consent/route.ts.
 - [x] UI GDPR settings page (tenant-admin).
-- [ ] Jobs retention en packages/jobs (BullMQ).
+- [x] Jobs retention en packages/jobs (BullMQ).
 - [ ] Tests unitarios + e2e para flujos GDPR.
 
 ## 3) CI/CD completo (docs/CI_CD_PIPELINE.md)
