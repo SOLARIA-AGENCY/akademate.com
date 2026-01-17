@@ -247,3 +247,7 @@
 ## Iteracion 61 (17-01-2026)
 - Accion: Conecté home de campus a matrículas reales y ajusté typecheck (campus).
 - Resultado: Campus muestra cursos por matrícula; tsc apps/campus en verde tras fixes.
+
+## Iteracion 62 (17-01-2026)
+- Accion: Marqué Dashboard Cliente como completado tras integrar CRM, branding, dominios y catálogo real.
+- Resultado: TASKS_TODO.md actualizado.

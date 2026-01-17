@@ -72,7 +72,7 @@
 
 ## 11) Apps producto
 - [x] Dashboard Ops (metrics, tenants, domains, billing overview).
-- [ ] Dashboard Cliente (CRM, branding, domains, catalog CRUD completo).
+- [x] Dashboard Cliente (CRM, branding, domains, catalog CRUD completo).
 - [ ] Front publica tenant (SEO, paginas, forms UTM/captcha).
 - [ ] Campus virtual (inscripciones, progreso, certificados).
 
