@@ -77,7 +77,7 @@
 
 ## 12) Documentacion minima
 - [x] ADRs iniciales (multitenancy, auth, storage, UI kit, CI/CD).
-- [ ] Runbooks base (backup/restore, incident, deploy).
+- [x] Runbooks base (backup/restore, incident, deploy).
 
 ## 13) Verificacion final
 - [ ] Full test suite + coverage target.

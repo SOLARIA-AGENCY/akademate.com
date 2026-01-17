@@ -135,3 +135,7 @@
 ## Iteracion 33 (17-01-2026)
 - Accion: Verifique ADRs iniciales existentes en docs/adr.
 - Resultado: TASKS_TODO.md actualizado.
+
+## Iteracion 34 (17-01-2026)
+- Accion: Cree runbooks base para backup/restore, incident y deploy.
+- Resultado: docs/runbooks/*.md creados; TASKS_TODO.md actualizado.
