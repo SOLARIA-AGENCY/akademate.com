@@ -289,7 +289,7 @@ export const Campaigns: CollectionConfig = {
         position: 'sidebar',
         description: 'Campaign status (draft → active → paused/completed → archived)',
       },
-      validate: (val: any, { operation, originalDoc }) => {
+      validate: ((val: any, { operation, originalDoc }: any) => {
         if (!val) return 'Status is required';
         if (!VALID_CAMPAIGN_STATUSES.includes(val)) {
           return `Status must be one of: ${VALID_CAMPAIGN_STATUSES.join(', ')}`;
@@ -304,7 +304,7 @@ export const Campaigns: CollectionConfig = {
         }
 
         return true;
-      },
+      }) as any,
     },
 
     // ============================================================================
@@ -543,7 +543,7 @@ export const Campaigns: CollectionConfig = {
     {
       name: 'created_by',
       type: 'relationship',
-      relationTo: 'users',
+      relationTo: 'users' as any,
       index: true,
       admin: {
         position: 'sidebar',
@@ -583,11 +583,11 @@ export const Campaigns: CollectionConfig = {
      * Before Change: Run after validation, before database write
      */
     beforeChange: [
-      {
+      ({
         // Apply to created_by field only
         fieldName: 'created_by',
         hook: trackCampaignCreator,
-      },
+      } as any),
     ],
 
     /**

@@ -199,7 +199,7 @@ export const Campuses: CollectionConfig = {
     {
       name: 'staff_members',
       type: 'relationship',
-      relationTo: 'staff',
+      relationTo: 'staff' as any,
       hasMany: true,
       admin: {
         description: 'Staff members (professors and administrativos) assigned to this campus',

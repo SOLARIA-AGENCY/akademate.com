@@ -57,7 +57,7 @@ export async function GET(
 
     // Verify enrollment belongs to student
     const enrollment = await payload.findByID({
-      collection: 'enrollments',
+      collection: 'enrollments' as any,
       id: enrollmentId,
       depth: 3,
     });
@@ -82,7 +82,7 @@ export async function GET(
 
     // Get lesson
     const lesson = await payload.findByID({
-      collection: 'lessons',
+      collection: 'lessons' as any,
       id: lessonId,
       depth: 2,
     });
@@ -134,7 +134,7 @@ export async function GET(
       : null;
 
     // Get course info
-    const courseRun = (enrollment as any).courseRun;
+    const courseRun = (enrollment as any).course_run ?? (enrollment as any).courseRun;
     const course = typeof courseRun?.course === 'object' ? courseRun.course : null;
 
     // Get materials for this lesson
@@ -171,7 +171,7 @@ export async function GET(
     if (module?.id) {
       try {
         const lessonsResult = await payload.find({
-          collection: 'lessons',
+          collection: 'lessons' as any,
           where: {
             module: { equals: module.id },
           },

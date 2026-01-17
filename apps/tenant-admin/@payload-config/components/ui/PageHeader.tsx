@@ -11,6 +11,10 @@ interface PageHeaderProps {
   description?: string
   /** Icon component from lucide-react */
   icon?: LucideIcon
+  /** Optional icon background class */
+  iconBgColor?: string
+  /** Optional icon color class */
+  iconColor?: string
   /** Show "New" button */
   showAddButton?: boolean
   /** Text for add button (default: "Nuevo") */
@@ -67,6 +71,8 @@ export function PageHeader({
   title,
   description,
   icon: Icon,
+  iconBgColor,
+  iconColor,
   showAddButton = false,
   addButtonText = 'Nuevo',
   onAdd,
@@ -82,8 +88,10 @@ export function PageHeader({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           {Icon && (
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-              <Icon className="h-6 w-6 text-primary" />
+            <div
+              className={`flex h-12 w-12 items-center justify-center rounded-lg ${iconBgColor ?? 'bg-primary/10'}`}
+            >
+              <Icon className={`h-6 w-6 ${iconColor ?? 'text-primary'}`} />
             </div>
           )}
           <div>

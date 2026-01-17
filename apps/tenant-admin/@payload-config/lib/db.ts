@@ -5,7 +5,7 @@
 
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { subscriptions, invoices, paymentMethods, paymentTransactions, tenants, featureFlags } from '../../../../packages/db/src/schema'
+import { schema, subscriptions, invoices, paymentMethods, paymentTransactions, tenants, featureFlags } from '../../../../packages/db/src/schema'
 
 /**
  * Gets the database URL from environment variables

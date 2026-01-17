@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
 
         // Check for existing enrollment
         const existing = await payload.find({
-          collection: 'enrollments',
+          collection: 'enrollments' as any,
           where: {
             and: [
               { student: { equals: student.id } },
@@ -198,11 +198,11 @@ export async function POST(request: NextRequest) {
 
         // Create enrollment
         const enrollment = await payload.create({
-          collection: 'enrollments',
+          collection: 'enrollments' as any,
           data: {
             student: student.id,
             courseRun: row.courseRunId,
-            status: row.status || 'active',
+            status: (row.status || 'pending') as any,
             notes: row.notes,
             enrolledAt: new Date().toISOString(),
           },

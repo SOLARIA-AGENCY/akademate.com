@@ -1,4 +1,4 @@
-import type { Access, FieldAccess } from 'payload'
+import type { Access, FieldAccess, FieldHook } from 'payload'
 
 /**
  * Multi-Tenant Access Control Utilities
@@ -182,13 +182,22 @@ export const autoAssignTenant = ({ req, data }: { req: any; data: any }) => {
   return data
 }
 
+const assignTenant: FieldHook = ({ req, value }) => {
+  // If value is set (by SuperAdmin), use it
+  if (value) return value
+
+  // Otherwise, use user's tenant
+  const tenantId = getUserTenantId(req.user)
+  return tenantId || value
+}
+
 /**
  * Reusable tenant field definition for collections
  */
 export const tenantField = {
   name: 'tenant',
   type: 'relationship' as const,
-  relationTo: 'tenants',
+  relationTo: 'tenants' as any,
   required: true,
   index: true,
   admin: {
@@ -205,14 +214,7 @@ export const tenantField = {
   },
   hooks: {
     beforeChange: [
-      ({ req, value, data }: { req: any; value: any; data: any }) => {
-        // If value is set (by SuperAdmin), use it
-        if (value) return value
-
-        // Otherwise, use user's tenant
-        const tenantId = getUserTenantId(req.user)
-        return tenantId || value
-      },
+      assignTenant,
     ],
   },
 }

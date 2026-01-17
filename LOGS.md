@@ -191,3 +191,7 @@
 ## Iteracion 47 (17-01-2026)
 - Accion: Agregue overview de billing en ops con conteo de suscripciones y complete dashboard ops.
 - Resultado: Ops dashboard con billing overview; TASKS_TODO.md actualizado.
+
+## Iteracion 48 (17-01-2026)
+- Accion: Normalice hooks y validaciones en tenant-admin (Campaigns/FAQs/BlogPosts/Courses/tenantField) y ajuste tipado de errores; resolvi typecheck tenant-admin.
+- Resultado: `pnpm -C apps/tenant-admin exec tsc --noEmit` en verde.

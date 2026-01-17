@@ -24,7 +24,6 @@ export function getRedis(): Redis | null {
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379'
     redis = new Redis(redisUrl, {
       maxRetriesPerRequest: 3,
-      retryDelayOnFailover: 100,
       enableReadyCheck: true,
       lazyConnect: true,
     })

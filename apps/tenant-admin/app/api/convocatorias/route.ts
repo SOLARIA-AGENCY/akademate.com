@@ -2,7 +2,7 @@ import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ScheduleEntry } from '@payload-config/components/ui/ScheduleBuilder';
-import { CourseRun } from '@/payload-types';
+import type { CourseRun } from '../../../src/payload-types';
 
 interface CreateConvocationRequest {
   courseId: string;
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
         campus: campusId, // Validated campus ID
         start_date: fechaInicio,
         end_date: fechaFin,
-        schedule_days: horario.map((e: ScheduleEntry) => e.day), // Array de días (english weekdays)
+        schedule_days: horario.map((e: ScheduleEntry) => e.day) as CourseRun['schedule_days'], // Array de días (english weekdays)
         schedule_time_start: earliestStart, // Earliest start time across all days
         schedule_time_end: latestEnd, // Latest end time across all days
         status: (estado === 'abierta' ? 'enrollment_open' : 'draft') as CourseRun['status'],
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         price_override: precio > 0 ? precio : undefined,
         instructor_name: profesorId || undefined, // Stored as string for now
         notes: `Aula: ${aulaId || 'Sin asignar'}`, // Store aula in notes for now
-      },
+      } as any,
     });
 
     return NextResponse.json({

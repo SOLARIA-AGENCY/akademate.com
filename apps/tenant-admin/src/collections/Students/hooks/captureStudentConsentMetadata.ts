@@ -36,6 +36,7 @@ export const captureStudentConsentMetadata: FieldHook = async ({
   operation,
   value,
 }) => {
+  const logger = req?.payload?.logger as any;
   // Only capture on creation, not on updates
   if (operation !== 'create') {
     return data;
@@ -55,22 +56,23 @@ export const captureStudentConsentMetadata: FieldHook = async ({
     // Capture IP address from request
     if (!data.consent_ip_address && req) {
       // Try X-Forwarded-For header first (if behind proxy)
-      const forwardedFor = req.headers?.['x-forwarded-for'];
+      const forwardedFor =
+        (req.headers as any)?.['x-forwarded-for'] || (req.headers as any)?.get?.('x-forwarded-for');
       if (forwardedFor) {
         // X-Forwarded-For can be a comma-separated list, take first IP
         const ips = Array.isArray(forwardedFor) ? forwardedFor : forwardedFor.split(',');
         data.consent_ip_address = ips[0].trim();
-      } else if (req.ip) {
+      } else if ((req as any).ip) {
         // Fallback to req.ip
-        data.consent_ip_address = req.ip;
+        data.consent_ip_address = (req as any).ip;
       }
     }
 
     // SECURITY: NO logging of PII (SP-004)
     // DO NOT log: email, name, IP address (all are PII)
     // Only log operation success with non-PII identifiers
-    if (req?.payload?.logger) {
-      req.payload.logger.info('[Student] Consent metadata captured', {
+    if (logger) {
+      logger.info('[Student] Consent metadata captured', {
         hasTimestamp: !!data.consent_timestamp,
         hasIPAddress: !!data.consent_ip_address,
         operation,
@@ -78,8 +80,8 @@ export const captureStudentConsentMetadata: FieldHook = async ({
     }
   } catch (error) {
     // Log error without exposing PII
-    if (req?.payload?.logger) {
-      req.payload.logger.error('[Student] Error capturing consent metadata', {
+    if (logger) {
+      logger.error('[Student] Error capturing consent metadata', {
         error: error instanceof Error ? error.message : 'Unknown error',
         operation,
       });

@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // 1. Get module details
     const module = await payload.findByID({
-      collection: 'modules',
+      collection: 'modules' as any,
       id: moduleId,
       depth: 1,
     });
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // 2. Get lessons for this module
     const lessons = await payload.find({
-      collection: 'lessons',
+      collection: 'lessons' as any,
       where: { module: { equals: moduleId } },
       sort: 'order',
       depth: 1,
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // 3. Get materials for this module
     const materials = await payload.find({
-      collection: 'materials',
+      collection: 'materials' as any,
       where: { module: { equals: moduleId } },
       sort: 'order',
       depth: 1,
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     let progressByLesson: Record<string, any> = {};
     if (enrollmentId) {
       const progress = await payload.find({
-        collection: 'lesson-progress',
+        collection: 'lesson-progress' as any,
         where: {
           enrollment: { equals: enrollmentId },
           lesson: { in: lessons.docs.map((l) => l.id) },
@@ -92,36 +92,42 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       success: true,
       data: {
         module: {
-          id: module.id,
-          title: module.title,
-          description: module.description,
-          order: module.order,
-          estimatedMinutes: module.estimatedMinutes,
-          unlockDate: module.unlockDate,
-          status: module.status,
+          id: (module as any).id,
+          title: (module as any).title,
+          description: (module as any).description,
+          order: (module as any).order,
+          estimatedMinutes: (module as any).estimatedMinutes,
+          unlockDate: (module as any).unlockDate,
+          status: (module as any).status,
         },
-        lessons: lessons.docs.map((lesson) => ({
-          id: lesson.id,
-          title: lesson.title,
-          description: lesson.description,
-          content: lesson.content,
-          order: lesson.order,
-          estimatedMinutes: lesson.estimatedMinutes,
-          isMandatory: lesson.isMandatory,
-          status: lesson.status,
-          progress: progressByLesson[lesson.id] || {
+        lessons: lessons.docs.map((lesson) => {
+          const lessonRecord = lesson as any;
+          return {
+            id: lessonRecord.id,
+            title: lessonRecord.title,
+            description: lessonRecord.description,
+            content: lessonRecord.content,
+            order: lessonRecord.order,
+            estimatedMinutes: lessonRecord.estimatedMinutes,
+            isMandatory: lessonRecord.isMandatory,
+            status: lessonRecord.status,
+            progress: progressByLesson[lessonRecord.id] || {
             status: 'not_started',
             progressPercent: 0,
           },
-          resources: lesson.resources || [],
-        })),
-        materials: materials.docs.map((material) => ({
-          id: material.id,
-          title: material.title,
-          type: material.type,
-          url: material.url,
-          fileSize: material.fileSize,
-        })),
+          resources: lessonRecord.resources || [],
+          };
+        }),
+        materials: materials.docs.map((material) => {
+          const materialRecord = material as any;
+          return {
+            id: materialRecord.id,
+            title: materialRecord.title,
+            type: materialRecord.type,
+            url: materialRecord.url,
+            fileSize: materialRecord.fileSize,
+          };
+        }),
         stats: {
           totalLessons: lessons.totalDocs,
           totalMaterials: materials.totalDocs,

@@ -37,6 +37,7 @@ import type { FieldHook } from 'payload';
  * @returns Modified data with created_by set/protected
  */
 export const trackStudentCreator: FieldHook = async ({ data, req, operation, originalDoc }) => {
+  const logger = req?.payload?.logger as any;
   try {
     // CREATION: Auto-populate created_by
     if (operation === 'create') {
@@ -45,8 +46,8 @@ export const trackStudentCreator: FieldHook = async ({ data, req, operation, ori
 
         // SECURITY: NO logging of user details (could be PII)
         // Only log successful creator tracking
-        if (req.payload?.logger) {
-          req.payload.logger.info('[Student] Creator tracked', {
+        if (logger) {
+          logger.info('[Student] Creator tracked', {
             operation,
             userId: req.user.id,
           });
@@ -61,8 +62,8 @@ export const trackStudentCreator: FieldHook = async ({ data, req, operation, ori
         // Detect tampering attempt
         if (data.created_by !== originalDoc.created_by) {
           // SECURITY: Log tampering attempt
-          if (req?.payload?.logger) {
-            req.payload.logger.warn('[Student] Attempted to modify created_by (blocked)', {
+          if (logger) {
+            logger.warn('[Student] Attempted to modify created_by (blocked)', {
               operation,
               userId: req?.user?.id,
               originalCreator: originalDoc.created_by,
@@ -77,8 +78,8 @@ export const trackStudentCreator: FieldHook = async ({ data, req, operation, ori
     }
   } catch (error) {
     // Log error without exposing PII
-    if (req?.payload?.logger) {
-      req.payload.logger.error('[Student] Error in creator tracking', {
+    if (logger) {
+      logger.error('[Student] Error in creator tracking', {
         error: error instanceof Error ? error.message : 'Unknown error',
         operation,
       });

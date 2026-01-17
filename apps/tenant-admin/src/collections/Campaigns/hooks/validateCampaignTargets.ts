@@ -44,7 +44,7 @@ export const validateCampaignTargets: CollectionBeforeValidateHook = ({ data, op
       throw new ValidationError({
         errors: [
           {
-            field: 'target_leads',
+            path: 'target_leads',
             message: leadsResult,
           },
         ],
@@ -59,7 +59,7 @@ export const validateCampaignTargets: CollectionBeforeValidateHook = ({ data, op
       throw new ValidationError({
         errors: [
           {
-            field: 'target_enrollments',
+            path: 'target_enrollments',
             message: enrollmentsResult,
           },
         ],
@@ -73,7 +73,7 @@ export const validateCampaignTargets: CollectionBeforeValidateHook = ({ data, op
     throw new ValidationError({
       errors: [
         {
-          field: 'target_enrollments',
+          path: 'target_enrollments',
           message: relationshipResult,
         },
       ],

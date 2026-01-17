@@ -27,6 +27,7 @@ import type { FieldHook } from 'payload';
  * @returns User ID for created_by field
  */
 export const trackBlogPostCreator: FieldHook = ({ req, operation, value, originalDoc }) => {
+  const logger = req.payload.logger as any;
   // Only apply on CREATE operation
   if (operation === 'create') {
     // Auto-populate created_by with current user
@@ -35,7 +36,7 @@ export const trackBlogPostCreator: FieldHook = ({ req, operation, value, origina
     }
 
     // SECURITY (SP-004): No logging of user email or post data
-    req.payload.logger.info('[BlogPost] Creator tracked', {
+    logger.info('[BlogPost] Creator tracked', {
       userId: req.user.id,
       operation,
     });
@@ -55,7 +56,7 @@ export const trackBlogPostCreator: FieldHook = ({ req, operation, value, origina
     }
 
     // SECURITY (SP-004): No logging of sensitive data
-    req.payload.logger.info('[BlogPost] Creator preserved (immutable)', {
+    logger.info('[BlogPost] Creator preserved (immutable)', {
       operation,
       createdBy: originalDoc.created_by,
     });

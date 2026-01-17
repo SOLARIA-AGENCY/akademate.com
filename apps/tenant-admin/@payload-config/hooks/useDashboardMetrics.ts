@@ -34,29 +34,36 @@ export interface Campaign {
 }
 
 export interface DashboardMetrics {
-  totalStudents: number;
-  activeEnrollments: number;
-  totalCourses: number;
-  activeCourseRuns: number;
-  pendingLeads: number;
-  monthlyRevenue: number;
-  completionRate: number;
-  averageRating: number;
+  total_courses: number;
+  active_students: number;
+  leads_this_month: number;
+  total_teachers: number;
+  total_campuses: number;
+  active_convocations: number;
 }
 
-export interface WeeklyMetric {
-  week: string;
-  enrollments: number;
-  leads: number;
-  revenue: number;
+export interface WeeklyMetrics {
+  leads: number[];
+  enrollments: number[];
+  courses_added: number[];
 }
 
 export interface RecentActivity {
   id: number;
-  type: string;
-  description: string;
+  title: string;
+  entity_name: string;
   timestamp: string;
-  user?: string;
+}
+
+export interface OperationalAlert {
+  severity: 'warning' | 'info';
+  message: string;
+  count: number;
+}
+
+export interface CampusDistribution {
+  campus_name: string;
+  student_count: number;
 }
 
 export interface DashboardData {
@@ -64,7 +71,9 @@ export interface DashboardData {
   convocations: Convocation[];
   campaigns: Campaign[];
   recentActivities: RecentActivity[];
-  weeklyMetrics: WeeklyMetric[];
+  weeklyMetrics: WeeklyMetrics;
+  alerts: OperationalAlert[];
+  campusDistribution: CampusDistribution[];
 }
 
 interface UseDashboardMetricsOptions {
@@ -84,19 +93,23 @@ interface UseDashboardMetricsResult {
 
 const defaultMetrics: DashboardData = {
   metrics: {
-    totalStudents: 0,
-    activeEnrollments: 0,
-    totalCourses: 0,
-    activeCourseRuns: 0,
-    pendingLeads: 0,
-    monthlyRevenue: 0,
-    completionRate: 0,
-    averageRating: 0,
+    total_courses: 0,
+    active_students: 0,
+    leads_this_month: 0,
+    total_teachers: 0,
+    total_campuses: 0,
+    active_convocations: 0,
   },
   convocations: [],
   campaigns: [],
   recentActivities: [],
-  weeklyMetrics: [],
+  weeklyMetrics: {
+    leads: [],
+    enrollments: [],
+    courses_added: [],
+  },
+  alerts: [],
+  campusDistribution: [],
 };
 
 export function useDashboardMetrics(

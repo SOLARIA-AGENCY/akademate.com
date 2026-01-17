@@ -1,4 +1,4 @@
-import type { FieldHook } from 'payload';
+import type { CollectionBeforeValidateHook } from 'payload';
 
 /**
  * Validate Course Relationships Hook
@@ -15,7 +15,7 @@ import type { FieldHook } from 'payload';
  *
  * @throws Error if cycle or any campus does not exist
  */
-export const validateCourseRelationships: FieldHook = async ({ data, req }) => {
+export const validateCourseRelationships: CollectionBeforeValidateHook = async ({ data, req }) => {
   if (!data) return data;
 
   try {

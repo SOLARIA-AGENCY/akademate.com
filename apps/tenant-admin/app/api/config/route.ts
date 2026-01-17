@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { eq } from 'drizzle-orm'
+import { db, tenants } from '@/@payload-config/lib/db'
 
-// TODO: Replace with actual database queries
-// This is a mock implementation for demonstration
+const PersonalizacionSchema = z.object({
+  primary: z.string().min(4),
+  secondary: z.string().min(4),
+  accent: z.string().min(4),
+  success: z.string().min(4),
+  warning: z.string().min(4),
+  danger: z.string().min(4),
+})
 
 interface ConfigData {
   academia: {
@@ -30,13 +39,7 @@ interface ConfigData {
     claro: string
     favicon: string
   }
-  personalizacion: {
-    colorPrimario: string
-    colorSecundario: string
-    colorAcento: string
-    fuentePrincipal: string
-    tema: string
-  }
+  personalizacion: z.infer<typeof PersonalizacionSchema>
 }
 
 // Mock data
@@ -68,11 +71,12 @@ const mockConfig: ConfigData = {
     favicon: '/logos/cep-logo-alpha.png',
   },
   personalizacion: {
-    colorPrimario: '#0066cc',
-    colorSecundario: '#00cc66',
-    colorAcento: '#ff6600',
-    fuentePrincipal: 'Inter',
-    tema: 'default',
+    primary: '#0066cc',
+    secondary: '#00cc66',
+    accent: '#ff6600',
+    success: '#22c55e',
+    warning: '#f59e0b',
+    danger: '#ef4444',
   },
 }
 
@@ -105,9 +109,34 @@ export async function GET(request: NextRequest) {
     }
 
     if (section === 'personalizacion') {
+      const tenantId = searchParams.get('tenantId')
+      if (!tenantId) {
+        return NextResponse.json(
+          { success: false, error: 'tenantId parameter is required' },
+          { status: 400 }
+        )
+      }
+
+      const [tenant] = await db
+        .select({ branding: tenants.branding })
+        .from(tenants)
+        .where(eq(tenants.id, tenantId))
+        .limit(1)
+        .execute()
+
+      if (!tenant) {
+        return NextResponse.json(
+          { success: false, error: 'Tenant not found' },
+          { status: 404 }
+        )
+      }
+
+      const branding = tenant.branding ?? {}
+      const personalizacion = PersonalizacionSchema.safeParse(branding.theme ?? mockConfig.personalizacion)
+
       return NextResponse.json({
         success: true,
-        data: mockConfig.personalizacion,
+        data: personalizacion.success ? personalizacion.data : mockConfig.personalizacion,
       })
     }
 
@@ -128,10 +157,56 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { section, data } = body
+    const { section, data, tenantId } = body
 
-    // TODO: Save to database
-    console.log('Updating config section:', section, data)
+    if (section === 'personalizacion') {
+      if (!tenantId) {
+        return NextResponse.json(
+          { success: false, error: 'tenantId is required' },
+          { status: 400 }
+        )
+      }
+
+      const parsed = PersonalizacionSchema.safeParse(data)
+      if (!parsed.success) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid personalization payload', details: parsed.error.flatten() },
+          { status: 400 }
+        )
+      }
+
+      const [tenant] = await db
+        .select({ branding: tenants.branding })
+        .from(tenants)
+        .where(eq(tenants.id, tenantId))
+        .limit(1)
+        .execute()
+
+      if (!tenant) {
+        return NextResponse.json(
+          { success: false, error: 'Tenant not found' },
+          { status: 404 }
+        )
+      }
+
+      const branding = tenant.branding ?? {}
+      const nextBranding = {
+        ...branding,
+        theme: parsed.data,
+      }
+
+      await db
+        .update(tenants)
+        .set({ branding: nextBranding, updatedAt: new Date() })
+        .where(eq(tenants.id, tenantId))
+        .execute()
+
+      return NextResponse.json({
+        success: true,
+        message: 'Configuracion actualizada correctamente',
+        data: parsed.data,
+      })
+    }
 
     return NextResponse.json({
       success: true,

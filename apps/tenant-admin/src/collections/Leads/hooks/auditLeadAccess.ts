@@ -16,11 +16,15 @@ export const auditLeadAccess: CollectionAfterReadHook = async ({ doc, req }) => 
     if (!req.user) return doc;
 
     // Get IP address from request
-    const ipAddress = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    const ipAddress =
+      (req as any).ip ||
+      (req.headers as any)?.['x-forwarded-for'] ||
+      (req.headers as any)?.get?.('x-forwarded-for') ||
+      'unknown';
 
     // Create audit log entry
     await req.payload.create({
-      collection: 'audit_logs',
+      collection: 'audit-logs' as any,
       data: {
         entity_type: 'leads',
         entity_id: doc.id,
@@ -28,7 +32,7 @@ export const auditLeadAccess: CollectionAfterReadHook = async ({ doc, req }) => 
         user_id: req.user.id,
         ip_address: typeof ipAddress === 'string' ? ipAddress : ipAddress[0],
         changes: null,
-      },
+      } as any,
     });
   } catch (error) {
     // Log error but don't fail the operation

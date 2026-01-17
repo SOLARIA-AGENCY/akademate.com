@@ -470,7 +470,7 @@ export const Staff: CollectionConfig = {
         rows: 2,
       },
       access: {
-        read: canManageStaff, // Only Gestor/Admin
+        read: canManageStaff as any, // Only Gestor/Admin
       },
     },
 

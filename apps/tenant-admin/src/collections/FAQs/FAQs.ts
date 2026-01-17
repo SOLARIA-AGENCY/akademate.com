@@ -298,7 +298,7 @@ export const FAQs: CollectionConfig = {
         position: 'sidebar',
         description: 'Publication status (draft → published → archived)',
       },
-      validate: (val: any, { operation, originalDoc }) => {
+      validate: ((val: any, { operation, originalDoc }: any) => {
         if (!val) return 'Status is required';
 
         const statusResult = validateStatus(val);
@@ -313,7 +313,7 @@ export const FAQs: CollectionConfig = {
         }
 
         return true;
-      },
+      }) as any,
     },
 
     {
@@ -343,9 +343,7 @@ export const FAQs: CollectionConfig = {
       // SECURITY Layer 3 (Business Logic): setPublicationTimestamp hook enforces immutability
       hooks: {
         beforeChange: [
-          {
-            hook: setPublicationTimestamp,
-          },
+          setPublicationTimestamp,
         ],
       },
     },
@@ -366,9 +364,7 @@ export const FAQs: CollectionConfig = {
       // SECURITY Layer 3 (Business Logic): setArchivedTimestamp hook enforces immutability
       hooks: {
         beforeChange: [
-          {
-            hook: setArchivedTimestamp,
-          },
+          setArchivedTimestamp,
         ],
       },
     },
@@ -395,9 +391,7 @@ export const FAQs: CollectionConfig = {
       // SECURITY Layer 3 (Business Logic): trackFAQCreator hook enforces immutability
       hooks: {
         beforeChange: [
-          {
-            hook: trackFAQCreator,
-          },
+          trackFAQCreator,
         ],
       },
     },

@@ -32,13 +32,14 @@ import type { FieldHook } from 'payload';
  * @returns Archived timestamp or original value
  */
 export const setArchivedTimestamp: FieldHook = ({ data, req, operation, originalDoc, value }) => {
+  const logger = req?.payload?.logger as any;
   const currentStatus = data?.status;
   const previousStatus = originalDoc?.status;
 
   // If archived_at is already set, preserve it (immutability)
   if (originalDoc?.archived_at) {
     // SECURITY (SP-004): No logging of sensitive data
-    req.payload.logger.info('[BlogPost] Archived timestamp preserved (immutable)', {
+    logger?.info('[BlogPost] Archived timestamp preserved (immutable)', {
       operation,
       postId: originalDoc.id,
     });
@@ -51,7 +52,7 @@ export const setArchivedTimestamp: FieldHook = ({ data, req, operation, original
     const timestamp = new Date().toISOString();
 
     // SECURITY (SP-004): No logging of sensitive data
-    req.payload.logger.info('[BlogPost] Archived timestamp set', {
+    logger?.info('[BlogPost] Archived timestamp set', {
       operation,
       status: currentStatus,
     });
@@ -64,7 +65,7 @@ export const setArchivedTimestamp: FieldHook = ({ data, req, operation, original
     const timestamp = new Date().toISOString();
 
     // SECURITY (SP-004): No logging of sensitive data
-    req.payload.logger.info('[BlogPost] Archived timestamp set on create', {
+    logger?.info('[BlogPost] Archived timestamp set on create', {
       operation,
       status: currentStatus,
     });

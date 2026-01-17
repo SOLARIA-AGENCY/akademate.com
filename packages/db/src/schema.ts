@@ -185,7 +185,13 @@ export const subscriptions = pgTable('subscriptions', {
   trialStart: timestamp('trial_start', { withTimezone: true }),
   trialEnd: timestamp('trial_end', { withTimezone: true }),
   usageMeter: jsonb('usage_meter')
-    .$type<{ metric: string; value: number }[]>()
+    .$type<Array<{
+      metric: string
+      value: number
+      unit?: string | null
+      limit?: number | string | null
+      updatedAt?: string
+    }>>()
     .default([])
     .notNull(),
   metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),

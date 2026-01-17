@@ -25,10 +25,11 @@ export const setArchivedTimestamp: FieldHook = async ({
   data,
   originalDoc,
 }) => {
+  const logger = req.payload.logger as any;
   // If archived_at already exists, preserve it (immutable)
   if (originalDoc?.archived_at) {
     // SECURITY (SP-001 Layer 3): Enforce immutability at business logic level
-    req.payload.logger.info('[FAQ] Archived timestamp preserved (immutable)', {
+    logger.info('[FAQ] Archived timestamp preserved (immutable)', {
       operation,
       hasOriginalTimestamp: true,
     });
@@ -41,7 +42,7 @@ export const setArchivedTimestamp: FieldHook = async ({
     const now = new Date().toISOString();
 
     // SECURITY (SP-004): Log action but not timestamp value
-    req.payload.logger.info('[FAQ] Archived timestamp set', {
+    logger.info('[FAQ] Archived timestamp set', {
       operation,
       status: 'archived',
       timestampSet: true,

@@ -82,7 +82,7 @@ export const LessonProgress: CollectionConfig = {
     {
       name: 'lesson',
       type: 'relationship',
-      relationTo: 'lessons',
+      relationTo: 'lessons' as any,
       required: true,
       index: true,
       admin: {

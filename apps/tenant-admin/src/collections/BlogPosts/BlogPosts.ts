@@ -341,7 +341,7 @@ export const BlogPosts: CollectionConfig = {
         position: 'sidebar',
         description: 'Publication status (draft → published → archived)',
       },
-      validate: (val: any, { operation, originalDoc }) => {
+      validate: ((val: any, { operation, originalDoc }) => {
         if (!val) return 'Status is required';
         if (!VALID_STATUSES.includes(val)) {
           return `Status must be one of: ${VALID_STATUSES.join(', ')}`;
@@ -356,7 +356,7 @@ export const BlogPosts: CollectionConfig = {
         }
 
         return true;
-      },
+      }) as any,
     },
 
     {
@@ -388,7 +388,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: setPublicationTimestamp,
-          },
+          } as any,
         ],
       },
     },
@@ -411,7 +411,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: setArchivedTimestamp,
-          },
+          } as any,
         ],
       },
     },
@@ -441,7 +441,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: trackBlogPostAuthor,
-          },
+          } as any,
         ],
       },
     },
@@ -466,7 +466,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: trackBlogPostCreator,
-          },
+          } as any,
         ],
       },
     },
@@ -483,9 +483,9 @@ export const BlogPosts: CollectionConfig = {
       admin: {
         description: 'Post tags (max 10, lowercase, alphanumeric + hyphens)',
       },
-      validate: (val: string[] | undefined) => {
+      validate: ((val: string[] | undefined) => {
         return validateTags(val);
-      },
+      }) as any,
     },
 
     // ============================================================================
@@ -500,9 +500,9 @@ export const BlogPosts: CollectionConfig = {
       admin: {
         description: 'Related courses (max 5)',
       },
-      validate: (val: string[] | undefined) => {
+      validate: ((val: string[] | undefined) => {
         return validateRelatedCourses(val);
-      },
+      }) as any,
     },
 
     // ============================================================================
@@ -546,7 +546,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: calculateReadTime,
-          },
+          } as any,
         ],
       },
     },

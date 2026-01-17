@@ -275,7 +275,7 @@ export const AdsTemplates: CollectionConfig = {
         position: 'sidebar',
         description: 'Template status (draft → active → archived)',
       },
-      validate: (val: any, { operation, originalDoc }) => {
+      validate: ((val: any, { operation, originalDoc }) => {
         if (!val) return 'Status is required';
         if (!VALID_STATUSES.includes(val)) {
           return `Status must be one of: ${VALID_STATUSES.join(', ')}`;
@@ -290,7 +290,7 @@ export const AdsTemplates: CollectionConfig = {
         }
 
         return true;
-      },
+      }) as any,
     },
 
     // ============================================================================
@@ -602,12 +602,12 @@ export const AdsTemplates: CollectionConfig = {
         // Apply to created_by field only
         fieldName: 'created_by',
         hook: trackTemplateCreator,
-      },
+      } as any,
       {
         // Apply to archived_at field only
         fieldName: 'archived_at',
         hook: setArchivedTimestamp,
-      },
+      } as any,
     ],
   },
 

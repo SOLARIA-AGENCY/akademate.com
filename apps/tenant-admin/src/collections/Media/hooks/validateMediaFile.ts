@@ -16,7 +16,7 @@ import {
 // Initialize DOMPurify with jsdom for Node.js environment
 // DOMPurify v3.2.4 (patched for XSS vulnerability GHSA-vhxf-7vqr-mrjg)
 const window = new JSDOM('').window;
-const purify = createDOMPurify(window as unknown as Window);
+const purify = createDOMPurify(window as any);
 
 /**
  * Hook: Validate Media File (beforeChange)

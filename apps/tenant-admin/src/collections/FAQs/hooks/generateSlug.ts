@@ -80,7 +80,8 @@ async function slugExists(slug: string, req: any, currentId?: string): Promise<b
     return existing.docs.length > 0;
   } catch (error) {
     // SECURITY (SP-004): No logging of error details
-    req.payload.logger.error('[FAQ] Slug existence check failed', {
+    const logger = req.payload.logger as any;
+    logger.error('[FAQ] Slug existence check failed', {
       hasError: true,
     });
     return false;
@@ -116,6 +117,7 @@ async function generateUniqueSlug(
  * Generate slug hook
  */
 export const generateSlug: FieldHook = async ({ data, req, operation, value }) => {
+  const logger = req.payload.logger as any;
   // If slug is manually provided, validate and use it
   if (value && typeof value === 'string' && value.trim().length > 0) {
     return slugify(value);
@@ -129,7 +131,7 @@ export const generateSlug: FieldHook = async ({ data, req, operation, value }) =
     const uniqueSlug = await generateUniqueSlug(baseSlug, req, currentId);
 
     // SECURITY (SP-004): No logging of question or slug content
-    req.payload.logger.info('[FAQ] Slug generated', {
+    logger.info('[FAQ] Slug generated', {
       operation,
       hasQuestion: !!data.question,
       slugLength: uniqueSlug.length,
@@ -142,7 +144,7 @@ export const generateSlug: FieldHook = async ({ data, req, operation, value }) =
   const fallbackSlug = `faq-${Date.now()}`;
 
   // SECURITY (SP-004): No logging of slug content
-  req.payload.logger.warn('[FAQ] Fallback slug generated', {
+  logger.warn('[FAQ] Fallback slug generated', {
     operation,
     hasFallback: true,
   });

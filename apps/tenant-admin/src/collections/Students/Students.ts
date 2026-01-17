@@ -705,16 +705,16 @@ export const Students: CollectionConfig = {
      * Order matters: Execute in sequence
      */
     beforeValidate: [
-      captureStudentConsentMetadata, // 1. Auto-capture GDPR consent metadata (timestamp, IP)
-      validateStudentData, // 2. Validate email, phone, DNI, age, emergency contact
-      validateStudentRelationships, // 3. Validate created_by user exists
+      captureStudentConsentMetadata as any, // 1. Auto-capture GDPR consent metadata (timestamp, IP)
+      validateStudentData as any, // 2. Validate email, phone, DNI, age, emergency contact
+      validateStudentRelationships as any, // 3. Validate created_by user exists
     ],
 
     /**
      * Before Change: Run after validation, before database write
      */
     beforeChange: [
-      trackStudentCreator, // 4. Auto-populate and protect created_by field
+      trackStudentCreator as any, // 4. Auto-populate and protect created_by field
     ],
   },
 

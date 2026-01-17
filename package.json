@@ -59,5 +59,10 @@
     "@payloadcms/next": "^3.67.0",
     "payload": "^3.67.0",
     "pg": "^8.13.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/pg": "8.15.6"
+    }
   }
 }

@@ -27,6 +27,7 @@ import type { FieldHook } from 'payload';
  * @returns User ID for author field
  */
 export const trackBlogPostAuthor: FieldHook = ({ req, operation, value, originalDoc }) => {
+  const logger = req?.payload?.logger as any;
   // Only apply on CREATE operation
   if (operation === 'create') {
     // Auto-populate author with current user
@@ -35,7 +36,7 @@ export const trackBlogPostAuthor: FieldHook = ({ req, operation, value, original
     }
 
     // SECURITY (SP-004): No logging of user email or post data
-    req.payload.logger.info('[BlogPost] Author auto-populated', {
+    logger?.info('[BlogPost] Author auto-populated', {
       userId: req.user.id,
       operation,
     });
@@ -55,7 +56,7 @@ export const trackBlogPostAuthor: FieldHook = ({ req, operation, value, original
     }
 
     // SECURITY (SP-004): No logging of sensitive data
-    req.payload.logger.info('[BlogPost] Author preserved (immutable)', {
+    logger?.info('[BlogPost] Author preserved (immutable)', {
       operation,
       authorId: originalDoc.author,
     });

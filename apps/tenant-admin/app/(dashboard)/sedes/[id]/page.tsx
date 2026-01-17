@@ -34,8 +34,6 @@ const sedesData = [
     horario: 'Lunes a Viernes 08:00 - 21:00',
     aulas: 8,
     capacidad: 180,
-    cursosActivos: 15,
-    profesores: 12,
     color: 'bg-[#ff2014]',
     borderColor: 'border-[#ff2014]',
     textColor: 'text-[#ff2014]',
@@ -87,7 +85,7 @@ const sedesData = [
         maxAlumnos: 20,
       },
     ],
-    profesores: [
+    profesoresDetalle: [
       {
         id: '1',
         nombre: 'María García',
@@ -117,8 +115,6 @@ const sedesData = [
     horario: 'Lunes a Viernes 08:30 - 20:30',
     aulas: 6,
     capacidad: 140,
-    cursosActivos: 12,
-    profesores: 10,
     color: 'bg-[#ff2014]',
     borderColor: 'border-[#ff2014]',
     textColor: 'text-[#ff2014]',
@@ -159,7 +155,7 @@ const sedesData = [
         maxAlumnos: 20,
       },
     ],
-    profesores: [
+    profesoresDetalle: [
       {
         id: '4',
         nombre: 'Pedro Sánchez',
@@ -183,8 +179,6 @@ const sedesData = [
     horario: 'Lunes a Viernes 09:00 - 21:00',
     aulas: 5,
     capacidad: 120,
-    cursosActivos: 10,
-    profesores: 8,
     color: 'bg-[#ff2014]',
     borderColor: 'border-[#ff2014]',
     textColor: 'text-[#ff2014]',
@@ -224,7 +218,7 @@ const sedesData = [
         maxAlumnos: 12,
       },
     ],
-    profesores: [
+    profesoresDetalle: [
       {
         id: '6',
         nombre: 'Miguel Torres',
@@ -424,12 +418,12 @@ export default function SedeDetailPage({ params }: SedeDetailPageProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className={`h-5 w-5 ${sede.textColor}`} />
-                Profesores Asignados ({sede.profesores.length})
+                Profesores Asignados ({sede.profesoresDetalle.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 md:grid-cols-2">
-                {sede.profesores.map((profesor) => (
+                {sede.profesoresDetalle.map((profesor) => (
                   <div key={profesor.id} className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       <span className="text-sm font-bold">{profesor.nombre.split(' ').map((n) => n[0]).join('')}</span>
@@ -523,7 +517,7 @@ export default function SedeDetailPage({ params }: SedeDetailPageProps) {
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Profesores</span>
                 </div>
-                <span className={`font-bold ${sede.textColor}`}>{sede.profesores.length}</span>
+                <span className={`font-bold ${sede.textColor}`}>{sede.profesoresDetalle.length}</span>
               </div>
             </CardContent>
           </Card>

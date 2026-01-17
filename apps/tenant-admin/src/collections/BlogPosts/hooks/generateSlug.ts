@@ -34,6 +34,7 @@ export const generateSlug: FieldHook = async ({
   originalDoc,
   value,
 }) => {
+  const logger = req?.payload?.logger as any;
   // Skip if slug is manually provided
   if (value && typeof value === 'string' && value.trim().length > 0) {
     return value;
@@ -100,7 +101,7 @@ export const generateSlug: FieldHook = async ({
 
   // SECURITY (SP-004): No logging of title or content
   // Only log non-sensitive data
-  req.payload.logger.info('[BlogPost] Slug generated', {
+  logger?.info('[BlogPost] Slug generated', {
     operation,
     hasTitle: !!title,
     slugLength: slug.length,

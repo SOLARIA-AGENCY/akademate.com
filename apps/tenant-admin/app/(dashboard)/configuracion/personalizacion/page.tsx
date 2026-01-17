@@ -78,20 +78,37 @@ const DEFAULT_THEMES: ThemePreset[] = [
   },
 ]
 
+const fallbackTheme: ThemePreset = {
+  name: 'Default',
+  colors: {
+    primary: '#0f172a',
+    secondary: '#64748b',
+    accent: '#6366f1',
+    success: '#22c55e',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+  },
+}
+
+const baseTheme = DEFAULT_THEMES[0] ?? fallbackTheme
+
 export default function PersonalizacionPage() {
-  const [colors, setColors] = useState<ColorScheme>(DEFAULT_THEMES[0].colors)
-  const [savedColors, setSavedColors] = useState<ColorScheme>(DEFAULT_THEMES[0].colors)
+  const tenantId = '123e4567-e89b-12d3-a456-426614174001'
+  const [colors, setColors] = useState<ColorScheme>(baseTheme.colors)
+  const [savedColors, setSavedColors] = useState<ColorScheme>(baseTheme.colors)
   const [previewMode, setPreviewMode] = useState(false)
   const [showSaveSuccess, setShowSaveSuccess] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Convert hex to HSL for CSS variables
   const hexToHSL = (hex: string): string => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
     if (!result) return '0 0% 50%'
 
-    let r = parseInt(result[1], 16) / 255
-    let g = parseInt(result[2], 16) / 255
-    let b = parseInt(result[3], 16) / 255
+    const r = parseInt(result[1] ?? '00', 16) / 255
+    const g = parseInt(result[2] ?? '00', 16) / 255
+    const b = parseInt(result[3] ?? '00', 16) / 255
 
     const max = Math.max(r, g, b)
     const min = Math.min(r, g, b)
@@ -124,18 +141,64 @@ export default function PersonalizacionPage() {
     root.style.setProperty('--destructive', hexToHSL(currentColors.danger))
   }, [colors, savedColors, previewMode])
 
+  useEffect(() => {
+    let isMounted = true
+
+    const loadConfig = async () => {
+      try {
+        const response = await fetch(`/api/config?section=personalizacion&tenantId=${tenantId}`)
+        if (!response.ok) {
+          throw new Error('No se pudo cargar la personalizacion')
+        }
+        const payload = await response.json()
+        if (payload?.data) {
+          if (!isMounted) return
+          setColors(payload.data)
+          setSavedColors(payload.data)
+        }
+      } catch (error) {
+        if (isMounted) {
+          setErrorMessage('No se pudo cargar la configuracion. Revisa la conexion.')
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadConfig()
+
+    return () => {
+      isMounted = false
+    }
+  }, [tenantId])
+
   const handleColorChange = (colorName: keyof ColorScheme, value: string) => {
     setColors({ ...colors, [colorName]: value })
     if (!previewMode) setPreviewMode(true)
   }
 
-  const handleSave = () => {
-    setSavedColors(colors)
-    setPreviewMode(false)
-    setShowSaveSuccess(true)
-    setTimeout(() => setShowSaveSuccess(false), 3000)
-    // TODO: Save to database/API
-    localStorage.setItem('cep-theme', JSON.stringify(colors))
+  const handleSave = async () => {
+    setErrorMessage(null)
+    try {
+      const response = await fetch('/api/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section: 'personalizacion', tenantId, data: colors }),
+      })
+
+      if (!response.ok) {
+        throw new Error('No se pudo guardar la configuracion')
+      }
+
+      setSavedColors(colors)
+      setPreviewMode(false)
+      setShowSaveSuccess(true)
+      setTimeout(() => setShowSaveSuccess(false), 3000)
+    } catch (error) {
+      setErrorMessage('No se pudo guardar la configuracion. Intenta de nuevo.')
+    }
   }
 
   const handleReset = () => {
@@ -200,6 +263,12 @@ export default function PersonalizacionPage() {
         )}
       </div>
 
+      {errorMessage && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+          {errorMessage}
+        </div>
+      )}
+
       {showSaveSuccess && (
         <div className="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-lg flex items-center gap-2">
           <Check className="h-5 w-5" />
@@ -213,6 +282,12 @@ export default function PersonalizacionPage() {
           <span>Vista previa activa - Los cambios se están aplicando en tiempo real</span>
         </div>
       )}
+
+      {isLoading ? (
+        <div className="rounded-lg border border-border bg-muted/20 p-4 text-sm text-muted-foreground">
+          Cargando configuracion...
+        </div>
+      ) : null}
 
       {/* Theme Presets */}
       <Card>

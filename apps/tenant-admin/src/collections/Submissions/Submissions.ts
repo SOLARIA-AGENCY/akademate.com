@@ -66,7 +66,7 @@ export const Submissions: CollectionConfig = {
     {
       name: 'enrollment',
       type: 'relationship',
-      relationTo: 'enrollments',
+      relationTo: 'enrollments' as any,
       required: true,
       index: true,
       admin: {
@@ -77,7 +77,7 @@ export const Submissions: CollectionConfig = {
     {
       name: 'lesson',
       type: 'relationship',
-      relationTo: 'lessons',
+      relationTo: 'lessons' as any,
       required: true,
       index: true,
       admin: {

@@ -14,7 +14,7 @@ import {
   resetRateLimit,
   getClientIP,
   createRateLimitHeaders,
-} from '@/lib/rateLimit'
+} from '../../../../lib/rateLimit'
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.CAMPUS_JWT_SECRET || 'campus-secret-key-change-in-production'

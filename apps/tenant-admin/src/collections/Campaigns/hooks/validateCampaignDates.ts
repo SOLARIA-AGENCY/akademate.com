@@ -39,7 +39,7 @@ export const validateCampaignDates: CollectionBeforeValidateHook = ({ data, oper
     throw new ValidationError({
       errors: [
         {
-          field: 'end_date',
+          path: 'end_date',
           message: dateRangeResult,
         },
       ],
@@ -52,7 +52,7 @@ export const validateCampaignDates: CollectionBeforeValidateHook = ({ data, oper
     throw new ValidationError({
       errors: [
         {
-          field: 'start_date',
+          path: 'start_date',
           message: startDateResult,
         },
       ],

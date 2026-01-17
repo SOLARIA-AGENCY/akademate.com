@@ -84,7 +84,7 @@ function CampusDashboard() {
       case 'in_progress':
         return <Badge variant="default">En Progreso</Badge>;
       case 'completed':
-        return <Badge variant="success" className="bg-green-600">Completado</Badge>;
+        return <Badge variant="secondary" className="bg-green-600">Completado</Badge>;
       case 'not_started':
         return <Badge variant="secondary">No Iniciado</Badge>;
       default:

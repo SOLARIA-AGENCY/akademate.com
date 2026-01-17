@@ -19,11 +19,12 @@
 import type { FieldHook } from 'payload';
 
 export const trackFAQCreator: FieldHook = async ({ req, operation, value, originalDoc }) => {
+  const logger = req.payload.logger as any;
   // On create: set created_by to current user
   if (operation === 'create') {
     if (!req.user) {
       // SECURITY (SP-004): No logging of user details
-      req.payload.logger.error('[FAQ] Cannot create FAQ without authenticated user', {
+      logger.error('[FAQ] Cannot create FAQ without authenticated user', {
         operation: 'create',
         hasUser: false,
       });
@@ -31,7 +32,7 @@ export const trackFAQCreator: FieldHook = async ({ req, operation, value, origin
     }
 
     // SECURITY (SP-004): Log only user ID, not email or name
-    req.payload.logger.info('[FAQ] Creator tracked on create', {
+    logger.info('[FAQ] Creator tracked on create', {
       operation: 'create',
       userId: req.user.id,
     });
@@ -46,7 +47,7 @@ export const trackFAQCreator: FieldHook = async ({ req, operation, value, origin
       // Even if someone bypasses UI and API security, this hook prevents changes
 
       // SECURITY (SP-004): Log only IDs, not user details
-      req.payload.logger.info('[FAQ] Creator preserved on update (immutable)', {
+      logger.info('[FAQ] Creator preserved on update (immutable)', {
         operation: 'update',
         creatorId: originalDoc.created_by,
         attemptedChange: value !== originalDoc.created_by,
@@ -58,7 +59,7 @@ export const trackFAQCreator: FieldHook = async ({ req, operation, value, origin
     // Fallback: if original doc has no creator, set current user
     // This handles edge case of legacy data migration
     if (req.user) {
-      req.payload.logger.warn('[FAQ] Missing creator on update, setting current user', {
+      logger.warn('[FAQ] Missing creator on update, setting current user', {
         operation: 'update',
         userId: req.user.id,
       });

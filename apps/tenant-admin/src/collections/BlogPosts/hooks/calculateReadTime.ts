@@ -33,12 +33,13 @@ import { calculateEstimatedReadTime } from '../BlogPosts.validation';
  * @returns Calculated read time in minutes
  */
 export const calculateReadTime: FieldHook = ({ data, req, operation }) => {
+  const logger = req?.payload?.logger as any;
   const content = data?.content;
 
   // If no content, default to 1 minute
   if (!content || !Array.isArray(content)) {
     // SECURITY (SP-004): No logging of sensitive data
-    req.payload.logger.info('[BlogPost] Read time calculated (no content)', {
+    logger?.info('[BlogPost] Read time calculated (no content)', {
       operation,
       readTime: 1,
     });
@@ -51,7 +52,7 @@ export const calculateReadTime: FieldHook = ({ data, req, operation }) => {
 
   // SECURITY (SP-004): No logging of content
   // Only log non-sensitive metrics
-  req.payload.logger.info('[BlogPost] Read time calculated', {
+  logger?.info('[BlogPost] Read time calculated', {
     operation,
     readTime,
     hasContent: !!content,

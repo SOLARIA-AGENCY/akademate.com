@@ -109,7 +109,7 @@ export const Lessons: CollectionConfig = {
     {
       name: 'module',
       type: 'relationship',
-      relationTo: 'modules',
+      relationTo: 'modules' as any,
       required: true,
       index: true,
       admin: {

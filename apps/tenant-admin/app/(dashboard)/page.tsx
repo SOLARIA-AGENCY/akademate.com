@@ -148,7 +148,7 @@ export default function DashboardPage() {
         <Card className="max-w-md">
           <CardContent className="pt-6 text-center space-y-4">
             <p className="text-destructive font-semibold">Error al cargar dashboard</p>
-            <p className="text-sm text-muted-foreground">{error}</p>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
             <button
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"

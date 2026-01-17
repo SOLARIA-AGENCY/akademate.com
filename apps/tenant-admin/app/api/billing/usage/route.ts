@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       subscriptionId: subscription.id,
       tenantId: subscription.tenantId,
-      usage: subscription.usageMeter ?? {},
+      usage: subscription.usageMeter ?? [],
     })
   } catch (error) {
     console.error('Get usage meter error:', error)
@@ -105,18 +105,20 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date().toISOString()
-    const incoming = usage.reduce<Record<string, unknown>>((acc, metric) => {
-      acc[metric.metric] = {
+    const currentUsage = subscription.usageMeter ?? []
+    const usageMap = new Map(currentUsage.map((item) => [item.metric, item]))
+
+    usage.forEach((metric) => {
+      usageMap.set(metric.metric, {
+        metric: metric.metric,
         value: metric.value,
         unit: metric.unit ?? null,
         limit: metric.limit ?? null,
         updatedAt: now,
-      }
-      return acc
-    }, {})
+      })
+    })
 
-    const current = (subscription.usageMeter as Record<string, unknown> | null) ?? {}
-    const nextUsage = { ...current, ...incoming }
+    const nextUsage = Array.from(usageMap.values())
 
     await db
       .update(subscriptions)

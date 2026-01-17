@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import {
@@ -6,7 +6,7 @@ import {
   resetRateLimit,
   getClientIP,
   createRateLimitHeaders,
-} from '@/lib/rateLimit'
+} from '../../../../lib/rateLimit'
 
 /**
  * Custom Login API Route

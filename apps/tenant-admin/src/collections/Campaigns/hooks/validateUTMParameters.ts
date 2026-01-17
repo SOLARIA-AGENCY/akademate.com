@@ -45,14 +45,14 @@ export const validateUTMParameters: CollectionBeforeValidateHook = ({ data, oper
 
   const { utm_source, utm_medium, utm_campaign, utm_term, utm_content } = data;
 
-  const errors: Array<{ field: string; message: string }> = [];
+  const errors: Array<{ path: string; message: string }> = [];
 
   // Validate utm_source format
   if (utm_source) {
     const sourceResult = validateUTMFormat(utm_source);
     if (sourceResult !== true) {
       errors.push({
-        field: 'utm_source',
+        path: 'utm_source',
         message: sourceResult,
       });
     }
@@ -63,7 +63,7 @@ export const validateUTMParameters: CollectionBeforeValidateHook = ({ data, oper
     const mediumResult = validateUTMFormat(utm_medium);
     if (mediumResult !== true) {
       errors.push({
-        field: 'utm_medium',
+        path: 'utm_medium',
         message: mediumResult,
       });
     }
@@ -74,7 +74,7 @@ export const validateUTMParameters: CollectionBeforeValidateHook = ({ data, oper
     const campaignResult = validateUTMFormat(utm_campaign);
     if (campaignResult !== true) {
       errors.push({
-        field: 'utm_campaign',
+        path: 'utm_campaign',
         message: campaignResult,
       });
     }
@@ -85,7 +85,7 @@ export const validateUTMParameters: CollectionBeforeValidateHook = ({ data, oper
     const termResult = validateUTMFormat(utm_term);
     if (termResult !== true) {
       errors.push({
-        field: 'utm_term',
+        path: 'utm_term',
         message: termResult,
       });
     }
@@ -96,7 +96,7 @@ export const validateUTMParameters: CollectionBeforeValidateHook = ({ data, oper
     const contentResult = validateUTMFormat(utm_content);
     if (contentResult !== true) {
       errors.push({
-        field: 'utm_content',
+        path: 'utm_content',
         message: contentResult,
       });
     }
@@ -113,7 +113,7 @@ export const validateUTMParameters: CollectionBeforeValidateHook = ({ data, oper
 
   if (campaignRequiredResult !== true) {
     errors.push({
-      field: 'utm_campaign',
+      path: 'utm_campaign',
       message: campaignRequiredResult,
     });
   }

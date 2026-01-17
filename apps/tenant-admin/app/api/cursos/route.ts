@@ -58,7 +58,15 @@ export async function POST(request: NextRequest) {
     };
 
     // Mapeo de tipos del frontend a valores de Payload
-    const TIPO_TO_COURSE_TYPE: Record<string, string> = {
+    type CourseType =
+      | 'desempleados'
+      | 'teleformacion'
+      | 'ocupados'
+      | 'privado'
+      | 'ciclo_medio'
+      | 'ciclo_superior'
+
+    const TIPO_TO_COURSE_TYPE: Record<string, CourseType> = {
       privados: 'privado',
       ocupados: 'ocupados',
       desempleados: 'desempleados',
@@ -115,7 +123,7 @@ export async function POST(request: NextRequest) {
         active: true,
         featured: false,
         // TODO: Agregar objetivos, contenidos, PDFs cuando se implementen
-      },
+      } as any,
     });
 
     return NextResponse.json({

@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     const enrollments = await payload.find({
-      collection: 'enrollments',
+      collection: 'enrollments' as any,
       where,
       limit,
       page,
@@ -49,10 +49,11 @@ export async function GET(request: NextRequest) {
     // Enhance with progress summary
     const enrollmentsWithProgress = await Promise.all(
       enrollments.docs.map(async (enrollment) => {
+        const enrollmentRecord = enrollment as any;
         // Get progress for this enrollment
         const progress = await payload.find({
-          collection: 'lesson-progress',
-          where: { enrollment: { equals: enrollment.id } },
+          collection: 'lesson-progress' as any,
+          where: { enrollment: { equals: enrollmentRecord.id } },
           limit: 500,
         });
 
@@ -62,18 +63,18 @@ export async function GET(request: NextRequest) {
         const total = progress.totalDocs;
 
         return {
-          id: enrollment.id,
-          status: enrollment.status,
-          enrolledAt: enrollment.createdAt,
-          courseRun: typeof enrollment.courseRun === 'object'
+          id: enrollmentRecord.id,
+          status: enrollmentRecord.status,
+          enrolledAt: enrollmentRecord.createdAt,
+          courseRun: typeof enrollmentRecord.course_run === 'object'
             ? {
-                id: enrollment.courseRun.id,
-                title: enrollment.courseRun.title,
-                course: typeof enrollment.courseRun.course === 'object'
+                id: enrollmentRecord.course_run.id,
+                title: enrollmentRecord.course_run.title,
+                course: typeof enrollmentRecord.course_run.course === 'object'
                   ? {
-                      id: enrollment.courseRun.course.id,
-                      title: enrollment.courseRun.course.title,
-                      thumbnail: enrollment.courseRun.course.thumbnail,
+                      id: enrollmentRecord.course_run.course.id,
+                      title: enrollmentRecord.course_run.course.title,
+                      thumbnail: enrollmentRecord.course_run.course.thumbnail,
                     }
                   : null,
               }

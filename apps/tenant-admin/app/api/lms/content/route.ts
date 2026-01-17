@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
         if (courseId) {
             // Get modules for a course
             const modules = await payload.find({
-                collection: 'modules',
+                collection: 'modules' as any,
                 where: { course: { equals: courseId } },
                 sort: 'order',
                 depth: 1,
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         if (moduleId) {
             // Get lessons for a module
             const lessons = await payload.find({
-                collection: 'lessons',
+                collection: 'lessons' as any,
                 where: { module: { equals: moduleId } },
                 sort: 'order',
                 depth: 1,
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
 
             // Get materials for the module
             const materials = await payload.find({
-                collection: 'materials',
+                collection: 'materials' as any,
                 where: { module: { equals: moduleId } },
                 depth: 1,
             });

@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // 1. Get enrollment with student and course run
     const enrollment = await payload.findByID({
-      collection: 'enrollments',
+      collection: 'enrollments' as any,
       id: enrollmentId,
       depth: 2, // Include nested relations
     });
@@ -51,30 +51,34 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // 2. Get course run details (edicion/convocatoria)
-    const courseRun = typeof enrollment.courseRun === 'object'
-      ? enrollment.courseRun
+    const enrollmentRecord = enrollment as any;
+    const courseRunRef = enrollmentRecord.course_run ?? enrollmentRecord.courseRun;
+    const courseRun = typeof courseRunRef === 'object'
+      ? courseRunRef
       : await payload.findByID({
-          collection: 'course-runs',
-          id: enrollment.courseRun as string,
+          collection: 'course-runs' as any,
+          id: courseRunRef as string,
           depth: 1,
         });
 
     // 3. Get the base course
-    const course = courseRun?.course
-      ? (typeof courseRun.course === 'object'
-          ? courseRun.course
+    const courseRunRecord = courseRun as any;
+    const courseRef = courseRunRecord?.course;
+    const course = courseRef
+      ? (typeof courseRef === 'object'
+          ? courseRef
           : await payload.findByID({
-              collection: 'courses',
-              id: courseRun.course as string,
+              collection: 'courses' as any,
+              id: courseRef as string,
               depth: 1,
             }))
       : null;
 
     // 4. Get all modules for this course run
     const modules = await payload.find({
-      collection: 'modules',
+      collection: 'modules' as any,
       where: {
-        courseRun: { equals: courseRun?.id || enrollment.courseRun },
+        courseRun: { equals: courseRunRecord?.id || courseRunRef },
       },
       sort: 'order',
       depth: 0,
@@ -84,16 +88,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // 5. Get lessons for each module
     const modulesWithLessons = await Promise.all(
       modules.docs.map(async (module) => {
+        const moduleRecord = module as any;
         const lessons = await payload.find({
-          collection: 'lessons',
-          where: { module: { equals: module.id } },
+          collection: 'lessons' as any,
+          where: { module: { equals: moduleRecord.id } },
           sort: 'order',
           depth: 0,
           limit: 100,
         });
 
         return {
-          ...module,
+          ...moduleRecord,
           lessons: lessons.docs,
           lessonsCount: lessons.totalDocs,
         };
@@ -102,7 +107,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // 6. Get student's progress data
     const progress = await payload.find({
-      collection: 'lesson-progress',
+      collection: 'lesson-progress' as any,
       where: {
         enrollment: { equals: enrollmentId },
       },
@@ -127,46 +132,49 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       success: true,
       data: {
         enrollment: {
-          id: enrollment.id,
-          status: enrollment.status,
-          enrolledAt: enrollment.createdAt,
-          startedAt: enrollment.startedAt,
-          completedAt: enrollment.completedAt,
+          id: enrollmentRecord.id,
+          status: enrollmentRecord.status,
+          enrolledAt: enrollmentRecord.createdAt,
+          startedAt: enrollmentRecord.started_at ?? enrollmentRecord.startedAt ?? null,
+          completedAt: enrollmentRecord.completed_at ?? enrollmentRecord.completedAt ?? null,
         },
         course: course ? {
-          id: course.id,
-          title: course.title,
-          slug: course.slug,
-          description: course.description,
-          thumbnail: course.thumbnail,
+          id: (course as any).id,
+          title: (course as any).title,
+          slug: (course as any).slug,
+          description: (course as any).description,
+          thumbnail: (course as any).thumbnail,
         } : null,
         courseRun: courseRun ? {
-          id: courseRun.id,
-          title: courseRun.title,
-          startDate: courseRun.startDate,
-          endDate: courseRun.endDate,
-          status: courseRun.status,
+          id: courseRunRecord.id,
+          title: courseRunRecord.title,
+          startDate: courseRunRecord.startDate ?? courseRunRecord.start_date,
+          endDate: courseRunRecord.endDate ?? courseRunRecord.end_date,
+          status: courseRunRecord.status,
         } : null,
-        modules: modulesWithLessons.map((module) => ({
-          id: module.id,
-          title: module.title,
-          description: module.description,
-          order: module.order,
-          estimatedMinutes: module.estimatedMinutes,
-          lessons: module.lessons.map((lesson: any) => ({
-            id: lesson.id,
-            title: lesson.title,
-            description: lesson.description,
-            order: lesson.order,
-            estimatedMinutes: lesson.estimatedMinutes,
-            isMandatory: lesson.isMandatory,
+        modules: modulesWithLessons.map((module) => {
+          const moduleRecord = module as any;
+          return {
+            id: moduleRecord.id,
+            title: moduleRecord.title,
+            description: moduleRecord.description,
+            order: moduleRecord.order,
+            estimatedMinutes: moduleRecord.estimatedMinutes,
+            lessons: moduleRecord.lessons.map((lesson: any) => ({
+              id: lesson.id,
+              title: lesson.title,
+              description: lesson.description,
+              order: lesson.order,
+              estimatedMinutes: lesson.estimatedMinutes,
+              isMandatory: lesson.isMandatory,
             // Include progress for this lesson
             progress: progress.docs.find(
               (p: any) => p.lesson === lesson.id || p.lesson?.id === lesson.id
             ) || { status: 'not_started', progressPercent: 0 },
-          })),
-          lessonsCount: module.lessonsCount,
-        })),
+            })),
+            lessonsCount: moduleRecord.lessonsCount,
+          };
+        }),
         progress: {
           totalModules: modules.totalDocs,
           totalLessons,

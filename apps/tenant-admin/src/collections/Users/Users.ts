@@ -169,11 +169,11 @@ export const Users: CollectionConfig = {
     {
       name: 'password',
       type: 'text',
-      required: ({ operation }) => operation === 'create',
+      required: (({ operation }: { operation: any }) => operation === 'create') as any,
       admin: {
         description: 'Password (min 8 chars, must include uppercase, lowercase, number, special char)',
       },
-      validate: (val: unknown, { operation }): true | string => {
+      validate: ((val: unknown, { operation }: { operation: any }): true | string => {
         // On create, password is mandatory; on update, allow empty (e.g., login stats updates)
         if (!val) return operation === 'create' ? 'Password is required' : true;
 
@@ -183,7 +183,7 @@ export const Users: CollectionConfig = {
         } catch (error: any) {
           return error.errors?.[0]?.message || 'Invalid password';
         }
-      },
+      }) as any,
     },
 
     /**
@@ -220,7 +220,7 @@ export const Users: CollectionConfig = {
     {
       name: 'role',
       type: 'select',
-      required: ({ operation }) => operation === 'create',
+      required: (({ operation }: { operation: any }) => operation === 'create') as any,
       defaultValue: 'lectura',
       options: [
         {

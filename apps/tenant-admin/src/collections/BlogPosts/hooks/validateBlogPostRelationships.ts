@@ -30,6 +30,7 @@ export const validateBlogPostRelationships: CollectionBeforeValidateHook = async
   req,
   operation,
 }) => {
+  const logger = req.payload.logger as any;
   const relatedCourses = data?.related_courses;
 
   // Skip if no related courses
@@ -66,7 +67,7 @@ export const validateBlogPostRelationships: CollectionBeforeValidateHook = async
   }
 
   // SECURITY (SP-004): No logging of course names or post data
-  req.payload.logger.info('[BlogPost] Related courses validated', {
+  logger.info('[BlogPost] Related courses validated', {
     operation,
     courseCount: relatedCourses.length,
   });

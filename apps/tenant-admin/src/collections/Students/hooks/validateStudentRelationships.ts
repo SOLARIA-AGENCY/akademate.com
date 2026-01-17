@@ -42,6 +42,7 @@ export const validateStudentRelationships: FieldHook = async ({
   operation,
   value,
 }) => {
+  const logger = req?.payload?.logger as any;
   // Only validate on creation
   if (operation !== 'create') {
     return data;
@@ -54,7 +55,7 @@ export const validateStudentRelationships: FieldHook = async ({
 
       try {
         const user = await req.payload.findByID({
-          collection: 'users',
+          collection: 'users' as any,
           id: userId,
         });
 
@@ -64,8 +65,8 @@ export const validateStudentRelationships: FieldHook = async ({
 
         // SECURITY: NO logging of user details (could contain PII)
         // Only log validation success
-        if (req.payload.logger) {
-          req.payload.logger.info('[Student] Relationship validation passed', {
+        if (logger) {
+          logger.info('[Student] Relationship validation passed', {
             operation,
             hasCreatedBy: !!data.created_by,
           });
@@ -79,8 +80,8 @@ export const validateStudentRelationships: FieldHook = async ({
     }
   } catch (error) {
     // Log error without exposing PII
-    if (req?.payload?.logger) {
-      req.payload.logger.error('[Student] Relationship validation error', {
+    if (logger) {
+      logger.error('[Student] Relationship validation error', {
         error: error instanceof Error ? error.message : 'Unknown error',
         operation,
       });

@@ -17,6 +17,7 @@ export const validateFAQRelationships: CollectionBeforeValidateHook = async ({
   req,
   operation,
 }) => {
+  const logger = req?.payload?.logger as any;
   try {
     // Validate related_course if provided
     if (data?.related_course) {
@@ -33,7 +34,7 @@ export const validateFAQRelationships: CollectionBeforeValidateHook = async ({
 
         if (!course) {
           // SECURITY (SP-004): No logging of course ID
-          req.payload.logger.error('[FAQ] Invalid related course', {
+          logger?.error('[FAQ] Invalid related course', {
             operation,
             hasCourseId: !!courseId,
           });
@@ -42,7 +43,7 @@ export const validateFAQRelationships: CollectionBeforeValidateHook = async ({
         }
 
         // SECURITY (SP-004): Log validation success without IDs
-        req.payload.logger.info('[FAQ] Related course validated', {
+        logger?.info('[FAQ] Related course validated', {
           operation,
           hasCourse: true,
         });
@@ -50,7 +51,7 @@ export const validateFAQRelationships: CollectionBeforeValidateHook = async ({
     }
 
     // SECURITY (SP-004): Log validation completion without data
-    req.payload.logger.info('[FAQ] Relationships validated', {
+    logger?.info('[FAQ] Relationships validated', {
       operation,
       hasRelatedCourse: !!data?.related_course,
     });
@@ -58,7 +59,7 @@ export const validateFAQRelationships: CollectionBeforeValidateHook = async ({
     return data;
   } catch (error: any) {
     // SECURITY (SP-004): Log error without exposing data
-    req.payload.logger.error('[FAQ] Relationship validation failed', {
+    logger?.error('[FAQ] Relationship validation failed', {
       operation,
       hasError: true,
       errorMessage: error.message,

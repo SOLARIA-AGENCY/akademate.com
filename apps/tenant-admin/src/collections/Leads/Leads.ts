@@ -598,7 +598,7 @@ export const Leads: CollectionConfig = {
       },
       hooks: {
         beforeChange: [
-          ({ req, value }: { req: any; value: any }) => {
+          (({ req, value }: { req: any; value: any }) => {
             // If value is set (by SuperAdmin), use it
             if (value) return value;
 
@@ -609,7 +609,7 @@ export const Leads: CollectionConfig = {
             }
 
             return value;
-          },
+          }) as any,
         ],
       },
     },
@@ -624,10 +624,10 @@ export const Leads: CollectionConfig = {
      * Order matters: Execute in sequence
      */
     beforeValidate: [
-      captureConsentMetadata, // 1. Capture GDPR consent metadata (timestamp, IP)
-      validateLeadRelationships, // 2. Validate foreign keys exist
-      preventDuplicateLead, // 3. Check for duplicates (same email+course within 24h)
-      calculateLeadScore, // 4. Calculate lead score (0-100)
+      captureConsentMetadata as any, // 1. Capture GDPR consent metadata (timestamp, IP)
+      validateLeadRelationships as any, // 2. Validate foreign keys exist
+      preventDuplicateLead as any, // 3. Check for duplicates (same email+course within 24h)
+      calculateLeadScore as any, // 4. Calculate lead score (0-100)
     ],
 
     /**
