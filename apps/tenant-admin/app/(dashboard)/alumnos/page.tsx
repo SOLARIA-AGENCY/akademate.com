@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -30,128 +29,30 @@ import {
   GraduationCap,
 } from 'lucide-react'
 
-// Datos extendidos de estudiantes
-const studentsDataExtended = [
-  {
-    id: '1',
-    first_name: 'María',
-    last_name: 'González Ruiz',
-    email: 'maria.gonzalez@email.com',
-    phone: '+34 612 345 001',
-    active: true,
-    enrolled_courses: 2,
-    completed_courses: 3,
-    sede: 'CEP Norte',
-    curso_actual: 'Marketing Digital Avanzado',
-    ciclo: 'Marketing y Publicidad',
-    fecha_inscripcion: '2024-09-15',
-  },
-  {
-    id: '2',
-    first_name: 'Juan',
-    last_name: 'Martínez López',
-    email: 'juan.martinez@email.com',
-    phone: '+34 612 345 002',
-    active: true,
-    enrolled_courses: 1,
-    completed_courses: 1,
-    sede: 'CEP Santa Cruz',
-    curso_actual: 'Desarrollo Web Full Stack',
-    ciclo: 'Desarrollo de Aplicaciones',
-    fecha_inscripcion: '2024-10-01',
-  },
-  {
-    id: '3',
-    first_name: 'Ana',
-    last_name: 'Rodríguez Sánchez',
-    email: 'ana.rodriguez@email.com',
-    phone: '+34 612 345 003',
-    active: true,
-    enrolled_courses: 3,
-    completed_courses: 5,
-    sede: 'CEP Norte',
-    curso_actual: 'Diseño Gráfico Profesional',
-    ciclo: 'Diseño y Artes Gráficas',
-    fecha_inscripcion: '2024-01-10',
-  },
-  {
-    id: '4',
-    first_name: 'Carlos',
-    last_name: 'Fernández Torres',
-    email: 'carlos.fernandez@email.com',
-    phone: '+34 612 345 004',
-    active: false,
-    enrolled_courses: 0,
-    completed_courses: 2,
-    sede: 'CEP Sur',
-    curso_actual: '-',
-    ciclo: 'Marketing y Publicidad',
-    fecha_inscripcion: '2023-11-20',
-  },
-  {
-    id: '5',
-    first_name: 'Laura',
-    last_name: 'García Pérez',
-    email: 'laura.garcia@email.com',
-    phone: '+34 612 345 005',
-    active: true,
-    enrolled_courses: 2,
-    completed_courses: 4,
-    sede: 'CEP Santa Cruz',
-    curso_actual: 'Community Manager Profesional',
-    ciclo: 'Marketing y Publicidad',
-    fecha_inscripcion: '2024-02-15',
-  },
-  {
-    id: '6',
-    first_name: 'Pedro',
-    last_name: 'López Martínez',
-    email: 'pedro.lopez@email.com',
-    phone: '+34 612 345 006',
-    active: true,
-    enrolled_courses: 1,
-    completed_courses: 0,
-    sede: 'CEP Norte',
-    curso_actual: 'SEO y Posicionamiento Web',
-    ciclo: 'Marketing y Publicidad',
-    fecha_inscripcion: '2024-11-01',
-  },
-  {
-    id: '7',
-    first_name: 'Elena',
-    last_name: 'Sánchez Ruiz',
-    email: 'elena.sanchez@email.com',
-    phone: '+34 612 345 007',
-    active: true,
-    enrolled_courses: 2,
-    completed_courses: 6,
-    sede: 'CEP Sur',
-    curso_actual: 'Producción Audiovisual',
-    ciclo: 'Imagen y Sonido',
-    fecha_inscripcion: '2023-09-05',
-  },
-  {
-    id: '8',
-    first_name: 'Miguel',
-    last_name: 'Torres Díaz',
-    email: 'miguel.torres@email.com',
-    phone: '+34 612 345 008',
-    active: true,
-    enrolled_courses: 1,
-    completed_courses: 2,
-    sede: 'CEP Santa Cruz',
-    curso_actual: 'Excel Avanzado y Power BI',
-    ciclo: 'Administración y Gestión',
-    fecha_inscripcion: '2024-08-20',
-  },
-]
+interface Student {
+  id: string
+  first_name: string
+  last_name: string
+  email: string
+  phone: string
+  active: boolean
+  enrolled_courses: number
+  completed_courses: number
+  sede: string
+  curso_actual: string
+  ciclo: string
+  fecha_inscripcion: string
+}
 
 export default function AlumnosPage() {
   const router = useRouter()
 
   // Estados de visualización
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
-  const [selectedStudent, setSelectedStudent] = useState(studentsDataExtended[0])
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+  const [students, setStudents] = useState<Student[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Estados de filtrado
   const [searchTerm, setSearchTerm] = useState('')
@@ -159,6 +60,52 @@ export default function AlumnosPage() {
   const [filterSede, setFilterSede] = useState('all')
   const [filterCurso, setFilterCurso] = useState('all')
   const [filterCiclo, setFilterCiclo] = useState('all')
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setErrorMessage(null)
+        const response = await fetch('/api/students?limit=100&sort=-createdAt', {
+          cache: 'no-cache',
+        })
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar los alumnos')
+        }
+
+        const payload = await response.json()
+        const docs = Array.isArray(payload?.docs) ? payload.docs : []
+        const mapped: Student[] = docs.map((student: any) => {
+          const status = student.status as string | undefined
+          return {
+            id: String(student.id),
+            first_name: student.first_name ?? '',
+            last_name: student.last_name ?? '',
+            email: student.email ?? '—',
+            phone: student.phone ?? '—',
+            active: status ? status === 'active' : true,
+            enrolled_courses: 0,
+            completed_courses: 0,
+            sede: 'Sin sede',
+            curso_actual: '-',
+            ciclo: '-',
+            fecha_inscripcion: student.createdAt ?? '',
+          }
+        })
+
+        setStudents(mapped)
+        if (mapped.length > 0) {
+          setSelectedStudent((prev) => prev ?? mapped[0])
+        }
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Error al cargar alumnos')
+        setStudents([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStudents()
+  }, [])
 
   const handleAdd = () => {
     console.log('Crear nuevo alumno')
@@ -169,12 +116,14 @@ export default function AlumnosPage() {
   }
 
   // Extraer valores únicos para filtros
-  const sedes = Array.from(new Set(studentsDataExtended.map((s) => s.sede)))
-  const cursos = Array.from(new Set(studentsDataExtended.map((s) => s.curso_actual).filter((c) => c !== '-')))
-  const ciclos = Array.from(new Set(studentsDataExtended.map((s) => s.ciclo)))
+  const sedes = Array.from(new Set(students.map((s) => s.sede))).filter(Boolean)
+  const cursos = Array.from(
+    new Set(students.map((s) => s.curso_actual).filter((c) => c !== '-'))
+  ).filter(Boolean)
+  const ciclos = Array.from(new Set(students.map((s) => s.ciclo))).filter(Boolean)
 
   // Filtrado
-  const filteredStudents = studentsDataExtended.filter((student) => {
+  const filteredStudents = students.filter((student) => {
     const matchesSearch =
       student.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -193,20 +142,26 @@ export default function AlumnosPage() {
   })
 
   const stats = {
-    total: studentsDataExtended.length,
-    active: studentsDataExtended.filter((s) => s.active).length,
-    inactive: studentsDataExtended.filter((s) => !s.active).length,
-    totalEnrolled: studentsDataExtended.reduce((sum, s) => sum + s.enrolled_courses, 0),
-    totalCompleted: studentsDataExtended.reduce((sum, s) => sum + s.completed_courses, 0),
+    total: students.length,
+    active: students.filter((s) => s.active).length,
+    inactive: students.filter((s) => !s.active).length,
+    totalEnrolled: students.reduce((sum, s) => sum + s.enrolled_courses, 0),
+    totalCompleted: students.reduce((sum, s) => sum + s.completed_courses, 0),
   }
 
   return (
     <div className="space-y-6">
-      {/* Mock Data Banner */}
-      <MockDataIndicator
-        variant="banner"
-        label="Este módulo usa datos de demostración. Pendiente conexión con API de Alumnos."
-      />
+      {isLoading && (
+        <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          Cargando alumnos...
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+          {errorMessage}
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -217,7 +172,7 @@ export default function AlumnosPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Alumnos</h1>
             <p className="text-muted-foreground mt-1">
-              {filteredStudents.length} alumnos de {studentsDataExtended.length} totales
+              {filteredStudents.length} alumnos de {students.length} totales
             </p>
           </div>
         </div>

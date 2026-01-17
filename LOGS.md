@@ -219,3 +219,7 @@
 ## Iteracion 54 (17-01-2026)
 - Accion: Habilite listado general en /api/convocatorias y conecte Programación a datos reales.
 - Resultado: Programación muestra convocatorias reales con filtros dinámicos; tsc tenant-admin en verde.
+
+## Iteracion 55 (17-01-2026)
+- Accion: Conecte vista de alumnos a datos reales (/api/students) con filtros y estados.
+- Resultado: Alumnos dashboard consume Payload students; tsc tenant-admin en verde.
