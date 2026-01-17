@@ -322,3 +322,9 @@
 
 - ⚠️ Secret scan: `pnpm dlx trufflehog` no es el binario esperado (prompt interactivo). Requiere instalación oficial de trufflehog.
 
+
+## Iteracion 77 - 2026-01-17
+
+- ✓ Secret scan: trufflehog filesystem OK (0 findings) excluyendo caches/node_modules.
+- ✓ Removidos credenciales hardcodeadas en auto-deploy (usa env vars).
+

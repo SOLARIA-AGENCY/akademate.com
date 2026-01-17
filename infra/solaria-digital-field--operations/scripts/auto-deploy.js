@@ -596,8 +596,8 @@ class SolariaAutoDeployer {
                         PROJECT_NAME: this.projectConfig.projectName,
                         PROJECT_TYPE: this.projectConfig.projectType,
                         PROJECT_PHASE: this.projectConfig.currentPhase,
-                        DATABASE_URL: 'postgresql://solaria:password@postgres:5432/solaria_field_ops',
-                        REDIS_URL: 'redis://redis:6379'
+                        DATABASE_URL: '${DATABASE_URL}',
+                        REDIS_URL: '${REDIS_URL}'
                     },
                     depends_on: ['postgres', 'redis'],
                     volumes: ['./storage:/app/storage']
@@ -606,8 +606,8 @@ class SolariaAutoDeployer {
                     image: 'postgres:15',
                     environment: {
                         POSTGRES_DB: 'solaria_field_ops',
-                        POSTGRES_USER: 'solaria',
-                        POSTGRES_PASSWORD: 'password'
+                        POSTGRES_USER: '${POSTGRES_USER}',
+                        POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
                     },
                     volumes: ['postgres_data:/var/lib/postgresql/data']
                 },
