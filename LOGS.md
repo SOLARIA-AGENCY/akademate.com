@@ -355,3 +355,11 @@
 - ⚠️ Rate limit verification sigue parcial: tenant-admin con DB nueva no crea tablas Payload (users). Login 500 + 429 en 6º intento.
 - ⚠️ Requiere correr migraciones/seed de Payload para validar login sin errores.
 
+
+## Iteracion 82 - 2026-01-17
+
+- ✓ Payload migrate en tenant-admin (DB tenant_admin_dev).
+- ✓ Rate limit verification OK: 401 x5, 429 en 6º intento.
+- ✓ Login API ahora devuelve 401 para AuthenticationError.
+- ✓ Security checklist + GDPR verification marcado como completado.
+

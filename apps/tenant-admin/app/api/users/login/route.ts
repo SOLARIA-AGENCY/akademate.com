@@ -103,6 +103,13 @@ export async function POST(request: Request) {
     console.error('Login error:', error)
 
     // Handle specific Payload errors
+    if (error?.name === 'AuthenticationError' || error?.status === 401) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401, headers: rateLimitHeaders }
+      )
+    }
+
     if (error.message?.includes('Invalid login')) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
