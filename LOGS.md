@@ -342,3 +342,10 @@
 - ✓ Ajuste policies.sql: public_read_course_runs usa estados válidos (scheduled/enrolling).
 - ✓ Fix migración 0001_enable_rls a UUID y sin tenant hardcodeado.
 
+
+## Iteracion 80 - 2026-01-17
+
+- ✓ Infra local: PostgreSQL 16 + Redis instalados y servicios activos.
+- ⚠️ Rate limit verification parcial: /api/users/login devuelve 429 al 6º intento, pero primeros 5 devuelven 500 por mismatch de schema (users.password no existe en DB Drizzle).
+- ⚠️ Necesario: usar DB Payload o migraciones Payload para validar login sin errores.
+
