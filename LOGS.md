@@ -349,3 +349,9 @@
 - ⚠️ Rate limit verification parcial: /api/users/login devuelve 429 al 6º intento, pero primeros 5 devuelven 500 por mismatch de schema (users.password no existe en DB Drizzle).
 - ⚠️ Necesario: usar DB Payload o migraciones Payload para validar login sin errores.
 
+
+## Iteracion 81 - 2026-01-17
+
+- ⚠️ Rate limit verification sigue parcial: tenant-admin con DB nueva no crea tablas Payload (users). Login 500 + 429 en 6º intento.
+- ⚠️ Requiere correr migraciones/seed de Payload para validar login sin errores.
+
