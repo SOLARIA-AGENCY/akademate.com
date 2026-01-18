@@ -84,4 +84,4 @@
 - [x] Full test suite + coverage target.
 - [x] Smoke tests apps.
 - [x] Security checklist + GDPR verification.
-- [ ] Crear COMPLETION.txt cuando todo pase.
+- [x] Crear COMPLETION.txt cuando todo pase.
