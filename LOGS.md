@@ -328,3 +328,10 @@
 - ✓ Secret scan: trufflehog filesystem OK (0 findings) excluyendo caches/node_modules.
 - ✓ Removidos credenciales hardcodeadas en auto-deploy (usa env vars).
 
+
+## Iteracion 78 - 2026-01-17
+
+- ✓ Postgres local instalado (Homebrew) y DB creada: akademate_dev.
+- ✗ db:migrate falló: falta meta/_journal.json (migraciones Drizzle no disponibles).
+- ⚠️ RLS verification bloqueada hasta contar con migraciones/DB schema.
+
