@@ -287,7 +287,7 @@ CREATE POLICY tenant_isolation_certificates ON certificates
 CREATE POLICY public_read_published_course_runs ON course_runs
   FOR SELECT
   USING (
-    status = 'published' AND
+    status IN ('scheduled', 'enrolling') AND
     tenant_id = current_setting('app.tenant_id', true)::uuid
   );
 

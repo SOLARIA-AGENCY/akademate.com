@@ -335,3 +335,10 @@
 - ✗ db:migrate falló: falta meta/_journal.json (migraciones Drizzle no disponibles).
 - ⚠️ RLS verification bloqueada hasta contar con migraciones/DB schema.
 
+
+## Iteracion 79 - 2026-01-17
+
+- ✓ RLS verification: Postgres local + policies.sql aplicado; verification.sql OK (0 missing RLS).
+- ✓ Ajuste policies.sql: public_read_course_runs usa estados válidos (scheduled/enrolling).
+- ✓ Fix migración 0001_enable_rls a UUID y sin tenant hardcodeado.
+
