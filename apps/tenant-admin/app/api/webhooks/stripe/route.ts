@@ -3,7 +3,8 @@
  * Processes Stripe events for subscription and payment updates
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { eq } from 'drizzle-orm'
 import {
@@ -527,31 +528,31 @@ export async function POST(request: NextRequest) {
     // Handle the event
     switch (event.type) {
       case 'customer.subscription.created':
-        await handleSubscriptionCreated(event.data.object as Stripe.Subscription)
+        await handleSubscriptionCreated(event.data.object)
         break
 
       case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription)
+        await handleSubscriptionUpdated(event.data.object)
         break
 
       case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
+        await handleSubscriptionDeleted(event.data.object)
         break
 
       case 'customer.subscription.trial_will_end':
-        await handleTrialWillEnd(event.data.object as Stripe.Subscription)
+        await handleTrialWillEnd(event.data.object)
         break
 
       case 'invoice.paid':
-        await handleInvoicePaid(event.data.object as Stripe.Invoice)
+        await handleInvoicePaid(event.data.object)
         break
 
       case 'invoice.payment_failed':
-        await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice)
+        await handleInvoicePaymentFailed(event.data.object)
         break
 
       case 'checkout.session.completed':
-        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session)
+        await handleCheckoutCompleted(event.data.object)
         break
 
       default:

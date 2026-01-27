@@ -145,7 +145,7 @@ export default function ProgramacionPage() {
 
   const sedesDisponibles = Array.from(new Set(convocatorias.map((c) => c.sede))).filter(
     Boolean
-  ) as string[]
+  )
 
   const handleNuevaConvocatoria = () => {
     router.push('/programacion/nueva')

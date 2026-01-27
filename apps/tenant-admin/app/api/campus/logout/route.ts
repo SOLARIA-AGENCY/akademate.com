@@ -4,7 +4,8 @@
  * Logs out the student (client-side token removal).
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   // JWT is stateless, so logout is handled client-side

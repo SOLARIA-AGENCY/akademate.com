@@ -5,13 +5,11 @@ import type { Metadata } from 'next'
 import config from '@payload-config'
 import { NotFoundPage, generatePageMetadata } from '@payloadcms/next/views'
 
-type Args = {
+interface Args {
   params: Promise<{
     segments: string[]
   }>
-  searchParams: Promise<{
-    [key: string]: string | string[]
-  }>
+  searchParams: Promise<Record<string, string | string[]>>
 }
 
 export const generateMetadata = async ({ params, searchParams }: Args): Promise<Metadata> => {

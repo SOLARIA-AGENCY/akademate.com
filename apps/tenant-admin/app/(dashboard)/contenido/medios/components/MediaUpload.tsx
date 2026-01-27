@@ -154,7 +154,7 @@ export function MediaUpload({
 
     for (let i = 0; i < files.length; i++) {
       const fileWithPreview = files[i]
-      if (!fileWithPreview || fileWithPreview.status !== 'pending') continue
+      if (fileWithPreview?.status !== 'pending') continue
 
       try {
         // Update status to uploading

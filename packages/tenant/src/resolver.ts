@@ -11,7 +11,7 @@
 export const TENANT_HEADER = 'x-tenant-id'
 export const TENANT_COOKIE = 'akademate_tenant'
 
-export type TenantResolution = {
+export interface TenantResolution {
   tenantId: string | null
   tenantSlug: string | null
   source: 'header' | 'cookie' | 'subdomain' | 'domain' | 'none'
@@ -131,7 +131,7 @@ export function parseTenantCookie(cookieHeader: string | null): string | null {
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=')
     if (name === TENANT_COOKIE) {
-      return value || null
+      return value ?? null
     }
   }
   return null

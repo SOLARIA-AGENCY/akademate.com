@@ -74,8 +74,8 @@ export async function extractContext(
     user,
     requestId,
     timestamp: new Date(),
-    ip: extractIpAddress(headers) || undefined,
-    userAgent: headers.get(ContextHeaders.USER_AGENT) || undefined,
+    ip: extractIpAddress(headers) ?? undefined,
+    userAgent: headers.get(ContextHeaders.USER_AGENT) ?? undefined,
   }
 
   return context
@@ -131,12 +131,12 @@ async function extractTenantContext(
   if (tenantIdHeader) {
     return {
       tenantId: tenantIdHeader,
-      tenantSlug: headers.get(ContextHeaders.TENANT_SLUG) || undefined,
+      tenantSlug: headers.get(ContextHeaders.TENANT_SLUG) ?? undefined,
     }
   }
 
   // Priority 2: Subdomain extraction
-  const host = headers.get('host') || ''
+  const host = headers.get('host') ?? ''
   const tenantSlug = extractTenantFromHost(host)
   if (tenantSlug) {
     return {

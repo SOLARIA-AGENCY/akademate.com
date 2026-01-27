@@ -2,7 +2,7 @@ import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import { subscriptions, tenants, users } from '../../../packages/db/src/schema'
 
-type OpsSchema = {
+interface OpsSchema {
   users: typeof users
   tenants: typeof tenants
   subscriptions: typeof subscriptions

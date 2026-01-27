@@ -256,7 +256,7 @@ export function generateRecurringSessions(
 ): Session[] {
   const sessions: Session[] = []
   const duration = baseSession.endTime.getTime() - baseSession.startTime.getTime()
-  let currentDate = new Date(baseSession.startTime)
+  const currentDate = new Date(baseSession.startTime)
   let count = 0
   const maxOccurrences = pattern.occurrences ?? 52 // Default max 1 year of weekly
 

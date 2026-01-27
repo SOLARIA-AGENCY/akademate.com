@@ -198,7 +198,7 @@ export class GamificationService {
 
     // Find badge by code
     const badge = await this.repository.getBadgeDefinitionByCode(badgeCode, tenantId)
-    if (!badge || !badge.isActive) {
+    if (!badge?.isActive) {
       throw new GamificationServiceError('BADGE_NOT_FOUND', `Badge ${badgeCode} not found`)
     }
 

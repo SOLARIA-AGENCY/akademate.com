@@ -11,7 +11,8 @@
 
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 
 /**
  * GET /api/lms/gamification?userId=X
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (existingStreak.docs.length > 0) {
-            const streak = existingStreak.docs[0] as any;
+            const streak = existingStreak.docs[0];
             const lastActivity = streak.lastActivityAt ? new Date(streak.lastActivityAt) : null;
             const today = new Date();
             const isConsecutiveDay =

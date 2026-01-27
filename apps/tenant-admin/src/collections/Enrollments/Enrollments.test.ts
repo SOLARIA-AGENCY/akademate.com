@@ -2438,7 +2438,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
       });
 
       // Verify field has access.update = false
-      const collectionConfig = payload.collections['enrollments'].config;
+      const collectionConfig = payload.collections.enrollments.config;
       const createdByField = collectionConfig.fields.find(
         (f: any) => f.name === 'created_by'
       );
@@ -2457,7 +2457,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
     });
 
     it('should have field-level access control on timestamp fields', async () => {
-      const collectionConfig = payload.collections['enrollments'].config;
+      const collectionConfig = payload.collections.enrollments.config;
 
       const timestampFields = [
         'enrolled_at',
@@ -2476,7 +2476,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
     });
 
     it('should protect financial data with field-level access (Admin/Gestor only)', async () => {
-      const collectionConfig = payload.collections['enrollments'].config;
+      const collectionConfig = payload.collections.enrollments.config;
 
       const financialFields = [
         'amount_paid',
@@ -2488,7 +2488,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
       financialFields.forEach((fieldName) => {
         const field = collectionConfig.fields.find((f: any) => f.name === fieldName);
 
-        if (field && field.access && field.access.update) {
+        if (field?.access?.update) {
           // Should allow Admin
           const canAdminUpdate = field.access.update({
             req: { user: adminUser },

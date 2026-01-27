@@ -34,7 +34,7 @@ describe('Users Collection API', () => {
   let marketingUserId: string;
   let asesorUserId: string;
   let lecturaUserId: string;
-  let testUserIds: string[] = [];
+  const testUserIds: string[] = [];
 
   beforeAll(async () => {
     // Initialize Payload

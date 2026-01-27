@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { getDb, users } from '../../../../lib/db'
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
       .limit(1)
       .execute()
 
-    if (!user || !user.mfaSecret) {
+    if (!user?.mfaSecret) {
       return NextResponse.json(
         { error: 'MFA not initialized' },
         { status: 404 }

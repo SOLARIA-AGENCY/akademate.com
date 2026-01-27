@@ -65,7 +65,7 @@ export const ContextHeaders = {
 
 export function extractTenantFromHost(host: string): string | null {
   // Pattern: {tenant}.akademate.com or {tenant}.localhost
-  const match = host.match(/^([a-z0-9-]+)\.(akademate\.com|localhost)/i)
+  const match = /^([a-z0-9-]+)\.(akademate\.com|localhost)/i.exec(host)
   return match?.[1] ?? null
 }
 

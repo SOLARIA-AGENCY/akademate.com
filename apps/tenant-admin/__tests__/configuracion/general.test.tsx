@@ -37,9 +37,14 @@ describe('General Configuration Page', () => {
 
   it('has logo upload sections', () => {
     render(<ConfigGeneralPage />)
-    
-    expect(screen.getByText(/logo principal.*modo claro/i)).toBeInTheDocument()
-    expect(screen.getByText('Logo Modo Oscuro')).toBeInTheDocument()
+
+    // Check for logo section title
+    expect(screen.getByText('Logos y Marcas')).toBeInTheDocument()
+
+    // Check for logo labels (use getAllByText since there are multiple matches)
+    expect(screen.getAllByText(/Logo Principal/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Logo Oscuro/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Logo Claro/).length).toBeGreaterThan(0)
   })
 
   it('has save button', () => {

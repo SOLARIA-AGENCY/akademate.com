@@ -48,7 +48,7 @@ interface BulkResult {
   created: number
   failed: number
   skipped: number
-  errors: Array<{ row: number; email: string; error: string }>
+  errors: { row: number; email: string; error: string }[]
   created_ids: string[]
 }
 
@@ -87,10 +87,10 @@ export function BulkEnrollmentDialog({
 
     const headers = lines[0].split(',').map((h) => h.trim().toLowerCase())
 
-    const emailIndex = headers.indexOf('studentemail') !== -1
+    const emailIndex = headers.includes('studentemail')
       ? headers.indexOf('studentemail')
       : headers.indexOf('email')
-    const courseRunIndex = headers.indexOf('courserunid') !== -1
+    const courseRunIndex = headers.includes('courserunid')
       ? headers.indexOf('courserunid')
       : headers.indexOf('course_run_id')
     const statusIndex = headers.indexOf('status')

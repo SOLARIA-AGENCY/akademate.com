@@ -9,10 +9,10 @@ import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 
 export default buildConfig({
-  secret: process.env.PAYLOAD_SECRET || 'your-secret-key',
+  secret: process.env.PAYLOAD_SECRET ?? 'your-secret-key',
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI || process.env.POSTGRES_URL,
+      connectionString: process.env.DATABASE_URI ?? process.env.POSTGRES_URL,
     },
   }),
   collections: [

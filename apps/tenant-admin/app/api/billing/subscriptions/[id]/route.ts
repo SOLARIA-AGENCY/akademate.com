@@ -3,7 +3,8 @@
  * Get, update, and cancel subscriptions
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import {
   getSubscription,
@@ -45,7 +46,7 @@ export async function GET(
 
     const { id } = await params
 
-    if (!id || !id.startsWith('sub_')) {
+    if (!id?.startsWith('sub_')) {
       return NextResponse.json(
         { error: 'Invalid subscription ID' },
         { status: 400 }
@@ -107,7 +108,7 @@ export async function PATCH(
 
     const { id } = await params
 
-    if (!id || !id.startsWith('sub_')) {
+    if (!id?.startsWith('sub_')) {
       return NextResponse.json(
         { error: 'Invalid subscription ID' },
         { status: 400 }
@@ -174,7 +175,7 @@ export async function DELETE(
 
     const { id } = await params
 
-    if (!id || !id.startsWith('sub_')) {
+    if (!id?.startsWith('sub_')) {
       return NextResponse.json(
         { error: 'Invalid subscription ID' },
         { status: 400 }

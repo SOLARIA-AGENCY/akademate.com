@@ -1,4 +1,4 @@
-import { Access } from 'payload';
+import type { Access } from 'payload';
 import { ROLES } from '../../../access/roles';
 
 /**

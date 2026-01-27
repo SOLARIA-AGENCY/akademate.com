@@ -14,7 +14,7 @@ import {
 } from '@payload-config/components/ui/table'
 import { Download, Plus } from 'lucide-react'
 
-type Lead = {
+interface Lead {
   id: string
   first_name?: string | null
   last_name?: string | null

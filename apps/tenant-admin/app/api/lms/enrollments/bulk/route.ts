@@ -10,7 +10,8 @@
 
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 
 interface CSVRow {
   studentEmail: string;
@@ -24,7 +25,7 @@ interface BulkResult {
   created: number;
   failed: number;
   skipped: number;
-  errors: Array<{ row: number; email: string; error: string }>;
+  errors: { row: number; email: string; error: string }[];
   created_ids: string[];
 }
 
@@ -47,10 +48,10 @@ function parseCSV(content: string): CSVRow[] {
     throw new Error('CSV must have courseRunId or course_run_id column');
   }
 
-  const emailIndex = headers.indexOf('studentemail') !== -1
+  const emailIndex = headers.includes('studentemail')
     ? headers.indexOf('studentemail')
     : headers.indexOf('email');
-  const courseRunIndex = headers.indexOf('courserunid') !== -1
+  const courseRunIndex = headers.includes('courserunid')
     ? headers.indexOf('courserunid')
     : headers.indexOf('course_run_id');
   const statusIndex = headers.indexOf('status');

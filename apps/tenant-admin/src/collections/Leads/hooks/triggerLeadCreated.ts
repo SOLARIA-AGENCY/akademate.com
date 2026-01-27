@@ -1,4 +1,4 @@
-import { CollectionAfterChangeHook } from 'payload';
+import type { CollectionAfterChangeHook } from 'payload';
 
 /**
  * Trigger events when a new lead is created

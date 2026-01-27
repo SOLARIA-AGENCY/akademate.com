@@ -1,15 +1,15 @@
 export type TenantId = string
 
-export type TenantScoped = {
+export interface TenantScoped {
   tenantId: TenantId
 }
 
-export type DomainResolution = {
+export interface DomainResolution {
   host: string
   tenantId: TenantId
 }
 
-export type UserClaim = {
+export interface UserClaim {
   userId: string
   tenantId: TenantId
   roles: string[]
@@ -17,7 +17,7 @@ export type UserClaim = {
   expiresAt?: number
 }
 
-export type AuditEvent = {
+export interface AuditEvent {
   tenantId: TenantId
   actorId: string
   action: string

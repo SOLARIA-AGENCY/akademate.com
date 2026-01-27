@@ -87,7 +87,7 @@ interface SessionProviderProps {
 
 export function SessionProvider({
   children,
-  apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3009',
+  apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3009',
 }: SessionProviderProps) {
   const [state, setState] = useState<SessionState>({
     user: null,

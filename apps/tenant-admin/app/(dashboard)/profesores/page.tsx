@@ -31,11 +31,11 @@ interface StaffMember {
   employmentStatus: string
   photo: string
   bio?: string
-  assignedCampuses: Array<{
+  assignedCampuses: {
     id: number
     name: string
     city: string
-  }>
+  }[]
   courseRunsCount?: number
   isActive: boolean
 }

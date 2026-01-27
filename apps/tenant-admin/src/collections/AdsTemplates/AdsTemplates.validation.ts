@@ -245,7 +245,7 @@ export const validateCallToAction = (cta: string | undefined): true | string => 
 /**
  * Validate URL
  */
-export const validateURL = (url: string | undefined, fieldName: string = 'URL'): true | string => {
+export const validateURL = (url: string | undefined, fieldName = 'URL'): true | string => {
   if (!url) return true; // Optional field
 
   const result = urlSchema.safeParse(url);

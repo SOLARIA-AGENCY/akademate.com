@@ -233,7 +233,7 @@ export class ProgressService {
 
     // Track attempts
     if (existing) {
-      updateData.attempts = (existing.attempts || 0) + 1
+      updateData.attempts = (existing.attempts ?? 0) + 1
     } else {
       updateData.attempts = 1
     }
@@ -307,7 +307,7 @@ export class ProgressService {
 
     for (const lesson of lessons) {
       const progress = relevantProgress.find((p) => p.lessonId === lesson.id)
-      const lessonMinutes = lesson.estimatedMinutes || 0
+      const lessonMinutes = lesson.estimatedMinutes ?? 0
       totalEstimatedMinutes += lessonMinutes
 
       if (progress?.status === 'completed') {
@@ -316,7 +316,7 @@ export class ProgressService {
       } else if (progress?.status === 'in_progress') {
         inProgressLessons++
         // Estimate partial completion
-        completedEstimatedMinutes += lessonMinutes * ((progress.progressPercent || 0) / 100)
+        completedEstimatedMinutes += lessonMinutes * ((progress.progressPercent ?? 0) / 100)
       }
     }
 
@@ -364,7 +364,7 @@ export class ProgressService {
       enrollmentId
     )
 
-    let totalModules = modules.length
+    const totalModules = modules.length
     let completedModules = 0
     let totalLessons = 0
     let completedLessons = 0
@@ -376,13 +376,13 @@ export class ProgressService {
 
     for (const module of modules) {
       const lessons = await this.contentRepo.getLessonsByModule(tenantId, module.id)
-      const moduleEstimated = module.estimatedMinutes || 0
+      const moduleEstimated = module.estimatedMinutes ?? 0
 
       let moduleCompletedLessons = 0
 
       for (const lesson of lessons) {
         totalLessons++
-        const lessonMinutes = lesson.estimatedMinutes || 0
+        const lessonMinutes = lesson.estimatedMinutes ?? 0
         totalEstimatedMinutes += lessonMinutes
 
         const progress = allLessonProgress.find((p) => p.lessonId === lesson.id)
@@ -398,7 +398,7 @@ export class ProgressService {
             moduleCompletedLessons++
             completedEstimatedMinutes += lessonMinutes
           } else if (progress.status === 'in_progress') {
-            completedEstimatedMinutes += lessonMinutes * ((progress.progressPercent || 0) / 100)
+            completedEstimatedMinutes += lessonMinutes * ((progress.progressPercent ?? 0) / 100)
           }
         }
 

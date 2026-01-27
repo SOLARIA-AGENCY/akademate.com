@@ -7,7 +7,7 @@ export type RetentionDataType =
   | 'paymentRecords'
   | 'consentLogs'
 
-export type RetentionPolicy = {
+export interface RetentionPolicy {
   ttlMs: number
   label: string
 }
@@ -20,18 +20,18 @@ export const RetentionPolicies: Record<RetentionDataType, RetentionPolicy> = {
   consentLogs: { ttlMs: 1000 * 60 * 60 * 24 * 365 * 5, label: '5 years' },
 }
 
-export type GdprRetentionJobPayload = {
+export interface GdprRetentionJobPayload {
   dataType: RetentionDataType
   tenantId?: TenantId
   userId?: string
 }
 
-export type RetentionDeletionResult = {
+export interface RetentionDeletionResult {
   deletedCount: number
   cutoffDate: Date
 }
 
-export type RetentionJobDependencies = {
+export interface RetentionJobDependencies {
   deleteExpired: (input: {
     dataType: RetentionDataType
     cutoffDate: Date

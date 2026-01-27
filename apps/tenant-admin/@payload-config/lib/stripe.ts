@@ -22,7 +22,7 @@ const STRIPE_API_VERSION = '2025-12-15.clover' as const
  * @returns {string} Stripe secret key or empty string
  */
 function getStripeSecretKey(): string {
-  return process.env.STRIPE_SECRET_KEY || ''
+  return process.env.STRIPE_SECRET_KEY ?? ''
 }
 
 /**
@@ -30,7 +30,7 @@ function getStripeSecretKey(): string {
  * @returns {string} Stripe webhook secret or empty string
  */
 function getStripeWebhookSecret(): string {
-  return process.env.STRIPE_WEBHOOK_SECRET || ''
+  return process.env.STRIPE_WEBHOOK_SECRET ?? ''
 }
 
 // ============================================================================

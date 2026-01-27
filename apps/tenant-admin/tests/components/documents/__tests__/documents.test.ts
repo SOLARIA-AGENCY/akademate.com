@@ -534,9 +534,9 @@ describe('Material Grouping', () => {
 
     const grouped = groupByType(materials)
 
-    expect(grouped['pdf'].length).toBe(2)
-    expect(grouped['video'].length).toBe(1)
-    expect(grouped['link'].length).toBe(1)
+    expect(grouped.pdf.length).toBe(2)
+    expect(grouped.video.length).toBe(1)
+    expect(grouped.link.length).toBe(1)
   })
 
   it('should handle empty array', () => {
@@ -553,6 +553,6 @@ describe('Material Grouping', () => {
     const grouped = groupByType(materials)
 
     expect(Object.keys(grouped)).toEqual(['pdf'])
-    expect(grouped['pdf'].length).toBe(2)
+    expect(grouped.pdf.length).toBe(2)
   })
 })

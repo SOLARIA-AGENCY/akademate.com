@@ -170,7 +170,7 @@ export function needsRehash(storedHash: string): boolean {
  * @param length - Password length (default: 16)
  * @returns Random password string
  */
-export function generateRandomPassword(length: number = 16): string {
+export function generateRandomPassword(length = 16): string {
   const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'
   const bytes = randomBytes(length)
   let password = ''
@@ -189,7 +189,7 @@ export function generateRandomPassword(length: number = 16): string {
  * @param bytes - Number of random bytes (default: 32)
  * @returns URL-safe base64 encoded token
  */
-export function generateSecureToken(bytes: number = 32): string {
+export function generateSecureToken(bytes = 32): string {
   return randomBytes(bytes).toString('base64url')
 }
 

@@ -8,7 +8,8 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 import type {
   ServerToClientEvents,
   ClientToServerEvents,
@@ -89,7 +90,7 @@ export interface UseSocketReturn {
 
 export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
   const {
-    url = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3009',
+    url = process.env.NEXT_PUBLIC_SOCKET_URL ?? 'http://localhost:3009',
     token,
     tenantId,
     autoConnect = true,

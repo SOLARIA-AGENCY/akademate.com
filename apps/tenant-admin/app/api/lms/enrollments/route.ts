@@ -7,7 +7,8 @@
 
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 
 /**
  * GET /api/lms/enrollments
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
     // Enhance with progress summary
     const enrollmentsWithProgress = await Promise.all(
       enrollments.docs.map(async (enrollment) => {
-        const enrollmentRecord = enrollment as any;
+        const enrollmentRecord = enrollment;
         // Get progress for this enrollment
         const progress = await payload.find({
           collection: 'lesson-progress' as any,

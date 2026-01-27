@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { Express } from 'express';
+import type { Express } from 'express';
 import express from 'express';
 
 // Mock Payload interface for testing
@@ -13,8 +13,8 @@ interface MockPayload {
 
 // Mock Payload for testing
 class PayloadMock implements MockPayload {
-  private data: Map<string, any[]> = new Map();
-  private nextId: number = 1;
+  private data = new Map<string, any[]>();
+  private nextId = 1;
   public logs: string[] = []; // Capture logs for PII testing
 
   constructor() {
@@ -585,8 +585,8 @@ export async function createTestCourse(payload: Payload, cycleId: number | strin
  */
 export async function cleanupCollection(payload: MockPayload, collection: string) {
   // Direct access to internal data for cleanup (bypass authentication)
-  const docs = payload['data'].get(collection) || [];
+  const docs = payload.data.get(collection) || [];
   
   // Clear all documents from the collection
-  payload['data'].set(collection, []);
+  payload.data.set(collection, []);
 }

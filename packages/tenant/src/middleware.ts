@@ -15,7 +15,7 @@ import {
   TENANT_COOKIE,
 } from './resolver'
 
-export type TenantMiddlewareConfig = {
+export interface TenantMiddlewareConfig {
   /**
    * Function to lookup tenant ID from slug
    * Returns tenant ID or null if not found

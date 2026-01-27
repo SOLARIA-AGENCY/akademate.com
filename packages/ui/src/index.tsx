@@ -9,7 +9,7 @@ const toneClasses: Record<PillTone, string> = {
   muted: 'bg-muted text-muted-foreground',
 }
 
-export type PillProps = {
+export interface PillProps {
   label: string
   tone?: PillTone
 }

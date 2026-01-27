@@ -3,7 +3,7 @@
  * Fetches data from tenant-admin LMS endpoints
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3009';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3009';
 
 export interface ProgressData {
     enrollmentId: string;
@@ -171,13 +171,13 @@ export interface EnrollmentDetailData {
         endDate: string;
         status: string;
     } | null;
-    modules: Array<{
+    modules: {
         id: string;
         title: string;
         description?: string;
         order: number;
         estimatedMinutes?: number;
-        lessons: Array<{
+        lessons: {
             id: string;
             title: string;
             description?: string;
@@ -188,9 +188,9 @@ export interface EnrollmentDetailData {
                 status: string;
                 progressPercent: number;
             };
-        }>;
+        }[];
         lessonsCount: number;
-    }>;
+    }[];
     progress: {
         totalModules: number;
         totalLessons: number;

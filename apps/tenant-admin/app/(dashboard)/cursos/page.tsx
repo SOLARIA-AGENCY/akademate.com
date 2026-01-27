@@ -150,8 +150,8 @@ function CursosPageContent() {
   const filteredCourses = cursos.filter((course) => {
     const matchesSearch =
       course.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (course.descripcion && course.descripcion.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (course.area && course.area.toLowerCase().includes(searchTerm.toLowerCase()))
+      (course.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (course.area?.toLowerCase().includes(searchTerm.toLowerCase()))
 
     // Normalizar tipos para el filtro (privados → privado)
     const normalizedFilterType = filterType === 'privados' ? 'privado' : filterType

@@ -108,7 +108,7 @@ function PlannerVisualPageContent() {
   })
 
   const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-  const diasAbreviados: { [key: string]: string } = {
+  const diasAbreviados: Record<string, string> = {
     'lunes': 'Lunes',
     'martes': 'Martes',
     'miercoles': 'Miércoles',

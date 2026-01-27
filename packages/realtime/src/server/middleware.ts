@@ -207,7 +207,7 @@ export function createTenantIsolationMiddleware(options: { debug?: boolean } = {
 
         // Tenant rooms must match user's tenant
         if (room.startsWith('tenant:')) {
-          const roomTenantId = parseInt(room.split(':')[1] || '0', 10);
+          const roomTenantId = parseInt(room.split(':')[1] ?? '0', 10);
           if (roomTenantId !== tenantId) {
             log('Blocked cross-tenant room join', { room, userTenantId: tenantId });
             socket.emit('error', { code: 'ACCESS_DENIED', message: 'Access denied to room' });
@@ -217,7 +217,7 @@ export function createTenantIsolationMiddleware(options: { debug?: boolean } = {
 
         // User rooms must match user's ID
         if (room.startsWith('user:')) {
-          const roomUserId = room.split(':')[1] || '';
+          const roomUserId = room.split(':')[1] ?? '';
           if (roomUserId !== socket.data.userId) {
             log('Blocked cross-user room join', { room, userId: socket.data.userId });
             socket.emit('error', { code: 'ACCESS_DENIED', message: 'Access denied to room' });

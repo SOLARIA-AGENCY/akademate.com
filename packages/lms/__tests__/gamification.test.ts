@@ -21,10 +21,10 @@ import type {
 
 // Mock repository factory
 function createMockRepository(): GamificationRepository {
-  const badges: Map<string, BadgeDefinition> = new Map()
-  const userBadges: Map<string, UserBadge[]> = new Map()
-  const pointsTransactions: Map<string, PointsTransaction[]> = new Map()
-  const streaks: Map<string, { current: number; longest: number; lastActivity: Date }> = new Map()
+  const badges = new Map<string, BadgeDefinition>()
+  const userBadges = new Map<string, UserBadge[]>()
+  const pointsTransactions = new Map<string, PointsTransaction[]>()
+  const streaks = new Map<string, { current: number; longest: number; lastActivity: Date }>()
 
   const getUserKey = (tenantId: number, userId: string) => `${tenantId}:${userId}`
 
@@ -35,7 +35,7 @@ function createMockRepository(): GamificationRepository {
       badges.set(badge.id, badge)
       return badge
     }),
-    getBadgeDefinition: vi.fn(async (id) => badges.get(id) || null),
+    getBadgeDefinition: vi.fn(async (id) => badges.get(id) ?? null),
     getBadgeDefinitionByCode: vi.fn(async (code, tenantId) => {
       return (
         Array.from(badges.values()).find(
@@ -71,22 +71,22 @@ function createMockRepository(): GamificationRepository {
         earnedAt: new Date(),
         metadata: metadata || {},
       }
-      const existing = userBadges.get(key) || []
+      const existing = userBadges.get(key) ?? []
       userBadges.set(key, [...existing, userBadge])
       return userBadge
     }),
     getUserBadges: vi.fn(async (tenantId, userId) => {
       const key = getUserKey(tenantId, userId)
-      return userBadges.get(key) || []
+      return userBadges.get(key) ?? []
     }),
     hasUserBadge: vi.fn(async (tenantId, userId, badgeId) => {
       const key = getUserKey(tenantId, userId)
-      const badges = userBadges.get(key) || []
+      const badges = userBadges.get(key) ?? []
       return badges.some((b) => b.badgeId === badgeId)
     }),
     revokeBadge: vi.fn(async (tenantId, userId, badgeId) => {
       const key = getUserKey(tenantId, userId)
-      const badges = userBadges.get(key) || []
+      const badges = userBadges.get(key) ?? []
       userBadges.set(
         key,
         badges.filter((b) => b.badgeId !== badgeId)
@@ -97,28 +97,28 @@ function createMockRepository(): GamificationRepository {
     createPointsTransaction: vi.fn(async (input) => {
       const transaction = { ...input, createdAt: new Date() } as PointsTransaction
       const key = getUserKey(input.tenantId, input.userId)
-      const existing = pointsTransactions.get(key) || []
+      const existing = pointsTransactions.get(key) ?? []
       pointsTransactions.set(key, [...existing, transaction])
       return transaction
     }),
     getPointsTransactions: vi.fn(async (tenantId, userId) => {
       const key = getUserKey(tenantId, userId)
-      return pointsTransactions.get(key) || []
+      return pointsTransactions.get(key) ?? []
     }),
     getTotalPoints: vi.fn(async (tenantId, userId) => {
       const key = getUserKey(tenantId, userId)
-      const transactions = pointsTransactions.get(key) || []
+      const transactions = pointsTransactions.get(key) ?? []
       return transactions.reduce((sum, t) => sum + t.points, 0)
     }),
 
     // Streaks
     getCurrentStreak: vi.fn(async (tenantId, userId) => {
       const key = getUserKey(tenantId, userId)
-      return streaks.get(key)?.current || 0
+      return streaks.get(key)?.current ?? 0
     }),
     getLongestStreak: vi.fn(async (tenantId, userId) => {
       const key = getUserKey(tenantId, userId)
-      return streaks.get(key)?.longest || 0
+      return streaks.get(key)?.longest ?? 0
     }),
     updateStreak: vi.fn(async (tenantId, userId, activityDate) => {
       const key = getUserKey(tenantId, userId)
@@ -175,16 +175,16 @@ function createMockRepository(): GamificationRepository {
     // Summary
     getGamificationSummary: vi.fn(async (tenantId, userId) => {
       const key = getUserKey(tenantId, userId)
-      const badges = userBadges.get(key) || []
-      const transactions = pointsTransactions.get(key) || []
+      const badges = userBadges.get(key) ?? []
+      const transactions = pointsTransactions.get(key) ?? []
       const streak = streaks.get(key)
 
       return {
         userId,
         tenantId,
         totalPoints: transactions.reduce((sum, t) => sum + t.points, 0),
-        currentStreak: streak?.current || 0,
-        longestStreak: streak?.longest || 0,
+        currentStreak: streak?.current ?? 0,
+        longestStreak: streak?.longest ?? 0,
         badgesCount: badges.length,
       } as UserGamificationSummary
     }),

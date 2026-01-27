@@ -3,7 +3,8 @@
  * Evaluate and update feature flags per tenant
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { db, featureFlags, tenants } from '@/@payload-config/lib/db'

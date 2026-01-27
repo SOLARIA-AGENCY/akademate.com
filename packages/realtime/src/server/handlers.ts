@@ -147,7 +147,7 @@ function handlePresenceEvents(ctx: HandlerContext) {
   // Broadcast presence to tenant room on connect
   const tenantRoom = `tenant:${socket.data.tenantId}:presence`;
 
-  socket.join(tenantRoom);
+  void socket.join(tenantRoom);
 
   // Notify others of user presence
   socket.to(tenantRoom).emit('presence:user-online', {

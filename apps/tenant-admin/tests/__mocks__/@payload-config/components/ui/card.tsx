@@ -4,8 +4,8 @@ export const Card = ({ children, className, ...props }: React.HTMLAttributes<HTM
   <div className={className} data-testid="card" {...props}>{children}</div>
 )
 
-export const CardHeader = ({ children, className }: { children?: React.ReactNode; className?: string }) => (
-  <div className={className} data-testid="card-header">{children}</div>
+export const CardHeader = ({ children, className, onClick, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={className} data-testid="card-header" onClick={onClick} {...props}>{children}</div>
 )
 
 export const CardTitle = ({ children, className }: { children?: React.ReactNode; className?: string }) => (

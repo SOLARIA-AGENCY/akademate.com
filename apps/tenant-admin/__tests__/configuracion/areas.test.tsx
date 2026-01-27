@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
 import AreasPage from '@/app/(dashboard)/configuracion/areas/page'
 
 describe('Study Areas Page', () => {
@@ -42,14 +43,19 @@ describe('Study Areas Page', () => {
     }
   })
 
-  it('allows viewing courses per area', () => {
+  it('allows viewing courses per area', async () => {
     render(<AreasPage />)
-    
-    const viewButtons = screen.getAllByText('Ver Cursos')
-    if (viewButtons.length > 0) {
-      fireEvent.click(viewButtons[0])
-      
-      expect(screen.getByText(/cursos de/i)).toBeInTheDocument()
-    }
+
+    // Use "Ver Detalles" button which is always present
+    const viewButtons = screen.getAllByText('Ver Detalles')
+    expect(viewButtons.length).toBeGreaterThan(0)
+
+    fireEvent.click(viewButtons[0])
+
+    // Modal should open showing area code (more specific selector)
+    await waitFor(() => {
+      // The modal shows "Código: {area.code}" which is unique to the modal
+      expect(screen.getAllByText(/Código:/i).length).toBeGreaterThan(1)
+    })
   })
 })

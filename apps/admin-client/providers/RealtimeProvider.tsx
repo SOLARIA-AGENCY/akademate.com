@@ -7,7 +7,8 @@
  * Auto-connects when auth token is available.
  */
 
-import { ReactNode, useEffect, useState } from 'react';
+import type { ReactNode} from 'react';
+import { useEffect, useState } from 'react';
 import { SocketProvider } from '@akademate/realtime/context';
 import Cookies from 'js-cookie';
 
@@ -79,7 +80,7 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
     return <>{children}</>;
   }
 
-  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3009';
+  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL ?? 'http://localhost:3009';
 
   return (
     <SocketProvider

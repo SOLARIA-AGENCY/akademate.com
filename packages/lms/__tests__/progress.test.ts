@@ -96,12 +96,12 @@ function createMockContentRepository(): ContentRepository {
   ]
 
   return {
-    getModule: vi.fn(async (tenantId, moduleId) => modules.find((m) => m.id === moduleId) || null),
+    getModule: vi.fn(async (tenantId, moduleId) => modules.find((m) => m.id === moduleId) ?? null),
     getModulesByCourseRun: vi.fn(async () => modules),
     getLessonsByModule: vi.fn(async (tenantId, moduleId) =>
       lessons.filter((l) => l.moduleId === moduleId)
     ),
-    getLesson: vi.fn(async (tenantId, lessonId) => lessons.find((l) => l.id === lessonId) || null),
+    getLesson: vi.fn(async (tenantId, lessonId) => lessons.find((l) => l.id === lessonId) ?? null),
     getResourcesByLesson: vi.fn(async (tenantId, lessonId) =>
       resources.filter((r) => r.lessonId === lessonId)
     ),
@@ -127,8 +127,8 @@ function createMockContentRepository(): ContentRepository {
 
 // Mock progress repository
 function createMockProgressRepository(): ProgressRepository {
-  const lessonProgress: Map<string, LessonProgress> = new Map()
-  const resourceProgress: Map<string, ResourceProgress> = new Map()
+  const lessonProgress = new Map<string, LessonProgress>()
+  const resourceProgress = new Map<string, ResourceProgress>()
 
   const makeKey = (enrollmentId: string, itemId: string) => `${enrollmentId}:${itemId}`
 

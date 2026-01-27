@@ -23,19 +23,19 @@ import { S3Client } from '@aws-sdk/client-s3';
  * - S3_SECRET_ACCESS_KEY: Secret access key
  */
 export const s3Client = new S3Client({
-  endpoint: process.env.S3_ENDPOINT || 'http://minio:9000',
+  endpoint: process.env.S3_ENDPOINT ?? 'http://minio:9000',
   credentials: {
-    accessKeyId: process.env.S3_ACCESS_KEY_ID || 'minioadmin',
-    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || 'minioadmin',
+    accessKeyId: process.env.S3_ACCESS_KEY_ID ?? 'minioadmin',
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? 'minioadmin',
   },
-  region: process.env.S3_REGION || 'us-east-1', // MinIO requires a region
+  region: process.env.S3_REGION ?? 'us-east-1', // MinIO requires a region
   forcePathStyle: true, // Required for MinIO (path-style URLs: http://minio:9000/bucket/key)
 });
 
 /**
  * Default bucket name for file uploads
  */
-export const UPLOAD_BUCKET = process.env.S3_BUCKET || 'akademate-assets';
+export const UPLOAD_BUCKET = process.env.S3_BUCKET ?? 'akademate-assets';
 
 /**
  * Maximum file size (100MB)

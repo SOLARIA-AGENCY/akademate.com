@@ -1,12 +1,12 @@
 import type { DomainResolution, TenantId } from '@akademate/types'
 
-export type ApiClientOptions = {
+export interface ApiClientOptions {
   baseUrl: string
   tenantId?: TenantId
   token?: string
 }
 
-export type RequestContext = {
+export interface RequestContext {
   path: string
   tenantId?: TenantId
   traceId?: string

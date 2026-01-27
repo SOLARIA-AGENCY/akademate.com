@@ -6,7 +6,8 @@
 
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -92,16 +93,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       success: true,
       data: {
         module: {
-          id: (module as any).id,
-          title: (module as any).title,
-          description: (module as any).description,
-          order: (module as any).order,
-          estimatedMinutes: (module as any).estimatedMinutes,
-          unlockDate: (module as any).unlockDate,
-          status: (module as any).status,
+          id: (module).id,
+          title: (module).title,
+          description: (module).description,
+          order: (module).order,
+          estimatedMinutes: (module).estimatedMinutes,
+          unlockDate: (module).unlockDate,
+          status: (module).status,
         },
         lessons: lessons.docs.map((lesson) => {
-          const lessonRecord = lesson as any;
+          const lessonRecord = lesson;
           return {
             id: lessonRecord.id,
             title: lessonRecord.title,
@@ -119,7 +120,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           };
         }),
         materials: materials.docs.map((material) => {
-          const materialRecord = material as any;
+          const materialRecord = material;
           return {
             id: materialRecord.id,
             title: materialRecord.title,

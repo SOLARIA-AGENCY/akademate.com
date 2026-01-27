@@ -1,6 +1,6 @@
 import { OTP } from 'otplib'
 
-export type TotpSecret = {
+export interface TotpSecret {
   secret: string
   otpauthUrl: string
 }

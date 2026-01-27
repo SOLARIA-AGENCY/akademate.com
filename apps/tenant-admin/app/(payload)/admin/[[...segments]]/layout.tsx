@@ -8,7 +8,7 @@ import React from 'react'
 
 import { importMap } from '../importMap'
 
-type Args = {
+interface Args {
   children: React.ReactNode
 }
 

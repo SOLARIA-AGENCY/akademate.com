@@ -8,7 +8,7 @@
 
 import { createContext, useContext, type ReactNode } from 'react'
 
-export type TenantInfo = {
+export interface TenantInfo {
   id: string
   slug: string
   name: string
@@ -19,7 +19,7 @@ export type TenantInfo = {
   }
 }
 
-type TenantContextValue = {
+interface TenantContextValue {
   tenant: TenantInfo | null
   isLoading: boolean
   error: Error | null
@@ -39,7 +39,7 @@ export function useTenant(): TenantContextValue {
   return context
 }
 
-type TenantProviderProps = {
+interface TenantProviderProps {
   tenant: TenantInfo | null
   children: ReactNode
 }

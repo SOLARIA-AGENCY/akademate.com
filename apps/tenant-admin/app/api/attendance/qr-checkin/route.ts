@@ -10,7 +10,8 @@
  * - Checks session timing (within valid check-in window)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import crypto from 'crypto'
 
@@ -44,7 +45,7 @@ interface CheckinResult {
 // Configuration
 // ============================================================================
 
-const QR_SECRET = process.env.QR_SIGNATURE_SECRET || 'akademate-qr-secret-dev'
+const QR_SECRET = process.env.QR_SIGNATURE_SECRET ?? 'akademate-qr-secret-dev'
 const LATE_THRESHOLD_MINUTES = 15
 const CHECKIN_WINDOW_BEFORE_MINUTES = 30
 const CHECKIN_WINDOW_AFTER_MINUTES = 60

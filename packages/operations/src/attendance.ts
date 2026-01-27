@@ -74,12 +74,12 @@ export class AttendanceService {
     sessionId: string
     tenantId: string
     markedBy: string
-    attendances: Array<{
+    attendances: {
       enrollmentId: string
       userId: string
       status: AttendanceStatus
       notes?: string
-    }>
+    }[]
   }): Attendance[] {
     return params.attendances.map(a => this.markAttendance({
       sessionId: params.sessionId,
@@ -137,7 +137,7 @@ export class AttendanceService {
     }
 
     for (const a of attendances) {
-      counts[a.status as keyof typeof counts]++
+      counts[a.status]++
     }
 
     const totalCountable = counts.present + counts.absent + counts.late + counts.excused
@@ -177,7 +177,7 @@ export class AttendanceService {
     }
 
     for (const a of sessionAttendances) {
-      counts[a.status as keyof typeof counts]++
+      counts[a.status]++
     }
 
     const total = sessionAttendances.length

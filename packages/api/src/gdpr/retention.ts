@@ -197,12 +197,12 @@ export class GdprRetentionService {
   async previewRetention(
     tenantId: string,
     category: DataCategory,
-    limit: number = 100
+    limit = 100
   ): Promise<RetentionCandidate[]> {
     const policies = await this.getPolicies(tenantId)
     const policy = policies.find((p) => p.category === category)
 
-    if (!policy || !policy.isActive) {
+    if (!policy?.isActive) {
       return []
     }
 
@@ -220,8 +220,8 @@ export class GdprRetentionService {
   async executeRetention(
     tenantId: string,
     category: DataCategory,
-    dryRun: boolean = false,
-    batchSize: number = 100
+    dryRun = false,
+    batchSize = 100
   ): Promise<RetentionJobResult> {
     const startTime = Date.now()
     const jobId = this.deps.generateJobId()
@@ -243,7 +243,7 @@ export class GdprRetentionService {
       const policies = await this.getPolicies(tenantId)
       const policy = policies.find((p) => p.category === category)
 
-      if (!policy || !policy.isActive) {
+      if (!policy?.isActive) {
         result.errors.push(`Policy not active for category: ${category}`)
         result.duration = Date.now() - startTime
         return result
@@ -304,8 +304,8 @@ export class GdprRetentionService {
    */
   async executeAllRetentionPolicies(
     tenantId: string,
-    dryRun: boolean = false,
-    batchSize: number = 100
+    dryRun = false,
+    batchSize = 100
   ): Promise<RetentionJobResult[]> {
     const policies = await this.getPolicies(tenantId)
     const activePolicies = policies.filter((p) => p.isActive)

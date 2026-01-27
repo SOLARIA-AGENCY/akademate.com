@@ -4,18 +4,19 @@
  * Returns lesson details with materials and progress for a specific enrollment.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.CAMPUS_JWT_SECRET || 'campus-secret-key-change-in-production'
+  process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
 );
 
 async function verifyToken(request: NextRequest) {
   const authHeader = request.headers.get('Authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader?.startsWith('Bearer ')) {
     return null;
   }
 
@@ -34,7 +35,7 @@ export async function GET(
 ) {
   try {
     const decoded = await verifyToken(request);
-    if (!decoded || decoded.type !== 'campus') {
+    if (decoded?.type !== 'campus') {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -53,7 +54,7 @@ export async function GET(
     }
 
     const payload = await getPayload({ config });
-    const studentId = decoded.sub as string;
+    const studentId = decoded.sub!;
 
     // Verify enrollment belongs to student
     const enrollment = await payload.findByID({
@@ -69,9 +70,9 @@ export async function GET(
       );
     }
 
-    const enrollmentStudent = typeof (enrollment as any).student === 'object'
-      ? (enrollment as any).student.id
-      : (enrollment as any).student;
+    const enrollmentStudent = typeof (enrollment).student === 'object'
+      ? (enrollment).student.id
+      : (enrollment).student;
 
     if (String(enrollmentStudent) !== studentId) {
       return NextResponse.json(
@@ -114,7 +115,7 @@ export async function GET(
       });
 
       if (progressResult.docs.length > 0) {
-        const progress = progressResult.docs[0] as any;
+        const progress = progressResult.docs[0];
         progressData = {
           status: progress.status || 'not_started',
           progressPercent: progress.progressPercent || 0,
@@ -129,12 +130,12 @@ export async function GET(
     }
 
     // Get module info
-    const module = typeof (lesson as any).module === 'object'
-      ? (lesson as any).module
+    const module = typeof (lesson).module === 'object'
+      ? (lesson).module
       : null;
 
     // Get course info
-    const courseRun = (enrollment as any).course_run ?? (enrollment as any).courseRun;
+    const courseRun = (enrollment).course_run ?? (enrollment).courseRun;
     const course = typeof courseRun?.course === 'object' ? courseRun.course : null;
 
     // Get materials for this lesson
@@ -163,7 +164,7 @@ export async function GET(
     }
 
     // Get navigation (previous/next lessons)
-    let navigation = {
+    const navigation = {
       previousLesson: undefined as { id: string; title: string } | undefined,
       nextLesson: undefined as { id: string; title: string } | undefined,
     };
@@ -183,12 +184,12 @@ export async function GET(
         );
 
         if (currentIndex > 0) {
-          const prev = lessonsResult.docs[currentIndex - 1] as any;
+          const prev = lessonsResult.docs[currentIndex - 1];
           navigation.previousLesson = { id: prev.id, title: prev.title };
         }
 
         if (currentIndex < lessonsResult.docs.length - 1) {
-          const next = lessonsResult.docs[currentIndex + 1] as any;
+          const next = lessonsResult.docs[currentIndex + 1];
           navigation.nextLesson = { id: next.id, title: next.title };
         }
       } catch (err) {
@@ -201,14 +202,14 @@ export async function GET(
       data: {
         lesson: {
           id: lesson.id,
-          title: (lesson as any).title,
-          description: (lesson as any).description,
-          content: (lesson as any).content,
-          order: (lesson as any).order || 1,
-          estimatedMinutes: (lesson as any).estimatedMinutes || 0,
-          isMandatory: (lesson as any).isMandatory || false,
-          videoUrl: (lesson as any).video?.url || (lesson as any).videoUrl,
-          videoDuration: (lesson as any).videoDuration,
+          title: (lesson).title,
+          description: (lesson).description,
+          content: (lesson).content,
+          order: (lesson).order || 1,
+          estimatedMinutes: (lesson).estimatedMinutes || 0,
+          isMandatory: (lesson).isMandatory || false,
+          videoUrl: (lesson).video?.url || (lesson).videoUrl,
+          videoDuration: (lesson).videoDuration,
         },
         module: module
           ? {

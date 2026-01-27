@@ -185,13 +185,13 @@ export const subscriptions = pgTable('subscriptions', {
   trialStart: timestamp('trial_start', { withTimezone: true }),
   trialEnd: timestamp('trial_end', { withTimezone: true }),
   usageMeter: jsonb('usage_meter')
-    .$type<Array<{
+    .$type<{
       metric: string
       value: number
       unit?: string | null
       limit?: number | string | null
       updatedAt?: string
-    }>>()
+    }[]>()
     .default([])
     .notNull(),
   metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
@@ -220,12 +220,12 @@ export const invoices = pgTable('invoices', {
   invoicePdfUrl: text('invoice_pdf_url'),
   lineItems: jsonb('line_items')
     .$type<
-      Array<{
+      {
         description: string
         quantity: number
         unitAmount: number
         amount: number
-      }>
+      }[]
     >()
     .default([])
     .notNull(),

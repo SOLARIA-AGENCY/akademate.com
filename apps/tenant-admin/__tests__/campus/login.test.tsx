@@ -52,7 +52,7 @@ describe('Campus Login Page', () => {
     const submitButton = screen.getByRole('button', { name: /iniciar sesion/i })
     fireEvent.click(submitButton)
 
-    const emailInput = screen.getByLabelText(/correo electronico/i) as HTMLInputElement
+    const emailInput = screen.getByLabelText(/correo electronico/i)
     expect(emailInput.validity.valid).toBe(false)
   })
 

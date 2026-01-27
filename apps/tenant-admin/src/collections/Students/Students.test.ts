@@ -22,7 +22,8 @@
  */
 
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { createTestContext, cleanupTestContext, TestContext, cleanupCollection } from '../../utils/testHelpers';
+import type { TestContext} from '../../utils/testHelpers';
+import { createTestContext, cleanupTestContext, cleanupCollection } from '../../utils/testHelpers';
 
 // ============================================================================
 // TEST SETUP
@@ -1667,7 +1668,7 @@ describe('Students Collection - TDD Test Suite', () => {
 
       console.log = originalLog;
 
-      expect(logs.some((log) => log.includes(validStudentData.dni!))).toBe(false);
+      expect(logs.some((log) => log.includes(validStudentData.dni))).toBe(false);
     });
 
     test('should NOT log first_name in hooks', async () => {
@@ -1704,10 +1705,10 @@ describe('Students Collection - TDD Test Suite', () => {
       console.log = originalLog;
 
       expect(
-        logs.some((log) => log.includes(validStudentData.emergency_contact_name!))
+        logs.some((log) => log.includes(validStudentData.emergency_contact_name))
       ).toBe(false);
       expect(
-        logs.some((log) => log.includes(validStudentData.emergency_contact_phone!))
+        logs.some((log) => log.includes(validStudentData.emergency_contact_phone))
       ).toBe(false);
     });
 
@@ -2227,11 +2228,11 @@ describe('Students Collection - TDD Test Suite', () => {
       const piiFields = [
         validStudentData.email,
         validStudentData.phone,
-        validStudentData.dni!,
+        validStudentData.dni,
         validStudentData.first_name,
         validStudentData.last_name,
-        validStudentData.emergency_contact_name!,
-        validStudentData.emergency_contact_phone!,
+        validStudentData.emergency_contact_name,
+        validStudentData.emergency_contact_phone,
       ];
 
       for (const pii of piiFields) {
