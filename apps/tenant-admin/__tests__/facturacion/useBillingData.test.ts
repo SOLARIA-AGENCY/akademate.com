@@ -1,38 +1,38 @@
 import { renderHook, waitFor } from '@testing-library/react'
-import { useBillingData } from '../../@payload-config/hooks/useBillingData'
-import type { Subscription, Invoice, PaymentMethod, PaymentTransaction } from '../../../packages/types/src/index'
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { useBillingData } from '@payload-config/hooks/useBillingData'
+import type { Subscription, Invoice, PaymentMethod, PaymentTransaction } from '@akademate/types'
 
 // Mock SWR
-jest.mock('swr', () => ({
-  __esModule: true,
-  default: jest.fn((url: string) => {
-    const mockData = {
+vi.mock('swr', () => ({
+  default: vi.fn((url: string) => {
+    const mockData: Record<string, unknown> = {
       '/api/billing/subscriptions?tenantId=tenant-1': {
         data: mockSubscription,
         error: null,
         isLoading: false,
-        mutate: jest.fn(),
+        mutate: vi.fn(),
       },
       '/api/billing/invoices?customerId=cus_123': {
         data: { invoices: mockInvoices },
         error: null,
         isLoading: false,
-        mutate: jest.fn(),
+        mutate: vi.fn(),
       },
       '/api/billing/payment-methods?customerId=cus_123': {
         data: { paymentMethods: mockPaymentMethods },
         error: null,
         isLoading: false,
-        mutate: jest.fn(),
+        mutate: vi.fn(),
       },
       '/api/billing/transactions?tenantId=tenant-1': {
         data: { transactions: mockTransactions },
         error: null,
         isLoading: false,
-        mutate: jest.fn(),
+        mutate: vi.fn(),
       },
     }
-    return mockData[url] || { data: null, error: null, isLoading: false, mutate: jest.fn() }
+    return mockData[url] ?? { data: null, error: null, isLoading: false, mutate: vi.fn() }
   }),
 }))
 
@@ -118,6 +118,10 @@ const mockTransactions: PaymentTransaction[] = [
 ]
 
 describe('useBillingData', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('returns subscription data', async () => {
     const { result } = renderHook(() => useBillingData({ tenantId: 'tenant-1' }))
 

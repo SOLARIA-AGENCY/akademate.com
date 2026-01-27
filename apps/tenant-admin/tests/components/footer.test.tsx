@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { DashboardFooter } from '../../@payload-config/components/layout/DashboardFooter'
+import { DashboardFooter } from '@payload-config/components/layout/DashboardFooter'
 
 describe('Dashboard Footer', () => {
   describe('Rendering', () => {

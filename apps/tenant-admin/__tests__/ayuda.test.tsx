@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import AyudaPage from '@/app/(dashboard)/ayuda/page'
 
@@ -36,14 +36,18 @@ describe('Help Page', () => {
     expect(screen.getByText('Gestión de Personal')).toBeInTheDocument()
   })
 
-  it('expands guide sections', () => {
+  it('expands guide sections', async () => {
     render(<AyudaPage />)
 
-    const section = screen.getByText('Primeros Pasos').closest('.cursor-pointer')
-    fireEvent.click(section!)
+    // Find the CardHeader containing "Primeros Pasos" and click it
+    const sectionTitle = screen.getByText('Primeros Pasos')
+    const cardHeader = sectionTitle.closest('[data-testid="card-header"]')
+    fireEvent.click(cardHeader!)
 
-    // Should show guides within section
-    expect(screen.getByText(/introducción al dashboard/i)).toBeInTheDocument()
+    // Wait for the content to appear after state update
+    await waitFor(() => {
+      expect(screen.getByText('Introducción al Dashboard')).toBeInTheDocument()
+    })
   })
 
   it('displays FAQ section', () => {
