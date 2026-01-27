@@ -102,14 +102,14 @@ export function useSystemStatus(
   const avgResponseTime =
     services.length > 0
       ? Math.round(
-          services.reduce((sum, s) => sum + (s.latency || 0), 0) /
-            services.filter((s) => s.latency).length || 1
+          services.reduce((sum, s) => sum + (s.latency ?? 0), 0) /
+            (services.filter((s) => s.latency).length || 1)
         )
       : 0;
 
   const avgUptime =
     services.length > 0
-      ? services.reduce((sum, s) => sum + (s.uptime || 0), 0) / services.length
+      ? services.reduce((sum, s) => sum + (s.uptime ?? 0), 0) / services.length
       : 100;
 
   // ──────────────────────────────────────────────────────────────────────────

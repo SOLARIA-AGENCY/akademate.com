@@ -178,9 +178,9 @@ export function createSocketServer(options: CreateSocketServerOptions): TypedSer
   log('Applying rate limit middleware', rateLimit);
   io.use(
     createRateLimitMiddleware({
-      maxEvents: rateLimit.maxEvents || 100,
-      windowMs: rateLimit.windowMs || 60000,
-      skipEvents: rateLimit.skipEvents || ['ping', 'pong'],
+      maxEvents: rateLimit.maxEvents ?? 100,
+      windowMs: rateLimit.windowMs ?? 60000,
+      skipEvents: rateLimit.skipEvents ?? ['ping', 'pong'],
       debug,
     })
   );

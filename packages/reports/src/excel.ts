@@ -49,7 +49,7 @@ export class ExcelReportGenerator {
 
       // Add sheets
       for (const sheetOptions of options.sheets) {
-        await this.addSheet(workbook, sheetOptions);
+        this.addSheet(workbook, sheetOptions);
       }
 
       // Generate buffer
@@ -72,10 +72,10 @@ export class ExcelReportGenerator {
   /**
    * Add sheet to workbook
    */
-  private async addSheet(
+  private addSheet(
     workbook: ExcelJS.Workbook,
     options: ExcelSheetOptions
-  ): Promise<void> {
+  ): void {
     const worksheet = workbook.addWorksheet(options.name, {
       views: options.freezeHeader ? [{ state: 'frozen', ySplit: 1 }] : undefined,
     });
@@ -191,7 +191,7 @@ export class ExcelReportGenerator {
  * Generate enrollment report as Excel
  */
 export async function generateEnrollmentExcel(
-  data: Array<{
+  data: {
     studentName: string;
     studentEmail: string;
     courseName: string;
@@ -200,7 +200,7 @@ export async function generateEnrollmentExcel(
     progress: number;
     grade?: number;
     campusName?: string;
-  }>,
+  }[],
   tenantName: string
 ): Promise<ReportResult> {
   const generator = new ExcelReportGenerator();
@@ -253,7 +253,7 @@ export async function generateEnrollmentExcel(
  * Generate attendance report as Excel
  */
 export async function generateAttendanceExcel(
-  data: Array<{
+  data: {
     studentName: string;
     courseRunName: string;
     sessionDate: Date;
@@ -261,7 +261,7 @@ export async function generateAttendanceExcel(
     checkOutTime?: Date;
     status: string;
     notes?: string;
-  }>,
+  }[],
   tenantName: string
 ): Promise<ReportResult> {
   const generator = new ExcelReportGenerator();
@@ -311,7 +311,7 @@ export async function generateAttendanceExcel(
  * Generate lead report as Excel
  */
 export async function generateLeadExcel(
-  data: Array<{
+  data: {
     name: string;
     email: string;
     phone?: string;
@@ -321,7 +321,7 @@ export async function generateLeadExcel(
     score: number;
     createdAt: Date;
     assignedTo?: string;
-  }>,
+  }[],
   tenantName: string
 ): Promise<ReportResult> {
   const generator = new ExcelReportGenerator();
@@ -363,14 +363,14 @@ export async function generateLeadExcel(
  * Generate revenue report as Excel
  */
 export async function generateRevenueExcel(
-  data: Array<{
+  data: {
     period: string;
     courseName: string;
     enrollments: number;
     revenue: number;
     currency: string;
     avgTicket: number;
-  }>,
+  }[],
   tenantName: string
 ): Promise<ReportResult> {
   const generator = new ExcelReportGenerator();

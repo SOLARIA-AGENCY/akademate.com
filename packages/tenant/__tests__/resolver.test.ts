@@ -108,7 +108,7 @@ describe('parseTenantCookie', () => {
 
 describe('getFullTenantResolution', () => {
   const createMockHeaders = (headers: Record<string, string>) => ({
-    get: (name: string) => headers[name.toLowerCase()] || null,
+    get: (name: string) => headers[name.toLowerCase()] ?? null,
   })
 
   it('prioritizes header over cookie', () => {

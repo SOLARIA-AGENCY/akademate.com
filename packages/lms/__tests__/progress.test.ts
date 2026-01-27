@@ -96,12 +96,12 @@ function createMockContentRepository(): ContentRepository {
   ]
 
   return {
-    getModule: vi.fn(async (tenantId, moduleId) => modules.find((m) => m.id === moduleId) || null),
+    getModule: vi.fn(async (tenantId, moduleId) => modules.find((m) => m.id === moduleId) ?? null),
     getModulesByCourseRun: vi.fn(async () => modules),
     getLessonsByModule: vi.fn(async (tenantId, moduleId) =>
       lessons.filter((l) => l.moduleId === moduleId)
     ),
-    getLesson: vi.fn(async (tenantId, lessonId) => lessons.find((l) => l.id === lessonId) || null),
+    getLesson: vi.fn(async (tenantId, lessonId) => lessons.find((l) => l.id === lessonId) ?? null),
     getResourcesByLesson: vi.fn(async (tenantId, lessonId) =>
       resources.filter((r) => r.lessonId === lessonId)
     ),

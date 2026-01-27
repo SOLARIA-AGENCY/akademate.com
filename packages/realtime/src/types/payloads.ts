@@ -87,14 +87,14 @@ export interface ActivityPayload extends BasePayload {
 export type ServiceStatus = 'operational' | 'degraded' | 'down' | 'maintenance';
 
 export interface SystemStatusPayload extends BasePayload {
-  services: Array<{
+  services: {
     name: string;
     status: ServiceStatus;
     latency?: number;
     uptime?: number;
     lastChecked: string;
     details?: string;
-  }>;
+  }[];
   overallStatus: ServiceStatus;
 }
 
@@ -256,13 +256,13 @@ export interface LeaderboardPayload extends BasePayload {
   points: number;
 
   /** Top 10 leaderboard snapshot */
-  leaderboard?: Array<{
+  leaderboard?: {
     position: number;
     userId: string;
     userName: string;
     userAvatar?: string;
     points: number;
-  }>;
+  }[];
 }
 
 // ============================================================================

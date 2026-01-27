@@ -304,14 +304,14 @@ function mapPageSize(size?: ReportSize): 'A4' | 'LETTER' | 'LEGAL' | undefined {
  * Generate enrollment report as PDF
  */
 export async function generateEnrollmentPdf(
-  data: Array<{
+  data: {
     studentName: string;
     studentEmail: string;
     courseName: string;
     enrolledAt: Date;
     status: string;
     progress: number;
-  }>,
+  }[],
   tenantName: string
 ): Promise<ReportResult> {
   const generator = new PdfReportGenerator();
@@ -339,12 +339,12 @@ export async function generateEnrollmentPdf(
  * Generate attendance report as PDF
  */
 export async function generateAttendancePdf(
-  data: Array<{
+  data: {
     studentName: string;
     courseRunName: string;
     sessionDate: Date;
     status: string;
-  }>,
+  }[],
   tenantName: string
 ): Promise<ReportResult> {
   const generator = new PdfReportGenerator();
@@ -367,14 +367,14 @@ export async function generateAttendancePdf(
  * Generate lead report as PDF
  */
 export async function generateLeadPdf(
-  data: Array<{
+  data: {
     name: string;
     email: string;
     source: string;
     status: string;
     score: number;
     createdAt: Date;
-  }>,
+  }[],
   tenantName: string
 ): Promise<ReportResult> {
   const generator = new PdfReportGenerator();
