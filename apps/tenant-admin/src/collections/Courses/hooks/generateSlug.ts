@@ -1,4 +1,4 @@
-import { CollectionBeforeValidateHook } from 'payload';
+import type { CollectionBeforeValidateHook } from 'payload';
 import { slugify } from '../../../utils/slugify';
 
 /**

@@ -12,8 +12,8 @@ import { injectTenantId, preventTenantChange } from '../injectTenantId'
 
 interface MockUser {
   id: string
-  roles?: Array<{ role?: string } | string>
-  tenantId?: Array<{ id: string } | string>
+  roles?: ({ role?: string } | string)[]
+  tenantId?: ({ id: string } | string)[]
 }
 
 function createMockArgs(overrides: {
@@ -144,7 +144,7 @@ describe('injectTenantId', () => {
       const userWithStringTenants: MockUser = {
         id: 'user-str',
         roles: [{ role: 'user' }],
-        tenantId: ['str-tenant-1'] as unknown as Array<{ id: string } | string>,
+        tenantId: ['str-tenant-1'] as unknown as ({ id: string } | string)[],
       }
 
       const args = createMockArgs({

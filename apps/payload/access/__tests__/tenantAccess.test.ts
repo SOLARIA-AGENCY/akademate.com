@@ -20,8 +20,8 @@ import {
 
 interface MockUser {
   id: string
-  roles?: Array<{ role?: string } | string>
-  tenantId?: Array<{ id: string } | string>
+  roles?: ({ role?: string } | string)[]
+  tenantId?: ({ id: string } | string)[]
 }
 
 function createMockReq(user?: MockUser) {
@@ -98,7 +98,7 @@ describe('readOwnTenant', () => {
     const user: MockUser = {
       id: 'user-string-tenants',
       roles: [{ role: 'user' }],
-      tenantId: ['tenant-str-1', 'tenant-str-2'] as unknown as Array<{ id: string } | string>,
+      tenantId: ['tenant-str-1', 'tenant-str-2'] as unknown as ({ id: string } | string)[],
     }
     const result = readOwnTenant({ req: createMockReq(user) })
     expect(result).toEqual({
@@ -109,7 +109,7 @@ describe('readOwnTenant', () => {
   it('should handle string roles', () => {
     const user: MockUser = {
       id: 'user-string-roles',
-      roles: ['superadmin'] as unknown as Array<{ role?: string } | string>,
+      roles: ['superadmin'] as unknown as ({ role?: string } | string)[],
       tenantId: [{ id: 'tenant-1' }],
     }
     const result = readOwnTenant({ req: createMockReq(user) })

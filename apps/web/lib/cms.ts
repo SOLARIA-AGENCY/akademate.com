@@ -147,7 +147,7 @@ class CMSClient {
     // Update cache
     this.cache.set(cacheKey, { data, timestamp: Date.now() })
 
-    return data as T
+    return data
   }
 
   private buildQuery(params?: QueryParams): string {

@@ -1923,7 +1923,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
         user: adminUser,
       });
 
-      const collectionConfig = payload.collections['ads_templates'].config;
+      const collectionConfig = payload.collections.ads_templates.config;
       const createdByField = collectionConfig.fields.find(
         (f: any) => f.name === 'created_by'
       );
@@ -1941,7 +1941,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
     });
 
     it('should have field-level access control on system-tracked fields', async () => {
-      const collectionConfig = payload.collections['ads_templates'].config;
+      const collectionConfig = payload.collections.ads_templates.config;
 
       const systemFields = [
         'version',

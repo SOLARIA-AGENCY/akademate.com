@@ -42,7 +42,7 @@ export const captureCompletionSnapshot: CollectionAfterChangeHook = async ({
   }
 
   // Check if snapshot already exists (should not happen, but safety check)
-  if (doc.completion_snapshot && doc.completion_snapshot.final_student_count !== undefined) {
+  if (doc.completion_snapshot?.final_student_count !== undefined) {
     console.log(`[COURSE_RUN] Snapshot already exists for course run ${doc.id}, skipping`);
     return doc;
   }

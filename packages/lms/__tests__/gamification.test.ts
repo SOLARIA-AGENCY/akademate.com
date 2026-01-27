@@ -21,10 +21,10 @@ import type {
 
 // Mock repository factory
 function createMockRepository(): GamificationRepository {
-  const badges: Map<string, BadgeDefinition> = new Map()
-  const userBadges: Map<string, UserBadge[]> = new Map()
-  const pointsTransactions: Map<string, PointsTransaction[]> = new Map()
-  const streaks: Map<string, { current: number; longest: number; lastActivity: Date }> = new Map()
+  const badges = new Map<string, BadgeDefinition>()
+  const userBadges = new Map<string, UserBadge[]>()
+  const pointsTransactions = new Map<string, PointsTransaction[]>()
+  const streaks = new Map<string, { current: number; longest: number; lastActivity: Date }>()
 
   const getUserKey = (tenantId: number, userId: string) => `${tenantId}:${userId}`
 

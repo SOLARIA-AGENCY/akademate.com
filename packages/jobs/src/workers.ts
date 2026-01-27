@@ -23,11 +23,11 @@ const createTenantWorker = <TPayload>(
     async (rawJob: Job<TenantJob<TPayload>>) => {
       const data = rawJob.data
 
-      if (!data || data.name !== jobName) {
+      if (data?.name !== jobName) {
         return
       }
 
-      await handler(data, rawJob as Job<TenantJob<TPayload>>)
+      await handler(data, rawJob)
     },
     {
       ...options,

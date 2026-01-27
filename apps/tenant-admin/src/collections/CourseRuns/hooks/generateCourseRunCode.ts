@@ -68,7 +68,7 @@ export const generateCourseRunCode: CollectionBeforeChangeHook = async ({
         id: data.campus,
       });
 
-      if (campus && campus.slug) {
+      if (campus?.slug) {
         campusCode = CAMPUS_CODES[campus.slug] || 'UNK';
       }
     }

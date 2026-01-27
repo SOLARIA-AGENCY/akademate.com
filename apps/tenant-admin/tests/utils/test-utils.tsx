@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { render as rtlRender, RenderOptions } from '@testing-library/react'
+import type { RenderOptions } from '@testing-library/react';
+import { render as rtlRender } from '@testing-library/react'
 import type { ReactElement } from 'react'
 
 // Mock Next.js router

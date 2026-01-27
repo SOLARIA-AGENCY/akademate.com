@@ -7,7 +7,8 @@
  * Uses JWT tokens stored in cookies or localStorage.
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 // ============================================================================
 // Types

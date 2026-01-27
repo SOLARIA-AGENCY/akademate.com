@@ -8,7 +8,8 @@
  * Auto-connects when student auth is available.
  */
 
-import { ReactNode, useEffect, useState } from 'react';
+import type { ReactNode} from 'react';
+import { useEffect, useState } from 'react';
 import { SocketProvider } from '@akademate/realtime/context';
 
 interface AuthData {

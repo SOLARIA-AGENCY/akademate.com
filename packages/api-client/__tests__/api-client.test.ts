@@ -57,14 +57,14 @@ describe('ApiClient', () => {
       const client = new ApiClient({ baseUrl: 'https://api.akademate.com', tenantId: 'abc', token: 'tok' })
       const headers = client.buildTenantHeaders()
       expect(headers['x-tenant-id']).toBe('abc')
-      expect(headers['Authorization']).toBe('Bearer tok')
+      expect(headers.Authorization).toBe('Bearer tok')
     })
 
     it('builds headers without token', () => {
       const client = new ApiClient({ baseUrl: 'https://api.akademate.com', tenantId: 'abc' })
       const headers = client.buildTenantHeaders()
       expect(headers['x-tenant-id']).toBe('abc')
-      expect(headers['Authorization']).toBeUndefined()
+      expect(headers.Authorization).toBeUndefined()
     })
 
     it('uses provided tenantId over default', () => {

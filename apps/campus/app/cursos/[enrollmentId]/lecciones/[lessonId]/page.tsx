@@ -20,7 +20,7 @@ interface LessonContent {
     videoUrl?: string
     duration?: number
     isCompleted: boolean
-    resources?: Array<{ title: string; url: string; type: string }>
+    resources?: { title: string; url: string; type: string }[]
 }
 
 export default function LessonPage({ params }: PageProps) {

@@ -4,7 +4,8 @@
  * Returns student's gamification data: badges, points, streaks, level.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { getPayload } from 'payload';
 import config from '@payload-config';
@@ -15,7 +16,7 @@ const JWT_SECRET = new TextEncoder().encode(
 
 async function verifyToken(request: NextRequest) {
   const authHeader = request.headers.get('Authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader?.startsWith('Bearer ')) {
     return null;
   }
 
@@ -117,7 +118,7 @@ function calculateLevel(points: number): { level: number; progress: number; next
 export async function GET(request: NextRequest) {
   try {
     const decoded = await verifyToken(request);
-    if (!decoded || decoded.type !== 'campus') {
+    if (decoded?.type !== 'campus') {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -125,7 +126,7 @@ export async function GET(request: NextRequest) {
     }
 
     const payload = await getPayload({ config });
-    const studentId = decoded.sub as string;
+    const studentId = decoded.sub!;
 
     // Get student stats from enrollments and progress
     let lessonsCompleted = 0;
@@ -148,7 +149,7 @@ export async function GET(request: NextRequest) {
       });
 
       if (gamificationResult.docs.length > 0) {
-        const gamification = gamificationResult.docs[0] as any;
+        const gamification = gamificationResult.docs[0];
         totalPoints = gamification.totalPoints || 0;
         currentStreak = gamification.currentStreak || 0;
         longestStreak = gamification.longestStreak || 0;

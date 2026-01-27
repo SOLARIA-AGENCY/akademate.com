@@ -177,7 +177,7 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
 
   // FIX #2: Validate that file content matches declared MIME type
   // This prevents attackers from uploading executables disguised as images
-  if (data.file && data.file.data) {
+  if (data.file?.data) {
     try {
       const buffer = Buffer.isBuffer(data.file.data)
         ? data.file.data
@@ -230,7 +230,7 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
   // ============================================================================
 
   // FIX #1: Sanitize SVG files to prevent XSS, XXE, and SSRF attacks
-  if (mimeType === 'image/svg+xml' && data.file && data.file.data) {
+  if (mimeType === 'image/svg+xml' && data.file?.data) {
     try {
       const buffer = Buffer.isBuffer(data.file.data)
         ? data.file.data

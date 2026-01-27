@@ -28,7 +28,7 @@ export const updateCourseRunEnrollmentCount: CollectionAfterChangeHook = async (
   operation,
   req,
 }) => {
-  if (!doc || !doc.course_run) {
+  if (!doc?.course_run) {
     return doc;
   }
 

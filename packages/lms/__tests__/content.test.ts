@@ -16,9 +16,9 @@ import type { Module, Lesson, Resource } from '../src/types'
 
 // Mock repository factory
 function createMockRepository(): ContentRepository {
-  const modules: Map<string, Module> = new Map()
-  const lessons: Map<string, Lesson> = new Map()
-  const resources: Map<string, Resource> = new Map()
+  const modules = new Map<string, Module>()
+  const lessons = new Map<string, Lesson>()
+  const resources = new Map<string, Resource>()
 
   return {
     // Modules

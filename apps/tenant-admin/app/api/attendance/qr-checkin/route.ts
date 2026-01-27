@@ -10,7 +10,8 @@
  * - Checks session timing (within valid check-in window)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import crypto from 'crypto'
 

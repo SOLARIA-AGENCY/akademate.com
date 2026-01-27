@@ -4,7 +4,8 @@
  * Authenticates students for Campus Virtual.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
 import { SignJWT } from 'jose'
 import { getPayload } from 'payload'
 import config from '@payload-config'

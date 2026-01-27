@@ -41,7 +41,7 @@ interface StaffMember {
   email: string
   phone: string
   bio?: string
-  assignedCampuses: Array<{ id: number; name: string; city: string }>
+  assignedCampuses: { id: number; name: string; city: string }[]
   isActive: boolean
 }
 

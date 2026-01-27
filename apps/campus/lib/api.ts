@@ -171,13 +171,13 @@ export interface EnrollmentDetailData {
         endDate: string;
         status: string;
     } | null;
-    modules: Array<{
+    modules: {
         id: string;
         title: string;
         description?: string;
         order: number;
         estimatedMinutes?: number;
-        lessons: Array<{
+        lessons: {
             id: string;
             title: string;
             description?: string;
@@ -188,9 +188,9 @@ export interface EnrollmentDetailData {
                 status: string;
                 progressPercent: number;
             };
-        }>;
+        }[];
         lessonsCount: number;
-    }>;
+    }[];
     progress: {
         totalModules: number;
         totalLessons: number;

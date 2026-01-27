@@ -45,7 +45,7 @@ export const validateUTMParameters: CollectionBeforeValidateHook = ({ data, oper
 
   const { utm_source, utm_medium, utm_campaign, utm_term, utm_content } = data;
 
-  const errors: Array<{ path: string; message: string }> = [];
+  const errors: { path: string; message: string }[] = [];
 
   // Validate utm_source format
   if (utm_source) {

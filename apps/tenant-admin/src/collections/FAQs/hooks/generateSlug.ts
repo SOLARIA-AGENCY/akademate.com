@@ -80,7 +80,7 @@ async function slugExists(slug: string, req: any, currentId?: string): Promise<b
     return existing.docs.length > 0;
   } catch (error) {
     // SECURITY (SP-004): No logging of error details
-    const logger = req.payload.logger as any;
+    const logger = req.payload.logger;
     logger.error('[FAQ] Slug existence check failed', {
       hasError: true,
     });

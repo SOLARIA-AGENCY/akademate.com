@@ -44,7 +44,7 @@ describe('Leads Collection - Comprehensive Test Suite', () => {
   let testCampusId: string;
   let testCourseId: string;
   let testLeadId: string;
-  let testLeadIds: string[] = [];
+  const testLeadIds: string[] = [];
 
   beforeAll(async () => {
     // Initialize Payload

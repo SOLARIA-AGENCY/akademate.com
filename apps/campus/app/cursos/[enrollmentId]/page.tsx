@@ -20,7 +20,7 @@ interface ModuleWithProgress {
     duration?: number
     lessonsCompleted: number
     lessonsTotal: number
-    lessons: Array<{ id: string; title: string }>
+    lessons: { id: string; title: string }[]
 }
 
 export default function CoursePage({ params }: PageProps) {

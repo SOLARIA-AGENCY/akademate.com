@@ -28,12 +28,12 @@ interface GuideSection {
   title: string
   icon: typeof BookOpen
   description: string
-  guides: Array<{
+  guides: {
     title: string
     description: string
     duration?: string
     level: 'Básico' | 'Intermedio' | 'Avanzado'
-  }>
+  }[]
 }
 
 export default function AyudaPage() {

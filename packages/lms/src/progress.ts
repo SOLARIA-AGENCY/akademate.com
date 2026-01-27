@@ -364,7 +364,7 @@ export class ProgressService {
       enrollmentId
     )
 
-    let totalModules = modules.length
+    const totalModules = modules.length
     let completedModules = 0
     let totalLessons = 0
     let completedLessons = 0

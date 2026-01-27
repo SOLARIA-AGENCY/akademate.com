@@ -692,7 +692,7 @@ export default function TodosLosCiclosPage() {
               id: ciclo.id,
               nombre: ciclo.nombre,
               codigo: ciclo.codigo,
-              tipo: (ciclo.nivel === 'Grado Medio' ? 'medio' : 'superior') as 'medio' | 'superior',
+              tipo: (ciclo.nivel === 'Grado Medio' ? 'medio' : 'superior'),
               familia_profesional: ciclo.familia,
               descripcion: '',
               objetivos: [],

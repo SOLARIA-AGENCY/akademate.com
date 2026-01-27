@@ -6,7 +6,8 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
-import { QRScanner, QRScanResult, AttendanceStatusBadge, AttendanceSummaryCard } from '../../components/attendance'
+import type { QRScanResult} from '../../components/attendance';
+import { QRScanner, AttendanceStatusBadge, AttendanceSummaryCard } from '../../components/attendance'
 
 // Mock data - would come from API
 const mockEnrollmentId = 'enrollment-001'

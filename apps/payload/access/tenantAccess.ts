@@ -2,8 +2,8 @@ import type { Access, Where } from 'payload'
 
 interface UserWithTenants {
   id: string
-  roles?: Array<{ role?: string } | string>
-  tenantId?: Array<{ id: string } | string>
+  roles?: ({ role?: string } | string)[]
+  tenantId?: ({ id: string } | string)[]
 }
 
 /**

@@ -2,7 +2,7 @@ import type { TenantId } from '@akademate/types'
 
 export type JobName = 'send-email' | 'sync-search' | 'webhook'
 
-export type TenantJob<TPayload = unknown> = {
+export interface TenantJob<TPayload = unknown> {
   tenantId: TenantId
   name: JobName
   payload: TPayload

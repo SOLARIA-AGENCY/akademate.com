@@ -84,7 +84,7 @@ export class ExcelReportGenerator {
     worksheet.columns = options.columns.map((col) => ({
       header: col.header,
       key: String(col.key),
-      width: col.width === 'auto' ? undefined : (col.width as number) ?? 15,
+      width: col.width === 'auto' ? undefined : (col.width!) ?? 15,
       style: {
         alignment: {
           horizontal: col.align ?? 'left',

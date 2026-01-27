@@ -8,7 +8,8 @@
 
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // 2. Get course run details (edicion/convocatoria)
-    const enrollmentRecord = enrollment as any;
+    const enrollmentRecord = enrollment;
     const courseRunRef = enrollmentRecord.course_run ?? enrollmentRecord.courseRun;
     const courseRun = typeof courseRunRef === 'object'
       ? courseRunRef
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         });
 
     // 3. Get the base course
-    const courseRunRecord = courseRun as any;
+    const courseRunRecord = courseRun;
     const courseRef = courseRunRecord?.course;
     const course = courseRef
       ? (typeof courseRef === 'object'
@@ -88,7 +89,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // 5. Get lessons for each module
     const modulesWithLessons = await Promise.all(
       modules.docs.map(async (module) => {
-        const moduleRecord = module as any;
+        const moduleRecord = module;
         const lessons = await payload.find({
           collection: 'lessons' as any,
           where: { module: { equals: moduleRecord.id } },
@@ -139,11 +140,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           completedAt: enrollmentRecord.completed_at ?? enrollmentRecord.completedAt ?? null,
         },
         course: course ? {
-          id: (course as any).id,
-          title: (course as any).title,
-          slug: (course as any).slug,
-          description: (course as any).description,
-          thumbnail: (course as any).thumbnail,
+          id: (course).id,
+          title: (course).title,
+          slug: (course).slug,
+          description: (course).description,
+          thumbnail: (course).thumbnail,
         } : null,
         courseRun: courseRun ? {
           id: courseRunRecord.id,
@@ -153,7 +154,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           status: courseRunRecord.status,
         } : null,
         modules: modulesWithLessons.map((module) => {
-          const moduleRecord = module as any;
+          const moduleRecord = module;
           return {
             id: moduleRecord.id,
             title: moduleRecord.title,

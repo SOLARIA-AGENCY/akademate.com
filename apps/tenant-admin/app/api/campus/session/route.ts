@@ -4,7 +4,8 @@
  * Validates JWT and returns current student session.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { getPayload } from 'payload';
 import config from '@payload-config';
@@ -16,7 +17,7 @@ const JWT_SECRET = new TextEncoder().encode(
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json(
         { success: false, error: 'No token provided' },
         { status: 401 }
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
     // Get student
     const student = await payload.findByID({
       collection: 'students',
-      id: decoded.sub as string,
+      id: decoded.sub!,
     });
 
     if (!student || !(student as any).isActive) {

@@ -51,7 +51,7 @@ describe('Usuarios Page', () => {
     
     fireEvent.click(screen.getByText('Crear Usuario'))
     
-    const passwordInput = screen.getByLabelText(/^contraseña$/i) as HTMLInputElement
+    const passwordInput = screen.getByLabelText(/^contraseña$/i)
     expect(passwordInput.type).toBe('password')
     
     // Find and click visibility toggle

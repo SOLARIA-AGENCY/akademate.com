@@ -1,4 +1,4 @@
-import { CollectionAfterReadHook } from 'payload';
+import type { CollectionAfterReadHook } from 'payload';
 
 /**
  * Audit log for lead access (GDPR compliance)

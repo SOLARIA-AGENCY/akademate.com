@@ -148,7 +148,7 @@ export class ApiError extends Error {
     }
   }
 
-  static fromZodError(error: { issues: Array<{ path: (string | number)[]; message: string }> }): ApiError {
+  static fromZodError(error: { issues: { path: (string | number)[]; message: string }[] }): ApiError {
     const details: ApiErrorDetails[] = error.issues.map((issue) => ({
       field: issue.path.join('.'),
       constraint: issue.message,

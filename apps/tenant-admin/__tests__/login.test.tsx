@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { vi, describe, it, expect, beforeEach, Mock } from 'vitest'
+import type { Mock } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { useRouter } from 'next/navigation'
 import LoginPage from '@/app/auth/login/page'
 
@@ -30,7 +31,7 @@ describe('Login Page', () => {
   it('shows/hides password when eye icon is clicked', () => {
     render(<LoginPage />)
 
-    const passwordInput = screen.getByLabelText(/contraseña/i) as HTMLInputElement
+    const passwordInput = screen.getByLabelText(/contraseña/i)
     const toggleButton = screen.getByRole('button', { name: '' })
 
     // Initially password should be hidden
@@ -52,7 +53,7 @@ describe('Login Page', () => {
     fireEvent.click(submitButton)
 
     // Form should show validation errors (HTML5 validation)
-    const emailInput = screen.getByLabelText(/correo electrónico/i) as HTMLInputElement
+    const emailInput = screen.getByLabelText(/correo electrónico/i)
     expect(emailInput.validity.valid).toBe(false)
   })
 
@@ -84,7 +85,7 @@ describe('Login Page', () => {
   it('handles remember me checkbox', () => {
     render(<LoginPage />)
 
-    const rememberCheckbox = screen.getByLabelText(/recordar mi sesión/i) as HTMLInputElement
+    const rememberCheckbox = screen.getByLabelText(/recordar mi sesión/i)
 
     expect(rememberCheckbox.checked).toBe(false)
 

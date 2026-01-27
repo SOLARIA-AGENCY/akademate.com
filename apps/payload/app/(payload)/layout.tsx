@@ -10,7 +10,7 @@ import { importMap } from './admin/importMap'
 
 import '../globals.css'
 
-type Args = {
+interface Args {
   children: React.ReactNode
 }
 

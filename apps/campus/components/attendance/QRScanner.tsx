@@ -6,7 +6,8 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
-import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
+import type { IDetectedBarcode } from '@yudiel/react-qr-scanner';
+import { Scanner } from '@yudiel/react-qr-scanner'
 
 export interface QRScanResult {
   sessionId: string
