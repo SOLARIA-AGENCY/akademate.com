@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config'
 
-export default defineWorkspaceConfig({
+export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
@@ -15,6 +15,5 @@ export default defineWorkspaceConfig({
         statements: 50,
       },
     },
-  },
   },
 })

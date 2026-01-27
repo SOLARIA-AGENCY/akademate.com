@@ -185,10 +185,10 @@ let defaultService: EmailService | null = null;
 
 export function createEmailService(config?: Partial<EmailConfig>): EmailService {
   const fullConfig: EmailConfig = {
-    provider: (process.env.EMAIL_PROVIDER as EmailConfig['provider']) || 'console',
+    provider: (process.env.EMAIL_PROVIDER as EmailConfig['provider']) ?? 'console',
     apiKey: process.env.RESEND_API_KEY,
-    fromEmail: process.env.EMAIL_FROM || 'noreply@akademate.com',
-    fromName: process.env.EMAIL_FROM_NAME || 'Akademate',
+    fromEmail: process.env.EMAIL_FROM ?? 'noreply@akademate.com',
+    fromName: process.env.EMAIL_FROM_NAME ?? 'Akademate',
     replyTo: process.env.EMAIL_REPLY_TO,
     ...config,
   };

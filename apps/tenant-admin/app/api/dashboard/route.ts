@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     let totalStaff = 0;
     let totalTeachers = 0;
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3002';
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3002';
       const staffCountResponse = await fetch(`${baseUrl}/api/staff?limit=1`);
       if (staffCountResponse.ok) {
         const staffCountData = await staffCountResponse.json();

@@ -39,7 +39,7 @@ export default function OpsLoginPage() {
     await new Promise(resolve => setTimeout(resolve, 450))
 
     const demoUser = {
-      email: email || 'ops@akademate.com',
+      email: email ?? 'ops@akademate.com',
       role: 'superadmin',
       name: 'Demo Ops',
       tenantId: 'global-ops',

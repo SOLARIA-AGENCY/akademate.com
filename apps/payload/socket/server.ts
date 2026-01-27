@@ -28,12 +28,12 @@ import {
 // CONFIGURATION
 // ============================================================================
 
-const PORT = parseInt(process.env.SOCKET_PORT || '3009', 10);
-const JWT_SECRET = process.env.PAYLOAD_SECRET || 'development-secret-change-me';
-const NODE_ENV = process.env.NODE_ENV || 'development';
-const REDIS_URL = process.env.REDIS_URL || '';
+const PORT = parseInt(process.env.SOCKET_PORT ?? '3009', 10);
+const JWT_SECRET = process.env.PAYLOAD_SECRET ?? 'development-secret-change-me';
+const NODE_ENV = process.env.NODE_ENV ?? 'development';
+const REDIS_URL = process.env.REDIS_URL ?? '';
 
-const CORS_ORIGINS = process.env.CORS_ORIGINS?.split(',') || [
+const CORS_ORIGINS = process.env.CORS_ORIGINS?.split(',') ?? [
   'http://localhost:3000', // tenant-admin
   'http://localhost:3001', // admin-client
   'http://localhost:3002', // campus

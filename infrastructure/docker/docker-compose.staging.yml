@@ -1,0 +1,91 @@
+# =============================================================================
+# Akademate.com - Docker Compose STAGING Override
+# Use with: docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+# =============================================================================
+
+services:
+  # =============================================================================
+  # Database - Staging (same images, different resources)
+  # =============================================================================
+
+  postgres:
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-akademate_stg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${POSTGRES_DB:-akademate_staging}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  redis:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # =============================================================================
+  # Applications - Staging Configuration
+  # =============================================================================
+
+  payload:
+    environment:
+      NODE_ENV: staging
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?PAYLOAD_SECRET required}
+      DATABASE_URL: postgres://${POSTGRES_USER:-akademate_stg}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-akademate_staging}
+      REDIS_URL: redis://redis:6379
+      S3_BUCKET: ${S3_BUCKET:-akademate-staging-media}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?S3_ACCESS_KEY_ID required}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?S3_SECRET_ACCESS_KEY required}
+      S3_REGION: ${S3_REGION:-eu-west-1}
+      # Staging-specific
+      LOG_LEVEL: info
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  web:
+    environment:
+      NODE_ENV: staging
+      PAYLOAD_CMS_URL: http://payload:3003
+      PAYLOAD_API_KEY: ${PAYLOAD_API_KEY}
+      LOG_LEVEL: info
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  admin:
+    environment:
+      NODE_ENV: staging
+      PAYLOAD_CMS_URL: http://payload:3003
+      PAYLOAD_API_KEY: ${PAYLOAD_API_KEY}
+      LOG_LEVEL: info
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # =============================================================================
+  # Nginx - Staging (relaxed rate limiting for testing)
+  # =============================================================================
+
+  nginx:
+    volumes:
+      - ./nginx/nginx.staging.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot_data:/var/www/certbot:ro
+      - ssl_certs:/etc/letsencrypt:ro

@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 const SESSION_KEY = 'akademate-ops-user'
 const isDev = process.env.NODE_ENV === 'development'
 
-type Session = {
+interface Session {
   email: string
   role: string
   name?: string

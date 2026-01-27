@@ -48,7 +48,7 @@ import { UserStreaks } from './collections/UserStreaks/UserStreaks';
 // Export factory function for lazy evaluation (ESM + --env-file compatibility)
 // Ensures process.env is read AFTER environment variables are loaded
 export const getPayloadConfig = () => buildConfig({
-  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3002',
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
   admin: {
     user: Users.slug, // CRITICAL: Specify auth collection
     meta: {
@@ -106,13 +106,13 @@ export const getPayloadConfig = () => buildConfig({
     // SEOMetadata,
   ],
   editor: lexicalEditor({}),
-  secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE',
+  secret: process.env.PAYLOAD_SECRET ?? 'YOUR_SECRET_HERE',
   typescript: {
     outputFile: path.resolve(__dirname, 'payload-types.ts'),
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL ||
+      connectionString: process.env.DATABASE_URL ??
         `postgresql://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`,
       // ============================================================================
       // CONNECTION POOL OPTIMIZATIONS
@@ -132,12 +132,12 @@ export const getPayloadConfig = () => buildConfig({
       collections: {
         media: true,
       },
-      bucket: process.env.MINIO_BUCKET || 'cepcomunicacion',
+      bucket: process.env.MINIO_BUCKET ?? 'cepcomunicacion',
       config: {
-        endpoint: process.env.MINIO_ENDPOINT || 'http://minio:9000',
+        endpoint: process.env.MINIO_ENDPOINT ?? 'http://minio:9000',
         credentials: {
-          accessKeyId: process.env.MINIO_ACCESS_KEY || 'minioadmin',
-          secretAccessKey: process.env.MINIO_SECRET_KEY || 'minioadmin_dev_2025',
+          accessKeyId: process.env.MINIO_ACCESS_KEY ?? 'minioadmin',
+          secretAccessKey: process.env.MINIO_SECRET_KEY ?? 'minioadmin_dev_2025',
         },
         region: 'us-east-1', // MinIO requires a region
         forcePathStyle: true, // Required for MinIO
@@ -148,13 +148,13 @@ export const getPayloadConfig = () => buildConfig({
     'http://localhost:3000', // React frontend
     'http://localhost:3002', // CMS dashboard
     'http://localhost:3003', // ACADEMIX admin portal
-    process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3002',
+    process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
   ],
   csrf: [
     'http://localhost:3000',
     'http://localhost:3002',
     'http://localhost:3003',
-    process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3002',
+    process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
   ],
 });
 

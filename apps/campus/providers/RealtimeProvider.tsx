@@ -80,7 +80,7 @@ export function RealtimeProvider({ children, tenantId: defaultTenantId = 1 }: Re
     return <>{children}</>;
   }
 
-  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3009';
+  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL ?? 'http://localhost:3009';
 
   return (
     <SocketProvider

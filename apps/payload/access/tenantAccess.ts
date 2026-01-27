@@ -1,6 +1,6 @@
 import type { Access, Where } from 'payload'
 
-type UserWithTenants = {
+interface UserWithTenants {
   id: string
   roles?: Array<{ role?: string } | string>
   tenantId?: Array<{ id: string } | string>

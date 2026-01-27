@@ -10,7 +10,7 @@ import { getPayload } from 'payload';
 import config from '@payload-config';
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.CAMPUS_JWT_SECRET || 'campus-secret-key-change-in-production'
+  process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
 );
 
 async function verifyToken(request: NextRequest) {

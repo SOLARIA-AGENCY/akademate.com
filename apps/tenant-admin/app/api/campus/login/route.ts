@@ -17,7 +17,7 @@ import {
 } from '../../../../lib/rateLimit'
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.CAMPUS_JWT_SECRET || 'campus-secret-key-change-in-production'
+  process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
 )
 
 export async function POST(request: NextRequest) {

@@ -54,19 +54,19 @@ export class PdfReportGenerator {
       const styles = StyleSheet.create({
         page: {
           padding: 40,
-          fontFamily: this.styles.fontFamily || 'Helvetica',
-          fontSize: this.styles.fontSize || 10,
+          fontFamily: this.styles.fontFamily ?? 'Helvetica',
+          fontSize: this.styles.fontSize ?? 10,
         },
         header: {
           marginBottom: 20,
           borderBottomWidth: 2,
-          borderBottomColor: this.styles.primaryColor || '#6366F1',
+          borderBottomColor: this.styles.primaryColor ?? '#6366F1',
           paddingBottom: 10,
         },
         title: {
-          fontSize: this.styles.headerFontSize || 18,
+          fontSize: this.styles.headerFontSize ?? 18,
           fontWeight: 'bold',
-          color: this.styles.primaryColor || '#6366F1',
+          color: this.styles.primaryColor ?? '#6366F1',
         },
         subtitle: {
           fontSize: 12,
@@ -83,7 +83,7 @@ export class PdfReportGenerator {
         },
         tableHeader: {
           flexDirection: 'row',
-          backgroundColor: this.styles.primaryColor || '#6366F1',
+          backgroundColor: this.styles.primaryColor ?? '#6366F1',
           padding: 8,
           borderTopLeftRadius: 4,
           borderTopRightRadius: 4,
@@ -91,7 +91,7 @@ export class PdfReportGenerator {
         tableHeaderCell: {
           color: '#FFFFFF',
           fontWeight: 'bold',
-          fontSize: this.styles.tableFontSize || 9,
+          fontSize: this.styles.tableFontSize ?? 9,
         },
         tableRow: {
           flexDirection: 'row',
@@ -103,7 +103,7 @@ export class PdfReportGenerator {
           backgroundColor: '#F4F4F5',
         },
         tableCell: {
-          fontSize: this.styles.tableFontSize || 9,
+          fontSize: this.styles.tableFontSize ?? 9,
         },
         footer: {
           position: 'absolute',
@@ -138,7 +138,7 @@ export class PdfReportGenerator {
           Page,
           {
             size: mapPageSize(options.meta.pageSize),
-            orientation: options.meta.orientation || 'portrait',
+            orientation: options.meta.orientation ?? 'portrait',
             style: styles.page,
           },
           // Watermark
@@ -173,7 +173,7 @@ export class PdfReportGenerator {
                     key: i,
                     style: [
                       styles.tableHeaderCell,
-                      { width: `${colWidth}%`, textAlign: col.align || 'left' },
+                      { width: `${colWidth}%`, textAlign: col.align ?? 'left' },
                     ],
                   },
                   col.header
@@ -196,7 +196,7 @@ export class PdfReportGenerator {
                       key: colIndex,
                       style: [
                         styles.tableCell,
-                        { width: `${colWidth}%`, textAlign: col.align || 'left' },
+                        { width: `${colWidth}%`, textAlign: col.align ?? 'left' },
                       ],
                     },
                     formatCellValue(row, col)

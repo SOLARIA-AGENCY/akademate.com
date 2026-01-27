@@ -3,7 +3,7 @@
  * Fetches data from tenant-admin LMS endpoints
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3009';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3009';
 
 export interface ProgressData {
     enrollmentId: string;

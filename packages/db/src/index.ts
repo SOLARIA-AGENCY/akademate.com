@@ -60,13 +60,13 @@ import {
 
 export const schemaVersion = '0.1.0' // Bumped for new tables
 
-export type TenantScopedRecord = {
+export interface TenantScopedRecord {
   tenant_id: TenantId
   created_at?: Date
   updated_at?: Date
 }
 
-export type TenantFilter = {
+export interface TenantFilter {
   tenantId: TenantId
   status?: 'active' | 'archived'
 }

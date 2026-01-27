@@ -28,21 +28,21 @@ interface PaymentMethod {
   status: 'active' | 'expired' | 'failed';
 }
 
-type PricingTier = {
+interface PricingTier {
   name: string;
   price: string;
   perks: string[];
   extras: string[];
   activeSubs: number;
   mrr: number;
-};
+}
 
-type UsageMeter = {
+interface UsageMeter {
   metric: string;
   value: number;
   unit: string;
   limit: string;
-};
+}
 
 const mockInvoices: Invoice[] = [
   {

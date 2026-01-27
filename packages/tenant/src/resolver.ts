@@ -11,7 +11,7 @@
 export const TENANT_HEADER = 'x-tenant-id'
 export const TENANT_COOKIE = 'akademate_tenant'
 
-export type TenantResolution = {
+export interface TenantResolution {
   tenantId: string | null
   tenantSlug: string | null
   source: 'header' | 'cookie' | 'subdomain' | 'domain' | 'none'

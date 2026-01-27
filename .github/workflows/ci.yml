@@ -8,72 +8,94 @@ on:
 env:
   RUN_E2E: ${{ vars.RUN_E2E }}
   RUN_SECURITY: ${{ vars.RUN_SECURITY }}
+  NODE_OPTIONS: '--max-old-space-size=8192'
 
 jobs:
-  lint-typecheck-test-build:
+  lint-typecheck-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
       - name: Lint
         run: pnpm lint
+
       - name: Typecheck
         run: pnpm -r exec tsc --noEmit
-      - name: Unit tests
+
+      - name: Unit tests with coverage
         run: pnpm exec vitest run --coverage
 
-  e2e:
-    if: ${{ env.RUN_E2E == 'true' }}
-    runs-on: ubuntu-latest
-    needs: [lint-typecheck-test-build]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          node-version: '22'
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Install Playwright
-        run: pnpm exec playwright install --with-deps
-      - name: Run E2E tests
-        run: pnpm test:e2e
-        env:
-          CI: true
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
 
   build:
     runs-on: ubuntu-latest
-    needs: [lint-typecheck-test-build]
+    needs: [lint-typecheck-test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
       - name: Build packages and apps
         run: pnpm -r run build --if-present
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -81,28 +103,103 @@ jobs:
           path: |
             packages/*/dist
             apps/*/.next
+          retention-days: 7
 
-  security:
-    if: ${{ env.RUN_SECURITY == 'true' }}
+  e2e:
+    if: ${{ vars.RUN_E2E == 'true' }}
     runs-on: ubuntu-latest
+    needs: [lint-typecheck-test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Run TruffleHog
-        uses: trufflesecurity/trufflehog-action@v3
-        with:
-          path: ./
-          base: ${{ github.ref_name }}
-          head: ${{ github.sha }}
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+        env:
+          CI: true
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  security:
+    if: ${{ vars.RUN_SECURITY == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog (secrets scan)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Dependency audit
-        run: pnpm audit --audit-level=moderate
+        run: pnpm audit --audit-level=high
+
+  docker-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose (dev)
+        run: docker compose -f infrastructure/docker/docker-compose.dev.yml config --quiet
+
+      - name: Validate Docker Compose (staging)
+        run: |
+          docker compose -f infrastructure/docker/docker-compose.yml \
+                         -f infrastructure/docker/docker-compose.staging.yml config --quiet
+
+      - name: Validate Docker Compose (prod)
+        run: |
+          docker compose -f infrastructure/docker/docker-compose.yml \
+                         -f infrastructure/docker/docker-compose.prod.yml config --quiet

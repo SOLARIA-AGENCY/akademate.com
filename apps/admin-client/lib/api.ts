@@ -1,6 +1,6 @@
 import { ApiClient } from '@akademate/api-client'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003'
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3003'
 const SESSION_KEY = 'akademate-ops-user'
 
 const client = new ApiClient({ baseUrl: API_URL })
@@ -37,7 +37,7 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
   const devLoginEnabled = process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== 'false'
 
   if (usePayloadAuth) {
-    const baseUrl = API_URL || 'http://localhost:3003'
+    const baseUrl = API_URL ?? 'http://localhost:3003'
     const res = await fetch(`${baseUrl.replace(/\/$/, '')}/api/users/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -73,7 +73,7 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
 
   const user = {
     id: 'dev-superadmin',
-    email: credentials.email || 'ops@akademate.com',
+    email: credentials.email ?? 'ops@akademate.com',
     role: 'superadmin',
     tenantId: 'global-ops',
   }
@@ -101,7 +101,7 @@ export async function getCurrentUser() {
 
   if (usePayloadAuth) {
     try {
-      const baseUrl = API_URL || 'http://localhost:3003'
+      const baseUrl = API_URL ?? 'http://localhost:3003'
       const res = await fetch(`${baseUrl.replace(/\/$/, '')}/api/users/me`, {
         credentials: 'include',
       })

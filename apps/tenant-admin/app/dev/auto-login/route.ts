@@ -7,13 +7,13 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 export async function GET(request: NextRequest) {
   const url = new URL(request.url)
-  const redirectTo = url.searchParams.get('redirect') || '/admin'
+  const redirectTo = url.searchParams.get('redirect') ?? '/admin'
 
   const email =
-    process.env.PAYLOAD_SUPERADMIN_EMAIL || 'superadmin@cepcomunicacion.com'
-  const password = process.env.PAYLOAD_SUPERADMIN_PASSWORD || 'Dev12345!'
+    process.env.PAYLOAD_SUPERADMIN_EMAIL ?? 'superadmin@cepcomunicacion.com'
+  const password = process.env.PAYLOAD_SUPERADMIN_PASSWORD ?? 'Dev12345!'
 
-  const origin = process.env.PAYLOAD_PUBLIC_SERVER_URL || request.nextUrl.origin
+  const origin = process.env.PAYLOAD_PUBLIC_SERVER_URL ?? request.nextUrl.origin
   const loginEndpoint = `${origin.replace(/\/$/, '')}/api/users/login`
 
   const loginRes = await fetch(loginEndpoint, {

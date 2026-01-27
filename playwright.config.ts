@@ -36,7 +36,7 @@ export default defineConfig({
       testDir: './e2e/web',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.WEB_URL || 'http://localhost:3006',
+        baseURL: process.env.WEB_URL ?? 'http://localhost:3006',
       },
     },
     {
@@ -44,7 +44,7 @@ export default defineConfig({
       testDir: './e2e/web',
       use: {
         ...devices['iPhone 14'],
-        baseURL: process.env.WEB_URL || 'http://localhost:3006',
+        baseURL: process.env.WEB_URL ?? 'http://localhost:3006',
       },
     },
 
@@ -53,7 +53,7 @@ export default defineConfig({
       testDir: './e2e/payload',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.PAYLOAD_URL || 'http://localhost:3003',
+        baseURL: process.env.PAYLOAD_URL ?? 'http://localhost:3003',
       },
     },
 
@@ -62,7 +62,7 @@ export default defineConfig({
       testDir: './e2e/campus',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.CAMPUS_URL || 'http://localhost:3005',
+        baseURL: process.env.CAMPUS_URL ?? 'http://localhost:3005',
       },
     },
 
@@ -71,7 +71,7 @@ export default defineConfig({
       testDir: './e2e/admin',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.ADMIN_CLIENT_URL || 'http://localhost:3001',
+        baseURL: process.env.ADMIN_CLIENT_URL ?? 'http://localhost:3001',
       },
     },
 
@@ -80,7 +80,7 @@ export default defineConfig({
       testDir: './e2e/tenant-admin',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.TENANT_ADMIN_URL || 'http://localhost:3009',
+        baseURL: process.env.TENANT_ADMIN_URL ?? 'http://localhost:3009',
       },
     },
 
@@ -89,7 +89,7 @@ export default defineConfig({
       testDir: './e2e/portal',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.PORTAL_URL || 'http://localhost:3008',
+        baseURL: process.env.PORTAL_URL ?? 'http://localhost:3008',
       },
     },
 
@@ -98,7 +98,7 @@ export default defineConfig({
       testDir: './e2e/ops',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.OPS_URL || 'http://localhost:3070',
+        baseURL: process.env.OPS_URL ?? 'http://localhost:3070',
       },
     },
   ],

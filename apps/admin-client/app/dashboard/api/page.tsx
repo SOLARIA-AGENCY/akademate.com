@@ -29,13 +29,13 @@ interface ApiKey {
   status: 'active' | 'revoked';
 }
 
-type McpServer = {
+interface McpServer {
   name: string;
   endpoint: string;
   authToken: string;
   resources: string[];
   tools: string[];
-};
+}
 
 const mockMcp: McpServer = {
   name: 'Akademate MCP',
