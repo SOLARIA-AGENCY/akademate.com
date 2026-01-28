@@ -152,8 +152,9 @@ export default function ConfiguracionPage() {
                 <h2 className="text-xl font-bold text-foreground mb-6">Configuración General</h2>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Nombre de la Plataforma</label>
+                    <label htmlFor="platformName" className="block text-sm font-medium text-muted-foreground mb-2">Nombre de la Plataforma</label>
                     <input
+                      id="platformName"
                       type="text"
                       value={settings.general.platformName}
                       onChange={(e) => setSettings({
@@ -164,8 +165,9 @@ export default function ConfiguracionPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Email de Soporte</label>
+                    <label htmlFor="supportEmail" className="block text-sm font-medium text-muted-foreground mb-2">Email de Soporte</label>
                     <input
+                      id="supportEmail"
                       type="email"
                       value={settings.general.supportEmail}
                       onChange={(e) => setSettings({
@@ -177,8 +179,9 @@ export default function ConfiguracionPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-muted-foreground mb-2">Zona Horaria</label>
+                      <label htmlFor="defaultTimezone" className="block text-sm font-medium text-muted-foreground mb-2">Zona Horaria</label>
                       <select
+                        id="defaultTimezone"
                         value={settings.general.defaultTimezone}
                         onChange={(e) => setSettings({
                           ...settings,
@@ -193,8 +196,9 @@ export default function ConfiguracionPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-muted-foreground mb-2">Idioma por Defecto</label>
+                      <label htmlFor="defaultLanguage" className="block text-sm font-medium text-muted-foreground mb-2">Idioma por Defecto</label>
                       <select
+                        id="defaultLanguage"
                         value={settings.general.defaultLanguage}
                         onChange={(e) => setSettings({
                           ...settings,
@@ -213,7 +217,7 @@ export default function ConfiguracionPage() {
                       <p className="text-foreground font-medium">Modo Mantenimiento</p>
                       <p className="text-muted-foreground text-sm">Activa para bloquear acceso a todos los tenants</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex items-center cursor-pointer" aria-label="Modo Mantenimiento">
                       <input
                         type="checkbox"
                         checked={settings.general.maintenanceMode}
@@ -237,8 +241,8 @@ export default function ConfiguracionPage() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Logo</label>
-                      <div className="w-full h-32 bg-muted/50 border-2 border-dashed  rounded-lg flex items-center justify-center">
+                      <label htmlFor="logo" className="block text-sm font-medium text-foreground mb-2">Logo</label>
+                      <div id="logo" className="w-full h-32 bg-muted/50 border-2 border-dashed  rounded-lg flex items-center justify-center">
                         <div className="text-center">
                           <svg className="w-8 h-8 text-muted-foreground mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -248,8 +252,8 @@ export default function ConfiguracionPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Favicon</label>
-                      <div className="w-full h-32 bg-muted/50 border-2 border-dashed  rounded-lg flex items-center justify-center">
+                      <label htmlFor="favicon" className="block text-sm font-medium text-foreground mb-2">Favicon</label>
+                      <div id="favicon" className="w-full h-32 bg-muted/50 border-2 border-dashed  rounded-lg flex items-center justify-center">
                         <div className="text-center">
                           <svg className="w-8 h-8 text-muted-foreground mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -261,18 +265,21 @@ export default function ConfiguracionPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Color Primario</label>
+                      <label htmlFor="primaryColorText" className="block text-sm font-medium text-foreground mb-2">Color Primario</label>
                       <div className="flex gap-3">
                         <input
+                          id="primaryColor"
                           type="color"
                           value={settings.branding.primaryColor}
                           onChange={(e) => setSettings({
                             ...settings,
                             branding: { ...settings.branding, primaryColor: e.target.value }
                           })}
+                          aria-label="Color primario selector"
                           className="w-12 h-10 rounded cursor-pointer"
                         />
                         <input
+                          id="primaryColorText"
                           type="text"
                           value={settings.branding.primaryColor}
                           onChange={(e) => setSettings({
@@ -284,18 +291,21 @@ export default function ConfiguracionPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Color Secundario</label>
+                      <label htmlFor="secondaryColorText" className="block text-sm font-medium text-foreground mb-2">Color Secundario</label>
                       <div className="flex gap-3">
                         <input
+                          id="secondaryColor"
                           type="color"
                           value={settings.branding.secondaryColor}
                           onChange={(e) => setSettings({
                             ...settings,
                             branding: { ...settings.branding, secondaryColor: e.target.value }
                           })}
+                          aria-label="Color secundario selector"
                           className="w-12 h-10 rounded cursor-pointer"
                         />
                         <input
+                          id="secondaryColorText"
                           type="text"
                           value={settings.branding.secondaryColor}
                           onChange={(e) => setSettings({
@@ -315,23 +325,25 @@ export default function ConfiguracionPage() {
                       <p className="text-foreground font-semibold">White-label & dominios custom</p>
                       <p className="text-muted-foreground text-sm">Activa branding por tenant y dominios SSL.</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex items-center cursor-pointer" aria-label="White-label y dominios custom">
                       <input type="checkbox" className="sr-only peer" />
                       <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                     </label>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Dominio custom (ej. campus.midominio.com)</label>
+                      <label htmlFor="customDomain" className="block text-sm font-medium text-foreground mb-2">Dominio custom (ej. campus.midominio.com)</label>
                       <input
+                        id="customDomain"
                         type="text"
                         placeholder="custom.domain.com"
                         className="w-full px-4 py-2 bg-muted/50 border  rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Estado SSL / verificación</label>
+                      <label htmlFor="sslStatus" className="block text-sm font-medium text-foreground mb-2">Estado SSL / verificación</label>
                       <input
+                        id="sslStatus"
                         type="text"
                         placeholder="Pendiente (mock)"
                         className="w-full px-4 py-2 bg-muted/50 border  rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -352,8 +364,9 @@ export default function ConfiguracionPage() {
                 <h2 className="text-xl font-bold text-foreground mb-6">Configuración de Trial</h2>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Duración del Trial (días)</label>
+                    <label htmlFor="trialDuration" className="block text-sm font-medium text-foreground mb-2">Duración del Trial (días)</label>
                     <input
+                      id="trialDuration"
                       type="number"
                       value={settings.trial.duration}
                       onChange={(e) => setSettings({
@@ -368,7 +381,7 @@ export default function ConfiguracionPage() {
                       <p className="text-foreground font-medium">Permitir Extensiones</p>
                       <p className="text-muted-foreground text-sm">Los tenants pueden solicitar extensión del trial</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex items-center cursor-pointer" aria-label="Permitir extensiones">
                       <input
                         type="checkbox"
                         checked={settings.trial.allowExtension}
@@ -383,8 +396,9 @@ export default function ConfiguracionPage() {
                   </div>
                   {settings.trial.allowExtension && (
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Máximo de Extensiones</label>
+                      <label htmlFor="maxExtensions" className="block text-sm font-medium text-foreground mb-2">Máximo de Extensiones</label>
                       <input
+                        id="maxExtensions"
                         type="number"
                         value={settings.trial.maxExtensions}
                         onChange={(e) => setSettings({
@@ -400,7 +414,7 @@ export default function ConfiguracionPage() {
                       <p className="text-foreground font-medium">Requerir Tarjeta</p>
                       <p className="text-muted-foreground text-sm">Solicitar método de pago para iniciar trial</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex items-center cursor-pointer" aria-label="Requerir tarjeta">
                       <input
                         type="checkbox"
                         checked={settings.trial.requireCard}

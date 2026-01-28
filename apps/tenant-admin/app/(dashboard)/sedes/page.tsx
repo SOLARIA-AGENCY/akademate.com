@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
@@ -11,7 +11,41 @@ import { SedeListItem } from '@payload-config/components/ui/SedeListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 
-const mockSedesData = [
+/** Sede data structure used for display */
+interface Sede {
+  id: string
+  nombre: string
+  direccion: string
+  telefono: string
+  email: string
+  horario: string
+  aulas: number
+  capacidad: number
+  cursosActivos: number
+  profesores: number
+  color: string
+  borderColor: string
+  imagen: string
+}
+
+/** Campus data from API response */
+interface ApiCampus {
+  id: string
+  name?: string
+  address?: string
+  postal_code?: string
+  city?: string
+  phone?: string
+  email?: string
+  staff_members?: unknown[]
+}
+
+/** API response shape for campuses endpoint */
+interface CampusesApiResponse {
+  docs?: ApiCampus[]
+}
+
+const mockSedesData: Sede[] = [
   {
     id: 'cep-norte',
     nombre: 'CEP Norte',
@@ -61,8 +95,8 @@ const mockSedesData = [
 
 export default function SedesPage() {
   const router = useRouter()
-  const [view, setView] = useViewPreference('sedes')
-  const [sedes, setSedes] = useState(mockSedesData)
+  const [view, setView] = useViewPreference('sedes') as [string, (view: string) => void]
+  const [sedes, setSedes] = useState<Sede[]>(mockSedesData)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -77,9 +111,9 @@ export default function SedesPage() {
           throw new Error('No se pudieron cargar las sedes')
         }
 
-        const payload = await response.json()
-        const docs = Array.isArray(payload?.docs) ? payload.docs : []
-        const mapped = docs.map((campus: any) => {
+        const payload = (await response.json()) as CampusesApiResponse
+        const docs: ApiCampus[] = Array.isArray(payload.docs) ? payload.docs : []
+        const mapped: Sede[] = docs.map((campus: ApiCampus) => {
           const addressParts = [campus.address, campus.postal_code, campus.city].filter(Boolean)
           return {
             id: campus.id,
@@ -109,7 +143,7 @@ export default function SedesPage() {
       }
     }
 
-    fetchCampuses()
+    void fetchCampuses()
   }, [])
 
   const handleViewSede = (sedeId: string) => {
@@ -290,7 +324,7 @@ export default function SedesPage() {
               {/* CTA Button */}
               <Button
                 className={`w-full ${sede.color} hover:opacity-90 text-white font-bold uppercase tracking-wide`}
-                onClick={(e) => {
+                onClick={(e: MouseEvent<HTMLButtonElement>) => {
                   e.stopPropagation()
                   handleViewSede(sede.id)
                 }}

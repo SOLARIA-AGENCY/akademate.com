@@ -62,6 +62,66 @@ export interface PointsAnimation {
 }
 
 // ============================================================================
+// API RESPONSE TYPES
+// ============================================================================
+
+interface GamificationAPIResponse {
+  gamification?: GamificationData;
+  leaderboard?: LeaderboardEntry[];
+}
+
+// ============================================================================
+// SOCKET EVENT PAYLOAD TYPES
+// ============================================================================
+
+interface PointsAwardedPayload {
+  userId: string;
+  points: number;
+  reason: string;
+  newTotal: number;
+  level?: number;
+  levelProgress?: number;
+}
+
+interface BadgeEarnedPayload {
+  userId: string;
+  badge: Badge;
+}
+
+interface LevelUpPayload {
+  userId: string;
+  newLevel: number;
+  pointsToNextLevel: number;
+}
+
+interface StreakUpdatePayload {
+  userId: string;
+  currentStreak: number;
+  longestStreak: number;
+}
+
+interface LeaderboardUpdatePayload {
+  leaderboard: LeaderboardEntry[];
+}
+
+// Socket event handler type for gamification events
+type GamificationEventHandler<T> = (payload: T) => void;
+
+// Extended socket interface for gamification-specific events
+interface GamificationSocket {
+  on(event: 'points:awarded', handler: GamificationEventHandler<PointsAwardedPayload>): void;
+  on(event: 'badge:earned', handler: GamificationEventHandler<BadgeEarnedPayload>): void;
+  on(event: 'level:up', handler: GamificationEventHandler<LevelUpPayload>): void;
+  on(event: 'streak:updated', handler: GamificationEventHandler<StreakUpdatePayload>): void;
+  on(event: 'leaderboard:updated', handler: GamificationEventHandler<LeaderboardUpdatePayload>): void;
+  off(event: 'points:awarded', handler: GamificationEventHandler<PointsAwardedPayload>): void;
+  off(event: 'badge:earned', handler: GamificationEventHandler<BadgeEarnedPayload>): void;
+  off(event: 'level:up', handler: GamificationEventHandler<LevelUpPayload>): void;
+  off(event: 'streak:updated', handler: GamificationEventHandler<StreakUpdatePayload>): void;
+  off(event: 'leaderboard:updated', handler: GamificationEventHandler<LeaderboardUpdatePayload>): void;
+}
+
+// ============================================================================
 // HOOK
 // ============================================================================
 
@@ -127,8 +187,8 @@ export function useGamification(
       const response = await fetch(`/api/lms/gamification?${params}`);
 
       if (response.ok) {
-        const result = await response.json();
-        setData(result.gamification || DEFAULT_GAMIFICATION);
+        const result: GamificationAPIResponse = await response.json() as GamificationAPIResponse;
+        setData(result.gamification ?? DEFAULT_GAMIFICATION);
         if (result.leaderboard) {
           setLeaderboard(result.leaderboard);
         }
@@ -144,7 +204,7 @@ export function useGamification(
 
   // Manual refresh function
   const refresh = useCallback(() => {
-    fetchGamification();
+    void fetchGamification();
   }, [fetchGamification]);
 
   // Dismiss a points animation
@@ -176,7 +236,7 @@ export function useGamification(
 
   // Initialize - fetch gamification data
   useEffect(() => {
-    fetchGamification();
+    void fetchGamification();
   }, [fetchGamification]);
 
   // Subscribe to real-time gamification updates
@@ -200,14 +260,7 @@ export function useGamification(
     });
 
     // Handle points awarded
-    const handlePointsAwarded = (payload: {
-      userId: string;
-      points: number;
-      reason: string;
-      newTotal: number;
-      level?: number;
-      levelProgress?: number;
-    }) => {
+    const handlePointsAwarded = (payload: PointsAwardedPayload) => {
       if (payload.userId !== userId) return;
 
       // Update data
@@ -227,10 +280,7 @@ export function useGamification(
     };
 
     // Handle badge earned
-    const handleBadgeEarned = (payload: {
-      userId: string;
-      badge: Badge;
-    }) => {
+    const handleBadgeEarned = (payload: BadgeEarnedPayload) => {
       if (payload.userId !== userId) return;
 
       setData((prev) => {
