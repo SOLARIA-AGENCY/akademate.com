@@ -1,5 +1,105 @@
 import type { FieldHook } from 'payload';
 
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+/**
+ * Plain object headers (Node.js HTTP style)
+ */
+interface PlainHeaders {
+  'x-forwarded-for'?: string | string[];
+  'x-real-ip'?: string;
+  [key: string]: string | string[] | undefined;
+}
+
+/**
+ * Web API Headers interface (with get method)
+ */
+interface WebAPIHeaders {
+  get(name: string): string | null;
+}
+
+/**
+ * Union type for headers that can be either plain object or Web API Headers
+ */
+type RequestHeaders = PlainHeaders | WebAPIHeaders;
+
+/**
+ * Type guard to check if headers is a Web API Headers object
+ */
+function isWebAPIHeaders(headers: RequestHeaders): headers is WebAPIHeaders {
+  return typeof (headers as WebAPIHeaders).get === 'function';
+}
+
+/**
+ * Payload request interface with header access
+ */
+interface PayloadRequestWithHeaders {
+  headers?: RequestHeaders;
+  ip?: string;
+}
+
+/**
+ * Lead consent data fields (GDPR compliance)
+ */
+interface LeadConsentData {
+  gdpr_consent?: boolean;
+  privacy_policy_accepted?: boolean;
+  consent_timestamp?: string;
+  consent_ip_address?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Helper function to get header value from either plain object or Web API Headers
+ */
+function getHeaderValue(
+  headers: RequestHeaders | undefined,
+  headerName: string
+): string | string[] | null {
+  if (!headers) return null;
+
+  if (isWebAPIHeaders(headers)) {
+    return headers.get(headerName);
+  }
+
+  return headers[headerName] ?? null;
+}
+
+/**
+ * Extract IP address from request headers
+ */
+function extractIPFromRequest(req: PayloadRequestWithHeaders): string | undefined {
+  const headers = req.headers;
+
+  // Try X-Forwarded-For header first (if behind proxy/load balancer)
+  const forwardedFor = getHeaderValue(headers, 'x-forwarded-for');
+  if (forwardedFor) {
+    // X-Forwarded-For can contain multiple IPs, take the first one
+    if (Array.isArray(forwardedFor)) {
+      return forwardedFor[0]?.trim();
+    }
+    return forwardedFor.split(',')[0]?.trim();
+  }
+
+  // Try X-Real-IP header
+  const realIp = getHeaderValue(headers, 'x-real-ip');
+  if (realIp) {
+    if (Array.isArray(realIp)) {
+      return realIp[0];
+    }
+    return realIp;
+  }
+
+  // Fallback to req.ip
+  if (req.ip) {
+    return req.ip;
+  }
+
+  return undefined;
+}
+
 /**
  * Hook: captureConsentMetadata
  *
@@ -19,7 +119,11 @@ import type { FieldHook } from 'payload';
  * - Must record when and how consent was obtained
  * - Must be able to prove consent in case of audit
  */
-export const captureConsentMetadata: FieldHook = async ({ data, req, operation }) => {
+export const captureConsentMetadata: FieldHook<
+  unknown,
+  LeadConsentData,
+  LeadConsentData
+> = ({ data, req, operation }) => {
   // Only on creation
   if (operation !== 'create') {
     return data;
@@ -34,24 +138,9 @@ export const captureConsentMetadata: FieldHook = async ({ data, req, operation }
     // Capture consent timestamp (ISO 8601 format)
     data.consent_timestamp = new Date().toISOString();
 
-    // Capture IP address from request
-    // Priority: X-Forwarded-For > X-Real-IP > req.ip
-    const forwardedFor =
-      (req.headers as any)?.['x-forwarded-for'] || (req.headers as any)?.get?.('x-forwarded-for');
-    const realIp =
-      (req.headers as any)?.['x-real-ip'] || (req.headers as any)?.get?.('x-real-ip');
-    const requestIp = (req as any).ip;
-
-    let ipAddress: string | undefined;
-
-    if (forwardedFor) {
-      // X-Forwarded-For can contain multiple IPs, take the first one
-      ipAddress = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor.split(',')[0].trim();
-    } else if (realIp) {
-      ipAddress = Array.isArray(realIp) ? realIp[0] : realIp;
-    } else if (requestIp) {
-      ipAddress = requestIp;
-    }
+    // Capture IP address from request using typed helper function
+    const typedReq = req as unknown as PayloadRequestWithHeaders;
+    const ipAddress = extractIPFromRequest(typedReq);
 
     if (ipAddress) {
       data.consent_ip_address = ipAddress;
@@ -61,8 +150,8 @@ export const captureConsentMetadata: FieldHook = async ({ data, req, operation }
     console.log('[GDPR Audit] Consent metadata captured', {
       hasTimestamp: !!data.consent_timestamp,
       hasIpAddress: !!data.consent_ip_address,
-      gdprConsent: data.gdpr_consent,
-      privacyPolicyAccepted: data.privacy_policy_accepted,
+      gdprConsent: Boolean(data.gdpr_consent),
+      privacyPolicyAccepted: Boolean(data.privacy_policy_accepted),
       // SECURITY: Do NOT log email or IP address (PII)
     });
   } catch (error) {

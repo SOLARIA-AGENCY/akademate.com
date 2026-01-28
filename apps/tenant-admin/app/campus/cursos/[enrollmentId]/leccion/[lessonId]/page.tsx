@@ -24,8 +24,6 @@ import {
   FileText,
   Download,
   BookOpen,
-  Video,
-  Maximize2,
 } from 'lucide-react';
 
 interface Material {
@@ -73,33 +71,28 @@ interface LessonData {
   };
 }
 
+interface LessonApiResponse {
+  success: boolean;
+  data?: LessonData;
+  error?: string;
+}
+
 function LessonView() {
   const params = useParams();
   const router = useRouter();
-  const { student } = useSession();
+  useSession();
   const [lessonData, setLessonData] = useState<LessonData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [videoProgress, setVideoProgress] = useState(0);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [_isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const enrollmentId = params.enrollmentId as string;
   const lessonId = params.lessonId as string;
 
-  useEffect(() => {
-    if (enrollmentId && lessonId) {
-      loadLesson();
-    }
-    return () => {
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
-    };
-  }, [enrollmentId, lessonId]);
-
-  const loadLesson = async () => {
+  const loadLesson = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -114,17 +107,17 @@ function LessonView() {
         throw new Error('Failed to load lesson');
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as LessonApiResponse;
 
-      if (data.success) {
+      if (data.success && data.data) {
         setLessonData(data.data);
         // Set initial video position if available
         if (data.data.progress?.lastPosition && videoRef.current) {
           videoRef.current.currentTime = data.data.progress.lastPosition;
         }
-        setVideoProgress(data.data.progress?.videoProgress || 0);
+        setVideoProgress(data.data.progress?.videoProgress ?? 0);
       } else {
-        throw new Error(data.error || 'Unknown error');
+        throw new Error(data.error ?? 'Unknown error');
       }
     } catch (err) {
       console.error('[Campus] Failed to load lesson:', err);
@@ -132,7 +125,18 @@ function LessonView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [enrollmentId, lessonId]);
+
+  useEffect(() => {
+    if (enrollmentId && lessonId) {
+      void loadLesson();
+    }
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, [enrollmentId, lessonId, loadLesson]);
 
   const saveProgress = useCallback(async (progress: number, position?: number, completed = false) => {
     try {
@@ -181,7 +185,7 @@ function LessonView() {
     progressIntervalRef.current = setInterval(() => {
       if (videoRef.current) {
         const progress = (videoRef.current.currentTime / videoRef.current.duration) * 100;
-        saveProgress(progress, videoRef.current.currentTime);
+        void saveProgress(progress, videoRef.current.currentTime);
       }
     }, 30000); // Save every 30 seconds
   }, [saveProgress]);
@@ -194,7 +198,7 @@ function LessonView() {
     // Save progress immediately on pause
     if (videoRef.current) {
       const progress = (videoRef.current.currentTime / videoRef.current.duration) * 100;
-      saveProgress(progress, videoRef.current.currentTime);
+      void saveProgress(progress, videoRef.current.currentTime);
     }
   }, [saveProgress]);
 
@@ -204,7 +208,7 @@ function LessonView() {
       clearInterval(progressIntervalRef.current);
     }
     // Mark as complete
-    saveProgress(100, undefined, true);
+    void saveProgress(100, undefined, true);
   }, [saveProgress]);
 
   const handleMarkComplete = async () => {
@@ -233,7 +237,7 @@ function LessonView() {
   if (error || !lessonData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <p className="text-destructive mb-4">{error || 'Lesson not found'}</p>
+        <p className="text-destructive mb-4">{error ?? 'Lesson not found'}</p>
         <Button onClick={() => router.push(`/campus/cursos/${enrollmentId}`)}>
           Volver al Curso
         </Button>
@@ -302,7 +306,9 @@ function LessonView() {
                   onPlay={handleVideoPlay}
                   onPause={handleVideoPause}
                   onEnded={handleVideoEnded}
-                />
+                >
+                  <track kind="captions" />
+                </video>
                 {progress.status === 'completed' && (
                   <div className="absolute top-4 right-4">
                     <Badge className="bg-green-600 gap-1">

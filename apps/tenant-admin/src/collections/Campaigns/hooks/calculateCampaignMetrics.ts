@@ -1,4 +1,16 @@
 import type { CollectionAfterReadHook } from 'payload';
+import type { Campaign, Enrollment } from '../../../payload-types';
+
+/**
+ * Campaign document with calculated metrics fields.
+ * Extends the base Campaign type with virtual fields computed at runtime.
+ */
+interface CampaignWithMetrics extends Campaign {
+  total_leads: number;
+  total_conversions: number;
+  conversion_rate: number | undefined;
+  cost_per_lead: number | undefined;
+}
 
 /**
  * Hook: Calculate Campaign Metrics (afterRead)
@@ -37,7 +49,7 @@ import type { CollectionAfterReadHook } from 'payload';
  * - Only log campaign.id and basic flags (hasLeads: boolean)
  * - NEVER log: budget, cost_per_lead, conversion_rate values
  */
-export const calculateCampaignMetrics: CollectionAfterReadHook = async ({ doc, req }) => {
+export const calculateCampaignMetrics: CollectionAfterReadHook<Campaign> = async ({ doc, req }): Promise<CampaignWithMetrics | Campaign | null> => {
   // Skip if no doc or no payload context
   if (!doc || !req.payload) {
     return doc;
@@ -93,7 +105,11 @@ export const calculateCampaignMetrics: CollectionAfterReadHook = async ({ doc, r
         // A lead may have multiple enrollments, but we count them once
         if (enrollmentsResult.docs && enrollmentsResult.docs.length > 0) {
           const uniqueStudents = new Set(
-            enrollmentsResult.docs.map((enrollment: any) => enrollment.student)
+            enrollmentsResult.docs.map((enrollment: Enrollment) => {
+              // Student can be a number (ID) or a Lead object
+              const student = enrollment.student;
+              return typeof student === 'number' ? student : student.id;
+            })
           );
           total_conversions = uniqueStudents.size;
         }
@@ -119,20 +135,23 @@ export const calculateCampaignMetrics: CollectionAfterReadHook = async ({ doc, r
 
     // Attach calculated metrics to document
     // These are virtual fields (not stored in database)
-    doc.total_leads = total_leads;
-    doc.total_conversions = total_conversions;
-    doc.conversion_rate = conversion_rate;
-    doc.cost_per_lead = cost_per_lead;
+    const campaignWithMetrics: CampaignWithMetrics = {
+      ...doc,
+      total_leads,
+      total_conversions,
+      conversion_rate,
+      cost_per_lead,
+    };
 
     // Log (NO sensitive business intelligence)
     // SP-004: Only log campaign.id and non-sensitive flags
     console.log('[Campaign Metrics] Calculated', {
-      campaignId: doc.id,
+      campaignId: campaignWithMetrics.id,
       hasLeads: total_leads > 0,
       hasConversions: total_conversions > 0,
     });
 
-    return doc;
+    return campaignWithMetrics;
   } catch (error) {
     // Log error without exposing sensitive data
     console.error('[Campaign Metrics] Calculation failed', {
@@ -141,11 +160,14 @@ export const calculateCampaignMetrics: CollectionAfterReadHook = async ({ doc, r
     });
 
     // Return doc with undefined metrics on error
-    doc.total_leads = 0;
-    doc.total_conversions = 0;
-    doc.conversion_rate = undefined;
-    doc.cost_per_lead = undefined;
+    const campaignWithErrorMetrics: CampaignWithMetrics = {
+      ...doc,
+      total_leads: 0,
+      total_conversions: 0,
+      conversion_rate: undefined,
+      cost_per_lead: undefined,
+    };
 
-    return doc;
+    return campaignWithErrorMetrics;
   }
 };

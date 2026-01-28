@@ -4,10 +4,45 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payl
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Calendar, CreditCard, TrendingUp, AlertCircle } from 'lucide-react'
-import type { Subscription } from '@payload-config/types/billing'
+
+// Local type definitions for type safety
+type SubscriptionStatusType =
+  | 'trialing'
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'unpaid'
+
+type PlanTierType = 'starter' | 'pro' | 'enterprise'
+
+interface SubscriptionData {
+  id: string
+  tenantId: string
+  plan: PlanTierType
+  status: SubscriptionStatusType
+  stripeSubscriptionId: string | null
+  stripeCustomerId: string | null
+  currentPeriodStart: Date
+  currentPeriodEnd: Date
+  cancelAtPeriodEnd: boolean
+  canceledAt?: Date | null
+  trialStart?: Date | null
+  trialEnd?: Date | null
+  metadata: Record<string, unknown>
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface StatusConfigItem {
+  label: string
+  variant: 'default' | 'secondary' | 'destructive'
+  color: string
+}
 
 interface SubscriptionCardProps {
-  subscription: Subscription | null
+  subscription: SubscriptionData | null
   onUpgrade?: () => void
   onCancel?: () => void
   onResume?: () => void
@@ -39,19 +74,19 @@ export function SubscriptionCard({
     )
   }
 
-  const statusConfig = {
-    active: { label: 'Activa', variant: 'default' as const, color: 'bg-green-500' },
-    trialing: { label: 'Prueba', variant: 'secondary' as const, color: 'bg-blue-500' },
-    past_due: { label: 'Pago Pendiente', variant: 'destructive' as const, color: 'bg-orange-500' },
-    canceled: { label: 'Cancelada', variant: 'secondary' as const, color: 'bg-gray-500' },
-    incomplete: { label: 'Incompleta', variant: 'destructive' as const, color: 'bg-red-500' },
-    incomplete_expired: { label: 'Expirada', variant: 'destructive' as const, color: 'bg-red-500' },
-    unpaid: { label: 'Sin Pagar', variant: 'destructive' as const, color: 'bg-red-500' },
+  const statusConfig: Record<SubscriptionStatusType, StatusConfigItem> = {
+    active: { label: 'Activa', variant: 'default', color: 'bg-green-500' },
+    trialing: { label: 'Prueba', variant: 'secondary', color: 'bg-blue-500' },
+    past_due: { label: 'Pago Pendiente', variant: 'destructive', color: 'bg-orange-500' },
+    canceled: { label: 'Cancelada', variant: 'secondary', color: 'bg-gray-500' },
+    incomplete: { label: 'Incompleta', variant: 'destructive', color: 'bg-red-500' },
+    incomplete_expired: { label: 'Expirada', variant: 'destructive', color: 'bg-red-500' },
+    unpaid: { label: 'Sin Pagar', variant: 'destructive', color: 'bg-red-500' },
   }
 
-  const status = statusConfig[subscription.status] || statusConfig.active
+  const status: StatusConfigItem = statusConfig[subscription.status] ?? statusConfig.active
 
-  const planNames = {
+  const planNames: Record<PlanTierType, string> = {
     starter: 'Starter',
     pro: 'Pro',
     enterprise: 'Enterprise',

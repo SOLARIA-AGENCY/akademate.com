@@ -1,7 +1,31 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, FieldHook } from 'payload';
 import { canManageCampuses } from './access/canManageCampuses';
 import { campusSchema, formatValidationErrors } from './Campuses.validation';
-import { tenantField, tenantFilteredAccess, isSuperAdmin } from '../../access/tenantAccess';
+import { tenantField } from '../../access/tenantAccess';
+
+/**
+ * Data structure for Campus used in collection hooks
+ */
+interface CampusData {
+  slug?: string;
+  name?: string;
+  city?: string;
+  address?: string;
+  postal_code?: string;
+  phone?: string;
+  email?: string;
+  maps_url?: string;
+  staff_members?: (number | { id: number })[];
+  tenant?: number;
+}
+
+/**
+ * Typed field hook for trimming string values
+ * Returns the trimmed value or undefined
+ */
+const trimFieldHook: FieldHook<CampusData, string | undefined | null> = ({ value }) => {
+  return typeof value === 'string' ? value.trim() : value;
+};
 
 /**
  * Campuses Collection
@@ -81,12 +105,7 @@ export const Campuses: CollectionConfig = {
         return true;
       },
       hooks: {
-        beforeChange: [
-          ({ value }) => {
-            // Trim whitespace
-            return value?.trim();
-          },
-        ],
+        beforeChange: [trimFieldHook],
       },
     },
     {
@@ -105,12 +124,7 @@ export const Campuses: CollectionConfig = {
         return true;
       },
       hooks: {
-        beforeChange: [
-          ({ value }) => {
-            // Trim whitespace
-            return value?.trim();
-          },
-        ],
+        beforeChange: [trimFieldHook],
       },
     },
     {
@@ -199,7 +213,7 @@ export const Campuses: CollectionConfig = {
     {
       name: 'staff_members',
       type: 'relationship',
-      relationTo: 'staff' as any,
+      relationTo: 'staff',
       hasMany: true,
       admin: {
         description: 'Staff members (professors and administrativos) assigned to this campus',
@@ -220,10 +234,13 @@ export const Campuses: CollectionConfig = {
   ],
   hooks: {
     beforeValidate: [
-      ({ data }) => {
+      ({ data }): CampusData | undefined => {
+        const typedData = data as CampusData | undefined;
+        if (!typedData) return typedData;
+
         // Auto-generate slug from name if not provided
-        if (data?.name && !data?.slug) {
-          data.slug = data.name
+        if (typedData.name && !typedData.slug) {
+          typedData.slug = typedData.name
             .toLowerCase()
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '') // Remove accents
@@ -232,20 +249,21 @@ export const Campuses: CollectionConfig = {
         }
 
         // Trim whitespace from name and city
-        if (data?.name) {
-          data.name = data.name.trim();
+        if (typedData.name) {
+          typedData.name = typedData.name.trim();
         }
-        if (data?.city) {
-          data.city = data.city.trim();
+        if (typedData.city) {
+          typedData.city = typedData.city.trim();
         }
 
-        return data;
+        return typedData;
       },
     ],
     beforeChange: [
-      ({ data }) => {
+      ({ data }): CampusData | undefined => {
+        const typedData = data as CampusData | undefined;
         // Validate entire payload with Zod schema
-        const result = campusSchema.safeParse(data);
+        const result = campusSchema.safeParse(typedData);
 
         if (!result.success) {
           const errors = formatValidationErrors(result.error);
@@ -254,7 +272,7 @@ export const Campuses: CollectionConfig = {
           // this is an additional layer for complex validation
         }
 
-        return data;
+        return typedData;
       },
     ],
   },
