@@ -1,4 +1,5 @@
 import type { Access, FieldAccess, FieldHook } from 'payload'
+import type { Tenant } from '../payload-types'
 
 /**
  * Multi-Tenant Access Control Utilities
@@ -22,17 +23,31 @@ import type { Access, FieldAccess, FieldHook } from 'payload'
  * ```
  */
 
+/** Valid user roles in the system */
+type UserRole = 'superadmin' | 'admin' | 'gestor' | 'marketing' | 'asesor' | 'lectura'
+
+/** Type guard to check if an object is a User with a role */
+interface UserLike {
+  role?: UserRole
+  tenant?: number | null | Tenant
+}
+
+/** Type guard to check if tenant is a populated Tenant object */
+function isTenantObject(tenant: number | null | Tenant | undefined): tenant is Tenant {
+  return typeof tenant === 'object' && tenant !== null && 'id' in tenant
+}
+
 /**
  * Check if user is SuperAdmin
  */
-export const isSuperAdmin = (user: any): boolean => {
+export const isSuperAdmin = (user: UserLike | null | undefined): boolean => {
   return user?.role === 'superadmin'
 }
 
 /**
  * Check if user is Admin or higher
  */
-export const isAdminOrHigher = (user: any): boolean => {
+export const isAdminOrHigher = (user: UserLike | null | undefined): boolean => {
   return user?.role === 'superadmin' || user?.role === 'admin'
 }
 
@@ -40,10 +55,13 @@ export const isAdminOrHigher = (user: any): boolean => {
  * Get user's tenant ID
  * Returns null for SuperAdmin (they don't have a tenant)
  */
-export const getUserTenantId = (user: any): string | number | null => {
+export const getUserTenantId = (user: UserLike | null | undefined): number | null => {
   if (!user) return null
   if (user.role === 'superadmin') return null
-  return user.tenant?.id || user.tenant || null
+  if (isTenantObject(user.tenant)) {
+    return user.tenant.id
+  }
+  return user.tenant ?? null
 }
 
 /**
@@ -162,17 +180,28 @@ export const tenantFieldAccess: FieldAccess = ({ req }) => {
   return isSuperAdmin(req.user)
 }
 
+/** Request type with optional user */
+interface RequestWithUser {
+  user?: UserLike | null
+}
+
+/** Data object with optional tenant field */
+interface DataWithTenant {
+  tenant?: number | null
+  [key: string]: unknown
+}
+
 /**
  * Hook to auto-assign tenant on document creation
  * Used in beforeChange hooks
  */
-export const autoAssignTenant = ({ req, data }: { req: any; data: any }) => {
+export const autoAssignTenant = ({ req, data }: { req: RequestWithUser; data: DataWithTenant | null | undefined }): DataWithTenant | null | undefined => {
   // If tenant is already set (by SuperAdmin), keep it
   if (data?.tenant) return data
 
   // Get user's tenant
   const tenantId = getUserTenantId(req.user)
-  if (tenantId) {
+  if (tenantId && data) {
     return {
       ...data,
       tenant: tenantId,
@@ -182,13 +211,20 @@ export const autoAssignTenant = ({ req, data }: { req: any; data: any }) => {
   return data
 }
 
-const assignTenant: FieldHook = ({ req, value }) => {
+const assignTenant: FieldHook = ({ req, value }): number | null => {
   // If value is set (by SuperAdmin), use it
-  if (value) return value
+  if (value !== null && value !== undefined) {
+    return value as number
+  }
 
   // Otherwise, use user's tenant
   const tenantId = getUserTenantId(req.user)
-  return tenantId || value
+  return tenantId ?? null
+}
+
+/** Admin condition context type */
+interface AdminConditionContext {
+  user: UserLike | null
 }
 
 /**
@@ -197,15 +233,15 @@ const assignTenant: FieldHook = ({ req, value }) => {
 export const tenantField = {
   name: 'tenant',
   type: 'relationship' as const,
-  relationTo: 'tenants' as any,
+  relationTo: 'tenants',
   required: true,
   index: true,
   admin: {
     position: 'sidebar' as const,
     description: 'Academia/Organización propietaria',
     // Hide field for non-superadmin (auto-assigned)
-    condition: (data: any, siblingData: any, { user }: { user: any }) => {
-      return user?.role === 'superadmin'
+    condition: (_data: Record<string, unknown>, _siblingData: Record<string, unknown>, context: AdminConditionContext): boolean => {
+      return context.user?.role === 'superadmin'
     },
   },
   access: {

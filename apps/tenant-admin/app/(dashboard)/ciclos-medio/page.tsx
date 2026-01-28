@@ -16,8 +16,42 @@ import {
 } from '@payload-config/components/ui/select'
 import { Plus, Search, GraduationCap, Calendar, Users, BookOpen, Clock, Award } from 'lucide-react'
 
+/** Represents a Ciclo Formativo de Grado Medio */
+interface CicloMedio {
+  id: string
+  nombre: string
+  codigo: string
+  familia: string
+  duracion: string
+  modalidad: string
+  plazas: number
+  plazas_ocupadas: number
+  cursos_activos: number
+  nivel: string
+  imagen: string
+  descripcion: string
+  competencias: string[]
+  salidas_profesionales: string[]
+  requisitos: string
+  active: boolean
+}
+
+/** API response structure for a cycle */
+interface ApiCycle {
+  id: string | number
+  name?: string
+  slug?: string
+  description?: string
+  level?: string
+}
+
+/** API payload response structure */
+interface ApiPayload {
+  docs?: ApiCycle[]
+}
+
 // Datos de Ciclos Formativos de Grado Medio
-const mockCiclosMedioData = [
+const mockCiclosMedioData: CicloMedio[] = [
   {
     id: 'cfgm-gestion-administrativa',
     nombre: 'Gestión Administrativa',
@@ -164,11 +198,11 @@ export default function CiclosMedioPage() {
           throw new Error('No se pudieron cargar los ciclos')
         }
 
-        const payload = await response.json()
-        const docs = Array.isArray(payload?.docs) ? payload.docs : []
-        const mapped = docs
-          .filter((cycle: any) => cycle.level === 'grado_medio')
-          .map((cycle: any) => ({
+        const payload = (await response.json()) as ApiPayload
+        const docs: ApiCycle[] = Array.isArray(payload.docs) ? payload.docs : []
+        const mapped: CicloMedio[] = docs
+          .filter((cycle: ApiCycle) => cycle.level === 'grado_medio')
+          .map((cycle: ApiCycle) => ({
             id: String(cycle.id),
             nombre: cycle.name ?? 'Ciclo sin nombre',
             codigo: cycle.slug ?? String(cycle.id),
@@ -198,7 +232,7 @@ export default function CiclosMedioPage() {
       }
     }
 
-    fetchCycles()
+    void fetchCycles()
   }, [])
 
   const handleAdd = () => {
@@ -332,7 +366,7 @@ export default function CiclosMedioPage() {
               <Input
                 placeholder="Buscar por nombre, código o familia..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 className="pl-9"
               />
             </div>
@@ -465,7 +499,7 @@ export default function CiclosMedioPage() {
                 {/* CTA Button */}
                 <Button
                   className="w-full bg-[#ff2014] hover:bg-[#ff2014]/90 text-white font-bold uppercase tracking-wide shadow-md transition-all duration-300 mt-auto"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation()
                     handleViewCiclo(ciclo.id)
                   }}

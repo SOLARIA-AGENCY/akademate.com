@@ -14,7 +14,33 @@
  * @hook beforeValidate
  */
 
-import type { FieldHook } from 'payload';
+import type { FieldHook, PayloadRequest } from 'payload';
+
+/**
+ * Payload Logger interface
+ */
+interface PayloadLogger {
+  info: (message: string, meta?: Record<string, unknown>) => void;
+  warn: (message: string, meta?: Record<string, unknown>) => void;
+  error: (message: string, meta?: Record<string, unknown>) => void;
+}
+
+/**
+ * FAQ Document interface
+ */
+interface FAQDocument {
+  id: string | number;
+  slug?: string;
+  question?: string;
+}
+
+/**
+ * Find result interface for FAQs
+ */
+interface FAQFindResult {
+  docs: FAQDocument[];
+  totalDocs: number;
+}
 
 /**
  * Normalize Spanish characters to ASCII equivalents
@@ -41,7 +67,7 @@ function normalizeSpanishChars(str: string): string {
     '!': '',
   };
 
-  return str.replace(/[áéíóúñüÁÉÍÓÚÑÜ¿¡?!]/g, (char) => map[char] || char);
+  return str.replace(/[áéíóúñüÁÉÍÓÚÑÜ¿¡?!]/g, (char) => map[char] ?? char);
 }
 
 /**
@@ -62,7 +88,7 @@ function slugify(text: string): string {
 /**
  * Check if slug exists in database
  */
-async function slugExists(slug: string, req: any, currentId?: string): Promise<boolean> {
+async function slugExists(slug: string, req: PayloadRequest, currentId?: string): Promise<boolean> {
   try {
     const existing = await req.payload.find({
       collection: 'faqs',
@@ -70,17 +96,17 @@ async function slugExists(slug: string, req: any, currentId?: string): Promise<b
         slug: { equals: slug },
       },
       limit: 1,
-    });
+    }) as FAQFindResult;
 
     // If updating, exclude current document
     if (currentId) {
-      return existing.docs.some((doc: any) => doc.id !== currentId);
+      return existing.docs.some((doc: FAQDocument) => String(doc.id) !== currentId);
     }
 
     return existing.docs.length > 0;
-  } catch (error) {
+  } catch {
     // SECURITY (SP-004): No logging of error details
-    const logger = req.payload.logger;
+    const logger = req.payload.logger as PayloadLogger;
     logger.error('[FAQ] Slug existence check failed', {
       hasError: true,
     });
@@ -93,7 +119,7 @@ async function slugExists(slug: string, req: any, currentId?: string): Promise<b
  */
 async function generateUniqueSlug(
   baseSlug: string,
-  req: any,
+  req: PayloadRequest,
   currentId?: string
 ): Promise<string> {
   let slug = baseSlug;
@@ -117,7 +143,7 @@ async function generateUniqueSlug(
  * Generate slug hook
  */
 export const generateSlug: FieldHook = async ({ data, req, operation, value }) => {
-  const logger = req.payload.logger as any;
+  const logger = req.payload.logger as PayloadLogger;
   // If slug is manually provided, validate and use it
   if (value && typeof value === 'string' && value.trim().length > 0) {
     return slugify(value);

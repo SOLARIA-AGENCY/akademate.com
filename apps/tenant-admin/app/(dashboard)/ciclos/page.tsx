@@ -23,11 +23,10 @@ import {
   MapPin,
   Award,
   TrendingUp,
-  Calendar,
 } from 'lucide-react'
 import { CicloListItem } from '@payload-config/components/ui/CicloListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
-import { useViewPreference } from '@payload-config/hooks/useViewPreference'
+import { useViewPreference } from '../../../@payload-config/hooks/useViewPreference'
 
 interface Ciclo {
   id: string
@@ -44,6 +43,17 @@ interface Ciclo {
   competencias: string[]
   salidas_profesionales: string[]
   requisitos: string
+}
+
+interface CycleApiItem {
+  id: string
+  name?: string
+  slug?: string
+  level?: 'grado_superior' | 'grado_medio' | 'fp_basica' | 'certificado_profesionalidad'
+}
+
+interface CycleApiResponse {
+  docs?: CycleApiItem[]
 }
 
 const mockCiclosData: Ciclo[] = [
@@ -340,11 +350,11 @@ export default function TodosLosCiclosPage() {
           throw new Error('No se pudieron cargar los ciclos')
         }
 
-        const payload = await response.json()
-        const docs = Array.isArray(payload?.docs) ? payload.docs : []
-        const mapped: Ciclo[] = docs.map((cycle: any) => {
-          const level = cycle.level as string | undefined
-          const nivelLabel = (() => {
+        const payload: CycleApiResponse = await response.json() as CycleApiResponse
+        const docs: CycleApiItem[] = Array.isArray(payload.docs) ? payload.docs : []
+        const mapped: Ciclo[] = docs.map((cycle: CycleApiItem) => {
+          const level = cycle.level
+          const nivelLabel: 'Grado Medio' | 'Grado Superior' = (() => {
             switch (level) {
               case 'grado_superior':
                 return 'Grado Superior'
@@ -388,7 +398,7 @@ export default function TodosLosCiclosPage() {
       }
     }
 
-    fetchCycles()
+    void fetchCycles()
   }, [])
 
   const totalCiclos = ciclosData.length
@@ -535,7 +545,7 @@ export default function TodosLosCiclosPage() {
               <Input
                 placeholder="Buscar ciclos..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>

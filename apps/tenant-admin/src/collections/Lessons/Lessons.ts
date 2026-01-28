@@ -1,6 +1,57 @@
 import type { CollectionConfig } from 'payload';
 
 /**
+ * Type definitions for Lessons collection
+ */
+type UserRole = 'superadmin' | 'admin' | 'gestor' | 'marketing' | 'asesor' | 'lectura';
+
+/** User with role for access control */
+interface UserWithRole {
+  id: string | number;
+  role: UserRole;
+}
+
+/** Type guard to check if user has a valid role */
+function hasRole(user: unknown): user is UserWithRole {
+  return (
+    typeof user === 'object' &&
+    user !== null &&
+    'role' in user &&
+    typeof (user as UserWithRole).role === 'string'
+  );
+}
+
+/** Check if user has one of the allowed roles */
+function isAllowedRole(user: unknown, roles: UserRole[]): boolean {
+  return hasRole(user) && roles.includes(user.role);
+}
+
+/** Lesson type options */
+type LessonType = 'video' | 'text' | 'quiz' | 'assignment' | 'interactive' | 'live';
+
+/** Data structure for admin condition functions */
+interface LessonData {
+  title?: string;
+  slug?: string;
+  lesson_type?: LessonType;
+  module?: string | number;
+  content?: unknown;
+  video_url?: string;
+  video_duration_seconds?: number;
+  quiz_data?: unknown;
+  assignment_instructions?: unknown;
+  order?: number;
+  is_published?: boolean;
+  is_free_preview?: boolean;
+  unlock_date?: string;
+  requires_completion?: boolean;
+  passing_score?: number;
+  estimated_duration_minutes?: number;
+  created_by?: string | number;
+  id?: string | number;
+}
+
+/**
  * Lessons Collection - Individual Learning Units
  *
  * Lessons are the smallest learning units within a module.
@@ -45,15 +96,15 @@ export const Lessons: CollectionConfig = {
     },
     create: ({ req: { user } }) => {
       if (!user) return false;
-      return ['admin', 'gestor'].includes(user.role);
+      return isAllowedRole(user, ['admin', 'gestor']);
     },
     update: ({ req: { user } }) => {
       if (!user) return false;
-      return ['admin', 'gestor'].includes(user.role);
+      return isAllowedRole(user, ['admin', 'gestor']);
     },
     delete: ({ req: { user } }) => {
       if (!user) return false;
-      return ['admin', 'gestor'].includes(user.role);
+      return isAllowedRole(user, ['admin', 'gestor']);
     },
   },
 
@@ -109,7 +160,7 @@ export const Lessons: CollectionConfig = {
     {
       name: 'module',
       type: 'relationship',
-      relationTo: 'modules' as any,
+      relationTo: 'modules',
       required: true,
       index: true,
       admin: {
@@ -134,7 +185,7 @@ export const Lessons: CollectionConfig = {
       type: 'text',
       admin: {
         description: 'Video URL (YouTube, Vimeo, or direct link)',
-        condition: (data: any) => data.lesson_type === 'video',
+        condition: (data: LessonData) => data.lesson_type === 'video',
       },
     },
 
@@ -144,7 +195,7 @@ export const Lessons: CollectionConfig = {
       min: 0,
       admin: {
         description: 'Video duration in seconds',
-        condition: (data: any) => data.lesson_type === 'video',
+        condition: (data: LessonData) => data.lesson_type === 'video',
       },
     },
 
@@ -153,7 +204,7 @@ export const Lessons: CollectionConfig = {
       type: 'json',
       admin: {
         description: 'Quiz questions and answers (JSON format)',
-        condition: (data: any) => data.lesson_type === 'quiz',
+        condition: (data: LessonData) => data.lesson_type === 'quiz',
       },
     },
 
@@ -162,7 +213,7 @@ export const Lessons: CollectionConfig = {
       type: 'richText',
       admin: {
         description: 'Assignment instructions and requirements',
-        condition: (data: any) => data.lesson_type === 'assignment',
+        condition: (data: LessonData) => data.lesson_type === 'assignment',
       },
     },
 
@@ -235,7 +286,7 @@ export const Lessons: CollectionConfig = {
       max: 100,
       admin: {
         description: 'Minimum score required to pass (for quizzes)',
-        condition: (data: any) => data.lesson_type === 'quiz',
+        condition: (data: LessonData) => data.lesson_type === 'quiz',
       },
     },
 
@@ -271,15 +322,16 @@ export const Lessons: CollectionConfig = {
 
   hooks: {
     beforeValidate: [
-      ({ data, req }) => {
-        if (!data) return data;
+      ({ data, req }): LessonData | undefined => {
+        const typedData = data as LessonData | undefined;
+        if (!typedData) return typedData;
 
-        if (req.user && !data.created_by && !data.id) {
-          data.created_by = req.user.id;
+        if (req.user && !typedData.created_by && !typedData.id) {
+          typedData.created_by = (req.user as UserWithRole).id;
         }
 
-        if (data.title && !data.slug) {
-          data.slug = data.title
+        if (typedData.title && !typedData.slug) {
+          typedData.slug = typedData.title
             .toLowerCase()
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
@@ -287,7 +339,7 @@ export const Lessons: CollectionConfig = {
             .replace(/(^-|-$)/g, '');
         }
 
-        return data;
+        return typedData;
       },
     ],
   },
