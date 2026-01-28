@@ -1,4 +1,17 @@
 import type { CollectionBeforeChangeHook } from 'payload';
+import type { EnrollmentStatus } from '../Enrollments.validation';
+
+/**
+ * Enrollment document interface for hook typing
+ */
+interface EnrollmentDocument {
+  id: string | number;
+  status?: EnrollmentStatus;
+  enrolled_at?: string;
+  confirmed_at?: string;
+  completed_at?: string;
+  cancelled_at?: string;
+}
 
 /**
  * Hook: captureEnrollmentTimestamps
@@ -21,12 +34,13 @@ import type { CollectionBeforeChangeHook } from 'payload';
  * - Prevents tampering with historical records
  * - Supports compliance and reporting requirements
  */
-export const captureEnrollmentTimestamps: CollectionBeforeChangeHook = async ({
+export const captureEnrollmentTimestamps: CollectionBeforeChangeHook = ({
   data,
-  req,
+  req: _req,
   operation,
   originalDoc,
 }) => {
+  const original = originalDoc as EnrollmentDocument | undefined;
   if (!data) {
     return data;
   }
@@ -54,43 +68,43 @@ export const captureEnrollmentTimestamps: CollectionBeforeChangeHook = async ({
   }
 
   // On UPDATE: Capture status change timestamps
-  if (operation === 'update' && originalDoc) {
+  if (operation === 'update' && original) {
     // Protect enrolled_at (immutable)
-    if (data.enrolled_at && data.enrolled_at !== originalDoc.enrolled_at) {
-      data.enrolled_at = originalDoc.enrolled_at;
+    if (data.enrolled_at && data.enrolled_at !== original.enrolled_at) {
+      data.enrolled_at = original.enrolled_at;
     }
 
     // Capture confirmed_at when status changes to 'confirmed'
-    if (data.status === 'confirmed' && originalDoc.status !== 'confirmed' && !originalDoc.confirmed_at) {
+    if (data.status === 'confirmed' && original.status !== 'confirmed' && !original.confirmed_at) {
       data.confirmed_at = now;
-    } else if (originalDoc.confirmed_at) {
+    } else if (original.confirmed_at) {
       // Protect confirmed_at once set (immutable)
-      data.confirmed_at = originalDoc.confirmed_at;
+      data.confirmed_at = original.confirmed_at;
     }
 
     // Capture completed_at when status changes to 'completed'
-    if (data.status === 'completed' && originalDoc.status !== 'completed' && !originalDoc.completed_at) {
+    if (data.status === 'completed' && original.status !== 'completed' && !original.completed_at) {
       data.completed_at = now;
-    } else if (originalDoc.completed_at) {
+    } else if (original.completed_at) {
       // Protect completed_at once set (immutable)
-      data.completed_at = originalDoc.completed_at;
+      data.completed_at = original.completed_at;
     }
 
     // Capture cancelled_at when status changes to 'cancelled' or 'withdrawn'
     if (
       (data.status === 'cancelled' || data.status === 'withdrawn') &&
-      originalDoc.status !== 'cancelled' &&
-      originalDoc.status !== 'withdrawn' &&
-      !originalDoc.cancelled_at
+      original.status !== 'cancelled' &&
+      original.status !== 'withdrawn' &&
+      !original.cancelled_at
     ) {
       data.cancelled_at = now;
-    } else if (originalDoc.cancelled_at) {
+    } else if (original.cancelled_at) {
       // Protect cancelled_at once set (immutable)
-      data.cancelled_at = originalDoc.cancelled_at;
+      data.cancelled_at = original.cancelled_at;
     }
 
     // Prevent status downgrade from 'completed'
-    if (originalDoc.status === 'completed' && data.status !== 'completed') {
+    if (original.status === 'completed' && data.status !== 'completed') {
       throw new Error('Cannot change status from completed to another status');
     }
   }

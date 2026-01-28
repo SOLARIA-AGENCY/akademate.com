@@ -49,6 +49,52 @@ interface CheckinResult {
   }
 }
 
+interface StudentReference {
+  id: string
+}
+
+interface CourseRunReference {
+  id: string
+}
+
+interface EnrollmentResponse {
+  id: string
+  student: string | StudentReference
+  course_run: string | CourseRunReference
+  status: string
+}
+
+interface AttendanceRecord {
+  id: string
+  enrollment: string
+  session_date: string
+  session_type: string
+  status: 'present' | 'late' | 'absent' | 'excused'
+  check_in_at?: string
+  notes?: string
+}
+
+interface PaginatedResponse<T> {
+  docs: T[]
+  totalDocs: number
+  limit: number
+  page: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+}
+
+interface QRGenerateResponse {
+  url: string
+  json: {
+    sessionId: string
+    courseRunId: string
+    timestamp: string
+    signature: string
+  }
+  expiresAt: string
+}
+
 // ============================================================================
 // Configuration
 // ============================================================================
@@ -135,7 +181,7 @@ function isValidCheckinWindow(
 
 export async function POST(request: NextRequest): Promise<NextResponse<CheckinResult>> {
   try {
-    const body = await request.json()
+    const body: unknown = await request.json()
 
     // Validate request body
     const validation = QRCheckinSchema.safeParse(body)
@@ -197,7 +243,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
       )
     }
 
-    const enrollment = await enrollmentResponse.json()
+    const enrollment = (await enrollmentResponse.json()) as EnrollmentResponse
 
     // Verify enrollment belongs to user and course
     const enrollmentStudentId =
@@ -258,9 +304,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
     )
 
     if (checkDuplicateResponse.ok) {
-      const checkResult = await checkDuplicateResponse.json()
-      if (checkResult.docs && checkResult.docs.length > 0) {
-        const existing = checkResult.docs[0]
+      const checkResult = (await checkDuplicateResponse.json()) as PaginatedResponse<AttendanceRecord>
+      const existing = checkResult.docs[0]
+      if (existing) {
         return NextResponse.json(
           {
             success: true,
@@ -268,7 +314,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
             message: 'Ya registraste tu asistencia para esta sesion',
             attendance: {
               id: existing.id,
-              checkInTime: existing.check_in_at || now.toISOString(),
+              checkInTime: existing.check_in_at ?? now.toISOString(),
               status: existing.status as 'present' | 'late',
             },
           },
@@ -300,7 +346,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
       throw new Error('Failed to create attendance record')
     }
 
-    const attendance = await createAttendanceResponse.json()
+    const attendance = (await createAttendanceResponse.json()) as AttendanceRecord
 
     // Return success
     return NextResponse.json(
@@ -341,7 +387,7 @@ const QRGenerateSchema = z.object({
   courseRunId: z.string().uuid(),
 })
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export function GET(request: NextRequest): NextResponse<QRGenerateResponse | { error: string }> {
   try {
     const { searchParams } = new URL(request.url)
     const sessionId = searchParams.get('sessionId')
@@ -359,7 +405,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       timestamp
     )
 
-    const qrData = {
+    const qrData: QRGenerateResponse = {
       url: `akademate://attendance?session=${validation.data.sessionId}&course=${validation.data.courseRunId}&ts=${encodeURIComponent(timestamp)}&sig=${signature}`,
       json: {
         sessionId: validation.data.sessionId,

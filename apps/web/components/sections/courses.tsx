@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { Clock, Users, Star, ArrowRight } from 'lucide-react'
-import { cms } from '@/lib/cms'
-import { formatCurrency } from '@/lib/utils'
+import { cms, type CMSCourse } from '../../lib/cms'
+import { formatCurrency } from '../../lib/utils'
 
 export async function CoursesSection() {
-  const courses = await cms.getFeaturedCourses(3).catch(() => [])
+  const courses: CMSCourse[] = await cms.getFeaturedCourses(3).catch(() => [])
   return (
     <section className="bg-muted/30 py-20 sm:py-32" id="courses">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -29,7 +29,7 @@ export async function CoursesSection() {
 
         {/* Courses grid */}
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {courses.map((course) => (
+          {courses.map((course: CMSCourse) => (
             <article
               key={course.id}
               className="group overflow-hidden rounded-2xl border bg-background shadow-sm transition-shadow hover:shadow-md"
@@ -58,7 +58,7 @@ export async function CoursesSection() {
                 </h3>
 
                 <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                  {course.shortDescription || course.description}
+                  {course.shortDescription ?? course.description}
                 </p>
 
                 {/* Stats */}

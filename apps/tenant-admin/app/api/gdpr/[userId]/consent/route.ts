@@ -9,7 +9,51 @@ import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
 
-const DEFAULT_CONSENTS = {
+interface ConsentState {
+  marketing_email: boolean;
+  marketing_sms: boolean;
+  marketing_phone: boolean;
+  analytics: boolean;
+  third_party_sharing: boolean;
+  profiling: boolean;
+  newsletter: boolean;
+}
+
+interface AuditLogChanges {
+  after?: {
+    consents?: ConsentState;
+    updatedAt?: string;
+  };
+}
+
+interface AuditLogRecord {
+  changes?: AuditLogChanges;
+  createdAt?: string;
+}
+
+interface AuditLogCreateData {
+  action: string;
+  collection_name: string;
+  document_id: string;
+  user_id: number;
+  ip_address: string;
+  changes: {
+    after: {
+      consents: Partial<ConsentState>;
+      updatedAt: string;
+    };
+  };
+  metadata: {
+    source: string;
+    userAgent: string;
+  };
+}
+
+interface ConsentRequestBody {
+  consents?: Partial<ConsentState>;
+}
+
+const DEFAULT_CONSENTS: ConsentState = {
   marketing_email: false,
   marketing_sms: false,
   marketing_phone: false,
@@ -38,6 +82,7 @@ export async function GET(
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const payload = await getPayloadHMR({ config: configPromise });
 
     const logs = await payload.find({
@@ -54,9 +99,9 @@ export async function GET(
       depth: 0,
     });
 
-    const latest = logs.docs?.[0] as any;
-    const consentState = latest?.changes?.after?.consents || DEFAULT_CONSENTS;
-    const updatedAt = latest?.createdAt || new Date().toISOString();
+    const latest = logs.docs?.[0] as AuditLogRecord | undefined;
+    const consentState = latest?.changes?.after?.consents ?? DEFAULT_CONSENTS;
+    const updatedAt = latest?.createdAt ?? new Date().toISOString();
 
     return NextResponse.json({
       success: true,
@@ -66,10 +111,11 @@ export async function GET(
         updatedAt,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GDPR Consent] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Consent lookup failed';
     return NextResponse.json(
-      { success: false, error: error.message || 'Consent lookup failed' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }
@@ -86,8 +132,8 @@ export async function POST(
 ) {
   try {
     const { userId } = params;
-    const body = await request.json();
-    const consents = body?.consents;
+    const body = (await request.json()) as ConsentRequestBody;
+    const consents: Partial<ConsentState> | undefined = body?.consents;
 
     if (!userId) {
       return NextResponse.json(
@@ -103,38 +149,44 @@ export async function POST(
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const payload = await getPayloadHMR({ config: configPromise });
     const updatedAt = new Date().toISOString();
 
+    const auditLogData: AuditLogCreateData = {
+      action: 'update',
+      collection_name: 'users',
+      document_id: String(userId),
+      user_id: Number(userId),
+      ip_address: request.headers.get('x-forwarded-for') ?? '127.0.0.1',
+      changes: { after: { consents, updatedAt } },
+      metadata: {
+        source: 'gdpr_consent',
+        userAgent: request.headers.get('user-agent') ?? 'unknown',
+      },
+    };
+
     await payload.create({
       collection: 'audit-logs',
-      data: {
-        action: 'update',
-        collection_name: 'users',
-        document_id: String(userId),
-        user_id: Number(userId),
-        ip_address: request.headers.get('x-forwarded-for') || '127.0.0.1',
-        changes: { after: { consents, updatedAt } },
-        metadata: {
-          source: 'gdpr_consent',
-          userAgent: request.headers.get('user-agent') || 'unknown',
-        },
-      } as any,
+      data: auditLogData as unknown as Record<string, unknown>,
     });
+
+    const mergedConsents: ConsentState = { ...DEFAULT_CONSENTS, ...consents };
 
     return NextResponse.json({
       success: true,
       data: {
         userId,
-        consents: { ...DEFAULT_CONSENTS, ...consents },
+        consents: mergedConsents,
         updatedAt,
       },
       message: 'Consent updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GDPR Consent] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Consent update failed';
     return NextResponse.json(
-      { success: false, error: error.message || 'Consent update failed' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }
