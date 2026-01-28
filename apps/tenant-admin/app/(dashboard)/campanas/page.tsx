@@ -7,8 +7,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Plus, TrendingUp, Users, MousePointer, DollarSign } from 'lucide-react'
 
+type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived'
+
+interface Campaign {
+  id: string
+  name: string
+  status: CampaignStatus
+  campaign_type?: string
+  total_leads?: number
+  total_conversions?: number
+  budget?: number
+  cost_per_lead?: number
+}
+
+interface CampaignsApiResponse {
+  docs?: Campaign[]
+}
+
 export default function CampanasPage() {
-  const [campaigns, setCampaigns] = useState<any[]>([])
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -23,8 +40,8 @@ export default function CampanasPage() {
           throw new Error('No se pudieron cargar las campañas')
         }
 
-        const payload = await response.json()
-        setCampaigns(Array.isArray(payload?.docs) ? payload.docs : [])
+        const payload = (await response.json()) as CampaignsApiResponse
+        setCampaigns(Array.isArray(payload.docs) ? payload.docs : [])
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : 'Error al cargar campañas')
         setCampaigns([])
@@ -33,7 +50,7 @@ export default function CampanasPage() {
       }
     }
 
-    fetchCampaigns()
+    void fetchCampaigns()
   }, [])
 
   const stats = useMemo(() => {

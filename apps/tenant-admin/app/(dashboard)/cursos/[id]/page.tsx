@@ -17,15 +17,124 @@ import {
   Clock,
   Users,
   Calendar,
-  MapPin,
   GraduationCap,
 } from 'lucide-react'
-import { COURSE_TYPE_CONFIG, getCourseTypeConfig, type CourseTypeKey } from '@payload-config/lib/courseTypeConfig'
-import { ConvocationCard } from '@payload-config/components/ui/ConvocationCard'
 import {
   ConvocationGeneratorModal,
   type ConvocationFormData,
 } from '@payload-config/components/ui/ConvocationGeneratorModal'
+
+// ============================================================================
+// TypeScript Interfaces
+// ============================================================================
+
+interface CourseTemplate {
+  id: number | string
+  nombre: string
+  area: string
+  tipo: string
+  imagenPortada: string
+  descripcion: string
+  duracionReferencia: number
+  precioReferencia: number
+  totalConvocatorias: number
+  objetivos: string[]
+  contenidos: string[]
+  active: boolean
+  created_at: string
+  updated_at: string
+  subvencionado?: boolean
+  porcentajeSubvencion?: number
+}
+
+type ConvocationStatus =
+  | 'enrollment_open'
+  | 'draft'
+  | 'published'
+  | 'enrollment_closed'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled'
+
+interface Convocation {
+  id: string
+  estado: ConvocationStatus
+  plazasTotales: number
+  plazasOcupadas: number
+  fechaInicio: string
+  fechaFin: string
+  horario: string | null
+}
+
+interface ApiResponse<T> {
+  success: boolean
+  data?: T
+  error?: string
+}
+
+interface CourseTypeConfig {
+  label: string
+  bgColor: string
+  hoverColor: string
+  textColor: string
+  borderColor: string
+  dotColor: string
+}
+
+const COURSE_TYPE_CONFIG: Record<string, CourseTypeConfig> = {
+  privados: {
+    label: 'PRIVADO',
+    bgColor: 'bg-red-600',
+    hoverColor: 'hover:bg-red-700',
+    textColor: 'text-red-600',
+    borderColor: 'border-red-600',
+    dotColor: 'bg-red-600',
+  },
+  ocupados: {
+    label: 'OCUPADOS',
+    bgColor: 'bg-green-600',
+    hoverColor: 'hover:bg-green-700',
+    textColor: 'text-green-600',
+    borderColor: 'border-green-600',
+    dotColor: 'bg-green-600',
+  },
+  desempleados: {
+    label: 'DESEMPLEADOS',
+    bgColor: 'bg-blue-600',
+    hoverColor: 'hover:bg-blue-700',
+    textColor: 'text-blue-600',
+    borderColor: 'border-blue-600',
+    dotColor: 'bg-blue-600',
+  },
+  teleformacion: {
+    label: 'TELEFORMACION',
+    bgColor: 'bg-orange-600',
+    hoverColor: 'hover:bg-orange-700',
+    textColor: 'text-orange-600',
+    borderColor: 'border-orange-600',
+    dotColor: 'bg-orange-600',
+  },
+  'ciclo-medio': {
+    label: 'CICLO MEDIO',
+    bgColor: 'bg-red-500',
+    hoverColor: 'hover:bg-red-600',
+    textColor: 'text-red-500',
+    borderColor: 'border-red-500',
+    dotColor: 'bg-red-500',
+  },
+  'ciclo-superior': {
+    label: 'CICLO SUPERIOR',
+    bgColor: 'bg-red-600',
+    hoverColor: 'hover:bg-red-700',
+    textColor: 'text-red-600',
+    borderColor: 'border-red-600',
+    dotColor: 'bg-red-600',
+  },
+}
+
+function getCourseTypeConfig(type: string): CourseTypeConfig {
+  return COURSE_TYPE_CONFIG[type] ?? COURSE_TYPE_CONFIG.privados
+}
 
 interface CourseDetailPageProps {
   params: Promise<{ id: string }>
@@ -41,8 +150,8 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
   const [isModalOpen, setIsModalOpen] = React.useState(false)
 
   // Data state
-  const [courseTemplate, setCourseTemplate] = React.useState<any>(null)
-  const [courseConvocations, setCourseConvocations] = React.useState<any[]>([])
+  const [courseTemplate, setCourseTemplate] = React.useState<CourseTemplate | null>(null)
+  const [courseConvocations, setCourseConvocations] = React.useState<Convocation[]>([])
   const [loading, setLoading] = React.useState(true)
   const [loadingConvocations, setLoadingConvocations] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -58,11 +167,11 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
           cache: 'no-cache',
         })
 
-        const result = await response.json()
+        const result = (await response.json()) as ApiResponse<CourseTemplate[]>
 
-        if (result.success) {
+        if (result.success && result.data) {
           // Find course by ID (convert to number if needed)
-          const course = result.data.find((c: any) => c.id === parseInt(id) || c.id === id)
+          const course = result.data.find((c: CourseTemplate) => c.id === parseInt(id) || c.id === id)
 
           if (course) {
             setCourseTemplate(course)
@@ -72,7 +181,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
             console.log(`[CURSO_DETALLE] ❌ Curso ID ${id} no encontrado`)
           }
         } else {
-          setError(result.error || 'Error al cargar curso')
+          setError(result.error ?? 'Error al cargar curso')
         }
       } catch (err) {
         console.error('[CURSO_DETALLE] ❌ Error fetching course:', err)
@@ -82,7 +191,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
       }
     }
 
-    fetchCourse()
+    void fetchCourse()
   }, [id])
 
   // Fetch convocations for this course
@@ -95,11 +204,11 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
         cache: 'no-cache',
       })
 
-      const result = await response.json()
+      const result = (await response.json()) as ApiResponse<Convocation[]>
 
       if (result.success) {
-        setCourseConvocations(result.data || [])
-        console.log(`[CONVOCATORIAS] ✅ ${result.data?.length || 0} convocatorias cargadas`)
+        setCourseConvocations(result.data ?? [])
+        console.log(`[CONVOCATORIAS] ✅ ${result.data?.length ?? 0} convocatorias cargadas`)
       } else {
         console.error('[CONVOCATORIAS] ❌ Error:', result.error)
       }
@@ -113,7 +222,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
   // Load convocations on mount
   React.useEffect(() => {
     if (id) {
-      fetchConvocations()
+      void fetchConvocations()
     }
   }, [id, fetchConvocations])
 
@@ -138,7 +247,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
           <CardHeader>
             <CardTitle>Curso no encontrado</CardTitle>
             <CardDescription>
-              {error || `El curso con ID ${id} no existe`}
+              {error ?? `El curso con ID ${id} no existe`}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -152,7 +261,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
     )
   }
 
-  const typeConfig = getCourseTypeConfig((courseTemplate.tipo || 'privados') as CourseTypeKey)
+  const typeConfig = getCourseTypeConfig(courseTemplate.tipo ?? 'privados')
 
   const handleViewConvocation = (convocationId: string) => {
     router.push(`/cursos/${id}/convocatoria/${convocationId}`)
@@ -173,7 +282,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
         }),
       })
 
-      const result = await response.json()
+      const result = (await response.json()) as ApiResponse<Convocation>
 
       if (result.success) {
         console.log('[CONVOCATORIA] ✅ Convocatoria creada:', result.data)
@@ -188,8 +297,8 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
         console.error('[CONVOCATORIA] ❌ Error:', result.error)
         alert(`❌ Error al crear convocatoria: ${result.error}`)
       }
-    } catch (error) {
-      console.error('[CONVOCATORIA] ❌ Error de red:', error)
+    } catch (createError) {
+      console.error('[CONVOCATORIA] ❌ Error de red:', createError)
       alert('❌ Error de conexión al crear convocatoria')
     }
   }
@@ -324,7 +433,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                     </h3>
                     <ul className="space-y-2">
                       {courseTemplate.objetivos?.length > 0 ? (
-                        courseTemplate.objetivos.map((objetivo, index) => (
+                        courseTemplate.objetivos.map((objetivo: string, index: number) => (
                           <li key={index} className="flex gap-3">
                             <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
                               {index + 1}
@@ -348,7 +457,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                     </h3>
                     <ul className="space-y-2">
                       {courseTemplate.contenidos?.length > 0 ? (
-                        courseTemplate.contenidos.map((contenido, index) => (
+                        courseTemplate.contenidos.map((contenido: string, index: number) => (
                           <li key={index} className="flex gap-3 p-3 border rounded-lg hover:bg-accent transition-colors">
                             <span className="flex-shrink-0 w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-bold">
                               {index + 1}
@@ -417,14 +526,14 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {courseConvocations.map((convocation) => {
+                  {courseConvocations.map((convocation: Convocation) => {
                     // Calculate occupation percentage
                     const ocupacion = convocation.plazasTotales > 0
                       ? Math.round((convocation.plazasOcupadas / convocation.plazasTotales) * 100)
                       : 0
 
                     // Map status to Spanish
-                    const statusLabels: Record<string, string> = {
+                    const statusLabels: Record<ConvocationStatus, string> = {
                       'enrollment_open': 'Inscripción Abierta',
                       'draft': 'Borrador',
                       'published': 'Publicada',
@@ -452,7 +561,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                               }
                               className="text-xs"
                             >
-                              {statusLabels[convocation.estado] || convocation.estado}
+                              {statusLabels[convocation.estado]}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
                               {ocupacion}% ocupado
@@ -468,7 +577,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                             </div>
                             <div className="flex items-center gap-2 text-xs">
                               <Clock className="h-3 w-3 text-muted-foreground" />
-                              <span>{convocation.horario || 'Sin horario definido'}</span>
+                              <span>{convocation.horario ?? 'Sin horario definido'}</span>
                             </div>
                             <div className="flex items-center gap-2 text-xs">
                               <Users className="h-3 w-3 text-muted-foreground" />

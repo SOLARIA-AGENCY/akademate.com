@@ -27,6 +27,22 @@ interface AdminStaff {
   photo?: string
 }
 
+interface ApiStaffData {
+  id: string | number
+  firstName: string
+  lastName: string
+  email: string
+  phone?: string
+  position: string
+  employmentStatus: string
+  photo?: string
+}
+
+interface ApiResponse {
+  success: boolean
+  data: ApiStaffData[]
+}
+
 export default function AdministrativosPage() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
@@ -46,19 +62,19 @@ export default function AdministrativosPage() {
           throw new Error('Failed to load administrative staff')
         }
 
-        const result = await response.json()
+        const result: ApiResponse = await response.json() as ApiResponse
 
         if (!result.success) {
           throw new Error('API returned error')
         }
 
         // Transform API data to UI format
-        const transformed: AdminStaff[] = result.data.map((staff: any) => ({
+        const transformed: AdminStaff[] = result.data.map((staff: ApiStaffData) => ({
           id: staff.id.toString(),
           first_name: staff.firstName,
           last_name: staff.lastName,
           email: staff.email,
-          phone: staff.phone || 'No disponible',
+          phone: staff.phone ?? 'No disponible',
           department: staff.position,
           role: staff.position,
           active: staff.employmentStatus === 'active',
@@ -75,7 +91,7 @@ export default function AdministrativosPage() {
       }
     }
 
-    loadAdministrative()
+    void loadAdministrative()
   }, [])
 
   const handleAdd = () => {
@@ -189,7 +205,7 @@ export default function AdministrativosPage() {
               <Input
                 placeholder="Buscar por nombre, email o departamento..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 className="pl-9"
               />
             </div>
@@ -284,7 +300,7 @@ export default function AdministrativosPage() {
                   variant="outline"
                   size="sm"
                   className="w-full"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.stopPropagation()
                     router.push(`/administrativo/${admin.id}`)
                   }}
@@ -296,7 +312,7 @@ export default function AdministrativosPage() {
                   variant="default"
                   size="sm"
                   className="w-full"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.stopPropagation()
                     router.push(`/administrativo/${admin.id}/editar`)
                   }}

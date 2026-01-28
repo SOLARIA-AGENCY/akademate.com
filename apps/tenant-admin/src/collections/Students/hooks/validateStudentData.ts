@@ -1,4 +1,4 @@
-import type { FieldHook } from 'payload';
+import type { CollectionBeforeValidateHook } from 'payload';
 import {
   spanishPhoneRegex,
   dniRegex,
@@ -41,7 +41,7 @@ import {
  * @returns Modified data if validation passes
  * @throws Error if validation fails
  */
-export const validateStudentData: FieldHook = async ({ data, req, operation, value }) => {
+export const validateStudentData: CollectionBeforeValidateHook = async ({ data, req, operation }) => {
   const validationErrors: string[] = [];
   const logger = req?.payload?.logger as any;
 

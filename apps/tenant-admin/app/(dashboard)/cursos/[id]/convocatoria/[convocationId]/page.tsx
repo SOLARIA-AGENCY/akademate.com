@@ -15,26 +15,79 @@ import {
   DoorOpen,
   User,
   Users,
-  Euro,
   BookOpen,
   Mail,
   Phone,
   CheckCircle2,
   XCircle,
 } from 'lucide-react'
+import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
+
+// TypeScript interfaces
+interface CourseTypeConfig {
+  label: string
+  bgColor: string
+  hoverColor: string
+  textColor: string
+  borderColor: string
+  dotColor: string
+}
+
+interface FinancingEntity {
+  id: string
+  nombre: string
+}
+
+interface Convocation {
+  id: string
+  tipo?: string
+  estado: string
+  modalidad: string
+  nombreCurso: string
+  codigoCompleto: string
+  imagenPortada: string
+  fechaInicio: string
+  fechaFin: string
+  horario: string
+  duracionHoras: number
+  sedeNombre: string
+  aulaNombre: string
+  profesorNombre: string
+  plazasOcupadas: number
+  plazasTotales: number
+  porcentajeOcupacion: number
+  precio: number
+  precioConDescuento?: number
+  subvencionado: string
+  entidadesFinanciadoras: FinancingEntity[]
+}
+
+interface CourseTemplate {
+  id: string
+  nombre: string
+  descripcion?: string
+}
+
+interface Student {
+  id: string
+  nombre: string
+  email: string
+  phone: string
+  estado: string
+}
+
 // TODO: Fetch from Payload API
 // import { instanciasData } from '@payload-config/data/mockCoursesData'
 // import { plantillasCursosData } from '@payload-config/data/mockCourseTemplatesData'
-const instanciasData: any[] = []
-const plantillasCursosData: any[] = []
-import { COURSE_TYPE_CONFIG, getCourseTypeConfig, type CourseTypeKey } from '@payload-config/lib/courseTypeConfig'
+const instanciasData: Convocation[] = []
+const plantillasCursosData: CourseTemplate[] = []
 
 interface ConvocationDetailPageProps {
   params: Promise<{ id: string; convocationId: string }>
 }
 
 // Mock student data
-const mockStudents = [
+const mockStudents: Student[] = [
   { id: '1', nombre: 'María González', email: 'maria.g@email.com', phone: '+34 600 111 222', estado: 'confirmado' },
   { id: '2', nombre: 'Juan Martínez', email: 'juan.m@email.com', phone: '+34 600 222 333', estado: 'confirmado' },
   { id: '3', nombre: 'Ana López', email: 'ana.l@email.com', phone: '+34 600 333 444', estado: 'confirmado' },
@@ -69,7 +122,9 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
     )
   }
 
-  const typeConfig = getCourseTypeConfig((convocation.tipo || 'privados') as CourseTypeKey)
+  const courseType = convocation.tipo ?? 'privados'
+  const configMap = COURSE_TYPE_CONFIG as Record<string, CourseTypeConfig>
+  const typeConfig: CourseTypeConfig = configMap[courseType] ?? configMap.privados
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -356,7 +411,7 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
                     Financiado por:
                   </p>
                   <div className="space-y-2">
-                    {convocation.entidadesFinanciadoras.map((entidad: any) => (
+                    {convocation.entidadesFinanciadoras.map((entidad: FinancingEntity) => (
                       <div
                         key={entidad.id}
                         className="px-3 py-2 bg-secondary rounded text-sm font-medium text-center"

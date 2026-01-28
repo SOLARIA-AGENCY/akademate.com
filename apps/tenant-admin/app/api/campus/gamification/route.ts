@@ -10,6 +10,47 @@ import { jwtVerify } from 'jose';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+interface GamificationBadgeRecord {
+  badgeId: string;
+}
+
+interface GamificationDocument {
+  totalPoints?: number;
+  currentStreak?: number;
+  longestStreak?: number;
+  badges?: GamificationBadgeRecord[];
+}
+
+interface LessonProgressDocument {
+  completedAt?: string;
+  updatedAt?: string;
+}
+
+interface BadgeDefinition {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: 'learning' | 'achievement' | 'streak' | 'special';
+  requirement: string;
+  pointsRequired?: number;
+  coursesRequired?: number;
+  streakRequired?: number;
+}
+
+interface RecentActivityItem {
+  id: string;
+  type: 'points' | 'badge';
+  title: string;
+  description: string;
+  points: number;
+  earnedAt: string;
+}
+
 const JWT_SECRET = new TextEncoder().encode(
   process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
 );
@@ -30,13 +71,13 @@ async function verifyToken(request: NextRequest) {
 }
 
 // Badge definitions - could be moved to CMS later
-const BADGE_DEFINITIONS = [
+const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     id: 'first-lesson',
     name: 'Primera Leccion',
     description: 'Completa tu primera leccion',
     icon: 'book',
-    category: 'learning' as const,
+    category: 'learning',
     requirement: 'Completa 1 leccion',
     pointsRequired: 1,
   },
@@ -45,7 +86,7 @@ const BADGE_DEFINITIONS = [
     name: 'Aprendiz Rapido',
     description: 'Completa 10 lecciones',
     icon: 'zap',
-    category: 'learning' as const,
+    category: 'learning',
     requirement: 'Completa 10 lecciones',
     pointsRequired: 10,
   },
@@ -54,7 +95,7 @@ const BADGE_DEFINITIONS = [
     name: 'Dedicado',
     description: 'Completa 50 lecciones',
     icon: 'target',
-    category: 'learning' as const,
+    category: 'learning',
     requirement: 'Completa 50 lecciones',
     pointsRequired: 50,
   },
@@ -63,7 +104,7 @@ const BADGE_DEFINITIONS = [
     name: 'Erudito',
     description: 'Completa tu primer curso',
     icon: 'award',
-    category: 'achievement' as const,
+    category: 'achievement',
     requirement: 'Completa 1 curso',
     coursesRequired: 1,
   },
@@ -72,7 +113,7 @@ const BADGE_DEFINITIONS = [
     name: 'En Racha',
     description: 'Estudia 3 dias seguidos',
     icon: 'flame',
-    category: 'streak' as const,
+    category: 'streak',
     requirement: 'Racha de 3 dias',
     streakRequired: 3,
   },
@@ -81,7 +122,7 @@ const BADGE_DEFINITIONS = [
     name: 'Semana Perfecta',
     description: 'Estudia 7 dias seguidos',
     icon: 'flame',
-    category: 'streak' as const,
+    category: 'streak',
     requirement: 'Racha de 7 dias',
     streakRequired: 7,
   },
@@ -90,7 +131,7 @@ const BADGE_DEFINITIONS = [
     name: 'Mes Imparable',
     description: 'Estudia 30 dias seguidos',
     icon: 'flame',
-    category: 'streak' as const,
+    category: 'streak',
     requirement: 'Racha de 30 dias',
     streakRequired: 30,
   },
@@ -99,7 +140,7 @@ const BADGE_DEFINITIONS = [
     name: 'Madrugador',
     description: 'Estudia antes de las 8am',
     icon: 'star',
-    category: 'special' as const,
+    category: 'special',
     requirement: 'Estudia antes de las 8am',
   },
 ];
@@ -125,6 +166,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload config typing issue
     const payload = await getPayload({ config });
     const studentId = decoded.sub!;
 
@@ -141,7 +183,7 @@ export async function GET(request: NextRequest) {
     // Try to get gamification record
     try {
       const gamificationResult = await payload.find({
-        collection: 'studentGamification' as any,
+        collection: 'studentGamification' as 'media',
         where: {
           student: { equals: studentId },
         },
@@ -149,20 +191,22 @@ export async function GET(request: NextRequest) {
       });
 
       if (gamificationResult.docs.length > 0) {
-        const gamification = gamificationResult.docs[0];
-        totalPoints = gamification.totalPoints || 0;
-        currentStreak = gamification.currentStreak || 0;
-        longestStreak = gamification.longestStreak || 0;
-        earnedBadgeIds.push(...(gamification.badges || []).map((b: any) => b.badgeId));
+        const gamification = gamificationResult.docs[0] as unknown as GamificationDocument;
+        totalPoints = gamification.totalPoints ?? 0;
+        currentStreak = gamification.currentStreak ?? 0;
+        longestStreak = gamification.longestStreak ?? 0;
+        earnedBadgeIds.push(
+          ...(gamification.badges ?? []).map((b: GamificationBadgeRecord) => b.badgeId)
+        );
       }
-    } catch (err) {
+    } catch {
       console.log('[Gamification] Collection not available, using fallback');
     }
 
     // Get lesson progress stats
     try {
       const progressResult = await payload.find({
-        collection: 'lessonProgress' as any,
+        collection: 'lessonProgress' as 'media',
         where: {
           student: { equals: studentId },
           status: { equals: 'completed' },
@@ -181,12 +225,12 @@ export async function GET(request: NextRequest) {
 
       // Get unique days active
       const uniqueDays = new Set(
-        progressResult.docs.map((doc: any) =>
-          new Date(doc.completedAt || doc.updatedAt).toDateString()
+        (progressResult.docs as unknown as LessonProgressDocument[]).map((doc) =>
+          new Date(doc.completedAt ?? doc.updatedAt ?? '').toDateString()
         )
       );
       daysActive = uniqueDays.size;
-    } catch (err) {
+    } catch {
       console.log('[Gamification] Progress collection not available');
     }
 
@@ -200,7 +244,7 @@ export async function GET(request: NextRequest) {
         },
       });
       coursesCompleted = enrollmentsResult.docs.length;
-    } catch (err) {
+    } catch {
       console.log('[Gamification] Enrollments not available');
     }
 
@@ -240,7 +284,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Generate recent activity (mock for now, would come from activity log)
-    const recentActivity: any[] = [];
+    const recentActivity: RecentActivityItem[] = [];
 
     if (lessonsCompleted > 0) {
       recentActivity.push({

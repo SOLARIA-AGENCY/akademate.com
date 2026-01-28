@@ -3,16 +3,44 @@
  * Create and list subscriptions
  */
 
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { desc, eq } from 'drizzle-orm'
+import type Stripe from 'stripe'
 import {
   createSubscription,
   createStripeCustomer,
   isStripeConfigured,
 } from '@/@payload-config/lib/stripe'
 import { db, subscriptions } from '@/@payload-config/lib/db'
+
+// ============================================================================
+// Types
+// ============================================================================
+
+/** Database subscription record */
+interface SubscriptionRecord {
+  id: string
+  tenantId: string
+  plan: 'starter' | 'pro' | 'enterprise'
+  status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'unpaid'
+  stripeSubscriptionId: string | null
+  stripeCustomerId: string | null
+  currentPeriodStart: Date | null
+  currentPeriodEnd: Date | null
+  cancelAtPeriodEnd: boolean
+  canceledAt: Date | null
+  trialStart: Date | null
+  trialEnd: Date | null
+  usageMeter: { metric: string; value: number; unit?: string | null; limit?: number | string | null; updatedAt?: string }[]
+  metadata: Record<string, unknown>
+  createdAt: Date
+  updatedAt: Date
+}
+
+/** Input type for subscription creation request body (used for documentation) */
+type _CreateSubscriptionInput = z.infer<typeof CreateSubscriptionSchema>
 
 // ============================================================================
 // Schemas
@@ -51,13 +79,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const [subscription] = await db
+    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument -- db uses proxy pattern that ESLint cannot resolve */
+    const results = await (db
       .select()
       .from(subscriptions)
       .where(eq(subscriptions.tenantId, validation.data.tenantId))
       .orderBy(desc(subscriptions.updatedAt))
       .limit(1)
-      .execute()
+      .execute() as Promise<SubscriptionRecord[]>)
+    /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+
+    const subscription = results[0]
 
     if (!subscription) {
       return NextResponse.json(
@@ -82,14 +114,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!isStripeConfigured()) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- stripe module has unresolvable types at lint time
+    const stripeConfigured: boolean = isStripeConfigured()
+    if (!stripeConfigured) {
       return NextResponse.json(
         { error: 'Stripe is not configured' },
         { status: 503 }
       )
     }
 
-    const body = await request.json()
+    const body: unknown = await request.json()
     const validation = CreateSubscriptionSchema.safeParse(body)
 
     if (!validation.success) {
@@ -102,9 +136,10 @@ export async function POST(request: NextRequest) {
     const { tenantId, planTier, interval, email, name, paymentMethodId, trialDays, stripeCustomerId } = validation.data
 
     // Get or create Stripe customer
-    let customerId = stripeCustomerId
+    let customerId: string | undefined = stripeCustomerId
     if (!customerId) {
-      const customer = await createStripeCustomer({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- stripe module has unresolvable types at lint time
+      const customer: Stripe.Customer = await createStripeCustomer({
         tenantId,
         email,
         name,
@@ -112,7 +147,8 @@ export async function POST(request: NextRequest) {
       customerId = customer.id
     }
 
-    const result = await createSubscription({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- stripe module has unresolvable types at lint time
+    const result: Stripe.Subscription = await createSubscription({
       tenantId,
       planTier,
       interval,

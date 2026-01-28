@@ -3,9 +3,9 @@
 // Force dynamic rendering - bypass static generation for client-side hooks
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, type ChangeEvent } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import {
@@ -15,13 +15,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, Lock, Briefcase, Building2, Monitor, List, BookOpen } from 'lucide-react'
+import { Plus, Search, Lock, Briefcase, Building2, Monitor, List } from 'lucide-react'
 import { CourseTemplateCard } from '@payload-config/components/ui/CourseTemplateCard'
 import { CourseListItem } from '@payload-config/components/ui/CourseListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
+
+// Local type definition to avoid ESLint path resolution issues
+type ViewMode = 'grid' | 'list'
 // TODO: Import from Payload API
 // import { plantillasCursosData, plantillasStats } from '@payload-config/data/mockCourseTemplatesData'
+
+import type { PlantillaCurso } from '../../../types'
+
+// TypeScript interfaces
+interface ApiResponse {
+  success: boolean
+  data: PlantillaCurso[]
+  total?: number
+  error?: string
+}
+
+interface GlobalStats {
+  total: number
+  privados: number
+  ocupados: number
+  desempleados: number
+  teleformacion: number
+}
+
+interface FilteredStats {
+  total: number
+  convocatorias: number
+  alumnos: number
+  plazasDisponibles: number
+}
+
+type CursosStats = GlobalStats | FilteredStats
 
 // Main component that uses useSearchParams
 function CursosPageContent() {
@@ -29,17 +59,20 @@ function CursosPageContent() {
   const searchParams = useSearchParams()
   const tipo = searchParams.get('tipo')
 
-  // View preference
-  const [view, setView] = useViewPreference('cursos')
+  // View preference (eslint path alias resolution workaround)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const viewPreference = useViewPreference('cursos') as [ViewMode, (view: ViewMode) => void]
+  const view = viewPreference[0]
+  const setView = viewPreference[1]
 
   // Filtros
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterType, setFilterType] = useState(tipo || 'all')
+  const [filterType, setFilterType] = useState(tipo ?? 'all')
   const [filterArea, setFilterArea] = useState('all')
   const [filterSede, setFilterSede] = useState('all')
 
   // State para cursos y carga
-  const [cursos, setCursos] = useState<any[]>([])
+  const [cursos, setCursos] = useState<PlantillaCurso[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -72,7 +105,7 @@ function CursosPageContent() {
         const elapsed = Date.now() - startTime
         console.log(`[CURSOS] Respuesta recibida en ${elapsed}ms`)
 
-        const result = await response.json()
+        const result = (await response.json()) as ApiResponse
         console.log(`[CURSOS] Datos recibidos:`, {
           success: result.success,
           total: result.total,
@@ -86,20 +119,21 @@ function CursosPageContent() {
           console.log(`[CURSOS] ✅ ${result.data.length} cursos cargados exitosamente`)
         } else {
           console.error('[CURSOS] ❌ Error en respuesta:', result.error)
-          setError(result.error || 'Error al cargar cursos')
+          setError(result.error ?? 'Error al cargar cursos')
         }
-      } catch (err: any) {
-        console.error('[CURSOS] ❌ Error fetching courses:', err)
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error('Unknown error')
+        console.error('[CURSOS] ❌ Error fetching courses:', error)
 
         // Retry en caso de timeout o error de red
-        if (retries > 0 && (err.name === 'AbortError' || err.message.includes('fetch'))) {
+        if (retries > 0 && (error.name === 'AbortError' || error.message.includes('fetch'))) {
           console.log(`[CURSOS] 🔄 Reintentando... (${retries} intentos restantes)`)
           setTimeout(() => fetchCursosWithRetry(retries - 1), 1000)
           return
         }
 
         setError(
-          err.name === 'AbortError'
+          error.name === 'AbortError'
             ? 'Tiempo de espera agotado. El servidor está tardando demasiado.'
             : 'Error de conexión al cargar cursos'
         )
@@ -108,32 +142,30 @@ function CursosPageContent() {
       }
     }
 
-    fetchCursosWithRetry()
+    void fetchCursosWithRetry()
   }, [])
 
   // Calcular estadísticas según el contexto (tipo de curso seleccionado)
-  const cursosStats = (() => {
-    const tipoNormalizado = tipo === 'privados' ? 'privado' : tipo
-
+  const cursosStats: CursosStats = (() => {
     if (!tipo || tipo === 'all') {
       // Vista global: todos los cursos
       return {
         total: cursos.length,
-        privados: cursos.filter((c) => c.tipo === 'privado').length,
+        privados: cursos.filter((c) => c.tipo === 'privados').length,
         ocupados: cursos.filter((c) => c.tipo === 'ocupados').length,
         desempleados: cursos.filter((c) => c.tipo === 'desempleados').length,
         teleformacion: cursos.filter((c) => c.tipo === 'teleformacion').length,
-      }
+      } satisfies GlobalStats
     } else {
       // Vistas específicas: TODAS muestran los mismos 4 campos
       // Total Cursos | Convocatorias | Alumnos | Plazas Disponibles
-      const cursosFiltrados = cursos.filter((c) => c.tipo === tipoNormalizado)
+      const cursosFiltrados = cursos.filter((c) => c.tipo === tipo)
       return {
         total: cursosFiltrados.length,
         convocatorias: 0, // TODO: Fetch from /api/convocatorias
         alumnos: 0, // TODO: Count from enrollments
         plazasDisponibles: 0, // TODO: Calculate from convocations (max_students - current_enrollments)
-      }
+      } satisfies FilteredStats
     }
   })()
 
@@ -142,20 +174,19 @@ function CursosPageContent() {
     router.push('/cursos/nuevo')
   }
 
-  const handleViewCourse = (course: any) => {
+  const handleViewCourse = (course: PlantillaCurso) => {
     router.push(`/cursos/${course.id}`)
   }
 
   // Filtrado de cursos
   const filteredCourses = cursos.filter((course) => {
+    const searchLower = searchTerm.toLowerCase()
     const matchesSearch =
-      course.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (course.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (course.area?.toLowerCase().includes(searchTerm.toLowerCase()))
+      course.nombre.toLowerCase().includes(searchLower) ||
+      (course.descripcion?.toLowerCase().includes(searchLower) ?? false) ||
+      (course.area?.toLowerCase().includes(searchLower) ?? false)
 
-    // Normalizar tipos para el filtro (privados → privado)
-    const normalizedFilterType = filterType === 'privados' ? 'privado' : filterType
-    const matchesType = filterType === 'all' || course.tipo === normalizedFilterType
+    const matchesType = filterType === 'all' || course.tipo === filterType
     const matchesArea = filterArea === 'all' || course.area === filterArea
 
     return matchesSearch && matchesType && matchesArea
@@ -193,8 +224,8 @@ function CursosPageContent() {
     },
   }
 
-  const config = tipo && tiposConfig[tipo as keyof typeof tiposConfig]
-  const Icon = config?.icon || List
+  const config = tipo ? tiposConfig[tipo as keyof typeof tiposConfig] : undefined
+  const Icon = config?.icon ?? List
 
   return (
     <div className="space-y-6 bg-muted/30 p-6 rounded-lg">
@@ -202,16 +233,16 @@ function CursosPageContent() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div
-            className={`flex h-12 w-12 items-center justify-center rounded-lg ${config?.bgColor || 'bg-primary/10'}`}
+            className={`flex h-12 w-12 items-center justify-center rounded-lg ${config?.bgColor ?? 'bg-primary/10'}`}
           >
-            <Icon className={`h-6 w-6 ${config?.color || 'text-primary'}`} />
+            <Icon className={`h-6 w-6 ${config?.color ?? 'text-primary'}`} />
           </div>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {config?.title || 'Catálogo de Cursos'}
+              {config?.title ?? 'Catálogo de Cursos'}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {config?.description ||
+              {config?.description ??
                 `${filteredCourses.length} cursos de ${cursos.length} totales`}
             </p>
           </div>
@@ -234,7 +265,7 @@ function CursosPageContent() {
                 <Input
                   placeholder="Buscar por nombre, descripción o área..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   className="pl-9 w-full"
                 />
               </div>
@@ -336,7 +367,7 @@ function CursosPageContent() {
         <Card className="bg-card">
           <CardContent className="py-3">
             {/* VISTA GLOBAL: Todos los cursos - Breakdown por tipo */}
-            {(!tipo || tipo === 'all') && (
+            {(!tipo || tipo === 'all') && 'privados' in cursosStats && (
               <div className="flex items-center justify-between gap-6">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-muted-foreground">Privados:</span>
@@ -358,7 +389,7 @@ function CursosPageContent() {
             )}
 
             {/* VISTAS ESPECÍFICAS: 4 campos uniformes para todos los tipos */}
-            {tipo && tipo !== 'all' && (
+            {tipo && tipo !== 'all' && 'convocatorias' in cursosStats && (
               <div className="flex items-center justify-between gap-6">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-muted-foreground">TOTAL CURSOS:</span>

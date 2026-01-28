@@ -3,13 +3,39 @@
  * Creates billing portal sessions for customer self-service
  */
 
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import {
-  createBillingPortalSession,
-  isStripeConfigured,
+  createBillingPortalSession as createBillingPortalSessionImport,
+  isStripeConfigured as isStripeConfiguredImport,
 } from '@/@payload-config/lib/stripe'
+
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Response from Stripe billing portal session creation
+ */
+interface BillingPortalSession {
+  url: string
+}
+
+/**
+ * Options for creating a billing portal session
+ */
+interface CreateBillingPortalOptions {
+  tenantId: string
+  stripeCustomerId: string
+  returnUrl: string
+}
+
+// Type the imported functions to satisfy ESLint
+const isStripeConfigured = isStripeConfiguredImport as () => boolean
+const createBillingPortalSession = createBillingPortalSessionImport as (
+  options: CreateBillingPortalOptions
+) => Promise<BillingPortalSession>
 
 // ============================================================================
 // Schemas
@@ -34,7 +60,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
+    const body: unknown = await request.json()
     const validation = CreatePortalSchema.safeParse(body)
 
     if (!validation.success) {

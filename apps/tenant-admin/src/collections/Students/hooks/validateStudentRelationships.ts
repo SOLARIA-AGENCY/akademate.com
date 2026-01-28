@@ -1,4 +1,4 @@
-import type { FieldHook } from 'payload';
+import type { CollectionBeforeValidateHook } from 'payload';
 
 /**
  * Hook: validateStudentRelationships
@@ -36,11 +36,10 @@ import type { FieldHook } from 'payload';
  * @returns Modified data if validation passes
  * @throws Error if relationship validation fails
  */
-export const validateStudentRelationships: FieldHook = async ({
+export const validateStudentRelationships: CollectionBeforeValidateHook = async ({
   data,
   req,
   operation,
-  value,
 }) => {
   const logger = req?.payload?.logger as any;
   // Only validate on creation

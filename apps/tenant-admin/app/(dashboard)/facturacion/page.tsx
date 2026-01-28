@@ -12,7 +12,195 @@ import { InvoicesTable } from './components/InvoicesTable'
 import { PaymentMethodsList } from './components/PaymentMethodsList'
 import { TransactionHistory } from './components/TransactionHistory'
 import { CancelSubscriptionDialog } from './components/CancelSubscriptionDialog'
-import type { PlanTier } from '@payload-config/types/billing'
+
+// ============================================================================
+// Local Type Definitions
+// These mirror the types from @payload-config/types/billing to avoid
+// ESLint type resolution issues with path aliases and re-exports
+// ============================================================================
+
+/** Plan tier options */
+type PlanTier = 'starter' | 'pro' | 'enterprise'
+
+/** Subscription status values */
+type SubscriptionStatus =
+  | 'trialing'
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'unpaid'
+
+/** Invoice status values */
+type InvoiceStatus = 'draft' | 'open' | 'paid' | 'void' | 'uncollectible'
+
+/** Payment status values */
+type PaymentStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'canceled' | 'refunded'
+
+/** Subscription data structure */
+interface Subscription {
+  id: string
+  tenantId: string
+  plan: PlanTier
+  status: SubscriptionStatus
+  stripeSubscriptionId: string | null
+  stripeCustomerId: string | null
+  currentPeriodStart: Date
+  currentPeriodEnd: Date
+  cancelAtPeriodEnd: boolean
+  canceledAt?: Date | null
+  trialStart?: Date | null
+  trialEnd?: Date | null
+  metadata: Record<string, unknown>
+  createdAt: Date
+  updatedAt: Date
+}
+
+/** Invoice line item */
+interface InvoiceLineItem {
+  description: string
+  quantity: number
+  unitAmount: number
+  amount: number
+}
+
+/** Invoice data structure */
+interface Invoice {
+  id: string
+  tenantId: string
+  subscriptionId: string | null
+  stripeInvoiceId: string | null
+  number: string
+  status: InvoiceStatus
+  currency: string
+  subtotal: number
+  tax: number
+  total: number
+  amountPaid: number
+  amountDue: number
+  dueDate: Date | null
+  paidAt: Date | null
+  hostedInvoiceUrl: string | null
+  invoicePdfUrl: string | null
+  lineItems: InvoiceLineItem[]
+  metadata: Record<string, unknown>
+  createdAt: Date
+  updatedAt: Date
+}
+
+/** Card payment details */
+interface CardDetails {
+  brand: string
+  last4: string
+  expMonth: number
+  expYear: number
+}
+
+/** SEPA debit details */
+interface SepaDebitDetails {
+  bankCode: string
+  last4: string
+  country: string
+}
+
+/** Billing address */
+interface BillingAddress {
+  line1: string | null
+  line2: string | null
+  city: string | null
+  state: string | null
+  postalCode: string | null
+  country: string | null
+}
+
+/** Billing details */
+interface BillingDetails {
+  name: string | null
+  email: string | null
+  phone: string | null
+  address: BillingAddress | null
+}
+
+/** Payment method type */
+type PaymentMethodType = 'card' | 'sepa_debit' | 'bank_transfer'
+
+/** Payment method data structure */
+interface PaymentMethod {
+  id: string
+  tenantId: string
+  stripePaymentMethodId: string
+  type: PaymentMethodType
+  isDefault: boolean
+  card: CardDetails | null
+  sepaDebit: SepaDebitDetails | null
+  billingDetails?: BillingDetails
+  createdAt: Date
+  updatedAt: Date
+}
+
+/** Payment transaction data structure */
+interface PaymentTransaction {
+  id: string
+  tenantId: string
+  invoiceId: string | null
+  stripePaymentIntentId: string | null
+  stripeChargeId: string | null
+  amount: number
+  currency: string
+  status: PaymentStatus
+  paymentMethodType: string
+  description: string | null
+  failureCode: string | null
+  failureMessage: string | null
+  metadata: Record<string, unknown>
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ============================================================================
+// Hook Return Types
+// ============================================================================
+
+/** Return type for useBillingData hook */
+interface BillingDataResult {
+  subscription: Subscription | null
+  subscriptionLoading: boolean
+  invoices: Invoice[]
+  invoicesLoading: boolean
+  paymentMethods: PaymentMethod[]
+  paymentMethodsLoading: boolean
+  transactions: PaymentTransaction[]
+  transactionsLoading: boolean
+  mutate: () => void
+}
+
+/** Return type for useSubscription hook */
+interface SubscriptionActions {
+  changePlan: (planTier: PlanTier, interval: 'month' | 'year') => Promise<void>
+  cancelSubscription: (reason?: string, immediately?: boolean) => Promise<void>
+  resumeSubscription: () => Promise<void>
+  openBillingPortal: () => Promise<void>
+}
+
+/** Toast options */
+interface ToastOptions {
+  title: string
+  description?: string
+  variant?: 'default' | 'destructive'
+}
+
+/** Toast function signature */
+type ToastFunction = (options: ToastOptions) => void
+
+/** Toast hook result */
+interface ToastHookResult {
+  toast: ToastFunction
+}
+
+// ============================================================================
+// Page Component
+// ============================================================================
 
 export default function FacturacionPage() {
   const tenantId = '123e4567-e89b-12d3-a456-426614174001'
@@ -21,29 +209,35 @@ export default function FacturacionPage() {
   const [activeTab, setActiveTab] = useState('subscription')
   const [showPlanComparison, setShowPlanComparison] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
-  const { toast } = useToast()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+  const toastHook = useToast() as unknown as ToastHookResult
+  const toast = toastHook.toast
 
-  const {
-    subscription,
-    subscriptionLoading,
-    invoices,
-    invoicesLoading,
-    paymentMethods,
-    paymentMethodsLoading,
-    transactions,
-    transactionsLoading,
-    mutate,
-  } = useBillingData({ tenantId: effectiveTenantId })
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+  const billingData = useBillingData({ tenantId: effectiveTenantId }) as unknown as BillingDataResult
+  const subscription = billingData.subscription
+  const subscriptionLoading = billingData.subscriptionLoading
+  const invoices = billingData.invoices
+  const invoicesLoading = billingData.invoicesLoading
+  const paymentMethods = billingData.paymentMethods
+  const paymentMethodsLoading = billingData.paymentMethodsLoading
+  const transactions = billingData.transactions
+  const transactionsLoading = billingData.transactionsLoading
+  const mutate = billingData.mutate
 
   const subscriptionId = subscription?.stripeSubscriptionId ?? undefined
   const stripeCustomerId = subscription?.stripeCustomerId ?? undefined
 
-  const {
-    changePlan,
-    cancelSubscription,
-    resumeSubscription,
-    openBillingPortal,
-  } = useSubscription({ tenantId: effectiveTenantId, subscriptionId, stripeCustomerId })
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+  const subscriptionActions = useSubscription({
+    tenantId: effectiveTenantId,
+    subscriptionId,
+    stripeCustomerId,
+  }) as unknown as SubscriptionActions
+  const changePlan = subscriptionActions.changePlan
+  const cancelSubscription = subscriptionActions.cancelSubscription
+  const resumeSubscription = subscriptionActions.resumeSubscription
+  const openBillingPortal = subscriptionActions.openBillingPortal
 
   // Check for success/canceled params from Stripe redirect
   useEffect(() => {
@@ -51,7 +245,7 @@ export default function FacturacionPage() {
     if (params.get('success') === 'true') {
       toast({
         title: 'Pago completado',
-        description: 'Tu suscripción ha sido actualizada correctamente',
+        description: 'Tu suscripcion ha sido actualizada correctamente',
       })
       // Clean URL
       window.history.replaceState({}, '', '/facturacion')
@@ -79,16 +273,16 @@ export default function FacturacionPage() {
     try {
       await cancelSubscription(reason, immediately)
       toast({
-        title: 'Suscripción cancelada',
+        title: 'Suscripcion cancelada',
         description: immediately
-          ? 'Tu suscripción ha sido cancelada inmediatamente'
-          : 'Tu suscripción se cancelará al final del periodo actual',
+          ? 'Tu suscripcion ha sido cancelada inmediatamente'
+          : 'Tu suscripcion se cancelara al final del periodo actual',
       })
       mutate()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
-        description: 'No se pudo cancelar la suscripción. Inténtalo de nuevo.',
+        description: 'No se pudo cancelar la suscripcion. Intentalo de nuevo.',
         variant: 'destructive',
       })
     }
@@ -98,14 +292,14 @@ export default function FacturacionPage() {
     try {
       await resumeSubscription()
       toast({
-        title: 'Suscripción reanudada',
-        description: 'Tu suscripción ha sido reanudada correctamente',
+        title: 'Suscripcion reanudada',
+        description: 'Tu suscripcion ha sido reanudada correctamente',
       })
       mutate()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
-        description: 'No se pudo reanudar la suscripción. Inténtalo de nuevo.',
+        description: 'No se pudo reanudar la suscripcion. Intentalo de nuevo.',
         variant: 'destructive',
       })
     }
@@ -114,10 +308,10 @@ export default function FacturacionPage() {
   const handleManageBilling = async () => {
     try {
       await openBillingPortal()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
-        description: 'No se pudo abrir el portal de facturación. Inténtalo de nuevo.',
+        description: 'No se pudo abrir el portal de facturacion. Intentalo de nuevo.',
         variant: 'destructive',
       })
     }
@@ -127,10 +321,10 @@ export default function FacturacionPage() {
     try {
       await changePlan(tier, interval)
       // Will redirect to Stripe Checkout
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
-        description: 'No se pudo iniciar el proceso de pago. Inténtalo de nuevo.',
+        description: 'No se pudo iniciar el proceso de pago. Intentalo de nuevo.',
         variant: 'destructive',
       })
     }
@@ -139,10 +333,10 @@ export default function FacturacionPage() {
   const handleAddPaymentMethod = async () => {
     try {
       await openBillingPortal()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
-        description: 'No se pudo abrir el portal de facturación. Inténtalo de nuevo.',
+        description: 'No se pudo abrir el portal de facturacion. Intentalo de nuevo.',
         variant: 'destructive',
       })
     }
@@ -174,26 +368,29 @@ export default function FacturacionPage() {
       }
 
       toast({
-        title: 'Método actualizado',
-        description: 'Método de pago actualizado correctamente',
+        title: 'Metodo actualizado',
+        description: 'Metodo de pago actualizado correctamente',
       })
       mutate()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
-        description: 'No se pudo actualizar el método de pago',
+        description: 'No se pudo actualizar el metodo de pago',
         variant: 'destructive',
       })
     }
   }
 
-  const handleDeletePaymentMethod = async (id: string) => {
+  const handleDeletePaymentMethod = (_id: string) => {
     // TODO: Implement when API is ready
     toast({
       title: 'Funcionalidad en desarrollo',
-      description: 'Esta función estará disponible próximamente',
+      description: 'Esta funcion estara disponible proximamente',
     })
   }
+
+  const currentPlan = subscription?.plan
+  const currentPeriodEnd = subscription?.currentPeriodEnd
 
   return (
     <div className="space-y-6">
@@ -201,18 +398,18 @@ export default function FacturacionPage() {
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Facturación y Suscripciones</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Facturacion y Suscripciones</h1>
         <p className="text-muted-foreground">
-          Gestiona tu suscripción, facturas y métodos de pago
+          Gestiona tu suscripcion, facturas y metodos de pago
         </p>
       </div>
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-          <TabsTrigger value="subscription">Suscripción</TabsTrigger>
+          <TabsTrigger value="subscription">Suscripcion</TabsTrigger>
           <TabsTrigger value="invoices">Facturas</TabsTrigger>
-          <TabsTrigger value="payment-methods">Métodos de Pago</TabsTrigger>
+          <TabsTrigger value="payment-methods">Metodos de Pago</TabsTrigger>
           <TabsTrigger value="history">Historial</TabsTrigger>
         </TabsList>
 
@@ -234,7 +431,7 @@ export default function FacturacionPage() {
 
               {showPlanComparison && (
                 <PlanComparison
-                  currentPlan={subscription?.plan}
+                  currentPlan={currentPlan}
                   onSelectPlan={handleSelectPlan}
                 />
               )}
@@ -262,7 +459,7 @@ export default function FacturacionPage() {
         <TabsContent value="history">
           <TransactionHistory
             transactions={transactions}
-            loading={transactionsLoading || subscriptionLoading}
+            loading={transactionsLoading ?? subscriptionLoading}
           />
         </TabsContent>
       </Tabs>
@@ -272,7 +469,7 @@ export default function FacturacionPage() {
         open={cancelDialogOpen}
         onOpenChange={setCancelDialogOpen}
         onConfirm={handleConfirmCancel}
-        currentPeriodEnd={subscription?.currentPeriodEnd}
+        currentPeriodEnd={currentPeriodEnd}
       />
     </div>
   )

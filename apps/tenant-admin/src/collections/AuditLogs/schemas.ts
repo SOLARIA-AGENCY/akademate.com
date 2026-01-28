@@ -20,6 +20,49 @@ import { z } from 'zod';
  */
 
 // ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+/**
+ * Request headers interface for extracting IP and user agent
+ */
+interface RequestHeaders {
+  'x-forwarded-for'?: string | string[];
+  'x-real-ip'?: string;
+  'user-agent'?: string;
+  [key: string]: string | string[] | undefined;
+}
+
+/**
+ * Socket interface for remote address extraction
+ */
+interface RequestSocket {
+  remoteAddress?: string;
+}
+
+/**
+ * Request object interface matching Payload CMS request structure
+ */
+interface PayloadRequest {
+  headers?: RequestHeaders;
+  ip?: string;
+  socket?: RequestSocket;
+}
+
+/**
+ * Changes object structure for audit log updates
+ */
+interface ChangesObject {
+  before?: Record<string, unknown>;
+  after?: Record<string, unknown>;
+}
+
+/**
+ * Sanitizable record type for objects that may contain sensitive fields
+ */
+type SanitizableRecord = Record<string, unknown>;
+
+// ============================================================================
 // IP ADDRESS VALIDATION (IPv4 + IPv6)
 // ============================================================================
 
@@ -311,7 +354,7 @@ export const formatValidationErrors = (error: z.ZodError) => {
  * @param changes - Raw changes object
  * @returns Sanitized changes object without PII
  */
-export const sanitizeChanges = (changes: { before?: any; after?: any }) => {
+export const sanitizeChanges = (changes: ChangesObject): ChangesObject => {
   const sensitiveFields = [
     'password',
     'hash',
@@ -323,10 +366,10 @@ export const sanitizeChanges = (changes: { before?: any; after?: any }) => {
     'consent_timestamp', // Sensitive audit data
   ];
 
-  const sanitize = (obj: any): any => {
+  const sanitize = (obj: SanitizableRecord | undefined): SanitizableRecord | undefined => {
     if (!obj || typeof obj !== 'object') return obj;
 
-    const sanitized = { ...obj };
+    const sanitized: SanitizableRecord = { ...obj };
     for (const field of sensitiveFields) {
       if (field in sanitized) {
         sanitized[field] = '[REDACTED]';
@@ -348,7 +391,7 @@ export const sanitizeChanges = (changes: { before?: any; after?: any }) => {
  * @param req - Payload request object
  * @returns IP address string or undefined
  */
-export const extractIPAddress = (req: any): string | undefined => {
+export const extractIPAddress = (req: PayloadRequest | null | undefined): string | undefined => {
   if (!req) return undefined;
 
   // Try X-Forwarded-For header first (if behind proxy/load balancer)
@@ -356,7 +399,7 @@ export const extractIPAddress = (req: any): string | undefined => {
   if (forwardedFor) {
     // X-Forwarded-For can be comma-separated list, take first IP
     const ips = Array.isArray(forwardedFor) ? forwardedFor : forwardedFor.split(',');
-    const ip = ips[0].trim();
+    const ip = ips[0]?.trim() ?? '';
 
     // Validate IP format before returning
     if (ipv4Regex.test(ip) || ipv6Regex.test(ip)) {
@@ -399,7 +442,7 @@ export const extractIPAddress = (req: any): string | undefined => {
  * @param req - Payload request object
  * @returns User agent string or undefined
  */
-export const extractUserAgent = (req: any): string | undefined => {
+export const extractUserAgent = (req: PayloadRequest | null | undefined): string | undefined => {
   if (!req?.headers) return undefined;
   const userAgent = req.headers['user-agent'];
   return typeof userAgent === 'string' ? userAgent.slice(0, 1000) : undefined; // Limit length

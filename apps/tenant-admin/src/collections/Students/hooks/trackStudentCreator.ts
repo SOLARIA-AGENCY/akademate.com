@@ -1,4 +1,4 @@
-import type { FieldHook } from 'payload';
+import type { CollectionBeforeChangeHook } from 'payload';
 
 /**
  * Hook: trackStudentCreator
@@ -36,7 +36,7 @@ import type { FieldHook } from 'payload';
  * @param args - Hook arguments from Payload
  * @returns Modified data with created_by set/protected
  */
-export const trackStudentCreator: FieldHook = async ({ data, req, operation, originalDoc }) => {
+export const trackStudentCreator: CollectionBeforeChangeHook = async ({ data, req, operation, originalDoc }) => {
   const logger = req?.payload?.logger as any;
   try {
     // CREATION: Auto-populate created_by
