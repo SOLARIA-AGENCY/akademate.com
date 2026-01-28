@@ -1,7 +1,14 @@
 import * as React from 'react'
-import { cn } from '@/lib/utils'
+import { clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 import { ArrowRight, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+
+type ClassInput = string | number | boolean | null | undefined | Record<string, boolean | null | undefined> | ClassInput[]
+
+function cn(...inputs: ClassInput[]): string {
+  return twMerge(clsx(inputs as Parameters<typeof clsx>[0]))
+}
 
 export interface ActionCardProps {
   title: string
@@ -83,7 +90,7 @@ function ActionCard({
               <span
                 className={cn(
                   'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
-                  badgeVariants[badge.variant || 'default']
+                  badgeVariants[badge.variant ?? 'default']
                 )}
               >
                 {badge.text}
@@ -101,7 +108,7 @@ function ActionCard({
             {description}
           </p>
         </div>
-        {(href || action) && (
+        {(href ?? action) && (
           <ChevronRight
             className={cn(
               'h-5 w-5 shrink-0 transition-transform group-hover:translate-x-0.5',

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ChangeEvent } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -8,7 +8,29 @@ import { Label } from '@payload-config/components/ui/label'
 import { Switch } from '@payload-config/components/ui/switch'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 
-const DEFAULT_CONSENTS = {
+interface ConsentPreferences {
+  marketing_email: boolean
+  marketing_sms: boolean
+  marketing_phone: boolean
+  analytics: boolean
+  third_party_sharing: boolean
+  profiling: boolean
+  newsletter: boolean
+}
+
+interface ConsentApiResponse {
+  data: {
+    consents: Partial<ConsentPreferences>
+  }
+  error?: string
+}
+
+interface DeleteApiResponse {
+  success?: boolean
+  error?: string
+}
+
+const DEFAULT_CONSENTS: ConsentPreferences = {
   marketing_email: false,
   marketing_sms: false,
   marketing_phone: false,
@@ -46,10 +68,10 @@ export default function GdprSettingsPage() {
 
     try {
       const response = await fetch(`/api/gdpr/${userId}/consent`)
-      const data = await response.json()
+      const data = (await response.json()) as ConsentApiResponse
 
       if (!response.ok) {
-        throw new Error(data?.error || 'No se pudo cargar el consentimiento.')
+        throw new Error(data.error ?? 'No se pudo cargar el consentimiento.')
       }
 
       setConsents({ ...DEFAULT_CONSENTS, ...data.data.consents })
@@ -77,10 +99,10 @@ export default function GdprSettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ consents }),
       })
-      const data = await response.json()
+      const data = (await response.json()) as ConsentApiResponse
 
       if (!response.ok) {
-        throw new Error(data?.error || 'No se pudo actualizar el consentimiento.')
+        throw new Error(data.error ?? 'No se pudo actualizar el consentimiento.')
       }
 
       setConsents({ ...DEFAULT_CONSENTS, ...data.data.consents })
@@ -121,10 +143,10 @@ export default function GdprSettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ confirmDeletion: true, reason: 'User requested' }),
       })
-      const data = await response.json()
+      const data = (await response.json()) as DeleteApiResponse
 
       if (!response.ok) {
-        throw new Error(data?.error || 'No se pudo completar la eliminación.')
+        throw new Error(data.error ?? 'No se pudo completar la eliminación.')
       }
 
       setStatus('success')
@@ -162,7 +184,7 @@ export default function GdprSettingsPage() {
               id="userId"
               placeholder="UUID del usuario"
               value={userId}
-              onChange={(event) => setUserId(event.target.value)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setUserId(event.target.value)}
             />
           </div>
           <div className="flex items-end">
@@ -191,7 +213,7 @@ export default function GdprSettingsPage() {
               </div>
               <Switch
                 checked={consents[field.key]}
-                onCheckedChange={(value) =>
+                onCheckedChange={(value: boolean) =>
                   setConsents((prev) => ({
                     ...prev,
                     [field.key]: value,

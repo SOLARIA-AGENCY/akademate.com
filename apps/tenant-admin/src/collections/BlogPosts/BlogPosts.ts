@@ -26,7 +26,56 @@ import {
   validateMetaDescription,
   validateStatusWorkflow,
   validateRelatedCourses,
+  type PostStatus,
+  type PostLanguage,
 } from './BlogPosts.validation';
+
+// ============================================================================
+// TYPE DEFINITIONS FOR PAYLOAD VALIDATION
+// ============================================================================
+
+/**
+ * Blog post document shape for originalDoc validation context
+ */
+interface BlogPostDocument {
+  id?: string;
+  status?: PostStatus;
+  author?: string | number;
+  created_by?: string | number;
+  published_at?: string | null;
+  archived_at?: string | null;
+  [key: string]: unknown;
+}
+
+/**
+ * Validation context for field validators that need operation info
+ * Operation can be 'create', 'update', or 'read' in Payload
+ */
+interface FieldValidationContext {
+  operation?: 'create' | 'update' | 'read';
+  originalDoc?: BlogPostDocument | null;
+}
+
+/**
+ * Type guard to check if a value is a valid PostStatus
+ */
+function isValidStatus(val: unknown): val is PostStatus {
+  return typeof val === 'string' && VALID_STATUSES.includes(val as PostStatus);
+}
+
+/**
+ * Type guard to check if a value is a valid PostLanguage
+ */
+function isValidLanguage(val: unknown): val is PostLanguage {
+  return typeof val === 'string' && VALID_LANGUAGES.includes(val as PostLanguage);
+}
+
+/**
+ * Type guard to check if content is a non-empty array (richText)
+ */
+function isNonEmptyArray(val: unknown): val is unknown[] {
+  return Array.isArray(val) && val.length > 0;
+}
 
 /**
  * BlogPosts Collection - Content Management for Blog Posts
@@ -287,8 +336,8 @@ export const BlogPosts: CollectionConfig = {
       admin: {
         description: 'Main blog post content (rich text)',
       },
-      validate: (val: any) => {
-        if (!val || !Array.isArray(val) || val.length === 0) {
+      validate: (val: unknown) => {
+        if (!isNonEmptyArray(val)) {
           return 'Content is required';
         }
         return true;
@@ -341,9 +390,9 @@ export const BlogPosts: CollectionConfig = {
         position: 'sidebar',
         description: 'Publication status (draft → published → archived)',
       },
-      validate: ((val: any, { operation, originalDoc }) => {
+      validate: (val: unknown, { operation, originalDoc }: FieldValidationContext) => {
         if (!val) return 'Status is required';
-        if (!VALID_STATUSES.includes(val)) {
+        if (!isValidStatus(val)) {
           return `Status must be one of: ${VALID_STATUSES.join(', ')}`;
         }
 
@@ -356,7 +405,7 @@ export const BlogPosts: CollectionConfig = {
         }
 
         return true;
-      }) as any,
+      },
     },
 
     {
@@ -385,11 +434,7 @@ export const BlogPosts: CollectionConfig = {
       },
       // SECURITY Layer 3 (Business Logic): setPublicationTimestamp hook enforces immutability
       hooks: {
-        beforeChange: [
-          {
-            hook: setPublicationTimestamp,
-          } as any,
-        ],
+        beforeChange: [setPublicationTimestamp],
       },
     },
 
@@ -408,11 +453,7 @@ export const BlogPosts: CollectionConfig = {
       },
       // SECURITY Layer 3 (Business Logic): setArchivedTimestamp hook enforces immutability
       hooks: {
-        beforeChange: [
-          {
-            hook: setArchivedTimestamp,
-          } as any,
-        ],
+        beforeChange: [setArchivedTimestamp],
       },
     },
 
@@ -438,11 +479,7 @@ export const BlogPosts: CollectionConfig = {
       },
       // SECURITY Layer 3 (Business Logic): trackBlogPostAuthor hook enforces immutability
       hooks: {
-        beforeChange: [
-          {
-            hook: trackBlogPostAuthor,
-          } as any,
-        ],
+        beforeChange: [trackBlogPostAuthor],
       },
     },
 
@@ -463,11 +500,7 @@ export const BlogPosts: CollectionConfig = {
       },
       // SECURITY Layer 3 (Business Logic): trackBlogPostCreator hook enforces immutability
       hooks: {
-        beforeChange: [
-          {
-            hook: trackBlogPostCreator,
-          } as any,
-        ],
+        beforeChange: [trackBlogPostCreator],
       },
     },
 
@@ -483,9 +516,9 @@ export const BlogPosts: CollectionConfig = {
       admin: {
         description: 'Post tags (max 10, lowercase, alphanumeric + hyphens)',
       },
-      validate: ((val: string[] | undefined) => {
-        return validateTags(val);
-      }) as any,
+      validate: (val: string[] | null | undefined) => {
+        return validateTags(val ?? undefined);
+      },
     },
 
     // ============================================================================
@@ -500,9 +533,9 @@ export const BlogPosts: CollectionConfig = {
       admin: {
         description: 'Related courses (max 5)',
       },
-      validate: ((val: string[] | undefined) => {
-        return validateRelatedCourses(val);
-      }) as any,
+      validate: (val: string[] | null | undefined) => {
+        return validateRelatedCourses(val ?? undefined);
+      },
     },
 
     // ============================================================================
@@ -543,11 +576,7 @@ export const BlogPosts: CollectionConfig = {
       },
       // SECURITY Layer 3 (Business Logic): calculateReadTime hook enforces system calculation
       hooks: {
-        beforeChange: [
-          {
-            hook: calculateReadTime,
-          } as any,
-        ],
+        beforeChange: [calculateReadTime],
       },
     },
 
@@ -598,9 +627,9 @@ export const BlogPosts: CollectionConfig = {
       admin: {
         description: 'Content language',
       },
-      validate: (val: any) => {
+      validate: (val: unknown) => {
         if (!val) return 'Language is required';
-        if (!VALID_LANGUAGES.includes(val)) {
+        if (!isValidLanguage(val)) {
           return `Language must be one of: ${VALID_LANGUAGES.join(', ')}`;
         }
         return true;

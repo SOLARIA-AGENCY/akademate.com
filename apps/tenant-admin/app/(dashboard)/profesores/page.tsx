@@ -13,10 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, BookOpen, MapPin, Award, Eye, Edit, Loader2 } from 'lucide-react'
+import { Plus, Search, User, Mail, Phone, BookOpen, Award, Eye, Edit, Loader2 } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
-import { useViewPreference } from '@payload-config/hooks/useViewPreference'
+import { useViewPreference } from '../../../@payload-config/hooks/useViewPreference'
+
+interface Certification {
+  id: number
+  name: string
+  issuer?: string
+  date?: string
+}
 
 interface StaffMember {
   id: number
@@ -45,8 +52,13 @@ interface TeacherExpanded extends StaffMember {
   active: boolean
   department: string
   specialties: string[]
-  certifications: any[]
+  certifications: Certification[]
   courseRunsCount: number
+}
+
+interface StaffApiResponse {
+  success: boolean
+  data: StaffMember[]
 }
 
 export default function ProfesoresPage() {
@@ -76,7 +88,7 @@ export default function ProfesoresPage() {
           throw new Error('Failed to load professors')
         }
 
-        const result = await response.json()
+        const result = (await response.json()) as StaffApiResponse
 
         if (!result.success) {
           throw new Error('API returned error')
@@ -91,7 +103,7 @@ export default function ProfesoresPage() {
           department: staff.position, // Using position as department for now
           specialties: [], // No specialties in current schema
           certifications: [],
-          courseRunsCount: staff.courseRunsCount || 0,
+          courseRunsCount: staff.courseRunsCount ?? 0,
           first_name: staff.firstName,
           last_name: staff.lastName,
           photo: staff.photo,
@@ -107,7 +119,7 @@ export default function ProfesoresPage() {
       }
     }
 
-    loadProfessors()
+    void loadProfessors()
   }, [])
 
   function getInitials(fullName: string): string {
@@ -271,7 +283,7 @@ export default function ProfesoresPage() {
                 <Input
                   placeholder="Buscar por nombre, email, departamento..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   className="pl-9"
                 />
               </div>
@@ -418,7 +430,7 @@ export default function ProfesoresPage() {
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation()
                       handleViewTeacher(teacher.id)
                     }}
@@ -430,7 +442,7 @@ export default function ProfesoresPage() {
                     variant="default"
                     size="sm"
                     className="w-full"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation()
                       router.push(`/profesores/${teacher.id}/editar`)
                     }}

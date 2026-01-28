@@ -1,5 +1,27 @@
 import type { FieldHook } from 'payload';
 
+/** Blog post status values */
+type BlogPostStatus = 'draft' | 'published' | 'archived';
+
+/** Blog post data interface for hook type safety */
+interface BlogPostData {
+  status?: BlogPostStatus;
+}
+
+/** Blog post document interface for hook type safety */
+interface BlogPostDocument {
+  id: number;
+  status?: BlogPostStatus;
+  published_at?: string | null;
+}
+
+/** Logger interface for typed logging calls */
+interface Logger {
+  info: (msg: string, data?: Record<string, unknown>) => void;
+  error: (msg: string, data?: Record<string, unknown>) => void;
+  warn: (msg: string, data?: Record<string, unknown>) => void;
+}
+
 /**
  * Hook: Set Publication Timestamp (beforeChange)
  *
@@ -32,19 +54,21 @@ import type { FieldHook } from 'payload';
  * @returns Publication timestamp or original value
  */
 export const setPublicationTimestamp: FieldHook = ({ data, req, operation, originalDoc, value }) => {
-  const logger = req?.payload?.logger as any;
-  const currentStatus = data?.status;
-  const previousStatus = originalDoc?.status;
+  const logger = req?.payload?.logger as Logger | undefined;
+  const typedData = data as BlogPostData | undefined;
+  const typedOriginalDoc = originalDoc as BlogPostDocument | undefined;
+  const currentStatus = typedData?.status;
+  const previousStatus = typedOriginalDoc?.status;
 
   // If published_at is already set, preserve it (immutability)
-  if (originalDoc?.published_at) {
+  if (typedOriginalDoc?.published_at) {
     // SECURITY (SP-004): No logging of sensitive data
     logger?.info('[BlogPost] Publication timestamp preserved (immutable)', {
       operation,
-      postId: originalDoc.id,
+      postId: typedOriginalDoc.id,
     });
 
-    return originalDoc.published_at;
+    return typedOriginalDoc.published_at;
   }
 
   // If status is changing to 'published', set timestamp
@@ -74,5 +98,5 @@ export const setPublicationTimestamp: FieldHook = ({ data, req, operation, origi
   }
 
   // Otherwise, return existing value or undefined
-  return value;
+  return value as string | null | undefined;
 };
