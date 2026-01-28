@@ -23,6 +23,17 @@ interface Campus {
   city: string
 }
 
+interface CampusesApiResponse {
+  success: boolean
+  data: Campus[]
+}
+
+interface StaffApiResponse {
+  success: boolean
+  data: { id: number }
+  error?: string
+}
+
 export default function NewAdministrativoPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -49,7 +60,7 @@ export default function NewAdministrativoPage() {
         const response = await fetch('/api/campuses?limit=100')
         if (!response.ok) throw new Error('Failed to load campuses')
 
-        const result = await response.json()
+        const result = (await response.json()) as CampusesApiResponse
         if (result.success) {
           setCampuses(result.data)
         }
@@ -59,7 +70,7 @@ export default function NewAdministrativoPage() {
         setLoadingCampuses(false)
       }
     }
-    loadCampuses()
+    void loadCampuses()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,10 +103,10 @@ export default function NewAdministrativoPage() {
         throw new Error('Failed to create administrative staff')
       }
 
-      const result = await response.json()
+      const result = (await response.json()) as StaffApiResponse
 
       if (!result.success) {
-        throw new Error(result.error || 'Error creating administrative staff')
+        throw new Error(result.error ?? 'Error creating administrative staff')
       }
 
       // Redirect to detail page
@@ -159,7 +170,7 @@ export default function NewAdministrativoPage() {
                 <Input
                   id="firstName"
                   value={formData.firstName}
-                  onChange={(e) => handleChange('firstName', e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('firstName', e.target.value)}
                   required
                   placeholder="María"
                 />
@@ -172,7 +183,7 @@ export default function NewAdministrativoPage() {
                 <Input
                   id="lastName"
                   value={formData.lastName}
-                  onChange={(e) => handleChange('lastName', e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('lastName', e.target.value)}
                   required
                   placeholder="González López"
                 />
@@ -189,7 +200,7 @@ export default function NewAdministrativoPage() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('email', e.target.value)}
                   required
                   placeholder="maria.gonzalez@cepcomunicacion.com"
                 />
@@ -201,7 +212,7 @@ export default function NewAdministrativoPage() {
                   id="phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('phone', e.target.value)}
                   placeholder="+34 922 123 456"
                 />
               </div>
@@ -215,7 +226,7 @@ export default function NewAdministrativoPage() {
               <Input
                 id="position"
                 value={formData.position}
-                onChange={(e) => handleChange('position', e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('position', e.target.value)}
                 required
                 placeholder="Secretaria Académica"
               />
@@ -227,7 +238,7 @@ export default function NewAdministrativoPage() {
                 <Label htmlFor="contractType">Tipo de Contrato</Label>
                 <Select
                   value={formData.contractType}
-                  onValueChange={(value) => handleChange('contractType', value)}
+                  onValueChange={(value: string) => handleChange('contractType', value)}
                 >
                   <SelectTrigger id="contractType">
                     <SelectValue />
@@ -244,7 +255,7 @@ export default function NewAdministrativoPage() {
                 <Label htmlFor="employmentStatus">Estado</Label>
                 <Select
                   value={formData.employmentStatus}
-                  onValueChange={(value) => handleChange('employmentStatus', value)}
+                  onValueChange={(value: string) => handleChange('employmentStatus', value)}
                 >
                   <SelectTrigger id="employmentStatus">
                     <SelectValue />
@@ -263,7 +274,7 @@ export default function NewAdministrativoPage() {
                   id="hireDate"
                   type="date"
                   value={formData.hireDate}
-                  onChange={(e) => handleChange('hireDate', e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('hireDate', e.target.value)}
                   required
                 />
               </div>
@@ -311,7 +322,7 @@ export default function NewAdministrativoPage() {
               <Textarea
                 id="bio"
                 value={formData.bio}
-                onChange={(e) => handleChange('bio', e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange('bio', e.target.value)}
                 rows={4}
                 placeholder="Información adicional sobre el personal administrativo..."
               />

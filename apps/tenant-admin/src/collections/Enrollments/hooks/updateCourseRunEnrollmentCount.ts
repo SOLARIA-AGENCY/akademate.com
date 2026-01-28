@@ -1,4 +1,5 @@
 import type { CollectionAfterChangeHook } from 'payload';
+import type { Enrollment, CourseRun } from '../../../payload-types';
 
 /**
  * Hook: updateCourseRunEnrollmentCount
@@ -22,31 +23,39 @@ import type { CollectionAfterChangeHook } from 'payload';
  * - Only system can modify current_enrollments (not manual)
  * - Prevents race conditions with proper transaction handling
  */
-export const updateCourseRunEnrollmentCount: CollectionAfterChangeHook = async ({
+
+/** Extract the course_run ID from either a number or a populated CourseRun object */
+function getCourseRunId(courseRun: number | CourseRun): number {
+  return typeof courseRun === 'number' ? courseRun : courseRun.id;
+}
+
+export const updateCourseRunEnrollmentCount: CollectionAfterChangeHook<Enrollment> = async ({
   doc,
   previousDoc,
   operation,
   req,
-}) => {
-  if (!doc?.course_run) {
+}): Promise<Enrollment> => {
+  if (!doc.course_run) {
     return doc;
   }
 
   const { payload } = req;
+  const courseRunId = getCourseRunId(doc.course_run);
 
   try {
     // On CREATE with status 'confirmed': Increment count
     if (operation === 'create' && doc.status === 'confirmed') {
       const courseRun = await payload.findByID({
         collection: 'course-runs',
-        id: doc.course_run,
-      });
+        id: courseRunId,
+      }) as CourseRun;
 
+      const currentCount = courseRun.current_enrollments ?? 0;
       await payload.update({
         collection: 'course-runs',
-        id: doc.course_run,
+        id: courseRunId,
         data: {
-          current_enrollments: (courseRun.current_enrollments || 0) + 1,
+          current_enrollments: currentCount + 1,
         },
       });
 
@@ -63,14 +72,15 @@ export const updateCourseRunEnrollmentCount: CollectionAfterChangeHook = async (
       if (!wasConfirmed && isNowConfirmed) {
         const courseRun = await payload.findByID({
           collection: 'course-runs',
-          id: doc.course_run,
-        });
+          id: courseRunId,
+        }) as CourseRun;
 
+        const currentCount = courseRun.current_enrollments ?? 0;
         await payload.update({
           collection: 'course-runs',
-          id: doc.course_run,
+          id: courseRunId,
           data: {
-            current_enrollments: (courseRun.current_enrollments || 0) + 1,
+            current_enrollments: currentCount + 1,
           },
         });
       }
@@ -79,14 +89,15 @@ export const updateCourseRunEnrollmentCount: CollectionAfterChangeHook = async (
       if (wasConfirmed && isCancelled) {
         const courseRun = await payload.findByID({
           collection: 'course-runs',
-          id: doc.course_run,
-        });
+          id: courseRunId,
+        }) as CourseRun;
 
+        const currentCount = courseRun.current_enrollments ?? 0;
         await payload.update({
           collection: 'course-runs',
-          id: doc.course_run,
+          id: courseRunId,
           data: {
-            current_enrollments: Math.max(0, (courseRun.current_enrollments || 0) - 1),
+            current_enrollments: Math.max(0, currentCount - 1),
           },
         });
       }
@@ -99,7 +110,7 @@ export const updateCourseRunEnrollmentCount: CollectionAfterChangeHook = async (
     // Log error but don't fail the enrollment operation
     // The enrollment is already saved, course run count can be corrected manually if needed
     console.error(
-      `Failed to update course run enrollment count for enrollment ${doc.id}, course_run ${doc.course_run}:`,
+      `Failed to update course run enrollment count for enrollment ${String(doc.id)}, course_run ${String(courseRunId)}:`,
       error
     );
   }

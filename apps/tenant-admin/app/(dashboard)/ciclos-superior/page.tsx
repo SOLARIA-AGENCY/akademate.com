@@ -16,8 +16,40 @@ import {
 } from '@payload-config/components/ui/select'
 import { Plus, Search, GraduationCap, Calendar, Users, BookOpen, Clock, Award } from 'lucide-react'
 
+// TypeScript interfaces
+interface CicloSuperior {
+  id: string
+  nombre: string
+  codigo: string
+  familia: string
+  duracion: string
+  modalidad: string
+  plazas: number
+  plazas_ocupadas: number
+  cursos_activos: number
+  nivel: string
+  imagen: string
+  descripcion: string
+  competencias: string[]
+  salidas_profesionales: string[]
+  requisitos: string
+  active: boolean
+}
+
+interface CycleApiItem {
+  id: string | number
+  name?: string
+  slug?: string
+  level?: string
+  description?: string
+}
+
+interface CyclesApiResponse {
+  docs?: CycleApiItem[]
+}
+
 // Datos de Ciclos Formativos de Grado Superior
-const mockCiclosSuperiorData = [
+const mockCiclosSuperiorData: CicloSuperior[] = [
   {
     id: 'cfgs-desarrollo-aplicaciones-web',
     nombre: 'Desarrollo de Aplicaciones Web',
@@ -227,11 +259,11 @@ export default function CiclosSuperiorPage() {
           throw new Error('No se pudieron cargar los ciclos')
         }
 
-        const payload = await response.json()
-        const docs = Array.isArray(payload?.docs) ? payload.docs : []
-        const mapped = docs
-          .filter((cycle: any) => cycle.level === 'grado_superior')
-          .map((cycle: any) => ({
+        const payload = (await response.json()) as CyclesApiResponse
+        const docs: CycleApiItem[] = Array.isArray(payload.docs) ? payload.docs : []
+        const mapped: CicloSuperior[] = docs
+          .filter((cycle: CycleApiItem) => cycle.level === 'grado_superior')
+          .map((cycle: CycleApiItem) => ({
             id: String(cycle.id),
             nombre: cycle.name ?? 'Ciclo sin nombre',
             codigo: cycle.slug ?? String(cycle.id),
@@ -261,7 +293,7 @@ export default function CiclosSuperiorPage() {
       }
     }
 
-    fetchCycles()
+    void fetchCycles()
   }, [])
 
   const handleAdd = () => {
@@ -395,7 +427,7 @@ export default function CiclosSuperiorPage() {
               <Input
                 placeholder="Buscar por nombre, código o familia..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 className="pl-9"
               />
             </div>
@@ -528,7 +560,7 @@ export default function CiclosSuperiorPage() {
                 {/* CTA Button */}
                 <Button
                   className="w-full bg-[#ff2014] hover:bg-[#ff2014]/90 text-white font-bold uppercase tracking-wide shadow-md transition-all duration-300 mt-auto"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation()
                     handleViewCiclo(ciclo.id)
                   }}

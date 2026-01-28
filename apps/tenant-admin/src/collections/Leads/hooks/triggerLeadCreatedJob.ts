@@ -1,4 +1,5 @@
 import type { CollectionAfterChangeHook } from 'payload';
+import type { Lead } from '../../../payload-types';
 
 /**
  * Hook: triggerLeadCreatedJob
@@ -30,7 +31,7 @@ import type { CollectionAfterChangeHook } from 'payload';
  * - Errors are logged but don't fail the lead creation
  * - All external integrations are async via job queue
  */
-export const triggerLeadCreatedJob: CollectionAfterChangeHook = async ({ doc, operation, req }) => {
+export const triggerLeadCreatedJob: CollectionAfterChangeHook<Lead> = ({ doc, operation, req }) => {
   // Only trigger on create operations
   if (operation !== 'create') {
     return doc;
@@ -113,7 +114,10 @@ export const triggerLeadCreatedJob: CollectionAfterChangeHook = async ({ doc, op
 
     // Job 5: Notify assigned user
     if (doc.assigned_to) {
-      console.log(`[Notification] TODO: Notify user ${doc.assigned_to} about new lead`);
+      // Extract user ID whether it's a number or populated User object
+      const assignedUserId =
+        typeof doc.assigned_to === 'object' ? doc.assigned_to.id : doc.assigned_to;
+      console.log(`[Notification] TODO: Notify user ${assignedUserId} about new lead`);
       // await req.payload.jobs.queue('user:notify', {
       //   userId: doc.assigned_to,
       //   leadId: doc.id,

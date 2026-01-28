@@ -23,6 +23,17 @@ interface Campus {
   city: string
 }
 
+interface CampusApiResponse {
+  success: boolean
+  data: Campus[]
+}
+
+interface StaffApiResponse {
+  success: boolean
+  data: { id: number }
+  error?: string
+}
+
 export default function NewProfesorPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -49,7 +60,7 @@ export default function NewProfesorPage() {
         const response = await fetch('/api/campuses?limit=100')
         if (!response.ok) throw new Error('Failed to load campuses')
 
-        const result = await response.json()
+        const result = (await response.json()) as CampusApiResponse
         if (result.success) {
           setCampuses(result.data)
         }
@@ -59,7 +70,7 @@ export default function NewProfesorPage() {
         setLoadingCampuses(false)
       }
     }
-    loadCampuses()
+    void loadCampuses()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,10 +103,10 @@ export default function NewProfesorPage() {
         throw new Error('Failed to create professor')
       }
 
-      const result = await response.json()
+      const result = (await response.json()) as StaffApiResponse
 
       if (!result.success) {
-        throw new Error(result.error || 'Error creating professor')
+        throw new Error(result.error ?? 'Error creating professor')
       }
 
       // Redirect to detail page
@@ -107,7 +118,11 @@ export default function NewProfesorPage() {
     }
   }
 
-  const handleChange = (field: string, value: string) => {
+  const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+  }
+
+  const handleSelectChange = (field: string) => (value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -159,7 +174,7 @@ export default function NewProfesorPage() {
                 <Input
                   id="firstName"
                   value={formData.firstName}
-                  onChange={(e) => handleChange('firstName', e.target.value)}
+                  onChange={handleInputChange('firstName')}
                   required
                   placeholder="Juan"
                 />
@@ -172,7 +187,7 @@ export default function NewProfesorPage() {
                 <Input
                   id="lastName"
                   value={formData.lastName}
-                  onChange={(e) => handleChange('lastName', e.target.value)}
+                  onChange={handleInputChange('lastName')}
                   required
                   placeholder="Pérez García"
                 />
@@ -189,7 +204,7 @@ export default function NewProfesorPage() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
+                  onChange={handleInputChange('email')}
                   required
                   placeholder="juan.perez@cepcomunicacion.com"
                 />
@@ -201,7 +216,7 @@ export default function NewProfesorPage() {
                   id="phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
+                  onChange={handleInputChange('phone')}
                   placeholder="+34 922 123 456"
                 />
               </div>
@@ -215,7 +230,7 @@ export default function NewProfesorPage() {
               <Input
                 id="position"
                 value={formData.position}
-                onChange={(e) => handleChange('position', e.target.value)}
+                onChange={handleInputChange('position')}
                 required
                 placeholder="Profesor de Marketing Digital"
               />
@@ -227,7 +242,7 @@ export default function NewProfesorPage() {
                 <Label htmlFor="contractType">Tipo de Contrato</Label>
                 <Select
                   value={formData.contractType}
-                  onValueChange={(value) => handleChange('contractType', value)}
+                  onValueChange={handleSelectChange('contractType')}
                 >
                   <SelectTrigger id="contractType">
                     <SelectValue />
@@ -244,7 +259,7 @@ export default function NewProfesorPage() {
                 <Label htmlFor="employmentStatus">Estado</Label>
                 <Select
                   value={formData.employmentStatus}
-                  onValueChange={(value) => handleChange('employmentStatus', value)}
+                  onValueChange={handleSelectChange('employmentStatus')}
                 >
                   <SelectTrigger id="employmentStatus">
                     <SelectValue />
@@ -263,7 +278,7 @@ export default function NewProfesorPage() {
                   id="hireDate"
                   type="date"
                   value={formData.hireDate}
-                  onChange={(e) => handleChange('hireDate', e.target.value)}
+                  onChange={handleInputChange('hireDate')}
                   required
                 />
               </div>
@@ -311,7 +326,7 @@ export default function NewProfesorPage() {
               <Textarea
                 id="bio"
                 value={formData.bio}
-                onChange={(e) => handleChange('bio', e.target.value)}
+                onChange={handleInputChange('bio')}
                 rows={4}
                 placeholder="Experiencia profesional, formación académica, especialidades..."
               />
