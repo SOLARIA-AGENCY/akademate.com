@@ -8,6 +8,10 @@ import { LevelBadge, StreakIndicator, PointsAnimation } from '@/components/gamif
 import { fetchEnrollmentDetail } from '@/lib/api'
 import { useCourseProgress, useGamification } from '@/hooks'
 
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
 interface PageProps {
     params: Promise<{ enrollmentId: string }>
 }
@@ -23,6 +27,127 @@ interface ModuleWithProgress {
     lessons: { id: string; title: string }[]
 }
 
+// Enrollment detail data types (matches API response)
+interface EnrollmentCourse {
+    id: string
+    title: string
+    slug: string
+    description?: string
+    thumbnail?: string
+}
+
+interface EnrollmentCourseRun {
+    id: string
+    title: string
+    startDate: string
+    endDate: string
+    status: string
+    courseId?: string // For resolving course ID
+}
+
+interface EnrollmentLessonProgress {
+    status: string
+    progressPercent: number
+}
+
+interface EnrollmentLesson {
+    id: string
+    title: string
+    description?: string
+    order: number
+    estimatedMinutes?: number
+    isMandatory: boolean
+    progress: EnrollmentLessonProgress
+}
+
+interface EnrollmentModule {
+    id: string
+    title: string
+    description?: string
+    order: number
+    estimatedMinutes?: number
+    lessons: EnrollmentLesson[]
+    lessonsCount: number
+}
+
+interface EnrollmentProgress {
+    totalModules: number
+    totalLessons: number
+    completedLessons: number
+    progressPercent: number
+    status: string
+}
+
+interface EnrollmentDetailData {
+    enrollment: {
+        id: string
+        status: string
+        enrolledAt: string
+        startedAt?: string
+        completedAt?: string
+    }
+    course: EnrollmentCourse | null
+    courseRun: EnrollmentCourseRun | null
+    modules: EnrollmentModule[]
+    progress: EnrollmentProgress
+}
+
+// Course progress types (matches hook return)
+interface CourseProgress {
+    enrollmentId: string
+    courseId: string
+    overallProgress: number
+    modulesCompleted: number
+    modulesTotal: number
+    lessonsCompleted: number
+    lessonsTotal: number
+    timeSpent: number
+    lastActivity: string
+}
+
+// Gamification types (matches hook return)
+interface Badge {
+    id: string
+    name: string
+    description: string
+    icon: string
+    earnedAt: string
+    rarity: 'common' | 'rare' | 'epic' | 'legendary'
+}
+
+interface Achievement {
+    id: string
+    type: 'lesson_complete' | 'module_complete' | 'course_complete' | 'streak' | 'speed' | 'perfect'
+    title: string
+    description: string
+    pointsAwarded: number
+    earnedAt: string
+}
+
+interface GamificationData {
+    userId: string
+    points: number
+    level: number
+    levelProgress: number
+    pointsToNextLevel: number
+    currentStreak: number
+    longestStreak: number
+    badges: Badge[]
+    recentAchievements: Achievement[]
+    rank?: number
+}
+
+interface PointsAnimationData {
+    id: string
+    points: number
+    reason: string
+    timestamp: Date
+}
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
 export default function CoursePage({ params }: PageProps) {
     const [enrollmentId, setEnrollmentId] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
@@ -32,30 +157,56 @@ export default function CoursePage({ params }: PageProps) {
     const [modules, setModules] = useState<ModuleWithProgress[]>([])
     const [progress, setProgress] = useState(0)
 
-    // Real-time hooks
-    const {
-        progress: realtimeProgress,
-        isConnected: progressConnected,
-    } = useCourseProgress({
-        enrollmentId: enrollmentId || '',
+    // Real-time hooks with type assertions
+    // Cast hook functions to typed versions to resolve ESLint type resolution issues
+    const typedUseCourseProgress = useCourseProgress as (options: {
+        enrollmentId: string
+        enableRealtime?: boolean
+    }) => {
+        progress: CourseProgress | null
+        isConnected: boolean
+        loading: boolean
+        lastUpdate: Date | null
+        updateLessonProgress: (lessonId: string, data: Record<string, unknown>) => void
+        markLessonComplete: (lessonId: string) => void
+        refresh: () => void
+    }
+
+    const typedUseGamification = useGamification as (options: {
+        courseId?: string
+        enableRealtime?: boolean
+    }) => {
+        data: GamificationData | null
+        pendingAnimations: PointsAnimationData[]
+        isConnected: boolean
+        loading: boolean
+        lastUpdate: Date | null
+        dismissAnimation: (id: string) => void
+        refresh: () => void
+    }
+
+    const courseProgressResult = typedUseCourseProgress({
+        enrollmentId: enrollmentId ?? '',
         enableRealtime: !!enrollmentId,
     })
 
-    const {
-        data: gamification,
-        pendingAnimations,
-        isConnected: gamificationConnected,
-        dismissAnimation,
-    } = useGamification({
-        courseId: courseId || undefined,
+    const gamificationResult = typedUseGamification({
+        courseId: courseId ?? undefined,
         enableRealtime: !!enrollmentId,
     })
+
+    const realtimeProgress = courseProgressResult.progress
+    const progressConnected = courseProgressResult.isConnected
+    const gamification = gamificationResult.data
+    const pendingAnimations = gamificationResult.pendingAnimations
+    const gamificationConnected = gamificationResult.isConnected
+    const dismissAnimation = gamificationResult.dismissAnimation
 
     const isConnected = progressConnected || gamificationConnected
     const certificateReady = progress >= 100
 
     useEffect(() => {
-        params.then(p => setEnrollmentId(p.enrollmentId))
+        void params.then(p => setEnrollmentId(p.enrollmentId))
     }, [params])
 
     // Sync real-time progress with local state
@@ -73,23 +224,23 @@ export default function CoursePage({ params }: PageProps) {
                 setLoading(true)
 
                 // Fetch enrollment with course content from real API
-                const data = await fetchEnrollmentDetail(enrollmentId!)
+                // Cast the API function to resolve ESLint type resolution issues
+                const typedFetchEnrollmentDetail = fetchEnrollmentDetail as (id: string) => Promise<EnrollmentDetailData>
+                const data = await typedFetchEnrollmentDetail(enrollmentId!)
 
                 // Set course title and ID from actual data
-                setCourseTitle(data.course?.title || data.courseRun?.title || 'Sin título')
+                setCourseTitle(data.course?.title ?? data.courseRun?.title ?? 'Sin título')
                 // courseRun has courseId reference, course has id directly
-                const resolvedCourseId = data.course?.id ||
-                  (data.courseRun as { courseId?: string } | undefined)?.courseId ||
-                  null
+                const resolvedCourseId: string | null = data.course?.id ?? data.courseRun?.courseId ?? null
                 setCourseId(resolvedCourseId)
 
                 // Set overall progress
                 setProgress(data.progress.progressPercent)
 
                 // Map modules with lesson progress
-                const mappedModules: ModuleWithProgress[] = data.modules.map(mod => {
+                const mappedModules: ModuleWithProgress[] = data.modules.map((mod: EnrollmentModule) => {
                     const completedLessons = mod.lessons.filter(
-                        l => l.progress.status === 'completed'
+                        (l: EnrollmentLesson) => l.progress.status === 'completed'
                     ).length
 
                     return {
@@ -100,20 +251,21 @@ export default function CoursePage({ params }: PageProps) {
                         duration: mod.estimatedMinutes,
                         lessonsCompleted: completedLessons,
                         lessonsTotal: mod.lessonsCount,
-                        lessons: mod.lessons.map(l => ({ id: l.id, title: l.title })),
+                        lessons: mod.lessons.map((l: EnrollmentLesson) => ({ id: l.id, title: l.title })),
                     }
                 })
 
                 setModules(mappedModules)
                 setError(null)
-            } catch (err: any) {
-                setError(err.message || 'Error al cargar el curso')
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : 'Error al cargar el curso'
+                setError(message)
             } finally {
                 setLoading(false)
             }
         }
 
-        loadData()
+        void loadData()
     }, [enrollmentId])
 
     if (loading) {
@@ -200,7 +352,7 @@ export default function CoursePage({ params }: PageProps) {
                                             </div>
 
                                             <Link
-                                                href={`/cursos/${enrollmentId}/lecciones/${module.lessons[0]?.id || module.id}?moduleId=${module.id}`}
+                                                href={`/cursos/${enrollmentId}/lecciones/${module.lessons[0]?.id ?? module.id}?moduleId=${module.id}`}
                                                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
                                             >
                                                 {module.lessonsCompleted > 0 ? 'Continuar' : 'Empezar'}
@@ -277,7 +429,7 @@ export default function CoursePage({ params }: PageProps) {
                                     Insignias ({gamification.badges.length})
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {gamification.badges.slice(0, 6).map((badge) => (
+                                    {gamification.badges.slice(0, 6).map((badge: Badge) => (
                                         <div
                                             key={badge.id}
                                             className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center text-xl shadow-md"
@@ -295,7 +447,7 @@ export default function CoursePage({ params }: PageProps) {
                             <div className="rounded-xl border border-border bg-card/80 p-4">
                                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Logros recientes</h3>
                                 <div className="space-y-2">
-                                    {gamification.recentAchievements.slice(0, 3).map((achievement) => (
+                                    {gamification.recentAchievements.slice(0, 3).map((achievement: Achievement) => (
                                         <div
                                             key={achievement.id}
                                             className="flex items-center gap-2 text-sm"

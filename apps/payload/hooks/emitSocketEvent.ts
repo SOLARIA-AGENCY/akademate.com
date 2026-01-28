@@ -5,9 +5,7 @@
  * Used to provide real-time updates to connected clients (Campus, Dashboards).
  */
 
-import type {
-  CollectionAfterChangeHook,
-} from 'payload';
+import type { CollectionAfterChangeHook } from 'payload';
 import { getSocketServer } from '../socket/server';
 import { getTenantRoom, getUserRoom } from '@akademate/realtime';
 import type {
@@ -17,6 +15,159 @@ import type {
   ActivityPayload,
   CoursePayload,
 } from '@akademate/realtime';
+
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+/**
+ * Base interface for all Payload documents
+ */
+interface PayloadBaseDocument {
+  id: string | number;
+  tenant?: number | { id?: number };
+  user?: string | { id?: string | number };
+}
+
+/**
+ * Reference object that may contain an ID
+ */
+interface PayloadReference {
+  id?: string | number;
+}
+
+/**
+ * Enrollment reference with user and courseRun
+ */
+interface EnrollmentReference extends PayloadReference {
+  user?: string | { id?: string | number };
+  courseRun?: {
+    course?: PayloadReference;
+  };
+}
+
+/**
+ * Lesson progress document structure
+ */
+interface LessonProgressDocument extends PayloadBaseDocument {
+  enrollment?: string | EnrollmentReference;
+  lesson?: string | PayloadReference;
+  isCompleted?: boolean;
+}
+
+/**
+ * Enrollment document structure
+ */
+interface EnrollmentDocument extends PayloadBaseDocument {
+  status?: string;
+  courseRun?: {
+    course?: PayloadReference;
+  };
+  certificateUrl?: string;
+}
+
+/**
+ * Submission reference structure
+ */
+interface SubmissionReference extends PayloadReference {
+  enrollment?: {
+    user?: string | { id?: string | number };
+  };
+  assignment?: {
+    title?: string;
+  };
+}
+
+/**
+ * Grade document structure
+ */
+interface GradeDocument extends PayloadBaseDocument {
+  submission?: SubmissionReference;
+  score?: number;
+  maxScore?: number;
+  isPass?: boolean;
+}
+
+/**
+ * Submission document structure
+ */
+interface SubmissionDocument extends PayloadBaseDocument {
+  status?: string;
+  enrollment?: {
+    user?: string | { id?: string | number };
+  };
+}
+
+/**
+ * Course document structure
+ */
+interface CourseDocument extends PayloadBaseDocument {
+  title?: string;
+  slug?: string;
+  isPublished?: boolean;
+}
+
+/**
+ * Badge reference structure
+ */
+interface BadgeReference extends PayloadReference {
+  name?: string;
+  icon?: string;
+}
+
+/**
+ * User badge document structure
+ */
+interface UserBadgeDocument extends PayloadBaseDocument {
+  badge?: BadgeReference;
+}
+
+/**
+ * Points transaction document structure
+ */
+interface PointsTransactionDocument extends PayloadBaseDocument {
+  points?: number;
+  reason?: string;
+}
+
+/**
+ * Streak document structure
+ */
+interface StreakDocument extends PayloadBaseDocument {
+  currentStreak?: number;
+}
+
+// ============================================================================
+// TYPE GUARDS
+// ============================================================================
+
+/**
+ * Check if a value is an object with potential properties
+ */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+/**
+ * Safely get string value from unknown
+ */
+function toSafeString(value: unknown, fallback = ''): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return String(value);
+  return fallback;
+}
+
+/**
+ * Safely get number value from unknown
+ */
+function toSafeNumber(value: unknown, fallback = 0): number {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? fallback : parsed;
+  }
+  return fallback;
+}
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -36,10 +187,11 @@ function getIO() {
 /**
  * Extract tenant ID from document
  */
-function getTenantId(doc: Record<string, unknown>): number | null {
+function getTenantId(doc: PayloadBaseDocument): number | null {
   if (typeof doc.tenant === 'number') return doc.tenant;
-  if (typeof doc.tenant === 'object' && doc.tenant !== null) {
-    return (doc.tenant as { id?: number }).id ?? null;
+  if (isRecord(doc.tenant)) {
+    const id = (doc.tenant as { id?: number }).id;
+    return typeof id === 'number' ? id : null;
   }
   return null;
 }
@@ -47,12 +199,37 @@ function getTenantId(doc: Record<string, unknown>): number | null {
 /**
  * Extract user ID from document
  */
-function getUserId(doc: Record<string, unknown>): string | null {
+function getUserId(doc: PayloadBaseDocument): string | null {
   if (typeof doc.user === 'string') return doc.user;
-  if (typeof doc.user === 'object' && doc.user !== null) {
-    return String((doc.user as { id?: string | number }).id ?? '');
+  if (isRecord(doc.user)) {
+    const id = (doc.user as { id?: string | number }).id;
+    return id !== undefined ? String(id) : null;
   }
   return null;
+}
+
+/**
+ * Extract user ID from a user field (string or object)
+ */
+function extractUserId(user: string | { id?: string | number } | undefined): string | null {
+  if (typeof user === 'string') return user;
+  if (isRecord(user)) {
+    const id = (user as { id?: string | number }).id;
+    return id !== undefined ? String(id) : null;
+  }
+  return null;
+}
+
+/**
+ * Extract ID from a reference (string or object with id)
+ */
+function extractId(ref: string | PayloadReference | undefined): string {
+  if (typeof ref === 'string') return ref;
+  if (isRecord(ref)) {
+    const id = (ref as PayloadReference).id;
+    return id !== undefined ? String(id) : '';
+  }
+  return '';
 }
 
 // ============================================================================
@@ -62,7 +239,7 @@ function getUserId(doc: Record<string, unknown>): string | null {
 /**
  * Emit progress:updated event when lesson progress changes
  */
-export const emitLessonProgressUpdate: CollectionAfterChangeHook = async ({
+export const emitLessonProgressUpdate: CollectionAfterChangeHook<LessonProgressDocument> = ({
   doc,
   previousDoc,
 }) => {
@@ -80,25 +257,23 @@ export const emitLessonProgressUpdate: CollectionAfterChangeHook = async ({
   let enrollmentId: string | null = null;
   let courseId: string | null = null;
 
-  if (typeof doc.enrollment === 'object' && doc.enrollment !== null) {
-    const enrollment = doc.enrollment as Record<string, unknown>;
-    enrollmentId = String(enrollment.id ?? '');
-    userId = getUserId(enrollment);
-    if (typeof enrollment.courseRun === 'object' && enrollment.courseRun !== null) {
-      const courseRun = enrollment.courseRun as Record<string, unknown>;
-      if (typeof courseRun.course === 'object' && courseRun.course !== null) {
-        courseId = String((courseRun.course as { id?: string | number }).id ?? '');
+  const enrollment = doc.enrollment;
+  if (isRecord(enrollment)) {
+    const enrollmentRef = enrollment as EnrollmentReference;
+    enrollmentId = extractId(enrollmentRef);
+    userId = extractUserId(enrollmentRef.user);
+    if (isRecord(enrollmentRef.courseRun)) {
+      const courseRun = enrollmentRef.courseRun;
+      if (isRecord(courseRun.course)) {
+        courseId = extractId(courseRun.course);
       }
     }
-  } else if (typeof doc.enrollment === 'string') {
-    enrollmentId = doc.enrollment;
+  } else if (typeof enrollment === 'string') {
+    enrollmentId = enrollment;
   }
 
   // Build progress payload
-  const lessonId = typeof doc.lesson === 'object'
-    ? String((doc.lesson as { id?: string | number }).id ?? '')
-    : String(doc.lesson ?? '');
-
+  const lessonId = extractId(doc.lesson);
   const isCompleted = doc.isCompleted === true;
 
   const payload: ProgressPayload = {
@@ -135,7 +310,7 @@ export const emitLessonProgressUpdate: CollectionAfterChangeHook = async ({
 /**
  * Emit enrollment events when enrollment status changes
  */
-export const emitEnrollmentUpdate: CollectionAfterChangeHook = async ({
+export const emitEnrollmentUpdate: CollectionAfterChangeHook<EnrollmentDocument> = ({
   doc,
   previousDoc,
   operation,
@@ -148,7 +323,7 @@ export const emitEnrollmentUpdate: CollectionAfterChangeHook = async ({
 
   const userId = getUserId(doc);
   const enrollmentId = String(doc.id);
-  const status = String(doc.status ?? 'pending');
+  const status = toSafeString(doc.status, 'pending');
   const previousStatus = previousDoc?.status;
 
   // Only emit on status changes or new enrollments
@@ -181,10 +356,10 @@ export const emitEnrollmentUpdate: CollectionAfterChangeHook = async ({
     if (status === 'completed' && previousStatus !== 'completed') {
       // Get course info
       let courseId: string | null = null;
-      if (typeof doc.courseRun === 'object' && doc.courseRun !== null) {
-        const courseRun = doc.courseRun as Record<string, unknown>;
-        if (typeof courseRun.course === 'object' && courseRun.course !== null) {
-          courseId = String((courseRun.course as { id?: string | number }).id ?? '');
+      if (isRecord(doc.courseRun)) {
+        const courseRun = doc.courseRun;
+        if (isRecord(courseRun.course)) {
+          courseId = extractId(courseRun.course);
         }
       }
 
@@ -236,7 +411,7 @@ export const emitEnrollmentUpdate: CollectionAfterChangeHook = async ({
 /**
  * Emit notification when a grade is posted
  */
-export const emitGradeUpdate: CollectionAfterChangeHook = async ({
+export const emitGradeUpdate: CollectionAfterChangeHook<GradeDocument> = ({
   doc,
   previousDoc,
   operation,
@@ -257,30 +432,29 @@ export const emitGradeUpdate: CollectionAfterChangeHook = async ({
   let userId: string | null = null;
   let assignmentTitle = 'Tarea';
 
-  if (typeof doc.submission === 'object' && doc.submission !== null) {
-    const submission = doc.submission as Record<string, unknown>;
+  const submission = doc.submission;
+  if (isRecord(submission)) {
+    const submissionRef = submission as SubmissionReference;
 
-    if (typeof submission.enrollment === 'object' && submission.enrollment !== null) {
-      const enrollment = submission.enrollment as Record<string, unknown>;
-      userId = getUserId(enrollment);
+    if (isRecord(submissionRef.enrollment)) {
+      userId = extractUserId(submissionRef.enrollment.user);
     }
 
-    if (typeof submission.assignment === 'object' && submission.assignment !== null) {
-      const assignment = submission.assignment as Record<string, unknown>;
-      assignmentTitle = String(assignment.title ?? 'Tarea');
+    if (isRecord(submissionRef.assignment)) {
+      assignmentTitle = toSafeString(submissionRef.assignment.title, 'Tarea');
     }
   }
 
   if (userId) {
     const userRoom = getUserRoom(userId, 'notifications');
 
-    const score = Number(doc.score ?? 0);
-    const maxScore = Number(doc.maxScore ?? 100);
+    const score = toSafeNumber(doc.score, 0);
+    const maxScore = toSafeNumber(doc.maxScore, 100);
     const percentage = Math.round((score / maxScore) * 100);
     const passed = doc.isPass === true;
 
     const notification: NotificationPayload = {
-      id: `grade-${doc.id}`,
+      id: `grade-${String(doc.id)}`,
       type: passed ? 'success' : 'warning',
       title: 'Calificacion Publicada',
       message: `${assignmentTitle}: ${score}/${maxScore} (${percentage}%)${passed ? ' - Aprobado!' : ''}`,
@@ -302,7 +476,7 @@ export const emitGradeUpdate: CollectionAfterChangeHook = async ({
         points: 50,
         totalPoints: 0, // Will be calculated by client
         badge: {
-          id: `perfect-${doc.id}`,
+          id: `perfect-${String(doc.id)}`,
           name: 'Perfecto',
           description: 'Score perfecto en una tarea',
           icon: 'star',
@@ -325,7 +499,7 @@ export const emitGradeUpdate: CollectionAfterChangeHook = async ({
 /**
  * Emit notification when submission status changes
  */
-export const emitSubmissionUpdate: CollectionAfterChangeHook = async ({
+export const emitSubmissionUpdate: CollectionAfterChangeHook<SubmissionDocument> = ({
   doc,
   previousDoc,
 }) => {
@@ -335,7 +509,7 @@ export const emitSubmissionUpdate: CollectionAfterChangeHook = async ({
   const tenantId = getTenantId(doc);
   if (!tenantId) return doc;
 
-  const status = String(doc.status ?? 'draft');
+  const status = toSafeString(doc.status, 'draft');
   const previousStatus = previousDoc?.status;
 
   // Only emit on status changes
@@ -344,9 +518,9 @@ export const emitSubmissionUpdate: CollectionAfterChangeHook = async ({
   // Get enrollment to find user
   let userId: string | null = null;
 
-  if (typeof doc.enrollment === 'object' && doc.enrollment !== null) {
-    const enrollment = doc.enrollment as Record<string, unknown>;
-    userId = getUserId(enrollment);
+  const enrollment = doc.enrollment;
+  if (isRecord(enrollment)) {
+    userId = extractUserId(enrollment.user);
   }
 
   if (!userId) return doc;
@@ -365,7 +539,7 @@ export const emitSubmissionUpdate: CollectionAfterChangeHook = async ({
   const userRoom = getUserRoom(userId, 'notifications');
 
   const notification: NotificationPayload = {
-    id: `submission-${doc.id}-${status}`,
+    id: `submission-${String(doc.id)}-${status}`,
     type: statusInfo.type,
     title: 'Actualizacion de Entrega',
     message: statusInfo.message,
@@ -376,14 +550,14 @@ export const emitSubmissionUpdate: CollectionAfterChangeHook = async ({
   };
 
   io.to(userRoom).emit('notification:push', notification);
-  console.log(`[SocketHook] Emitted notification:push for submission ${doc.id} to user ${userId}`);
+  console.log(`[SocketHook] Emitted notification:push for submission ${String(doc.id)} to user ${userId}`);
 
   // If just submitted, also emit activity for dashboard
   if (status === 'submitted') {
     const tenantRoom = getTenantRoom(tenantId, 'lms');
 
     const activity: ActivityPayload = {
-      id: `submission-${doc.id}`,
+      id: `submission-${String(doc.id)}`,
       type: 'enrollment', // Using enrollment as closest match
       tenantId,
       title: 'Nueva Entrega',
@@ -411,7 +585,7 @@ export const emitSubmissionUpdate: CollectionAfterChangeHook = async ({
 /**
  * Emit course update events (for publishing, updates)
  */
-export const emitCourseUpdate: CollectionAfterChangeHook = async ({
+export const emitCourseUpdate: CollectionAfterChangeHook<CourseDocument> = ({
   doc,
   previousDoc,
   operation,
@@ -431,15 +605,15 @@ export const emitCourseUpdate: CollectionAfterChangeHook = async ({
     const coursePayload: CoursePayload = {
       id: String(doc.id),
       tenantId,
-      title: String(doc.title ?? ''),
-      slug: String(doc.slug ?? ''),
+      title: toSafeString(doc.title),
+      slug: toSafeString(doc.slug),
       status: 'published',
       action: 'published',
       timestamp: new Date().toISOString(),
     };
 
     io.to(tenantRoom).emit('course:published', coursePayload);
-    console.log(`[SocketHook] Emitted course:published for ${doc.title}`);
+    console.log(`[SocketHook] Emitted course:published for ${toSafeString(doc.title)}`);
   }
 
   // Course updated
@@ -447,8 +621,8 @@ export const emitCourseUpdate: CollectionAfterChangeHook = async ({
     const coursePayload: CoursePayload = {
       id: String(doc.id),
       tenantId,
-      title: String(doc.title ?? ''),
-      slug: String(doc.slug ?? ''),
+      title: toSafeString(doc.title),
+      slug: toSafeString(doc.slug),
       status: isPublished ? 'published' : 'draft',
       action: 'updated',
       timestamp: new Date().toISOString(),
@@ -467,7 +641,7 @@ export const emitCourseUpdate: CollectionAfterChangeHook = async ({
 /**
  * Emit badge unlocked event when user earns a badge
  */
-export const emitBadgeEarned: CollectionAfterChangeHook = async ({
+export const emitBadgeEarned: CollectionAfterChangeHook<UserBadgeDocument> = ({
   doc,
   operation,
 }) => {
@@ -487,10 +661,11 @@ export const emitBadgeEarned: CollectionAfterChangeHook = async ({
   let badgeName = 'Badge';
   let badgeIcon = 'star';
 
-  if (typeof doc.badge === 'object' && doc.badge !== null) {
-    const badge = doc.badge as Record<string, unknown>;
-    badgeName = String(badge.name ?? 'Badge');
-    badgeIcon = String(badge.icon ?? 'star');
+  const badge = doc.badge;
+  if (isRecord(badge)) {
+    const badgeRef = badge as BadgeReference;
+    badgeName = toSafeString(badgeRef.name, 'Badge');
+    badgeIcon = toSafeString(badgeRef.icon, 'star');
   }
 
   const payload: GamificationPayload = {
@@ -512,7 +687,7 @@ export const emitBadgeEarned: CollectionAfterChangeHook = async ({
 
   // Also notify user
   const notification: NotificationPayload = {
-    id: `badge-${doc.id}`,
+    id: `badge-${String(doc.id)}`,
     type: 'success',
     title: 'Badge Desbloqueado!',
     message: `Has obtenido el badge: ${badgeName}`,
@@ -530,7 +705,7 @@ export const emitBadgeEarned: CollectionAfterChangeHook = async ({
 /**
  * Emit points earned event when points transaction is created
  */
-export const emitPointsEarned: CollectionAfterChangeHook = async ({
+export const emitPointsEarned: CollectionAfterChangeHook<PointsTransactionDocument> = ({
   doc,
   operation,
 }) => {
@@ -546,8 +721,8 @@ export const emitPointsEarned: CollectionAfterChangeHook = async ({
   const userId = getUserId(doc);
   if (!userId) return doc;
 
-  const points = Number(doc.points ?? 0);
-  const reason = String(doc.reason ?? 'Puntos ganados');
+  const points = toSafeNumber(doc.points, 0);
+  const reason = toSafeString(doc.reason, 'Puntos ganados');
 
   if (points <= 0) return doc; // Only emit for positive points
 
@@ -571,7 +746,7 @@ export const emitPointsEarned: CollectionAfterChangeHook = async ({
 /**
  * Emit streak update event
  */
-export const emitStreakUpdate: CollectionAfterChangeHook = async ({
+export const emitStreakUpdate: CollectionAfterChangeHook<StreakDocument> = ({
   doc,
   previousDoc,
 }) => {
@@ -584,8 +759,8 @@ export const emitStreakUpdate: CollectionAfterChangeHook = async ({
   const userId = getUserId(doc);
   if (!userId) return doc;
 
-  const currentStreak = Number(doc.currentStreak ?? 0);
-  const previousStreak = Number(previousDoc?.currentStreak ?? 0);
+  const currentStreak = toSafeNumber(doc.currentStreak, 0);
+  const previousStreak = toSafeNumber(previousDoc?.currentStreak, 0);
 
   // Only emit if streak changed
   if (currentStreak === previousStreak) return doc;
@@ -604,7 +779,7 @@ export const emitStreakUpdate: CollectionAfterChangeHook = async ({
   // If streak milestone (7, 14, 30 days), send notification
   if ([7, 14, 30, 60, 100].includes(currentStreak) && currentStreak > previousStreak) {
     const notification: NotificationPayload = {
-      id: `streak-${doc.id}-${currentStreak}`,
+      id: `streak-${String(doc.id)}-${currentStreak}`,
       type: 'success',
       title: `Racha de ${currentStreak} dias!`,
       message: 'Sigue asi para ganar mas puntos y badges.',

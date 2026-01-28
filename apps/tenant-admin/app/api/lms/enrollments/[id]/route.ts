@@ -8,8 +8,127 @@
 
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+
+// ============================================================================
+// Payload CMS Collection Types
+// ============================================================================
+
+/** Base type for Payload collection documents */
+interface PayloadDocument {
+  id: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** Enrollment record from Payload 'enrollments' collection */
+interface PayloadEnrollment extends PayloadDocument {
+  status?: string;
+  // Support both snake_case and camelCase field names
+  course_run?: string | PayloadCourseRun;
+  courseRun?: string | PayloadCourseRun;
+  started_at?: string;
+  startedAt?: string;
+  completed_at?: string;
+  completedAt?: string;
+  student?: string | PayloadStudent;
+}
+
+/** Student record from Payload 'users' collection */
+interface PayloadStudent extends PayloadDocument {
+  email?: string;
+  name?: string;
+}
+
+/** Course Run record from Payload 'course-runs' collection */
+interface PayloadCourseRun extends PayloadDocument {
+  title?: string;
+  course?: string | PayloadCourse;
+  status?: string;
+  // Support both snake_case and camelCase field names
+  start_date?: string;
+  startDate?: string;
+  end_date?: string;
+  endDate?: string;
+}
+
+/** Course record from Payload 'courses' collection */
+interface PayloadCourse extends PayloadDocument {
+  title?: string;
+  slug?: string;
+  description?: string;
+  thumbnail?: string | PayloadMedia;
+}
+
+/** Media record from Payload 'media' collection */
+interface PayloadMedia extends PayloadDocument {
+  url?: string;
+  alt?: string;
+  filename?: string;
+}
+
+/** Module record from Payload 'modules' collection */
+interface PayloadModule extends PayloadDocument {
+  title?: string;
+  description?: string;
+  order?: number;
+  estimatedMinutes?: number;
+  courseRun?: string | PayloadCourseRun;
+  status?: string;
+}
+
+/** Lesson record from Payload 'lessons' collection */
+interface PayloadLesson extends PayloadDocument {
+  title?: string;
+  description?: string;
+  order?: number;
+  estimatedMinutes?: number;
+  isMandatory?: boolean;
+  module?: string | PayloadModule;
+  status?: string;
+}
+
+/** Lesson Progress record from Payload 'lesson-progress' collection */
+interface PayloadLessonProgress extends PayloadDocument {
+  enrollment?: string | PayloadEnrollment;
+  lesson?: string | PayloadLesson;
+  status?: 'not_started' | 'in_progress' | 'completed';
+  progressPercent?: number;
+  startedAt?: string;
+  completedAt?: string;
+  timeSpentSeconds?: number;
+}
+
+/** Module with lessons array (computed) */
+interface ModuleWithLessons extends PayloadModule {
+  lessons: PayloadLesson[];
+  lessonsCount: number;
+}
+
+/** Progress info for lesson response */
+interface LessonProgressInfo {
+  status: string;
+  progressPercent: number;
+}
+
+// ============================================================================
+// Payload Collection Names (type-safe)
+// ============================================================================
+
+type PayloadCollectionSlug =
+  | 'enrollments'
+  | 'course-runs'
+  | 'courses'
+  | 'modules'
+  | 'lessons'
+  | 'lesson-progress'
+  | 'users'
+  | 'media';
+
+// ============================================================================
+// Route Types
+// ============================================================================
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -35,14 +154,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- configPromise is typed correctly
     const payload = await getPayloadHMR({ config: configPromise });
 
     // 1. Get enrollment with student and course run
     const enrollment = await payload.findByID({
-      collection: 'enrollments' as any,
+      collection: 'enrollments' as PayloadCollectionSlug,
       id: enrollmentId,
       depth: 2, // Include nested relations
-    });
+    }) as unknown as PayloadEnrollment | null;
 
     if (!enrollment) {
       return NextResponse.json(
@@ -52,51 +172,55 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // 2. Get course run details (edicion/convocatoria)
-    const enrollmentRecord = enrollment;
+    const enrollmentRecord: PayloadEnrollment = enrollment;
     const courseRunRef = enrollmentRecord.course_run ?? enrollmentRecord.courseRun;
-    const courseRun = typeof courseRunRef === 'object'
+    const courseRun: PayloadCourseRun | null = typeof courseRunRef === 'object'
       ? courseRunRef
-      : await payload.findByID({
-          collection: 'course-runs' as any,
-          id: courseRunRef as string,
-          depth: 1,
-        });
+      : courseRunRef
+        ? await payload.findByID({
+            collection: 'course-runs' as PayloadCollectionSlug,
+            id: courseRunRef,
+            depth: 1,
+          }) as unknown as PayloadCourseRun
+        : null;
 
     // 3. Get the base course
-    const courseRunRecord = courseRun;
+    const courseRunRecord: PayloadCourseRun | null = courseRun;
     const courseRef = courseRunRecord?.course;
-    const course = courseRef
+    const course: PayloadCourse | null = courseRef
       ? (typeof courseRef === 'object'
           ? courseRef
           : await payload.findByID({
-              collection: 'courses' as any,
-              id: courseRef as string,
+              collection: 'courses' as PayloadCollectionSlug,
+              id: courseRef,
               depth: 1,
-            }))
+            }) as unknown as PayloadCourse)
       : null;
 
     // 4. Get all modules for this course run
-    const modules = await payload.find({
-      collection: 'modules' as any,
+    const modulesResult = await payload.find({
+      collection: 'modules' as PayloadCollectionSlug,
       where: {
-        courseRun: { equals: courseRunRecord?.id || courseRunRef },
+        courseRun: { equals: courseRunRecord?.id ?? courseRunRef },
       },
       sort: 'order',
       depth: 0,
       limit: 100,
     });
+    const modules = modulesResult as unknown as { docs: PayloadModule[]; totalDocs: number };
 
     // 5. Get lessons for each module
-    const modulesWithLessons = await Promise.all(
-      modules.docs.map(async (module) => {
-        const moduleRecord = module;
-        const lessons = await payload.find({
-          collection: 'lessons' as any,
+    const modulesWithLessons: ModuleWithLessons[] = await Promise.all(
+      modules.docs.map(async (module: PayloadModule): Promise<ModuleWithLessons> => {
+        const moduleRecord: PayloadModule = module;
+        const lessonsResult = await payload.find({
+          collection: 'lessons' as PayloadCollectionSlug,
           where: { module: { equals: moduleRecord.id } },
           sort: 'order',
           depth: 0,
           limit: 100,
         });
+        const lessons = lessonsResult as unknown as { docs: PayloadLesson[]; totalDocs: number };
 
         return {
           ...moduleRecord,
@@ -107,22 +231,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
 
     // 6. Get student's progress data
-    const progress = await payload.find({
-      collection: 'lesson-progress' as any,
+    const progressResult = await payload.find({
+      collection: 'lesson-progress' as PayloadCollectionSlug,
       where: {
         enrollment: { equals: enrollmentId },
       },
       depth: 0,
       limit: 500,
     });
+    const progress = progressResult as unknown as { docs: PayloadLessonProgress[]; totalDocs: number };
 
     // 7. Calculate overall progress
     const totalLessons = modulesWithLessons.reduce(
-      (sum, m) => sum + (m.lessonsCount || 0),
+      (sum: number, m: ModuleWithLessons) => sum + (m.lessonsCount || 0),
       0
     );
     const completedLessons = progress.docs.filter(
-      (p: any) => p.status === 'completed'
+      (p: PayloadLessonProgress) => p.status === 'completed'
     ).length;
     const progressPercent = totalLessons > 0
       ? Math.round((completedLessons / totalLessons) * 100)
@@ -153,26 +278,37 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           endDate: courseRunRecord.endDate ?? courseRunRecord.end_date,
           status: courseRunRecord.status,
         } : null,
-        modules: modulesWithLessons.map((module) => {
-          const moduleRecord = module;
+        modules: modulesWithLessons.map((module: ModuleWithLessons) => {
+          const moduleRecord: ModuleWithLessons = module;
           return {
             id: moduleRecord.id,
             title: moduleRecord.title,
             description: moduleRecord.description,
             order: moduleRecord.order,
             estimatedMinutes: moduleRecord.estimatedMinutes,
-            lessons: moduleRecord.lessons.map((lesson: any) => ({
-              id: lesson.id,
-              title: lesson.title,
-              description: lesson.description,
-              order: lesson.order,
-              estimatedMinutes: lesson.estimatedMinutes,
-              isMandatory: lesson.isMandatory,
-            // Include progress for this lesson
-            progress: progress.docs.find(
-              (p: any) => p.lesson === lesson.id || p.lesson?.id === lesson.id
-            ) || { status: 'not_started', progressPercent: 0 },
-            })),
+            lessons: moduleRecord.lessons.map((lesson: PayloadLesson) => {
+              // Find progress for this lesson
+              const lessonProgress = progress.docs.find(
+                (p: PayloadLessonProgress) => {
+                  const progressLessonId = typeof p.lesson === 'object' ? p.lesson?.id : p.lesson;
+                  return progressLessonId === lesson.id;
+                }
+              );
+              const progressInfo: LessonProgressInfo = lessonProgress
+                ? { status: lessonProgress.status ?? 'not_started', progressPercent: lessonProgress.progressPercent ?? 0 }
+                : { status: 'not_started', progressPercent: 0 };
+
+              return {
+                id: lesson.id,
+                title: lesson.title,
+                description: lesson.description,
+                order: lesson.order,
+                estimatedMinutes: lesson.estimatedMinutes,
+                isMandatory: lesson.isMandatory,
+                // Include progress for this lesson
+                progress: progressInfo,
+              };
+            }),
             lessonsCount: moduleRecord.lessonsCount,
           };
         }),
@@ -191,10 +327,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     };
 
     return NextResponse.json(response);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[LMS Enrollment] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch enrollment';
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to fetch enrollment' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }

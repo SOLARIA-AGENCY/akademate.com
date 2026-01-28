@@ -160,5 +160,31 @@ export default tseslint.config(
         ...globals.node,
       },
     },
+  },
+  // Test files - relax type-safety rules for mocks and test utilities
+  {
+    files: [
+      '**/*.test.{ts,tsx}',
+      '**/*.spec.{ts,tsx}',
+      '**/__tests__/**/*.{ts,tsx}',
+      '**/tests/**/*.{ts,tsx}',
+      '**/testHelpers.ts',
+      '**/test-utils.{ts,tsx}',
+    ],
+    rules: {
+      // Disable unsafe rules for test files - mocks need type flexibility
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      // Relax other rules that are less critical in tests
+      '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/unbound-method': 'off',
+    },
   }
 )

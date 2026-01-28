@@ -3,13 +3,101 @@ import { NextResponse } from 'next/server';
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
 
+// ============================================================================
+// Dashboard API Types
+// ============================================================================
+
+/** Related entity reference (can be populated object or just ID) */
+interface RelatedEntity {
+  id: string;
+  name?: string;
+}
+
+/** Course document from Payload CMS */
+interface CourseDoc {
+  id: string;
+  name?: string;
+  active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** Course Run (Convocation) document from Payload CMS */
+interface CourseRunDoc {
+  id: string;
+  codigo?: string;
+  course?: RelatedEntity | string;
+  campus?: RelatedEntity | string;
+  instructor_id?: string | null;
+  start_date?: string;
+  end_date?: string;
+  status?: 'abierta' | 'planificada' | 'cerrada' | 'finalizada';
+  enrolled?: number;
+  capacity_max?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** Campus document from Payload CMS */
+interface CampusDoc {
+  id: string;
+  name: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** Staff count API response */
+interface StaffCountResponse {
+  total?: number;
+  docs?: unknown[];
+}
+
+/** Recent activity item for dashboard */
+interface RecentActivity {
+  type: string;
+  title: string;
+  entity_name: string;
+  timestamp: string;
+}
+
+/** Operational alert for dashboard */
+interface DashboardAlert {
+  severity: 'info' | 'warning' | 'error';
+  message: string;
+  count: number;
+}
+
+/** Campus distribution item */
+interface CampusDistribution {
+  campus_name: string;
+  student_count: number;
+}
+
+/** Upcoming convocation summary */
+interface UpcomingConvocation {
+  id: string;
+  codigo?: string;
+  course_title: string;
+  campus_name: string;
+  start_date?: string;
+  end_date?: string;
+  status?: string;
+  enrolled: number;
+  capacity_max: number;
+}
+
+// ============================================================================
+// Route Handler
+// ============================================================================
+
 /**
  * GET /api/dashboard
  *
  * Retorna métricas agregadas para el dashboard principal
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const payload = await getPayloadHMR({ config: configPromise });
 
     // Fetch all data in parallel (excluding staff to avoid schema issues)
@@ -42,38 +130,41 @@ export async function GET(request: NextRequest) {
       const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3002';
       const staffCountResponse = await fetch(`${baseUrl}/api/staff?limit=1`);
       if (staffCountResponse.ok) {
-        const staffCountData = await staffCountResponse.json();
-        totalStaff = staffCountData.total || 0;
+        const staffCountData = (await staffCountResponse.json()) as StaffCountResponse;
+        totalStaff = staffCountData.total ?? 0;
       }
       const teachersCountResponse = await fetch(`${baseUrl}/api/staff?type=profesor&limit=1`);
       if (teachersCountResponse.ok) {
-        const teachersCountData = await teachersCountResponse.json();
-        totalTeachers = teachersCountData.total || 0;
+        const teachersCountData = (await teachersCountResponse.json()) as StaffCountResponse;
+        totalTeachers = teachersCountData.total ?? 0;
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error fetching staff counts:', err);
     }
 
     // Calculate metrics
     const totalCourses = coursesData.totalDocs;
-    const activeCourses = coursesData.docs.filter((c: any) => c.active === true).length;
+    const courses = coursesData.docs as CourseDoc[];
+    const activeCourses = courses.filter((c) => c.active === true).length;
 
     const totalConvocations = convocationsData.totalDocs;
-    const activeConvocations = convocationsData.docs.filter(
-      (cr: any) => cr.status === 'abierta' || cr.status === 'planificada'
+    const convocations = convocationsData.docs as CourseRunDoc[];
+    const activeConvocations = convocations.filter(
+      (cr) => cr.status === 'abierta' || cr.status === 'planificada'
     ).length;
 
     const totalCampuses = campusesData.totalDocs;
+    const campuses = campusesData.docs as CampusDoc[];
 
     // Calculate enrollments from convocations
-    const totalEnrolled = convocationsData.docs.reduce(
-      (sum: number, cr: any) => sum + (cr.enrolled || 0),
+    const totalEnrolled = convocations.reduce(
+      (sum, cr) => sum + (cr.enrolled ?? 0),
       0
     );
 
     // Calculate capacity utilization
-    const totalCapacity = convocationsData.docs.reduce(
-      (sum: number, cr: any) => sum + (cr.capacity_max || 0),
+    const totalCapacity = convocations.reduce(
+      (sum, cr) => sum + (cr.capacity_max ?? 0),
       0
     );
     const classroomUtilization = totalCapacity > 0
@@ -88,29 +179,33 @@ export async function GET(request: NextRequest) {
 
     // Get upcoming convocations
     const now = new Date();
-    const upcomingConvocations = convocationsData.docs
-      .filter((cr: any) => {
+    const upcomingConvocations: UpcomingConvocation[] = convocations
+      .filter((cr) => {
         if (!cr.start_date) return false;
         const startDate = new Date(cr.start_date);
         return startDate > now;
       })
-      .sort((a: any, b: any) => {
-        const dateA = new Date(a.start_date).getTime();
-        const dateB = new Date(b.start_date).getTime();
+      .sort((a, b) => {
+        const dateA = new Date(a.start_date!).getTime();
+        const dateB = new Date(b.start_date!).getTime();
         return dateA - dateB;
       })
       .slice(0, 5)
-      .map((cr: any) => ({
-        id: cr.id,
-        codigo: cr.codigo,
-        course_title: typeof cr.course === 'object' ? cr.course?.name : 'Sin nombre',
-        campus_name: typeof cr.campus === 'object' ? cr.campus?.name : 'Sin sede',
-        start_date: cr.start_date,
-        end_date: cr.end_date,
-        status: cr.status,
-        enrolled: cr.enrolled || 0,
-        capacity_max: cr.capacity_max || 0,
-      }));
+      .map((cr) => {
+        const courseRef = cr.course;
+        const campusRef = cr.campus;
+        return {
+          id: cr.id,
+          codigo: cr.codigo,
+          course_title: typeof courseRef === 'object' && courseRef?.name ? courseRef.name : 'Sin nombre',
+          campus_name: typeof campusRef === 'object' && campusRef?.name ? campusRef.name : 'Sin sede',
+          start_date: cr.start_date,
+          end_date: cr.end_date,
+          status: cr.status,
+          enrolled: cr.enrolled ?? 0,
+          capacity_max: cr.capacity_max ?? 0,
+        };
+      });
 
     const metrics = {
       // Courses
@@ -145,19 +240,22 @@ export async function GET(request: NextRequest) {
     };
 
     // Recent Activity (last 5 events)
-    const recentActivities = [
-      ...convocationsData.docs
-        .filter((cr: any) => cr.createdAt)
+    const recentActivities: RecentActivity[] = [
+      ...convocations
+        .filter((cr) => cr.createdAt)
         .slice(0, 3)
-        .map((cr: any) => ({
-          type: 'convocation',
-          title: 'Nueva convocatoria publicada',
-          entity_name: typeof cr.course === 'object' ? cr.course?.name : 'Curso',
-          timestamp: cr.createdAt,
-        })),
+        .map((cr): RecentActivity => {
+          const courseRef = cr.course;
+          return {
+            type: 'convocation',
+            title: 'Nueva convocatoria publicada',
+            entity_name: typeof courseRef === 'object' && courseRef?.name ? courseRef.name : 'Curso',
+            timestamp: cr.createdAt!,
+          };
+        }),
       // Mock lead/enrollment events (implement when collections exist)
     ]
-      .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, 5);
 
     // Weekly Metrics (last 4 weeks) - Mock data for now
@@ -168,11 +266,11 @@ export async function GET(request: NextRequest) {
     };
 
     // Operational Alerts
-    const alerts = [];
+    const alerts: DashboardAlert[] = [];
 
     // Alert 1: Convocations without instructor
-    const convocationsWithoutInstructor = convocationsData.docs.filter(
-      (cr: any) => (cr.status === 'abierta' || cr.status === 'planificada') && !cr.instructor_id
+    const convocationsWithoutInstructor = convocations.filter(
+      (cr) => (cr.status === 'abierta' || cr.status === 'planificada') && !cr.instructor_id
     );
     if (convocationsWithoutInstructor.length > 0) {
       alerts.push({
@@ -183,8 +281,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Alert 2: Active courses with 0 enrollments
-    const coursesWithoutStudents = convocationsData.docs.filter(
-      (cr: any) => (cr.status === 'abierta') && (cr.enrolled || 0) === 0
+    const coursesWithoutStudents = convocations.filter(
+      (cr) => (cr.status === 'abierta') && (cr.enrolled ?? 0) === 0
     );
     if (coursesWithoutStudents.length > 0) {
       alerts.push({
@@ -197,7 +295,7 @@ export async function GET(request: NextRequest) {
     // Alert 3: Convocations expiring soon (<7 days)
     const sevenDaysFromNow = new Date();
     sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
-    const expiringConvocations = convocationsData.docs.filter((cr: any) => {
+    const expiringConvocations = convocations.filter((cr) => {
       if (!cr.start_date || cr.status !== 'abierta') return false;
       const startDate = new Date(cr.start_date);
       return startDate <= sevenDaysFromNow && startDate > now;
@@ -211,19 +309,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Campus Distribution
-    const campusDistribution = campusesData.docs.map((campus: any) => {
-      const studentsInCampus = convocationsData.docs
-        .filter((cr: any) => {
-          const campusId = typeof cr.campus === 'object' ? cr.campus?.id : cr.campus;
+    const campusDistribution: CampusDistribution[] = campuses.map((campus) => {
+      const studentsInCampus = convocations
+        .filter((cr) => {
+          const campusRef = cr.campus;
+          const campusId = typeof campusRef === 'object' ? campusRef?.id : campusRef;
           return campusId === campus.id;
         })
-        .reduce((sum: number, cr: any) => sum + (cr.enrolled || 0), 0);
+        .reduce((sum, cr) => sum + (cr.enrolled ?? 0), 0);
 
       return {
         campus_name: campus.name,
         student_count: studentsInCampus,
       };
-    }).sort((a: any, b: any) => b.student_count - a.student_count);
+    }).sort((a, b) => b.student_count - a.student_count);
 
     return NextResponse.json({
       success: true,
@@ -237,12 +336,13 @@ export async function GET(request: NextRequest) {
         campus_distribution: campusDistribution,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching dashboard metrics:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Error al obtener métricas del dashboard';
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al obtener métricas del dashboard',
+        error: errorMessage,
       },
       { status: 500 }
     );
