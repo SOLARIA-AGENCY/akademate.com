@@ -81,7 +81,7 @@ export class GdprExportService {
     tenantId?: string,
     sections?: ExportSection[]
   ): Promise<UserDataExport> {
-    const includeSections = new Set(sections || ALL_SECTIONS)
+    const includeSections = new Set(sections ?? ALL_SECTIONS)
 
     // Start with required profile
     const profile = await this.deps.findUserById(userId)
@@ -300,7 +300,8 @@ export class GdprExportService {
         }
         if (Array.isArray(value)) return `"${JSON.stringify(value)}"`
         if (typeof value === 'object') return `"${JSON.stringify(value)}"`
-        return String(value)
+        // Handle primitive values (string, number, boolean, bigint, symbol)
+        return typeof value === 'object' ? JSON.stringify(value) : String(value as string | number | boolean | bigint | symbol)
       }).join(',')
     )
 

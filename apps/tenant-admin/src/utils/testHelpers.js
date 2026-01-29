@@ -206,7 +206,7 @@ class PayloadMock {
         return this.applyFieldAccessControl(doc, collection, user);
     }
     async update(options) {
-        const { collection, id, data, user, req } = options;
+        const { collection, id, data, user, req: _req } = options;
         // Check basic authentication
         this.checkAuthentication(user, collection, 'update');
         const docs = this.data.get(collection) || [];
@@ -476,7 +476,7 @@ export async function createTestCourse(payload, cycleId) {
  */
 export async function cleanupCollection(payload, collection) {
     // Direct access to internal data for cleanup (bypass authentication)
-    const docs = payload['data'].get(collection) || [];
+    const _docs = payload['data'].get(collection) || [];
     // Clear all documents from the collection
     payload['data'].set(collection, []);
 }

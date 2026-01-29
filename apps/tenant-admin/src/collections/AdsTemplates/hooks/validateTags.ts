@@ -28,10 +28,9 @@ import { validateTags } from '../AdsTemplates.validation';
  * - Logs only template.id and tag count (non-sensitive)
  * - NEVER logs tag values (may contain marketing strategy info)
  */
-export const validateTagsHook: CollectionBeforeValidateHook = async ({
+export const validateTagsHook: CollectionBeforeValidateHook = ({
   data,
   operation,
-  req,
 }) => {
   // Only validate on create and update operations
   if (operation !== 'create' && operation !== 'update') {

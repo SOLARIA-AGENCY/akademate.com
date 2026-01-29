@@ -23,7 +23,7 @@ import type { FieldHook } from 'payload';
  * - Logs only template.id and status (non-sensitive)
  * - NEVER logs template content (confidential)
  */
-export const setArchivedTimestamp: FieldHook = ({ req, data, operation, originalDoc }) => {
+export const setArchivedTimestamp: FieldHook = ({ data, operation, originalDoc }) => {
   // Only process on create or update operations
   if (operation !== 'create' && operation !== 'update') {
     return undefined;

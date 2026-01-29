@@ -26,7 +26,7 @@ import { sanitizeFolderPath } from '../Media.validation';
  * - Logs only folder path (non-sensitive metadata)
  * - No user data or file content logged
  */
-export const validateFolder = ({ value, data, operation }) => {
+export const validateFolder = ({ value, data: _data, operation }) => {
     // Folder is optional, allow undefined
     if (value === undefined || value === null) {
         return undefined;

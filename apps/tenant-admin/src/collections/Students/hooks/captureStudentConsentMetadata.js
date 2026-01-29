@@ -28,7 +28,7 @@
  * @param args - Hook arguments from Payload
  * @returns Modified data with consent metadata
  */
-export const captureStudentConsentMetadata = async ({ data, req, operation, value, }) => {
+export const captureStudentConsentMetadata = async ({ data, req, operation, value: _value, }) => {
     // Only capture on creation, not on updates
     if (operation !== 'create') {
         return data;

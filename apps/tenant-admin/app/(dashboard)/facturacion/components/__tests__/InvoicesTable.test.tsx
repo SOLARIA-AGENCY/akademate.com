@@ -121,7 +121,7 @@ describe('InvoicesTable', () => {
   })
 
   it('filters invoices by status', () => {
-    const { container } = render(<InvoicesTable invoices={mockInvoices} />)
+    const { container: _container } = render(<InvoicesTable invoices={mockInvoices} />)
     // Initially shows all invoices
     expect(screen.getByText('INV-2025-001')).toBeInTheDocument()
     expect(screen.getByText('INV-2025-002')).toBeInTheDocument()
@@ -140,7 +140,7 @@ describe('InvoicesTable', () => {
   })
 
   it('renders table with scrollable container', () => {
-    const { container } = render(<InvoicesTable invoices={mockInvoices} />)
+    const { container: _container } = render(<InvoicesTable invoices={mockInvoices} />)
     const scrollContainer = container.querySelector('.overflow-x-auto')
     expect(scrollContainer).toBeInTheDocument()
   })

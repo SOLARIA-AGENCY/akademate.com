@@ -23,33 +23,28 @@ export const validateCourseRunDates = async ({ data, operation }) => {
     if (!data) {
         return data;
     }
-    try {
-        // Validate date logic
-        if (data.start_date && data.end_date) {
-            const dateResult = dateValidationSchema.safeParse({
-                start_date: data.start_date,
-                end_date: data.end_date,
-                enrollment_deadline: data.enrollment_deadline,
-            });
-            if (!dateResult.success) {
-                const errors = dateResult.error.errors.map((err) => err.message).join(', ');
-                throw new Error(`Date validation failed: ${errors}`);
-            }
-        }
-        // Validate time logic
-        if (data.schedule_time_start || data.schedule_time_end) {
-            const timeResult = timeValidationSchema.safeParse({
-                schedule_time_start: data.schedule_time_start,
-                schedule_time_end: data.schedule_time_end,
-            });
-            if (!timeResult.success) {
-                const errors = timeResult.error.errors.map((err) => err.message).join(', ');
-                throw new Error(`Time validation failed: ${errors}`);
-            }
+    // Validate date logic
+    if (data.start_date && data.end_date) {
+        const dateResult = dateValidationSchema.safeParse({
+            start_date: data.start_date,
+            end_date: data.end_date,
+            enrollment_deadline: data.enrollment_deadline,
+        });
+        if (!dateResult.success) {
+            const errors = dateResult.error.errors.map((err) => err.message).join(', ');
+            throw new Error(`Date validation failed: ${errors}`);
         }
     }
-    catch (error) {
-        throw error;
+    // Validate time logic
+    if (data.schedule_time_start || data.schedule_time_end) {
+        const timeResult = timeValidationSchema.safeParse({
+            schedule_time_start: data.schedule_time_start,
+            schedule_time_end: data.schedule_time_end,
+        });
+        if (!timeResult.success) {
+            const errors = timeResult.error.errors.map((err) => err.message).join(', ');
+            throw new Error(`Time validation failed: ${errors}`);
+        }
     }
     return data;
 };

@@ -9,9 +9,8 @@
  * Related commit: 799c5c6
  */
 
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals'
+import { describe, it, expect } from '@jest/globals'
 import { GET } from '../route'
-import { NextResponse } from 'next/server'
 
 // Mock Payload CMS
 jest.mock('@payloadcms/next/utilities', () => ({

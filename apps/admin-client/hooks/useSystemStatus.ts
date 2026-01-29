@@ -179,8 +179,8 @@ export function useSystemStatus(
   const socket = socketContext?.socket ?? null;
   const isConnected = socketContext?.isConnected ?? false;
 
-  const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(() => new Date());
   const [data, setData] = useState<SystemStatusData>({
     services: MOCK_SERVICES,
     metrics: MOCK_METRICS,
@@ -197,11 +197,6 @@ export function useSystemStatus(
     setLastUpdate(new Date());
   }, []);
 
-  // Initialize and mark as loaded
-  useEffect(() => {
-    setLoading(false);
-    setLastUpdate(new Date());
-  }, []);
 
   // Subscribe to real-time system status updates
   useEffect(() => {
@@ -235,7 +230,7 @@ export function useSystemStatus(
       }));
 
       // Calculate averages from services
-      const avgLatency = mappedServices.reduce((sum, s) => sum + (s.latency || 0), 0) / mappedServices.length;
+      const avgLatency = mappedServices.reduce((sum, s) => sum + (s.latency ?? 0), 0) / mappedServices.length;
       const avgUptime = mappedServices.reduce((sum, s) => sum + s.uptime, 0) / mappedServices.length;
 
       setData((prev) => ({

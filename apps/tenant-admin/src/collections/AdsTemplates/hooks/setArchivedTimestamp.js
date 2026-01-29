@@ -21,7 +21,7 @@
  * - Logs only template.id and status (non-sensitive)
  * - NEVER logs template content (confidential)
  */
-export const setArchivedTimestamp = ({ req, data, operation, originalDoc }) => {
+export const setArchivedTimestamp = ({ req: _req, data, operation, originalDoc }) => {
     // Only process on create or update operations
     if (operation !== 'create' && operation !== 'update') {
         return undefined;

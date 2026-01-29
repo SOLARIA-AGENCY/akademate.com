@@ -1,5 +1,9 @@
 import type { FieldHook } from 'payload';
 
+interface DocWithCreatedBy {
+  created_by?: number | string;
+}
+
 /**
  * Hook: Track Template Creator (beforeChange)
  *
@@ -23,7 +27,8 @@ import type { FieldHook } from 'payload';
  * - Logs only template.id and user.id (non-sensitive)
  * - NEVER logs template content or URLs (confidential marketing assets)
  */
-export const trackTemplateCreator: FieldHook = ({ req, operation, value, originalDoc }) => {
+export const trackTemplateCreator: FieldHook = ({ req, operation, originalDoc }) => {
+  const typedDoc = originalDoc as DocWithCreatedBy | undefined;
   // Only apply on CREATE operation
   if (operation === 'create') {
     // Auto-populate created_by with current user
@@ -36,7 +41,7 @@ export const trackTemplateCreator: FieldHook = ({ req, operation, value, origina
   // On UPDATE: preserve original created_by (immutability enforcement)
   if (operation === 'update') {
     // SECURITY FIX: Always preserve original, NEVER accept user input
-    if (!originalDoc?.created_by) {
+    if (!typedDoc?.created_by) {
       // This should never happen in normal operation
       // If it does, it indicates data corruption - reject the update
       throw new Error(
@@ -44,7 +49,7 @@ export const trackTemplateCreator: FieldHook = ({ req, operation, value, origina
       );
     }
     // Always return original value, ignore any user-supplied changes
-    return originalDoc.created_by;
+    return typedDoc.created_by;
   }
 
   // SECURITY FIX: Explicitly handle unexpected operations instead of fallback

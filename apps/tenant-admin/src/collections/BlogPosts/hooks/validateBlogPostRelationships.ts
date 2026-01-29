@@ -30,7 +30,7 @@ export const validateBlogPostRelationships: CollectionBeforeValidateHook = async
   req,
   operation,
 }) => {
-  const logger = req.payload.logger as any;
+  const logger: { info?: (message: string, meta?: Record<string, unknown>) => void } = req.payload.logger;
   const relatedCourses = data?.related_courses;
 
   // Skip if no related courses

@@ -21,7 +21,7 @@
  * - Logs only template.id and user.id (non-sensitive)
  * - NEVER logs template content or URLs (confidential marketing assets)
  */
-export const trackTemplateCreator = ({ req, operation, value, originalDoc }) => {
+export const trackTemplateCreator = ({ req, operation, value: _value, originalDoc }) => {
     // Only apply on CREATE operation
     if (operation === 'create') {
         // Auto-populate created_by with current user

@@ -25,8 +25,6 @@ import {
   Users,
   Eye,
   Edit,
-  Trash2,
-  Plus,
   Check,
   X,
   BookOpen,
@@ -38,7 +36,6 @@ import {
   Settings,
   User,
   Lock,
-  Unlock,
   Info,
 } from 'lucide-react'
 
@@ -168,7 +165,7 @@ export default function RolesPage() {
   const [selectedRole, setSelectedRole] = useState('admin')
 
   const selectedRoleData = rolesData.find((r) => r.id === selectedRole)
-  const selectedPermisos = permisosMatrix.permisos[selectedRole] || {}
+  const selectedPermisos = permisosMatrix.permisos[selectedRole] ?? {}
 
   return (
     <div className="space-y-6">
@@ -294,7 +291,7 @@ export default function RolesPage() {
                     <TableBody>
                       {permisosMatrix.modulos.map((modulo) => {
                         const Icon = modulo.icon
-                        const moduloPermisos = selectedPermisos[modulo.id] || []
+                        const moduloPermisos = selectedPermisos[modulo.id] ?? []
                         return (
                           <TableRow key={modulo.id}>
                             <TableCell>

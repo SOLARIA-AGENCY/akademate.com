@@ -39,7 +39,7 @@ export const validateEnrollmentCapacity = async ({ data, req, operation, }) => {
             }
             // If not full, keep the requested status (usually 'pending')
         }
-        catch (error) {
+        catch {
             // Course run doesn't exist - will be caught by validateEnrollmentRelationships
             // Don't throw here to avoid duplicate errors
         }

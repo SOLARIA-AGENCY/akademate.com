@@ -34,7 +34,7 @@
  * @returns Modified data if validation passes
  * @throws Error if relationship validation fails
  */
-export const validateStudentRelationships = async ({ data, req, operation, value, }) => {
+export const validateStudentRelationships = async ({ data, req, operation, value: _value, }) => {
     // Only validate on creation
     if (operation !== 'create') {
         return data;

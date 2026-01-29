@@ -5,7 +5,7 @@ const config: NextConfig = {
   typedRoutes: true,
 
   // Security headers (OWASP recommended)
-  async headers() {
+  headers() {
     return [
       {
         source: '/(.*)',

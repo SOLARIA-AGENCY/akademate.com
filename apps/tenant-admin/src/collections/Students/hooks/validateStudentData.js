@@ -33,7 +33,7 @@ import { spanishPhoneRegex, dniRegex, validateDNIChecksum, emailSchema, dateOfBi
  * @returns Modified data if validation passes
  * @throws Error if validation fails
  */
-export const validateStudentData = async ({ data, req, operation, value }) => {
+export const validateStudentData = async ({ data, req, operation, value: _value }) => {
     const validationErrors = [];
     try {
         // 1. Validate Email (always required)

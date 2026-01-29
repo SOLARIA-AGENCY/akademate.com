@@ -29,7 +29,6 @@ import { validateFinancialAmounts, calculatePaymentStatus } from '../Enrollments
  */
 export const validateFinancialData: CollectionBeforeValidateHook = async ({
   data,
-  req,
 }) => {
   if (!data) {
     return data;

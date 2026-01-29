@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@payload-config/components/ui/dialog'
-import { Upload, X, FileImage, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Upload, X, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useToast } from '@payload-config/hooks/use-toast'
 
 interface FileWithPreview {

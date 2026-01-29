@@ -116,7 +116,7 @@ describe('PlanCard', () => {
   })
 
   it('applies custom border style when popular', () => {
-    const { container } = render(<PlanCard {...defaultProps} isPopular={true} />)
+    const { container: _container } = render(<PlanCard {...defaultProps} isPopular={true} />)
     const card = container.querySelector('[data-testid="card"]')
     expect(card).toHaveClass('border-2', 'border-[#F2014B]')
   })
@@ -183,7 +183,7 @@ describe('PlanCard', () => {
   })
 
   it('renders check icons for features', () => {
-    const { container } = render(<PlanCard {...defaultProps} />)
+    const { container: _container } = render(<PlanCard {...defaultProps} />)
     // Each feature should have a check icon
     const features = defaultProps.features
     expect(container.querySelectorAll('li').length).toBe(features.length)
@@ -202,7 +202,7 @@ describe('PlanCard', () => {
   })
 
   it('positions popular badge correctly', () => {
-    const { container } = render(<PlanCard {...defaultProps} isPopular={true} />)
+    const { container: _container } = render(<PlanCard {...defaultProps} isPopular={true} />)
     const badge = screen.getByText('Más Popular').parentElement
     expect(badge).toHaveClass('-top-3', 'left-1/2', '-translate-x-1/2')
   })

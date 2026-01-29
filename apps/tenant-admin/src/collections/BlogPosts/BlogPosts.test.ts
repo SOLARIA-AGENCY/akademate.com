@@ -365,7 +365,7 @@ describe('BlogPosts - CRUD Operations', () => {
   });
 
   it('should filter blog posts by author', async () => {
-    const post1 = await payload.create({
+    const _post1 = await payload.create({
       collection: 'blog_posts',
       data: {
         title: 'Post by Marketing User 1',
@@ -375,7 +375,7 @@ describe('BlogPosts - CRUD Operations', () => {
       user: marketingUser,
     });
 
-    const post2 = await payload.create({
+    const _post2 = await payload.create({
       collection: 'blog_posts',
       data: {
         title: 'Post by Marketing User 2',
@@ -444,7 +444,7 @@ describe('BlogPosts - CRUD Operations', () => {
   });
 
   it('should sort blog posts by published_at descending', async () => {
-    const post1 = await payload.create({
+    const _post1 = await payload.create({
       collection: 'blog_posts',
       data: {
         title: 'First Published Post',

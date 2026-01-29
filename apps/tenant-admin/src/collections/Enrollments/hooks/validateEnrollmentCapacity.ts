@@ -41,8 +41,8 @@ export const validateEnrollmentCapacity: CollectionBeforeValidateHook = async ({
       });
 
       // Check if course run is full
-      const currentEnrollments = courseRun.current_enrollments || 0;
-      const maxStudents = courseRun.max_students;
+      const currentEnrollments = (courseRun.current_enrollments as number) ?? 0;
+      const maxStudents = courseRun.max_students as number;
 
       if (currentEnrollments >= maxStudents) {
         // Course is full - set status to waitlisted

@@ -85,8 +85,8 @@ export function useCourseProgress(
       const response = await fetch(`/api/lms/progress?enrollmentId=${enrollmentId}`);
 
       if (response.ok) {
-        const data = await response.json();
-        setProgress(data.progress || null);
+        const data = await response.json() as { progress?: CourseProgress | null };
+        setProgress(data.progress ?? null);
         setLastUpdate(new Date());
       }
     } catch (error) {
@@ -98,7 +98,7 @@ export function useCourseProgress(
 
   // Manual refresh function
   const refresh = useCallback(() => {
-    fetchProgress();
+    void fetchProgress();
   }, [fetchProgress]);
 
   // Update lesson progress (optimistic + emit)
@@ -108,7 +108,7 @@ export function useCourseProgress(
       setProgress((prev) => {
         if (!prev) return prev;
 
-        const existingLesson = prev.lessons[lessonId] || {
+        const existingLesson = prev.lessons[lessonId] ?? {
           lessonId,
           completed: false,
           progressPercent: 0,
@@ -144,9 +144,10 @@ export function useCourseProgress(
         };
       });
 
-      // Emit to server (cast to any for custom events not in strict types)
+      // Emit to server (custom event not in base TypedSocket types)
       if (socket && isConnected) {
-        (socket as any).emit('progress:update', {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+        (socket as unknown as { emit: (event: string, data: unknown) => void }).emit('progress:update', {
           enrollmentId,
           lessonId,
           ...data,

@@ -72,7 +72,7 @@ export const autoPopulateAuditMetadata = async ({ data, req, operation }) => {
             payload.logger.info('[AuditLog] Metadata auto-populated');
         }
     }
-    catch (error) {
+    catch {
         // Log error without exposing PII
         if (req?.payload?.logger) {
             req.payload.logger.error('[AuditLog] Error auto-populating metadata');

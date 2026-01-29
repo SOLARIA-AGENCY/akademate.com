@@ -191,7 +191,7 @@ export const tenantField = {
     },
     hooks: {
         beforeChange: [
-            ({ req, value, data }) => {
+            ({ req, value, data: _data }) => {
                 // If value is set (by SuperAdmin), use it
                 if (value)
                     return value;

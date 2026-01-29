@@ -24,7 +24,7 @@ import { validateHeadline, validateCallToAction } from '../AdsTemplates.validati
  * - Logs only template.id (non-sensitive)
  * - NEVER logs headline, body_copy, or CTA (confidential marketing copy)
  */
-export const validateTemplateContent = async ({ data, operation, req, }) => {
+export const validateTemplateContent = async ({ data, operation, req: _req, }) => {
     // Only validate on create and update operations
     if (operation !== 'create' && operation !== 'update') {
         return data;

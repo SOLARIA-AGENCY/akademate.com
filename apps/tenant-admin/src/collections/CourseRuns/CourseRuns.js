@@ -401,7 +401,7 @@ export const CourseRuns = {
                 description: 'Professor assigned to teach this course run',
             },
             // Filter to show only professors (not administrativos)
-            filterOptions: ({ data }) => {
+            filterOptions: ({ data: _data }) => {
                 return {
                     staff_type: { equals: 'profesor' },
                     is_active: { equals: true },

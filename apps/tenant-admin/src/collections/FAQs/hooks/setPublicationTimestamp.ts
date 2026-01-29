@@ -19,13 +19,13 @@
 
 import type { FieldHook } from 'payload';
 
-export const setPublicationTimestamp: FieldHook = async ({
+export const setPublicationTimestamp: FieldHook = ({
   req,
   operation,
   data,
   originalDoc,
 }) => {
-  const logger = req.payload.logger as any;
+  const logger: { info?: (message: string, meta?: Record<string, unknown>) => void } = req.payload.logger;
   // If published_at already exists, preserve it (immutable)
   if (originalDoc?.published_at) {
     // SECURITY (SP-001 Layer 3): Enforce immutability at business logic level

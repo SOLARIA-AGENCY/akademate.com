@@ -240,6 +240,7 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
     mountedRef.current = true;
 
     if (autoConnect && token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Valid initialization for socket connection
       connect();
     }
 

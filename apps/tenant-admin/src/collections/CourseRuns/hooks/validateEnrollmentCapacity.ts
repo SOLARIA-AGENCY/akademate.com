@@ -24,7 +24,7 @@ import { capacityValidationSchema } from '../CourseRuns.validation';
  * - Ensures accurate capacity management
  * - Supports business logic for enrollment workflows
  */
-export const validateEnrollmentCapacity: CollectionBeforeValidateHook = async ({
+export const validateEnrollmentCapacity: CollectionBeforeValidateHook = ({
   data,
   operation,
   originalDoc,
@@ -38,38 +38,34 @@ export const validateEnrollmentCapacity: CollectionBeforeValidateHook = async ({
     return data;
   }
 
-  try {
-    // Check if current_enrollments is being manually modified
-    if (operation === 'update' && originalDoc) {
-      const isEnrollmentChanged =
-        data.current_enrollments !== undefined &&
-        data.current_enrollments !== originalDoc.current_enrollments;
+  // Check if current_enrollments is being manually modified
+  if (operation === 'update' && originalDoc) {
+    const isEnrollmentChanged =
+      data.current_enrollments !== undefined &&
+      data.current_enrollments !== originalDoc.current_enrollments;
 
-      if (isEnrollmentChanged) {
-        // SECURITY: Prevent manual modification of current_enrollments
-        // This field should only be modified by the enrollment system via specific hooks
-        throw new Error(
-          'current_enrollments can only be modified by the enrollment system. ' +
-            'This field is automatically updated when students enroll or withdraw.'
-        );
-      }
+    if (isEnrollmentChanged) {
+      // SECURITY: Prevent manual modification of current_enrollments
+      // This field should only be modified by the enrollment system via specific hooks
+      throw new Error(
+        'current_enrollments can only be modified by the enrollment system. ' +
+          'This field is automatically updated when students enroll or withdraw.'
+      );
     }
+  }
 
-    // Validate capacity logic
-    const capacityData = {
-      max_students: data.max_students ?? 30,
-      min_students: data.min_students ?? 5,
-      current_enrollments: data.current_enrollments ?? 0,
-    };
+  // Validate capacity logic
+  const capacityData = {
+    max_students: data.max_students ?? 30,
+    min_students: data.min_students ?? 5,
+    current_enrollments: data.current_enrollments ?? 0,
+  };
 
-    const result = capacityValidationSchema.safeParse(capacityData);
+  const result = capacityValidationSchema.safeParse(capacityData);
 
-    if (!result.success) {
-      const errors = result.error.errors.map((err) => err.message).join(', ');
-      throw new Error(`Capacity validation failed: ${errors}`);
-    }
-  } catch (error) {
-    throw error;
+  if (!result.success) {
+    const errors = result.error.errors.map((err) => err.message).join(', ');
+    throw new Error(`Capacity validation failed: ${errors}`);
   }
 
   return data;

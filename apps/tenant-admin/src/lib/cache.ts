@@ -34,7 +34,7 @@ export function getRedis(): Redis | null {
     })
 
     return redis
-  } catch (error) {
+  } catch {
     console.warn('[Cache] Redis initialization failed, caching disabled')
     return null
   }

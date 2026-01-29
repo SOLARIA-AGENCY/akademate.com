@@ -30,10 +30,9 @@ import { validateURL } from '../AdsTemplates.validation';
  * - Logs only template.id (non-sensitive)
  * - NEVER logs URLs (may contain tracking parameters)
  */
-export const validateAssetURLs: CollectionBeforeValidateHook = async ({
+export const validateAssetURLs: CollectionBeforeValidateHook = ({
   data,
   operation,
-  req,
 }) => {
   // Only validate on create and update operations
   if (operation !== 'create' && operation !== 'update') {

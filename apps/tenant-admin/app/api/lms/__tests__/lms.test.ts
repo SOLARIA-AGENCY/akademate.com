@@ -80,7 +80,7 @@ describe('LMS Progress API', () => {
             body: JSON.stringify({}),
         });
         const response = await progressPost(request);
-        const data = await response.json();
+        const _data = await response.json();
 
         expect(response.status).toBe(400);
     });
@@ -94,7 +94,7 @@ describe('LMS Content API', () => {
     it('GET should return 400 if no params provided', async () => {
         const request = new NextRequest('http://localhost/api/lms/content');
         const response = await contentGet(request);
-        const data = await response.json();
+        const _data = await response.json();
 
         expect(response.status).toBe(400);
     });

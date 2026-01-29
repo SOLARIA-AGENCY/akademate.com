@@ -162,7 +162,7 @@ class PayloadMock implements MockPayload {
       ...data,
       createdAt: now,
       updatedAt: now,
-      created_by: user?.id || null,
+      created_by: user?.id ?? null,
     };
 
     // Auto-capture consent metadata for students

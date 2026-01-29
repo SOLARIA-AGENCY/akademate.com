@@ -77,7 +77,7 @@ export const budgetSchema = z
   .refine(
     (val) => {
       // Check for max 2 decimal places
-      const decimalPlaces = (val.toString().split('.')[1] || '').length;
+      const decimalPlaces = (val.toString().split('.')[1] ?? '').length;
       return decimalPlaces <= 2;
     },
     {

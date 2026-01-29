@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import UsuariosPage from '@/app/(dashboard)/administracion/usuarios/page'
 
 describe('Usuarios Page', () => {

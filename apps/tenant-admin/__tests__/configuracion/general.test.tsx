@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import ConfigGeneralPage from '@/app/(dashboard)/configuracion/general/page'
 
 describe('General Configuration Page', () => {

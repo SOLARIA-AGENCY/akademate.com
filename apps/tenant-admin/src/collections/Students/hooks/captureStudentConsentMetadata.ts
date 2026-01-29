@@ -49,7 +49,7 @@ interface Logger {
  * @param args - Hook arguments from Payload
  * @returns Modified data with consent metadata
  */
-export const captureStudentConsentMetadata: CollectionBeforeValidateHook = async ({
+export const captureStudentConsentMetadata: CollectionBeforeValidateHook = ({
   data,
   req,
   operation,

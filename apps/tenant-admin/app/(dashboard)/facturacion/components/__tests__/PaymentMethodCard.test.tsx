@@ -318,7 +318,7 @@ describe('PaymentMethodCard', () => {
         expYear: 2020,
       },
     }
-    const { container } = render(
+    const { container: _container } = render(
       <PaymentMethodCard
         paymentMethod={expiredCard}
         isDefault={false}

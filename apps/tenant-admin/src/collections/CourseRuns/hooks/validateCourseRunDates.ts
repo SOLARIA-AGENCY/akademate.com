@@ -17,7 +17,7 @@ import { dateValidationSchema, timeValidationSchema } from '../CourseRuns.valida
  *
  * This hook runs in beforeValidate to catch errors early.
  */
-export const validateCourseRunDates: CollectionBeforeValidateHook = async ({ data, operation }) => {
+export const validateCourseRunDates: CollectionBeforeValidateHook = ({ data, operation }) => {
   // Only validate on create and update operations
   if (operation !== 'create' && operation !== 'update') {
     return data;
@@ -27,35 +27,31 @@ export const validateCourseRunDates: CollectionBeforeValidateHook = async ({ dat
     return data;
   }
 
-  try {
-    // Validate date logic
-    if (data.start_date && data.end_date) {
-      const dateResult = dateValidationSchema.safeParse({
-        start_date: data.start_date,
-        end_date: data.end_date,
-        enrollment_deadline: data.enrollment_deadline,
-      });
+  // Validate date logic
+  if (data.start_date && data.end_date) {
+    const dateResult = dateValidationSchema.safeParse({
+      start_date: data.start_date,
+      end_date: data.end_date,
+      enrollment_deadline: data.enrollment_deadline,
+    });
 
-      if (!dateResult.success) {
-        const errors = dateResult.error.errors.map((err) => err.message).join(', ');
-        throw new Error(`Date validation failed: ${errors}`);
-      }
+    if (!dateResult.success) {
+      const errors = dateResult.error.errors.map((err) => err.message).join(', ');
+      throw new Error(`Date validation failed: ${errors}`);
     }
+  }
 
-    // Validate time logic
-    if (data.schedule_time_start || data.schedule_time_end) {
-      const timeResult = timeValidationSchema.safeParse({
-        schedule_time_start: data.schedule_time_start,
-        schedule_time_end: data.schedule_time_end,
-      });
+  // Validate time logic
+  if (data.schedule_time_start || data.schedule_time_end) {
+    const timeResult = timeValidationSchema.safeParse({
+      schedule_time_start: data.schedule_time_start,
+      schedule_time_end: data.schedule_time_end,
+    });
 
-      if (!timeResult.success) {
-        const errors = timeResult.error.errors.map((err) => err.message).join(', ');
-        throw new Error(`Time validation failed: ${errors}`);
-      }
+    if (!timeResult.success) {
+      const errors = timeResult.error.errors.map((err) => err.message).join(', ');
+      throw new Error(`Time validation failed: ${errors}`);
     }
-  } catch (error) {
-    throw error;
   }
 
   return data;

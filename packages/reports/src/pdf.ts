@@ -271,7 +271,11 @@ function formatCellValue<T>(row: T, col: ReportColumn<T>): string {
     return formatDate(value);
   }
 
-  return String(value);
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+
+  return String(value as string | number | boolean);
 }
 
 function formatDate(date: Date): string {
@@ -322,7 +326,7 @@ export async function generateEnrollmentPdf(
     { key: 'courseName', header: 'Curso' },
     { key: 'enrolledAt', header: 'Fecha', format: (v) => formatDate(v as Date) },
     { key: 'status', header: 'Estado' },
-    { key: 'progress', header: 'Progreso', align: 'right', format: (v) => `${v}%` },
+    { key: 'progress', header: 'Progreso', align: 'right', format: (v) => `${String(v)}%` },
   ], {
     meta: {
       title: 'Reporte de Matrículas',

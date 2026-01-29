@@ -19,7 +19,7 @@
  * - Prevents tampering with historical records
  * - Supports compliance and reporting requirements
  */
-export const captureEnrollmentTimestamps = async ({ data, req, operation, originalDoc, }) => {
+export const captureEnrollmentTimestamps = async ({ data, req: _req, operation, originalDoc, }) => {
     if (!data) {
         return data;
     }

@@ -134,7 +134,7 @@ export function SocketProvider({
     log('Connecting...', { url, tenantId, userId, role });
     setStatus('connecting');
 
-    const newSocket = io(url || '', {
+    const newSocket = io(url ?? '', {
       path,
       auth: { token },
       query: {

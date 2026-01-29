@@ -158,7 +158,7 @@ export class GdprRetentionService {
     return Object.entries(DEFAULT_RETENTION_POLICIES).map(([category, defaultDays]) => {
       const existing = policyMap.get(category as DataCategory)
       return (
-        existing || {
+        existing ?? {
           category: category as DataCategory,
           retentionDays: defaultDays,
           description: this.getCategoryDescription(category as DataCategory),

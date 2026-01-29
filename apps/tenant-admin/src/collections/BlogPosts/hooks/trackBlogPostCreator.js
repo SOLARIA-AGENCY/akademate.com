@@ -24,7 +24,7 @@
  * @param args - Field hook arguments
  * @returns User ID for created_by field
  */
-export const trackBlogPostCreator = ({ req, operation, value, originalDoc }) => {
+export const trackBlogPostCreator = ({ req, operation, value: _value, originalDoc }) => {
     // Only apply on CREATE operation
     if (operation === 'create') {
         // Auto-populate created_by with current user

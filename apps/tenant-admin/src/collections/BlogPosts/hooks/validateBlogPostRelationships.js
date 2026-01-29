@@ -49,7 +49,7 @@ export const validateBlogPostRelationships = async ({ data, req, operation, }) =
                 throw new Error(`Course with ID ${courseId} does not exist`);
             }
         }
-        catch (error) {
+        catch {
             throw new Error(`Invalid related course: ${courseId}`);
         }
     }

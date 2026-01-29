@@ -139,6 +139,8 @@ export function NotificationToast({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       className={`
         transform transition-all duration-300 ease-out cursor-pointer
         ${isVisible && !isLeaving
@@ -149,6 +151,7 @@ export function NotificationToast({
         max-w-sm w-full
       `}
       onClick={handleClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(); }}
     >
       <div className="flex gap-3">
         <div

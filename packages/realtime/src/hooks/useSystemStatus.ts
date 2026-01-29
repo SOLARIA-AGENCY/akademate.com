@@ -160,6 +160,7 @@ export function useSystemStatus(
 
   useEffect(() => {
     if (!socket?.connected) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Valid sync with external socket state
       setIsSubscribed(false);
       return;
     }

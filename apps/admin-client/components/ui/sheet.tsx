@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import * as React from 'react'
 import * as SheetPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from 'lucide-react'
@@ -26,7 +27,7 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Sheet
       className={cn(
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50',
         className
-      )}
+      ) as string}
       {...props}
     />
   )
@@ -56,7 +57,7 @@ function SheetContent({
           side === 'bottom' &&
             'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t',
           className
-        )}
+        ) as string}
         {...props}
       >
         {children}
@@ -73,7 +74,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn('flex flex-col space-y-2 text-center sm:text-left', className)}
+      className={cn('flex flex-col space-y-2 text-center sm:text-left', className) as string}
       {...props}
     />
   )
@@ -83,7 +84,7 @@ function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPr
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn('text-lg font-semibold text-foreground', className)}
+      className={cn('text-lg font-semibold text-foreground', className) as string}
       {...props}
     />
   )
@@ -96,7 +97,7 @@ function SheetDescription({
   return (
     <SheetPrimitive.Description
       data-slot="sheet-description"
-      className={cn('text-sm text-muted-foreground', className)}
+      className={cn('text-sm text-muted-foreground', className) as string}
       {...props}
     />
   )
@@ -104,7 +105,7 @@ function SheetDescription({
 
 function SheetFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <div data-slot="sheet-footer" className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)} {...props} />
+    <div data-slot="sheet-footer" className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className) as string} {...props} />
   )
 }
 

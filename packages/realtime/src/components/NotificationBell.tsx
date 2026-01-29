@@ -102,12 +102,15 @@ function NotificationItem({ notification, onMarkAsRead, onClick }: NotificationI
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       className={`
         p-3 border-b border-border/50 cursor-pointer transition-colors
         hover:bg-muted/50
         ${!notification.read ? 'bg-primary/5' : ''}
       `}
       onClick={handleClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(); }}
     >
       <div className="flex gap-3">
         <div
