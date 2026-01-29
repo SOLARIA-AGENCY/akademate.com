@@ -5,13 +5,13 @@ import config from '@payload-config'
 
 const isDbConfigured = Boolean(process.env.DATABASE_URL)
 
-const disabledResponse = async () =>
+const disabledResponse = () =>
   new Response(JSON.stringify({ error: 'Payload API disabled without DATABASE_URL.' }), {
     status: 503,
     headers: { 'content-type': 'application/json' },
   })
 
-export const GET = isDbConfigured ? REST_GET(config) : disabledResponse
-export const POST = isDbConfigured ? REST_POST(config) : disabledResponse
-export const DELETE = isDbConfigured ? REST_DELETE(config) : disabledResponse
-export const PATCH = isDbConfigured ? REST_PATCH(config) : disabledResponse
+export const GET = isDbConfigured ? REST_GET(config as Parameters<typeof REST_GET>[0]) : disabledResponse
+export const POST = isDbConfigured ? REST_POST(config as Parameters<typeof REST_POST>[0]) : disabledResponse
+export const DELETE = isDbConfigured ? REST_DELETE(config as Parameters<typeof REST_DELETE>[0]) : disabledResponse
+export const PATCH = isDbConfigured ? REST_PATCH(config as Parameters<typeof REST_PATCH>[0]) : disabledResponse

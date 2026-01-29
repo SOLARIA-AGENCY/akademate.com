@@ -41,7 +41,7 @@ function createMockRepository(): GamificationRepository {
         Array.from(badges.values()).find(
           (b) =>
             b.code === code && (b.tenantId === undefined || b.tenantId === tenantId)
-        ) || null
+        ) ?? null
       )
     }),
     getBadgeDefinitions: vi.fn(async (tenantId) => {
@@ -69,7 +69,7 @@ function createMockRepository(): GamificationRepository {
         userId,
         badgeId,
         earnedAt: new Date(),
-        metadata: metadata || {},
+        metadata: metadata ?? {},
       }
       const existing = userBadges.get(key) ?? []
       userBadges.set(key, [...existing, userBadge])

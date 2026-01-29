@@ -1,6 +1,6 @@
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server'
-import { getPayload } from 'payload'
+import { getPayload, type Payload } from 'payload'
 import config from '@payload-config'
 import {
   checkRateLimit,
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 
   try {
     // Manually parse JSON body
-    const body = await request.json()
+    const body = await request.json() as { email?: string; password?: string }
     const { email, password } = body
 
     // Validate required fields
@@ -54,7 +54,8 @@ export async function POST(request: Request) {
     }
 
     // Get Payload instance
-    const payload = await getPayload({ config })
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload config returns error-typed Promise
+    const payload: Payload = await getPayload({ config })
 
     // Attempt login
     const result = await payload.login({
@@ -76,13 +77,14 @@ export async function POST(request: Request) {
     resetRateLimit(clientIP)
 
     // Create response with user data
+    const user = result.user as { id: string; email: string; name?: string; role?: string }
     const response = NextResponse.json({
       message: 'Auth Passed',
       user: {
-        id: result.user.id,
-        email: result.user.email,
-        name: result.user.name,
-        role: result.user.role,
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
       },
       token: result.token,
       exp: result.exp,
@@ -100,18 +102,20 @@ export async function POST(request: Request) {
 
     return response
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Login error:', error)
 
+    const err = error as { name?: string; status?: number; message?: string }
+
     // Handle specific Payload errors
-    if (error?.name === 'AuthenticationError' || error?.status === 401) {
+    if (err.name === 'AuthenticationError' || err.status === 401) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401, headers: rateLimitHeaders }
       )
     }
 
-    if (error.message?.includes('Invalid login')) {
+    if (err.message?.includes('Invalid login')) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401, headers: rateLimitHeaders }
@@ -119,14 +123,14 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: 'Login failed', details: error.message },
+      { error: 'Login failed', details: err.message },
       { status: 500, headers: rateLimitHeaders }
     )
   }
 }
 
 // OPTIONS for CORS preflight
-export async function OPTIONS(request: NextRequest) {
+export function OPTIONS(request: NextRequest) {
   const origin = request.headers.get('origin')
   const allowedOrigins = [
     'http://localhost:3000',

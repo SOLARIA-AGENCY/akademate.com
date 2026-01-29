@@ -43,7 +43,8 @@ describe('GET /api/cursos', () => {
         }),
       }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       const response = await GET()
@@ -88,7 +89,8 @@ describe('GET /api/cursos', () => {
         }),
       }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       const response = await GET()
@@ -130,7 +132,8 @@ describe('GET /api/cursos', () => {
         }),
       }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       const response = await GET()
@@ -158,7 +161,8 @@ describe('GET /api/cursos', () => {
         }),
       }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       const response = await GET()
@@ -181,7 +185,8 @@ describe('GET /api/cursos', () => {
         }),
       }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       const response = await GET()
@@ -194,7 +199,8 @@ describe('GET /api/cursos', () => {
 
   describe('Error Handling', () => {
     it('should return error response when Payload fails', async () => {
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockRejectedValue(new Error('Database connection failed'))
 
       const response = await GET()
@@ -236,7 +242,8 @@ describe('GET /api/cursos', () => {
         }),
       }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       const response = await GET()
@@ -270,7 +277,8 @@ describe('GET /api/cursos', () => {
         }),
       }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       const response = await GET()
@@ -298,7 +306,8 @@ describe('GET /api/cursos', () => {
         }),
       }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       const response = await GET()
@@ -329,7 +338,8 @@ describe('GET /api/cursos', () => {
         }),
       }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       const response = await GET()
@@ -349,7 +359,8 @@ describe('GET /api/cursos', () => {
 
       const mockPayload = { find: mockFind }
 
-      const { getPayloadHMR } = require('@payloadcms/next/utilities')
+      const utilities = await import('@payloadcms/next/utilities')
+      const getPayloadHMR = utilities.getPayloadHMR as jest.Mock
       getPayloadHMR.mockResolvedValue(mockPayload)
 
       await GET()

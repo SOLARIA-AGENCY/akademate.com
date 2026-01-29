@@ -35,8 +35,8 @@ export async function GET(request: NextRequest) {
     }, { status: 500 });
   }
 
-  const data = await loginRes.json();
-  const token = data?.token;
+  const data = await loginRes.json() as { token?: string };
+  const token = data.token;
 
   if (!token) {
     return NextResponse.json(

@@ -157,7 +157,7 @@ const attendanceRecords = new Map<string, { id: string; status: string; checkInT
 
 export async function POST(request: NextRequest): Promise<NextResponse<CheckinResult>> {
   try {
-    const body = await request.json()
+    const body = await request.json() as Record<string, unknown>
 
     // Validate request body
     const validation = QRCheckinSchema.safeParse(body)
@@ -345,7 +345,7 @@ const QRGenerateSchema = z.object({
   courseRunId: z.string().uuid(),
 })
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export function GET(request: NextRequest): NextResponse {
   try {
     const { searchParams } = new URL(request.url)
     const sessionId = searchParams.get('sessionId')
