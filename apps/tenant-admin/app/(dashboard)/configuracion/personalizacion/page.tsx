@@ -20,6 +20,10 @@ interface ThemePreset {
   colors: ColorScheme
 }
 
+interface PersonalizacionApiResponse {
+  data?: ColorScheme
+}
+
 const DEFAULT_THEMES: ThemePreset[] = [
   {
     name: 'CEP FORMACIÓN',
@@ -112,7 +116,8 @@ export default function PersonalizacionPage() {
 
     const max = Math.max(r, g, b)
     const min = Math.min(r, g, b)
-    let h = 0, s = 0, l = (max + min) / 2
+    let h = 0, s = 0
+    const l = (max + min) / 2
 
     if (max !== min) {
       const d = max - min
@@ -150,13 +155,13 @@ export default function PersonalizacionPage() {
         if (!response.ok) {
           throw new Error('No se pudo cargar la personalizacion')
         }
-        const payload = await response.json()
-        if (payload?.data) {
+        const payload = (await response.json()) as PersonalizacionApiResponse
+        if (payload.data) {
           if (!isMounted) return
           setColors(payload.data)
           setSavedColors(payload.data)
         }
-      } catch (error) {
+      } catch {
         if (isMounted) {
           setErrorMessage('No se pudo cargar la configuracion. Revisa la conexion.')
         }
@@ -167,7 +172,7 @@ export default function PersonalizacionPage() {
       }
     }
 
-    loadConfig()
+    void loadConfig()
 
     return () => {
       isMounted = false
@@ -196,7 +201,7 @@ export default function PersonalizacionPage() {
       setPreviewMode(false)
       setShowSaveSuccess(true)
       setTimeout(() => setShowSaveSuccess(false), 3000)
-    } catch (error) {
+    } catch {
       setErrorMessage('No se pudo guardar la configuracion. Intenta de nuevo.')
     }
   }
@@ -229,7 +234,7 @@ export default function PersonalizacionPage() {
     const reader = new FileReader()
     reader.onload = (event) => {
       try {
-        const imported = JSON.parse(event.target?.result as string)
+        const imported = JSON.parse(event.target?.result as string) as ColorScheme
         setColors(imported)
         setPreviewMode(true)
       } catch {
@@ -307,7 +312,7 @@ export default function PersonalizacionPage() {
               >
                 <p className="font-medium mb-3">{preset.name}</p>
                 <div className="flex gap-1">
-                  {Object.entries(preset.colors).map(([name, value]) => (
+                  {(Object.entries(preset.colors) as [string, string][]).map(([name, value]) => (
                     <div
                       key={name}
                       className="h-8 flex-1 rounded border"
@@ -335,7 +340,7 @@ export default function PersonalizacionPage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {Object.entries(colors).map(([name, value]) => (
+            {(Object.entries(colors) as [keyof ColorScheme, string][]).map(([name, value]) => (
               <div key={name} className="space-y-2">
                 <Label className="capitalize flex items-center gap-2">
                   {name === 'primary' && '🔵'}
@@ -350,13 +355,13 @@ export default function PersonalizacionPage() {
                   <input
                     type="color"
                     value={value}
-                    onChange={(e) => handleColorChange(name as keyof ColorScheme, e.target.value)}
+                    onChange={(e) => handleColorChange(name, e.target.value)}
                     className="h-12 w-20 rounded border cursor-pointer"
                   />
                   <input
                     type="text"
                     value={value}
-                    onChange={(e) => handleColorChange(name as keyof ColorScheme, e.target.value)}
+                    onChange={(e) => handleColorChange(name, e.target.value)}
                     className="flex-1 h-12 px-3 rounded border text-sm font-mono bg-card"
                     placeholder="#000000"
                   />

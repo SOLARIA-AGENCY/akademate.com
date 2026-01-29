@@ -35,9 +35,25 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { useToast } from '@payload-config/hooks/use-toast'
+import type { ChangeEvent } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { MediaItem } from './MediaGallery'
+
+/** Toast configuration options */
+interface ToastOptions {
+  title: string
+  description?: string
+  variant?: 'default' | 'destructive'
+}
+
+/** Toast function type */
+type ToastFunction = (options: ToastOptions) => void
+
+/** Toast hook result */
+interface ToastHookResult {
+  toast: ToastFunction
+}
 
 interface MediaDetailsProps {
   item: MediaItem | null
@@ -59,7 +75,8 @@ export function MediaDetails({
   const [isSaving, setIsSaving] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const { toast } = useToast()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+  const { toast } = useToast() as unknown as ToastHookResult
 
   // Update alt text when item changes
   useState(() => {
@@ -77,7 +94,7 @@ export function MediaDetails({
         title: 'URL copiada',
         description: 'La URL se ha copiado al portapapeles',
       })
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error al copiar',
         description: 'No se pudo copiar la URL',
@@ -253,7 +270,7 @@ export function MediaDetails({
                   <Input
                     id="alt-text"
                     value={altText}
-                    onChange={(e) => setAltText(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setAltText(e.target.value)}
                     placeholder="Describe la imagen para accesibilidad"
                   />
                   <div className="flex gap-2 justify-end">
@@ -348,7 +365,7 @@ export function MediaDetails({
                               title: 'URL copiada',
                               description: `URL de tamaño ${sizeName} copiada`,
                             })
-                          } catch (error) {
+                          } catch {
                             toast({
                               title: 'Error',
                               description: 'No se pudo copiar la URL',
