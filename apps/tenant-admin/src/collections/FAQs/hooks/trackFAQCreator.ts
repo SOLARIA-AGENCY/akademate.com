@@ -18,11 +18,37 @@
 
 import type { FieldHook } from 'payload';
 
-export const trackFAQCreator: FieldHook = async ({ req, operation, value, originalDoc }) => {
-  const logger = req.payload.logger as any;
+/**
+ * Payload Logger interface for typed logging calls
+ */
+interface PayloadLogger {
+  info: (message: string, meta?: Record<string, unknown>) => void;
+  warn: (message: string, meta?: Record<string, unknown>) => void;
+  error: (message: string, meta?: Record<string, unknown>) => void;
+}
+
+/**
+ * Authenticated user interface with ID
+ */
+interface AuthenticatedUser {
+  id: string | number;
+}
+
+/**
+ * Original FAQ document interface for update operations
+ */
+interface OriginalFAQDoc {
+  created_by?: string | number;
+}
+
+export const trackFAQCreator: FieldHook = ({ req, operation, value, originalDoc }) => {
+  const logger = req.payload.logger as PayloadLogger;
+  const user = req.user as AuthenticatedUser | undefined;
+  const original = originalDoc as OriginalFAQDoc | undefined;
+  const currentValue = value as string | number | undefined;
   // On create: set created_by to current user
   if (operation === 'create') {
-    if (!req.user) {
+    if (!user) {
       // SECURITY (SP-004): No logging of user details
       logger.error('[FAQ] Cannot create FAQ without authenticated user', {
         operation: 'create',
@@ -34,40 +60,40 @@ export const trackFAQCreator: FieldHook = async ({ req, operation, value, origin
     // SECURITY (SP-004): Log only user ID, not email or name
     logger.info('[FAQ] Creator tracked on create', {
       operation: 'create',
-      userId: req.user.id,
+      userId: user.id,
     });
 
-    return req.user.id;
+    return user.id;
   }
 
   // On update: preserve original created_by (immutability)
   if (operation === 'update') {
-    if (originalDoc?.created_by) {
+    if (original?.created_by) {
       // SECURITY (SP-001 Layer 3): Enforce immutability at business logic level
       // Even if someone bypasses UI and API security, this hook prevents changes
 
       // SECURITY (SP-004): Log only IDs, not user details
       logger.info('[FAQ] Creator preserved on update (immutable)', {
         operation: 'update',
-        creatorId: originalDoc.created_by,
-        attemptedChange: value !== originalDoc.created_by,
+        creatorId: original.created_by,
+        attemptedChange: currentValue !== original.created_by,
       });
 
-      return originalDoc.created_by;
+      return original.created_by;
     }
 
     // Fallback: if original doc has no creator, set current user
     // This handles edge case of legacy data migration
-    if (req.user) {
+    if (user) {
       logger.warn('[FAQ] Missing creator on update, setting current user', {
         operation: 'update',
-        userId: req.user.id,
+        userId: user.id,
       });
 
-      return req.user.id;
+      return user.id;
     }
   }
 
   // Should never reach here, but return value as fallback
-  return value;
+  return currentValue;
 };

@@ -19,7 +19,64 @@ import {
   VALID_LANGUAGES,
   validateTemplateName,
   validateStatusWorkflow,
+  type TemplateType,
+  type TemplateStatus,
+  type TemplateTone,
+  type TemplateLanguage,
 } from './AdsTemplates.validation';
+
+// ============================================================================
+// TYPE GUARDS FOR SELECT FIELD VALIDATION
+// ============================================================================
+
+/**
+ * Type guard to check if value is a valid template type
+ */
+function isValidTemplateType(val: unknown): val is TemplateType {
+  return typeof val === 'string' && VALID_TEMPLATE_TYPES.includes(val as TemplateType);
+}
+
+/**
+ * Type guard to check if value is a valid status
+ */
+function isValidStatus(val: unknown): val is TemplateStatus {
+  return typeof val === 'string' && VALID_STATUSES.includes(val as TemplateStatus);
+}
+
+/**
+ * Type guard to check if value is a valid tone
+ */
+function isValidTone(val: unknown): val is TemplateTone {
+  return typeof val === 'string' && VALID_TONES.includes(val as TemplateTone);
+}
+
+/**
+ * Type guard to check if value is a valid language
+ */
+function isValidLanguage(val: unknown): val is TemplateLanguage {
+  return typeof val === 'string' && VALID_LANGUAGES.includes(val as TemplateLanguage);
+}
+
+/**
+ * Type guard to check if originalDoc has a status field
+ */
+function hasStatus(doc: unknown): doc is { status: TemplateStatus } {
+  return (
+    typeof doc === 'object' &&
+    doc !== null &&
+    'status' in doc &&
+    typeof (doc as { status: unknown }).status === 'string'
+  );
+}
+
+/**
+ * Validation context for field-level validation functions.
+ * Provides access to operation type and original document.
+ */
+interface FieldValidationContext {
+  operation?: 'create' | 'update' | 'read' | 'delete';
+  originalDoc?: { status?: TemplateStatus } | null;
+}
 
 /**
  * AdsTemplates Collection - Reusable Marketing Ad Templates
@@ -252,9 +309,9 @@ export const AdsTemplates: CollectionConfig = {
       admin: {
         description: 'Type of marketing template',
       },
-      validate: (val: any) => {
+      validate: (val: unknown) => {
         if (!val) return 'Template type is required';
-        if (!VALID_TEMPLATE_TYPES.includes(val)) {
+        if (!isValidTemplateType(val)) {
           return `Template type must be one of: ${VALID_TEMPLATE_TYPES.join(', ')}`;
         }
         return true;
@@ -275,14 +332,14 @@ export const AdsTemplates: CollectionConfig = {
         position: 'sidebar',
         description: 'Template status (draft → active → archived)',
       },
-      validate: ((val: any, { operation, originalDoc }) => {
+      validate: (val: unknown, { operation, originalDoc }: FieldValidationContext) => {
         if (!val) return 'Status is required';
-        if (!VALID_STATUSES.includes(val)) {
+        if (!isValidStatus(val)) {
           return `Status must be one of: ${VALID_STATUSES.join(', ')}`;
         }
 
         // On update: validate status workflow
-        if (operation === 'update' && originalDoc?.status) {
+        if (operation === 'update' && hasStatus(originalDoc)) {
           const workflowResult = validateStatusWorkflow(originalDoc.status, val);
           if (workflowResult !== true) {
             return workflowResult;
@@ -290,7 +347,7 @@ export const AdsTemplates: CollectionConfig = {
         }
 
         return true;
-      }) as any,
+      },
     },
 
     // ============================================================================
@@ -334,7 +391,7 @@ export const AdsTemplates: CollectionConfig = {
       admin: {
         description: 'Main ad copy or email body (rich text)',
       },
-      validate: (val: any) => {
+      validate: (val: unknown) => {
         if (!val) return 'Body copy is required';
         return true;
       },
@@ -428,9 +485,9 @@ export const AdsTemplates: CollectionConfig = {
       admin: {
         description: 'Ad tone and style',
       },
-      validate: (val: any) => {
+      validate: (val: unknown) => {
         if (!val) return 'Tone is required';
-        if (!VALID_TONES.includes(val)) {
+        if (!isValidTone(val)) {
           return `Tone must be one of: ${VALID_TONES.join(', ')}`;
         }
         return true;
@@ -450,9 +507,9 @@ export const AdsTemplates: CollectionConfig = {
       admin: {
         description: 'Content language',
       },
-      validate: (val: any) => {
+      validate: (val: unknown) => {
         if (!val) return 'Language is required';
-        if (!VALID_LANGUAGES.includes(val)) {
+        if (!isValidLanguage(val)) {
           return `Language must be one of: ${VALID_LANGUAGES.join(', ')}`;
         }
         return true;
@@ -555,6 +612,9 @@ export const AdsTemplates: CollectionConfig = {
         update: () => false, // IMMUTABLE - auto-set by hook
       },
       // SECURITY Layer 3 (Business Logic): setArchivedTimestamp hook enforces immutability
+      hooks: {
+        beforeChange: [setArchivedTimestamp],
+      },
     },
 
     // ============================================================================
@@ -577,6 +637,9 @@ export const AdsTemplates: CollectionConfig = {
         update: () => false, // IMMUTABLE - created_by never changes
       },
       // SECURITY Layer 3 (Business Logic): trackTemplateCreator hook enforces immutability
+      hooks: {
+        beforeChange: [trackTemplateCreator],
+      },
     },
   ],
 
@@ -594,21 +657,8 @@ export const AdsTemplates: CollectionConfig = {
       validateTagsHook, // 3. Validate tag format and count
     ],
 
-    /**
-     * Before Change: Run after validation, before database write
-     */
-    beforeChange: [
-      {
-        // Apply to created_by field only
-        fieldName: 'created_by',
-        hook: trackTemplateCreator,
-      } as any,
-      {
-        // Apply to archived_at field only
-        fieldName: 'archived_at',
-        hook: setArchivedTimestamp,
-      } as any,
-    ],
+    // Note: Field-level hooks (trackTemplateCreator, setArchivedTimestamp) are defined
+    // on their respective fields (created_by, archived_at) using field.hooks.beforeChange
   },
 
   /**

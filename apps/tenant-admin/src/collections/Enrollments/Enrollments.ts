@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, FieldAccess } from 'payload';
 import {
   canCreateEnrollment,
   canReadEnrollments,
@@ -18,6 +18,60 @@ import {
   VALID_PAYMENT_STATUSES,
   VALID_FINANCIAL_AID_STATUSES,
 } from './Enrollments.validation';
+
+/**
+ * Type definitions for Enrollments collection
+ */
+type UserRole = 'superadmin' | 'admin' | 'gestor' | 'marketing' | 'asesor' | 'lectura';
+
+/** User with role for access control */
+interface UserWithRole {
+  id: string | number;
+  role: UserRole;
+}
+
+/** Type guard to check if user has a valid role */
+function hasRole(user: unknown): user is UserWithRole {
+  return (
+    typeof user === 'object' &&
+    user !== null &&
+    'role' in user &&
+    typeof (user as UserWithRole).role === 'string'
+  );
+}
+
+/** Enrollment status options */
+type EnrollmentStatus = 'pending' | 'confirmed' | 'waitlisted' | 'cancelled' | 'completed' | 'withdrawn';
+
+/** Data structure for admin condition functions */
+interface EnrollmentData {
+  student?: number;
+  course_run?: number;
+  status?: EnrollmentStatus;
+  payment_status?: string;
+  total_amount?: number;
+  amount_paid?: number;
+  financial_aid_applied?: boolean;
+  financial_aid_amount?: number;
+  financial_aid_status?: string;
+  enrolled_at?: string;
+  confirmed_at?: string;
+  completed_at?: string;
+  cancelled_at?: string;
+  attendance_percentage?: number;
+  final_grade?: number;
+  certificate_issued?: boolean;
+  certificate_url?: string;
+  notes?: string;
+  cancellation_reason?: string;
+  created_by?: number;
+}
+
+/** Field-level access for financial fields (only Admin/Gestor) */
+const financialFieldAccess: FieldAccess = ({ req: { user } }) => {
+  if (!user) return false;
+  return hasRole(user) && ['admin', 'gestor'].includes(user.role);
+};
 
 /**
  * Enrollments Collection - Student Course Enrollment Management
@@ -176,10 +230,6 @@ export const Enrollments: CollectionConfig = {
       admin: {
         description: 'The student enrolling in the course run',
       },
-      validate: (val: any) => {
-        if (!val) return 'Student is required';
-        return true;
-      },
     },
 
     {
@@ -190,10 +240,6 @@ export const Enrollments: CollectionConfig = {
       index: true,
       admin: {
         description: 'The specific course run the student is enrolling in',
-      },
-      validate: (val: any) => {
-        if (!val) return 'Course run is required';
-        return true;
       },
     },
 
@@ -241,10 +287,7 @@ export const Enrollments: CollectionConfig = {
       // Field-level access: Admin and Gestor only
       access: {
         read: () => true,
-        update: ({ req: { user } }) => {
-          if (!user) return false;
-          return ['admin', 'gestor'].includes(user.role);
-        },
+        update: financialFieldAccess,
       },
     },
 
@@ -256,7 +299,7 @@ export const Enrollments: CollectionConfig = {
       admin: {
         description: 'Total amount due for this enrollment',
       },
-      validate: (val: any) => {
+      validate: (val: number | null | undefined) => {
         if (val === undefined || val === null) return 'Total amount is required';
         if (val < 0) return 'Total amount cannot be negative';
         return true;
@@ -264,10 +307,7 @@ export const Enrollments: CollectionConfig = {
       // Field-level access: Admin and Gestor only
       access: {
         read: () => true,
-        update: ({ req: { user } }) => {
-          if (!user) return false;
-          return ['admin', 'gestor'].includes(user.role);
-        },
+        update: financialFieldAccess,
       },
     },
 
@@ -280,7 +320,7 @@ export const Enrollments: CollectionConfig = {
       admin: {
         description: 'Amount already paid by student',
       },
-      validate: (val: any) => {
+      validate: (val: number | null | undefined) => {
         if (val === undefined || val === null) return true; // Has default
         if (val < 0) return 'Amount paid cannot be negative';
         return true;
@@ -288,10 +328,7 @@ export const Enrollments: CollectionConfig = {
       // Field-level access: Admin and Gestor only
       access: {
         read: () => true,
-        update: ({ req: { user } }) => {
-          if (!user) return false;
-          return ['admin', 'gestor'].includes(user.role);
-        },
+        update: financialFieldAccess,
       },
     },
 
@@ -309,10 +346,7 @@ export const Enrollments: CollectionConfig = {
       // Field-level access: Admin and Gestor only
       access: {
         read: () => true,
-        update: ({ req: { user } }) => {
-          if (!user) return false;
-          return ['admin', 'gestor'].includes(user.role);
-        },
+        update: financialFieldAccess,
       },
     },
 
@@ -324,7 +358,7 @@ export const Enrollments: CollectionConfig = {
       admin: {
         description: 'Amount of financial aid approved/requested',
       },
-      validate: (val: any) => {
+      validate: (val: number | null | undefined) => {
         if (val === undefined || val === null) return true; // Optional
         if (val < 0) return 'Financial aid amount cannot be negative';
         return true;
@@ -332,10 +366,7 @@ export const Enrollments: CollectionConfig = {
       // Field-level access: Admin and Gestor only
       access: {
         read: () => true,
-        update: ({ req: { user } }) => {
-          if (!user) return false;
-          return ['admin', 'gestor'].includes(user.role);
-        },
+        update: financialFieldAccess,
       },
     },
 
@@ -352,10 +383,7 @@ export const Enrollments: CollectionConfig = {
       // Field-level access: Admin and Gestor only
       access: {
         read: () => true,
-        update: ({ req: { user } }) => {
-          if (!user) return false;
-          return ['admin', 'gestor'].includes(user.role);
-        },
+        update: financialFieldAccess,
       },
     },
 
@@ -447,7 +475,7 @@ export const Enrollments: CollectionConfig = {
       admin: {
         description: 'Student attendance percentage (0-100)',
       },
-      validate: (val: any) => {
+      validate: (val: number | null | undefined) => {
         if (val === undefined || val === null) return true; // Optional
         if (val < 0 || val > 100) return 'Attendance percentage must be between 0 and 100';
         return true;
@@ -462,7 +490,7 @@ export const Enrollments: CollectionConfig = {
       admin: {
         description: 'Student final grade (0-100)',
       },
-      validate: (val: any) => {
+      validate: (val: number | null | undefined) => {
         if (val === undefined || val === null) return true; // Optional
         if (val < 0 || val > 100) return 'Final grade must be between 0 and 100';
         return true;
@@ -497,7 +525,7 @@ export const Enrollments: CollectionConfig = {
         description: 'URL to the issued certificate (immutable once set)',
         readOnly: true, // SECURITY Layer 1 (UX): UI protection
       },
-      validate: (val: any) => {
+      validate: (val: string | null | undefined) => {
         if (!val) return true; // Optional
         // Basic URL validation
         try {
@@ -537,7 +565,7 @@ export const Enrollments: CollectionConfig = {
       type: 'textarea',
       admin: {
         description: 'Reason for cancellation or withdrawal',
-        condition: (data: any) => {
+        condition: (data: EnrollmentData) => {
           return data.status === 'cancelled' || data.status === 'withdrawn';
         },
       },

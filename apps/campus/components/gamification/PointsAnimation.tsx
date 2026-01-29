@@ -8,10 +8,17 @@
  */
 
 import { useEffect, useState } from 'react';
-import type { PointsAnimation as PointsAnimationType } from '@/hooks';
+
+/** Represents a points animation notification */
+interface PointsAnimationData {
+  id: string;
+  points: number;
+  reason: string;
+  timestamp: Date;
+}
 
 interface PointsAnimationProps {
-  animations: PointsAnimationType[];
+  animations: PointsAnimationData[];
   onDismiss: (id: string) => void;
 }
 
@@ -32,7 +39,7 @@ export function PointsAnimation({ animations, onDismiss }: PointsAnimationProps)
 }
 
 interface AnimationItemProps {
-  animation: PointsAnimationType;
+  animation: PointsAnimationData;
   onDismiss: () => void;
 }
 

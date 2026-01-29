@@ -1,5 +1,27 @@
 import type { FieldHook } from 'payload';
 
+/** Blog post status values */
+type BlogPostStatus = 'draft' | 'published' | 'archived';
+
+/** Blog post data interface for hook type safety */
+interface BlogPostData {
+  status?: BlogPostStatus;
+}
+
+/** Blog post document interface for hook type safety */
+interface BlogPostDocument {
+  id: number;
+  status?: BlogPostStatus;
+  archived_at?: string | null;
+}
+
+/** Logger interface for typed logging calls */
+interface Logger {
+  info: (msg: string, data?: Record<string, unknown>) => void;
+  error: (msg: string, data?: Record<string, unknown>) => void;
+  warn: (msg: string, data?: Record<string, unknown>) => void;
+}
+
 /**
  * Hook: Set Archived Timestamp (beforeChange)
  *
@@ -32,19 +54,21 @@ import type { FieldHook } from 'payload';
  * @returns Archived timestamp or original value
  */
 export const setArchivedTimestamp: FieldHook = ({ data, req, operation, originalDoc, value }) => {
-  const logger = req?.payload?.logger as any;
-  const currentStatus = data?.status;
-  const previousStatus = originalDoc?.status;
+  const logger = req?.payload?.logger as Logger | undefined;
+  const typedData = data as BlogPostData | undefined;
+  const typedOriginalDoc = originalDoc as BlogPostDocument | undefined;
+  const currentStatus = typedData?.status;
+  const previousStatus = typedOriginalDoc?.status;
 
   // If archived_at is already set, preserve it (immutability)
-  if (originalDoc?.archived_at) {
+  if (typedOriginalDoc?.archived_at) {
     // SECURITY (SP-004): No logging of sensitive data
     logger?.info('[BlogPost] Archived timestamp preserved (immutable)', {
       operation,
-      postId: originalDoc.id,
+      postId: typedOriginalDoc.id,
     });
 
-    return originalDoc.archived_at;
+    return typedOriginalDoc.archived_at;
   }
 
   // If status is changing to 'archived', set timestamp
@@ -74,5 +98,5 @@ export const setArchivedTimestamp: FieldHook = ({ data, req, operation, original
   }
 
   // Otherwise, return existing value or undefined
-  return value;
+  return value as string | null | undefined;
 };
