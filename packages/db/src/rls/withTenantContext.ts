@@ -14,8 +14,42 @@
  */
 
 import { sql } from 'drizzle-orm'
-import type { PgTransaction } from 'drizzle-orm/pg-core'
+import type { TablesRelationalConfig } from 'drizzle-orm/relations'
+import type { PgQueryResultHKT, PgTransaction } from 'drizzle-orm/pg-core'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
+
+/**
+ * Database schema type for transactions
+ */
+type DatabaseSchema = Record<string, unknown>
+
+/**
+ * Tables relational config type
+ */
+type DatabaseTablesConfig = TablesRelationalConfig
+
+/**
+ * Generic Postgres transaction type with proper schema typing
+ */
+type DatabaseTransaction = PgTransaction<
+  PgQueryResultHKT,
+  DatabaseSchema,
+  DatabaseTablesConfig
+>
+
+/**
+ * Result row from set_config query
+ */
+interface TenantIdRow {
+  tenant_id: string | null
+}
+
+/**
+ * Query result format - handles both postgres-js array format and standard rows format
+ */
+interface QueryResult {
+  rows?: TenantIdRow[]
+}
 
 /**
  * Tenant context for RLS enforcement
@@ -78,7 +112,7 @@ function isValidTenantId(value: string | number): boolean {
 export async function withTenantContext<T>(
   db: PostgresJsDatabase,
   context: TenantContext,
-  callback: (tx: PgTransaction<any, any, any>) => Promise<T>
+  callback: (tx: DatabaseTransaction) => Promise<T>
 ): Promise<TenantScopedResult<T>> {
   const { tenantId, userId, siteId, role } = context
 
@@ -148,7 +182,7 @@ export async function withTenantContext<T>(
 export async function withTenantRead<T>(
   db: PostgresJsDatabase,
   tenantId: string | number,
-  callback: (tx: PgTransaction<any, any, any>) => Promise<T>
+  callback: (tx: DatabaseTransaction) => Promise<T>
 ): Promise<TenantScopedResult<T>> {
   return withTenantContext(db, { tenantId }, callback)
 }
@@ -161,13 +195,14 @@ export async function withTenantRead<T>(
  * @returns The current app.tenant_id or null if not set
  */
 export async function getCurrentTenantId(
-  tx: PgTransaction<any, any, any>
+  tx: DatabaseTransaction
 ): Promise<string | null> {
-  const result = await tx.execute(
+  const result: unknown = await tx.execute(
     sql`SELECT current_setting('app.tenant_id', true) as tenant_id`
   )
   // Handle both postgres-js (array) and standard (rows) result formats
-  const row = Array.isArray(result) ? result[0] : result.rows?.[0]
+  const queryResult = result as TenantIdRow[] | QueryResult
+  const row = Array.isArray(queryResult) ? queryResult[0] : queryResult.rows?.[0]
   return row?.tenant_id ?? null
 }
 
@@ -179,7 +214,7 @@ export async function getCurrentTenantId(
  * @throws Error if tenant context is not set
  */
 export async function assertTenantContext(
-  tx: PgTransaction<any, any, any>
+  tx: DatabaseTransaction
 ): Promise<void> {
   const tenantId = await getCurrentTenantId(tx)
   if (!tenantId) {

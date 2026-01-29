@@ -2,11 +2,21 @@
 
 import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { Button } from '@payload-config/components/ui/button'
-import { Select } from '@payload-config/components/ui/select'
-import { FileText, Download } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import { InvoiceRow } from './InvoiceRow'
-import type { Invoice } from '@payload-config/types/billing'
+
+type InvoiceStatus = 'draft' | 'open' | 'paid' | 'void' | 'uncollectible'
+
+interface Invoice {
+  id: string
+  number: string
+  status: InvoiceStatus
+  currency: string
+  total: number
+  createdAt: Date
+  hostedInvoiceUrl: string | null
+  invoicePdfUrl: string | null
+}
 
 interface InvoicesTableProps {
   invoices: Invoice[]
@@ -14,7 +24,7 @@ interface InvoicesTableProps {
 }
 
 export function InvoicesTable({ invoices, loading }: InvoicesTableProps) {
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [statusFilter, _setStatusFilter] = useState<string>('all')
 
   const filteredInvoices = useMemo(() => {
     if (statusFilter === 'all') return invoices

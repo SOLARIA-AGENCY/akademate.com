@@ -1,4 +1,16 @@
-import type { CollectionBeforeChangeHook } from 'payload';
+import type { CollectionBeforeChangeHook, TypeWithID } from 'payload';
+
+/** Logger interface for typed logging calls */
+interface Logger {
+  info: (msg: string, data?: Record<string, unknown>) => void;
+  warn: (msg: string, data?: Record<string, unknown>) => void;
+  error: (msg: string, data?: Record<string, unknown>) => void;
+}
+
+/** Student document structure for hook typing */
+interface StudentDocument extends TypeWithID {
+  created_by?: string | number;
+}
 
 /**
  * Hook: trackStudentCreator
@@ -36,8 +48,8 @@ import type { CollectionBeforeChangeHook } from 'payload';
  * @param args - Hook arguments from Payload
  * @returns Modified data with created_by set/protected
  */
-export const trackStudentCreator: CollectionBeforeChangeHook = async ({ data, req, operation, originalDoc }) => {
-  const logger = req?.payload?.logger as any;
+export const trackStudentCreator: CollectionBeforeChangeHook<StudentDocument> = ({ data, req, operation, originalDoc }) => {
+  const logger = req?.payload?.logger as Logger | undefined;
   try {
     // CREATION: Auto-populate created_by
     if (operation === 'create') {

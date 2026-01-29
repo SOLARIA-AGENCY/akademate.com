@@ -22,6 +22,20 @@ export interface LoginResponse {
   exp: number
 }
 
+interface PayloadLoginResponse {
+  user?: {
+    id?: string
+    email?: string
+    roles?: string[]
+    tenantId?: string
+  }
+  token?: string
+}
+
+interface PayloadMeResponse {
+  user?: LoginResponse['user']
+}
+
 export function storeSession(user: LoginResponse['user']) {
   if (typeof window === 'undefined') return
   localStorage.setItem(SESSION_KEY, JSON.stringify(user))
@@ -49,7 +63,7 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
       throw new Error('Login Payload falló')
     }
 
-    const data = await res.json()
+    const data = (await res.json()) as PayloadLoginResponse
     const user = {
       id: data.user?.id ?? 'unknown',
       email: data.user?.email ?? credentials.email,
@@ -88,7 +102,7 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
   }
 }
 
-export async function logout(): Promise<void> {
+export function logout(): void {
   clearSession()
   // Placeholder: add call to auth provider when available
   if (typeof client.placeholderRequest === 'function') {
@@ -106,7 +120,7 @@ export async function getCurrentUser() {
         credentials: 'include',
       })
       if (!res.ok) return null
-      const data = await res.json()
+      const data = (await res.json()) as PayloadMeResponse
       return { user: data.user }
     } catch (error) {
       console.warn('No se pudo obtener sesión Payload', error)

@@ -297,11 +297,7 @@ export function useGamification(
     };
 
     // Handle level up
-    const handleLevelUp = (payload: {
-      userId: string;
-      newLevel: number;
-      pointsToNextLevel: number;
-    }) => {
+    const handleLevelUp = (payload: LevelUpPayload) => {
       if (payload.userId !== userId) return;
 
       setData((prev) => {
@@ -320,11 +316,7 @@ export function useGamification(
     };
 
     // Handle streak update
-    const handleStreakUpdate = (payload: {
-      userId: string;
-      currentStreak: number;
-      longestStreak: number;
-    }) => {
+    const handleStreakUpdate = (payload: StreakUpdatePayload) => {
       if (payload.userId !== userId) return;
 
       setData((prev) => {
@@ -345,29 +337,27 @@ export function useGamification(
     };
 
     // Handle leaderboard update
-    const handleLeaderboardUpdate = (payload: {
-      leaderboard: LeaderboardEntry[];
-    }) => {
+    const handleLeaderboardUpdate = (payload: LeaderboardUpdatePayload) => {
       setLeaderboard(payload.leaderboard);
       setLastUpdate(new Date());
     };
 
-    // Register event listeners (cast to any for custom events not in strict types)
-    const anySocket = socket as any;
-    anySocket.on('points:awarded', handlePointsAwarded);
-    anySocket.on('badge:earned', handleBadgeEarned);
-    anySocket.on('level:up', handleLevelUp);
-    anySocket.on('streak:updated', handleStreakUpdate);
-    anySocket.on('leaderboard:updated', handleLeaderboardUpdate);
+    // Register event listeners with typed socket interface
+    const typedSocket = socket as unknown as GamificationSocket;
+    typedSocket.on('points:awarded', handlePointsAwarded);
+    typedSocket.on('badge:earned', handleBadgeEarned);
+    typedSocket.on('level:up', handleLevelUp);
+    typedSocket.on('streak:updated', handleStreakUpdate);
+    typedSocket.on('leaderboard:updated', handleLeaderboardUpdate);
 
     return () => {
       socket.emit('unsubscribe:room', userRoom);
       socket.emit('unsubscribe:room', leaderboardRoom);
-      anySocket.off('points:awarded', handlePointsAwarded);
-      anySocket.off('badge:earned', handleBadgeEarned);
-      anySocket.off('level:up', handleLevelUp);
-      anySocket.off('streak:updated', handleStreakUpdate);
-      anySocket.off('leaderboard:updated', handleLeaderboardUpdate);
+      typedSocket.off('points:awarded', handlePointsAwarded);
+      typedSocket.off('badge:earned', handleBadgeEarned);
+      typedSocket.off('level:up', handleLevelUp);
+      typedSocket.off('streak:updated', handleStreakUpdate);
+      typedSocket.off('leaderboard:updated', handleLeaderboardUpdate);
     };
   }, [socket, enableRealtime, userId, courseId, addPointsAnimation]);
 

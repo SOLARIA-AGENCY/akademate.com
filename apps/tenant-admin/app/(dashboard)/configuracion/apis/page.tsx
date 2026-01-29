@@ -1,10 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, type ChangeEvent } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
-import { Textarea } from '@payload-config/components/ui/textarea'
 import {
   Plus,
   Key,
@@ -19,7 +18,6 @@ import {
   Zap,
   Code,
   Webhook,
-  RefreshCw,
   Check,
   Save
 } from 'lucide-react'
@@ -30,6 +28,41 @@ interface APIKey {
   key: string
   created: string
   lastUsed?: string
+  active: boolean
+}
+
+interface FacebookPixelConfig {
+  enabled: boolean
+  pixelId: string
+  accessToken: string
+}
+
+interface GoogleTagsConfig {
+  enabled: boolean
+  measurementId: string
+  analyticsId: string
+  tagManagerId: string
+  siteVerification: string
+}
+
+interface MCPFeatures {
+  taskMaster: boolean
+  sequentialThinking: boolean
+  specKit: boolean
+}
+
+interface MCPConfig {
+  enabled: boolean
+  serverUrl: string
+  apiKey: string
+  features: MCPFeatures
+}
+
+interface WebhookConfig {
+  id: number
+  name: string
+  url: string
+  events: string[]
   active: boolean
 }
 
@@ -59,13 +92,13 @@ export default function APIsPage() {
   const [newKeyName, setNewKeyName] = useState('')
 
   // Integration configurations
-  const [facebookPixel, setFacebookPixel] = useState({
+  const [facebookPixel, setFacebookPixel] = useState<FacebookPixelConfig>({
     enabled: false,
     pixelId: '',
     accessToken: '',
   })
 
-  const [googleTags, setGoogleTags] = useState({
+  const [googleTags, setGoogleTags] = useState<GoogleTagsConfig>({
     enabled: false,
     measurementId: 'G-XXXXXXXXXX',
     analyticsId: 'UA-XXXXXXXXX-X',
@@ -73,7 +106,7 @@ export default function APIsPage() {
     siteVerification: '',
   })
 
-  const [mcpConfig, setMcpConfig] = useState({
+  const [mcpConfig, setMcpConfig] = useState<MCPConfig>({
     enabled: false,
     serverUrl: '',
     apiKey: '',
@@ -84,7 +117,7 @@ export default function APIsPage() {
     },
   })
 
-  const [webhooks, setWebhooks] = useState([
+  const [webhooks, _setWebhooks] = useState<WebhookConfig[]>([
     {
       id: 1,
       name: 'Lead Created',
@@ -112,7 +145,7 @@ export default function APIsPage() {
   }
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
+    void navigator.clipboard.writeText(text)
     setShowSuccess(true)
     setTimeout(() => setShowSuccess(false), 2000)
   }
@@ -253,7 +286,7 @@ export default function APIsPage() {
                 id="fb-pixel-toggle"
                 type="checkbox"
                 checked={facebookPixel.enabled}
-                onChange={(e) => setFacebookPixel({ ...facebookPixel, enabled: e.target.checked })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFacebookPixel({ ...facebookPixel, enabled: e.target.checked })}
                 className="rounded"
               />
             </div>
@@ -266,7 +299,7 @@ export default function APIsPage() {
               <Input
                 id="pixel-id"
                 value={facebookPixel.pixelId}
-                onChange={(e) => setFacebookPixel({ ...facebookPixel, pixelId: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFacebookPixel({ ...facebookPixel, pixelId: e.target.value })}
                 placeholder="1234567890123456"
                 disabled={!facebookPixel.enabled}
               />
@@ -277,7 +310,7 @@ export default function APIsPage() {
                 id="fb-access-token"
                 type="password"
                 value={facebookPixel.accessToken}
-                onChange={(e) => setFacebookPixel({ ...facebookPixel, accessToken: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFacebookPixel({ ...facebookPixel, accessToken: e.target.value })}
                 placeholder="EAAxxxxxxxxxxxxx"
                 disabled={!facebookPixel.enabled}
               />
@@ -324,7 +357,7 @@ export default function APIsPage() {
                 id="google-toggle"
                 type="checkbox"
                 checked={googleTags.enabled}
-                onChange={(e) => setGoogleTags({ ...googleTags, enabled: e.target.checked })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setGoogleTags({ ...googleTags, enabled: e.target.checked })}
                 className="rounded"
               />
             </div>
@@ -337,7 +370,7 @@ export default function APIsPage() {
               <Input
                 id="ga4-id"
                 value={googleTags.measurementId}
-                onChange={(e) => setGoogleTags({ ...googleTags, measurementId: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setGoogleTags({ ...googleTags, measurementId: e.target.value })}
                 placeholder="G-XXXXXXXXXX"
                 disabled={!googleTags.enabled}
               />
@@ -347,7 +380,7 @@ export default function APIsPage() {
               <Input
                 id="ua-id"
                 value={googleTags.analyticsId}
-                onChange={(e) => setGoogleTags({ ...googleTags, analyticsId: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setGoogleTags({ ...googleTags, analyticsId: e.target.value })}
                 placeholder="UA-XXXXXXXXX-X"
                 disabled={!googleTags.enabled}
               />
@@ -357,7 +390,7 @@ export default function APIsPage() {
               <Input
                 id="gtm-id"
                 value={googleTags.tagManagerId}
-                onChange={(e) => setGoogleTags({ ...googleTags, tagManagerId: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setGoogleTags({ ...googleTags, tagManagerId: e.target.value })}
                 placeholder="GTM-XXXXXXX"
                 disabled={!googleTags.enabled}
               />
@@ -367,7 +400,7 @@ export default function APIsPage() {
               <Input
                 id="site-verification"
                 value={googleTags.siteVerification}
-                onChange={(e) => setGoogleTags({ ...googleTags, siteVerification: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setGoogleTags({ ...googleTags, siteVerification: e.target.value })}
                 placeholder="google-site-verification=xxxxx"
                 disabled={!googleTags.enabled}
               />
@@ -392,7 +425,7 @@ export default function APIsPage() {
                 id="mcp-toggle"
                 type="checkbox"
                 checked={mcpConfig.enabled}
-                onChange={(e) => setMcpConfig({ ...mcpConfig, enabled: e.target.checked })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setMcpConfig({ ...mcpConfig, enabled: e.target.checked })}
                 className="rounded"
               />
             </div>
@@ -405,7 +438,7 @@ export default function APIsPage() {
               <Input
                 id="mcp-server"
                 value={mcpConfig.serverUrl}
-                onChange={(e) => setMcpConfig({ ...mcpConfig, serverUrl: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setMcpConfig({ ...mcpConfig, serverUrl: e.target.value })}
                 placeholder="https://mcp.example.com"
                 disabled={!mcpConfig.enabled}
               />
@@ -416,7 +449,7 @@ export default function APIsPage() {
                 id="mcp-key"
                 type="password"
                 value={mcpConfig.apiKey}
-                onChange={(e) => setMcpConfig({ ...mcpConfig, apiKey: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setMcpConfig({ ...mcpConfig, apiKey: e.target.value })}
                 placeholder="mcp_xxxxxxxxxxxxx"
                 disabled={!mcpConfig.enabled}
               />
@@ -426,13 +459,13 @@ export default function APIsPage() {
           <div className="space-y-2">
             <Label>Características Habilitadas</Label>
             <div className="space-y-2">
-              {Object.entries(mcpConfig.features).map(([feature, enabled]) => (
+              {(Object.entries(mcpConfig.features) as [keyof MCPFeatures, boolean][]).map(([feature, enabled]) => (
                 <div key={feature} className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     id={`mcp-${feature}`}
                     checked={enabled}
-                    onChange={(e) => setMcpConfig({
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setMcpConfig({
                       ...mcpConfig,
                       features: { ...mcpConfig.features, [feature]: e.target.checked }
                     })}
@@ -537,7 +570,7 @@ export default function APIsPage() {
                 <Input
                   id="key-name"
                   value={newKeyName}
-                  onChange={(e) => setNewKeyName(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setNewKeyName(e.target.value)}
                   placeholder="Ej: Production API, Mobile App, etc."
                 />
               </div>

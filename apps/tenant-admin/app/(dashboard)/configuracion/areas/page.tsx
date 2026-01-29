@@ -255,7 +255,7 @@ export default function AreasPage() {
                 <Input
                   id="name"
                   value={newArea.name}
-                  onChange={(e) => setNewArea({ ...newArea, name: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewArea({ ...newArea, name: e.target.value })}
                   placeholder="Ej: Marketing y Publicidad"
                 />
               </div>
@@ -264,7 +264,7 @@ export default function AreasPage() {
                 <Input
                   id="code"
                   value={newArea.code}
-                  onChange={(e) => setNewArea({ ...newArea, code: e.target.value.toUpperCase() })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewArea({ ...newArea, code: e.target.value.toUpperCase() })}
                   placeholder="Ej: MKT"
                   maxLength={5}
                 />
@@ -274,7 +274,7 @@ export default function AreasPage() {
                 <Input
                   id="description"
                   value={newArea.description}
-                  onChange={(e) => setNewArea({ ...newArea, description: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewArea({ ...newArea, description: e.target.value })}
                   placeholder="Breve descripción del área..."
                 />
               </div>
@@ -304,7 +304,7 @@ export default function AreasPage() {
                 <Input
                   id="edit-name"
                   value={selectedArea.name}
-                  onChange={(e) => setSelectedArea({ ...selectedArea, name: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedArea({ ...selectedArea, name: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
@@ -312,7 +312,7 @@ export default function AreasPage() {
                 <Input
                   id="edit-code"
                   value={selectedArea.code}
-                  onChange={(e) => setSelectedArea({ ...selectedArea, code: e.target.value.toUpperCase() })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedArea({ ...selectedArea, code: e.target.value.toUpperCase() })}
                   maxLength={5}
                 />
               </div>
@@ -320,8 +320,8 @@ export default function AreasPage() {
                 <Label htmlFor="edit-description">Descripción</Label>
                 <Input
                   id="edit-description"
-                  value={selectedArea.description || ''}
-                  onChange={(e) => setSelectedArea({ ...selectedArea, description: e.target.value })}
+                  value={selectedArea.description ?? ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedArea({ ...selectedArea, description: e.target.value })}
                 />
               </div>
               <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
