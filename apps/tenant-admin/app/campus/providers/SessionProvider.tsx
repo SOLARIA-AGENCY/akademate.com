@@ -45,6 +45,21 @@ export interface SessionContextValue {
   refreshSession: () => Promise<void>;
 }
 
+// API Response Types
+interface SessionApiResponse {
+  success: boolean;
+  student?: Student;
+  enrollments?: Enrollment[];
+}
+
+interface LoginApiResponse {
+  success: boolean;
+  token?: string;
+  student?: Student;
+  enrollments?: Enrollment[];
+  error?: string;
+}
+
 // ============================================================================
 // Context
 // ============================================================================
@@ -67,7 +82,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
   // Check for existing session on mount
   useEffect(() => {
-    checkSession();
+    void checkSession();
   }, []);
 
   const checkSession = async () => {
@@ -99,11 +114,11 @@ export function SessionProvider({ children }: SessionProviderProps) {
         return;
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as SessionApiResponse;
 
       if (data.success) {
-        setStudent(data.student);
-        setEnrollments(data.enrollments || []);
+        setStudent(data.student ?? null);
+        setEnrollments(data.enrollments ?? []);
       }
     } catch (err) {
       console.error('[SessionProvider] Session check failed:', err);
@@ -126,19 +141,21 @@ export function SessionProvider({ children }: SessionProviderProps) {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as LoginApiResponse;
 
       if (!response.ok || !data.success) {
-        setError(data.error || 'Login failed');
+        setError(data.error ?? 'Login failed');
         return false;
       }
 
       // Store token
-      localStorage.setItem('campus_token', data.token);
+      if (data.token) {
+        localStorage.setItem('campus_token', data.token);
+      }
 
       // Set student and enrollments
-      setStudent(data.student);
-      setEnrollments(data.enrollments || []);
+      setStudent(data.student ?? null);
+      setEnrollments(data.enrollments ?? []);
 
       return true;
     } catch (err) {
@@ -229,7 +246,7 @@ export function RequireAuth({ children, fallback }: RequireAuthProps) {
   }
 
   if (!isAuthenticated) {
-    return fallback || (
+    return fallback ?? (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h2 className="text-2xl font-bold mb-4">Acceso Requerido</h2>
         <p className="text-muted-foreground mb-4">

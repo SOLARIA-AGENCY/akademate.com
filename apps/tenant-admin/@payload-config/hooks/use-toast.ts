@@ -13,7 +13,12 @@ export interface ToastOptions {
   variant?: 'default' | 'destructive'
 }
 
-export function useToast() {
+export interface UseToastReturn {
+  toast: (options: ToastOptions) => { id: string; dismiss: () => void }
+  toasts: Toast[]
+}
+
+export function useToast(): UseToastReturn {
   const [toasts, setToasts] = useState<Toast[]>([])
 
   const toast = useCallback((options: ToastOptions) => {

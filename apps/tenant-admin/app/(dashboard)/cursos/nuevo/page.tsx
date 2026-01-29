@@ -25,11 +25,11 @@ import {
   Image as ImageIcon,
   Trash2,
 } from 'lucide-react'
-import { COURSE_TYPE_CONFIG, getCourseTypeConfig, type CourseTypeKey } from '@payload-config/lib/courseTypeConfig'
+import { getCourseTypeConfig, type CourseTypeKey, type CourseTypeConfigValue } from '../../../../@payload-config/lib/courseTypeConfig'
 import { SubvencionItem } from '@payload-config/components/ui/SubvencionItem'
 import { EntidadSelector } from '@payload-config/components/ui/EntidadSelector'
 import { Switch } from '@payload-config/components/ui/switch'
-import type { CourseType, Subvencion, EntidadFinanciadoraKey } from '@/types'
+import type { CourseType, Subvencion, EntidadFinanciadoraKey } from '../../../../types'
 
 interface PDFFile {
   id: string
@@ -45,6 +45,22 @@ interface AreaFormativa {
   color?: string
 }
 
+interface AreasFormativasApiResponse {
+  success: boolean
+  data: AreaFormativa[]
+  error?: string
+}
+
+interface CreateCourseApiResponse {
+  success: boolean
+  data: {
+    id: number
+    codigo: string
+    nombre: string
+  }
+  error?: string
+}
+
 export default function NuevoCursoPage() {
   const router = useRouter()
 
@@ -57,7 +73,7 @@ export default function NuevoCursoPage() {
   const [precioReferencia, setPrecioReferencia] = React.useState('0')
   const [objetivos, setObjetivos] = React.useState<string[]>([''])
   const [contenidos, setContenidos] = React.useState<string[]>([''])
-  const [imagenPortada, setImagenPortada] = React.useState('')
+  const [_imagenPortada, setImagenPortada] = React.useState('')
   const [pdfFiles, setPdfFiles] = React.useState<PDFFile[]>([])
 
   // Áreas formativas desde API
@@ -70,7 +86,7 @@ export default function NuevoCursoPage() {
 
   // Cargar áreas formativas al montar el componente con retry
   React.useEffect(() => {
-    const fetchAreasWithRetry = async (retries = 2) => {
+    const fetchAreasWithRetry = async (retries = 2): Promise<void> => {
       try {
         // Timeout de 10 segundos
         const controller = new AbortController()
@@ -81,24 +97,24 @@ export default function NuevoCursoPage() {
         })
         clearTimeout(timeoutId)
 
-        const result = await response.json()
+        const result: AreasFormativasApiResponse = await response.json() as AreasFormativasApiResponse
         if (result.success) {
           setAreasFormativas(result.data)
         } else {
           console.error('Error from API:', result.error)
           if (retries > 0) {
             console.log(`Reintentando cargar áreas... (${retries} intentos restantes)`)
-            setTimeout(() => fetchAreasWithRetry(retries - 1), 1000)
+            setTimeout(() => { void fetchAreasWithRetry(retries - 1) }, 1000)
             return
           }
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error loading areas formativas:', error)
 
         // Retry en caso de timeout o error de red
         if (retries > 0) {
           console.log(`Reintentando cargar áreas... (${retries} intentos restantes)`)
-          setTimeout(() => fetchAreasWithRetry(retries - 1), 1000)
+          setTimeout(() => { void fetchAreasWithRetry(retries - 1) }, 1000)
           return
         }
 
@@ -109,7 +125,7 @@ export default function NuevoCursoPage() {
         setLoadingAreas(false)
       }
     }
-    fetchAreasWithRetry()
+    void fetchAreasWithRetry()
   }, [])
 
   // Image upload preview
@@ -118,7 +134,7 @@ export default function NuevoCursoPage() {
   // Saving state
   const [isSaving, setIsSaving] = React.useState(false)
 
-  const typeConfig = getCourseTypeConfig((tipo || 'privados') as CourseTypeKey)
+  const typeConfig: CourseTypeConfigValue = getCourseTypeConfig((tipo ?? 'privados') as CourseTypeKey)
 
   // Handlers
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -276,7 +292,7 @@ export default function NuevoCursoPage() {
         body: JSON.stringify(courseData),
       })
 
-      const result = await response.json()
+      const result: CreateCourseApiResponse = await response.json() as CreateCourseApiResponse
 
       if (response.ok && result.success) {
         alert(`✅ Curso creado exitosamente con código: ${result.data.codigo}`)
@@ -287,7 +303,7 @@ export default function NuevoCursoPage() {
           router.push('/cursos')
         }, 100)
       } else {
-        alert(`❌ Error al crear curso: ${result.error || 'Error desconocido'}`)
+        alert(`❌ Error al crear curso: ${result.error ?? 'Error desconocido'}`)
       }
     } catch (error) {
       console.error('Error creating course:', error)
@@ -350,7 +366,7 @@ export default function NuevoCursoPage() {
             <Input
               id="nombre"
               value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNombre(e.target.value)}
               placeholder="ej. Máster en Marketing Digital"
               required
             />
@@ -377,7 +393,7 @@ export default function NuevoCursoPage() {
 
             <div className="space-y-2">
               <Label htmlFor="tipo">Tipo de Curso</Label>
-              <Select value={tipo} onValueChange={(value) => setTipo(value as CourseType)}>
+              <Select value={tipo} onValueChange={(value: string) => setTipo(value as CourseType)}>
                 <SelectTrigger id="tipo">
                   <SelectValue />
                 </SelectTrigger>
@@ -396,7 +412,7 @@ export default function NuevoCursoPage() {
             <Textarea
               id="descripcion"
               value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescripcion(e.target.value)}
               placeholder="Describe brevemente el curso..."
               rows={4}
             />
@@ -409,7 +425,7 @@ export default function NuevoCursoPage() {
                 id="duracion"
                 type="number"
                 value={duracionReferencia}
-                onChange={(e) => setDuracionReferencia(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDuracionReferencia(e.target.value)}
                 placeholder="ej. 300"
                 min="0"
               />
@@ -421,7 +437,7 @@ export default function NuevoCursoPage() {
                 id="precio"
                 type="number"
                 value={precioReferencia}
-                onChange={(e) => setPrecioReferencia(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrecioReferencia(e.target.value)}
                 placeholder="ej. 2500"
                 min="0"
                 step="0.01"
@@ -552,7 +568,7 @@ export default function NuevoCursoPage() {
             <div key={index} className="flex items-center gap-2">
               <Textarea
                 value={objetivo}
-                onChange={(e) => updateObjetivo(index, e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateObjetivo(index, e.target.value)}
                 placeholder={`Objetivo ${index + 1}`}
                 rows={2}
                 className="flex-1"
@@ -587,7 +603,7 @@ export default function NuevoCursoPage() {
             <div key={index} className="flex items-center gap-2">
               <Textarea
                 value={contenido}
-                onChange={(e) => updateContenido(index, e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateContenido(index, e.target.value)}
                 placeholder={`Módulo ${index + 1}`}
                 rows={2}
                 className="flex-1"
@@ -643,7 +659,7 @@ export default function NuevoCursoPage() {
                     <SubvencionItem
                       key={subvencion.id}
                       subvencion={subvencion}
-                      onUpdate={(updates) => updateSubvencion(subvencion.id, updates)}
+                      onUpdate={(updates: Subvencion) => updateSubvencion(subvencion.id, updates)}
                       onRemove={() => removeSubvencion(subvencion.id)}
                     />
                   ))}

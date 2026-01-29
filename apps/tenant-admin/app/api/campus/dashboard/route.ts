@@ -4,11 +4,47 @@
  * Returns student's enrollments and stats for the dashboard.
  */
 
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { getPayload } from 'payload';
 import config from '@payload-config';
+
+// TypeScript interfaces for course and enrollment data
+interface CourseMedia {
+  url?: string;
+}
+
+interface Course {
+  title?: string;
+  thumbnail?: CourseMedia;
+  estimatedHours?: number;
+}
+
+interface CourseRun {
+  title?: string;
+  course?: Course;
+}
+
+interface Badge {
+  id: string;
+  name?: string;
+}
+
+interface EnrollmentDocument {
+  id: string;
+  courseRun?: CourseRun;
+  status: string;
+  progressPercent?: number;
+  lastAccessedAt?: string;
+  updatedAt?: string;
+}
+
+interface GamificationDocument {
+  currentStreak?: number;
+  badges?: Badge[];
+  totalPoints?: number;
+}
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
@@ -39,6 +75,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload config import pattern
     const payload = await getPayload({ config });
     const studentId = decoded.sub!;
 
@@ -53,7 +90,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Transform enrollments for dashboard
-    const enrollments = enrollmentsResult.docs.map((enrollment: any) => {
+    const enrollments = enrollmentsResult.docs.map((enrollment: EnrollmentDocument) => {
       const courseRun = enrollment.courseRun;
       const course = courseRun?.course;
 
@@ -63,23 +100,23 @@ export async function GET(request: NextRequest) {
 
       return {
         id: enrollment.id,
-        courseTitle: course?.title || 'Unknown Course',
-        courseThumbnail: course?.thumbnail?.url || null,
-        courseRunTitle: courseRun?.title || '',
+        courseTitle: course?.title ?? 'Unknown Course',
+        courseThumbnail: course?.thumbnail?.url ?? null,
+        courseRunTitle: courseRun?.title ?? '',
         status: enrollment.status,
-        progressPercent: enrollment.progressPercent || 0,
+        progressPercent: enrollment.progressPercent ?? 0,
         totalModules: totalModules,
         completedModules: completedModules,
-        lastAccessedAt: enrollment.lastAccessedAt || enrollment.updatedAt,
+        lastAccessedAt: enrollment.lastAccessedAt ?? enrollment.updatedAt,
         estimatedMinutesRemaining: Math.round(
-          ((100 - (enrollment.progressPercent || 0)) / 100) * (course?.estimatedHours || 10) * 60
+          ((100 - (enrollment.progressPercent ?? 0)) / 100) * (course?.estimatedHours ?? 10) * 60
         ),
       };
     });
 
     // Calculate stats
     const completedEnrollments = enrollmentsResult.docs.filter(
-      (e: any) => e.status === 'completed'
+      (e: EnrollmentDocument) => e.status === 'completed'
     );
 
     // Get gamification data (badges, points, streak)
@@ -91,7 +128,8 @@ export async function GET(request: NextRequest) {
 
     try {
       const gamificationResult = await payload.find({
-        collection: 'studentGamification' as any,
+        // Using string literal for collection that may not exist in all configurations
+        collection: 'studentGamification' as 'users',
         where: {
           student: { equals: studentId },
         },
@@ -99,21 +137,21 @@ export async function GET(request: NextRequest) {
       });
 
       if (gamificationResult.docs.length > 0) {
-        const gamification = gamificationResult.docs[0];
+        const gamification = gamificationResult.docs[0] as unknown as GamificationDocument;
         gamificationStats = {
-          currentStreak: gamification.currentStreak || 0,
-          totalBadges: gamification.badges?.length || 0,
-          totalPoints: gamification.totalPoints || 0,
+          currentStreak: gamification.currentStreak ?? 0,
+          totalBadges: gamification.badges?.length ?? 0,
+          totalPoints: gamification.totalPoints ?? 0,
         };
       }
-    } catch (err) {
+    } catch {
       // Gamification collection might not exist yet
       console.log('[Campus Dashboard] Gamification not available');
     }
 
     const stats = {
       totalCourses: enrollmentsResult.docs.filter(
-        (e: any) => e.status === 'enrolled' || e.status === 'in_progress'
+        (e: EnrollmentDocument) => e.status === 'enrolled' || e.status === 'in_progress'
       ).length,
       completedCourses: completedEnrollments.length,
       ...gamificationStats,

@@ -7,8 +7,47 @@
 
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+
+/** Course data structure */
+interface CourseData {
+  id: string;
+  title: string;
+  thumbnail?: string;
+}
+
+/** Course run data structure */
+interface CourseRunData {
+  id: string;
+  title: string;
+  course?: CourseData | string;
+}
+
+/** Enrollment document from Payload */
+interface EnrollmentDocument {
+  id: string;
+  status: string;
+  createdAt: string;
+  course_run?: CourseRunData | string;
+}
+
+/** Lesson progress document from Payload */
+interface LessonProgressDocument {
+  id: string;
+  status: string;
+}
+
+/** Query filter for equals condition */
+interface EqualsFilter {
+  equals: string;
+}
+
+/** Where clause for enrollment queries */
+interface EnrollmentWhereClause {
+  student?: EqualsFilter;
+  status?: EqualsFilter;
+}
 
 /**
  * GET /api/lms/enrollments
@@ -24,13 +63,14 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '20', 10);
-    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') ?? '20', 10);
+    const page = parseInt(searchParams.get('page') ?? '1', 10);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const payload = await getPayloadHMR({ config: configPromise });
 
     // Build where clause
-    const where: Record<string, any> = {};
+    const where: EnrollmentWhereClause = {};
     if (userId) {
       where.student = { equals: userId };
     }
@@ -39,7 +79,7 @@ export async function GET(request: NextRequest) {
     }
 
     const enrollments = await payload.find({
-      collection: 'enrollments' as any,
+      collection: 'enrollments' as 'users',
       where,
       limit,
       page,
@@ -50,16 +90,16 @@ export async function GET(request: NextRequest) {
     // Enhance with progress summary
     const enrollmentsWithProgress = await Promise.all(
       enrollments.docs.map(async (enrollment) => {
-        const enrollmentRecord = enrollment;
+        const enrollmentRecord = enrollment as unknown as EnrollmentDocument;
         // Get progress for this enrollment
         const progress = await payload.find({
-          collection: 'lesson-progress' as any,
+          collection: 'lesson-progress' as 'users',
           where: { enrollment: { equals: enrollmentRecord.id } },
           limit: 500,
         });
 
         const completed = progress.docs.filter(
-          (p: any) => p.status === 'completed'
+          (p) => (p as unknown as LessonProgressDocument).status === 'completed'
         ).length;
         const total = progress.totalDocs;
 
@@ -101,10 +141,11 @@ export async function GET(request: NextRequest) {
         hasPrevPage: enrollments.hasPrevPage,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[LMS Enrollments] Error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to fetch enrollments';
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to fetch enrollments' },
+      { success: false, error: message },
       { status: 500 }
     );
   }

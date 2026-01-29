@@ -9,7 +9,7 @@ import { ArrowLeft, GraduationCap, Users, Calendar, TrendingUp, BookOpen } from 
 // TODO: Fetch from Payload API
 // import { CICLOS_DETALLE_MOCK } from '@payload-config/data/mockCiclos'
 import { CursoCicloCard } from '@payload-config/components/ui/CursoCicloCard'
-import type { CursoCiclo, InstanciaGrado } from '@/types'
+import type { CicloDetalleView, CursoCiclo, InstanciaGrado } from '../../../../types'
 
 export default function CicloDetailPage() {
   const params = useParams()
@@ -17,8 +17,8 @@ export default function CicloDetailPage() {
   const cicloId = params.id as string
 
   // TODO: Replace with API call - GET /api/ciclos/:id
-  const CICLOS_DETALLE_MOCK: any[] = []
-  const ciclo = CICLOS_DETALLE_MOCK.find((c) => c.id === cicloId)
+  const CICLOS_DETALLE_MOCK: CicloDetalleView[] = []
+  const ciclo: CicloDetalleView | undefined = CICLOS_DETALLE_MOCK.find((c) => c.id === cicloId)
 
   if (!ciclo) {
     return (

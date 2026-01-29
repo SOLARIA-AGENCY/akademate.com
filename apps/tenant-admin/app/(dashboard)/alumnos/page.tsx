@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ChangeEvent, type MouseEvent, type KeyboardEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
@@ -44,6 +44,20 @@ interface Student {
   fecha_inscripcion: string
 }
 
+interface StudentApiDoc {
+  id: string | number
+  first_name?: string
+  last_name?: string
+  email?: string
+  phone?: string
+  status?: string
+  createdAt?: string
+}
+
+interface StudentsApiResponse {
+  docs?: StudentApiDoc[]
+}
+
 export default function AlumnosPage() {
   const router = useRouter()
 
@@ -72,10 +86,10 @@ export default function AlumnosPage() {
           throw new Error('No se pudieron cargar los alumnos')
         }
 
-        const payload = await response.json()
-        const docs = Array.isArray(payload?.docs) ? payload.docs : []
-        const mapped: Student[] = docs.map((student: any) => {
-          const status = student.status as string | undefined
+        const payload = (await response.json()) as StudentsApiResponse
+        const docs: StudentApiDoc[] = Array.isArray(payload.docs) ? payload.docs : []
+        const mapped: Student[] = docs.map((student: StudentApiDoc) => {
+          const status = student.status
           return {
             id: String(student.id),
             first_name: student.first_name ?? '',
@@ -104,7 +118,7 @@ export default function AlumnosPage() {
       }
     }
 
-    fetchStudents()
+    void fetchStudents()
   }, [])
 
   const handleAdd = () => {
@@ -265,7 +279,7 @@ export default function AlumnosPage() {
               <Input
                 placeholder="Buscar por nombre o email..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 className="pl-9"
               />
             </div>
@@ -358,12 +372,20 @@ export default function AlumnosPage() {
                   {filteredStudents.map((student) => (
                     <div
                       key={student.id}
+                      role="button"
+                      tabIndex={0}
                       className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
                         selectedStudent?.id === student.id
                           ? 'bg-primary/10 border-2 border-primary'
                           : 'bg-secondary hover:bg-secondary/80'
                       }`}
                       onClick={() => setSelectedStudent(student)}
+                      onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          setSelectedStudent(student)
+                        }
+                      }}
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div className="relative flex-shrink-0">
@@ -579,7 +601,7 @@ export default function AlumnosPage() {
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    onClick={(e) => {
+                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation()
                       handleViewStudent(student.id)
                     }}
@@ -591,7 +613,7 @@ export default function AlumnosPage() {
                     variant="default"
                     size="sm"
                     className="w-full"
-                    onClick={(e) => {
+                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation()
                       router.push(`/alumnos/${student.id}/editar`)
                     }}

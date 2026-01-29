@@ -8,6 +8,7 @@
  * student1@email.com,course-run-123,active,Optional notes
  */
 
+import type { Payload } from 'payload';
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
@@ -27,6 +28,30 @@ interface BulkResult {
   skipped: number;
   errors: { row: number; email: string; error: string }[];
   created_ids: string[];
+}
+
+interface ErrorWithMessage {
+  message: string;
+}
+
+function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as ErrorWithMessage).message === 'string'
+  );
+}
+
+function getErrorMessage(error: unknown): string {
+  if (isErrorWithMessage(error)) {
+    return error.message;
+  }
+  return String(error);
+}
+
+interface BulkEnrollmentRequest {
+  csvContent: string;
 }
 
 /**
@@ -80,7 +105,7 @@ function parseCSV(content: string): CSVRow[] {
  */
 export async function POST(request: NextRequest) {
   try {
-    const contentType = request.headers.get('content-type') || '';
+    const contentType = request.headers.get('content-type') ?? '';
     let csvContent: string;
 
     if (contentType.includes('multipart/form-data')) {
@@ -98,7 +123,7 @@ export async function POST(request: NextRequest) {
       csvContent = await file.text();
     } else {
       // Handle JSON body
-      const body = await request.json();
+      const body = (await request.json()) as BulkEnrollmentRequest;
       csvContent = body.csvContent;
 
       if (!csvContent) {
@@ -113,9 +138,9 @@ export async function POST(request: NextRequest) {
     let rows: CSVRow[];
     try {
       rows = parseCSV(csvContent);
-    } catch (parseError: any) {
+    } catch (parseError: unknown) {
       return NextResponse.json(
-        { success: false, error: `CSV parse error: ${parseError.message}` },
+        { success: false, error: `CSV parse error: ${getErrorMessage(parseError)}` },
         { status: 400 }
       );
     }
@@ -127,7 +152,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const payload = await getPayloadHMR({ config: configPromise });
+    // Payload's HMR utility returns an error-typed value; explicit Payload type is intentional
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     const result: BulkResult = {
       total: rows.length,
@@ -181,7 +208,7 @@ export async function POST(request: NextRequest) {
 
         // Check for existing enrollment
         const existing = await payload.find({
-          collection: 'enrollments' as any,
+          collection: 'enrollments' as 'users',
           where: {
             and: [
               { student: { equals: student.id } },
@@ -199,11 +226,11 @@ export async function POST(request: NextRequest) {
 
         // Create enrollment
         const enrollment = await payload.create({
-          collection: 'enrollments' as any,
+          collection: 'enrollments' as 'users',
           data: {
             student: student.id,
             courseRun: row.courseRunId,
-            status: (row.status || 'pending') as any,
+            status: (row.status ?? 'pending') as 'active' | 'pending' | 'completed' | 'cancelled',
             notes: row.notes,
             enrolledAt: new Date().toISOString(),
           },
@@ -211,12 +238,12 @@ export async function POST(request: NextRequest) {
 
         result.created++;
         result.created_ids.push(enrollment.id.toString());
-      } catch (rowError: any) {
+      } catch (rowError: unknown) {
         result.failed++;
         result.errors.push({
           row: rowNum,
           email: row.studentEmail,
-          error: rowError.message || 'Unknown error',
+          error: getErrorMessage(rowError) ?? 'Unknown error',
         });
       }
     }
@@ -226,10 +253,10 @@ export async function POST(request: NextRequest) {
       message: `Bulk enrollment complete: ${result.created} created, ${result.skipped} skipped, ${result.failed} failed`,
       data: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[LMS Bulk Enrollments] Error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Bulk enrollment failed' },
+      { success: false, error: getErrorMessage(error) ?? 'Bulk enrollment failed' },
       { status: 500 }
     );
   }
@@ -240,7 +267,7 @@ export async function POST(request: NextRequest) {
  *
  * Returns CSV template for bulk enrollment
  */
-export async function GET() {
+export function GET() {
   const template = `studentEmail,courseRunId,status,notes
 student1@example.com,course-run-id-1,active,First enrollment
 student2@example.com,course-run-id-1,pending,Pending payment

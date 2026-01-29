@@ -88,6 +88,23 @@ export interface DashboardData {
   campusDistribution: CampusDistribution[]
 }
 
+// API response types
+interface DashboardApiData {
+  metrics?: DashboardMetrics
+  upcoming_convocations?: Convocation[]
+  campaigns?: Campaign[]
+  recent_activities?: Activity[]
+  weekly_metrics?: WeeklyMetrics
+  alerts?: Alert[]
+  campus_distribution?: CampusDistribution[]
+}
+
+interface DashboardApiResponse {
+  success: boolean
+  data?: DashboardApiData
+  error?: string
+}
+
 const DEFAULT_METRICS: DashboardMetrics = {
   total_courses: 0,
   active_courses: 0,
@@ -165,7 +182,7 @@ export function useDashboardMetrics(
         type: activity.type.includes('lead') ? 'lead' :
               activity.type.includes('enrollment') ? 'enrollment' : 'convocation',
         title: activity.title,
-        entity_name: activity.description || '',
+        entity_name: activity.description ?? '',
         timestamp: activity.timestamp,
       }
 
@@ -187,21 +204,21 @@ export function useDashboardMetrics(
       const response = await fetch('/api/dashboard')
       if (!response.ok) throw new Error('Failed to load dashboard data')
 
-      const result = await response.json()
-      if (result.success) {
+      const result = (await response.json()) as DashboardApiResponse
+      if (result.success && result.data) {
         setData({
-          metrics: result.data.metrics || DEFAULT_METRICS,
-          convocations: result.data.upcoming_convocations || [],
-          campaigns: result.data.campaigns || [],
-          recentActivities: result.data.recent_activities || [],
-          weeklyMetrics: result.data.weekly_metrics || { leads: [], enrollments: [], courses_added: [] },
-          alerts: result.data.alerts || [],
-          campusDistribution: result.data.campus_distribution || [],
+          metrics: result.data.metrics ?? DEFAULT_METRICS,
+          convocations: result.data.upcoming_convocations ?? [],
+          campaigns: result.data.campaigns ?? [],
+          recentActivities: result.data.recent_activities ?? [],
+          weeklyMetrics: result.data.weekly_metrics ?? { leads: [], enrollments: [], courses_added: [] },
+          alerts: result.data.alerts ?? [],
+          campusDistribution: result.data.campus_distribution ?? [],
         })
         setLastUpdate(new Date())
         setError(null)
       } else {
-        throw new Error(result.error || 'Error loading dashboard')
+        throw new Error(result.error ?? 'Error loading dashboard')
       }
     } catch (err) {
       console.error('Error loading dashboard:', err)
@@ -213,7 +230,7 @@ export function useDashboardMetrics(
 
   // Initial load
   useEffect(() => {
-    fetchDashboardData()
+    void fetchDashboardData()
   }, [fetchDashboardData])
 
   // Apply real-time metrics updates

@@ -185,7 +185,7 @@ class CMSClient {
     const response = await this.fetch<PaginatedResponse<CMSCourse>>(
       `/courses?where[slug][equals]=${encodeURIComponent(slug)}&limit=1`
     )
-    return response.docs[0] || null
+    return response.docs[0] ?? null
   }
 
   async getCourseById(id: string): Promise<CMSCourse> {
@@ -209,7 +209,7 @@ class CMSClient {
     const response = await this.fetch<PaginatedResponse<CMSPage>>(
       `/pages?where[slug][equals]=${encodeURIComponent(slug)}&limit=1`
     )
-    return response.docs[0] || null
+    return response.docs[0] ?? null
   }
 
   // ============================================================================
@@ -231,7 +231,7 @@ class CMSClient {
     const response = await this.fetch<PaginatedResponse<CMSPost>>(
       `/posts?where[slug][equals]=${encodeURIComponent(slug)}&limit=1`
     )
-    return response.docs[0] || null
+    return response.docs[0] ?? null
   }
 
   async getLatestPosts(limit = 3): Promise<CMSPost[]> {

@@ -3,11 +3,48 @@
  * Manage subscription usage meters per tenant
  */
 
-import type { NextRequest} from 'next/server';
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { desc, eq } from 'drizzle-orm'
 import { db, subscriptions } from '@/@payload-config/lib/db'
+
+/**
+ * Usage meter item stored in the subscription record
+ */
+interface UsageMeterItem {
+  metric: string
+  value: number
+  unit?: string | null
+  limit?: number | string | null
+  updatedAt?: string
+}
+
+/**
+ * Type for subscription record from database
+ */
+interface SubscriptionRecord {
+  id: string
+  tenantId: string
+  plan: string
+  status: string
+  stripeSubscriptionId: string | null
+  stripeCustomerId: string | null
+  currentPeriodStart: Date | null
+  currentPeriodEnd: Date | null
+  cancelAtPeriodEnd: boolean
+  canceledAt: Date | null
+  trialStart: Date | null
+  trialEnd: Date | null
+  usageMeter: UsageMeterItem[]
+  metadata: Record<string, unknown>
+  createdAt: Date
+  updatedAt: Date
+}
 
 const UsageMetricSchema = z.object({
   metric: z.string().min(1),
@@ -29,7 +66,7 @@ const TenantQuerySchema = z.object({
 // GET /api/billing/usage?tenantId=...
 // ============================================================================
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url)
     const tenantId = searchParams.get('tenantId')
@@ -43,13 +80,16 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const [subscription] = await db
+    // Type assertion needed: db has conditional type that prevents proper inference
+    const result = await db
       .select()
       .from(subscriptions)
       .where(eq(subscriptions.tenantId, validation.data.tenantId))
       .orderBy(desc(subscriptions.updatedAt))
       .limit(1)
-      .execute()
+      .execute() as SubscriptionRecord[]
+
+    const subscription = result[0]
 
     if (!subscription) {
       return NextResponse.json(
@@ -63,7 +103,7 @@ export async function GET(request: NextRequest) {
       tenantId: subscription.tenantId,
       usage: subscription.usageMeter ?? [],
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Get usage meter error:', error)
     return NextResponse.json(
       { error: 'Failed to get usage meter' },
@@ -76,9 +116,9 @@ export async function GET(request: NextRequest) {
 // POST /api/billing/usage
 // ============================================================================
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.json()
+    const body: unknown = await request.json()
     const validation = UpdateUsageSchema.safeParse(body)
 
     if (!validation.success) {
@@ -90,13 +130,16 @@ export async function POST(request: NextRequest) {
 
     const { tenantId, usage } = validation.data
 
-    const [subscription] = await db
+    // Type assertion needed: db has conditional type that prevents proper inference
+    const result = await db
       .select()
       .from(subscriptions)
       .where(eq(subscriptions.tenantId, tenantId))
       .orderBy(desc(subscriptions.updatedAt))
       .limit(1)
-      .execute()
+      .execute() as SubscriptionRecord[]
+
+    const subscription = result[0]
 
     if (!subscription) {
       return NextResponse.json(
@@ -106,8 +149,10 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date().toISOString()
-    const currentUsage = subscription.usageMeter ?? []
-    const usageMap = new Map(currentUsage.map((item) => [item.metric, item]))
+    const currentUsage: UsageMeterItem[] = subscription.usageMeter ?? []
+    const usageMap = new Map<string, UsageMeterItem>(
+      currentUsage.map((item: UsageMeterItem) => [item.metric, item])
+    )
 
     usage.forEach((metric) => {
       usageMap.set(metric.metric, {
@@ -121,21 +166,22 @@ export async function POST(request: NextRequest) {
 
     const nextUsage = Array.from(usageMap.values())
 
-    await db
+    // Type assertion needed: db has conditional type that prevents proper inference
+    await (db
       .update(subscriptions)
       .set({
         usageMeter: nextUsage,
         updatedAt: new Date(),
       })
       .where(eq(subscriptions.id, subscription.id))
-      .execute()
+      .execute() as Promise<unknown>)
 
     return NextResponse.json({
       subscriptionId: subscription.id,
       tenantId,
       usage: nextUsage,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Update usage meter error:', error)
     return NextResponse.json(
       { error: 'Failed to update usage meter' },

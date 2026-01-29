@@ -1,7 +1,30 @@
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import type { Payload } from 'payload';
+
+/**
+ * Interface for area formativa request body
+ */
+interface AreaFormativaRequestBody {
+  nombre: string;
+  codigo: string;
+  descripcion?: string;
+  color?: string;
+  activo?: boolean;
+}
+
+/**
+ * Interface for area formativa document
+ */
+interface AreaFormativaDoc {
+  id: string;
+  nombre: string;
+  codigo: string;
+  color?: string;
+  activo?: boolean;
+}
 
 /**
  * GET /api/areas-formativas
@@ -12,7 +35,8 @@ import { NextResponse } from 'next/server';
  */
 export async function GET() {
   try {
-    const payload = await getPayloadHMR({ config: configPromise });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload library returns error-typed Promise
+    const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     const areas = await payload.find({
       collection: 'areas-formativas',
@@ -27,12 +51,15 @@ export async function GET() {
 
     const response = NextResponse.json({
       success: true,
-      data: areas.docs.map((area) => ({
-        id: area.id,
-        nombre: area.nombre,
-        codigo: area.codigo,
-        color: area.color,
-      })),
+      data: areas.docs.map((area) => {
+        const doc = area as AreaFormativaDoc;
+        return {
+          id: doc.id,
+          nombre: doc.nombre,
+          codigo: doc.codigo,
+          color: doc.color,
+        };
+      }),
     });
 
     // Cache por 60 segundos (datos maestros estables)
@@ -56,7 +83,7 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as AreaFormativaRequestBody;
     const { nombre, codigo, descripcion, color, activo } = body;
 
     // Validaciones básicas
@@ -75,7 +102,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const payload = await getPayloadHMR({ config: configPromise });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload library returns error-typed Promise
+    const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     // Verificar si ya existe un área con ese código
     const existing = await payload.find({
@@ -101,29 +129,32 @@ export async function POST(request: NextRequest) {
       data: {
         nombre,
         codigo,
-        descripcion: descripcion || '',
-        color: color || '',
-        activo: activo !== undefined ? activo : true,
+        descripcion: descripcion ?? '',
+        color: color ?? '',
+        activo: activo ?? true,
       },
     });
+
+    const createdArea = area as AreaFormativaDoc;
 
     return NextResponse.json({
       success: true,
       data: {
-        id: area.id,
-        nombre: area.nombre,
-        codigo: area.codigo,
-        color: area.color,
-        activo: area.activo,
+        id: createdArea.id,
+        nombre: createdArea.nombre,
+        codigo: createdArea.codigo,
+        color: createdArea.color,
+        activo: createdArea.activo,
       },
-      message: `Área formativa ${area.nombre} creada exitosamente`,
+      message: `Área formativa ${createdArea.nombre} creada exitosamente`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating area formativa:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Error al crear área formativa';
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al crear área formativa',
+        error: errorMessage,
       },
       { status: 500 }
     );

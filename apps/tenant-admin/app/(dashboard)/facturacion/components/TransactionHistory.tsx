@@ -2,8 +2,29 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
-import { CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, RefreshCw, type LucideIcon } from 'lucide-react'
 import type { PaymentTransaction } from '@payload-config/types/billing'
+
+type PaymentStatusValue = 'pending' | 'processing' | 'succeeded' | 'failed' | 'canceled' | 'refunded'
+
+interface StatusConfig {
+  label: string
+  icon: LucideIcon
+  variant: 'default' | 'destructive' | 'secondary'
+  color: string
+}
+
+interface TransactionData {
+  id: string
+  status: PaymentStatusValue
+  description: string | null
+  createdAt: Date
+  failureMessage: string | null
+  paymentMethodType: string
+  stripeChargeId: string | null
+  amount: number
+  currency: string
+}
 
 interface TransactionHistoryProps {
   transactions: PaymentTransaction[]
@@ -11,7 +32,7 @@ interface TransactionHistoryProps {
 }
 
 export function TransactionHistory({ transactions, loading }: TransactionHistoryProps) {
-  const statusConfig = {
+  const statusConfig: Record<PaymentStatusValue, StatusConfig> = {
     succeeded: {
       label: 'Exitoso',
       icon: CheckCircle,
@@ -113,9 +134,9 @@ export function TransactionHistory({ transactions, loading }: TransactionHistory
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {transactions.map((transaction) => {
-            const status = statusConfig[transaction.status]
-            const StatusIcon = status.icon
+          {(transactions as TransactionData[]).map((transaction: TransactionData) => {
+            const status: StatusConfig = statusConfig[transaction.status]
+            const StatusIcon: LucideIcon = status.icon
 
             return (
               <div
@@ -129,7 +150,7 @@ export function TransactionHistory({ transactions, loading }: TransactionHistory
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center justify-between">
                     <p className="font-medium">
-                      {transaction.description || 'Pago de suscripción'}
+                      {transaction.description ?? 'Pago de suscripción'}
                     </p>
                     <Badge variant={status.variant}>{status.label}</Badge>
                   </div>

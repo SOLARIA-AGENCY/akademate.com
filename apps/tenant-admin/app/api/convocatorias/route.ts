@@ -2,9 +2,23 @@ import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
-import type { ScheduleEntry } from '@payload-config/components/ui/ScheduleBuilder';
-import type { CourseRun } from '../../../src/payload-types';
+import type { CourseRun, Course, Campus } from '../../../src/payload-types';
 
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+/** Day of week keys used in schedule */
+type DayKey = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+
+/** Schedule entry for course runs */
+interface ScheduleEntry {
+  day: string;
+  startTime: string;
+  endTime: string;
+}
+
+/** Request body for creating a new convocation */
 interface CreateConvocationRequest {
   courseId: string;
   fechaInicio: string;
@@ -19,6 +33,62 @@ interface CreateConvocationRequest {
   aulaId: string;
 }
 
+/** Where clause for course-runs query */
+interface CourseRunWhereClause {
+  course?: { equals: number };
+  campus?: { equals: number };
+}
+
+/** CourseRun with populated course relation */
+interface PopulatedCourseRun extends Omit<CourseRun, 'course' | 'campus'> {
+  course: number | (Course & { id: number; name: string; course_type?: string | null });
+  campus?: number | null | (Campus & { id: number; name: string });
+  modality?: string | null;
+}
+
+/** Data structure for course-run creation */
+interface CourseRunCreateData {
+  course: number;
+  campus: number | undefined;
+  start_date: string;
+  end_date: string;
+  schedule_days: CourseRun['schedule_days'];
+  schedule_time_start: string;
+  schedule_time_end: string;
+  status: CourseRun['status'];
+  min_students: number;
+  max_students: number;
+  current_enrollments: number;
+  price_override: number | undefined;
+  instructor_name: string | undefined;
+  notes: string;
+}
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Type guard to check if error is an Error instance
+ */
+function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
+/**
+ * Get error message from unknown error
+ */
+function getErrorMessage(error: unknown): string {
+  if (isError(error)) {
+    return error.message;
+  }
+  return 'Error al crear convocatoria';
+}
+
+// ============================================================================
+// Route Handlers
+// ============================================================================
+
 /**
  * POST /api/convocatorias
  *
@@ -26,13 +96,12 @@ interface CreateConvocationRequest {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body: CreateConvocationRequest = await request.json();
+    const body = (await request.json()) as CreateConvocationRequest;
     const {
       courseId,
       fechaInicio,
       fechaFin,
       horario,
-      modalidad,
       estado,
       plazasTotales,
       precio,
@@ -41,7 +110,7 @@ export async function POST(request: NextRequest) {
       aulaId,
     } = body;
 
-    // Validaciones básicas
+    // Validaciones basicas
     if (!courseId || !fechaInicio || !fechaFin || !horario || horario.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Campos requeridos: courseId, fechaInicio, fechaFin, horario' },
@@ -49,6 +118,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload HMR type definition includes error union
     const payload = await getPayloadHMR({ config: configPromise });
 
     // Verificar que el curso existe
@@ -64,29 +134,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convertir horario a formato de cadena para almacenar
-    const horarioFormatted = horario
-      .map((entry: ScheduleEntry) => {
-        const dayLabels: Record<string, string> = {
-          monday: 'Lunes',
-          tuesday: 'Martes',
-          wednesday: 'Miércoles',
-          thursday: 'Jueves',
-          friday: 'Viernes',
-          saturday: 'Sábado',
-          sunday: 'Domingo',
-        };
-        const dayLabel = dayLabels[entry.day] || entry.day;
-        return `${dayLabel} ${entry.startTime}-${entry.endTime}`;
-      })
-      .join(', ');
-
     // Find earliest start time and latest end time across all schedule entries
     const startTimes = horario.map((e: ScheduleEntry) => e.startTime);
     const endTimes = horario.map((e: ScheduleEntry) => e.endTime);
 
-    const earliestStart = startTimes.sort()[0] || '09:00:00';
-    const latestEnd = endTimes.sort().reverse()[0] || '14:00:00';
+    const earliestStart = startTimes.sort()[0] ?? '09:00:00';
+    const latestEnd = endTimes.sort().reverse()[0] ?? '14:00:00';
 
     // Parse and validate campus ID
     let campusId: number | undefined = undefined;
@@ -101,25 +154,28 @@ export async function POST(request: NextRequest) {
       campusId = parsedCampusId;
     }
 
+    // Prepare data for course-run creation
+    const courseRunData: CourseRunCreateData = {
+      course: parseInt(courseId),
+      campus: campusId,
+      start_date: fechaInicio,
+      end_date: fechaFin,
+      schedule_days: horario.map((e: ScheduleEntry) => e.day as DayKey),
+      schedule_time_start: earliestStart,
+      schedule_time_end: latestEnd,
+      status: estado === 'abierta' ? 'enrollment_open' : 'draft',
+      min_students: 5,
+      max_students: plazasTotales,
+      current_enrollments: 0,
+      price_override: precio > 0 ? precio : undefined,
+      instructor_name: profesorId !== '' ? profesorId : undefined,
+      notes: `Aula: ${aulaId !== '' ? aulaId : 'Sin asignar'}`,
+    };
+
     // Crear convocatoria en Payload
     const convocation = await payload.create({
       collection: 'course-runs',
-      data: {
-        course: parseInt(courseId),
-        campus: campusId, // Validated campus ID
-        start_date: fechaInicio,
-        end_date: fechaFin,
-        schedule_days: horario.map((e: ScheduleEntry) => e.day) as CourseRun['schedule_days'], // Array de días (english weekdays)
-        schedule_time_start: earliestStart, // Earliest start time across all days
-        schedule_time_end: latestEnd, // Latest end time across all days
-        status: (estado === 'abierta' ? 'enrollment_open' : 'draft') as CourseRun['status'],
-        min_students: 5, // Valor por defecto
-        max_students: plazasTotales,
-        current_enrollments: 0,
-        price_override: precio > 0 ? precio : undefined,
-        instructor_name: profesorId || undefined, // Stored as string for now
-        notes: `Aula: ${aulaId || 'Sin asignar'}`, // Store aula in notes for now
-      } as any,
+      data: courseRunData as Parameters<typeof payload.create<'course-runs'>>[0]['data'],
     });
 
     return NextResponse.json({
@@ -127,16 +183,17 @@ export async function POST(request: NextRequest) {
       data: {
         id: convocation.id,
         courseId: course.id,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload entity type includes error union
         courseName: course.name,
       },
       message: `Convocatoria creada exitosamente`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating convocation:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al crear convocatoria',
+        error: getErrorMessage(error),
       },
       { status: 500 }
     );
@@ -154,10 +211,11 @@ export async function GET(request: NextRequest) {
     const courseId = searchParams.get('courseId');
     const campusId = searchParams.get('campusId');
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload HMR type definition includes error union
     const payload = await getPayloadHMR({ config: configPromise });
 
     // Build dynamic where clause
-    const whereClause: any = {};
+    const whereClause: CourseRunWhereClause = {};
 
     if (courseId) {
       whereClause.course = { equals: parseInt(courseId) };
@@ -177,26 +235,26 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: convocations.docs.map((conv: any) => ({
+      data: convocations.docs.map((conv: PopulatedCourseRun) => ({
         id: conv.id,
         cursoId: typeof conv.course === 'object' ? conv.course.id : conv.course,
         cursoNombre: typeof conv.course === 'object' ? conv.course.name : 'Curso',
         cursoTipo: typeof conv.course === 'object' ? conv.course.course_type : undefined,
-        campusId: typeof conv.campus === 'object' ? conv.campus.id : conv.campus,
-        campusNombre: typeof conv.campus === 'object' ? conv.campus.name : 'Sin sede',
+        campusId: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.id : conv.campus,
+        campusNombre: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.name : 'Sin sede',
         fechaInicio: conv.start_date,
         fechaFin: conv.end_date,
-        horario: `${conv.schedule_days?.join(', ')} ${conv.schedule_time_start}-${conv.schedule_time_end}`,
+        horario: `${conv.schedule_days?.join(', ') ?? ''} ${conv.schedule_time_start ?? ''}-${conv.schedule_time_end ?? ''}`,
         estado: conv.status,
         plazasTotales: conv.max_students,
         plazasOcupadas: conv.current_enrollments,
-        precio: conv.price_override || 0,
-        profesor: conv.instructor_name,
-        modalidad: conv.modality || 'presencial',
+        precio: conv.price_override ?? 0,
+        profesor: conv.instructor,
+        modalidad: conv.modality ?? 'presencial',
       })),
       total: convocations.totalDocs,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching convocations:', error);
     return NextResponse.json(
       { success: false, error: 'Error al obtener convocatorias' },

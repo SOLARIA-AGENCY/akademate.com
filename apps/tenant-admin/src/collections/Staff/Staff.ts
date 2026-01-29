@@ -1,6 +1,64 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, FieldAccess } from 'payload';
 import { canManageStaff } from './access';
 import { trackStaffCreator } from './hooks';
+
+/**
+ * Type definitions for Staff collection
+ */
+type UserRole = 'superadmin' | 'admin' | 'gestor' | 'marketing' | 'asesor' | 'lectura';
+
+/** User with role for access control */
+interface UserWithRole {
+  id: string | number;
+  role: UserRole;
+}
+
+/** Type guard to check if user has a valid role */
+function hasRole(user: unknown): user is UserWithRole {
+  return (
+    typeof user === 'object' &&
+    user !== null &&
+    'role' in user &&
+    typeof (user as UserWithRole).role === 'string'
+  );
+}
+
+/** Staff type options */
+type StaffType = 'profesor' | 'administrativo';
+
+/** Data structure for admin condition functions */
+interface StaffData {
+  staff_type?: StaffType;
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  bio?: string;
+  photo?: string | number;
+  position?: string;
+  contract_type?: string;
+  employment_status?: string;
+  hire_date?: string;
+  specialties?: string[];
+  certifications?: {
+    title?: string;
+    institution?: string;
+    year?: number;
+    document?: string | number;
+  }[];
+  assigned_campuses?: (string | number)[];
+  is_active?: boolean;
+  notes?: string;
+  created_by?: string | number;
+  id?: string | number;
+}
+
+/** Field-level access for notes (only Gestor/Admin) */
+const notesReadAccess: FieldAccess = ({ req: { user } }) => {
+  if (!user) return false;
+  return hasRole(user) && (user.role === 'admin' || user.role === 'gestor');
+};
 
 /**
  * Staff Collection - Personal Management (Profesores y Administrativos)
@@ -161,8 +219,9 @@ export const Staff: CollectionConfig = {
       admin: {
         description: 'First name',
       },
-      validate: (val: any) => {
+      validate: (val: unknown): true | string => {
         if (!val) return 'First name is required';
+        if (typeof val !== 'string') return 'First name must be a string';
         if (val.trim().length < 2) return 'First name must be at least 2 characters';
         return true;
       },
@@ -176,8 +235,9 @@ export const Staff: CollectionConfig = {
       admin: {
         description: 'Last name',
       },
-      validate: (val: any) => {
+      validate: (val: unknown): true | string => {
         if (!val) return 'Last name is required';
+        if (typeof val !== 'string') return 'Last name must be a string';
         if (val.trim().length < 2) return 'Last name must be at least 2 characters';
         return true;
       },
@@ -196,12 +256,13 @@ export const Staff: CollectionConfig = {
       },
       hooks: {
         beforeChange: [
-          ({ data, value }) => {
+          ({ data, value }): string | undefined => {
             // Auto-generate full_name from first_name and last_name
-            if (data?.first_name && data?.last_name) {
-              return `${data.first_name} ${data.last_name}`.trim();
+            const staffData = data as StaffData | undefined;
+            if (staffData?.first_name && staffData?.last_name) {
+              return `${staffData.first_name} ${staffData.last_name}`.trim();
             }
-            return value;
+            return typeof value === 'string' ? value : undefined;
           },
         ],
       },
@@ -216,7 +277,7 @@ export const Staff: CollectionConfig = {
       admin: {
         description: 'Email address (must be unique)',
       },
-      validate: (val: any) => {
+      validate: (val: unknown): true | string => {
         if (!val) return 'Email is required';
         return true;
       },
@@ -233,8 +294,9 @@ export const Staff: CollectionConfig = {
         description: 'Phone number (Spanish format: +34 XXX XXX XXX)',
         placeholder: '+34 912 345 678',
       },
-      validate: (val: any) => {
+      validate: (val: unknown): true | string => {
         if (!val) return true; // Optional
+        if (typeof val !== 'string') return 'Phone must be a string';
         if (!/^\+34\s\d{3}\s\d{3}\s\d{3}$/.test(val)) {
           return 'Phone must be in format: +34 XXX XXX XXX';
         }
@@ -277,8 +339,9 @@ export const Staff: CollectionConfig = {
         description: 'Job position/title (e.g., "Profesor de Marketing Digital", "Coordinador Académico")',
         placeholder: 'e.g., Profesor de Marketing Digital',
       },
-      validate: (val: any) => {
+      validate: (val: unknown): true | string => {
         if (!val) return 'Position is required';
+        if (typeof val !== 'string') return 'Position must be a string';
         if (val.trim().length < 3) return 'Position must be at least 3 characters';
         return true;
       },
@@ -328,8 +391,9 @@ export const Staff: CollectionConfig = {
           pickerAppearance: 'dayOnly',
         },
       },
-      validate: (val: any) => {
+      validate: (val: unknown): true | string => {
         if (!val) return 'Hire date is required';
+        if (typeof val !== 'string' && !(val instanceof Date)) return 'Hire date must be a valid date';
         const hireDate = new Date(val);
         const today = new Date();
         if (hireDate > today) {
@@ -361,7 +425,7 @@ export const Staff: CollectionConfig = {
       ],
       admin: {
         description: 'Specialties (for professors only)',
-        condition: (data) => data.staff_type === 'profesor',
+        condition: (data: StaffData) => data.staff_type === 'profesor',
       },
     },
 
@@ -370,7 +434,7 @@ export const Staff: CollectionConfig = {
       type: 'array',
       admin: {
         description: 'Certifications and academic titles (for professors only)',
-        condition: (data) => data.staff_type === 'profesor',
+        condition: (data: StaffData) => data.staff_type === 'profesor',
       },
       fields: [
         {
@@ -401,8 +465,9 @@ export const Staff: CollectionConfig = {
             description: 'Year obtained',
             placeholder: '2020',
           },
-          validate: (val: any) => {
+          validate: (val: unknown): true | string => {
             if (!val) return 'Year is required';
+            if (typeof val !== 'number') return 'Year must be a number';
             const currentYear = new Date().getFullYear();
             if (val < 1950 || val > currentYear) {
               return `Year must be between 1950 and ${currentYear}`;
@@ -435,7 +500,7 @@ export const Staff: CollectionConfig = {
       admin: {
         description: 'Campuses where this staff member can work (select at least one)',
       },
-      validate: (val: any) => {
+      validate: (val: unknown): true | string => {
         if (!val || (Array.isArray(val) && val.length === 0)) {
           return 'At least one campus must be assigned';
         }
@@ -470,7 +535,7 @@ export const Staff: CollectionConfig = {
         rows: 2,
       },
       access: {
-        read: canManageStaff as any, // Only Gestor/Admin
+        read: notesReadAccess, // Only Gestor/Admin
       },
     },
 

@@ -13,6 +13,16 @@ import {
 } from './hooks';
 import { VALID_STUDENT_STATUSES, VALID_GENDERS, VALID_RELATIONSHIPS } from './Students.validation';
 
+/** Valid user roles for type-safe role checking */
+type UserRole = 'superadmin' | 'admin' | 'gestor' | 'marketing' | 'asesor' | 'lectura';
+
+/** Type-safe role checker that returns true if user has one of the allowed roles */
+const hasRole = (user: unknown, allowedRoles: readonly UserRole[]): boolean => {
+  if (user == null || typeof user !== 'object') return false;
+  const userObj = user as { role?: unknown };
+  return typeof userObj.role === 'string' && allowedRoles.includes(userObj.role as UserRole);
+};
+
 /**
  * Students Collection - Learner Profile Management
  *
@@ -202,12 +212,12 @@ export const Students: CollectionConfig = {
         read: ({ req: { user } }) => {
           if (!user) return false;
           // Lectura can read non-PII fields only
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
           // Only Gestor and Admin can update PII
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -229,11 +239,11 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -257,11 +267,11 @@ export const Students: CollectionConfig = {
         read: ({ req: { user } }) => {
           if (!user) return false;
           // Email is sensitive PII
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -278,11 +288,11 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -306,11 +316,11 @@ export const Students: CollectionConfig = {
         read: ({ req: { user } }) => {
           if (!user) return false;
           // DNI is HIGHLY sensitive - only Asesor, Gestor, Admin
-          return ['asesor', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -330,11 +340,11 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -350,11 +360,11 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -370,11 +380,11 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -391,7 +401,7 @@ export const Students: CollectionConfig = {
         read: () => true, // Country is not sensitive PII
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -413,11 +423,11 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -438,11 +448,11 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -464,11 +474,11 @@ export const Students: CollectionConfig = {
         read: ({ req: { user } }) => {
           if (!user) return false;
           // Emergency contact is HIGHLY sensitive
-          return ['asesor', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -484,11 +494,11 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -507,11 +517,11 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -579,7 +589,7 @@ export const Students: CollectionConfig = {
         read: () => true,
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
       },
     },
@@ -616,7 +626,7 @@ export const Students: CollectionConfig = {
         read: ({ req: { user } }) => {
           if (!user) return false;
           // IP address is PII - only Admin and Gestor
-          return ['gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['gestor', 'admin']);
         },
         update: () => false, // IMMUTABLE
       },
@@ -645,7 +655,7 @@ export const Students: CollectionConfig = {
         read: () => true, // All can read status
         update: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'gestor', 'admin']);
         },
       },
     },
@@ -664,12 +674,12 @@ export const Students: CollectionConfig = {
       access: {
         read: ({ req: { user } }) => {
           if (!user) return false;
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
         update: ({ req: { user } }) => {
           if (!user) return false;
           // Marketing can update notes (most limited write access)
-          return ['asesor', 'marketing', 'gestor', 'admin'].includes(user.role);
+          return hasRole(user, ['asesor', 'marketing', 'gestor', 'admin']);
         },
       },
     },
@@ -705,16 +715,16 @@ export const Students: CollectionConfig = {
      * Order matters: Execute in sequence
      */
     beforeValidate: [
-      captureStudentConsentMetadata as any, // 1. Auto-capture GDPR consent metadata (timestamp, IP)
-      validateStudentData as any, // 2. Validate email, phone, DNI, age, emergency contact
-      validateStudentRelationships as any, // 3. Validate created_by user exists
+      captureStudentConsentMetadata, // 1. Auto-capture GDPR consent metadata (timestamp, IP)
+      validateStudentData, // 2. Validate email, phone, DNI, age, emergency contact
+      validateStudentRelationships, // 3. Validate created_by user exists
     ],
 
     /**
      * Before Change: Run after validation, before database write
      */
     beforeChange: [
-      trackStudentCreator as any, // 4. Auto-populate and protect created_by field
+      trackStudentCreator, // 4. Auto-populate and protect created_by field
     ],
   },
 

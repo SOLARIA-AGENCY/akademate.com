@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type ChangeEvent } from 'react'
 import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
@@ -8,9 +8,45 @@ import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { Save, Building2, Mail, Phone, MapPin, Globe, Image as ImageIcon, Facebook, Twitter, Instagram, Linkedin, Youtube, Check, Upload } from 'lucide-react'
 
+interface AcademyConfig {
+  academyName: string
+  fiscalName: string
+  cif: string
+  address: string
+  city: string
+  postalCode: string
+  country: string
+  phone: string
+  phoneAlternative: string
+  email: string
+  emailAdmissions: string
+  emailSupport: string
+  website: string
+  facebook: string
+  twitter: string
+  instagram: string
+  linkedin: string
+  youtube: string
+  description: string
+  slogan: string
+  foundedYear: string
+  accreditation: string
+}
+
+interface LogosConfig {
+  principal: string
+  oscuro: string
+  claro: string
+  favicon: string
+}
+
+interface ApiResponse<T> {
+  data: T
+}
+
 export default function ConfigGeneralPage() {
   const [showSuccess, setShowSuccess] = useState(false)
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<AcademyConfig>({
     // Información de la Academia
     academyName: 'CEP Comunicación',
     fiscalName: 'Centro de Estudios Profesionales Comunicación S.L.',
@@ -42,7 +78,7 @@ export default function ConfigGeneralPage() {
     accreditation: 'Certificado por la Consejería de Educación de Canarias',
   })
 
-  const [logos, setLogos] = useState({
+  const [logos, setLogos] = useState<LogosConfig>({
     principal: '/logos/cep-logo.png',
     oscuro: '/logos/cep-logo.png',
     claro: '/logos/cep-logo-alpha.png',
@@ -59,19 +95,19 @@ export default function ConfigGeneralPage() {
         ])
 
         if (academiaRes.ok) {
-          const { data } = await academiaRes.json()
+          const { data } = (await academiaRes.json()) as ApiResponse<Partial<AcademyConfig>>
           setConfig(prev => ({ ...prev, ...data }))
         }
 
         if (logosRes.ok) {
-          const { data } = await logosRes.json()
+          const { data } = (await logosRes.json()) as ApiResponse<LogosConfig>
           setLogos(data)
         }
       } catch (error) {
         console.error('Error fetching config:', error)
       }
     }
-    fetchConfig()
+    void fetchConfig()
   }, [])
 
   const handleSave = async () => {
@@ -102,7 +138,7 @@ export default function ConfigGeneralPage() {
     }
   }
 
-  const handleLogoUpload = (type: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = (type: string, event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       // For demo, use URL.createObjectURL
@@ -111,6 +147,12 @@ export default function ConfigGeneralPage() {
       setLogos(prev => ({ ...prev, [type]: url }))
       console.log(`Logo ${type} updated:`, file.name)
     }
+  }
+
+  const handleConfigChange = (field: keyof AcademyConfig) => (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setConfig({ ...config, [field]: e.target.value })
   }
 
   return (
@@ -145,34 +187,34 @@ export default function ConfigGeneralPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="academyName">Nombre Comercial</Label>
-              <Input 
+              <Input
                 id="academyName"
-                value={config.academyName} 
-                onChange={(e) => setConfig({...config, academyName: e.target.value})} 
+                value={config.academyName}
+                onChange={handleConfigChange('academyName')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="fiscalName">Razón Social</Label>
-              <Input 
+              <Input
                 id="fiscalName"
-                value={config.fiscalName} 
-                onChange={(e) => setConfig({...config, fiscalName: e.target.value})} 
+                value={config.fiscalName}
+                onChange={handleConfigChange('fiscalName')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="cif">CIF/NIF</Label>
-              <Input 
+              <Input
                 id="cif"
-                value={config.cif} 
-                onChange={(e) => setConfig({...config, cif: e.target.value})} 
+                value={config.cif}
+                onChange={handleConfigChange('cif')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="foundedYear">Año de Fundación</Label>
-              <Input 
+              <Input
                 id="foundedYear"
-                value={config.foundedYear} 
-                onChange={(e) => setConfig({...config, foundedYear: e.target.value})} 
+                value={config.foundedYear}
+                onChange={handleConfigChange('foundedYear')}
               />
             </div>
           </div>
@@ -182,7 +224,7 @@ export default function ConfigGeneralPage() {
             <Textarea
               id="description"
               value={config.description}
-              onChange={(e) => setConfig({...config, description: e.target.value})}
+              onChange={handleConfigChange('description')}
               rows={3}
               placeholder="Breve descripción de la academia..."
             />
@@ -191,19 +233,19 @@ export default function ConfigGeneralPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="slogan">Slogan</Label>
-              <Input 
+              <Input
                 id="slogan"
-                value={config.slogan} 
-                onChange={(e) => setConfig({...config, slogan: e.target.value})} 
+                value={config.slogan}
+                onChange={handleConfigChange('slogan')}
                 placeholder="Frase representativa"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="accreditation">Acreditaciones</Label>
-              <Input 
+              <Input
                 id="accreditation"
-                value={config.accreditation} 
-                onChange={(e) => setConfig({...config, accreditation: e.target.value})} 
+                value={config.accreditation}
+                onChange={handleConfigChange('accreditation')}
               />
             </div>
           </div>
@@ -221,36 +263,36 @@ export default function ConfigGeneralPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="address"><MapPin className="h-4 w-4 inline mr-1" />Dirección Completa</Label>
-            <Input 
+            <Input
               id="address"
-              value={config.address} 
-              onChange={(e) => setConfig({...config, address: e.target.value})} 
+              value={config.address}
+              onChange={handleConfigChange('address')}
             />
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="city">Ciudad</Label>
-              <Input 
+              <Input
                 id="city"
-                value={config.city} 
-                onChange={(e) => setConfig({...config, city: e.target.value})} 
+                value={config.city}
+                onChange={handleConfigChange('city')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="postalCode">Código Postal</Label>
-              <Input 
+              <Input
                 id="postalCode"
-                value={config.postalCode} 
-                onChange={(e) => setConfig({...config, postalCode: e.target.value})} 
+                value={config.postalCode}
+                onChange={handleConfigChange('postalCode')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="country">País</Label>
-              <Input 
+              <Input
                 id="country"
-                value={config.country} 
-                onChange={(e) => setConfig({...config, country: e.target.value})} 
+                value={config.country}
+                onChange={handleConfigChange('country')}
               />
             </div>
           </div>
@@ -258,20 +300,20 @@ export default function ConfigGeneralPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="phone"><Phone className="h-4 w-4 inline mr-1" />Teléfono Principal</Label>
-              <Input 
+              <Input
                 id="phone"
                 type="tel"
-                value={config.phone} 
-                onChange={(e) => setConfig({...config, phone: e.target.value})} 
+                value={config.phone}
+                onChange={handleConfigChange('phone')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phoneAlt">Teléfono Alternativo</Label>
-              <Input 
+              <Input
                 id="phoneAlt"
                 type="tel"
-                value={config.phoneAlternative} 
-                onChange={(e) => setConfig({...config, phoneAlternative: e.target.value})} 
+                value={config.phoneAlternative}
+                onChange={handleConfigChange('phoneAlternative')}
               />
             </div>
           </div>
@@ -279,38 +321,38 @@ export default function ConfigGeneralPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="email"><Mail className="h-4 w-4 inline mr-1" />Email General</Label>
-              <Input 
+              <Input
                 id="email"
                 type="email"
-                value={config.email} 
-                onChange={(e) => setConfig({...config, email: e.target.value})} 
+                value={config.email}
+                onChange={handleConfigChange('email')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="emailAdmissions">Email Admisiones</Label>
-              <Input 
+              <Input
                 id="emailAdmissions"
                 type="email"
-                value={config.emailAdmissions} 
-                onChange={(e) => setConfig({...config, emailAdmissions: e.target.value})} 
+                value={config.emailAdmissions}
+                onChange={handleConfigChange('emailAdmissions')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="emailSupport">Email Soporte Técnico</Label>
-              <Input 
+              <Input
                 id="emailSupport"
                 type="email"
-                value={config.emailSupport} 
-                onChange={(e) => setConfig({...config, emailSupport: e.target.value})} 
+                value={config.emailSupport}
+                onChange={handleConfigChange('emailSupport')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="website"><Globe className="h-4 w-4 inline mr-1" />Sitio Web</Label>
-              <Input 
+              <Input
                 id="website"
                 type="url"
-                value={config.website} 
-                onChange={(e) => setConfig({...config, website: e.target.value})} 
+                value={config.website}
+                onChange={handleConfigChange('website')}
               />
             </div>
           </div>
@@ -329,11 +371,11 @@ export default function ConfigGeneralPage() {
                 <Facebook className="h-4 w-4" />
                 Facebook
               </Label>
-              <Input 
+              <Input
                 id="facebook"
                 type="url"
-                value={config.facebook} 
-                onChange={(e) => setConfig({...config, facebook: e.target.value})} 
+                value={config.facebook}
+                onChange={handleConfigChange('facebook')}
                 placeholder="https://facebook.com/tu-pagina"
               />
             </div>
@@ -343,11 +385,11 @@ export default function ConfigGeneralPage() {
                 <Twitter className="h-4 w-4" />
                 Twitter / X
               </Label>
-              <Input 
+              <Input
                 id="twitter"
                 type="url"
-                value={config.twitter} 
-                onChange={(e) => setConfig({...config, twitter: e.target.value})} 
+                value={config.twitter}
+                onChange={handleConfigChange('twitter')}
                 placeholder="https://twitter.com/tu-cuenta"
               />
             </div>
@@ -357,11 +399,11 @@ export default function ConfigGeneralPage() {
                 <Instagram className="h-4 w-4" />
                 Instagram
               </Label>
-              <Input 
+              <Input
                 id="instagram"
                 type="url"
-                value={config.instagram} 
-                onChange={(e) => setConfig({...config, instagram: e.target.value})} 
+                value={config.instagram}
+                onChange={handleConfigChange('instagram')}
                 placeholder="https://instagram.com/tu-perfil"
               />
             </div>
@@ -371,11 +413,11 @@ export default function ConfigGeneralPage() {
                 <Linkedin className="h-4 w-4" />
                 LinkedIn
               </Label>
-              <Input 
+              <Input
                 id="linkedin"
                 type="url"
-                value={config.linkedin} 
-                onChange={(e) => setConfig({...config, linkedin: e.target.value})} 
+                value={config.linkedin}
+                onChange={handleConfigChange('linkedin')}
                 placeholder="https://linkedin.com/company/tu-empresa"
               />
             </div>
@@ -385,11 +427,11 @@ export default function ConfigGeneralPage() {
                 <Youtube className="h-4 w-4" />
                 YouTube
               </Label>
-              <Input 
+              <Input
                 id="youtube"
                 type="url"
-                value={config.youtube} 
-                onChange={(e) => setConfig({...config, youtube: e.target.value})} 
+                value={config.youtube}
+                onChange={handleConfigChange('youtube')}
                 placeholder="https://youtube.com/@tu-canal"
               />
             </div>

@@ -28,6 +28,25 @@ import {
   TrendingUp,
 } from 'lucide-react'
 
+interface ConvocatoriaApiResponse {
+  id: string | number
+  cursoNombre?: string
+  cursoTipo?: string
+  profesor?: string
+  campusNombre?: string
+  modalidad?: string
+  horario?: string
+  fechaInicio?: string
+  fechaFin?: string
+  plazasTotales?: number
+  plazasOcupadas?: number
+  estado?: string
+}
+
+interface ConvocatoriasApiPayload {
+  data?: ConvocatoriaApiResponse[]
+}
+
 interface Convocatoria {
   id: string
   curso: string
@@ -63,33 +82,31 @@ export default function ProgramacionPage() {
           throw new Error('No se pudieron cargar las convocatorias')
         }
 
-        const payload = await response.json()
-        const data = Array.isArray(payload?.data) ? payload.data : []
-        const mapped = data.map((conv: any) => {
-          const estadoMap: Record<string, Convocatoria['estado']> = {
-            draft: 'planificada',
-            enrollment_open: 'abierta',
-            in_progress: 'en_curso',
-            completed: 'completada',
-            cancelled: 'cancelada',
-          }
-          return {
-            id: String(conv.id),
-            curso: conv.cursoNombre ?? 'Curso',
-            codigo_curso: conv.cursoTipo ?? '—',
-            profesor_principal: conv.profesor ?? 'Sin asignar',
-            sede: conv.campusNombre ?? 'Sin sede',
-            aula: conv.modalidad ?? 'Sin aula',
-            horario_resumen: conv.horario ?? '—',
-            fecha_inicio: conv.fechaInicio ?? '',
-            fecha_fin: conv.fechaFin ?? '',
-            plazas_totales: conv.plazasTotales ?? 0,
-            plazas_ocupadas: conv.plazasOcupadas ?? 0,
-            estado: estadoMap[conv.estado] ?? 'planificada',
-            tiene_conflictos: false,
-            conflictos: [],
-          }
-        })
+        const payload = (await response.json()) as ConvocatoriasApiPayload
+        const data: ConvocatoriaApiResponse[] = Array.isArray(payload.data) ? payload.data : []
+        const estadoMap: Record<string, Convocatoria['estado']> = {
+          draft: 'planificada',
+          enrollment_open: 'abierta',
+          in_progress: 'en_curso',
+          completed: 'completada',
+          cancelled: 'cancelada',
+        }
+        const mapped: Convocatoria[] = data.map((conv) => ({
+          id: String(conv.id),
+          curso: conv.cursoNombre ?? 'Curso',
+          codigo_curso: conv.cursoTipo ?? '—',
+          profesor_principal: conv.profesor ?? 'Sin asignar',
+          sede: conv.campusNombre ?? 'Sin sede',
+          aula: conv.modalidad ?? 'Sin aula',
+          horario_resumen: conv.horario ?? '—',
+          fecha_inicio: conv.fechaInicio ?? '',
+          fecha_fin: conv.fechaFin ?? '',
+          plazas_totales: conv.plazasTotales ?? 0,
+          plazas_ocupadas: conv.plazasOcupadas ?? 0,
+          estado: estadoMap[conv.estado ?? ''] ?? 'planificada',
+          tiene_conflictos: false,
+          conflictos: [],
+        }))
 
         setConvocatorias(mapped)
       } catch (error) {
@@ -100,7 +117,7 @@ export default function ProgramacionPage() {
       }
     }
 
-    fetchConvocatorias()
+    void fetchConvocatorias()
   }, [])
 
   // Calcular estadísticas
@@ -241,7 +258,7 @@ export default function ProgramacionPage() {
             <Input
               placeholder="Buscar curso, código o profesor..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
@@ -421,7 +438,7 @@ export default function ProgramacionPage() {
                           size="sm"
                           variant="outline"
                           className="mt-2 border-orange-500 text-orange-700 hover:bg-orange-100"
-                          onClick={(e) => {
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                             e.stopPropagation()
                             alert('Abrir modal de resolución de conflictos')
                           }}
@@ -438,7 +455,7 @@ export default function ProgramacionPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation()
                       router.push(`/planner?convocatoria=${convocatoria.id}`)
                     }}
@@ -449,7 +466,7 @@ export default function ProgramacionPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation()
                       router.push(`/programacion/${convocatoria.id}/editar`)
                     }}
@@ -459,7 +476,7 @@ export default function ProgramacionPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation()
                       router.push(`/alumnos?convocatoria=${convocatoria.id}`)
                     }}

@@ -12,10 +12,35 @@ import {
   Eye,
   EyeOff,
   AlertTriangle,
-  GraduationCap,
   Shield,
   Loader2
 } from 'lucide-react'
+
+interface LogoConfigData {
+  claro?: string
+  oscuro?: string
+}
+
+interface AcademyConfigData {
+  nombre?: string
+}
+
+interface ConfigResponse<T> {
+  data: T
+}
+
+interface LoginUser {
+  id: string
+  email: string
+  name?: string
+  role?: string
+}
+
+interface LoginResponse {
+  user?: LoginUser
+  token?: string
+  message?: string
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -46,20 +71,20 @@ export default function LoginPage() {
       try {
         const response = await fetch('/api/config?section=logos')
         if (response.ok) {
-          const { data } = await response.json()
-          setLogoUrl(data.claro || '/logos/cep-logo-alpha.png')
+          const { data } = (await response.json()) as ConfigResponse<LogoConfigData>
+          setLogoUrl(data.claro ?? '/logos/cep-logo-alpha.png')
         }
 
         const academyResponse = await fetch('/api/config?section=academia')
         if (academyResponse.ok) {
-          const { data } = await academyResponse.json()
-          setAcademyName(data.nombre || 'CEP Formación')
+          const { data } = (await academyResponse.json()) as ConfigResponse<AcademyConfigData>
+          setAcademyName(data.nombre ?? 'CEP Formación')
         }
       } catch (error) {
         console.error('Error fetching config:', error)
       }
     }
-    fetchConfig()
+    void fetchConfig()
   }, [isDev])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -116,7 +141,7 @@ export default function LoginPage() {
         }),
       })
 
-      const data = await response.json()
+      const data = (await response.json()) as LoginResponse
 
       if (data.user && data.token) {
         // Store user data in localStorage for client-side access
@@ -126,7 +151,7 @@ export default function LoginPage() {
         router.push('/dashboard')
         router.refresh()
       } else {
-        setError(data.message || 'Email o contraseña incorrectos')
+        setError(data.message ?? 'Email o contraseña incorrectos')
         setIsLoading(false)
       }
     } catch (err) {
@@ -183,7 +208,7 @@ export default function LoginPage() {
                     type="email"
                     placeholder="usuario@cepcomunicacion.com"
                     value={credentials.email}
-                    onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCredentials({ ...credentials, email: e.target.value })}
                     ref={emailRef}
                     className="pl-10"
                     required
@@ -208,7 +233,7 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     value={credentials.password}
-                    onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCredentials({ ...credentials, password: e.target.value })}
                     ref={passwordRef}
                     className="pl-10 pr-10"
                     required

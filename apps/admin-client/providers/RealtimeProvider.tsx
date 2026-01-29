@@ -12,6 +12,17 @@ import { useEffect, useState } from 'react';
 import { SocketProvider } from '@akademate/realtime/context';
 import Cookies from 'js-cookie';
 
+/** Type-safe cookie getter (js-cookie types not available) */
+const getCookie = (name: string): string | undefined => {
+  return (Cookies as { get: (name: string) => string | undefined }).get(name);
+};
+
+/** User data structure from cookies/localStorage */
+interface UserData {
+  id?: number | string;
+  role?: string;
+}
+
 interface AuthData {
   token: string;
   userId: string;
@@ -29,18 +40,18 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
 
   // Get auth data from cookies or localStorage
   useEffect(() => {
-    const getAuthData = async () => {
+    const getAuthData = (): void => {
       try {
         // Try to get from cookie first (admin-client uses js-cookie)
-        const token = Cookies.get('akademate_admin_token');
-        const userJson = Cookies.get('akademate_admin_user');
+        const token = getCookie('akademate_admin_token');
+        const userJson = getCookie('akademate_admin_user');
 
         if (token && userJson) {
-          const userData = JSON.parse(userJson);
+          const userData = JSON.parse(userJson) as UserData;
           setAuthData({
             token,
-            userId: userData.id?.toString() || '0',
-            role: userData.role || 'superadmin',
+            userId: String(userData.id ?? '0'),
+            role: userData.role ?? 'superadmin',
             tenantId: 0, // Admin client uses tenant 0 (global)
           });
           setIsReady(true);
@@ -48,15 +59,15 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
         }
 
         // Fallback: try localStorage
-        const storedToken = localStorage.getItem('akademate_admin_token');
-        const storedUser = localStorage.getItem('akademate_admin_user');
+        const storedToken: string | null = localStorage.getItem('akademate_admin_token');
+        const storedUser: string | null = localStorage.getItem('akademate_admin_user');
 
         if (storedToken && storedUser) {
-          const userData = JSON.parse(storedUser);
+          const userData = JSON.parse(storedUser) as UserData;
           setAuthData({
             token: storedToken,
-            userId: userData.id?.toString() || '0',
-            role: userData.role || 'superadmin',
+            userId: String(userData.id ?? '0'),
+            role: userData.role ?? 'superadmin',
             tenantId: 0,
           });
         }

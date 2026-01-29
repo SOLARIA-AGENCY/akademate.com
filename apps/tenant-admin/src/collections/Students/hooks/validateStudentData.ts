@@ -1,4 +1,4 @@
-import type { FieldHook } from 'payload';
+import type { CollectionBeforeValidateHook } from 'payload';
 import {
   spanishPhoneRegex,
   dniRegex,
@@ -6,6 +6,18 @@ import {
   emailSchema,
   dateOfBirthSchema,
 } from '../Students.validation';
+
+/** Logger interface for typed logging calls */
+interface Logger {
+  info: (msg: string, data?: Record<string, unknown>) => void;
+  error: (msg: string, data?: Record<string, unknown>) => void;
+  warn: (msg: string, data?: Record<string, unknown>) => void;
+}
+
+/** Zod validation error structure */
+interface ZodValidationError {
+  errors: { message?: string }[];
+}
 
 /**
  * Hook: validateStudentData
@@ -41,23 +53,25 @@ import {
  * @returns Modified data if validation passes
  * @throws Error if validation fails
  */
-export const validateStudentData: FieldHook = async ({ data, req, operation, value }) => {
+export const validateStudentData: CollectionBeforeValidateHook = ({ data, req, operation }) => {
   const validationErrors: string[] = [];
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as Logger | undefined;
 
   try {
     // 1. Validate Email (always required)
     if (data?.email) {
       try {
         emailSchema.parse(data.email);
-      } catch (error: any) {
-        validationErrors.push(`Email validation failed: ${error.errors[0]?.message || 'Invalid email format'}`);
+      } catch (error: unknown) {
+        const zodError = error as ZodValidationError;
+        validationErrors.push(`Email validation failed: ${zodError.errors?.[0]?.message ?? 'Invalid email format'}`);
       }
     }
 
     // 2. Validate Phone (always required)
     if (data?.phone) {
-      if (!spanishPhoneRegex.test(data.phone)) {
+      const phone = data.phone as string;
+      if (!spanishPhoneRegex.test(phone)) {
         validationErrors.push(
           'Phone must be in Spanish format: +34 XXX XXX XXX (e.g., +34 612 345 678)'
         );
@@ -66,9 +80,10 @@ export const validateStudentData: FieldHook = async ({ data, req, operation, val
 
     // 3. Validate DNI (optional, but must be valid if provided)
     if (data?.dni) {
-      if (!dniRegex.test(data.dni)) {
+      const dni = data.dni as string;
+      if (!dniRegex.test(dni)) {
         validationErrors.push('DNI must be 8 digits followed by a letter (e.g., 12345678Z)');
-      } else if (!validateDNIChecksum(data.dni)) {
+      } else if (!validateDNIChecksum(dni)) {
         validationErrors.push('DNI checksum letter is invalid');
       }
     }
@@ -77,15 +92,17 @@ export const validateStudentData: FieldHook = async ({ data, req, operation, val
     if (data?.date_of_birth) {
       try {
         dateOfBirthSchema.parse(data.date_of_birth);
-      } catch (error: any) {
-        const errorMessage = error.errors[0]?.message || 'Invalid date of birth';
+      } catch (error: unknown) {
+        const zodError = error as ZodValidationError;
+        const errorMessage = zodError.errors?.[0]?.message ?? 'Invalid date of birth';
         validationErrors.push(`Date of birth validation failed: ${errorMessage}`);
       }
     }
 
     // 5. Validate Emergency Contact Phone (optional, but must be valid if provided)
     if (data?.emergency_contact_phone) {
-      if (!spanishPhoneRegex.test(data.emergency_contact_phone)) {
+      const emergencyPhone = data.emergency_contact_phone as string;
+      if (!spanishPhoneRegex.test(emergencyPhone)) {
         validationErrors.push(
           'Emergency contact phone must be in Spanish format: +34 XXX XXX XXX'
         );
@@ -115,7 +132,7 @@ export const validateStudentData: FieldHook = async ({ data, req, operation, val
         hasPhone: !!data?.phone,
         hasDNI: !!data?.dni,
         hasDateOfBirth: !!data?.date_of_birth,
-        hasEmergencyContact: !!(data?.emergency_contact_name || data?.emergency_contact_phone),
+        hasEmergencyContact: Boolean(data?.emergency_contact_name ?? data?.emergency_contact_phone),
       });
     }
   } catch (error) {

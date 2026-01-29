@@ -4,21 +4,97 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Clock, Users, Star, Filter, Search } from 'lucide-react'
 import { cms } from '@/lib/cms'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency as formatCurrencyUtil } from '@/lib/utils'
+
+/** Format currency with proper typing */
+function formatCurrency(amount: number): string {
+  return (formatCurrencyUtil as (amount: number, currency?: string) => string)(amount)
+}
+
+/** Course data structure from CMS */
+interface Course {
+  id: string
+  title: string
+  slug: string
+  description: string
+  shortDescription?: string
+  price: number
+  currency: string
+  duration: number
+  category: string
+  level: 'beginner' | 'intermediate' | 'advanced'
+  instructor: {
+    id: string
+    name: string
+    avatar?: {
+      id: string
+      url: string
+      alt: string
+      width: number
+      height: number
+    }
+  }
+  image?: {
+    id: string
+    url: string
+    alt: string
+    width: number
+    height: number
+  }
+  rating?: number
+  studentsCount?: number
+  status: 'draft' | 'published' | 'archived'
+  createdAt: string
+  updatedAt: string
+}
+
+/** Paginated response from CMS API */
+interface CoursesResponse {
+  docs: Course[]
+  totalDocs: number
+  limit: number
+  page: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+}
 
 export const metadata: Metadata = {
   title: 'Cursos',
   description: 'Explora nuestro catálogo de cursos de formación profesional',
 }
 
+/** Typed CMS client interface for getCourses */
+interface CMSClient {
+  getCourses: (params: { limit: number }) => Promise<CoursesResponse>
+}
+
+async function fetchCourses(): Promise<CoursesResponse> {
+  try {
+    const typedCms = cms as unknown as CMSClient
+    const response = await typedCms.getCourses({ limit: 20 })
+    return response
+  } catch {
+    return {
+      docs: [],
+      totalDocs: 0,
+      limit: 20,
+      page: 1,
+      totalPages: 0,
+      hasNextPage: false,
+      hasPrevPage: false,
+    }
+  }
+}
+
 export default async function CoursesPage() {
-  const courseResponse = await cms.getCourses({ limit: 20 }).catch(() => ({
-    docs: [],
-  }))
+  const courseResponse = await fetchCourses()
   const courses = courseResponse.docs
-  const categories = [
+  const categories: string[] = [
     'Todos',
-    ...Array.from(new Set(courses.map((course) => course.category))).filter(Boolean),
+    ...Array.from(new Set(courses.map((course) => course.category))).filter(
+      (category): category is string => Boolean(category)
+    ),
   ]
   const levelLabels: Record<string, string> = {
     beginner: 'Principiante',
@@ -105,7 +181,7 @@ export default async function CoursesPage() {
                     </h2>
 
                     <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                      {course.shortDescription || course.description}
+                      {course.shortDescription ?? course.description}
                     </p>
 
                     <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">

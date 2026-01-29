@@ -12,17 +12,44 @@
 
 import type { CollectionBeforeValidateHook } from 'payload';
 
+/**
+ * Payload Logger interface for typed logging calls
+ */
+interface PayloadLogger {
+  info: (message: string, meta?: Record<string, unknown>) => void;
+  warn: (message: string, meta?: Record<string, unknown>) => void;
+  error: (message: string, meta?: Record<string, unknown>) => void;
+}
+
+/**
+ * Related course reference - can be ID string or populated object
+ */
+interface RelatedCourseRef {
+  id: string | number;
+}
+
+/**
+ * FAQ data interface for validation hook
+ */
+interface FAQData {
+  related_course?: string | RelatedCourseRef | null;
+  [key: string]: unknown;
+}
+
 export const validateFAQRelationships: CollectionBeforeValidateHook = async ({
   data,
   req,
   operation,
 }) => {
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as PayloadLogger | undefined;
+  const faqData = data as FAQData | undefined;
   try {
     // Validate related_course if provided
-    if (data?.related_course) {
+    if (faqData?.related_course) {
       const courseId =
-        typeof data.related_course === 'string' ? data.related_course : data.related_course.id;
+        typeof faqData.related_course === 'string'
+          ? faqData.related_course
+          : faqData.related_course.id;
 
       if (courseId) {
         // Check if course exists
@@ -53,16 +80,17 @@ export const validateFAQRelationships: CollectionBeforeValidateHook = async ({
     // SECURITY (SP-004): Log validation completion without data
     logger?.info('[FAQ] Relationships validated', {
       operation,
-      hasRelatedCourse: !!data?.related_course,
+      hasRelatedCourse: !!faqData?.related_course,
     });
 
     return data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // SECURITY (SP-004): Log error without exposing data
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     logger?.error('[FAQ] Relationship validation failed', {
       operation,
       hasError: true,
-      errorMessage: error.message,
+      errorMessage,
     });
 
     throw error;

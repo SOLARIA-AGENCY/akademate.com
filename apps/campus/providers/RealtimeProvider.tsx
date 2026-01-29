@@ -8,10 +8,29 @@
  * Auto-connects when student auth is available.
  */
 
-import type { ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { SocketProvider } from '@akademate/realtime/context';
 
+/** Session API response structure */
+interface SessionResponse {
+  user?: {
+    id?: number | string;
+    role?: string;
+    tenantId?: number;
+  };
+  accessToken?: string;
+}
+
+/** LocalStorage user data structure */
+interface StoredUserData {
+  id?: number | string;
+  userId?: number | string;
+  role?: string;
+  tenantId?: number;
+}
+
+/** Internal auth data for socket connection */
 interface AuthData {
   token: string;
   userId: string;
@@ -35,13 +54,13 @@ export function RealtimeProvider({ children, tenantId: defaultTenantId = 1 }: Re
         // Try to get from session API first (server-side auth)
         const sessionResponse = await fetch('/api/auth/session');
         if (sessionResponse.ok) {
-          const session = await sessionResponse.json();
-          if (session?.user?.id && session?.accessToken) {
+          const session = (await sessionResponse.json()) as SessionResponse;
+          if (session.user?.id && session.accessToken) {
             setAuthData({
               token: session.accessToken,
-              userId: session.user.id.toString(),
-              role: session.user.role || 'student',
-              tenantId: session.user.tenantId || defaultTenantId,
+              userId: String(session.user.id),
+              role: session.user.role ?? 'student',
+              tenantId: session.user.tenantId ?? defaultTenantId,
             });
             setIsReady(true);
             return;
@@ -53,12 +72,13 @@ export function RealtimeProvider({ children, tenantId: defaultTenantId = 1 }: Re
         const storedUser = localStorage.getItem('akademate_campus_user');
 
         if (storedToken && storedUser) {
-          const userData = JSON.parse(storedUser);
+          const userData = JSON.parse(storedUser) as StoredUserData;
+          const userId = userData.id ?? userData.userId;
           setAuthData({
             token: storedToken,
-            userId: userData.id?.toString() || userData.userId?.toString() || '0',
-            role: userData.role || 'student',
-            tenantId: userData.tenantId || defaultTenantId,
+            userId: userId != null ? String(userId) : '0',
+            role: userData.role ?? 'student',
+            tenantId: userData.tenantId ?? defaultTenantId,
           });
         }
       } catch (error) {
@@ -68,7 +88,7 @@ export function RealtimeProvider({ children, tenantId: defaultTenantId = 1 }: Re
       }
     };
 
-    getAuthData();
+    void getAuthData();
   }, [defaultTenantId]);
 
   // Don't render SocketProvider until we've checked for auth

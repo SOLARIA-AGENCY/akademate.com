@@ -1,7 +1,7 @@
 import type { CollectionBeforeChangeHook } from 'payload';
 import { fileTypeFromBuffer } from 'file-type';
 import { JSDOM } from 'jsdom';
-import createDOMPurify from 'dompurify';
+import createDOMPurify, { type DOMPurify } from 'dompurify';
 import {
   ALLOWED_MIME_TYPES,
   BLOCKED_MIME_TYPES,
@@ -13,10 +13,54 @@ import {
   type BlockedMimeType,
 } from '../Media.validation';
 
+/**
+ * Interface for file data in Payload CMS media uploads
+ */
+interface MediaFileData {
+  data: Buffer | Uint8Array;
+}
+
+/**
+ * Interface for media document data in beforeChange hook
+ */
+interface MediaDocumentData {
+  filename?: string;
+  mimeType?: string;
+  filesize?: number;
+  file?: MediaFileData;
+  [key: string]: unknown;
+}
+
+/**
+ * Type guard to check if an error has a message property
+ */
+function isErrorWithMessage(error: unknown): error is { message: string } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message: unknown }).message === 'string'
+  );
+}
+
+/**
+ * Get error message from unknown error type
+ */
+function getErrorMessage(error: unknown): string {
+  if (isErrorWithMessage(error)) {
+    return error.message;
+  }
+  return String(error);
+}
+
 // Initialize DOMPurify with jsdom for Node.js environment
 // DOMPurify v3.2.4 (patched for XSS vulnerability GHSA-vhxf-7vqr-mrjg)
-const window = new JSDOM('').window;
-const purify = createDOMPurify(window as any);
+// Note: JSDOM types don't perfectly align with Window, but DOMPurify works correctly at runtime
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- JSDOM constructor has incomplete type definitions
+const jsdomInstance = new JSDOM('');
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- JSDOM window property has incomplete type definitions
+const jsdomWindow = jsdomInstance.window as unknown as Window;
+const purify: DOMPurify = createDOMPurify(jsdomWindow);
 
 /**
  * Hook: Validate Media File (beforeChange)
@@ -53,14 +97,16 @@ const purify = createDOMPurify(window as any);
  * - Logs only filename, MIME type, file size (metadata only)
  * - NEVER logs file content or buffer data
  */
-export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req, operation }) => {
+export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req: _req, operation }) => {
   // Only validate on create (file upload)
   // Updates typically only modify metadata (alt, caption), not the file itself
   if (operation !== 'create') {
     return data;
   }
 
-  const { filename, mimeType, filesize } = data;
+  // Cast data to our typed interface
+  const mediaData = data as MediaDocumentData;
+  const { filename, mimeType, filesize } = mediaData;
 
   // ============================================================================
   // 1. VALIDATE FILENAME EXISTS
@@ -76,8 +122,8 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
 
   console.log('[Media Validation] Validating file upload', {
     filename,
-    mimeType,
-    filesize,
+    mimeType: mimeType ?? 'unknown',
+    filesize: filesize ?? 0,
     operation,
   });
 
@@ -91,7 +137,7 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
       original: filename,
       sanitized,
     });
-    data.filename = sanitized;
+    mediaData.filename = sanitized;
   }
 
   // ============================================================================
@@ -116,6 +162,7 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
   }
 
   // 3.4: Control character prevention
+  // eslint-disable-next-line no-control-regex -- Intentionally matching control characters for security
   if (/[\x00-\x1F\x7F]/.test(sanitized)) {
     throw new Error('Invalid filename: Control characters are not allowed for security reasons');
   }
@@ -177,11 +224,10 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
 
   // FIX #2: Validate that file content matches declared MIME type
   // This prevents attackers from uploading executables disguised as images
-  if (data.file?.data) {
+  const fileData = mediaData.file?.data;
+  if (fileData) {
     try {
-      const buffer = Buffer.isBuffer(data.file.data)
-        ? data.file.data
-        : Buffer.from(data.file.data);
+      const buffer = Buffer.isBuffer(fileData) ? fileData : Buffer.from(fileData);
 
       const detectedType = await fileTypeFromBuffer(buffer);
 
@@ -206,15 +252,16 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
           detectedType: detectedType.mime,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
       // If it's our security error, re-throw it
-      if (error.message.includes('Security Error')) {
+      if (errorMessage.includes('Security Error')) {
         throw error;
       }
 
       // Otherwise, log and throw generic error
       console.error('[Media Validation] Magic byte validation failed', {
-        error: error.message,
+        error: errorMessage,
         filename: sanitized,
         mimeType,
       });
@@ -230,13 +277,12 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
   // ============================================================================
 
   // FIX #1: Sanitize SVG files to prevent XSS, XXE, and SSRF attacks
-  if (mimeType === 'image/svg+xml' && data.file?.data) {
+  const svgFileData = mediaData.file?.data;
+  if (mimeType === 'image/svg+xml' && svgFileData) {
     try {
-      const buffer = Buffer.isBuffer(data.file.data)
-        ? data.file.data
-        : Buffer.from(data.file.data);
+      const svgBuffer = Buffer.isBuffer(svgFileData) ? svgFileData : Buffer.from(svgFileData);
 
-      const svgContent = buffer.toString('utf-8');
+      const svgContent = svgBuffer.toString('utf-8');
 
       // 8.1: Block DTD and external entity declarations (XXE prevention)
       if (svgContent.includes('<!ENTITY') || svgContent.includes('<!DOCTYPE')) {
@@ -282,24 +328,28 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req,
       }
 
       // 8.4: Replace file content with sanitized version
-      data.file.data = Buffer.from(sanitizedSVG, 'utf-8');
-      data.filesize = data.file.data.length;
+      const sanitizedBuffer = Buffer.from(sanitizedSVG, 'utf-8');
+      if (mediaData.file) {
+        mediaData.file.data = sanitizedBuffer;
+      }
+      mediaData.filesize = sanitizedBuffer.length;
 
       console.log('[Media Validation] SVG sanitized successfully', {
         filename: sanitized,
-        originalSize: buffer.length,
-        sanitizedSize: data.file.data.length,
-        bytesRemoved: buffer.length - data.file.data.length,
+        originalSize: svgBuffer.length,
+        sanitizedSize: sanitizedBuffer.length,
+        bytesRemoved: svgBuffer.length - sanitizedBuffer.length,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const svgErrorMessage = getErrorMessage(error);
       // If it's our security error, re-throw it
-      if (error.message.includes('Security Error')) {
+      if (svgErrorMessage.includes('Security Error')) {
         throw error;
       }
 
       // Otherwise, log and throw generic error
       console.error('[Media Validation] SVG sanitization failed', {
-        error: error.message,
+        error: svgErrorMessage,
         filename: sanitized,
       });
 

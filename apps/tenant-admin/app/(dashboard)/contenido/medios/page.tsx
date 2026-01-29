@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Upload, Image as ImageIcon, HardDrive, FileImage } from 'lucide-react'
@@ -19,6 +19,71 @@ import {
   PaginationPrevious,
 } from '@payload-config/components/ui/pagination'
 
+/** Size variant in the API response */
+interface MediaSizeVariant {
+  url?: string
+  width?: number
+  height?: number
+}
+
+/** Media sizes object from API */
+interface MediaSizes {
+  thumbnail?: MediaSizeVariant
+  card?: MediaSizeVariant
+  hero?: MediaSizeVariant
+}
+
+/** Nested file object that may be present in some API responses */
+interface MediaFileObject {
+  filename?: string
+  mimeType?: string
+  filesize?: number
+  url?: string
+}
+
+/** Raw document from the media API */
+interface MediaApiDocument {
+  id: string
+  filename?: string
+  mimeType?: string
+  filesize?: number
+  width?: number
+  height?: number
+  alt?: string
+  url?: string
+  sizes?: MediaSizes
+  file?: MediaFileObject
+  createdAt: string
+  updatedAt: string
+}
+
+/** API response structure for media list */
+interface MediaApiResponse {
+  docs?: MediaApiDocument[]
+}
+
+/** API response for media update */
+interface MediaUpdateResponse {
+  id: string
+  alt?: string
+  updatedAt?: string
+}
+
+/** Toast options for notifications */
+interface ToastOptions {
+  title: string
+  description?: string
+  variant?: 'default' | 'destructive'
+}
+
+/** Toast function signature */
+type ToastFunction = (options: ToastOptions) => void
+
+/** Toast hook result */
+interface ToastHookResult {
+  toast: ToastFunction
+}
+
 const ITEMS_PER_PAGE = 20
 
 export default function MediaPage() {
@@ -28,7 +93,8 @@ export default function MediaPage() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const { toast } = useToast()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+  const { toast } = useToast() as unknown as ToastHookResult
 
   const [filters, setFilters] = useState<MediaFiltersState>({
     search: '',
@@ -38,15 +104,15 @@ export default function MediaPage() {
     dateRange: 'all',
   })
 
-  const fetchMedia = async () => {
+  const fetchMedia = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch('/api/media?limit=200&sort=-createdAt')
       if (!response.ok) {
         throw new Error('Failed to fetch media')
       }
-      const data = await response.json()
-      const items = (data.docs ?? []).map((doc: any) => ({
+      const data = (await response.json()) as MediaApiResponse
+      const items: MediaItem[] = (data.docs ?? []).map((doc: MediaApiDocument) => ({
         id: doc.id,
         filename: doc.filename ?? doc.file?.filename ?? 'media',
         mimeType: doc.mimeType ?? doc.file?.mimeType ?? 'application/octet-stream',
@@ -62,7 +128,7 @@ export default function MediaPage() {
       }))
 
       setMediaItems(items)
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'No se pudo cargar la biblioteca de medios',
@@ -71,11 +137,11 @@ export default function MediaPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
 
   useEffect(() => {
-    fetchMedia()
-  }, [])
+    void fetchMedia()
+  }, [fetchMedia])
 
   // Filter and sort logic
   const filteredItems = useMemo(() => {
@@ -159,8 +225,8 @@ export default function MediaPage() {
   const stats = useMemo(() => {
     const totalSize = mediaItems.reduce((sum, item) => sum + item.filesize, 0)
     const typeCount = mediaItems.reduce((acc, item) => {
-      const type = item.mimeType.split('/')[1]?.toUpperCase() || 'UNKNOWN'
-      acc[type] = (acc[type] || 0) + 1
+      const type = item.mimeType.split('/')[1]?.toUpperCase() ?? 'UNKNOWN'
+      acc[type] = (acc[type] ?? 0) + 1
       return acc
     }, {} as Record<string, number>)
 
@@ -187,14 +253,18 @@ export default function MediaPage() {
       throw new Error('Failed to update media')
     }
 
-    const updated = await response.json()
+    const updated = (await response.json()) as MediaUpdateResponse
     setMediaItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, ...updated, updatedAt: updated.updatedAt ?? item.updatedAt } : item
+        item.id === id
+          ? { ...item, alt: updated.alt ?? item.alt, updatedAt: updated.updatedAt ?? item.updatedAt }
+          : item
       )
     )
     if (selectedItem?.id === id) {
-      setSelectedItem((prev) => (prev ? { ...prev, ...updated } : null))
+      setSelectedItem((prev) =>
+        prev ? { ...prev, alt: updated.alt ?? prev.alt, updatedAt: updated.updatedAt ?? prev.updatedAt } : null
+      )
     }
   }
 
@@ -219,7 +289,7 @@ export default function MediaPage() {
       title: 'Subida completada',
       description: 'Los archivos se han subido correctamente',
     })
-    fetchMedia()
+    void fetchMedia()
   }
 
   return (

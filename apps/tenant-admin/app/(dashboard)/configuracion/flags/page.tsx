@@ -1,38 +1,44 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Switch } from '@payload-config/components/ui/switch'
 import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
-import { useToast } from '@payload-config/hooks/use-toast'
+import { useToast, type UseToastReturn } from '@payload-config/hooks/use-toast'
 
 interface FeatureFlag {
   key: string
   type: 'boolean' | 'percentage' | 'variant'
   defaultValue: unknown
-  overrideValue: unknown | null
+  overrideValue: unknown
   effectiveValue: unknown
   planRequirement?: string | null
   eligible: boolean
 }
 
+interface FeatureFlagsResponse {
+  flags?: FeatureFlag[]
+}
+
 export default function FeatureFlagsPage() {
   const tenantId = '123e4567-e89b-12d3-a456-426614174001'
-  const { toast } = useToast()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- path alias not resolved
+  const { toast } = useToast() as UseToastReturn
   const [flags, setFlags] = useState<FeatureFlag[]>([])
   const [loading, setLoading] = useState(true)
 
-  const fetchFlags = async () => {
+  const fetchFlags = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/feature-flags?tenantId=${tenantId}`)
       if (!response.ok) {
         throw new Error('Failed to load flags')
       }
-      const data = await response.json()
+      const data: FeatureFlagsResponse = await response.json() as FeatureFlagsResponse
       setFlags(data.flags ?? [])
-    } catch (error) {
+    } catch {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- path alias not resolved
       toast({
         title: 'Error',
         description: 'No se pudieron cargar los feature flags',
@@ -41,13 +47,13 @@ export default function FeatureFlagsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
 
   useEffect(() => {
-    fetchFlags()
-  }, [])
+    void fetchFlags()
+  }, [fetchFlags])
 
-  const updateFlag = async (key: string, value: unknown) => {
+  const updateFlag = useCallback(async (key: string, value: unknown) => {
     try {
       const response = await fetch('/api/feature-flags', {
         method: 'PATCH',
@@ -60,18 +66,20 @@ export default function FeatureFlagsPage() {
       }
 
       await fetchFlags()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- path alias not resolved
       toast({
         title: 'Flag actualizado',
         description: `Se actualizó ${key} correctamente`,
       })
-    } catch (error) {
+    } catch {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- path alias not resolved
       toast({
         title: 'Error',
         description: `No se pudo actualizar ${key}`,
         variant: 'destructive',
       })
     }
-  }
+  }, [fetchFlags, toast])
 
   if (loading) {
     return (
@@ -117,7 +125,7 @@ export default function FeatureFlagsPage() {
                     <span className="text-sm">Activado</span>
                     <Switch
                       checked={Boolean(flag.overrideValue ?? flag.effectiveValue)}
-                      onCheckedChange={(value) => updateFlag(flag.key, value)}
+                      onCheckedChange={(value) => void updateFlag(flag.key, value)}
                     />
                   </div>
                 )}
@@ -129,10 +137,10 @@ export default function FeatureFlagsPage() {
                       min={0}
                       max={100}
                       defaultValue={Number(flag.overrideValue ?? flag.defaultValue ?? 0)}
-                      onBlur={(event) => {
+                      onBlur={(event: React.FocusEvent<HTMLInputElement>) => {
                         const nextValue = Number(event.target.value)
                         if (!Number.isNaN(nextValue)) {
-                          updateFlag(flag.key, nextValue)
+                          void updateFlag(flag.key, nextValue)
                         }
                       }}
                     />
@@ -157,7 +165,7 @@ export default function FeatureFlagsPage() {
           </div>
 
           <div className="mt-6 flex justify-end">
-            <Button variant="outline" onClick={fetchFlags}>
+            <Button variant="outline" onClick={() => void fetchFlags()}>
               Recargar
             </Button>
           </div>

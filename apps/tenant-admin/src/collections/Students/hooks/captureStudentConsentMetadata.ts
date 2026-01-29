@@ -1,4 +1,23 @@
-import type { FieldHook } from 'payload';
+import type { CollectionBeforeValidateHook } from 'payload';
+
+/** Request headers interface for type-safe header access */
+interface RequestHeaders {
+  'x-forwarded-for'?: string | string[];
+  get?: (name: string) => string | undefined;
+}
+
+/** Extended request with IP address */
+interface RequestWithIP {
+  ip?: string;
+  headers?: RequestHeaders;
+}
+
+/** Logger interface for typed logging calls */
+interface Logger {
+  info: (msg: string, data?: Record<string, unknown>) => void;
+  error: (msg: string, data?: Record<string, unknown>) => void;
+  warn: (msg: string, data?: Record<string, unknown>) => void;
+}
 
 /**
  * Hook: captureStudentConsentMetadata
@@ -30,13 +49,12 @@ import type { FieldHook } from 'payload';
  * @param args - Hook arguments from Payload
  * @returns Modified data with consent metadata
  */
-export const captureStudentConsentMetadata: FieldHook = async ({
+export const captureStudentConsentMetadata: CollectionBeforeValidateHook = async ({
   data,
   req,
   operation,
-  value,
 }) => {
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as Logger | undefined;
   // Only capture on creation, not on updates
   if (operation !== 'create') {
     return data;
@@ -55,16 +73,19 @@ export const captureStudentConsentMetadata: FieldHook = async ({
 
     // Capture IP address from request
     if (!data.consent_ip_address && req) {
+      // Cast to typed request for header access
+      const typedReq = req as unknown as RequestWithIP;
+      const headers = typedReq.headers as RequestHeaders | undefined;
+
       // Try X-Forwarded-For header first (if behind proxy)
-      const forwardedFor =
-        (req.headers as any)?.['x-forwarded-for'] || (req.headers as any)?.get?.('x-forwarded-for');
+      const forwardedFor = headers?.['x-forwarded-for'] ?? headers?.get?.('x-forwarded-for');
       if (forwardedFor) {
         // X-Forwarded-For can be a comma-separated list, take first IP
         const ips = Array.isArray(forwardedFor) ? forwardedFor : forwardedFor.split(',');
         data.consent_ip_address = ips[0].trim();
-      } else if ((req as any).ip) {
+      } else if (typedReq.ip) {
         // Fallback to req.ip
-        data.consent_ip_address = (req as any).ip;
+        data.consent_ip_address = typedReq.ip;
       }
     }
 

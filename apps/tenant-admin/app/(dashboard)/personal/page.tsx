@@ -45,6 +45,12 @@ interface StaffMember {
   isActive: boolean
 }
 
+interface StaffApiResponse {
+  success: boolean
+  data?: StaffMember[]
+  error?: string
+}
+
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
   full_time: 'Tiempo Completo',
   part_time: 'Medio Tiempo',
@@ -77,10 +83,10 @@ export default function PersonalPage() {
         setLoading(true)
         const staffType = activeTab === 'profesores' ? 'profesor' : 'administrativo'
         const response = await fetch(`/api/staff?type=${staffType}&limit=100`)
-        const result = await response.json()
+        const result = (await response.json()) as StaffApiResponse
 
         if (result.success) {
-          setStaff(result.data || [])
+          setStaff(result.data ?? [])
         } else {
           console.error('Error fetching staff:', result.error)
         }
@@ -91,7 +97,7 @@ export default function PersonalPage() {
       }
     }
 
-    fetchStaff()
+    void fetchStaff()
   }, [activeTab])
 
   const handleViewDetail = (id: number) => {
@@ -110,14 +116,14 @@ export default function PersonalPage() {
         method: 'DELETE',
       })
 
-      const result = await response.json()
+      const result = (await response.json()) as StaffApiResponse
 
       if (result.success) {
         // Refresh list
         setStaff(staff.filter((s) => s.id !== id))
         alert('Personal desactivado exitosamente')
       } else {
-        alert(`Error: ${result.error}`)
+        alert(`Error: ${result.error ?? 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error deleting staff:', error)
@@ -165,7 +171,7 @@ export default function PersonalPage() {
             </TabsTrigger>
           </TabsList>
 
-          <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as 'list' | 'grid')}>
+          <ToggleGroup type="single" value={viewMode} onValueChange={(value: string) => { if (value === 'list' || value === 'grid') setViewMode(value) }}>
             <ToggleGroupItem value="grid" aria-label="Vista de tarjetas">
               <LayoutGrid className="h-4 w-4" />
             </ToggleGroupItem>
@@ -250,7 +256,7 @@ export default function PersonalPage() {
                         <TableCell>{member.position}</TableCell>
                         <TableCell>
                           <Badge variant="outline">
-                            {CONTRACT_TYPE_LABELS[member.contractType] || member.contractType}
+                            {CONTRACT_TYPE_LABELS[member.contractType] ?? member.contractType}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -265,10 +271,10 @@ export default function PersonalPage() {
                         </TableCell>
                         <TableCell>
                           <Badge variant={STATUS_VARIANTS[member.employmentStatus]}>
-                            {STATUS_LABELS[member.employmentStatus] || member.employmentStatus}
+                            {STATUS_LABELS[member.employmentStatus] ?? member.employmentStatus}
                           </Badge>
                         </TableCell>
-                        <TableCell onClick={(e) => e.stopPropagation()}>
+                        <TableCell onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" className="h-8 w-8 p-0">
@@ -382,7 +388,7 @@ export default function PersonalPage() {
                         <TableCell>{member.position}</TableCell>
                         <TableCell>
                           <Badge variant="outline">
-                            {CONTRACT_TYPE_LABELS[member.contractType] || member.contractType}
+                            {CONTRACT_TYPE_LABELS[member.contractType] ?? member.contractType}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -397,10 +403,10 @@ export default function PersonalPage() {
                         </TableCell>
                         <TableCell>
                           <Badge variant={STATUS_VARIANTS[member.employmentStatus]}>
-                            {STATUS_LABELS[member.employmentStatus] || member.employmentStatus}
+                            {STATUS_LABELS[member.employmentStatus] ?? member.employmentStatus}
                           </Badge>
                         </TableCell>
-                        <TableCell onClick={(e) => e.stopPropagation()}>
+                        <TableCell onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" className="h-8 w-8 p-0">

@@ -3,11 +3,62 @@
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { CreditCard, Building2, Trash2, Star } from 'lucide-react'
-import type { PaymentMethod } from '@payload-config/types/billing'
+import { Building2, Trash2, Star } from 'lucide-react'
+
+/**
+ * Card details for payment method
+ */
+interface PaymentMethodCard {
+  brand: string
+  last4: string
+  expMonth: number
+  expYear: number
+}
+
+/**
+ * SEPA Direct Debit details
+ */
+interface PaymentMethodSepaDebit {
+  bankCode: string
+  last4: string
+  country: string
+}
+
+/**
+ * Billing details for payment method
+ */
+interface PaymentMethodBillingDetails {
+  name: string | null
+  email: string | null
+  phone: string | null
+  address: {
+    line1: string | null
+    line2: string | null
+    city: string | null
+    state: string | null
+    postalCode: string | null
+    country: string | null
+  } | null
+}
+
+/**
+ * Payment method data structure
+ */
+interface PaymentMethodData {
+  id: string
+  tenantId: string
+  stripePaymentMethodId: string
+  type: 'card' | 'sepa_debit' | 'bank_transfer'
+  isDefault: boolean
+  card?: PaymentMethodCard | null
+  sepaDebit?: PaymentMethodSepaDebit | null
+  billingDetails?: PaymentMethodBillingDetails
+  createdAt: Date
+  updatedAt: Date
+}
 
 interface PaymentMethodCardProps {
-  paymentMethod: PaymentMethod
+  paymentMethod: PaymentMethodData
   isDefault: boolean
   onSetDefault?: (id: string) => void
   onDelete?: (id: string) => void
@@ -28,7 +79,7 @@ export function PaymentMethodCard({
       amex: '💳',
       discover: '💳',
     }
-    return brandLogos[brand.toLowerCase()] || '💳'
+    return brandLogos[brand.toLowerCase()] ?? '💳'
   }
 
   const formatExpiry = (month: number, year: number) => {

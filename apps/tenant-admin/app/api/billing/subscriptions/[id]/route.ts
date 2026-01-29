@@ -3,7 +3,7 @@
  * Get, update, and cancel subscriptions
  */
 
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import {
@@ -15,6 +15,169 @@ import {
 } from '@/@payload-config/lib/stripe'
 
 // ============================================================================
+// Types
+// ============================================================================
+
+/** Local Stripe subscription interface for type-safe access */
+interface LocalSubscription {
+  id: string
+  status: string
+  cancel_at_period_end: boolean
+  trial_start: number | null
+  trial_end: number | null
+  canceled_at: number | null
+  items: {
+    data: LocalSubscriptionItem[]
+  }
+}
+
+/** Subscription item with period properties (Stripe API 2025-12-15.clover) */
+interface LocalSubscriptionItem {
+  id: string
+  current_period_start?: number
+  current_period_end?: number
+  price: {
+    id: string
+    product: string | { id: string }
+  }
+}
+
+/** Response structure for subscription details */
+interface SubscriptionResponse {
+  id: string
+  status: string
+  currentPeriodStart: Date
+  currentPeriodEnd: Date
+  cancelAtPeriodEnd: boolean
+  trialStart: Date | null
+  trialEnd: Date | null
+  items: {
+    id: string
+    priceId: string
+    productId: string
+  }[]
+}
+
+/** Response structure for subscription status */
+interface SubscriptionStatusResponse {
+  id: string
+  status: string
+  cancelAtPeriodEnd: boolean
+  canceledAt?: Date | null
+}
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+/** Type for the isStripeConfigured function */
+type IsConfiguredFn = () => boolean
+
+/** Type for async subscription functions */
+type GetSubscriptionFn = (id: string) => Promise<unknown>
+type UpdateSubscriptionFn = (id: string, options: {
+  planTier?: string
+  interval?: string
+  cancelAtPeriodEnd?: boolean
+}) => Promise<unknown>
+type ResumeSubscriptionFn = (id: string) => Promise<unknown>
+type CancelSubscriptionFn = (id: string, immediately: boolean) => Promise<unknown>
+
+/**
+ * Converts raw Stripe subscription to typed local subscription
+ */
+function toLocalSubscription(raw: unknown): LocalSubscription {
+  return raw as LocalSubscription
+}
+
+/**
+ * Checks if Stripe configuration is available
+ */
+function checkStripeConfig(): boolean {
+  const fn = isStripeConfigured as IsConfiguredFn
+  return fn()
+}
+
+/**
+ * Fetches a subscription by ID
+ */
+async function fetchSubscription(id: string): Promise<unknown> {
+  const fn = getSubscription as GetSubscriptionFn
+  return fn(id)
+}
+
+/**
+ * Updates a subscription
+ */
+async function modifySubscription(
+  id: string,
+  options: { planTier?: string; interval?: string; cancelAtPeriodEnd?: boolean }
+): Promise<unknown> {
+  const fn = updateSubscription as UpdateSubscriptionFn
+  return fn(id, options)
+}
+
+/**
+ * Resumes a subscription
+ */
+async function reactivateSubscription(id: string): Promise<unknown> {
+  const fn = resumeSubscription as ResumeSubscriptionFn
+  return fn(id)
+}
+
+/**
+ * Cancels a subscription
+ */
+async function terminateSubscription(id: string, immediately: boolean): Promise<unknown> {
+  const fn = cancelSubscription as CancelSubscriptionFn
+  return fn(id, immediately)
+}
+
+/**
+ * Builds the full subscription response from a local subscription
+ */
+function buildSubscriptionResponse(sub: LocalSubscription): SubscriptionResponse {
+  const items = sub.items.data
+  const firstItem = items[0]
+  const currentPeriodStart = firstItem?.current_period_start ?? 0
+  const currentPeriodEnd = firstItem?.current_period_end ?? 0
+
+  return {
+    id: sub.id,
+    status: sub.status,
+    currentPeriodStart: new Date(currentPeriodStart * 1000),
+    currentPeriodEnd: new Date(currentPeriodEnd * 1000),
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    trialStart: sub.trial_start ? new Date(sub.trial_start * 1000) : null,
+    trialEnd: sub.trial_end ? new Date(sub.trial_end * 1000) : null,
+    items: items.map((item) => ({
+      id: item.id,
+      priceId: item.price.id,
+      productId: typeof item.price.product === 'string'
+        ? item.price.product
+        : item.price.product.id,
+    })),
+  }
+}
+
+/**
+ * Builds the status response from a local subscription
+ */
+function buildStatusResponse(sub: LocalSubscription, includeCanceledAt = false): SubscriptionStatusResponse {
+  const response: SubscriptionStatusResponse = {
+    id: sub.id,
+    status: sub.status,
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+  }
+
+  if (includeCanceledAt) {
+    response.canceledAt = sub.canceled_at ? new Date(sub.canceled_at * 1000) : null
+  }
+
+  return response
+}
+
+// ============================================================================
 // Schemas
 // ============================================================================
 
@@ -24,10 +187,6 @@ const UpdateSubscriptionSchema = z.object({
   cancelAtPeriodEnd: z.boolean().optional(),
 })
 
-const CancelSubscriptionSchema = z.object({
-  immediately: z.boolean().optional().default(false),
-})
-
 // ============================================================================
 // GET /api/billing/subscriptions/[id]
 // ============================================================================
@@ -35,9 +194,9 @@ const CancelSubscriptionSchema = z.object({
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse<SubscriptionResponse | { error: string }>> {
   try {
-    if (!isStripeConfigured()) {
+    if (!checkStripeConfig()) {
       return NextResponse.json(
         { error: 'Stripe is not configured' },
         { status: 503 }
@@ -53,34 +212,19 @@ export async function GET(
       )
     }
 
-    const subscription = await getSubscription(id)
+    const rawSubscription = await fetchSubscription(id)
 
-    if (!subscription) {
+    if (!rawSubscription) {
       return NextResponse.json(
         { error: 'Subscription not found' },
         { status: 404 }
       )
     }
 
-    // In Stripe API 2025-12-15.clover, current_period_* properties are on subscription items
-    const firstItem = subscription.items.data[0]
-    const currentPeriodStart = firstItem?.current_period_start ?? 0
-    const currentPeriodEnd = firstItem?.current_period_end ?? 0
+    const subscription = toLocalSubscription(rawSubscription)
+    const response = buildSubscriptionResponse(subscription)
 
-    return NextResponse.json({
-      id: subscription.id,
-      status: subscription.status,
-      currentPeriodStart: new Date(currentPeriodStart * 1000),
-      currentPeriodEnd: new Date(currentPeriodEnd * 1000),
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      trialStart: subscription.trial_start ? new Date(subscription.trial_start * 1000) : null,
-      trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
-      items: subscription.items.data.map(item => ({
-        id: item.id,
-        priceId: item.price.id,
-        productId: typeof item.price.product === 'string' ? item.price.product : item.price.product.id,
-      })),
-    })
+    return NextResponse.json(response)
   } catch (error) {
     console.error('Get subscription error:', error)
     return NextResponse.json(
@@ -97,9 +241,9 @@ export async function GET(
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse<Omit<SubscriptionStatusResponse, 'canceledAt'> | { error: string; details?: unknown }>> {
   try {
-    if (!isStripeConfigured()) {
+    if (!checkStripeConfig()) {
       return NextResponse.json(
         { error: 'Stripe is not configured' },
         { status: 503 }
@@ -115,7 +259,7 @@ export async function PATCH(
       )
     }
 
-    const body = await request.json()
+    const body: unknown = await request.json()
     const validation = UpdateSubscriptionSchema.safeParse(body)
 
     if (!validation.success) {
@@ -129,25 +273,22 @@ export async function PATCH(
 
     // Handle resume subscription
     if (cancelAtPeriodEnd === false) {
-      const subscription = await resumeSubscription(id)
-      return NextResponse.json({
-        id: subscription.id,
-        status: subscription.status,
-        cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      })
+      const rawSubscription = await reactivateSubscription(id)
+      const subscription = toLocalSubscription(rawSubscription)
+      const response = buildStatusResponse(subscription)
+      return NextResponse.json(response)
     }
 
-    const subscription = await updateSubscription(id, {
+    const rawSubscription = await modifySubscription(id, {
       planTier,
       interval,
       cancelAtPeriodEnd,
     })
 
-    return NextResponse.json({
-      id: subscription.id,
-      status: subscription.status,
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-    })
+    const subscription = toLocalSubscription(rawSubscription)
+    const response = buildStatusResponse(subscription)
+
+    return NextResponse.json(response)
   } catch (error) {
     console.error('Update subscription error:', error)
     return NextResponse.json(
@@ -164,9 +305,9 @@ export async function PATCH(
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse<SubscriptionStatusResponse | { error: string }>> {
   try {
-    if (!isStripeConfigured()) {
+    if (!checkStripeConfig()) {
       return NextResponse.json(
         { error: 'Stripe is not configured' },
         { status: 503 }
@@ -186,14 +327,11 @@ export async function DELETE(
     const { searchParams } = new URL(request.url)
     const immediately = searchParams.get('immediately') === 'true'
 
-    const subscription = await cancelSubscription(id, immediately)
+    const rawSubscription = await terminateSubscription(id, immediately)
+    const subscription = toLocalSubscription(rawSubscription)
+    const response = buildStatusResponse(subscription, true)
 
-    return NextResponse.json({
-      id: subscription.id,
-      status: subscription.status,
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
-    })
+    return NextResponse.json(response)
   } catch (error) {
     console.error('Cancel subscription error:', error)
     return NextResponse.json(

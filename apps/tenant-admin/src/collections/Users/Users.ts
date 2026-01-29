@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { ZodError } from 'zod';
 import {
   canReadUsers,
   canCreateUsers,
@@ -6,6 +7,25 @@ import {
   canDeleteUsers,
 } from './access';
 import { passwordSchema, emailSchema, phoneSchema } from './Users.validation';
+
+/**
+ * TypeScript interfaces for type safety
+ */
+type UserRole = 'superadmin' | 'admin' | 'gestor' | 'marketing' | 'asesor' | 'lectura';
+
+interface UserDocument {
+  id: string | number;
+  email: string;
+  name: string;
+  role: UserRole;
+  login_count?: number;
+  is_active?: boolean;
+  tenant?: string | number | null;
+}
+
+interface OperationContext {
+  operation: string;
+}
 
 /**
  * Users Collection
@@ -156,8 +176,11 @@ export const Users: CollectionConfig = {
         try {
           emailSchema.parse(val);
           return true;
-        } catch (error: any) {
-          return error.errors?.[0]?.message || 'Invalid email format';
+        } catch (error) {
+          if (error instanceof ZodError) {
+            return error.errors[0]?.message ?? 'Invalid email format';
+          }
+          return 'Invalid email format';
         }
       },
     },
@@ -169,21 +192,24 @@ export const Users: CollectionConfig = {
     {
       name: 'password',
       type: 'text',
-      required: (({ operation }: { operation: any }) => operation === 'create') as any,
+      required: ((args: OperationContext) => args.operation === 'create') as unknown as boolean,
       admin: {
         description: 'Password (min 8 chars, must include uppercase, lowercase, number, special char)',
       },
-      validate: ((val: unknown, { operation }: { operation: any }): true | string => {
+      validate: ((val: unknown, args: OperationContext): true | string => {
         // On create, password is mandatory; on update, allow empty (e.g., login stats updates)
-        if (!val) return operation === 'create' ? 'Password is required' : true;
+        if (!val) return args.operation === 'create' ? 'Password is required' : true;
 
         try {
           passwordSchema.parse(val);
           return true;
-        } catch (error: any) {
-          return error.errors?.[0]?.message || 'Invalid password';
+        } catch (error) {
+          if (error instanceof ZodError) {
+            return error.errors[0]?.message ?? 'Invalid password';
+          }
+          return 'Invalid password';
         }
-      }) as any,
+      }) as unknown as undefined,
     },
 
     /**
@@ -198,9 +224,9 @@ export const Users: CollectionConfig = {
       },
       validate: (val: unknown): true | string => {
         if (!val) return 'Name is required';
-        const strVal = String(val);
-        if (strVal.length < 2) return 'Name must be at least 2 characters';
-        if (strVal.length > 100) return 'Name must be less than 100 characters';
+        if (typeof val !== 'string') return 'Name must be a string';
+        if (val.length < 2) return 'Name must be at least 2 characters';
+        if (val.length > 100) return 'Name must be less than 100 characters';
         return true;
       },
     },
@@ -220,7 +246,7 @@ export const Users: CollectionConfig = {
     {
       name: 'role',
       type: 'select',
-      required: (({ operation }: { operation: any }) => operation === 'create') as any,
+      required: ((args: OperationContext) => args.operation === 'create') as unknown as boolean,
       defaultValue: 'lectura',
       options: [
         {
@@ -289,12 +315,12 @@ export const Users: CollectionConfig = {
       },
       hooks: {
         beforeValidate: [
-          ({ value, siblingData }) => {
+          ({ value, siblingData }): string | number | null | undefined => {
             // SuperAdmin should NOT have a tenant
             if (siblingData?.role === 'superadmin') {
               return null;
             }
-            return value;
+            return value as string | number | null | undefined;
           },
         ],
       },
@@ -312,10 +338,10 @@ export const Users: CollectionConfig = {
       },
       validate: (val: unknown): true | string => {
         if (!val) return true; // Optional field
+        if (typeof val !== 'string') return 'Avatar URL must be a string';
 
-        const strVal = String(val);
         try {
-          new URL(strVal);
+          new URL(val);
           return true;
         } catch {
           return 'Avatar URL must be a valid URL';
@@ -338,8 +364,11 @@ export const Users: CollectionConfig = {
         try {
           phoneSchema.parse(val);
           return true;
-        } catch (error: any) {
-          return error.errors?.[0]?.message || 'Invalid phone format';
+        } catch (error) {
+          if (error instanceof ZodError) {
+            return error.errors[0]?.message ?? 'Invalid phone format';
+          }
+          return 'Invalid phone format';
         }
       },
     },
@@ -406,14 +435,15 @@ export const Users: CollectionConfig = {
      */
     afterLogin: [
       async ({ req, user }) => {
+        const typedUser = user as unknown as UserDocument;
         try {
           // Update login stats
           await req.payload.update({
             collection: 'users',
-            id: user.id,
+            id: typedUser.id,
             data: {
               last_login_at: new Date().toISOString(),
-              login_count: (user.login_count || 0) + 1,
+              login_count: (typedUser.login_count ?? 0) + 1,
             },
           });
         } catch (error) {
@@ -429,20 +459,23 @@ export const Users: CollectionConfig = {
      */
     beforeChange: [
       async ({ req, operation, data, originalDoc }) => {
+        const typedUser = req.user as unknown as UserDocument | null;
+        const typedOriginalDoc = originalDoc as unknown as UserDocument | null;
+
         /**
          * Prevent users from changing their own role
          * Exception: Admin can change any role
          */
-        if (operation === 'update' && req.user && originalDoc) {
+        if (operation === 'update' && typedUser && typedOriginalDoc) {
           // Check if role is being changed
-          if (data.role && data.role !== originalDoc.role) {
+          if (data.role && data.role !== typedOriginalDoc.role) {
             // Only admin can change roles
-            if (req.user.role !== 'admin') {
+            if (typedUser.role !== 'admin') {
               throw new Error('You do not have permission to change user roles');
             }
 
             // If user is trying to change their own role (even as admin), deny
-            if (req.user.id === originalDoc.id && req.user.role !== 'admin') {
+            if (typedUser.id === typedOriginalDoc.id && typedUser.role !== 'admin') {
               throw new Error('You cannot change your own role');
             }
           }
@@ -452,7 +485,7 @@ export const Users: CollectionConfig = {
          * Prevent demoting the last admin
          * Ensures at least one admin always exists
          */
-        if (operation === 'update' && data.role && originalDoc?.role === 'admin') {
+        if (operation === 'update' && data.role && typedOriginalDoc?.role === 'admin') {
           // If changing from admin to another role
           if (data.role !== 'admin') {
             // Count total admin users
@@ -475,9 +508,9 @@ export const Users: CollectionConfig = {
          * Prevent inactive users from logging in
          * This is checked during authentication
          */
-        if (operation === 'update' && data.is_active === false && originalDoc) {
+        if (operation === 'update' && data.is_active === false && typedOriginalDoc) {
           // Log deactivation for audit purposes
-          console.log(`User ${originalDoc.email} (ID: ${originalDoc.id}) has been deactivated`);
+          console.log(`User ${typedOriginalDoc.email} (ID: ${typedOriginalDoc.id}) has been deactivated`);
         }
 
         return data;
@@ -489,6 +522,8 @@ export const Users: CollectionConfig = {
      */
     beforeDelete: [
       async ({ req, id }) => {
+        const typedUser = req.user as unknown as UserDocument | null;
+
         // Get the user being deleted
         const userToDelete = await req.payload.findByID({
           collection: 'users',
@@ -511,7 +546,7 @@ export const Users: CollectionConfig = {
         }
 
         // Prevent users from deleting themselves
-        if (req.user && req.user.id === id) {
+        if (typedUser?.id === id) {
           throw new Error('You cannot delete yourself.');
         }
       },
@@ -522,10 +557,10 @@ export const Users: CollectionConfig = {
      * Already handled by Payload's auth system, but can add custom logic here
      */
     afterRead: [
-      async ({ doc }) => {
+      ({ doc }): UserDocument => {
         // Remove sensitive fields (Payload already does this, but being explicit)
         // This is just documentation of what Payload handles automatically
-        return doc;
+        return doc as UserDocument;
       },
     ],
   },

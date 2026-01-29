@@ -7,9 +7,42 @@ import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import {
-  createCheckoutSession,
-  isStripeConfigured,
+  createCheckoutSession as createCheckoutSessionImport,
+  isStripeConfigured as isStripeConfiguredImport,
 } from '@/@payload-config/lib/stripe'
+
+// ============================================================================
+// Types
+// ============================================================================
+
+/** Response from Stripe checkout session creation */
+interface CheckoutSessionResponse {
+  sessionId: string
+  url: string
+}
+
+/** Options for creating a checkout session */
+interface CreateCheckoutSessionOptions {
+  tenantId: string
+  planTier: string
+  interval: string
+  successUrl: string
+  cancelUrl: string
+  customerEmail?: string
+  stripeCustomerId?: string
+}
+
+// ============================================================================
+// Typed Wrappers
+// ============================================================================
+
+/** Type-safe wrapper for isStripeConfigured */
+const isStripeConfigured = isStripeConfiguredImport as () => boolean
+
+/** Type-safe wrapper for createCheckoutSession */
+const createCheckoutSession = createCheckoutSessionImport as (
+  options: CreateCheckoutSessionOptions
+) => Promise<CheckoutSessionResponse>
 
 // ============================================================================
 // Schemas
@@ -39,7 +72,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
+    const body: unknown = await request.json()
     const validation = CreateCheckoutSchema.safeParse(body)
 
     if (!validation.success) {
@@ -62,7 +95,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(session)
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Checkout session error:', error)
     return NextResponse.json(
       { error: 'Failed to create checkout session' },

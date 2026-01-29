@@ -1,11 +1,151 @@
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
 import postgres from 'postgres';
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload, type Payload, type SanitizedConfig } from 'payload';
 import configPromise from '@payload-config';
+import type { Staff } from '../../../src/payload-types';
+
+/**
+ * Initialize Payload CMS instance.
+ *
+ * This wrapper centralizes Payload initialization for API routes.
+ */
+const initPayload = async (): Promise<Payload> => {
+  // Cast config to satisfy ESLint's strict type checking
+  // The configPromise is typed by Payload's buildConfig as Promise<SanitizedConfig>
+  const config = (await configPromise) as SanitizedConfig;
+  return getPayload({ config });
+};
 
 // PostgreSQL connection - MUST use environment variable
 const sql = postgres(process.env.DATABASE_URI!);
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+/** Campus data returned from SQL JSON aggregation */
+interface CampusData {
+  id: number;
+  name: string;
+  city: string;
+}
+
+/** Course run data returned from SQL JSON aggregation */
+interface CourseRunData {
+  id: number;
+  codigo: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  courseName: string;
+  courseSlug: string;
+  campusName: string;
+  campusCity: string;
+}
+
+/** Raw staff row returned from SQL query */
+interface StaffQueryRow {
+  id: number;
+  staff_type: 'profesor' | 'administrativo';
+  first_name: string;
+  last_name: string;
+  full_name: string | null;
+  email: string;
+  phone: string | null;
+  position: string;
+  contract_type: 'full_time' | 'part_time' | 'freelance';
+  employment_status: 'active' | 'temporary_leave' | 'inactive';
+  hire_date: string;
+  bio: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  photo_filename: string | null;
+  campuses: CampusData[];
+  course_runs: CourseRunData[];
+}
+
+/** Request body for creating a staff member */
+interface CreateStaffBody {
+  staffType: 'profesor' | 'administrativo';
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  position: string;
+  contractType?: 'full_time' | 'part_time' | 'freelance';
+  employmentStatus?: 'active' | 'temporary_leave' | 'inactive';
+  hireDate: string;
+  bio?: string;
+  specialties?: string[];
+  certifications?: {
+    title: string;
+    institution: string;
+    year: number;
+    document?: number;
+  }[];
+  assignedCampuses: (string | number)[];
+  photoId?: string | number;
+}
+
+/** Request body for updating a staff member */
+interface UpdateStaffBody {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string | null;
+  position?: string;
+  contractType?: 'full_time' | 'part_time' | 'freelance';
+  employmentStatus?: 'active' | 'temporary_leave' | 'inactive';
+  hireDate?: string;
+  bio?: string | null;
+  photoId?: string | number | null;
+  specialties?: string[];
+  certifications?: {
+    title: string;
+    institution: string;
+    year: number;
+    document?: number;
+  }[];
+  assignedCampuses?: (string | number)[];
+  isActive?: boolean;
+}
+
+/** Data structure for Payload CMS staff updates */
+interface StaffUpdateData {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string | null;
+  position?: string;
+  contract_type?: 'full_time' | 'part_time' | 'freelance';
+  employment_status?: 'active' | 'temporary_leave' | 'inactive';
+  hire_date?: string;
+  bio?: string | null;
+  photo?: number | null;
+  specialties?: string[];
+  certifications?: {
+    title: string;
+    institution: string;
+    year: number;
+    document?: number;
+  }[];
+  assigned_campuses?: number[];
+  is_active?: boolean;
+}
+
+/** Helper to extract error message from unknown error */
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
+
+// ============================================================================
+// API Route Handlers
+// ============================================================================
 
 /**
  * GET /api/staff?type=instructor|administrative&campus=X&status=active
@@ -18,11 +158,11 @@ export async function GET(request: NextRequest) {
     const staffType = searchParams.get('type'); // 'profesor' | 'administrativo'
     const campusId = searchParams.get('campus');
     const employmentStatus = searchParams.get('status'); // 'active' | 'temporary_leave' | 'inactive'
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const limit = parseInt(searchParams.get('limit') ?? '50');
 
     // Build dynamic WHERE clause
     const conditions = ['s.is_active = true'];
-    const params: any[] = [];
+    const params: string[] = [];
 
     if (staffType) {
       params.push(staffType);
@@ -91,11 +231,11 @@ export async function GET(request: NextRequest) {
       LIMIT ${limit}
     `;
 
-    const staff = await sql.unsafe(query, params);
+    const staff = await sql.unsafe(query, params) as StaffQueryRow[];
 
     return NextResponse.json({
       success: true,
-      data: staff.map((member: any) => ({
+      data: staff.map((member) => ({
         id: member.id,
         staffType: member.staff_type,
         firstName: member.first_name,
@@ -118,10 +258,10 @@ export async function GET(request: NextRequest) {
       })),
       total: staff.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching staff:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Error al obtener personal' },
+      { success: false, error: getErrorMessage(error) || 'Error al obtener personal' },
       { status: 500 }
     );
   }
@@ -134,7 +274,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json() as CreateStaffBody;
     const {
       staffType,
       firstName,
@@ -170,7 +310,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await initPayload();
 
     // Crear miembro del personal
     const staffMember = await payload.create({
@@ -180,19 +320,19 @@ export async function POST(request: NextRequest) {
         first_name: firstName,
         last_name: lastName,
         email,
-        phone: phone || undefined,
+        phone: phone ?? undefined,
         position,
-        contract_type: contractType || 'full_time',
-        employment_status: employmentStatus || 'active',
+        contract_type: contractType ?? 'full_time',
+        employment_status: employmentStatus ?? 'active',
         hire_date: hireDate,
-        bio: bio || undefined,
-        photo: photoId ? parseInt(photoId) : undefined,
-        specialties: specialties || [],
-        certifications: certifications || [],
-        assigned_campuses: assignedCampuses.map((id: string | number) => typeof id === 'string' ? parseInt(id) : id),
+        bio: bio ?? undefined,
+        photo: photoId ? parseInt(String(photoId)) : undefined,
+        specialties: specialties ?? [],
+        certifications: certifications ?? [],
+        assigned_campuses: assignedCampuses.map((id) => typeof id === 'string' ? parseInt(id) : id),
         is_active: true,
       },
-    });
+    }) as Staff;
 
     return NextResponse.json({
       success: true,
@@ -202,12 +342,12 @@ export async function POST(request: NextRequest) {
       },
       message: 'Miembro del personal creado exitosamente',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating staff member:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al crear miembro del personal',
+        error: getErrorMessage(error) || 'Error al crear miembro del personal',
       },
       { status: 500 }
     );
@@ -228,11 +368,11 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'ID requerido' }, { status: 400 });
     }
 
-    const body = await request.json();
-    const payload = await getPayloadHMR({ config: configPromise });
+    const body = await request.json() as UpdateStaffBody;
+    const payload = await initPayload();
 
     // Preparar datos de actualización
-    const updateData: any = {};
+    const updateData: StaffUpdateData = {};
 
     if (body.firstName) updateData.first_name = body.firstName;
     if (body.lastName) updateData.last_name = body.lastName;
@@ -243,18 +383,18 @@ export async function PUT(request: NextRequest) {
     if (body.employmentStatus) updateData.employment_status = body.employmentStatus;
     if (body.hireDate) updateData.hire_date = body.hireDate;
     if (body.bio !== undefined) updateData.bio = body.bio;
-    if (body.photoId !== undefined) updateData.photo = body.photoId ? parseInt(body.photoId) : null;
+    if (body.photoId !== undefined) updateData.photo = body.photoId ? parseInt(String(body.photoId)) : null;
     if (body.specialties) updateData.specialties = body.specialties;
     if (body.certifications) updateData.certifications = body.certifications;
     if (body.assignedCampuses)
-      updateData.assigned_campuses = body.assignedCampuses.map((cid: string | number) => typeof cid === 'string' ? parseInt(cid) : cid);
+      updateData.assigned_campuses = body.assignedCampuses.map((cid) => typeof cid === 'string' ? parseInt(cid) : cid);
     if (body.isActive !== undefined) updateData.is_active = body.isActive;
 
     const staffMember = await payload.update({
       collection: 'staff',
       id: parseInt(id),
       data: updateData,
-    });
+    }) as Staff;
 
     return NextResponse.json({
       success: true,
@@ -264,12 +404,12 @@ export async function PUT(request: NextRequest) {
       },
       message: 'Miembro del personal actualizado exitosamente',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating staff member:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al actualizar miembro del personal',
+        error: getErrorMessage(error) || 'Error al actualizar miembro del personal',
       },
       { status: 500 }
     );
@@ -291,7 +431,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'ID requerido' }, { status: 400 });
     }
 
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await initPayload();
 
     // En lugar de eliminar, marcamos como inactivo (soft delete)
     await payload.update({
@@ -307,12 +447,12 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'Miembro del personal desactivado exitosamente',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting staff member:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al eliminar miembro del personal',
+        error: getErrorMessage(error) || 'Error al eliminar miembro del personal',
       },
       { status: 500 }
     );

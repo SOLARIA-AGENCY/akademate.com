@@ -6,11 +6,11 @@
  * Shows course modules and lessons with progress tracking.
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { RequireAuth, useSession } from '../../providers/SessionProvider';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card';
+import { Card, CardContent } from '@payload-config/components/ui/card';
 import { Progress } from '@payload-config/components/ui/progress';
 import { Badge } from '@payload-config/components/ui/badge';
 import { Button } from '@payload-config/components/ui/button';
@@ -25,10 +25,7 @@ import {
   Clock,
   CheckCircle2,
   PlayCircle,
-  Lock,
   FileText,
-  Video,
-  Download,
   ChevronLeft,
 } from 'lucide-react';
 
@@ -87,23 +84,23 @@ interface CourseData {
   };
 }
 
+interface CourseApiResponse {
+  success: boolean;
+  data?: CourseData;
+  error?: string;
+}
+
 function CourseView() {
   const params = useParams();
   const router = useRouter();
-  const { student } = useSession();
+  const { student: _student } = useSession();
   const [courseData, setCourseData] = useState<CourseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const enrollmentId = params.enrollmentId as string;
 
-  useEffect(() => {
-    if (enrollmentId) {
-      loadCourse();
-    }
-  }, [enrollmentId]);
-
-  const loadCourse = async () => {
+  const loadCourse = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -118,12 +115,12 @@ function CourseView() {
         throw new Error('Failed to load course');
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as CourseApiResponse;
 
       if (data.success) {
-        setCourseData(data.data);
+        setCourseData(data.data ?? null);
       } else {
-        throw new Error(data.error || 'Unknown error');
+        throw new Error(data.error ?? 'Unknown error');
       }
     } catch (err) {
       console.error('[Campus] Failed to load course:', err);
@@ -131,7 +128,13 @@ function CourseView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [enrollmentId]);
+
+  useEffect(() => {
+    if (enrollmentId) {
+      void loadCourse();
+    }
+  }, [enrollmentId, loadCourse]);
 
   const getLessonIcon = (lesson: Lesson) => {
     if (lesson.progress.status === 'completed') {
@@ -159,7 +162,7 @@ function CourseView() {
   if (error || !courseData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <p className="text-destructive mb-4">{error || 'Course not found'}</p>
+        <p className="text-destructive mb-4">{error ?? 'Course not found'}</p>
         <Button onClick={() => router.push('/campus')}>Volver al Campus</Button>
       </div>
     );

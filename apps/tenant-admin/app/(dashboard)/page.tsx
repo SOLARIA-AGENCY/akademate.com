@@ -11,12 +11,9 @@ import {
   BookOpen,
   Users,
   FileText,
-  TrendingUp,
-  DollarSign,
   Calendar,
   GraduationCap,
   Building2,
-  PieChart,
   Loader2,
   AlertTriangle,
   Info,
@@ -25,32 +22,133 @@ import {
   WifiOff,
   RefreshCw,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { useDashboardMetrics, type Convocation, type Campaign } from '@payload-config/hooks'
+import { useDashboardMetrics } from '@payload-config/hooks'
+
+// Dashboard data types - defined locally to ensure TypeScript resolution
+interface DashboardMetrics {
+  total_courses: number
+  active_students: number
+  leads_this_month: number
+  total_teachers: number
+  total_campuses: number
+  active_convocations: number
+}
+
+interface Convocation {
+  id: number
+  name: string
+  course_title: string
+  campus_name: string
+  status: string
+  start_date: string
+  end_date: string
+  enrolled: number
+  capacity_max: number
+  enrollmentsCount: number
+  capacityPercentage: number
+}
+
+interface Campaign {
+  id: number
+  name: string
+  status: string
+  leads_generated: number
+  conversion_rate: number
+  cost_per_lead: number
+  leadsCount: number
+  conversionRate: number
+  budget: number
+  spent: number
+}
+
+interface RecentActivity {
+  id: number
+  title: string
+  entity_name: string
+  timestamp: string
+}
+
+interface OperationalAlert {
+  severity: 'warning' | 'info'
+  message: string
+  count: number
+}
+
+interface CampusDistribution {
+  campus_name: string
+  student_count: number
+}
+
+interface WeeklyMetrics {
+  leads: number[]
+  enrollments: number[]
+  courses_added: number[]
+}
+
+interface DashboardData {
+  metrics: DashboardMetrics
+  convocations: Convocation[]
+  campaigns: Campaign[]
+  recentActivities: RecentActivity[]
+  weeklyMetrics: WeeklyMetrics
+  alerts: OperationalAlert[]
+  campusDistribution: CampusDistribution[]
+}
+
+interface UseDashboardMetricsResult {
+  data: DashboardData
+  loading: boolean
+  error: Error | null
+  isConnected: boolean
+  lastUpdate: Date | null
+  refresh: () => Promise<void>
+}
+
+interface UseDashboardMetricsOptions {
+  tenantId?: number
+  enableRealtime?: boolean
+  refreshInterval?: number
+}
+
+// Type-safe wrapper for the hook to satisfy ESLint
+type UseDashboardMetricsHook = (options?: UseDashboardMetricsOptions) => UseDashboardMetricsResult
+const typedUseDashboardMetrics = useDashboardMetrics as UseDashboardMetricsHook
+
+// KPI item type for dashboard cards
+interface KpiItem {
+  title: string
+  value: number
+  icon: LucideIcon
+  color: string
+  bgColor: string
+}
+
+// Weekly chart data point type
+interface WeeklyChartDataPoint {
+  semana: string
+  Leads: number
+  Inscripciones: number
+  Cursos: number
+}
 
 export default function DashboardPage() {
   // Use the combined hook for initial fetch + real-time updates
-  const {
-    data,
-    loading,
-    error,
-    isConnected,
-    lastUpdate,
-    refresh,
-  } = useDashboardMetrics({ tenantId: 1, enableRealtime: true })
+  // Type assertion required as TypeScript cannot resolve types through path alias
+  const hookResult: UseDashboardMetricsResult = useDashboardMetrics({ tenantId: 1, enableRealtime: true }) as UseDashboardMetricsResult
+  const { data, loading, error, isConnected, lastUpdate, refresh } = hookResult
 
-  // Destructure data for easier access
-  const {
-    metrics,
-    convocations,
-    campaigns,
-    recentActivities,
-    weeklyMetrics,
-    alerts,
-    campusDistribution,
-  } = data
+  // Destructure data for easier access with explicit types
+  const metrics: DashboardMetrics = data.metrics
+  const convocations: Convocation[] = data.convocations
+  const campaigns: Campaign[] = data.campaigns
+  const recentActivities: RecentActivity[] = data.recentActivities
+  const weeklyMetrics: WeeklyMetrics = data.weeklyMetrics
+  const alerts: OperationalAlert[] = data.alerts
+  const campusDistribution: CampusDistribution[] = data.campusDistribution
 
   // Format current date in Spanish
   const formattedDate = new Intl.DateTimeFormat('es-ES', {
@@ -61,7 +159,7 @@ export default function DashboardPage() {
   }).format(new Date())
 
   // Primera línea de KPIs
-  const primaryKpis = [
+  const primaryKpis: KpiItem[] = [
     {
       title: 'Cursos',
       value: metrics.total_courses,
@@ -86,7 +184,7 @@ export default function DashboardPage() {
   ]
 
   // Segunda línea de KPIs
-  const secondaryKpis = [
+  const secondaryKpis: KpiItem[] = [
     {
       title: 'Profesores',
       value: metrics.total_teachers,
@@ -110,23 +208,23 @@ export default function DashboardPage() {
     },
   ]
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
       abierta: 'default',
       planificada: 'secondary',
       lista_espera: 'outline',
       cerrada: 'destructive',
     }
-    return variants[status] || 'default'
+    return variants[status] ?? 'default'
   }
 
-  const getCampaignStatusBadge = (status: string) => {
+  const getCampaignStatusBadge = (status: string): 'default' | 'secondary' | 'destructive' => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive'> = {
       activa: 'default',
       pausada: 'secondary',
       finalizada: 'destructive',
     }
-    return variants[status] || 'default'
+    return variants[status] ?? 'default'
   }
 
   // Loading state
@@ -192,7 +290,7 @@ export default function DashboardPage() {
                 variant="ghost"
                 size="sm"
                 className="h-6 px-2"
-                onClick={() => refresh()}
+                onClick={() => void refresh()}
               >
                 <RefreshCw className="h-3 w-3" />
               </Button>
@@ -374,12 +472,14 @@ export default function DashboardPage() {
             {weeklyMetrics.leads.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart
-                  data={[
-                    { semana: 'Sem 1', Leads: weeklyMetrics.leads[0], Inscripciones: weeklyMetrics.enrollments[0], Cursos: weeklyMetrics.courses_added[0] },
-                    { semana: 'Sem 2', Leads: weeklyMetrics.leads[1], Inscripciones: weeklyMetrics.enrollments[1], Cursos: weeklyMetrics.courses_added[1] },
-                    { semana: 'Sem 3', Leads: weeklyMetrics.leads[2], Inscripciones: weeklyMetrics.enrollments[2], Cursos: weeklyMetrics.courses_added[2] },
-                    { semana: 'Sem 4', Leads: weeklyMetrics.leads[3], Inscripciones: weeklyMetrics.enrollments[3], Cursos: weeklyMetrics.courses_added[3] },
-                  ]}
+                  data={
+                    [0, 1, 2, 3].map((i): WeeklyChartDataPoint => ({
+                      semana: `Sem ${i + 1}`,
+                      Leads: weeklyMetrics.leads[i] ?? 0,
+                      Inscripciones: weeklyMetrics.enrollments[i] ?? 0,
+                      Cursos: weeklyMetrics.courses_added[i] ?? 0,
+                    }))
+                  }
                   margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />

@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, SelectFieldSingleValidation } from 'payload';
 import {
   canCreateCampaign,
   canReadCampaigns,
@@ -17,6 +17,8 @@ import {
   VALID_CAMPAIGN_STATUSES,
   validateStatusWorkflow,
   validateBudget,
+  type CampaignType,
+  type CampaignStatus,
 } from './Campaigns.validation';
 import { tenantField } from '../../access/tenantAccess';
 
@@ -266,9 +268,9 @@ export const Campaigns: CollectionConfig = {
       admin: {
         description: 'Type of marketing campaign',
       },
-      validate: (val: any) => {
+      validate: (val: string | null | undefined) => {
         if (!val) return 'Campaign type is required';
-        if (!VALID_CAMPAIGN_TYPES.includes(val)) {
+        if (!VALID_CAMPAIGN_TYPES.includes(val as CampaignType)) {
           return `Campaign type must be one of: ${VALID_CAMPAIGN_TYPES.join(', ')}`;
         }
         return true;
@@ -289,22 +291,22 @@ export const Campaigns: CollectionConfig = {
         position: 'sidebar',
         description: 'Campaign status (draft → active → paused/completed → archived)',
       },
-      validate: ((val: any, { operation, originalDoc }: any) => {
+      validate: ((val, options) => {
         if (!val) return 'Status is required';
-        if (!VALID_CAMPAIGN_STATUSES.includes(val)) {
+        if (!VALID_CAMPAIGN_STATUSES.includes(val as CampaignStatus)) {
           return `Status must be one of: ${VALID_CAMPAIGN_STATUSES.join(', ')}`;
         }
 
         // On update: validate status workflow
-        if (operation === 'update' && originalDoc?.status) {
-          const workflowResult = validateStatusWorkflow(originalDoc.status, val);
+        if (options.operation === 'update' && options.previousValue) {
+          const workflowResult = validateStatusWorkflow(options.previousValue, val);
           if (workflowResult !== true) {
             return workflowResult;
           }
         }
 
         return true;
-      }) as any,
+      }) satisfies SelectFieldSingleValidation,
     },
 
     // ============================================================================
@@ -394,7 +396,7 @@ export const Campaigns: CollectionConfig = {
           displayFormat: 'yyyy-MM-dd',
         },
       },
-      validate: (val: any) => {
+      validate: (val: string | Date | null | undefined) => {
         if (!val) return 'Start date is required';
         return true;
       },
@@ -425,7 +427,7 @@ export const Campaigns: CollectionConfig = {
         position: 'sidebar',
         description: 'Campaign budget (optional, in EUR)',
       },
-      validate: (val: any) => {
+      validate: (val: number | null | undefined) => {
         if (val !== undefined && val !== null) {
           const result = validateBudget(val);
           if (result !== true) return result;
@@ -543,7 +545,7 @@ export const Campaigns: CollectionConfig = {
     {
       name: 'created_by',
       type: 'relationship',
-      relationTo: 'users' as any,
+      relationTo: 'users',
       index: true,
       admin: {
         position: 'sidebar',
@@ -555,7 +557,10 @@ export const Campaigns: CollectionConfig = {
         read: () => true,
         update: () => false, // IMMUTABLE - created_by never changes
       },
-      // SECURITY Layer 3 (Business Logic): trackCampaignCreator hook enforces immutability
+      // SECURITY Layer 3 (Business Logic): Field hook enforces immutability
+      hooks: {
+        beforeChange: [trackCampaignCreator],
+      },
     },
 
     /**
@@ -577,17 +582,6 @@ export const Campaigns: CollectionConfig = {
       validateCampaignDates, // 1. Validate date range (end >= start)
       validateCampaignTargets, // 2. Validate target_enrollments <= target_leads
       validateUTMParameters, // 3. Validate UTM format and requirements
-    ],
-
-    /**
-     * Before Change: Run after validation, before database write
-     */
-    beforeChange: [
-      ({
-        // Apply to created_by field only
-        fieldName: 'created_by',
-        hook: trackCampaignCreator,
-      } as any),
     ],
 
     /**

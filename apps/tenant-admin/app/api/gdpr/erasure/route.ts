@@ -6,15 +6,85 @@
  * Anonymizes user PII while preserving academic records for compliance.
  *
  * NOTE: Some LMS collections referenced here are planned but not yet in Payload config.
- * Type assertions (as any) are required until Task AKD-XXX: Create LMS Collections is completed.
+ * Type assertions are required until Task AKD-XXX: Create LMS Collections is completed.
  * This is documented technical debt, not a code smell.
  */
 
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHash } from 'crypto';
+import type { Payload } from 'payload';
+
+/**
+ * Request body for GDPR erasure endpoint
+ */
+interface ErasureRequestBody {
+    userId: string | number;
+    confirmDeletion: boolean;
+    reason?: string;
+}
+
+/**
+ * Result from Payload count operations
+ */
+interface CountResult {
+    totalDocs: number;
+}
+
+/**
+ * User record from Payload
+ */
+interface UserRecord {
+    id: number | string;
+    email?: string;
+    name?: string;
+}
+
+/**
+ * Data for user anonymization update
+ */
+interface UserAnonymizationData {
+    email: string;
+    name: string;
+}
+
+/**
+ * Audit log entry data for GDPR erasure
+ */
+interface AuditLogData {
+    action: string;
+    collection_name: string;
+    document_id: string;
+    user_id: number;
+    ip_address: string;
+    changes: {
+        after: {
+            reason?: string;
+            verificationToken: string;
+        };
+    };
+}
+
+/**
+ * Extended Payload client with planned LMS collections
+ * These collections are planned but not yet implemented in Payload config
+ */
+interface PayloadWithPlannedCollections {
+    count(args: { collection: string; where: Record<string, unknown> }): Promise<CountResult>;
+    delete(args: { collection: string; where: Record<string, unknown> }): Promise<unknown>;
+}
+
+/**
+ * Helper to get error message from unknown error
+ */
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message;
+    }
+    return 'Erasure failed';
+}
 
 /**
  * POST /api/gdpr/erasure
@@ -24,7 +94,7 @@ import { createHash } from 'crypto';
  */
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
+        const body = await request.json() as ErasureRequestBody;
         const { userId, confirmDeletion, reason } = body;
 
         if (!userId) {
@@ -41,10 +111,11 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const payload = await getPayloadHMR({ config: configPromise });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload config promise typing
+        const payload: Payload = await getPayloadHMR({ config: configPromise });
 
         // Verify user exists
-        const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null);
+        const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null) as UserRecord | null;
 
         if (!user) {
             return NextResponse.json(
@@ -70,28 +141,31 @@ export async function POST(request: NextRequest) {
 
         // Get counts for reporting
         // Note: Some collections (certificates, submissions) are planned but not yet implemented
+        // Using typed interface for planned collections
+        const payloadExtended = payload as unknown as PayloadWithPlannedCollections;
         const [enrollments, certificates, submissions] = await Promise.all([
-            payload.count({ collection: 'enrollments', where: { user: { equals: userId } } }),
-            (payload as any).count({ collection: 'certificates', where: { user: { equals: userId } } }).catch(() => ({ totalDocs: 0 })),
-            (payload as any).count({ collection: 'submissions', where: { enrollment: { user: { equals: userId } } } }).catch(() => ({ totalDocs: 0 })),
+            payloadExtended.count({ collection: 'enrollments', where: { user: { equals: userId } } }),
+            payloadExtended.count({ collection: 'certificates', where: { user: { equals: userId } } }).catch((): CountResult => ({ totalDocs: 0 })),
+            payloadExtended.count({ collection: 'submissions', where: { enrollment: { user: { equals: userId } } } }).catch((): CountResult => ({ totalDocs: 0 })),
         ]);
 
         // Perform anonymization
+        const anonymizationData: UserAnonymizationData = {
+            email: anonymizedEmail,
+            name: 'Deleted User',
+        };
         await payload.update({
             collection: 'users',
             id: userId,
-            data: {
-                email: anonymizedEmail,
-                name: 'Deleted User',
-            } as any,
+            data: anonymizationData as Parameters<typeof payload.update>[0]['data'],
         });
 
         // Clear gamification data
         // Note: These collections are planned but not yet implemented
         await Promise.all([
-            (payload as any).delete({ collection: 'user-badges', where: { user: { equals: userId } } }).catch(() => {}),
-            (payload as any).delete({ collection: 'points-transactions', where: { user: { equals: userId } } }).catch(() => {}),
-            (payload as any).delete({ collection: 'user-streaks', where: { user: { equals: userId } } }).catch(() => {}),
+            payloadExtended.delete({ collection: 'user-badges', where: { user: { equals: userId } } }).catch(() => undefined),
+            payloadExtended.delete({ collection: 'points-transactions', where: { user: { equals: userId } } }).catch(() => undefined),
+            payloadExtended.delete({ collection: 'user-streaks', where: { user: { equals: userId } } }).catch(() => undefined),
         ]);
 
         // Create audit log with verification token
@@ -100,16 +174,17 @@ export async function POST(request: NextRequest) {
             .digest('hex')
             .substring(0, 32);
 
+        const auditLogData: AuditLogData = {
+            action: 'gdpr_erasure',
+            collection_name: 'users',
+            document_id: String(userId),
+            user_id: Number(userId),
+            ip_address: request.headers.get('x-forwarded-for') ?? '127.0.0.1',
+            changes: { after: { reason, verificationToken } },
+        };
         await payload.create({
             collection: 'audit-logs',
-            data: {
-                action: 'gdpr_erasure',
-                collection_name: 'users',
-                document_id: String(userId),
-                user_id: Number(userId),
-                ip_address: request.headers.get('x-forwarded-for') || '127.0.0.1',
-                changes: { after: { reason, verificationToken } },
-            } as any,
+            data: auditLogData as Parameters<typeof payload.create>[0]['data'],
         });
 
         return NextResponse.json({
@@ -127,10 +202,10 @@ export async function POST(request: NextRequest) {
             },
             message: 'User data has been anonymized in compliance with GDPR Article 17',
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[GDPR Erasure] Error:', error);
         return NextResponse.json(
-            { success: false, error: error.message || 'Erasure failed' },
+            { success: false, error: getErrorMessage(error) },
             { status: 500 }
         );
     }

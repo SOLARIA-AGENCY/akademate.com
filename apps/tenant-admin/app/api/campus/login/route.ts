@@ -4,7 +4,7 @@
  * Authenticates students for Campus Virtual.
  */
 
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { SignJWT } from 'jose'
 import { getPayload } from 'payload'
@@ -16,6 +16,57 @@ import {
   getClientIP,
   createRateLimitHeaders,
 } from '../../../../lib/rateLimit'
+
+/** Avatar media object */
+interface AvatarMedia {
+  url?: string
+}
+
+/** Course information */
+interface CourseInfo {
+  title?: string
+}
+
+/** Course run with nested course */
+interface CourseRunInfo {
+  id: string | number
+  course?: CourseInfo
+}
+
+/** Student document from Payload CMS */
+interface StudentDocument {
+  id: string | number
+  email: string
+  passwordHash?: string
+  firstName?: string
+  lastName?: string
+  avatar?: AvatarMedia
+  tenant?: string | number
+  isActive?: boolean
+  lastLoginAt?: string
+}
+
+/** Enrollment document from Payload CMS */
+interface EnrollmentDocument {
+  id: string | number
+  courseRun?: CourseRunInfo | string | number
+  status?: string
+  progressPercent?: number
+  startedAt?: string
+  completedAt?: string
+  student?: string | number
+}
+
+/** Login request body */
+interface LoginRequestBody {
+  email?: string
+  password?: string
+}
+
+/** Student update data */
+interface StudentUpdateData {
+  lastLoginAt: string
+}
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
@@ -41,7 +92,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { email, password } = await request.json()
+    const body = (await request.json()) as LoginRequestBody
+    const { email, password } = body
 
     if (!email || !password) {
       return NextResponse.json(
@@ -50,6 +102,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const payload = await getPayload({ config })
 
     // Find student by email
@@ -69,10 +122,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const student = studentsResult.docs[0]
+    const student = studentsResult.docs[0] as unknown as StudentDocument
 
     // Verify password
-    const passwordHash = (student as any).passwordHash
+    const passwordHash = student.passwordHash
     if (!passwordHash) {
       return NextResponse.json(
         { success: false, error: 'Account not configured. Please contact support.' },
@@ -98,22 +151,26 @@ export async function POST(request: NextRequest) {
       depth: 2,
     })
 
-    const enrollments = enrollmentsResult.docs.map((enrollment: any) => ({
-      id: enrollment.id,
-      courseRunId:
-        typeof enrollment.courseRun === 'object' ? enrollment.courseRun.id : enrollment.courseRun,
-      courseTitle: enrollment.courseRun?.course?.title || 'Unknown Course',
-      status: enrollment.status,
-      progressPercent: enrollment.progressPercent || 0,
-      startedAt: enrollment.startedAt,
-      completedAt: enrollment.completedAt,
-    }))
+    const enrollments = enrollmentsResult.docs.map((doc) => {
+      const enrollment = doc as unknown as EnrollmentDocument
+      const courseRun =
+        typeof enrollment.courseRun === 'object' ? enrollment.courseRun : null
+      return {
+        id: enrollment.id,
+        courseRunId: courseRun?.id ?? enrollment.courseRun,
+        courseTitle: courseRun?.course?.title ?? 'Unknown Course',
+        status: enrollment.status,
+        progressPercent: enrollment.progressPercent ?? 0,
+        startedAt: enrollment.startedAt,
+        completedAt: enrollment.completedAt,
+      }
+    })
 
     // Generate JWT token
     const token = await new SignJWT({
       sub: String(student.id),
       email: student.email,
-      tenantId: (student as any).tenant,
+      tenantId: student.tenant,
       type: 'campus',
     })
       .setProtectedHeader({ alg: 'HS256' })
@@ -125,29 +182,33 @@ export async function POST(request: NextRequest) {
     resetRateLimit(clientIP)
 
     // Update last login
+    const updateData: StudentUpdateData = {
+      lastLoginAt: new Date().toISOString(),
+    }
     await payload.update({
       collection: 'students',
       id: student.id,
-      data: {
-        lastLoginAt: new Date().toISOString(),
-      } as any,
+      data: updateData as Record<string, unknown>,
     })
 
-    const response = NextResponse.json({
+    const firstName = student.firstName ?? ''
+    const lastName = student.lastName ?? ''
+
+    return NextResponse.json({
       success: true,
       token,
       student: {
         id: String(student.id),
         email: student.email,
-        firstName: (student as any).firstName || '',
-        lastName: (student as any).lastName || '',
-        fullName: `${(student as any).firstName || ''} ${(student as any).lastName || ''}`.trim(),
-        avatar: (student as any).avatar?.url || null,
-        tenantId: (student as any).tenant,
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`.trim(),
+        avatar: student.avatar?.url ?? null,
+        tenantId: student.tenant,
       },
       enrollments,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[Campus Login] Error:', error)
     return NextResponse.json(
       { success: false, error: 'Authentication failed' },

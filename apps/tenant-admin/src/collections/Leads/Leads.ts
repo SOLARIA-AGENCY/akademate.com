@@ -1,4 +1,5 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, CollectionBeforeValidateHook, FieldHook } from 'payload';
+import type { Tenant } from '../../payload-types';
 import {
   canCreateLead,
   canReadLeads,
@@ -13,7 +14,27 @@ import {
   triggerLeadCreatedJob,
 } from './hooks';
 import { spanishPhoneRegex } from './Leads.validation';
-import { tenantField, isSuperAdmin, getUserTenantId } from '../../access/tenantAccess';
+import { isSuperAdmin, getUserTenantId } from '../../access/tenantAccess';
+
+/**
+ * User role type for access control
+ */
+type UserRole = 'superadmin' | 'admin' | 'gestor' | 'marketing' | 'asesor' | 'lectura';
+
+/**
+ * User interface for type-safe role and tenant checks
+ */
+interface UserLike {
+  role?: UserRole;
+  tenant?: number | null | Tenant;
+}
+
+/**
+ * Admin condition context from Payload
+ */
+interface AdminConditionContext {
+  user: UserLike | null;
+}
 
 /**
  * Leads Collection - GDPR Compliant Lead Management
@@ -588,8 +609,8 @@ export const Leads: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'Academia/Organización propietaria',
-        condition: (data: any, siblingData: any, { user }: { user: any }) => {
-          return isSuperAdmin(user);
+        condition: (_data: Record<string, unknown>, _siblingData: Record<string, unknown>, context: AdminConditionContext): boolean => {
+          return isSuperAdmin(context.user);
         },
       },
       access: {
@@ -598,18 +619,18 @@ export const Leads: CollectionConfig = {
       },
       hooks: {
         beforeChange: [
-          (({ req, value }: { req: any; value: any }) => {
+          (({ req, value }): number | null => {
             // If value is set (by SuperAdmin), use it
-            if (value) return value;
+            if (value !== null && value !== undefined) return value as number;
 
             // Otherwise, use user's tenant if authenticated
             if (req.user) {
               const tenantId = getUserTenantId(req.user);
-              return tenantId || value;
+              return tenantId ?? null;
             }
 
-            return value;
-          }) as any,
+            return null;
+          }) as FieldHook,
         ],
       },
     },
@@ -624,10 +645,10 @@ export const Leads: CollectionConfig = {
      * Order matters: Execute in sequence
      */
     beforeValidate: [
-      captureConsentMetadata as any, // 1. Capture GDPR consent metadata (timestamp, IP)
-      validateLeadRelationships as any, // 2. Validate foreign keys exist
-      preventDuplicateLead as any, // 3. Check for duplicates (same email+course within 24h)
-      calculateLeadScore as any, // 4. Calculate lead score (0-100)
+      captureConsentMetadata as CollectionBeforeValidateHook, // 1. Capture GDPR consent metadata (timestamp, IP)
+      validateLeadRelationships as CollectionBeforeValidateHook, // 2. Validate foreign keys exist
+      preventDuplicateLead as CollectionBeforeValidateHook, // 3. Check for duplicates (same email+course within 24h)
+      calculateLeadScore as CollectionBeforeValidateHook, // 4. Calculate lead score (0-100)
     ],
 
     /**

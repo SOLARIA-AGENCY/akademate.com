@@ -66,13 +66,15 @@ export const COURSE_TYPE_CONFIG = {
 
 export type CourseTypeKey = keyof typeof COURSE_TYPE_CONFIG
 
+export type CourseTypeConfigValue = (typeof COURSE_TYPE_CONFIG)[CourseTypeKey]
+
 /**
  * Get type configuration for a given course type
  * @param type - The course type
  * @returns Configuration object with colors and labels
  */
-export function getCourseTypeConfig(type: CourseTypeKey) {
-  return COURSE_TYPE_CONFIG[type] || COURSE_TYPE_CONFIG.privados
+export function getCourseTypeConfig(type: CourseTypeKey): CourseTypeConfigValue {
+  return COURSE_TYPE_CONFIG[type] ?? COURSE_TYPE_CONFIG.privados
 }
 
 /**

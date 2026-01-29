@@ -1,4 +1,5 @@
 import type { CollectionAfterChangeHook } from 'payload';
+import type { CourseRun } from '../../../payload-types';
 
 /**
  * Hook: captureCompletionSnapshot
@@ -21,12 +22,12 @@ import type { CollectionAfterChangeHook } from 'payload';
  * - Only runs when status changes TO "completed" (not already completed)
  * - Snapshot is immutable once set (not overwritten on subsequent updates)
  */
-export const captureCompletionSnapshot: CollectionAfterChangeHook = async ({
+export const captureCompletionSnapshot: CollectionAfterChangeHook<CourseRun> = async ({
   doc,
   req,
   previousDoc,
   operation,
-}) => {
+}): Promise<CourseRun> => {
   // Only process on update operations
   if (operation !== 'update') {
     return doc;
@@ -51,7 +52,7 @@ export const captureCompletionSnapshot: CollectionAfterChangeHook = async ({
     const { payload } = req;
 
     // Calculate final metrics
-    const finalStudentCount = doc.current_enrollments || 0;
+    const finalStudentCount = doc.current_enrollments ?? 0;
     const finalOccupationPercentage = doc.max_students > 0
       ? Math.round((finalStudentCount / doc.max_students) * 100)
       : 0;
@@ -69,7 +70,7 @@ export const captureCompletionSnapshot: CollectionAfterChangeHook = async ({
           completed_at: new Date().toISOString(),
         },
       },
-    });
+    }) as CourseRun;
 
     console.log(
       `[COURSE_RUN] Captured completion snapshot for ${doc.codigo}: ` +

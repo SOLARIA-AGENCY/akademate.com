@@ -23,7 +23,6 @@ import {
   LayoutGrid,
   User,
   BookOpen,
-  MapPin,
   AlertTriangle,
   Clock,
   Filter,
@@ -32,12 +31,35 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
+
+// TypeScript interfaces for planner data structures
+interface Aula {
+  id: string
+  nombre: string
+  capacidad: number
+  codigo: string
+  sede: string
+}
+
+interface HorarioDetallado {
+  id: string
+  aula_id: string
+  dia: string
+  hora_inicio: string
+  hora_fin: string
+  duracion_minutos: number
+  tiene_conflicto: boolean
+  color: string
+  curso_nombre: string
+  profesor: string
+  codigo_curso: string
+  convocatoria_id: string
+}
+
 // TODO: Fetch from Payload API
 // import { aulasMockData, horariosDetalladosMock, type HorarioDetallado, type Aula } from '@payload-config/data/mockAulas'
-const aulasMockData: any[] = []
-const horariosDetalladosMock: any[] = []
-type HorarioDetallado = any
-type Aula = any
+const aulasMockData: Aula[] = []
+const horariosDetalladosMock: HorarioDetallado[] = []
 
 // Configuración del grid
 const HORA_INICIO = 8 // 8:00
@@ -50,7 +72,7 @@ type VistaTipo = 'aulas' | 'profesores' | 'cursos'
 // Main component that uses useSearchParams
 function PlannerVisualPageContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const _searchParams = useSearchParams()
 
   const [sedeSeleccionada, setSedeSeleccionada] = useState<string>('CEP Norte')
   const [vistaActual, setVistaActual] = useState<VistaTipo>('aulas')
@@ -106,16 +128,6 @@ function PlannerVisualPageContent() {
     const hora = HORA_INICIO + i
     return `${hora.toString().padStart(2, '0')}:00`
   })
-
-  const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-  const diasAbreviados: Record<string, string> = {
-    'lunes': 'Lunes',
-    'martes': 'Martes',
-    'miercoles': 'Miércoles',
-    'jueves': 'Jueves',
-    'viernes': 'Viernes',
-    'sabado': 'Sábado',
-  }
 
   // Drag and Drop Handlers
   const handleDragStart = (horario: HorarioDetallado, e: React.DragEvent) => {
@@ -450,7 +462,7 @@ function PlannerVisualPageContent() {
               {/* Grid de horarios */}
               <div className="relative">
                 {/* Filas de horas */}
-                {horas.map((hora, index) => {
+                {horas.map((hora) => {
                   const horaNum = parseInt(hora.split(':')[0])
 
                   return (
@@ -467,6 +479,8 @@ function PlannerVisualPageContent() {
                         return (
                           <div
                             key={`${hora}-${aula.id}`}
+                            role="gridcell"
+                            tabIndex={-1}
                             className={`border-r border-border flex-shrink-0 relative transition-colors ${
                               isDragOver
                                 ? dragValid
@@ -514,6 +528,8 @@ function PlannerVisualPageContent() {
                   return (
                     <div
                       key={horario.id}
+                      role="button"
+                      tabIndex={0}
                       draggable={true}
                       onDragStart={(e) => handleDragStart(horario, e)}
                       onDragEnd={handleDragEnd}
@@ -527,9 +543,16 @@ function PlannerVisualPageContent() {
                         height: `${altura - 4}px`,
                         backgroundColor: horario.color,
                       }}
-                      onClick={(e) => {
+                      onClick={() => {
                         // Only navigate if not dragging
                         if (!isDragging) {
+                          router.push(`/programacion/${horario.convocatoria_id}`)
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        // Handle Enter and Space for keyboard accessibility
+                        if ((e.key === 'Enter' || e.key === ' ') && !isDragging) {
+                          e.preventDefault()
                           router.push(`/programacion/${horario.convocatoria_id}`)
                         }
                       }}
