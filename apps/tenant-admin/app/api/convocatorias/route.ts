@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload HMR type definition includes error union
+     
     const payload = await getPayloadHMR({ config: configPromise });
 
     // Verificar que el curso existe
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
       data: {
         id: convocation.id,
         courseId: course.id,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload entity type includes error union
+         
         courseName: course.name,
       },
       message: `Convocatoria creada exitosamente`,
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
     const courseId = searchParams.get('courseId');
     const campusId = searchParams.get('campusId');
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload HMR type definition includes error union
+     
     const payload = await getPayloadHMR({ config: configPromise });
 
     // Build dynamic where clause

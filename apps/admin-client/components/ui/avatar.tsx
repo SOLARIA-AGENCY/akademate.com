@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+ 
 import * as React from 'react'
 import * as AvatarPrimitive from '@radix-ui/react-avatar'
 

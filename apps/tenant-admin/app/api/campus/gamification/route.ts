@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload config typing issue
+     
     const payload = await getPayload({ config });
     const studentId = decoded.sub!;
 

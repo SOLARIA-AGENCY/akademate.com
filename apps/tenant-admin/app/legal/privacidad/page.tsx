@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Shield, Mail, Phone, MapPin, Calendar, ArrowLeft } from 'lucide-react'
+import { Shield, Mail, Phone, MapPin, ArrowLeft } from 'lucide-react'
 
 export default function PrivacidadPage() {
   const router = useRouter()

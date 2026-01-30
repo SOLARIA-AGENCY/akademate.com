@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -39,11 +39,9 @@ import {
 } from '@payload-config/components/ui/dialog'
 import { Label } from '@payload-config/components/ui/label'
 import {
-  Plus,
   Search,
   Users,
   Mail,
-  Phone,
   Building2,
   Shield,
   Eye,

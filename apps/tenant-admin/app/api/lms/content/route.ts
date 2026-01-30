@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
         const courseId = searchParams.get('courseId');
         const moduleId = searchParams.get('moduleId');
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload library returns error-typed Promise
+         
         const payload: Payload = await getPayloadHMR({ config: configPromise });
 
         if (courseId) {

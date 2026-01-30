@@ -154,7 +154,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- configPromise is typed correctly
+     
     const payload = await getPayloadHMR({ config: configPromise });
 
     // 1. Get enrollment with student and course run

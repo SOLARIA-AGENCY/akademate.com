@@ -113,7 +113,7 @@ const mockConfig: ConfigData = {
 // ============================================================================
 
 async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult | undefined> {
-  /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+   
   const results = await db
     .select({ branding: tenants.branding })
     .from(tenants)
@@ -121,12 +121,12 @@ async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult
     .limit(1)
     .execute()
   const first = results[0]
-  /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+   
   return first as TenantBrandingResult | undefined
 }
 
 async function getTenantDomains(tenantId: string): Promise<TenantDomainsResult | undefined> {
-  /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+   
   const results = await db
     .select({ domains: tenants.domains })
     .from(tenants)
@@ -134,28 +134,28 @@ async function getTenantDomains(tenantId: string): Promise<TenantDomainsResult |
     .limit(1)
     .execute()
   const first = results[0]
-  /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+   
   return first as TenantDomainsResult | undefined
 }
 
 async function updateTenantBranding(tenantId: string, branding: TenantBranding): Promise<void> {
-  /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+   
   await db
     .update(tenants)
     .set({ branding, updatedAt: new Date() })
     .where(eq(tenants.id, tenantId))
     .execute()
-  /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+   
 }
 
 async function updateTenantDomains(tenantId: string, domains: string[]): Promise<void> {
-  /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+   
   await db
     .update(tenants)
     .set({ domains, updatedAt: new Date() })
     .where(eq(tenants.id, tenantId))
     .execute()
-  /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+   
 }
 
 // ============================================================================

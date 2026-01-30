@@ -17,7 +17,6 @@ import {
 } from '@akademate/realtime/server';
 import type {
   MetricsPayload,
-  KPIChangePayload,
   ActivityPayload,
   NotificationPayload,
   ProgressPayload,

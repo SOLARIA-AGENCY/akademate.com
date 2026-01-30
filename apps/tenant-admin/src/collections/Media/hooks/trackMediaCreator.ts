@@ -27,7 +27,9 @@ interface DocWithCreatedBy {
  * - Logs only user.id and operation (non-sensitive)
  * - NEVER logs filename or file content
  */
-export const trackMediaCreator: FieldHook = ({ req, operation, originalDoc }): string => {
+export const trackMediaCreator: FieldHook = ({ req, operation, originalDoc }): string | number => {
+  const typedDoc = originalDoc as DocWithCreatedBy | undefined;
+
   // CREATE: Auto-populate created_by with authenticated user
   if (operation === 'create') {
     if (!req.user) {

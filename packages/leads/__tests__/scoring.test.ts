@@ -6,7 +6,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import {
   LeadScoringService,
-  DEFAULT_SCORING_RULES,
   quickScore,
   isQualified,
   type Lead,

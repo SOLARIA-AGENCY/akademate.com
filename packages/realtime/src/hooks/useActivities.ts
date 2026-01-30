@@ -107,7 +107,7 @@ export function useActivities(options: UseActivitiesOptions): UseActivitiesRetur
 
   useEffect(() => {
     if (!socket?.connected || !tenantId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Valid sync with external socket state
+       
       setIsSubscribed(false);
       return;
     }

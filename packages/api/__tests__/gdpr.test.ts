@@ -4,19 +4,16 @@
  * Tests Article 15 - Right of Access implementation
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import {
   GdprExportService,
   createGdprExportService,
   ExportRequestSchema,
-  GdprAnonymizationService,
   createGdprAnonymizationService,
   AnonymizeRequestSchema,
-  GdprConsentService,
   createGdprConsentService,
   ConsentTypeSchema,
   UpdateConsentsRequestSchema,
-  GdprRetentionService,
   createGdprRetentionService,
   DataCategorySchema,
   DEFAULT_RETENTION_POLICIES,

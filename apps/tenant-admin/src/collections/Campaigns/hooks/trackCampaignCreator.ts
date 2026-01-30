@@ -27,7 +27,9 @@ interface DocWithCreatedBy {
  * - Logs only campaign.id and user.id (non-sensitive)
  * - NEVER logs campaign name or budget (business intelligence)
  */
-export const trackCampaignCreator: FieldHook = ({ req, operation, value, originalDoc }): string | null => {
+export const trackCampaignCreator: FieldHook = ({ req, operation, value, originalDoc }): string | number | null => {
+  const typedDoc = originalDoc as DocWithCreatedBy | undefined;
+
   // Only apply on CREATE operation
   if (operation === 'create') {
     // Auto-populate created_by with current user

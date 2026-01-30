@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload library returns error-typed Promise
+     
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     // 1. Obtener código del área

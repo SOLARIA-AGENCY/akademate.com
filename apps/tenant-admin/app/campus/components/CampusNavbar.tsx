@@ -8,7 +8,7 @@
 
 import Link from 'next/link';
 import { useSession } from '../providers/SessionProvider';
-import { BookOpen, GraduationCap, User, LogOut, Menu, Trophy } from 'lucide-react';
+import { BookOpen, GraduationCap, User, LogOut, Trophy } from 'lucide-react';
 import { Button } from '@payload-config/components/ui/button';
 import {
   DropdownMenu,

@@ -97,7 +97,7 @@ interface UpcomingConvocation {
  */
 export async function GET(_request: NextRequest) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const payload = await getPayloadHMR({ config: configPromise });
 
     // Fetch all data in parallel (excluding staff to avoid schema issues)

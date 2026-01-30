@@ -93,7 +93,7 @@ export default function MediaPage() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+   
   const { toast } = useToast() as unknown as ToastHookResult
 
   const [filters, setFilters] = useState<MediaFiltersState>({

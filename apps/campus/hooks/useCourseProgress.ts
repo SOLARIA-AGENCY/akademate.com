@@ -146,7 +146,7 @@ export function useCourseProgress(
 
       // Emit to server (custom event not in base TypedSocket types)
       if (socket && isConnected) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+         
         (socket as unknown as { emit: (event: string, data: unknown) => void }).emit('progress:update', {
           enrollmentId,
           lessonId,

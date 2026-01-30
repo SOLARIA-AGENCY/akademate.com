@@ -58,7 +58,7 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions) {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   return async (socket: Socket<any, any, any, SocketData>, next: MiddlewareNext) => {
     try {
       const token = socket.handshake.auth.token as string | undefined;
@@ -190,7 +190,7 @@ export function createTenantIsolationMiddleware(options: { debug?: boolean } = {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   return (socket: Socket<any, any, any, SocketData>, next: MiddlewareNext) => {
     // Override the socket.join method to validate rooms
     const originalJoin = socket.join.bind(socket);

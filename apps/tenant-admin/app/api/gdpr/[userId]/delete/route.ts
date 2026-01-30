@@ -145,7 +145,7 @@ export async function POST(
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- configPromise type comes from Payload library
+     
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     // Verify user exists

@@ -171,7 +171,7 @@ export function useNotifications(
 
   useEffect(() => {
     if (!socket?.connected || !userId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Valid sync with external socket state
+       
       setIsSubscribed(false);
       return;
     }

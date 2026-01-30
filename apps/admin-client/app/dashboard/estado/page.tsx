@@ -64,7 +64,7 @@ interface SystemStatusHookResult {
 
 export default function EstadoPage() {
   // Use the real-time system status hook with explicit type cast
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types from @akademate/realtime not fully resolved
+   
   const hookResult = useSystemStatus({ enableRealtime: true }) as unknown as SystemStatusHookResult;
 
   // Extract data with proper typing

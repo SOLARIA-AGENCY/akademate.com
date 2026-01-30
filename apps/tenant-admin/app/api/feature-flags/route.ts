@@ -3,8 +3,8 @@
  * Evaluate and update feature flags per tenant
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+ 
+ 
 
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server'

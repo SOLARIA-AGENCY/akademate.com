@@ -188,7 +188,7 @@ function getCorsHeaders(origin: string | null) {
 }
 
 export function middleware(request: NextRequest) {
-  const { pathname, protocol, host } = request.nextUrl
+  const { pathname, protocol, host: _host } = request.nextUrl
   const origin = request.headers.get('origin')
 
   // =========================================================================

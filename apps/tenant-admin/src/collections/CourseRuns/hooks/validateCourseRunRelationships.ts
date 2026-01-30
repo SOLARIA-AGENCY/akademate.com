@@ -32,7 +32,7 @@ export const validateCourseRunRelationships: CollectionBeforeValidateHook = asyn
         collection: 'courses',
         id: typeof data.course === 'object' ? data.course.id : data.course,
       });
-    } catch (_error) {
+    } catch {
       // SECURITY: Don't include user input in error messages (defense in depth)
       throw new Error('The specified course does not exist or is not accessible');
     }
@@ -45,7 +45,7 @@ export const validateCourseRunRelationships: CollectionBeforeValidateHook = asyn
         collection: 'campuses',
         id: typeof data.campus === 'object' ? data.campus.id : data.campus,
       });
-    } catch (_error) {
+    } catch {
       // SECURITY: Don't include user input in error messages (defense in depth)
       throw new Error('The specified campus does not exist or is not accessible');
     }

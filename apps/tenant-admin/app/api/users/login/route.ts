@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     }
 
     // Get Payload instance
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload config returns error-typed Promise
+     
     const payload: Payload = await getPayload({ config })
 
     // Attempt login

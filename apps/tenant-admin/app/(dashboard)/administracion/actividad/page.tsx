@@ -423,7 +423,6 @@ export default function ActividadPage() {
         <CardContent>
           <div className="space-y-4">
             {actividadData.slice(0, 5).map((item, index) => {
-              const severidadInfo = severidadConfig[item.severidad]
               const accionInfo = accionConfig[item.accion]
               const AccionIcon = accionInfo?.icon ?? Activity
               return (

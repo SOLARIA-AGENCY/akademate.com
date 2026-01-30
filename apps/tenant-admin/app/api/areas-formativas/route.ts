@@ -35,7 +35,7 @@ interface AreaFormativaDoc {
  */
 export async function GET() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload library returns error-typed Promise
+     
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     const areas = await payload.find({
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload library returns error-typed Promise
+     
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     // Verificar si ya existe un área con ese código

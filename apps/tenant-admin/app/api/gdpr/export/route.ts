@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getPayloadHMR typing issue from @payloadcms/next
+         
         const payload = await getPayloadHMR({ config: configPromise });
 
         // Query user first

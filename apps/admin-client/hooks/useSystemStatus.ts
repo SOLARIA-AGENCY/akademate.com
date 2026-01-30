@@ -179,7 +179,7 @@ export function useSystemStatus(
   const socket = socketContext?.socket ?? null;
   const isConnected = socketContext?.isConnected ?? false;
 
-  const [loading, setLoading] = useState(false);
+  const [loading, _setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(() => new Date());
   const [data, setData] = useState<SystemStatusData>({
     services: MOCK_SERVICES,

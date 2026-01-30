@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from 'react';
 import { RequireAuth, useSession } from '../providers/SessionProvider';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card';
 import { Progress } from '@payload-config/components/ui/progress';
 import { Badge } from '@payload-config/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs';

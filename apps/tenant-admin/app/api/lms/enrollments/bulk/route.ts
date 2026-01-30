@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Payload's HMR utility returns an error-typed value; explicit Payload type is intentional
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     const result: BulkResult = {

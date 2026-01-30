@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Search, User, Wifi, WifiOff } from 'lucide-react'
+import { Bell, Search } from 'lucide-react'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import {

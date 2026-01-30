@@ -38,25 +38,27 @@ describe('useSocket Hook API Contract', () => {
 
     it('should export UseSocketOptions type', async () => {
       // Type check - if this compiles, the type is exported
-      const module = await import('../../src/hooks/useSocket');
-      type Options = Parameters<typeof module.useSocket>[0];
+      const hookModule = await import('../../src/hooks/useSocket');
+      type Options = Parameters<typeof hookModule.useSocket>[0];
       const _options: Options = { autoConnect: false };
+      expect(hookModule.useSocket).toBeDefined();
       expect(_options).toBeDefined();
     });
   });
 
   describe('Options Validation', () => {
     it('should accept minimal options', async () => {
-      const { useSocket } = await import('../../src/hooks/useSocket');
-      type Options = Parameters<typeof useSocket>[0];
+      const hookModule = await import('../../src/hooks/useSocket');
+      type Options = Parameters<typeof hookModule.useSocket>[0];
 
       const minimalOptions: Options = {};
+      expect(hookModule.useSocket).toBeDefined();
       expect(minimalOptions).toBeDefined();
     });
 
     it('should accept all options', async () => {
-      const { useSocket } = await import('../../src/hooks/useSocket');
-      type Options = Parameters<typeof useSocket>[0];
+      const hookModule = await import('../../src/hooks/useSocket');
+      type Options = Parameters<typeof hookModule.useSocket>[0];
 
       const fullOptions: Options = {
         url: 'http://localhost:3009',
@@ -71,6 +73,7 @@ describe('useSocket Hook API Contract', () => {
         onError: () => {},
       };
 
+      expect(hookModule.useSocket).toBeDefined();
       expect(fullOptions.url).toBe('http://localhost:3009');
       expect(fullOptions.tenantId).toBe(1);
       expect(fullOptions.autoJoinRooms).toHaveLength(2);
@@ -80,13 +83,14 @@ describe('useSocket Hook API Contract', () => {
   describe('Return Value Contract', () => {
     it('should return expected properties', async () => {
       // Import the hook and verify its structure
-      const { useSocket } = await import('../../src/hooks/useSocket');
+      const hookModule = await import('../../src/hooks/useSocket');
 
       // We can't easily call the hook outside React, but we can verify the types
-      type ReturnType = ReturnType<typeof useSocket>;
+      type HookReturnType = ReturnType<typeof hookModule.useSocket>;
 
       // These type assertions verify the API contract
-      const _typeCheck = {} as ReturnType;
+      const _typeCheck = {} as HookReturnType;
+      expect(hookModule.useSocket).toBeDefined();
       expect(typeof _typeCheck).toBe('object');
     });
   });
@@ -171,7 +175,7 @@ describe('Room Subscription Types', () => {
   });
 
   it('should support unsubscribe function signature', () => {
-    const unsubscribe = vi.fn((room: string): void => {
+    const unsubscribe = vi.fn((_room: string): void => {
       // no-op
     });
 

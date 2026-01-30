@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') ?? '20', 10);
     const page = parseInt(searchParams.get('page') ?? '1', 10);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const payload = await getPayloadHMR({ config: configPromise });
 
     // Build where clause

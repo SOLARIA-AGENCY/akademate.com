@@ -25,7 +25,7 @@ export default function EditarPerfilPage() {
   })
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [_avatarFile, setAvatarFile] = useState<File | null>(null)
 
   const initials = formData.name
     .split(' ')
