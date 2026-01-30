@@ -6,11 +6,8 @@
 import { z } from 'zod'
 import type {
   Module,
-  ModuleSchema,
   Lesson,
-  LessonSchema,
   Resource,
-  ResourceSchema,
   ContentStatus,
 } from './types'
 

@@ -56,9 +56,9 @@ function getErrorMessage(error: unknown): string {
 // Initialize DOMPurify with jsdom for Node.js environment
 // DOMPurify v3.2.4 (patched for XSS vulnerability GHSA-vhxf-7vqr-mrjg)
 // Note: JSDOM types don't perfectly align with Window, but DOMPurify works correctly at runtime
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- JSDOM constructor has incomplete type definitions
+ 
 const jsdomInstance = new JSDOM('');
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- JSDOM window property has incomplete type definitions
+ 
 const jsdomWindow = jsdomInstance.window as unknown as Window;
 const purify: DOMPurify = createDOMPurify(jsdomWindow);
 
@@ -162,7 +162,7 @@ export const validateMediaFile: CollectionBeforeChangeHook = async ({ data, req:
   }
 
   // 3.4: Control character prevention
-  // eslint-disable-next-line no-control-regex -- Intentionally matching control characters for security
+   
   if (/[\x00-\x1F\x7F]/.test(sanitized)) {
     throw new Error('Invalid filename: Control characters are not allowed for security reasons');
   }

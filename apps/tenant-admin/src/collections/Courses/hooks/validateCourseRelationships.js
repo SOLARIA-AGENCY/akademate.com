@@ -16,37 +16,31 @@
 export const validateCourseRelationships = async ({ data, req }) => {
     if (!data)
         return data;
-    try {
-        // Validate cycle exists
-        if (data.cycle) {
-            try {
-                await req.payload.findByID({
-                    collection: 'cycles',
-                    id: data.cycle,
-                });
-            }
-            catch (error) {
-                throw new Error(`Cycle with ID ${data.cycle} does not exist`);
-            }
+    // Validate cycle exists
+    if (data.cycle) {
+        try {
+            await req.payload.findByID({
+                collection: 'cycles',
+                id: data.cycle,
+            });
         }
-        // Validate campuses exist (if provided)
-        if (data.campuses && Array.isArray(data.campuses) && data.campuses.length > 0) {
-            for (const campusId of data.campuses) {
-                try {
-                    await req.payload.findByID({
-                        collection: 'campuses',
-                        id: campusId,
-                    });
-                }
-                catch (error) {
-                    throw new Error(`Campus with ID ${campusId} does not exist`);
-                }
-            }
+        catch {
+            throw new Error(`Cycle with ID ${data.cycle} does not exist`);
         }
     }
-    catch (error) {
-        // Re-throw the error to fail the operation
-        throw error;
+    // Validate campuses exist (if provided)
+    if (data.campuses && Array.isArray(data.campuses) && data.campuses.length > 0) {
+        for (const campusId of data.campuses) {
+            try {
+                await req.payload.findByID({
+                    collection: 'campuses',
+                    id: campusId,
+                });
+            }
+            catch {
+                throw new Error(`Campus with ID ${campusId} does not exist`);
+            }
+        }
     }
     return data;
 };

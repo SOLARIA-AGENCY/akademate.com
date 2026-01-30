@@ -23,7 +23,7 @@
  * - Ownership-based permissions (Marketing role)
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { Payload } from 'payload';
 import { getPayload } from 'payload';
 import config from '../../payload.config';
@@ -383,7 +383,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
     });
 
     it('should search campaigns by name', async () => {
-      const campaign = await payload.create({
+      const _campaign = await payload.create({
         collection: 'campaigns',
         data: {
           name: 'Searchable Campaign Name',
@@ -1528,7 +1528,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
       });
 
       // Create lead with campaign
-      const lead = await payload.create({
+      const _lead = await payload.create({
         collection: 'leads',
         data: {
           first_name: 'Test',

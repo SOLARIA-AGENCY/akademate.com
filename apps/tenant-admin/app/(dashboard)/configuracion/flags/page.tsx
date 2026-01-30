@@ -23,7 +23,7 @@ interface FeatureFlagsResponse {
 
 export default function FeatureFlagsPage() {
   const tenantId = '123e4567-e89b-12d3-a456-426614174001'
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- path alias not resolved
+   
   const { toast } = useToast() as UseToastReturn
   const [flags, setFlags] = useState<FeatureFlag[]>([])
   const [loading, setLoading] = useState(true)
@@ -38,7 +38,7 @@ export default function FeatureFlagsPage() {
       const data: FeatureFlagsResponse = await response.json() as FeatureFlagsResponse
       setFlags(data.flags ?? [])
     } catch {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- path alias not resolved
+       
       toast({
         title: 'Error',
         description: 'No se pudieron cargar los feature flags',
@@ -66,13 +66,13 @@ export default function FeatureFlagsPage() {
       }
 
       await fetchFlags()
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- path alias not resolved
+       
       toast({
         title: 'Flag actualizado',
         description: `Se actualizó ${key} correctamente`,
       })
     } catch {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- path alias not resolved
+       
       toast({
         title: 'Error',
         description: `No se pudo actualizar ${key}`,

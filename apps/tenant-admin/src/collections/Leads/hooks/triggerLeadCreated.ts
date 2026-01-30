@@ -11,7 +11,6 @@ import type { CollectionAfterChangeHook } from 'payload';
  */
 export const triggerLeadCreated: CollectionAfterChangeHook = async ({
   doc,
-  req,
   operation,
 }) => {
   // Only trigger on create operations

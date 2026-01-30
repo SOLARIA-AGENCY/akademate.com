@@ -17,7 +17,7 @@ import {
 } from '../src/handlers'
 import { ApiError, ErrorCode } from '../src/errors'
 import type { AuthMiddlewareConfig, JwtVerifier } from '../src/middleware/auth'
-import type { ApiContext, AuthenticatedApiContext } from '../src/context'
+import type { AuthenticatedApiContext } from '../src/context'
 
 // Mock JWT verifier
 const createMockVerifier = (payload?: Partial<import('../src/middleware/auth').JwtPayload>): JwtVerifier => ({

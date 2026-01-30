@@ -8,6 +8,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import DOMPurify from 'isomorphic-dompurify';
 import Link from 'next/link';
 import { RequireAuth, useSession } from '../../../../providers/SessionProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card';
@@ -357,7 +358,7 @@ function LessonView() {
               {lesson.content && (
                 <div
                   className="prose prose-sm max-w-none dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: lesson.content }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(lesson.content || '') }}
                 />
               )}
             </CardContent>

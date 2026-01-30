@@ -104,7 +104,7 @@ export async function GET(
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- configPromise type comes from Payload library
+     
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     // Cast to extended payload for accessing planned LMS collections

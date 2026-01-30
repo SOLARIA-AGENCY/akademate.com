@@ -1,5 +1,9 @@
 import type { FieldHook } from 'payload';
 
+interface DocWithCreatedBy {
+  created_by?: number | string;
+}
+
 /**
  * Hook: Track Campaign Creator (beforeChange)
  *
@@ -23,7 +27,9 @@ import type { FieldHook } from 'payload';
  * - Logs only campaign.id and user.id (non-sensitive)
  * - NEVER logs campaign name or budget (business intelligence)
  */
-export const trackCampaignCreator: FieldHook = ({ req, operation, value, originalDoc }) => {
+export const trackCampaignCreator: FieldHook = ({ req, operation, value, originalDoc }): string | number | null => {
+  const typedDoc = originalDoc as DocWithCreatedBy | undefined;
+
   // Only apply on CREATE operation
   if (operation === 'create') {
     // Auto-populate created_by with current user
@@ -34,9 +40,9 @@ export const trackCampaignCreator: FieldHook = ({ req, operation, value, origina
 
   // On UPDATE: preserve original created_by (immutability enforcement)
   if (operation === 'update') {
-    if (originalDoc?.created_by) {
+    if (typedDoc?.created_by) {
       // Ignore any attempt to change created_by
-      return originalDoc.created_by;
+      return typedDoc.created_by;
     }
   }
 

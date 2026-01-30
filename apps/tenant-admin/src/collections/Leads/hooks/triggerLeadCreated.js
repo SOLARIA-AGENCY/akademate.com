@@ -7,7 +7,7 @@
  * 3. Adds lead to CRM queue (if integration enabled)
  * 4. Creates initial lead activity entry
  */
-export const triggerLeadCreated = async ({ doc, req, operation, }) => {
+export const triggerLeadCreated = async ({ doc, req: _req, operation, }) => {
     // Only trigger on create operations
     if (operation !== 'create')
         return doc;

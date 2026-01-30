@@ -240,6 +240,7 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
     mountedRef.current = true;
 
     if (autoConnect && token) {
+       
       connect();
     }
 

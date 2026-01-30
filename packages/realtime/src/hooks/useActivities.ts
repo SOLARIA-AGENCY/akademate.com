@@ -107,6 +107,7 @@ export function useActivities(options: UseActivitiesOptions): UseActivitiesRetur
 
   useEffect(() => {
     if (!socket?.connected || !tenantId) {
+       
       setIsSubscribed(false);
       return;
     }

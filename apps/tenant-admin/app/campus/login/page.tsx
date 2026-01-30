@@ -19,7 +19,7 @@ import { GraduationCap, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function CampusLoginPage() {
   const router = useRouter();
-  const { login, isLoading, error: sessionError } = useSession();
+  const { login, isLoading: _isLoading, error: sessionError } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export default function CampusLoginPage() {
       } else {
         setError(sessionError || 'Credenciales invalidas. Por favor, intenta de nuevo.');
       }
-    } catch (err) {
+    } catch {
       setError('Error al iniciar sesion. Por favor, intenta de nuevo.');
     } finally {
       setIsSubmitting(false);

@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const payload = await getPayload({ config })
 
     // Find student by email

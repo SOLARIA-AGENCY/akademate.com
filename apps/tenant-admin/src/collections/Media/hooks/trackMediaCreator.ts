@@ -1,5 +1,9 @@
 import type { FieldHook } from 'payload';
 
+interface DocWithCreatedBy {
+  created_by?: number | string;
+}
+
 /**
  * Hook: Track Media Creator (beforeChange)
  *
@@ -23,7 +27,9 @@ import type { FieldHook } from 'payload';
  * - Logs only user.id and operation (non-sensitive)
  * - NEVER logs filename or file content
  */
-export const trackMediaCreator: FieldHook = ({ req, operation, originalDoc }) => {
+export const trackMediaCreator: FieldHook = ({ req, operation, originalDoc }): string | number => {
+  const typedDoc = originalDoc as DocWithCreatedBy | undefined;
+
   // CREATE: Auto-populate created_by with authenticated user
   if (operation === 'create') {
     if (!req.user) {
@@ -40,18 +46,18 @@ export const trackMediaCreator: FieldHook = ({ req, operation, originalDoc }) =>
 
   // UPDATE: Preserve original created_by (immutability)
   if (operation === 'update') {
-    if (!originalDoc?.created_by) {
+    if (!typedDoc?.created_by) {
       throw new Error('Cannot update media: created_by field is missing from original document');
     }
 
     console.log('[Media Creator] Preserving original uploader', {
-      userId: originalDoc.created_by,
+      userId: typedDoc.created_by,
       operation: 'update',
     });
 
     // SECURITY: Always return original created_by
     // Prevents ownership hijacking via API manipulation
-    return originalDoc.created_by;
+    return typedDoc.created_by;
   }
 
   // Unsupported operation

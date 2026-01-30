@@ -26,7 +26,7 @@ import type { FieldHook } from 'payload';
  * @param args - Field hook arguments
  * @returns User ID for created_by field
  */
-export const trackBlogPostCreator: FieldHook = ({ req, operation, value, originalDoc }) => {
+export const trackBlogPostCreator: FieldHook = ({ req, operation, originalDoc }) => {
   const logger = req.payload.logger as any;
   // Only apply on CREATE operation
   if (operation === 'create') {

@@ -1,4 +1,5 @@
 import { getPayloadHMR } from '@payloadcms/next/utilities';
+import type { Payload } from 'payload';
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
@@ -22,13 +23,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const payload = await getPayloadHMR({ config: configPromise });
+     
+    const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     // 1. Obtener código del área
     const area = await payload.findByID({
       collection: 'areas-formativas',
       id: areaId,
-    });
+    }) as { codigo: string } | null;
 
     if (!area) {
       return NextResponse.json(
@@ -70,8 +72,9 @@ export async function GET(request: NextRequest) {
     // 4. Calcular siguiente secuencial
     let secuencial = 1;
     if (ultimosCursos.docs.length > 0) {
-      const ultimoCodigo = ultimosCursos.docs[0].codigo;
-      const match = ultimoCodigo.match(/(\d{4})$/);
+      const firstDoc = ultimosCursos.docs[0] as { codigo: string };
+      const ultimoCodigo = firstDoc.codigo;
+      const match = /(\d{4})$/.exec(ultimoCodigo);
       if (match) {
         secuencial = parseInt(match[1], 10) + 1;
       }

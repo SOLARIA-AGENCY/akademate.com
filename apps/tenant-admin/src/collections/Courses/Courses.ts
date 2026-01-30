@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload';
 import { canManageCourses, canReadCourses, canUpdateCourse } from './access';
 import { validateCourseRelationships, generateSlug } from './hooks';
 import { formatValidationErrors, CourseUpdateSchema } from './Courses.validation';
-import { tenantField, tenantFilteredAccess } from '../../access/tenantAccess';
+import { tenantField } from '../../access/tenantAccess';
 
 /**
  * Courses Collection

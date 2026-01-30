@@ -34,7 +34,7 @@ import type { CollectionBeforeChangeHook } from 'payload';
  * @param args - Hook arguments from Payload
  * @throws Error if operation is 'update'
  */
-export const preventAuditLogUpdates: CollectionBeforeChangeHook = async ({
+export const preventAuditLogUpdates: CollectionBeforeChangeHook = ({
   operation,
   req,
 }) => {

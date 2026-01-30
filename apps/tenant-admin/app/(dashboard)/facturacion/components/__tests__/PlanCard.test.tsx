@@ -202,7 +202,7 @@ describe('PlanCard', () => {
   })
 
   it('positions popular badge correctly', () => {
-    const { container } = render(<PlanCard {...defaultProps} isPopular={true} />)
+    const { container: _container } = render(<PlanCard {...defaultProps} isPopular={true} />)
     const badge = screen.getByText('Más Popular').parentElement
     expect(badge).toHaveClass('-top-3', 'left-1/2', '-translate-x-1/2')
   })

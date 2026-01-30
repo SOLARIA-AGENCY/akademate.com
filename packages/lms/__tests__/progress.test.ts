@@ -134,7 +134,7 @@ function createMockProgressRepository(): ProgressRepository {
 
   return {
     getLessonProgress: vi.fn(async (tenantId, enrollmentId, lessonId) => {
-      return lessonProgress.get(makeKey(enrollmentId, lessonId)) || null
+      return lessonProgress.get(makeKey(enrollmentId, lessonId)) ?? null
     }),
     getLessonProgressByEnrollment: vi.fn(async (tenantId, enrollmentId) => {
       return Array.from(lessonProgress.values()).filter((p) => p.enrollmentId === enrollmentId)
@@ -143,16 +143,16 @@ function createMockProgressRepository(): ProgressRepository {
       const key = makeKey(enrollmentId, lessonId)
       const existing = lessonProgress.get(key)
       const updated: LessonProgress = {
-        id: existing?.id || crypto.randomUUID(),
+        id: existing?.id ?? crypto.randomUUID(),
         tenantId,
         enrollmentId,
         userId,
         lessonId,
-        status: data.status || existing?.status || 'not_started',
+        status: data.status ?? existing?.status ?? 'not_started',
         progressPercent: data.progressPercent ?? existing?.progressPercent ?? 0,
-        startedAt: data.startedAt || existing?.startedAt,
-        completedAt: data.completedAt || existing?.completedAt,
-        lastAccessedAt: data.lastAccessedAt || existing?.lastAccessedAt,
+        startedAt: data.startedAt ?? existing?.startedAt,
+        completedAt: data.completedAt ?? existing?.completedAt,
+        lastAccessedAt: data.lastAccessedAt ?? existing?.lastAccessedAt,
         timeSpentSeconds: data.timeSpentSeconds ?? existing?.timeSpentSeconds ?? 0,
         metadata: { ...existing?.metadata, ...data.metadata },
       }
@@ -161,7 +161,7 @@ function createMockProgressRepository(): ProgressRepository {
     }),
 
     getResourceProgress: vi.fn(async (tenantId, enrollmentId, resourceId) => {
-      return resourceProgress.get(makeKey(enrollmentId, resourceId)) || null
+      return resourceProgress.get(makeKey(enrollmentId, resourceId)) ?? null
     }),
     getResourceProgressByEnrollment: vi.fn(async (tenantId, enrollmentId) => {
       return Array.from(resourceProgress.values()).filter((p) => p.enrollmentId === enrollmentId)
@@ -170,16 +170,16 @@ function createMockProgressRepository(): ProgressRepository {
       const key = makeKey(enrollmentId, resourceId)
       const existing = resourceProgress.get(key)
       const updated: ResourceProgress = {
-        id: existing?.id || crypto.randomUUID(),
+        id: existing?.id ?? crypto.randomUUID(),
         tenantId,
         enrollmentId,
         userId,
         resourceId,
         completed: data.completed ?? existing?.completed ?? false,
-        completedAt: data.completedAt || existing?.completedAt,
+        completedAt: data.completedAt ?? existing?.completedAt,
         score: data.score ?? existing?.score,
         attempts: data.attempts ?? existing?.attempts ?? 0,
-        lastAttemptAt: data.lastAttemptAt || existing?.lastAttemptAt,
+        lastAttemptAt: data.lastAttemptAt ?? existing?.lastAttemptAt,
         videoProgress: data.videoProgress ?? existing?.videoProgress,
         metadata: { ...existing?.metadata, ...data.metadata },
       }

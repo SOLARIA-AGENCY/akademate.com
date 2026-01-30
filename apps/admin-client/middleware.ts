@@ -5,7 +5,7 @@
  */
 
 import { createTenantMiddleware } from '@akademate/tenant/middleware'
-import { NextResponse, type NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 // Development mode - allow localhost without tenant
 const isDev = process.env.NODE_ENV === 'development'
@@ -34,7 +34,7 @@ const tenantMiddleware = createTenantMiddleware({
   // Debug mode in development
   debug: isDev,
   // Lookup tenant ID from slug (implement with your API)
-  lookupTenantId: async (slug: string) => {
+  lookupTenantId: (slug: string) => {
     // TODO: Implement actual API lookup: GET /api/tenants?slug={slug}
     console.log('[middleware] Looking up tenant:', slug)
 

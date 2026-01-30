@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
-import { LogOut, ChevronDown, Bell, Search, Settings } from 'lucide-react'
+import { LogOut, Bell, Search } from 'lucide-react'
 import { OpsSidebar, OpsSidebarInset, OpsSidebarShell, OpsSidebarTrigger } from '@/components/sidebar'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -149,10 +149,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Avatar>
               <div className="hidden md:flex flex-col">
                 <span className="text-sm font-medium leading-tight text-foreground">
-                  {session.name || session.email.split('@')[0]}
+                  {session.name ?? session.email.split('@')[0]}
                 </span>
                 <span className="text-[11px] text-muted-foreground">
-                  {roleLabels[session.role] || session.role}
+                  {roleLabels[session.role] ?? session.role}
                 </span>
               </div>
               <Button

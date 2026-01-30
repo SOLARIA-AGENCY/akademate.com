@@ -108,16 +108,6 @@ interface UseDashboardMetricsResult {
   refresh: () => Promise<void>
 }
 
-interface UseDashboardMetricsOptions {
-  tenantId?: number
-  enableRealtime?: boolean
-  refreshInterval?: number
-}
-
-// Type-safe wrapper for the hook to satisfy ESLint
-type UseDashboardMetricsHook = (options?: UseDashboardMetricsOptions) => UseDashboardMetricsResult
-const typedUseDashboardMetrics = useDashboardMetrics as UseDashboardMetricsHook
-
 // KPI item type for dashboard cards
 interface KpiItem {
   title: string

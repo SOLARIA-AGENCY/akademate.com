@@ -171,6 +171,7 @@ export function useNotifications(
 
   useEffect(() => {
     if (!socket?.connected || !userId) {
+       
       setIsSubscribed(false);
       return;
     }

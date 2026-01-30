@@ -51,33 +51,33 @@ function CampusDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadDashboard();
-  }, [student]);
-
-  const loadDashboard = async () => {
     if (!student) return;
 
-    try {
-      setLoading(true);
+    const loadDashboard = async () => {
+      try {
+        setLoading(true);
 
-      // Fetch student's enrollments
-      const response = await fetch('/api/campus/dashboard', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('campus_token')}`,
-        },
-      });
+        // Fetch student's enrollments
+        const response = await fetch('/api/campus/dashboard', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('campus_token')}`,
+          },
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        setEnrollments(data.enrollments || []);
-        setStats(data.stats || null);
+        if (response.ok) {
+          const data = await response.json() as { enrollments?: EnrollmentCard[]; stats?: StudentStats | null };
+          setEnrollments(data.enrollments ?? []);
+          setStats(data.stats ?? null);
+        }
+      } catch (error) {
+        console.error('[Campus] Failed to load dashboard:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('[Campus] Failed to load dashboard:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    void loadDashboard();
+  }, [student]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

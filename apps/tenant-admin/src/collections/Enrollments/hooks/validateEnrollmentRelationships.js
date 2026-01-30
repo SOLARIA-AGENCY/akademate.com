@@ -36,7 +36,7 @@ export const validateEnrollmentRelationships = async ({ data, req, operation, })
                 id: data.student,
             });
         }
-        catch (error) {
+        catch {
             throw new Error(`Invalid student ID: ${data.student}. Student does not exist.`);
         }
     }

@@ -16,7 +16,7 @@ import type { CollectionBeforeChangeHook } from 'payload';
  * - Accountability: Track staff additions
  * - Security: Prevent ownership manipulation
  */
-export const trackStaffCreator: CollectionBeforeChangeHook = async ({
+export const trackStaffCreator: CollectionBeforeChangeHook = ({
   data,
   req,
   operation,

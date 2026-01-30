@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const payload = await getPayload({ config });
 
     // Validate subject claim exists

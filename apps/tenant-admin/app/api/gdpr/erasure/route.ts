@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload config promise typing
+         
         const payload: Payload = await getPayloadHMR({ config: configPromise });
 
         // Verify user exists

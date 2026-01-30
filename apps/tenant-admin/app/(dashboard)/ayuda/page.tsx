@@ -19,7 +19,6 @@ import {
   HelpCircle,
   ExternalLink,
   CheckCircle,
-  AlertTriangle,
   Mail
 } from 'lucide-react'
 
@@ -38,7 +37,7 @@ interface GuideSection {
 
 export default function AyudaPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedRole, setSelectedRole] = useState<string>('all')
+  const [_selectedRole, _setSelectedRole] = useState<string>('all')
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
 
   const guideSections: GuideSection[] = [

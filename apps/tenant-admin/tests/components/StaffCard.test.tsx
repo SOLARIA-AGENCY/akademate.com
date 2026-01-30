@@ -141,7 +141,7 @@ describe('StaffCard Component', () => {
       const mockOnEdit = vi.fn()
       const mockOnDelete = vi.fn()
 
-      const { container } = render(
+      const { container: _container } = render(
         <StaffCard
           {...mockStaffProfesor}
           onView={mockOnView}
@@ -303,7 +303,7 @@ describe('StaffCard Component', () => {
         bio: undefined,
       }
 
-      const { container } = render(
+      const { container: _container } = render(
         <StaffCard
           {...noBioStaff}
           onView={mockOnView}
@@ -323,7 +323,7 @@ describe('StaffCard Component', () => {
       const mockOnEdit = vi.fn()
       const mockOnDelete = vi.fn()
 
-      const { container } = render(
+      const { container: _container } = render(
         <StaffCard
           {...mockStaffProfesor}
           onView={mockOnView}
@@ -366,7 +366,7 @@ describe('StaffCard Component', () => {
       const mockOnEdit = vi.fn()
       const mockOnDelete = vi.fn()
 
-      const { container } = render(
+      const { container: _container } = render(
         <StaffCard
           {...mockStaffProfesor}
           onView={mockOnView}

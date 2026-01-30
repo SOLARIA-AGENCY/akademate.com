@@ -60,7 +60,7 @@ function CursosPageContent() {
   const tipo = searchParams.get('tipo')
 
   // View preference (eslint path alias resolution workaround)
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+   
   const viewPreference = useViewPreference('cursos') as [ViewMode, (view: ViewMode) => void]
   const view = viewPreference[0]
   const setView = viewPreference[1]

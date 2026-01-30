@@ -5,6 +5,7 @@
  */
 
 import { getPayloadHMR } from '@payloadcms/next/utilities';
+import type { Payload } from 'payload';
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
@@ -20,12 +21,13 @@ export async function GET(request: NextRequest) {
         const courseId = searchParams.get('courseId');
         const moduleId = searchParams.get('moduleId');
 
-        const payload = await getPayloadHMR({ config: configPromise });
+         
+        const payload: Payload = await getPayloadHMR({ config: configPromise });
 
         if (courseId) {
             // Get modules for a course
             const modules = await payload.find({
-                collection: 'modules' as any,
+                collection: 'modules' as 'users',
                 where: { course: { equals: courseId } },
                 sort: 'order',
                 depth: 1,
@@ -44,7 +46,7 @@ export async function GET(request: NextRequest) {
         if (moduleId) {
             // Get lessons for a module
             const lessons = await payload.find({
-                collection: 'lessons' as any,
+                collection: 'lessons' as 'users',
                 where: { module: { equals: moduleId } },
                 sort: 'order',
                 depth: 1,
@@ -52,7 +54,7 @@ export async function GET(request: NextRequest) {
 
             // Get materials for the module
             const materials = await payload.find({
-                collection: 'materials' as any,
+                collection: 'materials' as 'users',
                 where: { module: { equals: moduleId } },
                 depth: 1,
             });
@@ -73,10 +75,11 @@ export async function GET(request: NextRequest) {
             { success: false, error: 'courseId or moduleId is required' },
             { status: 400 }
         );
-    } catch (error: any) {
+    } catch (error) {
         console.error('[LMS Content] Error:', error);
+        const message = error instanceof Error ? error.message : 'Failed to fetch content';
         return NextResponse.json(
-            { success: false, error: error.message || 'Failed to fetch content' },
+            { success: false, error: message },
             { status: 500 }
         );
     }

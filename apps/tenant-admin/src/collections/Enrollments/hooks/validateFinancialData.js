@@ -25,7 +25,7 @@ import { validateFinancialAmounts, calculatePaymentStatus } from '../Enrollments
  * - Auto-calculate payment_status to prevent manipulation
  * - Prevent negative amounts (potential fraud)
  */
-export const validateFinancialData = async ({ data, req, }) => {
+export const validateFinancialData = async ({ data, req: _req, }) => {
     if (!data) {
         return data;
     }

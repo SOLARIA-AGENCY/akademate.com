@@ -5,19 +5,19 @@ import { DashboardFooter } from '@payload-config/components/layout/DashboardFoot
 describe('Dashboard Footer', () => {
   describe('Rendering', () => {
     it('renders the footer component', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const footer = container.querySelector('footer')
       expect(footer).toBeInTheDocument()
     })
 
     it('has proper border and background styling', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const footer = container.querySelector('footer')
       expect(footer).toHaveClass('border-t', 'bg-card', 'mt-auto')
     })
 
     it('uses consistent padding', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const contentDiv = container.querySelector('.py-3')
       expect(contentDiv).toBeInTheDocument()
     })
@@ -52,7 +52,7 @@ describe('Dashboard Footer', () => {
     })
 
     it('includes icons for each legal link', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const icons = container.querySelectorAll('svg')
       expect(icons.length).toBeGreaterThanOrEqual(4) // 3 legal + 1 status
     })
@@ -67,7 +67,7 @@ describe('Dashboard Footer', () => {
     })
 
     it('includes Activity icon for system status', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const statusLink = screen.getByRole('link', { name: /estado del sistema/i })
       const icon = statusLink.querySelector('svg')
       expect(icon).toBeInTheDocument()
@@ -76,13 +76,13 @@ describe('Dashboard Footer', () => {
 
   describe('Layout and Alignment', () => {
     it('uses flexbox for layout', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const flexContainer = container.querySelector('.flex.items-center.justify-between')
       expect(flexContainer).toBeInTheDocument()
     })
 
     it('aligns legal links to the left', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const leftSection = container.querySelector('.flex.items-center.gap-3')
       expect(leftSection).toBeInTheDocument()
     })
@@ -106,13 +106,13 @@ describe('Dashboard Footer', () => {
     })
 
     it('uses semantic footer element', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const footer = container.querySelector('footer')
       expect(footer).toBeInTheDocument()
     })
 
     it('has proper contrast for links', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const links = container.querySelectorAll('a')
       links.forEach(link => {
         expect(link).toHaveClass('text-muted-foreground', 'hover:text-foreground')
@@ -122,19 +122,19 @@ describe('Dashboard Footer', () => {
 
   describe('Responsive Design', () => {
     it('has responsive padding', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const innerContainer = container.querySelector('.container')
       expect(innerContainer).toHaveClass('mx-auto', 'px-4', 'py-3')
     })
 
     it('uses appropriate text size', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const textContainer = container.querySelector('.text-sm')
       expect(textContainer).toBeInTheDocument()
     })
 
     it('has gap spacing for links', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const linkContainer = container.querySelector('.gap-3')
       expect(linkContainer).toBeInTheDocument()
     })
@@ -142,7 +142,7 @@ describe('Dashboard Footer', () => {
 
   describe('Hover States', () => {
     it('applies transition classes to links', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const links = container.querySelectorAll('a')
       links.forEach(link => {
         expect(link).toHaveClass('transition-colors')
@@ -152,7 +152,7 @@ describe('Dashboard Footer', () => {
 
   describe('Icon Sizing', () => {
     it('uses consistent icon size', () => {
-      const { container } = render(<DashboardFooter />)
+      const { container: _container } = render(<DashboardFooter />)
       const icons = container.querySelectorAll('svg')
       icons.forEach(icon => {
         expect(icon).toHaveClass('h-3.5', 'w-3.5')

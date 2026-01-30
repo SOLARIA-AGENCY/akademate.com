@@ -105,7 +105,7 @@ export const callToActionSchema = z
 export const urlSchema = z
     .string()
     .url('Must be a valid URL (http:// or https://)')
-    .regex(/^https?:\/\/[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(\:[0-9]{1,5})?(\/[^\s]*)?$/, 'URL contains invalid characters or format')
+    .regex(/^https?:\/\/[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(:[0-9]{1,5})?(\/[^\s]*)?$/, 'URL contains invalid characters or format')
     .refine((url) => {
     try {
         const parsed = new URL(url);
@@ -135,7 +135,7 @@ export const tagSchema = z
     .string()
     .min(1, 'Tag cannot be empty')
     .max(50, 'Tag must be 50 characters or less')
-    .regex(/^[a-z0-9\-]+$/, 'Tags must be lowercase, alphanumeric, and may contain hyphens only');
+    .regex(/^[a-z0-9-]+$/, 'Tags must be lowercase, alphanumeric, and may contain hyphens only');
 /**
  * Tags Array Schema
  * - Optional

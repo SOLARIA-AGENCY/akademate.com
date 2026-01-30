@@ -41,7 +41,7 @@ const purify = createDOMPurify(window);
  * - Logs only filename, MIME type, file size (metadata only)
  * - NEVER logs file content or buffer data
  */
-export const validateMediaFile = async ({ data, req, operation }) => {
+export const validateMediaFile = async ({ data, req: _req, operation }) => {
     // Only validate on create (file upload)
     // Updates typically only modify metadata (alt, caption), not the file itself
     if (operation !== 'create') {

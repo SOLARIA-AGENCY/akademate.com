@@ -30,18 +30,6 @@ vi.mock('@payload-config', () => ({ default: {} }));
 // Import handlers after mocks
 import { POST, GET } from '../bulk/route';
 
-// Helper to create FormData with file
-function createFormDataRequest(csvContent: string): NextRequest {
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const file = new File([blob], 'enrollments.csv', { type: 'text/csv' });
-  const formData = new FormData();
-  formData.append('file', file);
-
-  return new NextRequest('http://localhost/api/lms/enrollments/bulk', {
-    method: 'POST',
-    body: formData,
-  });
-}
 
 // Helper to create JSON request
 function createJsonRequest(body: object): NextRequest {
@@ -59,7 +47,7 @@ describe('LMS Bulk Enrollment API', () => {
 
   describe('GET /api/lms/enrollments/bulk', () => {
     it('should return CSV template', async () => {
-      const response = await GET();
+      const response = GET();
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Content-Type')).toBe('text/csv');
@@ -268,7 +256,7 @@ student@test.com,cr-1`;
       mockPayload.create.mockResolvedValueOnce({ id: 'enroll-1' });
 
       const request = createJsonRequest({ csvContent });
-      const response = await POST(request);
+      const _response = await POST(request);
 
       expect(mockPayload.create).toHaveBeenCalledWith(
         expect.objectContaining({

@@ -51,7 +51,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
       )
     }
 
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument -- Drizzle ORM types not resolved due to conditional db export */
+     
     const transactions: PaymentTransaction[] = await db
       .select()
       .from(paymentTransactions)
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
       .orderBy(desc(paymentTransactions.createdAt))
       .limit(validation.data.limit)
       .execute()
-    /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+     
 
     return NextResponse.json({ transactions })
   } catch (error) {

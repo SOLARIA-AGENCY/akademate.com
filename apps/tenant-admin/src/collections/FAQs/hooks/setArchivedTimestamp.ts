@@ -19,13 +19,13 @@
 
 import type { FieldHook } from 'payload';
 
-export const setArchivedTimestamp: FieldHook = async ({
+export const setArchivedTimestamp: FieldHook = ({
   req,
   operation,
   data,
   originalDoc,
 }) => {
-  const logger = req.payload.logger as any;
+  const logger: { info?: (message: string, meta?: Record<string, unknown>) => void } = req.payload.logger;
   // If archived_at already exists, preserve it (immutable)
   if (originalDoc?.archived_at) {
     // SECURITY (SP-001 Layer 3): Enforce immutability at business logic level

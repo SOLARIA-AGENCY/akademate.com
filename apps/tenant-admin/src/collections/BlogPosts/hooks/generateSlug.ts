@@ -34,7 +34,7 @@ export const generateSlug: FieldHook = async ({
   originalDoc,
   value,
 }) => {
-  const logger = req?.payload?.logger as any;
+  const logger: { info?: (message: string, meta?: Record<string, unknown>) => void } | undefined = req?.payload?.logger;
   // Skip if slug is manually provided
   if (value && typeof value === 'string' && value.trim().length > 0) {
     return value;

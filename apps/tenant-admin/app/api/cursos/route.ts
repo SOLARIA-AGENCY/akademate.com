@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload library returns error-typed Promise
+     
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     // 1. Generar código automáticamente
@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
  */
 export async function GET() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Payload library returns error-typed Promise
+     
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     const cursos = await payload.find({

@@ -41,7 +41,7 @@ export const validateStudentRelationships: CollectionBeforeValidateHook = async 
   req,
   operation,
 }) => {
-  const logger = req?.payload?.logger as any;
+  const logger: { info?: (message: string, meta?: Record<string, unknown>) => void; error?: (message: string, meta?: Record<string, unknown>) => void } | undefined = req?.payload?.logger;
   // Only validate on creation
   if (operation !== 'create') {
     return data;

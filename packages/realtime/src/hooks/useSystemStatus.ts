@@ -160,6 +160,7 @@ export function useSystemStatus(
 
   useEffect(() => {
     if (!socket?.connected) {
+       
       setIsSubscribed(false);
       return;
     }

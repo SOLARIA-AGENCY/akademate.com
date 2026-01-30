@@ -28,7 +28,7 @@ import { validateURL } from '../AdsTemplates.validation';
  * - Logs only template.id (non-sensitive)
  * - NEVER logs URLs (may contain tracking parameters)
  */
-export const validateAssetURLs = async ({ data, operation, req, }) => {
+export const validateAssetURLs = async ({ data, operation, req: _req, }) => {
     // Only validate on create and update operations
     if (operation !== 'create' && operation !== 'update') {
         return data;

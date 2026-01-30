@@ -53,7 +53,7 @@ interface CourseTypeConfig {
 
 // Typed wrapper for getCourseTypeConfig to satisfy ESLint
 const getTypeConfig = (type: CourseType): CourseTypeConfig => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+   
   return getCourseTypeConfig(type) as CourseTypeConfig
 }
 

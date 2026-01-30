@@ -134,7 +134,7 @@ export function SocketProvider({
     log('Connecting...', { url, tenantId, userId, role });
     setStatus('connecting');
 
-    const newSocket = io(url || '', {
+    const newSocket = io(url ?? '', {
       path,
       auth: { token },
       query: {
@@ -252,7 +252,7 @@ export function SocketProvider({
       }
     };
     // Only run on mount/unmount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [autoConnect, token]);
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -265,7 +265,7 @@ export function SocketProvider({
       disconnect();
       connect();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [tenantId, userId, role, token]);
 
   // ──────────────────────────────────────────────────────────────────────────

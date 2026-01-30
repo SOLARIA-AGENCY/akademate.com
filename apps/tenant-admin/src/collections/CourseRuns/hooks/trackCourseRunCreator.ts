@@ -19,7 +19,7 @@ import type { CollectionBeforeChangeHook } from 'payload';
  * - Provides audit trail for who created each course run
  * - Supports accountability in multi-user environments
  */
-export const trackCourseRunCreator: CollectionBeforeChangeHook = async ({
+export const trackCourseRunCreator: CollectionBeforeChangeHook = ({
   data,
   req,
   operation,
@@ -38,9 +38,9 @@ export const trackCourseRunCreator: CollectionBeforeChangeHook = async ({
 
   // On UPDATE: Prevent modification of created_by (restore original value)
   if (operation === 'update' && originalDoc) {
-    if (data.created_by && data.created_by !== originalDoc.created_by) {
+    if (data.created_by && data.created_by !== typedDoc.created_by) {
       // Attempting to change created_by - restore original value
-      data.created_by = originalDoc.created_by;
+      data.created_by = typedDoc.created_by;
     }
   }
 

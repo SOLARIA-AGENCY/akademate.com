@@ -13,7 +13,7 @@ export default function PerfilPage() {
   const router = useRouter()
 
   // Mock user data (replace with actual from context/API)
-  const [user, setUser] = useState({
+  const [user, _setUser] = useState({
     id: 1,
     name: 'Admin User',
     email: 'admin@cepcomunicacion.com',

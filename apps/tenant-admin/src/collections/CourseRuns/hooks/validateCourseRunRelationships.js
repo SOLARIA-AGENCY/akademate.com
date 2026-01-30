@@ -21,36 +21,31 @@ export const validateCourseRunRelationships = async ({ data, req, operation }) =
     if (!data) {
         return data;
     }
-    try {
-        // Validate course relationship (REQUIRED)
-        if (data.course) {
-            try {
-                await req.payload.findByID({
-                    collection: 'courses',
-                    id: typeof data.course === 'object' ? data.course.id : data.course,
-                });
-            }
-            catch (error) {
-                // SECURITY: Don't include user input in error messages (defense in depth)
-                throw new Error('The specified course does not exist or is not accessible');
-            }
+    // Validate course relationship (REQUIRED)
+    if (data.course) {
+        try {
+            await req.payload.findByID({
+                collection: 'courses',
+                id: typeof data.course === 'object' ? data.course.id : data.course,
+            });
         }
-        // Validate campus relationship (OPTIONAL)
-        if (data.campus) {
-            try {
-                await req.payload.findByID({
-                    collection: 'campuses',
-                    id: typeof data.campus === 'object' ? data.campus.id : data.campus,
-                });
-            }
-            catch (error) {
-                // SECURITY: Don't include user input in error messages (defense in depth)
-                throw new Error('The specified campus does not exist or is not accessible');
-            }
+        catch {
+            // SECURITY: Don't include user input in error messages (defense in depth)
+            throw new Error('The specified course does not exist or is not accessible');
         }
     }
-    catch (error) {
-        throw error;
+    // Validate campus relationship (OPTIONAL)
+    if (data.campus) {
+        try {
+            await req.payload.findByID({
+                collection: 'campuses',
+                id: typeof data.campus === 'object' ? data.campus.id : data.campus,
+            });
+        }
+        catch {
+            // SECURITY: Don't include user input in error messages (defense in depth)
+            throw new Error('The specified campus does not exist or is not accessible');
+        }
     }
     return data;
 };

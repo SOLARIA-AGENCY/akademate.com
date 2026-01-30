@@ -99,7 +99,7 @@ export const urlSchema = z
   .string()
   .url('Must be a valid URL (http:// or https://)')
   .regex(
-    /^https?:\/\/[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(\:[0-9]{1,5})?(\/[^\s]*)?$/,
+    /^https?:\/\/[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(:[0-9]{1,5})?(\/[^\s]*)?$/,
     'URL contains invalid characters or format'
   )
   .refine(
@@ -132,7 +132,7 @@ export const tagSchema = z
   .string()
   .min(1, 'Tag cannot be empty')
   .max(30, 'Tag must be 30 characters or less')
-  .regex(/^[a-z0-9\-]+$/, 'Tags must be lowercase, alphanumeric, and may contain hyphens only');
+  .regex(/^[a-z0-9-]+$/, 'Tags must be lowercase, alphanumeric, and may contain hyphens only');
 
 /**
  * Tags Array Schema

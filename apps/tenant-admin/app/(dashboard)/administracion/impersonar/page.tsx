@@ -36,7 +36,6 @@ import {
   Search,
   UserCog,
   Shield,
-  Eye,
   LogIn,
   AlertTriangle,
   Clock,
@@ -169,7 +168,7 @@ export default function ImpersonarPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [rolFilter, setRolFilter] = useState('todos')
   const [sedeFilter, setSedeFilter] = useState('todas')
-  const [selectedUser, setSelectedUser] = useState<typeof usuariosData[0] | null>(null)
+  const [_selectedUser, _setSelectedUser] = useState<typeof usuariosData[0] | null>(null)
 
   const filteredUsuarios = usuariosData.filter((usuario) => {
     const matchesSearch =

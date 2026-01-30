@@ -10,7 +10,6 @@ import type {
   PointsTransaction,
   UserGamificationSummary,
   LeaderboardEntry,
-  BadgeType,
 } from './types'
 
 // ============================================================================
@@ -429,7 +428,7 @@ export class GamificationService {
     const results: AchievementResult[] = []
 
     switch (event.type) {
-      case 'lesson_completed':
+      case 'lesson_completed': {
         // First lesson badge
         if (event.metadata?.lessonCount === 1) {
           const badge = await this.awardBadge(tenantId, userId, 'first_lesson', {
@@ -449,8 +448,9 @@ export class GamificationService {
           results.push({ type: 'points', transaction: lessonPoints })
         }
         break
+      }
 
-      case 'module_completed':
+      case 'module_completed': {
         const moduleBadge = await this.awardBadge(tenantId, userId, 'module_complete', {
           moduleId: event.metadata?.moduleId,
         })
@@ -466,8 +466,9 @@ export class GamificationService {
           results.push({ type: 'points', transaction: modulePoints })
         }
         break
+      }
 
-      case 'course_completed':
+      case 'course_completed': {
         const courseBadge = await this.awardBadge(tenantId, userId, 'course_complete', {
           courseRunId: event.metadata?.courseRunId,
         })
@@ -483,8 +484,9 @@ export class GamificationService {
           results.push({ type: 'points', transaction: coursePoints })
         }
         break
+      }
 
-      case 'perfect_score':
+      case 'perfect_score': {
         const perfectBadge = await this.awardBadge(tenantId, userId, 'perfect_score', {
           resourceId: event.metadata?.resourceId,
         })
@@ -500,6 +502,7 @@ export class GamificationService {
           results.push({ type: 'points', transaction: perfectPoints })
         }
         break
+      }
     }
 
     // Always record activity for streak

@@ -1,3 +1,4 @@
+ 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
@@ -8,7 +9,7 @@ interface DataTableProps extends React.HTMLAttributes<HTMLTableElement> {
 function DataTable({ className, children, ...props }: DataTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className={cn('data-table', className)} {...props}>
+      <table className={cn('data-table', className) as string} {...props}>
         {children}
       </table>
     </div>
@@ -57,7 +58,7 @@ function DataTableRow({
   ...props
 }: DataTableRowProps) {
   return (
-    <tr className={cn(isHeader && 'bg-muted/50', className)} {...props}>
+    <tr className={cn(isHeader && 'bg-muted/50', className) as string} {...props}>
       {children}
     </tr>
   )
@@ -83,7 +84,7 @@ function DataTableHead({
         align === 'center' && 'text-center',
         align === 'right' && 'text-right',
         className
-      )}
+      ) as string}
       {...props}
     >
       {children}
@@ -114,7 +115,7 @@ function DataTableCell({
         align === 'right' && 'text-right',
         numeric && 'tabular-nums font-medium',
         className
-      )}
+      ) as string}
       {...props}
     >
       {children}
@@ -146,7 +147,7 @@ function DataTableEmpty({
           className={cn(
             'flex flex-col items-center justify-center py-12 text-center',
             className
-          )}
+          ) as string}
           {...props}
         >
           {icon && (

@@ -55,7 +55,7 @@ export const generateCourseRunCode: CollectionBeforeChangeHook = async ({
       throw new Error('start_date is required to generate codigo');
     }
 
-    const startDate = new Date(data.start_date);
+    const startDate = new Date(data.start_date as string);
     const year = startDate.getFullYear();
 
     // 2. Get campus code

@@ -23,7 +23,7 @@
  * - Ownership-based permissions (Marketing role)
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { Payload } from 'payload';
 import { getPayload } from 'payload';
 import config from '../../payload.config';
@@ -393,7 +393,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
     });
 
     it('should search templates by name', async () => {
-      const template = await payload.create({
+      const _template = await payload.create({
         collection: 'ads_templates',
         data: {
           name: 'Searchable Template Name',

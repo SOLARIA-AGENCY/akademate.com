@@ -92,9 +92,9 @@ function cleanupExpiredEntries(now: number): void {
 
 export function createRateLimiter(config: RateLimitConfig) {
   const defaultKeyGenerator = (context: ApiContext) =>
-    `${context.tenant.tenantId}:${context.user?.userId || context.ip || 'anonymous'}`
+    `${context.tenant.tenantId}:${context.user?.userId ?? context.ip ?? 'anonymous'}`
 
-  const keyGenerator = config.keyGenerator || defaultKeyGenerator
+  const keyGenerator = config.keyGenerator ?? defaultKeyGenerator
 
   return function rateLimit(context: ApiContext): RateLimitResult {
     const key = keyGenerator(context)
@@ -181,7 +181,7 @@ export async function checkRedisRateLimit(
   key: string,
   config: RedisRateLimitConfig
 ): Promise<RateLimitResult> {
-  const redisKey = `${config.keyPrefix || 'ratelimit'}:${key}`
+  const redisKey = `${config.keyPrefix ?? 'ratelimit'}:${key}`
   const windowSeconds = Math.ceil(config.windowMs / 1000)
 
   // Increment counter

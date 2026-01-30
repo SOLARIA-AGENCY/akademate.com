@@ -24,7 +24,6 @@ import {
   getCurrentTenantId,
   assertTenantContext,
 } from '../src/rls'
-import { courses } from '../src/schema'
 
 // Skip integration tests unless explicitly enabled with DATABASE_URL + RUN_DB_TESTS=true
 const DATABASE_URL = process.env.DATABASE_URL
@@ -122,7 +121,7 @@ describe.skipIf(!shouldRunIntegration)('RLS Isolation - Integration Tests', () =
     })
 
     it('rejects invalid tenant_id format', async () => {
-      const result = await withTenantContext(db, { tenantId: 'invalid' }, async (tx) => {
+      const result = await withTenantContext(db, { tenantId: 'invalid' }, async (_tx) => {
         return 'should not reach here'
       })
 
@@ -133,7 +132,7 @@ describe.skipIf(!shouldRunIntegration)('RLS Isolation - Integration Tests', () =
     })
 
     it('rejects negative tenant_id', async () => {
-      const result = await withTenantContext(db, { tenantId: -1 }, async (tx) => {
+      const result = await withTenantContext(db, { tenantId: -1 }, async (_tx) => {
         return 'should not reach here'
       })
 
@@ -144,7 +143,7 @@ describe.skipIf(!shouldRunIntegration)('RLS Isolation - Integration Tests', () =
     })
 
     it('rejects zero tenant_id', async () => {
-      const result = await withTenantContext(db, { tenantId: 0 }, async (tx) => {
+      const result = await withTenantContext(db, { tenantId: 0 }, async (_tx) => {
         return 'should not reach here'
       })
 

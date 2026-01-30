@@ -50,13 +50,17 @@ export function parseQRCode(data: string): QRScanResult | null {
     }
 
     // Try JSON format
-    const json = JSON.parse(data)
-    if (json.sessionId && json.courseRunId && json.timestamp) {
+    const json = JSON.parse(data) as Record<string, unknown>
+    const sessionId = typeof json.sessionId === 'string' ? json.sessionId : null
+    const courseRunId = typeof json.courseRunId === 'string' ? json.courseRunId : null
+    const timestamp = typeof json.timestamp === 'string' ? json.timestamp : null
+    const signature = typeof json.signature === 'string' ? json.signature : undefined
+    if (sessionId && courseRunId && timestamp) {
       return {
-        sessionId: json.sessionId,
-        courseRunId: json.courseRunId,
-        timestamp: json.timestamp,
-        signature: json.signature,
+        sessionId,
+        courseRunId,
+        timestamp,
+        signature,
       }
     }
 

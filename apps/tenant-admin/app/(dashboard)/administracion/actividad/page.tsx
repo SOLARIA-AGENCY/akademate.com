@@ -25,26 +25,18 @@ import {
   Search,
   Activity,
   Download,
-  Filter,
-  Calendar,
   User,
   AlertCircle,
   CheckCircle2,
   Info,
   AlertTriangle,
   XCircle,
-  Eye,
   Edit,
   Trash2,
-  Plus,
   LogIn,
   LogOut,
-  Key,
   Settings,
-  FileText,
-  BookOpen,
   Users,
-  Shield,
   RefreshCw,
 } from 'lucide-react'
 
@@ -370,7 +362,7 @@ export default function ActividadPage() {
                 const severidadInfo = severidadConfig[item.severidad]
                 const SeveridadIcon = severidadInfo.icon
                 const accionInfo = accionConfig[item.accion]
-                const AccionIcon = accionInfo?.icon || Activity
+                const AccionIcon = accionInfo?.icon ?? Activity
                 return (
                   <TableRow key={item.id}>
                     <TableCell className="font-mono text-sm">
@@ -389,7 +381,7 @@ export default function ActividadPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <AccionIcon className={`h-4 w-4 ${accionInfo?.color || 'text-gray-500'}`} />
+                        <AccionIcon className={`h-4 w-4 ${accionInfo?.color ?? 'text-gray-500'}`} />
                         <span className="text-sm">{item.accion}</span>
                       </div>
                     </TableCell>
@@ -431,13 +423,12 @@ export default function ActividadPage() {
         <CardContent>
           <div className="space-y-4">
             {actividadData.slice(0, 5).map((item, index) => {
-              const severidadInfo = severidadConfig[item.severidad]
               const accionInfo = accionConfig[item.accion]
-              const AccionIcon = accionInfo?.icon || Activity
+              const AccionIcon = accionInfo?.icon ?? Activity
               return (
                 <div key={item.id} className="flex items-start gap-4">
                   <div className="relative">
-                    <div className={`h-10 w-10 rounded-full bg-muted flex items-center justify-center ${accionInfo?.color || ''}`}>
+                    <div className={`h-10 w-10 rounded-full bg-muted flex items-center justify-center ${accionInfo?.color ?? ''}`}>
                       <AccionIcon className="h-5 w-5" />
                     </div>
                     {index < 4 && (

@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload';
 import { canManageCycles } from './access/canManageCycles';
 import { cycleSchema, formatValidationErrors } from './Cycles.validation';
-import { tenantField, tenantFilteredAccess } from '../../access/tenantAccess';
+import { tenantField } from '../../access/tenantAccess';
 
 /**
  * Cycles Collection

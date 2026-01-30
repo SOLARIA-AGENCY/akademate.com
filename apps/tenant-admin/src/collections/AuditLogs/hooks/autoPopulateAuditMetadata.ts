@@ -31,7 +31,7 @@ import { extractIPAddress, extractUserAgent } from '../schemas';
  * @param args - Hook arguments from Payload
  * @returns Modified data with audit metadata
  */
-export const autoPopulateAuditMetadata: CollectionBeforeValidateHook = async ({ data, req, operation }) => {
+export const autoPopulateAuditMetadata: CollectionBeforeValidateHook = ({ data, req, operation }) => {
   // Only populate on creation (updates are blocked anyway)
   if (operation !== 'create') {
     return data;
@@ -78,7 +78,7 @@ export const autoPopulateAuditMetadata: CollectionBeforeValidateHook = async ({ 
     if (payload?.logger) {
       payload.logger.info('[AuditLog] Metadata auto-populated');
     }
-  } catch (error) {
+  } catch {
     // Log error without exposing PII
     if (req?.payload?.logger) {
       req.payload.logger.error('[AuditLog] Error auto-populating metadata');

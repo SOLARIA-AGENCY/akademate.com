@@ -55,10 +55,10 @@ export async function extractContext(
   const headers = request.headers
 
   // Generate request ID
-  const requestId = headers.get(ContextHeaders.REQUEST_ID) || generateRequestId()
+  const requestId = headers.get(ContextHeaders.REQUEST_ID) ?? generateRequestId()
 
   // Extract tenant context
-  const tenant = await extractTenantContext(headers, request.url)
+  const tenant = extractTenantContext(headers, request.url)
 
   // Extract user context if auth header present
   const authHeader = headers.get('authorization')
@@ -81,10 +81,10 @@ export async function extractContext(
   return context
 }
 
-export async function requireAuthentication(
+export function requireAuthentication(
   context: ApiContext,
   config?: Pick<AuthMiddlewareConfig, 'requiredRoles' | 'requiredPermissions'>
-): Promise<AuthenticatedApiContext> {
+): AuthenticatedApiContext {
   if (!context.user) {
     throw ApiError.unauthorized('Authentication required')
   }
@@ -122,10 +122,10 @@ export async function requireAuthentication(
 // Helper Functions
 // ============================================================================
 
-async function extractTenantContext(
+function extractTenantContext(
   headers: Headers,
   url: string
-): Promise<TenantContext> {
+): TenantContext {
   // Priority 1: Explicit header
   const tenantIdHeader = headers.get(ContextHeaders.TENANT_ID)
   if (tenantIdHeader) {

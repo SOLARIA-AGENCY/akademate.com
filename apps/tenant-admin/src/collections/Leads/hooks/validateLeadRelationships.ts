@@ -22,59 +22,54 @@ export const validateLeadRelationships: FieldHook = async ({ data, req }) => {
     return data;
   }
 
-  try {
-    // Validate course relationship
-    if (data.course) {
-      try {
-        await req.payload.findByID({
-          collection: 'courses',
-          id: data.course,
-        });
-      } catch (error) {
-        throw new Error(`Course with ID ${data.course} does not exist`);
-      }
+  // Validate course relationship
+  if (data.course) {
+    try {
+      await req.payload.findByID({
+        collection: 'courses',
+        id: data.course,
+      });
+    } catch (_error) {
+      throw new Error(`Course with ID ${data.course} does not exist`);
     }
+  }
 
-    // Validate campus relationship
-    if (data.campus) {
-      try {
-        await req.payload.findByID({
-          collection: 'campuses',
-          id: data.campus,
-        });
-      } catch (error) {
-        throw new Error(`Campus with ID ${data.campus} does not exist`);
-      }
+  // Validate campus relationship
+  if (data.campus) {
+    try {
+      await req.payload.findByID({
+        collection: 'campuses',
+        id: data.campus,
+      });
+    } catch (_error) {
+      throw new Error(`Campus with ID ${data.campus} does not exist`);
     }
+  }
 
-    // Validate campaign relationship (graceful failure if collection doesn't exist)
-    if (data.campaign) {
-      try {
-        await req.payload.findByID({
-          collection: 'campaigns',
-          id: data.campaign,
-        });
-      } catch (error) {
-        // Campaigns collection might not be implemented yet
-        console.warn(`[Lead Validation] Campaign validation skipped: ${(error as Error).message}`);
-        // Don't throw error, just warn
-      }
+  // Validate campaign relationship (graceful failure if collection doesn't exist)
+  if (data.campaign) {
+    try {
+      await req.payload.findByID({
+        collection: 'campaigns',
+        id: data.campaign,
+      });
+    } catch (error) {
+      // Campaigns collection might not be implemented yet
+      console.warn(`[Lead Validation] Campaign validation skipped: ${(error as Error).message}`);
+      // Don't throw error, just warn
     }
+  }
 
-    // Validate assigned_to relationship
-    if (data.assigned_to) {
-      try {
-        await req.payload.findByID({
-          collection: 'users',
-          id: data.assigned_to,
-        });
-      } catch (error) {
-        throw new Error(`User with ID ${data.assigned_to} does not exist`);
-      }
+  // Validate assigned_to relationship
+  if (data.assigned_to) {
+    try {
+      await req.payload.findByID({
+        collection: 'users',
+        id: data.assigned_to,
+      });
+    } catch (_error) {
+      throw new Error(`User with ID ${data.assigned_to} does not exist`);
     }
-  } catch (error) {
-    // Re-throw validation errors
-    throw error;
   }
 
   return data;

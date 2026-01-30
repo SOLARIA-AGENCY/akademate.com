@@ -209,11 +209,11 @@ export default function FacturacionPage() {
   const [activeTab, setActiveTab] = useState('subscription')
   const [showPlanComparison, setShowPlanComparison] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+   
   const toastHook = useToast() as unknown as ToastHookResult
   const toast = toastHook.toast
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+   
   const billingData = useBillingData({ tenantId: effectiveTenantId }) as unknown as BillingDataResult
   const subscription = billingData.subscription
   const subscriptionLoading = billingData.subscriptionLoading
@@ -228,7 +228,7 @@ export default function FacturacionPage() {
   const subscriptionId = subscription?.stripeSubscriptionId ?? undefined
   const stripeCustomerId = subscription?.stripeCustomerId ?? undefined
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+   
   const subscriptionActions = useSubscription({
     tenantId: effectiveTenantId,
     subscriptionId,

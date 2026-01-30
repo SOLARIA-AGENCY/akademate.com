@@ -388,7 +388,7 @@ describe('FAQs - CRUD Operations', () => {
   });
 
   it('should sort FAQs by order ascending', async () => {
-    const faq1 = await payload.create({
+    const _faq1 = await payload.create({
       collection: 'faqs',
       data: {
         question: 'Order 2 question?',

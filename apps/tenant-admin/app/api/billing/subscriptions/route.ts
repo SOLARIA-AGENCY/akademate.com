@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument -- db uses proxy pattern that ESLint cannot resolve */
+     
     const results = await (db
       .select()
       .from(subscriptions)
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       .orderBy(desc(subscriptions.updatedAt))
       .limit(1)
       .execute() as Promise<SubscriptionRecord[]>)
-    /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+     
 
     const subscription = results[0]
 
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- stripe module has unresolvable types at lint time
+     
     const stripeConfigured: boolean = isStripeConfigured()
     if (!stripeConfigured) {
       return NextResponse.json(
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
     // Get or create Stripe customer
     let customerId: string | undefined = stripeCustomerId
     if (!customerId) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- stripe module has unresolvable types at lint time
+       
       const customer: Stripe.Customer = await createStripeCustomer({
         tenantId,
         email,
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
       customerId = customer.id
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment -- stripe module has unresolvable types at lint time
+     
     const result: Stripe.Subscription = await createSubscription({
       tenantId,
       planTier,

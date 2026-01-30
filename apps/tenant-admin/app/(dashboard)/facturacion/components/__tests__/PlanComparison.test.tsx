@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { PlanComparison } from '../PlanComparison'
-import type { PlanTier } from '@payload-config/types/billing'
 
 vi.mock('@payload-config/hooks/use-toast')
 

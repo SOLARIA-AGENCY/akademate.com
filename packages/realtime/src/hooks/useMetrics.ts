@@ -162,6 +162,7 @@ export function useMetrics(options: UseMetricsOptions): UseMetricsReturn {
 
   useEffect(() => {
     if (!socket?.connected || !tenantId) {
+       
       setIsSubscribed(false);
       return;
     }

@@ -82,7 +82,7 @@ interface ListInvoicesResponse {
  * Type-safe wrapper for isStripeConfigured
  */
 function isStripeConfigured(): boolean {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+   
   return stripeIsConfigured() as unknown as boolean
 }
 
@@ -90,7 +90,7 @@ function isStripeConfigured(): boolean {
  * Type-safe wrapper for formatCurrency
  */
 function formatCurrency(amountInCents: number, currency: string): string {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+   
   return stripeFormatCurrency(amountInCents, currency) as unknown as string
 }
 
@@ -98,7 +98,7 @@ function formatCurrency(amountInCents: number, currency: string): string {
  * Type-safe wrapper for listInvoices
  */
 async function listInvoices(customerId: string, limit: number): Promise<Stripe.Invoice[]> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+   
   return stripeListInvoices(customerId, limit) as unknown as Promise<Stripe.Invoice[]>
 }
 
@@ -106,7 +106,7 @@ async function listInvoices(customerId: string, limit: number): Promise<Stripe.I
  * Type-safe wrapper for getUpcomingInvoice
  */
 async function getUpcomingInvoice(customerId: string): Promise<Stripe.Invoice | null> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+   
   return stripeGetUpcomingInvoice(customerId) as unknown as Promise<Stripe.Invoice | null>
 }
 

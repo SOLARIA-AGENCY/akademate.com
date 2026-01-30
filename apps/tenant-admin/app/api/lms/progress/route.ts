@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- configPromise type comes from Payload library
+         
         const payload: Payload = await getPayloadHMR({ config: configPromise });
 
         // Get enrollment details
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- configPromise type comes from Payload library
+         
         const payload: Payload = await getPayloadHMR({ config: configPromise });
         const payloadLMS = payload as unknown as PayloadWithLMS;
 

@@ -75,7 +75,7 @@ export function MediaDetails({
   const [isSaving, setIsSaving] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Hook types resolved at runtime via path alias
+   
   const { toast } = useToast() as unknown as ToastHookResult
 
   // Update alt text when item changes

@@ -33,7 +33,7 @@ export class EmailService {
    * Send a raw email message
    */
   async send(message: EmailMessage): Promise<SendEmailResult> {
-    const startTime = Date.now();
+    const _startTime = Date.now();
 
     try {
       switch (this.config.provider) {

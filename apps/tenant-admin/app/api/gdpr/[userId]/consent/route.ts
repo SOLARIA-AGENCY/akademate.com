@@ -82,7 +82,7 @@ export async function GET(
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const payload = await getPayloadHMR({ config: configPromise });
 
     const logs = await payload.find({
@@ -149,7 +149,7 @@ export async function POST(
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const payload = await getPayloadHMR({ config: configPromise });
     const updatedAt = new Date().toISOString();
 

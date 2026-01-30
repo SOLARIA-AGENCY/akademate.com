@@ -35,7 +35,6 @@ import {
   Mail,
   Phone,
   BookOpen,
-  Calendar,
   Eye,
   Edit,
   Trash2,

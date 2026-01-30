@@ -44,7 +44,7 @@ export const validateEnrollmentRelationships: CollectionBeforeValidateHook = asy
         collection: 'leads',
         id: data.student,
       });
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Invalid student ID: ${data.student}. Student does not exist.`);
     }
   }

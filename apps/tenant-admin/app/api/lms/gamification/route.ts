@@ -155,7 +155,7 @@ interface GamificationPayload {
  */
 async function getGamificationPayload(): Promise<GamificationPayload> {
     // Payload's HMR utility returns an error-typed value; cast through unknown is intentional
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const payload: unknown = await getPayloadHMR({ config: configPromise });
     return payload as GamificationPayload;
 }
