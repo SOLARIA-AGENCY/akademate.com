@@ -92,9 +92,12 @@ describe('System Status Page', () => {
 
   describe('Hydration Safety', () => {
     it('renders deterministic uptime bars', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-01-30T12:00:00Z'))
+
       const { container: container1 } = render(<EstadoSistemaPage />)
       const { container: container2 } = render(<EstadoSistemaPage />)
-      
+
       // Both renders should produce same HTML structure
       expect(container1.innerHTML).toBe(container2.innerHTML)
     })
