@@ -24,5 +24,10 @@ yarn-error.log*
 .idea
 .vscode
 
+# Security tokens
+token.txt
+*.token
+*.jwt
+
 # Misc
 *.tsbuildinfo

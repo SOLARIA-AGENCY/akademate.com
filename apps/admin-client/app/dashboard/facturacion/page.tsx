@@ -222,14 +222,6 @@ const usageMeters: UsageMeter[] = [
   { metric: 'API calls', value: 152340, unit: 'requests/día', limit: 'por plan' },
 ];
 
-const _stripeStatusMock = {
-  account: 'acct_mock_stripe',
-  products: 3,
-  prices: 9,
-  webhooks: 'pendiente',
-  usage: 'en diseño',
-};
-
 export default function FacturacionPage() {
   const [invoices] = useState<Invoice[]>(mockInvoices);
   const [paymentMethods] = useState<PaymentMethod[]>(mockPaymentMethods);

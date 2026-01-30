@@ -140,7 +140,7 @@ describe('InvoicesTable', () => {
   })
 
   it('renders table with scrollable container', () => {
-    const { container: _container } = render(<InvoicesTable invoices={mockInvoices} />)
+    const { container } = render(<InvoicesTable invoices={mockInvoices} />)
     const scrollContainer = container.querySelector('.overflow-x-auto')
     expect(scrollContainer).toBeInTheDocument()
   })

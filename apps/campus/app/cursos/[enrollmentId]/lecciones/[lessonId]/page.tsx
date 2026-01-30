@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Wifi, WifiOff } from 'lucide-react'
+import DOMPurify from 'isomorphic-dompurify'
 import { updateLessonProgress, fetchModuleDetail } from '@/lib/api'
 import { useCourseProgress, useGamification } from '@/hooks'
 import { PointsAnimation, ProgressRing } from '@/components/gamification'
@@ -327,7 +328,7 @@ export default function LessonPage({ params }: PageProps) {
                 {lesson.content && (
                     <div
                         className="prose prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{ __html: lesson.content }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(lesson.content || '') }}
                     />
                 )}
 
