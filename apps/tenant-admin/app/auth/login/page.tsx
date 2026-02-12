@@ -118,8 +118,9 @@ export default function LoginPage() {
 
       const data = await response.json()
 
-      if (data.user && data.token) {
-        // Store user data in localStorage for client-side access
+      if (data.user) {
+        // Store user metadata in localStorage for client-side display (non-sensitive data only).
+        // The auth token is stored exclusively in an httpOnly cookie by the server.
         localStorage.setItem('cep_user', JSON.stringify(data.user))
 
         // Redirect to dashboard

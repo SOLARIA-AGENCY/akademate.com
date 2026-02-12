@@ -3,8 +3,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-const DEV_USER_KEY = 'akademate-ops-user'
-
 export default function OpsLoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -38,15 +36,21 @@ export default function OpsLoginPage() {
     setIsLoading(true)
     await new Promise(resolve => setTimeout(resolve, 450))
 
-    const demoUser = {
-      email: email || 'ops@akademate.com',
-      role: 'superadmin',
-      name: 'Demo Ops',
-      tenantId: 'global-ops',
-    }
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(DEV_USER_KEY, JSON.stringify(demoUser))
+    // Set session via httpOnly cookie (server-side) instead of localStorage
+    try {
+      await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: email || 'ops@akademate.com',
+          role: 'superadmin',
+          name: 'Demo Ops',
+          tenantId: 'global-ops',
+        }),
+      })
+    } catch (err) {
+      console.error('Failed to set session cookie:', err)
     }
 
     router.push('/dashboard')

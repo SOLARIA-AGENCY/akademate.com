@@ -9,9 +9,11 @@ import { jwtVerify } from 'jose';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.CAMPUS_JWT_SECRET || 'campus-secret-key-change-in-production'
-);
+if (!process.env.CAMPUS_JWT_SECRET) {
+  throw new Error('CAMPUS_JWT_SECRET environment variable is required');
+}
+
+const JWT_SECRET = new TextEncoder().encode(process.env.CAMPUS_JWT_SECRET);
 
 async function verifyToken(request: NextRequest) {
   const authHeader = request.headers.get('Authorization');

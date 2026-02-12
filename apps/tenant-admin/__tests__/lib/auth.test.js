@@ -1,14 +1,17 @@
 import { isAuthenticated, getUser, logout } from '@/lib/auth';
+// Mock fetch for server-side logout call
+global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true }) }));
 describe('Auth Helpers', () => {
     beforeEach(() => {
         localStorage.clear();
+        global.fetch.mockClear();
     });
     describe('isAuthenticated', () => {
-        it('returns false when no token exists', () => {
+        it('returns false when no user data exists', () => {
             expect(isAuthenticated()).toBe(false);
         });
-        it('returns true when token exists', () => {
-            localStorage.setItem('cep_auth_token', 'test_token');
+        it('returns true when user metadata exists in localStorage', () => {
+            localStorage.setItem('cep_user', JSON.stringify({ id: 1, name: 'Test' }));
             expect(isAuthenticated()).toBe(true);
         });
     });
@@ -32,11 +35,12 @@ describe('Auth Helpers', () => {
         });
     });
     describe('logout', () => {
-        it('clears auth token and user data', () => {
-            localStorage.setItem('cep_auth_token', 'test_token');
+        it('calls server logout endpoint and clears user metadata', async () => {
             localStorage.setItem('cep_user', '{}');
-            logout();
-            expect(localStorage.getItem('cep_auth_token')).toBeNull();
+            await logout();
+            // Should call server endpoint to clear httpOnly cookie
+            expect(global.fetch).toHaveBeenCalledWith('/api/auth/logout', expect.objectContaining({ method: 'POST', credentials: 'include' }));
+            // Should clear user metadata from localStorage
             expect(localStorage.getItem('cep_user')).toBeNull();
         });
     });

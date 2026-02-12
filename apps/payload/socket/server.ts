@@ -29,7 +29,10 @@ import {
 // ============================================================================
 
 const PORT = parseInt(process.env.SOCKET_PORT || '3009', 10);
-const JWT_SECRET = process.env.PAYLOAD_SECRET || 'development-secret-change-me';
+const JWT_SECRET = process.env.PAYLOAD_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('PAYLOAD_SECRET environment variable is required');
+}
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const REDIS_URL = process.env.REDIS_URL || '';
 

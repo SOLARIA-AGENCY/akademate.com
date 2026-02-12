@@ -5,11 +5,14 @@
  *
  * Provides Socket.io connection for real-time system monitoring.
  * Auto-connects when auth token is available.
+ *
+ * Auth data is fetched from the server-side /api/auth/session endpoint
+ * which reads the httpOnly cookie. Tokens are never stored in JS-accessible
+ * cookies or localStorage.
  */
 
 import { ReactNode, useEffect, useState } from 'react';
 import { SocketProvider } from '@akademate/realtime/context';
-import Cookies from 'js-cookie';
 
 interface AuthData {
   token: string;
@@ -26,38 +29,22 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
   const [authData, setAuthData] = useState<AuthData | null>(null);
   const [isReady, setIsReady] = useState(false);
 
-  // Get auth data from cookies or localStorage
+  // Get auth data from server-side session endpoint (reads httpOnly cookie)
   useEffect(() => {
     const getAuthData = async () => {
       try {
-        // Try to get from cookie first (admin-client uses js-cookie)
-        const token = Cookies.get('akademate_admin_token');
-        const userJson = Cookies.get('akademate_admin_user');
-
-        if (token && userJson) {
-          const userData = JSON.parse(userJson);
-          setAuthData({
-            token,
-            userId: userData.id?.toString() || '0',
-            role: userData.role || 'superadmin',
-            tenantId: 0, // Admin client uses tenant 0 (global)
-          });
-          setIsReady(true);
-          return;
-        }
-
-        // Fallback: try localStorage
-        const storedToken = localStorage.getItem('akademate_admin_token');
-        const storedUser = localStorage.getItem('akademate_admin_user');
-
-        if (storedToken && storedUser) {
-          const userData = JSON.parse(storedUser);
-          setAuthData({
-            token: storedToken,
-            userId: userData.id?.toString() || '0',
-            role: userData.role || 'superadmin',
-            tenantId: 0,
-          });
+        // Fetch auth data from server — the httpOnly cookie is sent automatically
+        const response = await fetch('/api/auth/session', { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated && data.socketToken) {
+            setAuthData({
+              token: data.socketToken,
+              userId: data.user?.id?.toString() || '0',
+              role: data.user?.role || 'superadmin',
+              tenantId: 0, // Admin client uses tenant 0 (global)
+            });
+          }
         }
       } catch (error) {
         console.warn('[RealtimeProvider] Could not get auth data:', error);

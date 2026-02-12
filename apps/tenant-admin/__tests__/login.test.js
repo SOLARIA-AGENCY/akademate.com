@@ -54,9 +54,8 @@ describe('Login Page', () => {
         fireEvent.click(submitButton);
         // Wait for loading state
         expect(screen.getByText(/iniciando sesión/i)).toBeInTheDocument();
-        // Wait for redirect
+        // Wait for redirect (token is now stored in httpOnly cookie, not localStorage)
         await waitFor(() => {
-            expect(localStorage.getItem('cep_auth_token')).toBeTruthy();
             expect(localStorage.getItem('cep_user')).toBeTruthy();
             expect(mockPush).toHaveBeenCalledWith('/');
         }, { timeout: 2000 });

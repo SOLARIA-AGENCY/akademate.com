@@ -180,8 +180,8 @@ function getCorsHeaders(origin: string | null) {
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
     headers['Access-Control-Allow-Origin'] = origin
   } else if (!origin) {
-    // Allow requests without origin (e.g., curl, server-to-server)
-    headers['Access-Control-Allow-Origin'] = '*'
+    // No origin header (e.g., curl, server-to-server) — do not set
+    // Access-Control-Allow-Origin so browsers will block cross-origin use.
   }
 
   return headers

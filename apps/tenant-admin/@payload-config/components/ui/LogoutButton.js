@@ -4,9 +4,15 @@ import { Button } from '@payload-config/components/ui/button';
 import { LogOut } from 'lucide-react';
 export function LogoutButton() {
     const router = useRouter();
-    const handleLogout = () => {
-        // Clear authentication data
-        localStorage.removeItem('cep_auth_token');
+    const handleLogout = async () => {
+        // Clear the httpOnly auth cookie via server-side endpoint
+        try {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+        }
+        catch (error) {
+            console.error('Server logout failed:', error);
+        }
+        // Clear non-sensitive user metadata from localStorage
         localStorage.removeItem('cep_user');
         // Redirect to login
         router.push('/auth/login');

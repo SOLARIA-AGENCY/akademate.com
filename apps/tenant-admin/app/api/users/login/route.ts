@@ -74,7 +74,8 @@ export async function POST(request: Request) {
     // Reset rate limit on successful login
     resetRateLimit(clientIP)
 
-    // Create response with user data
+    // Create response with user data (token is NOT included in the response body;
+    // it is only set as an httpOnly cookie to prevent XSS exfiltration)
     const response = NextResponse.json({
       message: 'Auth Passed',
       user: {
@@ -83,7 +84,6 @@ export async function POST(request: Request) {
         name: result.user.name,
         role: result.user.role,
       },
-      token: result.token,
       exp: result.exp,
     })
 

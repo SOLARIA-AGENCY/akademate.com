@@ -111,7 +111,7 @@ describe('Legal Pages', () => {
         });
         it('lists technical cookies with details', () => {
             render(<CookiesPage />);
-            expect(screen.getByText(/cep_auth_token/i)).toBeInTheDocument();
+            expect(screen.getByText(/payload-token/i)).toBeInTheDocument();
             expect(screen.getByText(/cep_user/i)).toBeInTheDocument();
             expect(screen.getByText(/csrf_token/i)).toBeInTheDocument();
         });

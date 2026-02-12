@@ -106,7 +106,7 @@ export const getPayloadConfig = () => buildConfig({
     // SEOMetadata,
   ],
   editor: lexicalEditor({}),
-  secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE',
+  secret: process.env.PAYLOAD_SECRET ?? (() => { throw new Error('PAYLOAD_SECRET environment variable is required') })(),
   typescript: {
     outputFile: path.resolve(__dirname, 'payload-types.ts'),
   },

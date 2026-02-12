@@ -56,9 +56,9 @@
     "zod": "^3.25.0"
   },
   "dependencies": {
-    "@payloadcms/db-postgres": "^3.67.0",
-    "@payloadcms/next": "^3.67.0",
-    "payload": "^3.67.0",
+    "@payloadcms/db-postgres": "^3.76.1",
+    "@payloadcms/next": "^3.76.1",
+    "payload": "^3.76.1",
     "pg": "^8.13.1"
   },
   "pnpm": {
