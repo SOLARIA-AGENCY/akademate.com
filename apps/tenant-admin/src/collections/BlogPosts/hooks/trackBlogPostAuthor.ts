@@ -27,7 +27,7 @@ import type { FieldHook } from 'payload';
  * @returns User ID for author field
  */
 export const trackBlogPostAuthor: FieldHook = ({ req, operation, value, originalDoc }) => {
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as import('../../../types/payload-helpers').PayloadLogger | undefined;
   // Only apply on CREATE operation
   if (operation === 'create') {
     // Auto-populate author with current user

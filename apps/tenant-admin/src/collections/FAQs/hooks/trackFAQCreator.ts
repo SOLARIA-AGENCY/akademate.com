@@ -19,7 +19,7 @@
 import type { FieldHook } from 'payload';
 
 export const trackFAQCreator: FieldHook = async ({ req, operation, value, originalDoc }) => {
-  const logger = req.payload.logger as any;
+  const logger = req.payload.logger as import('../../../types/payload-helpers').PayloadLogger;
   // On create: set created_by to current user
   if (operation === 'create') {
     if (!req.user) {

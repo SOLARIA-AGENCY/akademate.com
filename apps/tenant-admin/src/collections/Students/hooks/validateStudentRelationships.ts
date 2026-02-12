@@ -42,7 +42,7 @@ export const validateStudentRelationships: FieldHook = async ({
   operation,
   value,
 }) => {
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as import('../../../types/payload-helpers').PayloadLogger | undefined;
   // Only validate on creation
   if (operation !== 'create') {
     return data;
@@ -55,7 +55,7 @@ export const validateStudentRelationships: FieldHook = async ({
 
       try {
         const user = await req.payload.findByID({
-          collection: 'users' as any,
+          collection: 'users',
           id: userId,
         });
 

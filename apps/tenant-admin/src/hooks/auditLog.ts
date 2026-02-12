@@ -66,7 +66,7 @@ export function createAuditLogHook(
 
       await req.payload.create({
         collection: 'audit-logs',
-        data: auditData as any,
+        data: auditData as Record<string, unknown>,
       });
     } catch (error) {
       // Log error but don't fail the operation

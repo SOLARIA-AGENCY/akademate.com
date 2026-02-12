@@ -556,7 +556,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
           data: {
             start_date: '2025-09-01',
             end_date: '2025-12-31',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -569,7 +569,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
           data: {
             course: testCourse.id,
             end_date: '2025-12-31',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -582,7 +582,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
           data: {
             course: testCourse.id,
             start_date: '2025-09-01',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -857,7 +857,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
             start_date: '2025-09-01',
             end_date: '2025-12-31',
             status: 'invalid_status',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -1424,7 +1424,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
           start_date: '2025-09-01',
           end_date: '2025-12-31',
           created_by: adminUser.id, // Trying to manually set created_by
-        } as any,
+        } as Record<string, unknown>,
         user: marketingUser, // Actually created by marketing user
       });
 
@@ -1449,7 +1449,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
         id: courseRun.id,
         data: {
           created_by: adminUser.id, // Trying to change creator
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1477,7 +1477,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
 
       expect(found.course).toBeDefined();
       expect(typeof found.course).toBe('object');
-      expect((found.course as any).title).toBe(testCourse.title);
+      expect((found.course as Record<string, unknown>).title).toBe(testCourse.title);
     });
 
     it('should populate campus relationship on read', async () => {
@@ -1501,7 +1501,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
 
       expect(found.campus).toBeDefined();
       expect(typeof found.campus).toBe('object');
-      expect((found.campus as any).name).toBe(testCampus.name);
+      expect((found.campus as Record<string, unknown>).name).toBe(testCampus.name);
     });
 
     it('should populate created_by user relationship on read', async () => {
@@ -1524,7 +1524,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
 
       expect(found.created_by).toBeDefined();
       expect(typeof found.created_by).toBe('object');
-      expect((found.created_by as any).email).toBe(marketingUser.email);
+      expect((found.created_by as Record<string, unknown>).email).toBe(marketingUser.email);
     });
   });
 
@@ -1674,7 +1674,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
           id: courseRun.id,
           data: {
             created_by: adminUser.id,
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         });
 
@@ -1750,14 +1750,14 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
       const collection = payload.collections['course-runs'];
       const createdByField = collection.config.fields.find((f: any) => f.name === 'created_by');
       expect(createdByField).toBeDefined();
-      expect((createdByField as any).admin?.readOnly).toBe(true);
+      expect((createdByField as Record<string, unknown>).admin?.readOnly).toBe(true);
     });
 
     it('should apply access.update: false to created_by (Layer 2: Security)', async () => {
       const collection = payload.collections['course-runs'];
       const createdByField = collection.config.fields.find((f: any) => f.name === 'created_by');
       expect(createdByField).toBeDefined();
-      expect((createdByField as any).access?.update).toBeDefined();
+      expect((createdByField as Record<string, unknown>).access?.update).toBeDefined();
     });
 
     it('should prevent created_by modification via API', async () => {
@@ -1776,7 +1776,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
         id: courseRun.id,
         data: {
           created_by: adminUser.id, // Attempt to change
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1787,14 +1787,14 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
       const collection = payload.collections['course-runs'];
       const enrollmentsField = collection.config.fields.find((f: any) => f.name === 'current_enrollments');
       expect(enrollmentsField).toBeDefined();
-      expect((enrollmentsField as any).admin?.readOnly).toBe(true);
+      expect((enrollmentsField as Record<string, unknown>).admin?.readOnly).toBe(true);
     });
 
     it('should apply access.update: false to current_enrollments (Layer 2: Security)', async () => {
       const collection = payload.collections['course-runs'];
       const enrollmentsField = collection.config.fields.find((f: any) => f.name === 'current_enrollments');
       expect(enrollmentsField).toBeDefined();
-      expect((enrollmentsField as any).access?.update).toBeDefined();
+      expect((enrollmentsField as Record<string, unknown>).access?.update).toBeDefined();
     });
 
     it('should prevent current_enrollments modification via API', async () => {
@@ -1885,7 +1885,7 @@ describe('CourseRuns Collection - TDD Test Suite', () => {
       );
 
       for (const field of readOnlyFields) {
-        expect((field as any).access?.update).toBeDefined();
+        expect((field as Record<string, unknown>).access?.update).toBeDefined();
       }
     });
 

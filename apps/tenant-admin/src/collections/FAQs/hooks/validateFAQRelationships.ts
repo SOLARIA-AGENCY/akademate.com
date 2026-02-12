@@ -17,7 +17,7 @@ export const validateFAQRelationships: CollectionBeforeValidateHook = async ({
   req,
   operation,
 }) => {
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as import('../../../types/payload-helpers').PayloadLogger | undefined;
   try {
     // Validate related_course if provided
     if (data?.related_course) {

@@ -426,7 +426,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
             utm_medium: 'test',
             utm_campaign: 'test',
             start_date: '2025-01-01',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -443,7 +443,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
             utm_medium: 'test',
             utm_campaign: 'test',
             start_date: '2025-01-01',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -460,7 +460,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
             utm_source: 'test',
             utm_medium: 'test',
             utm_campaign: 'test',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -676,7 +676,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
             utm_medium: 'test',
             utm_campaign: 'test',
             start_date: '2025-01-01',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -723,7 +723,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
             utm_medium: 'test',
             utm_campaign: 'test',
             start_date: '2025-01-01',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -1481,7 +1481,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
       expect(populated.course).toBeDefined();
       expect(typeof populated.course).toBe('object');
       if (typeof populated.course === 'object' && populated.course !== null) {
-        expect((populated.course as any).cycle).toBeDefined();
+        expect((populated.course as Record<string, unknown>).cycle).toBeDefined();
       }
     });
 
@@ -1607,7 +1607,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
           data: {
             ...validCampaignData,
             created_by: gestorUser.id, // Attempt to override
-          } as any,
+          } as Record<string, unknown>,
           user: marketingUser,
         });
 
@@ -1627,7 +1627,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
           id: campaign.id,
           data: {
             created_by: adminUser.id, // Attempt to change
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         });
 
@@ -1871,7 +1871,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
           id: campaign.id,
           data: {
             total_leads: 999, // Attempt to manipulate
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         });
 
@@ -1898,7 +1898,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
         id: campaign.id,
         data: {
           created_by: adminUser.id,
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1917,7 +1917,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
         id: campaign.id,
         data: {
           total_leads: 999,
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1936,7 +1936,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
         id: campaign.id,
         data: {
           total_conversions: 999,
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1955,7 +1955,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
         id: campaign.id,
         data: {
           conversion_rate: 99.9,
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1974,7 +1974,7 @@ describe('Campaigns Collection - TDD Test Suite', () => {
         id: campaign.id,
         data: {
           cost_per_lead: 999.99,
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 

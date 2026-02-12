@@ -460,7 +460,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
             payment_status: 'pending',
             total_amount: 1000,
             amount_paid: 0,
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -476,7 +476,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
             payment_status: 'pending',
             total_amount: 1000,
             amount_paid: 0,
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -492,7 +492,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
             status: 'pending',
             payment_status: 'pending',
             amount_paid: 0,
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -747,7 +747,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
             payment_status: 'pending',
             total_amount: 1000,
             amount_paid: 0,
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -792,7 +792,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
             payment_status: 'invalid_payment',
             total_amount: 1000,
             amount_paid: 0,
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -1731,7 +1731,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
       expect(populated.course_run).toBeDefined();
       expect(typeof populated.course_run).toBe('object');
       if (typeof populated.course_run === 'object' && populated.course_run !== null) {
-        expect((populated.course_run as any).course).toBeDefined();
+        expect((populated.course_run as Record<string, unknown>).course).toBeDefined();
       }
     });
 
@@ -1915,7 +1915,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
             total_amount: 1000,
             amount_paid: 0,
             created_by: gestorUser.id, // Attempt to override
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         });
 
@@ -1942,7 +1942,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
           id: enrollment.id,
           data: {
             created_by: gestorUser.id, // Attempt to change
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         });
 
@@ -1997,7 +1997,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
           id: enrollment.id,
           data: {
             enrolled_at: new Date('2020-01-01').toISOString(), // Attempt to change
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         });
 
@@ -2246,7 +2246,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
         id: enrollment.id,
         data: {
           created_by: gestorUser.id,
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -2274,7 +2274,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
         id: enrollment.id,
         data: {
           enrolled_at: new Date('2020-01-01').toISOString(),
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -2302,7 +2302,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
         id: enrollment.id,
         data: {
           confirmed_at: new Date('2020-01-01').toISOString(),
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -2330,7 +2330,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
         id: enrollment.id,
         data: {
           completed_at: new Date('2020-01-01').toISOString(),
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -2358,7 +2358,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
         id: enrollment.id,
         data: {
           cancelled_at: new Date('2020-01-01').toISOString(),
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 

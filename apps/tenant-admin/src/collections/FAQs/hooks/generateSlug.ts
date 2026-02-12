@@ -80,7 +80,7 @@ async function slugExists(slug: string, req: any, currentId?: string): Promise<b
     return existing.docs.length > 0;
   } catch (error) {
     // SECURITY (SP-004): No logging of error details
-    const logger = req.payload.logger as any;
+    const logger = req.payload.logger as import('../../../types/payload-helpers').PayloadLogger;
     logger.error('[FAQ] Slug existence check failed', {
       hasError: true,
     });
@@ -117,7 +117,7 @@ async function generateUniqueSlug(
  * Generate slug hook
  */
 export const generateSlug: FieldHook = async ({ data, req, operation, value }) => {
-  const logger = req.payload.logger as any;
+  const logger = req.payload.logger as import('../../../types/payload-helpers').PayloadLogger;
   // If slug is manually provided, validate and use it
   if (value && typeof value === 'string' && value.trim().length > 0) {
     return slugify(value);

@@ -197,7 +197,7 @@ const assignTenant: FieldHook = ({ req, value }) => {
 export const tenantField = {
   name: 'tenant',
   type: 'relationship' as const,
-  relationTo: 'tenants' as any,
+  relationTo: 'tenants' as string,
   required: true,
   index: true,
   admin: {

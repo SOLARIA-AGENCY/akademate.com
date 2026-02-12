@@ -304,7 +304,7 @@ export const Campaigns: CollectionConfig = {
         }
 
         return true;
-      }) as any,
+      }) as import('../../types/payload-helpers').PayloadValidatorWithContext<string>,
     },
 
     // ============================================================================
@@ -543,7 +543,7 @@ export const Campaigns: CollectionConfig = {
     {
       name: 'created_by',
       type: 'relationship',
-      relationTo: 'users' as any,
+      relationTo: 'users',
       index: true,
       admin: {
         position: 'sidebar',
@@ -587,7 +587,7 @@ export const Campaigns: CollectionConfig = {
         // Apply to created_by field only
         fieldName: 'created_by',
         hook: trackCampaignCreator,
-      } as any),
+      } as import('../../types/payload-helpers').FieldHookConfig),
     ],
 
     /**

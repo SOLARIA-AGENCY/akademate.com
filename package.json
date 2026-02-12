@@ -5,8 +5,8 @@
   "description": "Academate SaaS multitenant for training institutions",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "lint": "pnpm exec eslint . --ext .ts,.tsx,.js,.cjs,.mjs --max-warnings=0",
-    "lint:fix": "pnpm exec eslint . --ext .ts,.tsx,.js,.cjs,.mjs --fix",
+    "lint": "NODE_OPTIONS=--max-old-space-size=4096 pnpm exec eslint . --max-warnings=0",
+    "lint:fix": "NODE_OPTIONS=--max-old-space-size=4096 pnpm exec eslint . --fix",
     "format": "pnpm exec prettier . --check",
     "format:fix": "pnpm exec prettier . --write",
     "dev": "pnpm -r --parallel dev",

@@ -37,7 +37,7 @@ import type { FieldHook } from 'payload';
  * @returns Modified data with created_by set/protected
  */
 export const trackStudentCreator: FieldHook = async ({ data, req, operation, originalDoc }) => {
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as import('../../../types/payload-helpers').PayloadLogger | undefined;
   try {
     // CREATION: Auto-populate created_by
     if (operation === 'create') {

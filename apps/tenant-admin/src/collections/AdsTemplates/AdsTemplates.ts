@@ -290,7 +290,7 @@ export const AdsTemplates: CollectionConfig = {
         }
 
         return true;
-      }) as any,
+      }) as import('../../types/payload-helpers').PayloadValidatorWithContext<string>,
     },
 
     // ============================================================================
@@ -602,12 +602,12 @@ export const AdsTemplates: CollectionConfig = {
         // Apply to created_by field only
         fieldName: 'created_by',
         hook: trackTemplateCreator,
-      } as any,
+      } as import('../../types/payload-helpers').FieldHookConfig,
       {
         // Apply to archived_at field only
         fieldName: 'archived_at',
         hook: setArchivedTimestamp,
-      } as any,
+      } as import('../../types/payload-helpers').FieldHookConfig,
     ],
   },
 

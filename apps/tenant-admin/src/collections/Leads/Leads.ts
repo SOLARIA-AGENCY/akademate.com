@@ -609,7 +609,7 @@ export const Leads: CollectionConfig = {
             }
 
             return value;
-          }) as any,
+          }) as import('../../types/payload-helpers').PayloadValidatorWithContext<string>,
         ],
       },
     },
@@ -624,10 +624,10 @@ export const Leads: CollectionConfig = {
      * Order matters: Execute in sequence
      */
     beforeValidate: [
-      captureConsentMetadata as any, // 1. Capture GDPR consent metadata (timestamp, IP)
-      validateLeadRelationships as any, // 2. Validate foreign keys exist
-      preventDuplicateLead as any, // 3. Check for duplicates (same email+course within 24h)
-      calculateLeadScore as any, // 4. Calculate lead score (0-100)
+      captureConsentMetadata as unknown as import('payload').CollectionBeforeValidateHook, // 1. Capture GDPR consent metadata (timestamp, IP)
+      validateLeadRelationships as unknown as import('payload').CollectionBeforeValidateHook, // 2. Validate foreign keys exist
+      preventDuplicateLead as unknown as import('payload').CollectionBeforeValidateHook, // 3. Check for duplicates (same email+course within 24h)
+      calculateLeadScore as unknown as import('payload').CollectionBeforeValidateHook, // 4. Calculate lead score (0-100)
     ],
 
     /**

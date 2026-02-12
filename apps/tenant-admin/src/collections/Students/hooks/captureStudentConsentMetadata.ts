@@ -36,7 +36,7 @@ export const captureStudentConsentMetadata: FieldHook = async ({
   operation,
   value,
 }) => {
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as import('../../../types/payload-helpers').PayloadLogger | undefined;
   // Only capture on creation, not on updates
   if (operation !== 'create') {
     return data;
@@ -57,14 +57,14 @@ export const captureStudentConsentMetadata: FieldHook = async ({
     if (!data.consent_ip_address && req) {
       // Try X-Forwarded-For header first (if behind proxy)
       const forwardedFor =
-        (req.headers as any)?.['x-forwarded-for'] || (req.headers as any)?.get?.('x-forwarded-for');
+        (req.headers as Record<string, string | string[] | undefined>)?.['x-forwarded-for'] || (req.headers as unknown as { get?: (name: string) => string | null })?.get?.('x-forwarded-for');
       if (forwardedFor) {
         // X-Forwarded-For can be a comma-separated list, take first IP
         const ips = Array.isArray(forwardedFor) ? forwardedFor : forwardedFor.split(',');
         data.consent_ip_address = ips[0].trim();
-      } else if ((req as any).ip) {
+      } else if ((req as unknown as import('../../../types/payload-helpers').RequestWithIP).ip) {
         // Fallback to req.ip
-        data.consent_ip_address = (req as any).ip;
+        data.consent_ip_address = (req as unknown as import('../../../types/payload-helpers').RequestWithIP).ip!;
       }
     }
 

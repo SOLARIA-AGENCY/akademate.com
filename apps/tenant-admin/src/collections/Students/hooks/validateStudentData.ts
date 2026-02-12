@@ -43,7 +43,7 @@ import {
  */
 export const validateStudentData: FieldHook = async ({ data, req, operation, value }) => {
   const validationErrors: string[] = [];
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as import('../../../types/payload-helpers').PayloadLogger | undefined;
 
   try {
     // 1. Validate Email (always required)

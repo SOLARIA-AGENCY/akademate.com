@@ -356,7 +356,7 @@ export const BlogPosts: CollectionConfig = {
         }
 
         return true;
-      }) as any,
+      }) as import('../../types/payload-helpers').PayloadValidatorWithContext<string>,
     },
 
     {
@@ -388,7 +388,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: setPublicationTimestamp,
-          } as any,
+          } as import('../../types/payload-helpers').FieldHookConfig,
         ],
       },
     },
@@ -411,7 +411,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: setArchivedTimestamp,
-          } as any,
+          } as import('../../types/payload-helpers').FieldHookConfig,
         ],
       },
     },
@@ -441,7 +441,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: trackBlogPostAuthor,
-          } as any,
+          } as import('../../types/payload-helpers').FieldHookConfig,
         ],
       },
     },
@@ -466,7 +466,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: trackBlogPostCreator,
-          } as any,
+          } as import('../../types/payload-helpers').FieldHookConfig,
         ],
       },
     },
@@ -485,7 +485,7 @@ export const BlogPosts: CollectionConfig = {
       },
       validate: ((val: string[] | undefined) => {
         return validateTags(val);
-      }) as any,
+      }) as import('../../types/payload-helpers').PayloadValidatorWithContext<string[]>,
     },
 
     // ============================================================================
@@ -502,7 +502,7 @@ export const BlogPosts: CollectionConfig = {
       },
       validate: ((val: string[] | undefined) => {
         return validateRelatedCourses(val);
-      }) as any,
+      }) as import('../../types/payload-helpers').PayloadValidatorWithContext<string[]>,
     },
 
     // ============================================================================
@@ -546,7 +546,7 @@ export const BlogPosts: CollectionConfig = {
         beforeChange: [
           {
             hook: calculateReadTime,
-          } as any,
+          } as import('../../types/payload-helpers').FieldHookConfig,
         ],
       },
     },

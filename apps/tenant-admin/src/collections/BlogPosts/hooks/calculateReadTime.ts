@@ -33,7 +33,7 @@ import { calculateEstimatedReadTime } from '../BlogPosts.validation';
  * @returns Calculated read time in minutes
  */
 export const calculateReadTime: FieldHook = ({ data, req, operation }) => {
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as import('../../../types/payload-helpers').PayloadLogger | undefined;
   const content = data?.content;
 
   // If no content, default to 1 minute

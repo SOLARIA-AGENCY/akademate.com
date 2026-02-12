@@ -313,7 +313,7 @@ export const FAQs: CollectionConfig = {
         }
 
         return true;
-      }) as any,
+      }) as import('../../types/payload-helpers').PayloadValidatorWithContext<string>,
     },
 
     {

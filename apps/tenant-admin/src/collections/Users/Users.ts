@@ -169,7 +169,7 @@ export const Users: CollectionConfig = {
     {
       name: 'password',
       type: 'text',
-      required: (({ operation }: { operation: any }) => operation === 'create') as any,
+      required: (({ operation }: { operation: string }) => operation === 'create') as unknown as boolean,
       admin: {
         description: 'Password (min 8 chars, must include uppercase, lowercase, number, special char)',
       },
@@ -183,7 +183,7 @@ export const Users: CollectionConfig = {
         } catch (error: any) {
           return error.errors?.[0]?.message || 'Invalid password';
         }
-      }) as any,
+      }) as import('../../types/payload-helpers').PayloadValidatorWithContext<unknown>,
     },
 
     /**
@@ -220,7 +220,7 @@ export const Users: CollectionConfig = {
     {
       name: 'role',
       type: 'select',
-      required: (({ operation }: { operation: any }) => operation === 'create') as any,
+      required: (({ operation }: { operation: string }) => operation === 'create') as unknown as boolean,
       defaultValue: 'lectura',
       options: [
         {

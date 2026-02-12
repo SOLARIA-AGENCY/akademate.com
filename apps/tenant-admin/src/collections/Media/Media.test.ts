@@ -1594,7 +1594,7 @@ describe('Media Collection', () => {
           data: { alt: 'Upload Error Test' },
           user: adminUser,
           file: {
-            data: null as any, // Invalid data
+            data: null as unknown as Record<string, unknown>, // Invalid data
             mimetype: 'image/png',
             name: 'error-test.png',
             size: 256,

@@ -466,7 +466,7 @@ describe('FAQs - Validation', () => {
         data: {
           answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
           category: 'general',
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       })
     ).rejects.toThrow(/question/i);
@@ -508,7 +508,7 @@ describe('FAQs - Validation', () => {
         data: {
           question: 'Question without answer?',
           category: 'general',
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       })
     ).rejects.toThrow(/answer/i);
@@ -535,7 +535,7 @@ describe('FAQs - Validation', () => {
         data: {
           question: 'Question without category?',
           answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       })
     ).rejects.toThrow(/category/i);
@@ -548,7 +548,7 @@ describe('FAQs - Validation', () => {
         data: {
           question: 'Question with invalid category?',
           answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
-          category: 'invalid-category' as any,
+          category: 'invalid-category' as string,
         },
         user: adminUser,
       })
@@ -563,7 +563,7 @@ describe('FAQs - Validation', () => {
           question: 'Question with invalid language?',
           answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
           category: 'general',
-          language: 'fr' as any,
+          language: 'fr' as string,
         },
         user: adminUser,
       })
@@ -578,7 +578,7 @@ describe('FAQs - Validation', () => {
           question: 'Question with invalid status?',
           answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
           category: 'general',
-          status: 'invalid-status' as any,
+          status: 'invalid-status' as string,
         },
         user: adminUser,
       })
@@ -666,7 +666,7 @@ describe('FAQs - Validation', () => {
         data: {
           question: `Question for ${category} category?`,
           answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
-          category: category as any,
+          category: category as string,
         },
         user: adminUser,
       });
@@ -685,7 +685,7 @@ describe('FAQs - Validation', () => {
           question: `Question in ${language} language?`,
           answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
           category: 'general',
-          language: language as any,
+          language: language as string,
         },
         user: adminUser,
       });
@@ -704,7 +704,7 @@ describe('FAQs - Validation', () => {
           question: `Question with ${status} status?`,
           answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
           category: 'general',
-          status: status as any,
+          status: status as string,
         },
         user: adminUser,
       });
@@ -1184,7 +1184,7 @@ describe('FAQs - Relationships', () => {
 
     expect(fetched.related_course).toBeDefined();
     expect(typeof fetched.related_course).toBe('object');
-    expect((fetched.related_course as any).name).toBe(testCourse.name);
+    expect((fetched.related_course as Record<string, unknown>).name).toBe(testCourse.name);
   });
 
   it('should reject non-existent course ID', async () => {
@@ -1260,7 +1260,7 @@ describe('FAQs - Relationships', () => {
 
     expect(fetched.created_by).toBeDefined();
     expect(typeof fetched.created_by).toBe('object');
-    expect((fetched.created_by as any).email).toBe(marketingUser.email);
+    expect((fetched.created_by as Record<string, unknown>).email).toBe(marketingUser.email);
   });
 
   it('should preserve relationship when course is deleted (SET NULL)', async () => {
@@ -1561,7 +1561,7 @@ describe('FAQs - Security (Immutability)', () => {
       id: faq.id,
       data: {
         created_by: adminUser.id,
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -1589,7 +1589,7 @@ describe('FAQs - Security (Immutability)', () => {
       id: faq.id,
       data: {
         published_at: new Date('2020-01-01').toISOString(),
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -1643,7 +1643,7 @@ describe('FAQs - Security (Immutability)', () => {
       id: faq.id,
       data: {
         view_count: 9999,
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -1670,7 +1670,7 @@ describe('FAQs - Security (Immutability)', () => {
       id: faq.id,
       data: {
         helpful_count: 9999,
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -1747,7 +1747,7 @@ describe('FAQs - Security (Immutability)', () => {
         answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
         category: 'general',
         created_by: adminUser.id, // Try to set manually
-      } as any,
+      } as Record<string, unknown>,
       user: marketingUser,
     });
 
@@ -1829,7 +1829,7 @@ describe('FAQs - Security (Immutability)', () => {
         published_at: new Date('2020-01-01').toISOString(),
         view_count: 999,
         helpful_count: 888,
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -2057,7 +2057,7 @@ describe('FAQs - Business Logic', () => {
         data: {
           question: `Question for ${category}?`,
           answer: [{ type: 'paragraph', children: [{ text: 'Answer' }] }],
-          category: category as any,
+          category: category as string,
         },
         user: adminUser,
       });

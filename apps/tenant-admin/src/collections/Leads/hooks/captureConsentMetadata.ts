@@ -37,10 +37,10 @@ export const captureConsentMetadata: FieldHook = async ({ data, req, operation }
     // Capture IP address from request
     // Priority: X-Forwarded-For > X-Real-IP > req.ip
     const forwardedFor =
-      (req.headers as any)?.['x-forwarded-for'] || (req.headers as any)?.get?.('x-forwarded-for');
+      (req.headers as Record<string, string | string[] | undefined>)?.['x-forwarded-for'] || (req.headers as unknown as { get?: (name: string) => string | null })?.get?.('x-forwarded-for');
     const realIp =
-      (req.headers as any)?.['x-real-ip'] || (req.headers as any)?.get?.('x-real-ip');
-    const requestIp = (req as any).ip;
+      (req.headers as Record<string, string | string[] | undefined>)?.['x-real-ip'] || (req.headers as unknown as { get?: (name: string) => string | null })?.get?.('x-real-ip');
+    const requestIp = (req as unknown as import('../../../types/payload-helpers').RequestWithIP).ip;
 
     let ipAddress: string | undefined;
 

@@ -32,7 +32,7 @@ import type { FieldHook } from 'payload';
  * @returns Archived timestamp or original value
  */
 export const setArchivedTimestamp: FieldHook = ({ data, req, operation, originalDoc, value }) => {
-  const logger = req?.payload?.logger as any;
+  const logger = req?.payload?.logger as import('../../../types/payload-helpers').PayloadLogger | undefined;
   const currentStatus = data?.status;
   const previousStatus = originalDoc?.status;
 

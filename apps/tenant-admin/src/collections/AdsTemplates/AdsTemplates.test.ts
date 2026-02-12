@@ -436,7 +436,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
             body_copy: '<p>Test</p>',
             tone: 'professional',
             language: 'es',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -453,7 +453,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
             body_copy: '<p>Test</p>',
             tone: 'professional',
             language: 'es',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -470,7 +470,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
             body_copy: '<p>Test</p>',
             tone: 'professional',
             language: 'es',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -487,7 +487,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
             headline: 'Test',
             tone: 'professional',
             language: 'es',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -772,7 +772,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
             body_copy: '<p>Test</p>',
             tone: 'professional',
             language: 'es',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -819,7 +819,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
             body_copy: '<p>Test</p>',
             tone: 'professional',
             language: 'es',
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         })
       ).rejects.toThrow();
@@ -1608,7 +1608,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
           data: {
             ...validTemplateData,
             created_by: gestorUser.id, // Attempt to override
-          } as any,
+          } as Record<string, unknown>,
           user: marketingUser,
         });
 
@@ -1628,7 +1628,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
           id: template.id,
           data: {
             created_by: adminUser.id, // Attempt to change
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         });
 
@@ -1698,7 +1698,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
           id: template.id,
           data: {
             archived_at: new Date('2020-01-01').toISOString(), // Attempt to change
-          } as any,
+          } as Record<string, unknown>,
           user: adminUser,
         });
 
@@ -1824,7 +1824,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
         id: template.id,
         data: {
           created_by: adminUser.id,
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1845,7 +1845,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
         id: template.id,
         data: {
           version: 99,
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1864,7 +1864,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
         id: template.id,
         data: {
           usage_count: 999,
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1884,7 +1884,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
         id: template.id,
         data: {
           last_used_at: new Date('2020-01-01').toISOString(),
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 
@@ -1909,7 +1909,7 @@ describe('AdsTemplates Collection - TDD Test Suite', () => {
         id: template.id,
         data: {
           archived_at: new Date('2020-01-01').toISOString(),
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       });
 

@@ -247,3 +247,69 @@ export async function fetchModuleDetail(moduleId: string, enrollmentId?: string)
     if (!json.success) throw new Error(json.error);
     return json.data;
 }
+
+// ============================================================================
+// CERTIFICATES API (Payload REST)
+// ============================================================================
+
+export interface CertificateData {
+    id: string;
+    certificate_number: string;
+    issued_at: string;
+    expires_at?: string;
+    verification_code: string;
+    pdf_url?: string;
+    pdf_file?: { url: string } | null;
+    final_grade?: number;
+    completion_hours?: number;
+    course_run: {
+        id: string;
+        title: string;
+    } | string | null;
+    user: { id: string } | string;
+}
+
+export interface CertificatesResponse {
+    docs: CertificateData[];
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+}
+
+/**
+ * Fetch certificates for the authenticated user.
+ * Uses Payload REST API (/api/certificates) with depth=1 to populate course_run.
+ * Access control on the collection ensures only the user's own certificates are returned.
+ */
+export async function fetchCertificates(options?: {
+    cookie?: string;
+    limit?: number;
+    page?: number;
+}): Promise<CertificatesResponse> {
+    const params = new URLSearchParams();
+    params.set('depth', '1');
+    params.set('sort', '-issued_at');
+    if (options?.limit) params.set('limit', String(options.limit));
+    if (options?.page) params.set('page', String(options.page));
+
+    const headers: Record<string, string> = {};
+    if (options?.cookie) {
+        headers['Cookie'] = options.cookie;
+    }
+
+    const res = await fetch(`${API_BASE}/api/certificates?${params}`, {
+        credentials: 'include',
+        headers,
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            return { docs: [], totalDocs: 0, totalPages: 0, page: 1, hasNextPage: false, hasPrevPage: false };
+        }
+        throw new Error(`Failed to fetch certificates: ${res.status}`);
+    }
+
+    return res.json();
+}
