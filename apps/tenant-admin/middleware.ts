@@ -133,9 +133,8 @@ const payloadAdminPaths = [
   '/admin',  // Native Payload CMS admin panel
 ]
 
-// DEV_AUTH_BYPASS: Skip all authentication in development
-// SECURITY: Set to false in production builds
-const DEV_AUTH_BYPASS = process.env.NODE_ENV === 'development'
+// FIX-16: DEV_AUTH_BYPASS removed. Authentication is always enforced.
+// Use /dev/auto-login (development-only) for convenient local login.
 
 // ============================================================================
 // Security Headers (OWASP Recommended)
@@ -171,7 +170,7 @@ function getSecurityHeaders(): Record<string, string> {
 function getCorsHeaders(origin: string | null) {
   const headers: Record<string, string> = {
     'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, X-Dev-Bypass',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept',
     'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Max-Age': '86400',
   }
@@ -247,17 +246,6 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // =========================================================================
-  // Auth Bypass (development only)
-  // =========================================================================
-  // Bypass all auth when DEV_AUTH_BYPASS is enabled
-  if (DEV_AUTH_BYPASS) {
-    const response = NextResponse.next()
-    // Still add rate limit headers even in dev bypass
-    Object.entries(rateLimitHeaders).forEach(([k, v]) => response.headers.set(k, v))
-    return response
-  }
-
   // Handle CORS preflight requests for API routes
   if (request.method === 'OPTIONS' && pathname.startsWith('/api/')) {
     const corsHeaders = getCorsHeaders(origin)
@@ -300,12 +288,8 @@ export function middleware(request: NextRequest) {
   // Check for authentication cookie (Payload CMS sets 'payload-token')
   const token = request.cookies.get('payload-token')?.value
 
-  // In development, also check for dev bypass in localStorage (via custom header)
-  const isDev = process.env.NODE_ENV === 'development'
-  const devBypass = request.headers.get('x-dev-bypass')
-
-  // If no token and not dev bypass, redirect to login
-  if (!token && !(isDev && devBypass)) {
+  // FIX-16: x-dev-bypass header removed. Auth is always enforced.
+  if (!token) {
     // For API routes, return 401 with CORS headers
     if (pathname.startsWith('/api/')) {
       const corsHeaders = getCorsHeaders(origin)

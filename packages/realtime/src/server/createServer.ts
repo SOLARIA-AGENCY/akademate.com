@@ -64,7 +64,7 @@ export interface CreateSocketServerOptions {
   /** Enable debug logging */
   debug?: boolean;
 
-  /** Skip authentication (for development only) */
+  /** Skip authentication -- only effective when NODE_ENV=development (defense-in-depth) */
   skipAuth?: boolean;
 }
 
@@ -148,8 +148,15 @@ export function createSocketServer(options: CreateSocketServerOptions): TypedSer
     httpCompression: true,
   });
 
+  // FIX-16: Defense-in-depth -- skipAuth can only work in development.
+  // Even if a caller passes skipAuth=true, it is silently ignored in production.
+  const effectiveSkipAuth = skipAuth && process.env.NODE_ENV === 'development';
+  if (effectiveSkipAuth && skipAuth) {
+    console.warn('[SocketServer] WARNING: skipAuth is enabled. This must NEVER happen in production.');
+  }
+
   // Apply middleware
-  if (!skipAuth) {
+  if (!effectiveSkipAuth) {
     log('Applying auth middleware');
     io.use(
       createAuthMiddleware({

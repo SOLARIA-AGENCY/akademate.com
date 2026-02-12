@@ -80,29 +80,8 @@ export default function LoginPage() {
 
     setIsLoading(true)
 
-    // DEV MODE: Bypass authentication
-    if (isDev) {
-      console.log('[DEV MODE] Bypassing authentication - direct dashboard access')
-
-      // Create mock user for development
-      const mockUser = {
-        id: 'dev-user-1',
-        email: credentials.email || 'dev@cepcomunicacion.com',
-        name: 'Developer',
-        role: 'admin',
-      }
-
-      localStorage.setItem('cep_user', JSON.stringify(mockUser))
-
-      // Small delay for UX
-      setTimeout(() => {
-        router.push('/dashboard')
-        router.refresh()
-      }, 500)
-      return
-    }
-
-    // PRODUCTION: Normal authentication flow
+    // FIX-16: Dev auth bypass removed. All environments use real Payload authentication.
+    // For local dev convenience, use /dev/auto-login endpoint instead.
     try {
       const response = await fetch('/api/users/login', {
         method: 'POST',
@@ -223,13 +202,6 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
-
-              {isDev && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-lg">
-                  <p className="text-sm font-medium">🔧 Modo Desarrollo</p>
-                  <p className="text-xs mt-1">Ingresa cualquier email para acceder directamente al dashboard</p>
-                </div>
-              )}
 
               <div className="flex items-center gap-2">
                 <input
