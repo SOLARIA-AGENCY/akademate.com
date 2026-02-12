@@ -256,7 +256,7 @@ export const LeadSchema = z.object({
 
   consent_timestamp: z.string().datetime().optional(),
 
-  consent_ip_address: z.string().ip().optional(),
+  consent_ip_address: z.union([z.ipv4(), z.ipv6()]).optional(),
 
   // ============================================================================
   // TIMESTAMPS (optional, auto-managed)

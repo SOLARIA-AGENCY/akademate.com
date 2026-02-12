@@ -181,8 +181,8 @@ export const uuidSchema = z.string().uuid('Invalid UUID format');
  */
 export const changesSchema = z
   .object({
-    before: z.record(z.unknown()).optional(),
-    after: z.record(z.unknown()).optional(),
+    before: z.record(z.string(), z.unknown()).optional(),
+    after: z.record(z.string(), z.unknown()).optional(),
   })
   .optional();
 
@@ -194,7 +194,7 @@ export const changesSchema = z
  * Metadata object for additional context
  * Can contain request headers, query params, etc.
  */
-export const metadataSchema = z.record(z.unknown()).optional();
+export const metadataSchema = z.record(z.string(), z.unknown()).optional();
 
 // ============================================================================
 // MAIN AUDIT LOG SCHEMA

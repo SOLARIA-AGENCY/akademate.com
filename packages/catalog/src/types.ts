@@ -128,7 +128,7 @@ export const CourseRunSchema = z.object({
   minStudents: z.number().int().positive().optional(),
   price: z.number().nonnegative().optional(),
   currency: z.string().length(3).default('EUR'),
-  schedule: z.record(z.unknown()).default({}),
+  schedule: z.record(z.string(), z.unknown()).default({}),
 })
 
 // ============================================================================

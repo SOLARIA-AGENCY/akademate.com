@@ -36,7 +36,7 @@ export const CreateBadgeDefinitionInput = z.object({
   ]),
   iconUrl: z.string().url().optional(),
   pointsValue: z.number().int().min(0).default(0),
-  criteria: z.record(z.unknown()).default({}),
+  criteria: z.record(z.string(), z.unknown()).default({}),
   isActive: z.boolean().default(true),
 })
 
