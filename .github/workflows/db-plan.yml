@@ -22,6 +22,6 @@ jobs:
         with:
           version: 9
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile=false
+        run: pnpm install --frozen-lockfile
       - name: Placeholder DB plan
         run: echo "TODO: add Drizzle/Payload plan and approval gates"
