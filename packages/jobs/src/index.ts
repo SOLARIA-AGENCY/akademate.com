@@ -34,3 +34,14 @@ export {
   RetentionPolicies,
   runGdprRetentionJob,
 } from './gdpr/retention'
+
+export {
+  processEmail,
+  type EmailPayload,
+  processWebhook,
+  type WebhookPayload,
+  type WebhookMethod,
+  processSearchSync,
+  type SearchSyncPayload,
+  type SearchSyncAction,
+} from './processors/index'

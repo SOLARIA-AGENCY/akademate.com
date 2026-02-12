@@ -41,9 +41,13 @@ export async function POST(request: NextRequest) {
         }
 
         const payload = await getPayloadHMR({ config: configPromise });
+        const warnings: Array<{ collection: string; error: string }> = [];
 
         // Verify user exists
-        const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null);
+        const user = await payload.findByID({ collection: 'users', id: userId }).catch((error: unknown) => {
+            console.error(`GDPR: Failed to find user ${userId}:`, error);
+            return null;
+        });
 
         if (!user) {
             return NextResponse.json(
@@ -70,9 +74,21 @@ export async function POST(request: NextRequest) {
         // Get counts for reporting
         // Note: Some collections (certificates, submissions) are planned but not yet implemented
         const [enrollments, certificates, submissions] = await Promise.all([
-            payload.count({ collection: 'enrollments', where: { user: { equals: userId } } }),
-            (payload as any).count({ collection: 'certificates', where: { user: { equals: userId } } }).catch(() => ({ totalDocs: 0 })),
-            (payload as any).count({ collection: 'submissions', where: { enrollment: { user: { equals: userId } } } }).catch(() => ({ totalDocs: 0 })),
+            payload.count({ collection: 'enrollments', where: { user: { equals: userId } } }).catch((error: unknown) => {
+                console.error(`GDPR: Failed to count 'enrollments' for user ${userId}:`, error);
+                warnings.push({ collection: 'enrollments', error: 'Count query failed' });
+                return { totalDocs: 0 };
+            }),
+            (payload as any).count({ collection: 'certificates', where: { user: { equals: userId } } }).catch((error: unknown) => {
+                console.error(`GDPR: Failed to count 'certificates' for user ${userId}:`, error);
+                warnings.push({ collection: 'certificates', error: 'Count query failed' });
+                return { totalDocs: 0 };
+            }),
+            (payload as any).count({ collection: 'submissions', where: { enrollment: { user: { equals: userId } } } }).catch((error: unknown) => {
+                console.error(`GDPR: Failed to count 'submissions' for user ${userId}:`, error);
+                warnings.push({ collection: 'submissions', error: 'Count query failed' });
+                return { totalDocs: 0 };
+            }),
         ]);
 
         // Perform anonymization
@@ -88,9 +104,18 @@ export async function POST(request: NextRequest) {
         // Clear gamification data
         // Note: These collections are planned but not yet implemented
         await Promise.all([
-            (payload as any).delete({ collection: 'user-badges', where: { user: { equals: userId } } }).catch(() => {}),
-            (payload as any).delete({ collection: 'points-transactions', where: { user: { equals: userId } } }).catch(() => {}),
-            (payload as any).delete({ collection: 'user-streaks', where: { user: { equals: userId } } }).catch(() => {}),
+            (payload as any).delete({ collection: 'user-badges', where: { user: { equals: userId } } }).catch((error: unknown) => {
+                console.error(`GDPR: Failed to delete 'user-badges' for user ${userId}:`, error);
+                warnings.push({ collection: 'user-badges', error: 'Delete failed' });
+            }),
+            (payload as any).delete({ collection: 'points-transactions', where: { user: { equals: userId } } }).catch((error: unknown) => {
+                console.error(`GDPR: Failed to delete 'points-transactions' for user ${userId}:`, error);
+                warnings.push({ collection: 'points-transactions', error: 'Delete failed' });
+            }),
+            (payload as any).delete({ collection: 'user-streaks', where: { user: { equals: userId } } }).catch((error: unknown) => {
+                console.error(`GDPR: Failed to delete 'user-streaks' for user ${userId}:`, error);
+                warnings.push({ collection: 'user-streaks', error: 'Delete failed' });
+            }),
         ]);
 
         // Create audit log with verification token
@@ -124,6 +149,8 @@ export async function POST(request: NextRequest) {
                 },
                 verificationToken,
             },
+            warnings,
+            complete: warnings.length === 0,
             message: 'User data has been anonymized in compliance with GDPR Article 17',
         });
     } catch (error: any) {

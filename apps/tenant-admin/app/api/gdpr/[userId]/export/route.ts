@@ -37,6 +37,7 @@ export async function GET(
     }
 
     const payload = await getPayloadHMR({ config: configPromise });
+    const warnings: Array<{ collection: string; error: string }> = [];
 
     // Collect all user data across collections
     // Note: Some collections (lesson-progress, user-badges, etc.) are planned but not yet implemented
@@ -51,41 +52,76 @@ export async function GET(
       attendance,
       certificates,
     ] = await Promise.all([
-      payload.findByID({ collection: 'users', id: userId }).catch(() => null),
-      payload.find({ collection: 'enrollments', where: { user: { equals: userId } }, depth: 2 }),
+      payload.findByID({ collection: 'users', id: userId }).catch((error: unknown) => {
+        console.error(`GDPR: Failed to find user ${userId}:`, error);
+        return null;
+      }),
+      payload.find({ collection: 'enrollments', where: { user: { equals: userId } }, depth: 2 }).catch((error: unknown) => {
+        console.error(`GDPR: Failed to query 'enrollments' for user ${userId}:`, error);
+        warnings.push({ collection: 'enrollments', error: 'Query failed' });
+        return { docs: [] as any[] };
+      }),
       (payload as any)
         .find({
           collection: 'submissions',
           where: { enrollment: { user: { equals: userId } } },
           depth: 2,
         })
-        .catch(() => ({ docs: [] })),
+        .catch((error: unknown) => {
+          console.error(`GDPR: Failed to query 'submissions' for user ${userId}:`, error);
+          warnings.push({ collection: 'submissions', error: 'Query failed' });
+          return { docs: [] };
+        }),
       (payload as any)
         .find({
           collection: 'lesson-progress',
           where: { enrollment: { user: { equals: userId } } },
           depth: 2,
         })
-        .catch(() => ({ docs: [] })),
+        .catch((error: unknown) => {
+          console.error(`GDPR: Failed to query 'lesson-progress' for user ${userId}:`, error);
+          warnings.push({ collection: 'lesson-progress', error: 'Query failed' });
+          return { docs: [] };
+        }),
       (payload as any)
         .find({ collection: 'user-badges', where: { user: { equals: userId } }, depth: 1 })
-        .catch(() => ({ docs: [] })),
+        .catch((error: unknown) => {
+          console.error(`GDPR: Failed to query 'user-badges' for user ${userId}:`, error);
+          warnings.push({ collection: 'user-badges', error: 'Query failed' });
+          return { docs: [] };
+        }),
       (payload as any)
         .find({ collection: 'points-transactions', where: { user: { equals: userId } }, depth: 0 })
-        .catch(() => ({ docs: [] })),
+        .catch((error: unknown) => {
+          console.error(`GDPR: Failed to query 'points-transactions' for user ${userId}:`, error);
+          warnings.push({ collection: 'points-transactions', error: 'Query failed' });
+          return { docs: [] };
+        }),
       (payload as any)
         .find({ collection: 'user-streaks', where: { user: { equals: userId } }, depth: 0 })
-        .catch(() => ({ docs: [] })),
+        .catch((error: unknown) => {
+          console.error(`GDPR: Failed to query 'user-streaks' for user ${userId}:`, error);
+          warnings.push({ collection: 'user-streaks', error: 'Query failed' });
+          return { docs: [] };
+        }),
       (payload as any)
         .find({
           collection: 'attendance',
           where: { enrollment: { user: { equals: userId } } },
           depth: 1,
         })
-        .catch(() => ({ docs: [] })),
+        .catch((error: unknown) => {
+          console.error(`GDPR: Failed to query 'attendance' for user ${userId}:`, error);
+          warnings.push({ collection: 'attendance', error: 'Query failed' });
+          return { docs: [] };
+        }),
       (payload as any)
         .find({ collection: 'certificates', where: { user: { equals: userId } }, depth: 1 })
-        .catch(() => ({ docs: [] })),
+        .catch((error: unknown) => {
+          console.error(`GDPR: Failed to query 'certificates' for user ${userId}:`, error);
+          warnings.push({ collection: 'certificates', error: 'Query failed' });
+          return { docs: [] };
+        }),
     ]);
 
     if (!user) {
@@ -133,6 +169,8 @@ export async function GET(
     const response = NextResponse.json({
       success: true,
       data: exportData,
+      warnings,
+      complete: warnings.length === 0,
       message: 'Data export completed successfully',
     });
 
