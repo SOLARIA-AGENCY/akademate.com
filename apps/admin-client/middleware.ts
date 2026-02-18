@@ -6,15 +6,19 @@
 
 import { createTenantMiddleware } from '@akademate/tenant/middleware'
 import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
 // Development mode - allow localhost without tenant
 const isDev = process.env.NODE_ENV === 'development'
+const defaultTenantId = process.env.DEFAULT_TENANT_ID?.trim() || '1'
 
 // Tenant middleware configuration
 const tenantMiddleware = createTenantMiddleware({
   // Paths that don't require tenant resolution
   excludePaths: [
     '/_next',
+    '/api/auth',
+    '/api/upload',
     '/api/health',
     '/favicon.ico',
     '/robots.txt',
@@ -48,6 +52,15 @@ const tenantMiddleware = createTenantMiddleware({
       return DEV_TENANT_ID
     }
 
+    // Staging/prod fallback for Ops host or direct IP access.
+    // This prevents tenant_not_found loops when admin is accessed via server IP.
+    const looksLikeIpSegment = /^\d+$/.test(slug)
+    const isOpsSlug = slug === 'admin' || slug === 'ops' || slug === 'localhost'
+    if (looksLikeIpSegment || isOpsSlug) {
+      console.log('[middleware] Using DEFAULT_TENANT_ID fallback:', defaultTenantId)
+      return defaultTenantId
+    }
+
     // Production: lookup tenant from API
     // const response = await fetch(`${process.env.API_URL}/api/tenants?slug=${slug}`)
     // const tenant = await response.json()
@@ -57,6 +70,14 @@ const tenantMiddleware = createTenantMiddleware({
 })
 
 export async function middleware(request: NextRequest) {
+  const hostname = request.nextUrl.hostname
+  const isIPv4Host = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)
+  if (isIPv4Host) {
+    const response = NextResponse.next()
+    response.headers.set('x-tenant-id', defaultTenantId)
+    return response
+  }
+
   // SECURITY: Never bypass tenant checks completely.
   // In development, we use a default dev tenant instead of bypassing.
   // This ensures RLS isolation is tested even in development.

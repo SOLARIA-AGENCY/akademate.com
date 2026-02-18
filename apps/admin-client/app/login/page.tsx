@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function OpsLoginPage() {
@@ -11,11 +11,6 @@ export default function OpsLoginPage() {
   const [error, setError] = useState<string | null>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
-
-  const devLoginEnabled = useMemo(
-    () => process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== 'false',
-    []
-  )
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,20 +29,28 @@ export default function OpsLoginPage() {
     }
 
     setIsLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 450))
+    try {
+      await new Promise(resolve => setTimeout(resolve, 450))
 
-    const demoUser = {
-      email: email ?? 'ops@akademate.com',
-      role: 'superadmin',
-      name: 'Demo Ops',
-      tenantId: 'global-ops',
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('No se pudo iniciar sesión en Ops')
+      }
+
+      router.push('/dashboard')
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error inesperado al iniciar sesión')
+      setIsLoading(false)
     }
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(DEV_USER_KEY, JSON.stringify(demoUser))
-    }
-
-    router.push('/dashboard')
   }
 
   return (
@@ -69,10 +72,8 @@ export default function OpsLoginPage() {
 
         <div className="glass-panel p-8">
           <form onSubmit={onSubmit} className="space-y-5">
-            <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs text-amber-300 text-center">
-              {devLoginEnabled
-                ? 'Modo demo activo. No usar en producción.'
-                : 'Auth real pendiente. Ajusta NEXT_PUBLIC_ENABLE_DEV_LOGIN si quieres desactivar/activar.'}
+            <div className="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-300 text-center">
+              Acceso con autenticación real contra Payload CMS.
             </div>
 
             {error ? (
@@ -131,8 +132,7 @@ export default function OpsLoginPage() {
           </div>
 
           <div className="p-4 bg-slate-900/60 rounded-lg border border-slate-800 text-xs text-slate-400 text-center">
-            El login real debe validar sesión global y claims `tenant_id`/`roles`.
-            Usa un IdP central o Payload con cookies httpOnly.
+            Requiere usuario con rol <code>superadmin</code> en Payload.
           </div>
         </div>
 

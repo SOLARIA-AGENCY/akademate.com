@@ -10,26 +10,64 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { email, role, name, tenantId } = body
+    const { email, password } = body
 
-    if (!email) {
+    if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email is required' },
+        { error: 'Email y contraseña son obligatorios' },
         { status: 400 }
       )
     }
 
-    // TODO: Replace with real authentication (Payload CMS / IdP)
-    const sessionData = {
-      id: 'dev-superadmin',
-      email,
-      role: role || 'superadmin',
-      name: name || 'Demo Ops',
-      tenantId: tenantId || 'global-ops',
-      token: `dev-token-${Date.now()}`,
+    const payloadBaseUrl =
+      process.env.PAYLOAD_CMS_URL?.trim() ||
+      process.env.NEXT_PUBLIC_PAYLOAD_URL?.trim() ||
+      'http://payload:3003'
+
+    const payloadLogin = await fetch(`${payloadBaseUrl.replace(/\/$/, '')}/api/payload/users/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      cache: 'no-store',
+    })
+
+    if (!payloadLogin.ok) {
+      return NextResponse.json(
+        { error: 'Credenciales inválidas' },
+        { status: 401 }
+      )
     }
 
-    const isSecure = process.env.NODE_ENV === 'production'
+    const payloadData = await payloadLogin.json()
+    const payloadUser = payloadData?.user
+    const rawRoles = Array.isArray(payloadUser?.roles) ? payloadUser.roles : []
+    const normalizedRoles = rawRoles.map((entry: unknown) => {
+      if (typeof entry === 'string') return entry
+      if (entry && typeof entry === 'object' && 'role' in entry) {
+        return String((entry as { role?: string }).role || '')
+      }
+      return ''
+    }).filter(Boolean)
+
+    if (!normalizedRoles.includes('superadmin')) {
+      return NextResponse.json(
+        { error: 'Acceso denegado: solo superadmin puede acceder a Ops' },
+        { status: 403 }
+      )
+    }
+
+    const sessionData = {
+      id: payloadUser?.id || 'unknown',
+      email,
+      role: 'superadmin',
+      name: payloadUser?.name || 'Ops Superadmin',
+      tenantId: 'global-ops',
+      token: payloadData?.token || `session-${Date.now()}`,
+    }
+
+    const forwardedProto = request.headers.get('x-forwarded-proto')
+    const isHttpsRequest = request.url.startsWith('https://') || forwardedProto === 'https'
+    const isSecure = process.env.NODE_ENV === 'production' && isHttpsRequest
     const response = NextResponse.json({
       message: 'Login successful',
       user: {
@@ -54,7 +92,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('[/api/auth/login] Error:', error)
     return NextResponse.json(
-      { error: 'Login failed' },
+      { error: 'Error interno de autenticación' },
       { status: 500 }
     )
   }

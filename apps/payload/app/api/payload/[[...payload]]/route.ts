@@ -14,14 +14,15 @@ const configPromise = loadConfig()
 
 const buildHandler =
   () =>
-  async (request: Request, args: { params?: Promise<{ slug?: string[] }> }) => {
+  async (request: Request, args: { params?: Promise<{ payload?: string[] }> }) => {
     const awaitedConfig = await configPromise
     const endpoints = Array.isArray(awaitedConfig.endpoints) ? awaitedConfig.endpoints : []
     awaitedConfig.endpoints = endpoints
 
     const awaitedParams = await args.params
-    const path = awaitedParams?.slug?.length
-      ? `${awaitedConfig.routes.api}/${awaitedParams.slug.join('/')}`
+    const apiSegments = awaitedParams?.payload
+    const path = apiSegments?.length
+      ? `${awaitedConfig.routes.api}/${apiSegments.join('/')}`
       : undefined
 
     return handleEndpoints({

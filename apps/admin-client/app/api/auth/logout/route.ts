@@ -7,17 +7,21 @@ export const dynamic = 'force-dynamic'
  *
  * Clears the httpOnly admin session cookie.
  */
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const response = NextResponse.json(
       { success: true, message: 'Logged out successfully' },
       { status: 200 }
     )
 
+    const forwardedProto = request.headers.get('x-forwarded-proto')
+    const isHttpsRequest = request.url.startsWith('https://') || forwardedProto === 'https'
+    const isSecure = process.env.NODE_ENV === 'production' && isHttpsRequest
+
     // Clear the httpOnly session cookie
     response.cookies.set('akademate_admin_session', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'lax',
       path: '/',
       maxAge: 0, // Expire immediately

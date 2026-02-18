@@ -145,6 +145,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-production}
+      DEFAULT_TENANT_ID: ${DEFAULT_TENANT_ID:-1}
       PAYLOAD_CMS_URL: http://payload:3003
       PAYLOAD_API_KEY: ${PAYLOAD_API_KEY}
     ports:
