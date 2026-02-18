@@ -103,7 +103,7 @@ export const Materials: CollectionConfig = {
     {
       name: 'module',
       type: 'relationship',
-      relationTo: 'modules' as any,
+      relationTo: 'modules' as string,
       index: true,
       admin: {
         description: 'Module this material belongs to (optional)',
@@ -113,7 +113,7 @@ export const Materials: CollectionConfig = {
     {
       name: 'lesson',
       type: 'relationship',
-      relationTo: 'lessons' as any,
+      relationTo: 'lessons' as string,
       index: true,
       admin: {
         description: 'Lesson this material belongs to (optional)',

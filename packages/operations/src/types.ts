@@ -79,7 +79,7 @@ export const EnrollmentSchema = z.object({
   progress: z.number().min(0).max(100).default(0),
   lastAccessAt: z.date().optional(),
   certificateUrl: z.string().url().optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export const EnrollmentRequestSchema = z.object({
@@ -110,7 +110,7 @@ export const SessionSchema = z.object({
   isRecorded: z.boolean().default(false),
   recordingUrl: z.string().url().optional(),
   materials: z.array(z.string().uuid()).default([]),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export const AttendanceSchema = z.object({
@@ -127,7 +127,7 @@ export const AttendanceSchema = z.object({
   excuseReason: z.string().max(500).optional(),
   excuseDocumentUrl: z.string().url().optional(),
   markedBy: z.string().uuid().optional(), // instructor/admin who marked
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export const PaymentSchema = z.object({
@@ -145,7 +145,7 @@ export const PaymentSchema = z.object({
   totalInstallments: z.number().int().positive().optional(),
   scholarshipDiscount: z.number().min(0).max(100).default(0),
   notes: z.string().max(1000).optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 // ============================================================================

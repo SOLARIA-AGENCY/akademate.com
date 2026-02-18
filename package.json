@@ -5,8 +5,8 @@
   "description": "Academate SaaS multitenant for training institutions",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "lint": "pnpm exec eslint . --ext .ts,.tsx,.js,.cjs,.mjs --max-warnings=0",
-    "lint:fix": "pnpm exec eslint . --ext .ts,.tsx,.js,.cjs,.mjs --fix",
+    "lint": "NODE_OPTIONS=--max-old-space-size=4096 pnpm exec eslint . --max-warnings=0",
+    "lint:fix": "NODE_OPTIONS=--max-old-space-size=4096 pnpm exec eslint . --fix",
     "format": "pnpm exec prettier . --check",
     "format:fix": "pnpm exec prettier . --write",
     "dev": "pnpm -r --parallel dev",
@@ -53,13 +53,13 @@
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.49.0",
-    "vitest": "^4.0.15",
-    "zod": "^3.25.0"
+    "vitest": "^4.0.16",
+    "zod": "^4.3.6"
   },
   "dependencies": {
-    "@payloadcms/db-postgres": "^3.67.0",
-    "@payloadcms/next": "^3.67.0",
-    "payload": "^3.67.0",
+    "@payloadcms/db-postgres": "^3.76.1",
+    "@payloadcms/next": "^3.76.1",
+    "payload": "^3.76.1",
     "pg": "^8.13.1"
   },
   "pnpm": {

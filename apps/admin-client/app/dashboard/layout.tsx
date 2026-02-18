@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 
-const SESSION_KEY = 'akademate-ops-user'
 const isDev = process.env.NODE_ENV === 'development'
 
 interface Session {
@@ -41,41 +40,70 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [loading, setLoading] = useState(!isDev)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    const stored = localStorage.getItem(SESSION_KEY)
-    if (!stored) {
-      if (isDev) {
-        const devSession: Session = {
-          email: 'ops@akademate.com',
-          role: 'superadmin',
-          name: 'Demo Ops',
-          tenantId: 'global-ops',
+    // Fetch session from server-side httpOnly cookie endpoint
+    const fetchSession = async () => {
+      try {
+        const res = await fetch('/api/auth/session', { credentials: 'include' })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.authenticated && data.user) {
+            setSession({
+              email: data.user.email,
+              role: data.user.role,
+              name: data.user.name,
+              tenantId: data.user.tenantId,
+            })
+            setLoading(false)
+            return
+          }
         }
-        localStorage.setItem(SESSION_KEY, JSON.stringify(devSession))
-        setSession(devSession)
-        setLoading(false)
-        return
+      } catch (error) {
+        console.warn('Failed to fetch session:', error)
       }
+
+      // No valid session found
+      if (isDev) {
+        // In dev mode, auto-create session via server endpoint
+        try {
+          const loginRes = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              email: 'ops@akademate.com',
+              role: 'superadmin',
+              name: 'Demo Ops',
+              tenantId: 'global-ops',
+            }),
+          })
+          if (loginRes.ok) {
+            const data = await loginRes.json()
+            setSession({
+              email: data.user.email,
+              role: data.user.role,
+              name: data.user.name,
+              tenantId: data.user.tenantId,
+            })
+            setLoading(false)
+            return
+          }
+        } catch (error) {
+          console.warn('Dev auto-login failed:', error)
+        }
+      }
+
       router.replace('/login')
-      return
     }
 
-    try {
-      const parsed = JSON.parse(stored) as Session
-      setSession(parsed)
-    } catch {
-      localStorage.removeItem(SESSION_KEY)
-      router.replace('/login')
-      return
-    }
-
-    setLoading(false)
+    fetchSession()
   }, [router])
 
-  const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(SESSION_KEY)
+  const handleLogout = async () => {
+    // Clear httpOnly session cookie via server endpoint
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+    } catch (error) {
+      console.error('Logout failed:', error)
     }
     router.push('/login')
   }

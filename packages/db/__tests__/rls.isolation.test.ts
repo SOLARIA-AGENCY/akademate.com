@@ -4,7 +4,8 @@
  * These integration tests verify that Row Level Security (RLS) utilities work correctly.
  *
  * IMPORTANT NOTES:
- * 1. Run `psql -f packages/db/migrations/0001_enable_rls.sql` before running these tests.
+ * 1. Run `psql -f packages/db/migrations/0001_enable_rls.sql` and
+ *    `psql -f packages/db/migrations/0002_complete_rls.sql` before running these tests.
  * 2. The superuser (carlosjperez) has BYPASSRLS privilege and bypasses RLS by design.
  * 3. True tenant isolation is enforced for non-superuser database connections.
  * 4. In production, apps use a non-superuser role that respects RLS.
@@ -196,10 +197,24 @@ describe.skipIf(!shouldRunIntegration)('RLS Isolation - Integration Tests', () =
     })
 
     it('verifies all tenant-scoped tables have RLS enabled', async () => {
+      // Complete list of all 31 tenant-scoped tables per blueprint (Section 10)
       const expectedTables = [
+        // Core (6)
         'memberships', 'courses', 'api_keys', 'audit_logs',
+        'subscriptions', 'webhooks',
+        // Billing (3)
+        'invoices', 'payment_methods', 'payment_transactions',
+        // Catalog (4)
         'cycles', 'centers', 'instructors', 'course_runs',
-        'enrollments', 'leads', 'campaigns'
+        // LMS (8)
+        'modules', 'lessons', 'materials', 'assignments',
+        'enrollments', 'lesson_progress', 'submissions', 'grades',
+        // Marketing (2)
+        'leads', 'campaigns',
+        // Gamification (4)
+        'badge_definitions', 'user_badges', 'points_transactions', 'user_streaks',
+        // Operations (4)
+        'attendance', 'calendar_events', 'live_sessions', 'certificates',
       ]
 
       const result = await db.execute(sql`
@@ -214,6 +229,60 @@ describe.skipIf(!shouldRunIntegration)('RLS Isolation - Integration Tests', () =
       for (const table of expectedTables) {
         expect(tablesWithRLS).toContain(table)
       }
+    })
+
+    it('verifies all tenant-scoped tables have tenant_isolation policy', async () => {
+      // Every tenant-scoped table should have a tenant_isolation_* policy
+      const expectedPolicies = [
+        // Core
+        'tenant_isolation_memberships', 'tenant_isolation_courses',
+        'tenant_isolation_api_keys', 'tenant_isolation_audit_logs',
+        'tenant_isolation_subscriptions', 'tenant_isolation_webhooks',
+        // Billing
+        'tenant_isolation_invoices', 'tenant_isolation_payment_methods',
+        'tenant_isolation_payment_transactions',
+        // Catalog
+        'tenant_isolation_cycles', 'tenant_isolation_centers',
+        'tenant_isolation_instructors', 'tenant_isolation_course_runs',
+        // LMS
+        'tenant_isolation_modules', 'tenant_isolation_lessons',
+        'tenant_isolation_materials', 'tenant_isolation_assignments',
+        'tenant_isolation_enrollments', 'tenant_isolation_lesson_progress',
+        'tenant_isolation_submissions', 'tenant_isolation_grades',
+        // Marketing
+        'tenant_isolation_leads', 'tenant_isolation_campaigns',
+        // Gamification
+        'tenant_isolation_badge_definitions', 'tenant_isolation_user_badges',
+        'tenant_isolation_points_transactions', 'tenant_isolation_user_streaks',
+        // Operations
+        'tenant_isolation_attendance', 'tenant_isolation_calendar_events',
+        'tenant_isolation_live_sessions', 'tenant_isolation_certificates',
+      ]
+
+      const result = await db.execute(sql`
+        SELECT policyname FROM pg_policies
+        WHERE schemaname = 'public'
+        ORDER BY policyname
+      `)
+
+      const policies = result.map((r: any) => r.policyname)
+
+      for (const policy of expectedPolicies) {
+        expect(policies).toContain(policy)
+      }
+    })
+
+    it('verifies public read policies exist for courses and course_runs', async () => {
+      const result = await db.execute(sql`
+        SELECT tablename, policyname FROM pg_policies
+        WHERE schemaname = 'public'
+          AND policyname IN ('public_read_courses', 'public_read_published_course_runs')
+        ORDER BY policyname
+      `)
+
+      const policies = result.map((r: any) => r.policyname)
+      expect(policies).toContain('public_read_courses')
+      expect(policies).toContain('public_read_published_course_runs')
     })
 
     it('verifies dev tenant (ID=1) exists', async () => {

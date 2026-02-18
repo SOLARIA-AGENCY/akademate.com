@@ -573,7 +573,7 @@ describe('BlogPosts - Validation', () => {
         data: {
           excerpt: 'Excerpt without title. Must be long enough to meet validation requirements.',
           content: [{ type: 'paragraph', children: [{ text: 'Content' }] }],
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       })
     ).rejects.toThrow(/title/i);
@@ -615,7 +615,7 @@ describe('BlogPosts - Validation', () => {
         data: {
           title: 'Post Without Excerpt',
           content: [{ type: 'paragraph', children: [{ text: 'Content' }] }],
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       })
     ).rejects.toThrow(/excerpt/i);
@@ -657,7 +657,7 @@ describe('BlogPosts - Validation', () => {
         data: {
           title: 'Post Without Content',
           excerpt: 'Excerpt without content. Must meet validation character requirements.',
-        } as any,
+        } as Record<string, unknown>,
         user: adminUser,
       })
     ).rejects.toThrow(/content/i);
@@ -879,7 +879,7 @@ describe('BlogPosts - Validation', () => {
           title: 'Post with Invalid Status',
           excerpt: 'Testing status validation with sufficient characters for requirements.',
           content: [{ type: 'paragraph', children: [{ text: 'Content' }] }],
-          status: 'invalid-status' as any,
+          status: 'invalid-status' as string,
         },
         user: adminUser,
       })
@@ -894,7 +894,7 @@ describe('BlogPosts - Validation', () => {
           title: 'Post with Invalid Language',
           excerpt: 'Testing language validation with sufficient characters for requirements.',
           content: [{ type: 'paragraph', children: [{ text: 'Content' }] }],
-          language: 'fr' as any,
+          language: 'fr' as string,
         },
         user: adminUser,
       })
@@ -1447,7 +1447,7 @@ describe('BlogPosts - Relationships', () => {
 
     expect(fetched.author).toBeDefined();
     expect(typeof fetched.author).toBe('object');
-    expect((fetched.author as any).email).toBe(marketingUser.email);
+    expect((fetched.author as Record<string, unknown>).email).toBe(marketingUser.email);
   });
 
   it('should link related courses', async () => {
@@ -1490,7 +1490,7 @@ describe('BlogPosts - Relationships', () => {
     expect(fetched.related_courses).toHaveLength(1);
     const course = fetched.related_courses[0];
     expect(typeof course).toBe('object');
-    expect((course as any).name).toBe(testCourse1.name);
+    expect((course as Record<string, unknown>).name).toBe(testCourse1.name);
   });
 
   it('should reject non-existent course IDs', async () => {
@@ -1830,7 +1830,7 @@ describe('BlogPosts - Hooks', () => {
       id: post.id,
       data: {
         estimated_read_time: 999,
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -1953,7 +1953,7 @@ describe('BlogPosts - Security (Immutability & URL Validation)', () => {
       id: post.id,
       data: {
         created_by: adminUser.id,
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -1981,7 +1981,7 @@ describe('BlogPosts - Security (Immutability & URL Validation)', () => {
       id: post.id,
       data: {
         published_at: new Date('2020-01-01').toISOString(),
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -2036,7 +2036,7 @@ describe('BlogPosts - Security (Immutability & URL Validation)', () => {
       id: post.id,
       data: {
         view_count: 9999,
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -2063,7 +2063,7 @@ describe('BlogPosts - Security (Immutability & URL Validation)', () => {
       id: post.id,
       data: {
         estimated_read_time: 9999,
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -2202,7 +2202,7 @@ describe('BlogPosts - Security (Immutability & URL Validation)', () => {
       id: post.id,
       data: {
         author: adminUser.id,
-      } as any,
+      } as Record<string, unknown>,
       user: adminUser,
     });
 
@@ -2563,7 +2563,7 @@ describe('BlogPosts - Business Logic', () => {
       data: {
         title: 'Rich Content Test',
         excerpt: 'Testing rich text content with various block types.',
-        content: richContent as any,
+        content: richContent as Record<string, unknown>,
       },
       user: adminUser,
     });

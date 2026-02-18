@@ -157,7 +157,11 @@ export async function GET(
         .catch(() => ({ docs: [] })),
       extendedPayload
         .find({ collection: 'certificates', where: { user: { equals: userId } }, depth: 1 })
-        .catch(() => ({ docs: [] })),
+        .catch((error: unknown) => {
+          console.error(`GDPR: Failed to query 'certificates' for user ${userId}:`, error);
+          warnings.push({ collection: 'certificates', error: 'Query failed' });
+          return { docs: [] };
+        }),
     ]);
 
     if (!user) {
@@ -207,6 +211,8 @@ export async function GET(
     const response = NextResponse.json({
       success: true,
       data: exportData,
+      warnings,
+      complete: warnings.length === 0,
       message: 'Data export completed successfully',
     });
 

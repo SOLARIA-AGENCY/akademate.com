@@ -91,7 +91,7 @@ export const LeadCaptureSchema = z.object({
   marketingConsent: z.boolean().default(false),
 
   // Metadata (set by server)
-  ipAddress: z.string().ip().optional(),
+  ipAddress: z.union([z.ipv4(), z.ipv6()]).optional(),
   userAgent: z.string().max(500).optional(),
 })
 
@@ -133,7 +133,7 @@ export const LeadSchema = z.object({
   marketingConsentAt: z.date().optional(),
 
   // Tracking metadata
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 /**
@@ -155,7 +155,7 @@ export const GdprConsentSchema = z.object({
   leadId: z.string().uuid(),
   consentType: z.enum(['marketing', 'data_processing', 'third_party', 'profiling']),
   granted: z.boolean(),
-  ipAddress: z.string().ip(),
+  ipAddress: z.union([z.ipv4(), z.ipv6()]),
   userAgent: z.string().max(500),
   timestamp: z.date(),
   version: z.string().max(50), // Privacy policy version

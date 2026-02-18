@@ -7,6 +7,10 @@ import {
   auditLogs,
   subscriptions,
   webhooks,
+  // Billing tables
+  invoices,
+  paymentMethods,
+  paymentTransactions,
   // Catalog tables
   cycles,
   centers,
@@ -24,6 +28,16 @@ import {
   // Marketing tables
   leads,
   campaigns,
+  // Gamification tables
+  badgeDefinitions,
+  userBadges,
+  pointsTransactions,
+  userStreaks,
+  // Operations tables
+  attendance,
+  calendarEvents,
+  liveSessions,
+  certificates,
 } from '../src/schema'
 
 /**
@@ -38,19 +52,23 @@ const hasColumn = (table: Record<string, unknown>, column: string): boolean =>
 
 // All tables that should have tenant_id for RLS
 const TENANT_SCOPED_TABLES = {
-  // Core
+  // Core (6)
   courses,
   memberships,
   apiKeys,
   auditLogs,
   subscriptions,
   webhooks,
-  // Catalog
+  // Billing (3)
+  invoices,
+  paymentMethods,
+  paymentTransactions,
+  // Catalog (4)
   cycles,
   centers,
   instructors,
   courseRuns,
-  // LMS
+  // LMS (8)
   modules,
   lessons,
   materials,
@@ -59,9 +77,19 @@ const TENANT_SCOPED_TABLES = {
   lessonProgress,
   submissions,
   grades,
-  // Marketing
+  // Marketing (2)
   leads,
   campaigns,
+  // Gamification (4)
+  badgeDefinitions,
+  userBadges,
+  pointsTransactions,
+  userStreaks,
+  // Operations (4)
+  attendance,
+  calendarEvents,
+  liveSessions,
+  certificates,
 }
 
 describe('RLS: All tenant-scoped tables have tenantId', () => {
@@ -159,13 +187,16 @@ describe('RLS: Marketing tables have required fields', () => {
 })
 
 describe('RLS: Table count verification', () => {
-  it('has 20 tenant-scoped tables', () => {
+  it('has 31 tenant-scoped tables', () => {
     // Count of tables that require tenant_id
     // Core: courses, memberships, apiKeys, auditLogs, subscriptions, webhooks (6)
+    // Billing: invoices, paymentMethods, paymentTransactions (3)
     // Catalog: cycles, centers, instructors, courseRuns (4)
     // LMS: modules, lessons, materials, assignments, enrollments, lessonProgress, submissions, grades (8)
     // Marketing: leads, campaigns (2)
-    // Total: 20
-    expect(Object.keys(TENANT_SCOPED_TABLES).length).toBe(20)
+    // Gamification: badgeDefinitions, userBadges, pointsTransactions, userStreaks (4)
+    // Operations: attendance, calendarEvents, liveSessions, certificates (4)
+    // Total: 31
+    expect(Object.keys(TENANT_SCOPED_TABLES).length).toBe(31)
   })
 })

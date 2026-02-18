@@ -27,36 +27,20 @@ export function RealtimeProvider({ children, tenantId: defaultTenantId = 1 }: Re
   const [authData, setAuthData] = useState<AuthData | null>(null)
   const [isReady, setIsReady] = useState(false)
 
-  // Get auth data from localStorage or session
+  // Get auth data from server-side session endpoint (reads httpOnly cookie)
   useEffect(() => {
     const getAuthData = async () => {
       try {
-        // Try to get from localStorage first
-        const storedUser = localStorage.getItem('akademate_user')
-        if (storedUser) {
-          const userData = JSON.parse(storedUser)
-          if (userData.token) {
-            setAuthData({
-              token: userData.token,
-              userId: userData.id?.toString() || userData.userId?.toString() || '1',
-              role: userData.role || 'admin',
-              tenantId: userData.tenantId || defaultTenantId,
-            })
-            setIsReady(true)
-            return
-          }
-        }
-
-        // Fallback: fetch from auth endpoint
-        const response = await fetch('/api/auth/session')
+        // Fetch auth data from server — the httpOnly cookie is sent automatically
+        const response = await fetch('/api/auth/session', { credentials: 'include' })
         if (response.ok) {
           const data = await response.json()
-          if (data.token) {
+          if (data.authenticated && data.socketToken) {
             setAuthData({
-              token: data.token,
-              userId: data.userId?.toString() || data.id?.toString() || '1',
-              role: data.role || 'admin',
-              tenantId: data.tenantId || defaultTenantId,
+              token: data.socketToken,
+              userId: data.user?.id?.toString() || '1',
+              role: data.user?.role || 'admin',
+              tenantId: data.user?.tenantId || defaultTenantId,
             })
           }
         }

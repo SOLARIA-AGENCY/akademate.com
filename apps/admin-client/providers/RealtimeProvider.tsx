@@ -5,12 +5,15 @@
  *
  * Provides Socket.io connection for real-time system monitoring.
  * Auto-connects when auth token is available.
+ *
+ * Auth data is fetched from the server-side /api/auth/session endpoint
+ * which reads the httpOnly cookie. Tokens are never stored in JS-accessible
+ * cookies or localStorage.
  */
 
 import type { ReactNode} from 'react';
 import { useEffect, useState } from 'react';
 import { SocketProvider } from '@akademate/realtime/context';
-import Cookies from 'js-cookie';
 
 /** Type-safe cookie getter (js-cookie types not available) */
 const getCookie = (name: string): string | undefined => {
@@ -38,7 +41,7 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
   const [authData, setAuthData] = useState<AuthData | null>(null);
   const [isReady, setIsReady] = useState(false);
 
-  // Get auth data from cookies or localStorage
+  // Get auth data from server-side session endpoint (reads httpOnly cookie)
   useEffect(() => {
     const getAuthData = (): void => {
       try {

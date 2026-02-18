@@ -16,11 +16,11 @@
   "dependencies": {
     "@akademate/db": "workspace:*",
     "drizzle-orm": "^0.45.0",
-    "zod": "^3.25.0"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^22.19.0",
     "typescript": "^5.9.0",
-    "vitest": "^2.1.0"
+    "vitest": "^4.0.16"
   }
 }

@@ -44,7 +44,7 @@ export const ModuleSchema = z.object({
   unlockDate: z.date().optional(),
   prerequisiteModuleId: z.string().uuid().optional(),
   estimatedMinutes: z.number().int().min(0).optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type Module = z.infer<typeof ModuleSchema>
@@ -64,7 +64,7 @@ export const LessonSchema = z.object({
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
   estimatedMinutes: z.number().int().min(0).optional(),
   isMandatory: z.boolean().default(true),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type Lesson = z.infer<typeof LessonSchema>
@@ -86,7 +86,7 @@ export const ResourceSchema = z.object({
   durationSeconds: z.number().int().min(0).optional(), // For video/audio
   order: z.number().int().min(0),
   isRequired: z.boolean().default(false),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type Resource = z.infer<typeof ResourceSchema>
@@ -119,7 +119,7 @@ export const LessonProgressSchema = z.object({
   completedAt: z.date().optional(),
   lastAccessedAt: z.date().optional(),
   timeSpentSeconds: z.number().int().min(0).default(0),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type LessonProgress = z.infer<typeof LessonProgressSchema>
@@ -140,7 +140,7 @@ export const ResourceProgressSchema = z.object({
   attempts: z.number().int().min(0).default(0),
   lastAttemptAt: z.date().optional(),
   videoProgress: z.number().int().min(0).optional(), // Seconds watched
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type ResourceProgress = z.infer<typeof ResourceProgressSchema>
@@ -224,7 +224,7 @@ export const BadgeDefinitionSchema = z.object({
   ]),
   iconUrl: z.string().url().optional(),
   pointsValue: z.number().int().min(0).default(0),
-  criteria: z.record(z.unknown()).default({}), // Criteria for earning
+  criteria: z.record(z.string(), z.unknown()).default({}), // Criteria for earning
   isActive: z.boolean().default(true),
 })
 
@@ -240,7 +240,7 @@ export const UserBadgeSchema = z.object({
   userId: z.string().uuid(),
   badgeId: z.string().uuid(),
   earnedAt: z.date(),
-  metadata: z.record(z.unknown()).default({}), // Context of earning
+  metadata: z.record(z.string(), z.unknown()).default({}), // Context of earning
 })
 
 export type UserBadge = z.infer<typeof UserBadgeSchema>
@@ -318,7 +318,7 @@ export const LiveSessionSchema = z.object({
   recordingUrl: z.string().url().optional(),
   recordingAvailableAt: z.date().optional(),
   maxParticipants: z.number().int().min(1).optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type LiveSession = z.infer<typeof LiveSessionSchema>
@@ -338,7 +338,7 @@ export const CertificateSchema = z.object({
   issuedAt: z.date(),
   expiresAt: z.date().optional(),
   pdfUrl: z.string().url().optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type Certificate = z.infer<typeof CertificateSchema>

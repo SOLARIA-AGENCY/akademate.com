@@ -149,7 +149,10 @@ export async function POST(
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
     // Verify user exists
-    const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null);
+    const user = await payload.findByID({ collection: 'users', id: userId }).catch((error: unknown) => {
+      console.error(`GDPR: Failed to find user ${userId}:`, error);
+      return null;
+    });
 
     if (!user) {
       return NextResponse.json(

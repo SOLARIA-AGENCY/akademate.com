@@ -61,7 +61,9 @@ load_env() {
 
     if [ -f "$env_file" ]; then
         log_info "Loading environment from ${env_file}"
-        export $(grep -v '^#' "$env_file" | xargs)
+        set -a
+        source "$env_file"
+        set +a
     else
         log_warning ".env file not found. Using defaults."
     fi
@@ -105,6 +107,18 @@ run_migrations() {
     log_success "Migrations completed"
 }
 
+http_check() {
+    local url="$1"
+    if command -v curl &> /dev/null; then
+        curl -s -f "$url" > /dev/null 2>&1
+    elif command -v wget &> /dev/null; then
+        wget -q --spider "$url" > /dev/null 2>&1
+    else
+        log_error "Neither curl nor wget is available for health checks"
+        return 1
+    fi
+}
+
 health_check() {
     log_info "Running health checks..."
 
@@ -113,7 +127,7 @@ health_check() {
 
     # Check Payload CMS
     while [ $retry_count -lt $max_retries ]; do
-        if curl -s -f "http://localhost:${PAYLOAD_PORT:-3003}/api/health" > /dev/null 2>&1; then
+        if http_check "http://localhost:${PAYLOAD_PORT:-3003}/api/health"; then
             log_success "Payload CMS is healthy"
             break
         fi
@@ -129,7 +143,7 @@ health_check() {
     # Check Web App
     retry_count=0
     while [ $retry_count -lt $max_retries ]; do
-        if curl -s -f "http://localhost:${WEB_PORT:-3006}" > /dev/null 2>&1; then
+        if http_check "http://localhost:${WEB_PORT:-3006}"; then
             log_success "Web App is healthy"
             break
         fi

@@ -554,7 +554,7 @@ describe('Students Collection - TDD Test Suite', () => {
         user: adminUser,
         req: {
           ip: '192.168.1.100',
-        } as any,
+        } as Record<string, unknown>,
       });
 
       expect(student.consent_ip_address).toBeDefined();
@@ -651,7 +651,7 @@ describe('Students Collection - TDD Test Suite', () => {
         collection: 'students',
         data: validStudentData,
         user: adminUser,
-        req: { ip: '203.0.113.45' } as any,
+        req: { ip: '203.0.113.45' } as Record<string, unknown>,
       });
 
       expect(student.consent_ip_address).toBe('203.0.113.45');
@@ -662,7 +662,7 @@ describe('Students Collection - TDD Test Suite', () => {
         collection: 'students',
         data: validStudentData,
         user: adminUser,
-        req: { ip: '2001:0db8:85a3:0000:0000:8a2e:0370:7334' } as any,
+        req: { ip: '2001:0db8:85a3:0000:0000:8a2e:0370:7334' } as Record<string, unknown>,
       });
 
       expect(student.consent_ip_address).toBe('2001:0db8:85a3:0000:0000:8a2e:0370:7334');
@@ -675,7 +675,7 @@ describe('Students Collection - TDD Test Suite', () => {
         user: adminUser,
         req: {
           headers: { 'x-forwarded-for': '203.0.113.99, 192.168.1.1' },
-        } as any,
+        } as Record<string, unknown>,
       });
 
       // Should use first IP from X-Forwarded-For
@@ -806,7 +806,7 @@ describe('Students Collection - TDD Test Suite', () => {
         collection: 'students',
         data: validStudentData,
         user: adminUser,
-        req: { ip: '198.51.100.42' } as any,
+        req: { ip: '198.51.100.42' } as Record<string, unknown>,
       });
 
       // Verify all audit trail fields are present
@@ -1723,7 +1723,7 @@ describe('Students Collection - TDD Test Suite', () => {
         collection: 'students',
         data: validStudentData,
         user: adminUser,
-        req: { ip: '192.168.1.100' } as any,
+        req: { ip: '192.168.1.100' } as Record<string, unknown>,
       });
 
       console.log = originalLog;
@@ -1939,7 +1939,7 @@ describe('Students Collection - TDD Test Suite', () => {
         collection: 'students',
         data: validStudentData,
         user: adminUser,
-        req: { ip: '203.0.113.45' } as any,
+        req: { ip: '203.0.113.45' } as Record<string, unknown>,
       });
 
       expect(student.consent_ip_address).toBe('203.0.113.45');
@@ -1950,7 +1950,7 @@ describe('Students Collection - TDD Test Suite', () => {
         collection: 'students',
         data: validStudentData,
         user: adminUser,
-        req: { ip: '192.168.1.1' } as any,
+        req: { ip: '192.168.1.1' } as Record<string, unknown>,
       });
 
       const originalTimestamp = student.consent_timestamp;
@@ -1964,7 +1964,7 @@ describe('Students Collection - TDD Test Suite', () => {
         id: student.id,
         data: { notes: 'Updated' },
         user: adminUser,
-        req: { ip: '10.0.0.1' } as any,
+        req: { ip: '10.0.0.1' } as Record<string, unknown>,
       });
 
       // Consent metadata should NOT change
@@ -2345,7 +2345,7 @@ describe('Students Collection - TDD Test Suite', () => {
         collection: 'students',
         data: validStudentData,
         user: adminUser,
-        req: { ip: '192.168.1.100' } as any,
+        req: { ip: '192.168.1.100' } as Record<string, unknown>,
       });
 
       const tampering = [
@@ -2372,7 +2372,7 @@ describe('Students Collection - TDD Test Suite', () => {
         collection: 'students',
         data: validStudentData,
         user: adminUser,
-        req: { ip: '198.51.100.1' } as any,
+        req: { ip: '198.51.100.1' } as Record<string, unknown>,
       });
 
       const immutableFields = {

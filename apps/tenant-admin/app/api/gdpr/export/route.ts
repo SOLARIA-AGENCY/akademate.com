@@ -208,6 +208,7 @@ export async function POST(request: NextRequest) {
 
          
         const payload = await getPayloadHMR({ config: configPromise });
+        const warnings: Array<{ collection: string; error: string }> = [];
 
         // Query user first
         let user: UserDocument | null = null;
@@ -289,6 +290,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true,
             data: exportData,
+            warnings,
+            complete: warnings.length === 0,
             message: 'Data export completed successfully',
         });
     } catch (error: unknown) {

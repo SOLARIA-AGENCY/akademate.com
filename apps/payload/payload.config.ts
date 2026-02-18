@@ -602,7 +602,7 @@ const Media: CollectionConfig = {
 
 const config = buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3003',
-  secret: process.env.PAYLOAD_SECRET ?? 'development-secret-change-me',
+  secret: process.env.PAYLOAD_SECRET ?? (() => { throw new Error('PAYLOAD_SECRET environment variable is required') })(),
   admin: {
     user: 'users',
     meta: {

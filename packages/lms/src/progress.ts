@@ -21,7 +21,7 @@ export const UpdateLessonProgressInput = z.object({
   status: z.enum(['not_started', 'in_progress', 'completed']).optional(),
   progressPercent: z.number().int().min(0).max(100).optional(),
   timeSpentSeconds: z.number().int().min(0).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type UpdateLessonProgressInput = z.infer<typeof UpdateLessonProgressInput>
@@ -30,7 +30,7 @@ export const UpdateResourceProgressInput = z.object({
   completed: z.boolean().optional(),
   score: z.number().min(0).max(100).optional(),
   videoProgress: z.number().int().min(0).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type UpdateResourceProgressInput = z.infer<typeof UpdateResourceProgressInput>

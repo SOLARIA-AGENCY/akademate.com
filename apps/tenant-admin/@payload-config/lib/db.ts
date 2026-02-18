@@ -5,7 +5,7 @@
 
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { schema, subscriptions, invoices, paymentMethods, paymentTransactions, tenants, featureFlags } from '../../../../packages/db/src/schema'
+import { schema, subscriptions, invoices, paymentMethods, paymentTransactions, tenants, users, memberships, featureFlags } from '../../../../packages/db/src/schema'
 
 /**
  * Gets the database URL from environment variables.
@@ -48,7 +48,7 @@ export const db = queryClient ? drizzle(queryClient, { schema }) : missingDbProx
 /**
  * Export table references for convenience
  */
-export { subscriptions, invoices, paymentMethods, paymentTransactions, tenants, featureFlags }
+export { subscriptions, invoices, paymentMethods, paymentTransactions, tenants, users, memberships, featureFlags }
 
 /**
  * Graceful shutdown helper

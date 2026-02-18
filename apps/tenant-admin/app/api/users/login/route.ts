@@ -86,7 +86,6 @@ export async function POST(request: Request) {
         name: user.name,
         role: user.role,
       },
-      token: result.token,
       exp: result.exp,
     })
 

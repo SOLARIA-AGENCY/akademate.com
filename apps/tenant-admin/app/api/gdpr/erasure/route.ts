@@ -200,6 +200,8 @@ export async function POST(request: NextRequest) {
                 },
                 verificationToken,
             },
+            warnings,
+            complete: warnings.length === 0,
             message: 'User data has been anonymized in compliance with GDPR Article 17',
         });
     } catch (error: unknown) {

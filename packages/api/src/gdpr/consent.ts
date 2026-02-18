@@ -322,7 +322,15 @@ export function createGdprConsentService(deps: ConsentDependencies): GdprConsent
 // ============================================================================
 
 export const UpdateConsentsRequestSchema = z.object({
-  consents: z.record(ConsentTypeSchema, z.boolean()),
+  consents: z.object({
+    marketing_email: z.boolean(),
+    marketing_sms: z.boolean(),
+    marketing_phone: z.boolean(),
+    analytics: z.boolean(),
+    third_party_sharing: z.boolean(),
+    profiling: z.boolean(),
+    newsletter: z.boolean(),
+  }).partial().strict(),
 })
 
 export type UpdateConsentsRequest = z.infer<typeof UpdateConsentsRequestSchema>

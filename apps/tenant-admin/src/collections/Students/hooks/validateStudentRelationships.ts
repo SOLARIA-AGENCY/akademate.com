@@ -54,7 +54,7 @@ export const validateStudentRelationships: CollectionBeforeValidateHook = async 
 
       try {
         const user = await req.payload.findByID({
-          collection: 'users' as any,
+          collection: 'users',
           id: userId,
         });
 

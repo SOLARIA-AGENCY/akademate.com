@@ -7,11 +7,11 @@ services:
       - "3030:3030"
       - "33060:3306"
     environment:
-      - DB_PASSWORD=solaria2024
-      - MYSQL_ROOT_PASSWORD=SolariaRoot2024
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
       - DB_NAME=solaria_construction
       - DB_USER=solaria_user
-      - JWT_SECRET=solaria_jwt_secret_2024_min32chars_secure
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in .env (min 32 chars)}
       - PORT=3030
       - REDIS_URL=redis://redis:6379
       - REPO_PATH=/repo
@@ -22,6 +22,14 @@ services:
     depends_on:
       - redis
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
   redis:
     image: redis:7-alpine
@@ -31,6 +39,14 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
 
   worker:
     build:
@@ -41,12 +57,20 @@ services:
       - DB_HOST=office
       - DB_PORT=3306
       - DB_USER=solaria_user
-      - DB_PASSWORD=solaria2024
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD in .env}
       - DB_NAME=solaria_construction
     depends_on:
       - office
       - redis
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
 volumes:
   office_mysql_data:

@@ -3,8 +3,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-const DEV_USER_KEY = 'akademate-ops-user'
-
 export default function OpsLoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')

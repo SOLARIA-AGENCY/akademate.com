@@ -65,13 +65,13 @@ export default function CookiesPage() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="p-2 border font-mono">cep_auth_token</td>
-                    <td className="p-2 border">Gestión de sesión del usuario</td>
-                    <td className="p-2 border">Sesión</td>
+                    <td className="p-2 border font-mono">payload-token</td>
+                    <td className="p-2 border">Gestión de sesión del usuario (httpOnly)</td>
+                    <td className="p-2 border">7 días</td>
                   </tr>
                   <tr>
                     <td className="p-2 border font-mono">cep_user</td>
-                    <td className="p-2 border">Información del usuario logueado</td>
+                    <td className="p-2 border">Metadatos del usuario logueado (no sensible)</td>
                     <td className="p-2 border">Sesión</td>
                   </tr>
                   <tr>

@@ -38,12 +38,27 @@ interface PayloadMeResponse {
 
 export function storeSession(user: LoginResponse['user']) {
   if (typeof window === 'undefined') return
-  localStorage.setItem(SESSION_KEY, JSON.stringify(user))
+  // Store session in httpOnly cookie via server endpoint
+  try {
+    await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(user),
+    })
+  } catch (error) {
+    console.error('Failed to store session:', error)
+  }
 }
 
-export function clearSession() {
+export async function clearSession() {
   if (typeof window === 'undefined') return
-  localStorage.removeItem(SESSION_KEY)
+  // Clear httpOnly cookie via server endpoint
+  try {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+  } catch (error) {
+    console.error('Failed to clear session:', error)
+  }
 }
 
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
@@ -71,12 +86,12 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
       tenantId: data.user?.tenantId ?? 'unknown',
     }
 
-    storeSession(user)
+    await storeSession(user)
 
     return {
       message: 'Login Payload',
       user,
-      token: data.token ?? '',
+      token: '', // Token is stored in httpOnly cookie, not exposed to client
       exp: Date.now() + 86400000,
     }
   }
@@ -92,12 +107,12 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
     tenantId: 'global-ops',
   }
 
-  storeSession(user)
+  await storeSession(user)
 
   return {
     message: 'Login demo (sin backend)',
     user,
-    token: 'dev-token-' + Date.now(),
+    token: '', // Token is stored in httpOnly cookie, not exposed to client
     exp: Date.now() + 86400000,
   }
 }
@@ -128,17 +143,17 @@ export async function getCurrentUser() {
     }
   }
 
-  if (typeof window === 'undefined') return null
-
-  const stored = localStorage.getItem(SESSION_KEY)
-  if (!stored) return null
-
+  // Fetch session from server-side httpOnly cookie endpoint
   try {
-    const user = JSON.parse(stored) as LoginResponse['user']
-    return { user }
+    const res = await fetch('/api/auth/session', { credentials: 'include' })
+    if (!res.ok) return null
+    const data = await res.json()
+    if (data.authenticated && data.user) {
+      return { user: data.user as LoginResponse['user'] }
+    }
+    return null
   } catch (error) {
-    console.warn('Sesión inválida en localStorage', error)
-    clearSession()
+    console.warn('Failed to fetch session', error)
     return null
   }
 }

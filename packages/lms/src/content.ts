@@ -25,7 +25,7 @@ export const CreateModuleInput = z.object({
   unlockDate: z.date().optional(),
   prerequisiteModuleId: z.string().uuid().optional(),
   estimatedMinutes: z.number().int().min(0).optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type CreateModuleInput = z.infer<typeof CreateModuleInput>
@@ -47,7 +47,7 @@ export const CreateLessonInput = z.object({
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
   estimatedMinutes: z.number().int().min(0).optional(),
   isMandatory: z.boolean().default(true),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type CreateLessonInput = z.infer<typeof CreateLessonInput>
@@ -71,7 +71,7 @@ export const CreateResourceInput = z.object({
   durationSeconds: z.number().int().min(0).optional(),
   order: z.number().int().min(0).default(0),
   isRequired: z.boolean().default(false),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type CreateResourceInput = z.infer<typeof CreateResourceInput>
