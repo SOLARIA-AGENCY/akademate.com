@@ -15,7 +15,7 @@
     "@akademate/tenant": "workspace:*",
     "@akademate/types": "workspace:*",
     "@akademate/ui": "workspace:*",
-    "@aws-sdk/client-s3": "^3.565.0",
+    "@aws-sdk/client-s3": "^3.946.0",
     "@aws-sdk/s3-request-presigner": "^3.971.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-avatar": "^1.1.7",
@@ -36,6 +36,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.53.2",
     "recharts": "^3.4.1",
+    "socket.io-client": "^4.7.4",
     "tailwind-merge": "^3.4.0",
     "tw-animate-css": "^1.2.8",
     "zod": "^4.3.6"

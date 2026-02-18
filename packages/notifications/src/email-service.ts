@@ -33,8 +33,6 @@ export class EmailService {
    * Send a raw email message
    */
   async send(message: EmailMessage): Promise<SendEmailResult> {
-    const _startTime = Date.now();
-
     try {
       switch (this.config.provider) {
         case 'resend':
@@ -129,7 +127,7 @@ export class EmailService {
       text: message.text,
       cc: message.cc ? (Array.isArray(message.cc) ? message.cc : [message.cc]) : undefined,
       bcc: message.bcc ? (Array.isArray(message.bcc) ? message.bcc : [message.bcc]) : undefined,
-      reply_to: message.replyTo || this.config.replyTo,
+      replyTo: message.replyTo || this.config.replyTo,
       tags: message.tags,
     });
 

@@ -3,5 +3,5 @@
 // This layout MUST NOT include <html> or <body> tags - Payload generates those
 // globals.css is imported by (payload)/layout.tsx, not here
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return children as JSX.Element
+  return children
 }

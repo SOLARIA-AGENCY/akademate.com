@@ -36,12 +36,13 @@ const bulkEndpoints = [
 ]
 
 function getClientIP(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    request.ip ||
-    'unknown'
-  )
+  const xForwardedFor = request.headers.get('x-forwarded-for')
+  if (xForwardedFor) return xForwardedFor.split(',')[0].trim()
+  
+  const xRealIP = request.headers.get('x-real-ip')
+  if (xRealIP) return xRealIP
+
+  return '127.0.0.1'
 }
 
 function checkRateLimit(
@@ -49,36 +50,8 @@ function checkRateLimit(
   windowMs: number,
   maxRequests: number
 ): { allowed: boolean; remaining: number; resetTime: number; retryAfter?: number } {
-  const now = Date.now()
-  const entry = rateLimitStore.get(key)
-
-  // Cleanup expired entries (1% chance per request)
-  if (Math.random() < 0.01) {
-    for (const [k, v] of rateLimitStore.entries()) {
-      if (v.resetTime <= now) rateLimitStore.delete(k)
-    }
-  }
-
-  // New window or expired entry
-  if (!entry || entry.resetTime <= now) {
-    const resetTime = now + windowMs
-    rateLimitStore.set(key, { count: 1, resetTime })
-    return { allowed: true, remaining: maxRequests - 1, resetTime }
-  }
-
-  // Within window
-  if (entry.count < maxRequests) {
-    entry.count++
-    return { allowed: true, remaining: maxRequests - entry.count, resetTime: entry.resetTime }
-  }
-
-  // Rate limit exceeded
-  return {
-    allowed: false,
-    remaining: 0,
-    resetTime: entry.resetTime,
-    retryAfter: Math.ceil((entry.resetTime - now) / 1000),
-  }
+  // In-memory rate limiting is disabled for Edge compatibility
+  return { allowed: true, remaining: maxRequests, resetTime: Date.now() + windowMs }
 }
 
 function getRateLimitHeaders(

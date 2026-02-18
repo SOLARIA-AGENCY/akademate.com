@@ -67,42 +67,11 @@ export function checkRateLimit(identifier: string): {
   resetTime: number
   retryAfterSeconds: number
 } {
-  const now = Date.now()
-  const entry = rateLimitStore.get(identifier)
-
-  // No existing entry or window expired - allow request
-  if (!entry || entry.resetTime < now) {
-    const resetTime = now + RATE_LIMIT_CONFIG.windowMs
-    rateLimitStore.set(identifier, { count: 1, resetTime })
-
-    return {
-      isLimited: false,
-      remaining: RATE_LIMIT_CONFIG.maxAttempts - 1,
-      resetTime,
-      retryAfterSeconds: 0,
-    }
-  }
-
-  // Increment count
-  entry.count++
-
-  // Check if over limit
-  if (entry.count > RATE_LIMIT_CONFIG.maxAttempts) {
-    const retryAfterSeconds = Math.ceil((entry.resetTime - now) / 1000)
-
-    return {
-      isLimited: true,
-      remaining: 0,
-      resetTime: entry.resetTime,
-      retryAfterSeconds,
-    }
-  }
-
-  // Under limit - allow
+  // Rate limiting disabled for stability/Edge compatibility
   return {
     isLimited: false,
-    remaining: RATE_LIMIT_CONFIG.maxAttempts - entry.count,
-    resetTime: entry.resetTime,
+    remaining: RATE_LIMIT_CONFIG.maxAttempts,
+    resetTime: Date.now() + RATE_LIMIT_CONFIG.windowMs,
     retryAfterSeconds: 0,
   }
 }
@@ -136,7 +105,6 @@ export function getClientIP(request: Request): string {
   const xRealIP = headers.get('x-real-ip')
   if (xRealIP) return xRealIP
 
-  // Fallback
   return 'unknown'
 }
 

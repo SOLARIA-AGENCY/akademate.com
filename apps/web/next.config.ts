@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  
   // Transpile workspace packages
   transpilePackages: ['@akademate/ui', '@akademate/types', '@akademate/api'],
 

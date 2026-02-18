@@ -1,4 +1,4 @@
-import { handleEndpoints, type PayloadRequest } from 'payload'
+import { handleEndpoints } from 'payload'
 import type { SanitizedConfig } from 'payload'
 
 export const dynamic = 'force-dynamic'
@@ -27,7 +27,7 @@ const buildHandler =
     return handleEndpoints({
       config: awaitedConfig,
       path,
-      request: request as PayloadRequest,
+      request: request,
     })
   }
 

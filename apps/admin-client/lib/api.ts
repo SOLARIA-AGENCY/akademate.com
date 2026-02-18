@@ -1,7 +1,6 @@
 import { ApiClient } from '@akademate/api-client'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3003'
-const SESSION_KEY = 'akademate-ops-user'
 
 const client = new ApiClient({ baseUrl: API_URL })
 

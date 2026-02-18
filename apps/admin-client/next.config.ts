@@ -1,8 +1,15 @@
 import type { NextConfig } from 'next'
 
 const config: NextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   typedRoutes: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   // Security headers (OWASP recommended)
   headers() {

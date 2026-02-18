@@ -163,7 +163,6 @@ export function OpsLoginForm() {
               className="mt-2 w-full rounded-lg border border-border bg-background/80 px-3 py-2 text-sm tracking-widest"
               placeholder="000000"
               autoComplete="one-time-code"
-              autoFocus
               disabled={submitting}
             />
           </div>
