@@ -71,6 +71,8 @@ services:
     build:
       context: ../..
       dockerfile: infrastructure/docker/Dockerfile.payload
+      args:
+        PAYLOAD_SECRET: ${PAYLOAD_SECRET}
     container_name: akademate-payload
     restart: unless-stopped
     environment:
@@ -90,7 +92,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003/api/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3003/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -120,7 +122,7 @@ services:
     depends_on:
       - payload
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3006"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3006"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -150,7 +152,7 @@ services:
     depends_on:
       - payload
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3004"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3004"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -174,8 +176,8 @@ services:
     container_name: akademate-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "8088:80"
+      - "8443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro

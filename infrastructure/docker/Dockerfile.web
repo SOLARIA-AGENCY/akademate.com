@@ -59,10 +59,16 @@ RUN adduser --system --uid 1001 nextjs
 
 WORKDIR /app
 
-# Copy built assets
-COPY --from=builder /app/apps/web/public ./public
+# Copy standalone runtime output
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/web/node_modules ./node_modules
+
+# Ensure Next package symlink exists in runtime image for standalone server.js
+RUN next_dir="$(find /app/node_modules/.pnpm -maxdepth 1 -type d -name 'next@*' | head -n 1)" && \
+    if [ -n "$next_dir" ]; then ln -sfn "$next_dir/node_modules/next" /app/node_modules/next; fi
 
 USER nextjs
 

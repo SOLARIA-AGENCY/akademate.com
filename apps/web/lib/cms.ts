@@ -198,7 +198,7 @@ class CMSClient {
       sort: '-studentsCount',
       where: { status: { equals: 'published' } },
     })
-    return response.docs
+    return Array.isArray(response.docs) ? response.docs : []
   }
 
   // ============================================================================
@@ -239,7 +239,7 @@ class CMSClient {
       limit,
       sort: '-publishedAt',
     })
-    return response.docs
+    return Array.isArray(response.docs) ? response.docs : []
   }
 
   // ============================================================================

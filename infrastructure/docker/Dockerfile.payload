@@ -21,6 +21,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/payload/package.json ./apps/payload/
 COPY packages/db/package.json ./packages/db/
 COPY packages/types/package.json ./packages/types/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/realtime/package.json ./packages/realtime/
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile --filter @akademate/payload...
@@ -37,9 +39,11 @@ COPY --from=deps /app/packages ./packages
 # Copy source files
 COPY apps/payload ./apps/payload
 COPY packages ./packages
-COPY tsconfig.base.json ./
+COPY tsconfig.base.json postcss.config.cjs tailwind.config.js ./
 
 # Build
+ARG PAYLOAD_SECRET
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 WORKDIR /app/apps/payload
 RUN pnpm build
 
@@ -56,15 +60,23 @@ RUN adduser --system --uid 1001 payload
 
 WORKDIR /app
 
-# Copy built assets
-COPY --from=builder --chown=payload:nodejs /app/apps/payload/dist ./dist
-COPY --from=builder --chown=payload:nodejs /app/apps/payload/build ./build
-COPY --from=builder --chown=payload:nodejs /app/apps/payload/package.json ./
+# Copy standalone runtime output
+COPY --from=builder --chown=payload:nodejs /app/apps/payload/.next/standalone ./
+COPY --from=builder --chown=payload:nodejs /app/apps/payload/.next/static ./.next/static
+COPY --from=builder --chown=payload:nodejs /app/apps/payload/public ./public
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/payload/node_modules ./node_modules
+
+# Ensure Next package symlink exists in runtime image for standalone server.js
+RUN next_dir="$(find /app/node_modules/.pnpm -maxdepth 1 -type d -name 'next@*' | head -n 1)" && \
+    if [ -n "$next_dir" ]; then ln -sfn "$next_dir/node_modules/next" /app/node_modules/next; fi && \
+    pg_dir="$(find /app/node_modules/.pnpm -maxdepth 1 -type d -name 'pg@*' | head -n 1)" && \
+    if [ -n "$pg_dir" ]; then ln -sfn "$pg_dir/node_modules/pg" /app/node_modules/pg; fi
 
 USER payload
 
 EXPOSE 3003
 ENV PORT=3003
+ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "server.js"]
