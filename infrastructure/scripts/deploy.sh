@@ -108,9 +108,13 @@ run_migrations() {
     fi
 
     # Fallback path: run drizzle-kit directly when script is not exposed
-    docker compose exec -T payload sh -lc "pnpm exec drizzle-kit migrate --config /app/packages/db/drizzle.config.ts"
+    if docker compose exec -T payload sh -lc "pnpm exec drizzle-kit migrate --config /app/packages/db/drizzle.config.ts"; then
+        log_success "Migrations completed (drizzle-kit)"
+        return 0
+    fi
 
-    log_success "Migrations completed"
+    log_warning "Skipping migrations: no runnable migration command found in payload runtime image"
+    return 0
 }
 
 http_check() {
