@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { getPayload } from 'payload'
-import config from '@payload-config'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,26 +20,6 @@ interface SessionUser {
 export async function GET() {
   try {
     const cookieStore = await cookies()
-    const token = cookieStore.get('payload-token')?.value
-
-    if (token) {
-      const payload = await getPayload({ config })
-      const { user } = await payload.auth({ headers: new Headers({ Authorization: `JWT ${token}` }) })
-      if (user) {
-        const typedUser = user as SessionUser
-        return NextResponse.json({
-          authenticated: true,
-          user: {
-            id: typedUser.id,
-            email: typedUser.email,
-            name: typedUser.name ?? '',
-            role: typedUser.role ?? 'admin',
-          },
-          socketToken: token,
-        })
-      }
-    }
-
     const serializedSession = cookieStore.get('cep_session')?.value
     if (serializedSession) {
       const parsedSession = JSON.parse(serializedSession) as { user?: SessionUser; token?: string }
