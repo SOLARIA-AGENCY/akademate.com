@@ -83,6 +83,25 @@ interface PayloadWithLMS {
     }): Promise<LessonProgress>;
 }
 
+function getErrorCode(error: unknown): string | undefined {
+    if (typeof error !== 'object' || error === null) return undefined;
+    const record = error as Record<string, unknown>;
+    if (typeof record.code === 'string') return record.code;
+    const cause = record.cause;
+    if (typeof cause === 'object' && cause !== null) {
+        const causeRecord = cause as Record<string, unknown>;
+        if (typeof causeRecord.code === 'string') return causeRecord.code;
+    }
+    return undefined;
+}
+
+function isMissingLessonProgressRelation(error: unknown): boolean {
+    const code = getErrorCode(error);
+    if (code === '42P01') return true;
+    const message = error instanceof Error ? error.message : '';
+    return message.includes('lesson_progress');
+}
+
 /**
  * GET /api/lms/progress?enrollmentId=X
  *
@@ -120,12 +139,31 @@ export async function GET(request: NextRequest) {
         // Get all lesson progress for this enrollment
         // Note: lesson-progress collection is planned but not yet implemented
         const payloadLMS = payload as unknown as PayloadWithLMS;
-        const lessonProgress = await payloadLMS.find({
-            collection: 'lesson-progress',
-            where: { enrollment: { equals: enrollmentId } },
-            depth: 1,
-            limit: 500,
-        });
+        let lessonProgress: LessonProgressFindResult;
+        try {
+            lessonProgress = await payloadLMS.find({
+                collection: 'lesson-progress',
+                where: { enrollment: { equals: enrollmentId } },
+                depth: 1,
+                limit: 500,
+            });
+        } catch (progressError) {
+            if (!isMissingLessonProgressRelation(progressError)) {
+                throw progressError;
+            }
+            lessonProgress = {
+                docs: [],
+                totalDocs: 0,
+                limit: 500,
+                totalPages: 1,
+                page: 1,
+                pagingCounter: 1,
+                hasPrevPage: false,
+                hasNextPage: false,
+                prevPage: null,
+                nextPage: null,
+            };
+        }
 
         // Calculate progress summary
         const completedLessons = lessonProgress.docs.filter(
@@ -189,16 +227,30 @@ export async function POST(request: NextRequest) {
 
         // Check if progress record exists
         // Note: lesson-progress collection is planned but not yet implemented
-        const existing = await payloadLMS.find({
-            collection: 'lesson-progress',
-            where: {
-                and: [
-                    { enrollment: { equals: enrollmentId } },
-                    { lesson: { equals: lessonId } },
-                ],
-            },
-            limit: 1,
-        });
+        let existing: LessonProgressFindResult;
+        try {
+            existing = await payloadLMS.find({
+                collection: 'lesson-progress',
+                where: {
+                    and: [
+                        { enrollment: { equals: enrollmentId } },
+                        { lesson: { equals: lessonId } },
+                    ],
+                },
+                limit: 1,
+            });
+        } catch (progressError) {
+            if (isMissingLessonProgressRelation(progressError)) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: 'LMS progress storage not available yet in this environment',
+                    },
+                    { status: 503 },
+                );
+            }
+            throw progressError;
+        }
 
         let progress: LessonProgress;
         if (existing.docs.length > 0) {
