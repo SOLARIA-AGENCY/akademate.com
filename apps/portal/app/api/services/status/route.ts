@@ -15,11 +15,11 @@ const timeoutMs = 4_000
 const degradedThresholdMs = 2_000
 
 const serviceUrls: Record<ServiceKey, string> = {
-  web: process.env.NEXT_PUBLIC_WEB_URL ?? 'http://localhost:3006',
-  ops: process.env.NEXT_PUBLIC_ADMIN_URL ?? 'http://localhost:3004',
-  tenant: process.env.NEXT_PUBLIC_TENANT_URL ?? 'http://localhost:3009',
-  payload: process.env.NEXT_PUBLIC_PAYLOAD_URL ?? 'http://localhost:3003',
-  campus: process.env.NEXT_PUBLIC_CAMPUS_URL ?? 'http://localhost:3005',
+  web: process.env.INTERNAL_WEB_URL ?? 'http://web:3006',
+  ops: process.env.INTERNAL_ADMIN_URL ?? 'http://admin:3004',
+  tenant: process.env.INTERNAL_TENANT_URL ?? 'http://tenant:3009',
+  payload: process.env.INTERNAL_PAYLOAD_URL ?? 'http://payload:3003',
+  campus: process.env.INTERNAL_CAMPUS_URL ?? 'http://campus:3005',
 }
 
 const services: Array<{ key: ServiceKey; label: string; url: string }> = [
