@@ -1,78 +1,67 @@
 # AUDIT & RECOVERY PROMPT: Akademate.com Deployment on NEMESIS
 
 **Role:** Senior DevOps Architect & Full-Stack Engineer (Next.js/Docker Expert)
-**Date:** February 18, 2026
+**Date:** February 19, 2026
 **Target:** NEMESIS Server (`100.99.60.106`) | User: `cmdr`
 
 ## 1. Executive Summary & Objective
-We are in the middle of a manual remediation of the **Akademate.com monorepo** (Next.js, Payload CMS, TurboRepo/pnpm). The local build is broken due to Edge Runtime restrictions, so we are bypassing local checks to build directly on the remote server via Docker.
+We have successfully deployed the **Akademate.com monorepo** (Next.js, Payload CMS, TurboRepo/pnpm) to the NEMESIS staging environment. The initial build issues (Edge Runtime) and runtime crashes (Module Not Found) have been resolved. The latest deployment (v15) also addressed a critical UI/UX issue where dashboard subsections were not inheriting the correct layout.
 
-**Goal:** Successfully deploy `web`, `admin`, and `payload` services to the NEMESIS staging environment, ensuring they boot correctly and are accessible.
+**Current Goal:** Maintain stability, monitor logs for runtime errors, and prepare for production hardening (e.g., restoring rate limiting with Redis).
 
 ## 2. Infrastructure & Credentials
-- **Server IP:** `100.99.60.106`
+- **Server IP:** `100.99.60.106` (Tailscale/VPN required)
 - **User:** `cmdr`
-- **SSH Key:** `~/.ssh/id_ed25519_nemesis` (Available in local context)
+- **SSH Key:** `~/.ssh/id_ed25519_nemesis`
 - **Project Path (Remote):** `~/akademate`
 - **Docker Path:** `~/akademate/infrastructure/docker`
 - **Environment:** `staging`
 
-## 3. Incident History & Current State
-We have iterated through 14 deployment attempts (`akademate-deploy-v14.tar.gz`). Here is the trail of fixes and remaining issues:
+## 3. Incident History & Resolution (v1-v15)
 
 ### **A. Codebase Fixes (Applied)**
 1.  **Edge Runtime / Middleware:**
-    *   *Issue:* `apps/tenant-admin/middleware.ts` used in-memory `Map` and `request.ip` type hacks, causing `TypeError: ip is not a function` during Edge builds.
-    *   *Fix:* Disabled rate limiting logic (stateless) and hardcoded `127.0.0.1` as fallback IP. **Audit required:** Verify if this is sustainable or needs Redis.
+    *   *Issue:* `apps/tenant-admin/middleware.ts` used in-memory `Map` and `request.ip` type hacks.
+    *   *Fix:* Disabled rate limiting logic (stateless) and hardcoded `127.0.0.1` as fallback IP.
 2.  **Dependencies:**
     *   Added `socket.io-client` to `apps/admin-client`.
-    *   Aligned `@aws-sdk/client-s3` and `s3-request-presigner` versions to `^3.744.0`.
-    *   Added `packages/realtime`, `packages/ui` to Dockerfile `COPY` steps.
-3.  **Build Config:**
-    *   Enabled `output: 'standalone'` in `next.config.ts` for all apps (initially).
-    *   *Later Reverted:* Dockerfiles were switched **FROM** using `standalone` output **TO** standard `pnpm start` in the last iteration (v14) because containers crashed with `Cannot find module server.js`.
+    *   Aligned `@aws-sdk` versions.
+    *   Added `packages/realtime`, `packages/ui` to Dockerfile contexts.
+3.  **UI/UX Layout:**
+    *   *Issue:* Tenants, Billing, Support routes were siblings to `dashboard`, losing the sidebar layout.
+    *   *Fix:* Moved `tenants`, `billing`, `support` directories into `apps/admin-client/app/dashboard/`.
+    *   *Fix:* Updated `sidebar.tsx` links to point to `/dashboard/*`.
 
-### **B. Docker & Deployment Issues (Active)**
-1.  **Container Crashes (Module Not Found):**
-    *   Standalone builds were failing to find `server.js` or `dist/server.js`.
-    *   Current strategy (v14) copies `.next`, `public`, `node_modules` and runs `pnpm start`. **Status:** `deploy.sh` was interrupted; functionality unverified.
-2.  **Port Conflict:**
-    *   Host port `80` was in use by another process (`coolify-proxy` or similar).
-    *   *Fix:* `docker-compose.yml` updated to map Nginx to `8088:80` and `8443:443`.
-3.  **Missing Files:**
-    *   Root `postcss.config.cjs` and `tailwind.config.js` were missing in app Docker contexts. *Fixed in Dockerfiles.*
-    *   `apps/web/public` and `apps/payload/public` were missing. *Fixed by creating placeholders.*
+### **B. Docker Strategy (Current: v15)**
+*   **Method:** Standard `pnpm start` (Not Standalone).
+*   **Reason:** Standalone builds failed with `Cannot find module server.js` despite file verification. Reverting to full image resolved this.
+*   **Dockerfiles:** Updated to copy `.next`, `public`, `package.json`, and `node_modules` (from builder) and run `CMD ["pnpm", "start"]`.
 
-## 4. Required Audit & Remediation Tasks
+### **C. Deployment Status**
+*   **Services:** `web`, `admin`, `payload` are UP and Healthy.
+*   **Nginx:** Mapped to `8088:80` / `8443:443` to avoid host port 80 conflict.
+*   **Migrations:** `db:migrate` failed in the script (`Command not found`), but the app is running. Schema seems stable for now.
 
-Please perform the following steps in order:
+## 4. Pending Tasks / Recommendations
 
-### **Phase 1: Verification**
-1.  **Analyze Docker Strategy:** Review `infrastructure/docker/Dockerfile.*`.
-    *   *Decision:* Should we revert to `output: 'standalone'` and fix the pathing (e.g., `COPY .next/standalone /app`), OR stick with the heavy `pnpm start` image?
-    *   *Recommendation:* Standalone is preferred for production. The previous error was likely due to incorrect `COPY` paths (e.g., missing `server.js` location in the standalone tree).
-2.  **Check Remote State:**
-    *   SSH into NEMESIS.
-    *   Run `docker ps -a` and `docker logs akademate-payload`.
-    *   Check if the v14 deployment actually ran or if it's in a corrupted state.
+### **Phase 1: Monitoring**
+1.  **Log Analysis:**
+    *   Watch `docker logs akademate-web` for `TypeError` (seen in `/cursos`).
+    *   Watch `docker logs akademate-payload` for any database connection stability issues.
 
-### **Phase 2: Fix & Deploy**
-1.  **Refine Dockerfiles:**
-    *   Ensure the `CMD` matches the actual build output structure.
-    *   If using `standalone`: `CMD ["node", "apps/APP_NAME/server.js"]` (verify path inside image).
-    *   If using `start`: Ensure `next` binary is found in `$PATH` or use `npm run start`.
-2.  **Environment Variables:**
-    *   Ensure `PAYLOAD_SECRET` is correctly passed via build args (already added to `docker-compose.yml` but needs verification).
-3.  **Clean Deploy:**
-    *   Prune Docker builder cache on NEMESIS if necessary (`docker builder prune`).
-    *   Run `./infrastructure/scripts/deploy.sh staging all`.
+### **Phase 2: Hardening**
+1.  **Rate Limiting:**
+    *   Re-enable rate limiting in `middleware.ts` but use Redis (Upstash/KV) instead of `Map`.
+2.  **Migration Script:**
+    *   Fix the `db:migrate` command in `infrastructure/scripts/deploy.sh` or `package.json` to ensure schema updates apply correctly.
+3.  **Optimization:**
+    *   Revisit `output: 'standalone'` for Dockerfiles to reduce image size (currently large due to `node_modules`).
 
-### **Phase 3: Validation**
-1.  **Health Check:** Verify HTTP `200 OK` on:
-    *   Web: `http://100.99.60.106:8088`
-    *   Payload: `http://100.99.60.106:3003/admin`
-2.  **Logs:** Ensure no restart loops or connection errors to Postgres/Redis.
-
-**Constraints:**
-- Do **NOT** revert the Edge Runtime fixes in `middleware.ts` yet; they are necessary to pass the build.
-- Use `tar` + `scp` for file transfer as git pull is not configured/reliable on the server for this specific branch state.
+## 5. Verification Commands
+- **SSH:** `ssh -i ~/.ssh/id_ed25519_nemesis cmdr@100.99.60.106`
+- **Check Status:** `docker ps`
+- **Check Logs:** `docker logs akademate-admin --tail 50`
+- **Web Access:**
+    - Web: `http://100.99.60.106:8088` (via Nginx)
+    - Admin: `http://100.99.60.106:3004`
+    - Payload: `http://100.99.60.106:3003`

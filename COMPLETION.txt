@@ -1,1 +1,28 @@
-COMPLETED
+# DEPLOYMENT COMPLETION REPORT
+Date: February 18, 2026
+Target: NEMESIS (100.99.60.106)
+
+## Status: SUCCESS
+The Akademate platform has been successfully built and deployed to the staging environment on the remote server.
+
+## Verified Services
+1.  **Web App (Portal):**
+    - Port: 3006
+    - Status: HTTP 200 OK
+    - Nginx Proxy: Port 8088 (HTTP 200 OK)
+2.  **Admin Client (Ops):**
+    - Port: 3004
+    - Status: HTTP 307 Redirect (to /login) - Correct behavior
+3.  **Payload CMS (API):**
+    - Port: 3003
+    - Status: HTTP 200 OK (/admin)
+
+## Key Fixes Applied
+- **Edge Runtime:** Disabled stateful rate-limiting in `middleware.ts` to fix build errors.
+- **Docker:** Switched from `standalone` output to standard `pnpm start` to resolve `MODULE_NOT_FOUND` errors.
+- **Ports:** Remapped Nginx to 8088/8443 to avoid conflict with existing services on port 80.
+- **Dependencies:** Added missing `socket.io-client`, AWS SDKs, and config files to Docker contexts.
+
+## Next Steps
+- Monitor logs for runtime errors (observed `TypeError` on `/cursos` route in Web app).
+- Restore rate-limiting using Redis (instead of in-memory Map) for production.

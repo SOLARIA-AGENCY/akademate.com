@@ -37,9 +37,9 @@ import { cn } from '@/lib/utils'
 
 const mainNavItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Tenants', href: '/tenants', icon: Users },
-  { name: 'Billing', href: '/billing', icon: CreditCard },
-  { name: 'Support', href: '/support', icon: HelpCircle },
+  { name: 'Tenants', href: '/dashboard/tenants', icon: Users },
+  { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
+  { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
   { name: 'Roadmap', href: '/dashboard/roadmap', icon: Target },
 ]
 
