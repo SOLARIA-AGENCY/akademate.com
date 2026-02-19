@@ -52,26 +52,29 @@ export function ServiceStatusBar() {
   }, [services])
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
-      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300">
-        <span className="font-semibold uppercase tracking-[0.2em] text-slate-400">
+    <div className="rounded-xl border border-border bg-card/95 p-6 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground md:gap-3">
+        <span className="font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           Estado de servicios
         </span>
         {isLoading ? (
-          <span className="text-slate-500">comprobando...</span>
+          <span className="text-muted-foreground/80">comprobando...</span>
         ) : (
           services.map((service) => (
-            <span key={service.key} className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 px-2 py-1">
+            <span
+              key={service.key}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1"
+            >
               <span className={`h-2.5 w-2.5 rounded-full ${dotClass(service.state)}`} />
-              <span>{service.label}</span>
+              <span className="text-foreground">{service.label}</span>
               {typeof service.latencyMs === 'number' ? (
-                <span className="text-slate-500">({service.latencyMs}ms)</span>
+                <span className="text-muted-foreground">({service.latencyMs}ms)</span>
               ) : null}
             </span>
           ))
         )}
       </div>
-      <p className="mt-2 text-xs text-slate-500">{summary}</p>
+      <p className="mt-2 text-xs text-muted-foreground">{summary}</p>
     </div>
   )
 }

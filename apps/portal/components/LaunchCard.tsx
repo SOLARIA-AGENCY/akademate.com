@@ -29,20 +29,20 @@ export function LaunchCard({
   className,
 }: LaunchCardProps) {
   return (
-    <Card className={className}>
-      <CardHeader>
+    <Card className={`h-full border-border bg-card/95 shadow-sm ${className ?? ''}`}>
+      <CardHeader className="p-6 pb-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle className="text-lg">
+            <CardTitle className="text-lg md:text-xl">
               <span className="mr-2">{icon}</span>
               {title}
             </CardTitle>
-            <CardDescription>{subtitle}</CardDescription>
+            <CardDescription className="mt-1">{subtitle}</CardDescription>
           </div>
           <Badge variant="default">{port}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex h-full flex-col gap-4 p-6 pt-0">
         <p className="text-sm text-muted-foreground">{description}</p>
         {hasAutoLogin ? <Badge variant="warning">AUTO-LOGIN DEV</Badge> : null}
         {credentials?.length ? (
@@ -55,7 +55,7 @@ export function LaunchCard({
             ))}
           </div>
         ) : null}
-        <Button onClick={onOpen} className="w-full">
+        <Button onClick={onOpen} className="mt-auto w-full">
           ABRIR
           <ArrowUpRight className="ml-2 h-4 w-4" />
         </Button>

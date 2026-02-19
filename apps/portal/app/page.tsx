@@ -69,8 +69,8 @@ export default function PortalPage() {
 
   return (
     <div className="min-h-screen bg-canvas text-foreground">
-      <header className="border-b border-border/80 bg-card/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+      <header className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <img
               className="logo h-10 w-10 rounded-lg bg-background p-1 ring-1 ring-border"
@@ -87,15 +87,18 @@ export default function PortalPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-        <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">
-            Servidor: <span className="font-semibold text-foreground">NEMESIS</span> · Entorno:{' '}
-            <span className="font-semibold text-foreground">development</span>
-          </p>
+      <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 md:py-8 lg:px-8">
+        <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              Servidor: <span className="font-semibold text-foreground">NEMESIS</span> · Entorno:{' '}
+              <span className="font-semibold text-foreground">development</span>
+            </p>
+            <Badge variant="default">Launchpad Unificado</Badge>
+          </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2">
+        <section className="grid gap-6 md:grid-cols-2">
           <LaunchCard
             icon="🌐"
             title="Web"
@@ -151,7 +154,7 @@ export default function PortalPage() {
           />
         </section>
 
-        <section>
+        <section className="grid gap-6 md:grid-cols-2">
           <LaunchCard
             icon="🎓"
             title="Campus Virtual"
