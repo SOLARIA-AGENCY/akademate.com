@@ -85,3 +85,9 @@
 - [x] Smoke tests apps.
 - [x] Security checklist + GDPR verification.
 - [x] Crear COMPLETION.txt cuando todo pase.
+
+## 14) Ralph Loop 2026-02 (post-auditoría runtime)
+- [x] Corregir `packages/notifications` (test `replyTo` vs `reply_to`).
+- [x] Corregir `packages/realtime` (`skipAuth` no respeta middleware esperado).
+- [x] Ejecutar y cerrar batería de tests objetivo en verde (`web`, `auth`, `notifications`, `realtime`, `tenant-admin` runtime).
+- [x] Ejecutar smoke audit live final en NEMESIS y registrar evidencia.

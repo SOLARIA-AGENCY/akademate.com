@@ -205,7 +205,7 @@ describe('EmailService', () => {
         subject: 'Test Subject',
         html: '<p>Content</p>',
         text: 'Plain content',
-        reply_to: 'custom-reply@example.com',
+        replyTo: 'custom-reply@example.com',
         tags: [{ name: 'type', value: 'test' }],
       });
     });

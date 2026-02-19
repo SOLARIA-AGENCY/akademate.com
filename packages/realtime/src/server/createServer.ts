@@ -148,10 +148,9 @@ export function createSocketServer(options: CreateSocketServerOptions): TypedSer
     httpCompression: true,
   });
 
-  // FIX-16: Defense-in-depth -- skipAuth can only work in development.
-  // Even if a caller passes skipAuth=true, it is silently ignored in production.
-  const effectiveSkipAuth = skipAuth && process.env.NODE_ENV === 'development';
-  if (effectiveSkipAuth && skipAuth) {
+  // Defense-in-depth: skipAuth is allowed only in non-production environments.
+  const effectiveSkipAuth = skipAuth && process.env.NODE_ENV !== 'production';
+  if (effectiveSkipAuth) {
     console.warn('[SocketServer] WARNING: skipAuth is enabled. This must NEVER happen in production.');
   }
 

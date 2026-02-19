@@ -42,6 +42,14 @@
 
 ---
 
+## Ralph Loop 2026-02 — Estabilización Post-Auditoría
+1. Corregir suites con fallo en monorepo (notifications, realtime, configs de test locales).
+2. Re-ejecutar suites objetivo y dejar evidencia auditable.
+3. Endurecer endpoints LMS para entornos parcialmente migrados.
+4. Ejecutar smoke audit live en NEMESIS y documentar estado final.
+
+---
+
 ## Definition of Done (global)
 - Build + typecheck + unit + e2e verdes.
 - Feature complete por módulos clave.
