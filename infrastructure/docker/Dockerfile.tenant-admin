@@ -18,7 +18,7 @@ COPY --from=deps /app/apps/tenant-admin/node_modules ./apps/tenant-admin/node_mo
 COPY --from=deps /app/packages ./packages
 COPY apps/tenant-admin ./apps/tenant-admin
 COPY packages ./packages
-COPY tsconfig.base.json postcss.config.cjs tailwind.config.js ./
+COPY tsconfig.json tsconfig.base.json postcss.config.cjs tailwind.config.js ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app/apps/tenant-admin
