@@ -83,6 +83,7 @@ const ALLOWED_ORIGINS = [
 
 // Routes that don't require authentication
 const publicRoutes = [
+  '/api/auth/dev-login',
   '/auth/login',
   '/auth/forgot-password',
   '/auth/reset-password',
@@ -162,6 +163,11 @@ function getCorsHeaders(origin: string | null) {
 export function middleware(request: NextRequest) {
   const { pathname, protocol, host: _host } = request.nextUrl
   const origin = request.headers.get('origin')
+
+  // Always allow tenant dev-login endpoint in development/staging workflows.
+  if (pathname === '/api/auth/dev-login' || pathname === '/api/auth/dev-login/') {
+    return NextResponse.next()
+  }
 
   // =========================================================================
   // HTTPS Enforcement (production only)
