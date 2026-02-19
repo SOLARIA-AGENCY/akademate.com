@@ -166,6 +166,54 @@ health_check() {
         return 1
     fi
 
+    # Check Admin App
+    retry_count=0
+    while [ $retry_count -lt $max_retries ]; do
+        if http_check "http://localhost:${ADMIN_PORT:-3004}"; then
+            log_success "Admin App is healthy"
+            break
+        fi
+        retry_count=$((retry_count + 1))
+        sleep 2
+    done
+
+    if [ $retry_count -eq $max_retries ]; then
+        log_error "Admin App health check failed"
+        return 1
+    fi
+
+    # Check Tenant App
+    retry_count=0
+    while [ $retry_count -lt $max_retries ]; do
+        if http_check "http://localhost:${TENANT_PORT:-3009}"; then
+            log_success "Tenant App is healthy"
+            break
+        fi
+        retry_count=$((retry_count + 1))
+        sleep 2
+    done
+
+    if [ $retry_count -eq $max_retries ]; then
+        log_error "Tenant App health check failed"
+        return 1
+    fi
+
+    # Check Campus App
+    retry_count=0
+    while [ $retry_count -lt $max_retries ]; do
+        if http_check "http://localhost:${CAMPUS_PORT:-3005}"; then
+            log_success "Campus App is healthy"
+            break
+        fi
+        retry_count=$((retry_count + 1))
+        sleep 2
+    done
+
+    if [ $retry_count -eq $max_retries ]; then
+        log_error "Campus App health check failed"
+        return 1
+    fi
+
     log_success "All health checks passed"
 }
 

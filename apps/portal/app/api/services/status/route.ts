@@ -24,8 +24,8 @@ const serviceUrls: Record<ServiceKey, string> = {
 
 const services: Array<{ key: ServiceKey; label: string; url: string }> = [
   { key: 'web', label: 'web', url: serviceUrls.web },
-  { key: 'ops', label: 'ops', url: `${serviceUrls.ops}/api/health` },
-  { key: 'tenant', label: 'tenant', url: `${serviceUrls.tenant}/api/health` },
+  { key: 'ops', label: 'ops', url: serviceUrls.ops },
+  { key: 'tenant', label: 'tenant', url: serviceUrls.tenant },
   { key: 'payload', label: 'payload', url: `${serviceUrls.payload}/api/health` },
   { key: 'campus', label: 'campus', url: serviceUrls.campus },
 ]

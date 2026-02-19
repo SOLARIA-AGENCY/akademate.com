@@ -1,0 +1,46 @@
+# Akademate.com - Campus Dockerfile
+# Virtual campus app
+
+FROM node:22-alpine AS base
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/campus/package.json ./apps/campus/
+COPY packages/types/package.json ./packages/types/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/realtime/package.json ./packages/realtime/
+RUN pnpm install --frozen-lockfile --filter @akademate/campus...
+
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/campus/node_modules ./apps/campus/node_modules
+COPY --from=deps /app/packages ./packages
+COPY apps/campus ./apps/campus
+COPY packages ./packages
+COPY tsconfig.base.json ./
+
+ENV NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app/apps/campus
+RUN pnpm build
+
+FROM base AS runner
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/apps/campus ./apps/campus
+COPY --from=builder /app/packages ./packages
+
+USER nextjs
+EXPOSE 3005
+ENV PORT=3005
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["pnpm", "--dir", "/app/apps/campus", "exec", "next", "start", "--hostname", "0.0.0.0", "--port", "3005"]

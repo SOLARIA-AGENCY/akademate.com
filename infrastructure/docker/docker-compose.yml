@@ -168,6 +168,68 @@ services:
     networks:
       - akademate-network
 
+  tenant:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.tenant-admin
+    container_name: akademate-tenant
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PAYLOAD_CMS_URL: http://payload:3003
+      PAYLOAD_API_KEY: ${PAYLOAD_API_KEY}
+      NEXT_PUBLIC_DEV_AUTH_BYPASS: ${NEXT_PUBLIC_DEV_AUTH_BYPASS:-false}
+      NEXT_PUBLIC_ENABLE_DEV_LOGIN: ${NEXT_PUBLIC_ENABLE_DEV_LOGIN:-false}
+    ports:
+      - "${TENANT_PORT:-3009}:3009"
+    depends_on:
+      - payload
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3009"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - akademate-network
+
+  campus:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.campus
+    container_name: akademate-campus
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PAYLOAD_CMS_URL: http://payload:3003
+      PAYLOAD_API_KEY: ${PAYLOAD_API_KEY}
+    ports:
+      - "${CAMPUS_PORT:-3005}:3005"
+    depends_on:
+      - payload
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3005"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - akademate-network
+
   portal:
     build:
       context: ../..
@@ -186,6 +248,8 @@ services:
     depends_on:
       - web
       - admin
+      - tenant
+      - campus
       - payload
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3008"]
@@ -222,6 +286,8 @@ services:
     depends_on:
       - web
       - admin
+      - tenant
+      - campus
       - payload
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
