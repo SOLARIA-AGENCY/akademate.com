@@ -43,14 +43,14 @@ export function LaunchCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-slate-300">{description}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
         {hasAutoLogin ? <Badge variant="warning">AUTO-LOGIN DEV</Badge> : null}
         {credentials?.length ? (
-          <div className="rounded-lg border border-slate-800 bg-slate-950/70 p-3 text-xs text-slate-300">
+          <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-foreground">
             {credentials.map((credential) => (
               <div key={credential.label} className="flex justify-between gap-3">
-                <span className="text-slate-400">{credential.label}</span>
-                <code className="text-slate-200">{credential.value}</code>
+                <span className="text-muted-foreground">{credential.label}</span>
+                <code className="text-foreground">{credential.value}</code>
               </div>
             ))}
           </div>
