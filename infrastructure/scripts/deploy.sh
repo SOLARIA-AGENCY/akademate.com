@@ -101,8 +101,14 @@ deploy_services() {
 
 run_migrations() {
     log_info "Running database migrations..."
+    # Primary path: root script if available inside container context
+    if docker compose exec -T payload sh -lc "pnpm db:migrate" > /dev/null 2>&1; then
+        log_success "Migrations completed (pnpm db:migrate)"
+        return 0
+    fi
 
-    docker compose exec -T payload pnpm db:migrate
+    # Fallback path: run drizzle-kit directly when script is not exposed
+    docker compose exec -T payload sh -lc "pnpm exec drizzle-kit migrate --config /app/packages/db/drizzle.config.ts"
 
     log_success "Migrations completed"
 }
