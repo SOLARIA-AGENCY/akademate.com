@@ -10,3 +10,135 @@
 
 /* Custom component styles can be added here */
 /* But do NOT override Payload's base styles */
+
+.ak-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 20% 20%, #1d4ed833 0%, transparent 45%),
+              radial-gradient(circle at 80% 80%, #0ea5e933 0%, transparent 45%),
+              linear-gradient(180deg, #020617 0%, #0f172a 100%);
+}
+
+.ak-login-glow {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  filter: blur(80px);
+  border-radius: 999px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.ak-login-glow-a {
+  top: -120px;
+  right: -100px;
+  background: #2563eb;
+}
+
+.ak-login-glow-b {
+  bottom: -140px;
+  left: -100px;
+  background: #06b6d4;
+}
+
+.ak-login-card {
+  width: min(100%, 440px);
+  position: relative;
+  z-index: 1;
+  border-radius: 16px;
+  border: 1px solid #334155;
+  background: rgba(2, 6, 23, 0.9);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.45);
+  padding: 28px;
+}
+
+.ak-login-brand {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.ak-login-brand h1 {
+  color: #f8fafc;
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.ak-login-brand p {
+  margin-top: 8px;
+  margin-bottom: 0;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.ak-login-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 24px;
+  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+}
+
+.ak-login-form {
+  display: grid;
+  gap: 10px;
+}
+
+.ak-login-form label {
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ak-login-form input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 12px 14px;
+  font-size: 15px;
+  outline: none;
+}
+
+.ak-login-form input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px #0ea5e933;
+}
+
+.ak-login-form button {
+  margin-top: 6px;
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ak-login-form button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.ak-login-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ef4444;
+  background: #ef44441a;
+  color: #fecaca;
+  font-size: 13px;
+}
