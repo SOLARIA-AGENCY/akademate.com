@@ -37,6 +37,7 @@ import {
   Eye,
   UserCog,
   CreditCard,
+  Award,
 } from 'lucide-react'
 import Link from 'next/link'
 import NextImage from 'next/image'
@@ -102,6 +103,18 @@ const menuItems: MenuItemWithSection[] = [
     items: [
       { title: 'Profesores', icon: UserCircle, url: '/profesores' },
       { title: 'Administrativos', icon: UserPlus, url: '/administrativo' },
+    ],
+  },
+  {
+    title: 'Campus Virtual',
+    icon: GraduationCap,
+    sectionBefore: 'CAMPUS VIRTUAL',
+    items: [
+      { title: 'Vista General Campus', icon: LayoutDashboard, url: '/campus-virtual' },
+      { title: 'Inscripciones LMS', icon: UserPlus, url: '/campus-virtual/inscripciones' },
+      { title: 'Progreso Alumnos', icon: BarChart3, url: '/campus-virtual/progreso' },
+      { title: 'Módulos y Lecciones', icon: BookOpen, url: '/campus-virtual/contenido' },
+      { title: 'Certificados', icon: Award, url: '/campus-virtual/certificados' },
     ],
   },
   {

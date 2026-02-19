@@ -35,9 +35,10 @@ interface PayloadMeResponse {
   user?: LoginResponse['user']
 }
 
-export function storeSession(user: LoginResponse['user']) {
+export async function storeSession(user: LoginResponse['user']) {
   if (typeof window === 'undefined') return
-  // Store session in httpOnly cookie via server endpoint
+  // Store session in httpOnly cookie via server endpoint.
+  // In dev mode the endpoint accepts a pre-authenticated user payload.
   try {
     await fetch('/api/auth/login', {
       method: 'POST',

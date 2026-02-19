@@ -5,6 +5,13 @@ import config from '@payload-config'
 
 export const dynamic = 'force-dynamic'
 
+interface SessionUser {
+  id: string | number
+  email: string
+  name?: string
+  role?: string
+}
+
 /**
  * GET /api/auth/session
  *
@@ -17,44 +24,79 @@ export async function GET() {
     const cookieStore = await cookies()
     const token = cookieStore.get('payload-token')?.value
 
-    if (!token) {
-      return NextResponse.json(
-        { user: null, authenticated: false },
-        { status: 401 }
-      )
+    if (token) {
+      const payload = await getPayload({ config })
+      const { user } = await payload.auth({ headers: new Headers({ Authorization: `JWT ${token}` }) })
+      if (user) {
+        const typedUser = user as SessionUser
+        return NextResponse.json({
+          authenticated: true,
+          user: {
+            id: typedUser.id,
+            email: typedUser.email,
+            name: typedUser.name ?? '',
+            role: typedUser.role ?? 'admin',
+          },
+          socketToken: token,
+        })
+      }
     }
 
-    // Validate token via Payload CMS
-    const payload = await getPayload({ config })
-
-    // Use the Payload JWT verification to get the user
-    // The token is a Payload-issued JWT
-    const { user } = await payload.auth({ headers: new Headers({ Authorization: `JWT ${token}` }) })
-
-    if (!user) {
-      return NextResponse.json(
-        { user: null, authenticated: false },
-        { status: 401 }
-      )
+    const serializedSession = cookieStore.get('cep_session')?.value
+    if (serializedSession) {
+      const parsedSession = JSON.parse(serializedSession) as { user?: SessionUser; token?: string }
+      if (parsedSession.user) {
+        return NextResponse.json({
+          authenticated: true,
+          user: parsedSession.user,
+          socketToken: parsedSession.token ?? '',
+        })
+      }
     }
 
-    return NextResponse.json({
-      authenticated: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: (user as any).name || '',
-        role: (user as any).role || 'admin',
-      },
-      // Short-lived token for WebSocket auth only (read from httpOnly cookie server-side)
-      // This is acceptable because this endpoint requires a valid httpOnly cookie
-      socketToken: token,
-    })
+    return NextResponse.json({ user: null, authenticated: false }, { status: 401 })
   } catch (error) {
     console.error('[/api/auth/session] Error:', error)
     return NextResponse.json(
       { user: null, authenticated: false },
       { status: 401 }
     )
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = (await request.json()) as { user?: SessionUser; token?: string }
+    if (!body.user?.email) {
+      return NextResponse.json({ error: 'Invalid session payload' }, { status: 400 })
+    }
+
+    const cookieStore = await cookies()
+    cookieStore.set('cep_session', JSON.stringify({
+      user: body.user,
+      token: body.token ?? '',
+    }), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 12,
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[/api/auth/session][POST] Error:', error)
+    return NextResponse.json({ error: 'Failed to persist session' }, { status: 500 })
+  }
+}
+
+export async function DELETE() {
+  try {
+    const cookieStore = await cookies()
+    cookieStore.delete('cep_session')
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[/api/auth/session][DELETE] Error:', error)
+    return NextResponse.json({ error: 'Failed to clear session' }, { status: 500 })
   }
 }

@@ -1,23 +1,42 @@
 export interface User {
-  id: number
+  id: number | string
   name: string
   email: string
   role: string
 }
 
-export function isAuthenticated(): boolean {
-  if (typeof window === 'undefined') return false
-  // Check for user metadata (non-sensitive). The actual auth token is stored
-  // in an httpOnly cookie and validated server-side by the middleware.
-  return !!localStorage.getItem('cep_user')
+interface SessionResponse {
+  authenticated?: boolean
+  user?: User | null
 }
 
-export function getUser(): User | null {
-  if (typeof window === 'undefined') return null
-  const userStr = localStorage.getItem('cep_user')
-  if (!userStr) return null
+export async function isAuthenticated(): Promise<boolean> {
+  if (typeof window === 'undefined') return false
   try {
-    return JSON.parse(userStr)
+    const response = await fetch('/api/auth/session', {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+    })
+    if (!response.ok) return false
+    const data = (await response.json()) as SessionResponse
+    return Boolean(data.authenticated && data.user)
+  } catch {
+    return false
+  }
+}
+
+export async function getUser(): Promise<User | null> {
+  if (typeof window === 'undefined') return null
+  try {
+    const response = await fetch('/api/auth/session', {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+    })
+    if (!response.ok) return null
+    const data = (await response.json()) as SessionResponse
+    return data.user ?? null
   } catch {
     return null
   }
@@ -25,12 +44,15 @@ export function getUser(): User | null {
 
 export async function logout() {
   if (typeof window === 'undefined') return
-  // Clear the httpOnly auth cookie via server-side endpoint
+  try {
+    await fetch('/api/auth/session', { method: 'DELETE', credentials: 'include' })
+  } catch (error) {
+    console.error('Session logout failed:', error)
+  }
+
   try {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
   } catch (error) {
     console.error('Server logout failed:', error)
   }
-  // Clear non-sensitive user metadata from localStorage
-  localStorage.removeItem('cep_user')
 }

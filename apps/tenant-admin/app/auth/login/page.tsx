@@ -123,9 +123,20 @@ export default function LoginPage() {
       const data = (await response.json()) as LoginResponse
 
       if (data.user) {
-        // Store user metadata in localStorage for client-side display (non-sensitive data only).
-        // The auth token is stored exclusively in an httpOnly cookie by the server.
-        localStorage.setItem('cep_user', JSON.stringify(data.user))
+        await fetch('/api/auth/session', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user: {
+              id: data.user.id,
+              email: data.user.email,
+              name: data.user.name ?? '',
+              role: data.user.role ?? 'admin',
+            },
+            token: data.token ?? '',
+          }),
+        })
 
         // Redirect to dashboard
         router.push('/dashboard')

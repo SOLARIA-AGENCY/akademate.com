@@ -8,7 +8,7 @@ export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const email = emailRef.current?.value?.trim() ?? ''
     const password = passwordRef.current?.value ?? ''
@@ -27,9 +27,22 @@ export function LoginForm() {
 
     setError(null)
     setIsSubmitting(true)
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/dev-login', {
+        method: 'POST',
+        credentials: 'include',
+        body: new URLSearchParams({ redirect: '/dashboard' }),
+      })
+
+      if (!response.ok) {
+        throw new Error('No se pudo iniciar sesión en modo desarrollo.')
+      }
+
       window.location.href = '/dashboard'
-    }, 300)
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Error de autenticación.')
+      setIsSubmitting(false)
+    }
   }
 
   return (
