@@ -175,7 +175,7 @@ services:
     container_name: akademate-tenant
     restart: unless-stopped
     environment:
-      NODE_ENV: ${NODE_ENV:-production}
+      NODE_ENV: development
       PAYLOAD_CMS_URL: http://payload:3003
       PAYLOAD_API_KEY: ${PAYLOAD_API_KEY}
       NEXT_PUBLIC_DEV_AUTH_BYPASS: ${NEXT_PUBLIC_DEV_AUTH_BYPASS:-false}
