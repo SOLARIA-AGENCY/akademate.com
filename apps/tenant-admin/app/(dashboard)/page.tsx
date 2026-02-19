@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import {
   Card,
   CardContent,
@@ -108,6 +109,21 @@ interface UseDashboardMetricsResult {
   refresh: () => Promise<void>
 }
 
+interface LmsEnrollment {
+  id: string
+  status: string
+  progress?: {
+    percent?: number
+  }
+}
+
+interface LmsSummary {
+  totalEnrollments: number
+  activeEnrollments: number
+  completionRate: number
+  certificatesIssued: number
+}
+
 // KPI item type for dashboard cards
 interface KpiItem {
   title: string
@@ -131,6 +147,13 @@ export default function DashboardPage() {
   const hookResult: UseDashboardMetricsResult = useDashboardMetrics({ tenantId: 1, enableRealtime: true }) as UseDashboardMetricsResult
   const { data, loading, error, isConnected, lastUpdate, refresh } = hookResult
 
+  const [lmsSummary, setLmsSummary] = useState<LmsSummary>({
+    totalEnrollments: 0,
+    activeEnrollments: 0,
+    completionRate: 0,
+    certificatesIssued: 0,
+  })
+
   // Destructure data for easier access with explicit types
   const metrics: DashboardMetrics = data.metrics
   const convocations: Convocation[] = data.convocations
@@ -139,6 +162,40 @@ export default function DashboardPage() {
   const weeklyMetrics: WeeklyMetrics = data.weeklyMetrics
   const alerts: OperationalAlert[] = data.alerts
   const campusDistribution: CampusDistribution[] = data.campusDistribution
+
+  const refreshCampusSummary = async () => {
+    try {
+      const response = await fetch('/api/lms/enrollments?limit=200', {
+        credentials: 'include',
+        cache: 'no-store',
+      })
+
+      if (!response.ok) {
+        return
+      }
+
+      const payload = (await response.json()) as { data?: LmsEnrollment[] }
+      const enrollments = payload.data ?? []
+      const activeEnrollments = enrollments.filter((item) => item.status === 'active').length
+      const completedCount = enrollments.filter(
+        (item) => (item.progress?.percent ?? 0) >= 100 || item.status === 'completed'
+      ).length
+      const completionRate = enrollments.length > 0 ? Math.round((completedCount / enrollments.length) * 100) : 0
+
+      setLmsSummary({
+        totalEnrollments: enrollments.length,
+        activeEnrollments,
+        completionRate,
+        certificatesIssued: completedCount,
+      })
+    } catch {
+      // Keep previous LMS summary on transient errors
+    }
+  }
+
+  useEffect(() => {
+    void refreshCampusSummary()
+  }, [])
 
   // Format current date in Spanish
   const formattedDate = new Intl.DateTimeFormat('es-ES', {
@@ -280,7 +337,10 @@ export default function DashboardPage() {
                 variant="ghost"
                 size="sm"
                 className="h-6 px-2"
-                onClick={() => void refresh()}
+                onClick={() => {
+                  void refresh()
+                  void refreshCampusSummary()
+                }}
               >
                 <RefreshCw className="h-3 w-3" />
               </Button>
@@ -335,6 +395,53 @@ export default function DashboardPage() {
           )
         })}
       </div>
+
+      {/* Integración Campus Virtual */}
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2">
+              <GraduationCap className="h-5 w-5 text-primary" />
+              Campus Virtual Integrado
+            </CardTitle>
+            <CardDescription>
+              Estado operativo LMS y accesos directos desde el dashboard principal.
+            </CardDescription>
+          </div>
+          <Badge variant="outline">LMS</Badge>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground">Inscripciones LMS</p>
+              <p className="text-2xl font-bold">{lmsSummary.totalEnrollments}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground">Activas</p>
+              <p className="text-2xl font-bold">{lmsSummary.activeEnrollments}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground">Finalización</p>
+              <p className="text-2xl font-bold">{lmsSummary.completionRate}%</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground">Certificados</p>
+              <p className="text-2xl font-bold">{lmsSummary.certificatesIssued}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm">
+              <a href="/campus-virtual">Abrir módulo Campus</a>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <a href="/campus/login" target="_blank" rel="noreferrer">
+                Ir al Campus alumno
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
         {/* Próximas Convocatorias */}
