@@ -46,12 +46,6 @@ interface CampusDoc {
   updatedAt?: string;
 }
 
-/** Staff count API response */
-interface StaffCountResponse {
-  total?: number;
-  docs?: unknown[];
-}
-
 /** Recent activity item for dashboard */
 interface RecentActivity {
   type: string;
@@ -100,11 +94,13 @@ export async function GET(_request: NextRequest) {
      
     const payload = await getPayloadHMR({ config: configPromise });
 
-    // Fetch all data in parallel (excluding staff to avoid schema issues)
+    // Fetch all data in parallel
     const [
       coursesData,
       convocationsData,
       campusesData,
+      staffData,
+      teachersData,
     ] = await Promise.all([
       // Cursos
       payload.find({
@@ -121,26 +117,23 @@ export async function GET(_request: NextRequest) {
         collection: 'campuses',
         limit: 100,
       }),
+      payload.find({
+        collection: 'staff',
+        limit: 1,
+      }),
+      payload.find({
+        collection: 'staff',
+        where: {
+          staff_type: {
+            equals: 'profesor',
+          },
+        },
+        limit: 1,
+      }),
     ]);
 
-    // Fetch staff count using simpler approach (avoiding complex joins)
-    let totalStaff = 0;
-    let totalTeachers = 0;
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3002';
-      const staffCountResponse = await fetch(`${baseUrl}/api/staff?limit=1`);
-      if (staffCountResponse.ok) {
-        const staffCountData = (await staffCountResponse.json()) as StaffCountResponse;
-        totalStaff = staffCountData.total ?? 0;
-      }
-      const teachersCountResponse = await fetch(`${baseUrl}/api/staff?type=profesor&limit=1`);
-      if (teachersCountResponse.ok) {
-        const teachersCountData = (await teachersCountResponse.json()) as StaffCountResponse;
-        totalTeachers = teachersCountData.total ?? 0;
-      }
-    } catch (err: unknown) {
-      console.error('Error fetching staff counts:', err);
-    }
+    const totalStaff = staffData.totalDocs;
+    const totalTeachers = teachersData.totalDocs;
 
     // Calculate metrics
     const totalCourses = coursesData.totalDocs;

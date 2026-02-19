@@ -17,8 +17,13 @@ const initPayload = async (): Promise<Payload> => {
   return getPayload({ config });
 };
 
-// PostgreSQL connection - MUST use environment variable
-const sql = postgres(process.env.DATABASE_URI!);
+const dbConnectionString = process.env.DATABASE_URL ?? process.env.DATABASE_URI;
+if (!dbConnectionString) {
+  throw new Error('DATABASE_URL is required for /api/staff');
+}
+
+// PostgreSQL connection - support canonical DATABASE_URL first
+const sql = postgres(dbConnectionString);
 
 // ============================================================================
 // Type Definitions

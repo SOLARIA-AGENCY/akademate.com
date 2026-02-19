@@ -1,18 +1,34 @@
-export function isAuthenticated() {
+export async function isAuthenticated() {
     if (typeof window === 'undefined')
         return false;
-    // Check for user metadata (non-sensitive). The actual auth token is stored
-    // in an httpOnly cookie and validated server-side by the middleware.
-    return !!localStorage.getItem('cep_user');
+    try {
+        const response = await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store',
+        });
+        if (!response.ok)
+            return false;
+        const data = await response.json();
+        return Boolean(data.authenticated && data.user);
+    }
+    catch {
+        return false;
+    }
 }
-export function getUser() {
+export async function getUser() {
     if (typeof window === 'undefined')
         return null;
-    const userStr = localStorage.getItem('cep_user');
-    if (!userStr)
-        return null;
     try {
-        return JSON.parse(userStr);
+        const response = await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store',
+        });
+        if (!response.ok)
+            return null;
+        const data = await response.json();
+        return data.user ?? null;
     }
     catch {
         return null;
@@ -21,14 +37,17 @@ export function getUser() {
 export async function logout() {
     if (typeof window === 'undefined')
         return;
-    // Clear the httpOnly auth cookie via server-side endpoint
+    try {
+        await fetch('/api/auth/session', { method: 'DELETE', credentials: 'include' });
+    }
+    catch (error) {
+        console.error('Session logout failed:', error);
+    }
     try {
         await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     }
     catch (error) {
         console.error('Server logout failed:', error);
     }
-    // Clear non-sensitive user metadata from localStorage
-    localStorage.removeItem('cep_user');
 }
 //# sourceMappingURL=auth.js.map

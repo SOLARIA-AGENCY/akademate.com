@@ -96,6 +96,7 @@ export async function GET(
     const { userId } = params;
     const url = new URL(request.url);
     const format = url.searchParams.get('format') ?? 'json';
+    const warnings: Array<{ collection: string; error: string }> = [];
 
     if (!userId) {
       return NextResponse.json(

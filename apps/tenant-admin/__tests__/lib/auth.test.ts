@@ -1,63 +1,66 @@
-import { isAuthenticated, getUser, logout } from '@/lib/auth'
-
-// Mock fetch for server-side logout call
-global.fetch = jest.fn(() =>
-  Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true }) })
-) as jest.Mock
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { getUser, isAuthenticated, logout } from '@/lib/auth'
 
 describe('Auth Helpers', () => {
   beforeEach(() => {
-    localStorage.clear()
-    ;(global.fetch as jest.Mock).mockClear()
+    vi.restoreAllMocks()
   })
 
   describe('isAuthenticated', () => {
-    it('returns false when no user data exists', () => {
-      expect(isAuthenticated()).toBe(false)
+    it('returns false when session endpoint fails', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
+      await expect(isAuthenticated()).resolves.toBe(false)
     })
 
-    it('returns true when user metadata exists in localStorage', () => {
-      localStorage.setItem('cep_user', JSON.stringify({ id: 1, name: 'Test' }))
-      expect(isAuthenticated()).toBe(true)
+    it('returns true when authenticated session exists', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            authenticated: true,
+            user: { id: 1, name: 'Test User', email: 'test@test.com', role: 'admin' },
+          }),
+        }),
+      )
+      await expect(isAuthenticated()).resolves.toBe(true)
     })
   })
 
   describe('getUser', () => {
-    it('returns null when no user data exists', () => {
-      expect(getUser()).toBeNull()
+    it('returns null when no session exists', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
+      await expect(getUser()).resolves.toBeNull()
     })
 
-    it('returns user object when data exists', () => {
-      const mockUser = {
-        id: 1,
-        name: 'Test User',
-        email: 'test@test.com',
-        role: 'Admin'
-      }
-      localStorage.setItem('cep_user', JSON.stringify(mockUser))
-
-      expect(getUser()).toEqual(mockUser)
-    })
-
-    it('returns null when user data is invalid JSON', () => {
-      localStorage.setItem('cep_user', 'invalid json')
-      expect(getUser()).toBeNull()
+    it('returns user when session exists', async () => {
+      const user = { id: 1, name: 'Test User', email: 'test@test.com', role: 'admin' }
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ authenticated: true, user }),
+        }),
+      )
+      await expect(getUser()).resolves.toEqual(user)
     })
   })
 
   describe('logout', () => {
-    it('calls server logout endpoint and clears user metadata', async () => {
-      localStorage.setItem('cep_user', '{}')
+    it('calls both logout endpoints', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+      vi.stubGlobal('fetch', fetchMock)
 
       await logout()
 
-      // Should call server endpoint to clear httpOnly cookie
-      expect(global.fetch).toHaveBeenCalledWith(
-        '/api/auth/logout',
-        expect.objectContaining({ method: 'POST', credentials: 'include' })
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/auth/session',
+        expect.objectContaining({ method: 'DELETE', credentials: 'include' }),
       )
-      // Should clear user metadata from localStorage
-      expect(localStorage.getItem('cep_user')).toBeNull()
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/auth/logout',
+        expect.objectContaining({ method: 'POST', credentials: 'include' }),
+      )
     })
   })
 })

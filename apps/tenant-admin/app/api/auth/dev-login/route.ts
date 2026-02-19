@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getPayload, type Payload } from 'payload'
+import config from '@payload-config'
 
 export const dynamic = 'force-dynamic'
 
 const isDevLoginEnabled =
   process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true'
 
-const DEV_USER = {
-  id: 'dev-admin-cep',
-  email: 'admin@cep.es',
-  name: 'Admin CEP DEV',
-  role: 'admin',
-  tenantId: '1',
-}
+const DEV_CREDENTIAL_CANDIDATES = [
+  {
+    email: process.env.PAYLOAD_SUPERADMIN_EMAIL ?? 'superadmin@cepcomunicacion.com',
+    password: process.env.PAYLOAD_SUPERADMIN_PASSWORD ?? 'Dev12345!',
+  },
+  {
+    email: 'admin@cep.es',
+    password: 'Admin1234!',
+  },
+]
 
 function getSafePath(redirectPath: string): string {
   return redirectPath.startsWith('/') ? redirectPath : '/dashboard'
@@ -46,7 +51,43 @@ async function handleDevLogin(request: NextRequest) {
   }
 
   const redirectPath = await resolveRedirectPath(request)
-  const syntheticToken = `dev-bypass.${Date.now().toString(36)}`
+  const payload: Payload = await getPayload({ config })
+
+  let loginResult:
+    | {
+        user: Record<string, unknown>
+        token: string
+      }
+    | undefined
+
+  for (const candidate of DEV_CREDENTIAL_CANDIDATES) {
+    try {
+      const result = await payload.login({
+        collection: 'users',
+        data: {
+          email: candidate.email,
+          password: candidate.password,
+        },
+      })
+
+      if (result.user && result.token) {
+        loginResult = { user: result.user as unknown as Record<string, unknown>, token: result.token }
+        break
+      }
+    } catch {
+      // Try next candidate
+    }
+  }
+
+  if (!loginResult) {
+    return NextResponse.json(
+      {
+        error: 'Unable to create development session',
+        details: 'No valid dev credentials found for Payload users login.',
+      },
+      { status: 500 },
+    )
+  }
 
   const response = new NextResponse(null, {
     status: 302,
@@ -54,7 +95,7 @@ async function handleDevLogin(request: NextRequest) {
       location: getSafePath(redirectPath),
     },
   })
-  response.cookies.set('payload-token', syntheticToken, {
+  response.cookies.set('payload-token', loginResult.token, {
     httpOnly: true,
     secure: false,
     sameSite: 'lax',
@@ -62,22 +103,26 @@ async function handleDevLogin(request: NextRequest) {
     maxAge: 60 * 60 * 12,
   })
 
-  response.cookies.set('cep_session', JSON.stringify({
-    user: {
-      id: DEV_USER.id,
-      email: DEV_USER.email,
-      name: DEV_USER.name,
-      role: DEV_USER.role,
-      tenantId: DEV_USER.tenantId,
+  response.cookies.set(
+    'cep_session',
+    JSON.stringify({
+      user: {
+        id: String(loginResult.user.id ?? ''),
+        email: String(loginResult.user.email ?? ''),
+        name: String(loginResult.user.name ?? ''),
+        role: String(loginResult.user.role ?? ''),
+        tenantId: String(loginResult.user.tenant_id ?? loginResult.user.tenantId ?? '1'),
+      },
+      token: loginResult.token,
+    }),
+    {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 12,
     },
-    token: syntheticToken,
-  }), {
-    httpOnly: true,
-    secure: false,
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 12,
-  })
+  )
 
   return response
 }

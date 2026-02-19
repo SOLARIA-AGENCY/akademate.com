@@ -83,6 +83,7 @@ const ALLOWED_ORIGINS = [
 
 // Routes that don't require authentication
 const publicRoutes = [
+  '/api/health',
   '/api/auth/dev-login',
   '/auth/login',
   '/auth/forgot-password',

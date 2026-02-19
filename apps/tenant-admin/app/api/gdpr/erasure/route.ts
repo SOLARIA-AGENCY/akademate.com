@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json() as ErasureRequestBody;
         const { userId, confirmDeletion, reason } = body;
+        const warnings: Array<{ collection: string; error: string }> = [];
 
         if (!userId) {
             return NextResponse.json(
