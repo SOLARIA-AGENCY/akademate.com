@@ -19,12 +19,17 @@ function createSessionResponse(redirectPath: string) {
     token: `dev-ops-${Date.now()}`,
   }
 
-  const response = new NextResponse(null, {
-    status: 302,
-    headers: {
-      location: getSafePath(redirectPath),
-    },
-  })
+  const safePath = getSafePath(redirectPath)
+  const response = new NextResponse(
+    `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${safePath}"></head><body><script>window.location.replace(${JSON.stringify(safePath)})</script></body></html>`,
+    {
+      status: 200,
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'no-store, max-age=0',
+      },
+    }
+  )
 
   response.cookies.set('akademate_admin_session', JSON.stringify(sessionData), {
     httpOnly: true,

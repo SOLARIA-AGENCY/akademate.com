@@ -148,9 +148,7 @@ export default function PortalPage() {
               { label: 'email', value: 'admin@akademate.com' },
               { label: 'password', value: 'Admin1234!' },
             ]}
-            onOpen={() =>
-              openInNewTab(`${runtimeUrls.payload}/api/dev-seed?redirect=${encodeURIComponent('/admin')}`)
-            }
+            onOpen={() => openInNewTab(`${runtimeUrls.payload}/admin/login`)}
           />
         </section>
 
