@@ -2,6 +2,16 @@
 
 Backend CMS for lead management and marketing automation platform.
 
+## Frontend Design System disponible
+
+- La base visual completa está integrada en `vendor/academate-ui` (raíz del monorepo).
+- Referencia de integración: `docs/runbooks/frontend-design-integration.md`.
+- Actualización desde upstream:
+  ```bash
+  ./scripts/sync-academate-ui.sh
+  ```
+- Para nuevas pantallas en este proyecto, usar plantillas de `vendor/academate-ui/templates/*` y adaptar a reglas multitenant (`tenant_id`) y Tailwind v4 del monorepo.
+
 ## ⚠️ Critical Configuration
 
 ### TailwindCSS v4 Setup

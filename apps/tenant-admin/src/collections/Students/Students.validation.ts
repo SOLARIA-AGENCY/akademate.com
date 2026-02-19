@@ -36,6 +36,10 @@ export const phoneSchema = z.string().regex(
   'Phone must be in Spanish format: +34 XXX XXX XXX'
 );
 
+// Broad IPv4/IPv6 matcher compatible with Zod v3/v4 (avoids .ip() runtime method differences)
+const ipAddressRegex =
+  /^(?:(?:\d{1,3}\.){3}\d{1,3}|(?:[A-Fa-f0-9]{1,4}:){2,7}[A-Fa-f0-9]{1,4})$/;
+
 /**
  * Format Spanish phone number from various input formats
  *
@@ -340,7 +344,10 @@ export const StudentSchema = z.object({
 
   consent_timestamp: z.string().datetime().optional(),
 
-  consent_ip_address: z.union([z.ipv4(), z.ipv6()]).optional(),
+  consent_ip_address: z
+    .string()
+    .regex(ipAddressRegex, 'Invalid IP address format')
+    .optional(),
 
   // ============================================================================
   // AUDIT TRAIL

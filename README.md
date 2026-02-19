@@ -7,9 +7,23 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
 - ADRs: `docs/adr/` (pendiente)
 - Informe SaaS enterprise: `docs/INFORME_SAAS_MULTITENANT_ENTERPRISE.md`
 - **Auditoría Diciembre 2025:** `docs/AUDIT_REPORT_DIC2025.md` (7.0/10 - Producción-ready con remediación)
-- Runbooks: `docs/runbooks/` (pendiente)
+- Runbooks: `docs/runbooks/`
 - UI Kit de referencia: `https://github.com/SOLARIA-AGENCY/Academate-ui`
 - Referencia visual/funcional CEP: `https://github.com/SOLARIA-AGENCY/www.cepcomunicacion.com`
+- Integración frontend design system: `docs/runbooks/frontend-design-integration.md`
+
+## Sistema de diseño frontend (disponible)
+- Base completa integrada localmente en `vendor/academate-ui`.
+- Incluye: `home/`, `templates/`, `templates-baseui/`, documentación y assets del repositorio fuente.
+- Repositorio origen: `https://github.com/SOLARIA-AGENCY/Academate-ui`.
+- Sincronización con upstream:
+  ```bash
+  ./scripts/sync-academate-ui.sh
+  ```
+- Uso recomendado:
+  - Seleccionar plantilla en `vendor/academate-ui/templates/*`.
+  - Copiar componentes/páginas necesarias hacia cada app (`apps/*`).
+  - Alinear tokens y theming con `docs/specs/ACADEIMATE_SPEC.md` y reglas Tailwind v4 del repo.
 
 ## Estructura actual
 ```
@@ -26,6 +40,8 @@ SaaS multitenant para gestión integral de academias/escuelas. Dominio principal
 │  ├─ ui/              # shadcn/ui + tokens
 │  ├─ api-client/      # SDK multitenant
 │  └─ jobs/            # Procesadores BullMQ
+├─ vendor/
+│  └─ academate-ui/    # Base de diseño frontend completa (shadcn templates)
 ├─ infra/
 │  ├─ docker/          # Dockerfiles, compose
 │  ├─ terraform/ansible# Hetzner + LB

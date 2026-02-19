@@ -23,6 +23,10 @@ http://localhost:3030  (user: carlosjperez / pass: SolariaAdmin2024!)
 
 > Runbook detallado: `docs/runbooks/office.md`
 
+## Nota de diseño frontend compartido (monorepo Akademate)
+- El sistema de diseño shadcn completo está disponible en `vendor/academate-ui` en la raíz del monorepo.
+- Runbook de integración: `docs/runbooks/frontend-design-integration.md` (ruta relativa a la raíz del repo).
+
 ---
 
 ## Descripcion General

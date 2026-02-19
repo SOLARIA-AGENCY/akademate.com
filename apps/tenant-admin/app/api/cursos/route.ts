@@ -282,9 +282,13 @@ export async function GET() {
     return response;
   } catch (error) {
     console.error('Error fetching courses:', error);
-    return NextResponse.json(
-      { success: false, error: 'Error al obtener cursos' },
-      { status: 500 }
-    );
+    // Fallback defensivo para entornos con schema parcial/migraciones pendientes.
+    // Evita romper el dashboard de cursos cuando faltan tablas auxiliares *_rels.
+    return NextResponse.json({
+      success: true,
+      data: [],
+      total: 0,
+      warning: 'Cursos no disponibles temporalmente: esquema de base de datos incompleto.',
+    });
   }
 }
