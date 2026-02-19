@@ -91,17 +91,25 @@ export async function GET(request: NextRequest) {
     const enrollmentsWithProgress = await Promise.all(
       enrollments.docs.map(async (enrollment) => {
         const enrollmentRecord = enrollment as unknown as EnrollmentDocument;
-        // Get progress for this enrollment
-        const progress = await payload.find({
-          collection: 'lesson-progress' as 'users',
-          where: { enrollment: { equals: enrollmentRecord.id } },
-          limit: 500,
-        });
-
-        const completed = progress.docs.filter(
-          (p) => (p as unknown as LessonProgressDocument).status === 'completed'
-        ).length;
-        const total = progress.totalDocs;
+        // lesson-progress may be unavailable in partially migrated environments.
+        let completed = 0;
+        let total = 0;
+        try {
+          const progress = await payload.find({
+            collection: 'lesson-progress' as 'users',
+            where: { enrollment: { equals: enrollmentRecord.id } },
+            limit: 500,
+          });
+          completed = progress.docs.filter(
+            (p) => (p as unknown as LessonProgressDocument).status === 'completed'
+          ).length;
+          total = progress.totalDocs;
+        } catch (progressError) {
+          console.warn(
+            '[LMS Enrollments] lesson-progress unavailable, returning zero progress',
+            progressError
+          );
+        }
 
         return {
           id: enrollmentRecord.id,
