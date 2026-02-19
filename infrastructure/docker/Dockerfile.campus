@@ -20,7 +20,7 @@ COPY --from=deps /app/apps/campus/node_modules ./apps/campus/node_modules
 COPY --from=deps /app/packages ./packages
 COPY apps/campus ./apps/campus
 COPY packages ./packages
-COPY tsconfig.base.json ./
+COPY tsconfig.base.json postcss.config.cjs tailwind.config.js ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app/apps/campus
