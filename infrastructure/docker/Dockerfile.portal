@@ -1,0 +1,44 @@
+# Akademate.com - Portal Dockerfile
+# Unified dev launchpad
+
+FROM node:22-alpine AS base
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/portal/package.json ./apps/portal/
+COPY packages/ui/package.json ./packages/ui/
+RUN pnpm install --frozen-lockfile --filter @akademate/portal...
+
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/portal/node_modules ./apps/portal/node_modules
+COPY --from=deps /app/packages ./packages
+COPY apps/portal ./apps/portal
+COPY packages ./packages
+COPY tsconfig.base.json ./
+
+ENV NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app/apps/portal
+RUN pnpm build
+
+FROM base AS runner
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/apps/portal ./apps/portal
+COPY --from=builder /app/packages ./packages
+
+USER nextjs
+EXPOSE 3008
+ENV PORT=3008
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["pnpm", "--dir", "/app/apps/portal", "start"]
