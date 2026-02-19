@@ -13,9 +13,8 @@ const DEV_USER = {
   name: 'Admin CEP DEV',
 }
 
-function buildRedirectUrl(request: NextRequest, redirectPath: string): URL {
-  const safePath = redirectPath.startsWith('/') ? redirectPath : '/dashboard'
-  return new URL(safePath, request.url)
+function getSafePath(redirectPath: string): string {
+  return redirectPath.startsWith('/') ? redirectPath : '/dashboard'
 }
 
 async function resolveRedirectPath(request: NextRequest): Promise<string> {
@@ -98,7 +97,12 @@ async function handleDevLogin(request: NextRequest) {
     name?: string
   }
 
-  const response = NextResponse.redirect(buildRedirectUrl(request, redirectPath), 302)
+  const response = new NextResponse(null, {
+    status: 302,
+    headers: {
+      location: getSafePath(redirectPath),
+    },
+  })
   response.cookies.set('payload-token', loginResult.token, {
     httpOnly: true,
     secure: false,

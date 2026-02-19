@@ -13,13 +13,17 @@ function resolveRedirect(request: NextRequest): string {
   return '/dashboard'
 }
 
-function buildRedirectUrl(request: NextRequest, redirectPath: string): URL {
-  const safePath = redirectPath.startsWith('/') ? redirectPath : '/dashboard'
-  return new URL(safePath, request.url)
+function getSafePath(redirectPath: string): string {
+  return redirectPath.startsWith('/') ? redirectPath : '/dashboard'
 }
 
-function createResponse(request: NextRequest, redirectPath: string) {
-  const response = NextResponse.redirect(buildRedirectUrl(request, redirectPath), 302)
+function createResponse(redirectPath: string) {
+  const response = new NextResponse(null, {
+    status: 302,
+    headers: {
+      location: getSafePath(redirectPath),
+    },
+  })
   response.cookies.set(
     'akademate_campus_session',
     JSON.stringify({
@@ -47,7 +51,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Dev login is disabled' }, { status: 403 })
   }
   const redirectPath = resolveRedirect(request)
-  return createResponse(request, redirectPath)
+  return createResponse(redirectPath)
 }
 
 export async function POST(request: NextRequest) {
@@ -66,5 +70,5 @@ export async function POST(request: NextRequest) {
     redirectPath = '/dashboard'
   }
 
-  return createResponse(request, redirectPath)
+  return createResponse(redirectPath)
 }

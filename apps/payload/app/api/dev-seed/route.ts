@@ -37,7 +37,12 @@ export async function GET(request: NextRequest) {
   const redirectPath = request.nextUrl.searchParams.get('redirect')
   if (redirectPath) {
     const safePath = redirectPath.startsWith('/') ? redirectPath : '/admin'
-    return NextResponse.redirect(new URL(safePath, request.url), 302)
+    return new NextResponse(null, {
+      status: 302,
+      headers: {
+        location: safePath,
+      },
+    })
   }
 
   return NextResponse.json({

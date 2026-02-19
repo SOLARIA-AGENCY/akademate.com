@@ -5,12 +5,11 @@ export const dynamic = 'force-dynamic'
 const isDevLoginEnabled =
   process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== 'false'
 
-function buildRedirectUrl(request: NextRequest, redirectPath: string): URL {
-  const safePath = redirectPath.startsWith('/') ? redirectPath : '/dashboard'
-  return new URL(safePath, request.url)
+function getSafePath(redirectPath: string): string {
+  return redirectPath.startsWith('/') ? redirectPath : '/dashboard'
 }
 
-function createSessionResponse(request: NextRequest, redirectPath: string) {
+function createSessionResponse(redirectPath: string) {
   const sessionData = {
     id: 'dev-ops-superadmin',
     email: 'ops@akademate.com',
@@ -20,7 +19,12 @@ function createSessionResponse(request: NextRequest, redirectPath: string) {
     token: `dev-ops-${Date.now()}`,
   }
 
-  const response = NextResponse.redirect(buildRedirectUrl(request, redirectPath), 302)
+  const response = new NextResponse(null, {
+    status: 302,
+    headers: {
+      location: getSafePath(redirectPath),
+    },
+  })
 
   response.cookies.set('akademate_admin_session', JSON.stringify(sessionData), {
     httpOnly: true,
@@ -55,7 +59,7 @@ export async function POST(request: NextRequest) {
     redirectPath = '/dashboard'
   }
 
-  return createSessionResponse(request, redirectPath)
+  return createSessionResponse(redirectPath)
 }
 
 export async function GET(request: NextRequest) {
@@ -64,5 +68,5 @@ export async function GET(request: NextRequest) {
   }
 
   const redirectPath = request.nextUrl.searchParams.get('redirect') ?? '/dashboard'
-  return createSessionResponse(request, redirectPath)
+  return createSessionResponse(redirectPath)
 }
