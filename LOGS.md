@@ -455,3 +455,7 @@
 ## Iteración 50D (20-02-2026)
 - Acción: Endurecí `/api/staff` para degradar con `503` cuando falta `DATABASE_URL` (sin crash de módulo) y ejecuté gate de typecheck.
 - Resultado: `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false` en verde.
+
+## Iteración 50E (20-02-2026)
+- Acción: Desplegué hotfix en NEMESIS vía `tar+scp` y rebuild de servicio `tenant` (`docker compose build tenant && docker compose up -d tenant nginx`).
+- Resultado: smoke remoto autenticado OK -> `/dashboard` (200), `/administracion` (307 -> `/administracion/usuarios`), `/marketing/campanas` (307 -> `/campanas`), `/api/leads` (200 con sesión).
