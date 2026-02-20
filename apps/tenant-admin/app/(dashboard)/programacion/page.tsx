@@ -181,7 +181,7 @@ export default function ProgramacionPage() {
       case 'abierta':
         return <Badge className="bg-green-500 text-white">Abierta</Badge>
       case 'en_curso':
-        return <Badge className="bg-[#ff2014] text-white">En Curso</Badge>
+        return <Badge className="bg-primary text-white">En Curso</Badge>
       case 'completada':
         return <Badge variant="outline" className="bg-gray-100 text-gray-600">Completada</Badge>
       case 'cancelada':
@@ -217,7 +217,7 @@ export default function ProgramacionPage() {
         icon={Calendar}
         actions={(
           <Button
-            className="bg-[#ff2014] hover:bg-[#ff2014]/90"
+            className="bg-primary hover:bg-primary/90"
             onClick={handleNuevaConvocatoria}
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -230,8 +230,8 @@ export default function ProgramacionPage() {
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-[#ff2014]/10 rounded-lg">
-              <Calendar className="h-6 w-6 text-[#ff2014]" />
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <Calendar className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Convocatorias</p>
@@ -359,7 +359,7 @@ export default function ProgramacionPage() {
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <BookOpen className="h-5 w-5 text-[#ff2014]" />
+                      <BookOpen className="h-5 w-5 text-primary" />
                       <h3 className="text-xl font-bold">{convocatoria.curso}</h3>
                       {convocatoria.tiene_conflictos && (
                         <AlertTriangle className="h-5 w-5 text-orange-500" />
@@ -435,7 +435,7 @@ export default function ProgramacionPage() {
                     <div
                       className={`h-full transition-all ${
                         ocupacionPercentage >= 90
-                          ? 'bg-[#ff2014]'
+                          ? 'bg-primary'
                           : ocupacionPercentage >= 70
                             ? 'bg-orange-500'
                             : 'bg-green-500'

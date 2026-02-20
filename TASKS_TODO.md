@@ -140,7 +140,7 @@
 ## 19) Ralph Loop 2026-02-20 (Design System Image-Driven Rollout)
 - [x] Iteración 1: baseline visual automático + informe de hallazgos (`docs/audits/tenant-visual-baseline-2026-02-20.md`).
 - [x] Iteración 2: alinear shell global a grid spec (topbar 80, sidebar 240/80, spacing lateral).
-- [ ] Iteración 3: reemplazo de hardcodes de color/sombra por tokens (objetivo -60%).
+- [x] Iteración 3: reemplazo inicial de hardcodes de color por tokens en módulos críticos (`ciclos*`, `programacion`, `planner`, `sedes*`) + mejoras de hover/activo sidebar colapsado.
 - [ ] Iteración 4: normalización de jerarquía tipográfica de cards (24/16/14/16).
 - [ ] Iteración 5: integración de patrones pricing/budget/stepper en módulos funcionales.
 - [ ] Iteración 6: QA transversal visual + contraste + estados.

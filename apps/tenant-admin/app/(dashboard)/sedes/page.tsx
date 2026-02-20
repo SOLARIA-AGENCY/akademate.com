@@ -57,8 +57,8 @@ const mockSedesData: Sede[] = [
     capacidad: 180,
     cursosActivos: 15,
     profesores: 12,
-    color: 'bg-[#ff2014]',
-    borderColor: 'border-[#ff2014]',
+    color: 'bg-primary',
+    borderColor: 'border-primary',
     imagen: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=400&fit=crop',
   },
   {
@@ -72,8 +72,8 @@ const mockSedesData: Sede[] = [
     capacidad: 140,
     cursosActivos: 12,
     profesores: 10,
-    color: 'bg-[#ff2014]',
-    borderColor: 'border-[#ff2014]',
+    color: 'bg-primary',
+    borderColor: 'border-primary',
     imagen: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&h=400&fit=crop',
   },
   {
@@ -87,8 +87,8 @@ const mockSedesData: Sede[] = [
     capacidad: 120,
     cursosActivos: 10,
     profesores: 8,
-    color: 'bg-[#ff2014]',
-    borderColor: 'border-[#ff2014]',
+    color: 'bg-primary',
+    borderColor: 'border-primary',
     imagen: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&h=400&fit=crop',
   },
 ]
@@ -126,8 +126,8 @@ export default function SedesPage() {
             capacidad: 0,
             cursosActivos: 0,
             profesores: Array.isArray(campus.staff_members) ? campus.staff_members.length : 0,
-            color: 'bg-[#ff2014]',
-            borderColor: 'border-[#ff2014]',
+            color: 'bg-primary',
+            borderColor: 'border-primary',
             imagen:
               'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&h=400&fit=crop',
           }

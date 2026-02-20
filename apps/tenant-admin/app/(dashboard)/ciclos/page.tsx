@@ -466,8 +466,8 @@ export default function TodosLosCiclosPage() {
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <Card className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-[#ff2014]/10 rounded-lg">
-              <GraduationCap className="h-6 w-6 text-[#ff2014]" />
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <GraduationCap className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Ciclos</p>
@@ -613,7 +613,7 @@ export default function TodosLosCiclosPage() {
             return (
               <Card
                 key={ciclo.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#ff2014]"
+                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-2 border-primary"
                 onClick={() => handleViewCiclo(ciclo)}
               >
                 <div className="relative h-48 overflow-hidden">
@@ -677,7 +677,7 @@ export default function TodosLosCiclosPage() {
                       <div
                         className={`h-full transition-all ${
                           ocupacionPercentage >= 90
-                            ? 'bg-[#ff2014]'
+                            ? 'bg-primary'
                             : ocupacionPercentage >= 70
                               ? 'bg-orange-500'
                               : 'bg-green-500'
@@ -687,7 +687,7 @@ export default function TodosLosCiclosPage() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-[#ff2014] hover:bg-[#ff2014]/90">
+                  <Button className="w-full bg-primary hover:bg-primary/90">
                     Ver Detalles del Ciclo
                   </Button>
                 </div>

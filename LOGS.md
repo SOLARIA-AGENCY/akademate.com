@@ -578,3 +578,8 @@
 - Accion: Ejecuté Iteración 2 del plan y alineé shell global al spec de grid/estructura.
 - Cambios: `layout.tsx` actualizado a sidebar `240/80` y topbar `h-20` (80px); `AppSidebar.tsx` header normalizado a `h-11` (44px) y padding ajustado.
 - Validacion: `pnpm --filter tenant-admin typecheck` PASS.
+
+## Iteracion 73 (20-02-2026)
+- Accion: Ejecuté Iteración 3 del plan con tokenización de color en módulos de alta visibilidad (`ciclos`, `ciclos-medio`, `ciclos-superior`, `programacion`, `planner`, `sedes`, `sedes/[id]`) reemplazando clases hardcodeadas `#ff2014` por tokens (`bg-primary`, `text-primary`, `border-primary`).
+- Accion: Ajusté sidebar para modo colapsado con estados `hover` y `active` más visibles (`hover:bg-sidebar-accent`, anillo de activo en collapsed, focus ring accesible).
+- Validacion: `pnpm --filter tenant-admin typecheck` PASS.

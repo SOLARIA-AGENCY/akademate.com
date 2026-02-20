@@ -350,7 +350,7 @@ function PlannerVisualPageContent() {
                 variant={vistaActual === 'aulas' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setVistaActual('aulas')}
-                className={vistaActual === 'aulas' ? 'bg-[#ff2014] hover:bg-[#ff2014]/90' : ''}
+                className={vistaActual === 'aulas' ? 'bg-primary hover:bg-primary/90' : ''}
               >
                 <LayoutGrid className="h-4 w-4 mr-2" />
                 Aulas
@@ -408,7 +408,7 @@ function PlannerVisualPageContent() {
             </h3>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-[#ff2014] rounded"></div>
+                <div className="w-4 h-4 bg-primary rounded"></div>
                 <span className="text-sm">En Curso</span>
               </div>
               <div className="flex items-center gap-2">

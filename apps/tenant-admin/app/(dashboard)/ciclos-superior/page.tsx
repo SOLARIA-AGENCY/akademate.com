@@ -479,7 +479,7 @@ export default function CiclosSuperiorPage() {
           return (
             <Card
               key={ciclo.id}
-              className="cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden border-2 border-[#ff2014]"
+              className="cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden border-2 border-primary"
               onClick={() => handleViewCiclo(ciclo.id)}
             >
               {/* Imagen del ciclo */}
@@ -490,7 +490,7 @@ export default function CiclosSuperiorPage() {
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute top-3 right-3">
-                  <Badge className="bg-[#ff2014] hover:bg-[#ff2014]/90 text-white text-xs font-bold uppercase tracking-wide shadow-md">
+                  <Badge className="bg-primary hover:bg-primary/90 text-white text-xs font-bold uppercase tracking-wide shadow-md">
                     {ciclo.nivel}
                   </Badge>
                 </div>
@@ -544,7 +544,7 @@ export default function CiclosSuperiorPage() {
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
                     <div
-                      className="bg-[#ff2014] h-full transition-all duration-300"
+                      className="bg-primary h-full transition-all duration-300"
                       style={{ width: `${ocupacionPorcentaje}%` }}
                     />
                   </div>
@@ -553,7 +553,7 @@ export default function CiclosSuperiorPage() {
 
                 {/* CTA Button */}
                 <Button
-                  className="w-full bg-[#ff2014] hover:bg-[#ff2014]/90 text-white font-bold uppercase tracking-wide shadow-md transition-all duration-300 mt-auto"
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-wide shadow-md transition-all duration-300 mt-auto"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation()
                     handleViewCiclo(ciclo.id)

@@ -350,7 +350,8 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     ? 'mx-auto h-10 w-10 justify-center px-0'
     : 'w-full gap-3 px-3'
 
-  const topLevelInteractionClass = 'transition-all duration-200 ease-in-out hover:bg-primary/10 hover:text-foreground hover:shadow-sm'
+  const topLevelInteractionClass =
+    'transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/40'
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-card text-sidebar-foreground">
@@ -419,14 +420,16 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                       href={item.url!}
                       className={`group relative flex items-center rounded-md py-2 text-sm border border-transparent ${topLevelInteractionClass} ${
                         isActive
-                          ? 'bg-primary/12 text-foreground border-primary/30 shadow-sm'
+                          ? `bg-sidebar-accent text-sidebar-accent-foreground border-sidebar-border shadow-sm ${
+                              isCollapsed ? 'ring-1 ring-primary/30' : ''
+                            }`
                           : ''
                       } ${topLevelBaseClass}`}
                       title={isCollapsed ? item.title : undefined}
                     >
                       <span
                         className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
-                          isCollapsed ? 'opacity-0' : isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                          isActive ? 'opacity-100' : isCollapsed ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
                         }`}
                       />
                       <Icon
@@ -454,7 +457,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                   <button
                     onClick={() => toggleSection(item.title)}
                     className={`group relative flex items-center rounded-md py-2 text-sm border border-transparent ${topLevelInteractionClass} ${
-                      isOpen && !isCollapsed ? 'bg-primary/10 border-primary/20' : ''
+                      isOpen && !isCollapsed ? 'bg-sidebar-accent border-sidebar-border' : ''
                     } ${topLevelBaseClass}`}
                     title={isCollapsed ? item.title : undefined}
                   >
