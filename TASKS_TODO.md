@@ -127,3 +127,4 @@
 - [x] Ejecutar unificación visual según tokens (Ops/Payload reference style).
 - [x] Unificar login de Campus al patrón visual Ops/Payload (card + CTA gradiente + layout responsivo).
 - [x] Auditoría visual final con evidencia y veredicto GO/NO-GO.
+- [x] Cerrar deuda `typecheck` de `admin-client` (presign aws smithy + tipado sidebar asChild/ref).

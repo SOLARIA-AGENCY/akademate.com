@@ -9,6 +9,12 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3Client, UPLOAD_BUCKET, generateUniqueFilename, validateFile, MAX_FILE_SIZE } from '@/lib/s3';
 
+const getSignedUrlCompat = (
+  client: unknown,
+  command: unknown,
+  options: { expiresIn: number }
+) => (getSignedUrl as unknown as (c: unknown, cmd: unknown, opts: { expiresIn: number }) => Promise<string>)(client, command, options)
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -68,7 +74,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const url = await getSignedUrl(s3Client, command, { expiresIn: 60 * 5 });
+    const url = await getSignedUrlCompat(s3Client, command, { expiresIn: 60 * 5 });
 
     return NextResponse.json({
       success: true,

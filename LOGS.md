@@ -324,6 +324,15 @@
   - Dev-login endpoints `:3004/:3009/:3005` => OK (200/302 con cookie).
 - Resultado: PARTIAL PASS (sin P0; queda micro-ajuste de spacing del portal en viewport bajo).
 
+## Iteracion 92 (20-02-2026)
+- Accion: Cerré deuda de `typecheck` en `admin-client`.
+- Cambios:
+  - `apps/admin-client/app/api/upload/presign/route.ts`: wrapper de compatibilidad para `getSignedUrl` evitando colisión de tipos `@smithy`.
+  - `apps/admin-client/components/ui/sidebar.tsx`: corrección de tipos en componentes con `asChild` usando `ComponentPropsWithoutRef` + limpieza import no usado.
+- Validacion:
+  - `pnpm --filter @akademate/admin-client exec tsc --noEmit --pretty false` => PASS.
+- Resultado: PASS (admin-client sin errores TS en gate local).
+
 ## Iteracion 65 (19-02-2026)
 - Accion: Inicie Ralph Loop 2026-02 post-auditoria, defini plan de estabilizacion y backlog atomico.
 - Resultado: IMPLEMENTATION_PLAN.md y TASKS_TODO.md actualizados con bloque de estabilizacion.
