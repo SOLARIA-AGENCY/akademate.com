@@ -32,7 +32,13 @@ interface ConvocatoriaApiResponse {
   id: string | number
   cursoNombre?: string
   cursoTipo?: string
-  profesor?: string
+  profesor?:
+    | string
+    | {
+        full_name?: string | null
+        first_name?: string | null
+        last_name?: string | null
+      }
   campusNombre?: string
   modalidad?: string
   horario?: string
@@ -45,6 +51,28 @@ interface ConvocatoriaApiResponse {
 
 interface ConvocatoriasApiPayload {
   data?: ConvocatoriaApiResponse[]
+}
+
+function formatProfessorName(profesor: ConvocatoriaApiResponse['profesor']): string {
+  if (typeof profesor === 'string') {
+    return profesor
+  }
+
+  if (profesor && typeof profesor === 'object') {
+    const fullName = profesor.full_name?.trim()
+    if (fullName) {
+      return fullName
+    }
+
+    const firstName = profesor.first_name?.trim() ?? ''
+    const lastName = profesor.last_name?.trim() ?? ''
+    const combined = `${firstName} ${lastName}`.trim()
+    if (combined) {
+      return combined
+    }
+  }
+
+  return 'Sin asignar'
 }
 
 interface Convocatoria {
@@ -95,7 +123,7 @@ export default function ProgramacionPage() {
           id: String(conv.id),
           curso: conv.cursoNombre ?? 'Curso',
           codigo_curso: conv.cursoTipo ?? '—',
-          profesor_principal: conv.profesor ?? 'Sin asignar',
+          profesor_principal: formatProfessorName(conv.profesor),
           sede: conv.campusNombre ?? 'Sin sede',
           aula: conv.modalidad ?? 'Sin aula',
           horario_resumen: conv.horario ?? '—',

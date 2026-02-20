@@ -133,8 +133,8 @@ function getSecurityHeaders(): Record<string, string> {
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https: blob:",
-      "font-src 'self' data:",
-      "connect-src 'self' https://api.stripe.com wss:",
+      "font-src 'self' data: https:",
+      "connect-src 'self' https://api.stripe.com ws: wss:",
       "frame-ancestors 'none'",
     ].join('; '),
     // Strict Transport Security (HTTPS)

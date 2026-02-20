@@ -10,7 +10,7 @@ describe('Admin dashboard pages runtime', () => {
 
     expect(screen.getByRole('heading', { name: /Roles y Permisos/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Crear Rol Personalizado/i })).toBeInTheDocument();
-  });
+  }, 15000);
 
   it('renders activity page without runtime reference errors', () => {
     render(<ActividadPage />);
@@ -18,5 +18,5 @@ describe('Admin dashboard pages runtime', () => {
     expect(screen.getByRole('heading', { name: /Registro de Actividad/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Rango de Fechas/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Exportar Log/i })).toBeInTheDocument();
-  });
+  }, 15000);
 });

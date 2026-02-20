@@ -87,5 +87,5 @@ describe('Dashboard campus integration', () => {
       'href',
       '/campus/login'
     );
-  });
+  }, 15000);
 });

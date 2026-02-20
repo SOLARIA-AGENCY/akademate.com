@@ -46,6 +46,12 @@ interface PopulatedCourseRun extends Omit<CourseRun, 'course' | 'campus'> {
   modality?: string | null;
 }
 
+interface StaffLike {
+  full_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+}
+
 /** Data structure for course-run creation */
 interface CourseRunCreateData {
   course: number;
@@ -83,6 +89,29 @@ function getErrorMessage(error: unknown): string {
     return error.message;
   }
   return 'Error al crear convocatoria';
+}
+
+function normalizeInstructorName(instructor: unknown): string {
+  if (typeof instructor === 'string') {
+    return instructor;
+  }
+
+  if (instructor && typeof instructor === 'object') {
+    const staff = instructor as StaffLike;
+    const fullName = staff.full_name?.trim();
+    if (fullName) {
+      return fullName;
+    }
+
+    const firstName = staff.first_name?.trim() ?? '';
+    const lastName = staff.last_name?.trim() ?? '';
+    const combined = `${firstName} ${lastName}`.trim();
+    if (combined) {
+      return combined;
+    }
+  }
+
+  return 'Sin asignar';
 }
 
 // ============================================================================
@@ -249,7 +278,7 @@ export async function GET(request: NextRequest) {
         plazasTotales: conv.max_students,
         plazasOcupadas: conv.current_enrollments,
         precio: conv.price_override ?? 0,
-        profesor: conv.instructor,
+        profesor: normalizeInstructorName(conv.instructor),
         modalidad: conv.modality ?? 'presencial',
       })),
       total: convocations.totalDocs,
