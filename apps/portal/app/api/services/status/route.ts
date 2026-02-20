@@ -22,37 +22,75 @@ const serviceUrls: Record<ServiceKey, string> = {
   campus: process.env.INTERNAL_CAMPUS_URL ?? 'http://campus:3005',
 }
 
-const services: Array<{ key: ServiceKey; label: string; url: string }> = [
+const services: Array<{ key: ServiceKey; label: string; url: string; fallbackUrl?: string }> = [
   { key: 'web', label: 'web', url: serviceUrls.web },
-  { key: 'ops', label: 'ops', url: serviceUrls.ops },
-  { key: 'tenant', label: 'tenant', url: serviceUrls.tenant },
+  { key: 'ops', label: 'ops', url: `${serviceUrls.ops}/api/health`, fallbackUrl: serviceUrls.ops },
+  { key: 'tenant', label: 'tenant', url: `${serviceUrls.tenant}/api/health` },
   { key: 'payload', label: 'payload', url: `${serviceUrls.payload}/api/health` },
-  { key: 'campus', label: 'campus', url: serviceUrls.campus },
+  { key: 'campus', label: 'campus', url: `${serviceUrls.campus}/api/health`, fallbackUrl: serviceUrls.campus },
 ]
 
-async function checkService(
-  service: { key: ServiceKey; label: string; url: string }
-): Promise<ServiceStatus> {
+async function probe(url: string): Promise<{ ok: boolean; latencyMs: number | null; state: ServiceState }> {
   const startedAt = Date.now()
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
-    const response = await fetch(service.url, {
+    const response = await fetch(url, {
       method: 'GET',
       cache: 'no-store',
       signal: controller.signal,
     })
     clearTimeout(timer)
     const latencyMs = Date.now() - startedAt
-    if (!response.ok) {
-      return { ...service, state: 'offline', latencyMs }
+
+    if (!response.ok) return { ok: false, latencyMs, state: 'offline' }
+
+    return {
+      ok: true,
+      latencyMs,
+      state: latencyMs > degradedThresholdMs ? 'degraded' : 'online',
     }
-    const state: ServiceState = latencyMs > degradedThresholdMs ? 'degraded' : 'online'
-    return { ...service, state, latencyMs }
   } catch {
     clearTimeout(timer)
-    return { ...service, state: 'offline', latencyMs: null }
+    return { ok: false, latencyMs: null, state: 'offline' }
+  }
+}
+
+async function checkService(
+  service: { key: ServiceKey; label: string; url: string; fallbackUrl?: string }
+): Promise<ServiceStatus> {
+  const primaryResult = await probe(service.url)
+
+  if (primaryResult.ok) {
+    return {
+      key: service.key,
+      label: service.label,
+      url: service.url,
+      state: primaryResult.state,
+      latencyMs: primaryResult.latencyMs,
+    }
+  }
+
+  if (service.fallbackUrl) {
+    const fallbackResult = await probe(service.fallbackUrl)
+    if (fallbackResult.ok) {
+      return {
+        key: service.key,
+        label: service.label,
+        url: service.fallbackUrl,
+        state: fallbackResult.state,
+        latencyMs: fallbackResult.latencyMs,
+      }
+    }
+  }
+
+  return {
+    key: service.key,
+    label: service.label,
+    url: service.url,
+    state: 'offline',
+    latencyMs: primaryResult.latencyMs,
   }
 }
 

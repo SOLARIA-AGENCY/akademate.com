@@ -99,6 +99,19 @@ deploy_services() {
     log_success "Deployment completed"
 }
 
+refresh_proxy() {
+    local service=$1
+
+    # Nginx resolves upstream hostnames at startup.
+    # After app containers are recreated, restart nginx to refresh upstream IPs.
+    if [ "$service" == "all" ] || [ "$service" == "web" ] || [ "$service" == "admin" ] || [ "$service" == "tenant" ] || [ "$service" == "payload" ] || [ "$service" == "campus" ]; then
+        log_info "Refreshing nginx upstream DNS (restart nginx container)..."
+        cd "$DOCKER_DIR"
+        docker compose restart nginx
+        log_success "Nginx refreshed"
+    fi
+}
+
 run_migrations() {
     log_info "Running database migrations..."
     # Primary path: root script if available inside container context
@@ -217,6 +230,22 @@ health_check() {
     log_success "All health checks passed"
 }
 
+warmup_endpoints() {
+    log_info "Warming critical endpoints..."
+
+    # Warm login routes so first real user request does not pay cold-compile penalty.
+    http_check "http://localhost:${ADMIN_PORT:-3004}/login" || true
+    http_check "http://localhost:${TENANT_PORT:-3009}/auth/login" || true
+    http_check "http://localhost:${PORTAL_PORT:-3008}" || true
+
+    if command -v curl &> /dev/null; then
+        curl -s -o /dev/null -X POST "http://localhost:${ADMIN_PORT:-3004}/api/auth/dev-login" || true
+        curl -s -o /dev/null -X POST "http://localhost:${TENANT_PORT:-3009}/api/auth/dev-login" || true
+    fi
+
+    log_success "Warmup completed"
+}
+
 show_status() {
     log_info "Service Status:"
     cd "$DOCKER_DIR"
@@ -260,6 +289,7 @@ main() {
 
     build_services "$service"
     deploy_services "$service"
+    refresh_proxy "$service"
 
     if [ "$service" == "all" ] || [ "$service" == "payload" ]; then
         sleep 10  # Wait for services to start
@@ -267,6 +297,7 @@ main() {
     fi
 
     health_check
+    warmup_endpoints
     show_status
 
     echo ""
