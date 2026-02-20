@@ -38,23 +38,6 @@ interface ApiResponse {
   error?: string
 }
 
-interface GlobalStats {
-  total: number
-  privados: number
-  ocupados: number
-  desempleados: number
-  teleformacion: number
-}
-
-interface FilteredStats {
-  total: number
-  convocatorias: number
-  alumnos: number
-  plazasDisponibles: number
-}
-
-type CursosStats = GlobalStats | FilteredStats
-
 // Main component that uses useSearchParams
 function CursosPageContent() {
   const router = useRouter()
@@ -71,7 +54,6 @@ function CursosPageContent() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState(tipo ?? 'all')
   const [filterArea, setFilterArea] = useState('all')
-  const [filterSede, setFilterSede] = useState('all')
 
   // State para cursos y carga
   const [cursos, setCursos] = useState<PlantillaCurso[]>([])
@@ -147,30 +129,6 @@ function CursosPageContent() {
     void fetchCursosWithRetry()
   }, [])
 
-  // Calcular estadísticas según el contexto (tipo de curso seleccionado)
-  const cursosStats: CursosStats = (() => {
-    if (!tipo || tipo === 'all') {
-      // Vista global: todos los cursos
-      return {
-        total: cursos.length,
-        privados: cursos.filter((c) => c.tipo === 'privados').length,
-        ocupados: cursos.filter((c) => c.tipo === 'ocupados').length,
-        desempleados: cursos.filter((c) => c.tipo === 'desempleados').length,
-        teleformacion: cursos.filter((c) => c.tipo === 'teleformacion').length,
-      } satisfies GlobalStats
-    } else {
-      // Vistas específicas: TODAS muestran los mismos 4 campos
-      // Total Cursos | Convocatorias | Alumnos | Plazas Disponibles
-      const cursosFiltrados = cursos.filter((c) => c.tipo === tipo)
-      return {
-        total: cursosFiltrados.length,
-        convocatorias: 0, // TODO: Fetch from /api/convocatorias
-        alumnos: 0, // TODO: Count from enrollments
-        plazasDisponibles: 0, // TODO: Calculate from convocations (max_students - current_enrollments)
-      } satisfies FilteredStats
-    }
-  })()
-
   const handleAdd = () => {
     // Redirigir a la página de creación de curso
     router.push('/cursos/nuevo')
@@ -233,14 +191,11 @@ function CursosPageContent() {
     <div className="space-y-6 bg-muted/30 p-6 rounded-lg">
       <PageHeader
         title={config?.title ?? 'Catálogo de Cursos'}
-        description={
-          config?.description ??
-          `${filteredCourses.length} cursos de ${cursos.length} totales`
-        }
+        description={config?.description ?? 'Gestiona y organiza tu oferta formativa.'}
         icon={Icon}
         iconBgColor={config?.bgColor ?? 'bg-primary/10'}
         iconColor={config?.color ?? 'text-primary'}
-        badge={<Badge variant="outline">{filteredCourses.length} visibles</Badge>}
+        badge={<Badge variant="secondary">{filteredCourses.length} cursos</Badge>}
         actions={(
           <Button onClick={handleAdd}>
             <Plus className="mr-2 h-4 w-4" />
@@ -252,94 +207,58 @@ function CursosPageContent() {
       {/* Filtros - Estandarizados para todas las vistas */}
       <Card className="bg-card">
         <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            {/* Filtros principales */}
-            <div className="flex-1 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
+            <div className="min-w-[260px] flex-1">
               {/* BÚSQUEDA: Siempre visible */}
-              <div className="relative md:col-span-2 lg:col-span-1">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por nombre, descripción o área..."
+                  placeholder="Buscar por nombre o área..."
                   value={searchTerm}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   className="pl-9 w-full"
                 />
               </div>
-
-              {/* SELECTOR DE TIPO: Solo en vista global */}
-              {(!tipo || tipo === 'all') && (
-                <Select value={filterType} onValueChange={setFilterType}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Todos los cursos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos los cursos</SelectItem>
-                    <SelectItem value="privados">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-red-600" />
-                        Privados
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="teleformacion">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-orange-600" />
-                        Teleformación
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="ocupados">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-green-600" />
-                        Ocupados
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="desempleados">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-600" />
-                        Desempleados
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-
-              {/* FILTRO POR ÁREA: Siempre visible */}
-              <Select value={filterArea} onValueChange={setFilterArea}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Todas las áreas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas las áreas</SelectItem>
-                  <SelectItem value="Marketing Digital">Marketing Digital</SelectItem>
-                  <SelectItem value="Desarrollo Web">Desarrollo Web</SelectItem>
-                  <SelectItem value="Diseño Gráfico">Diseño Gráfico</SelectItem>
-                  <SelectItem value="Audiovisual">Audiovisual</SelectItem>
-                  <SelectItem value="Gestión Empresarial">Gestión Empresarial</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* FILTRO POR SEDE: Siempre visible EXCEPTO en Teleformación */}
-              {tipo !== 'teleformacion' && (
-                <Select value={filterSede} onValueChange={setFilterSede}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Todas las sedes" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas las sedes</SelectItem>
-                    <SelectItem value="1">CEP Norte</SelectItem>
-                    <SelectItem value="2">CEP Santa Cruz</SelectItem>
-                    <SelectItem value="3">CEP Sur</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
             </div>
 
+            {/* SELECTOR DE TIPO: Solo en vista global */}
+            {(!tipo || tipo === 'all') && (
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
+                  <SelectValue placeholder="Todos los cursos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los cursos</SelectItem>
+                  <SelectItem value="privados">Privados</SelectItem>
+                  <SelectItem value="teleformacion">Teleformación</SelectItem>
+                  <SelectItem value="ocupados">Ocupados</SelectItem>
+                  <SelectItem value="desempleados">Desempleados</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* FILTRO POR ÁREA */}
+            <Select value={filterArea} onValueChange={setFilterArea}>
+              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
+                <SelectValue placeholder="Todas las áreas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las áreas</SelectItem>
+                <SelectItem value="Marketing Digital">Marketing Digital</SelectItem>
+                <SelectItem value="Desarrollo Web">Desarrollo Web</SelectItem>
+                <SelectItem value="Diseño Gráfico">Diseño Gráfico</SelectItem>
+                <SelectItem value="Audiovisual">Audiovisual</SelectItem>
+                <SelectItem value="Gestión Empresarial">Gestión Empresarial</SelectItem>
+              </SelectContent>
+            </Select>
+
             {/* View Toggle */}
-            <div className="hidden lg:block">
+            <div className="hidden xl:block xl:ml-auto">
               <ViewToggle view={view} onViewChange={setView} />
             </div>
           </div>
 
-          {(searchTerm || filterType !== 'all' || filterArea !== 'all' || filterSede !== 'all') && (
+          {(searchTerm || filterType !== 'all' || filterArea !== 'all') && (
             <div className="flex items-center gap-4 mt-4">
               <Button
                 variant="ghost"
@@ -348,7 +267,6 @@ function CursosPageContent() {
                   setSearchTerm('')
                   setFilterType('all')
                   setFilterArea('all')
-                  setFilterSede('all')
                 }}
               >
                 Limpiar filtros
@@ -357,57 +275,6 @@ function CursosPageContent() {
           )}
         </CardContent>
       </Card>
-
-      {/* Stats - Estadísticas estandarizadas */}
-      {!loading && !error && (
-        <Card className="bg-card">
-          <CardContent className="py-3">
-            {/* VISTA GLOBAL: Todos los cursos - Breakdown por tipo */}
-            {(!tipo || tipo === 'all') && 'privados' in cursosStats && (
-              <div className="flex items-center justify-between gap-6">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">Privados:</span>
-                  <span className="text-lg font-bold text-red-600">{cursosStats.privados}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">Ocupados:</span>
-                  <span className="text-lg font-bold text-green-600">{cursosStats.ocupados}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">Desempleados:</span>
-                  <span className="text-lg font-bold text-blue-600">{cursosStats.desempleados}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">Teleformación:</span>
-                  <span className="text-lg font-bold text-orange-600">{cursosStats.teleformacion}</span>
-                </div>
-              </div>
-            )}
-
-            {/* VISTAS ESPECÍFICAS: 4 campos uniformes para todos los tipos */}
-            {tipo && tipo !== 'all' && 'convocatorias' in cursosStats && (
-              <div className="flex items-center justify-between gap-6">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">TOTAL CURSOS:</span>
-                  <span className="text-lg font-bold text-gray-900">{cursosStats.total}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">CONVOCATORIAS:</span>
-                  <span className="text-lg font-bold text-blue-600">{cursosStats.convocatorias}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">ALUMNOS:</span>
-                  <span className="text-lg font-bold text-green-600">{cursosStats.alumnos}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">PLAZAS DISPONIBLES:</span>
-                  <span className="text-lg font-bold text-orange-600">{cursosStats.plazasDisponibles}</span>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
       {/* Loading State */}
       {loading && (

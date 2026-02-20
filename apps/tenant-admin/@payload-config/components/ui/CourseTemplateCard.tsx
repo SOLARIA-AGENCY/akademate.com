@@ -17,100 +17,69 @@ interface CourseTemplateCardProps {
 export function CourseTemplateCard({
   template,
   onClick,
-  onGenerateConvocation,
   className,
 }: CourseTemplateCardProps) {
   const typeConfig = COURSE_TYPE_CONFIG[template.tipo] || COURSE_TYPE_CONFIG.privados
 
   return (
     <Card
-      className={`course-template-card cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden bg-card ${className || ''}`}
+      className={`course-template-card cursor-pointer overflow-hidden border-border/70 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className || ''}`}
       onClick={onClick}
     >
       {/* Course Image */}
-      <div className="relative h-48 overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
+      <div className="relative h-40 overflow-hidden bg-muted">
         <img
           src={template.imagenPortada}
           alt={template.nombre}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
-        <div className="absolute top-3 right-3">
+        <div className="absolute left-3 top-3">
           <Badge
-            className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white text-xs font-bold uppercase tracking-wide shadow-md`}
+            className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white text-[11px] font-semibold`}
           >
             {typeConfig.label}
           </Badge>
         </div>
       </div>
 
-      <CardContent className="p-6 space-y-3 flex flex-col bg-card">
-        {/* Area Badge */}
-        <Badge variant="outline" className="w-fit text-xs uppercase">
-          {template.area}
-        </Badge>
-
-        {/* Title - 2 lines max */}
-        <div className="min-h-[3.5rem]">
-          <h3
-            className="font-bold text-lg leading-7 uppercase line-clamp-2"
-            title={template.nombre}
-          >
+      <CardContent className="flex flex-col gap-3 p-4 bg-card">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-2 text-base font-semibold leading-snug" title={template.nombre}>
             {template.nombre}
           </h3>
+          <Badge variant="outline" className="shrink-0 text-[11px]">
+            {template.area}
+          </Badge>
         </div>
 
-        {/* Description - 3 lines max */}
-        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed min-h-[4rem]">
+        <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed">
           {template.descripcion}
         </p>
 
-        {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-2 py-3 border-t">
+        <div className="grid grid-cols-2 gap-2 border-t pt-3 text-sm">
           <div className="flex items-center gap-2 text-sm">
             <BookOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <span className="font-medium text-sm">{template.duracionReferencia}H</span>
+            <span className="font-medium">{template.duracionReferencia} h</span>
           </div>
 
           <div className="flex items-center gap-2 text-sm">
             <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <span className="font-medium text-sm whitespace-nowrap">
+            <span className="font-medium whitespace-nowrap">
               {template.totalConvocatorias}{' '}
               {template.totalConvocatorias === 1 ? 'sede' : 'sedes'}
             </span>
           </div>
         </div>
 
-        {/* Price and Convocations */}
-        <div className="py-3 border-t">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Precio:</span>
-              {template.precioReferencia !== undefined && template.precioReferencia > 0 ? (
-                <span className={`font-bold text-base ${typeConfig.textColor}`}>
-                  {template.precioReferencia}€
-                </span>
-              ) : (
-                <span className="font-bold text-sm text-green-600 whitespace-nowrap">
-                  {template.porcentajeSubvencion || 100}% SUBV.
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Convocatorias:</span>
-              <span className="font-bold text-sm">{template.totalConvocatorias}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* CTA Button */}
         <Button
-          className={`w-full ${typeConfig.bgColor} ${typeConfig.hoverColor} text-white font-bold uppercase tracking-wide shadow-md transition-all duration-300 mt-auto`}
+          variant="outline"
+          className="mt-1 w-full"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()
           }}
         >
-          Ver Curso
+          Abrir curso
         </Button>
       </CardContent>
     </Card>
