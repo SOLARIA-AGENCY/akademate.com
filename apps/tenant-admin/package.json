@@ -21,7 +21,9 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "payload": "payload",
-    "generate:types": "payload generate:types"
+    "generate:types": "payload generate:types",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@akademate/realtime": "workspace:*",
@@ -101,6 +103,12 @@
     "tailwindcss": "^4.1.17",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.20.6",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "storybook": "^10.2.10",
+    "@storybook/nextjs": "^10.2.10",
+    "@storybook/addon-a11y": "^10.2.10",
+    "@storybook/addon-docs": "^10.2.10",
+    "@storybook/addon-onboarding": "^10.2.10",
+    "eslint-plugin-storybook": "^10.2.10"
   }
 }

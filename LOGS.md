@@ -583,3 +583,10 @@
 - Accion: Ejecuté Iteración 3 del plan con tokenización de color en módulos de alta visibilidad (`ciclos`, `ciclos-medio`, `ciclos-superior`, `programacion`, `planner`, `sedes`, `sedes/[id]`) reemplazando clases hardcodeadas `#ff2014` por tokens (`bg-primary`, `text-primary`, `border-primary`).
 - Accion: Ajusté sidebar para modo colapsado con estados `hover` y `active` más visibles (`hover:bg-sidebar-accent`, anillo de activo en collapsed, focus ring accesible).
 - Validacion: `pnpm --filter tenant-admin typecheck` PASS.
+
+## Iteracion 74 (20-02-2026)
+- Accion: Investigado e instalado skill de Storybook (`dalestudy/skills@storybook`) para guiar convención CSF 3 y estructura de historias.
+- Accion: Inicialicé Storybook en `apps/tenant-admin` (`@storybook/nextjs`) y configuré `.storybook/main.ts` + `.storybook/preview.ts` para tema local (globals.css, backgrounds y orden de navegación).
+- Accion: Generé historias iniciales alineadas a Akademate en `apps/tenant-admin/stories`: foundations (`Button`, `Badge`, `Input`, `Card`) y patrón `PageHeader`.
+- Accion: Documenté roadmap de expansión en `docs/design/STORYBOOK_ROADMAP_2026-02-20.md` + comandos en README.
+- Validacion: `pnpm --filter @akademate/tenant-admin build-storybook` PASS (output en `apps/tenant-admin/storybook-static`, solo warnings de bundle size).

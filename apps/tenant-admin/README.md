@@ -12,6 +12,20 @@ Backend CMS for lead management and marketing automation platform.
   ```
 - Para nuevas pantallas en este proyecto, usar plantillas de `vendor/academate-ui/templates/*` y adaptar a reglas multitenant (`tenant_id`) y Tailwind v4 del monorepo.
 
+## Storybook (UI contract)
+
+- Desarrollo Storybook:
+  ```bash
+  pnpm --filter @akademate/tenant-admin storybook
+  ```
+- Build estático Storybook:
+  ```bash
+  pnpm --filter @akademate/tenant-admin build-storybook
+  ```
+- Stories iniciales en:
+  - `apps/tenant-admin/stories/foundations/*`
+  - `apps/tenant-admin/stories/akademate/*`
+
 ## ⚠️ Critical Configuration
 
 ### TailwindCSS v4 Setup

@@ -145,3 +145,10 @@
 - [ ] Iteración 5: integración de patrones pricing/budget/stepper en módulos funcionales.
 - [ ] Iteración 6: QA transversal visual + contraste + estados.
 - [ ] Iteración 7: cierre, deploy y veredicto GO.
+
+## 20) Storybook Tenant Admin (2026-02-20)
+- [x] Investigar skill de Storybook e instalarlo en entorno de agente.
+- [x] Inicializar Storybook en `apps/tenant-admin` con framework Next.js.
+- [x] Crear stories iniciales de design system (`Button`, `Badge`, `Input`, `Card`, `PageHeader`).
+- [x] Validar build de Storybook (`build-storybook`) y documentar roadmap de crecimiento.
+- [ ] Integrar Storybook visual QA en loop de homogeneización de dashboard (pendiente CI + cobertura de módulos).

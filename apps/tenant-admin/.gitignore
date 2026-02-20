@@ -40,3 +40,6 @@ Thumbs.db
 # Payload
 .payload/
 payload-types.ts
+
+*storybook.log
+storybook-static
