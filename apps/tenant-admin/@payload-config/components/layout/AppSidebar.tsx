@@ -280,7 +280,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const pathname = usePathname()
   const [openSections, setOpenSections] = React.useState<string[]>([])
   const [logoUrl, setLogoUrl] = React.useState('/logos/cep-logo-alpha.png')
-  const [academyName, setAcademyName] = React.useState('ACADEMIX')
+  const [academyName, setAcademyName] = React.useState('CEP Formación')
   const isDev = process.env.NODE_ENV === 'development'
 
   // Fetch logo config from API
@@ -300,7 +300,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
         const academyResponse = await fetch('/api/config?section=academia')
         if (academyResponse.ok) {
           const { data } = await academyResponse.json()
-          setAcademyName(data.nombre || 'ACADEMIX')
+          setAcademyName(data.nombre || 'CEP Formación')
         }
       } catch (error) {
         console.error('Error fetching sidebar config:', error)
