@@ -84,6 +84,31 @@ function PlannerVisualPageContent() {
   const [dragOverCell, setDragOverCell] = useState<{ aulaId: string; dia: string; hora: number } | null>(null)
   const [dragValid, setDragValid] = useState<boolean>(true)
 
+  const handleExport = () => {
+    const rows = horariosFiltrados.map((horario) => ({
+      curso: horario.curso_nombre,
+      profesor: horario.profesor,
+      aula: aulasMockData.find((aula) => aula.id === horario.aula_id)?.nombre ?? 'Sin aula',
+      dia: horario.dia,
+      inicio: horario.hora_inicio,
+      fin: horario.hora_fin,
+    }))
+
+    const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `planner-${sedeSeleccionada.toLowerCase().replaceAll(' ', '-')}.json`
+    document.body.appendChild(anchor)
+    anchor.click()
+    document.body.removeChild(anchor)
+    URL.revokeObjectURL(url)
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
   // Filtrar aulas por sede
   const aulasFiltradas = aulasMockData.filter((aula) => aula.sede === sedeSeleccionada)
 
@@ -267,11 +292,11 @@ function PlannerVisualPageContent() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" />
               Exportar
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
             </Button>
@@ -339,7 +364,6 @@ function PlannerVisualPageContent() {
               variant={vistaActual === 'profesores' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setVistaActual('profesores')}
-              disabled
             >
               <User className="h-4 w-4 mr-2" />
               Profesores
@@ -348,7 +372,6 @@ function PlannerVisualPageContent() {
               variant={vistaActual === 'cursos' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setVistaActual('cursos')}
-              disabled
             >
               <BookOpen className="h-4 w-4 mr-2" />
               Cursos
@@ -359,6 +382,27 @@ function PlannerVisualPageContent() {
 
       {/* Main Content */}
       <div className="flex-1 flex gap-4 overflow-hidden">
+        {vistaActual !== 'aulas' ? (
+          <Card className="flex-1 p-6">
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">
+                Vista por {vistaActual === 'profesores' ? 'profesores' : 'cursos'}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Esta vista está en fase inicial. Puedes usar Exportar para validar datos y continuar operando con la vista de aulas.
+              </p>
+              <div className="rounded-md border p-4">
+                <p className="text-sm">
+                  Registros disponibles: <span className="font-semibold">{horariosFiltrados.length}</span>
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => setVistaActual('aulas')}>
+                Volver a vista de aulas
+              </Button>
+            </div>
+          </Card>
+        ) : (
+        <>
         {/* Panel Lateral - Leyenda */}
         <Card className="w-64 p-4 space-y-6 overflow-y-auto">
           <div>
@@ -581,6 +625,8 @@ function PlannerVisualPageContent() {
             </div>
           </div>
         </Card>
+        </>
+        )}
       </div>
     </div>
   )

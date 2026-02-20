@@ -72,13 +72,13 @@ export default function LoginPage() {
         const response = await fetch('/api/config?section=logos')
         if (response.ok) {
           const { data } = (await response.json()) as ConfigResponse<LogoConfigData>
-          setLogoUrl(data.claro ?? '/logos/cep-logo-alpha.png')
+          setLogoUrl(data?.claro ?? '/logos/cep-logo-alpha.png')
         }
 
         const academyResponse = await fetch('/api/config?section=academia')
         if (academyResponse.ok) {
           const { data } = (await academyResponse.json()) as ConfigResponse<AcademyConfigData>
-          setAcademyName(data.nombre ?? 'CEP Formación')
+          setAcademyName(data?.nombre ?? 'CEP Formación')
         }
       } catch (error) {
         console.error('Error fetching config:', error)

@@ -8,16 +8,12 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
-      <body>
-        <div className="min-h-screen bg-background">
-          {/* Theme Toggle - Top Right Corner */}
-          <div className="fixed top-4 right-4 z-50">
-            <ThemeToggle />
-          </div>
-          {children}
-        </div>
-      </body>
-    </html>
+    <div className="min-h-screen bg-background">
+      {/* Theme Toggle - Top Right Corner */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+      {children}
+    </div>
   )
 }

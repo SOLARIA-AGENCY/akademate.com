@@ -7,16 +7,14 @@ export const metadata: Metadata = {
   description: 'Sistema de gestión de contenidos',
 }
 
-/*
- * Root layout - minimal wrapper
- * Each route group handles its own <html>/<body> structure
- * This prevents conflicts between custom dashboard and Payload admin
- */
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // Return children directly - let each route group define html/body
-  return children
+  return (
+    <html lang="es" suppressHydrationWarning>
+      <body>{children}</body>
+    </html>
+  )
 }

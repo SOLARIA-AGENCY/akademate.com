@@ -87,6 +87,29 @@ export default function LeadsPage() {
     fetchLeads()
   }, [])
 
+  const exportToCsv = () => {
+    const header = ['Nombre', 'Email', 'Telefono', 'Estado', 'Origen', 'Fecha registro']
+    const rows = leads.map((lead) => [
+      [lead.first_name, lead.last_name].filter(Boolean).join(' ') || '—',
+      lead.email ?? '—',
+      lead.phone ?? '—',
+      statusLabels[lead.status ?? 'new'] ?? 'Nuevo',
+      formatOrigin(lead),
+      formatDate(lead.createdAt),
+    ])
+    const csv = [header, ...rows]
+      .map((row) => row.map((cell) => `\"${String(cell).replaceAll('\"', '\"\"')}\"`).join(','))
+      .join('\n')
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = 'leads.csv'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-start justify-between gap-4">
@@ -97,11 +120,11 @@ export default function LeadsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => console.log('Exportar CSV')} disabled={isLoading}>
+          <Button variant="outline" onClick={exportToCsv} disabled={isLoading}>
             <Download className="mr-2 h-4 w-4" />
             Exportar CSV
           </Button>
-          <Button onClick={() => console.log('Añadir lead')} disabled={isLoading}>
+          <Button onClick={() => window.open('/admin/collections/leads/create', '_blank', 'noopener,noreferrer')} disabled={isLoading}>
             <Plus className="mr-2 h-4 w-4" />
             Añadir lead
           </Button>

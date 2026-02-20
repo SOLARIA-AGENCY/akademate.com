@@ -63,3 +63,9 @@
 - CI/CD operativo.
 - GDPR y seguridad validados.
 - Documentación mínima lista.
+
+## Ralph Loop 2026-02-20 — Remediación Dashboard CEP (ejecución)
+1. Estabilizar routing/layout en App Router para evitar runtime en navegación.
+2. Cerrar fallos críticos de accesibilidad funcional (sidebar, administración, marketing, leads).
+3. Sincronizar identidad de sesión en shell y perfil.
+4. Validar con gate de typecheck de tenant-admin.

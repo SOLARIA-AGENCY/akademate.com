@@ -105,3 +105,13 @@
 - [x] Corregir bloque GDPR API (`app/api/gdpr/**/*`).
 - [x] Corregir bloque dashboard pages (`ciclos`, `medios`, `profesores`, `sedes`, `facturacion`).
 - [x] Corregir `@payload-config/lib/stripe.ts` (firmas Stripe v20).
+
+## 16) Ralph Loop 2026-02-20 (Dashboard Tenant CEP hardening)
+- [x] Corregir arquitectura de layouts Next App Router (`<html>/<body>` solo en root layout).
+- [x] Corregir navegación crítica de sidebar (`Dashboard`, `Administración`, `Marketing`, `Personal`).
+- [x] Unificar identidad de usuario en header/perfil mediante sesión real (`/api/auth/session`).
+- [x] Implementar endpoint faltante `GET /api/leads` para desbloquear módulo comercial.
+- [x] Activar acciones básicas en Planner (tabs, exportar, imprimir).
+- [x] Añadir formulario funcional de edición para sedes (`/sedes/[id]/editar`).
+- [x] Endurecer `api/staff` para no romper runtime sin `DATABASE_URL` (degradación 503).
+- [x] Gate de calidad: `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false`.

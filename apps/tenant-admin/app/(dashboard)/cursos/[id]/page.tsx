@@ -502,7 +502,11 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                     <p className="text-muted-foreground text-sm mb-4">
                       Aquí se mostrarán los PDFs, documentos y materiales del curso
                     </p>
-                    <Button variant="outline" className="w-full">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => router.push(`/cursos/${id}/editar`)}
+                    >
                       <Plus className="mr-2 h-4 w-4" />
                       Agregar Recurso
                     </Button>

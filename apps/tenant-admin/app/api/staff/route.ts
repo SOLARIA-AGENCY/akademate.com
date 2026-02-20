@@ -18,12 +18,8 @@ const initPayload = async (): Promise<Payload> => {
 };
 
 const dbConnectionString = process.env.DATABASE_URL ?? process.env.DATABASE_URI;
-if (!dbConnectionString) {
-  throw new Error('DATABASE_URL is required for /api/staff');
-}
-
 // PostgreSQL connection - support canonical DATABASE_URL first
-const sql = postgres(dbConnectionString);
+const sql = dbConnectionString ? postgres(dbConnectionString) : null;
 
 // ============================================================================
 // Type Definitions
@@ -158,6 +154,13 @@ function getErrorMessage(error: unknown): string {
  * Lista miembros del personal con filtros opcionales (SQL directo)
  */
 export async function GET(request: NextRequest) {
+  if (!sql) {
+    return NextResponse.json(
+      { success: false, error: 'DATABASE_URL is required for /api/staff' },
+      { status: 503 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const staffType = searchParams.get('type'); // 'profesor' | 'administrativo'
@@ -278,6 +281,13 @@ export async function GET(request: NextRequest) {
  * Crea un nuevo miembro del personal
  */
 export async function POST(request: NextRequest) {
+  if (!sql) {
+    return NextResponse.json(
+      { success: false, error: 'DATABASE_URL is required for /api/staff' },
+      { status: 503 }
+    );
+  }
+
   try {
     const body = await request.json() as CreateStaffBody;
     const {
@@ -365,6 +375,13 @@ export async function POST(request: NextRequest) {
  * Actualiza un miembro del personal
  */
 export async function PUT(request: NextRequest) {
+  if (!sql) {
+    return NextResponse.json(
+      { success: false, error: 'DATABASE_URL is required for /api/staff' },
+      { status: 503 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -428,6 +445,13 @@ export async function PUT(request: NextRequest) {
  * Nota: No se elimina físicamente, solo se marca como inactivo
  */
 export async function DELETE(request: NextRequest) {
+  if (!sql) {
+    return NextResponse.json(
+      { success: false, error: 'DATABASE_URL is required for /api/staff' },
+      { status: 503 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

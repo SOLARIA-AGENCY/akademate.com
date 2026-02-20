@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
@@ -12,8 +12,7 @@ import { Edit, Mail, Calendar, Shield, Camera } from 'lucide-react'
 export default function PerfilPage() {
   const router = useRouter()
 
-  // Mock user data (replace with actual from context/API)
-  const [user, _setUser] = useState({
+  const [user, setUser] = useState({
     id: 1,
     name: 'Admin User',
     email: 'admin@cepcomunicacion.com',
@@ -23,6 +22,47 @@ export default function PerfilPage() {
     joined: '2024-01-15',
     lastLogin: '2025-11-15T10:30:00',
   })
+
+  useEffect(() => {
+    const loadSessionUser = async () => {
+      try {
+        const response = await fetch('/api/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+        })
+        if (!response.ok) return
+
+        const payload = (await response.json()) as {
+          authenticated?: boolean
+          user?: { id?: number | string; name?: string; email?: string; role?: string }
+        }
+
+        if (!payload.authenticated || !payload.user?.email) return
+
+        const displayName = payload.user.name?.trim() || payload.user.email
+        const initials = displayName
+          .split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part[0]?.toUpperCase() ?? '')
+          .join('') || 'AU'
+
+        setUser((prev) => ({
+          ...prev,
+          id: Number(payload.user?.id ?? prev.id),
+          name: displayName,
+          email: payload.user?.email ?? prev.email,
+          role: payload.user?.role ?? prev.role,
+          initials,
+        }))
+      } catch (error) {
+        console.warn('[Perfil] Unable to load session user:', error)
+      }
+    }
+
+    void loadSessionUser()
+  }, [])
 
   return (
     <div className="space-y-6 max-w-4xl">

@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -71,10 +71,18 @@ const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive'> =
 
 export default function PersonalPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = React.useState('profesores')
   const [viewMode, setViewMode] = React.useState<'list' | 'grid'>('grid')
   const [staff, setStaff] = React.useState<StaffMember[]>([])
   const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    const requestedTab = searchParams.get('tab')
+    if (requestedTab === 'administrativos' || requestedTab === 'profesores') {
+      setActiveTab(requestedTab)
+    }
+  }, [searchParams])
 
   // Fetch staff data
   React.useEffect(() => {

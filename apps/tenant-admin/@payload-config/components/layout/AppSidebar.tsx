@@ -54,7 +54,7 @@ const menuItems: MenuItemWithSection[] = [
   {
     title: 'Dashboard',
     icon: LayoutDashboard,
-    url: '/',
+    url: '/dashboard',
   },
   {
     title: 'Programación',
@@ -101,8 +101,8 @@ const menuItems: MenuItemWithSection[] = [
     title: 'Personal',
     icon: Users,
     items: [
-      { title: 'Profesores', icon: UserCircle, url: '/profesores' },
-      { title: 'Administrativos', icon: UserPlus, url: '/administrativo' },
+      { title: 'Profesores', icon: UserCircle, url: '/personal?tab=profesores' },
+      { title: 'Administrativos', icon: UserPlus, url: '/personal?tab=administrativos' },
     ],
   },
   {
@@ -122,8 +122,8 @@ const menuItems: MenuItemWithSection[] = [
     icon: Megaphone,
     sectionBefore: 'GESTIÓN COMERCIAL',
     items: [
-      { title: 'Campañas', icon: Megaphone, url: '/campanas' },
-      { title: 'Creatividades', icon: Sparkles, url: '/creatividades' },
+      { title: 'Campañas', icon: Megaphone, url: '/marketing/campanas' },
+      { title: 'Creatividades', icon: Sparkles, url: '/marketing/creatividades' },
     ],
   },
   {
@@ -211,7 +211,8 @@ interface SubMenuItemProps {
 function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
   const [nestedOpen, setNestedOpen] = React.useState(false)
   const SubIcon = subItem.icon
-  const isSubActive = pathname === subItem.url
+  const subPath = subItem.url?.split('?')[0]
+  const isSubActive = subPath ? pathname === subPath : false
   const hasNestedItems = subItem.items && subItem.items.length > 0
 
   if (hasNestedItems) {
@@ -233,7 +234,8 @@ function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
           <ul className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4">
             {subItem.items?.map((nestedItem) => {
               const NestedIcon = nestedItem.icon
-              const isNestedActive = pathname === nestedItem.url
+              const nestedPath = nestedItem.url?.split('?')[0]
+              const isNestedActive = nestedPath ? pathname === nestedPath : false
               return (
                 <li key={nestedItem.title}>
                   <Link
@@ -294,13 +296,13 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
         const response = await fetch('/api/config?section=logos')
         if (response.ok) {
           const { data } = await response.json()
-          setLogoUrl(data.claro || '/logos/cep-logo-alpha.png')
+          setLogoUrl(data?.claro || '/logos/cep-logo-alpha.png')
         }
 
         const academyResponse = await fetch('/api/config?section=academia')
         if (academyResponse.ok) {
           const { data } = await academyResponse.json()
-          setAcademyName(data.nombre || 'CEP Formación')
+          setAcademyName(data?.nombre || 'CEP Formación')
         }
       } catch (error) {
         console.error('Error fetching sidebar config:', error)
@@ -308,6 +310,18 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     }
     fetchConfig()
   }, [isDev])
+
+  React.useEffect(() => {
+    const activeParent = menuItems.find(
+      (item) =>
+        item.items?.some((subItem) => subItem.url && pathname.startsWith(subItem.url.split('?')[0])) ??
+        false
+    )
+
+    if (activeParent) {
+      setOpenSections([activeParent.title])
+    }
+  }, [pathname])
 
   // Accordion behavior: only one section open at a time
   const toggleSection = (title: string) => {

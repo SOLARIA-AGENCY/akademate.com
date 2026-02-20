@@ -439,3 +439,19 @@
 - Accion: Validación de regresión post-fix en `tenant-admin` (typecheck + tests + lint).
 - Resultado: `typecheck` PASS (0 errores), `pnpm --filter @akademate/tenant-admin test` PASS (**37 files, 584 passed, 1 skipped, 0 failed**), `pnpm --filter @akademate/tenant-admin lint` PASS.
 - Evidencia: `/tmp/tenant_typecheck_iter9.log`, `/tmp/tenant_tests_iter9.log`, `/tmp/tenant_lint_iter9.log`.
+
+## Iteración 50A (20-02-2026)
+- Acción: Reestructuré layouts de `tenant-admin` para cumplir App Router (root con `<html>/<body>`, grupos sin duplicación), añadí redirect estable en `/administracion`, y cambié home `/` a redirect condicional por cookie de sesión.
+- Resultado: eliminado riesgo de runtime `Missing <html> and <body> tags`, navegación base más estable.
+
+## Iteración 50B (20-02-2026)
+- Acción: Corregí shell del dashboard con usuario real desde `/api/auth/session`, búsqueda global navegable, panel de notificaciones operativo, logout consistente por cookies, y rutas críticas de sidebar (dashboard/personal/marketing).
+- Resultado: desaparece inconsistencia de email en menú/perfil y se desbloquea navegación crítica reportada en auditoría.
+
+## Iteración 50C (20-02-2026)
+- Acción: Implementé `GET /api/leads`, compatibilidad de rutas `/marketing/*`, habilité exportar/imprimir/tabs en planner, conecté botón "Agregar recurso" a edición de curso y creé formulario de edición de sede.
+- Resultado: módulos Leads/Marketing/Planner/Sedes pasan de estados rotos o sin acción a estados operativos mínimos verificables.
+
+## Iteración 50D (20-02-2026)
+- Acción: Endurecí `/api/staff` para degradar con `503` cuando falta `DATABASE_URL` (sin crash de módulo) y ejecuté gate de typecheck.
+- Resultado: `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false` en verde.
