@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_PAYLOAD_URL?.trim() ||
       'http://payload:3003'
 
-    const payloadLogin = await fetch(`${payloadBaseUrl.replace(/\/$/, '')}/api/payload/users/login`, {
+    const payloadLogin = await fetch(`${payloadBaseUrl.replace(/\/$/, '')}/api/users/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -103,6 +103,10 @@ export async function POST(request: Request) {
       }
       return ''
     }).filter(Boolean)
+
+    if (!normalizedRoles.length && typeof (payloadUser as { role?: unknown })?.role === 'string') {
+      normalizedRoles.push(String((payloadUser as { role: string }).role))
+    }
 
     if (!normalizedRoles.includes('superadmin')) {
       return NextResponse.json(

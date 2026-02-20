@@ -69,3 +69,10 @@
 2. Cerrar fallos críticos de accesibilidad funcional (sidebar, administración, marketing, leads).
 3. Sincronizar identidad de sesión en shell y perfil.
 4. Validar con gate de typecheck de tenant-admin.
+
+## Ralph Loop 2026-02-20 — Sistema y Unificación de Diseño (activo)
+1. Resolver auth crítica transversal (Payload/Ops/Tenant) con pruebas de endpoint reales.
+2. Corregir excepciones funcionales de producto (`web /cursos`, campus credenciales dev).
+3. Ejecutar unificación visual por tokens y componentes shadcn entre servicios.
+4. Cerrar con auditoría funcional + visual y veredicto GO/NO-GO.
+5. Fuente de ejecución: `docs/audits/AKADEMATE_RALPH_LOOP_TASK_RUNNER_2026-02-20.md`.

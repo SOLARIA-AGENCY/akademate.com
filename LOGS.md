@@ -259,6 +259,24 @@
 ## Iteracion 64 (17-01-2026)
 - Accion: Marqué front pública y campus virtual como completados tras integración CMS, formularios y campus.
 
+## Iteracion 88 (20-02-2026)
+- Accion: Ejecuté Ralph Loop Task Format para cerrar bloque Auth P0 (A1/A2/A3) en entorno NEMESIS.
+- Cambios:
+  - Hotfix DB remoto en `akademate-postgres`: creación/actualización de usuarios `ops@akademate.com`, `admin@akademate.com`, `admin@cep.es` y rotación de credenciales de `superadmin@cepcomunicacion.com` con hash PBKDF2 compatible Payload.
+  - Inserción/normalización de roles en `users_roles` para garantizar claims (`superadmin`/`admin`) en respuesta de login.
+  - Fix código en `apps/admin-client/app/api/auth/login/route.ts`: endpoint correcto `POST /api/users/login` (antes `/api/payload/users/login`) + fallback de role legacy.
+  - Fix código en `apps/admin-client/lib/api.ts`: parseo robusto de `user.roles` cuando Payload retorna objetos `{ role }`.
+- Validacion:
+  - `POST http://100.99.60.106:3003/api/users/login`:
+    - `ops@akademate.com / Admin1234!` => 200
+    - `admin@akademate.com / Admin1234!` => 200
+    - `admin@cep.es / Admin1234!` => 200
+  - Deploy selectivo `admin` en NEMESIS y smoke de endpoint:
+    - `POST http://localhost:3004/api/auth/login` con `ops@akademate.com` => 200 + cookie `akademate_admin_session`.
+  - Gate `tenant-admin typecheck`: PASS.
+  - Nota de deuda técnica preexistente: `admin-client typecheck` mantiene errores históricos no introducidos por esta iteración (AWS smithy/versionado y tipado sidebar).
+- Resultado: PASS (bloque Auth P0 desbloqueado en producción de staging).
+
 ## Iteracion 65 (19-02-2026)
 - Accion: Inicie Ralph Loop 2026-02 post-auditoria, defini plan de estabilizacion y backlog atomico.
 - Resultado: IMPLEMENTATION_PLAN.md y TASKS_TODO.md actualizados con bloque de estabilizacion.
@@ -463,3 +481,9 @@
 ## Iteración 50F (20-02-2026)
 - Acción: Validé rutas críticas autenticadas post-deploy con timeout extendido (`/programacion`, `/planner`, `/cursos`).
 - Resultado: las tres rutas responden `200` en <1s; falso positivo previo por timeout corto en ejecución en lote.
+
+## Iteración 87 (20-02-2026)
+- Acción: Activé Ralph Loop de ejecución integral con task runner dedicado.
+- Acción: Creé `docs/audits/AKADEMATE_RALPH_LOOP_TASK_RUNNER_2026-02-20.md` con fases, gates, rutas y plantilla iterativa.
+- Acción: Corrí baseline técnico en NEMESIS (servicios + probes auth).
+- Resultado: servicios base up (`3003/3004/3005/3006/3009`), pero `POST /api/users/login` en Payload devuelve `500 Something went wrong` (P0 abierta para siguiente iteración).

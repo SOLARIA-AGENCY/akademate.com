@@ -25,7 +25,7 @@ interface PayloadLoginResponse {
   user?: {
     id?: string
     email?: string
-    roles?: string[]
+    roles?: Array<string | { role?: string }>
     tenantId?: string
   }
   token?: string
@@ -79,10 +79,21 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
     }
 
     const data = (await res.json()) as PayloadLoginResponse
+    const payloadRoles = Array.isArray(data.user?.roles)
+      ? data.user.roles
+          .map((entry) => {
+            if (typeof entry === 'string') return entry
+            if (entry && typeof entry === 'object' && 'role' in entry) {
+              return String((entry as { role?: string }).role ?? '')
+            }
+            return ''
+          })
+          .filter(Boolean)
+      : []
     const user = {
       id: data.user?.id ?? 'unknown',
       email: data.user?.email ?? credentials.email,
-      role: data.user?.roles?.[0] ?? 'admin',
+      role: payloadRoles[0] ?? 'admin',
       tenantId: data.user?.tenantId ?? 'unknown',
     }
 

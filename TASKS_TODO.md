@@ -115,3 +115,14 @@
 - [x] Añadir formulario funcional de edición para sedes (`/sedes/[id]/editar`).
 - [x] Endurecer `api/staff` para no romper runtime sin `DATABASE_URL` (degradación 503).
 - [x] Gate de calidad: `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false`.
+
+## 17) Ralph Loop 2026-02-20 (Sistema + UI unificada)
+- [x] Crear task runner ejecutable de iteraciones (`docs/audits/AKADEMATE_RALPH_LOOP_TASK_RUNNER_2026-02-20.md`).
+- [x] Baseline técnico inicial de servicios y probes de auth.
+- [x] Corregir `POST /api/users/login` en Payload (`500 Something went wrong`).
+- [x] Validar/seed usuario `ops@akademate.com` superadmin y credenciales admin CMS.
+- [x] Corregir integración auth de Ops contra Payload.
+- [ ] Corregir SSR exception en `web /cursos` con fallback estable.
+- [ ] Documentar credenciales dev de campus en launchpad.
+- [ ] Ejecutar unificación visual según tokens (Ops/Payload reference style).
+- [ ] Auditoría visual final con evidencia y veredicto GO/NO-GO.
