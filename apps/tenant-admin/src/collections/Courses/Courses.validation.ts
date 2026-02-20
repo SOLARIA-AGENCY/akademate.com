@@ -36,7 +36,7 @@ export const CourseSchema = z.object({
     .max(500, 'Course name must be 500 characters or less'),
 
   // Required: Reference to educational cycle
-  cycle: z.string({ required_error: 'Cycle is required' }),
+  cycle: z.string({ error: 'Cycle is required' }),
 
   // Optional: Multiple campus references (array of IDs)
   campuses: z.array(z.string()).optional().default([]),
@@ -49,7 +49,7 @@ export const CourseSchema = z.object({
 
   // Required: Delivery method (presencial, online, hibrido)
   modality: z.enum(['presencial', 'online', 'hibrido'], {
-    errorMap: () => ({ message: 'Modality must be presencial, online, or hibrido' }),
+    error: 'Modality must be presencial, online, or hibrido',
   }),
 
   // Optional: Course duration in hours (positive integer)
@@ -152,7 +152,7 @@ export const generateCourseSlug = (name: string): string => {
  * @returns Array of formatted error messages
  */
 export const formatValidationErrors = (error: z.ZodError): string[] => {
-  return error.errors.map((err) => {
+  return error.issues.map((err) => {
     const path = err.path.join('.');
     return `${path}: ${err.message}`;
   });

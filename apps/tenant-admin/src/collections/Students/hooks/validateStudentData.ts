@@ -16,6 +16,7 @@ interface Logger {
 
 /** Zod validation error structure */
 interface ZodValidationError {
+  issues?: { message?: string }[];
   errors: { message?: string }[];
 }
 
@@ -64,7 +65,8 @@ export const validateStudentData: CollectionBeforeValidateHook = ({ data, req, o
         emailSchema.parse(data.email);
       } catch (error: unknown) {
         const zodError = error as ZodValidationError;
-        validationErrors.push(`Email validation failed: ${zodError.errors?.[0]?.message ?? 'Invalid email format'}`);
+        const firstIssue = zodError.issues?.[0] ?? zodError.errors?.[0];
+        validationErrors.push(`Email validation failed: ${firstIssue?.message ?? 'Invalid email format'}`);
       }
     }
 
@@ -94,7 +96,8 @@ export const validateStudentData: CollectionBeforeValidateHook = ({ data, req, o
         dateOfBirthSchema.parse(data.date_of_birth);
       } catch (error: unknown) {
         const zodError = error as ZodValidationError;
-        const errorMessage = zodError.errors?.[0]?.message ?? 'Invalid date of birth';
+        const firstIssue = zodError.issues?.[0] ?? zodError.errors?.[0];
+        const errorMessage = firstIssue?.message ?? 'Invalid date of birth';
         validationErrors.push(`Date of birth validation failed: ${errorMessage}`);
       }
     }

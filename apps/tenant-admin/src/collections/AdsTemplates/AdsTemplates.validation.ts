@@ -171,36 +171,28 @@ export const tagsArraySchema = z
  * Template Type Schema
  */
 export const templateTypeSchema = z.enum(VALID_TEMPLATE_TYPES, {
-  errorMap: () => ({
-    message: `Template type must be one of: ${VALID_TEMPLATE_TYPES.join(', ')}`,
-  }),
+  error: `Template type must be one of: ${VALID_TEMPLATE_TYPES.join(', ')}`,
 });
 
 /**
  * Status Schema
  */
 export const statusSchema = z.enum(VALID_STATUSES, {
-  errorMap: () => ({
-    message: `Status must be one of: ${VALID_STATUSES.join(', ')}`,
-  }),
+  error: `Status must be one of: ${VALID_STATUSES.join(', ')}`,
 });
 
 /**
  * Tone Schema
  */
 export const toneSchema = z.enum(VALID_TONES, {
-  errorMap: () => ({
-    message: `Tone must be one of: ${VALID_TONES.join(', ')}`,
-  }),
+  error: `Tone must be one of: ${VALID_TONES.join(', ')}`,
 });
 
 /**
  * Language Schema
  */
 export const languageSchema = z.enum(VALID_LANGUAGES, {
-  errorMap: () => ({
-    message: `Language must be one of: ${VALID_LANGUAGES.join(', ')}`,
-  }),
+  error: `Language must be one of: ${VALID_LANGUAGES.join(', ')}`,
 });
 
 // ============================================================================
@@ -213,7 +205,7 @@ export const languageSchema = z.enum(VALID_LANGUAGES, {
 export const validateTemplateName = (name: string): true | string => {
   const result = templateNameSchema.safeParse(name);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -224,7 +216,7 @@ export const validateTemplateName = (name: string): true | string => {
 export const validateHeadline = (headline: string): true | string => {
   const result = headlineSchema.safeParse(headline);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -237,7 +229,7 @@ export const validateCallToAction = (cta: string | undefined): true | string => 
 
   const result = callToActionSchema.safeParse(cta);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -250,7 +242,7 @@ export const validateURL = (url: string | undefined, fieldName = 'URL'): true | 
 
   const result = urlSchema.safeParse(url);
   if (!result.success) {
-    return `${fieldName} ${result.error.errors[0].message.toLowerCase()}`;
+    return `${fieldName} ${result.error.issues[0].message.toLowerCase()}`;
   }
   return true;
 };
@@ -261,7 +253,7 @@ export const validateURL = (url: string | undefined, fieldName = 'URL'): true | 
 export const validateTag = (tag: string): true | string => {
   const result = tagSchema.safeParse(tag);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -274,7 +266,7 @@ export const validateTags = (tags: string[] | undefined): true | string => {
 
   const result = tagsArraySchema.safeParse(tags);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   // Validate each individual tag
@@ -329,7 +321,7 @@ export const validateStatusWorkflow = (
 export const validateTemplateType = (type: string): true | string => {
   const result = templateTypeSchema.safeParse(type);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -340,7 +332,7 @@ export const validateTemplateType = (type: string): true | string => {
 export const validateTone = (tone: string): true | string => {
   const result = toneSchema.safeParse(tone);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -351,7 +343,7 @@ export const validateTone = (tone: string): true | string => {
 export const validateLanguage = (language: string): true | string => {
   const result = languageSchema.safeParse(language);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };

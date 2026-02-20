@@ -167,18 +167,14 @@ export const metaDescriptionSchema = z
  * Status Schema
  */
 export const statusSchema = z.enum(VALID_STATUSES, {
-  errorMap: () => ({
-    message: `Status must be one of: ${VALID_STATUSES.join(', ')}`,
-  }),
+  error: `Status must be one of: ${VALID_STATUSES.join(', ')}`,
 });
 
 /**
  * Language Schema
  */
 export const languageSchema = z.enum(VALID_LANGUAGES, {
-  errorMap: () => ({
-    message: `Language must be one of: ${VALID_LANGUAGES.join(', ')}`,
-  }),
+  error: `Language must be one of: ${VALID_LANGUAGES.join(', ')}`,
 });
 
 // ============================================================================
@@ -191,7 +187,7 @@ export const languageSchema = z.enum(VALID_LANGUAGES, {
 export const validateTitle = (title: string): true | string => {
   const result = titleSchema.safeParse(title);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -202,7 +198,7 @@ export const validateTitle = (title: string): true | string => {
 export const validateSlug = (slug: string): true | string => {
   const result = slugSchema.safeParse(slug);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -213,7 +209,7 @@ export const validateSlug = (slug: string): true | string => {
 export const validateExcerpt = (excerpt: string): true | string => {
   const result = excerptSchema.safeParse(excerpt);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -226,7 +222,7 @@ export const validateURL = (url: string | undefined, fieldName = 'URL'): true | 
 
   const result = urlSchema.safeParse(url);
   if (!result.success) {
-    return `${fieldName} ${result.error.errors[0].message.toLowerCase()}`;
+    return `${fieldName} ${result.error.issues[0].message.toLowerCase()}`;
   }
   return true;
 };
@@ -237,7 +233,7 @@ export const validateURL = (url: string | undefined, fieldName = 'URL'): true | 
 export const validateTag = (tag: string): true | string => {
   const result = tagSchema.safeParse(tag);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -250,7 +246,7 @@ export const validateTags = (tags: string[] | undefined): true | string => {
 
   const result = tagsArraySchema.safeParse(tags);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   // Validate each individual tag
@@ -272,7 +268,7 @@ export const validateMetaTitle = (metaTitle: string | undefined): true | string 
 
   const result = metaTitleSchema.safeParse(metaTitle);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -285,7 +281,7 @@ export const validateMetaDescription = (metaDescription: string | undefined): tr
 
   const result = metaDescriptionSchema.safeParse(metaDescription);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -331,7 +327,7 @@ export const validateStatusWorkflow = (
 export const validateStatus = (status: string): true | string => {
   const result = statusSchema.safeParse(status);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };
@@ -342,7 +338,7 @@ export const validateStatus = (status: string): true | string => {
 export const validateLanguage = (language: string): true | string => {
   const result = languageSchema.safeParse(language);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
   return true;
 };

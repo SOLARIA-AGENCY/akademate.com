@@ -112,18 +112,14 @@ export const targetEnrollmentsSchema = z
  * Campaign type validation schema
  */
 export const campaignTypeSchema = z.enum(VALID_CAMPAIGN_TYPES, {
-  errorMap: () => ({
-    message: `Campaign type must be one of: ${VALID_CAMPAIGN_TYPES.join(', ')}`,
-  }),
+  error: `Campaign type must be one of: ${VALID_CAMPAIGN_TYPES.join(', ')}`,
 });
 
 /**
  * Campaign status validation schema
  */
 export const campaignStatusSchema = z.enum(VALID_CAMPAIGN_STATUSES, {
-  errorMap: () => ({
-    message: `Status must be one of: ${VALID_CAMPAIGN_STATUSES.join(', ')}`,
-  }),
+  error: `Status must be one of: ${VALID_CAMPAIGN_STATUSES.join(', ')}`,
 });
 
 // ============================================================================
@@ -139,7 +135,7 @@ export function validateUTMFormat(value: string | undefined): true | string {
 
   const result = utmParameterSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;
@@ -256,7 +252,7 @@ export function validateBudget(value: number | undefined): true | string {
 
   const result = budgetSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;
@@ -271,7 +267,7 @@ export function validateTargetLeads(value: number | undefined): true | string {
 
   const result = targetLeadsSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;
@@ -286,7 +282,7 @@ export function validateTargetEnrollments(value: number | undefined): true | str
 
   const result = targetEnrollmentsSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;

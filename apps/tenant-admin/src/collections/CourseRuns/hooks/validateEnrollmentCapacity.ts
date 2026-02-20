@@ -64,7 +64,7 @@ export const validateEnrollmentCapacity: CollectionBeforeValidateHook = ({
   const result = capacityValidationSchema.safeParse(capacityData);
 
   if (!result.success) {
-    const errors = result.error.errors.map((err) => err.message).join(', ');
+    const errors = result.error.issues.map((err) => err.message).join(', ');
     throw new Error(`Capacity validation failed: ${errors}`);
   }
 

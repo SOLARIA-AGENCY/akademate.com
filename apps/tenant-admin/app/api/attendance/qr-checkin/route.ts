@@ -166,7 +166,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckinRe
         {
           success: false,
           status: 'error',
-          message: validation.error.errors[0].message,
+          message: validation.error.issues[0].message,
         },
         { status: 400 }
       )

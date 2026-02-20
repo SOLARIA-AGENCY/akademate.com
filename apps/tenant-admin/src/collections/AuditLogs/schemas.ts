@@ -153,7 +153,7 @@ export const VALID_COLLECTION_NAMES = [
 ] as const;
 
 export const collectionNameSchema = z.enum(VALID_COLLECTION_NAMES, {
-  errorMap: () => ({ message: 'Invalid collection name' }),
+  error: 'Invalid collection name',
 });
 
 // ============================================================================
@@ -178,7 +178,7 @@ export const VALID_ACTIONS = [
 ] as const;
 
 export const actionSchema = z.enum(VALID_ACTIONS, {
-  errorMap: () => ({ message: 'Invalid action type' }),
+  error: 'Invalid action type',
 });
 
 // ============================================================================
@@ -192,7 +192,7 @@ export const actionSchema = z.enum(VALID_ACTIONS, {
 export const VALID_USER_ROLES = ['admin', 'gestor', 'marketing', 'asesor', 'lectura'] as const;
 
 export const userRoleSchema = z.enum(VALID_USER_ROLES, {
-  errorMap: () => ({ message: 'Invalid user role' }),
+  error: 'Invalid user role',
 });
 
 // ============================================================================
@@ -205,7 +205,7 @@ export const userRoleSchema = z.enum(VALID_USER_ROLES, {
 export const VALID_STATUSES = ['success', 'failure', 'blocked'] as const;
 
 export const statusSchema = z.enum(VALID_STATUSES, {
-  errorMap: () => ({ message: 'Invalid status value' }),
+  error: 'Invalid status value',
 });
 
 // ============================================================================
@@ -327,9 +327,7 @@ export const safeValidateAuditLogData = (data: unknown) => {
  * This schema will always throw an error to enforce immutability
  */
 export const AuditLogUpdateSchema = z.never({
-  errorMap: () => ({
-    message: 'Audit logs are immutable and cannot be updated. This is a GDPR compliance requirement.',
-  }),
+  error: 'Audit logs are immutable and cannot be updated. This is a GDPR compliance requirement.',
 });
 
 export type AuditLogUpdateInput = z.infer<typeof AuditLogUpdateSchema>;
@@ -341,7 +339,7 @@ export type AuditLogUpdateInput = z.infer<typeof AuditLogUpdateSchema>;
  * @returns Formatted error array for Payload CMS
  */
 export const formatValidationErrors = (error: z.ZodError) => {
-  return error.errors.map((err) => ({
+  return error.issues.map((err) => ({
     message: err.message,
     field: err.path.join('.'),
   }));

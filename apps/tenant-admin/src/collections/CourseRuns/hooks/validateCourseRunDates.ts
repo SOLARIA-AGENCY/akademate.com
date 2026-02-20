@@ -36,7 +36,7 @@ export const validateCourseRunDates: CollectionBeforeValidateHook = ({ data, ope
     });
 
     if (!dateResult.success) {
-      const errors = dateResult.error.errors.map((err) => err.message).join(', ');
+      const errors = dateResult.error.issues.map((err) => err.message).join(', ');
       throw new Error(`Date validation failed: ${errors}`);
     }
   }
@@ -49,7 +49,7 @@ export const validateCourseRunDates: CollectionBeforeValidateHook = ({ data, ope
     });
 
     if (!timeResult.success) {
-      const errors = timeResult.error.errors.map((err) => err.message).join(', ');
+      const errors = timeResult.error.issues.map((err) => err.message).join(', ');
       throw new Error(`Time validation failed: ${errors}`);
     }
   }

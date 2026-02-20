@@ -67,9 +67,7 @@ export const slugSchema = z
  * - Enum validation
  */
 export const categorySchema = z.enum(VALID_CATEGORIES, {
-  errorMap: () => ({
-    message: `Category must be one of: ${VALID_CATEGORIES.join(', ')}`,
-  }),
+  error: `Category must be one of: ${VALID_CATEGORIES.join(', ')}`,
 });
 
 /**
@@ -77,9 +75,7 @@ export const categorySchema = z.enum(VALID_CATEGORIES, {
  * - Enum validation
  */
 export const languageSchema = z.enum(VALID_LANGUAGES, {
-  errorMap: () => ({
-    message: `Language must be one of: ${VALID_LANGUAGES.join(', ')}`,
-  }),
+  error: `Language must be one of: ${VALID_LANGUAGES.join(', ')}`,
 });
 
 /**
@@ -87,9 +83,7 @@ export const languageSchema = z.enum(VALID_LANGUAGES, {
  * - Enum validation
  */
 export const statusSchema = z.enum(VALID_STATUSES, {
-  errorMap: () => ({
-    message: `Status must be one of: ${VALID_STATUSES.join(', ')}`,
-  }),
+  error: `Status must be one of: ${VALID_STATUSES.join(', ')}`,
 });
 
 /**
@@ -131,7 +125,7 @@ export function validateQuestion(value: string | undefined): string | true {
 
   const result = questionSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;
@@ -147,7 +141,7 @@ export function validateSlug(value: string | undefined): string | true {
 
   const result = slugSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;
@@ -188,7 +182,7 @@ export function validateCategory(value: string | undefined): string | true {
 
   const result = categorySchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;
@@ -204,7 +198,7 @@ export function validateLanguage(value: string | undefined): string | true {
 
   const result = languageSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;
@@ -220,7 +214,7 @@ export function validateStatus(value: string | undefined): string | true {
 
   const result = statusSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;
@@ -236,7 +230,7 @@ export function validateKeywords(value: string[] | undefined): string | true {
 
   const result = keywordsSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;
@@ -252,7 +246,7 @@ export function validateOrder(value: number | undefined): string | true {
 
   const result = orderSchema.safeParse(value);
   if (!result.success) {
-    return result.error.errors[0].message;
+    return result.error.issues[0].message;
   }
 
   return true;

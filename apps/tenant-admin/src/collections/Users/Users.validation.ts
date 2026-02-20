@@ -51,10 +51,7 @@ import { z } from 'zod';
  * - "NoSpecial123" (no special character)
  */
 export const passwordSchema = z
-  .string({
-    required_error: 'Password is required',
-    invalid_type_error: 'Password must be a string',
-  })
+  .string({ error: 'Password is required' })
   .min(8, 'Password must be at least 8 characters')
   .max(100, 'Password must be less than 100 characters')
   .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
@@ -69,10 +66,7 @@ export const passwordSchema = z
  * Email Schema - Validates email format and length
  */
 export const emailSchema = z
-  .string({
-    required_error: 'Email is required',
-    invalid_type_error: 'Email must be a string',
-  })
+  .string({ error: 'Email is required' })
   .email('Invalid email format')
   .max(100, 'Email must be less than 100 characters')
   .toLowerCase() // Normalize to lowercase
@@ -82,10 +76,7 @@ export const emailSchema = z
  * Name Schema - Validates user display name
  */
 export const nameSchema = z
-  .string({
-    required_error: 'Name is required',
-    invalid_type_error: 'Name must be a string',
-  })
+  .string({ error: 'Name is required' })
   .min(2, 'Name must be at least 2 characters')
   .max(100, 'Name must be less than 100 characters')
   .trim();
@@ -101,9 +92,7 @@ export const nameSchema = z
  * - lectura: Read public content only
  */
 export const roleSchema = z.enum(['admin', 'gestor', 'marketing', 'asesor', 'lectura'], {
-  required_error: 'Role is required',
-  invalid_type_error:
-    'Role must be one of: admin, gestor, marketing, asesor, lectura',
+  error: 'Role must be one of: admin, gestor, marketing, asesor, lectura',
 });
 
 /**
@@ -182,10 +171,7 @@ export const userUpdateSchema = userSchema.partial().omit({ password: true });
  */
 export const loginSchema = z.object({
   email: emailSchema,
-  password: z.string({
-    required_error: 'Password is required',
-    invalid_type_error: 'Password must be a string',
-  }),
+  password: z.string({ error: 'Password is required' }),
 });
 
 /**
@@ -204,10 +190,7 @@ export const forgotPasswordSchema = z.object({
  * New password must meet complexity requirements.
  */
 export const resetPasswordSchema = z.object({
-  token: z.string({
-    required_error: 'Reset token is required',
-    invalid_type_error: 'Reset token must be a string',
-  }),
+  token: z.string({ error: 'Reset token is required' }),
   password: passwordSchema,
 });
 
@@ -220,7 +203,7 @@ export const resetPasswordSchema = z.object({
  * @returns Array of formatted error messages
  */
 export function formatValidationErrors(error: z.ZodError): string[] {
-  return error.errors.map((err) => {
+  return error.issues.map((err) => {
     const path = err.path.join('.');
     return `${path}: ${err.message}`;
   });

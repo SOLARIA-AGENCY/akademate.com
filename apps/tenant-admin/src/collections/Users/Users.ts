@@ -178,7 +178,7 @@ export const Users: CollectionConfig = {
           return true;
         } catch (error) {
           if (error instanceof ZodError) {
-            return error.errors[0]?.message ?? 'Invalid email format';
+            return error.issues[0]?.message ?? 'Invalid email format';
           }
           return 'Invalid email format';
         }
@@ -205,7 +205,7 @@ export const Users: CollectionConfig = {
           return true;
         } catch (error) {
           if (error instanceof ZodError) {
-            return error.errors[0]?.message ?? 'Invalid password';
+            return error.issues[0]?.message ?? 'Invalid password';
           }
           return 'Invalid password';
         }
@@ -366,7 +366,7 @@ export const Users: CollectionConfig = {
           return true;
         } catch (error) {
           if (error instanceof ZodError) {
-            return error.errors[0]?.message ?? 'Invalid phone format';
+            return error.issues[0]?.message ?? 'Invalid phone format';
           }
           return 'Invalid phone format';
         }

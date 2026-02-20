@@ -83,7 +83,7 @@ export const emailSchema = z.string().email('Invalid email format').max(255, 'Em
  * This enforces the database CHECK constraint at the application level
  */
 export const gdprConsentSchema = z.literal(true, {
-  errorMap: () => ({ message: 'GDPR consent is required to submit this form' }),
+  error: 'GDPR consent is required to submit this form',
 });
 
 /**
@@ -91,7 +91,7 @@ export const gdprConsentSchema = z.literal(true, {
  * This enforces the database CHECK constraint at the application level
  */
 export const privacyPolicySchema = z.literal(true, {
-  errorMap: () => ({ message: 'You must accept the privacy policy to submit this form' }),
+  error: 'You must accept the privacy policy to submit this form',
 });
 
 /**
@@ -107,28 +107,28 @@ export const marketingConsentSchema = z.boolean().optional().default(false);
  * Lead status enum
  */
 export const statusSchema = z.enum(['new', 'contacted', 'qualified', 'converted', 'rejected', 'spam'], {
-  errorMap: () => ({ message: 'Invalid status value' }),
+  error: 'Invalid status value',
 });
 
 /**
  * Priority enum
  */
 export const prioritySchema = z.enum(['low', 'medium', 'high', 'urgent'], {
-  errorMap: () => ({ message: 'Invalid priority value' }),
+  error: 'Invalid priority value',
 });
 
 /**
  * Preferred contact method enum
  */
 export const contactMethodSchema = z.enum(['email', 'phone', 'whatsapp'], {
-  errorMap: () => ({ message: 'Invalid contact method' }),
+  error: 'Invalid contact method',
 });
 
 /**
  * Preferred contact time enum
  */
 export const contactTimeSchema = z.enum(['morning', 'afternoon', 'evening', 'anytime'], {
-  errorMap: () => ({ message: 'Invalid contact time' }),
+  error: 'Invalid contact time',
 });
 
 /**
@@ -318,7 +318,7 @@ export type LeadUpdateInput = z.infer<typeof LeadUpdateSchema>;
  * @returns Formatted error array for Payload CMS
  */
 export const formatValidationErrors = (error: z.ZodError) => {
-  return error.errors.map((err) => ({
+  return error.issues.map((err) => ({
     message: err.message,
     field: err.path.join('.'),
   }));

@@ -142,7 +142,7 @@ export const emailSchema = z
  * This enforces the database CHECK constraint at the application level
  */
 export const gdprConsentSchema = z.literal(true, {
-  errorMap: () => ({ message: 'GDPR consent is required to submit this form' }),
+  error: 'GDPR consent is required to submit this form',
 });
 
 /**
@@ -150,7 +150,7 @@ export const gdprConsentSchema = z.literal(true, {
  * This enforces the database CHECK constraint at the application level
  */
 export const privacyPolicySchema = z.literal(true, {
-  errorMap: () => ({ message: 'You must accept the privacy policy to submit this form' }),
+  error: 'You must accept the privacy policy to submit this form',
 });
 
 /**
@@ -210,7 +210,7 @@ export const dateOfBirthSchema = z
 export const VALID_STUDENT_STATUSES = ['active', 'inactive', 'suspended', 'graduated'] as const;
 
 export const statusSchema = z.enum(VALID_STUDENT_STATUSES, {
-  errorMap: () => ({ message: 'Invalid status value' }),
+  error: 'Invalid status value',
 });
 
 /**
@@ -219,7 +219,7 @@ export const statusSchema = z.enum(VALID_STUDENT_STATUSES, {
 export const VALID_GENDERS = ['male', 'female', 'non-binary', 'prefer-not-to-say'] as const;
 
 export const genderSchema = z.enum(VALID_GENDERS, {
-  errorMap: () => ({ message: 'Invalid gender value' }),
+  error: 'Invalid gender value',
 });
 
 /**
@@ -238,7 +238,7 @@ export const VALID_RELATIONSHIPS = [
 ] as const;
 
 export const relationshipSchema = z.enum(VALID_RELATIONSHIPS, {
-  errorMap: () => ({ message: 'Invalid relationship value' }),
+  error: 'Invalid relationship value',
 });
 
 // ============================================================================
@@ -403,7 +403,7 @@ export type StudentUpdateInput = z.infer<typeof StudentUpdateSchema>;
  * @returns Formatted error array for Payload CMS
  */
 export const formatValidationErrors = (error: z.ZodError) => {
-  return error.errors.map((err) => ({
+  return error.issues.map((err) => ({
     message: err.message,
     field: err.path.join('.'),
   }));

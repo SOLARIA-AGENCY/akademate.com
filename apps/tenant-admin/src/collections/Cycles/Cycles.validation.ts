@@ -122,7 +122,7 @@ export function validateCycleUpdate(data: unknown) {
  * @returns Formatted error messages
  */
 export function formatValidationErrors(errors: z.ZodError) {
-  return errors.errors.map((err) => ({
+  return errors.issues.map((err) => ({
     field: err.path.join('.'),
     message: err.message,
   }));
