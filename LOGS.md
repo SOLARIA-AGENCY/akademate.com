@@ -294,6 +294,18 @@
   - `POST /api/auth/dev-login` (`:3004`, `:3009`, `:3005`) => cookies + redirección correcta.
 - Resultado: PASS (B1/B2 completadas; pendiente C1-C4 de unificación visual final).
 
+## Iteracion 90 (20-02-2026)
+- Accion: Apliqué unificación visual del login de Campus al patrón de referencia Ops/Payload.
+- Cambios:
+  - `apps/campus/app/_components/LoginForm.tsx`: card glass responsive, inputs dark, CTA gradiente `blue->cyan`, estados de error coherentes.
+  - `apps/campus/app/page.tsx` y `apps/campus/app/login/page.tsx`: layout centrado full-height consistente.
+- Deploy:
+  - Rebuild/redeploy remoto `campus` + restart `nginx`.
+- Validacion:
+  - `GET http://100.99.60.106:3005/` => 200
+  - `GET http://100.99.60.106:3005/login` => 200
+- Resultado: PASS (C2 cerrada; pendiente auditoría visual final C1/C4).
+
 ## Iteracion 65 (19-02-2026)
 - Accion: Inicie Ralph Loop 2026-02 post-auditoria, defini plan de estabilizacion y backlog atomico.
 - Resultado: IMPLEMENTATION_PLAN.md y TASKS_TODO.md actualizados con bloque de estabilizacion.

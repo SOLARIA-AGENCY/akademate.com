@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function CampusLoginPage() {
   return (
-    <main className="flex min-h-[70vh] items-center justify-center">
+    <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <LoginForm />
     </main>
   )

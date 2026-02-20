@@ -125,4 +125,5 @@
 - [x] Corregir SSR exception en `web /cursos` con fallback estable.
 - [x] Documentar credenciales dev de campus en launchpad.
 - [ ] Ejecutar unificación visual según tokens (Ops/Payload reference style).
+- [x] Unificar login de Campus al patrón visual Ops/Payload (card + CTA gradiente + layout responsivo).
 - [ ] Auditoría visual final con evidencia y veredicto GO/NO-GO.
