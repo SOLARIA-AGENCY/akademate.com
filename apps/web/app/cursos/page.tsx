@@ -69,11 +69,76 @@ interface CMSClient {
   getCourses: (params: { limit: number }) => Promise<CoursesResponse>
 }
 
+function normalizeCourse(input: Partial<Course>, index: number): Course {
+  const safeId = typeof input.id === 'string' && input.id.length > 0 ? input.id : `course-${index}`
+  const safeTitle = typeof input.title === 'string' && input.title.length > 0 ? input.title : 'Curso sin título'
+  const safeSlugBase = typeof input.slug === 'string' && input.slug.length > 0 ? input.slug : safeId
+  const safeSlug = safeSlugBase.replace(/\s+/g, '-').toLowerCase()
+  const safeDescription =
+    typeof input.description === 'string' && input.description.length > 0
+      ? input.description
+      : 'Descripción no disponible'
+
+  const safeLevel: Course['level'] =
+    input.level === 'beginner' || input.level === 'intermediate' || input.level === 'advanced'
+      ? input.level
+      : 'beginner'
+
+  return {
+    id: safeId,
+    title: safeTitle,
+    slug: safeSlug,
+    description: safeDescription,
+    shortDescription: typeof input.shortDescription === 'string' ? input.shortDescription : undefined,
+    price: typeof input.price === 'number' && Number.isFinite(input.price) ? input.price : 0,
+    currency: typeof input.currency === 'string' && input.currency.length > 0 ? input.currency : 'EUR',
+    duration: typeof input.duration === 'number' && Number.isFinite(input.duration) ? input.duration : 0,
+    category: typeof input.category === 'string' && input.category.length > 0 ? input.category : 'General',
+    level: safeLevel,
+    instructor: {
+      id:
+        typeof input.instructor?.id === 'string' && input.instructor.id.length > 0
+          ? input.instructor.id
+          : 'unknown-instructor',
+      name:
+        typeof input.instructor?.name === 'string' && input.instructor.name.length > 0
+          ? input.instructor.name
+          : 'Equipo Akademate',
+      avatar: input.instructor?.avatar,
+    },
+    image: input.image,
+    rating: typeof input.rating === 'number' && Number.isFinite(input.rating) ? input.rating : undefined,
+    studentsCount:
+      typeof input.studentsCount === 'number' && Number.isFinite(input.studentsCount)
+        ? input.studentsCount
+        : 0,
+    status: input.status === 'draft' || input.status === 'archived' ? input.status : 'published',
+    createdAt:
+      typeof input.createdAt === 'string' && input.createdAt.length > 0
+        ? input.createdAt
+        : new Date(0).toISOString(),
+    updatedAt:
+      typeof input.updatedAt === 'string' && input.updatedAt.length > 0
+        ? input.updatedAt
+        : new Date(0).toISOString(),
+  }
+}
+
 async function fetchCourses(): Promise<CoursesResponse> {
   try {
     const typedCms = cms as unknown as CMSClient
     const response = await typedCms.getCourses({ limit: 20 })
-    return response
+    const docs = Array.isArray(response?.docs) ? response.docs : []
+
+    return {
+      docs: docs.map((course, index) => normalizeCourse(course, index)),
+      totalDocs: typeof response?.totalDocs === 'number' ? response.totalDocs : docs.length,
+      limit: typeof response?.limit === 'number' ? response.limit : 20,
+      page: typeof response?.page === 'number' ? response.page : 1,
+      totalPages: typeof response?.totalPages === 'number' ? response.totalPages : 1,
+      hasNextPage: Boolean(response?.hasNextPage),
+      hasPrevPage: Boolean(response?.hasPrevPage),
+    }
   } catch {
     return {
       docs: [],

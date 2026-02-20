@@ -277,6 +277,23 @@
   - Nota de deuda técnica preexistente: `admin-client typecheck` mantiene errores históricos no introducidos por esta iteración (AWS smithy/versionado y tipado sidebar).
 - Resultado: PASS (bloque Auth P0 desbloqueado en producción de staging).
 
+## Iteracion 89 (20-02-2026)
+- Accion: Cerré bloque de estabilidad funcional en `web/cursos` y accesos campus/launchpad con deploy selectivo remoto.
+- Cambios:
+  - `apps/payload/app/api/courses/route.ts`: reemplazo de stub `{ ok: true }` por endpoint real `payload.find('courses')` con paginación y fallback seguro.
+  - `apps/web/app/cursos/page.tsx`: normalización defensiva de datos CMS para evitar crash SSR por payload incompleto/inesperado.
+  - `apps/campus/app/login/page.tsx`: alias de login explícito para acceso directo `:3005/login`.
+  - `apps/portal/app/page.tsx`: credencial de password dev visible para card de campus (`Admin1234!`).
+- Deploy:
+  - Rebuild/redeploy remoto de `payload`, `web`, `campus`, `portal` + restart `nginx`.
+- Validacion:
+  - `GET /api/courses?limit=5` (`:3003`) => 200 con esquema paginado (`docs`, `totalDocs`, ...).
+  - `GET /cursos` (`:3006`) => 200 (sin exception digest 2394153064).
+  - `GET /login` (`:3005`) => 200.
+  - `GET /` (`:3008` launchpad) => 200.
+  - `POST /api/auth/dev-login` (`:3004`, `:3009`, `:3005`) => cookies + redirección correcta.
+- Resultado: PASS (B1/B2 completadas; pendiente C1-C4 de unificación visual final).
+
 ## Iteracion 65 (19-02-2026)
 - Accion: Inicie Ralph Loop 2026-02 post-auditoria, defini plan de estabilizacion y backlog atomico.
 - Resultado: IMPLEMENTATION_PLAN.md y TASKS_TODO.md actualizados con bloque de estabilizacion.

@@ -122,7 +122,7 @@
 - [x] Corregir `POST /api/users/login` en Payload (`500 Something went wrong`).
 - [x] Validar/seed usuario `ops@akademate.com` superadmin y credenciales admin CMS.
 - [x] Corregir integración auth de Ops contra Payload.
-- [ ] Corregir SSR exception en `web /cursos` con fallback estable.
-- [ ] Documentar credenciales dev de campus en launchpad.
+- [x] Corregir SSR exception en `web /cursos` con fallback estable.
+- [x] Documentar credenciales dev de campus en launchpad.
 - [ ] Ejecutar unificación visual según tokens (Ops/Payload reference style).
 - [ ] Auditoría visual final con evidencia y veredicto GO/NO-GO.

@@ -162,6 +162,7 @@ export default function PortalPage() {
             hasAutoLogin
             credentials={[
               { label: 'email', value: 'alumno@akademate.com' },
+              { label: 'password', value: 'Admin1234!' },
               { label: 'role', value: 'student' },
             ]}
             onOpen={() => postAndOpen(`${runtimeUrls.campus}/api/auth/dev-login`, '/dashboard')}
