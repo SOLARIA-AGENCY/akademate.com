@@ -17,6 +17,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:campus": "playwright test tests/e2e/campus.spec.ts",
     "typecheck": "tsc --noEmit",
+    "audit:hygiene": "node ./scripts/audit-transpiled-artifacts.mjs",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "payload": "payload",

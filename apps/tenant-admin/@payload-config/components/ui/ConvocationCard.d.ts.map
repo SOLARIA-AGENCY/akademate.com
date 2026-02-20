@@ -1,1 +1,0 @@
-{"version":3,"file":"ConvocationCard.d.ts","sourceRoot":"","sources":["ConvocationCard.tsx"],"names":[],"mappings":"AAOA,OAAO,KAAK,EAAE,sBAAsB,EAAE,MAAM,SAAS,CAAA;AAErD,UAAU,oBAAoB;IAC5B,QAAQ,EAAE,sBAAsB,CAAA;IAChC,OAAO,CAAC,EAAE,MAAM,IAAI,CAAA;IACpB,SAAS,CAAC,EAAE,MAAM,CAAA;CACnB;AAED,wBAAgB,eAAe,CAAC,EAAE,QAAQ,EAAE,OAAO,EAAE,SAAS,EAAE,EAAE,oBAAoB,+BAuJrF"}

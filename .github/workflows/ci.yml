@@ -46,6 +46,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Tenant hygiene audit
+        run: pnpm --filter @akademate/tenant-admin audit:hygiene
+
       - name: Typecheck
         run: pnpm -r exec tsc --noEmit
 

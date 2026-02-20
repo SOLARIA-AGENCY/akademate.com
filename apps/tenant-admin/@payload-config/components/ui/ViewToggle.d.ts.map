@@ -1,1 +1,0 @@
-{"version":3,"file":"ViewToggle.d.ts","sourceRoot":"","sources":["ViewToggle.tsx"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,QAAQ,EAAE,MAAM,yCAAyC,CAAA;AAEvE,UAAU,eAAe;IACvB,IAAI,EAAE,QAAQ,CAAA;IACd,YAAY,EAAE,CAAC,IAAI,EAAE,QAAQ,KAAK,IAAI,CAAA;CACvC;AAED,wBAAgB,UAAU,CAAC,EAAE,IAAI,EAAE,YAAY,EAAE,EAAE,eAAe,+BAuCjE"}

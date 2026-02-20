@@ -27,7 +27,9 @@ COPY apps/tenant-admin ./apps/tenant-admin
 COPY packages ./packages
 COPY tsconfig.json tsconfig.base.json postcss.config.cjs tailwind.config.js ./
 
-RUN mkdir -p /app/apps/tenant-admin/.next && chown -R nextjs:nodejs /app/apps/tenant-admin
+RUN rm -rf /app/apps/tenant-admin/.next /app/apps/tenant-admin/.turbo \
+  && mkdir -p /app/apps/tenant-admin/.next \
+  && chown -R nextjs:nodejs /app/apps/tenant-admin
 
 USER nextjs
 EXPOSE 3009
