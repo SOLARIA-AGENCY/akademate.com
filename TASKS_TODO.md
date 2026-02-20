@@ -136,3 +136,12 @@
 - [x] Wave 4: estandarizar `PageHeader` + icono en `contenido/*`, `web/*`, `estado`, `facturacion`, `ayuda`.
 - [x] Wave 5: estandarizar `PageHeader` + icono en flujos `cursos/[id]`, `cursos/[id]/editar`, `cursos/[id]/convocatoria/[convocationId]`, `cursos/nuevo`.
 - [x] Cierre: todas las páginas funcionales de `(dashboard)` usan `PageHeader`/`ComingSoonPage` (queda solo alias técnico `dashboard/page.tsx`).
+
+## 19) Ralph Loop 2026-02-20 (Design System Image-Driven Rollout)
+- [x] Iteración 1: baseline visual automático + informe de hallazgos (`docs/audits/tenant-visual-baseline-2026-02-20.md`).
+- [x] Iteración 2: alinear shell global a grid spec (topbar 80, sidebar 240/80, spacing lateral).
+- [ ] Iteración 3: reemplazo de hardcodes de color/sombra por tokens (objetivo -60%).
+- [ ] Iteración 4: normalización de jerarquía tipográfica de cards (24/16/14/16).
+- [ ] Iteración 5: integración de patrones pricing/budget/stepper en módulos funcionales.
+- [ ] Iteración 6: QA transversal visual + contraste + estados.
+- [ ] Iteración 7: cierre, deploy y veredicto GO.

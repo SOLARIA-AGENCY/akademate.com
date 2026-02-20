@@ -355,7 +355,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   return (
     <div className="flex h-full flex-col overflow-hidden bg-card text-sidebar-foreground">
       {/* Header - Logo + Text - Smooth transition */}
-      <div className="flex h-16 items-center border-b border-sidebar-border px-4 overflow-hidden">
+      <div className="flex h-11 items-center border-b border-sidebar-border px-3 overflow-hidden">
         <div className={`flex items-center w-full transition-all duration-300 ease-in-out ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
           {/* White background wrapper for dark mode logo visibility */}
           <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center flex-shrink-0 p-0.5 shadow-sm">

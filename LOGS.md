@@ -567,3 +567,14 @@
 ## Iteracion 70 (20-02-2026)
 - Accion: Completé estandarización en `administracion/*`, `administrativo/*`, `ayuda` y `cursos/*` (detalle, edición, convocatoria y nuevo).
 - Resultado: todas las páginas funcionales de `(dashboard)` están homogeneizadas con `PageHeader`/`ComingSoonPage`; solo queda `dashboard/page.tsx` como alias técnico de re-export. Gate final `pnpm --filter tenant-admin typecheck` PASS.
+
+## Iteracion 71 (20-02-2026)
+- Accion: Ejecuté baseline visual automatizado contra spec image-driven (grid, sidebar, topbar, headers, tipografía y hardcodes de color).
+- Resultado: informe generado en `docs/audits/tenant-visual-baseline-2026-02-20.md` con 0 hallazgos P0, 5 P1 y 6 P2.
+- Evidencia cuantitativa: cobertura headers 72/73 páginas, 119 ocurrencias de `#hex` en 25 archivos de runtime dashboard.
+- Accion adicional: generado plan de implementación iterativo Ralph Loop en `docs/design/RALPH_LOOP_DESIGN_IMPLEMENTATION_PLAN_2026-02-20.md`.
+
+## Iteracion 72 (20-02-2026)
+- Accion: Ejecuté Iteración 2 del plan y alineé shell global al spec de grid/estructura.
+- Cambios: `layout.tsx` actualizado a sidebar `240/80` y topbar `h-20` (80px); `AppSidebar.tsx` header normalizado a `h-11` (44px) y padding ajustado.
+- Validacion: `pnpm --filter tenant-admin typecheck` PASS.

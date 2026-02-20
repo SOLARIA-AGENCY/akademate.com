@@ -131,7 +131,7 @@ export default function DashboardLayout({
       <div className="flex h-screen overflow-hidden bg-background text-foreground overscroll-none">
         <aside
           className={`fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 ${
-            sidebarOpen ? 'w-64' : 'w-16'
+            sidebarOpen ? 'w-[240px]' : 'w-[80px]'
           }`}
         >
           <AppSidebar
@@ -142,10 +142,10 @@ export default function DashboardLayout({
 
         <div
           className={`flex-1 flex flex-col transition-all duration-300 ${
-            sidebarOpen ? 'ml-64' : 'ml-16'
+            sidebarOpen ? 'ml-[240px]' : 'ml-[80px]'
           }`}
         >
-          <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6">
+          <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6">
             <div className="flex items-center gap-3 pr-4">
               <Badge variant="outline" className="hidden lg:inline-flex text-[10px] tracking-wide">
                 PANEL CLIENTE
