@@ -69,11 +69,11 @@ export default function PortalPage() {
 
   return (
     <div className="min-h-screen bg-canvas text-foreground">
-      <header className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b border-white/10 bg-slate-950/70 backdrop-blur-sm">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <img
-              className="logo h-10 w-10 rounded-lg bg-background p-1 ring-1 ring-border"
+              className="logo h-10 w-10 rounded-lg bg-black/40 p-1 ring-1 ring-white/15"
               data-testid="logo"
               src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2306b6d4'/%3E%3Cpath d='M16 44V20l16-8 16 8v24l-16 8-16-8z' fill='white'/%3E%3C/svg%3E"
               alt="Akademate"
@@ -83,18 +83,22 @@ export default function PortalPage() {
               <h1 className="text-xl font-semibold text-foreground">Dev Launchpad</h1>
             </div>
           </div>
-          <Badge variant="warning">DEV MODE</Badge>
+          <Badge variant="warning" className="bg-red-500 text-white">
+            DEV MODE
+          </Badge>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 md:py-8 lg:px-8">
-        <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-xl backdrop-blur-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               Servidor: <span className="font-semibold text-foreground">NEMESIS</span> · Entorno:{' '}
               <span className="font-semibold text-foreground">development</span>
             </p>
-            <Badge variant="default">Launchpad Unificado</Badge>
+            <Badge variant="default" className="bg-white/10 text-white">
+              Launchpad Unificado
+            </Badge>
           </div>
         </section>
 

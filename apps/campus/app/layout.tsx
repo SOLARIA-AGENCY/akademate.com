@@ -16,19 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-background text-foreground antialiased">
         <SessionProvider>
           <RealtimeProvider>
-            <div className="layout-shell">
-              <header className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card/70 px-4 py-3 shadow-lg shadow-black/30 backdrop-blur">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Campus alumno</span>
-                  <span className="text-lg font-semibold">Akademate</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold">
-                  <span className="rounded-full bg-primary/20 px-3 py-1 text-primary">tenant scoped</span>
-                  <span className="rounded-full bg-secondary/20 px-3 py-1 text-secondary">roles alumno</span>
-                </div>
-              </header>
-              <div className="mt-6">{children}</div>
-            </div>
+            <div className="layout-shell">{children}</div>
           </RealtimeProvider>
         </SessionProvider>
       </body>

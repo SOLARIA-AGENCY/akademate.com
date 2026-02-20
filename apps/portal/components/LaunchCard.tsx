@@ -29,7 +29,7 @@ export function LaunchCard({
   className,
 }: LaunchCardProps) {
   return (
-    <Card className={`h-full border-border bg-card/95 shadow-sm ${className ?? ''}`}>
+    <Card className={`border-white/10 bg-white/[0.03] shadow-2xl backdrop-blur-sm ${className ?? ''}`}>
       <CardHeader className="p-6 pb-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -39,23 +39,29 @@ export function LaunchCard({
             </CardTitle>
             <CardDescription className="mt-1">{subtitle}</CardDescription>
           </div>
-          <Badge variant="default">{port}</Badge>
+          <Badge variant="default" className="bg-white/10 text-white">
+            {port}
+          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="flex h-full flex-col gap-4 p-6 pt-0">
-        <p className="text-sm text-muted-foreground">{description}</p>
-        {hasAutoLogin ? <Badge variant="warning">AUTO-LOGIN DEV</Badge> : null}
+      <CardContent className="space-y-4 p-6 pt-0">
+        <p className="text-sm text-muted-foreground/90">{description}</p>
+        {hasAutoLogin ? (
+          <Badge variant="warning" className="w-fit bg-amber-400 text-black">
+            AUTO-LOGIN DEV
+          </Badge>
+        ) : null}
         {credentials?.length ? (
-          <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-foreground">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-foreground">
             {credentials.map((credential) => (
               <div key={credential.label} className="flex justify-between gap-3">
-                <span className="text-muted-foreground">{credential.label}</span>
-                <code className="text-foreground">{credential.value}</code>
+                <span className="text-white/60">{credential.label}</span>
+                <code className="text-white">{credential.value}</code>
               </div>
             ))}
           </div>
         ) : null}
-        <Button onClick={onOpen} className="mt-auto w-full">
+        <Button onClick={onOpen} className="w-full">
           ABRIR
           <ArrowUpRight className="ml-2 h-4 w-4" />
         </Button>

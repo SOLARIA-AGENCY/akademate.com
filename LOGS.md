@@ -306,6 +306,24 @@
   - `GET http://100.99.60.106:3005/login` => 200
 - Resultado: PASS (C2 cerrada; pendiente auditoría visual final C1/C4).
 
+## Iteracion 91 (20-02-2026)
+- Accion: Cerré auditoría visual final con evidencia antes/después y ajustes de estilo en portal/campus.
+- Cambios:
+  - `apps/campus/app/layout.tsx`: removida barra superior contextual que rompía limpieza visual del login.
+  - `apps/portal/app/globals.css`: tokens/navy mesh alineados a referencia Ops/Payload.
+  - `apps/portal/components/ui/button.tsx`: CTA gradiente azul-cyan como variante default.
+  - `apps/portal/components/LaunchCard.tsx`: card glass refinada, badges contrastados, reducción de estirado vertical.
+  - `apps/portal/components/ServiceStatusBar.tsx`: contenedor visual coherente con card glass.
+  - Evidencia capturada en `docs/audits/evidence/*` y reporte `docs/audits/VISUAL_AUDIT_2026-02-20.md`.
+- Deploy:
+  - Rebuild/redeploy remoto de `portal` y `campus` + restart `nginx`.
+- Validacion:
+  - `GET :3008/` => 200
+  - `GET :3005/login` => 200
+  - `GET :3005/` => 200
+  - Dev-login endpoints `:3004/:3009/:3005` => OK (200/302 con cookie).
+- Resultado: PARTIAL PASS (sin P0; queda micro-ajuste de spacing del portal en viewport bajo).
+
 ## Iteracion 65 (19-02-2026)
 - Accion: Inicie Ralph Loop 2026-02 post-auditoria, defini plan de estabilizacion y backlog atomico.
 - Resultado: IMPLEMENTATION_PLAN.md y TASKS_TODO.md actualizados con bloque de estabilizacion.
