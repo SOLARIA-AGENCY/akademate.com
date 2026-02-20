@@ -388,3 +388,12 @@
 
 - ✓ COMPLETION.txt creado (COMPLETED).
 - ✓ Verificacion final completada.
+
+## Iteracion 84 (20-02-2026)
+- Accion: Corregi runtime de `tenant-admin` en `/administracion/roles` y `/administracion/actividad` (imports faltantes de iconos que provocaban `500` en NEMESIS).
+- Accion: Amplie cobertura de regresion con `apps/tenant-admin/__tests__/dashboard-campus-integration.test.tsx` y `apps/tenant-admin/tests/components/admin-pages-runtime.test.tsx`.
+- Accion: Endureci mocks de UI (`select` + `MockDataIndicator`) para estabilizar pruebas de render en Vitest.
+- Accion: Endureci auditoria integral runtime (`scripts/audit/platform-multitenant-audit.mjs`) con preflight de salud, fallback de login dev, timeout/retry de paginas y chequeo ops opcional.
+- Resultado: `pnpm --filter @akademate/tenant-admin test` en verde (35 files, 581 passed, 1 skipped, 0 failed).
+- Resultado: Despliegue remoto en NEMESIS con `tar + scp + docker compose` y validacion de endpoints criticos `dev-login/dashboard/administracion`.
+- Resultado: Auditoria integral PASS en `docs/audits/platform-audit-2026-02-20T00-19-18-290Z.md`.

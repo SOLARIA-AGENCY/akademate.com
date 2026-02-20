@@ -24,6 +24,9 @@ import {
 import {
   Search,
   Activity,
+  Plus,
+  Eye,
+  Calendar,
   Download,
   User,
   AlertCircle,

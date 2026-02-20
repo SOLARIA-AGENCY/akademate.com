@@ -1,0 +1,706 @@
+{
+  "startedAt": "2026-02-20T00:19:18.290Z",
+  "base": "http://100.99.60.106",
+  "timeoutMs": 30000,
+  "urls": {
+    "tenant": "http://100.99.60.106:3009",
+    "portal": "http://100.99.60.106:3008",
+    "web": "http://100.99.60.106:3006",
+    "admin": "http://100.99.60.106:3004",
+    "campus": "http://100.99.60.106:3005",
+    "payload": "http://100.99.60.106:3003",
+    "ops": "http://100.99.60.106:3070"
+  },
+  "sections": {
+    "tenantReadiness": {
+      "ready": true,
+      "attempts": 1
+    },
+    "discovery": {
+      "dashboardPagesCount": 55,
+      "dashboardPages": [
+        "/administracion/actividad",
+        "/administracion/impersonar",
+        "/administracion/roles",
+        "/administracion/suscripcion",
+        "/administracion/usuarios",
+        "/administrativo",
+        "/administrativo/nuevo",
+        "/alumnos",
+        "/analiticas",
+        "/ayuda",
+        "/campanas",
+        "/campus-virtual",
+        "/campus-virtual/certificados",
+        "/campus-virtual/contenido",
+        "/campus-virtual/inscripciones",
+        "/campus-virtual/progreso",
+        "/ciclos",
+        "/ciclos-medio",
+        "/ciclos-superior",
+        "/configuracion",
+        "/configuracion/apis",
+        "/configuracion/areas",
+        "/configuracion/dominios",
+        "/configuracion/flags",
+        "/configuracion/gdpr",
+        "/configuracion/general",
+        "/configuracion/personalizacion",
+        "/contenido/blog",
+        "/contenido/faqs",
+        "/contenido/formularios",
+        "/contenido/medios",
+        "/contenido/paginas",
+        "/contenido/testimonios",
+        "/contenido/visitantes",
+        "/creatividades",
+        "/cursos",
+        "/cursos/nuevo",
+        "/dashboard",
+        "/estado",
+        "/facturacion",
+        "/leads",
+        "/lista-espera",
+        "/matriculas",
+        "/perfil",
+        "/perfil/editar",
+        "/personal",
+        "/planner",
+        "/profesores",
+        "/profesores/nuevo",
+        "/programacion",
+        "/programacion/nueva",
+        "/sedes",
+        "/web/ciclos/medio",
+        "/web/ciclos/superior",
+        "/web/cursos"
+      ],
+      "apiRoutesCount": 45,
+      "apiStaticCount": 37
+    },
+    "staticTenantAwareness": {
+      "total": 45,
+      "tenantAware": 12,
+      "potentialGaps": 29,
+      "gaps": [
+        {
+          "endpoint": "/api/[...slug]",
+          "file": "apps/tenant-admin/app/api/[...slug]/route.ts",
+          "dynamic": true,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/areas-formativas",
+          "file": "apps/tenant-admin/app/api/areas-formativas/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/attendance/qr-checkin",
+          "file": "apps/tenant-admin/app/api/attendance/qr-checkin/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/billing/invoices",
+          "file": "apps/tenant-admin/app/api/billing/invoices/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/billing/payment-methods",
+          "file": "apps/tenant-admin/app/api/billing/payment-methods/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/billing/subscriptions/[id]",
+          "file": "apps/tenant-admin/app/api/billing/subscriptions/[id]/route.ts",
+          "dynamic": true,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/campus/dashboard",
+          "file": "apps/tenant-admin/app/api/campus/dashboard/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/campus/gamification",
+          "file": "apps/tenant-admin/app/api/campus/gamification/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/campus/logout",
+          "file": "apps/tenant-admin/app/api/campus/logout/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/convocatorias",
+          "file": "apps/tenant-admin/app/api/convocatorias/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/cursos",
+          "file": "apps/tenant-admin/app/api/cursos/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/cursos/siguiente-codigo",
+          "file": "apps/tenant-admin/app/api/cursos/siguiente-codigo/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/dashboard",
+          "file": "apps/tenant-admin/app/api/dashboard/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/gdpr/[userId]/consent",
+          "file": "apps/tenant-admin/app/api/gdpr/[userId]/consent/route.ts",
+          "dynamic": true,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/gdpr/[userId]/delete",
+          "file": "apps/tenant-admin/app/api/gdpr/[userId]/delete/route.ts",
+          "dynamic": true,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/gdpr/[userId]/export",
+          "file": "apps/tenant-admin/app/api/gdpr/[userId]/export/route.ts",
+          "dynamic": true,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/gdpr/erasure",
+          "file": "apps/tenant-admin/app/api/gdpr/erasure/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/gdpr/export",
+          "file": "apps/tenant-admin/app/api/gdpr/export/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/lms/content",
+          "file": "apps/tenant-admin/app/api/lms/content/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/lms/enrollments/[id]",
+          "file": "apps/tenant-admin/app/api/lms/enrollments/[id]/route.ts",
+          "dynamic": true,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/lms/enrollments/bulk",
+          "file": "apps/tenant-admin/app/api/lms/enrollments/bulk/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/lms/enrollments",
+          "file": "apps/tenant-admin/app/api/lms/enrollments/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/lms/gamification",
+          "file": "apps/tenant-admin/app/api/lms/gamification/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/lms/lessons/[id]",
+          "file": "apps/tenant-admin/app/api/lms/lessons/[id]/route.ts",
+          "dynamic": true,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/lms/modules/[id]",
+          "file": "apps/tenant-admin/app/api/lms/modules/[id]/route.ts",
+          "dynamic": true,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/lms/progress",
+          "file": "apps/tenant-admin/app/api/lms/progress/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/staff",
+          "file": "apps/tenant-admin/app/api/staff/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/students",
+          "file": "apps/tenant-admin/app/api/students/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        },
+        {
+          "endpoint": "/api/users/login",
+          "file": "apps/tenant-admin/app/api/users/login/route.ts",
+          "dynamic": false,
+          "tenantAware": false,
+          "exempt": false
+        }
+      ]
+    },
+    "apiRuntime": {
+      "authFlow": {
+        "steps": [
+          {
+            "step": "dev-login-post",
+            "status": 302,
+            "ms": 59798,
+            "error": null
+          }
+        ],
+        "success": true,
+        "cookieHeader": "payload-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29sbGVjdGlvbiI6InVzZXJzIiwiZW1haWwiOiJzdXBlcmFkbWluQGNlcGNvbXVuaWNhY2lvbi5jb20iLCJzaWQiOiI3YTU4M2M3Ny03M2E1LTQ5ZmItYjllYS1iYTc1YmFiNGEwYzEiLCJpYXQiOjE3NzE1NDY4MTQsImV4cCI6MTc3MTU1NDAxNH0.b77ylw4gSMmOTlJEyl_Pf3mue-xj7Ax_ZWyqmvWSPoQ; cep_session=%7B%22user%22%3A%7B%22id%22%3A%222%22%2C%22email%22%3A%22superadmin%40cepcomunicacion.com%22%2C%22name%22%3A%22Super%20Admin%22%2C%22role%22%3A%22superadmin%22%2C%22tenantId%22%3A%221%22%7D%2C%22token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiY29sbGVjdGlvbiI6InVzZXJzIiwiZW1haWwiOiJzdXBlcmFkbWluQGNlcGNvbXVuaWNhY2lvbi5jb20iLCJzaWQiOiI3YTU4M2M3Ny03M2E1LTQ5ZmItYjllYS1iYTc1YmFiNGEwYzEiLCJpYXQiOjE3NzE1NDY4MTQsImV4cCI6MTc3MTU1NDAxNH0.b77ylw4gSMmOTlJEyl_Pf3mue-xj7Ax_ZWyqmvWSPoQ%22%7D"
+      },
+      "unauthChecks": [
+        {
+          "endpoint": "/api/dashboard",
+          "status": 401,
+          "ms": 420,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        },
+        {
+          "endpoint": "/api/cursos?limit=5",
+          "status": 401,
+          "ms": 46,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        },
+        {
+          "endpoint": "/api/convocatorias?limit=5",
+          "status": 401,
+          "ms": 242,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        },
+        {
+          "endpoint": "/api/campuses?limit=5",
+          "status": 401,
+          "ms": 320,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        },
+        {
+          "endpoint": "/api/students?limit=5",
+          "status": 401,
+          "ms": 99,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        },
+        {
+          "endpoint": "/api/staff?limit=5",
+          "status": 401,
+          "ms": 426,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        },
+        {
+          "endpoint": "/api/cycles?limit=5",
+          "status": 401,
+          "ms": 81,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        },
+        {
+          "endpoint": "/api/lms/enrollments?limit=5",
+          "status": 401,
+          "ms": 405,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        },
+        {
+          "endpoint": "/api/lms/progress?enrollmentId=3",
+          "status": 401,
+          "ms": 196,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        },
+        {
+          "endpoint": "/api/feature-flags?tenantId=1",
+          "status": 401,
+          "ms": 194,
+          "pass": true,
+          "sample": "{\"error\":\"Authentication required\",\"code\":\"AUTH_REQUIRED\"}"
+        }
+      ],
+      "authChecks": [
+        {
+          "endpoint": "/api/dashboard",
+          "status": 200,
+          "ms": 13494,
+          "pass": true,
+          "sample": "{\"success\":true,\"data\":{\"metrics\":{\"total_courses\":3,\"active_courses\":3,\"active_students\":0,\"total_students\":0,\"leads_this_month\":0,\"total_leads\":0,\"conversion_rate\":0,\"total_revenue\":0,\"active_convoc"
+        },
+        {
+          "endpoint": "/api/cursos?limit=5",
+          "status": 200,
+          "ms": 10472,
+          "pass": true,
+          "sample": "{\"success\":true,\"data\":[{\"id\":3,\"codigo\":\"OPS-101\",\"nombre\":\"Gestion de Operaciones Academicas\",\"tipo\":\"privado\",\"descripcion\":\"Automatizacion y gestion de procesos academicos\",\"area\":\"Administracion "
+        },
+        {
+          "endpoint": "/api/convocatorias?limit=5",
+          "status": 200,
+          "ms": 7391,
+          "pass": true,
+          "sample": "{\"success\":true,\"data\":[{\"id\":3,\"cursoId\":3,\"cursoNombre\":\"Gestion de Operaciones Academicas\",\"cursoTipo\":\"privado\",\"campusId\":1,\"campusNombre\":\"Campus Madrid Centro\",\"fechaInicio\":\"2026-04-10T00:00:0"
+        },
+        {
+          "endpoint": "/api/campuses?limit=5",
+          "status": 200,
+          "ms": 19736,
+          "pass": true,
+          "sample": "{\"docs\":[{\"id\":1,\"slug\":\"madrid-centro\",\"name\":\"Campus Madrid Centro\",\"city\":\"Madrid\",\"address\":\"Calle Alcala 120\",\"postal_code\":\"28009\",\"phone\":\"+34 910000001\",\"email\":\"madrid@cep.es\",\"maps_url\":null"
+        },
+        {
+          "endpoint": "/api/students?limit=5",
+          "status": 200,
+          "ms": 3308,
+          "pass": true,
+          "sample": "{\"docs\":[{\"id\":3,\"first_name\":\"Sara\",\"last_name\":\"Gil\",\"email\":\"sara.gil@demo.cep.es\",\"phone\":\"+34 600111003\",\"dni\":\"00000003C\",\"address\":null,\"city\":\"Getafe\",\"postal_code\":null,\"country\":\"ES\",\"date_o"
+        },
+        {
+          "endpoint": "/api/staff?limit=5",
+          "status": 200,
+          "ms": 3419,
+          "pass": true,
+          "sample": "{\"success\":true,\"data\":[{\"id\":1,\"staffType\":\"profesor\",\"firstName\":\"Lucia\",\"lastName\":\"Ortega\",\"fullName\":\"Lucia Ortega\",\"email\":\"lucia.ortega@cep.es\",\"phone\":\"+34 620000101\",\"position\":\"Docente Full "
+        },
+        {
+          "endpoint": "/api/cycles?limit=5",
+          "status": 200,
+          "ms": 234,
+          "pass": true,
+          "sample": "{\"docs\":[],\"hasNextPage\":false,\"hasPrevPage\":false,\"limit\":5,\"nextPage\":null,\"page\":1,\"pagingCounter\":1,\"prevPage\":null,\"totalDocs\":0,\"totalPages\":1}"
+        },
+        {
+          "endpoint": "/api/lms/enrollments?limit=5",
+          "status": 200,
+          "ms": 6240,
+          "pass": true,
+          "sample": "{\"success\":true,\"data\":[{\"id\":3,\"status\":\"completed\",\"enrolledAt\":\"2026-02-19T20:17:21.957Z\",\"courseRun\":{\"id\":3,\"course\":{\"id\":3}},\"progress\":{\"completed\":0,\"total\":0,\"percent\":0}},{\"id\":2,\"status\":\""
+        },
+        {
+          "endpoint": "/api/lms/progress?enrollmentId=3",
+          "status": 200,
+          "ms": 3592,
+          "pass": true,
+          "sample": "{\"success\":true,\"data\":{\"enrollmentId\":\"3\",\"status\":\"completed\",\"completedLessons\":0,\"totalLessons\":0,\"progressPercent\":0,\"totalTimeSpentMinutes\":0,\"lessonProgress\":[]}}"
+        },
+        {
+          "endpoint": "/api/feature-flags?tenantId=1",
+          "status": 400,
+          "ms": 3550,
+          "pass": true,
+          "sample": "{\"error\":\"Invalid tenantId\"}"
+        }
+      ],
+      "publicChecks": [
+        {
+          "endpoint": "/api/health",
+          "status": 200,
+          "ms": 5827,
+          "pass": true
+        }
+      ],
+      "authPassRate": 100
+    },
+    "dashboardRuntime": {
+      "checked": 26,
+      "pass": 26,
+      "fail": 0,
+      "p50Ms": 3629,
+      "p95Ms": 19163,
+      "maxMs": 28559,
+      "checks": [
+        {
+          "route": "/dashboard",
+          "status": 200,
+          "ms": 15996,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/programacion",
+          "status": 200,
+          "ms": 435,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/cursos",
+          "status": 200,
+          "ms": 4320,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/ciclos",
+          "status": 200,
+          "ms": 4437,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"image\" href=\"https://images.unsplash.com/photo-"
+        },
+        {
+          "route": "/sedes",
+          "status": 200,
+          "ms": 9318,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/profesores",
+          "status": 200,
+          "ms": 3886,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/alumnos",
+          "status": 200,
+          "ms": 4040,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/leads",
+          "status": 200,
+          "ms": 6583,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/campanas",
+          "status": 200,
+          "ms": 3217,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/analiticas",
+          "status": 200,
+          "ms": 2444,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/estado",
+          "status": 200,
+          "ms": 17453,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/configuracion",
+          "status": 200,
+          "ms": 3629,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/configuracion/dominios",
+          "status": 200,
+          "ms": 2608,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/configuracion/general",
+          "status": 200,
+          "ms": 4695,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/configuracion/personalizacion",
+          "status": 200,
+          "ms": 2890,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/configuracion/flags",
+          "status": 200,
+          "ms": 2806,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/configuracion/gdpr",
+          "status": 200,
+          "ms": 2688,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/matriculas",
+          "status": 200,
+          "ms": 6772,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771546"
+        },
+        {
+          "route": "/administracion/usuarios",
+          "status": 200,
+          "ms": 19163,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771547"
+        },
+        {
+          "route": "/administracion/roles",
+          "status": 200,
+          "ms": 3237,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771547"
+        },
+        {
+          "route": "/administracion/actividad",
+          "status": 200,
+          "ms": 3108,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771547"
+        },
+        {
+          "route": "/campus-virtual",
+          "status": 200,
+          "ms": 28559,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771547"
+        },
+        {
+          "route": "/campus-virtual/inscripciones",
+          "status": 200,
+          "ms": 6002,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771547"
+        },
+        {
+          "route": "/campus-virtual/progreso",
+          "status": 200,
+          "ms": 3489,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771547"
+        },
+        {
+          "route": "/campus-virtual/contenido",
+          "status": 200,
+          "ms": 2759,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771547"
+        },
+        {
+          "route": "/campus-virtual/certificados",
+          "status": 200,
+          "ms": 2632,
+          "pass": true,
+          "sample": "<!DOCTYPE html><html lang=\"es\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/app/layout.css?v=1771547"
+        }
+      ]
+    },
+    "platformReachability": {
+      "checked": 6,
+      "pass": 6,
+      "fail": 0,
+      "checks": [
+        {
+          "id": "portal",
+          "url": "http://100.99.60.106:3008",
+          "status": 200,
+          "ms": 318,
+          "pass": true
+        },
+        {
+          "id": "web",
+          "url": "http://100.99.60.106:3006",
+          "status": 200,
+          "ms": 30,
+          "pass": true
+        },
+        {
+          "id": "admin",
+          "url": "http://100.99.60.106:3004",
+          "status": 200,
+          "ms": 89,
+          "pass": true
+        },
+        {
+          "id": "campus",
+          "url": "http://100.99.60.106:3005",
+          "status": 200,
+          "ms": 29,
+          "pass": true
+        },
+        {
+          "id": "payload-admin-login",
+          "url": "http://100.99.60.106:3003/admin/login",
+          "status": 200,
+          "ms": 43,
+          "pass": true
+        },
+        {
+          "id": "payload-admin-courses",
+          "url": "http://100.99.60.106:3003/admin/collections/courses",
+          "status": 200,
+          "ms": 79,
+          "pass": true
+        }
+      ]
+    }
+  },
+  "summary": {
+    "startedAt": "2026-02-20T00:19:18.290Z",
+    "endedAt": "2026-02-20T00:24:29.186Z",
+    "status": "PASS",
+    "failedChecks": 0
+  }
+}

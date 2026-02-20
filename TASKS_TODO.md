@@ -91,3 +91,5 @@
 - [x] Corregir `packages/realtime` (`skipAuth` no respeta middleware esperado).
 - [x] Ejecutar y cerrar batería de tests objetivo en verde (`web`, `auth`, `notifications`, `realtime`, `tenant-admin` runtime).
 - [x] Ejecutar smoke audit live final en NEMESIS y registrar evidencia.
+- [x] Corregir runtime `tenant-admin` en rutas de administración con error 500 (`roles`, `actividad`) y desplegar fix en NEMESIS.
+- [x] Re-ejecutar auditoría integral multitenant con estado PASS (`docs/audits/platform-audit-2026-02-20T00-19-18-290Z.md`).
