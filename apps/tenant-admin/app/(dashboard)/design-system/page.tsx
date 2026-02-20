@@ -126,6 +126,44 @@ const spacingScale = [
   { token: 'p-6', px: '24px', usage: 'Cards complejas / tablas' },
 ]
 
+const shadowRecipes = [
+  { level: 'Elevation A1', alpha: '5%', value: '0 0 0 1px, 0 1px 1px 0, 0 2px 2px 0' },
+  { level: 'Elevation A2', alpha: '5%', value: '0 4px 4px 0, 0 8px 8px 0, 0 16px 16px 0' },
+  { level: 'Elevation B1', alpha: '6%', value: '0 0 0 1px, 0 1px 1px -0.5px, 0 3px 3px -1.5px' },
+  { level: 'Elevation B2', alpha: '6%', value: '0 6px 6px -3px, 0 12px 12px -6px, 0 24px 24px -12px' },
+]
+
+const neutralScaleLight = ['#FFFFFF', '#FAFAFA', '#F5F5F5', '#E5E5E5', '#D4D4D4', '#A3A3A3', '#737373', '#525252', '#404040', '#262626', '#171717', '#0A0A0A']
+const neutralScaleDark = ['#000000', '#0A0A0A', '#171717', '#262626', '#373737', '#525252', '#8A8A8A', '#A3A3A3', '#D4D4D4', '#E5E5E5', '#F5F5F5', '#FAFAFA']
+
+const sidebarSpacingSpec = [
+  { area: 'Header brand', value: '44px' },
+  { area: 'Header → search', value: '16px' },
+  { area: 'Navigation row', value: '40px' },
+  { area: 'Item gap', value: '4px' },
+  { area: 'Sidebar expanded', value: '240px' },
+  { area: 'Sidebar collapsed', value: '80px' },
+  { area: 'User row footer', value: '48px' },
+]
+
+const appGridSpec = [
+  { token: 'Desktop frame', value: '1440x1024' },
+  { token: 'Top bar height', value: '80px' },
+  { token: 'Nav width', value: '240px' },
+  { token: 'Content columns', value: '8 columns' },
+  { token: 'Column width', value: '130px' },
+  { token: 'Gutter', value: '16px' },
+  { token: 'Outer margin', value: '24px' },
+]
+
+const stepperPatterns = [
+  { name: 'Segmented', desc: 'Pasos conectados tipo tabs para formularios largos.' },
+  { name: 'Icon Progress', desc: 'Iconos por paso con línea de progreso activa.' },
+  { name: 'Numbered Line', desc: 'Numeración explícita con subrayado por etapa.' },
+  { name: 'Status Timeline', desc: 'Estado por paso: Completed, In Progress, Pending.' },
+  { name: 'Minimal Dot', desc: 'Versión compacta para modales y flujos cortos.' },
+]
+
 const dailySlots = [
   { time: '08:00', room: 'Aula 2', subject: 'FP Comercio', teacher: 'M. Suárez' },
   { time: '10:00', room: 'Aula 4', subject: 'Marketing Digital', teacher: 'L. Martín' },
@@ -209,6 +247,7 @@ export default function DesignSystemPage() {
       <Tabs defaultValue="foundations" className="space-y-4">
         <TabsList className="flex flex-wrap h-auto">
           <TabsTrigger value="foundations">Foundations</TabsTrigger>
+          <TabsTrigger value="image-specs">Image Specs</TabsTrigger>
           <TabsTrigger value="typography">Tipografía</TabsTrigger>
           <TabsTrigger value="courses">Cursos</TabsTrigger>
           <TabsTrigger value="scheduling">Calendarios</TabsTrigger>
@@ -270,6 +309,192 @@ export default function DesignSystemPage() {
                   </TableRow>
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="image-specs" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Shadows / Elevation Stack</CardTitle>
+              <CardDescription>Recetas extraídas de referencias visuales para cards, popovers y overlays.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nivel</TableHead>
+                    <TableHead>Alpha</TableHead>
+                    <TableHead>Box-shadow</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {shadowRecipes.map((item) => (
+                    <TableRow key={item.level}>
+                      <TableCell className="font-medium">{item.level}</TableCell>
+                      <TableCell>{item.alpha}</TableCell>
+                      <TableCell className="font-mono text-xs">{item.value}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Neutral Scale (AAA-ready)</CardTitle>
+              <CardDescription>Escala neutral light/dark para fondo, borde y tipografía.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 xl:grid-cols-2">
+              <div className="space-y-2">
+                <p className="text-sm font-semibold">Light</p>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {neutralScaleLight.map((hex) => (
+                    <div key={`light-${hex}`} className="rounded-md border p-2">
+                      <div className="h-8 rounded border" style={{ backgroundColor: hex }} />
+                      <p className="mt-1 text-[10px] font-mono">{hex}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-semibold">Dark</p>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {neutralScaleDark.map((hex) => (
+                    <div key={`dark-${hex}`} className="rounded-md border p-2">
+                      <div className="h-8 rounded border" style={{ backgroundColor: hex }} />
+                      <p className="mt-1 text-[10px] font-mono">{hex}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid gap-4 xl:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Desktop App Grid Spec</CardTitle>
+                <CardDescription>Regla base de layout para shell de dashboard.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {appGridSpec.map((row) => (
+                  <div key={row.token} className="flex items-center justify-between rounded border px-3 py-2 text-sm">
+                    <span className="text-muted-foreground">{row.token}</span>
+                    <span className="font-medium">{row.value}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Sidebar Spacing Spec</CardTitle>
+                <CardDescription>Métricas para expanded/collapsed y ritmo de navegación.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {sidebarSpacingSpec.map((row) => (
+                  <div key={row.area} className="flex items-center justify-between rounded border px-3 py-2 text-sm">
+                    <span className="text-muted-foreground">{row.area}</span>
+                    <span className="font-medium">{row.value}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Typography Hierarchy (Card Pattern)</CardTitle>
+                <CardDescription>Escala recomendada para legibilidad y escaneo visual.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="rounded-lg border p-4 space-y-2">
+                  <p className="text-2xl font-semibold">Headline 24px</p>
+                  <p className="text-base">Subheadline 16px</p>
+                  <p className="text-sm text-muted-foreground">Body 14px: texto de apoyo y contexto.</p>
+                  <div className="flex gap-2">
+                    <Button size="sm">Label 16px</Button>
+                    <Button size="sm" variant="outline">Secundario</Button>
+                  </div>
+                </div>
+                <Alert>
+                  <CircleCheck className="h-4 w-4" />
+                  <AlertTitle>Regla</AlertTitle>
+                  <AlertDescription>Evitar mezclar escalas sin jerarquía (ej. botón mayor que subtítulo).</AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Stepper Patterns</CardTitle>
+                <CardDescription>5 variantes para onboarding, checkout y asistentes.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {stepperPatterns.map((pattern, idx) => (
+                  <div key={pattern.name} className="rounded border p-3">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{idx + 1}</Badge>
+                      <p className="font-medium">{pattern.name}</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">{pattern.desc}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Pricing + Budget Component Patterns</CardTitle>
+              <CardDescription>Patrones para monetización y KPIs financieros.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 xl:grid-cols-2">
+              <article className="rounded-xl border p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-lg">Business</p>
+                    <p className="text-sm text-muted-foreground">Billed yearly</p>
+                  </div>
+                  <Badge>POPULAR</Badge>
+                </div>
+                <ul className="space-y-1.5 text-sm text-muted-foreground">
+                  <li>• Real-Time Market Data</li>
+                  <li>• Advanced Charting Tools</li>
+                  <li>• On-Chain Analysis</li>
+                  <li>• API Access</li>
+                </ul>
+                <div>
+                  <p className="text-2xl font-bold">$29</p>
+                  <p className="text-sm text-muted-foreground">per user / month</p>
+                </div>
+                <Button className="w-full">Upgrade to Business</Button>
+              </article>
+
+              <article className="rounded-xl border p-4 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Monthly Budget</p>
+                    <p className="text-4xl font-bold">$12,000</p>
+                  </div>
+                  <Button size="sm" variant="outline">More details</Button>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Spend</p>
+                    <p className="font-semibold">$1,200</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-muted-foreground">Remaining</p>
+                    <p className="font-semibold">$1,200</p>
+                  </div>
+                </div>
+                <Progress value={72} />
+                <p className="text-sm font-medium">Ongoing</p>
+              </article>
             </CardContent>
           </Card>
         </TabsContent>
