@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Check, Globe, Plus, Save, Trash2 } from 'lucide-react'
 
 export default function DominiosPage() {
@@ -78,16 +79,17 @@ export default function DominiosPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Dominios</h1>
-          <p className="text-muted-foreground">Gestiona los dominios principales y alternativos del tenant</p>
-        </div>
-        <Button onClick={handleSave} disabled={isSaving || isLoading}>
-          <Save className="mr-2 h-4 w-4" />
-          Guardar cambios
-        </Button>
-      </div>
+      <PageHeader
+        title="Dominios"
+        description="Gestiona los dominios principales y alternativos del tenant"
+        icon={Globe}
+        actions={(
+          <Button onClick={handleSave} disabled={isSaving || isLoading}>
+            <Save className="mr-2 h-4 w-4" />
+            Guardar cambios
+          </Button>
+        )}
+      />
 
       {showSaveSuccess && (
         <div className="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-lg flex items-center gap-2">

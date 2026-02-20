@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -177,45 +178,37 @@ export default function AlumnosPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <User className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Alumnos</h1>
-            <p className="text-muted-foreground mt-1">
-              {filteredStudents.length} alumnos de {students.length} totales
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Toggle visualización */}
-          <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-            >
-              <List className="h-4 w-4 mr-2" />
-              Listado
+      <PageHeader
+        title="Alumnos"
+        description={`${filteredStudents.length} alumnos de ${students.length} totales`}
+        icon={User}
+        actions={(
+          <>
+            <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="h-4 w-4 mr-2" />
+                Listado
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Fichas
+              </Button>
+            </div>
+            <Button onClick={handleAdd}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo Alumno
             </Button>
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-            >
-              <LayoutGrid className="h-4 w-4 mr-2" />
-              Fichas
-            </Button>
-          </div>
-          <Button onClick={handleAdd}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nuevo Alumno
-          </Button>
-        </div>
-      </div>
+          </>
+        )}
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-5">

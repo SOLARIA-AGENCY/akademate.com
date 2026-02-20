@@ -7,6 +7,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Checkbox } from '@payload-config/components/ui/checkbox'
 import {
   Select,
@@ -15,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, Save, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, User } from 'lucide-react'
 
 interface Campus {
   id: number
@@ -137,16 +138,16 @@ export default function NewProfesorPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Nuevo Profesor</h1>
-          <p className="text-muted-foreground mt-1">Añade un nuevo profesor al sistema</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Nuevo Profesor"
+        description="Añade un nuevo profesor al sistema"
+        icon={User}
+        actions={(
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+      />
 
       <form onSubmit={handleSubmit}>
         <Card>

@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Card,
   CardContent,
@@ -6,6 +8,7 @@ import {
   CardTitle,
 } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -14,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
+import { BookOpen } from 'lucide-react'
 
 const contentRows = [
   { course: 'React Inicial', modules: 8, lessons: 42, status: 'published' },
@@ -24,15 +28,12 @@ const contentRows = [
 export default function CampusContenidoPage() {
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">Módulos y Lecciones</h1>
-          <Badge variant="outline">Contenido LMS</Badge>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Estado de contenido estructurado por curso.
-        </p>
-      </header>
+      <PageHeader
+        title="Módulos y Lecciones"
+        description="Estado de contenido estructurado por curso."
+        icon={BookOpen}
+        badge={<Badge variant="outline">Contenido LMS</Badge>}
+      />
 
       <Card>
         <CardHeader>

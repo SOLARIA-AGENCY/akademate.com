@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Progress } from '@payload-config/components/ui/progress'
 import {
   Table,
@@ -154,21 +155,19 @@ export default function SuscripcionPage() {
     <div className="space-y-6">
       <MockDataIndicator />
 
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Suscripción</h1>
-          <p className="text-muted-foreground">
-            Gestiona tu plan, facturación y recursos de la academia
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <CreditCard className="mr-2 h-4 w-4" />
-            Métodos de Pago
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Suscripción"
+        description="Gestiona tu plan, facturación y recursos de la academia"
+        icon={Crown}
+        actions={(
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <CreditCard className="mr-2 h-4 w-4" />
+              Métodos de Pago
+            </Button>
+          </div>
+        )}
+      />
 
       {/* Plan actual y uso */}
       <div className="grid gap-6 md:grid-cols-3">

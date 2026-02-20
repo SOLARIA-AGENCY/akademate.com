@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payl
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
-import { ArrowLeft, Save } from 'lucide-react'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { ArrowLeft, Save, MapPin } from 'lucide-react'
 
 interface EditSedePageProps {
   params: Promise<{ id: string }>
@@ -43,17 +44,22 @@ export default function EditSedePage({ params }: EditSedePageProps) {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => router.push(`/sedes/${id}`)}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver a la sede
-        </Button>
-      </div>
+      <PageHeader
+        title="Editar Sede"
+        description="Actualiza la información operativa de la sede."
+        icon={MapPin}
+        actions={(
+          <Button variant="ghost" onClick={() => router.push(`/sedes/${id}`)}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver a la sede
+          </Button>
+        )}
+      />
 
       <Card>
         <CardHeader>
-          <CardTitle>Editar Sede</CardTitle>
-          <CardDescription>Actualiza la información operativa de la sede.</CardDescription>
+          <CardTitle>Datos de la Sede</CardTitle>
+          <CardDescription>Actualiza campos de contacto, dirección y horario.</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleSave}>

@@ -10,6 +10,7 @@ import {
 } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -19,7 +20,7 @@ import {
   TableRow,
 } from '@payload-config/components/ui/table'
 import { BulkEnrollmentDialog } from '@/app/(dashboard)/matriculas/components/BulkEnrollmentDialog'
-import { PlusCircle } from 'lucide-react'
+import { GraduationCap, PlusCircle } from 'lucide-react'
 
 interface EnrollmentRow {
   id: string
@@ -93,15 +94,12 @@ export default function CampusInscripcionesPage() {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">Inscripciones LMS</h1>
-          <Badge variant="default">Operativo</Badge>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Gestión de matrículas del campus virtual con filtros por curso, estado y fecha.
-        </p>
-      </header>
+      <PageHeader
+        title="Inscripciones LMS"
+        description="Gestión de matrículas del campus virtual con filtros por curso, estado y fecha."
+        icon={GraduationCap}
+        badge={<Badge variant="default">Operativo</Badge>}
+      />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4">

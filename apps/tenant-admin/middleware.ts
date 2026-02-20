@@ -174,11 +174,12 @@ export function middleware(request: NextRequest) {
   // HTTPS Enforcement (production only)
   // =========================================================================
   const isProduction = process.env.NODE_ENV === 'production'
+  const enforceHttps = process.env.ENFORCE_HTTPS === 'true'
   const forwardedProto = request.headers.get('x-forwarded-proto')
   const isHttps = forwardedProto === 'https' || protocol === 'https:'
 
   // Redirect HTTP to HTTPS in production (except for health checks)
-  if (isProduction && !isHttps && !pathname.startsWith('/api/health')) {
+  if (isProduction && enforceHttps && !isHttps && !pathname.startsWith('/api/health')) {
     const httpsUrl = new URL(request.url)
     httpsUrl.protocol = 'https:'
     return NextResponse.redirect(httpsUrl, 301)

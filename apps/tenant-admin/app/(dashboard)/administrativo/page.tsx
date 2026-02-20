@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -147,23 +148,17 @@ export default function AdministrativosPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <Briefcase className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Personal Administrativo</h1>
-            <p className="text-muted-foreground mt-1">
-              {filteredAdmins.length} administrativos de {administrativosData.length} totales
-            </p>
-          </div>
-        </div>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Administrativo
-        </Button>
-      </div>
+      <PageHeader
+        title="Personal Administrativo"
+        description={`${filteredAdmins.length} administrativos de ${administrativosData.length} totales`}
+        icon={Briefcase}
+        actions={(
+          <Button onClick={handleAdd}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Administrativo
+          </Button>
+        )}
+      />
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>

@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -12,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import { Download, Plus } from 'lucide-react'
+import { Download, Plus, UserCheck } from 'lucide-react'
 
 interface Lead {
   id: string
@@ -112,24 +113,23 @@ export default function LeadsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Gestión de Leads</h1>
-          <p className="text-muted-foreground">
-            Control y seguimiento de leads capturados desde formularios y campañas
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={exportToCsv} disabled={isLoading}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar CSV
-          </Button>
-          <Button onClick={() => window.open('/admin/collections/leads/create', '_blank', 'noopener,noreferrer')} disabled={isLoading}>
-            <Plus className="mr-2 h-4 w-4" />
-            Añadir lead
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Gestión de Leads"
+        description="Control y seguimiento de leads capturados desde formularios y campañas"
+        icon={UserCheck}
+        actions={(
+          <>
+            <Button variant="outline" onClick={exportToCsv} disabled={isLoading}>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar CSV
+            </Button>
+            <Button onClick={() => window.open('/admin/collections/leads/create', '_blank', 'noopener,noreferrer')} disabled={isLoading}>
+              <Plus className="mr-2 h-4 w-4" />
+              Añadir lead
+            </Button>
+          </>
+        )}
+      />
 
       {errorMessage && (
         <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">

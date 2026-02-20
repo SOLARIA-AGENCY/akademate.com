@@ -1,6 +1,8 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   TrendingUp,
   TrendingDown,
@@ -100,25 +102,24 @@ export default function AnaliticasPage() {
         label="Este módulo usa datos de demostración. Pendiente integración con GA4, Meta Pixel y APIs de analytics."
       />
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analíticas y Métricas</h1>
-          <p className="text-muted-foreground mt-1">
-            Panel completo de métricas y rendimiento
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <select className="px-4 py-2 border border-border rounded-lg text-sm bg-card text-foreground">
-            <option>Últimos 7 días</option>
-            <option>Últimos 30 días</option>
-            <option>Últimos 90 días</option>
-            <option>Este año</option>
-          </select>
-          <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 text-sm font-medium">
-            Exportar Datos
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Analíticas y Métricas"
+        description="Panel completo de métricas y rendimiento"
+        icon={TrendingUp}
+        actions={(
+          <>
+            <select className="px-4 py-2 border border-border rounded-lg text-sm bg-card text-foreground">
+              <option>Últimos 7 días</option>
+              <option>Últimos 30 días</option>
+              <option>Últimos 90 días</option>
+              <option>Este año</option>
+            </select>
+            <Button>
+              Exportar Datos
+            </Button>
+          </>
+        )}
+      />
 
       {/* KPIs Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

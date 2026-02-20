@@ -6,6 +6,7 @@ import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicat
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -230,29 +231,27 @@ export default function MatriculasPage() {
     <div className="space-y-6">
       <MockDataIndicator />
 
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Matrículas</h1>
-          <p className="text-muted-foreground">
-            Gestión de solicitudes de matrícula y seguimiento de inscripciones
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Exportar
-          </Button>
-          <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
-            <Upload className="mr-2 h-4 w-4" />
-            Importar CSV
-          </Button>
-          <Button style={{ backgroundColor: '#F2014B' }}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Nueva Matrícula
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Matrículas"
+        description="Gestión de solicitudes de matrícula y seguimiento de inscripciones"
+        icon={GraduationCap}
+        actions={(
+          <>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+            <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
+              <Upload className="mr-2 h-4 w-4" />
+              Importar CSV
+            </Button>
+            <Button style={{ backgroundColor: '#F2014B' }}>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Nueva Matrícula
+            </Button>
+          </>
+        )}
+      />
 
       {/* Estadísticas */}
       <div className="grid gap-4 md:grid-cols-5">

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
 import {
   ArrowLeft,
@@ -325,33 +326,26 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
+      <PageHeader
+        title={courseTemplate.nombre}
+        description={`${courseTemplate.area} • Detalle de la plantilla del curso`}
+        icon={BookOpen}
+        actions={(
+          <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => router.push('/cursos')}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">{courseTemplate.nombre}</h1>
-              <p className="text-muted-foreground">
-                {courseTemplate.area} • Detalle de la plantilla del curso
-              </p>
-            </div>
+            <Button variant="outline" onClick={() => router.push(`/cursos/${id}/editar`)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Editar Curso
+            </Button>
+            <Button onClick={() => setIsModalOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva Convocatoria
+            </Button>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => router.push(`/cursos/${id}/editar`)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Editar Curso
-          </Button>
-          <Button onClick={() => setIsModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nueva Convocatoria
-          </Button>
-        </div>
-      </div>
+        )}
+      />
 
       {/* Status Bar */}
       <Card>

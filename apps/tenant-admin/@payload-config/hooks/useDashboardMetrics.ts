@@ -112,6 +112,32 @@ const defaultMetrics: DashboardData = {
   campusDistribution: [],
 };
 
+interface RawDashboardResponse {
+  metrics?: DashboardMetrics;
+  upcoming_convocations?: Convocation[];
+  convocations?: Convocation[];
+  campaigns?: Campaign[];
+  recent_activities?: RecentActivity[];
+  recentActivities?: RecentActivity[];
+  weekly_metrics?: WeeklyMetrics;
+  weeklyMetrics?: WeeklyMetrics;
+  alerts?: OperationalAlert[];
+  campus_distribution?: CampusDistribution[];
+  campusDistribution?: CampusDistribution[];
+}
+
+function normalizeDashboardData(raw: RawDashboardResponse): DashboardData {
+  return {
+    metrics: raw.metrics ?? defaultMetrics.metrics,
+    convocations: raw.convocations ?? raw.upcoming_convocations ?? [],
+    campaigns: raw.campaigns ?? [],
+    recentActivities: raw.recentActivities ?? raw.recent_activities ?? [],
+    weeklyMetrics: raw.weeklyMetrics ?? raw.weekly_metrics ?? defaultMetrics.weeklyMetrics,
+    alerts: raw.alerts ?? [],
+    campusDistribution: raw.campusDistribution ?? raw.campus_distribution ?? [],
+  };
+}
+
 export function useDashboardMetrics(
   options: UseDashboardMetricsOptions = {}
 ): UseDashboardMetricsResult {
@@ -135,7 +161,7 @@ export function useDashboardMetrics(
       const result = await response.json();
 
       if (result.success) {
-        setData(result.data);
+        setData(normalizeDashboardData(result.data as RawDashboardResponse));
         setLastUpdate(new Date());
         setError(null);
       } else {

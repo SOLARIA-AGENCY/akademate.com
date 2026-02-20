@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Card,
   CardContent,
@@ -6,6 +8,7 @@ import {
   CardTitle,
 } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -14,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
+import { Award } from 'lucide-react'
 
 const certificateRows = [
   { id: 'CERT-001', student: 'Nora Ramos', course: 'Marketing Digital', issuedAt: '2026-02-12', status: 'issued' },
@@ -24,15 +28,12 @@ const certificateRows = [
 export default function CampusCertificadosPage() {
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">Certificados</h1>
-          <Badge variant="outline">Certificación</Badge>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Seguimiento de certificados emitidos en el tenant.
-        </p>
-      </header>
+      <PageHeader
+        title="Certificados"
+        description="Seguimiento de certificados emitidos en el tenant."
+        icon={Award}
+        badge={<Badge variant="outline">Certificación</Badge>}
+      />
 
       <Card>
         <CardHeader>

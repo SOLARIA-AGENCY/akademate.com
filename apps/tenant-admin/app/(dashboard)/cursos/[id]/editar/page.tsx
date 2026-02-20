@@ -7,6 +7,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { Label } from '@payload-config/components/ui/label'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -279,28 +280,25 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => router.push(`/cursos/${id}`)}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Editar Curso</h1>
-            <p className="text-muted-foreground">{originalCourse.nombre}</p>
+      <PageHeader
+        title="Editar Curso"
+        description={originalCourse.nombre}
+        icon={FileText}
+        actions={(
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => router.push(`/cursos/${id}`)}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" onClick={handleCancel}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave}>
+              <Save className="mr-2 h-4 w-4" />
+              Guardar Cambios
+            </Button>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleCancel}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" />
-            Guardar Cambios
-          </Button>
-        </div>
-      </div>
+        )}
+      />
 
       {/* Type Badge */}
       <Card>

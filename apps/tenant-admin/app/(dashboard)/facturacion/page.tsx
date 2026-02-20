@@ -6,12 +6,14 @@ import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicat
 import { useToast } from '@payload-config/hooks/use-toast'
 import { useBillingData } from '@payload-config/hooks/useBillingData'
 import { useSubscription } from '@payload-config/hooks/useSubscription'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { SubscriptionCard } from './components/SubscriptionCard'
 import { PlanComparison } from './components/PlanComparison'
 import { InvoicesTable } from './components/InvoicesTable'
 import { PaymentMethodsList } from './components/PaymentMethodsList'
 import { TransactionHistory } from './components/TransactionHistory'
 import { CancelSubscriptionDialog } from './components/CancelSubscriptionDialog'
+import { CreditCard } from 'lucide-react'
 
 // ============================================================================
 // Local Type Definitions
@@ -396,13 +398,11 @@ export default function FacturacionPage() {
     <div className="space-y-6">
       <MockDataIndicator />
 
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Facturacion y Suscripciones</h1>
-        <p className="text-muted-foreground">
-          Gestiona tu suscripcion, facturas y metodos de pago
-        </p>
-      </div>
+      <PageHeader
+        title="Facturacion y Suscripciones"
+        description="Gestiona tu suscripcion, facturas y metodos de pago"
+        icon={CreditCard}
+      />
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

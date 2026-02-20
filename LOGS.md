@@ -543,3 +543,27 @@
 - Acción: Creé `docs/audits/AKADEMATE_RALPH_LOOP_TASK_RUNNER_2026-02-20.md` con fases, gates, rutas y plantilla iterativa.
 - Acción: Corrí baseline técnico en NEMESIS (servicios + probes auth).
 - Resultado: servicios base up (`3003/3004/3005/3006/3009`), pero `POST /api/users/login` en Payload devuelve `500 Something went wrong` (P0 abierta para siguiente iteración).
+
+## Iteracion 65 (20-02-2026)
+- Accion: Estandarice headers visuales con `PageHeader` + icono en modulos core (`programacion`, `cursos`, `leads`, `analiticas`) y mantuve acciones existentes en header.
+- Resultado: Homogeneidad de encabezados incrementada en flujo principal; `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false` en verde.
+
+## Iteracion 66 (20-02-2026)
+- Accion: Continúe Wave 2 de estandarizacion de headers con `PageHeader` + icono en `matriculas`, `lista-espera` y `alumnos`.
+- Resultado: 3/4 paginas de Wave 2 homogéneas; gate de typecheck tenant-admin en verde.
+
+## Iteracion 67 (20-02-2026)
+- Accion: Homogeneicé headers en `dashboard` y `ciclos-medio` con `PageHeader + icono`, manteniendo acciones dinámicas (estado realtime, refresh, contador de ciclos).
+- Resultado: Cobertura de `PageHeader` subió a 18/73 y todas las páginas con `PageHeader` tienen `icon` definido.
+
+## Iteracion 68 (20-02-2026)
+- Accion: Ejecuté barrido integral de homogeneización en módulos transversales (`planner`, `personal`, `profesores`, `perfil`, `administrativo`, `sedes/[id]`, `ciclos/[id]`, `ciclos-superior`, `programacion/nueva`, `sedes/[id]/editar`, `configuracion` raíz).
+- Resultado: Cobertura visual subió a 45/73 páginas con `PageHeader`/`ComingSoonPage`; `pnpm --filter tenant-admin typecheck` PASS.
+
+## Iteracion 69 (20-02-2026)
+- Accion: Estandaricé cabeceras en todo `configuracion/*` y módulos de operación (`estado`, `facturacion`, `campanas`, `contenido/medios`) usando `PageHeader + icono` y acciones persistentes.
+- Resultado: pendientes reducidos a 13 páginas; `pnpm --filter tenant-admin typecheck` PASS.
+
+## Iteracion 70 (20-02-2026)
+- Accion: Completé estandarización en `administracion/*`, `administrativo/*`, `ayuda` y `cursos/*` (detalle, edición, convocatoria y nuevo).
+- Resultado: todas las páginas funcionales de `(dashboard)` están homogeneizadas con `PageHeader`/`ComingSoonPage`; solo queda `dashboard/page.tsx` como alias técnico de re-export. Gate final `pnpm --filter tenant-admin typecheck` PASS.

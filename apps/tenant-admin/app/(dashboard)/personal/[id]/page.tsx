@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
@@ -18,6 +19,7 @@ import {
   Award,
   FileText,
   Users,
+  User,
 } from 'lucide-react'
 
 interface StaffDetailPageProps {
@@ -149,25 +151,22 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => router.push('/personal')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{staff.fullName}</h1>
-            <p className="text-muted-foreground">
-              {staff.staffType === 'profesor' ? 'Profesor' : 'Personal Administrativo'}
-            </p>
-          </div>
-        </div>
-
-        <Button onClick={() => router.push(`/personal/${id}/editar`)}>
-          <Edit className="mr-2 h-4 w-4" />
-          Editar
-        </Button>
-      </div>
+      <PageHeader
+        title={staff.fullName}
+        description={staff.staffType === 'profesor' ? 'Profesor' : 'Personal Administrativo'}
+        icon={User}
+        actions={(
+          <>
+            <Button variant="ghost" size="sm" onClick={() => router.push('/personal')}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button onClick={() => router.push(`/personal/${id}/editar`)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Editar
+            </Button>
+          </>
+        )}
+      />
 
       {/* Main Content: 2/3 + 1/3 Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

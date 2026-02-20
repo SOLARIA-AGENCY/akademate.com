@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
 import { ArrowLeft, GraduationCap, Users, Calendar, TrendingUp, BookOpen } from 'lucide-react'
 // TODO: Fetch from Payload API
@@ -33,11 +34,17 @@ export default function CicloDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back Button */}
-      <Button variant="ghost" onClick={() => router.push('/ciclos')} className="gap-2">
-        <ArrowLeft className="h-4 w-4" />
-        Volver a Ciclos
-      </Button>
+      <PageHeader
+        title={ciclo.nombre}
+        description={`${ciclo.codigo} · ${ciclo.tipo === 'superior' ? 'Grado Superior' : 'Grado Medio'}`}
+        icon={GraduationCap}
+        actions={(
+          <Button variant="ghost" onClick={() => router.push('/ciclos')} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Volver a Ciclos
+          </Button>
+        )}
+      />
 
       {/* Hero Section */}
       <Card>

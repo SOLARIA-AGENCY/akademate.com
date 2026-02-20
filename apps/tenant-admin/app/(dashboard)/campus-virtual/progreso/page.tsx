@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Card,
   CardContent,
@@ -6,6 +8,7 @@ import {
   CardTitle,
 } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -14,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
+import { BarChart3 } from 'lucide-react'
 
 const progressRows = [
   { student: 'Ana Pérez', course: 'React Inicial', progress: '82%', status: 'active' },
@@ -24,15 +28,12 @@ const progressRows = [
 export default function CampusProgresoPage() {
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">Progreso Alumnos</h1>
-          <Badge variant="outline">Vista inicial</Badge>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Seguimiento de avance por alumno y curso.
-        </p>
-      </header>
+      <PageHeader
+        title="Progreso Alumnos"
+        description="Seguimiento de avance por alumno y curso."
+        icon={BarChart3}
+        badge={<Badge variant="outline">Vista inicial</Badge>}
+      />
 
       <Card>
         <CardHeader>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Label } from '@payload-config/components/ui/label'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Save, Palette, Image as ImageIcon, Eye, RotateCcw, Download, Upload, Check } from 'lucide-react'
 
 interface ColorScheme {
@@ -246,16 +247,12 @@ export default function PersonalizacionPage() {
 
   return (
     <div className="space-y-6 max-w-6xl">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">Personalización</h1>
-          <p className="text-muted-foreground">
-            Configura colores corporativos, logos y estilo visual del dashboard
-          </p>
-        </div>
-
-        {previewMode && (
-          <div className="flex gap-2">
+      <PageHeader
+        title="Personalización"
+        description="Configura colores corporativos, logos y estilo visual del dashboard"
+        icon={Palette}
+        actions={previewMode ? (
+          <>
             <Button variant="outline" onClick={handleReset}>
               <RotateCcw className="mr-2 h-4 w-4" />
               Descartar
@@ -264,9 +261,9 @@ export default function PersonalizacionPage() {
               <Save className="mr-2 h-4 w-4" />
               Guardar Tema
             </Button>
-          </div>
-        )}
-      </div>
+          </>
+        ) : undefined}
+      />
 
       {errorMessage && (
         <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">

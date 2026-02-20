@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   MapPin,
   Phone,
@@ -268,17 +269,23 @@ export default function SedeDetailPage({ params }: SedeDetailPageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header con navegación */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => router.push('/sedes')}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver a Sedes
-        </Button>
-        <Button onClick={() => router.push(`/sedes/${id}/editar`)}>
-          <Edit className="mr-2 h-4 w-4" />
-          Editar Sede
-        </Button>
-      </div>
+      <PageHeader
+        title={sede.nombre}
+        description="Detalle de sede, instalaciones y operaciones activas"
+        icon={MapPin}
+        actions={(
+          <>
+            <Button variant="ghost" onClick={() => router.push('/sedes')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver a Sedes
+            </Button>
+            <Button onClick={() => router.push(`/sedes/${id}/editar`)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Editar Sede
+            </Button>
+          </>
+        )}
+      />
 
       {/* Hero Image */}
       <Card className={`overflow-hidden border-2 ${sede.borderColor}`}>

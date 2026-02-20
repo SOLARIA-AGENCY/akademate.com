@@ -8,6 +8,7 @@ import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Label } from '@payload-config/components/ui/label'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -212,22 +213,20 @@ export default function NuevaConvocatoriaPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Nueva Convocatoria</h1>
-            <p className="text-muted-foreground mt-1">
-              Asistente de creación paso a paso
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => router.push('/programacion')}
-          >
-            <X className="mr-2 h-4 w-4" />
-            Cancelar
-          </Button>
-        </div>
+        <PageHeader
+          title="Nueva Convocatoria"
+          description="Asistente de creación paso a paso"
+          icon={Calendar}
+          actions={(
+            <Button
+              variant="outline"
+              onClick={() => router.push('/programacion')}
+            >
+              <X className="mr-2 h-4 w-4" />
+              Cancelar
+            </Button>
+          )}
+        />
 
         {/* Progress Steps */}
         <Card className="p-6">

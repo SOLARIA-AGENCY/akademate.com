@@ -6,9 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payl
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Avatar, AvatarImage, AvatarFallback } from '@payload-config/components/ui/avatar'
 import { Separator } from '@payload-config/components/ui/separator'
-import { ArrowLeft, Save, Upload, X, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, Upload, X, Loader2, User } from 'lucide-react'
 
 export default function EditarPerfilPage() {
   const router = useRouter()
@@ -118,18 +119,16 @@ export default function EditarPerfilPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Editar Perfil</h1>
-          <p className="text-muted-foreground mt-1">
-            Actualiza tu información personal y configuración
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Editar Perfil"
+        description="Actualiza tu información personal y configuración"
+        icon={User}
+        actions={(
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+      />
 
       <form onSubmit={handleSubmit}>
         {/* Profile Photo */}

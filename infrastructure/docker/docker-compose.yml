@@ -175,7 +175,7 @@ services:
     container_name: akademate-tenant
     restart: unless-stopped
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PAYLOAD_CMS_URL: http://payload:3003
       PAYLOAD_API_KEY: ${PAYLOAD_API_KEY}
       DATABASE_URL: postgres://${POSTGRES_USER:-akademate}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-akademate}
@@ -184,8 +184,9 @@ services:
       DATABASE_NAME: ${POSTGRES_DB:-akademate}
       DATABASE_USER: ${POSTGRES_USER:-akademate}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-      NEXT_PUBLIC_DEV_AUTH_BYPASS: ${NEXT_PUBLIC_DEV_AUTH_BYPASS:-false}
-      NEXT_PUBLIC_ENABLE_DEV_LOGIN: ${NEXT_PUBLIC_ENABLE_DEV_LOGIN:-false}
+      NEXT_PUBLIC_DEV_AUTH_BYPASS: ${NEXT_PUBLIC_DEV_AUTH_BYPASS:-true}
+      NEXT_PUBLIC_ENABLE_DEV_LOGIN: ${NEXT_PUBLIC_ENABLE_DEV_LOGIN:-true}
+      ENFORCE_HTTPS: ${ENFORCE_HTTPS:-false}
     ports:
       - "${TENANT_PORT:-3009}:3009"
     depends_on:

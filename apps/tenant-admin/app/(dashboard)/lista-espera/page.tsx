@@ -6,6 +6,7 @@ import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicat
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -231,25 +232,23 @@ export default function ListaEsperaPage() {
     <div className="space-y-6">
       <MockDataIndicator />
 
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Lista de Espera</h1>
-          <p className="text-muted-foreground">
-            Gestión de alumnos en espera para cursos con plazas completas
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Exportar
-          </Button>
-          <Button style={{ backgroundColor: '#F2014B' }}>
-            <Plus className="mr-2 h-4 w-4" />
-            Añadir a Lista
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Lista de Espera"
+        description="Gestión de alumnos en espera para cursos con plazas completas"
+        icon={ListTodo}
+        actions={(
+          <>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+            <Button style={{ backgroundColor: '#F2014B' }}>
+              <Plus className="mr-2 h-4 w-4" />
+              Añadir a Lista
+            </Button>
+          </>
+        )}
+      />
 
       {/* Estadísticas */}
       <div className="grid gap-4 md:grid-cols-5">

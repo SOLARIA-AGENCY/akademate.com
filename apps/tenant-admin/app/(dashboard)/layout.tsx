@@ -5,9 +5,10 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Search } from 'lucide-react'
+import { Bell, Search, Sparkles, LayoutDashboard } from 'lucide-react'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
+import { Badge } from '@payload-config/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -144,7 +145,23 @@ export default function DashboardLayout({
             sidebarOpen ? 'ml-64' : 'ml-16'
           }`}
         >
-          <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center border-b bg-card px-4 md:px-6">
+          <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6">
+            <div className="flex items-center gap-3 pr-4">
+              <Badge variant="outline" className="hidden lg:inline-flex text-[10px] tracking-wide">
+                PANEL CLIENTE
+              </Badge>
+              <div className="hidden xl:flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => router.push('/design-system')}>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  UI Kit
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => router.push('/diseno/mockup-dashboard')}>
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  Mockup v2
+                </Button>
+              </div>
+            </div>
+
             <div className="flex-1 max-w-md">
               <div className="relative hidden lg:block">
                 <form onSubmit={handleSearchSubmit}>
@@ -158,7 +175,7 @@ export default function DashboardLayout({
                       setTimeout(() => setSearchOpen(false), 120)
                     }}
                     onChange={(event) => setSearchQuery(event.target.value)}
-                    className="w-full pl-8 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="w-full pl-8 bg-background/60 focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </form>
 
@@ -225,6 +242,7 @@ export default function DashboardLayout({
                     <span className="hidden md:inline-block font-semibold">
                       {currentUser.name}
                     </span>
+                    <Badge variant="secondary" className="hidden xl:inline-flex text-[10px]">Admin</Badge>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">

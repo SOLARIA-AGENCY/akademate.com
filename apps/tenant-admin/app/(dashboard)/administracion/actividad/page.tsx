@@ -6,6 +6,7 @@ import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicat
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -216,25 +217,23 @@ export default function ActividadPage() {
     <div className="space-y-6">
       <MockDataIndicator />
 
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Registro de Actividad</h1>
-          <p className="text-muted-foreground">
-            Auditoría completa de acciones en el sistema
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Calendar className="mr-2 h-4 w-4" />
-            Rango de Fechas
-          </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Exportar Log
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Registro de Actividad"
+        description="Auditoría completa de acciones en el sistema"
+        icon={Activity}
+        actions={(
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <Calendar className="mr-2 h-4 w-4" />
+              Rango de Fechas
+            </Button>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Exportar Log
+            </Button>
+          </div>
+        )}
+      />
 
       {/* Estadísticas */}
       <div className="grid gap-4 md:grid-cols-4">

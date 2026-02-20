@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
 import {
   Table,
@@ -69,7 +70,7 @@ const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive'> =
   inactive: 'destructive',
 }
 
-export default function PersonalPage() {
+function PersonalPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = React.useState('profesores')
@@ -150,20 +151,17 @@ export default function PersonalPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Personal</h1>
-          <p className="text-muted-foreground">
-            Gestión de profesores y personal administrativo
-          </p>
-        </div>
-
-        <Button onClick={() => router.push('/personal/nuevo')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Miembro
-        </Button>
-      </div>
+      <PageHeader
+        title="Personal"
+        description="Gestión de profesores y personal administrativo"
+        icon={Users}
+        actions={(
+          <Button onClick={() => router.push('/personal/nuevo')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Miembro
+          </Button>
+        )}
+      />
 
       {/* Tabs with View Mode Toggle */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -454,5 +452,24 @@ export default function PersonalPage() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+export default function PersonalPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="space-y-6">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold tracking-tight">Personal</h1>
+              <p className="text-muted-foreground">Cargando datos de personal...</p>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <PersonalPageContent />
+    </React.Suspense>
   )
 }

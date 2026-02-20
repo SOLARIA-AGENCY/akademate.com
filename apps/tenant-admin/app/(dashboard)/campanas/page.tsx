@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Plus, TrendingUp, Users, MousePointer, DollarSign } from 'lucide-react'
 
 type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived'
@@ -107,19 +108,17 @@ export default function CampanasPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Campañas de Marketing</h1>
-          <p className="text-muted-foreground mt-1">
-            Gestión y seguimiento de campañas publicitarias multicanal
-          </p>
-        </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Nueva Campaña
-        </Button>
-      </div>
+      <PageHeader
+        title="Campañas de Marketing"
+        description="Gestión y seguimiento de campañas publicitarias multicanal"
+        icon={TrendingUp}
+        actions={(
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Nueva Campaña
+          </Button>
+        )}
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

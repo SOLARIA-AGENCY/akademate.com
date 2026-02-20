@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
   ArrowLeft,
@@ -150,22 +151,22 @@ export default function ProfesorDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{professor.fullName}</h1>
-            <p className="text-muted-foreground mt-1">{professor.position}</p>
-          </div>
-        </div>
-        <Button onClick={() => router.push(`/profesores/${professorId}/editar`)}>
-          <Edit className="mr-2 h-4 w-4" />
-          Editar Profesor
-        </Button>
-      </div>
+      <PageHeader
+        title={professor.fullName}
+        description={professor.position}
+        icon={User}
+        actions={(
+          <>
+            <Button variant="ghost" size="icon" onClick={() => router.back()}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <Button onClick={() => router.push(`/profesores/${professorId}/editar`)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Editar Profesor
+            </Button>
+          </>
+        )}
+      />
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Left Column - Photo and Basic Info */}

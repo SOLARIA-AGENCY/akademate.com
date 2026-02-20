@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payl
 import { Switch } from '@payload-config/components/ui/switch'
 import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { useToast, type UseToastReturn } from '@payload-config/hooks/use-toast'
+import { ToggleLeft } from 'lucide-react'
 
 interface FeatureFlag {
   key: string
@@ -99,6 +101,12 @@ export default function FeatureFlagsPage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Feature Flags"
+        description="Rollouts por tenant y plan"
+        icon={ToggleLeft}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle>Feature Flags</CardTitle>

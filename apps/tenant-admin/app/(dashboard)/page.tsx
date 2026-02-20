@@ -26,6 +26,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useDashboardMetrics } from '@payload-config/hooks'
 
@@ -308,50 +309,53 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full">
-      {/* Header con saludo y fecha - STICKY pegado al header superior */}
+      {/* Header estandarizado */}
       <div className="sticky top-0 z-20 bg-background px-4 md:px-6 py-4 border-b border-border">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-muted-foreground mb-1">Hola, ADMIN USER</p>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground mt-1">
-              Vista general de la operativa de CEP Comunicación
-            </p>
-          </div>
-          <div className="text-right space-y-2">
-            <p className="text-sm text-muted-foreground capitalize">{formattedDate}</p>
-            {/* Real-time connection status */}
-            <div className="flex items-center justify-end gap-2">
-              {isConnected ? (
-                <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                  <Wifi className="h-3 w-3" />
-                  <span>En vivo</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <WifiOff className="h-3 w-3" />
-                  <span>Sin conexión</span>
-                </div>
+        <PageHeader
+          className="mb-0"
+          title="Dashboard"
+          description="Vista general de la operativa de CEP Comunicación"
+          icon={BookOpen}
+          badge={(
+            <Badge variant={isConnected ? 'default' : 'outline'}>
+              {isConnected ? 'EN VIVO' : 'SIN CONEXIÓN'}
+            </Badge>
+          )}
+          actions={(
+            <div className="text-right space-y-2">
+              <p className="text-sm text-muted-foreground capitalize">{formattedDate}</p>
+              <div className="flex items-center justify-end gap-2">
+                {isConnected ? (
+                  <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                    <Wifi className="h-3 w-3" />
+                    <span>En vivo</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <WifiOff className="h-3 w-3" />
+                    <span>Sin conexión</span>
+                  </div>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2"
+                  onClick={() => {
+                    void refresh()
+                    void refreshCampusSummary()
+                  }}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                </Button>
+              </div>
+              {lastUpdate && (
+                <p className="text-xs text-muted-foreground">
+                  Actualizado: {lastUpdate.toLocaleTimeString('es-ES')}
+                </p>
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 px-2"
-                onClick={() => {
-                  void refresh()
-                  void refreshCampusSummary()
-                }}
-              >
-                <RefreshCw className="h-3 w-3" />
-              </Button>
             </div>
-            {lastUpdate && (
-              <p className="text-xs text-muted-foreground">
-                Actualizado: {lastUpdate.toLocaleTimeString('es-ES')}
-              </p>
-            )}
-          </div>
-        </div>
+          )}
+        />
       </div>
 
       {/* Contenido scrolleable con padding */}

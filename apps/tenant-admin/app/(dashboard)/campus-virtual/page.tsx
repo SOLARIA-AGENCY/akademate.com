@@ -10,6 +10,7 @@ import {
 } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -98,15 +99,12 @@ export default function CampusVirtualOverviewPage() {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">Campus Virtual</h1>
-          <Badge variant="default">LMS Sync</Badge>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Panel operativo del campus con inscripciones, progreso y certificados por tenant.
-        </p>
-      </header>
+      <PageHeader
+        title="Campus Virtual"
+        description="Panel operativo del campus con inscripciones, progreso y certificados por tenant."
+        icon={GraduationCap}
+        badge={<Badge variant="default">LMS Sync</Badge>}
+      />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>

@@ -7,7 +7,8 @@ import { Button } from '@payload-config/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@payload-config/components/ui/avatar'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Separator } from '@payload-config/components/ui/separator'
-import { Edit, Mail, Calendar, Shield, Camera } from 'lucide-react'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Edit, Mail, Calendar, Shield, Camera, User } from 'lucide-react'
 
 export default function PerfilPage() {
   const router = useRouter()
@@ -66,19 +67,17 @@ export default function PerfilPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Mi Perfil</h1>
-          <p className="text-muted-foreground mt-1">
-            Gestiona tu información personal y configuración de cuenta
-          </p>
-        </div>
-        <Button onClick={() => router.push('/perfil/editar')}>
-          <Edit className="mr-2 h-4 w-4" />
-          Editar Perfil
-        </Button>
-      </div>
+      <PageHeader
+        title="Mi Perfil"
+        description="Gestiona tu información personal y configuración de cuenta"
+        icon={User}
+        actions={(
+          <Button onClick={() => router.push('/perfil/editar')}>
+            <Edit className="mr-2 h-4 w-4" />
+            Editar Perfil
+          </Button>
+        )}
+      />
 
       {/* Profile Card */}
       <Card>

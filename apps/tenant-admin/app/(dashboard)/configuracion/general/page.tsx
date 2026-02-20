@@ -6,6 +6,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Save, Building2, Mail, Phone, MapPin, Globe, Image as ImageIcon, Facebook, Twitter, Instagram, Linkedin, Youtube, Check, Upload } from 'lucide-react'
 
 interface AcademyConfig {
@@ -157,16 +158,17 @@ export default function ConfigGeneralPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">Configuración General</h1>
-          <p className="text-muted-foreground">Datos de la academia, fiscales, contacto y redes sociales</p>
-        </div>
-        <Button onClick={handleSave}>
-          <Save className="mr-2 h-4 w-4" />
-          Guardar Cambios
-        </Button>
-      </div>
+      <PageHeader
+        title="Configuración General"
+        description="Datos de la academia, fiscales, contacto y redes sociales"
+        icon={Building2}
+        actions={(
+          <Button onClick={handleSave}>
+            <Save className="mr-2 h-4 w-4" />
+            Guardar Cambios
+          </Button>
+        )}
+      />
 
       {showSuccess && (
         <div className="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-lg flex items-center gap-2">

@@ -6,6 +6,7 @@ import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicat
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Table,
   TableBody,
@@ -183,15 +184,11 @@ export default function ImpersonarPage() {
     <div className="space-y-6">
       <MockDataIndicator />
 
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Impersonar Usuario</h1>
-          <p className="text-muted-foreground">
-            Accede al sistema como otro usuario para soporte y verificación
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Impersonar Usuario"
+        description="Accede al sistema como otro usuario para soporte y verificación"
+        icon={Users}
+      />
 
       {/* Warning Card */}
       <Card className="border-amber-200 bg-amber-50">

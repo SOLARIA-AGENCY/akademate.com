@@ -128,3 +128,11 @@
 - [x] Unificar login de Campus al patrón visual Ops/Payload (card + CTA gradiente + layout responsivo).
 - [x] Auditoría visual final con evidencia y veredicto GO/NO-GO.
 - [x] Cerrar deuda `typecheck` de `admin-client` (presign aws smithy + tipado sidebar asChild/ref).
+
+## 18) Ralph Loop 2026-02-20 (Estandarización visual progresiva de headers)
+- [x] Wave 1: estandarizar `PageHeader` + icono en `programacion`, `cursos`, `leads`, `analiticas`.
+- [x] Wave 2: estandarizar `PageHeader` + icono en `dashboard`, `matriculas`, `lista-espera`, `alumnos`.
+- [x] Wave 3: estandarizar `PageHeader` + icono en `administracion/*` y `configuracion/*`.
+- [x] Wave 4: estandarizar `PageHeader` + icono en `contenido/*`, `web/*`, `estado`, `facturacion`, `ayuda`.
+- [x] Wave 5: estandarizar `PageHeader` + icono en flujos `cursos/[id]`, `cursos/[id]/editar`, `cursos/[id]/convocatoria/[convocationId]`, `cursos/nuevo`.
+- [x] Cierre: todas las páginas funcionales de `(dashboard)` usan `PageHeader`/`ComingSoonPage` (queda solo alias técnico `dashboard/page.tsx`).

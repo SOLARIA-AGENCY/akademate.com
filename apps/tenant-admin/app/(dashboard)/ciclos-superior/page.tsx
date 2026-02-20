@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -345,24 +346,17 @@ export default function CiclosSuperiorPage() {
           {errorMessage}
         </div>
       )}
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <GraduationCap className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Ciclos Formativos de Grado Superior</h1>
-            <p className="text-muted-foreground mt-1">
-              {filteredCiclos.length} ciclos de {ciclosData.length} totales
-            </p>
-          </div>
-        </div>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Ciclo
-        </Button>
-      </div>
+      <PageHeader
+        title="Ciclos Formativos de Grado Superior"
+        description={`${filteredCiclos.length} ciclos de ${ciclosData.length} totales`}
+        icon={GraduationCap}
+        actions={(
+          <Button onClick={handleAdd}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Ciclo
+          </Button>
+        )}
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-5">

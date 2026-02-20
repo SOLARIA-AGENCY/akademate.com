@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@payload-config/components/ui/select'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft,
   Save,
@@ -325,9 +326,18 @@ export default function NuevoCursoPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header con badge tipo de curso a la derecha */}
-      <div className="flex justify-between items-start mb-8">
-        <div className="flex items-center gap-4">
+      <PageHeader
+        title="Nuevo Curso"
+        description="Crea un nuevo curso"
+        icon={FileText}
+        badge={(
+          <Badge
+            className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white px-4 py-2 text-lg font-semibold uppercase`}
+          >
+            {typeConfig.label}
+          </Badge>
+        )}
+        actions={(
           <Button
             variant="ghost"
             size="icon"
@@ -336,21 +346,8 @@ export default function NuevoCursoPage() {
           >
             <ArrowLeft className="h-6 w-6" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Nuevo Curso</h1>
-            <p className="text-muted-foreground mt-1">
-              Crea un nuevo curso
-            </p>
-          </div>
-        </div>
-
-        {/* Badge: Tipo de curso */}
-        <Badge
-          className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white px-4 py-2 text-lg font-semibold uppercase`}
-        >
-          {typeConfig.label}
-        </Badge>
-      </div>
+        )}
+      />
 
       {/* Información Básica */}
       <Card>

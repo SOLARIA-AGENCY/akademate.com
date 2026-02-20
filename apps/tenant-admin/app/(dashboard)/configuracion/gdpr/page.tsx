@@ -7,6 +7,8 @@ import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Switch } from '@payload-config/components/ui/switch'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { ShieldCheck } from 'lucide-react'
 
 interface ConsentPreferences {
   marketing_email: boolean
@@ -159,12 +161,11 @@ export default function GdprSettingsPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">GDPR & Consentimientos</h1>
-        <p className="text-muted-foreground">
-          Gestiona el consentimiento del usuario, exportación y eliminación de datos personales.
-        </p>
-      </div>
+      <PageHeader
+        title="GDPR & Consentimientos"
+        description="Gestiona el consentimiento del usuario, exportación y eliminación de datos personales."
+        icon={ShieldCheck}
+      />
 
       {status !== 'idle' && message && (
         <Alert variant={status === 'error' ? 'destructive' : 'default'}>

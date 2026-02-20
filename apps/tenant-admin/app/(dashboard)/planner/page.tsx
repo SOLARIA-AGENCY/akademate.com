@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -283,15 +284,12 @@ function PlannerVisualPageContent() {
         className="mb-4"
       />
 
-      {/* Header */}
-      <div className="bg-card rounded-lg shadow-sm p-4 mb-4 border border-border">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold">Planner Visual - {sedeSeleccionada}</h1>
-            <p className="text-muted-foreground">Calendario semanal de aulas y horarios</p>
-          </div>
-
-          <div className="flex items-center gap-3">
+      <PageHeader
+        title={`Planner Visual - ${sedeSeleccionada}`}
+        description="Calendario semanal de aulas y horarios"
+        icon={Calendar}
+        actions={(
+          <>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" />
               Exportar
@@ -300,85 +298,83 @@ function PlannerVisualPageContent() {
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
             </Button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 flex-wrap">
-          {/* Navegación de Semanas */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setSemanaActual(semanaActual - 1)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="px-4 py-2 bg-muted rounded-md min-w-[200px] text-center">
-              <div className="flex items-center justify-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="font-semibold">
-                  {rangeSemana.inicio} - {rangeSemana.fin}
-                </span>
+          </>
+        )}
+        filters={(
+          <>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSemanaActual(semanaActual - 1)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="px-4 py-2 bg-muted rounded-md min-w-[200px] text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-semibold">
+                    {rangeSemana.inicio} - {rangeSemana.fin}
+                  </span>
+                </div>
               </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSemanaActual(semanaActual + 1)}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSemanaActual(0)}
+              >
+                Hoy
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setSemanaActual(semanaActual + 1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSemanaActual(0)}
-            >
-              Hoy
-            </Button>
-          </div>
 
-          {/* Selector de Sede */}
-          <Select value={sedeSeleccionada} onValueChange={setSedeSeleccionada}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Seleccionar sede" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="CEP Norte">CEP Norte</SelectItem>
-              <SelectItem value="CEP Sur">CEP Sur</SelectItem>
-              <SelectItem value="CEP Santa Cruz">CEP Santa Cruz</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select value={sedeSeleccionada} onValueChange={setSedeSeleccionada}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Seleccionar sede" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="CEP Norte">CEP Norte</SelectItem>
+                <SelectItem value="CEP Sur">CEP Sur</SelectItem>
+                <SelectItem value="CEP Santa Cruz">CEP Santa Cruz</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Selector de Vista */}
-          <div className="flex items-center gap-2 bg-secondary p-1 rounded-lg">
-            <Button
-              variant={vistaActual === 'aulas' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setVistaActual('aulas')}
-              className={vistaActual === 'aulas' ? 'bg-[#ff2014] hover:bg-[#ff2014]/90' : ''}
-            >
-              <LayoutGrid className="h-4 w-4 mr-2" />
-              Aulas
-            </Button>
-            <Button
-              variant={vistaActual === 'profesores' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setVistaActual('profesores')}
-            >
-              <User className="h-4 w-4 mr-2" />
-              Profesores
-            </Button>
-            <Button
-              variant={vistaActual === 'cursos' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setVistaActual('cursos')}
-            >
-              <BookOpen className="h-4 w-4 mr-2" />
-              Cursos
-            </Button>
-          </div>
-        </div>
-      </div>
+            <div className="flex items-center gap-2 bg-secondary p-1 rounded-lg">
+              <Button
+                variant={vistaActual === 'aulas' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setVistaActual('aulas')}
+                className={vistaActual === 'aulas' ? 'bg-[#ff2014] hover:bg-[#ff2014]/90' : ''}
+              >
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Aulas
+              </Button>
+              <Button
+                variant={vistaActual === 'profesores' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setVistaActual('profesores')}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Profesores
+              </Button>
+              <Button
+                variant={vistaActual === 'cursos' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setVistaActual('cursos')}
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Cursos
+              </Button>
+            </div>
+          </>
+        )}
+      />
 
       {/* Main Content */}
       <div className="flex-1 flex gap-4 overflow-hidden">

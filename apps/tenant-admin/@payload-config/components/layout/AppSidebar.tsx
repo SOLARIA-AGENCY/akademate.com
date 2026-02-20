@@ -9,7 +9,6 @@ import {
   Users,
   UserCircle,
   Building2,
-  DoorOpen,
   FileText,
   UserPlus,
   ListTodo,
@@ -43,6 +42,7 @@ import Link from 'next/link'
 import NextImage from 'next/image'
 import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
+import { Badge } from '../ui/badge'
 
 // Menu structure with sections
 // Section: null = no separator, 'CEP FORMACIÓN' or 'CEP COMUNICACIÓN' = show separator before item
@@ -199,6 +199,8 @@ const menuItems: MenuItemWithSection[] = [
       { title: 'Áreas de Estudio', icon: BookOpen, url: '/configuracion/areas' },
       { title: 'APIs y Webhooks', icon: Globe, url: '/configuracion/apis' },
       { title: 'Personalización', icon: Sparkles, url: '/configuracion/personalizacion' },
+      { title: 'Design System', icon: Sparkles, url: '/design-system' },
+      { title: 'Mockup Dashboard v2', icon: LayoutDashboard, url: '/diseno/mockup-dashboard' },
     ],
   },
 ]
@@ -220,8 +222,9 @@ function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
       <>
         <button
           onClick={() => setNestedOpen(!nestedOpen)}
-          className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          className="group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent/90 hover:text-sidebar-accent-foreground hover:shadow-sm"
         >
+          <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
           <SubIcon className="h-4 w-4 shrink-0 text-foreground/70" />
           <span className="flex-1 text-left">{subItem.title}</span>
           <ChevronDown
@@ -240,12 +243,17 @@ function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
                 <li key={nestedItem.title}>
                   <Link
                     href={nestedItem.url!}
-                    className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+                    className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent/90 hover:text-sidebar-accent-foreground hover:shadow-sm ${
                       isNestedActive
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                        ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
                         : ''
                     }`}
                   >
+                    <span
+                      className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+                        isNestedActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      }`}
+                    />
                     <NestedIcon className="h-3 w-3 shrink-0 text-foreground/60" />
                     <span>{nestedItem.title}</span>
                   </Link>
@@ -261,12 +269,17 @@ function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
   return (
     <Link
       href={subItem.url!}
-      className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+      className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent/90 hover:text-sidebar-accent-foreground hover:shadow-sm ${
         isSubActive
-          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+          ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
           : ''
       }`}
     >
+      <span
+        className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+          isSubActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        }`}
+      />
       <SubIcon className="h-4 w-4 shrink-0 text-foreground/70" />
       <span>{subItem.title}</span>
     </Link>
@@ -333,13 +346,19 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     )
   }
 
+  const topLevelBaseClass = isCollapsed
+    ? 'mx-auto h-10 w-10 justify-center px-0'
+    : 'w-full gap-3 px-3'
+
+  const topLevelInteractionClass = 'transition-all duration-200 ease-in-out hover:bg-primary/10 hover:text-foreground hover:shadow-sm'
+
   return (
     <div className="flex h-full flex-col overflow-hidden bg-card text-sidebar-foreground">
       {/* Header - Logo + Text - Smooth transition */}
       <div className="flex h-16 items-center border-b border-sidebar-border px-4 overflow-hidden">
         <div className={`flex items-center w-full transition-all duration-300 ease-in-out ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
           {/* White background wrapper for dark mode logo visibility */}
-          <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center flex-shrink-0 p-0.5">
+          <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center flex-shrink-0 p-0.5 shadow-sm">
             <NextImage
               src={logoUrl}
               alt={academyName}
@@ -359,8 +378,8 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
       </div>
 
       {/* Menu Content */}
-      <nav className="flex-1 overflow-y-auto py-2 px-2">
-        <ul className="space-y-1">
+      <nav className="flex-1 overflow-y-auto py-3 px-2">
+        <ul className="space-y-1.5">
           {menuItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.url
@@ -373,10 +392,10 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                 <div className="relative flex items-center justify-center">
                   {/* Text label - fades out when collapsed */}
                   <span
-                    className={`px-3 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-300 ease-in-out ${
+                    className={`px-3 text-[10px] font-bold uppercase tracking-[0.16em] whitespace-nowrap transition-all duration-300 ease-in-out ${
                       isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'
                     }`}
-                    style={{ color: '#F2014B' }}
+                    style={{ color: 'hsl(var(--primary))' }}
                   >
                     {item.sectionBefore}
                   </span>
@@ -385,7 +404,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     className={`w-8 border-t transition-all duration-300 ease-in-out ${
                       isCollapsed ? 'opacity-100' : 'opacity-0 w-0'
                     }`}
-                    style={{ borderColor: '#F2014B' }}
+                    style={{ borderColor: 'hsl(var(--primary))' }}
                   />
                 </div>
               </li>
@@ -398,12 +417,23 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                   <li>
                     <Link
                       href={item.url!}
-                      className={`flex items-center rounded-md py-2 text-sm transition-all duration-300 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-                        isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
-                      } ${isCollapsed ? 'justify-center w-full' : 'gap-3 px-3'}`}
+                      className={`group relative flex items-center rounded-md py-2 text-sm border border-transparent ${topLevelInteractionClass} ${
+                        isActive
+                          ? 'bg-primary/12 text-foreground border-primary/30 shadow-sm'
+                          : ''
+                      } ${topLevelBaseClass}`}
                       title={isCollapsed ? item.title : undefined}
                     >
-                      <Icon className="h-5 w-5 shrink-0 text-foreground/80" />
+                      <span
+                        className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+                          isCollapsed ? 'opacity-0' : isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                        }`}
+                      />
+                      <Icon
+                        className={`h-5 w-5 shrink-0 text-foreground/80 group-hover:text-foreground ${
+                          isCollapsed ? 'mx-auto' : ''
+                        }`}
+                      />
                       <span
                         className={`whitespace-nowrap transition-all duration-300 ease-in-out ${
                           isCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'w-auto opacity-100'
@@ -423,15 +453,20 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                 <li>
                   <button
                     onClick={() => toggleSection(item.title)}
-                    className={`w-full flex items-center rounded-md py-2 text-sm transition-all duration-300 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-                      isCollapsed ? 'justify-center' : 'gap-3 px-3'
-                    }`}
+                    className={`group relative flex items-center rounded-md py-2 text-sm border border-transparent ${topLevelInteractionClass} ${
+                      isOpen && !isCollapsed ? 'bg-primary/10 border-primary/20' : ''
+                    } ${topLevelBaseClass}`}
                     title={isCollapsed ? item.title : undefined}
                   >
-                    <Icon className="h-5 w-5 shrink-0 text-foreground/80" />
                     <span
-                      className={`flex-1 text-left whitespace-nowrap transition-all duration-300 ease-in-out ${
-                        isCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'w-auto opacity-100'
+                      className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+                        isCollapsed ? 'opacity-0' : isOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      }`}
+                    />
+                    <Icon className={`h-5 w-5 shrink-0 text-foreground/80 ${isCollapsed ? 'mx-auto' : ''}`} />
+                    <span
+                      className={`whitespace-nowrap transition-all duration-300 ease-in-out ${
+                        isCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'flex-1 w-auto opacity-100 text-left'
                       }`}
                     >
                       {item.title}
@@ -465,6 +500,18 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
       {/* Footer - Always Visible */}
       <div className="border-t border-sidebar-border mt-auto">
+        {!isCollapsed && (
+          <div className="px-3 py-2 border-b border-sidebar-border">
+            <div className="rounded-md border bg-sidebar-accent/40 p-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-medium text-sidebar-foreground/80">Tenant CEP</span>
+                <Badge variant="secondary" className="text-[10px]">Online</Badge>
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">Entorno operativo con módulos activos.</p>
+            </div>
+          </div>
+        )}
+
         {/* Toggle button row - At top of footer, centered when collapsed */}
         {onToggle && (
           <div className={`py-2 flex items-center border-b border-sidebar-border ${isCollapsed ? 'justify-center' : 'justify-end px-4'}`}>

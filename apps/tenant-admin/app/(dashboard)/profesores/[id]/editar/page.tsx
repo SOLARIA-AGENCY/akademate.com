@@ -3,7 +3,8 @@
 import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { ArrowLeft, ExternalLink, User } from 'lucide-react'
 
 export default function EditProfesorPage() {
   const router = useRouter()
@@ -16,16 +17,16 @@ export default function EditProfesorPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Editar Profesor</h1>
-          <p className="text-muted-foreground mt-1">Modificar información del profesor</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Editar Profesor"
+        description="Modificar información del profesor"
+        icon={User}
+        actions={(
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+      />
 
       <Card>
         <CardHeader>

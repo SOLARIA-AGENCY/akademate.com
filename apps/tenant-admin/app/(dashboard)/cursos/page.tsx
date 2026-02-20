@@ -8,6 +8,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
+import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -229,29 +231,23 @@ function CursosPageContent() {
 
   return (
     <div className="space-y-6 bg-muted/30 p-6 rounded-lg">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div
-            className={`flex h-12 w-12 items-center justify-center rounded-lg ${config?.bgColor ?? 'bg-primary/10'}`}
-          >
-            <Icon className={`h-6 w-6 ${config?.color ?? 'text-primary'}`} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {config?.title ?? 'Catálogo de Cursos'}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              {config?.description ??
-                `${filteredCourses.length} cursos de ${cursos.length} totales`}
-            </p>
-          </div>
-        </div>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Curso
-        </Button>
-      </div>
+      <PageHeader
+        title={config?.title ?? 'Catálogo de Cursos'}
+        description={
+          config?.description ??
+          `${filteredCourses.length} cursos de ${cursos.length} totales`
+        }
+        icon={Icon}
+        iconBgColor={config?.bgColor ?? 'bg-primary/10'}
+        iconColor={config?.color ?? 'text-primary'}
+        badge={<Badge variant="outline">{filteredCourses.length} visibles</Badge>}
+        actions={(
+          <Button onClick={handleAdd}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Curso
+          </Button>
+        )}
+      />
 
       {/* Filtros - Estandarizados para todas las vistas */}
       <Card className="bg-card">

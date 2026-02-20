@@ -7,6 +7,7 @@ import { Card } from '@payload-config/components/ui/card'
 import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
   SelectContent,
@@ -210,22 +211,20 @@ export default function ProgramacionPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight">Programación de Convocatorias</h1>
-          <p className="text-muted-foreground mt-2">
-            Gestiona horarios, aulas y profesores sin conflictos
-          </p>
-        </div>
-        <Button
-          className="bg-[#ff2014] hover:bg-[#ff2014]/90"
-          onClick={handleNuevaConvocatoria}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nueva Convocatoria
-        </Button>
-      </div>
+      <PageHeader
+        title="Programación de Convocatorias"
+        description="Gestiona horarios, aulas y profesores sin conflictos"
+        icon={Calendar}
+        actions={(
+          <Button
+            className="bg-[#ff2014] hover:bg-[#ff2014]/90"
+            onClick={handleNuevaConvocatoria}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nueva Convocatoria
+          </Button>
+        )}
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">

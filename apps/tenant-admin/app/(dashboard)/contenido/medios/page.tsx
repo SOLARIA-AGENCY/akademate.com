@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Upload, Image as ImageIcon, HardDrive, FileImage } from 'lucide-react'
 import { MediaGallery, type MediaItem } from './components/MediaGallery'
 import { MediaUpload } from './components/MediaUpload'
@@ -321,22 +322,20 @@ export default function MediaPage() {
   return (
     <div className="space-y-6">
 
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Medios</h1>
-          <p className="text-muted-foreground">
-            Biblioteca de medios y gestión de archivos multimedia
-          </p>
-        </div>
-        <Button
-          onClick={() => setUploadDialogOpen(true)}
-          style={{ backgroundColor: '#F2014B' }}
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          Subir Archivos
-        </Button>
-      </div>
+      <PageHeader
+        title="Medios"
+        description="Biblioteca de medios y gestión de archivos multimedia"
+        icon={ImageIcon}
+        actions={(
+          <Button
+            onClick={() => setUploadDialogOpen(true)}
+            style={{ backgroundColor: '#F2014B' }}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Subir Archivos
+          </Button>
+        )}
+      />
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payl
 import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Switch } from '@payload-config/components/ui/switch'
 import {
   Table,
@@ -172,19 +173,17 @@ export default function RolesPage() {
     <div className="space-y-6">
       <MockDataIndicator />
 
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Roles y Permisos</h1>
-          <p className="text-muted-foreground">
-            Sistema de control de acceso basado en roles (RBAC)
-          </p>
-        </div>
-        <Button style={{ backgroundColor: '#F2014B' }}>
-          <Plus className="mr-2 h-4 w-4" />
-          Crear Rol Personalizado
-        </Button>
-      </div>
+      <PageHeader
+        title="Roles y Permisos"
+        description="Sistema de control de acceso basado en roles (RBAC)"
+        icon={Shield}
+        actions={(
+          <Button style={{ backgroundColor: '#F2014B' }}>
+            <Plus className="mr-2 h-4 w-4" />
+            Crear Rol Personalizado
+          </Button>
+        )}
+      />
 
       {/* Info Card */}
       <Card className="bg-blue-50 border-blue-200">
