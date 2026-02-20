@@ -119,39 +119,37 @@ function extractIPFromRequest(req: PayloadRequestWithHeaders): string | undefine
  * - Must record when and how consent was obtained
  * - Must be able to prove consent in case of audit
  */
-export const captureConsentMetadata: FieldHook<
-  unknown,
-  LeadConsentData,
-  LeadConsentData
-> = ({ data, req, operation }) => {
+export const captureConsentMetadata: FieldHook = ({ data, req, operation }) => {
+  const typedData = data as LeadConsentData | undefined;
+
   // Only on creation
   if (operation !== 'create') {
-    return data;
+    return typedData;
   }
 
   // Only if GDPR consent is given
-  if (data?.gdpr_consent !== true) {
-    return data;
+  if (typedData?.gdpr_consent !== true) {
+    return typedData;
   }
 
   try {
     // Capture consent timestamp (ISO 8601 format)
-    data.consent_timestamp = new Date().toISOString();
+    typedData.consent_timestamp = new Date().toISOString();
 
     // Capture IP address from request using typed helper function
     const typedReq = req as unknown as PayloadRequestWithHeaders;
     const ipAddress = extractIPFromRequest(typedReq);
 
     if (ipAddress) {
-      data.consent_ip_address = ipAddress;
+      typedData.consent_ip_address = ipAddress;
     }
 
     // Log consent capture for audit trail (NO PII per GDPR)
     console.log('[GDPR Audit] Consent metadata captured', {
-      hasTimestamp: !!data.consent_timestamp,
-      hasIpAddress: !!data.consent_ip_address,
-      gdprConsent: Boolean(data.gdpr_consent),
-      privacyPolicyAccepted: Boolean(data.privacy_policy_accepted),
+      hasTimestamp: !!typedData.consent_timestamp,
+      hasIpAddress: !!typedData.consent_ip_address,
+      gdprConsent: Boolean(typedData.gdpr_consent),
+      privacyPolicyAccepted: Boolean(typedData.privacy_policy_accepted),
       // SECURITY: Do NOT log email or IP address (PII)
     });
   } catch (error) {
@@ -159,5 +157,5 @@ export const captureConsentMetadata: FieldHook<
     console.error('[GDPR Audit] Failed to capture consent metadata:', error);
   }
 
-  return data;
+  return typedData;
 };

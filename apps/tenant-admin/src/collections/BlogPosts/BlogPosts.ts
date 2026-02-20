@@ -24,7 +24,6 @@ import {
   validateTags,
   validateMetaTitle,
   validateMetaDescription,
-  validateStatusWorkflow,
   validateRelatedCourses,
   type PostStatus,
   type PostLanguage,
@@ -33,28 +32,6 @@ import {
 // ============================================================================
 // TYPE DEFINITIONS FOR PAYLOAD VALIDATION
 // ============================================================================
-
-/**
- * Blog post document shape for originalDoc validation context
- */
-interface BlogPostDocument {
-  id?: string;
-  status?: PostStatus;
-  author?: string | number;
-  created_by?: string | number;
-  published_at?: string | null;
-  archived_at?: string | null;
-  [key: string]: unknown;
-}
-
-/**
- * Validation context for field validators that need operation info
- * Operation can be 'create', 'update', or 'read' in Payload
- */
-interface FieldValidationContext {
-  operation?: 'create' | 'update' | 'read';
-  originalDoc?: BlogPostDocument | null;
-}
 
 /**
  * Type guard to check if a value is a valid PostStatus
@@ -390,18 +367,10 @@ export const BlogPosts: CollectionConfig = {
         position: 'sidebar',
         description: 'Publication status (draft → published → archived)',
       },
-      validate: (val: unknown, { operation, originalDoc }: FieldValidationContext) => {
+      validate: (val: unknown) => {
         if (!val) return 'Status is required';
         if (!isValidStatus(val)) {
           return `Status must be one of: ${VALID_STATUSES.join(', ')}`;
-        }
-
-        // On update: validate status workflow
-        if (operation === 'update' && originalDoc?.status) {
-          const workflowResult = validateStatusWorkflow(originalDoc.status, val);
-          if (workflowResult !== true) {
-            return workflowResult;
-          }
         }
 
         return true;
@@ -533,8 +502,9 @@ export const BlogPosts: CollectionConfig = {
       admin: {
         description: 'Related courses (max 5)',
       },
-      validate: (val: string[] | null | undefined) => {
-        return validateRelatedCourses(val ?? undefined);
+      validate: (val: unknown) => {
+        const normalized = Array.isArray(val) ? val.map((entry) => String(entry)) : undefined;
+        return validateRelatedCourses(normalized);
       },
     },
 

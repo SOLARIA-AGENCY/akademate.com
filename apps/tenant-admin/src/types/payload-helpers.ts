@@ -48,7 +48,7 @@ export interface RequestWithIP {
  * Payload 3.x uses Web-standard Headers in some contexts.
  */
 export interface PayloadRequestHeaders {
-  [key: string]: string | string[] | undefined;
+  [key: string]: string | string[] | ((name: string) => string | null | undefined) | undefined;
   get?: (name: string) => string | null | undefined;
 }
 

@@ -95,7 +95,7 @@ const mockSedesData: Sede[] = [
 
 export default function SedesPage() {
   const router = useRouter()
-  const [view, setView] = useViewPreference('sedes') as [string, (view: string) => void]
+  const [view, setView] = useViewPreference('sedes')
   const [sedes, setSedes] = useState<Sede[]>(mockSedesData)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)

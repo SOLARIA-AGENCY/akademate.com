@@ -54,6 +54,16 @@ interface BulkEnrollmentRequest {
   csvContent: string;
 }
 
+interface LoosePayloadClient {
+  find: (args: {
+    collection: string;
+    where?: Record<string, unknown>;
+    limit?: number;
+  }) => Promise<{ docs: Array<{ id: string | number }>; totalDocs?: number }>;
+  findByID: (args: { collection: string; id: string | number }) => Promise<unknown>;
+  create: (args: { collection: string; data: Record<string, unknown> }) => Promise<{ id: string | number }>;
+}
+
 /**
  * Parse CSV content to array of objects
  */
@@ -155,6 +165,7 @@ export async function POST(request: NextRequest) {
     // Payload's HMR utility returns an error-typed value; explicit Payload type is intentional
      
     const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payloadLoose = payload as unknown as LoosePayloadClient;
 
     const result: BulkResult = {
       total: rows.length,
@@ -172,7 +183,7 @@ export async function POST(request: NextRequest) {
 
       try {
         // Find student by email
-        const students = await payload.find({
+        const students = await payloadLoose.find({
           collection: 'students',
           where: { email: { equals: row.studentEmail } },
           limit: 1,
@@ -191,7 +202,7 @@ export async function POST(request: NextRequest) {
         const student = students.docs[0];
 
         // Verify course run exists
-        const courseRun = await payload.findByID({
+        const courseRun = await payloadLoose.findByID({
           collection: 'course-runs',
           id: row.courseRunId,
         }).catch(() => null);
@@ -207,8 +218,8 @@ export async function POST(request: NextRequest) {
         }
 
         // Check for existing enrollment
-        const existing = await payload.find({
-          collection: 'enrollments' as 'users',
+        const existing = await payloadLoose.find({
+          collection: 'enrollments',
           where: {
             and: [
               { student: { equals: student.id } },
@@ -225,8 +236,8 @@ export async function POST(request: NextRequest) {
         }
 
         // Create enrollment
-        const enrollment = await payload.create({
-          collection: 'enrollments' as 'users',
+        const enrollment = await payloadLoose.create({
+          collection: 'enrollments',
           data: {
             student: student.id,
             courseRun: row.courseRunId,

@@ -166,7 +166,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       limit: 100,
     });
 
-    const lessonDocs = lessonsResult.docs.filter(isLmsLesson);
+    const lessonDocs = lessonsResult.docs.filter(isLmsLesson) as unknown as LmsLesson[];
 
     // 3. Get materials for this module
     const materialsResult = await payload.find({
@@ -177,7 +177,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       limit: 100,
     });
 
-    const materialDocs = materialsResult.docs.filter(isLmsMaterial);
+    const materialDocs = materialsResult.docs.filter(isLmsMaterial) as unknown as LmsMaterial[];
 
     // 4. Get progress if enrollmentId provided
     const progressByLesson: ProgressByLesson = {};

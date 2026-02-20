@@ -68,6 +68,10 @@ interface StudentUpdateData {
   lastLoginAt: string
 }
 
+interface LoosePayloadClient {
+  update: (args: { collection: string; id: string | number; data: Record<string, unknown> }) => Promise<unknown>
+}
+
 const JWT_SECRET = new TextEncoder().encode(
   process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
 )
@@ -185,10 +189,11 @@ export async function POST(request: NextRequest) {
     const updateData: StudentUpdateData = {
       lastLoginAt: new Date().toISOString(),
     }
-    await payload.update({
+    const payloadLoose = payload as unknown as LoosePayloadClient
+    await payloadLoose.update({
       collection: 'students',
       id: student.id,
-      data: updateData as Record<string, unknown>,
+      data: updateData as unknown as Record<string, unknown>,
     })
 
     const firstName = student.firstName ?? ''

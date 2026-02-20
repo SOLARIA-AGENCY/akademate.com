@@ -78,6 +78,10 @@ interface GdprExportAuditData {
   ip_address: string;
 }
 
+interface LoosePayloadClient {
+  create: (args: { collection: string; data: Record<string, unknown> }) => Promise<unknown>;
+}
+
 // ============================================================================
 // API ROUTE HANDLER
 // ============================================================================
@@ -204,9 +208,10 @@ export async function GET(
       ip_address: request.headers.get('x-forwarded-for') ?? '127.0.0.1',
     };
 
-    await payload.create({
+    const payloadLoose = payload as unknown as LoosePayloadClient;
+    await payloadLoose.create({
       collection: 'audit-logs',
-      data: auditData as Parameters<typeof payload.create>[0]['data'],
+      data: auditData as unknown as Record<string, unknown>,
     });
 
     const response = NextResponse.json({

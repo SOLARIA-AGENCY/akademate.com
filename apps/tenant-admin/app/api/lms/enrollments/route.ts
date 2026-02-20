@@ -49,6 +49,25 @@ interface EnrollmentWhereClause {
   status?: EqualsFilter;
 }
 
+interface LoosePayloadClient {
+  find: (args: {
+    collection: string;
+    where?: Record<string, unknown>;
+    limit?: number;
+    page?: number;
+    depth?: number;
+    sort?: string;
+  }) => Promise<{
+    docs: unknown[];
+    page: number;
+    limit: number;
+    totalDocs: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  }>;
+}
+
 /**
  * GET /api/lms/enrollments
  *
@@ -68,6 +87,7 @@ export async function GET(request: NextRequest) {
 
      
     const payload = await getPayloadHMR({ config: configPromise });
+    const payloadLoose = payload as unknown as LoosePayloadClient;
 
     // Build where clause
     const where: EnrollmentWhereClause = {};
@@ -78,9 +98,9 @@ export async function GET(request: NextRequest) {
       where.status = { equals: status };
     }
 
-    const enrollments = await payload.find({
-      collection: 'enrollments' as 'users',
-      where,
+    const enrollments = await payloadLoose.find({
+      collection: 'enrollments',
+      where: where as unknown as Record<string, unknown>,
       limit,
       page,
       depth: 2,
@@ -95,8 +115,8 @@ export async function GET(request: NextRequest) {
         let completed = 0;
         let total = 0;
         try {
-          const progress = await payload.find({
-            collection: 'lesson-progress' as 'users',
+          const progress = await payloadLoose.find({
+            collection: 'lesson-progress',
             where: { enrollment: { equals: enrollmentRecord.id } },
             limit: 500,
           });

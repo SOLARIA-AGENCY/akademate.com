@@ -48,6 +48,13 @@
 3. Endurecer endpoints LMS para entornos parcialmente migrados.
 4. Ejecutar smoke audit live en NEMESIS y documentar estado final.
 
+## Ralph Loop 2026-02-20 — Burn-down de Typecheck tenant-admin
+1. Priorizar errores homogéneos de alto impacto (CollectionSlug/relations, hooks typedDoc).
+2. Cerrar por lotes funcionales (Colecciones -> LMS APIs -> GDPR APIs -> Dashboard UI -> Stripe).
+3. Gate obligatorio por iteración: `pnpm --filter @akademate/tenant-admin typecheck`.
+4. Persistir evidencia por iteración en `LOGS.md` con delta de errores.
+5. Estado 2026-02-20 (cierre): `typecheck=0 errores`, `lint=PASS`, `tests=37 files PASS`.
+
 ---
 
 ## Definition of Done (global)

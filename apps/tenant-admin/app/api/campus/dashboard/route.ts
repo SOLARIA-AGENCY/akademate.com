@@ -46,6 +46,11 @@ interface GamificationDocument {
   totalPoints?: number;
 }
 
+interface LoosePayloadFindResult {
+  docs: unknown[];
+  totalDocs?: number;
+}
+
 const JWT_SECRET = new TextEncoder().encode(
   process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
 );
@@ -88,9 +93,10 @@ export async function GET(request: NextRequest) {
       depth: 3,
       sort: '-updatedAt',
     });
+    const enrollmentDocs = enrollmentsResult.docs as unknown as EnrollmentDocument[];
 
     // Transform enrollments for dashboard
-    const enrollments = enrollmentsResult.docs.map((enrollment: EnrollmentDocument) => {
+    const enrollments = enrollmentDocs.map((enrollment: EnrollmentDocument) => {
       const courseRun = enrollment.courseRun;
       const course = courseRun?.course;
 
@@ -115,7 +121,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate stats
-    const completedEnrollments = enrollmentsResult.docs.filter(
+    const completedEnrollments = enrollmentDocs.filter(
       (e: EnrollmentDocument) => e.status === 'completed'
     );
 
@@ -127,9 +133,13 @@ export async function GET(request: NextRequest) {
     };
 
     try {
-      const gamificationResult = await payload.find({
+      const payloadLoose = payload as unknown as {
+        find: (args: { collection: string; where?: Record<string, unknown>; limit?: number }) => Promise<LoosePayloadFindResult>;
+      };
+
+      const gamificationResult = await payloadLoose.find({
         // Using string literal for collection that may not exist in all configurations
-        collection: 'studentGamification' as 'users',
+        collection: 'studentGamification',
         where: {
           student: { equals: studentId },
         },
@@ -150,7 +160,7 @@ export async function GET(request: NextRequest) {
     }
 
     const stats = {
-      totalCourses: enrollmentsResult.docs.filter(
+      totalCourses: enrollmentDocs.filter(
         (e: EnrollmentDocument) => e.status === 'enrolled' || e.status === 'in_progress'
       ).length,
       completedCourses: completedEnrollments.length,

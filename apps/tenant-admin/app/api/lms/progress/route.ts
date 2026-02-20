@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
             id: enrollmentId,
             data: {
                 lastAccessAt: new Date().toISOString(),
-            } as Partial<Enrollment>,
+            } as unknown as Record<string, unknown>,
         });
 
         return NextResponse.json({

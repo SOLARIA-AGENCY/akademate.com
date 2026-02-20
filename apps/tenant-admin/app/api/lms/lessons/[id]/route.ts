@@ -113,6 +113,14 @@ interface LessonNavRef {
   title?: string;
 }
 
+interface ProgressState {
+  status: 'not_started' | 'in_progress' | 'completed';
+  progressPercent: number;
+  videoProgress: number;
+  lastPosition: number;
+  completedAt?: string;
+}
+
 const JWT_SECRET = new TextEncoder().encode(
   process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
 );
@@ -200,12 +208,12 @@ export async function GET(
     }
 
     // Get lesson progress
-    let progressData = {
-      status: 'not_started' as const,
+    let progressData: ProgressState = {
+      status: 'not_started',
       progressPercent: 0,
       videoProgress: 0,
       lastPosition: 0,
-      completedAt: undefined as string | undefined,
+      completedAt: undefined,
     };
 
     try {

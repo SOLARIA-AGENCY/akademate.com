@@ -76,6 +76,11 @@ interface PayloadWithPlannedCollections {
     delete(args: { collection: string; where: Record<string, unknown> }): Promise<unknown>;
 }
 
+interface LoosePayloadClient {
+    update(args: { collection: string; id: string | number; data: Record<string, unknown> }): Promise<unknown>;
+    create(args: { collection: string; data: Record<string, unknown> }): Promise<unknown>;
+}
+
 /**
  * Helper to get error message from unknown error
  */
@@ -155,10 +160,11 @@ export async function POST(request: NextRequest) {
             email: anonymizedEmail,
             name: 'Deleted User',
         };
-        await payload.update({
+        const payloadLoose = payload as unknown as LoosePayloadClient;
+        await payloadLoose.update({
             collection: 'users',
             id: userId,
-            data: anonymizationData as Parameters<typeof payload.update>[0]['data'],
+            data: anonymizationData as unknown as Record<string, unknown>,
         });
 
         // Clear gamification data
@@ -183,9 +189,9 @@ export async function POST(request: NextRequest) {
             ip_address: request.headers.get('x-forwarded-for') ?? '127.0.0.1',
             changes: { after: { reason, verificationToken } },
         };
-        await payload.create({
+        await payloadLoose.create({
             collection: 'audit-logs',
-            data: auditLogData as Parameters<typeof payload.create>[0]['data'],
+            data: auditLogData as unknown as Record<string, unknown>,
         });
 
         return NextResponse.json({

@@ -104,13 +104,13 @@ export const stripe = getStripeClient()
 const CreateCustomerSchema = z.object({
   email: z.string().email('Invalid email address'),
   name: z.string().min(1, 'Name is required').optional(),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 })
 
 const CreateSubscriptionSchema = z.object({
   customerId: z.string().min(1, 'Customer ID is required'),
   priceId: z.string().min(1, 'Price ID is required'),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
   trialDays: z.number().int().min(0).max(365).optional(),
 })
 
@@ -119,7 +119,7 @@ const CreateCheckoutSessionSchema = z.object({
   priceId: z.string().min(1, 'Price ID is required'),
   successUrl: z.string().url('Invalid success URL'),
   cancelUrl: z.string().url('Invalid cancel URL'),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 })
 
 const CreatePortalSessionSchema = z.object({

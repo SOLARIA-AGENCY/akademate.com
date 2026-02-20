@@ -7,6 +7,7 @@ import { tenantField } from '../../access/tenantAccess';
  * Data structure for Campus used in collection hooks
  */
 interface CampusData {
+  id?: number;
   slug?: string;
   name?: string;
   city?: string;
@@ -23,7 +24,7 @@ interface CampusData {
  * Typed field hook for trimming string values
  * Returns the trimmed value or undefined
  */
-const trimFieldHook: FieldHook<CampusData, string | undefined | null> = ({ value }) => {
+const trimFieldHook: FieldHook = ({ value }) => {
   return typeof value === 'string' ? value.trim() : value;
 };
 

@@ -70,6 +70,10 @@ interface CourseRunCreateData {
   notes: string;
 }
 
+interface LoosePayloadClient {
+  create: (args: { collection: string; data: Record<string, unknown> }) => Promise<{ id: string | number }>;
+}
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -202,9 +206,10 @@ export async function POST(request: NextRequest) {
     };
 
     // Crear convocatoria en Payload
-    const convocation = await payload.create({
+    const payloadLoose = payload as unknown as LoosePayloadClient;
+    const convocation = await payloadLoose.create({
       collection: 'course-runs',
-      data: courseRunData as Parameters<typeof payload.create<'course-runs'>>[0]['data'],
+      data: courseRunData as unknown as Record<string, unknown>,
     });
 
     return NextResponse.json({
@@ -256,7 +261,7 @@ export async function GET(request: NextRequest) {
 
     const convocations = await payload.find({
       collection: 'course-runs',
-      where: whereClause,
+      where: whereClause as unknown as Record<string, unknown>,
       limit: 100,
       sort: '-start_date',
       depth: 2, // Populate course and campus relationships

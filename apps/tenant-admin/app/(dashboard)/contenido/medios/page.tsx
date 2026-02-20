@@ -21,9 +21,9 @@ import {
 
 /** Size variant in the API response */
 interface MediaSizeVariant {
-  url?: string
-  width?: number
-  height?: number
+  url: string
+  width: number
+  height: number
 }
 
 /** Media sizes object from API */
@@ -55,6 +55,22 @@ interface MediaApiDocument {
   file?: MediaFileObject
   createdAt: string
   updatedAt: string
+}
+
+function toStrictVariant(variant?: {
+  url?: string
+  width?: number
+  height?: number
+}): MediaSizeVariant | undefined {
+  if (!variant?.url || typeof variant.width !== 'number' || typeof variant.height !== 'number') {
+    return undefined
+  }
+
+  return {
+    url: variant.url,
+    width: variant.width,
+    height: variant.height,
+  }
 }
 
 /** API response structure for media list */
@@ -112,7 +128,12 @@ export default function MediaPage() {
         throw new Error('Failed to fetch media')
       }
       const data = (await response.json()) as MediaApiResponse
-      const items: MediaItem[] = (data.docs ?? []).map((doc: MediaApiDocument) => ({
+      const items: MediaItem[] = (data.docs ?? []).map((doc: MediaApiDocument) => {
+        const thumbnail = toStrictVariant(doc.sizes?.thumbnail)
+        const card = toStrictVariant(doc.sizes?.card)
+        const hero = toStrictVariant(doc.sizes?.hero)
+
+        return {
         id: doc.id,
         filename: doc.filename ?? doc.file?.filename ?? 'media',
         mimeType: doc.mimeType ?? doc.file?.mimeType ?? 'application/octet-stream',
@@ -122,10 +143,15 @@ export default function MediaPage() {
         alt: doc.alt ?? doc.filename ?? 'Media',
         url: doc.url ?? doc.file?.url ?? '',
         thumbnailURL: doc.sizes?.thumbnail?.url,
-        sizes: doc.sizes,
+        sizes: {
+          ...(thumbnail ? { thumbnail } : {}),
+          ...(card ? { card } : {}),
+          ...(hero ? { hero } : {}),
+        },
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
-      }))
+        }
+      })
 
       setMediaItems(items)
     } catch {

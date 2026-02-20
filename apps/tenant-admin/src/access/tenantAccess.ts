@@ -1,4 +1,4 @@
-import type { Access, FieldAccess, FieldHook } from 'payload'
+import type { Access, Field, FieldAccess, FieldHook } from 'payload'
 import type { Tenant } from '../payload-types'
 
 /**
@@ -230,10 +230,10 @@ interface AdminConditionContext {
 /**
  * Reusable tenant field definition for collections
  */
-export const tenantField = {
+export const tenantField: Field = {
   name: 'tenant',
   type: 'relationship' as const,
-  relationTo: 'tenants',
+  relationTo: 'tenants' as const,
   required: true,
   index: true,
   admin: {

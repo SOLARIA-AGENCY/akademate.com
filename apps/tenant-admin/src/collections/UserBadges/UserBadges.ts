@@ -58,7 +58,7 @@ export const UserBadges: CollectionConfig = {
     {
       name: 'badge',
       type: 'relationship',
-      relationTo: 'badges' as string,
+      relationTo: 'badges',
       required: true,
       index: true,
       admin: {

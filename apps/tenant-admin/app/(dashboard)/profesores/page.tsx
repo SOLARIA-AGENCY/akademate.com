@@ -19,10 +19,9 @@ import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '../../../@payload-config/hooks/useViewPreference'
 
 interface Certification {
-  id: number
-  name: string
-  issuer?: string
-  date?: string
+  title: string
+  institution: string
+  year: number
 }
 
 interface StaffMember {
@@ -97,16 +96,12 @@ export default function ProfesoresPage() {
         // Transform API data to UI format
         const transformed: TeacherExpanded[] = result.data.map((staff: StaffMember) => ({
           ...staff,
-          id: staff.id.toString(),
           initials: getInitials(staff.fullName),
           active: staff.employmentStatus === 'active',
           department: staff.position, // Using position as department for now
           specialties: [], // No specialties in current schema
           certifications: [],
           courseRunsCount: staff.courseRunsCount ?? 0,
-          first_name: staff.firstName,
-          last_name: staff.lastName,
-          photo: staff.photo,
         }))
 
         setTeachersExpanded(transformed)

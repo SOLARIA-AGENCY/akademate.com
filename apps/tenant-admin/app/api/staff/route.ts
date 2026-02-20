@@ -83,7 +83,7 @@ interface CreateStaffBody {
   employmentStatus?: 'active' | 'temporary_leave' | 'inactive';
   hireDate: string;
   bio?: string;
-  specialties?: string[];
+  specialties?: Staff['specialties'];
   certifications?: {
     title: string;
     institution: string;
@@ -106,7 +106,7 @@ interface UpdateStaffBody {
   hireDate?: string;
   bio?: string | null;
   photoId?: string | number | null;
-  specialties?: string[];
+  specialties?: Staff['specialties'];
   certifications?: {
     title: string;
     institution: string;
@@ -129,7 +129,7 @@ interface StaffUpdateData {
   hire_date?: string;
   bio?: string | null;
   photo?: number | null;
-  specialties?: string[];
+  specialties?: Staff['specialties'];
   certifications?: {
     title: string;
     institution: string;
@@ -332,12 +332,12 @@ export async function POST(request: NextRequest) {
         hire_date: hireDate,
         bio: bio ?? undefined,
         photo: photoId ? parseInt(String(photoId)) : undefined,
-        specialties: specialties ?? [],
+        specialties: (specialties ?? []) as Staff['specialties'],
         certifications: certifications ?? [],
         assigned_campuses: assignedCampuses.map((id) => typeof id === 'string' ? parseInt(id) : id),
         is_active: true,
       },
-    }) as Staff;
+    }) as unknown as Staff;
 
     return NextResponse.json({
       success: true,
@@ -389,7 +389,7 @@ export async function PUT(request: NextRequest) {
     if (body.hireDate) updateData.hire_date = body.hireDate;
     if (body.bio !== undefined) updateData.bio = body.bio;
     if (body.photoId !== undefined) updateData.photo = body.photoId ? parseInt(String(body.photoId)) : null;
-    if (body.specialties) updateData.specialties = body.specialties;
+    if (body.specialties) updateData.specialties = body.specialties as Staff['specialties'];
     if (body.certifications) updateData.certifications = body.certifications;
     if (body.assignedCampuses)
       updateData.assigned_campuses = body.assignedCampuses.map((cid) => typeof cid === 'string' ? parseInt(cid) : cid);
@@ -398,8 +398,8 @@ export async function PUT(request: NextRequest) {
     const staffMember = await payload.update({
       collection: 'staff',
       id: parseInt(id),
-      data: updateData,
-    }) as Staff;
+      data: updateData as unknown as Record<string, unknown>,
+    }) as unknown as Staff;
 
     return NextResponse.json({
       success: true,

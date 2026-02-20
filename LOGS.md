@@ -318,6 +318,36 @@
 - ✓ Fix tests: beforeEach para API Health en e2e/ops.
 - Tests: portal-chromium (61/61) PASS; ops-chromium (101/101) PASS.
 
+## Iteracion 73 - 2026-02-20
+
+- Accion: Cerré tarea atómica de tipado `CollectionSlug` en tenant-admin (normalización `relationTo` sin `as string` y `tenantField` tipado como `Field`).
+- Resultado: `pnpm --filter @akademate/tenant-admin typecheck` reduce de **80** a **69** errores TS (baseline en `/tmp/tenant_typecheck_baseline.log`, iteración en `/tmp/tenant_typecheck_iter1.log`).
+- Evidencia: desaparecen errores de `LessonProgress`, `Materials`, `Submissions`, `UserBadges`, `Campaigns`, `CourseRuns`, `Courses`, `Cycles`; persiste `Campuses.ts(26)` por `TypeWithID`.
+
+## Iteracion 74 - 2026-02-20
+
+- Accion: Corregí hooks `trackCourseRunCreator` y `trackEnrollmentCreator` reemplazando referencia inválida `typedDoc` por `originalDoc` tipado.
+- Resultado: `pnpm --filter @akademate/tenant-admin typecheck` reduce de **69** a **65** errores TS (`/tmp/tenant_typecheck_iter2.log`).
+- Evidencia: se eliminan 4 errores `TS2304` en `src/collections/CourseRuns/hooks/trackCourseRunCreator.ts` y `src/collections/Enrollments/hooks/trackEnrollmentCreator.ts`.
+
+## Iteracion 75 - 2026-02-20
+
+- Accion: Ajusté `Campuses.ts` para quitar generic inválido en `FieldHook` (`trimFieldHook`) y cumplir restricciones `TypeWithID`.
+- Resultado: `pnpm --filter @akademate/tenant-admin typecheck` reduce de **65** a **64** errores TS (`/tmp/tenant_typecheck_iter3b.log`).
+- Evidencia: desaparece el error en `src/collections/Campuses/Campuses.ts`.
+
+## Iteracion 76 - 2026-02-20
+
+- Accion: Corregí `captureConsentMetadata` en Leads para usar `FieldHook` sin genéricos inválidos y `typedData` explícito.
+- Resultado: `pnpm --filter @akademate/tenant-admin typecheck` reduce de **64** a **56** errores TS (`/tmp/tenant_typecheck_iter4.log`).
+- Evidencia: se elimina por completo el bloque de 8 errores en `src/collections/Leads/hooks/captureConsentMetadata.ts`.
+
+## Iteracion 77 - 2026-02-20
+
+- Accion: Ajusté `PayloadRequestHeaders` en `src/types/payload-helpers.ts` para soportar `get()` en la index signature.
+- Resultado: `pnpm --filter @akademate/tenant-admin typecheck` reduce de **56** a **55** errores TS (`/tmp/tenant_typecheck_iter5.log`).
+- Evidencia: desaparece el error `TS2411` en `src/types/payload-helpers.ts`.
+
 
 ## Iteracion 73 - 2026-01-17
 
@@ -397,3 +427,15 @@
 - Resultado: `pnpm --filter @akademate/tenant-admin test` en verde (35 files, 581 passed, 1 skipped, 0 failed).
 - Resultado: Despliegue remoto en NEMESIS con `tar + scp + docker compose` y validacion de endpoints criticos `dev-login/dashboard/administracion`.
 - Resultado: Auditoria integral PASS en `docs/audits/platform-audit-2026-02-20T00-19-18-290Z.md`.
+
+## Iteracion 85 - 2026-02-20
+
+- Accion: Ejecuté Ralph Loop de saneamiento TS en `tenant-admin` atacando bloques críticos (`gdpr/*`, `lms/*`, `dashboard pages`, `staff`, `stripe`, `blog/media hooks`).
+- Resultado: `pnpm --filter @akademate/tenant-admin typecheck` pasó de **51** errores a **0** (`/tmp/tenant_typecheck_iter7.log` -> `/tmp/tenant_typecheck_iter9.log`).
+- Evidencia: errores TS resueltos en rutas LMS/GDPR, tipado de páginas dashboard y compatibilidad de validadores Payload.
+
+## Iteracion 86 - 2026-02-20
+
+- Accion: Validación de regresión post-fix en `tenant-admin` (typecheck + tests + lint).
+- Resultado: `typecheck` PASS (0 errores), `pnpm --filter @akademate/tenant-admin test` PASS (**37 files, 584 passed, 1 skipped, 0 failed**), `pnpm --filter @akademate/tenant-admin lint` PASS.
+- Evidencia: `/tmp/tenant_typecheck_iter9.log`, `/tmp/tenant_tests_iter9.log`, `/tmp/tenant_lint_iter9.log`.

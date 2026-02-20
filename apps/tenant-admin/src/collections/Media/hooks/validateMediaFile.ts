@@ -58,8 +58,7 @@ function getErrorMessage(error: unknown): string {
 // Note: JSDOM types don't perfectly align with Window, but DOMPurify works correctly at runtime
  
 const jsdomInstance = new JSDOM('');
- 
-const jsdomWindow = jsdomInstance.window as unknown as Window;
+const jsdomWindow = jsdomInstance.window as unknown as Parameters<typeof createDOMPurify>[0];
 const purify: DOMPurify = createDOMPurify(jsdomWindow);
 
 /**

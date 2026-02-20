@@ -23,6 +23,7 @@ import {
   ConvocationGeneratorModal,
   type ConvocationFormData,
 } from '@payload-config/components/ui/ConvocationGeneratorModal'
+import type { PlantillaCurso } from '@/types'
 
 // ============================================================================
 // TypeScript Interfaces
@@ -259,6 +260,25 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
         </Card>
       </div>
     )
+  }
+
+  const courseTemplateForModal: PlantillaCurso = {
+    id: String(courseTemplate.id),
+    nombre: courseTemplate.nombre,
+    descripcion: courseTemplate.descripcion,
+    imagenPortada: courseTemplate.imagenPortada,
+    area: courseTemplate.area,
+    tipo: courseTemplate.tipo as PlantillaCurso['tipo'],
+    duracionReferencia: courseTemplate.duracionReferencia,
+    precioReferencia: courseTemplate.precioReferencia,
+    objetivos: courseTemplate.objetivos,
+    contenidos: courseTemplate.contenidos,
+    totalConvocatorias: courseTemplate.totalConvocatorias,
+    active: courseTemplate.active,
+    subvencionado: courseTemplate.subvencionado,
+    porcentajeSubvencion: courseTemplate.porcentajeSubvencion,
+    created_at: courseTemplate.created_at,
+    updated_at: courseTemplate.updated_at,
   }
 
   const typeConfig = getCourseTypeConfig(courseTemplate.tipo ?? 'privados')
@@ -601,7 +621,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
       <ConvocationGeneratorModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        courseTemplate={courseTemplate}
+        courseTemplate={courseTemplateForModal}
         onSubmit={handleCreateConvocation}
       />
     </div>

@@ -28,16 +28,16 @@ interface PaymentMethodSepaDebit {
  * Billing details for payment method
  */
 interface PaymentMethodBillingDetails {
-  name: string | null
-  email: string | null
-  phone: string | null
-  address: {
-    line1: string | null
-    line2: string | null
-    city: string | null
-    state: string | null
-    postalCode: string | null
-    country: string | null
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+  address?: {
+    line1?: string | null
+    line2?: string | null
+    city?: string | null
+    state?: string | null
+    postalCode?: string | null
+    country?: string | null
   } | null
 }
 

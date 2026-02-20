@@ -38,9 +38,10 @@ export const trackEnrollmentCreator: CollectionBeforeChangeHook = ({
 
   // On UPDATE: Prevent modification of created_by (restore original value)
   if (operation === 'update' && originalDoc) {
-    if (data.created_by && data.created_by !== typedDoc.created_by) {
+    const originalCreatedBy = (originalDoc as { created_by?: unknown }).created_by;
+    if (data.created_by && data.created_by !== originalCreatedBy) {
       // Attempting to change created_by - restore original value
-      data.created_by = typedDoc.created_by;
+      data.created_by = originalCreatedBy as typeof data.created_by;
     }
   }
 

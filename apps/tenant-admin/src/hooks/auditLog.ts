@@ -7,7 +7,7 @@ type ValidCollectionName = (typeof VALID_COLLECTION_NAMES)[number];
  * Audit log data structure for hook creation
  * Note: user_email, user_role, and status are auto-populated by beforeValidate hooks
  */
-interface AuditLogHookData {
+interface AuditLogHookData extends Record<string, unknown> {
   action: 'create' | 'update' | 'delete';
   collection_name: ValidCollectionName;
   document_id: string;
@@ -66,7 +66,8 @@ export function createAuditLogHook(
 
       await req.payload.create({
         collection: 'audit-logs',
-        data: auditData as Record<string, unknown>,
+        draft: true,
+        data: auditData,
       });
     } catch (error) {
       // Log error but don't fail the operation

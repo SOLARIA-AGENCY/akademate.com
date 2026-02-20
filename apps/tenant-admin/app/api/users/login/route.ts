@@ -77,11 +77,11 @@ export async function POST(request: Request) {
     resetRateLimit(clientIP)
 
     // Create response with user data
-    const user = result.user as { id: string; email: string; name?: string; role?: string }
+    const user = result.user as { id: string | number; email: string; name?: string; role?: string }
     const response = NextResponse.json({
       message: 'Auth Passed',
       user: {
-        id: user.id,
+        id: String(user.id),
         email: user.email,
         name: user.name,
         role: user.role,

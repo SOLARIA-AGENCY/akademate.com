@@ -43,7 +43,7 @@ interface BaseDocument {
 
 /** Enrollment document */
 interface EnrollmentDocument extends BaseDocument {
-    user: string | number;
+    user?: string | number;
     course?: string | number;
     status?: string;
 }
@@ -146,6 +146,14 @@ interface AuditLogData {
     ip_address: string;
 }
 
+interface LooseFindClient<T extends BaseDocument> {
+    find: (args: { collection: string; where: Record<string, unknown>; depth: number }) => Promise<PaginatedDocs<T>>;
+}
+
+interface LooseCreateClient {
+    create: (args: { collection: string; data: Record<string, unknown> }) => Promise<unknown>;
+}
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -155,15 +163,14 @@ interface AuditLogData {
  * Returns empty docs array if collection query fails
  */
 async function safeCollectionQuery<T extends BaseDocument>(
-    payload: {
-        find: (args: { collection: string; where: Record<string, unknown>; depth: number }) => Promise<PaginatedDocs<T>>;
-    },
+    payload: unknown,
     collection: string,
     where: Record<string, unknown>,
     depth = 0
 ): Promise<PaginatedDocs<T>> {
     try {
-        const result = await payload.find({ collection, where, depth });
+        const payloadWithFind = payload as LooseFindClient<T>;
+        const result = await payloadWithFind.find({ collection, where, depth });
         return result;
     } catch {
         return { docs: [] };
@@ -240,7 +247,7 @@ export async function POST(request: NextRequest) {
             attendance,
             certificates,
         ] = await Promise.all([
-            payload.find({ collection: 'enrollments', where: userIdEquals, depth: 2 }) as Promise<PaginatedDocs<EnrollmentDocument>>,
+            safeCollectionQuery<EnrollmentDocument>(payload, 'enrollments', userIdEquals, 2),
             safeCollectionQuery<SubmissionDocument>(payload, 'submissions', enrollmentUserEquals, 2),
             safeCollectionQuery<LessonProgressDocument>(payload, 'lesson-progress', enrollmentUserEquals, 2),
             safeCollectionQuery<UserBadgeDocument>(payload, 'user-badges', userIdEquals, 1),
@@ -282,9 +289,10 @@ export async function POST(request: NextRequest) {
             ip_address: request.headers.get('x-forwarded-for') ?? '127.0.0.1',
         };
 
-        await payload.create({
+        const payloadLoose = payload as unknown as LooseCreateClient;
+        await payloadLoose.create({
             collection: 'audit-logs',
-            data: auditData as Parameters<typeof payload.create>[0]['data'],
+            data: auditData as unknown as Record<string, unknown>,
         });
 
         return NextResponse.json({

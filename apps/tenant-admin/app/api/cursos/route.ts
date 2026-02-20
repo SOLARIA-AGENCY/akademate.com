@@ -78,6 +78,10 @@ interface PayloadCourseDoc {
   name: string;
 }
 
+interface LoosePayloadClient {
+  create: (args: { collection: string; data: Record<string, unknown> }) => Promise<unknown>;
+}
+
 /**
  * POST /api/cursos
  *
@@ -197,10 +201,11 @@ export async function POST(request: NextRequest) {
       // TODO: Agregar objetivos, contenidos, PDFs cuando se implementen
     };
 
-    const cursoCreado = await payload.create({
+    const payloadLoose = payload as unknown as LoosePayloadClient;
+    const cursoCreado = await payloadLoose.create({
       collection: 'courses',
-      data: courseData,
-    }) as PayloadCourseDoc;
+      data: courseData as unknown as Record<string, unknown>,
+    }) as unknown as PayloadCourseDoc;
 
     return NextResponse.json({
       success: true,
@@ -242,9 +247,11 @@ export async function GET() {
       depth: 2, // Populate relationships (area_formativa)
     });
 
+    const courseDocs = cursos.docs as unknown as CourseDocument[];
+
     const response = NextResponse.json({
       success: true,
-      data: cursos.docs.map((curso: CourseDocument) => {
+      data: courseDocs.map((curso: CourseDocument) => {
         // Extract area name (can be object or ID)
         const areaFormativa = curso.area_formativa;
         let areaName = 'Sin área';

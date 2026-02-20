@@ -137,17 +137,17 @@ export async function GET(_request: NextRequest) {
 
     // Calculate metrics
     const totalCourses = coursesData.totalDocs;
-    const courses = coursesData.docs as CourseDoc[];
+    const courses = coursesData.docs as unknown as CourseDoc[];
     const activeCourses = courses.filter((c) => c.active === true).length;
 
     const totalConvocations = convocationsData.totalDocs;
-    const convocations = convocationsData.docs as CourseRunDoc[];
+    const convocations = convocationsData.docs as unknown as CourseRunDoc[];
     const activeConvocations = convocations.filter(
       (cr) => cr.status === 'abierta' || cr.status === 'planificada'
     ).length;
 
     const totalCampuses = campusesData.totalDocs;
-    const campuses = campusesData.docs as CampusDoc[];
+    const campuses = campusesData.docs as unknown as CampusDoc[];
 
     // Calculate enrollments from convocations
     const totalEnrolled = convocations.reduce(

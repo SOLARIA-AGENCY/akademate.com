@@ -53,6 +53,10 @@ interface ConsentRequestBody {
   consents?: Partial<ConsentState>;
 }
 
+interface LoosePayloadClient {
+  create: (args: { collection: string; data: Record<string, unknown> }) => Promise<unknown>;
+}
+
 const DEFAULT_CONSENTS: ConsentState = {
   marketing_email: false,
   marketing_sms: false,
@@ -166,7 +170,8 @@ export async function POST(
       },
     };
 
-    await payload.create({
+    const payloadLoose = payload as unknown as LoosePayloadClient;
+    await payloadLoose.create({
       collection: 'audit-logs',
       data: auditLogData as unknown as Record<string, unknown>,
     });

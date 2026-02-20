@@ -55,6 +55,11 @@ interface PayloadWithPlannedCollections {
   delete: (args: { collection: string; where: Record<string, unknown> }) => Promise<unknown>;
 }
 
+interface LoosePayloadClient {
+  update: (args: { collection: string; id: string | number; data: Record<string, unknown> }) => Promise<unknown>;
+  create: (args: { collection: string; data: Record<string, unknown> }) => Promise<unknown>;
+}
+
 /** User update data structure */
 interface UserUpdateData {
   email: string;
@@ -189,10 +194,11 @@ export async function POST(
       email: anonymizedEmail,
       name: 'Deleted User',
     };
-    await payload.update({
+    const payloadLoose = payload as unknown as LoosePayloadClient;
+    await payloadLoose.update({
       collection: 'users',
       id: userId,
-      data: updateData as Parameters<typeof payload.update>[0]['data'],
+      data: updateData as unknown as Record<string, unknown>,
     });
 
     // Clear gamification data
@@ -222,9 +228,9 @@ export async function POST(
       changes: auditLogChanges,
     };
 
-    await payload.create({
+    await payloadLoose.create({
       collection: 'audit-logs',
-      data: auditLogData as Parameters<typeof payload.create>[0]['data'],
+      data: auditLogData as unknown as Record<string, unknown>,
     });
 
     const responseData: ErasureResponseData = {

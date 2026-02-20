@@ -27,6 +27,7 @@ import {
 import { CicloListItem } from '@payload-config/components/ui/CicloListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '../../../@payload-config/hooks/useViewPreference'
+import type { CicloPlantilla } from '@/types'
 
 interface Ciclo {
   id: string
@@ -698,7 +699,7 @@ export default function TodosLosCiclosPage() {
         <div className="flex flex-col gap-2">
           {filteredCiclos.map((ciclo) => {
             // Adapt local Ciclo interface to CicloPlantilla expected by CicloListItem
-            const adaptedCiclo = {
+            const adaptedCiclo: CicloPlantilla = {
               id: ciclo.id,
               nombre: ciclo.nombre,
               codigo: ciclo.codigo,
@@ -710,7 +711,17 @@ export default function TodosLosCiclosPage() {
               duracion_total_horas: parseInt(ciclo.duracion) || 2000,
               image: ciclo.imagen,
               color: '',
-              cursos: Array(ciclo.cursos_activos).fill({ id: '', ciclo_plantilla_id: '', nombre: '', codigo_curso: '', horas: 0, tipo_curso: '', descripcion: '', creditos: 0, contenidos: [] }),
+              cursos: Array.from({ length: ciclo.cursos_activos }, (_, index) => ({
+                id: `curso-${ciclo.id}-${index}`,
+                ciclo_plantilla_id: ciclo.id,
+                nombre: `Curso ${index + 1}`,
+                codigo: `CUR-${index + 1}`,
+                descripcion: '',
+                duracion_horas: 0,
+                orden: index + 1,
+                objetivos: [],
+                contenidos: [],
+              })),
               total_instancias: 0,
               instancias_activas: 0,
               total_alumnos: ciclo.plazas_ocupadas,

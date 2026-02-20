@@ -33,6 +33,10 @@ interface RequestHeaders {
   [key: string]: string | string[] | undefined;
 }
 
+interface HeadersWithGetter {
+  get(name: string): string | null;
+}
+
 /**
  * Socket interface for remote address extraction
  */
@@ -44,9 +48,21 @@ interface RequestSocket {
  * Request object interface matching Payload CMS request structure
  */
 interface PayloadRequest {
-  headers?: RequestHeaders;
+  headers?: RequestHeaders | HeadersWithGetter;
   ip?: string;
   socket?: RequestSocket;
+}
+
+function readHeader(
+  headers: RequestHeaders | HeadersWithGetter | undefined,
+  name: 'x-forwarded-for' | 'x-real-ip' | 'user-agent'
+): string | string[] | undefined {
+  if (!headers) return undefined;
+  if (typeof (headers as HeadersWithGetter).get === 'function') {
+    const value = (headers as HeadersWithGetter).get(name);
+    return value ?? undefined;
+  }
+  return (headers as RequestHeaders)[name];
 }
 
 /**
@@ -393,7 +409,7 @@ export const extractIPAddress = (req: PayloadRequest | null | undefined): string
   if (!req) return undefined;
 
   // Try X-Forwarded-For header first (if behind proxy/load balancer)
-  const forwardedFor = req.headers?.['x-forwarded-for'];
+  const forwardedFor = readHeader(req.headers, 'x-forwarded-for');
   if (forwardedFor) {
     // X-Forwarded-For can be comma-separated list, take first IP
     const ips = Array.isArray(forwardedFor) ? forwardedFor : forwardedFor.split(',');
@@ -406,7 +422,7 @@ export const extractIPAddress = (req: PayloadRequest | null | undefined): string
   }
 
   // Try X-Real-IP header (alternative proxy header)
-  const realIP = req.headers?.['x-real-ip'];
+  const realIP = readHeader(req.headers, 'x-real-ip');
   if (realIP && typeof realIP === 'string') {
     if (ipv4Regex.test(realIP) || ipv6Regex.test(realIP)) {
       return realIP;
@@ -442,6 +458,6 @@ export const extractIPAddress = (req: PayloadRequest | null | undefined): string
  */
 export const extractUserAgent = (req: PayloadRequest | null | undefined): string | undefined => {
   if (!req?.headers) return undefined;
-  const userAgent = req.headers['user-agent'];
+  const userAgent = readHeader(req.headers, 'user-agent');
   return typeof userAgent === 'string' ? userAgent.slice(0, 1000) : undefined; // Limit length
 };

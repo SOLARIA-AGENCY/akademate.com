@@ -93,3 +93,15 @@
 - [x] Ejecutar smoke audit live final en NEMESIS y registrar evidencia.
 - [x] Corregir runtime `tenant-admin` en rutas de administración con error 500 (`roles`, `actividad`) y desplegar fix en NEMESIS.
 - [x] Re-ejecutar auditoría integral multitenant con estado PASS (`docs/audits/platform-audit-2026-02-20T00-19-18-290Z.md`).
+
+## 15) Ralph Loop 2026-02-20 (Typecheck tenant-admin a 0)
+- [x] Normalizar `relationTo` y `tenantField` (CollectionSlug estricto) en colecciones Payload.
+- [x] Corregir hooks `trackCourseRunCreator` y `trackEnrollmentCreator` (`typedDoc` inexistente).
+- [x] Corregir `Campuses.ts` (`CampusData` debe satisfacer `TypeWithID`).
+- [x] Corregir hooks de `Leads` (`captureConsentMetadata` con tipo de documento explícito).
+- [x] Corregir helper `src/types/payload-helpers.ts` (index signature incompatible).
+- [x] Corregir tipado de `AuditLogs` hooks + `src/hooks/auditLog.ts`.
+- [x] Corregir bloque LMS API (`enrollments`, `lessons`, `modules`, `progress`, `campus/*`).
+- [x] Corregir bloque GDPR API (`app/api/gdpr/**/*`).
+- [x] Corregir bloque dashboard pages (`ciclos`, `medios`, `profesores`, `sedes`, `facturacion`).
+- [x] Corregir `@payload-config/lib/stripe.ts` (firmas Stripe v20).
