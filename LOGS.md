@@ -459,3 +459,7 @@
 ## Iteración 50E (20-02-2026)
 - Acción: Desplegué hotfix en NEMESIS vía `tar+scp` y rebuild de servicio `tenant` (`docker compose build tenant && docker compose up -d tenant nginx`).
 - Resultado: smoke remoto autenticado OK -> `/dashboard` (200), `/administracion` (307 -> `/administracion/usuarios`), `/marketing/campanas` (307 -> `/campanas`), `/api/leads` (200 con sesión).
+
+## Iteración 50F (20-02-2026)
+- Acción: Validé rutas críticas autenticadas post-deploy con timeout extendido (`/programacion`, `/planner`, `/cursos`).
+- Resultado: las tres rutas responden `200` en <1s; falso positivo previo por timeout corto en ejecución en lote.
