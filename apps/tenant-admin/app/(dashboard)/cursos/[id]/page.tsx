@@ -14,11 +14,9 @@ import {
   BookOpen,
   Target,
   FileText,
-  Euro,
   Clock,
   Users,
   Calendar,
-  GraduationCap,
 } from 'lucide-react'
 import {
   ConvocationGeneratorModal,
@@ -328,12 +326,13 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
     <div className="space-y-6">
       <PageHeader
         title={courseTemplate.nombre}
-        description={`${courseTemplate.area} • Detalle de la plantilla del curso`}
+        description="Detalle y gestión del curso"
         icon={BookOpen}
         actions={(
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => router.push('/cursos')}>
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver
             </Button>
             <Button variant="outline" onClick={() => router.push(`/cursos/${id}/editar`)}>
               <Edit className="mr-2 h-4 w-4" />
@@ -347,27 +346,6 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
         )}
       />
 
-      {/* Status Bar */}
-      <Card>
-        <CardContent className="flex items-center justify-between pt-6">
-          <div className="flex items-center gap-6">
-            <Badge
-              className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white text-sm font-bold uppercase`}
-            >
-              {typeConfig.label}
-            </Badge>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Área:</span>
-              <Badge variant="outline">{courseTemplate.area}</Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Convocatorias:</span>
-              <Badge variant="secondary">{courseTemplate.totalConvocatorias} activas</Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Main Content: 2/3 + 1/3 Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT SIDE: 2/3 - Course Information */}
@@ -375,7 +353,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
           {/* Hero Image - Reduced height for better reading space */}
           <Card>
             <CardContent className="p-0">
-              <div className="relative h-64 overflow-hidden rounded-t-lg">
+              <div className="relative h-56 overflow-hidden rounded-t-lg">
                 <img
                   src={courseTemplate.imagenPortada}
                   alt={courseTemplate.nombre}
@@ -417,22 +395,12 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                     </div>
 
                     <div className="flex items-center gap-3 p-3 border rounded-lg">
-                      <Euro className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">Precio</p>
-                        <p className="font-semibold">
-                          {courseTemplate.precioReferencia && courseTemplate.precioReferencia > 0
-                            ? `${courseTemplate.precioReferencia}€`
-                            : 'SUBVENCIONADO'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 p-3 border rounded-lg">
-                      <GraduationCap className="h-5 w-5 text-muted-foreground" />
+                      <Badge className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white`}>
+                        {typeConfig.label}
+                      </Badge>
                       <div>
                         <p className="text-xs text-muted-foreground">Área</p>
-                        <p className="font-semibold text-xs">{courseTemplate.area}</p>
+                        <p className="font-semibold">{courseTemplate.area}</p>
                       </div>
                     </div>
                   </div>
@@ -502,7 +470,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                       onClick={() => router.push(`/cursos/${id}/editar`)}
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Agregar Recurso
+                      Gestionar recursos
                     </Button>
                   </div>
                 </TabsContent>

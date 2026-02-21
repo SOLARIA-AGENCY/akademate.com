@@ -23,10 +23,8 @@ import {
   Users,
   Clock,
   AlertTriangle,
-  CheckCircle,
   User,
   BookOpen,
-  TrendingUp,
 } from 'lucide-react'
 
 interface ConvocatoriaApiResponse {
@@ -213,8 +211,17 @@ export default function ProgramacionPage() {
 
       <PageHeader
         title="Programación de Convocatorias"
-        description="Gestiona horarios, aulas y profesores sin conflictos"
+        description="Planificación de cursos, horarios y plazas"
         icon={Calendar}
+        badge={(
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{totalConvocatorias} total</Badge>
+            <Badge variant="outline">{convocatoriasActivas} activas</Badge>
+            {conflictosDetectados > 0 && (
+              <Badge variant="destructive">{conflictosDetectados} conflictos</Badge>
+            )}
+          </div>
+        )}
         actions={(
           <Button
             className="bg-primary hover:bg-primary/90"
@@ -226,64 +233,13 @@ export default function ProgramacionPage() {
         )}
       />
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Calendar className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Convocatorias</p>
-              <p className="text-2xl font-bold">{totalConvocatorias}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-500/10 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Activas</p>
-              <p className="text-2xl font-bold">{convocatoriasActivas}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-orange-500/10 rounded-lg">
-              <AlertTriangle className="h-6 w-6 text-orange-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Con Conflictos</p>
-              <p className="text-2xl font-bold">{conflictosDetectados}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-500/10 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Ocupación</p>
-              <p className="text-2xl font-bold">{tasaOcupacion}%</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
       {/* Filtros */}
-      <Card className="p-6">
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="relative">
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
+          <div className="relative min-w-[260px] flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar curso, código o profesor..."
+              placeholder="Buscar curso o profesor..."
               value={searchTerm}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -291,7 +247,7 @@ export default function ProgramacionPage() {
           </div>
 
           <Select value={sedeFilter} onValueChange={setSedeFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
               <SelectValue placeholder="Todas las sedes" />
             </SelectTrigger>
             <SelectContent>
@@ -305,7 +261,7 @@ export default function ProgramacionPage() {
           </Select>
 
           <Select value={estadoFilter} onValueChange={setEstadoFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
               <SelectValue placeholder="Todos los estados" />
             </SelectTrigger>
             <SelectContent>
@@ -320,6 +276,7 @@ export default function ProgramacionPage() {
 
           <Button
             variant="outline"
+            className="xl:ml-auto"
             onClick={() => {
               setSearchTerm('')
               setSedeFilter('todas')
@@ -334,7 +291,7 @@ export default function ProgramacionPage() {
       {/* Resultados */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Mostrando {convocatoriasFiltradas.length} de {totalConvocatorias} convocatorias
+          {convocatoriasFiltradas.length} resultados · ocupación media {tasaOcupacion}%
         </p>
       </div>
 
@@ -360,7 +317,7 @@ export default function ProgramacionPage() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <BookOpen className="h-5 w-5 text-primary" />
-                      <h3 className="text-xl font-bold">{convocatoria.curso}</h3>
+                      <h3 className="text-lg font-semibold">{convocatoria.curso}</h3>
                       {convocatoria.tiene_conflictos && (
                         <AlertTriangle className="h-5 w-5 text-orange-500" />
                       )}
@@ -373,7 +330,7 @@ export default function ProgramacionPage() {
                 </div>
 
                 {/* Info grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <div>
@@ -393,14 +350,6 @@ export default function ProgramacionPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Horario</p>
-                      <p className="text-sm font-medium">{convocatoria.horario_resumen}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Fechas</p>
@@ -415,6 +364,14 @@ export default function ProgramacionPage() {
                           month: 'short',
                         })}
                       </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Horario</p>
+                      <p className="text-sm font-medium">{convocatoria.horario_resumen}</p>
                     </div>
                   </div>
                 </div>
@@ -488,28 +445,7 @@ export default function ProgramacionPage() {
                     }}
                   >
                     <Calendar className="mr-2 h-4 w-4" />
-                    Ver en Calendario
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      router.push(`/programacion/${convocatoria.id}/editar`)
-                    }}
-                  >
-                    Editar Horario
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      router.push(`/alumnos?convocatoria=${convocatoria.id}`)
-                    }}
-                  >
-                    <Users className="mr-2 h-4 w-4" />
-                    Ver Estudiantes
+                    Ver detalle
                   </Button>
                 </div>
               </div>
