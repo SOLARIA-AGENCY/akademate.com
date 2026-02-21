@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, BookOpen, Award, Eye, Edit, Loader2 } from 'lucide-react'
+import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Edit, Loader2 } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '../../../@payload-config/hooks/useViewPreference'
@@ -195,122 +195,72 @@ export default function ProfesoresPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
       <PageHeader
         title="Profesores"
-        description={`${filteredTeachers.length} profesores de ${teachersExpanded.length} totales`}
+        description="Gestión compacta de profesorado y carga docente."
         icon={User}
+        badge={<Badge variant="secondary">{filteredTeachers.length} visibles</Badge>}
         actions={(
           <Button onClick={handleAdd}>
             <Plus className="mr-2 h-4 w-4" />
             Nuevo Profesor
           </Button>
         )}
+        filters={(
+          <div className="flex w-full flex-wrap items-center gap-2 text-sm">
+            <Badge variant="outline">{stats.total} profesores</Badge>
+            <Badge variant="outline">{stats.active} activos</Badge>
+            <Badge variant="outline">{stats.inactive} inactivos</Badge>
+            <Badge variant="outline">{stats.totalCourseRuns} convocatorias</Badge>
+            <Badge variant="outline">{stats.avgCourseRunsPerTeacher} promedio</Badge>
+          </div>
+        )}
       />
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-5">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Profesores</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Activos</CardTitle>
-            <User className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inactivos</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-muted-foreground">{stats.inactive}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Convocatorias</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCourseRuns}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Promedio Convocatorias</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.avgCourseRunsPerTeacher}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filtros */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            {/* Filtros principales */}
-            <div className="flex-1 grid gap-4 md:grid-cols-3">
-              <div className="relative">
+          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
+            <div className="relative min-w-[260px] flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por nombre, email, departamento..."
                   value={searchTerm}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                  className="pl-9"
+                  className="w-full pl-9"
                 />
-              </div>
-
-              <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos los departamentos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los departamentos</SelectItem>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept} value={dept}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos los estados" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los estados</SelectItem>
-                  <SelectItem value="active">Activos</SelectItem>
-                  <SelectItem value="inactive">Inactivos</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
-            {/* View Toggle */}
-            <div className="hidden lg:block">
+            <Select value={filterDepartment} onValueChange={setFilterDepartment}>
+              <SelectTrigger className="w-full min-w-[200px] md:w-[240px]">
+                <SelectValue placeholder="Todos los departamentos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los departamentos</SelectItem>
+                {departments.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
+                <SelectValue placeholder="Todos los estados" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                <SelectItem value="active">Activos</SelectItem>
+                <SelectItem value="inactive">Inactivos</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <div className="hidden xl:ml-auto xl:block">
               <ViewToggle view={view} onViewChange={setView} />
             </div>
-          </div>
 
-          {(searchTerm || filterDepartment !== 'all' || filterStatus !== 'all') && (
-            <div className="flex items-center gap-4 mt-4">
+            {(searchTerm || filterDepartment !== 'all' || filterStatus !== 'all') && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -322,22 +272,20 @@ export default function ProfesoresPage() {
               >
                 Limpiar filtros
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Grid o Lista de Profesores */}
       {view === 'grid' ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredTeachers.map((teacher) => (
             <Card
               key={teacher.id}
-              className="cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden"
+              className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
               onClick={() => handleViewTeacher(teacher.id)}
             >
               <CardContent className="p-6 space-y-4">
-                {/* Header con foto y nombre */}
                 <div className="flex items-start gap-4">
                   <div className="relative">
                     {teacher.photo ? (
@@ -359,11 +307,13 @@ export default function ProfesoresPage() {
                     <h3 className="font-bold text-lg leading-tight truncate">
                       {teacher.firstName} {teacher.lastName}
                     </h3>
-                    <p className="text-sm text-muted-foreground">{teacher.department}</p>
+                    <p className="text-sm text-muted-foreground truncate">{teacher.department}</p>
+                    <Badge variant={teacher.active ? 'default' : 'secondary'} className="mt-2">
+                      {teacher.active ? 'Activo' : 'Inactivo'}
+                    </Badge>
                   </div>
                 </div>
 
-                {/* Contact Info */}
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Mail className="h-4 w-4 flex-shrink-0" />
@@ -375,45 +325,13 @@ export default function ProfesoresPage() {
                   </div>
                 </div>
 
-                {/* Specialties */}
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground font-semibold uppercase">
-                    Especialidades
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {teacher.specialties.slice(0, 3).map((specialty, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {specialty}
-                      </Badge>
-                    ))}
-                    {teacher.specialties.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{teacher.specialties.length - 3}
-                      </Badge>
-                    )}
-                  </div>
+                <div className="border-t pt-3">
+                  <Badge variant="outline" className="gap-1">
+                    <BookOpen className="h-3.5 w-3.5" />
+                    {teacher.courseRunsCount} convocatorias
+                  </Badge>
                 </div>
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <BookOpen className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-bold">{teacher.courseRunsCount}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">Convocatorias</p>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <Award className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-bold">{teacher.certifications.length}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">Certificaciones</p>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-2 pt-3 border-t">
                   <Button
                     variant="outline"
@@ -456,7 +374,6 @@ export default function ProfesoresPage() {
         </div>
       )}
 
-      {/* Si no hay resultados */}
       {filteredTeachers.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">

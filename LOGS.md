@@ -610,3 +610,7 @@
 ## Iteracion 111 (21-02-2026)
 - Accion: Ejecuté iteración automática sobre `/personal` para compactar estructura visual (tabs + view toggle integrados en `PageHeader`, remoción de encabezados redundantes en cada tab).
 - Resultado: `apps/tenant-admin/app/(dashboard)/personal/page.tsx` actualizado; `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` en verde.
+
+## Iteracion 112 (21-02-2026)
+- Accion: Ejecuté iteración automática sobre `/profesores` para homogeneizar layout (header con badges en lugar de cards KPI, filtros en una fila, cards de profesor más simples y consistentes).
+- Resultado: `apps/tenant-admin/app/(dashboard)/profesores/page.tsx` actualizado; `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` en verde.
