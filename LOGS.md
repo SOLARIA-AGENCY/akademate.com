@@ -590,3 +590,7 @@
 - Accion: Generé historias iniciales alineadas a Akademate en `apps/tenant-admin/stories`: foundations (`Button`, `Badge`, `Input`, `Card`) y patrón `PageHeader`.
 - Accion: Documenté roadmap de expansión en `docs/design/STORYBOOK_ROADMAP_2026-02-20.md` + comandos en README.
 - Validacion: `pnpm --filter @akademate/tenant-admin build-storybook` PASS (output en `apps/tenant-admin/storybook-static`, solo warnings de bundle size).
+
+## Iteracion 107 (21-02-2026)
+- Accion: Simplifique visualmente `sedes` para homogeneizar con `cursos/programacion` (header compacto, eliminación de KPIs globales redundantes, cards grid/list con menor densidad y tokens shadcn).
+- Resultado: `apps/tenant-admin/app/(dashboard)/sedes/page.tsx` y `apps/tenant-admin/@payload-config/components/ui/SedeListItem.tsx` actualizados; `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` en verde.

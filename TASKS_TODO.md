@@ -141,6 +141,7 @@
 - [x] Iteración 1: baseline visual automático + informe de hallazgos (`docs/audits/tenant-visual-baseline-2026-02-20.md`).
 - [x] Iteración 2: alinear shell global a grid spec (topbar 80, sidebar 240/80, spacing lateral).
 - [x] Iteración 3: reemplazo inicial de hardcodes de color por tokens en módulos críticos (`ciclos*`, `programacion`, `planner`, `sedes*`) + mejoras de hover/activo sidebar colapsado.
+- [x] Iteración 3.1: simplificar `sedes` (header compacto, eliminación de KPIs redundantes, cards/lista con densidad reducida y estilos por tokens).
 - [ ] Iteración 4: normalización de jerarquía tipográfica de cards (24/16/14/16).
 - [ ] Iteración 5: integración de patrones pricing/budget/stepper en módulos funcionales.
 - [ ] Iteración 6: QA transversal visual + contraste + estados.

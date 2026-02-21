@@ -24,53 +24,48 @@ interface SedeListItemProps {
 }
 
 export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
-  // Use bg color instead of border color (e.g., 'bg-[#ff2014]')
-  const bgColorClass = sede.borderColor?.replace('border-', 'bg-') || 'bg-[#ff2014]'
-
   return (
     <div
-      className={`flex items-center h-20 pr-4 bg-card border-y border-r rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-150 cursor-pointer ${className || ''}`}
+      className={`flex min-h-20 items-center overflow-hidden rounded-lg border bg-card pr-3 transition-shadow duration-150 hover:shadow-sm ${className ?? ''}`}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onClick?.()
+        }
+      }}
     >
-      {/* Borde de color como div separado - PEGADO a la imagen */}
-      <div className={`h-full w-1 flex-shrink-0 ${bgColorClass}`} />
+      <div className="h-full w-1 shrink-0 bg-primary" />
 
-      {/* Thumbnail - Pegada al borde sin gap */}
-      <div className="flex-shrink-0 h-full">
-        <img
-          src={sede.imagen}
-          alt={sede.nombre}
-          className="h-full w-20 object-cover"
-        />
+      <div className="shrink-0">
+        <img src={sede.imagen} alt={sede.nombre} className="h-20 w-20 object-cover" />
       </div>
 
-      {/* Contenido con padding interno */}
-      <div className="flex items-center flex-1 gap-3 pl-4">
-        {/* Name + Location */}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm truncate leading-tight mb-0.5" title={sede.nombre}>
+      <div className="flex flex-1 items-center gap-3 pl-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-sm font-semibold leading-tight" title={sede.nombre}>
             {sede.nombre}
           </h3>
-          <div className="flex items-start gap-1 text-xs text-muted-foreground">
-            <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
+          <div className="mt-1 flex items-start gap-1 text-xs text-muted-foreground">
+            <MapPin className="mt-0.5 h-3 w-3 shrink-0" />
             <span className="line-clamp-1">{sede.direccion}</span>
           </div>
         </div>
 
-        {/* Contact Info - Compacto */}
-        <div className="hidden md:flex flex-col gap-0.5 text-xs min-w-[180px]">
+        <div className="hidden min-w-[180px] flex-col gap-0.5 text-xs md:flex">
           <div className="flex items-center gap-1">
             <Phone className="h-3 w-3 text-muted-foreground" />
             <span className="text-muted-foreground">{sede.telefono}</span>
           </div>
           <div className="flex items-center gap-1">
             <Mail className="h-3 w-3 text-muted-foreground" />
-            <span className="text-muted-foreground truncate">{sede.email}</span>
+            <span className="truncate text-muted-foreground">{sede.email}</span>
           </div>
         </div>
 
-        {/* Stats - Compacto */}
-        <div className="hidden lg:flex items-center gap-3 text-xs">
+        <div className="hidden items-center gap-3 text-xs lg:flex">
           <div className="flex items-center gap-1">
             <DoorOpen className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="font-medium">{sede.aulas}</span>
@@ -83,23 +78,21 @@ export function SedeListItem({ sede, onClick, className }: SedeListItemProps) {
           </div>
         </div>
 
-        {/* Courses Active Badge - Más pequeño */}
-        <div className="hidden sm:block w-[120px] flex justify-center">
-          <Badge className="bg-[#ff2014] hover:bg-[#ff2014]/90 text-white text-[10px] font-semibold px-2.5 py-1 leading-tight">
+        <div className="hidden w-[120px] justify-center sm:flex">
+          <Badge variant="secondary" className="px-2.5 py-1 text-[10px] font-semibold leading-tight">
             {sede.cursosActivos} cursos
           </Badge>
         </div>
 
-        {/* Action Button - Compacto */}
         <Button
           size="sm"
-          className="bg-[#ff2014] hover:bg-[#ff2014]/90 text-white text-xs font-semibold uppercase tracking-wide shrink-0 h-7 px-3"
+          className="h-7 shrink-0 px-3 text-xs font-semibold uppercase tracking-wide"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()
           }}
         >
-          VER
+          Ver
         </Button>
       </div>
     </div>

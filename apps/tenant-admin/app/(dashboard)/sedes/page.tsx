@@ -2,11 +2,11 @@
 
 import { useEffect, useState, type MouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { MapPin, DoorOpen, Users, BookOpen, Phone, Mail, Clock } from 'lucide-react'
+import { MapPin, DoorOpen, Users, BookOpen, Phone, Mail } from 'lucide-react'
 import { SedeListItem } from '@payload-config/components/ui/SedeListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
@@ -154,15 +154,8 @@ export default function SedesPage() {
     console.log('Crear nueva sede')
   }
 
-  const totalStats = {
-    aulas: sedes.reduce((sum, s) => sum + s.aulas, 0),
-    capacidad: sedes.reduce((sum, s) => sum + s.capacidad, 0),
-    cursosActivos: sedes.reduce((sum, s) => sum + s.cursosActivos, 0),
-    profesores: sedes.reduce((sum, s) => sum + s.profesores, 0),
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
       {isLoading && (
         <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           Cargando sedes...
@@ -170,179 +163,85 @@ export default function SedesPage() {
       )}
 
       {errorMessage && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive">
           {errorMessage}
         </div>
       )}
 
-      {/* Header */}
       <PageHeader
         title="Sedes"
-        description={`${sedes.length} centros educativos`}
+        description="Gestiona centros, contacto y capacidad operativa en una sola vista."
         icon={MapPin}
-        showAddButton
-        addButtonText="Nueva Sede"
-        onAdd={handleAdd}
+        badge={<Badge variant="secondary">{sedes.length} centros</Badge>}
+        actions={<Button onClick={handleAdd}>Nueva Sede</Button>}
         filters={
-          <div className="flex items-center justify-between w-full">
-            <p className="text-sm text-muted-foreground">
-              {sedes.length} {sedes.length === 1 ? 'sede' : 'sedes'}
-            </p>
+          <div className="flex w-full items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">Vista simplificada para operación diaria.</p>
             <ViewToggle view={view} onViewChange={setView} />
           </div>
         }
       />
 
-      {/* Global Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Aulas</CardTitle>
-            <DoorOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalStats.aulas}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Capacidad Total</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalStats.capacidad}</div>
-            <p className="text-xs text-muted-foreground">estudiantes</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cursos Activos</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalStats.cursosActivos}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Profesores</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalStats.profesores}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Sedes Grid o Lista */}
       {view === 'grid' ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {sedes.map((sede) => (
             <Card
               key={sede.id}
-              className={`cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden border-2 ${sede.borderColor}`}
+              className="cursor-pointer transition-shadow hover:shadow-md"
               onClick={() => handleViewSede(sede.id)}
             >
-            {/* Sede Image */}
-            <div className="relative h-48 overflow-hidden">
-              <img
-                src={sede.imagen}
-                alt={sede.nombre}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute top-3 right-3">
-                <Badge className={`${sede.color} text-white text-xs font-bold uppercase`}>
-                  {sede.nombre}
-                </Badge>
-              </div>
-            </div>
-
-            <CardContent className="p-6 space-y-4">
-              {/* Title - Fixed height */}
-              <div className="min-h-[4.5rem]">
-                <h3 className="font-bold text-xl mb-1 line-clamp-1">{sede.nombre}</h3>
-                <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                  <span className="leading-snug line-clamp-2 min-h-[2.5rem]">{sede.direccion}</span>
-                </div>
-              </div>
-
-              {/* Contact Info - Fixed height container */}
-              <div className="space-y-2 text-sm min-h-[5.5rem]">
-                <div className="flex items-center gap-2 text-muted-foreground h-6">
-                  <Phone className="h-4 w-4 flex-shrink-0" />
-                  <span className="truncate">{sede.telefono}</span>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground h-6">
-                  <Mail className="h-4 w-4 flex-shrink-0" />
-                  <span className="truncate">{sede.email}</span>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground h-6">
-                  <Clock className="h-4 w-4 flex-shrink-0" />
-                  <span className="text-xs truncate">{sede.horario}</span>
-                </div>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-3 pt-3 border-t">
-                <div className="text-center p-2 bg-secondary rounded">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <DoorOpen className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-bold text-lg">{sede.aulas}</span>
+              <CardContent className="space-y-4 p-5">
+                <div className="flex items-center gap-3">
+                  <img src={sede.imagen} alt={sede.nombre} className="h-12 w-12 rounded-md object-cover" />
+                  <div className="min-w-0">
+                    <h3 className="truncate text-base font-semibold">{sede.nombre}</h3>
+                    <p className="truncate text-sm text-muted-foreground">{sede.direccion}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">Aulas</p>
                 </div>
 
-                <div className="text-center p-2 bg-secondary rounded">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-bold text-lg">{sede.capacidad}</span>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    <span className="truncate">{sede.telefono}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Capacidad</p>
-                </div>
-
-                <div className="text-center p-2 bg-secondary rounded">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-bold text-lg">{sede.cursosActivos}</span>
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    <span className="truncate">{sede.email}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Cursos</p>
                 </div>
 
-                <div className="text-center p-2 bg-secondary rounded">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-bold text-lg">{sede.profesores}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">Profesores</p>
+                <div className="flex flex-wrap gap-2 border-t pt-3">
+                  <Badge variant="outline" className="gap-1">
+                    <DoorOpen className="h-3.5 w-3.5" />
+                    {sede.aulas} aulas
+                  </Badge>
+                  <Badge variant="outline" className="gap-1">
+                    <Users className="h-3.5 w-3.5" />
+                    {sede.capacidad} capacidad
+                  </Badge>
+                  <Badge variant="outline" className="gap-1">
+                    <BookOpen className="h-3.5 w-3.5" />
+                    {sede.cursosActivos} cursos
+                  </Badge>
                 </div>
-              </div>
 
-              {/* CTA Button */}
-              <Button
-                className={`w-full ${sede.color} hover:opacity-90 text-white font-bold uppercase tracking-wide`}
-                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                  e.stopPropagation()
-                  handleViewSede(sede.id)
-                }}
-              >
-                Ver Sede
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                <Button
+                  className="w-full"
+                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.stopPropagation()
+                    handleViewSede(sede.id)
+                  }}
+                >
+                  Ver sede
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : (
         <div className="flex flex-col gap-2">
           {sedes.map((sede) => (
-            <SedeListItem
-              key={sede.id}
-              sede={sede}
-              onClick={() => handleViewSede(sede.id)}
-            />
+            <SedeListItem key={sede.id} sede={sede} onClick={() => handleViewSede(sede.id)} />
           ))}
         </div>
       )}
