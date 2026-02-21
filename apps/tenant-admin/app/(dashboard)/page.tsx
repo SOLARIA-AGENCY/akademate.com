@@ -19,8 +19,6 @@ import {
   AlertTriangle,
   Info,
   Clock,
-  Wifi,
-  WifiOff,
   RefreshCw,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -308,58 +306,43 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="w-full">
-      {/* Header estandarizado */}
-      <div className="sticky top-0 z-20 bg-background px-4 md:px-6 py-4 border-b border-border">
-        <PageHeader
-          className="mb-0"
-          title="Dashboard"
-          description="Vista general de la operativa de CEP Comunicación"
-          icon={BookOpen}
-          badge={(
-            <Badge variant={isConnected ? 'default' : 'outline'}>
-              {isConnected ? 'EN VIVO' : 'SIN CONEXIÓN'}
-            </Badge>
-          )}
-          actions={(
-            <div className="text-right space-y-2">
-              <p className="text-sm text-muted-foreground capitalize">{formattedDate}</p>
-              <div className="flex items-center justify-end gap-2">
-                {isConnected ? (
-                  <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                    <Wifi className="h-3 w-3" />
-                    <span>En vivo</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <WifiOff className="h-3 w-3" />
-                    <span>Sin conexión</span>
-                  </div>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2"
-                  onClick={() => {
-                    void refresh()
-                    void refreshCampusSummary()
-                  }}
-                >
-                  <RefreshCw className="h-3 w-3" />
-                </Button>
-              </div>
-              {lastUpdate && (
-                <p className="text-xs text-muted-foreground">
-                  Actualizado: {lastUpdate.toLocaleTimeString('es-ES')}
-                </p>
-              )}
-            </div>
-          )}
-        />
-      </div>
+    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
+      <PageHeader
+        className="mb-0"
+        title="Dashboard"
+        description="Vista general de la operativa de CEP Comunicación"
+        icon={BookOpen}
+        badge={(
+          <Badge variant={isConnected ? 'default' : 'outline'}>
+            {isConnected ? 'EN VIVO' : 'SIN CONEXIÓN'}
+          </Badge>
+        )}
+        actions={(
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void refresh()
+              void refreshCampusSummary()
+            }}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Actualizar
+          </Button>
+        )}
+        filters={(
+          <div className="flex w-full flex-wrap items-center gap-2 text-sm">
+            <Badge variant="outline" className="capitalize">{formattedDate}</Badge>
+            <Badge variant="outline">{isConnected ? 'Conectado' : 'Sin conexión'}</Badge>
+            {lastUpdate && (
+              <Badge variant="outline">
+                Actualizado: {lastUpdate.toLocaleTimeString('es-ES')}
+              </Badge>
+            )}
+          </div>
+        )}
+      />
 
-      {/* Contenido scrolleable con padding */}
-      <div className="p-4 md:p-6 space-y-6">
       {/* Primera línea de KPIs */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
         {primaryKpis.map((kpi) => {
@@ -687,7 +670,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      </div>{/* Cierre del contenido scrolleable */}
     </div>
   )
 }

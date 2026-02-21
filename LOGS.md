@@ -614,3 +614,7 @@
 ## Iteracion 112 (21-02-2026)
 - Accion: Ejecuté iteración automática sobre `/profesores` para homogeneizar layout (header con badges en lugar de cards KPI, filtros en una fila, cards de profesor más simples y consistentes).
 - Resultado: `apps/tenant-admin/app/(dashboard)/profesores/page.tsx` actualizado; `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` en verde.
+
+## Iteracion 113 (21-02-2026)
+- Accion: Estandaricé `/(dashboard)` principal eliminando shell de header sticky custom y migrando a `PageHeader` homogéneo con metadatos compactos (fecha, conectividad, última actualización) y acción única de refresco.
+- Resultado: `apps/tenant-admin/app/(dashboard)/page.tsx` actualizado; gate `pnpm -C apps/tenant-admin exec tsc --noEmit --pretty false --incremental false` en verde.

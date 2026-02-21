@@ -147,6 +147,7 @@
 - [x] Iteración 3.4: simplificar `ciclos` general (eliminar bloque de 6 KPIs, compactar filtros y cards/lista con patrón homogéneo).
 - [x] Iteración 3.5: simplificar `personal` (header compacto con tabs/selector de vista integrados, eliminación de headers duplicados por pestaña).
 - [x] Iteración 3.6: simplificar `profesores` (remoción de KPIs densos, filtros una línea, cards compactas y estado visible).
+- [x] Iteración 3.7: estandarizar `dashboard` (header sticky custom -> PageHeader homogéneo con badges/filtros, manteniendo módulos funcionales).
 - [ ] Iteración 4: normalización de jerarquía tipográfica de cards (24/16/14/16).
 - [ ] Iteración 5: integración de patrones pricing/budget/stepper en módulos funcionales.
 - [ ] Iteración 6: QA transversal visual + contraste + estados.
