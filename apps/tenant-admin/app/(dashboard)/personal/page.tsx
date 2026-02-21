@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
@@ -150,53 +150,53 @@ function PersonalPageContent() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
       <PageHeader
         title="Personal"
-        description="Gestión de profesores y personal administrativo"
+        description="Gestión de profesorado y equipo administrativo."
         icon={Users}
+        badge={<Badge variant="secondary">{staff.length} en vista</Badge>}
         actions={(
           <Button onClick={() => router.push('/personal/nuevo')}>
             <Plus className="mr-2 h-4 w-4" />
             Nuevo Miembro
           </Button>
         )}
+        filters={(
+          <div className="flex w-full flex-wrap items-center justify-between gap-3">
+            <TabsList>
+              <TabsTrigger value="profesores">
+                <Users className="mr-2 h-4 w-4" />
+                Profesores
+              </TabsTrigger>
+              <TabsTrigger value="administrativos">
+                <Briefcase className="mr-2 h-4 w-4" />
+                Administrativos
+              </TabsTrigger>
+            </TabsList>
+
+            <ToggleGroup
+              type="single"
+              value={viewMode}
+              onValueChange={(value: string) => {
+                if (value === 'list' || value === 'grid') setViewMode(value)
+              }}
+            >
+              <ToggleGroupItem value="grid" aria-label="Vista de tarjetas">
+                <LayoutGrid className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="list" aria-label="Vista de lista">
+                <List className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        )}
       />
 
-      {/* Tabs with View Mode Toggle */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="profesores">
-              <Users className="mr-2 h-4 w-4" />
-              Profesores
-            </TabsTrigger>
-            <TabsTrigger value="administrativos">
-              <Briefcase className="mr-2 h-4 w-4" />
-              Administrativos
-            </TabsTrigger>
-          </TabsList>
-
-          <ToggleGroup type="single" value={viewMode} onValueChange={(value: string) => { if (value === 'list' || value === 'grid') setViewMode(value) }}>
-            <ToggleGroupItem value="grid" aria-label="Vista de tarjetas">
-              <LayoutGrid className="h-4 w-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="list" aria-label="Vista de lista">
-              <List className="h-4 w-4" />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-        {/* Profesores Tab */}
         <TabsContent value="profesores">
           <Card>
-            <CardHeader>
-              <CardTitle>Profesores</CardTitle>
-              <CardDescription>
-                Personal docente del centro ({staff.length} profesores)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {loading ? (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">Cargando profesores...</p>
@@ -319,16 +319,9 @@ function PersonalPageContent() {
           </Card>
         </TabsContent>
 
-        {/* Administrativos Tab */}
         <TabsContent value="administrativos">
           <Card>
-            <CardHeader>
-              <CardTitle>Personal Administrativo</CardTitle>
-              <CardDescription>
-                Personal de administración y gestión ({staff.length} personas)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {loading ? (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">Cargando personal...</p>
