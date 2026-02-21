@@ -76,3 +76,8 @@
 3. Ejecutar unificación visual por tokens y componentes shadcn entre servicios.
 4. Cerrar con auditoría funcional + visual y veredicto GO/NO-GO.
 5. Fuente de ejecución: `docs/audits/AKADEMATE_RALPH_LOOP_TASK_RUNNER_2026-02-20.md`.
+
+## Ralph Loop 2026-02-21 — Homogeneización total de páginas tenant (activo)
+1. Plan maestro de cobertura total por rutas: `docs/design/TENANT_DASHBOARD_HOMOGENIZATION_MASTER_PLAN_2026-02-21.md`.
+2. Ejecutar iteraciones atómicas por página (1 página por loop) con gate de typecheck.
+3. Desplegar incrementalmente en NEMESIS tras cada iteración validada.

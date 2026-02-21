@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, GraduationCap, Calendar, Users, BookOpen, Clock, Award } from 'lucide-react'
+import { Plus, Search, GraduationCap, Calendar, Clock } from 'lucide-react'
 
 // TypeScript interfaces
 interface CicloSuperior {
@@ -322,7 +322,6 @@ export default function CiclosSuperiorPage() {
 
   const stats = {
     total: ciclosData.length,
-    activos: ciclosData.filter((c) => c.active).length,
     totalPlazas: ciclosData.reduce((sum, c) => sum + c.plazas, 0),
     plazasOcupadas: ciclosData.reduce((sum, c) => sum + c.plazas_ocupadas, 0),
     cursosActivos: ciclosData.reduce((sum, c) => sum + c.cursos_activos, 0),
@@ -334,7 +333,7 @@ export default function CiclosSuperiorPage() {
       : '0.0'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
       {isLoading && (
         <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           Cargando ciclos...
@@ -348,86 +347,41 @@ export default function CiclosSuperiorPage() {
       )}
       <PageHeader
         title="Ciclos Formativos de Grado Superior"
-        description={`${filteredCiclos.length} ciclos de ${ciclosData.length} totales`}
+        description="Gestión compacta de ciclos, plazas y modalidades."
         icon={GraduationCap}
+        badge={<Badge variant="secondary">{filteredCiclos.length} visibles</Badge>}
         actions={(
           <Button onClick={handleAdd}>
             <Plus className="mr-2 h-4 w-4" />
             Nuevo Ciclo
           </Button>
         )}
+        filters={(
+          <div className="flex w-full flex-wrap items-center gap-2 text-sm">
+            <Badge variant="outline">{stats.total} ciclos</Badge>
+            <Badge variant="outline">{stats.totalPlazas} plazas</Badge>
+            <Badge variant="outline">{stats.plazasOcupadas} ocupadas</Badge>
+            <Badge variant="outline">Ocupación {tasaOcupacion}%</Badge>
+            <Badge variant="outline">{stats.cursosActivos} cursos activos</Badge>
+          </div>
+        )}
       />
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-5">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Ciclos</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ciclos Activos</CardTitle>
-            <Award className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.activos}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Plazas</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalPlazas}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Plazas Ocupadas</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.plazasOcupadas}</div>
-            <p className="text-xs text-muted-foreground">Ocupación: {tasaOcupacion}%</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cursos Activos</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.cursosActivos}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filtros */}
       <Card>
         <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="relative">
+          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
+            <div className="relative min-w-[260px] flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por nombre, código o familia..."
                 value={searchTerm}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className="pl-9"
+                className="w-full pl-9"
               />
             </div>
 
             <Select value={filterFamilia} onValueChange={setFilterFamilia}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full min-w-[190px] md:w-[220px]">
                 <SelectValue placeholder="Familia Profesional" />
               </SelectTrigger>
               <SelectContent>
@@ -441,7 +395,7 @@ export default function CiclosSuperiorPage() {
             </Select>
 
             <Select value={filterModalidad} onValueChange={setFilterModalidad}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
                 <SelectValue placeholder="Modalidad" />
               </SelectTrigger>
               <SelectContent>
@@ -451,10 +405,8 @@ export default function CiclosSuperiorPage() {
                 <SelectItem value="Online">Online</SelectItem>
               </SelectContent>
             </Select>
-          </div>
 
-          {(searchTerm || filterFamilia !== 'all' || filterModalidad !== 'all') && (
-            <div className="flex items-center gap-4 mt-4">
+            {(searchTerm || filterFamilia !== 'all' || filterModalidad !== 'all') && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -463,97 +415,77 @@ export default function CiclosSuperiorPage() {
                   setFilterFamilia('all')
                   setFilterModalidad('all')
                 }}
+                className="xl:ml-auto"
               >
                 Limpiar filtros
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Grid de Ciclos */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filteredCiclos.map((ciclo) => {
-          const ocupacionPorcentaje = ((ciclo.plazas_ocupadas / ciclo.plazas) * 100).toFixed(0)
+          const ocupacionPorcentaje =
+            ciclo.plazas > 0 ? ((ciclo.plazas_ocupadas / ciclo.plazas) * 100).toFixed(0) : '0'
 
           return (
             <Card
               key={ciclo.id}
-              className="cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden border-2 border-primary"
+              className="cursor-pointer transition-shadow hover:shadow-md"
               onClick={() => handleViewCiclo(ciclo.id)}
             >
-              {/* Imagen del ciclo */}
-              <div className="relative h-48 overflow-hidden bg-gray-100">
-                <img
-                  src={ciclo.imagen}
-                  alt={ciclo.nombre}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-3 right-3">
-                  <Badge className="bg-primary hover:bg-primary/90 text-white text-xs font-bold uppercase tracking-wide shadow-md">
-                    {ciclo.nivel}
-                  </Badge>
+              <CardContent className="space-y-4 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="line-clamp-2 text-base font-semibold" title={ciclo.nombre}>
+                      {ciclo.nombre}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{ciclo.codigo}</p>
+                  </div>
+                  <Badge variant="secondary">{ciclo.nivel}</Badge>
                 </div>
-                <div className="absolute top-3 left-3">
-                  <Badge variant="secondary" className="text-xs font-bold">
-                    {ciclo.codigo}
-                  </Badge>
-                </div>
-              </div>
 
-              <CardContent className="p-6 space-y-3">
-                {/* Familia Badge */}
-                <Badge variant="outline" className="w-fit text-xs">
+                <Badge variant="outline" className="w-fit">
                   {ciclo.familia}
                 </Badge>
 
-                {/* Título */}
-                <div className="min-h-[3.5rem]">
-                  <h3 className="font-bold text-lg leading-7 uppercase line-clamp-2" title={ciclo.nombre}>
-                    {ciclo.nombre}
-                  </h3>
-                </div>
-
-                {/* Descripción */}
-                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed min-h-[2.5rem]">
-                  {ciclo.descripcion}
+                <p className="line-clamp-2 text-sm text-muted-foreground">
+                  {ciclo.descripcion || 'Sin descripción disponible.'}
                 </p>
 
-                {/* Info Grid */}
-                <div className="grid grid-cols-2 gap-3 py-3 border-t">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <span className="font-medium text-xs">{ciclo.duracion}</span>
+                <div className="grid grid-cols-2 gap-2 border-t pt-3 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Clock className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{ciclo.duracion}</span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm flex-shrink-0">
-                    <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <span className="font-medium text-xs whitespace-nowrap">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="h-4 w-4 shrink-0" />
+                    <span className="truncate">
                       {ciclo.cursos_activos} {ciclo.cursos_activos === 1 ? 'curso' : 'cursos'}
                     </span>
                   </div>
                 </div>
 
-                {/* Ocupación */}
-                <div className="py-3 border-t">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="border-t pt-3">
+                  <div className="mb-2 flex items-center justify-between text-sm">
                     <span className="text-sm text-muted-foreground">Ocupación:</span>
-                    <span className="text-sm font-bold">
+                    <span className="font-semibold">
                       {ciclo.plazas_ocupadas}/{ciclo.plazas} plazas
                     </span>
                   </div>
-                  <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
                     <div
-                      className="bg-primary h-full transition-all duration-300"
+                      className="h-full bg-primary transition-all"
                       style={{ width: `${ocupacionPorcentaje}%` }}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1 text-right">{ocupacionPorcentaje}% ocupado</p>
+                  <p className="mt-1 text-right text-xs text-muted-foreground">{ocupacionPorcentaje}% ocupado</p>
                 </div>
 
-                {/* CTA Button */}
                 <Button
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-wide shadow-md transition-all duration-300 mt-auto"
+                  className="w-full"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation()
                     handleViewCiclo(ciclo.id)

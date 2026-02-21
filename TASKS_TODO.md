@@ -143,10 +143,15 @@
 - [x] Iteración 3: reemplazo inicial de hardcodes de color por tokens en módulos críticos (`ciclos*`, `programacion`, `planner`, `sedes*`) + mejoras de hover/activo sidebar colapsado.
 - [x] Iteración 3.1: simplificar `sedes` (header compacto, eliminación de KPIs redundantes, cards/lista con densidad reducida y estilos por tokens).
 - [x] Iteración 3.2: simplificar `ciclos-medio` (KPIs densos -> badges compactos, filtros en una sola línea, cards de ciclo con estructura homogénea).
+- [x] Iteración 3.3: simplificar `ciclos-superior` (alineado a patrón compacto de `ciclos-medio`).
 - [ ] Iteración 4: normalización de jerarquía tipográfica de cards (24/16/14/16).
 - [ ] Iteración 5: integración de patrones pricing/budget/stepper en módulos funcionales.
 - [ ] Iteración 6: QA transversal visual + contraste + estados.
 - [ ] Iteración 7: cierre, deploy y veredicto GO.
+
+## 21) Ralph Loop 2026-02-21 (Cobertura total por páginas)
+- [x] Crear plan maestro de implementación integral por páginas en `docs/design/TENANT_DASHBOARD_HOMOGENIZATION_MASTER_PLAN_2026-02-21.md`.
+- [ ] Ejecutar automatización iterativa por olas hasta cubrir 100% rutas de `(dashboard)`.
 
 ## 20) Storybook Tenant Admin (2026-02-20)
 - [x] Investigar skill de Storybook e instalarlo en entorno de agente.
