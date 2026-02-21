@@ -144,6 +144,7 @@
 - [x] Iteración 3.1: simplificar `sedes` (header compacto, eliminación de KPIs redundantes, cards/lista con densidad reducida y estilos por tokens).
 - [x] Iteración 3.2: simplificar `ciclos-medio` (KPIs densos -> badges compactos, filtros en una sola línea, cards de ciclo con estructura homogénea).
 - [x] Iteración 3.3: simplificar `ciclos-superior` (alineado a patrón compacto de `ciclos-medio`).
+- [x] Iteración 3.4: simplificar `ciclos` general (eliminar bloque de 6 KPIs, compactar filtros y cards/lista con patrón homogéneo).
 - [ ] Iteración 4: normalización de jerarquía tipográfica de cards (24/16/14/16).
 - [ ] Iteración 5: integración de patrones pricing/budget/stepper en módulos funcionales.
 - [ ] Iteración 6: QA transversal visual + contraste + estados.

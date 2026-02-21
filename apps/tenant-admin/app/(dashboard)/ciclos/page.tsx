@@ -1,18 +1,18 @@
 'use client'
 
 import * as React from 'react'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { Input } from '@payload-config/components/ui/input'
+import { Button } from '@payload-config/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
+} from '@payload-config/components/ui/select'
+import { Badge } from '@payload-config/components/ui/badge'
 import { useRouter } from 'next/navigation'
 import {
   Search,
@@ -20,9 +20,7 @@ import {
   Users,
   BookOpen,
   Clock,
-  MapPin,
-  Award,
-  TrendingUp,
+  Calendar,
 } from 'lucide-react'
 import { CicloListItem } from '@payload-config/components/ui/CicloListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
@@ -439,7 +437,7 @@ export default function TodosLosCiclosPage() {
   }
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
       {isLoading && (
         <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           Cargando ciclos...
@@ -452,107 +450,39 @@ export default function TodosLosCiclosPage() {
         </div>
       )}
 
-      {/* Header */}
       <PageHeader
         title="Ciclos Formativos"
-        description="Gestión completa de ciclos de Grado Medio y Grado Superior"
+        description="Gestión unificada de ciclos de grado medio y superior."
         icon={GraduationCap}
-        showAddButton
-        addButtonText="Nuevo Ciclo"
-        onAdd={() => router.push('/ciclos/nuevo')}
+        badge={<Badge variant="secondary">{filteredCiclos.length} visibles</Badge>}
+        actions={<Button onClick={() => router.push('/ciclos/nuevo')}>Nuevo Ciclo</Button>}
+        filters={(
+          <div className="flex w-full flex-wrap items-center gap-2 text-sm">
+            <Badge variant="outline">{totalCiclos} ciclos</Badge>
+            <Badge variant="outline">{ciclosMedio} grado medio</Badge>
+            <Badge variant="outline">{ciclosSuperior} grado superior</Badge>
+            <Badge variant="outline">{totalPlazas} plazas</Badge>
+            <Badge variant="outline">Ocupación {ocupacionPromedio}%</Badge>
+            <Badge variant="outline">{totalCursosActivos} cursos activos</Badge>
+          </div>
+        )}
       />
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <GraduationCap className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Ciclos</p>
-              <p className="text-2xl font-bold">{totalCiclos}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-500/10 rounded-lg">
-              <Award className="h-6 w-6 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Grado Medio</p>
-              <p className="text-2xl font-bold">{ciclosMedio}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-purple-500/10 rounded-lg">
-              <Award className="h-6 w-6 text-purple-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Grado Superior</p>
-              <p className="text-2xl font-bold">{ciclosSuperior}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-500/10 rounded-lg">
-              <Users className="h-6 w-6 text-green-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Plazas</p>
-              <p className="text-2xl font-bold">{totalPlazas}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-orange-500/10 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-orange-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Ocupación</p>
-              <p className="text-2xl font-bold">{ocupacionPromedio}%</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-cyan-500/10 rounded-lg">
-              <BookOpen className="h-6 w-6 text-cyan-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Cursos Activos</p>
-              <p className="text-2xl font-bold">{totalCursosActivos}</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card className="p-6">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="relative">
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
+            <div className="relative min-w-[260px] flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar ciclos..."
                 value={searchTerm}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="w-full pl-10"
               />
             </div>
 
             <Select value={nivelFilter} onValueChange={setNivelFilter}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full min-w-[170px] md:w-[210px]">
                 <SelectValue placeholder="Todos los niveles" />
               </SelectTrigger>
               <SelectContent>
@@ -563,7 +493,7 @@ export default function TodosLosCiclosPage() {
             </Select>
 
             <Select value={familiaFilter} onValueChange={setFamiliaFilter}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full min-w-[180px] md:w-[220px]">
                 <SelectValue placeholder="Todas las familias" />
               </SelectTrigger>
               <SelectContent>
@@ -577,7 +507,7 @@ export default function TodosLosCiclosPage() {
             </Select>
 
             <Select value={modalidadFilter} onValueChange={setModalidadFilter}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
                 <SelectValue placeholder="Todas las modalidades" />
               </SelectTrigger>
               <SelectContent>
@@ -587,25 +517,32 @@ export default function TodosLosCiclosPage() {
                 <SelectItem value="Telemático">Telemático</SelectItem>
               </SelectContent>
             </Select>
-          </div>
 
-          {/* View Toggle */}
-          <div className="hidden lg:block">
-            <ViewToggle view={view} onViewChange={setView} />
+            <div className="hidden xl:block xl:ml-auto">
+              <ViewToggle view={view} onViewChange={setView} />
+            </div>
+
+            {(searchTerm || nivelFilter !== 'todos' || familiaFilter !== 'todas' || modalidadFilter !== 'todas') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm('')
+                  setNivelFilter('todos')
+                  setFamiliaFilter('todas')
+                  setModalidadFilter('todas')
+                }}
+              >
+                Limpiar filtros
+              </Button>
+            )}
           </div>
-        </div>
+        </CardContent>
       </Card>
-
-      {/* Results Count */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Mostrando {filteredCiclos.length} de {totalCiclos} ciclos formativos
-        </p>
-      </div>
 
       {/* Ciclos Grid o Lista */}
       {view === 'grid' ? (
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredCiclos.map((ciclo) => {
             const ocupacionPercentage =
               ciclo.plazas > 0 ? Math.round((ciclo.plazas_ocupadas / ciclo.plazas) * 100) : 0
@@ -613,7 +550,7 @@ export default function TodosLosCiclosPage() {
             return (
               <Card
                 key={ciclo.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-2 border-primary"
+                className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
                 onClick={() => handleViewCiclo(ciclo)}
               >
                 <div className="relative h-48 overflow-hidden">
@@ -622,18 +559,14 @@ export default function TodosLosCiclosPage() {
                     alt={ciclo.nombre}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-4 left-4">
-                    <Badge
-                      className={`${
-                        ciclo.nivel === 'Grado Medio' ? 'bg-blue-500' : 'bg-purple-500'
-                      } text-white`}
-                    >
+                  <div className="absolute left-4 top-4">
+                    <Badge variant="secondary">
                       {ciclo.nivel}
                     </Badge>
                   </div>
                 </div>
 
-                <div className="p-6 space-y-4">
+                <div className="space-y-4 p-5">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="outline" className="text-xs">
@@ -643,7 +576,7 @@ export default function TodosLosCiclosPage() {
                         {ciclo.familia}
                       </Badge>
                     </div>
-                    <h3 className="text-xl font-bold line-clamp-2">{ciclo.nombre}</h3>
+                    <h3 className="line-clamp-2 text-base font-semibold">{ciclo.nombre}</h3>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
@@ -652,7 +585,7 @@ export default function TodosLosCiclosPage() {
                       <span className="text-muted-foreground">{ciclo.duracion}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">{ciclo.modalidad}</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -687,9 +620,7 @@ export default function TodosLosCiclosPage() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-primary hover:bg-primary/90">
-                    Ver Detalles del Ciclo
-                  </Button>
+                  <Button className="w-full">Ver ciclo</Button>
                 </div>
               </Card>
             )
@@ -742,8 +673,8 @@ export default function TodosLosCiclosPage() {
 
       {/* Empty State */}
       {filteredCiclos.length === 0 && (
-        <Card className="p-12">
-          <div className="text-center space-y-4">
+        <Card>
+          <CardContent className="space-y-4 py-12 text-center">
             <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground" />
             <div>
               <h3 className="text-lg font-semibold">No se encontraron ciclos</h3>
@@ -762,7 +693,7 @@ export default function TodosLosCiclosPage() {
             >
               Limpiar filtros
             </Button>
-          </div>
+          </CardContent>
         </Card>
       )}
     </div>
