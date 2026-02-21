@@ -594,3 +594,7 @@
 ## Iteracion 107 (21-02-2026)
 - Accion: Simplifique visualmente `sedes` para homogeneizar con `cursos/programacion` (header compacto, eliminación de KPIs globales redundantes, cards grid/list con menor densidad y tokens shadcn).
 - Resultado: `apps/tenant-admin/app/(dashboard)/sedes/page.tsx` y `apps/tenant-admin/@payload-config/components/ui/SedeListItem.tsx` actualizados; `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` en verde.
+
+## Iteracion 108 (21-02-2026)
+- Accion: Homogeneice `ciclos-medio` con patrón visual simplificado (sin bloque de KPIs pesados, métricas compactas en badges, filtros de una fila, cards con menor densidad y CTA estándar).
+- Resultado: `apps/tenant-admin/app/(dashboard)/ciclos-medio/page.tsx` actualizado; `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` en verde.
