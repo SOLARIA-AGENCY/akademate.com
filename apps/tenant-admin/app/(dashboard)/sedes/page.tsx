@@ -45,58 +45,10 @@ interface CampusesApiResponse {
   docs?: ApiCampus[]
 }
 
-const mockSedesData: Sede[] = [
-  {
-    id: 'cep-norte',
-    nombre: 'CEP Norte',
-    direccion: 'Calle Principal 123, 38001 Santa Cruz de Tenerife',
-    telefono: '+34 922 123 456',
-    email: 'cep.norte@cepcomunicacion.com',
-    horario: 'Lunes a Viernes 08:00 - 21:00',
-    aulas: 8,
-    capacidad: 180,
-    cursosActivos: 15,
-    profesores: 12,
-    color: 'bg-primary',
-    borderColor: 'border-primary',
-    imagen: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=400&fit=crop',
-  },
-  {
-    id: 'cep-santa-cruz',
-    nombre: 'CEP Santa Cruz',
-    direccion: 'Avenida Central 456, 38003 Santa Cruz de Tenerife',
-    telefono: '+34 922 234 567',
-    email: 'cep.santacruz@cepcomunicacion.com',
-    horario: 'Lunes a Viernes 08:30 - 20:30',
-    aulas: 6,
-    capacidad: 140,
-    cursosActivos: 12,
-    profesores: 10,
-    color: 'bg-primary',
-    borderColor: 'border-primary',
-    imagen: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&h=400&fit=crop',
-  },
-  {
-    id: 'cep-sur',
-    nombre: 'CEP Sur',
-    direccion: 'Calle del Sur 789, 38007 Santa Cruz de Tenerife',
-    telefono: '+34 922 345 678',
-    email: 'cep.sur@cepcomunicacion.com',
-    horario: 'Lunes a Viernes 09:00 - 21:00',
-    aulas: 5,
-    capacidad: 120,
-    cursosActivos: 10,
-    profesores: 8,
-    color: 'bg-primary',
-    borderColor: 'border-primary',
-    imagen: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&h=400&fit=crop',
-  },
-]
-
 export default function SedesPage() {
   const router = useRouter()
   const [view, setView] = useViewPreference('sedes')
-  const [sedes, setSedes] = useState<Sede[]>(mockSedesData)
+  const [sedes, setSedes] = useState<Sede[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -133,9 +85,7 @@ export default function SedesPage() {
           }
         })
 
-        if (mapped.length > 0) {
-          setSedes(mapped)
-        }
+        setSedes(mapped)
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : 'Error al cargar sedes')
       } finally {
@@ -181,6 +131,17 @@ export default function SedesPage() {
           </div>
         }
       />
+
+      {!isLoading && sedes.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-base font-medium">No hay sedes registradas</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Crea tu primera sede desde el panel de administración de campus.
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {view === 'grid' ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

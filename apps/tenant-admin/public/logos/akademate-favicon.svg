@@ -1,0 +1,11 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AKADEMATE mark">
+  <defs>
+    <linearGradient id="favA" x1="8" y1="8" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0C63D4"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="116" height="116" rx="26" fill="url(#favA)"/>
+  <path d="M30 98L58 34C60 30 66 30 68 34L96 98H82L73 80H55L46 98H30ZM60 68H68L64 58L60 68Z" fill="#F8FAFC"/>
+  <circle cx="88" cy="40" r="14" fill="#D6E7FF"/>
+</svg>

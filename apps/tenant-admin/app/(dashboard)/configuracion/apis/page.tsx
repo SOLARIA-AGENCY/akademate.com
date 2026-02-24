@@ -536,7 +536,7 @@ export default function APIsPage() {
         <CardContent className="space-y-3">
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
-              Accede a la documentación completa de la API REST para integrar tu aplicación con CEP Admin.
+              Accede a la documentación completa de la API REST para integrar tu aplicación con AKADEMATE Admin.
             </p>
             <div className="flex gap-2">
               <Button variant="outline">

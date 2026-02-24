@@ -66,7 +66,7 @@ const listaEsperaData = [
     curso: 'DAW - Desarrollo Aplicaciones Web',
     tipo: 'Ciclo Superior',
     convocatoria: 'SEPT-2025-NORTE',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     prioridad: 'alta',
     estado: 'en_lista',
     fechaEntrada: '2024-11-15',
@@ -85,7 +85,7 @@ const listaEsperaData = [
     curso: 'Marketing Digital Avanzado',
     tipo: 'Curso',
     convocatoria: 'ENE-2026-NORTE',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     prioridad: 'media',
     estado: 'notificado',
     fechaEntrada: '2024-11-18',
@@ -104,7 +104,7 @@ const listaEsperaData = [
     curso: 'Community Manager',
     tipo: 'Curso',
     convocatoria: 'FEB-2026-SCTF',
-    sede: 'CEP Santa Cruz',
+    sede: 'Sede Santa Cruz',
     prioridad: 'alta',
     estado: 'en_lista',
     fechaEntrada: '2024-11-20',
@@ -123,7 +123,7 @@ const listaEsperaData = [
     curso: 'DAM - Desarrollo Aplicaciones Multiplataforma',
     tipo: 'Ciclo Superior',
     convocatoria: 'SEPT-2025-SCTF',
-    sede: 'CEP Santa Cruz',
+    sede: 'Sede Santa Cruz',
     prioridad: 'baja',
     estado: 'en_lista',
     fechaEntrada: '2024-11-22',
@@ -142,7 +142,7 @@ const listaEsperaData = [
     curso: 'Diseño UX/UI',
     tipo: 'Curso',
     convocatoria: 'MAR-2026-NORTE',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     prioridad: 'media',
     estado: 'aceptado',
     fechaEntrada: '2024-11-16',
@@ -161,7 +161,7 @@ const listaEsperaData = [
     curso: 'Ciberseguridad',
     tipo: 'Curso',
     convocatoria: 'ENE-2026-SUR',
-    sede: 'CEP Sur',
+    sede: 'Sede Sur',
     prioridad: 'alta',
     estado: 'en_lista',
     fechaEntrada: '2024-11-19',
@@ -180,7 +180,7 @@ const listaEsperaData = [
     curso: 'Big Data y Business Intelligence',
     tipo: 'Curso',
     convocatoria: 'FEB-2026-NORTE',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     prioridad: 'media',
     estado: 'rechazado',
     fechaEntrada: '2024-11-17',
@@ -346,9 +346,9 @@ export default function ListaEsperaPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todas">Todas</SelectItem>
-                <SelectItem value="CEP Norte">CEP Norte</SelectItem>
-                <SelectItem value="CEP Santa Cruz">CEP Santa Cruz</SelectItem>
-                <SelectItem value="CEP Sur">CEP Sur</SelectItem>
+                <SelectItem value="Sede Norte">Sede Norte</SelectItem>
+                <SelectItem value="Sede Santa Cruz">Sede Santa Cruz</SelectItem>
+                <SelectItem value="Sede Sur">Sede Sur</SelectItem>
               </SelectContent>
             </Select>
           </div>

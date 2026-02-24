@@ -6,6 +6,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Label } from '@payload-config/components/ui/label'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Save, Palette, Image as ImageIcon, Eye, RotateCcw, Download, Upload, Check } from 'lucide-react'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 
 interface ColorScheme {
   primary: string
@@ -27,11 +28,11 @@ interface PersonalizacionApiResponse {
 
 const DEFAULT_THEMES: ThemePreset[] = [
   {
-    name: 'CEP FORMACIÓN',
+    name: 'AKADEMATE Blue',
     colors: {
-      primary: '#f2014b',
+      primary: '#0066cc',
       secondary: '#64748b',
-      accent: '#f2014b',
+      accent: '#1d4ed8',
       success: '#22c55e',
       warning: '#f59e0b',
       danger: '#ef4444',
@@ -84,11 +85,11 @@ const DEFAULT_THEMES: ThemePreset[] = [
 ]
 
 const fallbackTheme: ThemePreset = {
-  name: 'Default',
+  name: 'AKADEMATE Default',
   colors: {
-    primary: '#0f172a',
+    primary: '#0066cc',
     secondary: '#64748b',
-    accent: '#6366f1',
+    accent: '#1d4ed8',
     success: '#22c55e',
     warning: '#f59e0b',
     danger: '#ef4444',
@@ -98,7 +99,8 @@ const fallbackTheme: ThemePreset = {
 const baseTheme = DEFAULT_THEMES[0] ?? fallbackTheme
 
 export default function PersonalizacionPage() {
-  const tenantId = '123e4567-e89b-12d3-a456-426614174001'
+  const { branding, refresh } = useTenantBranding()
+  const tenantId = branding.tenantId
   const [colors, setColors] = useState<ColorScheme>(baseTheme.colors)
   const [savedColors, setSavedColors] = useState<ColorScheme>(baseTheme.colors)
   const [previewMode, setPreviewMode] = useState(false)
@@ -200,6 +202,7 @@ export default function PersonalizacionPage() {
 
       setSavedColors(colors)
       setPreviewMode(false)
+      await refresh()
       setShowSaveSuccess(true)
       setTimeout(() => setShowSaveSuccess(false), 3000)
     } catch {
@@ -221,9 +224,9 @@ export default function PersonalizacionPage() {
     const json = JSON.stringify(colors, null, 2)
     const blob = new Blob([json], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'cep-theme.json'
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'akademate-theme.json'
     a.click()
     URL.revokeObjectURL(url)
   }

@@ -27,6 +27,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useDashboardMetrics } from '@payload-config/hooks'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 
 // Dashboard data types - defined locally to ensure TypeScript resolution
 interface DashboardMetrics {
@@ -128,8 +129,6 @@ interface KpiItem {
   title: string
   value: number
   icon: LucideIcon
-  color: string
-  bgColor: string
 }
 
 // Weekly chart data point type
@@ -145,6 +144,7 @@ export default function DashboardPage() {
   // Type assertion required as TypeScript cannot resolve types through path alias
   const hookResult: UseDashboardMetricsResult = useDashboardMetrics({ tenantId: 1, enableRealtime: true }) as UseDashboardMetricsResult
   const { data, loading, error, isConnected, lastUpdate, refresh } = hookResult
+  const { branding } = useTenantBranding()
 
   const [lmsSummary, setLmsSummary] = useState<LmsSummary>({
     totalEnrollments: 0,
@@ -210,22 +210,16 @@ export default function DashboardPage() {
       title: 'Cursos',
       value: metrics.total_courses,
       icon: BookOpen,
-      color: 'text-blue-600 dark:text-blue-400',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
     },
     {
       title: 'Alumnos',
       value: metrics.active_students,
       icon: GraduationCap,
-      color: 'text-green-600 dark:text-green-400',
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
     },
     {
       title: 'Leads este Mes',
       value: metrics.leads_this_month,
       icon: FileText,
-      color: 'text-orange-600 dark:text-orange-400',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/30',
     },
   ]
 
@@ -235,22 +229,16 @@ export default function DashboardPage() {
       title: 'Profesores',
       value: metrics.total_teachers,
       icon: Users,
-      color: 'text-cyan-600 dark:text-cyan-400',
-      bgColor: 'bg-cyan-100 dark:bg-cyan-900/30',
     },
     {
       title: 'Sedes',
       value: metrics.total_campuses,
       icon: Building2,
-      color: 'text-indigo-600 dark:text-indigo-400',
-      bgColor: 'bg-indigo-100 dark:bg-indigo-900/30',
     },
     {
       title: 'Convocatorias',
       value: metrics.active_convocations,
       icon: Calendar,
-      color: 'text-pink-600 dark:text-pink-400',
-      bgColor: 'bg-pink-100 dark:bg-pink-900/30',
     },
   ]
 
@@ -306,11 +294,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
+    <div className="space-y-6">
       <PageHeader
         className="mb-0"
         title="Dashboard"
-        description="Vista general de la operativa de CEP Comunicación"
+        description={`Vista general de la operativa de ${branding.academyName}`}
         icon={BookOpen}
         badge={(
           <Badge variant={isConnected ? 'default' : 'outline'}>
@@ -351,8 +339,8 @@ export default function DashboardPage() {
             <Card key={kpi.title}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-base font-semibold">{kpi.title}</CardTitle>
-                <div className={`${kpi.bgColor} rounded-full p-2`}>
-                  <Icon className={`h-4 w-4 ${kpi.color}`} />
+                <div className="rounded-full bg-primary/10 p-2">
+                  <Icon className="h-4 w-4 text-primary" />
                 </div>
               </CardHeader>
               <CardContent>
@@ -371,8 +359,8 @@ export default function DashboardPage() {
             <Card key={kpi.title}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-base font-semibold">{kpi.title}</CardTitle>
-                <div className={`${kpi.bgColor} rounded-full p-2`}>
-                  <Icon className={`h-4 w-4 ${kpi.color}`} />
+                <div className="rounded-full bg-primary/10 p-2">
+                  <Icon className="h-4 w-4 text-primary" />
                 </div>
               </CardHeader>
               <CardContent>

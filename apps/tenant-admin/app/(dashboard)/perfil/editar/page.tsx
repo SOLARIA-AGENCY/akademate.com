@@ -19,7 +19,7 @@ export default function EditarPerfilPage() {
 
   const [formData, setFormData] = useState({
     name: 'Admin User',
-    email: 'admin@cepcomunicacion.com',
+    email: 'admin@akademate.com',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',

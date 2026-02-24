@@ -1,11 +1,12 @@
 'use client'
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 import {
   Lock,
   Mail,
@@ -15,19 +16,6 @@ import {
   Shield,
   Loader2
 } from 'lucide-react'
-
-interface LogoConfigData {
-  claro?: string
-  oscuro?: string
-}
-
-interface AcademyConfigData {
-  nombre?: string
-}
-
-interface ConfigResponse<T> {
-  data: T
-}
 
 interface LoginUser {
   id: string
@@ -44,11 +32,10 @@ interface LoginResponse {
 
 export default function LoginPage() {
   const router = useRouter()
+  const { branding } = useTenantBranding()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [logoUrl, setLogoUrl] = useState('/logos/cep-logo-alpha.png')
-  const [academyName, setAcademyName] = useState('CEP Formación')
   const emailRef = useRef<HTMLInputElement | null>(null)
   const passwordRef = useRef<HTMLInputElement | null>(null)
   const [credentials, setCredentials] = useState({
@@ -56,36 +43,6 @@ export default function LoginPage() {
     password: '',
     remember: false,
   })
-
-  // DEV MODE: Skip config fetch in development
-  const isDev = process.env.NODE_ENV === 'development'
-
-  // Fetch logo and academy config from API (disabled in dev)
-  useEffect(() => {
-    if (isDev) {
-      console.log('[DEV MODE] Skipping config fetch - using defaults')
-      return
-    }
-
-    const fetchConfig = async () => {
-      try {
-        const response = await fetch('/api/config?section=logos')
-        if (response.ok) {
-          const { data } = (await response.json()) as ConfigResponse<LogoConfigData>
-          setLogoUrl(data?.claro ?? '/logos/cep-logo-alpha.png')
-        }
-
-        const academyResponse = await fetch('/api/config?section=academia')
-        if (academyResponse.ok) {
-          const { data } = (await academyResponse.json()) as ConfigResponse<AcademyConfigData>
-          setAcademyName(data?.nombre ?? 'CEP Formación')
-        }
-      } catch (error) {
-        console.error('Error fetching config:', error)
-      }
-    }
-    void fetchConfig()
-  }, [isDev])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -161,8 +118,8 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center mb-6">
             <div className="relative rounded-full border-4 border-[#f2014b] p-6 bg-white shadow-xl shadow-[#f2014b]/30">
               <Image
-                src={logoUrl}
-                alt={academyName}
+                src={branding.logos.claro}
+                alt={branding.academyName}
                 width={280}
                 height={112}
                 className="h-28 w-auto"
@@ -170,7 +127,7 @@ export default function LoginPage() {
               />
             </div>
           </div>
-          <h1 className="text-3xl font-bold">{academyName}</h1>
+          <h1 className="text-3xl font-bold">{branding.academyName}</h1>
           <p className="text-muted-foreground mt-2">Panel de Administración</p>
         </div>
 
@@ -197,7 +154,7 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="usuario@cepcomunicacion.com"
+                    placeholder="usuario@akademate.com"
                     value={credentials.email}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCredentials({ ...credentials, email: e.target.value })}
                     ref={emailRef}
@@ -275,7 +232,7 @@ export default function LoginPage() {
         </Card>
 
         <div className="mt-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 CEP FORMACIÓN Y COMUNICACIÓN S.L. Todos los derechos reservados.</p>
+          <p>© 2026 AKADEMATE. Todos los derechos reservados.</p>
           <div className="flex items-center justify-center gap-4 mt-2">
             <a href="/legal/privacidad" className="hover:text-foreground transition-colors">
               Política de Privacidad

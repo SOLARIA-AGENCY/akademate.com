@@ -75,7 +75,7 @@ function PlannerVisualPageContent() {
   const router = useRouter()
   const _searchParams = useSearchParams()
 
-  const [sedeSeleccionada, setSedeSeleccionada] = useState<string>('CEP Norte')
+  const [sedeSeleccionada, setSedeSeleccionada] = useState<string>('Sede Norte')
   const [vistaActual, setVistaActual] = useState<VistaTipo>('aulas')
   const [semanaActual, setSemanaActual] = useState(0) // 0 = esta semana, +1 = próxima, -1 = anterior
 
@@ -339,9 +339,9 @@ function PlannerVisualPageContent() {
                 <SelectValue placeholder="Seleccionar sede" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="CEP Norte">CEP Norte</SelectItem>
-                <SelectItem value="CEP Sur">CEP Sur</SelectItem>
-                <SelectItem value="CEP Santa Cruz">CEP Santa Cruz</SelectItem>
+                <SelectItem value="Sede Norte">Sede Norte</SelectItem>
+                <SelectItem value="Sede Sur">Sede Sur</SelectItem>
+                <SelectItem value="Sede Santa Cruz">Sede Santa Cruz</SelectItem>
               </SelectContent>
             </Select>
 

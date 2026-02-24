@@ -23,6 +23,7 @@ import { DashboardFooter } from '@payload-config/components/layout/DashboardFoot
 import { ThemeToggle } from '@payload-config/components/ui/ThemeToggle'
 import { ChatbotWidget } from '@payload-config/components/ui/ChatbotWidget'
 import { RealtimeProvider } from '@payload-config/components/providers'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 
 interface SessionUser {
   id: string | number
@@ -62,12 +63,13 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const { branding } = useTenantBranding()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState({
     name: 'Admin User',
-    email: 'admin@cepcomunicacion.com',
+    email: 'admin@akademate.com',
     avatar: null as string | null,
     initials: 'AU',
   })
@@ -148,7 +150,7 @@ export default function DashboardLayout({
           <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6">
             <div className="flex items-center gap-3 pr-4">
               <Badge variant="outline" className="hidden lg:inline-flex text-[10px] tracking-wide">
-                PANEL CLIENTE
+                {branding.academyName.toUpperCase()}
               </Badge>
               <div className="hidden xl:flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => router.push('/design-system')}>

@@ -207,7 +207,7 @@ export default function NewProfesorPage() {
                   value={formData.email}
                   onChange={handleInputChange('email')}
                   required
-                  placeholder="juan.perez@cepcomunicacion.com"
+                  placeholder="juan.perez@akademate.com"
                 />
               </div>
 

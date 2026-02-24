@@ -144,7 +144,7 @@ describe('Config API Endpoint', () => {
       const data = await response.json()
 
       expect(data.data.nombre).toBeDefined()
-      expect(data.data.nombre).toBe('CEP FORMACIÓN')
+      expect(data.data.nombre).toBe('AKADEMATE')
     })
 
     it('does not expose internal paths', async () => {

@@ -1,10 +1,11 @@
 import type React from 'react'
 import type { Metadata } from 'next'
 import './globals.css'
+import { ClientLayout } from './ClientLayout'
 
 export const metadata: Metadata = {
-  title: 'CEP Comunicación - Admin',
-  description: 'Sistema de gestión de contenidos',
+  title: 'AKADEMATE Cliente - Admin',
+  description: 'Plataforma de gestión para clientes AKADEMATE',
 }
 
 export default function RootLayout({
@@ -14,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        <ClientLayout>{children}</ClientLayout>
+      </body>
     </html>
   )
 }

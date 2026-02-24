@@ -64,7 +64,7 @@ const matriculasData = [
     curso: 'Marketing Digital Avanzado',
     tipo: 'Curso',
     convocatoria: 'ENE-2026-NORTE',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     estado: 'aceptada',
     fechaSolicitud: '2024-11-20',
     fechaAprobacion: '2024-11-22',
@@ -83,7 +83,7 @@ const matriculasData = [
     curso: 'Desarrollo Web Full Stack',
     tipo: 'Curso',
     convocatoria: 'FEB-2026-SCTF',
-    sede: 'CEP Santa Cruz',
+    sede: 'Sede Santa Cruz',
     estado: 'pendiente',
     fechaSolicitud: '2024-11-22',
     fechaAprobacion: null,
@@ -102,7 +102,7 @@ const matriculasData = [
     curso: 'DAW - Desarrollo Aplicaciones Web',
     tipo: 'Ciclo Superior',
     convocatoria: 'SEPT-2025-NORTE',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     estado: 'aceptada',
     fechaSolicitud: '2024-11-19',
     fechaAprobacion: '2024-11-20',
@@ -121,7 +121,7 @@ const matriculasData = [
     curso: 'SEO y Posicionamiento Web',
     tipo: 'Curso',
     convocatoria: 'DIC-2025-SUR',
-    sede: 'CEP Sur',
+    sede: 'Sede Sur',
     estado: 'rechazada',
     fechaSolicitud: '2024-11-18',
     fechaAprobacion: null,
@@ -140,7 +140,7 @@ const matriculasData = [
     curso: 'DAM - Desarrollo Aplicaciones Multiplataforma',
     tipo: 'Ciclo Superior',
     convocatoria: 'SEPT-2025-SCTF',
-    sede: 'CEP Santa Cruz',
+    sede: 'Sede Santa Cruz',
     estado: 'pendiente',
     fechaSolicitud: '2024-11-23',
     fechaAprobacion: null,
@@ -159,7 +159,7 @@ const matriculasData = [
     curso: 'Community Manager',
     tipo: 'Curso',
     convocatoria: 'ENE-2026-NORTE',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     estado: 'aceptada',
     fechaSolicitud: '2024-11-21',
     fechaAprobacion: '2024-11-23',
@@ -178,7 +178,7 @@ const matriculasData = [
     curso: 'ASIR - Administración Sistemas Informáticos',
     tipo: 'Ciclo Superior',
     convocatoria: 'SEPT-2025-SUR',
-    sede: 'CEP Sur',
+    sede: 'Sede Sur',
     estado: 'aceptada',
     fechaSolicitud: '2024-11-17',
     fechaAprobacion: '2024-11-19',
@@ -339,9 +339,9 @@ export default function MatriculasPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todas">Todas</SelectItem>
-                <SelectItem value="CEP Norte">CEP Norte</SelectItem>
-                <SelectItem value="CEP Santa Cruz">CEP Santa Cruz</SelectItem>
-                <SelectItem value="CEP Sur">CEP Sur</SelectItem>
+                <SelectItem value="Sede Norte">Sede Norte</SelectItem>
+                <SelectItem value="Sede Santa Cruz">Sede Santa Cruz</SelectItem>
+                <SelectItem value="Sede Sur">Sede Sur</SelectItem>
               </SelectContent>
             </Select>
             <Select value={tipoFilter} onValueChange={setTipoFilter}>
@@ -524,7 +524,7 @@ export default function MatriculasPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {['CEP Norte', 'CEP Santa Cruz', 'CEP Sur'].map((sede) => {
+              {['Sede Norte', 'Sede Santa Cruz', 'Sede Sur'].map((sede) => {
                 const count = matriculasData.filter((m) => m.sede === sede).length
                 const aceptadas = matriculasData.filter((m) => m.sede === sede && m.estado === 'aceptada').length
                 return (

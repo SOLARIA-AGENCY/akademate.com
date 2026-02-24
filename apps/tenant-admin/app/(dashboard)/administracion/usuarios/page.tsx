@@ -67,7 +67,7 @@ const usuariosData = [
   {
     id: '1',
     nombre: 'Carlos Pérez',
-    email: 'admin@cepformacion.com',
+    email: 'admin@akademate.com',
     telefono: '+34 612 345 001',
     rol: 'Admin',
     sede: 'Todas',
@@ -80,10 +80,10 @@ const usuariosData = [
   {
     id: '2',
     nombre: 'María García López',
-    email: 'maria.garcia@cepformacion.com',
+    email: 'maria.garcia@akademate.com',
     telefono: '+34 612 345 002',
     rol: 'Gestor',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     activo: true,
     verificado: true,
     dosFactor: true,
@@ -93,10 +93,10 @@ const usuariosData = [
   {
     id: '3',
     nombre: 'Juan Martínez Ruiz',
-    email: 'juan.martinez@cepformacion.com',
+    email: 'juan.martinez@akademate.com',
     telefono: '+34 612 345 003',
     rol: 'Marketing',
-    sede: 'CEP Santa Cruz',
+    sede: 'Sede Santa Cruz',
     activo: true,
     verificado: true,
     dosFactor: false,
@@ -106,10 +106,10 @@ const usuariosData = [
   {
     id: '4',
     nombre: 'Ana Rodríguez Sánchez',
-    email: 'ana.rodriguez@cepformacion.com',
+    email: 'ana.rodriguez@akademate.com',
     telefono: '+34 612 345 004',
     rol: 'Asesor',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     activo: true,
     verificado: true,
     dosFactor: false,
@@ -119,10 +119,10 @@ const usuariosData = [
   {
     id: '5',
     nombre: 'Carlos Fernández Torres',
-    email: 'carlos.fernandez@cepformacion.com',
+    email: 'carlos.fernandez@akademate.com',
     telefono: '+34 612 345 005',
     rol: 'Asesor',
-    sede: 'CEP Sur',
+    sede: 'Sede Sur',
     activo: false,
     verificado: true,
     dosFactor: false,
@@ -132,10 +132,10 @@ const usuariosData = [
   {
     id: '6',
     nombre: 'Laura Pérez Gómez',
-    email: 'laura.perez@cepformacion.com',
+    email: 'laura.perez@akademate.com',
     telefono: '+34 612 345 006',
     rol: 'Lectura',
-    sede: 'CEP Santa Cruz',
+    sede: 'Sede Santa Cruz',
     activo: true,
     verificado: false,
     dosFactor: false,
@@ -145,10 +145,10 @@ const usuariosData = [
   {
     id: '7',
     nombre: 'Pedro Sánchez López',
-    email: 'pedro.sanchez@cepformacion.com',
+    email: 'pedro.sanchez@akademate.com',
     telefono: '+34 612 345 007',
     rol: 'Gestor',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     activo: true,
     verificado: true,
     dosFactor: true,
@@ -158,7 +158,7 @@ const usuariosData = [
   {
     id: '8',
     nombre: 'Elena Torres Ruiz',
-    email: 'elena.torres@cepformacion.com',
+    email: 'elena.torres@akademate.com',
     telefono: '+34 612 345 008',
     rol: 'Marketing',
     sede: 'Todas',
@@ -271,9 +271,9 @@ export default function UsuariosPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="todas">Todas las sedes</SelectItem>
-                        <SelectItem value="norte">CEP Norte</SelectItem>
-                        <SelectItem value="santacruz">CEP Santa Cruz</SelectItem>
-                        <SelectItem value="sur">CEP Sur</SelectItem>
+                        <SelectItem value="norte">Sede Norte</SelectItem>
+                        <SelectItem value="santacruz">Sede Santa Cruz</SelectItem>
+                        <SelectItem value="sur">Sede Sur</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -373,9 +373,9 @@ export default function UsuariosPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todas">Todas las sedes</SelectItem>
-                <SelectItem value="CEP Norte">CEP Norte</SelectItem>
-                <SelectItem value="CEP Santa Cruz">CEP Santa Cruz</SelectItem>
-                <SelectItem value="CEP Sur">CEP Sur</SelectItem>
+                <SelectItem value="Sede Norte">Sede Norte</SelectItem>
+                <SelectItem value="Sede Santa Cruz">Sede Santa Cruz</SelectItem>
+                <SelectItem value="Sede Sur">Sede Sur</SelectItem>
               </SelectContent>
             </Select>
             <Select value={estadoFilter} onValueChange={setEstadoFilter}>

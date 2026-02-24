@@ -618,3 +618,158 @@
 ## Iteracion 113 (21-02-2026)
 - Accion: Estandaricé `/(dashboard)` principal eliminando shell de header sticky custom y migrando a `PageHeader` homogéneo con metadatos compactos (fecha, conectividad, última actualización) y acción única de refresco.
 - Resultado: `apps/tenant-admin/app/(dashboard)/page.tsx` actualizado; gate `pnpm -C apps/tenant-admin exec tsc --noEmit --pretty false --incremental false` en verde.
+
+## Iteracion 114 (22-02-2026)
+- Accion: Inicié Sprint 1 de AKADEMATE Cliente con una tarea atómica Ralph Loop: centralizar branding runtime por tenant en provider único.
+- Cambios:
+  - `apps/tenant-admin/app/providers/tenant-branding.tsx`: nuevo `TenantBrandingProvider` + hook `useTenantBranding`, carga de `/api/config` (logos/academia/personalizacion), fallback azul oficial AKADEMATE y aplicación de CSS vars.
+  - `apps/tenant-admin/app/layout.tsx`: integración de `ClientLayout` a nivel root para envolver toda la app.
+  - `apps/tenant-admin/app/ClientLayout.tsx`: composición `ThemeProvider + TenantBrandingProvider`.
+  - `apps/tenant-admin/@payload-config/components/layout/AppSidebar.tsx`: eliminación de fetch duplicado local, consumo de branding desde provider.
+  - `apps/tenant-admin/app/auth/login/page.tsx`: eliminación de fetch duplicado local, consumo de branding desde provider.
+- Validacion:
+  - `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` -> PASS.
+  - `pnpm -C apps/tenant-admin exec vitest run __tests__/login.test.tsx` -> PASS (5 passed, 1 skipped).
+  - `pnpm --filter @akademate/tenant-admin test` -> FAIL por suites preexistentes no relacionadas (resolución de alias `@payload-config/components/ui/PageHeader` en 9 archivos de test import-analysis).
+
+## Iteracion 115 (22-02-2026)
+- Accion: Segunda tarea atómica Sprint 1 para shell cliente: conecté branding runtime al header principal del dashboard y quité etiqueta fija de entorno CEP.
+- Cambios:
+  - `apps/tenant-admin/app/(dashboard)/layout.tsx`: badge superior ahora usa `branding.academyName.toUpperCase()` desde `useTenantBranding`.
+  - `apps/tenant-admin/app/layout.tsx`: metadata actualizada a AKADEMATE (`AKADEMATE Cliente - Admin`).
+- Validacion:
+  - `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` -> PASS.
+
+## Iteracion 116 (22-02-2026)
+- Accion: Tercera tarea atómica Sprint 1 enfocada en `apps/tenant-admin/app/(dashboard)/page.tsx` para migración UI al patrón AKADEMATE.
+- Cambios:
+  - Integración de `useTenantBranding` en dashboard principal para descripción dinámica por tenant.
+  - Eliminación de hardcodes visuales por KPI (`blue/green/orange/cyan/indigo/pink`) y tokenización uniforme con `bg-primary/10` + `text-primary`.
+  - Limpieza de contenedor principal eliminando fondo local `bg-muted/30` para heredar shell estándar.
+- Validacion:
+  - `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` -> PASS.
+
+## Iteracion 117 (22-02-2026)
+- Accion: Cuarta tarea atómica Sprint 1 para cerrar bucle de branding runtime en configuración.
+- Cambios:
+  - `apps/tenant-admin/app/(dashboard)/configuracion/personalizacion/page.tsx` ahora consume `useTenantBranding`.
+  - Reemplazo de `tenantId` hardcodeado por `branding.tenantId`.
+  - Tras guardar personalización (`PUT /api/config`), se ejecuta `refresh()` del provider para propagar nombre/logo/colores globales en shell y páginas.
+- Validacion:
+  - `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` -> PASS.
+
+## Iteracion 118 (22-02-2026)
+- Accion: Quinta tarea atómica Sprint 1 para eliminar remanentes de marca CEP en defaults/mocks del runtime.
+- Cambios:
+  - `apps/tenant-admin/app/providers/tenant-branding.tsx`: default `academyName` actualizado de `CEP Formación` a `AKADEMATE`.
+  - `apps/tenant-admin/app/api/config/route.ts`: mock `academia` y `domains` rebrand a AKADEMATE (`nombre`, emails, web, social links, dominio), manteniendo estructura del contrato API.
+  - `apps/tenant-admin/tests/components/AppSidebar.test.tsx`: expectativas de alt-text y descripción de color ajustadas a marca AKADEMATE.
+  - `apps/tenant-admin/tests/api/config-api.test.ts`: expectativa de `academia.nombre` actualizada a `AKADEMATE`.
+- Validacion:
+  - `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` -> PASS.
+  - `pnpm -C apps/tenant-admin exec vitest run __tests__/login.test.tsx` -> PASS (5 passed, 1 skipped).
+  - Nota: suites `tests/components/AppSidebar.test.tsx` y `tests/api/config-api.test.ts` siguen excluidas por `vitest.config.ts` (baseline preexistente).
+
+## Iteracion 119 (22-02-2026)
+- Accion: Sexta tarea atómica Sprint 1 para limpiar hardcodes CEP de alta visibilidad en shell de cliente.
+- Cambios:
+  - `apps/tenant-admin/@payload-config/components/layout/AppSidebar.tsx`: labels de sedes de navegación (`Sede Norte/Santa Cruz/Sur`), badge footer a `Tenant AKADEMATE` y comentarios internos alineados a color primario por tenant.
+  - `apps/tenant-admin/app/auth/login/page.tsx`: placeholder de email `usuario@akademate.com` y pie legal `© 2026 AKADEMATE`.
+  - `apps/tenant-admin/app/(dashboard)/layout.tsx`: email demo de usuario actualizado a `admin@akademate.com`.
+  - `apps/tenant-admin/app/(dashboard)/configuracion/personalizacion/page.tsx`: preset base renombrado a `AKADEMATE Blue`, paleta base oficial azul (`#0066cc`) y export JSON `akademate-theme.json`.
+- Validacion:
+  - `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` -> PASS.
+  - `pnpm -C apps/tenant-admin exec vitest run __tests__/login.test.tsx` -> PASS (5 passed, 1 skipped).
+
+## Iteracion 120 (22-02-2026)
+- Accion: Séptima tarea atómica Sprint 1 para alinear defaults de configuración general a base AKADEMATE.
+- Cambios:
+  - `apps/tenant-admin/app/(dashboard)/configuracion/general/page.tsx`: actualización de defaults de academia, contacto y redes sociales a dominio `akademate.com`, además de descripción/slogan/acreditación orientados a plataforma SaaS.
+  - `apps/tenant-admin/@payload-config/components/layout/AppSidebar.tsx`: badge footer de tenant ahora dinámico con `academyName` desde branding runtime.
+- Validacion:
+  - `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` -> PASS.
+  - `pnpm -C apps/tenant-admin exec vitest run __tests__/login.test.tsx` -> PASS (5 passed, 1 skipped).
+
+## Iteracion 121 (22-02-2026)
+- Accion: Octava tarea atómica Sprint 1 para limpieza transversal de hardcodes CEP en módulos operativos del dashboard.
+- Cambios:
+  - Rebranding masivo de labels de sede `CEP Norte/Sur/Santa Cruz` a `Sede Norte/Sur/Santa Cruz` en módulos de operación y administración:
+    - `apps/tenant-admin/app/(dashboard)/matriculas/page.tsx`
+    - `apps/tenant-admin/app/(dashboard)/lista-espera/page.tsx`
+    - `apps/tenant-admin/app/(dashboard)/planner/page.tsx`
+    - `apps/tenant-admin/app/(dashboard)/sedes/page.tsx`
+    - `apps/tenant-admin/app/(dashboard)/sedes/[id]/page.tsx`
+    - `apps/tenant-admin/app/(dashboard)/administracion/usuarios/page.tsx`
+    - `apps/tenant-admin/app/(dashboard)/administracion/impersonar/page.tsx`
+    - `apps/tenant-admin/app/(dashboard)/design-system/page.tsx`
+    - `apps/tenant-admin/app/(dashboard)/programacion/nueva/page.tsx`
+  - Rebranding de dominios de ejemplo `@cepcomunicacion.com`/`@cepformacion.com` a `@akademate.com` en perfiles, formularios y administración.
+  - Texto de API docs actualizado de `CEP Admin` a `AKADEMATE Admin` en `apps/tenant-admin/app/(dashboard)/configuracion/apis/page.tsx`.
+  - `apps/tenant-admin/app/globals.css`: paleta base `primary/accent/ring/sidebar-*` migrada a azul AKADEMATE para evitar flash inicial magenta antes de cargar branding runtime.
+- Validacion:
+  - `rg -n \"CEP|cepcomunicacion|cepformacion\" 'apps/tenant-admin/app/(dashboard)' apps/tenant-admin/app/globals.css --glob '!**/legal/**' --glob '!**/api/**' --glob '!**/tests/**'` -> SIN COINCIDENCIAS.
+  - `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` -> PASS.
+  - `pnpm -C apps/tenant-admin exec vitest run __tests__/login.test.tsx` -> PASS (5 passed, 1 skipped).
+
+## Iteracion 122 (22-02-2026)
+- Accion: Novena tarea atómica Sprint 1 para conectar configuración y sedes a persistencia real por tenant.
+- Cambios:
+  - `apps/tenant-admin/app/api/config/route.ts`:
+    - Añadidos schemas `AcademiaSchema` y `LogosSchema`.
+    - `GET section=academia/logos` ahora intenta leer de `tenants.branding` (respetando `tenantId`) con fallback seguro a defaults.
+    - `PUT section=academia/logos` ahora persiste en `tenants.branding` (incluye compatibilidad de payload de academia en formato form UI y formato API).
+    - Añadido `resolveTenantId` para unificar `tenantId` de query/body con fallback env.
+  - `apps/tenant-admin/app/providers/tenant-branding.tsx`:
+    - lecturas de branding ajustadas para enviar `tenantId` explícito también en `academia` y `logos`.
+  - `apps/tenant-admin/app/(dashboard)/configuracion/general/page.tsx`:
+    - conectado a `useTenantBranding`.
+    - fetch/save de academia y logos ahora con `tenantId`.
+    - mapeo bidireccional entre shape UI (`academyName`, `fiscalName`, etc.) y shape API (`nombre`, `razonSocial`, etc.).
+    - `refresh()` tras guardar para propagar cambios al shell.
+  - `apps/tenant-admin/app/(dashboard)/sedes/page.tsx`:
+    - eliminado mock local como estado base; ahora vista se alimenta de `/api/campuses`.
+    - añadido empty state cuando no hay sedes.
+  - `apps/tenant-admin/app/(dashboard)/sedes/[id]/page.tsx`:
+    - reemplazo completo de mock estático por fetch real a `/api/campuses/:id`.
+    - cards de métricas y detalle derivados de payload real (`metadata` + campos core), con fallbacks operativos.
+- Validacion:
+  - `pnpm --filter @akademate/tenant-admin exec tsc --noEmit --pretty false --incremental false` -> PASS.
+  - `pnpm -C apps/tenant-admin exec vitest run __tests__/login.test.tsx tests/api/config-api.test.ts` -> PASS en suite activa (`login`), 5 passed / 1 skipped.
+
+## Iteracion 123 (22-02-2026)
+- Accion: Décima tarea atómica Sprint 1 para despliegue operativo en servidor NEMESIS y verificación E2E de accesos.
+- Cambios:
+  - Sincronización remota de cambios locales a `cmdr@100.99.60.106:~/akademate`.
+  - Deploy `tenant` en staging con script oficial:
+    - `ssh ... 'cd ~/akademate && bash infrastructure/scripts/deploy.sh staging tenant'`
+  - Deploy `web`:
+    - se detectó conflicto de `container_name` (`/akademate-web`) durante recreate automático.
+    - mitigación aplicada: limpieza de contenedores huérfanos `*_akademate-web` y reemplazo manual controlado `stop/rm/up` del servicio `web` + `restart nginx`.
+  - Fix adicional aplicado y desplegado en `apps/tenant-admin/app/api/config/route.ts`:
+    - `section=personalizacion` ahora devuelve fallback seguro y no `500` cuando `tenantId` no es UUID válido en staging.
+- Validacion:
+  - Health post-deploy: `payload`, `web`, `admin`, `tenant`, `campus` en `healthy`/`starting` esperado tras restart.
+  - Smoke HTTP:
+    - `http://100.99.60.106:8088/accesos` -> `200`
+    - `http://100.99.60.106:8088/design-system` -> `200`
+    - `http://100.99.60.106:3009/auth/login` -> `200`
+    - `http://100.99.60.106:3009/api/health` -> `200`
+    - `http://100.99.60.106:3009/api/config?section=personalizacion&tenantId=1` -> `200` con payload de tema (resuelto).
+
+## Iteracion 124 (22-02-2026)
+- Accion: Corrección de identidad visual en login tenant para reemplazar logo legado CEP por logo AKADEMATE.
+- Cambios:
+  - Nuevos assets:
+    - `apps/tenant-admin/public/logos/akademate-logo.svg`
+    - `apps/tenant-admin/public/logos/akademate-logo-alpha.svg`
+    - `apps/tenant-admin/public/logos/akademate-favicon.svg`
+  - Defaults de logo actualizados en:
+    - `apps/tenant-admin/app/providers/tenant-branding.tsx`
+    - `apps/tenant-admin/app/api/config/route.ts`
+    - `apps/tenant-admin/app/(dashboard)/configuracion/general/page.tsx`
+  - Sincronización correcta al servidor NEMESIS con `rsync --relative` (primera sincronización fallida por ruta destino incorrecta, remediada).
+  - Redeploy `tenant` en NEMESIS con script oficial.
+- Validacion:
+  - `http://100.99.60.106:3009/logos/akademate-logo.svg` -> `200`.
+  - `http://100.99.60.106:3009/api/config?section=logos` -> rutas `akademate-logo*`.
+  - `http://100.99.60.106:3009/auth/login` mantiene copy `AKADEMATE` y renderiza branding actualizado.

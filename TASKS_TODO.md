@@ -163,3 +163,23 @@
 - [x] Crear stories iniciales de design system (`Button`, `Badge`, `Input`, `Card`, `PageHeader`).
 - [x] Validar build de Storybook (`build-storybook`) y documentar roadmap de crecimiento.
 - [ ] Integrar Storybook visual QA en loop de homogeneización de dashboard (pendiente CI + cobertura de módulos).
+
+## 22) AKADEMATE Cliente Platform (CEP -> AKADEMATE, shadcn, tenant branding)
+- [x] Iteración 1 (Ralph Loop): crear `TenantBrandingProvider` runtime y conectarlo al shell (`app/layout` + `ClientLayout`) para centralizar nombre/logo/colores por tenant.
+- [x] Iteración 2 (Ralph Loop): conectar branding del provider al header del dashboard (badge dinámico) y actualizar metadata de shell a AKADEMATE.
+- [x] Iteración 3 (Ralph Loop): migrar visualmente `/(dashboard)` principal a patrón AKADEMATE UI (KPIs tokenizados + descripción dinámica por tenant, sin hardcodes de color por card).
+- [x] Iteración 4 (Ralph Loop): conectar `configuracion/personalizacion` al `TenantBrandingProvider` (`tenantId` de contexto + `refresh()` tras guardar).
+- [x] Iteración 5 (Ralph Loop): reemplazar defaults/mocks CEP remanentes por AKADEMATE en provider + `api/config` y alinear tests unitarios asociados.
+- [x] Iteración 6 (Ralph Loop): eliminar hardcodes visibles CEP en shell/login/personalización (sidebar labels, badge tenant, email placeholder, footer legal, nombre de preset y export de tema).
+- [x] Iteración 7 (Ralph Loop): actualizar defaults de `configuracion/general` a AKADEMATE (academy/contacto/redes/descripción) y hacer badge de tenant dinámico por branding.
+- [x] Iteración 8 (Ralph Loop): limpieza masiva de hardcodes CEP en módulos dashboard (`matriculas`, `lista-espera`, `planner`, `sedes`, `administracion/*`, `design-system`, `programacion/nueva`, formularios) + defaults CSS base azul AKADEMATE.
+- [x] Iteración 9 (Ralph Loop): conectar `configuracion/general` y `sedes` a datos reales (`tenants.branding` + `/api/campuses/:id`) eliminando mocks locales críticos.
+- [x] Iteración 10 (Ralph Loop): despliegue NEMESIS (`tenant` + `web`) con smoke tests de `/accesos`, `/design-system`, `/auth/login`, `/api/health` y fix defensivo en `personalizacion` para evitar `500` con `tenantId` inválido.
+- [x] Iteración 11 (Ralph Loop): corrección de branding visual de login (logo AKADEMATE) con assets SVG nuevos, defaults de logos actualizados y redeploy en NEMESIS.
+- [ ] Sprint 1: shell cliente + theming runtime por tenant (nombre/logo/color azul default).
+- [ ] Sprint 1: migrar dashboard principal a componentes `akademate-ui`.
+- [ ] Sprint 2: migrar módulos core CEP (catálogo, leads, alumnos/matrículas, soporte) con paridad funcional.
+- [ ] Sprint 2: unificar tablas/filtros/forms en componentes modulares reutilizables.
+- [ ] Sprint 3: panel de personalización tenant (nombre/logo/paleta) con preview.
+- [ ] Sprint 3: hardening multitenant + QA transversal + release candidate en NEMESIS.
+- [ ] Mantener y actualizar matriz CEP->AKADEMATE por módulo y estado.

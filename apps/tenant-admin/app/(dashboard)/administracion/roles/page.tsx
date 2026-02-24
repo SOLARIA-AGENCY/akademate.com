@@ -364,7 +364,7 @@ export default function RolesPage() {
                                 </div>
                                 <div>
                                   <p className="font-medium">Carlos Pérez</p>
-                                  <p className="text-sm text-muted-foreground">admin@cepformacion.com</p>
+                                  <p className="text-sm text-muted-foreground">admin@akademate.com</p>
                                 </div>
                               </div>
                             </TableCell>
@@ -388,11 +388,11 @@ export default function RolesPage() {
                                 </div>
                                 <div>
                                   <p className="font-medium">María García López</p>
-                                  <p className="text-sm text-muted-foreground">maria.garcia@cepformacion.com</p>
+                                  <p className="text-sm text-muted-foreground">maria.garcia@akademate.com</p>
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell>CEP Norte</TableCell>
+                            <TableCell>Sede Norte</TableCell>
                             <TableCell className="text-muted-foreground">Hoy 09:15</TableCell>
                             <TableCell className="text-right">
                               <Button variant="ghost" size="sm">
@@ -408,11 +408,11 @@ export default function RolesPage() {
                                 </div>
                                 <div>
                                   <p className="font-medium">Pedro Sánchez López</p>
-                                  <p className="text-sm text-muted-foreground">pedro.sanchez@cepformacion.com</p>
+                                  <p className="text-sm text-muted-foreground">pedro.sanchez@akademate.com</p>
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell>CEP Norte</TableCell>
+                            <TableCell>Sede Norte</TableCell>
                             <TableCell className="text-muted-foreground">Hoy 08:30</TableCell>
                             <TableCell className="text-right">
                               <Button variant="ghost" size="sm">

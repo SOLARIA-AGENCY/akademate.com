@@ -111,10 +111,10 @@ const courseMetrics = [
 ]
 
 const courseRows = [
-  { curso: 'Marketing Digital', modalidad: 'Presencial', sede: 'CEP Norte', estado: 'Abierta', progreso: 72 },
-  { curso: 'UX/UI Intensivo', modalidad: 'Teleformación', sede: 'CEP Sur', estado: 'Activa', progreso: 61 },
-  { curso: 'Comercio Internacional', modalidad: 'Mixta', sede: 'CEP Santa Cruz', estado: 'Planificada', progreso: 18 },
-  { curso: 'Data Analytics', modalidad: 'Presencial', sede: 'CEP Norte', estado: 'Finalizada', progreso: 100 },
+  { curso: 'Marketing Digital', modalidad: 'Presencial', sede: 'Sede Norte', estado: 'Abierta', progreso: 72 },
+  { curso: 'UX/UI Intensivo', modalidad: 'Teleformación', sede: 'Sede Sur', estado: 'Activa', progreso: 61 },
+  { curso: 'Comercio Internacional', modalidad: 'Mixta', sede: 'Sede Santa Cruz', estado: 'Planificada', progreso: 18 },
+  { curso: 'Data Analytics', modalidad: 'Presencial', sede: 'Sede Norte', estado: 'Finalizada', progreso: 100 },
 ]
 
 const spacingScale = [
@@ -575,7 +575,7 @@ export default function DesignSystemPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div className="flex items-center gap-1.5 text-muted-foreground"><Clock3 className="h-4 w-4" />120h</div>
-                          <div className="flex items-center gap-1.5 text-muted-foreground"><Building2 className="h-4 w-4" />CEP Norte</div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground"><Building2 className="h-4 w-4" />Sede Norte</div>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-primary">1.290€</span>

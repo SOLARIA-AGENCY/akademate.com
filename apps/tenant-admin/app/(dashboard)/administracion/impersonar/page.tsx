@@ -54,9 +54,9 @@ const usuariosData = [
   {
     id: '1',
     nombre: 'María García López',
-    email: 'maria.garcia@cepformacion.com',
+    email: 'maria.garcia@akademate.com',
     rol: 'Gestor',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     activo: true,
     ultimoAcceso: '2024-12-07 09:15',
     avatar: null,
@@ -64,9 +64,9 @@ const usuariosData = [
   {
     id: '2',
     nombre: 'Juan Martínez Ruiz',
-    email: 'juan.martinez@cepformacion.com',
+    email: 'juan.martinez@akademate.com',
     rol: 'Marketing',
-    sede: 'CEP Santa Cruz',
+    sede: 'Sede Santa Cruz',
     activo: true,
     ultimoAcceso: '2024-12-06 18:30',
     avatar: null,
@@ -74,9 +74,9 @@ const usuariosData = [
   {
     id: '3',
     nombre: 'Ana Rodríguez Sánchez',
-    email: 'ana.rodriguez@cepformacion.com',
+    email: 'ana.rodriguez@akademate.com',
     rol: 'Asesor',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     activo: true,
     ultimoAcceso: '2024-12-07 10:45',
     avatar: null,
@@ -84,9 +84,9 @@ const usuariosData = [
   {
     id: '4',
     nombre: 'Carlos Fernández Torres',
-    email: 'carlos.fernandez@cepformacion.com',
+    email: 'carlos.fernandez@akademate.com',
     rol: 'Asesor',
-    sede: 'CEP Sur',
+    sede: 'Sede Sur',
     activo: false,
     ultimoAcceso: '2024-11-28 14:20',
     avatar: null,
@@ -94,9 +94,9 @@ const usuariosData = [
   {
     id: '5',
     nombre: 'Laura Pérez Gómez',
-    email: 'laura.perez@cepformacion.com',
+    email: 'laura.perez@akademate.com',
     rol: 'Lectura',
-    sede: 'CEP Santa Cruz',
+    sede: 'Sede Santa Cruz',
     activo: true,
     ultimoAcceso: '2024-12-05 16:00',
     avatar: null,
@@ -104,9 +104,9 @@ const usuariosData = [
   {
     id: '6',
     nombre: 'Pedro Sánchez López',
-    email: 'pedro.sanchez@cepformacion.com',
+    email: 'pedro.sanchez@akademate.com',
     rol: 'Gestor',
-    sede: 'CEP Norte',
+    sede: 'Sede Norte',
     activo: true,
     ultimoAcceso: '2024-12-07 08:30',
     avatar: null,
@@ -302,9 +302,9 @@ export default function ImpersonarPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todas">Todas las sedes</SelectItem>
-                <SelectItem value="CEP Norte">CEP Norte</SelectItem>
-                <SelectItem value="CEP Santa Cruz">CEP Santa Cruz</SelectItem>
-                <SelectItem value="CEP Sur">CEP Sur</SelectItem>
+                <SelectItem value="Sede Norte">Sede Norte</SelectItem>
+                <SelectItem value="Sede Santa Cruz">Sede Santa Cruz</SelectItem>
+                <SelectItem value="Sede Sur">Sede Sur</SelectItem>
               </SelectContent>
             </Select>
           </div>

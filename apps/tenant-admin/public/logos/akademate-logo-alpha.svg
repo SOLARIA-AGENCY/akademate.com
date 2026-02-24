@@ -1,0 +1,21 @@
+<svg width="980" height="280" viewBox="0 0 980 280" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AKADEMATE">
+  <defs>
+    <linearGradient id="brandA2" x1="24" y1="18" x2="242" y2="246" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0C63D4"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="brandB2" x1="88" y1="70" x2="196" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D6E7FF"/>
+      <stop offset="1" stop-color="#F3F8FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="22" y="22" width="216" height="216" rx="46" fill="url(#brandA2)"/>
+  <rect x="22" y="22" width="216" height="216" rx="46" stroke="#A7CCFF" stroke-opacity="0.3" stroke-width="2"/>
+
+  <path d="M68 184L120 72C123 66 131 66 134 72L186 184H162L147 153H107L92 184H68ZM116 131H138L127 103L116 131Z" fill="#F8FAFC"/>
+  <circle cx="174" cy="82" r="28" fill="url(#brandB2)" fill-opacity="0.95"/>
+
+  <text x="278" y="138" fill="#F8FAFC" font-size="90" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="800" letter-spacing="1.5">AKADEMATE</text>
+  <text x="284" y="194" fill="#DDEBFF" font-size="28" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="600" letter-spacing="6">EDTECH SAAS PLATFORM</text>
+</svg>

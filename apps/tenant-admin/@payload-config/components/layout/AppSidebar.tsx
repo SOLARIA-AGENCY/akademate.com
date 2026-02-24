@@ -42,10 +42,11 @@ import Link from 'next/link'
 import NextImage from 'next/image'
 import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { Badge } from '../ui/badge'
 
 // Menu structure with sections
-// Section: null = no separator, 'CEP FORMACIÓN' or 'CEP COMUNICACIÓN' = show separator before item
+// Section: null = no separator, otherwise show separator before item.
 interface MenuItemWithSection extends MenuItem {
   sectionBefore?: string
 }
@@ -92,9 +93,9 @@ const menuItems: MenuItemWithSection[] = [
     icon: Building2,
     items: [
       { title: 'Todas las Sedes', icon: List, url: '/sedes' },
-      { title: 'CEP Norte', icon: MapPin, url: '/sedes/cep-norte' },
-      { title: 'CEP Santa Cruz', icon: MapPin, url: '/sedes/cep-santa-cruz' },
-      { title: 'CEP Sur', icon: MapPin, url: '/sedes/cep-sur' },
+      { title: 'Sede Norte', icon: MapPin, url: '/sedes/cep-norte' },
+      { title: 'Sede Santa Cruz', icon: MapPin, url: '/sedes/cep-santa-cruz' },
+      { title: 'Sede Sur', icon: MapPin, url: '/sedes/cep-sur' },
     ],
   },
   {
@@ -294,35 +295,9 @@ interface AppSidebarProps {
 export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const pathname = usePathname()
   const [openSections, setOpenSections] = React.useState<string[]>([])
-  const [logoUrl, setLogoUrl] = React.useState('/logos/cep-logo-alpha.png')
-  const [academyName, setAcademyName] = React.useState('CEP Formación')
-  const isDev = process.env.NODE_ENV === 'development'
-
-  // Fetch logo config from API
-  React.useEffect(() => {
-    if (isDev) {
-      return
-    }
-
-    const fetchConfig = async () => {
-      try {
-        const response = await fetch('/api/config?section=logos')
-        if (response.ok) {
-          const { data } = await response.json()
-          setLogoUrl(data?.claro || '/logos/cep-logo-alpha.png')
-        }
-
-        const academyResponse = await fetch('/api/config?section=academia')
-        if (academyResponse.ok) {
-          const { data } = await academyResponse.json()
-          setAcademyName(data?.nombre || 'CEP Formación')
-        }
-      } catch (error) {
-        console.error('Error fetching sidebar config:', error)
-      }
-    }
-    fetchConfig()
-  }, [isDev])
+  const { branding } = useTenantBranding()
+  const logoUrl = branding.logos.claro
+  const academyName = branding.academyName
 
   React.useEffect(() => {
     const activeParent = menuItems.find(
@@ -387,7 +362,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
             const hasSubItems = item.items && item.items.length > 0
             const isOpen = openSections.includes(item.title)
 
-            // Section separator component - CEP Magenta color (#F2014B) with smooth transition
+            // Section separator component using active tenant primary color.
             const SectionSeparator = item.sectionBefore ? (
               <li className="pt-4 pb-2 overflow-hidden">
                 <div className="relative flex items-center justify-center">
@@ -507,7 +482,9 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           <div className="px-3 py-2 border-b border-sidebar-border">
             <div className="rounded-md border bg-sidebar-accent/40 p-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-medium text-sidebar-foreground/80">Tenant CEP</span>
+                <span className="text-xs font-medium text-sidebar-foreground/80">
+                  Tenant {academyName}
+                </span>
                 <Badge variant="secondary" className="text-[10px]">Online</Badge>
               </div>
               <p className="mt-1 text-[11px] text-muted-foreground">Entorno operativo con módulos activos.</p>

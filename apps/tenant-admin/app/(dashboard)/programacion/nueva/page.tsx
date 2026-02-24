@@ -92,9 +92,9 @@ const profesoresMock = [
 ]
 
 const sedesMock = [
-  { id: 's1', nombre: 'CEP Norte' },
-  { id: 's2', nombre: 'CEP Sur' },
-  { id: 's3', nombre: 'CEP Santa Cruz' },
+  { id: 's1', nombre: 'Sede Norte' },
+  { id: 's2', nombre: 'Sede Sur' },
+  { id: 's3', nombre: 'Sede Santa Cruz' },
 ]
 
 export default function NuevaConvocatoriaPage() {
@@ -162,7 +162,7 @@ export default function NuevaConvocatoriaPage() {
       if (profesorSeleccionado?.nombre === 'Juan García Martínez' && formData.sede_id === 's2') {
         nuevosConflictos.push({
           tipo: 'warning',
-          mensaje: 'Profesor Juan García tiene clases en CEP Norte mismo horario',
+          mensaje: 'Profesor Juan García tiene clases en Sede Norte mismo horario',
           sugerencias: [
             'Asignar 2 horas de margen entre sedes',
             'Seleccionar otro profesor',

@@ -16,7 +16,7 @@ export default function PerfilPage() {
   const [user, setUser] = useState({
     id: 1,
     name: 'Admin User',
-    email: 'admin@cepcomunicacion.com',
+    email: 'admin@akademate.com',
     role: 'Admin',
     avatar: null as string | null,
     initials: 'AU',

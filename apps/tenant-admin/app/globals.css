@@ -15,36 +15,36 @@ body:not([data-payload-admin]) {
 /* Custom Dashboard styles - scoped to avoid Payload Admin conflicts */
 @layer base {
   :root:not([data-payload-admin]) {
-    /* CSS variables for runtime theming - CEP FORMACIÓN */
+    /* CSS variables for runtime theming - AKADEMATE */
     --background: 0 0% 97%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 342 99% 48%;
+    --primary: 210 100% 40%;
     --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 342 99% 48%;
+    --accent: 223 76% 48%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 342 99% 48%;
+    --ring: 210 100% 40%;
 
-    /* Sidebar colors - CEP FORMACIÓN */
+    /* Sidebar colors - AKADEMATE */
     --sidebar: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 342 99% 48%;
+    --sidebar-primary: 210 100% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 342 10% 96%;
+    --sidebar-accent: 210 30% 96%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 342 99% 48%;
+    --sidebar-ring: 210 100% 40%;
 
     /* Border radius */
     --radius: 0.5rem;
@@ -70,8 +70,8 @@ body:not([data-payload-admin]) {
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 95%;
 
-    /* Primary - CEP FORMACIÓN brand color */
-    --primary: 342 99% 58%;
+    /* Primary - AKADEMATE brand color */
+    --primary: 210 100% 56%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - 3% lighter than card */
@@ -82,8 +82,8 @@ body:not([data-payload-admin]) {
     --muted: 0 0% 13%;
     --muted-foreground: 0 0% 65%; /* Medium gray text (#a6a6a6) */
 
-    /* Accent - CEP FORMACIÓN brand color */
-    --accent: 342 99% 58%;
+    /* Accent - AKADEMATE brand color */
+    --accent: 223 76% 58%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive - keep red visible */
@@ -94,21 +94,21 @@ body:not([data-payload-admin]) {
     --border: 0 0% 17%; /* Light enough to see (#2b2b2b) */
     --input: 0 0% 17%;
 
-    /* Focus ring - CEP brand color */
-    --ring: 342 99% 58%;
+    /* Focus ring - AKADEMATE brand color */
+    --ring: 210 100% 56%;
 
     /* Sidebar - darker than main background */
     --sidebar: 0 0% 4%; /* Very dark (#0a0a0a) */
     --sidebar-foreground: 0 0% 90%; /* Slightly dimmer than main text */
-    --sidebar-primary: 342 99% 58%;
+    --sidebar-primary: 210 100% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 8%; /* Subtle highlight */
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 342 99% 58%;
+    --sidebar-ring: 210 100% 56%;
 
     /* Chart colors - vibrant but not oversaturated */
-    --chart-1: 342 70% 55%; /* CEP Pink */
+    --chart-1: 210 80% 52%; /* AKADEMATE Blue */
     --chart-2: 142 60% 50%; /* Green */
     --chart-3: 25 80% 60%; /* Orange */
     --chart-4: 280 60% 55%; /* Purple */

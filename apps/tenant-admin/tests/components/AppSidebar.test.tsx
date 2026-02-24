@@ -13,9 +13,9 @@ describe('AppSidebar', () => {
     onToggle: vi.fn(),
   }
 
-  it('renders the CEP logo', () => {
+  it('renders the AKADEMATE logo', () => {
     render(<AppSidebar {...defaultProps} />)
-    expect(screen.getByAltText('CEP Formación')).toBeInTheDocument()
+    expect(screen.getByAltText('AKADEMATE')).toBeInTheDocument()
   })
 
   it('renders Dashboard menu item', () => {
@@ -53,10 +53,10 @@ describe('AppSidebar', () => {
   it('shows collapsed state correctly', () => {
     render(<AppSidebar {...defaultProps} isCollapsed={true} />)
     // Logo should still be visible
-    expect(screen.getByAltText('CEP Formación')).toBeInTheDocument()
+    expect(screen.getByAltText('AKADEMATE')).toBeInTheDocument()
   })
 
-  it('renders icons with CEP magenta color (#F2014B)', () => {
+  it('renders icons with brand color styles', () => {
     render(<AppSidebar {...defaultProps} />)
     // Check that icons have the magenta style applied
     const sidebarContainer = document.querySelector('[class*="bg-card"]')

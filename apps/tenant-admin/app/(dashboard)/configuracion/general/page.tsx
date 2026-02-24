@@ -8,6 +8,7 @@ import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Save, Building2, Mail, Phone, MapPin, Globe, Image as ImageIcon, Facebook, Twitter, Instagram, Linkedin, Youtube, Check, Upload } from 'lucide-react'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 
 interface AcademyConfig {
   academyName: string
@@ -45,45 +46,112 @@ interface ApiResponse<T> {
   data: T
 }
 
+interface AcademiaApiConfig {
+  nombre: string
+  razonSocial: string
+  cif: string
+  direccion: string
+  codigoPostal: string
+  ciudad: string
+  provincia: string
+  telefono1: string
+  telefono2: string
+  email1: string
+  email2: string
+  web: string
+  horario: string
+  facebook: string
+  twitter: string
+  instagram: string
+  linkedin: string
+  youtube: string
+}
+
+function mapApiAcademiaToForm(data: Partial<AcademiaApiConfig>): Partial<AcademyConfig> {
+  return {
+    academyName: data.nombre,
+    fiscalName: data.razonSocial,
+    cif: data.cif,
+    address: data.direccion,
+    postalCode: data.codigoPostal,
+    city: data.ciudad,
+    country: data.provincia,
+    phone: data.telefono1,
+    phoneAlternative: data.telefono2,
+    email: data.email1,
+    emailSupport: data.email2,
+    website: data.web,
+    facebook: data.facebook,
+    twitter: data.twitter,
+    instagram: data.instagram,
+    linkedin: data.linkedin,
+    youtube: data.youtube,
+  }
+}
+
+function mapFormToApiAcademia(data: AcademyConfig): AcademiaApiConfig {
+  return {
+    nombre: data.academyName,
+    razonSocial: data.fiscalName,
+    cif: data.cif,
+    direccion: data.address,
+    codigoPostal: data.postalCode,
+    ciudad: data.city,
+    provincia: data.country,
+    telefono1: data.phone,
+    telefono2: data.phoneAlternative,
+    email1: data.email,
+    email2: data.emailSupport,
+    web: data.website,
+    horario: 'Lunes a Viernes: 9:00 - 18:00',
+    facebook: data.facebook,
+    twitter: data.twitter,
+    instagram: data.instagram,
+    linkedin: data.linkedin,
+    youtube: data.youtube,
+  }
+}
+
 export default function ConfigGeneralPage() {
+  const { branding, refresh } = useTenantBranding()
   const [showSuccess, setShowSuccess] = useState(false)
   const [config, setConfig] = useState<AcademyConfig>({
     // Información de la Academia
-    academyName: 'CEP Comunicación',
-    fiscalName: 'Centro de Estudios Profesionales Comunicación S.L.',
+    academyName: 'AKADEMATE',
+    fiscalName: 'Akademate Platform S.L.',
     cif: 'B12345678',
 
     // Contacto
-    address: 'Calle Principal 123, 38001 Santa Cruz de Tenerife',
-    city: 'Santa Cruz de Tenerife',
-    postalCode: '38001',
+    address: 'Calle Principal 123, 28001 Madrid',
+    city: 'Madrid',
+    postalCode: '28001',
     country: 'España',
-    phone: '+34 922 123 456',
-    phoneAlternative: '+34 922 654 321',
-    email: 'info@cepcomunicacion.com',
-    emailAdmissions: 'admisiones@cepcomunicacion.com',
-    emailSupport: 'soporte@cepcomunicacion.com',
-    website: 'https://www.cepcomunicacion.com',
+    phone: '+34 910 123 456',
+    phoneAlternative: '+34 910 654 321',
+    email: 'info@akademate.com',
+    emailAdmissions: 'admisiones@akademate.com',
+    emailSupport: 'support@akademate.com',
+    website: 'https://akademate.com',
 
     // Redes Sociales
-    facebook: 'https://facebook.com/cepcomunicacion',
-    twitter: 'https://twitter.com/cepcomunicacion',
-    instagram: 'https://instagram.com/cepcomunicacion',
-    linkedin: 'https://linkedin.com/company/cepcomunicacion',
-    youtube: 'https://youtube.com/@cepcomunicacion',
+    facebook: 'https://facebook.com/akademate',
+    twitter: 'https://x.com/akademate',
+    instagram: 'https://instagram.com/akademate',
+    linkedin: 'https://linkedin.com/company/akademate',
+    youtube: 'https://youtube.com/@akademate',
 
     // Información Adicional
-    description: 'Centro especializado en formación profesional en comunicación, marketing digital y diseño gráfico con más de 15 años de experiencia.',
-    slogan: 'Tu futuro empieza aquí',
-    foundedYear: '2008',
-    accreditation: 'Certificado por la Consejería de Educación de Canarias',
+    description: 'Plataforma SaaS multitenant para academias y centros de formación con módulos de gestión académica, comercial y campus virtual.',
+    slogan: 'La plataforma operativa de tu academia',
+    foundedYear: '2026',
+    accreditation: 'Infraestructura cloud y estándares de seguridad aplicados a entorno educativo',
   })
 
   const [logos, setLogos] = useState<LogosConfig>({
-    principal: '/logos/cep-logo.png',
-    oscuro: '/logos/cep-logo.png',
-    claro: '/logos/cep-logo-alpha.png',
-    favicon: '/logos/cep-logo-alpha.png',
+    principal: '/logos/akademate-logo.svg',
+    oscuro: '/logos/akademate-logo.svg',
+    claro: '/logos/akademate-logo-alpha.svg',
+    favicon: '/logos/akademate-favicon.svg',
   })
 
   // Fetch existing configuration
@@ -91,13 +159,13 @@ export default function ConfigGeneralPage() {
     const fetchConfig = async () => {
       try {
         const [academiaRes, logosRes] = await Promise.all([
-          fetch('/api/config?section=academia'),
-          fetch('/api/config?section=logos'),
+          fetch(`/api/config?section=academia&tenantId=${branding.tenantId}`),
+          fetch(`/api/config?section=logos&tenantId=${branding.tenantId}`),
         ])
 
         if (academiaRes.ok) {
-          const { data } = (await academiaRes.json()) as ApiResponse<Partial<AcademyConfig>>
-          setConfig(prev => ({ ...prev, ...data }))
+          const { data } = (await academiaRes.json()) as ApiResponse<Partial<AcademiaApiConfig>>
+          setConfig(prev => ({ ...prev, ...mapApiAcademiaToForm(data) }))
         }
 
         if (logosRes.ok) {
@@ -109,25 +177,28 @@ export default function ConfigGeneralPage() {
       }
     }
     void fetchConfig()
-  }, [])
+  }, [branding.tenantId])
 
   const handleSave = async () => {
     try {
+      const academiaPayload = mapFormToApiAcademia(config)
+
       // Save academia config
       const academiaResponse = await fetch('/api/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ section: 'academia', data: config }),
+        body: JSON.stringify({ section: 'academia', tenantId: branding.tenantId, data: academiaPayload }),
       })
 
       // Save logos config
       const logosResponse = await fetch('/api/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ section: 'logos', data: logos }),
+        body: JSON.stringify({ section: 'logos', tenantId: branding.tenantId, data: logos }),
       })
 
       if (academiaResponse.ok && logosResponse.ok) {
+        await refresh()
         setShowSuccess(true)
         setTimeout(() => setShowSuccess(false), 3000)
 
@@ -461,7 +532,7 @@ export default function ConfigGeneralPage() {
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => setLogos({...logos, principal: '/logos/cep-logo.png'})}
+                      onClick={() => setLogos({...logos, principal: '/logos/akademate-logo.svg'})}
                     >
                       Cambiar
                     </Button>
@@ -501,7 +572,7 @@ export default function ConfigGeneralPage() {
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => setLogos({...logos, oscuro: '/logos/cep-logo.png'})}
+                      onClick={() => setLogos({...logos, oscuro: '/logos/akademate-logo.svg'})}
                     >
                       Cambiar
                     </Button>
@@ -541,7 +612,7 @@ export default function ConfigGeneralPage() {
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => setLogos({...logos, claro: '/logos/cep-logo-alpha.png'})}
+                      onClick={() => setLogos({...logos, claro: '/logos/akademate-logo-alpha.svg'})}
                     >
                       Cambiar
                     </Button>
@@ -581,7 +652,7 @@ export default function ConfigGeneralPage() {
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => setLogos({...logos, favicon: '/logos/cep-logo-alpha.png'})}
+                      onClick={() => setLogos({...logos, favicon: '/logos/akademate-favicon.svg'})}
                     >
                       Cambiar
                     </Button>

@@ -203,7 +203,7 @@ export default function NewAdministrativoPage() {
                   value={formData.email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('email', e.target.value)}
                   required
-                  placeholder="maria.gonzalez@cepcomunicacion.com"
+                  placeholder="maria.gonzalez@akademate.com"
                 />
               </div>
 
