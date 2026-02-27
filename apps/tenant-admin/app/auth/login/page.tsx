@@ -116,13 +116,13 @@ export default function LoginPage() {
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-6">
-            <div className="relative rounded-full border-4 border-[#f2014b] p-6 bg-white shadow-xl shadow-[#f2014b]/30">
+            <div className="relative rounded-full border-4 border-[#f2014b] bg-white shadow-xl shadow-[#f2014b]/30 overflow-hidden flex items-center justify-center w-36 h-36">
               <Image
-                src={branding.logos.claro}
+                src={branding.logos.favicon}
                 alt={branding.academyName}
-                width={280}
-                height={112}
-                className="h-28 w-auto"
+                width={120}
+                height={120}
+                className="object-contain w-[100px] h-[100px]"
                 priority
               />
             </div>

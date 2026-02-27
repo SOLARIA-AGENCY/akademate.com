@@ -223,7 +223,7 @@ function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
       <>
         <button
           onClick={() => setNestedOpen(!nestedOpen)}
-          className="group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent/90 hover:text-sidebar-accent-foreground hover:shadow-sm"
+          className="group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
           <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
           <SubIcon className="h-4 w-4 shrink-0 text-foreground/70" />
@@ -244,9 +244,9 @@ function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
                 <li key={nestedItem.title}>
                   <Link
                     href={nestedItem.url!}
-                    className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent/90 hover:text-sidebar-accent-foreground hover:shadow-sm ${
+                    className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
                       isNestedActive
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
+                        ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                         : ''
                     }`}
                   >
@@ -270,9 +270,9 @@ function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
   return (
     <Link
       href={subItem.url!}
-      className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent/90 hover:text-sidebar-accent-foreground hover:shadow-sm ${
+      className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
         isSubActive
-          ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
+          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
           : ''
       }`}
     >
@@ -296,7 +296,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const pathname = usePathname()
   const [openSections, setOpenSections] = React.useState<string[]>([])
   const { branding } = useTenantBranding()
-  const logoUrl = branding.logos.claro
+  const logoUrl = branding.logos.favicon
   const academyName = branding.academyName
 
   React.useEffect(() => {
@@ -326,7 +326,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     : 'w-full gap-3 px-3'
 
   const topLevelInteractionClass =
-    'transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/40'
+    'transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-0'
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-card text-sidebar-foreground">
@@ -393,11 +393,9 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                   <li>
                     <Link
                       href={item.url!}
-                      className={`group relative flex items-center rounded-md py-2 text-sm border border-transparent ${topLevelInteractionClass} ${
+                      className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
                         isActive
-                          ? `bg-sidebar-accent text-sidebar-accent-foreground border-sidebar-border shadow-sm ${
-                              isCollapsed ? 'ring-1 ring-primary/30' : ''
-                            }`
+                          ? `bg-sidebar-accent text-sidebar-accent-foreground`
                           : ''
                       } ${topLevelBaseClass}`}
                       title={isCollapsed ? item.title : undefined}
@@ -431,8 +429,8 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                 <li>
                   <button
                     onClick={() => toggleSection(item.title)}
-                    className={`group relative flex items-center rounded-md py-2 text-sm border border-transparent ${topLevelInteractionClass} ${
-                      isOpen && !isCollapsed ? 'bg-sidebar-accent border-sidebar-border' : ''
+                    className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
+                      isOpen && !isCollapsed ? 'bg-sidebar-accent' : ''
                     } ${topLevelBaseClass}`}
                     title={isCollapsed ? item.title : undefined}
                   >

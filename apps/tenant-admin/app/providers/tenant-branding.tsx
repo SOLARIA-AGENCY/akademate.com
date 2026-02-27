@@ -32,18 +32,18 @@ type TenantBrandingContextValue = {
 }
 
 const DEFAULT_BRANDING: TenantBranding = {
-  academyName: 'AKADEMATE',
+  academyName: 'CEP Formación',
   logos: {
-    principal: '/logos/akademate-logo.svg',
-    oscuro: '/logos/akademate-logo.svg',
-    claro: '/logos/akademate-logo-alpha.svg',
-    favicon: '/logos/akademate-favicon.svg',
+    principal: '/logos/cep-logo.png',
+    oscuro: '/logos/cep-logo-alpha.png',
+    claro: '/logos/cep-logo-alpha.png',
+    favicon: '/logos/cep-logo.png',
   },
-  // Default brand palette aligned to AKADEMATE public blue.
+  // CEP Formación brand palette.
   theme: {
-    primary: '#0066cc',
-    secondary: '#64748b',
-    accent: '#1d4ed8',
+    primary: '#F2014B',
+    secondary: '#1a1a2e',
+    accent: '#ff6600',
     success: '#22c55e',
     warning: '#f59e0b',
     danger: '#ef4444',
