@@ -120,13 +120,12 @@ export default function SedesPage() {
 
       <PageHeader
         title="Sedes"
-        description="Gestiona centros, contacto y capacidad operativa en una sola vista."
+        description="Vista simplificada para operación diaria."
         icon={MapPin}
         badge={<Badge variant="secondary">{sedes.length} centros</Badge>}
         actions={<Button onClick={handleAdd}>Nueva Sede</Button>}
         filters={
-          <div className="flex w-full items-center justify-between gap-3">
-            <p className="text-sm text-muted-foreground">Vista simplificada para operación diaria.</p>
+          <div className="flex w-full items-center justify-end gap-3">
             <ViewToggle view={view} onViewChange={setView} />
           </div>
         }
@@ -172,21 +171,43 @@ export default function SedesPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 border-t pt-3">
-                  <Badge variant="outline" className="gap-1">
-                    <DoorOpen className="h-3.5 w-3.5" />
-                    {sede.aulas} aulas
-                  </Badge>
-                  <Badge variant="outline" className="gap-1">
-                    <Users className="h-3.5 w-3.5" />
-                    {sede.capacidad} capacidad
-                  </Badge>
-                  <Badge variant="outline" className="gap-1">
-                    <BookOpen className="h-3.5 w-3.5" />
-                    {sede.cursosActivos} cursos
-                  </Badge>
+                  {sede.aulas === 0 ? (
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <DoorOpen className="h-3.5 w-3.5" />
+                      Sin configurar
+                    </span>
+                  ) : (
+                    <Badge variant="outline" className="gap-1">
+                      <DoorOpen className="h-3.5 w-3.5" />
+                      {sede.aulas} aulas
+                    </Badge>
+                  )}
+                  {sede.capacidad === 0 ? (
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Users className="h-3.5 w-3.5" />
+                      Sin configurar
+                    </span>
+                  ) : (
+                    <Badge variant="outline" className="gap-1">
+                      <Users className="h-3.5 w-3.5" />
+                      {sede.capacidad} capacidad
+                    </Badge>
+                  )}
+                  {sede.cursosActivos === 0 ? (
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      Sin configurar
+                    </span>
+                  ) : (
+                    <Badge variant="outline" className="gap-1">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      {sede.cursosActivos} cursos
+                    </Badge>
+                  )}
                 </div>
 
                 <Button
+                  variant="outline"
                   className="w-full"
                   onClick={(e: MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation()
