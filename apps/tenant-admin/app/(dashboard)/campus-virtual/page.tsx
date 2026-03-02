@@ -20,7 +20,7 @@ import {
   TableRow,
 } from '@payload-config/components/ui/table'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
-import { GraduationCap, Award, BookOpen, Users, RefreshCw, ExternalLink } from 'lucide-react'
+import { GraduationCap, Award, BookOpen, Users, ExternalLink } from 'lucide-react'
 
 interface EnrollmentItem {
   id: string
@@ -139,15 +139,9 @@ export default function CampusVirtualOverviewPage() {
 
       <section className="grid gap-4 xl:grid-cols-5">
         <Card className="xl:col-span-3">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Últimas inscripciones LMS</CardTitle>
-              <CardDescription>Últimos 10 registros sincronizados</CardDescription>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => void loadEnrollments()}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refrescar
-            </Button>
+          <CardHeader>
+            <CardTitle>Últimas inscripciones LMS</CardTitle>
+            <CardDescription>Últimos 10 registros sincronizados</CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (

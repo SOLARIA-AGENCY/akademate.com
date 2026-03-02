@@ -19,7 +19,6 @@ import {
   AlertTriangle,
   Info,
   Clock,
-  RefreshCw,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -302,19 +301,6 @@ export default function DashboardPage() {
           <Badge variant={isConnected ? 'default' : 'outline'} className="text-xs">
             {isConnected ? 'En vivo' : 'Sin conexión'}
           </Badge>
-        )}
-        actions={(
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              void refresh()
-              void refreshCampusSummary()
-            }}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Actualizar
-          </Button>
         )}
       />
 
