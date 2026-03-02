@@ -278,7 +278,7 @@ function PlannerVisualPageContent() {
   }
 
   return (
-    <div className="h-screen flex flex-col p-4 bg-background">
+    <div className="space-y-4">
 
       <PageHeader
         title="Planner Visual"
@@ -362,7 +362,7 @@ function PlannerVisualPageContent() {
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex gap-4 overflow-hidden">
+      <div className="flex gap-4" style={{ minHeight: 'calc(100vh - 220px)' }}>
         {vistaActual !== 'aulas' ? (
           <div className="flex-1 flex items-center justify-center">
             <EmptyState
@@ -375,7 +375,7 @@ function PlannerVisualPageContent() {
         ) : (
         <>
         {/* Panel Lateral - Leyenda */}
-        <Card className="w-64 p-4 space-y-6 overflow-y-auto">
+        <Card className="w-64 p-4 space-y-6 overflow-y-auto self-start sticky top-0">
           <div>
             <h3 className="font-semibold mb-3 flex items-center gap-2">
               <Filter className="h-4 w-4" />
@@ -448,7 +448,7 @@ function PlannerVisualPageContent() {
         </Card>
 
         {/* Calendario Grid */}
-        <Card className="flex-1 overflow-hidden flex flex-col">
+        <Card className="flex-1 overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 220px)' }}>
           <div className="flex-1 overflow-auto">
             <div className="min-w-max">
               {/* Header con nombres de aulas */}
@@ -608,10 +608,8 @@ export default function PlannerVisualPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-6">
-          <div className="flex items-center justify-center py-12">
-            <p className="text-muted-foreground">Cargando planificador...</p>
-          </div>
+        <div className="flex items-center justify-center py-12">
+          <p className="text-muted-foreground">Cargando planificador...</p>
         </div>
       }
     >
