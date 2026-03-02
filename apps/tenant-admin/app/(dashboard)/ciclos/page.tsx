@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@payload-config/components/ui/select'
 import { Badge } from '@payload-config/components/ui/badge'
+import { OcupacionBadge } from '@payload-config/components/ui/OcupacionBadge'
 import { useRouter } from 'next/navigation'
 import {
   Search,
@@ -565,9 +566,6 @@ export default function TodosLosCiclosPage() {
       {view === 'grid' ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredCiclos.map((ciclo) => {
-            const ocupacionPercentage =
-              ciclo.plazas > 0 ? Math.round((ciclo.plazas_ocupadas / ciclo.plazas) * 100) : 0
-
             return (
               <Card
                 key={ciclo.id}
@@ -607,33 +605,15 @@ export default function TodosLosCiclosPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">
-                        {ciclo.plazas_ocupadas}/{ciclo.plazas} plazas
-                      </span>
+                      <OcupacionBadge
+                        plazasOcupadas={ciclo.plazas_ocupadas}
+                        plazasTotal={ciclo.plazas}
+                        showBar={true}
+                      />
                     </div>
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">{ciclo.cursos_activos} cursos</span>
-                    </div>
-                  </div>
-
-                  {/* Ocupación Bar */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Ocupación</span>
-                      <span className="font-semibold">{ocupacionPercentage}%</span>
-                    </div>
-                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all ${
-                          ocupacionPercentage >= 90
-                            ? 'bg-primary'
-                            : ocupacionPercentage >= 70
-                              ? 'bg-orange-500'
-                              : 'bg-green-500'
-                        }`}
-                        style={{ width: `${ocupacionPercentage}%` }}
-                      />
                     </div>
                   </div>
 

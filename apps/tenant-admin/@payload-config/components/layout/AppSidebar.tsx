@@ -41,7 +41,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import NextImage from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { Badge } from '../ui/badge'
@@ -129,7 +129,7 @@ const menuItems: MenuItemWithSection[] = [
     icon: Megaphone,
     sectionBefore: 'GESTIÓN COMERCIAL',
     items: [
-      { title: 'Campañas', icon: Megaphone, url: '/marketing/campanas' },
+      { title: 'Campañas', icon: Megaphone, url: '/campanas' },
       { title: 'Creatividades', icon: Sparkles, url: '/marketing/creatividades' },
     ],
   },
@@ -215,44 +215,67 @@ const menuItems: MenuItemWithSection[] = [
 interface SubMenuItemProps {
   subItem: MenuItem
   pathname: string
+  searchParams: URLSearchParams
 }
 
-function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
+function SubMenuItem({ subItem, pathname, searchParams }: SubMenuItemProps) {
   const [nestedOpen, setNestedOpen] = React.useState(false)
   const SubIcon = subItem.icon
-  const subPath = subItem.url?.split('?')[0]
-  const isSubActive = subPath ? pathname === subPath : false
   const hasNestedItems = subItem.items && subItem.items.length > 0
 
+  // Compara pathname + query params exactos para determinar item activo
+  const matchesUrl = React.useCallback(
+    (url: string | undefined): boolean => {
+      if (!url) return false
+      const [base, query] = url.split('?')
+      if (pathname !== base) return false
+      if (!query) return true
+      const params = new URLSearchParams(query)
+      for (const [key, value] of params.entries()) {
+        if (searchParams.get(key) !== value) return false
+      }
+      return true
+    },
+    [pathname, searchParams]
+  )
+
+  const isSubActive = matchesUrl(subItem.url)
+
   if (hasNestedItems) {
+    const hasActiveNestedChild = subItem.items?.some((n) => matchesUrl(n.url)) ?? false
     return (
       <>
         <button
           onClick={() => setNestedOpen(!nestedOpen)}
-          className="group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          className={`group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+            hasActiveNestedChild ? 'bg-sidebar-accent/50' : ''
+          }`}
         >
-          <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+          <span
+            className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
+              hasActiveNestedChild ? 'opacity-60' : 'opacity-0 group-hover:opacity-100'
+            }`}
+          />
           <SubIcon className="h-4 w-4 shrink-0 text-foreground/70" />
           <span className="flex-1 text-left">{subItem.title}</span>
           <ChevronDown
             className={`h-3 w-3 transition-transform text-foreground/50 ${
-              nestedOpen ? 'rotate-180' : ''
+              nestedOpen || hasActiveNestedChild ? 'rotate-180' : ''
             }`}
           />
         </button>
-        {nestedOpen && (
+        {(nestedOpen || hasActiveNestedChild) && (
           <ul className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4">
             {subItem.items?.map((nestedItem) => {
               const NestedIcon = nestedItem.icon
-              const nestedPath = nestedItem.url?.split('?')[0]
-              const isNestedActive = nestedPath ? pathname === nestedPath : false
+              const isNestedActive = matchesUrl(nestedItem.url)
               return (
                 <li key={nestedItem.title}>
                   <Link
                     href={nestedItem.url!}
                     className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
                       isNestedActive
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                        ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                         : ''
                     }`}
                   >
@@ -277,9 +300,7 @@ function SubMenuItem({ subItem, pathname }: SubMenuItemProps) {
     <Link
       href={subItem.url!}
       className={`group relative flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-        isSubActive
-          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-          : ''
+        isSubActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : ''
       }`}
     >
       <span
@@ -300,22 +321,41 @@ interface AppSidebarProps {
 
 export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [openSections, setOpenSections] = React.useState<string[]>([])
   const { branding } = useTenantBranding()
   const logoUrl = branding.logos.favicon
   const academyName = branding.academyName
 
-  React.useEffect(() => {
-    const activeParent = menuItems.find(
-      (item) =>
-        item.items?.some((subItem) => subItem.url && pathname.startsWith(subItem.url.split('?')[0])) ??
-        false
-    )
+  // Compara pathname + query params exactos
+  const isUrlActive = React.useCallback(
+    (url: string | undefined): boolean => {
+      if (!url) return false
+      const [base, query] = url.split('?')
+      if (pathname !== base) return false
+      if (!query) return true
+      const params = new URLSearchParams(query)
+      for (const [key, value] of params.entries()) {
+        if (searchParams.get(key) !== value) return false
+      }
+      return true
+    },
+    [pathname, searchParams]
+  )
 
+  React.useEffect(() => {
+    const activeParent = menuItems.find((item) =>
+      item.items?.some((subItem) => {
+        if (subItem.items?.length) {
+          return subItem.items.some((nested) => isUrlActive(nested.url))
+        }
+        return isUrlActive(subItem.url)
+      }) ?? false
+    )
     if (activeParent) {
       setOpenSections([activeParent.title])
     }
-  }, [pathname])
+  }, [pathname, searchParams, isUrlActive])
 
   // Accordion behavior: only one section open at a time
   const toggleSection = (title: string) => {
@@ -429,6 +469,14 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
               )
             }
 
+            // El padre solo se resalta si tiene un hijo con la ruta activa
+            const hasActiveChild = item.items?.some((subItem) => {
+              if (subItem.items?.length) {
+                return subItem.items.some((nested) => isUrlActive(nested.url))
+              }
+              return isUrlActive(subItem.url)
+            }) ?? false
+
             return (
               <React.Fragment key={item.title}>
                 {SectionSeparator}
@@ -436,13 +484,13 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                   <button
                     onClick={() => toggleSection(item.title)}
                     className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
-                      isOpen && !isCollapsed ? 'bg-sidebar-accent' : ''
+                      hasActiveChild && !isCollapsed ? 'bg-sidebar-accent/60' : ''
                     } ${topLevelBaseClass}`}
                     title={isCollapsed ? item.title : undefined}
                   >
                     <span
                       className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary transition-opacity duration-200 ${
-                        isCollapsed ? 'opacity-0' : isOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                        isCollapsed ? 'opacity-0' : hasActiveChild ? 'opacity-70' : 'opacity-0 group-hover:opacity-100'
                       }`}
                     />
                     <Icon className={`h-5 w-5 shrink-0 text-foreground/80 ${isCollapsed ? 'mx-auto' : ''}`} />
@@ -468,7 +516,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     <ul className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4">
                       {item.items?.map((subItem) => (
                         <li key={subItem.title}>
-                          <SubMenuItem subItem={subItem} pathname={pathname} />
+                          <SubMenuItem subItem={subItem} pathname={pathname} searchParams={searchParams} />
                         </li>
                       ))}
                     </ul>
