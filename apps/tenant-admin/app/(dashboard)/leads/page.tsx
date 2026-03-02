@@ -13,7 +13,15 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import { Download, Plus, UserCheck } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@payload-config/components/ui/dropdown-menu'
+import { Badge } from '@payload-config/components/ui/badge'
+import { Download, Plus, UserCheck, MoreHorizontal } from 'lucide-react'
 
 interface Lead {
   id: string
@@ -65,6 +73,7 @@ export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const hasAnyOrigin = leads.some((l) => formatOrigin(l) !== '—')
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -137,7 +146,7 @@ export default function LeadsPage() {
         </div>
       )}
 
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-lg border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -145,14 +154,15 @@ export default function LeadsPage() {
               <TableHead>Email</TableHead>
               <TableHead>Teléfono</TableHead>
               <TableHead>Estado</TableHead>
-              <TableHead>Origen</TableHead>
+              {hasAnyOrigin && <TableHead>Origen</TableHead>}
               <TableHead>Fecha registro</TableHead>
+              <TableHead className="w-10"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={hasAnyOrigin ? 7 : 6} className="py-8 text-center text-muted-foreground">
                   Cargando leads...
                 </TableCell>
               </TableRow>
@@ -160,7 +170,7 @@ export default function LeadsPage() {
 
             {!isLoading && leads.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={hasAnyOrigin ? 7 : 6} className="py-8 text-center text-muted-foreground">
                   No hay leads disponibles.
                 </TableCell>
               </TableRow>
@@ -176,18 +186,41 @@ export default function LeadsPage() {
                   <TableCell>{lead.email ?? '—'}</TableCell>
                   <TableCell>{lead.phone ?? '—'}</TableCell>
                   <TableCell>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyles[statusKey] ?? 'bg-muted text-muted-foreground'}`}
-                    >
+                    <Badge className={statusStyles[statusKey] ?? 'bg-muted text-muted-foreground'}>
                       {statusLabels[statusKey] ?? 'Nuevo'}
-                    </span>
+                    </Badge>
                   </TableCell>
-                  <TableCell>{formatOrigin(lead)}</TableCell>
+                  {hasAnyOrigin && <TableCell>{formatOrigin(lead)}</TableCell>}
                   <TableCell>{formatDate(lead.createdAt)}</TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Acciones</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>Ver detalle</DropdownMenuItem>
+                        <DropdownMenuItem>Convertir a matrícula</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-destructive">Eliminar</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               )
             })}
           </TableBody>
+          {!isLoading && leads.length > 0 && (
+            <tfoot>
+              <tr>
+                <td colSpan={hasAnyOrigin ? 7 : 6} className="py-3 px-4 text-sm text-muted-foreground border-t">
+                  Mostrando {leads.length} lead{leads.length !== 1 ? 's' : ''}
+                </td>
+              </tr>
+            </tfoot>
+          )}
         </Table>
       </div>
     </div>
