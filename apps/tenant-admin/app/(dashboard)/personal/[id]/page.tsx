@@ -76,18 +76,13 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
     const fetchStaff = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/staff?limit=100`)
-        const result = await response.json()
+        const response = await fetch(`/api/staff/${id}`)
+        const result = await response.json() as { success: boolean; data?: StaffMember; error?: string }
 
-        if (result.success) {
-          const member = result.data.find((s: StaffMember) => s.id === parseInt(id))
-          if (member) {
-            setStaff(member)
-          } else {
-            setError('Personal no encontrado')
-          }
+        if (result.success && result.data) {
+          setStaff(result.data)
         } else {
-          setError(result.error || 'Error al cargar datos')
+          setError(result.error ?? 'Personal no encontrado')
         }
       } catch (err) {
         console.error('Error fetching staff:', err)

@@ -81,73 +81,96 @@ interface Subvencion {
   activa: boolean
 }
 
-interface PlantillaCurso {
-  id: string
+interface CourseEditPageProps {
+  params: Promise<{ id: string }>
+}
+
+interface CourseApiData {
+  id: number | string
   nombre: string
   descripcion: string
-  imagenPortada: string
   area: string
   tipo: CourseType
   duracionReferencia: number
-  precioReferencia?: number
-  objetivos: string[]
-  contenidos: string[]
-  totalConvocatorias: number
-  active: boolean
-  subvencionado?: boolean
-  porcentajeSubvencion?: number
-  subvenciones?: Subvencion[]
-  created_at: string
-  updated_at: string
-}
-
-const plantillasCursosData: PlantillaCurso[] = []
-
-interface CourseEditPageProps {
-  params: Promise<{ id: string }>
+  precioReferencia: number
+  imagenPortada: string
 }
 
 export default function CourseEditPage({ params }: CourseEditPageProps) {
   const router = useRouter()
   const { id } = React.use(params)
 
-  // Find the course template
-  const originalCourse = plantillasCursosData.find((c) => c.id === id)
+  // Data loading state
+  const [loading, setLoading] = React.useState(true)
+  const [fetchError, setFetchError] = React.useState<string | null>(null)
+  const [originalCourse, setOriginalCourse] = React.useState<CourseApiData | null>(null)
 
   // State for form fields
-  const [nombre, setNombre] = React.useState(originalCourse?.nombre ?? '')
-  const [descripcion, setDescripcion] = React.useState(originalCourse?.descripcion ?? '')
-  const [area, setArea] = React.useState(originalCourse?.area ?? '')
-  const [tipo, setTipo] = React.useState<CourseType>(originalCourse?.tipo ?? 'privados')
-  const [duracionReferencia, setDuracionReferencia] = React.useState(
-    originalCourse?.duracionReferencia?.toString() ?? ''
-  )
-  const [precioReferencia, setPrecioReferencia] = React.useState(
-    originalCourse?.precioReferencia?.toString() ?? '0'
-  )
-  const [objetivos, setObjetivos] = React.useState<string[]>(originalCourse?.objetivos ?? [''])
-  const [contenidos, setContenidos] = React.useState<string[]>(originalCourse?.contenidos ?? [''])
-  const [imagenPortada, setImagenPortada] = React.useState(originalCourse?.imagenPortada ?? '')
+  const [nombre, setNombre] = React.useState('')
+  const [descripcion, setDescripcion] = React.useState('')
+  const [area, setArea] = React.useState('')
+  const [tipo, setTipo] = React.useState<CourseType>('privados')
+  const [duracionReferencia, setDuracionReferencia] = React.useState('')
+  const [precioReferencia, setPrecioReferencia] = React.useState('0')
+  const [objetivos, setObjetivos] = React.useState<string[]>([''])
+  const [contenidos, setContenidos] = React.useState<string[]>([''])
+  const [imagenPortada, setImagenPortada] = React.useState('')
   const [pdfFiles, setPdfFiles] = React.useState<string[]>([])
 
   // Subvenciones y becas
-  const [subvencionado, setSubvencionado] = React.useState(originalCourse?.subvencionado ?? false)
-  const [subvenciones, setSubvenciones] = React.useState<Subvencion[]>(
-    originalCourse?.subvenciones ?? []
-  )
+  const [subvencionado, setSubvencionado] = React.useState(false)
+  const [subvenciones, setSubvenciones] = React.useState<Subvencion[]>([])
 
   // Image upload preview
-  const [imagePreview, setImagePreview] = React.useState<string | null>(
-    originalCourse?.imagenPortada ?? null
-  )
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null)
 
-  if (!originalCourse) {
+  // Fetch course data on mount
+  React.useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/cursos/${id}`, { cache: 'no-cache' })
+        const result = await response.json() as { success: boolean; data?: CourseApiData; error?: string }
+
+        if (result.success && result.data) {
+          const course = result.data
+          setOriginalCourse(course)
+          setNombre(course.nombre)
+          setDescripcion(course.descripcion)
+          setArea(course.area)
+          setTipo(course.tipo ?? 'privados')
+          setDuracionReferencia(course.duracionReferencia?.toString() ?? '')
+          setPrecioReferencia(course.precioReferencia?.toString() ?? '0')
+          setImagenPortada(course.imagenPortada ?? '')
+          setImagePreview(course.imagenPortada ?? null)
+        } else {
+          setFetchError(result.error ?? 'Curso no encontrado')
+        }
+      } catch {
+        setFetchError('Error de conexión al cargar el curso')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void fetchCourse()
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-muted-foreground">Cargando curso...</p>
+      </div>
+    )
+  }
+
+  if (fetchError || !originalCourse) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Curso no encontrado</CardTitle>
-            <CardDescription>El curso con ID {id} no existe</CardDescription>
+            <CardDescription>{fetchError ?? `El curso con ID ${id} no existe`}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => router.push('/cursos')}>
@@ -252,25 +275,24 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
     return Math.min(total, 100)
   }
 
-  const handleSave = () => {
-    // In real implementation, this would call API to update course
+  const handleSave = async () => {
     const porcentajeSubvencion = calcularSubvencionTotal()
-    console.log('Saving course:', {
-      id,
-      nombre,
-      descripcion,
-      area,
-      tipo,
-      duracionReferencia: parseInt(duracionReferencia),
-      precioReferencia: parseFloat(precioReferencia),
-      objetivos: objetivos.filter((o) => o.trim() !== ''),
-      contenidos: contenidos.filter((c) => c.trim() !== ''),
-      imagenPortada,
-      pdfFiles,
-      subvencionado,
-      porcentajeSubvencion,
-      subvenciones: subvenciones.filter((s) => s.activa),
-    })
+    try {
+      await fetch(`/api/cursos/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: nombre,
+          short_description: descripcion,
+          course_type: tipo,
+          duration_hours: parseInt(duracionReferencia) || undefined,
+          base_price: parseFloat(precioReferencia) || undefined,
+          subsidy_percentage: porcentajeSubvencion,
+        }),
+      })
+    } catch {
+      // Silently proceed to detail page even on error
+    }
     router.push(`/cursos/${id}`)
   }
 
@@ -640,8 +662,8 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
         <DangerZone
           cursoId={id}
           nombreCurso={originalCourse.nombre}
-          tieneConvocatorias={originalCourse.totalConvocatorias > 0}
-          numeroConvocatorias={originalCourse.totalConvocatorias}
+          tieneConvocatorias={false}
+          numeroConvocatorias={0}
         />
       </div>
     </div>

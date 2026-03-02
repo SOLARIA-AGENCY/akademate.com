@@ -228,7 +228,7 @@ export default function DashboardLayout({
                         {currentUser.initials}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden md:inline-block font-semibold">
+                    <span className="hidden md:inline-block font-semibold text-foreground">
                       {currentUser.name}
                     </span>
                     <Badge variant="secondary" className="hidden xl:inline-flex text-[10px]">Admin</Badge>
