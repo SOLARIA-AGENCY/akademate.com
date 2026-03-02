@@ -243,7 +243,7 @@ export default function MatriculasPage() {
               <Upload className="mr-2 h-4 w-4" />
               Importar CSV
             </Button>
-            <Button style={{ backgroundColor: '#F2014B' }}>
+            <Button>
               <UserPlus className="mr-2 h-4 w-4" />
               Nueva Matrícula
             </Button>
@@ -365,6 +365,7 @@ export default function MatriculasPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -486,6 +487,7 @@ export default function MatriculasPage() {
               })}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 
