@@ -560,9 +560,9 @@ export default function TodosLosCiclosPage() {
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute left-4 top-4">
-                    <Badge className="bg-black/70 backdrop-blur-sm border border-white/20 text-white">
+                    <span className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold bg-black/70 backdrop-blur-sm border border-white/20 text-white">
                       {ciclo.nivel}
-                    </Badge>
+                    </span>
                   </div>
                 </div>
 
