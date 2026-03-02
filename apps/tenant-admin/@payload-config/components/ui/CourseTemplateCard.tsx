@@ -7,6 +7,11 @@ import { MapPin, BookOpen } from 'lucide-react'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
 import type { PlantillaCurso } from '@/types'
 
+function toTitleCase(str: string): string {
+  if (!str) return str
+  return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase())
+}
+
 interface CourseTemplateCardProps {
   template: PlantillaCurso
   onClick?: () => void
@@ -43,11 +48,11 @@ export function CourseTemplateCard({
       </div>
 
       <CardContent className="flex flex-col gap-3 p-4 bg-card">
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-1">
           <h3 className="line-clamp-2 text-base font-semibold leading-snug" title={template.nombre}>
-            {template.nombre}
+            {toTitleCase(template.nombre)}
           </h3>
-          <Badge variant="outline" className="shrink-0 text-[11px]">
+          <Badge variant="outline" className="w-fit text-[11px]">
             {template.area}
           </Badge>
         </div>

@@ -11,7 +11,16 @@
  * - TELEFORMACIÓN: ORANGE (bg-orange-600) - Online/remote courses
  * - CICLO MEDIO: PINK/RED (bg-red-500) - Mid-level vocational training
  * - CICLO SUPERIOR: RED (bg-red-600) - Advanced vocational training
+ *
+ * BADGE VARIANT MAPPING (semantic, for use in card body badges):
+ * - PRIVADOS: info (blue) — avoids confusion with primary red CTA
+ * - OCUPADOS: success (green)
+ * - DESEMPLEADOS: warning (orange)
+ * - TELEFORMACIÓN: warning (orange)
+ * - CICLO MEDIO / CICLO SUPERIOR: neutral
  */
+
+import type { BadgeSemanticVariant } from './estados'
 
 export const COURSE_TYPE_CONFIG = {
   privados: {
@@ -21,6 +30,7 @@ export const COURSE_TYPE_CONFIG = {
     textColor: 'text-red-600',
     borderColor: 'border-red-600',
     dotColor: 'bg-red-600',
+    badgeVariant: 'info' as BadgeSemanticVariant,
   },
   ocupados: {
     label: 'OCUPADOS',
@@ -29,6 +39,7 @@ export const COURSE_TYPE_CONFIG = {
     textColor: 'text-green-600',
     borderColor: 'border-green-600',
     dotColor: 'bg-green-600',
+    badgeVariant: 'success' as BadgeSemanticVariant,
   },
   desempleados: {
     label: 'DESEMPLEADOS',
@@ -37,6 +48,7 @@ export const COURSE_TYPE_CONFIG = {
     textColor: 'text-blue-600',
     borderColor: 'border-blue-600',
     dotColor: 'bg-blue-600',
+    badgeVariant: 'warning' as BadgeSemanticVariant,
   },
   teleformacion: {
     label: 'TELEFORMACIÓN',
@@ -45,6 +57,7 @@ export const COURSE_TYPE_CONFIG = {
     textColor: 'text-orange-600',
     borderColor: 'border-orange-600',
     dotColor: 'bg-orange-600',
+    badgeVariant: 'warning' as BadgeSemanticVariant,
   },
   'ciclo-medio': {
     label: 'CICLO MEDIO',
@@ -53,6 +66,7 @@ export const COURSE_TYPE_CONFIG = {
     textColor: 'text-red-500',
     borderColor: 'border-red-500',
     dotColor: 'bg-red-500',
+    badgeVariant: 'neutral' as BadgeSemanticVariant,
   },
   'ciclo-superior': {
     label: 'CICLO SUPERIOR',
@@ -61,6 +75,7 @@ export const COURSE_TYPE_CONFIG = {
     textColor: 'text-red-600',
     borderColor: 'border-red-600',
     dotColor: 'bg-red-600',
+    badgeVariant: 'neutral' as BadgeSemanticVariant,
   },
 } as const
 
