@@ -5,8 +5,11 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
+import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Plus, TrendingUp, Users, MousePointer, DollarSign } from 'lucide-react'
+import { EmptyState } from '@payload-config/components/ui/EmptyState'
+import { Plus, TrendingUp, Users, MousePointer, DollarSign, Megaphone } from 'lucide-react'
+import { traducirEstado } from '@payload-config/lib/estados'
 
 type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived'
 
@@ -78,22 +81,6 @@ export default function CampanasPage() {
       maximumFractionDigits: 0,
     }).format(value)
 
-  const statusLabel: Record<string, string> = {
-    draft: 'Borrador',
-    active: 'Activa',
-    paused: 'Pausada',
-    completed: 'Completada',
-    archived: 'Archivada',
-  }
-
-  const statusClass: Record<string, string> = {
-    active: 'bg-green-500/20 text-green-600 dark:text-green-400',
-    paused: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400',
-    completed: 'bg-blue-500/20 text-blue-600 dark:text-blue-400',
-    archived: 'bg-slate-500/20 text-slate-600 dark:text-slate-400',
-    draft: 'bg-purple-500/20 text-purple-600 dark:text-purple-400',
-  }
-
   return (
     <div className="space-y-6">
       {isLoading && (
@@ -125,7 +112,7 @@ export default function CampanasPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Campañas Activas</CardTitle>
-            <MousePointer className="h-4 w-4 text-muted-foreground" />
+            <MousePointer className="h-4 w-4 text-primary/70" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeCount}</div>
@@ -136,7 +123,7 @@ export default function CampanasPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Leads Generados</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 text-primary/70" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalLeads}</div>
@@ -147,7 +134,7 @@ export default function CampanasPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Conversiones</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-primary/70" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalConversions}</div>
@@ -158,7 +145,7 @@ export default function CampanasPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Presupuesto Total</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-4 w-4 text-primary/70" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(stats.totalBudget)}</div>
@@ -168,55 +155,59 @@ export default function CampanasPage() {
       </div>
 
       {/* Campaigns Grid */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {campaigns.map((campaign) => (
-          <Card key={campaign.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-lg">{campaign.name}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        statusClass[campaign.status] ?? statusClass.draft
-                      }`}
-                    >
-                      {statusLabel[campaign.status] ?? 'Borrador'}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {campaign.campaign_type ?? 'Sin tipo'}
-                    </span>
+      {!isLoading && campaigns.length === 0 ? (
+        <EmptyState
+          icon={Megaphone}
+          title="Sin campañas activas"
+          description="Crea tu primera campaña para empezar a captar leads."
+        />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {campaigns.map((campaign) => (
+            <Card key={campaign.id} className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-lg">{campaign.name}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={traducirEstado(campaign.status).variant}>
+                        {traducirEstado(campaign.status).label}
+                      </Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {campaign.campaign_type ?? 'Sin tipo'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Leads</p>
-                  <p className="text-2xl font-bold">{campaign.total_leads ?? 0}</p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Leads</p>
+                    <p className="text-2xl font-bold">{campaign.total_leads ?? 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Conversiones</p>
+                    <p className="text-2xl font-bold">{campaign.total_conversions ?? 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Presupuesto</p>
+                    <p className="text-lg font-semibold">
+                      {formatCurrency(campaign.budget ?? 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Coste por lead</p>
+                    <p className="text-lg font-semibold">
+                      {campaign.cost_per_lead ? formatCurrency(campaign.cost_per_lead) : '—'}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Conversiones</p>
-                  <p className="text-2xl font-bold">{campaign.total_conversions ?? 0}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Presupuesto</p>
-                  <p className="text-lg font-semibold">
-                    {formatCurrency(campaign.budget ?? 0)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Coste por lead</p>
-                  <p className="text-lg font-semibold">
-                    {campaign.cost_per_lead ? formatCurrency(campaign.cost_per_lead) : '—'}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Footer note */}
       <div className="text-sm text-muted-foreground text-center">
