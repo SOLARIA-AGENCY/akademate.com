@@ -21,6 +21,7 @@ import {
 } from '@payload-config/components/ui/table'
 import { BulkEnrollmentDialog } from '@/app/(dashboard)/matriculas/components/BulkEnrollmentDialog'
 import { GraduationCap, PlusCircle } from 'lucide-react'
+import { traducirEstado } from '@payload-config/lib/estados'
 
 interface EnrollmentRow {
   id: string
@@ -135,9 +136,9 @@ export default function CampusInscripcionesPage() {
               onChange={(event) => setStatusFilter(event.target.value)}
             >
               <option value="all">Todos</option>
-              <option value="active">active</option>
-              <option value="completed">completed</option>
-              <option value="cancelled">cancelled</option>
+              <option value="active">Activo</option>
+              <option value="completed">Completado</option>
+              <option value="cancelled">Cancelado</option>
             </select>
           </label>
 
@@ -177,11 +178,19 @@ export default function CampusInscripcionesPage() {
               <TableBody>
                 {filteredRows.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.courseRun?.course?.title ?? 'Sin curso'}</TableCell>
-                    <TableCell>{row.courseRun?.title ?? 'Sin run'}</TableCell>
                     <TableCell>
-                      <Badge variant={row.status === 'active' ? 'default' : 'secondary'}>
-                        {row.status}
+                      {row.courseRun?.course?.title ?? (
+                        <span className="text-muted-foreground italic" title="Sin vincular al LMS">Sin vincular</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {row.courseRun?.title ?? (
+                        <span className="text-muted-foreground italic">Sin run</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={traducirEstado(row.status).variant}>
+                        {traducirEstado(row.status).label}
                       </Badge>
                     </TableCell>
                     <TableCell>{row.progress.percent}%</TableCell>
