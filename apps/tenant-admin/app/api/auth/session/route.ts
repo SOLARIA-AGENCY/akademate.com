@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       token: body.token ?? '',
     }), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.ENFORCE_HTTPS === 'true',
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 12,
