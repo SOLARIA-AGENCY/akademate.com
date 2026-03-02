@@ -136,6 +136,10 @@ function getCourseTypeConfig(type: string): CourseTypeConfig {
   return COURSE_TYPE_CONFIG[type] ?? COURSE_TYPE_CONFIG.privados
 }
 
+function toTitleCase(str: string): string {
+  return str.toLowerCase().replace(/(?:^|\s)\S/g, (c) => c.toUpperCase())
+}
+
 interface CourseDetailPageProps {
   params: Promise<{ id: string }>
 }
@@ -325,7 +329,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={courseTemplate.nombre}
+        title={toTitleCase(courseTemplate.nombre)}
         description="Detalle y gestión del curso"
         icon={BookOpen}
         actions={(
@@ -368,10 +372,10 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
             <Tabs defaultValue="info" className="w-full">
               <CardHeader>
                 <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="info">Información</TabsTrigger>
-                  <TabsTrigger value="objetivos">Objetivos</TabsTrigger>
-                  <TabsTrigger value="contenidos">Contenidos</TabsTrigger>
-                  <TabsTrigger value="recursos">Recursos</TabsTrigger>
+                  <TabsTrigger value="info" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">Información</TabsTrigger>
+                  <TabsTrigger value="objetivos" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">Objetivos</TabsTrigger>
+                  <TabsTrigger value="contenidos" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">Contenidos</TabsTrigger>
+                  <TabsTrigger value="recursos" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">Recursos</TabsTrigger>
                 </TabsList>
               </CardHeader>
 
@@ -394,14 +398,16 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 border rounded-lg">
-                      <Badge className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white`}>
+                    <div className="flex flex-col gap-1 p-3 border rounded-lg">
+                      <p className="text-xs text-muted-foreground">Tipo</p>
+                      <Badge className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white w-fit`}>
                         {typeConfig.label}
                       </Badge>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Área</p>
-                        <p className="font-semibold">{courseTemplate.area}</p>
-                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1 p-3 border rounded-lg">
+                      <p className="text-xs text-muted-foreground">Área temática</p>
+                      <p className="font-semibold">{courseTemplate.area}</p>
                     </div>
                   </div>
                 </TabsContent>
