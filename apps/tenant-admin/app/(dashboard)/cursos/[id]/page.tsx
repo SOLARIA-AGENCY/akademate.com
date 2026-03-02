@@ -368,10 +368,11 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                     onError={() => setHeroImgError(true)}
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-primary/10 via-muted to-muted/60">
-                    <BookOpen className="h-14 w-14 text-primary/25" />
-                    <span className="text-sm text-muted-foreground/60 font-medium">Sin imagen de portada</span>
-                  </div>
+                  <img
+                    src="/placeholder-course.svg"
+                    alt={courseTemplate.nombre}
+                    className="w-full h-full object-cover"
+                  />
                 )}
               </div>
             </CardContent>

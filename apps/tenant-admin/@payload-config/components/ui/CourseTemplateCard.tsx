@@ -43,9 +43,11 @@ export function CourseTemplateCard({
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-muted/60">
-            <BookOpen className="h-12 w-12 text-primary/25" />
-          </div>
+          <img
+            src="/placeholder-course.svg"
+            alt={template.nombre}
+            className="w-full h-full object-cover"
+          />
         )}
         <div className="absolute left-3 top-3">
           <Badge

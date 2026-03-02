@@ -31,9 +31,11 @@ function CicloImageWithFallback({ src, alt }: { src: string; alt: string }) {
   const [hasError, setHasError] = React.useState(false)
   if (!src || hasError) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-muted/60">
-        <BookOpen className="h-12 w-12 text-primary/25" />
-      </div>
+      <img
+        src="/placeholder-course.svg"
+        alt={alt}
+        className="w-full h-full object-cover"
+      />
     )
   }
   return (

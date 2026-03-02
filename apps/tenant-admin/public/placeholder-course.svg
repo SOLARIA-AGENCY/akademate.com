@@ -1,33 +1,49 @@
-<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background gradient -->
+<svg width="800" height="480" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:rgb(66,133,244);stop-opacity:1" />
-      <stop offset="100%" style="stop-color:rgb(52,109,219);stop-opacity:1" />
+    <!-- Soft neutral gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
     </linearGradient>
+    <!-- Subtle dot pattern -->
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.5" fill="#cbd5e1" opacity="0.5"/>
+    </pattern>
   </defs>
 
   <!-- Background -->
-  <rect width="800" height="600" fill="url(#grad1)"/>
+  <rect width="800" height="480" fill="url(#bg)"/>
+  <!-- Texture overlay -->
+  <rect width="800" height="480" fill="url(#dots)"/>
 
-  <!-- Icon (Book) -->
-  <g transform="translate(300, 200)">
-    <rect x="0" y="0" width="200" height="160" rx="10" fill="white" opacity="0.2"/>
-    <rect x="10" y="10" width="180" height="140" rx="8" fill="white" opacity="0.3"/>
-    <line x1="100" y1="30" x2="100" y2="140" stroke="white" stroke-width="4" opacity="0.5"/>
-    <line x1="50" y1="60" x2="90" y2="60" stroke="white" stroke-width="3" opacity="0.4"/>
-    <line x1="110" y1="60" x2="150" y2="60" stroke="white" stroke-width="3" opacity="0.4"/>
-    <line x1="50" y1="90" x2="90" y2="90" stroke="white" stroke-width="3" opacity="0.4"/>
-    <line x1="110" y1="90" x2="150" y2="90" stroke="white" stroke-width="3" opacity="0.4"/>
-    <line x1="50" y1="120" x2="90" y2="120" stroke="white" stroke-width="3" opacity="0.4"/>
-    <line x1="110" y1="120" x2="150" y2="120" stroke="white" stroke-width="3" opacity="0.4"/>
+  <!-- Centered icon group: open book -->
+  <g transform="translate(400,240)">
+    <!-- Book spine (center line) -->
+    <rect x="-3" y="-70" width="6" height="112" rx="3" fill="#94a3b8" opacity="0.6"/>
+
+    <!-- Left page -->
+    <path d="M-6 -62 Q-60 -66 -110 -54 L-110 44 Q-60 30 -6 34 Z"
+          fill="#94a3b8" opacity="0.25"/>
+    <path d="M-6 -62 Q-60 -66 -110 -54 L-110 44 Q-60 30 -6 34 Z"
+          fill="none" stroke="#94a3b8" stroke-width="1.5" opacity="0.4"/>
+    <!-- Left page lines -->
+    <line x1="-96" y1="-32" x2="-22" y2="-36" stroke="#94a3b8" stroke-width="2" opacity="0.3"/>
+    <line x1="-96" y1="-14" x2="-22" y2="-16" stroke="#94a3b8" stroke-width="2" opacity="0.3"/>
+    <line x1="-96" y1="4"   x2="-22" y2="2"   stroke="#94a3b8" stroke-width="2" opacity="0.3"/>
+    <line x1="-96" y1="22"  x2="-22" y2="20"  stroke="#94a3b8" stroke-width="2" opacity="0.3"/>
+
+    <!-- Right page -->
+    <path d="M6 -62 Q60 -66 110 -54 L110 44 Q60 30 6 34 Z"
+          fill="#94a3b8" opacity="0.25"/>
+    <path d="M6 -62 Q60 -66 110 -54 L110 44 Q60 30 6 34 Z"
+          fill="none" stroke="#94a3b8" stroke-width="1.5" opacity="0.4"/>
+    <!-- Right page lines -->
+    <line x1="96" y1="-32" x2="22" y2="-36" stroke="#94a3b8" stroke-width="2" opacity="0.3"/>
+    <line x1="96" y1="-14" x2="22" y2="-16" stroke="#94a3b8" stroke-width="2" opacity="0.3"/>
+    <line x1="96" y1="4"   x2="22" y2="2"   stroke="#94a3b8" stroke-width="2" opacity="0.3"/>
+    <line x1="96" y1="22"  x2="22" y2="20"  stroke="#94a3b8" stroke-width="2" opacity="0.3"/>
+
+    <!-- Book bottom/shadow -->
+    <ellipse cx="0" cy="52" rx="90" ry="6" fill="#94a3b8" opacity="0.12"/>
   </g>
-
-  <!-- Text -->
-  <text x="400" y="420" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle" opacity="0.9">
-    Curso de Formación
-  </text>
-  <text x="400" y="460" font-family="Arial, sans-serif" font-size="20" fill="white" text-anchor="middle" opacity="0.7">
-    Imagen no disponible
-  </text>
 </svg>
