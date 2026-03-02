@@ -457,7 +457,7 @@ export default function TodosLosCiclosPage() {
         badge={<Badge variant="secondary">{filteredCiclos.length} visibles</Badge>}
         actions={<Button onClick={() => router.push('/ciclos/nuevo')}>Nuevo Ciclo</Button>}
         filters={(
-          <div className="flex w-full flex-wrap items-center gap-2 text-sm">
+          <div className="flex w-full flex-wrap items-center gap-2 bg-muted rounded-md p-3 text-sm">
             <Badge variant="outline">{totalCiclos} ciclos</Badge>
             <Badge variant="outline">{ciclosMedio} grado medio</Badge>
             <Badge variant="outline">{ciclosSuperior} grado superior</Badge>
@@ -560,7 +560,7 @@ export default function TodosLosCiclosPage() {
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute left-4 top-4">
-                    <Badge variant="secondary">
+                    <Badge className="bg-black/70 backdrop-blur-sm border border-white/20 text-white">
                       {ciclo.nivel}
                     </Badge>
                   </div>
@@ -620,7 +620,7 @@ export default function TodosLosCiclosPage() {
                     </div>
                   </div>
 
-                  <Button className="w-full">Ver ciclo</Button>
+                  <Button variant="outline" className="w-full">Ver ciclo</Button>
                 </div>
               </Card>
             )

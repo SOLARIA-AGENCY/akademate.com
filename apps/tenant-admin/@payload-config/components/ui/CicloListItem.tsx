@@ -74,8 +74,9 @@ export function CicloListItem({ ciclo, onClick, className }: CicloListItemProps)
 
         {/* Action Button - Compacto */}
         <Button
+          variant="outline"
           size="sm"
-          className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold uppercase tracking-wide shrink-0 h-7 px-3"
+          className="text-xs font-semibold uppercase tracking-wide shrink-0 h-7 px-3"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()
