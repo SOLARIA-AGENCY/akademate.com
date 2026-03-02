@@ -33,43 +33,9 @@ interface PageHeaderProps {
   className?: string
 }
 
-/**
- * Standardized page header component for all dashboard pages.
- *
- * Follows the Planner Visual design pattern:
- * - Card wrapper with shadow and border
- * - Two-row layout: Title/Actions + Filters
- * - Consistent spacing and typography
- *
- * @example
- * ```tsx
- * <PageHeader
- *   title="Planner Visual"
- *   description="Calendario semanal de aulas y horarios"
- *   icon={Calendar}
- *   showAddButton
- *   addButtonText="Nueva Clase"
- *   onAdd={() => router.push('/planner/nuevo')}
- *   actions={
- *     <>
- *       <Button variant="outline" size="sm">
- *         <Download className="mr-2 h-4 w-4" />
- *         Exportar
- *       </Button>
- *     </>
- *   }
- *   filters={
- *     <div className="flex items-center gap-4">
- *       <Select>...</Select>
- *       <ViewToggle>...</ViewToggle>
- *     </div>
- *   }
- * />
- * ```
- */
 export function PageHeader({
   title,
-  description: _description,
+  description,
   icon: _icon,
   iconBgColor: _iconBgColor,
   iconColor: _iconColor,
@@ -88,7 +54,10 @@ export function PageHeader({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-xl font-bold tracking-tight">{title}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+            {description && (
+              <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+            )}
           </div>
         </div>
 
