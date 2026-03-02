@@ -41,8 +41,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Manually parse JSON body
-    const body = await request.json() as { email?: string; password?: string }
+    // Use text() then JSON.parse to avoid Next.js 16 body parsing issues with special chars
+    const text = await request.text()
+    const body = JSON.parse(text) as { email?: string; password?: string }
     const { email, password } = body
 
     // Validate required fields
