@@ -93,6 +93,7 @@ const publicRoutes = [
   '/api/users/forgot-password',
   '/api/users/reset-password',
   '/api/users/me', // Allow preflight for auth check
+  '/api/auth/session', // Session write after login (token may not be in cookie yet)
 ]
 
 // Static asset paths to ignore

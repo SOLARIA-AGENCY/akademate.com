@@ -90,8 +90,8 @@ export async function POST(request: Request) {
       exp: result.exp,
     })
 
-    // Set auth cookie (same as Payload's default)
-    const isSecure = process.env.NODE_ENV === 'production'
+    // Set auth cookie — only Secure when HTTPS is explicitly enforced
+    const isSecure = process.env.ENFORCE_HTTPS === 'true'
     response.cookies.set('payload-token', result.token, {
       httpOnly: true,
       secure: isSecure,
