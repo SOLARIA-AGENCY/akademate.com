@@ -24,7 +24,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@payload-config/components/ui/dropdown-menu'
-import { Plus, MoreHorizontal, Eye, Edit, Trash2, Users, Briefcase, MapPin, LayoutGrid, List } from 'lucide-react'
+import { Plus, MoreHorizontal, Eye, Edit, Trash2, Users, Briefcase, MapPin, LayoutGrid, List, Search } from 'lucide-react'
+import { Input } from '@payload-config/components/ui/input'
 import { StaffCard } from '@payload-config/components/ui/StaffCard'
 import {
   ToggleGroup,
@@ -75,6 +76,7 @@ function PersonalPageContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = React.useState('profesores')
   const [viewMode, setViewMode] = React.useState<'list' | 'grid'>('grid')
+  const [searchTerm, setSearchTerm] = React.useState('')
   const [staff, setStaff] = React.useState<StaffMember[]>([])
   const [loading, setLoading] = React.useState(true)
 
@@ -108,6 +110,11 @@ function PersonalPageContent() {
 
     void fetchStaff()
   }, [activeTab])
+
+  const filteredStaff = staff.filter((s) =>
+    s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.email.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   const handleViewDetail = (id: number) => {
     router.push(`/personal/${id}`)
@@ -156,7 +163,7 @@ function PersonalPageContent() {
         title="Personal"
         description="Gestión de profesorado y equipo administrativo."
         icon={Users}
-        badge={<Badge variant="secondary">{staff.length} en vista</Badge>}
+        badge={<Badge variant="secondary">{filteredStaff.length} en vista</Badge>}
         actions={(
           <Button onClick={() => router.push('/personal/nuevo')}>
             <Plus className="mr-2 h-4 w-4" />
@@ -165,6 +172,15 @@ function PersonalPageContent() {
         )}
         filters={(
           <div className="flex w-full flex-wrap items-center justify-between gap-3">
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nombre..."
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+              />
+            </div>
             <TabsList>
               <TabsTrigger value="profesores">
                 <Users className="mr-2 h-4 w-4" />
@@ -200,14 +216,14 @@ function PersonalPageContent() {
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">Cargando profesores...</p>
                 </div>
-              ) : staff.length === 0 ? (
+              ) : filteredStaff.length === 0 ? (
                 <div className="text-center py-8">
                   <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
                   <p className="text-muted-foreground">No hay profesores registrados</p>
                 </div>
               ) : viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {staff.map((member) => (
+                  {filteredStaff.map((member) => (
                     <StaffCard
                       key={member.id}
                       id={member.id}
@@ -240,7 +256,7 @@ function PersonalPageContent() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {staff.map((member) => (
+                    {filteredStaff.map((member) => (
                       <TableRow
                         key={member.id}
                         className="cursor-pointer hover:bg-accent"
@@ -325,14 +341,14 @@ function PersonalPageContent() {
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">Cargando personal...</p>
                 </div>
-              ) : staff.length === 0 ? (
+              ) : filteredStaff.length === 0 ? (
                 <div className="text-center py-8">
                   <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
                   <p className="text-muted-foreground">No hay personal administrativo registrado</p>
                 </div>
               ) : viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {staff.map((member) => (
+                  {filteredStaff.map((member) => (
                     <StaffCard
                       key={member.id}
                       id={member.id}
@@ -365,7 +381,7 @@ function PersonalPageContent() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {staff.map((member) => (
+                    {filteredStaff.map((member) => (
                       <TableRow
                         key={member.id}
                         className="cursor-pointer hover:bg-accent"

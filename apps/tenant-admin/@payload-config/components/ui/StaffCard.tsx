@@ -79,7 +79,7 @@ export function StaffCard({
         <CardContent className="p-6">
           {/* Header with Avatar and Menu */}
           <div className="flex items-start justify-between mb-4">
-            <Avatar className="h-16 w-16 border-2 border-background shadow-md">
+            <Avatar className="h-16 w-16 border-2 border-background shadow-md ring-2 ring-offset-2 ring-muted">
               <AvatarImage src={photo} alt={fullName} />
               <AvatarFallback className="text-lg font-semibold">{getInitials(fullName)}</AvatarFallback>
             </Avatar>
@@ -156,9 +156,7 @@ export function StaffCard({
             </p>
             <div className="flex gap-1 flex-wrap">
               {assignedCampuses.length === 0 ? (
-                <Badge variant="outline" className="text-xs">
-                  Sin sedes asignadas
-                </Badge>
+                <span className="text-sm text-muted-foreground">Sin sedes asignadas</span>
               ) : (
                 assignedCampuses.map((campus) => (
                   <Badge key={campus.id} variant="secondary" className="text-xs">
@@ -173,7 +171,7 @@ export function StaffCard({
       </div>
 
       <CardFooter className="bg-muted/50 p-4 border-t">
-        <Button variant="ghost" size="sm" className="w-full" onClick={() => onView(id)}>
+        <Button variant="outline" size="sm" className="w-full" onClick={() => onView(id)}>
           <Eye className="mr-2 h-4 w-4" />
           Ver Ficha Completa
         </Button>
