@@ -184,15 +184,15 @@ export default function ProgramacionPage() {
   const getEstadoBadge = (estado: Convocatoria['estado']) => {
     switch (estado) {
       case 'planificada':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Planificada</Badge>
+        return <Badge variant="info">Planificada</Badge>
       case 'abierta':
-        return <Badge className="bg-green-500 text-white">Abierta</Badge>
+        return <Badge variant="success">Abierta</Badge>
       case 'en_curso':
-        return <Badge className="bg-primary text-white">En Curso</Badge>
+        return <Badge variant="default">En Curso</Badge>
       case 'completada':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-600">Completada</Badge>
+        return <Badge variant="neutral">Completada</Badge>
       case 'cancelada':
-        return <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">Cancelada</Badge>
+        return <Badge variant="destructive">Cancelada</Badge>
     }
   }
 

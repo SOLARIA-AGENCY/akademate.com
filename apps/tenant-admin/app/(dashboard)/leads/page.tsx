@@ -39,12 +39,12 @@ interface Lead {
 }
 
 const statusStyles: Record<string, string> = {
-  new: 'bg-blue-100 text-blue-800',
-  contacted: 'bg-green-100 text-green-800',
-  qualified: 'bg-yellow-100 text-yellow-800',
-  converted: 'bg-emerald-100 text-emerald-800',
-  rejected: 'bg-red-100 text-red-800',
-  spam: 'bg-slate-100 text-slate-800',
+  new: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
+  contacted: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
+  qualified: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300',
+  converted: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
+  rejected: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
+  spam: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300',
 }
 
 const statusLabels: Record<string, string> = {

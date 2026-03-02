@@ -190,16 +190,16 @@ const listaEsperaData = [
 ]
 
 const prioridadConfig: Record<string, { label: string; color: string; bgColor: string }> = {
-  alta: { label: 'Alta', color: 'text-red-800', bgColor: 'bg-red-100' },
-  media: { label: 'Media', color: 'text-amber-800', bgColor: 'bg-amber-100' },
-  baja: { label: 'Baja', color: 'text-gray-800', bgColor: 'bg-gray-100' },
+  alta: { label: 'Alta', color: 'text-red-700 dark:text-red-300', bgColor: 'bg-red-100 dark:bg-red-950' },
+  media: { label: 'Media', color: 'text-amber-700 dark:text-amber-300', bgColor: 'bg-amber-100 dark:bg-amber-950' },
+  baja: { label: 'Baja', color: 'text-gray-700 dark:text-gray-300', bgColor: 'bg-gray-100 dark:bg-gray-800' },
 }
 
 const estadoConfig: Record<string, { label: string; color: string; bgColor: string; icon: React.ComponentType<{ className?: string }> }> = {
-  en_lista: { label: 'En Lista', color: 'text-blue-800', bgColor: 'bg-blue-100', icon: Clock },
-  notificado: { label: 'Notificado', color: 'text-amber-800', bgColor: 'bg-amber-100', icon: Bell },
-  aceptado: { label: 'Aceptado', color: 'text-green-800', bgColor: 'bg-green-100', icon: CheckCircle2 },
-  rechazado: { label: 'Rechazado', color: 'text-gray-800', bgColor: 'bg-gray-100', icon: AlertCircle },
+  en_lista: { label: 'En Lista', color: 'text-blue-700 dark:text-blue-300', bgColor: 'bg-blue-100 dark:bg-blue-950', icon: Clock },
+  notificado: { label: 'Notificado', color: 'text-amber-700 dark:text-amber-300', bgColor: 'bg-amber-100 dark:bg-amber-950', icon: Bell },
+  aceptado: { label: 'Aceptado', color: 'text-green-700 dark:text-green-300', bgColor: 'bg-green-100 dark:bg-green-950', icon: CheckCircle2 },
+  rechazado: { label: 'Rechazado', color: 'text-gray-700 dark:text-gray-300', bgColor: 'bg-gray-100 dark:bg-gray-800', icon: AlertCircle },
 }
 
 export default function ListaEsperaPage() {

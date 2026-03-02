@@ -189,15 +189,15 @@ const matriculasData = [
 ]
 
 const estadoConfig: Record<string, { label: string; color: string; bgColor: string; icon: React.ComponentType<{ className?: string }> }> = {
-  pendiente: { label: 'Pendiente', color: 'text-amber-800', bgColor: 'bg-amber-100', icon: Clock },
-  aceptada: { label: 'Aceptada', color: 'text-green-800', bgColor: 'bg-green-100', icon: CheckCircle2 },
-  rechazada: { label: 'Rechazada', color: 'text-red-800', bgColor: 'bg-red-100', icon: XCircle },
+  pendiente: { label: 'Pendiente', color: 'text-amber-700 dark:text-amber-300', bgColor: 'bg-amber-100 dark:bg-amber-950', icon: Clock },
+  aceptada: { label: 'Aceptada', color: 'text-green-700 dark:text-green-300', bgColor: 'bg-green-100 dark:bg-green-950', icon: CheckCircle2 },
+  rechazada: { label: 'Rechazada', color: 'text-red-700 dark:text-red-300', bgColor: 'bg-red-100 dark:bg-red-950', icon: XCircle },
 }
 
 const pagoConfig: Record<string, { label: string; color: string }> = {
-  FUNDAE: { label: 'FUNDAE', color: 'text-blue-700 bg-blue-50' },
-  Privado: { label: 'Privado', color: 'text-purple-700 bg-purple-50' },
-  Financiación: { label: 'Financiación', color: 'text-emerald-700 bg-emerald-50' },
+  FUNDAE: { label: 'FUNDAE', color: 'text-blue-700 bg-blue-100 dark:text-blue-300 dark:bg-blue-950' },
+  Privado: { label: 'Privado', color: 'text-purple-700 bg-purple-100 dark:text-purple-300 dark:bg-purple-950' },
+  Financiación: { label: 'Financiación', color: 'text-emerald-700 bg-emerald-100 dark:text-emerald-300 dark:bg-emerald-950' },
 }
 
 export default function MatriculasPage() {

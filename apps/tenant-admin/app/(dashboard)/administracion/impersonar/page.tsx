@@ -157,11 +157,11 @@ const historialImpersonaciones = [
 ]
 
 const rolConfig: Record<string, { color: string; bgColor: string }> = {
-  Admin: { color: 'text-red-800', bgColor: 'bg-red-100' },
-  Gestor: { color: 'text-blue-800', bgColor: 'bg-blue-100' },
-  Marketing: { color: 'text-purple-800', bgColor: 'bg-purple-100' },
-  Asesor: { color: 'text-amber-800', bgColor: 'bg-amber-100' },
-  Lectura: { color: 'text-gray-800', bgColor: 'bg-gray-100' },
+  Admin: { color: 'text-red-700 dark:text-red-300', bgColor: 'bg-red-100 dark:bg-red-950' },
+  Gestor: { color: 'text-blue-700 dark:text-blue-300', bgColor: 'bg-blue-100 dark:bg-blue-950' },
+  Marketing: { color: 'text-purple-700 dark:text-purple-300', bgColor: 'bg-purple-100 dark:bg-purple-950' },
+  Asesor: { color: 'text-amber-700 dark:text-amber-300', bgColor: 'bg-amber-100 dark:bg-amber-950' },
+  Lectura: { color: 'text-gray-700 dark:text-gray-300', bgColor: 'bg-gray-100 dark:bg-gray-800' },
 }
 
 export default function ImpersonarPage() {
@@ -352,7 +352,7 @@ export default function ImpersonarPage() {
                     </TableCell>
                     <TableCell>
                       {usuario.activo ? (
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                        <Badge className="bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-950 dark:text-green-300">
                           <CheckCircle2 className="h-3 w-3 mr-1" />
                           Activo
                         </Badge>

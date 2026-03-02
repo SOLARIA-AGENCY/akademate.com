@@ -26,20 +26,20 @@ export function OcupacionBadge({
     }
     if (porcentaje > 85) {
       return {
-        badge: 'text-red-700 bg-red-50 border-red-200',
+        badge: 'text-red-700 bg-red-50 border-red-200 dark:text-red-300 dark:bg-red-950 dark:border-red-800',
         bar: 'bg-red-500',
         label: `${plazasOcupadas}/${plazasTotal}`,
       }
     }
     if (porcentaje >= 50) {
       return {
-        badge: 'text-amber-700 bg-amber-50 border-amber-200',
+        badge: 'text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-950 dark:border-amber-800',
         bar: 'bg-amber-500',
         label: `${plazasOcupadas}/${plazasTotal}`,
       }
     }
     return {
-      badge: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+      badge: 'text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-950 dark:border-emerald-800',
       bar: 'bg-emerald-500',
       label: `${plazasOcupadas}/${plazasTotal}`,
     }

@@ -174,7 +174,7 @@ export default function SuscripcionPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Plan Actual</CardTitle>
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300 hover:bg-green-200 dark:bg-green-950 dark:text-green-300">
                 Activo
               </Badge>
             </div>
@@ -306,7 +306,7 @@ export default function SuscripcionPage() {
               onClick={() => setCicloFacturacion('anual')}
             >
               Anual
-              <Badge className="ml-2 bg-green-100 text-green-800">-20%</Badge>
+              <Badge className="ml-2 bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300">-20%</Badge>
             </Button>
           </div>
         </div>
@@ -462,7 +462,7 @@ export default function SuscripcionPage() {
                   <TableCell>{factura.concepto}</TableCell>
                   <TableCell className="font-medium">{factura.monto.toFixed(2)}€</TableCell>
                   <TableCell>
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300 hover:bg-green-200 dark:bg-green-950 dark:text-green-300">
                       Pagado
                     </Badge>
                   </TableCell>
