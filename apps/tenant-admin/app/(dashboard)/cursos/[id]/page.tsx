@@ -152,6 +152,8 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = React.useState(false)
+  // Hero image fallback
+  const [heroImgError, setHeroImgError] = React.useState(false)
 
   // Data state
   const [courseTemplate, setCourseTemplate] = React.useState<CourseTemplate | null>(null)
@@ -357,12 +359,20 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
           {/* Hero Image - Reduced height for better reading space */}
           <Card>
             <CardContent className="p-0">
-              <div className="relative h-56 overflow-hidden rounded-t-lg">
-                <img
-                  src={courseTemplate.imagenPortada}
-                  alt={courseTemplate.nombre}
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative h-56 overflow-hidden rounded-t-lg bg-muted">
+                {courseTemplate.imagenPortada && !heroImgError ? (
+                  <img
+                    src={courseTemplate.imagenPortada}
+                    alt={courseTemplate.nombre}
+                    className="w-full h-full object-cover"
+                    onError={() => setHeroImgError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-primary/10 via-muted to-muted/60">
+                    <BookOpen className="h-14 w-14 text-primary/25" />
+                    <span className="text-sm text-muted-foreground/60 font-medium">Sin imagen de portada</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
