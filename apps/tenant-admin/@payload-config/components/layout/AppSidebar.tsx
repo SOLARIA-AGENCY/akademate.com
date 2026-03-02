@@ -41,7 +41,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import NextImage from 'next/image'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { Badge } from '../ui/badge'
@@ -215,10 +215,10 @@ const menuItems: MenuItemWithSection[] = [
 interface SubMenuItemProps {
   subItem: MenuItem
   pathname: string
-  searchParams: URLSearchParams
+  currentSearch: string
 }
 
-function SubMenuItem({ subItem, pathname, searchParams }: SubMenuItemProps) {
+function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
   const [nestedOpen, setNestedOpen] = React.useState(false)
   const SubIcon = subItem.icon
   const hasNestedItems = subItem.items && subItem.items.length > 0
@@ -230,13 +230,14 @@ function SubMenuItem({ subItem, pathname, searchParams }: SubMenuItemProps) {
       const [base, query] = url.split('?')
       if (pathname !== base) return false
       if (!query) return true
-      const params = new URLSearchParams(query)
-      for (const [key, value] of params.entries()) {
-        if (searchParams.get(key) !== value) return false
+      const currentParams = new URLSearchParams(currentSearch)
+      const targetParams = new URLSearchParams(query)
+      for (const [key, value] of targetParams.entries()) {
+        if (currentParams.get(key) !== value) return false
       }
       return true
     },
-    [pathname, searchParams]
+    [pathname, currentSearch]
   )
 
   const isSubActive = matchesUrl(subItem.url)
@@ -321,26 +322,34 @@ interface AppSidebarProps {
 
 export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
+  // Usamos window.location.search en el cliente para evitar useSearchParams
+  // (que requeriría <Suspense> en cada página del árbol)
+  const [currentSearch, setCurrentSearch] = React.useState('')
   const [openSections, setOpenSections] = React.useState<string[]>([])
   const { branding } = useTenantBranding()
   const logoUrl = branding.logos.favicon
   const academyName = branding.academyName
 
-  // Compara pathname + query params exactos
+  // Sincroniza el search string cuando cambia la ruta
+  React.useEffect(() => {
+    setCurrentSearch(typeof window !== 'undefined' ? window.location.search : '')
+  }, [pathname])
+
+  // Compara pathname + query params exactos (sin useSearchParams)
   const isUrlActive = React.useCallback(
     (url: string | undefined): boolean => {
       if (!url) return false
       const [base, query] = url.split('?')
       if (pathname !== base) return false
       if (!query) return true
-      const params = new URLSearchParams(query)
-      for (const [key, value] of params.entries()) {
-        if (searchParams.get(key) !== value) return false
+      const currentParams = new URLSearchParams(currentSearch)
+      const targetParams = new URLSearchParams(query)
+      for (const [key, value] of targetParams.entries()) {
+        if (currentParams.get(key) !== value) return false
       }
       return true
     },
-    [pathname, searchParams]
+    [pathname, currentSearch]
   )
 
   React.useEffect(() => {
@@ -355,7 +364,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     if (activeParent) {
       setOpenSections([activeParent.title])
     }
-  }, [pathname, searchParams, isUrlActive])
+  }, [pathname, currentSearch, isUrlActive])
 
   // Accordion behavior: only one section open at a time
   const toggleSection = (title: string) => {
@@ -516,7 +525,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     <ul className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4">
                       {item.items?.map((subItem) => (
                         <li key={subItem.title}>
-                          <SubMenuItem subItem={subItem} pathname={pathname} searchParams={searchParams} />
+                          <SubMenuItem subItem={subItem} pathname={pathname} currentSearch={currentSearch} />
                         </li>
                       ))}
                     </ul>
