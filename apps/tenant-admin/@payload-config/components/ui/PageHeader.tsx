@@ -69,16 +69,16 @@ interface PageHeaderProps {
  */
 export function PageHeader({
   title,
-  description,
-  icon: Icon,
-  iconBgColor,
-  iconColor,
+  description: _description,
+  icon: _icon,
+  iconBgColor: _iconBgColor,
+  iconColor: _iconColor,
   showAddButton = false,
   addButtonText = 'Nuevo',
   onAdd,
   actions,
   filters,
-  badge,
+  badge: _badge,
   withCard = true,
   className = '',
 }: PageHeaderProps) {
@@ -88,13 +88,7 @@ export function PageHeader({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight">{title}</h1>
-              {badge}
-            </div>
-            {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
-            )}
+            <h1 className="text-xl font-bold tracking-tight">{title}</h1>
           </div>
         </div>
 
