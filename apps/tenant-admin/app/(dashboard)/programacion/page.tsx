@@ -8,6 +8,7 @@ import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { ResultsSummaryBar } from '@payload-config/components/ui/ResultsSummaryBar'
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ import {
   AlertTriangle,
   User,
   BookOpen,
+  Eye,
 } from 'lucide-react'
 
 interface ConvocatoriaApiResponse {
@@ -172,6 +174,13 @@ export default function ProgramacionPage() {
     return matchesSearch && matchesSede && matchesEstado
   })
 
+  const TIPO_BADGE: Record<string, { label: string; variant: 'info' | 'warning' | 'success' | 'outline' }> = {
+    privado:      { label: 'Privado',      variant: 'info' },
+    privados:     { label: 'Privado',      variant: 'info' },
+    desempleados: { label: 'Desempleados', variant: 'warning' },
+    ocupados:     { label: 'Ocupados',     variant: 'success' },
+  }
+
   const getEstadoBadge = (estado: Convocatoria['estado']) => {
     switch (estado) {
       case 'planificada':
@@ -289,11 +298,11 @@ export default function ProgramacionPage() {
       </Card>
 
       {/* Resultados */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {convocatoriasFiltradas.length} resultados · ocupación media {tasaOcupacion}%
-        </p>
-      </div>
+      <ResultsSummaryBar
+        count={convocatoriasFiltradas.length}
+        entity="convocatorias"
+        extra={`Ocupación media: ${tasaOcupacion}%`}
+      />
 
       {/* Lista de Convocatorias */}
       <div className="space-y-4">
@@ -323,7 +332,10 @@ export default function ProgramacionPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline">{convocatoria.codigo_curso}</Badge>
+                      {(() => {
+                        const tipoConfig = TIPO_BADGE[convocatoria.codigo_curso?.toLowerCase() ?? ''] ?? { label: convocatoria.codigo_curso, variant: 'outline' as const }
+                        return <Badge variant={tipoConfig.variant}>{tipoConfig.label}</Badge>
+                      })()}
                       {getEstadoBadge(convocatoria.estado)}
                     </div>
                   </div>
@@ -444,7 +456,7 @@ export default function ProgramacionPage() {
                       router.push(`/planner?convocatoria=${convocatoria.id}`)
                     }}
                   >
-                    <Calendar className="mr-2 h-4 w-4" />
+                    <Eye className="mr-2 h-4 w-4" />
                     Ver detalle
                   </Button>
                 </div>
