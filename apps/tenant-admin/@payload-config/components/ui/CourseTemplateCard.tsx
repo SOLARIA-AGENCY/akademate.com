@@ -44,7 +44,7 @@ export function CourseTemplateCard({
           />
         ) : (
           <img
-            src="/placeholder-course.svg"
+            src="/placeholder-course.svg?v=2"
             alt={template.nombre}
             className="w-full h-full object-cover"
           />

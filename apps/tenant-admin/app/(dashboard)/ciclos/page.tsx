@@ -32,7 +32,7 @@ function CicloImageWithFallback({ src, alt }: { src: string; alt: string }) {
   if (!src || hasError) {
     return (
       <img
-        src="/placeholder-course.svg"
+        src="/placeholder-course.svg?v=2"
         alt={alt}
         className="w-full h-full object-cover"
       />

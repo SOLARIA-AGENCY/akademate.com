@@ -369,7 +369,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                   />
                 ) : (
                   <img
-                    src="/placeholder-course.svg"
+                    src="/placeholder-course.svg?v=2"
                     alt={courseTemplate.nombre}
                     className="w-full h-full object-cover"
                   />

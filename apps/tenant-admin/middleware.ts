@@ -102,6 +102,8 @@ const staticPaths = [
   '/logos',
   '/favicon',
   '/api/config',
+  '/placeholder-course.svg',
+  '/media',
 ]
 
 // Payload native admin - let Payload handle its own auth
