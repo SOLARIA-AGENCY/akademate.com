@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
+import { traducirEstado } from '@payload-config/lib/estados'
 import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -142,7 +143,7 @@ export default function DashboardPage() {
   // Use the combined hook for initial fetch + real-time updates
   // Type assertion required as TypeScript cannot resolve types through path alias
   const hookResult: UseDashboardMetricsResult = useDashboardMetrics({ tenantId: 1, enableRealtime: true }) as UseDashboardMetricsResult
-  const { data, loading, error, isConnected, lastUpdate, refresh } = hookResult
+  const { data, loading, error, isConnected } = hookResult
   const { branding } = useTenantBranding()
 
   const [lmsSummary, setLmsSummary] = useState<LmsSummary>({
@@ -241,25 +242,6 @@ export default function DashboardPage() {
     },
   ]
 
-  const getStatusBadge = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      abierta: 'default',
-      planificada: 'secondary',
-      lista_espera: 'outline',
-      cerrada: 'destructive',
-    }
-    return variants[status] ?? 'default'
-  }
-
-  const getCampaignStatusBadge = (status: string): 'default' | 'secondary' | 'destructive' => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive'> = {
-      activa: 'default',
-      pausada: 'secondary',
-      finalizada: 'destructive',
-    }
-    return variants[status] ?? 'default'
-  }
-
   // Loading state
   if (loading) {
     return (
@@ -356,7 +338,9 @@ export default function DashboardPage() {
               Estado operativo LMS y accesos directos desde el dashboard principal.
             </CardDescription>
           </div>
-          <Badge variant="outline">LMS</Badge>
+          <Badge variant="outline" className="pointer-events-none cursor-default">
+            Campus Virtual
+          </Badge>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -414,7 +398,9 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <Badge variant={getStatusBadge(conv.status)}>{conv.status}</Badge>
+                      <Badge variant={traducirEstado(conv.status).variant}>
+                        {traducirEstado(conv.status).label}
+                      </Badge>
                       <span className="text-xs text-muted-foreground">
                         {conv.enrolled}/{conv.capacity_max} plazas
                       </span>
@@ -453,8 +439,8 @@ export default function DashboardPage() {
                         {campaign.cost_per_lead.toFixed(2)}€ por lead
                       </p>
                     </div>
-                    <Badge variant={getCampaignStatusBadge(campaign.status)}>
-                      {campaign.status}
+                    <Badge variant={traducirEstado(campaign.status).variant}>
+                      {traducirEstado(campaign.status).label}
                     </Badge>
                   </div>
                 ))}
