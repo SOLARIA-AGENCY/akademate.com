@@ -10,6 +10,8 @@ import { Card } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Tabs, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
+import { EmptyState } from '@payload-config/components/ui/EmptyState'
 import {
   Select,
   SelectContent,
@@ -23,6 +25,7 @@ import {
   Calendar,
   LayoutGrid,
   User,
+  Users,
   BookOpen,
   AlertTriangle,
   Clock,
@@ -278,8 +281,8 @@ function PlannerVisualPageContent() {
     <div className="h-screen flex flex-col p-4 bg-background">
 
       <PageHeader
-        title={`Planner Visual - ${sedeSeleccionada}`}
-        description="Calendario semanal de aulas y horarios"
+        title="Planner Visual"
+        description={sedeSeleccionada}
         icon={Calendar}
         actions={(
           <>
@@ -338,33 +341,22 @@ function PlannerVisualPageContent() {
               </SelectContent>
             </Select>
 
-            <div className="flex items-center gap-2 bg-secondary p-1 rounded-lg">
-              <Button
-                variant={vistaActual === 'aulas' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setVistaActual('aulas')}
-                className={vistaActual === 'aulas' ? 'bg-primary hover:bg-primary/90' : ''}
-              >
-                <LayoutGrid className="h-4 w-4 mr-2" />
-                Aulas
-              </Button>
-              <Button
-                variant={vistaActual === 'profesores' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setVistaActual('profesores')}
-              >
-                <User className="h-4 w-4 mr-2" />
-                Profesores
-              </Button>
-              <Button
-                variant={vistaActual === 'cursos' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setVistaActual('cursos')}
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                Cursos
-              </Button>
-            </div>
+            <Tabs value={vistaActual} onValueChange={(v) => setVistaActual(v as VistaTipo)}>
+              <TabsList>
+                <TabsTrigger value="aulas">
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  Aulas
+                </TabsTrigger>
+                <TabsTrigger value="profesores">
+                  <User className="h-4 w-4 mr-2" />
+                  Profesores
+                </TabsTrigger>
+                <TabsTrigger value="cursos">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Cursos
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </>
         )}
       />
@@ -372,24 +364,14 @@ function PlannerVisualPageContent() {
       {/* Main Content */}
       <div className="flex-1 flex gap-4 overflow-hidden">
         {vistaActual !== 'aulas' ? (
-          <Card className="flex-1 p-6">
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">
-                Vista por {vistaActual === 'profesores' ? 'profesores' : 'cursos'}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Esta vista está en fase inicial. Puedes usar Exportar para validar datos y continuar operando con la vista de aulas.
-              </p>
-              <div className="rounded-md border p-4">
-                <p className="text-sm">
-                  Registros disponibles: <span className="font-semibold">{horariosFiltrados.length}</span>
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => setVistaActual('aulas')}>
-                Volver a vista de aulas
-              </Button>
-            </div>
-          </Card>
+          <div className="flex-1 flex items-center justify-center">
+            <EmptyState
+              icon={Users}
+              title="Vista en desarrollo"
+              description={`La vista de ${vistaActual === 'profesores' ? 'profesores' : 'cursos'} está en fase inicial. Usa Exportar para validar los datos actuales.`}
+              action={{ label: 'Exportar datos', onClick: handleExport }}
+            />
+          </div>
         ) : (
         <>
         {/* Panel Lateral - Leyenda */}
