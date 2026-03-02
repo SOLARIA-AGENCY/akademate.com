@@ -18,6 +18,7 @@ import {
   TableRow,
 } from '@payload-config/components/ui/table'
 import { BarChart3 } from 'lucide-react'
+import { traducirEstado } from '@payload-config/lib/estados'
 
 const progressRows = [
   { student: 'Ana Pérez', course: 'React Inicial', progress: '82%', status: 'active' },
@@ -57,8 +58,8 @@ export default function CampusProgresoPage() {
                   <TableCell>{row.course}</TableCell>
                   <TableCell>{row.progress}</TableCell>
                   <TableCell>
-                    <Badge variant={row.status === 'completed' ? 'secondary' : 'default'}>
-                      {row.status}
+                    <Badge variant={traducirEstado(row.status).variant}>
+                      {traducirEstado(row.status).label}
                     </Badge>
                   </TableCell>
                 </TableRow>
