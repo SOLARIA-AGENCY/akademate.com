@@ -105,7 +105,7 @@ export default function SedesPage() {
   }
 
   return (
-    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
+    <div className="space-y-6">
       {isLoading && (
         <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           Cargando sedes...

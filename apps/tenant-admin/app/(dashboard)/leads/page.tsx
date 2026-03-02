@@ -112,7 +112,7 @@ export default function LeadsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Gestión de Leads"
         description="Control y seguimiento de leads capturados desde formularios y campañas"

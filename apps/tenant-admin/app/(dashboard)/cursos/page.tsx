@@ -188,7 +188,7 @@ function CursosPageContent() {
   const Icon = config?.icon ?? List
 
   return (
-    <div className="space-y-6 bg-muted/30 p-6 rounded-lg">
+    <div className="space-y-6">
       <PageHeader
         title={config?.title ?? 'Catálogo de Cursos'}
         description={config?.description ?? 'Gestiona y organiza tu oferta formativa.'}
@@ -338,7 +338,7 @@ export default function CursosPage() {
   return (
     <Suspense
       fallback={
-        <div className="space-y-6 bg-muted/30 p-6 rounded-lg">
+        <div className="space-y-6">
           <div className="flex items-center justify-center py-12">
             <p className="text-muted-foreground">Cargando cursos...</p>
           </div>

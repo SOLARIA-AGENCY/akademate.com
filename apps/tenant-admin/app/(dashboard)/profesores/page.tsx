@@ -195,7 +195,7 @@ export default function ProfesoresPage() {
   }
 
   return (
-    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
+    <div className="space-y-6">
       <PageHeader
         title="Profesores"
         description="Gestión compacta de profesorado y carga docente."

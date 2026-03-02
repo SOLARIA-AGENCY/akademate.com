@@ -94,7 +94,7 @@ export default function AnaliticasPage() {
   ]
 
   return (
-    <div className="space-y-6 p-8">
+    <div className="space-y-6">
 
       <PageHeader
         title="Analíticas y Métricas"

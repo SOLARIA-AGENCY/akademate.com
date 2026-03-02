@@ -196,7 +196,7 @@ export default function ProgramacionPage() {
   }
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-6">
       {isLoading && (
         <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           Cargando convocatorias...

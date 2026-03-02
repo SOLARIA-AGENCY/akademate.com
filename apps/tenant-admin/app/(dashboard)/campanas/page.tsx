@@ -95,7 +95,7 @@ export default function CampanasPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {isLoading && (
         <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           Cargando campañas...

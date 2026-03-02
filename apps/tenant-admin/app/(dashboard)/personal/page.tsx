@@ -150,7 +150,8 @@ function PersonalPageContent() {
   }
 
   return (
-    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
+    <div className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
       <PageHeader
         title="Personal"
         description="Gestión de profesorado y equipo administrativo."
@@ -192,8 +193,6 @@ function PersonalPageContent() {
           </div>
         )}
       />
-
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsContent value="profesores">
           <Card>
             <CardContent className="pt-6">

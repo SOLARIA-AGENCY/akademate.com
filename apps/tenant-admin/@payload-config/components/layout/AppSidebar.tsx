@@ -37,6 +37,7 @@ import {
   UserCog,
   CreditCard,
   Award,
+  School,
 } from 'lucide-react'
 import Link from 'next/link'
 import NextImage from 'next/image'
@@ -97,6 +98,11 @@ const menuItems: MenuItemWithSection[] = [
       { title: 'Sede Santa Cruz', icon: MapPin, url: '/sedes/cep-santa-cruz' },
       { title: 'Sede Sur', icon: MapPin, url: '/sedes/cep-sur' },
     ],
+  },
+  {
+    title: 'Alumnos',
+    icon: School,
+    url: '/alumnos',
   },
   {
     title: 'Personal',
