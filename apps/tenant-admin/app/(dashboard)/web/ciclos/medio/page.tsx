@@ -1,22 +1,22 @@
 'use client'
 
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { GraduationCap } from 'lucide-react'
-import { ComingSoonPage } from '@payload-config/components/ui/ComingSoonPage'
 
 export default function WebCicloMedioPage() {
   return (
-    <ComingSoonPage
-      title="Ciclo Medio Web"
-      description="Vista de ciclos de grado medio publicados en el sitio web"
-      icon={GraduationCap}
-      expectedPhase="Fase F4"
-      plannedFeatures={[
-        "Preview de ciclos en la web pública",
-        "Gestión de contenido específico para grado medio",
-        "Requisitos de acceso",
-        "Salidas profesionales",
-        "Módulos y temarios",
-      ]}
-    />
+    <div className="space-y-4">
+      <PageHeader
+        title="Ciclo Medio Web"
+        description="Vista de ciclos de grado medio publicados en el sitio web"
+        icon={GraduationCap}
+      />
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-muted-foreground text-sm">No hay contenido disponible todavía.</p>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

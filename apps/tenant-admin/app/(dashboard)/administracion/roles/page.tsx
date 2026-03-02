@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
@@ -171,7 +170,6 @@ export default function RolesPage() {
 
   return (
     <div className="space-y-6">
-      <MockDataIndicator />
 
       <PageHeader
         title="Roles y Permisos"

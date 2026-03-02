@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -229,7 +228,6 @@ export default function MatriculasPage() {
 
   return (
     <div className="space-y-6">
-      <MockDataIndicator />
 
       <PageHeader
         title="Matrículas"

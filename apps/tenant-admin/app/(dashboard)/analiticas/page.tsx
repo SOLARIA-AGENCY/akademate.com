@@ -13,7 +13,6 @@ import {
   DollarSign,
   Target
 } from 'lucide-react'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 
 export default function AnaliticasPage() {
   // Datos mockup de KPIs
@@ -96,11 +95,6 @@ export default function AnaliticasPage() {
 
   return (
     <div className="space-y-6 p-8">
-      {/* Mock Data Banner */}
-      <MockDataIndicator
-        variant="banner"
-        label="Este módulo usa datos de demostración. Pendiente integración con GA4, Meta Pixel y APIs de analytics."
-      />
 
       <PageHeader
         title="Analíticas y Métricas"

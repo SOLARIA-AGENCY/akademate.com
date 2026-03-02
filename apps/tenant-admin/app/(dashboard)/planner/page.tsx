@@ -31,7 +31,6 @@ import {
   Printer,
   CheckCircle2,
 } from 'lucide-react'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 
 // TypeScript interfaces for planner data structures
 interface Aula {
@@ -277,12 +276,6 @@ function PlannerVisualPageContent() {
 
   return (
     <div className="h-screen flex flex-col p-4 bg-background">
-      {/* Mock Data Banner */}
-      <MockDataIndicator
-        variant="banner"
-        label="Este módulo usa datos de demostración. Pendiente conexión con API de Programación."
-        className="mb-4"
-      />
 
       <PageHeader
         title={`Planner Visual - ${sedeSeleccionada}`}

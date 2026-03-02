@@ -2,6 +2,7 @@
 
 import { Settings } from 'lucide-react'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 
 export default function ConfiguracionPage() {
   return (
@@ -12,12 +13,11 @@ export default function ConfiguracionPage() {
         icon={Settings}
       />
 
-      <div className="rounded-lg border bg-card p-8 text-center">
-        <h2 className="text-xl font-semibold mb-2">Página en desarrollo</h2>
-        <p className="text-muted-foreground">
-          El panel de configuración estará disponible próximamente
-        </p>
-      </div>
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-muted-foreground text-sm">No hay contenido disponible todavía.</p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

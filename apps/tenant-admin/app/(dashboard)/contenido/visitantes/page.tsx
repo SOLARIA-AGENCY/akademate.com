@@ -1,23 +1,22 @@
 'use client'
 
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Eye } from 'lucide-react'
-import { ComingSoonPage } from '@payload-config/components/ui/ComingSoonPage'
 
 export default function VisitantesPage() {
   return (
-    <ComingSoonPage
-      title="Visitantes"
-      description="Seguimiento de visitantes y comportamiento en el sitio web"
-      icon={Eye}
-      expectedPhase="Fase F7 - Analytics"
-      plannedFeatures={[
-        "Tracking de visitantes en tiempo real",
-        "Mapas de calor (heatmaps)",
-        "Grabación de sesiones",
-        "Embudos de conversión",
-        "Segmentación de audiencias",
-        "Integración con GA4 y Meta Pixel",
-      ]}
-    />
+    <div className="space-y-4">
+      <PageHeader
+        title="Visitantes"
+        description="Seguimiento de visitantes y comportamiento en el sitio web"
+        icon={Eye}
+      />
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-muted-foreground text-sm">No hay contenido disponible todavía.</p>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

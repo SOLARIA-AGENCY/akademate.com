@@ -86,29 +86,29 @@ export function PageHeader({
     <>
       {/* Row 1: Title and Actions */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {Icon && (
             <div
-              className={`flex h-12 w-12 items-center justify-center rounded-lg ${iconBgColor ?? 'bg-primary/10'}`}
+              className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBgColor ?? 'bg-primary/10'}`}
             >
-              <Icon className={`h-6 w-6 ${iconColor ?? 'text-primary'}`} />
+              <Icon className={`h-5 w-5 ${iconColor ?? 'text-primary'}`} />
             </div>
           )}
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold tracking-tight">{title}</h1>
               {badge}
             </div>
             {description && (
-              <p className="text-muted-foreground mt-1">{description}</p>
+              <p className="text-sm text-muted-foreground">{description}</p>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {actions}
           {showAddButton && onAdd && (
-            <Button onClick={onAdd}>
+            <Button onClick={onAdd} size="sm">
               <Plus className="mr-2 h-4 w-4" />
               {addButtonText}
             </Button>
@@ -118,7 +118,7 @@ export function PageHeader({
 
       {/* Row 2: Filters (optional) */}
       {filters && (
-        <div className="flex items-center gap-4 flex-wrap mt-4 pt-4 border-t border-border">
+        <div className="flex items-center gap-3 flex-wrap mt-3 pt-3 border-t border-border">
           {filters}
         </div>
       )}
@@ -127,14 +127,14 @@ export function PageHeader({
 
   if (withCard) {
     return (
-      <div className={`bg-card rounded-lg shadow-sm p-4 mb-4 border border-border ${className}`}>
+      <div className={`py-4 mb-2 ${className}`}>
         {content}
       </div>
     )
   }
 
   return (
-    <div className={`space-y-4 mb-6 ${className}`}>
+    <div className={`py-4 mb-2 ${className}`}>
       {content}
     </div>
   )

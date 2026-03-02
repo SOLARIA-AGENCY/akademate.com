@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
-import { MockDataIndicator } from '@payload-config/components/ui/MockDataIndicator'
 import { useToast } from '@payload-config/hooks/use-toast'
 import { useBillingData } from '@payload-config/hooks/useBillingData'
 import { useSubscription } from '@payload-config/hooks/useSubscription'
@@ -396,7 +395,6 @@ export default function FacturacionPage() {
 
   return (
     <div className="space-y-6">
-      <MockDataIndicator />
 
       <PageHeader
         title="Facturacion y Suscripciones"

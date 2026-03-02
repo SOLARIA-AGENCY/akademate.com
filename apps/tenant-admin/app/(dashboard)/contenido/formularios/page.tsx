@@ -1,23 +1,22 @@
 'use client'
 
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { FileInput } from 'lucide-react'
-import { ComingSoonPage } from '@payload-config/components/ui/ComingSoonPage'
 
 export default function FormulariosPage() {
   return (
-    <ComingSoonPage
-      title="Formularios"
-      description="Gestión de formularios web y captura de leads"
-      icon={FileInput}
-      expectedPhase="Fase F4"
-      plannedFeatures={[
-        "Constructor de formularios drag & drop",
-        "Campos personalizados",
-        "Validación RGPD integrada",
-        "Webhooks para integraciones",
-        "Notificaciones por email",
-        "Exportación de submissions",
-      ]}
-    />
+    <div className="space-y-4">
+      <PageHeader
+        title="Formularios"
+        description="Gestión de formularios web y captura de leads"
+        icon={FileInput}
+      />
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-muted-foreground text-sm">No hay contenido disponible todavía.</p>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

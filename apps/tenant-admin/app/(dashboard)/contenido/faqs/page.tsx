@@ -1,22 +1,22 @@
 'use client'
 
+import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { HelpCircle } from 'lucide-react'
-import { ComingSoonPage } from '@payload-config/components/ui/ComingSoonPage'
 
 export default function FaqsPage() {
   return (
-    <ComingSoonPage
-      title="FAQs"
-      description="Gestión de preguntas frecuentes"
-      icon={HelpCircle}
-      expectedPhase="Fase F5"
-      plannedFeatures={[
-        "Organización por categorías",
-        "Editor de respuestas con formato",
-        "Ordenación por relevancia",
-        "Búsqueda y filtrado",
-        "Schema markup para SEO",
-      ]}
-    />
+    <div className="space-y-4">
+      <PageHeader
+        title="FAQs"
+        description="Gestión de preguntas frecuentes"
+        icon={HelpCircle}
+      />
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-muted-foreground text-sm">No hay contenido disponible todavía.</p>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

@@ -296,18 +296,16 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        className="mb-0"
         title="Dashboard"
         description={`Vista general de la operativa de ${branding.academyName}`}
-        icon={BookOpen}
         badge={(
-          <Badge variant={isConnected ? 'default' : 'outline'}>
-            {isConnected ? 'EN VIVO' : 'SIN CONEXIÓN'}
+          <Badge variant={isConnected ? 'default' : 'outline'} className="text-xs">
+            {isConnected ? 'En vivo' : 'Sin conexión'}
           </Badge>
         )}
         actions={(
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => {
               void refresh()
@@ -318,17 +316,6 @@ export default function DashboardPage() {
             Actualizar
           </Button>
         )}
-        filters={(
-          <div className="flex w-full flex-wrap items-center gap-2 text-sm">
-            <Badge variant="outline" className="capitalize">{formattedDate}</Badge>
-            <Badge variant="outline">{isConnected ? 'Conectado' : 'Sin conexión'}</Badge>
-            {lastUpdate && (
-              <Badge variant="outline">
-                Actualizado: {lastUpdate.toLocaleTimeString('es-ES')}
-              </Badge>
-            )}
-          </div>
-        )}
       />
 
       {/* Primera línea de KPIs */}
@@ -337,14 +324,14 @@ export default function DashboardPage() {
           const Icon = kpi.icon
           return (
             <Card key={kpi.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-base font-semibold">{kpi.title}</CardTitle>
-                <div className="rounded-full bg-primary/10 p-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{kpi.title}</CardTitle>
+                <div className="rounded-full bg-primary/10 p-1.5">
                   <Icon className="h-4 w-4 text-primary" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{kpi.value}</div>
+              <CardContent className="p-4 pt-1">
+                <div className="text-2xl font-bold">{kpi.value}</div>
               </CardContent>
             </Card>
           )
@@ -357,14 +344,14 @@ export default function DashboardPage() {
           const Icon = kpi.icon
           return (
             <Card key={kpi.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-base font-semibold">{kpi.title}</CardTitle>
-                <div className="rounded-full bg-primary/10 p-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{kpi.title}</CardTitle>
+                <div className="rounded-full bg-primary/10 p-1.5">
                   <Icon className="h-4 w-4 text-primary" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{kpi.value}</div>
+              <CardContent className="p-4 pt-1">
+                <div className="text-2xl font-bold">{kpi.value}</div>
               </CardContent>
             </Card>
           )
