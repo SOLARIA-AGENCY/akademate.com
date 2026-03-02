@@ -27,6 +27,25 @@ import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '../../../@payload-config/hooks/useViewPreference'
 import type { CicloPlantilla } from '@/types'
 
+function CicloImageWithFallback({ src, alt }: { src: string; alt: string }) {
+  const [hasError, setHasError] = React.useState(false)
+  if (!src || hasError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-muted/60">
+        <BookOpen className="h-12 w-12 text-primary/25" />
+      </div>
+    )
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+      onError={() => setHasError(true)}
+    />
+  )
+}
+
 interface Ciclo {
   id: string
   nombre: string
@@ -553,12 +572,8 @@ export default function TodosLosCiclosPage() {
                 className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
                 onClick={() => handleViewCiclo(ciclo)}
               >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={ciclo.imagen}
-                    alt={ciclo.nombre}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
+                <div className="relative h-48 overflow-hidden bg-muted">
+                  <CicloImageWithFallback src={ciclo.imagen} alt={ciclo.nombre} />
                   <div className="absolute left-4 top-4">
                     <span className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold bg-black/70 backdrop-blur-sm border border-white/20 text-white">
                       {ciclo.nivel}

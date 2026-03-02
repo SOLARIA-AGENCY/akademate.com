@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
@@ -25,6 +26,7 @@ export function CourseTemplateCard({
   className,
 }: CourseTemplateCardProps) {
   const typeConfig = COURSE_TYPE_CONFIG[template.tipo] || COURSE_TYPE_CONFIG.privados
+  const [imgError, setImgError] = useState(false)
 
   return (
     <Card
@@ -33,11 +35,18 @@ export function CourseTemplateCard({
     >
       {/* Course Image */}
       <div className="relative h-40 overflow-hidden bg-muted">
-        <img
-          src={template.imagenPortada}
-          alt={template.nombre}
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-        />
+        {template.imagenPortada && !imgError ? (
+          <img
+            src={template.imagenPortada}
+            alt={template.nombre}
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-muted/60">
+            <BookOpen className="h-12 w-12 text-primary/25" />
+          </div>
+        )}
         <div className="absolute left-3 top-3">
           <Badge
             className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white text-[11px] font-semibold`}
