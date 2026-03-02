@@ -184,10 +184,11 @@ export default function AlumnosPage() {
         icon={User}
         actions={(
           <>
-            <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg">
+            <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="sm"
+                className={viewMode === 'list' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}
                 onClick={() => setViewMode('list')}
               >
                 <List className="h-4 w-4 mr-2" />
@@ -196,6 +197,7 @@ export default function AlumnosPage() {
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
                 size="sm"
+                className={viewMode === 'grid' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}
                 onClick={() => setViewMode('grid')}
               >
                 <LayoutGrid className="h-4 w-4 mr-2" />
@@ -353,9 +355,9 @@ export default function AlumnosPage() {
 
       {/* Vista LISTADO (default) */}
       {viewMode === 'list' && (
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className={`grid gap-6 ${selectedStudent ? 'md:grid-cols-3' : 'grid-cols-1'}`}>
           {/* Tabla de alumnos - 2/3 */}
-          <div className="md:col-span-2">
+          <div className={selectedStudent ? 'md:col-span-2' : ''}>
             <Card>
               <CardHeader>
                 <CardTitle>Listado de Alumnos</CardTitle>
@@ -370,7 +372,7 @@ export default function AlumnosPage() {
                       className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
                         selectedStudent?.id === student.id
                           ? 'bg-primary/10 border-2 border-primary'
-                          : 'bg-secondary hover:bg-secondary/80'
+                          : 'hover:bg-muted/50'
                       }`}
                       onClick={() => setSelectedStudent(student)}
                       onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
@@ -422,9 +424,9 @@ export default function AlumnosPage() {
             </Card>
           </div>
 
-          {/* Panel lateral - 1/3 */}
+          {/* Panel lateral - 1/3 (solo visible cuando hay alumno seleccionado) */}
+          {selectedStudent ? (
           <div className="md:col-span-1">
-            {selectedStudent && (
               <Card className="sticky top-6">
                 <CardHeader>
                   <CardTitle className="text-lg">Previsualización</CardTitle>
@@ -519,8 +521,8 @@ export default function AlumnosPage() {
                   </div>
                 </CardContent>
               </Card>
-            )}
           </div>
+          ) : null}
         </div>
       )}
 
