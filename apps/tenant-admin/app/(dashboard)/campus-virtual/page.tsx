@@ -108,32 +108,40 @@ export default function CampusVirtualOverviewPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardDescription>Total inscritos activos</CardDescription>
-            <CardTitle className="text-3xl">{kpis.activeEnrollments}</CardTitle>
+            <Users className="h-5 w-5 text-primary/70" />
           </CardHeader>
-          <CardContent><Users className="h-5 w-5 text-muted-foreground" /></CardContent>
+          <CardContent>
+            <div className="text-3xl font-bold">{kpis.activeEnrollments}</div>
+          </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardDescription>Cursos activos</CardDescription>
-            <CardTitle className="text-3xl">{kpis.activeCourses}</CardTitle>
+            <BookOpen className="h-5 w-5 text-primary/70" />
           </CardHeader>
-          <CardContent><BookOpen className="h-5 w-5 text-muted-foreground" /></CardContent>
+          <CardContent>
+            <div className="text-3xl font-bold">{kpis.activeCourses}</div>
+          </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardDescription>Tasa de finalización</CardDescription>
-            <CardTitle className="text-3xl">{kpis.completionRate}%</CardTitle>
+            <GraduationCap className="h-5 w-5 text-primary/70" />
           </CardHeader>
-          <CardContent><GraduationCap className="h-5 w-5 text-muted-foreground" /></CardContent>
+          <CardContent>
+            <div className="text-3xl font-bold">{kpis.completionRate}%</div>
+          </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardDescription>Certificados emitidos</CardDescription>
-            <CardTitle className="text-3xl">{kpis.issuedCertificates}</CardTitle>
+            <Award className="h-5 w-5 text-primary/70" />
           </CardHeader>
-          <CardContent><Award className="h-5 w-5 text-muted-foreground" /></CardContent>
+          <CardContent>
+            <div className="text-3xl font-bold">{kpis.issuedCertificates}</div>
+          </CardContent>
         </Card>
       </section>
 
@@ -161,7 +169,13 @@ export default function CampusVirtualOverviewPage() {
                 <TableBody>
                   {enrollments.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{item.courseRun?.course?.title ?? 'Curso sin título'}</TableCell>
+                      <TableCell>
+                        {item.courseRun?.course?.title ?? (
+                          <span className="text-muted-foreground italic" title="Pendiente de sincronización LMS">
+                            Sin título
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={item.status === 'active' ? 'default' : 'secondary'}>
                           {item.status}
