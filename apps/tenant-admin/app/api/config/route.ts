@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { db, tenants } from '@/@payload-config/lib/db'
 
 const PersonalizacionSchema = z.object({
@@ -73,43 +73,44 @@ interface ConfigData {
   domains?: z.infer<typeof DomainsSchema>
 }
 
-// Mock data
+// Default fallback config — Akademate platform defaults.
+// Used when no tenant-specific data exists in the database.
 const mockConfig: ConfigData = {
   academia: {
-    nombre: 'CEP Formación',
-    razonSocial: 'CEP Comunicación S.L.',
-    cif: 'B29123456',
-    direccion: 'Calle Compositor Lehmberg Ruiz 9',
-    codigoPostal: '29007',
-    ciudad: 'Málaga',
-    provincia: 'Málaga',
-    telefono1: '+34 952 260 028',
-    telefono2: '+34 952 260 029',
-    email1: 'info@cepcomunicacion.com',
-    email2: 'formacion@cepcomunicacion.com',
-    web: 'https://www.cepcomunicacion.com',
-    horario: 'Lunes a Viernes: 9:00 - 19:00',
-    facebook: 'https://facebook.com/cepcomunicacion',
-    twitter: 'https://x.com/cepcomunicacion',
-    instagram: 'https://instagram.com/cepcomunicacion',
-    linkedin: 'https://linkedin.com/company/cepcomunicacion',
-    youtube: 'https://youtube.com/@cepcomunicacion',
+    nombre: 'Akademate',
+    razonSocial: 'Akademate S.L.',
+    cif: '',
+    direccion: '',
+    codigoPostal: '',
+    ciudad: '',
+    provincia: '',
+    telefono1: '',
+    telefono2: '',
+    email1: 'hola@akademate.com',
+    email2: '',
+    web: 'https://www.akademate.com',
+    horario: 'Lunes a Viernes: 9:00 - 18:00',
+    facebook: '',
+    twitter: '',
+    instagram: '',
+    linkedin: '',
+    youtube: '',
   },
   logos: {
-    principal: '/logos/cep-logo.png',
-    oscuro: '/logos/cep-logo-alpha.png',
-    claro: '/logos/cep-logo-alpha.png',
-    favicon: '/logos/cep-logo.png',
+    principal: '/logos/akademate-logo.svg',
+    oscuro: '/logos/akademate-logo-alpha.svg',
+    claro: '/logos/akademate-logo-mono.svg',
+    favicon: '/logos/akademate-favicon.svg',
   },
   personalizacion: {
-    primary: '#F2014B',
+    primary: '#0066CC',
     secondary: '#1a1a2e',
-    accent: '#ff6600',
+    accent: '#0088FF',
     success: '#22c55e',
     warning: '#f59e0b',
     danger: '#ef4444',
   },
-  domains: ['cepcomunicacion.com', 'www.cepcomunicacion.com'],
+  domains: ['akademate.com', 'www.akademate.com'],
 }
 
 // ============================================================================
@@ -119,7 +120,33 @@ const mockConfig: ConfigData = {
 // ============================================================================
 
 async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult | undefined> {
-   
+  const isNumeric = /^\d+$/.test(tenantId)
+
+  if (isNumeric) {
+    // Payload CMS tenants table uses integer PKs and separate branding columns.
+    // Use raw SQL to avoid Drizzle UUID type mismatch.
+    type PayloadRow = { id: number; name: string; branding_primary_color: string | null; branding_secondary_color: string | null }
+    const rows = await db.execute(
+      sql`SELECT id, name, branding_primary_color, branding_secondary_color FROM tenants WHERE id = ${parseInt(tenantId, 10)} LIMIT 1`
+    )
+    const row = (rows as unknown as PayloadRow[])[0]
+    if (!row) return undefined
+
+    const branding: TenantBranding = {}
+    if (row.branding_primary_color ?? row.branding_secondary_color) {
+      branding.theme = {
+        primary: row.branding_primary_color ?? mockConfig.personalizacion.primary,
+        secondary: row.branding_secondary_color ?? mockConfig.personalizacion.secondary,
+        accent: mockConfig.personalizacion.accent,
+        success: mockConfig.personalizacion.success,
+        warning: mockConfig.personalizacion.warning,
+        danger: mockConfig.personalizacion.danger,
+      }
+    }
+    return { id: String(row.id), name: row.name, branding }
+  }
+
+  // UUID IDs → Drizzle SaaS schema (packages/db)
   const results = await db
     .select({ id: tenants.id, name: tenants.name, branding: tenants.branding })
     .from(tenants)
@@ -127,19 +154,21 @@ async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult
     .limit(1)
     .execute()
   const first = results[0]
-   
+
   return first as TenantBrandingResult | undefined
 }
 
 function resolveTenantId(inputTenantId?: string | null): string | null {
   const envTenantId = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? process.env.DEFAULT_TENANT_ID ?? null
   const uuidSchema = z.string().uuid()
-  const fromInput = uuidSchema.safeParse(inputTenantId)
-  if (fromInput.success) return fromInput.data
+  const numericSchema = z.string().regex(/^\d+$/)
 
-  const fromEnv = uuidSchema.safeParse(envTenantId)
-  if (fromEnv.success) return fromEnv.data
-
+  // Accept UUID or numeric (Payload uses integer PKs, Drizzle schema uses UUID)
+  const candidates = [inputTenantId, envTenantId]
+  for (const candidate of candidates) {
+    if (uuidSchema.safeParse(candidate).success) return candidate as string
+    if (numericSchema.safeParse(candidate).success) return candidate as string
+  }
   return null
 }
 
