@@ -116,7 +116,7 @@ export default function LoginPage() {
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-6">
-            <div className="relative rounded-full border-4 border-[#f2014b] bg-white shadow-xl shadow-[#f2014b]/30 overflow-hidden flex items-center justify-center w-36 h-36">
+            <div className="relative rounded-full border-4 border-primary bg-white shadow-xl shadow-primary/30 overflow-hidden flex items-center justify-center w-36 h-36">
               <Image
                 src={branding.logos.favicon}
                 alt={branding.academyName}
@@ -154,7 +154,7 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="usuario@akademate.com"
+                    placeholder={`usuario@${branding.academyName.toLowerCase().replace(/\s+/g, '')}.com`}
                     value={credentials.email}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCredentials({ ...credentials, email: e.target.value })}
                     ref={emailRef}
@@ -232,7 +232,7 @@ export default function LoginPage() {
         </Card>
 
         <div className="mt-8 text-center text-sm text-muted-foreground">
-          <p>© 2026 AKADEMATE. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} {branding.academyName}. Todos los derechos reservados.</p>
           <div className="flex items-center justify-center gap-4 mt-2">
             <a href="/legal/privacidad" className="hover:text-foreground transition-colors">
               Política de Privacidad
