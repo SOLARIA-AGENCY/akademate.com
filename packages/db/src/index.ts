@@ -38,6 +38,10 @@ import {
   calendarEvents,
   liveSessions,
   certificates,
+  // Better Auth tables
+  sessions,
+  accounts,
+  verifications,
   // Enums
   planEnum,
   tenantStatusEnum,
@@ -131,6 +135,10 @@ export {
   calendarEvents,
   liveSessions,
   certificates,
+  // Better Auth tables
+  sessions,
+  accounts,
+  verifications,
   // Enums
   planEnum,
   tenantStatusEnum,
