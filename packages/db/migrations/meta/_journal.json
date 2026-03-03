@@ -15,6 +15,13 @@
       "when": 1766924803278,
       "tag": "0001_slim_rick_jones",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772549853005,
+      "tag": "0002_mysterious_meggan",
+      "breakpoints": true
     }
   ]
 }
