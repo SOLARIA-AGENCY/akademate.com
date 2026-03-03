@@ -89,12 +89,18 @@ interface UpcomingConvocation {
  *
  * Retorna métricas agregadas para el dashboard principal
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-     
+
     const payload = await getPayloadHMR({ config: configPromise });
 
-    // Fetch all data in parallel
+    // Resolve tenantId from query params or env (Payload uses integer PKs)
+    const rawTenantId = request.nextUrl.searchParams.get('tenantId')
+    const envTenantId = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2'
+    const tenantId = parseInt(rawTenantId ?? envTenantId, 10) || 2
+    const tenantWhere = { tenant_id: { equals: tenantId } }
+
+    // Fetch all data in parallel, filtered by tenantId
     const [
       coursesData,
       convocationsData,
@@ -105,16 +111,19 @@ export async function GET(_request: NextRequest) {
       // Cursos
       payload.find({
         collection: 'courses',
+        where: tenantWhere,
         limit: 1000,
       }),
       // Convocatorias (Course Runs)
       payload.find({
         collection: 'course-runs',
+        where: tenantWhere,
         limit: 1000,
       }),
       // Sedes (Campuses)
       payload.find({
         collection: 'campuses',
+        where: tenantWhere,
         limit: 100,
       }),
       payload.find({

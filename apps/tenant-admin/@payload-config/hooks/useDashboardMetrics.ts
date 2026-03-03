@@ -141,7 +141,8 @@ function normalizeDashboardData(raw: RawDashboardResponse): DashboardData {
 export function useDashboardMetrics(
   options: UseDashboardMetricsOptions = {}
 ): UseDashboardMetricsResult {
-  const { tenantId = 1, enableRealtime = false, refreshInterval = 30000 } = options;
+  const defaultTenantId = parseInt(process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2', 10)
+  const { tenantId = defaultTenantId, enableRealtime = false, refreshInterval = 30000 } = options;
 
   const [data, setData] = useState<DashboardData>(defaultMetrics);
   const [loading, setLoading] = useState(true);

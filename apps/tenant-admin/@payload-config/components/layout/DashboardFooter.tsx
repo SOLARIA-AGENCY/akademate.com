@@ -3,8 +3,12 @@
 import Link from 'next/link'
 import { Shield, Cookie, FileText, Activity } from 'lucide-react'
 import { Badge } from '@payload-config/components/ui/badge'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 
 export function DashboardFooter() {
+  const { branding } = useTenantBranding()
+  const year = new Date().getFullYear()
+
   return (
     <footer className="border-t bg-card/95 backdrop-blur mt-auto">
       <div className="px-4 md:px-6 py-3">
@@ -37,7 +41,7 @@ export function DashboardFooter() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Badge variant="outline" className="text-[10px] tracking-wide">TENANT DASHBOARD</Badge>
-            <span className="text-muted-foreground">© 2026 CEP Comunicación</span>
+            <span className="text-muted-foreground">© {year} {branding.academyName}</span>
             <span className="text-muted-foreground/50">•</span>
             <Link
               href="/estado"

@@ -142,9 +142,10 @@ interface WeeklyChartDataPoint {
 export default function DashboardPage() {
   // Use the combined hook for initial fetch + real-time updates
   // Type assertion required as TypeScript cannot resolve types through path alias
-  const hookResult: UseDashboardMetricsResult = useDashboardMetrics({ tenantId: 1, enableRealtime: true }) as UseDashboardMetricsResult
-  const { data, loading, error, isConnected } = hookResult
   const { branding } = useTenantBranding()
+  const tenantId = parseInt(branding.tenantId, 10) || parseInt(process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2', 10)
+  const hookResult: UseDashboardMetricsResult = useDashboardMetrics({ tenantId, enableRealtime: true }) as UseDashboardMetricsResult
+  const { data, loading, error, isConnected } = hookResult
 
   const [lmsSummary, setLmsSummary] = useState<LmsSummary>({
     totalEnrollments: 0,
