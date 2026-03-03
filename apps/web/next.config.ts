@@ -9,16 +9,16 @@ const nextConfig: NextConfig = {
   // pg has native bindings — must not be webpack-bundled
   serverExternalPackages: ['pg', 'pg-native'],
 
-  experimental: {
-    // Ensure pg and drizzle-orm are included in the standalone trace
-    outputFileTracingIncludes: {
-      '/api/auth/[...all]': [
-        './node_modules/pg/**',
-        './node_modules/pg-pool/**',
-        './node_modules/drizzle-orm/**',
-      ],
-    },
+  // Ensure pg is included in the standalone trace (needed by better-auth at runtime)
+  outputFileTracingIncludes: {
+    '/api/auth/[...all]': [
+      './node_modules/pg/**',
+      './node_modules/pg-pool/**',
+      './node_modules/drizzle-orm/**',
+    ],
   },
+
+  experimental: {},
 
   // Image optimization
   images: {
