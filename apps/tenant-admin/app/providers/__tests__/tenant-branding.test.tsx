@@ -129,24 +129,24 @@ describe('TenantBrandingProvider - CSS variable injection', () => {
 // ─── hexToHSL conversion (tested indirectly via CSS variable values) ─────────
 
 describe('TenantBrandingProvider - hexToHSL correctness', () => {
-  it('converts CEP primary #F2014B to correct HSL', async () => {
+  it('converts Akademate primary #0066CC to correct HSL', async () => {
     render(
       <TenantBrandingProvider>
         <span>child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
-      // #F2014B → H≈342, S≈99%, L≈48%
+      // #0066CC → H=210, S=100%, L=40%
       const primary = getRootVar('--primary')
       const [h, s, l] = primary.split(' ')
-      expect(Number(h)).toBeGreaterThanOrEqual(340)
-      expect(Number(h)).toBeLessThanOrEqual(345)
-      expect(s).toMatch(/^9[0-9]%$/)
+      expect(Number(h)).toBeGreaterThanOrEqual(208)
+      expect(Number(h)).toBeLessThanOrEqual(212)
+      expect(s).toBe('100%')
       expect(l).toMatch(/^4[0-9]%$/)
     })
   })
 
-  it('converts CEP secondary #1a1a2e to 240 28% 14%', async () => {
+  it('converts brand secondary #1a1a2e to 240 28% 14%', async () => {
     render(
       <TenantBrandingProvider>
         <span>child</span>
@@ -157,18 +157,18 @@ describe('TenantBrandingProvider - hexToHSL correctness', () => {
     })
   })
 
-  it('converts CEP accent #ff6600 to correct orange HSL', async () => {
+  it('converts Akademate accent #0088FF to correct blue HSL', async () => {
     render(
       <TenantBrandingProvider>
         <span>child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
-      // #ff6600 → H=24, S=100%, L=50%
+      // #0088FF → H≈208, S=100%, L=50%
       const accent = getRootVar('--accent')
       const [h, s, l] = accent.split(' ')
-      expect(Number(h)).toBeGreaterThanOrEqual(22)
-      expect(Number(h)).toBeLessThanOrEqual(26)
+      expect(Number(h)).toBeGreaterThanOrEqual(205)
+      expect(Number(h)).toBeLessThanOrEqual(212)
       expect(s).toBe('100%')
       expect(l).toBe('50%')
     })
@@ -311,7 +311,7 @@ describe('useTenantBranding hook', () => {
     }
 
     render(<Consumer />)
-    expect(screen.getByTestId('name')).toHaveTextContent('CEP Formación')
+    expect(screen.getByTestId('name')).toHaveTextContent('Akademate')
     expect(screen.getByTestId('loading')).toHaveTextContent('idle')
   })
 

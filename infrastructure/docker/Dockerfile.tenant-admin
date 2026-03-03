@@ -16,6 +16,11 @@ FROM base AS runner
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Build-time env vars baked into the Next.js client bundle.
+# Override with --build-arg NEXT_PUBLIC_DEFAULT_TENANT_ID=X when needed.
+ARG NEXT_PUBLIC_DEFAULT_TENANT_ID=2
+ENV NEXT_PUBLIC_DEFAULT_TENANT_ID=${NEXT_PUBLIC_DEFAULT_TENANT_ID}
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 WORKDIR /app
