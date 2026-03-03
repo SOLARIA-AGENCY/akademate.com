@@ -6,12 +6,18 @@ const nextConfig: NextConfig = {
   // Transpile workspace packages
   transpilePackages: ['@akademate/ui', '@akademate/types', '@akademate/api'],
 
-  // Packages that should not be bundled (native/server-only)
-  serverExternalPackages: ['pg', 'pg-native', '@better-auth/drizzle-adapter', 'better-auth'],
+  // pg has native bindings — must not be webpack-bundled
+  serverExternalPackages: ['pg', 'pg-native'],
 
-  // ISR configuration for CMS content
   experimental: {
-    // Enable PPR when stable
+    // Ensure pg and drizzle-orm are included in the standalone trace
+    outputFileTracingIncludes: {
+      '/api/auth/[...all]': [
+        './node_modules/pg/**',
+        './node_modules/pg-pool/**',
+        './node_modules/drizzle-orm/**',
+      ],
+    },
   },
 
   // Image optimization
