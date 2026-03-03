@@ -113,18 +113,6 @@ const menuItems: MenuItemWithSection[] = [
     ],
   },
   {
-    title: 'Campus Virtual',
-    icon: GraduationCap,
-    sectionBefore: 'CAMPUS VIRTUAL',
-    items: [
-      { title: 'Vista General Campus', icon: LayoutDashboard, url: '/campus-virtual' },
-      { title: 'Inscripciones LMS', icon: UserPlus, url: '/campus-virtual/inscripciones' },
-      { title: 'Progreso Alumnos', icon: BarChart3, url: '/campus-virtual/progreso' },
-      { title: 'Módulos y Lecciones', icon: BookOpen, url: '/campus-virtual/contenido' },
-      { title: 'Certificados', icon: Award, url: '/campus-virtual/certificados' },
-    ],
-  },
-  {
     title: 'Marketing',
     icon: Megaphone,
     sectionBefore: 'GESTIÓN COMERCIAL',
@@ -188,20 +176,27 @@ const menuItems: MenuItemWithSection[] = [
     url: '/analiticas',
   },
   {
-    title: 'Administración',
-    icon: Shield,
+    title: 'Campus Virtual',
+    icon: GraduationCap,
+    sectionBefore: 'CAMPUS VIRTUAL',
+    items: [
+      { title: 'Vista General Campus', icon: LayoutDashboard, url: '/campus-virtual' },
+      { title: 'Inscripciones LMS', icon: UserPlus, url: '/campus-virtual/inscripciones' },
+      { title: 'Progreso Alumnos', icon: BarChart3, url: '/campus-virtual/progreso' },
+      { title: 'Módulos y Lecciones', icon: BookOpen, url: '/campus-virtual/contenido' },
+      { title: 'Certificados', icon: Award, url: '/campus-virtual/certificados' },
+    ],
+  },
+  {
+    title: 'Configuración',
+    icon: Settings,
+    sectionBefore: 'ADMINISTRACIÓN',
     items: [
       { title: 'Usuarios', icon: Users, url: '/administracion/usuarios' },
       { title: 'Roles y Permisos', icon: Shield, url: '/administracion/roles' },
       { title: 'Impersonar Usuario', icon: UserCog, url: '/administracion/impersonar' },
       { title: 'Suscripción', icon: CreditCard, url: '/administracion/suscripcion' },
       { title: 'Registro de Actividad', icon: FileText, url: '/administracion/actividad' },
-    ],
-  },
-  {
-    title: 'Configuración',
-    icon: Settings,
-    items: [
       { title: 'General', icon: Settings, url: '/configuracion/general' },
       { title: 'Áreas de Estudio', icon: BookOpen, url: '/configuracion/areas' },
       { title: 'APIs y Webhooks', icon: Globe, url: '/configuracion/apis' },
