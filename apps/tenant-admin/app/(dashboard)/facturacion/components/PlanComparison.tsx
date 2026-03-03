@@ -111,7 +111,7 @@ export function PlanComparison({ currentPlan, onSelectPlan }: PlanComparisonProp
                 <Label htmlFor="interval" className={interval === 'year' ? 'font-semibold' : ''}>
                   Anual
                 </Label>
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
+                <span className="text-xs bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300 px-2 py-1 rounded-full font-medium">
                   Ahorra 17%
                 </span>
               </div>
