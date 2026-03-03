@@ -98,7 +98,8 @@ export async function GET(request: NextRequest) {
     const rawTenantId = request.nextUrl.searchParams.get('tenantId')
     const envTenantId = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2'
     const tenantId = parseInt(rawTenantId ?? envTenantId, 10) || 2
-    const tenantWhere = { tenant_id: { equals: tenantId } }
+    // Payload field is named 'tenant' (relationship), not 'tenant_id' (DB column)
+    const tenantWhere = { tenant: { equals: tenantId } }
 
     // Fetch all data in parallel, filtered by tenantId
     const [
