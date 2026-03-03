@@ -91,7 +91,12 @@ function applyThemeVariables(theme: TenantTheme): void {
   if (typeof document === 'undefined') return
   const root = document.documentElement
   root.style.setProperty('--primary', hexToHSL(theme.primary))
-  root.style.setProperty('--secondary', hexToHSL(theme.secondary))
+  // NOTE: --secondary is intentionally NOT overridden here.
+  // shadcn/ui uses --secondary as a neutral surface color (light gray / dark gray).
+  // The tenant brand secondary (#1a1a2e navy) is stored in --brand-secondary for
+  // brand-specific elements only. Overriding --secondary breaks badges, bars, and
+  // any neutral UI element that relies on the light/dark mode cascade.
+  root.style.setProperty('--brand-secondary', hexToHSL(theme.secondary))
   root.style.setProperty('--accent', hexToHSL(theme.accent))
   root.style.setProperty('--success', hexToHSL(theme.success))
   root.style.setProperty('--warning', hexToHSL(theme.warning))
