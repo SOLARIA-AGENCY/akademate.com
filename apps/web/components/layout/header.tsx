@@ -4,8 +4,6 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, X, GraduationCap } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { getRuntimePlatformUrls } from '@/lib/platform-access'
-
 const navigation = [
   { name: 'Inicio', href: '/' },
   { name: 'Accesos', href: '/accesos' },
@@ -18,7 +16,6 @@ const navigation = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const loginUrl = `${getRuntimePlatformUrls().tenant}/auth/login`
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -63,7 +60,7 @@ export function Header() {
         {/* CTA buttons */}
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
           <Link
-            href={loginUrl}
+            href="/portal/login"
             className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             Iniciar sesión
@@ -97,7 +94,7 @@ export function Header() {
           ))}
           <div className="mt-4 space-y-2">
             <Link
-              href={loginUrl}
+              href="/portal/login"
               className="block w-full rounded-md border px-4 py-2 text-center text-sm font-medium"
               onClick={() => { setMobileMenuOpen(false) }}
             >
