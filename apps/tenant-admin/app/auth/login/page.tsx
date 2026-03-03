@@ -116,7 +116,10 @@ export default function LoginPage() {
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-6">
-            <div className="relative rounded-full border-4 border-primary bg-white shadow-xl shadow-primary/30 overflow-hidden flex items-center justify-center w-36 h-36">
+            <div
+              className="relative rounded-full border-4 border-primary bg-white overflow-hidden flex items-center justify-center w-36 h-36"
+              style={{ boxShadow: '0 20px 40px -5px hsl(var(--primary) / 0.4), 0 8px 16px -4px hsl(var(--primary) / 0.25)' }}
+            >
               <Image
                 src={branding.logos.favicon}
                 alt={branding.academyName}
