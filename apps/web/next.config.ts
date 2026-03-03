@@ -2,9 +2,12 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  
+
   // Transpile workspace packages
   transpilePackages: ['@akademate/ui', '@akademate/types', '@akademate/api'],
+
+  // Packages that should not be bundled (native/server-only)
+  serverExternalPackages: ['pg', 'pg-native', '@better-auth/drizzle-adapter', 'better-auth'],
 
   // ISR configuration for CMS content
   experimental: {
