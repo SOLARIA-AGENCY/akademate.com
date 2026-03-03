@@ -115,10 +115,19 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       PAYLOAD_CMS_URL: http://payload:3003
       PAYLOAD_API_KEY: ${PAYLOAD_API_KEY:-}
+      DATABASE_URL: postgres://${POSTGRES_USER:-akademate}:${POSTGRES_PASSWORD:-akademate123}@postgres:5432/${POSTGRES_DB:-akademate}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-bc76984d77c0ee97aa7e9a1fcafdce9d8797d4a014f66a2b84d5c1cada0498ef}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3006}
+      NEXT_PUBLIC_WEB_URL: ${NEXT_PUBLIC_WEB_URL:-http://localhost:3006}
+      NEXT_PUBLIC_TENANT_URL: ${NEXT_PUBLIC_TENANT_URL:-http://localhost:3009}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
     ports:
       - "${WEB_PORT:-3006}:3006"
     depends_on:
-      - payload
+      postgres:
+        condition: service_healthy
+      payload:
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3006"]
       interval: 30s
