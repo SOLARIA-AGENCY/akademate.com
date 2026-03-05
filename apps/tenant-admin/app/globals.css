@@ -10,6 +10,7 @@
  * Con esto, las utilities usan var(--color-*) que mapean a hsl(var(--*)) dinámicamente.
  */
 @theme inline {
+  /* Base */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -24,11 +25,21 @@
   --color-muted-foreground: hsl(var(--muted-foreground));
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  /* Semantic */
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+  --color-neutral: hsl(var(--neutral));
+  --color-neutral-foreground: hsl(var(--neutral-foreground));
+  /* Sidebar */
   --color-sidebar: hsl(var(--sidebar));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-primary: hsl(var(--sidebar-primary));
@@ -37,6 +48,20 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
+  /* Charts */
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  /* Tenant brand */
+  --color-brand-accent: hsl(var(--brand-accent));
+  --color-brand-accent-foreground: hsl(var(--brand-accent-foreground));
+  /* Typography & radius */
+  --font-family-sans: var(--font-sans);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
 }
 
 /*
@@ -54,104 +79,126 @@ body:not([data-payload-admin]) {
 /* Custom Dashboard styles - scoped to avoid Payload Admin conflicts */
 @layer base {
   :root:not([data-payload-admin]) {
-    /* CSS variables for runtime theming - AKADEMATE */
-    --background: 0 0% 97%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 210 100% 40%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 223 76% 48%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 210 100% 40%;
-
-    /* Sidebar colors - AKADEMATE */
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 210 100% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 9% 86%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 210 100% 40%;
-
-    /* Border radius */
+    /* CSS variables for runtime theming - AKADEMATE Design System v1.0 */
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     --radius: 0.5rem;
 
-    /* Chart colors */
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    /* Base palette */
+    --background: 0 0% 97%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Primary — blue-700 #1D4ED8 */
+    --primary: 224 71% 48%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary / Muted / Accent (shadcn hover state) */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    /* Semantic */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 72% 29%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 221 83% 53%;
+    --info-foreground: 0 0% 100%;
+    --neutral: 220 9% 46%;
+    --neutral-foreground: 0 0% 100%;
+
+    /* Borders & input */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 224 71% 48%;
+
+    /* Sidebar */
+    --sidebar: 0 0% 98%;
+    --sidebar-foreground: 222 47% 20%;
+    --sidebar-primary: 224 71% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 93%;
+    --sidebar-accent-foreground: 222 47% 15%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 224 71% 48%;
+
+    /* Charts */
+    --chart-1: 224 71% 48%;
+    --chart-2: 142 72% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 280 60% 55%;
+    --chart-5: 340 70% 55%;
+
+    /* Tenant brand accent */
+    --brand-accent: 224 71% 48%;
+    --brand-accent-foreground: 0 0% 100%;
   }
 
   .dark:not([data-payload-admin]) {
-    /* Base backgrounds - neutral grays with proper hierarchy */
-    --background: 0 0% 6%; /* Extremely dark base (#0f0f0f) */
-    --foreground: 0 0% 95%; /* Light gray text (#f2f2f2) */
+    /* Base */
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    /* Cards - 4% lighter than background */
-    --card: 0 0% 10%; /* Dark gray cards (#1a1a1a) */
-    --card-foreground: 0 0% 95%; /* Light gray text */
-
-    /* Popovers - same as cards */
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 95%;
-
-    /* Primary - AKADEMATE brand color */
-    --primary: 210 100% 56%;
+    /* Primary dark — blue-500 brightened for AA */
+    --primary: 221 83% 63%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - 3% lighter than card */
-    --secondary: 0 0% 13%; /* Medium dark (#212121) */
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 222 30% 16%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 30% 16%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 222 30% 18%;
+    --accent-foreground: 210 40% 98%;
 
-    /* Muted - same as secondary */
-    --muted: 0 0% 13%;
-    --muted-foreground: 0 0% 65%; /* Medium gray text (#a6a6a6) */
+    /* Semantic dark */
+    --destructive: 0 62% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 60% 42%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 85% 58%;
+    --warning-foreground: 0 0% 100%;
+    --info: 221 78% 62%;
+    --info-foreground: 0 0% 100%;
+    --neutral: 220 9% 58%;
+    --neutral-foreground: 0 0% 100%;
 
-    /* Accent - AKADEMATE brand color */
-    --accent: 223 76% 58%;
-    --accent-foreground: 0 0% 100%;
+    --border: 222 30% 18%;
+    --input: 222 30% 18%;
+    --ring: 221 83% 63%;
 
-    /* Destructive - keep red visible */
-    --destructive: 0 62.8% 50%; /* Brighter red for visibility */
-    --destructive-foreground: 0 0% 98%;
-
-    /* Borders - perceptible against dark backgrounds */
-    --border: 0 0% 17%; /* Light enough to see (#2b2b2b) */
-    --input: 0 0% 17%;
-
-    /* Focus ring - AKADEMATE brand color */
-    --ring: 210 100% 56%;
-
-    /* Sidebar - darker than main background */
-    --sidebar: 0 0% 4%; /* Very dark (#0a0a0a) */
-    --sidebar-foreground: 0 0% 90%; /* Slightly dimmer than main text */
-    --sidebar-primary: 210 100% 56%;
+    /* Sidebar dark */
+    --sidebar: 222 47% 5%;
+    --sidebar-foreground: 210 40% 90%;
+    --sidebar-primary: 221 83% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 8%; /* Subtle highlight */
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 210 100% 56%;
+    --sidebar-accent: 222 30% 12%;
+    --sidebar-accent-foreground: 210 40% 90%;
+    --sidebar-border: 222 30% 16%;
+    --sidebar-ring: 221 83% 63%;
 
-    /* Chart colors - vibrant but not oversaturated */
-    --chart-1: 210 80% 52%; /* AKADEMATE Blue */
-    --chart-2: 142 60% 50%; /* Green */
-    --chart-3: 25 80% 60%; /* Orange */
-    --chart-4: 280 60% 55%; /* Purple */
-    --chart-5: 340 70% 55%; /* Pink variant */
+    /* Charts dark */
+    --chart-1: 221 83% 63%;
+    --chart-2: 142 60% 45%;
+    --chart-3: 38 80% 55%;
+    --chart-4: 280 60% 60%;
+    --chart-5: 340 70% 60%;
+
+    /* Tenant brand dark */
+    --brand-accent: 221 83% 63%;
+    --brand-accent-foreground: 0 0% 100%;
   }
 }
 

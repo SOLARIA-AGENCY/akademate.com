@@ -1,23 +1,122 @@
 @import "tailwindcss";
 
+/*
+ * Akademate Design System — Campus
+ * Tokens alineados con @akademate/ui/tokens/base.css
+ * D3: Campus unificado a light mode (mismo sistema que admin/ops)
+ */
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+  --color-neutral: hsl(var(--neutral));
+  --color-neutral-foreground: hsl(var(--neutral-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-brand-accent: hsl(var(--brand-accent));
+  --color-brand-accent-foreground: hsl(var(--brand-accent-foreground));
+  --font-family-sans: var(--font-sans);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+}
+
 :root {
-  --background: 216 19% 9%;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius: 0.5rem;
+
+  /* Base — light */
+  --background: 0 0% 97%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+
+  /* Primary — blue-700 #1D4ED8 */
+  --primary: 224 71% 48%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 220 14% 96%;
+  --accent-foreground: 222 47% 11%;
+
+  /* Semantic */
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 142 72% 29%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+  --info: 221 83% 53%;
+  --info-foreground: 0 0% 100%;
+  --neutral: 220 9% 46%;
+  --neutral-foreground: 0 0% 100%;
+
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 224 71% 48%;
+
+  /* Tenant brand */
+  --brand-accent: 224 71% 48%;
+  --brand-accent-foreground: 0 0% 100%;
+}
+
+.dark {
+  --background: 222 47% 7%;
   --foreground: 210 40% 98%;
-  --muted: 220 16% 20%;
-  --muted-foreground: 217 16% 75%;
-  --primary: 199 89% 48%;
-  --primary-foreground: 210 40% 10%;
-  --secondary: 262 83% 58%;
+  --card: 222 47% 10%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 47% 10%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 221 83% 63%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 222 30% 16%;
   --secondary-foreground: 210 40% 98%;
-  --accent: 164 95% 43%;
-  --accent-foreground: 210 40% 10%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 220 16% 18%;
-  --input: 220 16% 18%;
-  --ring: 199 89% 48%;
-  --card: 220 16% 12%;
-  --card-foreground: 210 40% 96%;
+  --muted: 222 30% 16%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 222 30% 18%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62% 58%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 142 60% 42%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 85% 58%;
+  --warning-foreground: 0 0% 100%;
+  --info: 221 78% 62%;
+  --info-foreground: 0 0% 100%;
+  --neutral: 220 9% 58%;
+  --neutral-foreground: 0 0% 100%;
+  --border: 222 30% 18%;
+  --input: 222 30% 18%;
+  --ring: 221 83% 63%;
+  --brand-accent: 221 83% 63%;
+  --brand-accent-foreground: 0 0% 100%;
 }
 
 * {
@@ -27,12 +126,11 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at 10% 20%, rgba(91, 206, 255, 0.08), transparent 25%),
-    radial-gradient(circle at 90% 10%, rgba(129, 140, 248, 0.18), transparent 25%),
-    hsl(var(--background));
+  background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {

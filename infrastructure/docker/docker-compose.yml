@@ -195,6 +195,8 @@ services:
       NEXT_PUBLIC_DEV_AUTH_BYPASS: ${NEXT_PUBLIC_DEV_AUTH_BYPASS:-true}
       NEXT_PUBLIC_ENABLE_DEV_LOGIN: ${NEXT_PUBLIC_ENABLE_DEV_LOGIN:-true}
       ENFORCE_HTTPS: ${ENFORCE_HTTPS:-false}
+      NEXT_PUBLIC_WEB_URL: ${NEXT_PUBLIC_WEB_URL:-http://localhost:3006}
+      NEXT_PUBLIC_TENANT_URL: ${NEXT_PUBLIC_TENANT_URL:-http://localhost:3009}
     ports:
       - "${TENANT_PORT:-3009}:3009"
     depends_on:

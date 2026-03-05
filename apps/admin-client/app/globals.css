@@ -29,6 +29,9 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  --color-neutral: var(--neutral);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -88,8 +91,8 @@
   --popover: #ffffff;
   --popover-foreground: #111827;
 
-  /* Primary - SOLARIA cyan-teal gradient base */
-  --primary: #0891b2;
+  /* Primary - Akademate blue-700 #1D4ED8 */
+  --primary: #1d4ed8;
   --primary-foreground: #ffffff;
 
   /* Secondary */
@@ -100,92 +103,102 @@
   --muted: #f3f4f6;
   --muted-foreground: #6b7280;
 
-  /* Accent */
-  --accent: #f0fdfa;
-  --accent-foreground: #0f766e;
+  /* Accent (shadcn hover state) */
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
 
-  /* Semantic colors */
+  /* Semantic colors — WCAG AA on white */
   --destructive: #dc2626;
-  --success: #059669;
-  --warning: #d97706;
-  --info: #0284c7;
+  --success: #15803d;
+  --warning: #f59e0b;
+  --info: #2563eb;
+  --neutral: #6b7280;
+
+  /* Tenant brand */
+  --brand-accent: #1d4ed8;
+  --brand-accent-foreground: #ffffff;
 
   /* Borders and inputs */
   --border: #e5e7eb;
   --input: #e5e7eb;
-  --ring: #0891b2;
+  --ring: #1d4ed8;
 
-  /* Charts - SOLARIA palette */
-  --chart-1: #06b6d4;
-  --chart-2: #14b8a6;
-  --chart-3: #10b981;
-  --chart-4: #0ea5e9;
-  --chart-5: #22d3ee;
+  /* Charts - Akademate palette */
+  --chart-1: #1d4ed8;
+  --chart-2: #15803d;
+  --chart-3: #f59e0b;
+  --chart-4: #7c3aed;
+  --chart-5: #e11d48;
 
   /* Sidebar */
   --sidebar: #ffffff;
   --sidebar-foreground: #374151;
-  --sidebar-primary: #0891b2;
+  --sidebar-primary: #1d4ed8;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f0fdfa;
-  --sidebar-accent-foreground: #0f766e;
+  --sidebar-accent: #eff6ff;
+  --sidebar-accent-foreground: #1e3a8a;
   --sidebar-border: #e5e7eb;
-  --sidebar-ring: #0891b2;
+  --sidebar-ring: #1d4ed8;
 }
 
 .dark {
   /* Canvas and background */
-  --canvas: #111827;
-  --background: #1f2937;
-  --foreground: #f9fafb;
-  --card: #1f2937;
-  --card-foreground: #f9fafb;
-  --popover: #1f2937;
-  --popover-foreground: #f9fafb;
+  --canvas: #0f172a;
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
 
-  /* Primary - SOLARIA cyan */
-  --primary: #22d3ee;
-  --primary-foreground: #111827;
+  /* Primary dark - blue-500 for AA on dark */
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
 
   /* Secondary */
-  --secondary: #374151;
-  --secondary-foreground: #f9fafb;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
 
   /* Muted */
-  --muted: #374151;
-  --muted-foreground: #9ca3af;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
 
   /* Accent */
-  --accent: #134e4a;
-  --accent-foreground: #5eead4;
+  --accent: #1e3a5f;
+  --accent-foreground: #bfdbfe;
 
-  /* Semantic colors */
+  /* Semantic dark */
   --destructive: #f87171;
-  --success: #34d399;
+  --success: #4ade80;
   --warning: #fbbf24;
-  --info: #38bdf8;
+  --info: #60a5fa;
+  --neutral: #94a3b8;
+
+  /* Tenant brand dark */
+  --brand-accent: #3b82f6;
+  --brand-accent-foreground: #ffffff;
 
   /* Borders and inputs */
-  --border: #374151;
-  --input: #374151;
-  --ring: #22d3ee;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #3b82f6;
 
-  /* Charts - SOLARIA palette (dark) */
-  --chart-1: #22d3ee;
-  --chart-2: #2dd4bf;
-  --chart-3: #34d399;
-  --chart-4: #38bdf8;
-  --chart-5: #67e8f9;
+  /* Charts dark */
+  --chart-1: #3b82f6;
+  --chart-2: #4ade80;
+  --chart-3: #fbbf24;
+  --chart-4: #a78bfa;
+  --chart-5: #fb7185;
 
   /* Sidebar */
-  --sidebar: #1f2937;
-  --sidebar-foreground: #f9fafb;
-  --sidebar-primary: #22d3ee;
-  --sidebar-primary-foreground: #111827;
-  --sidebar-accent: #134e4a;
-  --sidebar-accent-foreground: #5eead4;
-  --sidebar-border: #374151;
-  --sidebar-ring: #22d3ee;
+  --sidebar: #0f172a;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1e3a5f;
+  --sidebar-accent-foreground: #bfdbfe;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #3b82f6;
 }
 
 @layer base {

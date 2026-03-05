@@ -5,7 +5,11 @@
   "type": "module",
   "exports": {
     ".": "./src/index.tsx",
-    "./styles.css": "./src/styles.css"
+    "./styles.css": "./src/styles.css",
+    "./tokens/base.css": "./src/tokens/base.css",
+    "./tokens/semantic.css": "./src/tokens/semantic.css",
+    "./tokens/tenant.css": "./src/tokens/tenant.css",
+    "./tokens/theme-v4.css": "./src/tokens/theme-v4.css"
   },
   "files": ["src"],
   "peerDependencies": {
