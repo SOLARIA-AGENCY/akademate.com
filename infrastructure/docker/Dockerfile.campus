@@ -6,19 +6,23 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
-FROM base AS deps
+# =============================================================================
+# Build Stage — install + compile (no inter-stage node_modules copy)
+# =============================================================================
+FROM base AS build
+
+# Copy package manifests (for layer caching)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/campus/package.json ./apps/campus/
 COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/realtime/package.json ./packages/realtime/
+
+# Install all dependencies directly in this stage (avoids COPY between stages)
 RUN --mount=type=cache,id=pnpm-campus,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter @akademate/campus... --include-workspace-root
 
-FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/campus/node_modules ./apps/campus/node_modules
-COPY --from=deps /app/packages ./packages
+# Copy source files
 COPY apps/campus ./apps/campus
 COPY packages ./packages
 COPY tsconfig.base.json postcss.config.cjs tailwind.config.js ./
@@ -27,21 +31,28 @@ ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app/apps/campus
 RUN pnpm build
 
+# =============================================================================
+# Runner Stage — only the standalone output (no node_modules copy)
+# =============================================================================
 FROM base AS runner
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+
 WORKDIR /app
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/apps/campus ./apps/campus
-COPY --from=builder /app/packages ./packages
+# Standalone output already contains its own node_modules (resolved, no symlinks)
+COPY --from=build --chown=nextjs:nodejs /app/apps/campus/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/apps/campus/.next/static ./.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/campus/public ./public
 
 USER nextjs
+
 EXPOSE 3005
 ENV PORT=3005
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["pnpm", "--dir", "/app/apps/campus", "exec", "next", "start", "--hostname", "0.0.0.0", "--port", "3005"]
+CMD ["node", "server.js"]

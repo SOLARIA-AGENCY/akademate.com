@@ -1,22 +1,17 @@
 # Akademate.com - Web App Dockerfile
 # Public-facing Next.js portal
 
-# =============================================================================
-# Base Stage
-# =============================================================================
 FROM node:22-alpine AS base
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
-# Install pnpm
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 # =============================================================================
-# Dependencies Stage
+# Build Stage — install + compile (no inter-stage node_modules copy)
 # =============================================================================
-FROM base AS deps
+FROM base AS build
 
-# Copy package files
+# Copy package manifests (for layer caching)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/api/package.json ./packages/api/
@@ -24,55 +19,36 @@ COPY packages/db/package.json ./packages/db/
 COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 
-# Install dependencies
+# Install all dependencies directly in this stage (avoids COPY between stages)
 RUN --mount=type=cache,id=pnpm-web,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter @akademate/web... --include-workspace-root
-
-# =============================================================================
-# Builder Stage
-# =============================================================================
-FROM base AS builder
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
-COPY --from=deps /app/packages ./packages
 
 # Copy source files
 COPY apps/web ./apps/web
 COPY packages ./packages
 COPY tsconfig.base.json ./
 
-# Build
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app/apps/web
 RUN pnpm build
 
 # =============================================================================
-# Production Stage
+# Runner Stage — only the standalone output (no node_modules copy)
 # =============================================================================
 FROM base AS runner
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Create non-root user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 WORKDIR /app
 
-# Copy standalone runtime output
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
-# Copy root node_modules (.pnpm store + hoisted symlinks).
-# Do NOT copy apps/web/node_modules — its symlinks use ../../../ paths that break when
-# placed at /app/node_modules (would point to /node_modules/.pnpm which doesn't exist).
-COPY --from=builder /app/node_modules ./node_modules
-
-# Ensure Next package symlink exists in runtime image for standalone server.js
-RUN next_dir="$(find /app/node_modules/.pnpm -maxdepth 1 -type d -name 'next@*' | head -n 1)" && \
-    if [ -n "$next_dir" ]; then ln -sfn "$next_dir/node_modules/next" /app/node_modules/next; fi
+# Standalone output already contains its own node_modules (resolved, no symlinks)
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/public ./public
 
 USER nextjs
 

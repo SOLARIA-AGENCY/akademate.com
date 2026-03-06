@@ -6,6 +6,11 @@ const __dirname = path.dirname(__filename)
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
+
+  // pg is a native module required by @payloadcms/db-postgres at runtime
+  serverExternalPackages: ['pg', '@payloadcms/db-postgres'],
+
   // Visual-First Development: Bypass TypeScript build errors during UI development phase
   // See: docs/VISUAL_FIRST_DEVELOPMENT.md
   // Will be re-enabled (set to false) when connecting to real Payload API (no more mock data)
@@ -110,6 +115,23 @@ const nextConfig = {
       '@payload-config': path.resolve(__dirname, './@payload-config'),
       '@': path.resolve(__dirname, '.'),
     }
+
+    // Fix: @onlook/babel-plugin-react crashes on zod v4 node_modules (ar.js locale).
+    // Restrict the Babel loader to only process project source files, not node_modules.
+    config.module.rules.forEach((rule) => {
+      if (rule && rule.oneOf) {
+        rule.oneOf.forEach((r) => {
+          if (r && r.use && Array.isArray(r.use)) {
+            r.use.forEach((u) => {
+              if (u && u.loader && u.loader.includes('babel-loader')) {
+                r.exclude = /node_modules/
+              }
+            })
+          }
+        })
+      }
+    })
+
     return config
   },
 }

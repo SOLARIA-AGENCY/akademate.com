@@ -6,39 +6,56 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
-FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/tenant-admin/package.json ./apps/tenant-admin/
-COPY packages/realtime/package.json ./packages/realtime/
-RUN --mount=type=cache,id=pnpm-tenant-admin,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --filter @akademate/tenant-admin... --include-workspace-root
-
-FROM base AS runner
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# =============================================================================
+# Build Stage — install + compile (no inter-stage node_modules copy)
+# =============================================================================
+FROM base AS build
 
 # Build-time env vars baked into the Next.js client bundle.
-# Override with --build-arg NEXT_PUBLIC_DEFAULT_TENANT_ID=X when needed.
 ARG NEXT_PUBLIC_DEFAULT_TENANT_ID=2
 ENV NEXT_PUBLIC_DEFAULT_TENANT_ID=${NEXT_PUBLIC_DEFAULT_TENANT_ID}
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-WORKDIR /app
+# Copy package manifests (for layer caching)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/tenant-admin/package.json ./apps/tenant-admin/
+COPY packages/realtime/package.json ./packages/realtime/
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/tenant-admin/node_modules ./apps/tenant-admin/node_modules
-COPY --from=deps /app/packages ./packages
+# Install all dependencies directly in this stage (avoids COPY between stages)
+RUN --mount=type=cache,id=pnpm-tenant-admin,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter @akademate/tenant-admin... --include-workspace-root
+
+# Copy source files
 COPY apps/tenant-admin ./apps/tenant-admin
 COPY packages ./packages
 COPY tsconfig.json tsconfig.base.json postcss.config.cjs tailwind.config.js ./
 
-RUN pnpm --dir /app/apps/tenant-admin build \
-  && chown -R nextjs:nodejs /app/apps/tenant-admin
+ENV NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app/apps/tenant-admin
+RUN pnpm build
+
+# =============================================================================
+# Runner Stage — only the standalone output (no node_modules copy)
+# =============================================================================
+FROM base AS runner
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+WORKDIR /app
+
+# Standalone output already contains its own node_modules (resolved, no symlinks)
+# pg (native) is included via outputFileTracingIncludes in next.config.js
+COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/.next/static ./.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/public ./public
 
 USER nextjs
+
 EXPOSE 3009
 ENV PORT=3009
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["pnpm", "--dir", "/app/apps/tenant-admin", "exec", "next", "start", "--hostname", "0.0.0.0", "--port", "3009"]
+CMD ["node", "server.js"]

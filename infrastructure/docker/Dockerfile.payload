@@ -1,22 +1,17 @@
 # Akademate.com - Payload CMS Dockerfile
 # Backend API + Admin panel
 
-# =============================================================================
-# Base Stage
-# =============================================================================
 FROM node:22-alpine AS base
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
-# Install pnpm
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 # =============================================================================
-# Dependencies Stage
+# Build Stage — install + compile (no inter-stage node_modules copy)
 # =============================================================================
-FROM base AS deps
+FROM base AS build
 
-# Copy package files
+# Copy package manifests (for layer caching)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/payload/package.json ./apps/payload/
 COPY packages/db/package.json ./packages/db/
@@ -24,55 +19,39 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/realtime/package.json ./packages/realtime/
 
-# Install dependencies (with BuildKit cache for pnpm store)
+# Install all dependencies directly in this stage (avoids COPY between stages)
 RUN --mount=type=cache,id=pnpm-payload,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter @akademate/payload... --include-workspace-root
-
-# =============================================================================
-# Builder Stage
-# =============================================================================
-FROM base AS builder
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/payload/node_modules ./apps/payload/node_modules
-COPY --from=deps /app/packages ./packages
 
 # Copy source files
 COPY apps/payload ./apps/payload
 COPY packages ./packages
 COPY tsconfig.base.json postcss.config.cjs tailwind.config.js ./
 
-# Build
+# Build-time env vars
 ARG PAYLOAD_SECRET
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
+ENV NEXT_TELEMETRY_DISABLED=1
+
 WORKDIR /app/apps/payload
 RUN pnpm build
 
 # =============================================================================
-# Production Stage
+# Runner Stage — only the standalone output (no node_modules copy)
 # =============================================================================
 FROM base AS runner
 
 ENV NODE_ENV=production
 
-# Create non-root user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 payload
 
 WORKDIR /app
 
-# Copy standalone runtime output
-COPY --from=builder --chown=payload:nodejs /app/apps/payload/.next/standalone ./
-COPY --from=builder --chown=payload:nodejs /app/apps/payload/.next/static ./.next/static
-COPY --from=builder --chown=payload:nodejs /app/apps/payload/public ./public
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/payload/node_modules ./node_modules
-
-# Ensure Next package symlink exists in runtime image for standalone server.js
-RUN next_dir="$(find /app/node_modules/.pnpm -maxdepth 1 -type d -name 'next@*' | head -n 1)" && \
-    if [ -n "$next_dir" ]; then ln -sfn "$next_dir/node_modules/next" /app/node_modules/next; fi && \
-    pg_dir="$(find /app/node_modules/.pnpm -maxdepth 1 -type d -name 'pg@*' | head -n 1)" && \
-    if [ -n "$pg_dir" ]; then ln -sfn "$pg_dir/node_modules/pg" /app/node_modules/pg; fi
+# Standalone output already contains its own node_modules (resolved, no symlinks)
+COPY --from=build --chown=payload:nodejs /app/apps/payload/.next/standalone ./
+COPY --from=build --chown=payload:nodejs /app/apps/payload/.next/static ./.next/static
+COPY --from=build --chown=payload:nodejs /app/apps/payload/public ./public
 
 USER payload
 
