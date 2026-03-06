@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@akademate/realtime": "workspace:*",
-    "@onlook/nextjs": "^2.1.1",
     "@payloadcms/db-postgres": "3.67.0",
     "@payloadcms/drizzle": "3.67.0",
     "@payloadcms/graphql": "3.67.0",
@@ -82,12 +81,7 @@
   },
   "devDependencies": {
     "@next/env": "^16.0.3",
-    "@onlook/babel-plugin-react": "^2.1.1",
     "@playwright/test": "^1.56.1",
-    "@storybook/addon-a11y": "^10.2.10",
-    "@storybook/addon-docs": "^10.2.10",
-    "@storybook/addon-onboarding": "^10.2.10",
-    "@storybook/nextjs": "^10.2.10",
     "@tailwindcss/postcss": "^4.1.16",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -102,16 +96,19 @@
     "autoprefixer": "^10.4.21",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
-    "eslint-plugin-storybook": "^10.2.10",
     "happy-dom": "^20.0.10",
     "next-router-mock": "^1.0.4",
     "postcss": "^8",
-    "storybook": "^10.2.10",
     "supertest": "^7.0.0",
     "tailwindcss": "^4.1.17",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "storybook": "^10.2.10",
+    "@storybook/nextjs": "^10.2.10",
+    "@storybook/addon-a11y": "^10.2.10",
+    "@storybook/addon-docs": "^10.2.10",
+    "@storybook/addon-onboarding": "^10.2.10",
+    "eslint-plugin-storybook": "^10.2.10"
   }
 }
