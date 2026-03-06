@@ -10,7 +10,8 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/tenant-admin/package.json ./apps/tenant-admin/
 COPY packages/realtime/package.json ./packages/realtime/
-RUN pnpm install --frozen-lockfile --filter @akademate/tenant-admin...
+RUN --mount=type=cache,id=pnpm-tenant-admin,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter @akademate/tenant-admin...
 
 FROM base AS runner
 ENV NODE_ENV=production

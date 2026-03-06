@@ -24,8 +24,9 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/realtime/package.json ./packages/realtime/
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile --filter @akademate/payload...
+# Install dependencies (with BuildKit cache for pnpm store)
+RUN --mount=type=cache,id=pnpm-payload,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter @akademate/payload...
 
 # =============================================================================
 # Builder Stage

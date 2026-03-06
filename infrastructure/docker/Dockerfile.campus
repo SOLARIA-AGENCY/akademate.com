@@ -12,7 +12,8 @@ COPY apps/campus/package.json ./apps/campus/
 COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/realtime/package.json ./packages/realtime/
-RUN pnpm install --frozen-lockfile --filter @akademate/campus...
+RUN --mount=type=cache,id=pnpm-campus,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter @akademate/campus...
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
