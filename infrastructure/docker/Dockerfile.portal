@@ -18,7 +18,7 @@ COPY packages/ui/package.json ./packages/ui/
 
 # Install all dependencies directly in this stage (avoids COPY between stages)
 RUN --mount=type=cache,id=pnpm-portal,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --filter @akademate/portal... --include-workspace-root
+    NODE_ENV=development pnpm install --frozen-lockfile --filter @akademate/portal... --include-workspace-root
 
 # Copy source files
 COPY apps/portal ./apps/portal

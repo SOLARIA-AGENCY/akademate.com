@@ -21,7 +21,7 @@ COPY packages/realtime/package.json ./packages/realtime/
 
 # Install all dependencies directly in this stage (avoids COPY between stages)
 RUN --mount=type=cache,id=pnpm-payload,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --filter @akademate/payload... --include-workspace-root
+    NODE_ENV=development pnpm install --frozen-lockfile --filter @akademate/payload... --include-workspace-root
 
 # Copy source files
 COPY apps/payload ./apps/payload

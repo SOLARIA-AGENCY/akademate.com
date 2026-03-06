@@ -1,6 +1,11 @@
-import type { NextConfig } from 'next'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-const nextConfig: NextConfig = {
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   output: 'standalone',
 
   // Transpile workspace packages
@@ -37,11 +42,10 @@ const nextConfig: NextConfig = {
   },
 
   // Explicit webpack alias for @ path (mirrors tsconfig paths)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  webpack: (config: any) => {
+  webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': process.cwd(),
+      '@': path.resolve(__dirname, '.'),
     }
     return config
   },
@@ -52,17 +56,11 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: [
-          // Prevent clickjacking
           { key: 'X-Frame-Options', value: 'DENY' },
-          // Prevent MIME type sniffing
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          // Enable XSS filter
           { key: 'X-XSS-Protection', value: '1; mode=block' },
-          // Referrer policy for privacy
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          // Permissions policy
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-          // Content Security Policy (strict for public site)
           {
             key: 'Content-Security-Policy',
             value: [
@@ -75,7 +73,6 @@ const nextConfig: NextConfig = {
               "frame-ancestors 'none'",
             ].join('; '),
           },
-          // Strict Transport Security (HTTPS)
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains',

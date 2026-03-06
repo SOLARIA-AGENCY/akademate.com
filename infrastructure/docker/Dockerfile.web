@@ -20,8 +20,9 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 
 # Install all dependencies directly in this stage (avoids COPY between stages)
+# NODE_ENV=development ensures devDependencies (TypeScript, webpack, etc.) are installed
 RUN --mount=type=cache,id=pnpm-web,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --filter @akademate/web... --include-workspace-root
+    NODE_ENV=development pnpm install --frozen-lockfile --filter @akademate/web... --include-workspace-root
 
 # Copy source files
 COPY apps/web ./apps/web
