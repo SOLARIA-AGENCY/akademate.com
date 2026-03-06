@@ -46,8 +46,8 @@ WORKDIR /app
 
 # Standalone output already contains its own node_modules (resolved, no symlinks)
 COPY --from=build --chown=nextjs:nodejs /app/apps/campus/.next/standalone ./
-COPY --from=build --chown=nextjs:nodejs /app/apps/campus/.next/static ./.next/static
-COPY --from=build --chown=nextjs:nodejs /app/apps/campus/public ./public
+COPY --from=build --chown=nextjs:nodejs /app/apps/campus/.next/static ./apps/campus/.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/campus/public ./apps/campus/public
 
 USER nextjs
 
@@ -55,4 +55,4 @@ EXPOSE 3005
 ENV PORT=3005
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["node", "apps/campus/server.js"]

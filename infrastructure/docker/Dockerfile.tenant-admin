@@ -49,8 +49,8 @@ WORKDIR /app
 # Standalone output already contains its own node_modules (resolved, no symlinks)
 # pg (native) is included via outputFileTracingIncludes in next.config.js
 COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/.next/standalone ./
-COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/.next/static ./.next/static
-COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/public ./public
+COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/.next/static ./apps/tenant-admin/.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/public ./apps/tenant-admin/public
 
 USER nextjs
 
@@ -58,4 +58,4 @@ EXPOSE 3009
 ENV PORT=3009
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["node", "apps/tenant-admin/server.js"]

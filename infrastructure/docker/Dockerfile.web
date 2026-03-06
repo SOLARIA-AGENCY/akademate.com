@@ -46,10 +46,11 @@ RUN adduser --system --uid 1001 nextjs
 
 WORKDIR /app
 
-# Standalone output already contains its own node_modules (resolved, no symlinks)
+# In a pnpm monorepo, Next.js standalone output places server.js at apps/web/server.js
+# (not at the root). Static files and public must be placed relative to server.js.
 COPY --from=build --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=build --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
-COPY --from=build --chown=nextjs:nodejs /app/apps/web/public ./public
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 USER nextjs
 
@@ -57,4 +58,4 @@ EXPOSE 3006
 ENV PORT=3006
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]

@@ -44,7 +44,7 @@ WORKDIR /app
 
 # Standalone output already contains its own node_modules (resolved, no symlinks)
 COPY --from=build --chown=nextjs:nodejs /app/apps/portal/.next/standalone ./
-COPY --from=build --chown=nextjs:nodejs /app/apps/portal/.next/static ./.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/portal/.next/static ./apps/portal/.next/static
 
 USER nextjs
 
@@ -52,4 +52,4 @@ EXPOSE 3008
 ENV PORT=3008
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["node", "apps/portal/server.js"]
