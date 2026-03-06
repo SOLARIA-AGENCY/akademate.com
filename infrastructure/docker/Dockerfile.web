@@ -26,7 +26,7 @@ COPY packages/ui/package.json ./packages/ui/
 
 # Install dependencies
 RUN --mount=type=cache,id=pnpm-web,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --filter @akademate/web...
+    pnpm install --frozen-lockfile --filter @akademate/web... --include-workspace-root
 
 # =============================================================================
 # Builder Stage

@@ -26,7 +26,7 @@ COPY packages/realtime/package.json ./packages/realtime/
 
 # Install dependencies
 RUN --mount=type=cache,id=pnpm-admin,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --filter @akademate/admin-client...
+    pnpm install --frozen-lockfile --filter @akademate/admin-client... --include-workspace-root
 
 # =============================================================================
 # Builder Stage
