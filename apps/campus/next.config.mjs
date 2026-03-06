@@ -1,8 +1,13 @@
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 /** @type {import('next').NextConfig} */
 const config = {
   output: 'standalone',
   reactStrictMode: true,
-  typedRoutes: true,
 
   // Security headers (OWASP recommended)
   async headers() {
@@ -34,6 +39,15 @@ const config = {
         ],
       },
     ]
+  },
+
+  // Explicit webpack alias for @ path (mirrors tsconfig paths)
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, '.'),
+    }
+    return config
   },
 }
 

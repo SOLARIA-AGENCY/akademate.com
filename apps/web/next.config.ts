@@ -9,9 +9,11 @@ const nextConfig: NextConfig = {
   // pg has native bindings — must not be webpack-bundled
   serverExternalPackages: ['pg', 'pg-native'],
 
-  // Ensure pg is included in the standalone trace (needed by better-auth at runtime)
+  // Force-include packages into standalone trace (nft resolves symlinks to actual files)
   outputFileTracingIncludes: {
     '/api/auth/[...all]': [
+      './node_modules/better-auth/**',
+      './node_modules/@better-auth/**',
       './node_modules/pg/**',
       './node_modules/pg-pool/**',
       './node_modules/drizzle-orm/**',
@@ -32,6 +34,16 @@ const nextConfig: NextConfig = {
         hostname: 'localhost',
       },
     ],
+  },
+
+  // Explicit webpack alias for @ path (mirrors tsconfig paths)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  webpack: (config: any) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': process.cwd(),
+    }
+    return config
   },
 
   // Headers for security (OWASP recommended)
