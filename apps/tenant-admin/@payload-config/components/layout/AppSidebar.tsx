@@ -298,7 +298,6 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const [currentSearch, setCurrentSearch] = React.useState('')
   const [openSections, setOpenSections] = React.useState<string[]>([])
   const { branding } = useTenantBranding()
-  const logoUrl = branding.logos.favicon
   const academyName = branding.academyName
   // Cargar campuses dinámicamente para reemplazar las sedes hardcodeadas
   const { data: campusesData } = useSWR<{ docs: { id: number; name: string }[] }>(
@@ -383,34 +382,36 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     >
       {/* Header - Logo + Text - Smooth transition */}
       <div
-        className="flex h-14 items-center border-b border-sidebar-border px-3 overflow-hidden"
+        className={`flex border-b border-sidebar-border px-3 overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'h-14 items-center' : 'h-20 items-center'}`}
         data-oid="woefz9o"
       >
         <div
-          className={`flex items-center w-full transition-all duration-300 ease-in-out ${isCollapsed ? 'justify-center' : 'gap-2'}`}
+          className={`flex items-center w-full transition-all duration-300 ease-in-out ${isCollapsed ? 'justify-center' : 'justify-start'}`}
           data-oid="opzrczc"
         >
           {isCollapsed ? (
-            /* Collapsed: marca compacta */
+            /* Collapsed: ícono libro como marca compacta */
             <div
               className="w-9 h-9 rounded-md bg-primary flex items-center justify-center flex-shrink-0 shadow-sm"
               title={academyName}
               data-oid="zg3rfku"
             >
-              <span className="text-primary-foreground font-bold text-base leading-none select-none">
-                A
-              </span>
-            </div>
-          ) : (
-            /* Expanded: wordmark completo */
-            <div className="bg-white rounded-md px-2 py-1 flex-shrink-0" data-oid="zg3rfku">
               <img
-                src="/logo-akademate.svg"
-                alt={academyName}
-                className="h-7 w-auto object-contain"
-                style={{ maxWidth: 148 }}
+                src="/icon-libro.svg"
+                alt=""
+                aria-hidden="true"
+                className="h-5 w-5"
+                style={{ filter: 'brightness(0) invert(1)' }}
               />
             </div>
+          ) : (
+            /* Expanded: logo oficial con ícono + AKADEMATE */
+            <img
+              src="/logo-akademate.svg"
+              alt={academyName}
+              className="h-16 w-auto object-contain"
+              style={{ maxWidth: 160 }}
+            />
           )}
         </div>
       </div>
