@@ -381,37 +381,34 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
       data-oid="itwxk4a"
     >
       {/* Header - Logo + Text - Smooth transition */}
+      {/* Header - Logo fijo h-14, nunca cambia */}
       <div
-        className={`flex border-b border-sidebar-border px-3 overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'h-14 items-center' : 'h-20 items-center'}`}
+        className="flex h-14 items-center border-b border-sidebar-border px-3 overflow-hidden"
         data-oid="woefz9o"
       >
         <div
-          className={`flex items-center w-full transition-all duration-300 ease-in-out ${isCollapsed ? 'justify-center' : 'justify-start'}`}
+          className={`flex items-center w-full transition-all duration-300 ease-in-out ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
           data-oid="opzrczc"
         >
-          {isCollapsed ? (
-            /* Collapsed: ícono libro como marca compacta */
-            <div
-              className="w-9 h-9 rounded-md bg-primary flex items-center justify-center flex-shrink-0 shadow-sm"
-              title={academyName}
-              data-oid="zg3rfku"
-            >
-              <img
-                src="/icon-libro.svg"
-                alt=""
-                aria-hidden="true"
-                className="h-5 w-5"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-            </div>
-          ) : (
-            /* Expanded: logo oficial con ícono + AKADEMATE */
+          {/* Ícono libro — visible siempre */}
+          <div
+            className="w-8 h-8 rounded-md bg-primary flex items-center justify-center flex-shrink-0"
+            title={isCollapsed ? academyName : undefined}
+          >
             <img
-              src="/logo-akademate.svg"
-              alt={academyName}
-              className="h-16 w-auto object-contain"
-              style={{ maxWidth: 160 }}
+              src="/icon-libro.svg"
+              alt=""
+              aria-hidden="true"
+              className="h-4 w-4"
+              style={{ filter: 'brightness(0) invert(1)' }}
             />
+          </div>
+
+          {/* Nombre AKADEMATE — solo en expanded */}
+          {!isCollapsed && (
+            <span className="font-bold text-base tracking-tight text-sidebar-foreground truncate select-none">
+              AKADEMATE
+            </span>
           )}
         </div>
       </div>

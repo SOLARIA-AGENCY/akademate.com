@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { GraduationCap, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
 
@@ -46,9 +46,17 @@ export default function PortalLoginPage() {
     <div className="min-h-[100dvh] bg-gradient-to-b from-primary/5 to-background flex items-center justify-center py-16 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6 text-muted-foreground hover:text-foreground transition-colors">
-            <GraduationCap className="h-5 w-5" />
-            <span className="font-semibold">Akademate</span>
+          <Link href="/" className="inline-flex flex-col items-center gap-2 mb-6 hover:opacity-80 transition-opacity">
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+              <img
+                src="/icon-libro.svg"
+                alt=""
+                aria-hidden="true"
+                className="h-7 w-7"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+            </div>
+            <span className="font-bold text-xl tracking-tight text-foreground">AKADEMATE</span>
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">Accede a tu cuenta</h1>
           <p className="mt-2 text-muted-foreground">Bienvenido de vuelta</p>

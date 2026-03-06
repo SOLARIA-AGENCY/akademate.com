@@ -115,13 +115,19 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10" data-oid="2gm3fiy">
         {/* Logo/Brand */}
         <div className="text-center mb-8" data-oid="1vf7s_f">
-          <div className="flex justify-center mb-3" data-oid="ou4cocr">
-            <img
-              src="/logo-akademate.svg"
-              alt="Akademate"
-              className="h-24 w-auto object-contain"
-              style={{ maxWidth: 200 }}
-            />
+          <div className="flex flex-col items-center gap-2 mb-2" data-oid="ou4cocr">
+            <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center shadow-md">
+              <img
+                src="/icon-libro.svg"
+                alt=""
+                aria-hidden="true"
+                className="h-8 w-8"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+            </div>
+            <span className="text-2xl font-bold tracking-tight text-foreground">
+              AKADEMATE
+            </span>
           </div>
           <p className="text-muted-foreground text-sm" data-oid="_0xxfde">
             Panel de Administración

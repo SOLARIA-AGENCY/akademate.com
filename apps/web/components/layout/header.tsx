@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Menu, X, GraduationCap } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 const navigation = [
   { name: 'Inicio', href: '/' },
@@ -22,9 +22,17 @@ export function Header() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <div className="flex lg:flex-1">
-          <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
-            <GraduationCap className="h-8 w-8 text-primary" />
-            <span className="font-bold text-xl">Akademate</span>
+          <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+              <img
+                src="/icon-libro.svg"
+                alt=""
+                aria-hidden="true"
+                className="h-5 w-5"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+            </div>
+            <span className="font-bold text-xl tracking-tight">AKADEMATE</span>
           </Link>
         </div>
 
