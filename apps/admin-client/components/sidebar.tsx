@@ -125,13 +125,15 @@ export function OpsSidebar() {
     <Sidebar variant="floating" collapsible="icon" className="border-r border-sidebar-border">
       <SidebarRail />
       <SidebarHeader className="pt-5 pb-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-3 px-3">
-          <div className="size-10 rounded-xl bg-gradient-to-br from-primary to-cyan-600 flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-lg">A</span>
-          </div>
-          <div className="grid">
+        <div className="flex items-center gap-3 px-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <img
+            src="/logos/akademate-icon-48.png"
+            alt="Akademate"
+            className="size-10 flex-shrink-0 rounded-xl"
+          />
+          <div className="grid group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-bold leading-tight text-sidebar-foreground tracking-tight">Akademate</span>
-            <span className="text-[11px] text-sidebar-foreground/60 leading-tight font-medium uppercase tracking-wider">Ops Panel</span>
+            <span className="text-[11px] text-sidebar-foreground/60 leading-tight font-medium uppercase tracking-wider">Gestor SaaS</span>
           </div>
         </div>
       </SidebarHeader>
