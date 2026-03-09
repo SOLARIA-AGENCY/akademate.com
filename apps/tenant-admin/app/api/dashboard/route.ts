@@ -261,11 +261,11 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, 5);
 
-    // Weekly Metrics (last 4 weeks) - Mock data for now
+    // Weekly Metrics (last 4 weeks) - TODO: implement when leads/enrollment collections exist
     const weeklyMetrics = {
-      leads: [12, 18, 15, 22],
-      enrollments: [5, 8, 6, 10],
-      courses_added: [1, 0, 2, 1],
+      leads: [] as number[],
+      enrollments: [] as number[],
+      courses_added: [] as number[],
     };
 
     // Operational Alerts

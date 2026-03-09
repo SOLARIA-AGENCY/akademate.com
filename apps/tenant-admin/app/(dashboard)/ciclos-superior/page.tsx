@@ -72,6 +72,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'APIs RESTful y GraphQL',
       'Despliegue y DevOps',
     ],
+
     salidas_profesionales: [
       'Desarrollador Web Full Stack',
       'Desarrollador Frontend',
@@ -79,6 +80,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Desarrollador de APIs',
       'DevOps Engineer',
     ],
+
     requisitos: 'Bachillerato, CFGM, Prueba de acceso',
     active: true,
   },
@@ -103,6 +105,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Gestión de logística comercial',
       'Gestión de tesorería',
     ],
+
     salidas_profesionales: [
       'Administrativo de finanzas',
       'Contable',
@@ -110,6 +113,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Controller financiero',
       'Tesorero',
     ],
+
     requisitos: 'Bachillerato, CFGM, Prueba de acceso',
     active: true,
   },
@@ -134,6 +138,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Diseño gráfico publicitario',
       'Gestión de eventos y promociones',
     ],
+
     salidas_profesionales: [
       'Técnico de marketing',
       'Especialista en marketing digital',
@@ -141,6 +146,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Gestor de campañas publicitarias',
       'Coordinador de eventos',
     ],
+
     requisitos: 'Bachillerato, CFGM, Prueba de acceso',
     active: true,
   },
@@ -165,6 +171,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Producción de publicaciones digitales',
       'Gestión de color y preimpresión',
     ],
+
     salidas_profesionales: [
       'Diseñador editorial',
       'Maquetador',
@@ -172,6 +179,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Diseñador de publicaciones digitales',
       'Especialista en preimpresión',
     ],
+
     requisitos: 'Bachillerato, CFGM, Prueba de acceso',
     active: true,
   },
@@ -196,6 +204,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Gestión de servicios turísticos',
       'Marketing turístico',
     ],
+
     salidas_profesionales: [
       'Guía turístico',
       'Informador turístico',
@@ -203,6 +212,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Coordinador de eventos turísticos',
       'Gestor de patrimonio cultural',
     ],
+
     requisitos: 'Bachillerato, CFGM, Prueba de acceso',
     active: true,
   },
@@ -227,6 +237,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Organización de eventos en vivo',
       'Gestión de presupuestos de producción',
     ],
+
     salidas_profesionales: [
       'Productor audiovisual',
       'Asistente de producción',
@@ -234,6 +245,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
       'Gestor de producción de espectáculos',
       'Coordinador técnico',
     ],
+
     requisitos: 'Bachillerato, CFGM, Prueba de acceso',
     active: true,
   },
@@ -241,7 +253,7 @@ const mockCiclosSuperiorData: CicloSuperior[] = [
 
 export default function CiclosSuperiorPage() {
   const router = useRouter()
-  const [ciclosData, setCiclosData] = useState(mockCiclosSuperiorData)
+  const [ciclosData, setCiclosData] = useState<CicloSuperior[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -328,20 +340,24 @@ export default function CiclosSuperiorPage() {
   }
 
   const tasaOcupacion =
-    stats.totalPlazas > 0
-      ? ((stats.plazasOcupadas / stats.totalPlazas) * 100).toFixed(1)
-      : '0.0'
+    stats.totalPlazas > 0 ? ((stats.plazasOcupadas / stats.totalPlazas) * 100).toFixed(1) : '0.0'
 
   return (
-    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
+    <div className="space-y-6 rounded-lg bg-muted/30 p-6" data-oid="bj.slf8">
       {isLoading && (
-        <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <div
+          className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
+          data-oid="gwhl7ab"
+        >
           Cargando ciclos...
         </div>
       )}
 
       {errorMessage && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+        <div
+          className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg"
+          data-oid="eyuyc5h"
+        >
           {errorMessage}
         </div>
       )}
@@ -349,60 +365,89 @@ export default function CiclosSuperiorPage() {
         title="Ciclos Formativos de Grado Superior"
         description="Gestión compacta de ciclos, plazas y modalidades."
         icon={GraduationCap}
-        badge={<Badge variant="secondary">{filteredCiclos.length} visibles</Badge>}
-        actions={(
-          <Button onClick={handleAdd}>
-            <Plus className="mr-2 h-4 w-4" />
+        badge={
+          <Badge variant="secondary" data-oid="husbrik">
+            {filteredCiclos.length} visibles
+          </Badge>
+        }
+        actions={
+          <Button onClick={handleAdd} data-oid="xbur5oe">
+            <Plus className="mr-2 h-4 w-4" data-oid="s5:kgxm" />
             Nuevo Ciclo
           </Button>
-        )}
-        filters={(
-          <div className="flex w-full flex-wrap items-center gap-2 text-sm">
-            <Badge variant="outline">{stats.total} ciclos</Badge>
-            <Badge variant="outline">{stats.totalPlazas} plazas</Badge>
-            <Badge variant="outline">{stats.plazasOcupadas} ocupadas</Badge>
-            <Badge variant="outline">Ocupación {tasaOcupacion}%</Badge>
-            <Badge variant="outline">{stats.cursosActivos} cursos activos</Badge>
+        }
+        filters={
+          <div className="flex w-full flex-wrap items-center gap-2 text-sm" data-oid="mru6byb">
+            <Badge variant="outline" data-oid="k7lcc9h">
+              {stats.total} ciclos
+            </Badge>
+            <Badge variant="outline" data-oid="a3ih-1i">
+              {stats.totalPlazas} plazas
+            </Badge>
+            <Badge variant="outline" data-oid="as.3:7d">
+              {stats.plazasOcupadas} ocupadas
+            </Badge>
+            <Badge variant="outline" data-oid="d0f1bpg">
+              Ocupación {tasaOcupacion}%
+            </Badge>
+            <Badge variant="outline" data-oid="_j5-7_i">
+              {stats.cursosActivos} cursos activos
+            </Badge>
           </div>
-        )}
+        }
+        data-oid="5y0nqj7"
       />
 
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
-            <div className="relative min-w-[260px] flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Card data-oid="gnt46a4">
+        <CardContent className="pt-6" data-oid="2x81uca">
+          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="o05:x0u">
+            <div className="relative min-w-[260px] flex-1" data-oid="6-ms7wz">
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                data-oid="l38dxo4"
+              />
               <Input
                 placeholder="Buscar por nombre, código o familia..."
                 value={searchTerm}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 className="w-full pl-9"
+                data-oid="vuduxza"
               />
             </div>
 
-            <Select value={filterFamilia} onValueChange={setFilterFamilia}>
-              <SelectTrigger className="w-full min-w-[190px] md:w-[220px]">
-                <SelectValue placeholder="Familia Profesional" />
+            <Select value={filterFamilia} onValueChange={setFilterFamilia} data-oid="4m_dt2t">
+              <SelectTrigger className="w-full min-w-[190px] md:w-[220px]" data-oid="ifm1gve">
+                <SelectValue placeholder="Familia Profesional" data-oid="kvbu_o9" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las familias</SelectItem>
+              <SelectContent data-oid="cw._dnn">
+                <SelectItem value="all" data-oid="o27vjj-">
+                  Todas las familias
+                </SelectItem>
                 {familias.map((familia) => (
-                  <SelectItem key={familia} value={familia}>
+                  <SelectItem key={familia} value={familia} data-oid="vx3f27m">
                     {familia}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Select value={filterModalidad} onValueChange={setFilterModalidad}>
-              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
-                <SelectValue placeholder="Modalidad" />
+            <Select value={filterModalidad} onValueChange={setFilterModalidad} data-oid=".ut2v43">
+              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="4d..cdu">
+                <SelectValue placeholder="Modalidad" data-oid="qi7.u89" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las modalidades</SelectItem>
-                <SelectItem value="Presencial">Presencial</SelectItem>
-                <SelectItem value="Semipresencial">Semipresencial</SelectItem>
-                <SelectItem value="Online">Online</SelectItem>
+              <SelectContent data-oid="s90rglf">
+                <SelectItem value="all" data-oid="jdfqvxg">
+                  Todas las modalidades
+                </SelectItem>
+                <SelectItem value="Presencial" data-oid="8icxdsn">
+                  Presencial
+                </SelectItem>
+                <SelectItem value="Semipresencial" data-oid="5oufes5">
+                  Semipresencial
+                </SelectItem>
+                <SelectItem value="Online" data-oid="71i.wjt">
+                  Online
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -416,6 +461,7 @@ export default function CiclosSuperiorPage() {
                   setFilterModalidad('all')
                 }}
                 className="xl:ml-auto"
+                data-oid="7:miv3-"
               >
                 Limpiar filtros
               </Button>
@@ -424,7 +470,7 @@ export default function CiclosSuperiorPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid="5he8e17">
         {filteredCiclos.map((ciclo) => {
           const ocupacionPorcentaje =
             ciclo.plazas > 0 ? ((ciclo.plazas_ocupadas / ciclo.plazas) * 100).toFixed(0) : '0'
@@ -434,54 +480,76 @@ export default function CiclosSuperiorPage() {
               key={ciclo.id}
               className="cursor-pointer transition-shadow hover:shadow-md"
               onClick={() => handleViewCiclo(ciclo.id)}
+              data-oid="plipjua"
             >
-              <CardContent className="space-y-4 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="line-clamp-2 text-base font-semibold" title={ciclo.nombre}>
+              <CardContent className="space-y-4 p-5" data-oid="l9c-ihz">
+                <div className="flex items-start justify-between gap-3" data-oid="1ikcqz2">
+                  <div className="min-w-0" data-oid="xev0ndt">
+                    <h3
+                      className="line-clamp-2 text-base font-semibold"
+                      title={ciclo.nombre}
+                      data-oid="wx.7j1d"
+                    >
                       {ciclo.nombre}
                     </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{ciclo.codigo}</p>
+                    <p className="mt-1 text-sm text-muted-foreground" data-oid="n5lnzix">
+                      {ciclo.codigo}
+                    </p>
                   </div>
-                  <Badge variant="secondary">{ciclo.nivel}</Badge>
+                  <Badge variant="secondary" data-oid="t1gnafu">
+                    {ciclo.nivel}
+                  </Badge>
                 </div>
 
-                <Badge variant="outline" className="w-fit">
+                <Badge variant="outline" className="w-fit" data-oid="2jzn73b">
                   {ciclo.familia}
                 </Badge>
 
-                <p className="line-clamp-2 text-sm text-muted-foreground">
+                <p className="line-clamp-2 text-sm text-muted-foreground" data-oid="nd2lnk7">
                   {ciclo.descripcion || 'Sin descripción disponible.'}
                 </p>
 
-                <div className="grid grid-cols-2 gap-2 border-t pt-3 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{ciclo.duracion}</span>
+                <div className="grid grid-cols-2 gap-2 border-t pt-3 text-sm" data-oid=".2yq:5e">
+                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="izzce4p">
+                    <Clock className="h-4 w-4 shrink-0" data-oid="rmtnt7-" />
+                    <span className="truncate" data-oid="g1.qf4r">
+                      {ciclo.duracion}
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="h-4 w-4 shrink-0" />
-                    <span className="truncate">
+                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="p8h1i1x">
+                    <Calendar className="h-4 w-4 shrink-0" data-oid="c9-eh1k" />
+                    <span className="truncate" data-oid="0sqsbx:">
                       {ciclo.cursos_activos} {ciclo.cursos_activos === 1 ? 'curso' : 'cursos'}
                     </span>
                   </div>
                 </div>
 
-                <div className="border-t pt-3">
-                  <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="text-sm text-muted-foreground">Ocupación:</span>
-                    <span className="font-semibold">
+                <div className="border-t pt-3" data-oid="u:bnu7w">
+                  <div
+                    className="mb-2 flex items-center justify-between text-sm"
+                    data-oid="synng06"
+                  >
+                    <span className="text-sm text-muted-foreground" data-oid="0wup9dy">
+                      Ocupación:
+                    </span>
+                    <span className="font-semibold" data-oid="90g10ex">
                       {ciclo.plazas_ocupadas}/{ciclo.plazas} plazas
                     </span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-2 w-full overflow-hidden rounded-full bg-secondary"
+                    data-oid="a2-xtbe"
+                  >
                     <div
                       className="h-full bg-primary transition-all"
                       style={{ width: `${ocupacionPorcentaje}%` }}
+                      data-oid="n7cs8t-"
                     />
                   </div>
-                  <p className="mt-1 text-right text-xs text-muted-foreground">{ocupacionPorcentaje}% ocupado</p>
+                  <p className="mt-1 text-right text-xs text-muted-foreground" data-oid=":ay5x13">
+                    {ocupacionPorcentaje}% ocupado
+                  </p>
                 </div>
 
                 <Button
@@ -490,6 +558,7 @@ export default function CiclosSuperiorPage() {
                     e.stopPropagation()
                     handleViewCiclo(ciclo.id)
                   }}
+                  data-oid="0swihev"
                 >
                   Ver Ciclo
                 </Button>
@@ -500,9 +569,9 @@ export default function CiclosSuperiorPage() {
       </div>
 
       {filteredCiclos.length === 0 && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
+        <Card data-oid="yk8dq6m">
+          <CardContent className="py-12 text-center" data-oid="ok:rxy5">
+            <p className="text-muted-foreground" data-oid="j9ccp39">
               No se encontraron ciclos que coincidan con los filtros seleccionados.
             </p>
           </CardContent>

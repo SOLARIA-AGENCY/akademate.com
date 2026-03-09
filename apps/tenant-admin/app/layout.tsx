@@ -6,17 +6,18 @@ import { ClientLayout } from './ClientLayout'
 export const metadata: Metadata = {
   title: 'AKADEMATE Cliente - Admin',
   description: 'Plataforma de gestión para clientes AKADEMATE',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.png',
+  },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body>
-        <ClientLayout>{children}</ClientLayout>
+    <html lang="es" suppressHydrationWarning data-oid="eoaxa-2">
+      <body data-oid="2nhc25q">
+        <ClientLayout data-oid="gzykiwt">{children}</ClientLayout>
       </body>
     </html>
   )

@@ -9,6 +9,11 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Akademate Admin | Ops Dashboard',
   description: 'Panel superadmin para tenants, facturacion y soporte multitenant.',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

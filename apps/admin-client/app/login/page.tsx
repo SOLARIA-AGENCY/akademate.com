@@ -62,9 +62,11 @@ export default function OpsLoginPage() {
 
       <div className="relative max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mb-4 shadow-lg shadow-indigo-500/30">
-            <span className="text-white font-bold text-3xl">A</span>
-          </div>
+          <img
+            src="/logos/akademate-icon-180.png"
+            alt="Akademate"
+            className="w-16 h-16 object-contain mb-4"
+          />
           <h1 className="text-3xl font-bold text-white mb-1">Akademate Ops</h1>
           <p className="text-slate-400">Panel multitenant para superadmin</p>
           <p className="text-xs text-slate-500 mt-1">Acceso restringido. Integra auth real en Payload/IdP.</p>

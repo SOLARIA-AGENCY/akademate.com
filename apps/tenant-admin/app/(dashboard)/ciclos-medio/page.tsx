@@ -74,6 +74,7 @@ const mockCiclosMedioData: CicloMedio[] = [
       'Operaciones de venta',
       'Operaciones auxiliares de tesorería',
     ],
+
     salidas_profesionales: [
       'Auxiliar Administrativo',
       'Auxiliar de oficina',
@@ -81,6 +82,7 @@ const mockCiclosMedioData: CicloMedio[] = [
       'Recepcionista',
       'Telefonista',
     ],
+
     requisitos: 'ESO, FP Básica, Prueba de acceso',
     active: true,
   },
@@ -105,12 +107,14 @@ const mockCiclosMedioData: CicloMedio[] = [
       'Administración de sistemas',
       'Seguridad informática básica',
     ],
+
     salidas_profesionales: [
       'Técnico informático de soporte',
       'Técnico de redes',
       'Técnico de microinformática',
       'Técnico de sistemas',
     ],
+
     requisitos: 'ESO, FP Básica, Prueba de acceso',
     active: true,
   },
@@ -135,6 +139,7 @@ const mockCiclosMedioData: CicloMedio[] = [
       'Marketing comercial',
       'Escaparatismo y visual merchandising',
     ],
+
     salidas_profesionales: [
       'Dependiente de comercio',
       'Vendedor técnico',
@@ -142,6 +147,7 @@ const mockCiclosMedioData: CicloMedio[] = [
       'Operador de contact center',
       'Teleoperador',
     ],
+
     requisitos: 'ESO, FP Básica, Prueba de acceso',
     active: true,
   },
@@ -166,6 +172,7 @@ const mockCiclosMedioData: CicloMedio[] = [
       'Facturación y cobros',
       'Protocolo y comunicación',
     ],
+
     salidas_profesionales: [
       'Recepcionista de hotel',
       'Jefe de reservas',
@@ -173,6 +180,7 @@ const mockCiclosMedioData: CicloMedio[] = [
       'Gobernante/a',
       'Revenue manager junior',
     ],
+
     requisitos: 'ESO, FP Básica, Prueba de acceso',
     active: true,
   },
@@ -180,7 +188,7 @@ const mockCiclosMedioData: CicloMedio[] = [
 
 export default function CiclosMedioPage() {
   const router = useRouter()
-  const [ciclosData, setCiclosData] = useState(mockCiclosMedioData)
+  const [ciclosData, setCiclosData] = useState<CicloMedio[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -267,20 +275,24 @@ export default function CiclosMedioPage() {
   }
 
   const tasaOcupacion =
-    stats.totalPlazas > 0
-      ? ((stats.plazasOcupadas / stats.totalPlazas) * 100).toFixed(1)
-      : '0.0'
+    stats.totalPlazas > 0 ? ((stats.plazasOcupadas / stats.totalPlazas) * 100).toFixed(1) : '0.0'
 
   return (
-    <div className="space-y-6 rounded-lg bg-muted/30 p-6">
+    <div className="space-y-6 rounded-lg bg-muted/30 p-6" data-oid=":ribgw5">
       {isLoading && (
-        <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <div
+          className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
+          data-oid="29bvmwy"
+        >
           Cargando ciclos...
         </div>
       )}
 
       {errorMessage && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+        <div
+          className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg"
+          data-oid="k4voiab"
+        >
           {errorMessage}
         </div>
       )}
@@ -288,60 +300,89 @@ export default function CiclosMedioPage() {
         title="Ciclos Formativos de Grado Medio"
         description="Gestión compacta de ciclos, plazas y modalidades."
         icon={GraduationCap}
-        badge={<Badge variant="secondary">{filteredCiclos.length} visibles</Badge>}
-        actions={(
-          <Button onClick={handleAdd}>
-            <Plus className="mr-2 h-4 w-4" />
+        badge={
+          <Badge variant="secondary" data-oid="v3pqq8e">
+            {filteredCiclos.length} visibles
+          </Badge>
+        }
+        actions={
+          <Button onClick={handleAdd} data-oid="9tt8pjd">
+            <Plus className="mr-2 h-4 w-4" data-oid="it4ei3l" />
             Nuevo Ciclo
           </Button>
-        )}
-        filters={(
-          <div className="flex w-full flex-wrap items-center gap-2 text-sm">
-            <Badge variant="outline">{stats.total} ciclos</Badge>
-            <Badge variant="outline">{stats.totalPlazas} plazas</Badge>
-            <Badge variant="outline">{stats.plazasOcupadas} ocupadas</Badge>
-            <Badge variant="outline">Ocupación {tasaOcupacion}%</Badge>
-            <Badge variant="outline">{stats.cursosActivos} cursos activos</Badge>
+        }
+        filters={
+          <div className="flex w-full flex-wrap items-center gap-2 text-sm" data-oid="q:8hoxo">
+            <Badge variant="outline" data-oid="amtzd6p">
+              {stats.total} ciclos
+            </Badge>
+            <Badge variant="outline" data-oid="1z:s02i">
+              {stats.totalPlazas} plazas
+            </Badge>
+            <Badge variant="outline" data-oid="gbr6p0o">
+              {stats.plazasOcupadas} ocupadas
+            </Badge>
+            <Badge variant="outline" data-oid="5usnhog">
+              Ocupación {tasaOcupacion}%
+            </Badge>
+            <Badge variant="outline" data-oid="94bnau7">
+              {stats.cursosActivos} cursos activos
+            </Badge>
           </div>
-        )}
+        }
+        data-oid="8w3yhk:"
       />
 
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
-            <div className="relative min-w-[260px] flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Card data-oid="y:jjkmt">
+        <CardContent className="pt-6" data-oid="ermbj.a">
+          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="ounfs:m">
+            <div className="relative min-w-[260px] flex-1" data-oid="gua25gd">
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                data-oid="meye_5z"
+              />
               <Input
                 placeholder="Buscar por nombre, código o familia..."
                 value={searchTerm}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 className="w-full pl-9"
+                data-oid="wgzy7rm"
               />
             </div>
 
-            <Select value={filterFamilia} onValueChange={setFilterFamilia}>
-              <SelectTrigger className="w-full min-w-[190px] md:w-[220px]">
-                <SelectValue placeholder="Familia Profesional" />
+            <Select value={filterFamilia} onValueChange={setFilterFamilia} data-oid="jwbwnlw">
+              <SelectTrigger className="w-full min-w-[190px] md:w-[220px]" data-oid="q97f8i0">
+                <SelectValue placeholder="Familia Profesional" data-oid="oqy0efk" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las familias</SelectItem>
+              <SelectContent data-oid="6q:96nb">
+                <SelectItem value="all" data-oid="i-:szs6">
+                  Todas las familias
+                </SelectItem>
                 {familias.map((familia) => (
-                  <SelectItem key={familia} value={familia}>
+                  <SelectItem key={familia} value={familia} data-oid="4hqobgp">
                     {familia}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Select value={filterModalidad} onValueChange={setFilterModalidad}>
-              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
-                <SelectValue placeholder="Modalidad" />
+            <Select value={filterModalidad} onValueChange={setFilterModalidad} data-oid="_soymj1">
+              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="k6yg.8z">
+                <SelectValue placeholder="Modalidad" data-oid="t37lk5u" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las modalidades</SelectItem>
-                <SelectItem value="Presencial">Presencial</SelectItem>
-                <SelectItem value="Semipresencial">Semipresencial</SelectItem>
-                <SelectItem value="Online">Online</SelectItem>
+              <SelectContent data-oid=":8wwiq2">
+                <SelectItem value="all" data-oid="9bzcb4w">
+                  Todas las modalidades
+                </SelectItem>
+                <SelectItem value="Presencial" data-oid="gebu3:-">
+                  Presencial
+                </SelectItem>
+                <SelectItem value="Semipresencial" data-oid="lx2zn08">
+                  Semipresencial
+                </SelectItem>
+                <SelectItem value="Online" data-oid="rt1n2p5">
+                  Online
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -355,6 +396,7 @@ export default function CiclosMedioPage() {
                   setFilterModalidad('all')
                 }}
                 className="xl:ml-auto"
+                data-oid="vj5ttm-"
               >
                 Limpiar filtros
               </Button>
@@ -363,7 +405,7 @@ export default function CiclosMedioPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid=".mgu4_v">
         {filteredCiclos.map((ciclo) => {
           const ocupacionPorcentaje =
             ciclo.plazas > 0 ? ((ciclo.plazas_ocupadas / ciclo.plazas) * 100).toFixed(0) : '0'
@@ -373,54 +415,76 @@ export default function CiclosMedioPage() {
               key={ciclo.id}
               className="cursor-pointer transition-shadow hover:shadow-md"
               onClick={() => handleViewCiclo(ciclo.id)}
+              data-oid="3jw-ldo"
             >
-              <CardContent className="space-y-4 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="line-clamp-2 text-base font-semibold" title={ciclo.nombre}>
+              <CardContent className="space-y-4 p-5" data-oid="v855os2">
+                <div className="flex items-start justify-between gap-3" data-oid="oayl92d">
+                  <div className="min-w-0" data-oid="0d3zf89">
+                    <h3
+                      className="line-clamp-2 text-base font-semibold"
+                      title={ciclo.nombre}
+                      data-oid="jr-4cnc"
+                    >
                       {ciclo.nombre}
                     </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{ciclo.codigo}</p>
+                    <p className="mt-1 text-sm text-muted-foreground" data-oid="fitity9">
+                      {ciclo.codigo}
+                    </p>
                   </div>
-                  <Badge variant="secondary">{ciclo.nivel}</Badge>
+                  <Badge variant="secondary" data-oid="phnjh66">
+                    {ciclo.nivel}
+                  </Badge>
                 </div>
 
-                <Badge variant="outline" className="w-fit">
+                <Badge variant="outline" className="w-fit" data-oid="ykh8-.b">
                   {ciclo.familia}
                 </Badge>
 
-                <p className="line-clamp-2 text-sm text-muted-foreground">
+                <p className="line-clamp-2 text-sm text-muted-foreground" data-oid="t4vz03k">
                   {ciclo.descripcion || 'Sin descripción disponible.'}
                 </p>
 
-                <div className="grid grid-cols-2 gap-2 border-t pt-3 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{ciclo.duracion}</span>
+                <div className="grid grid-cols-2 gap-2 border-t pt-3 text-sm" data-oid="th7fgak">
+                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="6bogp4_">
+                    <Clock className="h-4 w-4 shrink-0" data-oid="0c4hcj8" />
+                    <span className="truncate" data-oid="0d.3:e5">
+                      {ciclo.duracion}
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="h-4 w-4 shrink-0" />
-                    <span className="truncate">
+                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="_t-h8kl">
+                    <Calendar className="h-4 w-4 shrink-0" data-oid="uka2a.t" />
+                    <span className="truncate" data-oid="8es9x15">
                       {ciclo.cursos_activos} {ciclo.cursos_activos === 1 ? 'curso' : 'cursos'}
                     </span>
                   </div>
                 </div>
 
-                <div className="border-t pt-3">
-                  <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="text-sm text-muted-foreground">Ocupación:</span>
-                    <span className="font-semibold">
+                <div className="border-t pt-3" data-oid="vs2ou:n">
+                  <div
+                    className="mb-2 flex items-center justify-between text-sm"
+                    data-oid="sbu2ktu"
+                  >
+                    <span className="text-sm text-muted-foreground" data-oid="d6nr5pk">
+                      Ocupación:
+                    </span>
+                    <span className="font-semibold" data-oid="a_u1vkh">
                       {ciclo.plazas_ocupadas}/{ciclo.plazas} plazas
                     </span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-2 w-full overflow-hidden rounded-full bg-secondary"
+                    data-oid="86vih8w"
+                  >
                     <div
                       className="h-full bg-primary transition-all"
                       style={{ width: `${ocupacionPorcentaje}%` }}
+                      data-oid="z3z_ng1"
                     />
                   </div>
-                  <p className="mt-1 text-right text-xs text-muted-foreground">{ocupacionPorcentaje}% ocupado</p>
+                  <p className="mt-1 text-right text-xs text-muted-foreground" data-oid=".xky_lh">
+                    {ocupacionPorcentaje}% ocupado
+                  </p>
                 </div>
 
                 <Button
@@ -429,6 +493,7 @@ export default function CiclosMedioPage() {
                     e.stopPropagation()
                     handleViewCiclo(ciclo.id)
                   }}
+                  data-oid="2oj18ua"
                 >
                   Ver Ciclo
                 </Button>
@@ -439,9 +504,9 @@ export default function CiclosMedioPage() {
       </div>
 
       {filteredCiclos.length === 0 && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
+        <Card data-oid="wldn0hu">
+          <CardContent className="py-12 text-center" data-oid="6ltlj_0">
+            <p className="text-muted-foreground" data-oid="wdo7m0m">
               No se encontraron ciclos que coincidan con los filtros seleccionados.
             </p>
           </CardContent>

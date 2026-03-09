@@ -116,15 +116,11 @@ export default function LoginPage() {
         {/* Logo/Brand */}
         <div className="text-center mb-8" data-oid="1vf7s_f">
           <div className="flex flex-col items-center gap-2 mb-2" data-oid="ou4cocr">
-            <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center shadow-md">
-              <img
-                src="/icon-libro.svg"
-                alt=""
-                aria-hidden="true"
-                className="h-8 w-8"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-            </div>
+            <img
+              src="/logos/akademate-icon-180.png"
+              alt="Akademate"
+              className="w-16 h-16 object-contain"
+            />
             <span className="text-2xl font-bold tracking-tight text-foreground">
               AKADEMATE
             </span>

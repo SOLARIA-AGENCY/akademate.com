@@ -8,6 +8,10 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Akademate Campus',
   description: 'Campus alumno con acceso a cursos, materiales y certificados por tenant.',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
