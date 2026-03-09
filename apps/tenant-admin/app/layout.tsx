@@ -4,8 +4,8 @@ import './globals.css'
 import { ClientLayout } from './ClientLayout'
 
 export const metadata: Metadata = {
-  title: 'AKADEMATE Cliente - Admin',
-  description: 'Plataforma de gestión para clientes AKADEMATE',
+  title: 'Akademate | Gestor SaaS',
+  description: 'Gestor SaaS para academias y centros de formación',
   icons: {
     icon: '/favicon.png',
     apple: '/apple-touch-icon.png',

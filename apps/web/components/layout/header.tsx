@@ -23,15 +23,11 @@ export function Header() {
         {/* Logo */}
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-              <img
-                src="/icon-libro.svg"
-                alt=""
-                aria-hidden="true"
-                className="h-5 w-5"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-            </div>
+            <img
+              src="/logos/akademate-icon-48.png"
+              alt="Akademate"
+              className="h-8 w-8 flex-shrink-0"
+            />
             <span className="font-bold text-xl tracking-tight">AKADEMATE</span>
           </Link>
         </div>

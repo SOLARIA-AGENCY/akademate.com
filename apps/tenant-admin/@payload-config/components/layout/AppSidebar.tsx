@@ -390,19 +390,13 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           className={`flex items-center w-full transition-all duration-300 ease-in-out ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
           data-oid="opzrczc"
         >
-          {/* Ícono libro — visible siempre */}
-          <div
-            className="w-8 h-8 rounded-md bg-primary flex items-center justify-center flex-shrink-0"
+          {/* Logo Akademate — visible siempre */}
+          <img
+            src="/logos/akademate-icon-32.png"
+            alt="Akademate"
+            className="h-8 w-8 flex-shrink-0"
             title={isCollapsed ? academyName : undefined}
-          >
-            <img
-              src="/icon-libro.svg"
-              alt=""
-              aria-hidden="true"
-              className="h-4 w-4"
-              style={{ filter: 'brightness(0) invert(1)' }}
-            />
-          </div>
+          />
 
           {/* Nombre AKADEMATE — solo en expanded */}
           {!isCollapsed && (

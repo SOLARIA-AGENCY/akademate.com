@@ -7,8 +7,8 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Akademate Admin | Ops Dashboard',
-  description: 'Panel superadmin para tenants, facturacion y soporte multitenant.',
+  title: 'Akademate | Dashboard Cliente',
+  description: 'Panel de administración para clientes de Akademate.',
   icons: {
     icon: '/favicon.png',
     apple: '/apple-touch-icon.png',
