@@ -131,7 +131,7 @@ export default function LoginPage() {
         </div>
 
         <Card className="shadow-2xl border-2" data-oid="eohhita">
-          <CardHeader className="space-y-1" data-oid="4t.knld">
+          <CardHeader className="space-y-1 text-center" data-oid="4t.knld">
             <CardTitle className="text-2xl" data-oid="0kha606">
               Iniciar Sesión
             </CardTitle>
