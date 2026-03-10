@@ -19,6 +19,7 @@ describe('CancelSubscriptionDialog', () => {
         open={false}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="it:tm2f"
       />
     )
     expect(container.querySelector('[data-testid="alert-dialog"]')).not.toBeInTheDocument()
@@ -30,6 +31,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="5fd8843"
       />
     )
     expect(screen.getByTestId('alert-dialog')).toBeInTheDocument()
@@ -43,6 +45,7 @@ describe('CancelSubscriptionDialog', () => {
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
         currentPeriodEnd={currentPeriodEnd}
+        data-oid="ue4wgic"
       />
     )
     expect(screen.getByText(/31 de enero de 2025/i)).toBeInTheDocument()
@@ -54,6 +57,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="2ba--s2"
       />
     )
     const textarea = screen.getByTestId('textarea')
@@ -67,6 +71,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="ypctws3"
       />
     )
     const checkbox = screen.getByTestId('checkbox')
@@ -81,6 +86,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="93sutln"
       />
     )
     const checkbox = screen.getByTestId('checkbox')
@@ -90,7 +96,9 @@ describe('CancelSubscriptionDialog', () => {
 
     // After checking, shows "inmediatamente"
     fireEvent.click(checkbox)
-    expect(screen.getByText(/perderás acceso a todas las funciones premium inmediatamente/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/perderás acceso a todas las funciones premium inmediatamente/i)
+    ).toBeInTheDocument()
   })
 
   it('calls onConfirm with reason and immediately flag when confirm button clicked', async () => {
@@ -101,6 +109,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="j5ids7v"
       />
     )
 
@@ -125,6 +134,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="hftnv8k"
       />
     )
 
@@ -148,6 +158,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="0w6h4v8"
       />
     )
 
@@ -171,6 +182,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="-3bkbvh"
       />
     )
 
@@ -190,6 +202,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="y69hvf8"
       />
     )
 
@@ -215,6 +228,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="p_u:mqr"
       />
     )
 
@@ -237,6 +251,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid=":rsjx.b"
       />
     )
 
@@ -257,6 +272,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="2erdxnf"
       />
     )
 
@@ -282,6 +298,7 @@ describe('CancelSubscriptionDialog', () => {
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
         currentPeriodEnd={testDate}
+        data-oid="nga-au_"
       />
     )
     expect(screen.getByText(/25 de diciembre de 2025/i)).toBeInTheDocument()
@@ -293,6 +310,7 @@ describe('CancelSubscriptionDialog', () => {
         open={true}
         onOpenChange={mockOnOpenChange}
         onConfirm={mockOnConfirm}
+        data-oid="494:6gh"
       />
     )
 

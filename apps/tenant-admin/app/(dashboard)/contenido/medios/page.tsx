@@ -110,7 +110,7 @@ export default function MediaPage() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-   
+
   const { toast } = useToast() as unknown as ToastHookResult
 
   const [filters, setFilters] = useState<MediaFiltersState>({
@@ -135,22 +135,22 @@ export default function MediaPage() {
         const hero = toStrictVariant(doc.sizes?.hero)
 
         return {
-        id: doc.id,
-        filename: doc.filename ?? doc.file?.filename ?? 'media',
-        mimeType: doc.mimeType ?? doc.file?.mimeType ?? 'application/octet-stream',
-        filesize: doc.filesize ?? doc.file?.filesize ?? 0,
-        width: doc.width,
-        height: doc.height,
-        alt: doc.alt ?? doc.filename ?? 'Media',
-        url: doc.url ?? doc.file?.url ?? '',
-        thumbnailURL: doc.sizes?.thumbnail?.url,
-        sizes: {
-          ...(thumbnail ? { thumbnail } : {}),
-          ...(card ? { card } : {}),
-          ...(hero ? { hero } : {}),
-        },
-        createdAt: doc.createdAt,
-        updatedAt: doc.updatedAt,
+          id: doc.id,
+          filename: doc.filename ?? doc.file?.filename ?? 'media',
+          mimeType: doc.mimeType ?? doc.file?.mimeType ?? 'application/octet-stream',
+          filesize: doc.filesize ?? doc.file?.filesize ?? 0,
+          width: doc.width,
+          height: doc.height,
+          alt: doc.alt ?? doc.filename ?? 'Media',
+          url: doc.url ?? doc.file?.url ?? '',
+          thumbnailURL: doc.sizes?.thumbnail?.url,
+          sizes: {
+            ...(thumbnail ? { thumbnail } : {}),
+            ...(card ? { card } : {}),
+            ...(hero ? { hero } : {}),
+          },
+          createdAt: doc.createdAt,
+          updatedAt: doc.updatedAt,
         }
       })
 
@@ -251,11 +251,14 @@ export default function MediaPage() {
   // Stats
   const stats = useMemo(() => {
     const totalSize = mediaItems.reduce((sum, item) => sum + item.filesize, 0)
-    const typeCount = mediaItems.reduce((acc, item) => {
-      const type = item.mimeType.split('/')[1]?.toUpperCase() ?? 'UNKNOWN'
-      acc[type] = (acc[type] ?? 0) + 1
-      return acc
-    }, {} as Record<string, number>)
+    const typeCount = mediaItems.reduce(
+      (acc, item) => {
+        const type = item.mimeType.split('/')[1]?.toUpperCase() ?? 'UNKNOWN'
+        acc[type] = (acc[type] ?? 0) + 1
+        return acc
+      },
+      {} as Record<string, number>
+    )
 
     return {
       total: mediaItems.length,
@@ -284,13 +287,23 @@ export default function MediaPage() {
     setMediaItems((prev) =>
       prev.map((item) =>
         item.id === id
-          ? { ...item, alt: updated.alt ?? item.alt, updatedAt: updated.updatedAt ?? item.updatedAt }
+          ? {
+              ...item,
+              alt: updated.alt ?? item.alt,
+              updatedAt: updated.updatedAt ?? item.updatedAt,
+            }
           : item
       )
     )
     if (selectedItem?.id === id) {
       setSelectedItem((prev) =>
-        prev ? { ...prev, alt: updated.alt ?? prev.alt, updatedAt: updated.updatedAt ?? prev.updatedAt } : null
+        prev
+          ? {
+              ...prev,
+              alt: updated.alt ?? prev.alt,
+              updatedAt: updated.updatedAt ?? prev.updatedAt,
+            }
+          : null
       )
     }
   }
@@ -320,59 +333,89 @@ export default function MediaPage() {
   }
 
   return (
-    <div className="space-y-6">
-
+    <div className="space-y-6" data-oid="m.b77eq">
       <PageHeader
         title="Medios"
         description="Biblioteca de medios y gestión de archivos multimedia"
         icon={ImageIcon}
-        actions={(
+        actions={
           <Button
             onClick={() => setUploadDialogOpen(true)}
             style={{ backgroundColor: '#F2014B' }}
+            data-oid="e:f7ub0"
           >
-            <Upload className="mr-2 h-4 w-4" />
+            <Upload className="mr-2 h-4 w-4" data-oid="7_ywcdf" />
             Subir Archivos
           </Button>
-        )}
+        }
+        data-oid="vl:-hmu"
       />
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Archivos</CardTitle>
-            <ImageIcon className="h-4 w-4 text-muted-foreground" />
+      <div className="grid gap-4 md:grid-cols-4" data-oid="7t.ps1.">
+        <Card data-oid="vka1r3a">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 pb-2"
+            data-oid="kt8slr3"
+          >
+            <CardTitle className="text-sm font-medium" data-oid="xvgf-h9">
+              Total de Archivos
+            </CardTitle>
+            <ImageIcon className="h-4 w-4 text-muted-foreground" data-oid="dcr5vvf" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">en la biblioteca</p>
+          <CardContent data-oid="z6jjzmy">
+            <div className="text-2xl font-bold" data-oid="o0uoaw_">
+              {stats.total}
+            </div>
+            <p className="text-xs text-muted-foreground" data-oid="faw8.a.">
+              en la biblioteca
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Espacio Usado</CardTitle>
-            <HardDrive className="h-4 w-4 text-muted-foreground" />
+        <Card data-oid="6mo.ph_">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 pb-2"
+            data-oid="wz1p6_j"
+          >
+            <CardTitle className="text-sm font-medium" data-oid="l6a99zs">
+              Espacio Usado
+            </CardTitle>
+            <HardDrive className="h-4 w-4 text-muted-foreground" data-oid="fldb__1" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatFileSize(stats.totalSize)}</div>
-            <p className="text-xs text-muted-foreground">almacenamiento total</p>
+          <CardContent data-oid="flnwcsv">
+            <div className="text-2xl font-bold" data-oid="je8fczo">
+              {formatFileSize(stats.totalSize)}
+            </div>
+            <p className="text-xs text-muted-foreground" data-oid="9x2j9u-">
+              almacenamiento total
+            </p>
           </CardContent>
         </Card>
 
-        {Object.entries(stats.typeCount).slice(0, 2).map(([type, count]) => (
-          <Card key={type}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{type}</CardTitle>
-              <FileImage className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{count}</div>
-              <p className="text-xs text-muted-foreground">archivo(s)</p>
-            </CardContent>
-          </Card>
-        ))}
+        {Object.entries(stats.typeCount)
+          .slice(0, 2)
+          .map(([type, count]) => (
+            <Card key={type} data-oid="286nme4">
+              <CardHeader
+                className="flex flex-row items-center justify-between space-y-0 pb-2"
+                data-oid="k49zbtd"
+              >
+                <CardTitle className="text-sm font-medium" data-oid="af87oeh">
+                  {type}
+                </CardTitle>
+                <FileImage className="h-4 w-4 text-muted-foreground" data-oid="-dgw:e_" />
+              </CardHeader>
+              <CardContent data-oid="aj:kawg">
+                <div className="text-2xl font-bold" data-oid="4e9ilpk">
+                  {count}
+                </div>
+                <p className="text-xs text-muted-foreground" data-oid="8p9_yvn">
+                  archivo(s)
+                </p>
+              </CardContent>
+            </Card>
+          ))}
       </div>
 
       {/* Filters */}
@@ -381,6 +424,7 @@ export default function MediaPage() {
         onChange={setFilters}
         totalItems={mediaItems.length}
         filteredItems={filteredItems.length}
+        data-oid="_fbear3"
       />
 
       {/* Gallery */}
@@ -389,28 +433,33 @@ export default function MediaPage() {
         loading={loading}
         onItemClick={handleItemClick}
         selectedId={selectedItem?.id}
+        data-oid="ccdrpv8"
       />
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
+        <div className="flex justify-center" data-oid="4b-mbsd">
+          <Pagination data-oid="j00ck75">
+            <PaginationContent data-oid="0uozpwq">
+              <PaginationItem data-oid="vuh:ws5">
                 <PaginationPrevious
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  className={
+                    currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                  }
+                  data-oid="d8k11zs"
                 />
               </PaginationItem>
 
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 const pageNum = i + 1
                 return (
-                  <PaginationItem key={pageNum}>
+                  <PaginationItem key={pageNum} data-oid="blgiyty">
                     <PaginationLink
                       onClick={() => setCurrentPage(pageNum)}
                       isActive={currentPage === pageNum}
                       className="cursor-pointer"
+                      data-oid="hi6o4bj"
                     >
                       {pageNum}
                     </PaginationLink>
@@ -420,14 +469,15 @@ export default function MediaPage() {
 
               {totalPages > 5 && (
                 <>
-                  <PaginationItem>
-                    <PaginationEllipsis />
+                  <PaginationItem data-oid="amqtn66">
+                    <PaginationEllipsis data-oid="g-dleri" />
                   </PaginationItem>
-                  <PaginationItem>
+                  <PaginationItem data-oid="099sf78">
                     <PaginationLink
                       onClick={() => setCurrentPage(totalPages)}
                       isActive={currentPage === totalPages}
                       className="cursor-pointer"
+                      data-oid="z780nr:"
                     >
                       {totalPages}
                     </PaginationLink>
@@ -435,10 +485,13 @@ export default function MediaPage() {
                 </>
               )}
 
-              <PaginationItem>
+              <PaginationItem data-oid="0p:h4_5">
                 <PaginationNext
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  className={
+                    currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                  }
+                  data-oid="k9h_oq6"
                 />
               </PaginationItem>
             </PaginationContent>
@@ -451,6 +504,7 @@ export default function MediaPage() {
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
         onUploadComplete={handleUploadComplete}
+        data-oid="u40fmhg"
       />
 
       <MediaDetails
@@ -459,6 +513,7 @@ export default function MediaPage() {
         onOpenChange={setDetailsDialogOpen}
         onUpdate={handleUpdateItem}
         onDelete={handleDeleteItem}
+        data-oid="trevk_g"
       />
     </div>
   )

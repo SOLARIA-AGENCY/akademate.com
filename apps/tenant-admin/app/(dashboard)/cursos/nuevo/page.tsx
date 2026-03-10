@@ -2,7 +2,13 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Textarea } from '@payload-config/components/ui/textarea'
@@ -26,7 +32,11 @@ import {
   Image as ImageIcon,
   Trash2,
 } from 'lucide-react'
-import { getCourseTypeConfig, type CourseTypeKey, type CourseTypeConfigValue } from '../../../../@payload-config/lib/courseTypeConfig'
+import {
+  getCourseTypeConfig,
+  type CourseTypeKey,
+  type CourseTypeConfigValue,
+} from '../../../../@payload-config/lib/courseTypeConfig'
 import { SubvencionItem } from '@payload-config/components/ui/SubvencionItem'
 import { EntidadSelector } from '@payload-config/components/ui/EntidadSelector'
 import { Switch } from '@payload-config/components/ui/switch'
@@ -98,14 +108,17 @@ export default function NuevoCursoPage() {
         })
         clearTimeout(timeoutId)
 
-        const result: AreasFormativasApiResponse = await response.json() as AreasFormativasApiResponse
+        const result: AreasFormativasApiResponse =
+          (await response.json()) as AreasFormativasApiResponse
         if (result.success) {
           setAreasFormativas(result.data)
         } else {
           console.error('Error from API:', result.error)
           if (retries > 0) {
             console.log(`Reintentando cargar áreas... (${retries} intentos restantes)`)
-            setTimeout(() => { void fetchAreasWithRetry(retries - 1) }, 1000)
+            setTimeout(() => {
+              void fetchAreasWithRetry(retries - 1)
+            }, 1000)
             return
           }
         }
@@ -115,13 +128,13 @@ export default function NuevoCursoPage() {
         // Retry en caso de timeout o error de red
         if (retries > 0) {
           console.log(`Reintentando cargar áreas... (${retries} intentos restantes)`)
-          setTimeout(() => { void fetchAreasWithRetry(retries - 1) }, 1000)
+          setTimeout(() => {
+            void fetchAreasWithRetry(retries - 1)
+          }, 1000)
           return
         }
 
-        alert(
-          '⚠️ No se pudieron cargar las áreas formativas. Por favor, recarga la página.'
-        )
+        alert('⚠️ No se pudieron cargar las áreas formativas. Por favor, recarga la página.')
       } finally {
         setLoadingAreas(false)
       }
@@ -135,7 +148,9 @@ export default function NuevoCursoPage() {
   // Saving state
   const [isSaving, setIsSaving] = React.useState(false)
 
-  const typeConfig: CourseTypeConfigValue = getCourseTypeConfig((tipo ?? 'privados') as CourseTypeKey)
+  const typeConfig: CourseTypeConfigValue = getCourseTypeConfig(
+    (tipo ?? 'privados') as CourseTypeKey
+  )
 
   // Handlers
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -200,7 +215,7 @@ export default function NuevoCursoPage() {
     const k = 1024
     const sizes = ['Bytes', 'KB', 'MB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
   }
 
   const addObjetivo = () => {
@@ -242,9 +257,7 @@ export default function NuevoCursoPage() {
   }
 
   const updateSubvencion = (id: string, updates: Partial<Subvencion>) => {
-    setSubvenciones(
-      subvenciones.map((sub) => (sub.id === id ? { ...sub, ...updates } : sub))
-    )
+    setSubvenciones(subvenciones.map((sub) => (sub.id === id ? { ...sub, ...updates } : sub)))
   }
 
   const removeSubvencion = (id: string) => {
@@ -293,7 +306,7 @@ export default function NuevoCursoPage() {
         body: JSON.stringify(courseData),
       })
 
-      const result: CreateCourseApiResponse = await response.json() as CreateCourseApiResponse
+      const result: CreateCourseApiResponse = (await response.json()) as CreateCourseApiResponse
 
       if (response.ok && result.success) {
         alert(`✅ Curso creado exitosamente con código: ${result.data.codigo}`)
@@ -325,40 +338,46 @@ export default function NuevoCursoPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-oid="ku4ywc_">
       <PageHeader
         title="Nuevo Curso"
         description="Crea un nuevo curso"
         icon={FileText}
-        badge={(
+        badge={
           <Badge
             className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white px-4 py-2 text-lg font-semibold uppercase`}
+            data-oid="6hs2yem"
           >
             {typeConfig.label}
           </Badge>
-        )}
-        actions={(
+        }
+        actions={
           <Button
             variant="ghost"
             size="icon"
             onClick={() => router.push('/cursos')}
             className="h-10 w-10"
+            data-oid="owrnlbz"
           >
-            <ArrowLeft className="h-6 w-6" />
+            <ArrowLeft className="h-6 w-6" data-oid="hwl.383" />
           </Button>
-        )}
+        }
+        data-oid="87bebr_"
       />
 
       {/* Información Básica */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Información Básica</CardTitle>
-          <CardDescription>Datos principales del curso</CardDescription>
+      <Card data-oid="uk68evk">
+        <CardHeader data-oid="c1_t4gb">
+          <CardTitle data-oid="62x6w_r">Información Básica</CardTitle>
+          <CardDescription data-oid=":1j1nw8">Datos principales del curso</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="nombre">
-              Nombre del Curso <span className="text-destructive">*</span>
+        <CardContent className="space-y-4" data-oid="8-o5jy4">
+          <div className="space-y-2" data-oid="j-sf7e2">
+            <Label htmlFor="nombre" data-oid="qdtrj9v">
+              Nombre del Curso{' '}
+              <span className="text-destructive" data-oid="ck2nw9l">
+                *
+              </span>
             </Label>
             <Input
               id="nombre"
@@ -366,21 +385,33 @@ export default function NuevoCursoPage() {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNombre(e.target.value)}
               placeholder="ej. Máster en Marketing Digital"
               required
+              data-oid="_zwbgoh"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="area">
-                Área Formativa <span className="text-destructive">*</span>
+          <div className="grid grid-cols-2 gap-4" data-oid="ixumcdk">
+            <div className="space-y-2" data-oid="x3dk1ry">
+              <Label htmlFor="area" data-oid="jsq4aj6">
+                Área Formativa{' '}
+                <span className="text-destructive" data-oid="9y4y5f7">
+                  *
+                </span>
               </Label>
-              <Select value={area} onValueChange={setArea} disabled={loadingAreas}>
-                <SelectTrigger id="area">
-                  <SelectValue placeholder={loadingAreas ? "Cargando áreas..." : "Seleccionar área"} />
+              <Select
+                value={area}
+                onValueChange={setArea}
+                disabled={loadingAreas}
+                data-oid="cnwk_6a"
+              >
+                <SelectTrigger id="area" data-oid="pob-czz">
+                  <SelectValue
+                    placeholder={loadingAreas ? 'Cargando áreas...' : 'Seleccionar área'}
+                    data-oid="ngj9m5o"
+                  />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent data-oid="e.e59h:">
                   {areasFormativas.map((areaItem) => (
-                    <SelectItem key={areaItem.id} value={String(areaItem.id)}>
+                    <SelectItem key={areaItem.id} value={String(areaItem.id)} data-oid="p8fzd5s">
                       {areaItem.nombre}
                     </SelectItem>
                   ))}
@@ -388,56 +419,85 @@ export default function NuevoCursoPage() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="tipo">Tipo de Curso</Label>
-              <Select value={tipo} onValueChange={(value: string) => setTipo(value as CourseType)}>
-                <SelectTrigger id="tipo">
-                  <SelectValue />
+            <div className="space-y-2" data-oid="e3zv14c">
+              <Label htmlFor="tipo" data-oid="3cg7v7e">
+                Tipo de Curso
+              </Label>
+              <Select
+                value={tipo}
+                onValueChange={(value: string) => setTipo(value as CourseType)}
+                data-oid="3kh:u:u"
+              >
+                <SelectTrigger id="tipo" data-oid="0n_0dnt">
+                  <SelectValue data-oid="4y-1f2x" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="privados">Privados</SelectItem>
-                  <SelectItem value="ocupados">Ocupados</SelectItem>
-                  <SelectItem value="desempleados">Desempleados</SelectItem>
-                  <SelectItem value="teleformacion">Teleformación</SelectItem>
+                <SelectContent data-oid="3vxf35a">
+                  <SelectItem value="privados" data-oid="q21levt">
+                    Privados
+                  </SelectItem>
+                  <SelectItem value="ocupados" data-oid="y.b6n8m">
+                    Ocupados
+                  </SelectItem>
+                  <SelectItem value="desempleados" data-oid="wt4ud.1">
+                    Desempleados
+                  </SelectItem>
+                  <SelectItem value="teleformacion" data-oid="l1ze5zu">
+                    Teleformación
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="descripcion">Descripción</Label>
+          <div className="space-y-2" data-oid="tbrb:.l">
+            <Label htmlFor="descripcion" data-oid="wxl40-n">
+              Descripción
+            </Label>
             <Textarea
               id="descripcion"
               value={descripcion}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescripcion(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setDescripcion(e.target.value)
+              }
               placeholder="Describe brevemente el curso..."
               rows={4}
+              data-oid="gijzpsh"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="duracion">Duración (horas)</Label>
+          <div className="grid grid-cols-2 gap-4" data-oid="g.yppbl">
+            <div className="space-y-2" data-oid="cu.r41f">
+              <Label htmlFor="duracion" data-oid="ajds-f6">
+                Duración (horas)
+              </Label>
               <Input
                 id="duracion"
                 type="number"
                 value={duracionReferencia}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDuracionReferencia(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setDuracionReferencia(e.target.value)
+                }
                 placeholder="ej. 300"
                 min="0"
+                data-oid="ujs5p37"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="precio">Precio de Referencia (€)</Label>
+            <div className="space-y-2" data-oid="e.vzkh-">
+              <Label htmlFor="precio" data-oid="reqz68a">
+                Precio de Referencia (€)
+              </Label>
               <Input
                 id="precio"
                 type="number"
                 value={precioReferencia}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrecioReferencia(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setPrecioReferencia(e.target.value)
+                }
                 placeholder="ej. 2500"
                 min="0"
                 step="0.01"
+                data-oid="d2m_vd5"
               />
             </div>
           </div>
@@ -445,39 +505,52 @@ export default function NuevoCursoPage() {
       </Card>
 
       {/* Imagen de Portada */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Imagen de Portada</CardTitle>
-          <CardDescription>
+      <Card data-oid="s04dy:5">
+        <CardHeader data-oid="n_c2su1">
+          <CardTitle data-oid=".x_rfre">Imagen de Portada</CardTitle>
+          <CardDescription data-oid="a0gdzny">
             Imagen principal que se mostrará en las tarjetas de curso
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent data-oid="f3blia-">
+          <div className="space-y-4" data-oid="n.8a23z">
             {imagePreview ? (
-              <div className="relative w-full h-64 rounded-lg overflow-hidden border-2 border-dashed border-primary">
+              <div
+                className="relative w-full h-64 rounded-lg overflow-hidden border-2 border-dashed border-primary"
+                data-oid="t5fb9l7"
+              >
                 <img
                   src={imagePreview}
                   alt="Preview"
                   className="w-full h-full object-cover"
+                  data-oid="6hwb-re"
                 />
+
                 <Button
                   variant="destructive"
                   size="icon"
                   className="absolute top-2 right-2"
                   onClick={handleRemoveImage}
+                  data-oid="kbp5wp:"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4" data-oid="vwaqdma" />
                 </Button>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary cursor-pointer transition-colors">
-                <label htmlFor="image-upload" className="flex flex-col items-center cursor-pointer">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground mb-2" />
-                  <span className="text-sm text-muted-foreground">
+              <div
+                className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary cursor-pointer transition-colors"
+                data-oid="yz9jl67"
+              >
+                <label
+                  htmlFor="image-upload"
+                  className="flex flex-col items-center cursor-pointer"
+                  data-oid="tq3:d4x"
+                >
+                  <ImageIcon className="h-12 w-12 text-muted-foreground mb-2" data-oid="hhdqclm" />
+                  <span className="text-sm text-muted-foreground" data-oid="9nayitm">
                     Haz clic para subir una imagen
                   </span>
-                  <span className="text-xs text-muted-foreground mt-1">
+                  <span className="text-xs text-muted-foreground mt-1" data-oid="73jjnk5">
                     PNG, JPG hasta 5MB
                   </span>
                 </label>
@@ -487,6 +560,7 @@ export default function NuevoCursoPage() {
                   accept="image/*"
                   onChange={handleImageUpload}
                   className="hidden"
+                  data-oid="dz77ql5"
                 />
               </div>
             )}
@@ -495,26 +569,31 @@ export default function NuevoCursoPage() {
       </Card>
 
       {/* Documentación Adjunta */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Documentación Adjunta</CardTitle>
-          <CardDescription>
+      <Card data-oid="k.pgq:r">
+        <CardHeader data-oid="a.rkbpb">
+          <CardTitle data-oid="bfa5ca9">Documentación Adjunta</CardTitle>
+          <CardDescription data-oid="6pcpwja">
             Adjunta PDFs con información adicional del curso (programas, temarios, etc.)
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4" data-oid="gmkk1_i">
           {pdfFiles.length > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-2" data-oid="k6me3kz">
               {pdfFiles.map((pdf) => (
                 <div
                   key={pdf.id}
                   className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/30 rounded-lg border"
+                  data-oid="y5dfk1-"
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <FileText className="h-5 w-5 text-red-600 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{pdf.name}</p>
-                      <p className="text-xs text-muted-foreground">{formatFileSize(pdf.size)}</p>
+                  <div className="flex items-center gap-3 flex-1 min-w-0" data-oid="lg11a1g">
+                    <FileText className="h-5 w-5 text-red-600 flex-shrink-0" data-oid="7l:endw" />
+                    <div className="flex-1 min-w-0" data-oid="drore95">
+                      <p className="text-sm font-medium truncate" data-oid="7035ydb">
+                        {pdf.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground" data-oid="3jp:fgn">
+                        {formatFileSize(pdf.size)}
+                      </p>
                     </div>
                   </div>
                   <Button
@@ -522,21 +601,29 @@ export default function NuevoCursoPage() {
                     size="icon"
                     onClick={() => handleRemovePDF(pdf.id)}
                     className="flex-shrink-0"
+                    data-oid="0j70kq6"
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="h-4 w-4 text-destructive" data-oid="eu_0.xp" />
                   </Button>
                 </div>
               ))}
             </div>
           )}
 
-          <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary cursor-pointer transition-colors">
-            <label htmlFor="pdf-upload" className="flex flex-col items-center cursor-pointer">
-              <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-              <span className="text-sm text-muted-foreground">
+          <div
+            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary cursor-pointer transition-colors"
+            data-oid="baw:57m"
+          >
+            <label
+              htmlFor="pdf-upload"
+              className="flex flex-col items-center cursor-pointer"
+              data-oid="d_-y755"
+            >
+              <Upload className="h-8 w-8 text-muted-foreground mb-2" data-oid="43bbuwk" />
+              <span className="text-sm text-muted-foreground" data-oid="h:qqarc">
                 Haz clic para adjuntar PDFs
               </span>
-              <span className="text-xs text-muted-foreground mt-1">
+              <span className="text-xs text-muted-foreground mt-1" data-oid="wer6_z7">
                 Máximo 10MB por archivo
               </span>
             </label>
@@ -547,117 +634,131 @@ export default function NuevoCursoPage() {
               multiple
               onChange={handlePDFUpload}
               className="hidden"
+              data-oid="nfl:dap"
             />
           </div>
         </CardContent>
       </Card>
 
       {/* Objetivos de Aprendizaje */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Objetivos de Aprendizaje</CardTitle>
-          <CardDescription>
+      <Card data-oid="0kdplkt">
+        <CardHeader data-oid="aa2u07b">
+          <CardTitle data-oid="e_33wzh">Objetivos de Aprendizaje</CardTitle>
+          <CardDescription data-oid="jy3-087">
             Define los objetivos que los estudiantes alcanzarán
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4" data-oid="h1piohl">
           {objetivos.map((objetivo, index) => (
-            <div key={index} className="flex items-center gap-2">
+            <div key={index} className="flex items-center gap-2" data-oid="l4kb8l6">
               <Textarea
                 value={objetivo}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateObjetivo(index, e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  updateObjetivo(index, e.target.value)
+                }
                 placeholder={`Objetivo ${index + 1}`}
                 rows={2}
                 className="flex-1"
+                data-oid="7kv.12c"
               />
+
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => removeObjetivo(index)}
                 disabled={objetivos.length === 1}
+                data-oid="l2nzncv"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" data-oid="8g_gv-9" />
               </Button>
             </div>
           ))}
-          <Button variant="outline" size="sm" onClick={addObjetivo}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button variant="outline" size="sm" onClick={addObjetivo} data-oid="y.28m.-">
+            <Plus className="mr-2 h-4 w-4" data-oid="cyp-u4e" />
             Añadir Objetivo
           </Button>
         </CardContent>
       </Card>
 
       {/* Contenidos del Curso */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Contenidos del Curso</CardTitle>
-          <CardDescription>
+      <Card data-oid="ka6uias">
+        <CardHeader data-oid="jwzvhw2">
+          <CardTitle data-oid="9fz9t9t">Contenidos del Curso</CardTitle>
+          <CardDescription data-oid="y13yq8u">
             Lista de temas y módulos que se cubrirán
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4" data-oid="4m-0_x9">
           {contenidos.map((contenido, index) => (
-            <div key={index} className="flex items-center gap-2">
+            <div key={index} className="flex items-center gap-2" data-oid="6vqd7lq">
               <Textarea
                 value={contenido}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateContenido(index, e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  updateContenido(index, e.target.value)
+                }
                 placeholder={`Módulo ${index + 1}`}
                 rows={2}
                 className="flex-1"
+                data-oid="3k1j89d"
               />
+
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => removeContenido(index)}
                 disabled={contenidos.length === 1}
+                data-oid="nlzk6aq"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" data-oid="wfxi48." />
               </Button>
             </div>
           ))}
-          <Button variant="outline" size="sm" onClick={addContenido}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button variant="outline" size="sm" onClick={addContenido} data-oid="286udek">
+            <Plus className="mr-2 h-4 w-4" data-oid=".rras8." />
             Añadir Contenido
           </Button>
         </CardContent>
       </Card>
 
       {/* Subvenciones y Becas */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span>Subvenciones y Becas</span>
+      <Card data-oid="-f5diwq">
+        <CardHeader data-oid="p_1j1el">
+          <CardTitle className="flex items-center justify-between" data-oid="p:0t4tl">
+            <div className="flex items-center gap-3" data-oid="c3x:08i">
+              <span data-oid="5x4mt.m">Subvenciones y Becas</span>
               <Switch
                 checked={subvencionado}
                 onCheckedChange={setSubvencionado}
                 aria-label="Activar/desactivar subvenciones"
+                data-oid="l737i3-"
               />
             </div>
             {subvencionado && subvenciones.length > 0 && (
               <Badge
                 variant={porcentajeTotalSubvencion === 100 ? 'default' : 'secondary'}
                 className="text-sm"
+                data-oid="gebyjec"
               >
                 Total: {porcentajeTotalSubvencion}%
               </Badge>
             )}
           </CardTitle>
-          <CardDescription>
+          <CardDescription data-oid="x5tzubl">
             Configura las entidades financiadoras y porcentajes de subvención
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4" data-oid="vqu0z2m">
           {subvencionado ? (
             <>
               {subvenciones.length > 0 && (
-                <div className="space-y-3">
+                <div className="space-y-3" data-oid="d7stdhi">
                   {subvenciones.map((subvencion) => (
                     <SubvencionItem
                       key={subvencion.id}
                       subvencion={subvencion}
                       onUpdate={(updates: Subvencion) => updateSubvencion(subvencion.id, updates)}
                       onRemove={() => removeSubvencion(subvencion.id)}
+                      data-oid="cihey6_"
                     />
                   ))}
                 </div>
@@ -665,10 +766,11 @@ export default function NuevoCursoPage() {
               <EntidadSelector
                 onSelect={addSubvencion}
                 entidadesUsadas={subvenciones.map((s) => s.entidad)}
+                data-oid="lvg_lp6"
               />
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground" data-oid=".e:mni.">
               Activa el switch para agregar subvenciones
             </p>
           )}
@@ -676,13 +778,14 @@ export default function NuevoCursoPage() {
       </Card>
 
       {/* Botonera inferior - botones a la derecha */}
-      <div className="border-t pt-6 mt-12 mb-8">
-        <div className="flex justify-end gap-4">
+      <div className="border-t pt-6 mt-12 mb-8" data-oid="rrv_mg0">
+        <div className="flex justify-end gap-4" data-oid="8k.fnfr">
           <Button
             variant="outline"
             size="lg"
             onClick={handleCancel}
             disabled={isSaving}
+            data-oid="dlvsbrl"
           >
             Cancelar
           </Button>
@@ -691,8 +794,9 @@ export default function NuevoCursoPage() {
             disabled={isSaving || !nombre.trim() || !area}
             size="lg"
             className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white font-bold uppercase`}
+            data-oid="wdxnbrr"
           >
-            <Save className="mr-2 h-5 w-5" />
+            <Save className="mr-2 h-5 w-5" data-oid="1hn2qf0" />
             {isSaving ? 'Guardando...' : 'CREAR CURSO'}
           </Button>
         </div>

@@ -1,7 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@payload-config/components/ui/card'
 import { Label } from '@payload-config/components/ui/label'
 import { Switch } from '@payload-config/components/ui/switch'
 import { PlanCard } from './PlanCard'
@@ -21,6 +27,7 @@ const PLAN_FEATURES = {
     'Soporte por email',
     'Acceso a documentación',
   ],
+
   pro: [
     'Hasta 500 usuarios',
     '100 GB de almacenamiento',
@@ -30,6 +37,7 @@ const PLAN_FEATURES = {
     'Integraciones personalizadas',
     'Análisis avanzado',
   ],
+
   enterprise: [
     'Usuarios ilimitados',
     'Almacenamiento ilimitado',
@@ -77,7 +85,8 @@ export function PlanComparison({ currentPlan, onSelectPlan }: PlanComparisonProp
     return {
       planTier: selectedPlan.tier,
       planName: planNames[selectedPlan.tier],
-      price: PLAN_PRICING[selectedPlan.tier][selectedPlan.interval === 'month' ? 'monthly' : 'yearly'],
+      price:
+        PLAN_PRICING[selectedPlan.tier][selectedPlan.interval === 'month' ? 'monthly' : 'yearly'],
       interval: selectedPlan.interval,
       features: PLAN_FEATURES[selectedPlan.tier],
     }
@@ -87,31 +96,44 @@ export function PlanComparison({ currentPlan, onSelectPlan }: PlanComparisonProp
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Planes Disponibles</CardTitle>
-              <CardDescription>
+      <Card data-oid="k0c93t_">
+        <CardHeader data-oid="sn8gfct">
+          <div className="flex items-center justify-between" data-oid="bvu9f2j">
+            <div data-oid="919.:8z">
+              <CardTitle data-oid="zfvgvr5">Planes Disponibles</CardTitle>
+              <CardDescription data-oid="f3rwl:m">
                 Elige el plan que mejor se adapte a tus necesidades
               </CardDescription>
             </div>
 
             {/* Interval Toggle */}
-            <div className="flex items-center gap-3">
-              <Label htmlFor="interval" className={interval === 'month' ? 'font-semibold' : ''}>
+            <div className="flex items-center gap-3" data-oid=".zklm4t">
+              <Label
+                htmlFor="interval"
+                className={interval === 'month' ? 'font-semibold' : ''}
+                data-oid="jg3x2a8"
+              >
                 Mensual
               </Label>
               <Switch
                 id="interval"
                 checked={interval === 'year'}
                 onCheckedChange={(checked) => setInterval(checked ? 'year' : 'month')}
+                data-oid="qberwz3"
               />
-              <div className="flex items-center gap-2">
-                <Label htmlFor="interval" className={interval === 'year' ? 'font-semibold' : ''}>
+
+              <div className="flex items-center gap-2" data-oid="x4e.f1s">
+                <Label
+                  htmlFor="interval"
+                  className={interval === 'year' ? 'font-semibold' : ''}
+                  data-oid="fiwjol_"
+                >
                   Anual
                 </Label>
-                <span className="text-xs bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300 px-2 py-1 rounded-full font-medium">
+                <span
+                  className="text-xs bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300 px-2 py-1 rounded-full font-medium"
+                  data-oid=":2h24a4"
+                >
                   Ahorra 17%
                 </span>
               </div>
@@ -119,8 +141,8 @@ export function PlanComparison({ currentPlan, onSelectPlan }: PlanComparisonProp
           </div>
         </CardHeader>
 
-        <CardContent>
-          <div className="grid gap-6 md:grid-cols-3">
+        <CardContent data-oid="8v1kuft">
+          <div className="grid gap-6 md:grid-cols-3" data-oid="l:edhl7">
             <PlanCard
               tier="starter"
               name="Starter"
@@ -131,6 +153,7 @@ export function PlanComparison({ currentPlan, onSelectPlan }: PlanComparisonProp
               interval={interval}
               isCurrentPlan={currentPlan === 'starter'}
               onSelect={handleSelectPlan}
+              data-oid="gv7_4qo"
             />
 
             <PlanCard
@@ -144,6 +167,7 @@ export function PlanComparison({ currentPlan, onSelectPlan }: PlanComparisonProp
               isCurrentPlan={currentPlan === 'pro'}
               isPopular={true}
               onSelect={handleSelectPlan}
+              data-oid="nifyxil"
             />
 
             <PlanCard
@@ -156,6 +180,7 @@ export function PlanComparison({ currentPlan, onSelectPlan }: PlanComparisonProp
               interval={interval}
               isCurrentPlan={currentPlan === 'enterprise'}
               onSelect={handleSelectPlan}
+              data-oid="_6wao_i"
             />
           </div>
         </CardContent>
@@ -168,6 +193,7 @@ export function PlanComparison({ currentPlan, onSelectPlan }: PlanComparisonProp
           onOpenChange={(open) => !open && setSelectedPlan(null)}
           onConfirm={handleConfirmCheckout}
           {...selectedDetails}
+          data-oid="x..svpr"
         />
       )}
     </>

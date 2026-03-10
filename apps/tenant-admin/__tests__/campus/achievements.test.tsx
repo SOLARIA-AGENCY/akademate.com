@@ -40,6 +40,7 @@ const mockGamificationData = {
       requirement: 'Racha de 7 dias',
     },
   ],
+
   recentActivity: [
     {
       id: '1',
@@ -50,6 +51,7 @@ const mockGamificationData = {
       earnedAt: '2025-01-15T10:00:00Z',
     },
   ],
+
   stats: {
     coursesCompleted: 1,
     lessonsCompleted: 25,
@@ -87,7 +89,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('renders page title', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="5j:0uue" />)
 
     await waitFor(() => {
       expect(screen.getByText(/logros y recompensas/i)).toBeInTheDocument()
@@ -95,7 +97,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('displays level information', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="gxpolwl" />)
 
     await waitFor(() => {
       expect(screen.getByText('Nivel 5')).toBeInTheDocument()
@@ -104,7 +106,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('shows total points', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="pu6voz." />)
 
     await waitFor(() => {
       expect(screen.getByText('450')).toBeInTheDocument()
@@ -113,7 +115,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('displays current streak', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="j7g-zrt" />)
 
     await waitFor(() => {
       // The streak is shown as "5" with "Dias Seguidos (Max: 12)"
@@ -123,7 +125,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('shows earned badges count', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="xzl6taf" />)
 
     await waitFor(() => {
       expect(screen.getByText('2/3')).toBeInTheDocument()
@@ -132,7 +134,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('displays learning stats', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="4kxzs:u" />)
 
     await waitFor(() => {
       expect(screen.getByText('1')).toBeInTheDocument() // courses completed
@@ -143,7 +145,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('renders earned badges tab', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="9r_ci36" />)
 
     await waitFor(() => {
       expect(screen.getByText(/ganadas \(2\)/i)).toBeInTheDocument()
@@ -153,7 +155,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('renders locked badges tab', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="9zzdrrh" />)
 
     await waitFor(() => {
       expect(screen.getByText(/por desbloquear \(1\)/i)).toBeInTheDocument()
@@ -161,7 +163,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('shows progress for locked badges', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="mg0xnoc" />)
 
     // Wait for data to load and check locked badge content
     // Note: Mock tabs render all content, so we can check directly
@@ -173,7 +175,7 @@ describe('Campus Achievements Page', () => {
   })
 
   it('displays recent activity', async () => {
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="c4uswrp" />)
 
     // Note: Mock tabs render all content, check directly
     await waitFor(() => {
@@ -206,7 +208,7 @@ describe('Campus Achievements Page', () => {
       }),
     })
 
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="kaj3vft" />)
 
     await waitFor(() => {
       expect(screen.getByText('Nivel 1')).toBeInTheDocument()
@@ -217,7 +219,7 @@ describe('Campus Achievements Page', () => {
   it('handles API failure gracefully', async () => {
     global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
 
-    render(<AchievementsPage />)
+    render(<AchievementsPage data-oid="cm2yl:4" />)
 
     // Should show default empty state
     await waitFor(() => {

@@ -30,8 +30,8 @@ beforeEach(() => {
 describe('TenantBrandingProvider - CSS variable injection', () => {
   it('sets --primary from the tenant brand color', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="19am2fv">
+        <span data-oid="y:m-l75">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -42,8 +42,8 @@ describe('TenantBrandingProvider - CSS variable injection', () => {
 
   it('sets --brand-secondary (NOT --secondary) for the tenant brand secondary', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="jkp0lxe">
+        <span data-oid="usn7fpp">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -58,8 +58,8 @@ describe('TenantBrandingProvider - CSS variable injection', () => {
 
   it('does NOT override --secondary with the tenant brand color', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="uaw:m.8">
+        <span data-oid="8vz1xl6">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -71,8 +71,8 @@ describe('TenantBrandingProvider - CSS variable injection', () => {
 
   it('sets --accent from the tenant brand color', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid=".vmz74y">
+        <span data-oid="067p:4k">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -82,8 +82,8 @@ describe('TenantBrandingProvider - CSS variable injection', () => {
 
   it('sets --success from the tenant brand color', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="l2:pn9p">
+        <span data-oid="f_ny_mj">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -93,8 +93,8 @@ describe('TenantBrandingProvider - CSS variable injection', () => {
 
   it('sets --warning from the tenant brand color', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="m.nqkxa">
+        <span data-oid="6-5z:_6">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -104,8 +104,8 @@ describe('TenantBrandingProvider - CSS variable injection', () => {
 
   it('sets --destructive from the tenant brand danger color', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="_o6tn8y">
+        <span data-oid="1zma6kx">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -115,8 +115,8 @@ describe('TenantBrandingProvider - CSS variable injection', () => {
 
   it('never sets --secondary-foreground as an inline style', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="69is158">
+        <span data-oid="zrwtx6p">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -131,8 +131,8 @@ describe('TenantBrandingProvider - CSS variable injection', () => {
 describe('TenantBrandingProvider - hexToHSL correctness', () => {
   it('converts Akademate primary #0066CC to correct HSL', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="ar6meac">
+        <span data-oid="9b9lc6h">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -148,8 +148,8 @@ describe('TenantBrandingProvider - hexToHSL correctness', () => {
 
   it('converts brand secondary #1a1a2e to 240 28% 14%', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="7.sl233">
+        <span data-oid="nibiu7k">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -159,8 +159,8 @@ describe('TenantBrandingProvider - hexToHSL correctness', () => {
 
   it('converts Akademate accent #0088FF to correct blue HSL', async () => {
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="g2swd3h">
+        <span data-oid="518c2x3">child</span>
       </TenantBrandingProvider>
     )
     await waitFor(() => {
@@ -208,8 +208,8 @@ describe('TenantBrandingProvider - theme API update', () => {
     })
 
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="7cymwhk">
+        <span data-oid="2nel2b5">child</span>
       </TenantBrandingProvider>
     )
 
@@ -249,8 +249,8 @@ describe('TenantBrandingProvider - theme API update', () => {
     })
 
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="1hq5ufv">
+        <span data-oid="nh_.v_t">child</span>
       </TenantBrandingProvider>
     )
 
@@ -266,8 +266,8 @@ describe('TenantBrandingProvider - theme API update', () => {
     vi.mocked(global.fetch).mockRejectedValue(new Error('Network error'))
 
     render(
-      <TenantBrandingProvider>
-        <span>child</span>
+      <TenantBrandingProvider data-oid="6m9i3cm">
+        <span data-oid="r1pz.88">child</span>
       </TenantBrandingProvider>
     )
 
@@ -284,8 +284,10 @@ describe('TenantBrandingProvider - theme API update', () => {
 describe('TenantBrandingProvider - rendering', () => {
   it('renders children', async () => {
     render(
-      <TenantBrandingProvider>
-        <span data-testid="child">Content</span>
+      <TenantBrandingProvider data-oid=".-yn-05">
+        <span data-testid="child" data-oid="q2ytq7y">
+          Content
+        </span>
       </TenantBrandingProvider>
     )
     // waitFor ensures async state updates (from the initial refresh) settle
@@ -303,14 +305,18 @@ describe('useTenantBranding hook', () => {
     function Consumer() {
       const { branding, loading } = useTenantBranding()
       return (
-        <div>
-          <span data-testid="name">{branding.academyName}</span>
-          <span data-testid="loading">{loading ? 'loading' : 'idle'}</span>
+        <div data-oid="l3eh:xy">
+          <span data-testid="name" data-oid="8ad5dbr">
+            {branding.academyName}
+          </span>
+          <span data-testid="loading" data-oid=":jrj_h.">
+            {loading ? 'loading' : 'idle'}
+          </span>
         </div>
       )
     }
 
-    render(<Consumer />)
+    render(<Consumer data-oid=":nqc:2b" />)
     expect(screen.getByTestId('name')).toHaveTextContent('Akademate')
     expect(screen.getByTestId('loading')).toHaveTextContent('idle')
   })
@@ -318,10 +324,14 @@ describe('useTenantBranding hook', () => {
   it('exposes tenantId from default branding', () => {
     function Consumer() {
       const { branding } = useTenantBranding()
-      return <span data-testid="tid">{branding.tenantId}</span>
+      return (
+        <span data-testid="tid" data-oid="d236ab_">
+          {branding.tenantId}
+        </span>
+      )
     }
 
-    render(<Consumer />)
+    render(<Consumer data-oid="y93v9u:" />)
     // tenantId comes from env var or '1'
     expect(screen.getByTestId('tid')).toBeInTheDocument()
   })

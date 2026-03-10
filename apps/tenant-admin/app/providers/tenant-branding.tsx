@@ -129,7 +129,8 @@ export function TenantBrandingProvider({ children }: { children: React.ReactNode
 
       if (academyRes.ok) {
         const academyPayload = (await academyRes.json()) as { data?: { nombre?: string } }
-        nextBranding.academyName = academyPayload.data?.nombre?.trim() || DEFAULT_BRANDING.academyName
+        nextBranding.academyName =
+          academyPayload.data?.nombre?.trim() || DEFAULT_BRANDING.academyName
       }
 
       if (themeRes.ok) {
@@ -164,7 +165,11 @@ export function TenantBrandingProvider({ children }: { children: React.ReactNode
     [branding, loading, refresh]
   )
 
-  return <TenantBrandingContext.Provider value={value}>{children}</TenantBrandingContext.Provider>
+  return (
+    <TenantBrandingContext.Provider value={value} data-oid="31m9n_n">
+      {children}
+    </TenantBrandingContext.Provider>
+  )
 }
 
 export function useTenantBranding(): TenantBrandingContextValue {

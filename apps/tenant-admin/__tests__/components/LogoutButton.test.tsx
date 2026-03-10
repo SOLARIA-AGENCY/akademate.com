@@ -22,7 +22,7 @@ describe('LogoutButton Component', () => {
   })
 
   it('renders logout button correctly', () => {
-    render(<LogoutButton />)
+    render(<LogoutButton data-oid="tn-:j0e" />)
 
     expect(screen.getByText('Cerrar Sesión')).toBeInTheDocument()
   })
@@ -30,7 +30,7 @@ describe('LogoutButton Component', () => {
   it('calls server logout, clears user metadata, and redirects on click', async () => {
     localStorage.setItem('cep_user', '{}')
 
-    render(<LogoutButton />)
+    render(<LogoutButton data-oid="lvwn_se" />)
 
     const logoutButton = screen.getByText('Cerrar Sesión')
     fireEvent.click(logoutButton)
@@ -48,7 +48,7 @@ describe('LogoutButton Component', () => {
   })
 
   it('has logout icon', () => {
-    render(<LogoutButton />)
+    render(<LogoutButton data-oid="9cx_2um" />)
 
     const button = screen.getByRole('button')
     expect(button).toHaveClass('w-full', 'justify-start')

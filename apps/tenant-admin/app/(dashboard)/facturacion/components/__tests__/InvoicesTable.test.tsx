@@ -60,7 +60,7 @@ describe('InvoicesTable', () => {
   })
 
   it('renders loading state', () => {
-    render(<InvoicesTable invoices={[]} loading={true} />)
+    render(<InvoicesTable invoices={[]} loading={true} data-oid="ss.urou" />)
     expect(screen.getByTestId('card')).toBeInTheDocument()
     expect(screen.getByText('Facturas')).toBeInTheDocument()
     const spinner = document.querySelector('.animate-spin')
@@ -68,19 +68,19 @@ describe('InvoicesTable', () => {
   })
 
   it('renders empty state when no invoices', () => {
-    render(<InvoicesTable invoices={[]} loading={false} />)
+    render(<InvoicesTable invoices={[]} loading={false} data-oid=":0mhz3m" />)
     expect(screen.getByText('Sin facturas')).toBeInTheDocument()
     expect(screen.getByText('Aún no tienes facturas emitidas')).toBeInTheDocument()
   })
 
   it('renders table with invoices', () => {
-    render(<InvoicesTable invoices={mockInvoices} />)
+    render(<InvoicesTable invoices={mockInvoices} data-oid="kunot1i" />)
     expect(screen.getByText('Facturas')).toBeInTheDocument()
     expect(screen.getByText(/Historial de facturas y pagos \(2\)/)).toBeInTheDocument()
   })
 
   it('renders table headers', () => {
-    render(<InvoicesTable invoices={mockInvoices} />)
+    render(<InvoicesTable invoices={mockInvoices} data-oid="vj7-d1o" />)
     expect(screen.getByText('Número')).toBeInTheDocument()
     expect(screen.getByText('Fecha')).toBeInTheDocument()
     expect(screen.getByText('Estado')).toBeInTheDocument()
@@ -89,20 +89,20 @@ describe('InvoicesTable', () => {
   })
 
   it('renders all invoice rows', () => {
-    render(<InvoicesTable invoices={mockInvoices} />)
+    render(<InvoicesTable invoices={mockInvoices} data-oid="0n4z5:i" />)
     expect(screen.getByText('INV-2025-001')).toBeInTheDocument()
     expect(screen.getByText('INV-2025-002')).toBeInTheDocument()
   })
 
   it('opens PDF in new window when download clicked', () => {
-    render(<InvoicesTable invoices={mockInvoices} />)
+    render(<InvoicesTable invoices={mockInvoices} data-oid="4eohv_s" />)
     const pdfButtons = screen.getAllByText('PDF')
     fireEvent.click(pdfButtons[0])
     expect(mockOpen).toHaveBeenCalledWith('https://invoice.stripe.com/1/pdf', '_blank')
   })
 
   it('opens hosted invoice in new window when view clicked', () => {
-    render(<InvoicesTable invoices={mockInvoices} />)
+    render(<InvoicesTable invoices={mockInvoices} data-oid="ay8:7c-" />)
     const viewButtons = screen.getAllByText('Ver')
     fireEvent.click(viewButtons[0])
     expect(mockOpen).toHaveBeenCalledWith('https://invoice.stripe.com/1', '_blank')
@@ -110,18 +110,20 @@ describe('InvoicesTable', () => {
 
   it('does not open window if PDF URL is null', () => {
     const invoiceWithoutPdf = [{ ...mockInvoices[0], invoicePdfUrl: null }]
-    render(<InvoicesTable invoices={invoiceWithoutPdf} />)
+    render(<InvoicesTable invoices={invoiceWithoutPdf} data-oid=".:m5sxo" />)
     expect(screen.queryByText('PDF')).not.toBeInTheDocument()
   })
 
   it('does not open window if hosted URL is null', () => {
     const invoiceWithoutHosted = [{ ...mockInvoices[0], hostedInvoiceUrl: null }]
-    render(<InvoicesTable invoices={invoiceWithoutHosted} />)
+    render(<InvoicesTable invoices={invoiceWithoutHosted} data-oid="2yarhtp" />)
     expect(screen.queryByText('Ver')).not.toBeInTheDocument()
   })
 
   it('filters invoices by status', () => {
-    const { container: _container } = render(<InvoicesTable invoices={mockInvoices} />)
+    const { container: _container } = render(
+      <InvoicesTable invoices={mockInvoices} data-oid="tomh4tu" />
+    )
     // Initially shows all invoices
     expect(screen.getByText('INV-2025-001')).toBeInTheDocument()
     expect(screen.getByText('INV-2025-002')).toBeInTheDocument()
@@ -131,22 +133,22 @@ describe('InvoicesTable', () => {
   })
 
   it('updates invoice count in description', () => {
-    const { rerender } = render(<InvoicesTable invoices={mockInvoices} />)
+    const { rerender } = render(<InvoicesTable invoices={mockInvoices} data-oid="tnq4-cn" />)
     expect(screen.getByText(/\(2\)/)).toBeInTheDocument()
 
     const singleInvoice = [mockInvoices[0]]
-    rerender(<InvoicesTable invoices={singleInvoice} />)
+    rerender(<InvoicesTable invoices={singleInvoice} data-oid="997ug-e" />)
     expect(screen.getByText(/\(1\)/)).toBeInTheDocument()
   })
 
   it('renders table with scrollable container', () => {
-    const { container } = render(<InvoicesTable invoices={mockInvoices} />)
+    const { container } = render(<InvoicesTable invoices={mockInvoices} data-oid="kyw89do" />)
     const scrollContainer = container.querySelector('.overflow-x-auto')
     expect(scrollContainer).toBeInTheDocument()
   })
 
   it('shows correct count for empty filtered results', () => {
-    render(<InvoicesTable invoices={[]} />)
+    render(<InvoicesTable invoices={[]} data-oid="hlpxukn" />)
     expect(screen.getByText('Sin facturas')).toBeInTheDocument()
   })
 
@@ -156,7 +158,7 @@ describe('InvoicesTable', () => {
       id: `${i}`,
       number: `INV-2025-${String(i + 1).padStart(3, '0')}`,
     }))
-    render(<InvoicesTable invoices={manyInvoices} />)
+    render(<InvoicesTable invoices={manyInvoices} data-oid="lnqxvwi" />)
     expect(screen.getByText(/\(50\)/)).toBeInTheDocument()
   })
 
@@ -167,7 +169,8 @@ describe('InvoicesTable', () => {
       { ...mockInvoices[0], id: '3', status: 'void' },
       { ...mockInvoices[0], id: '4', status: 'draft' },
     ]
-    render(<InvoicesTable invoices={mixedInvoices} />)
+
+    render(<InvoicesTable invoices={mixedInvoices} data-oid="kbeys2s" />)
     expect(screen.getByText('Pagada')).toBeInTheDocument()
     expect(screen.getByText('Pendiente')).toBeInTheDocument()
     expect(screen.getByText('Anulada')).toBeInTheDocument()
@@ -175,16 +178,16 @@ describe('InvoicesTable', () => {
   })
 
   it('displays file icon in empty state', () => {
-    render(<InvoicesTable invoices={[]} />)
+    render(<InvoicesTable invoices={[]} data-oid="ap-s6ea" />)
     // FileText icon is rendered in empty state
     expect(screen.getByText('Sin facturas')).toBeInTheDocument()
   })
 
   it('maintains stable invoice order', () => {
-    const { rerender } = render(<InvoicesTable invoices={mockInvoices} />)
+    const { rerender } = render(<InvoicesTable invoices={mockInvoices} data-oid="8dnqius" />)
     const firstRender = screen.getAllByRole('row')
 
-    rerender(<InvoicesTable invoices={mockInvoices} />)
+    rerender(<InvoicesTable invoices={mockInvoices} data-oid="rc3y6oj" />)
     const secondRender = screen.getAllByRole('row')
 
     expect(firstRender.length).toBe(secondRender.length)

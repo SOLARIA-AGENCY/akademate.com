@@ -22,22 +22,27 @@ export const Default: Story = {}
 
 export const WithActionsAndFilters: Story = {
   args: {
-    badge: <Badge variant="secondary">SINCRONIZADO</Badge>,
+    badge: (
+      <Badge variant="secondary" data-oid="au:9t1y">
+        SINCRONIZADO
+      </Badge>
+    ),
     actions: (
       <>
-        <Button variant="outline" size="sm">
-          <Download className="mr-2 h-4 w-4" />
+        <Button variant="outline" size="sm" data-oid="4wqykuz">
+          <Download className="mr-2 h-4 w-4" data-oid="-r.z5c7" />
           Exportar
         </Button>
-        <Button size="sm">
-          <Plus className="mr-2 h-4 w-4" />
+        <Button size="sm" data-oid=":95be3b">
+          <Plus className="mr-2 h-4 w-4" data-oid="e6naf5u" />
           Nueva clase
         </Button>
       </>
     ),
+
     filters: (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Filter className="h-4 w-4" />
+      <div className="flex items-center gap-2 text-sm text-muted-foreground" data-oid="zn-.kuh">
+        <Filter className="h-4 w-4" data-oid="lt-6bl5" />
         Filtros activos: sede norte, semana actual
       </div>
     ),

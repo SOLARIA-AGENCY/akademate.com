@@ -38,7 +38,7 @@ describe('Campus Login Page', () => {
   })
 
   it('renders campus login form correctly', () => {
-    render(<CampusLoginPage />)
+    render(<CampusLoginPage data-oid="c.0flv-" />)
 
     expect(screen.getByText('Campus Virtual')).toBeInTheDocument()
     expect(screen.getByText(/inicia sesion para acceder/i)).toBeInTheDocument()
@@ -47,7 +47,7 @@ describe('Campus Login Page', () => {
   })
 
   it('validates required fields', async () => {
-    render(<CampusLoginPage />)
+    render(<CampusLoginPage data-oid="5o0-.9s" />)
 
     const submitButton = screen.getByRole('button', { name: /iniciar sesion/i })
     fireEvent.click(submitButton)
@@ -59,7 +59,7 @@ describe('Campus Login Page', () => {
   it('handles successful login', async () => {
     mockLogin.mockResolvedValue(true)
 
-    render(<CampusLoginPage />)
+    render(<CampusLoginPage data-oid="m-.wehr" />)
 
     const emailInput = screen.getByLabelText(/correo electronico/i)
     const passwordInput = screen.getByLabelText(/contrasena/i)
@@ -78,7 +78,7 @@ describe('Campus Login Page', () => {
     mockLogin.mockResolvedValue(false)
     mockSessionValue.error = 'Credenciales invalidas'
 
-    render(<CampusLoginPage />)
+    render(<CampusLoginPage data-oid="kjftz7x" />)
 
     const emailInput = screen.getByLabelText(/correo electronico/i)
     const passwordInput = screen.getByLabelText(/contrasena/i)
@@ -94,7 +94,7 @@ describe('Campus Login Page', () => {
   })
 
   it('has link to forgot password', () => {
-    render(<CampusLoginPage />)
+    render(<CampusLoginPage data-oid="qei12ly" />)
 
     const forgotLink = screen.getByText(/olvidaste tu contrasena/i)
     expect(forgotLink).toBeInTheDocument()
@@ -102,9 +102,11 @@ describe('Campus Login Page', () => {
   })
 
   it('shows loading state during submission', async () => {
-    mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve(true), 100)))
+    mockLogin.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve(true), 100))
+    )
 
-    render(<CampusLoginPage />)
+    render(<CampusLoginPage data-oid="4zx-nut" />)
 
     const emailInput = screen.getByLabelText(/correo electronico/i)
     const passwordInput = screen.getByLabelText(/contrasena/i)

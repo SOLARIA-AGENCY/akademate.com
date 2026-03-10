@@ -41,6 +41,7 @@ const mockLessonData = {
       size: '2.5 MB',
     },
   ],
+
   navigation: {
     previousLesson: { id: 'lesson-0', title: 'Introduccion al Curso' },
     nextLesson: { id: 'lesson-2', title: 'useState en Detalle' },
@@ -87,7 +88,7 @@ describe('Campus Lesson Page', () => {
   })
 
   it('renders lesson title and module', async () => {
-    render(<LessonPage />)
+    render(<LessonPage data-oid="7d848-." />)
 
     await waitFor(() => {
       expect(screen.getByText('Introduccion a React Hooks')).toBeInTheDocument()
@@ -96,7 +97,7 @@ describe('Campus Lesson Page', () => {
   })
 
   it('displays video player when video URL exists', async () => {
-    render(<LessonPage />)
+    render(<LessonPage data-oid="y4jr8ue" />)
 
     await waitFor(() => {
       const video = document.querySelector('video')
@@ -106,7 +107,7 @@ describe('Campus Lesson Page', () => {
   })
 
   it('shows lesson progress', async () => {
-    render(<LessonPage />)
+    render(<LessonPage data-oid="gju_mju" />)
 
     await waitFor(() => {
       // Progress is displayed in multiple places as "45% completado"
@@ -116,7 +117,7 @@ describe('Campus Lesson Page', () => {
   })
 
   it('displays materials section', async () => {
-    render(<LessonPage />)
+    render(<LessonPage data-oid="t_zxx3:" />)
 
     await waitFor(() => {
       expect(screen.getByText('Materiales')).toBeInTheDocument()
@@ -126,7 +127,7 @@ describe('Campus Lesson Page', () => {
   })
 
   it('shows navigation to previous/next lessons', async () => {
-    render(<LessonPage />)
+    render(<LessonPage data-oid="f2y-hig" />)
 
     await waitFor(() => {
       expect(screen.getByText('Introduccion al Curso')).toBeInTheDocument()
@@ -135,7 +136,7 @@ describe('Campus Lesson Page', () => {
   })
 
   it('has mark as complete button', async () => {
-    render(<LessonPage />)
+    render(<LessonPage data-oid="y.3fvue" />)
 
     await waitFor(() => {
       expect(screen.getByText(/marcar como completada/i)).toBeInTheDocument()
@@ -143,7 +144,7 @@ describe('Campus Lesson Page', () => {
   })
 
   it('calls API when mark complete is clicked', async () => {
-    render(<LessonPage />)
+    render(<LessonPage data-oid="2:9x7j_" />)
 
     await waitFor(async () => {
       const completeButton = screen.getByText(/marcar como completada/i)
@@ -161,7 +162,7 @@ describe('Campus Lesson Page', () => {
   })
 
   it('shows estimated time badge', async () => {
-    render(<LessonPage />)
+    render(<LessonPage data-oid="xj7o-uz" />)
 
     await waitFor(() => {
       expect(screen.getByText('25 min')).toBeInTheDocument()
@@ -169,7 +170,7 @@ describe('Campus Lesson Page', () => {
   })
 
   it('shows mandatory badge for required lessons', async () => {
-    render(<LessonPage />)
+    render(<LessonPage data-oid="6b.l3oi" />)
 
     await waitFor(() => {
       expect(screen.getByText(/obligatorio/i)).toBeInTheDocument()
@@ -191,7 +192,7 @@ describe('Campus Lesson Page', () => {
       json: async () => ({ success: true, data: completedData }),
     })
 
-    render(<LessonPage />)
+    render(<LessonPage data-oid="07txk:q" />)
 
     await waitFor(() => {
       expect(screen.getByText(/leccion completada/i)).toBeInTheDocument()
@@ -205,7 +206,7 @@ describe('Campus Lesson Page', () => {
       json: async () => ({ error: 'Not found' }),
     })
 
-    render(<LessonPage />)
+    render(<LessonPage data-oid="lgr7s5d" />)
 
     await waitFor(() => {
       expect(screen.getByText(/failed to load lesson/i)).toBeInTheDocument()

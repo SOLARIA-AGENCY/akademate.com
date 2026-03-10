@@ -210,12 +210,13 @@ export default function FacturacionPage() {
   const [activeTab, setActiveTab] = useState('subscription')
   const [showPlanComparison, setShowPlanComparison] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
-   
+
   const toastHook = useToast() as unknown as ToastHookResult
   const toast = toastHook.toast
 
-   
-  const billingData = useBillingData({ tenantId: effectiveTenantId }) as unknown as BillingDataResult
+  const billingData = useBillingData({
+    tenantId: effectiveTenantId,
+  }) as unknown as BillingDataResult
   const subscription = billingData.subscription
   const subscriptionLoading = billingData.subscriptionLoading
   const invoices = billingData.invoices
@@ -229,7 +230,6 @@ export default function FacturacionPage() {
   const subscriptionId = subscription?.stripeSubscriptionId ?? undefined
   const stripeCustomerId = subscription?.stripeCustomerId ?? undefined
 
-   
   const subscriptionActions = useSubscription({
     tenantId: effectiveTenantId,
     subscriptionId,
@@ -394,28 +394,39 @@ export default function FacturacionPage() {
   const currentPeriodEnd = subscription?.currentPeriodEnd
 
   return (
-    <div className="space-y-6">
-
+    <div className="space-y-6" data-oid="x:h7rgk">
       <PageHeader
         title="Facturacion y Suscripciones"
         description="Gestiona tu suscripcion, facturas y metodos de pago"
         icon={CreditCard}
+        data-oid="z.1zc_2"
       />
 
       {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-          <TabsTrigger value="subscription">Suscripcion</TabsTrigger>
-          <TabsTrigger value="invoices">Facturas</TabsTrigger>
-          <TabsTrigger value="payment-methods">Metodos de Pago</TabsTrigger>
-          <TabsTrigger value="history">Historial</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6" data-oid="6zze86c">
+        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid" data-oid="27gatbg">
+          <TabsTrigger value="subscription" data-oid="hnlyirp">
+            Suscripcion
+          </TabsTrigger>
+          <TabsTrigger value="invoices" data-oid="v5ehz7u">
+            Facturas
+          </TabsTrigger>
+          <TabsTrigger value="payment-methods" data-oid="ajqtus1">
+            Metodos de Pago
+          </TabsTrigger>
+          <TabsTrigger value="history" data-oid="ftkpws6">
+            Historial
+          </TabsTrigger>
         </TabsList>
 
         {/* Subscription Tab */}
-        <TabsContent value="subscription" className="space-y-6">
+        <TabsContent value="subscription" className="space-y-6" data-oid="2xmisqq">
           {subscriptionLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+            <div className="flex items-center justify-center py-12" data-oid="4qpu-fp">
+              <div
+                className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"
+                data-oid="coh3.7f"
+              />
             </div>
           ) : (
             <>
@@ -425,12 +436,14 @@ export default function FacturacionPage() {
                 onCancel={handleCancelSubscription}
                 onResume={handleResumeSubscription}
                 onManage={handleManageBilling}
+                data-oid="c25pr-q"
               />
 
               {showPlanComparison && (
                 <PlanComparison
                   currentPlan={currentPlan}
                   onSelectPlan={handleSelectPlan}
+                  data-oid="-c1ii4k"
                 />
               )}
             </>
@@ -438,26 +451,28 @@ export default function FacturacionPage() {
         </TabsContent>
 
         {/* Invoices Tab */}
-        <TabsContent value="invoices">
-          <InvoicesTable invoices={invoices} loading={invoicesLoading} />
+        <TabsContent value="invoices" data-oid="ch_cq_w">
+          <InvoicesTable invoices={invoices} loading={invoicesLoading} data-oid=".nakyok" />
         </TabsContent>
 
         {/* Payment Methods Tab */}
-        <TabsContent value="payment-methods">
+        <TabsContent value="payment-methods" data-oid="3fgixk7">
           <PaymentMethodsList
             paymentMethods={paymentMethods}
             loading={paymentMethodsLoading}
             onAddMethod={handleAddPaymentMethod}
             onSetDefault={handleSetDefaultPaymentMethod}
             onDelete={handleDeletePaymentMethod}
+            data-oid="nimkvyp"
           />
         </TabsContent>
 
         {/* Transaction History Tab */}
-        <TabsContent value="history">
+        <TabsContent value="history" data-oid="s0juwe.">
           <TransactionHistory
             transactions={transactions}
             loading={transactionsLoading ?? subscriptionLoading}
+            data-oid="hvblqh8"
           />
         </TabsContent>
       </Tabs>
@@ -468,6 +483,7 @@ export default function FacturacionPage() {
         onOpenChange={setCancelDialogOpen}
         onConfirm={handleConfirmCancel}
         currentPeriodEnd={currentPeriodEnd}
+        data-oid="fslg1uo"
       />
     </div>
   )

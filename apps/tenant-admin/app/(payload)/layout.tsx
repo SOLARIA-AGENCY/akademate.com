@@ -4,10 +4,6 @@
  */
 import React from 'react'
 
-export default function PayloadRouteLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function PayloadRouteLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }

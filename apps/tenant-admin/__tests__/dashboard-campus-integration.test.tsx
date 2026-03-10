@@ -1,5 +1,5 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor, within } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@payload-config/hooks', () => ({
   useDashboardMetrics: () => ({
@@ -29,14 +29,14 @@ vi.mock('@payload-config/hooks', () => ({
     lastUpdate: new Date(),
     refresh: vi.fn(async () => undefined),
   }),
-}));
+}))
 
-import DashboardPage from '@/app/(dashboard)/page';
+import DashboardPage from '@/app/(dashboard)/page'
 
 describe('Dashboard campus integration', () => {
   beforeEach(() => {
     vi.mocked(global.fetch).mockImplementation((input: RequestInfo | URL) => {
-      const url = typeof input === 'string' ? input : input.toString();
+      const url = typeof input === 'string' ? input : input.toString()
 
       if (url.includes('/api/lms/enrollments')) {
         return Promise.resolve(
@@ -50,7 +50,7 @@ describe('Dashboard campus integration', () => {
             }),
             { status: 200, headers: { 'Content-Type': 'application/json' } }
           )
-        );
+        )
       }
 
       return Promise.resolve(
@@ -58,34 +58,34 @@ describe('Dashboard campus integration', () => {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         })
-      );
-    });
-  });
+      )
+    })
+  })
 
   it('renders campus integration card and quick access links', async () => {
-    render(<DashboardPage />);
+    render(<DashboardPage data-oid="pfvah8m" />)
 
-    const campusHeading = screen.getByText('Campus Virtual Integrado');
-    expect(campusHeading).toBeInTheDocument();
-    const campusCard = campusHeading.closest('[data-testid=\"card\"]');
-    expect(campusCard).toBeTruthy();
-    const scoped = within(campusCard as HTMLElement);
+    const campusHeading = screen.getByText('Campus Virtual Integrado')
+    expect(campusHeading).toBeInTheDocument()
+    const campusCard = campusHeading.closest('[data-testid=\"card\"]')
+    expect(campusCard).toBeTruthy()
+    const scoped = within(campusCard as HTMLElement)
 
-    expect(scoped.getByText('Inscripciones LMS')).toBeInTheDocument();
-    expect(scoped.getByText('Finalización')).toBeInTheDocument();
+    expect(scoped.getByText('Inscripciones LMS')).toBeInTheDocument()
+    expect(scoped.getByText('Finalización')).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(scoped.getByText('67%')).toBeInTheDocument();
-      expect(scoped.getByText('3')).toBeInTheDocument();
-    });
+      expect(scoped.getByText('67%')).toBeInTheDocument()
+      expect(scoped.getByText('3')).toBeInTheDocument()
+    })
 
     expect(screen.getByRole('link', { name: /Abrir módulo Campus/i })).toHaveAttribute(
       'href',
       '/campus-virtual'
-    );
+    )
     expect(screen.getByRole('link', { name: /Ir al Campus alumno/i })).toHaveAttribute(
       'href',
       '/campus/login'
-    );
-  }, 15000);
-});
+    )
+  }, 15000)
+})

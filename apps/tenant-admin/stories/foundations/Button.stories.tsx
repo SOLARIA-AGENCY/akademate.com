@@ -49,7 +49,7 @@ export const WithIcon: Story = {
   args: {
     children: (
       <>
-        <Plus className="h-4 w-4" />
+        <Plus className="h-4 w-4" data-oid="vjy94b8" />
         Nuevo módulo
       </>
     ),
@@ -60,6 +60,6 @@ export const IconOnly: Story = {
   args: {
     size: 'icon',
     'aria-label': 'Añadir',
-    children: <Plus className="h-4 w-4" />,
+    children: <Plus className="h-4 w-4" data-oid="1obirdz" />,
   },
 }

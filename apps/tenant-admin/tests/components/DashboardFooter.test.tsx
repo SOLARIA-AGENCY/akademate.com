@@ -4,32 +4,32 @@ import { DashboardFooter } from '@payload-config/components/layout/DashboardFoot
 
 describe('DashboardFooter', () => {
   it('renders privacy link', () => {
-    render(<DashboardFooter />)
+    render(<DashboardFooter data-oid="sbzbm14" />)
     expect(screen.getByText('Privacidad')).toBeInTheDocument()
   })
 
   it('renders terms link', () => {
-    render(<DashboardFooter />)
+    render(<DashboardFooter data-oid="z1-l16:" />)
     expect(screen.getByText('Términos')).toBeInTheDocument()
   })
 
   it('renders cookies link', () => {
-    render(<DashboardFooter />)
+    render(<DashboardFooter data-oid="k_j1mlo" />)
     expect(screen.getByText('Cookies')).toBeInTheDocument()
   })
 
   it('renders copyright text', () => {
-    render(<DashboardFooter />)
+    render(<DashboardFooter data-oid="fsedf20" />)
     expect(screen.getByText(/2025 CEP Comunicación/)).toBeInTheDocument()
   })
 
   it('renders system status link', () => {
-    render(<DashboardFooter />)
+    render(<DashboardFooter data-oid="w59t.wf" />)
     expect(screen.getByText('Estado del Sistema')).toBeInTheDocument()
   })
 
   it('has correct link hrefs', () => {
-    render(<DashboardFooter />)
+    render(<DashboardFooter data-oid="th-q3a." />)
 
     const privacyLink = screen.getByRole('link', { name: /Privacidad/i })
     expect(privacyLink).toHaveAttribute('href', '/legal/privacidad')
@@ -45,13 +45,13 @@ describe('DashboardFooter', () => {
   })
 
   it('renders as a footer element', () => {
-    render(<DashboardFooter />)
+    render(<DashboardFooter data-oid="18x:10m" />)
     const footer = document.querySelector('footer')
     expect(footer).toBeInTheDocument()
   })
 
   it('has left-justified legal links (no mx-auto centering)', () => {
-    render(<DashboardFooter />)
+    render(<DashboardFooter data-oid="b43gmv7" />)
     const footer = document.querySelector('footer')
     const innerDiv = footer?.querySelector('div')
     // Should have px padding for left alignment, NOT container mx-auto

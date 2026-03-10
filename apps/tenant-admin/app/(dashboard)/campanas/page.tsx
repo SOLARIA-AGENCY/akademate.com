@@ -82,15 +82,21 @@ export default function CampanasPage() {
     }).format(value)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-oid=".ul-to4">
       {isLoading && (
-        <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <div
+          className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
+          data-oid="luhxky7"
+        >
           Cargando campañas...
         </div>
       )}
 
       {errorMessage && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+        <div
+          className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg"
+          data-oid="mgmix26"
+        >
           {errorMessage}
         </div>
       )}
@@ -99,57 +105,94 @@ export default function CampanasPage() {
         title="Campañas de Marketing"
         description="Gestión y seguimiento de campañas publicitarias multicanal"
         icon={TrendingUp}
-        actions={(
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
+        actions={
+          <Button data-oid="po:w42q">
+            <Plus className="mr-2 h-4 w-4" data-oid="5bjz9h7" />
             Nueva Campaña
           </Button>
-        )}
+        }
+        data-oid="gvd81c-"
       />
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Campañas Activas</CardTitle>
-            <MousePointer className="h-4 w-4 text-primary/70" />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" data-oid="xknhish">
+        <Card data-oid="j_c9mft">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 pb-2"
+            data-oid="a5zl8ya"
+          >
+            <CardTitle className="text-sm font-medium" data-oid="niy.c96">
+              Campañas Activas
+            </CardTitle>
+            <MousePointer className="h-4 w-4 text-primary/70" data-oid="h66kz4m" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeCount}</div>
-            <p className="text-xs text-muted-foreground">En curso actualmente</p>
+          <CardContent data-oid="go:u64h">
+            <div className="text-2xl font-bold" data-oid="75go61z">
+              {stats.activeCount}
+            </div>
+            <p className="text-xs text-muted-foreground" data-oid="jw73sr0">
+              En curso actualmente
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Leads Generados</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary/70" />
+        <Card data-oid="ukc_eon">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 pb-2"
+            data-oid="49fb2gq"
+          >
+            <CardTitle className="text-sm font-medium" data-oid="i4luvw-">
+              Leads Generados
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-primary/70" data-oid=".8l:gwq" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalLeads}</div>
-            <p className="text-xs text-muted-foreground">Captados desde campañas</p>
+          <CardContent data-oid="hl3hvu4">
+            <div className="text-2xl font-bold" data-oid="kgdhwc0">
+              {stats.totalLeads}
+            </div>
+            <p className="text-xs text-muted-foreground" data-oid="0t61-x_">
+              Captados desde campañas
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversiones</CardTitle>
-            <Users className="h-4 w-4 text-primary/70" />
+        <Card data-oid="lk:ar34">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 pb-2"
+            data-oid="m7t3fiy"
+          >
+            <CardTitle className="text-sm font-medium" data-oid="b4wu8aj">
+              Conversiones
+            </CardTitle>
+            <Users className="h-4 w-4 text-primary/70" data-oid="5bgqhit" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalConversions}</div>
-            <p className="text-xs text-muted-foreground">Leads convertidos</p>
+          <CardContent data-oid=".crhe94">
+            <div className="text-2xl font-bold" data-oid="52za88j">
+              {stats.totalConversions}
+            </div>
+            <p className="text-xs text-muted-foreground" data-oid="pdr7tra">
+              Leads convertidos
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Presupuesto Total</CardTitle>
-            <DollarSign className="h-4 w-4 text-primary/70" />
+        <Card data-oid="jtlfrs:">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 pb-2"
+            data-oid="2x_9hfp"
+          >
+            <CardTitle className="text-sm font-medium" data-oid="jhv6f:h">
+              Presupuesto Total
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-primary/70" data-oid="u.6ygga" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.totalBudget)}</div>
-            <p className="text-xs text-muted-foreground">Total asignado</p>
+          <CardContent data-oid="x1gax8i">
+            <div className="text-2xl font-bold" data-oid="yorncpj">
+              {formatCurrency(stats.totalBudget)}
+            </div>
+            <p className="text-xs text-muted-foreground" data-oid="cdz5.:0">
+              Total asignado
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -160,45 +203,64 @@ export default function CampanasPage() {
           icon={Megaphone}
           title="Sin campañas activas"
           description="Crea tu primera campaña para empezar a captar leads."
+          data-oid="gnrxayw"
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2" data-oid="9_at3ze">
           {campaigns.map((campaign) => (
-            <Card key={campaign.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg">{campaign.name}</CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={traducirEstado(campaign.status).variant}>
+            <Card
+              key={campaign.id}
+              className="hover:shadow-md transition-shadow"
+              data-oid="fams60j"
+            >
+              <CardHeader data-oid="_dh1b4q">
+                <div className="flex items-start justify-between" data-oid="pr5lza7">
+                  <div className="space-y-1" data-oid="7b:bp:0">
+                    <CardTitle className="text-lg" data-oid=":jf71:3">
+                      {campaign.name}
+                    </CardTitle>
+                    <div className="flex items-center gap-2" data-oid="81v3-6d">
+                      <Badge variant={traducirEstado(campaign.status).variant} data-oid="rqplgwb">
                         {traducirEstado(campaign.status).label}
                       </Badge>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-muted-foreground" data-oid="aggb3b0">
                         {campaign.campaign_type ?? 'Sin tipo'}
                       </span>
                     </div>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Leads</p>
-                    <p className="text-2xl font-bold">{campaign.total_leads ?? 0}</p>
+              <CardContent data-oid="xr6.fej">
+                <div className="grid grid-cols-2 gap-4" data-oid="8hzu_ep">
+                  <div data-oid="m0l50v0">
+                    <p className="text-sm text-muted-foreground" data-oid="dtxh4x-">
+                      Leads
+                    </p>
+                    <p className="text-2xl font-bold" data-oid="r3noh7w">
+                      {campaign.total_leads ?? 0}
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Conversiones</p>
-                    <p className="text-2xl font-bold">{campaign.total_conversions ?? 0}</p>
+                  <div data-oid="7273:mx">
+                    <p className="text-sm text-muted-foreground" data-oid="015j9l8">
+                      Conversiones
+                    </p>
+                    <p className="text-2xl font-bold" data-oid="8jjb_ud">
+                      {campaign.total_conversions ?? 0}
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Presupuesto</p>
-                    <p className="text-lg font-semibold">
+                  <div data-oid="sawwu0-">
+                    <p className="text-sm text-muted-foreground" data-oid="uok6j30">
+                      Presupuesto
+                    </p>
+                    <p className="text-lg font-semibold" data-oid="i7x.tvp">
                       {formatCurrency(campaign.budget ?? 0)}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Coste por lead</p>
-                    <p className="text-lg font-semibold">
+                  <div data-oid=":dbk7-6">
+                    <p className="text-sm text-muted-foreground" data-oid="210:8-2">
+                      Coste por lead
+                    </p>
+                    <p className="text-lg font-semibold" data-oid="ud2:bsk">
                       {campaign.cost_per_lead ? formatCurrency(campaign.cost_per_lead) : '—'}
                     </p>
                   </div>
@@ -210,8 +272,8 @@ export default function CampanasPage() {
       )}
 
       {/* Footer note */}
-      <div className="text-sm text-muted-foreground text-center">
-        <p>Vista basada en campañas registradas en el sistema</p>
+      <div className="text-sm text-muted-foreground text-center" data-oid="w_hpo1o">
+        <p data-oid="j_ni-fg">Vista basada en campañas registradas en el sistema</p>
       </div>
     </div>
   )

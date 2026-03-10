@@ -2,7 +2,13 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
@@ -89,11 +95,41 @@ interface ConvocationDetailPageProps {
 
 // Mock student data
 const mockStudents: Student[] = [
-  { id: '1', nombre: 'María González', email: 'maria.g@email.com', phone: '+34 600 111 222', estado: 'confirmado' },
-  { id: '2', nombre: 'Juan Martínez', email: 'juan.m@email.com', phone: '+34 600 222 333', estado: 'confirmado' },
-  { id: '3', nombre: 'Ana López', email: 'ana.l@email.com', phone: '+34 600 333 444', estado: 'confirmado' },
-  { id: '4', nombre: 'Carlos Ruiz', email: 'carlos.r@email.com', phone: '+34 600 444 555', estado: 'pendiente' },
-  { id: '5', nombre: 'Laura Sánchez', email: 'laura.s@email.com', phone: '+34 600 555 666', estado: 'confirmado' },
+  {
+    id: '1',
+    nombre: 'María González',
+    email: 'maria.g@email.com',
+    phone: '+34 600 111 222',
+    estado: 'confirmado',
+  },
+  {
+    id: '2',
+    nombre: 'Juan Martínez',
+    email: 'juan.m@email.com',
+    phone: '+34 600 222 333',
+    estado: 'confirmado',
+  },
+  {
+    id: '3',
+    nombre: 'Ana López',
+    email: 'ana.l@email.com',
+    phone: '+34 600 333 444',
+    estado: 'confirmado',
+  },
+  {
+    id: '4',
+    nombre: 'Carlos Ruiz',
+    email: 'carlos.r@email.com',
+    phone: '+34 600 444 555',
+    estado: 'pendiente',
+  },
+  {
+    id: '5',
+    nombre: 'Laura Sánchez',
+    email: 'laura.s@email.com',
+    phone: '+34 600 555 666',
+    estado: 'confirmado',
+  },
 ]
 
 export default function ConvocationDetailPage({ params }: ConvocationDetailPageProps) {
@@ -106,15 +142,17 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
 
   if (!convocation || !courseTemplate) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Convocatoria no encontrada</CardTitle>
-            <CardDescription>La convocatoria con ID {convocationId} no existe</CardDescription>
+      <div className="flex items-center justify-center min-h-[60vh]" data-oid="5-68mx:">
+        <Card className="w-full max-w-md" data-oid="0yzde0t">
+          <CardHeader data-oid="tuavk6p">
+            <CardTitle data-oid="pbe_j-5">Convocatoria no encontrada</CardTitle>
+            <CardDescription data-oid=":32l4nf">
+              La convocatoria con ID {convocationId} no existe
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button onClick={() => router.push('/cursos')}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
+          <CardContent data-oid="nilr6w.">
+            <Button onClick={() => router.push('/cursos')} data-oid="3l4srf7">
+              <ArrowLeft className="mr-2 h-4 w-4" data-oid="x8zj6dk" />
               Volver a Cursos
             </Button>
           </CardContent>
@@ -132,35 +170,46 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
     return date.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
     })
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-oid="8yn2_04">
       <PageHeader
         title={convocation.nombreCurso}
         description={`${convocation.codigoCompleto} • Convocatoria`}
         icon={Calendar}
-        actions={(
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => router.push(`/cursos/${id}`)}>
-              <ArrowLeft className="h-4 w-4" />
+        actions={
+          <div className="flex items-center gap-2" data-oid="wvaxqjr">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push(`/cursos/${id}`)}
+              data-oid=":5jxd_i"
+            >
+              <ArrowLeft className="h-4 w-4" data-oid="iuzxcoo" />
             </Button>
-            <Button variant="outline" onClick={() => router.push(`/cursos/${id}/convocatoria/${convocationId}/editar`)}>
-              <Edit className="mr-2 h-4 w-4" />
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/cursos/${id}/convocatoria/${convocationId}/editar`)}
+              data-oid="33kki1v"
+            >
+              <Edit className="mr-2 h-4 w-4" data-oid="9aka:-d" />
               Editar Convocatoria
             </Button>
           </div>
-        )}
+        }
+        data-oid="ej-f54:"
       />
 
       {/* Status Badges */}
-      <Card>
-        <CardContent className="flex items-center justify-between pt-6">
-          <div className="flex items-center gap-4">
+      <Card data-oid="l7cepus">
+        <CardContent className="flex items-center justify-between pt-6" data-oid="0b-5inp">
+          <div className="flex items-center gap-4" data-oid="7j4heee">
             <Badge
               className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white text-sm font-bold uppercase`}
+              data-oid="u95fm44"
             >
               {typeConfig.label}
             </Badge>
@@ -173,85 +222,129 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
                     : 'outline'
               }
               className="text-sm font-bold uppercase"
+              data-oid="o88l:_7"
             >
               {convocation.estado}
             </Badge>
-            <Badge variant="outline" className="text-sm uppercase">
+            <Badge variant="outline" className="text-sm uppercase" data-oid="wtnxg1d">
               {convocation.modalidad}
             </Badge>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" data-oid="tdk1yn8">
         {/* LEFT SIDE: 2/3 - Main Information */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6" data-oid="7.cqj.c">
           {/* Course Image */}
-          <Card>
-            <CardContent className="p-0">
-              <div className="relative h-64 overflow-hidden rounded-t-lg">
+          <Card data-oid="x.7oui3">
+            <CardContent className="p-0" data-oid="q0iwbbw">
+              <div className="relative h-64 overflow-hidden rounded-t-lg" data-oid="-mmf2rg">
                 <img
                   src={convocation.imagenPortada}
                   alt={convocation.nombreCurso}
                   className="w-full h-full object-cover"
+                  data-oid="mavxjda"
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Schedule and Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Información de la Convocatoria</CardTitle>
-              <CardDescription>Fechas, horarios y ubicación</CardDescription>
+          <Card data-oid="4vnkr2f">
+            <CardHeader data-oid="awwpujg">
+              <CardTitle data-oid="ujt3a.4">Información de la Convocatoria</CardTitle>
+              <CardDescription data-oid="1kbk2dw">Fechas, horarios y ubicación</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-start gap-3 p-4 border rounded-lg">
-                  <Calendar className="h-5 w-5 text-muted-foreground mt-1" />
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">Fecha de Inicio</p>
-                    <p className="font-semibold">{formatDate(convocation.fechaInicio)}</p>
+            <CardContent className="space-y-4" data-oid="sg.il4-">
+              <div className="grid grid-cols-2 gap-4" data-oid="0.16qv-">
+                <div className="flex items-start gap-3 p-4 border rounded-lg" data-oid="euf7qqh">
+                  <Calendar className="h-5 w-5 text-muted-foreground mt-1" data-oid="4t16-l:" />
+                  <div data-oid="fcid20i">
+                    <p
+                      className="text-xs text-muted-foreground uppercase font-semibold mb-1"
+                      data-oid="4v3mw2h"
+                    >
+                      Fecha de Inicio
+                    </p>
+                    <p className="font-semibold" data-oid="4q_q69x">
+                      {formatDate(convocation.fechaInicio)}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 border rounded-lg">
-                  <Calendar className="h-5 w-5 text-muted-foreground mt-1" />
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">Fecha de Finalización</p>
-                    <p className="font-semibold">{formatDate(convocation.fechaFin)}</p>
+                <div className="flex items-start gap-3 p-4 border rounded-lg" data-oid="1r1rxrl">
+                  <Calendar className="h-5 w-5 text-muted-foreground mt-1" data-oid="ki3t.sy" />
+                  <div data-oid="957xbc:">
+                    <p
+                      className="text-xs text-muted-foreground uppercase font-semibold mb-1"
+                      data-oid="nrrub66"
+                    >
+                      Fecha de Finalización
+                    </p>
+                    <p className="font-semibold" data-oid="rn7y.gu">
+                      {formatDate(convocation.fechaFin)}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 border rounded-lg">
-                  <Clock className="h-5 w-5 text-muted-foreground mt-1" />
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">Horario</p>
-                    <p className="font-semibold text-sm">{convocation.horario}</p>
+                <div className="flex items-start gap-3 p-4 border rounded-lg" data-oid="9c3x7uq">
+                  <Clock className="h-5 w-5 text-muted-foreground mt-1" data-oid="c4prjfr" />
+                  <div data-oid="m16:jv8">
+                    <p
+                      className="text-xs text-muted-foreground uppercase font-semibold mb-1"
+                      data-oid="6-h1-2-"
+                    >
+                      Horario
+                    </p>
+                    <p className="font-semibold text-sm" data-oid=":6d.p2p">
+                      {convocation.horario}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 border rounded-lg">
-                  <BookOpen className="h-5 w-5 text-muted-foreground mt-1" />
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">Duración</p>
-                    <p className="font-semibold">{convocation.duracionHoras} Horas</p>
+                <div className="flex items-start gap-3 p-4 border rounded-lg" data-oid="gkelfze">
+                  <BookOpen className="h-5 w-5 text-muted-foreground mt-1" data-oid="8a37.8c" />
+                  <div data-oid="c:hb7h-">
+                    <p
+                      className="text-xs text-muted-foreground uppercase font-semibold mb-1"
+                      data-oid="7k_pf_7"
+                    >
+                      Duración
+                    </p>
+                    <p className="font-semibold" data-oid="o8h_d5q">
+                      {convocation.duracionHoras} Horas
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 border rounded-lg">
-                  <MapPin className="h-5 w-5 text-muted-foreground mt-1" />
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">Sede</p>
-                    <p className="font-semibold">{convocation.sedeNombre}</p>
+                <div className="flex items-start gap-3 p-4 border rounded-lg" data-oid="evsy74n">
+                  <MapPin className="h-5 w-5 text-muted-foreground mt-1" data-oid="5d-mj06" />
+                  <div data-oid="130ze:p">
+                    <p
+                      className="text-xs text-muted-foreground uppercase font-semibold mb-1"
+                      data-oid="m8v0fnw"
+                    >
+                      Sede
+                    </p>
+                    <p className="font-semibold" data-oid="502xyh-">
+                      {convocation.sedeNombre}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 border rounded-lg">
-                  <DoorOpen className="h-5 w-5 text-muted-foreground mt-1" />
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">Aula</p>
-                    <p className="font-semibold">{convocation.aulaNombre}</p>
+                <div className="flex items-start gap-3 p-4 border rounded-lg" data-oid="m_7m01c">
+                  <DoorOpen className="h-5 w-5 text-muted-foreground mt-1" data-oid="x0a.3pk" />
+                  <div data-oid="h:fw..3">
+                    <p
+                      className="text-xs text-muted-foreground uppercase font-semibold mb-1"
+                      data-oid="5.-_5jn"
+                    >
+                      Aula
+                    </p>
+                    <p className="font-semibold" data-oid="hf3f_ww">
+                      {convocation.aulaNombre}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -259,51 +352,69 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
           </Card>
 
           {/* Professor */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Profesor Asignado</CardTitle>
+          <Card data-oid="9kab-dr">
+            <CardHeader data-oid="zx3lwr6">
+              <CardTitle className="text-base" data-oid="axnmfda">
+                Profesor Asignado
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4 p-4 border rounded-lg">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                  <User className="h-6 w-6" />
+            <CardContent data-oid="hwnwuyw">
+              <div className="flex items-center gap-4 p-4 border rounded-lg" data-oid="5ifqn7p">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                  data-oid="6989-ij"
+                >
+                  <User className="h-6 w-6" data-oid="-x1qfqf" />
                 </div>
-                <div>
-                  <p className="font-semibold">{convocation.profesorNombre}</p>
-                  <p className="text-sm text-muted-foreground">Profesor Principal</p>
+                <div data-oid="2tycl.o">
+                  <p className="font-semibold" data-oid="z8x2_vg">
+                    {convocation.profesorNombre}
+                  </p>
+                  <p className="text-sm text-muted-foreground" data-oid="en9db21">
+                    Profesor Principal
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Students List */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Alumnos Inscritos ({mockStudents.length})</CardTitle>
-              <CardDescription>
+          <Card data-oid="xm8x.j2">
+            <CardHeader data-oid=".v8zhbh">
+              <CardTitle data-oid="ng2s9kw">Alumnos Inscritos ({mockStudents.length})</CardTitle>
+              <CardDescription data-oid="g_.d7:y">
                 Lista de estudiantes matriculados en esta convocatoria
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <CardContent data-oid="j5_upfu">
+              <div className="space-y-2" data-oid="aj1azh-">
                 {mockStudents.map((student) => (
                   <div
                     key={student.id}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors"
+                    data-oid="m822ol3"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
-                        <User className="h-5 w-5" />
+                    <div className="flex items-center gap-3" data-oid="rsjw515">
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-secondary-foreground"
+                        data-oid="h_.h095"
+                      >
+                        <User className="h-5 w-5" data-oid="z-r0yxl" />
                       </div>
-                      <div>
-                        <p className="font-medium">{student.nombre}</p>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Mail className="h-3 w-3" />
+                      <div data-oid="t.8racn">
+                        <p className="font-medium" data-oid="to.:3tj">
+                          {student.nombre}
+                        </p>
+                        <div
+                          className="flex items-center gap-3 text-xs text-muted-foreground"
+                          data-oid=":xo9-do"
+                        >
+                          <span className="flex items-center gap-1" data-oid="4veqsfq">
+                            <Mail className="h-3 w-3" data-oid="0lbsfk:" />
                             {student.email}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Phone className="h-3 w-3" />
+                          <span className="flex items-center gap-1" data-oid=":8xqwdz">
+                            <Phone className="h-3 w-3" data-oid="k4kurrv" />
                             {student.phone}
                           </span>
                         </div>
@@ -312,11 +423,12 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
                     <Badge
                       variant={student.estado === 'confirmado' ? 'default' : 'secondary'}
                       className="text-xs"
+                      data-oid="_gbhcas"
                     >
                       {student.estado === 'confirmado' ? (
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        <CheckCircle2 className="h-3 w-3 mr-1" data-oid="1_60:ky" />
                       ) : (
-                        <XCircle className="h-3 w-3 mr-1" />
+                        <XCircle className="h-3 w-3 mr-1" data-oid="x17j5rn" />
                       )}
                       {student.estado}
                     </Badge>
@@ -328,44 +440,58 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
         </div>
 
         {/* RIGHT SIDE: 1/3 - Stats and Info */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-6" data-oid="ynise86">
           {/* Occupancy Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Ocupación de Plazas</CardTitle>
+          <Card data-oid="fu0fccj">
+            <CardHeader data-oid="2a3dxjv">
+              <CardTitle className="text-base" data-oid="01w0dc5">
+                Ocupación de Plazas
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Plazas ocupadas</span>
-                  <span className="text-2xl font-bold">
+            <CardContent className="space-y-4" data-oid="1q3r-qh">
+              <div data-oid="-2vbu:f">
+                <div className="flex items-center justify-between mb-2" data-oid="pndxl_7">
+                  <span className="text-sm text-muted-foreground" data-oid="z.13v77">
+                    Plazas ocupadas
+                  </span>
+                  <span className="text-2xl font-bold" data-oid="ql1st56">
                     {convocation.plazasOcupadas}/{convocation.plazasTotales}
                   </span>
                 </div>
-                <Progress value={convocation.porcentajeOcupacion} className="h-3" />
-                <p className="text-xs text-muted-foreground mt-2 text-right">
+                <Progress
+                  value={convocation.porcentajeOcupacion}
+                  className="h-3"
+                  data-oid="l.7rr6e"
+                />
+                <p className="text-xs text-muted-foreground mt-2 text-right" data-oid="mkq.77s">
                   {convocation.porcentajeOcupacion}% de capacidad
                 </p>
               </div>
 
-              <div className="pt-4 border-t space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Plazas disponibles</span>
-                  <span className="text-lg font-bold text-green-600">
+              <div className="pt-4 border-t space-y-3" data-oid="x6k-llc">
+                <div className="flex items-center justify-between" data-oid="l-5upo7">
+                  <span className="text-sm text-muted-foreground" data-oid="jxt:uff">
+                    Plazas disponibles
+                  </span>
+                  <span className="text-lg font-bold text-green-600" data-oid="_y4zbkc">
                     {convocation.plazasTotales - convocation.plazasOcupadas}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Confirmados</span>
-                  <span className="text-lg font-bold">
+                <div className="flex items-center justify-between" data-oid="5wn6wt3">
+                  <span className="text-sm text-muted-foreground" data-oid="q5p1onh">
+                    Confirmados
+                  </span>
+                  <span className="text-lg font-bold" data-oid="zwvt5jp">
                     {mockStudents.filter((s) => s.estado === 'confirmado').length}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Pendientes</span>
-                  <span className="text-lg font-bold text-orange-600">
+                <div className="flex items-center justify-between" data-oid="f5pisy:">
+                  <span className="text-sm text-muted-foreground" data-oid="qrz86dx">
+                    Pendientes
+                  </span>
+                  <span className="text-lg font-bold text-orange-600" data-oid="czbqqbu">
                     {mockStudents.filter((s) => s.estado === 'pendiente').length}
                   </span>
                 </div>
@@ -374,69 +500,85 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
           </Card>
 
           {/* Price Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Información de Precio</CardTitle>
+          <Card data-oid="dd-wiq2">
+            <CardHeader data-oid="ewzlhrw">
+              <CardTitle className="text-base" data-oid="adghxa7">
+                Información de Precio
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Precio del curso:</span>
+            <CardContent className="space-y-3" data-oid="14l-sdz">
+              <div className="flex items-center justify-between" data-oid="vyqvt5s">
+                <span className="text-sm text-muted-foreground" data-oid="_pibwhf">
+                  Precio del curso:
+                </span>
                 {convocation.precio === 0 ? (
-                  <Badge className="bg-green-600 hover:bg-green-700 text-white font-bold">
+                  <Badge
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold"
+                    data-oid="_072okl"
+                  >
                     100% SUBVENCIONADO
                   </Badge>
                 ) : (
-                  <span className={`text-xl font-bold ${typeConfig.textColor}`}>
+                  <span className={`text-xl font-bold ${typeConfig.textColor}`} data-oid="1e-h.k.">
                     {convocation.precio}€
                   </span>
                 )}
               </div>
 
               {convocation.precioConDescuento && (
-                <div className="flex items-center justify-between pt-2 border-t">
-                  <span className="text-sm text-muted-foreground">Precio con descuento:</span>
-                  <span className="text-xl font-bold text-red-600">
+                <div className="flex items-center justify-between pt-2 border-t" data-oid="jivz11r">
+                  <span className="text-sm text-muted-foreground" data-oid="sy2rs4r">
+                    Precio con descuento:
+                  </span>
+                  <span className="text-xl font-bold text-red-600" data-oid="2:rvnoy">
                     {convocation.precioConDescuento}€
                   </span>
                 </div>
               )}
 
-              {convocation.subvencionado !== 'no' && convocation.entidadesFinanciadoras.length > 0 && (
-                <div className="pt-3 border-t">
-                  <p className="text-xs text-muted-foreground mb-2 uppercase font-semibold">
-                    Financiado por:
-                  </p>
-                  <div className="space-y-2">
-                    {convocation.entidadesFinanciadoras.map((entidad: FinancingEntity) => (
-                      <div
-                        key={entidad.id}
-                        className="px-3 py-2 bg-secondary rounded text-sm font-medium text-center"
-                      >
-                        {entidad.nombre}
-                      </div>
-                    ))}
+              {convocation.subvencionado !== 'no' &&
+                convocation.entidadesFinanciadoras.length > 0 && (
+                  <div className="pt-3 border-t" data-oid="zgkdyib">
+                    <p
+                      className="text-xs text-muted-foreground mb-2 uppercase font-semibold"
+                      data-oid="ekoqti:"
+                    >
+                      Financiado por:
+                    </p>
+                    <div className="space-y-2" data-oid="brkmy5t">
+                      {convocation.entidadesFinanciadoras.map((entidad: FinancingEntity) => (
+                        <div
+                          key={entidad.id}
+                          className="px-3 py-2 bg-secondary rounded text-sm font-medium text-center"
+                          data-oid="np---u6"
+                        >
+                          {entidad.nombre}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </CardContent>
           </Card>
 
           {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Acciones Rápidas</CardTitle>
+          <Card data-oid="txz199g">
+            <CardHeader data-oid="bh.w:r1">
+              <CardTitle className="text-base" data-oid="rm5y5_k">
+                Acciones Rápidas
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="mr-2 h-4 w-4" />
+            <CardContent className="space-y-2" data-oid="32cefr6">
+              <Button variant="outline" className="w-full justify-start" data-oid=":20nxgu">
+                <Users className="mr-2 h-4 w-4" data-oid=":y00u5a" />
                 Gestionar Alumnos
               </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Mail className="mr-2 h-4 w-4" />
+              <Button variant="outline" className="w-full justify-start" data-oid="k.cllhc">
+                <Mail className="mr-2 h-4 w-4" data-oid="j.wj.v2" />
                 Enviar Comunicación
               </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Calendar className="mr-2 h-4 w-4" />
+              <Button variant="outline" className="w-full justify-start" data-oid="o_4nyvs">
+                <Calendar className="mr-2 h-4 w-4" data-oid="rlgtgnd" />
                 Ver en Calendario
               </Button>
             </CardContent>

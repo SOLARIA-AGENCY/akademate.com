@@ -56,6 +56,7 @@ interface StaffLike {
 interface CourseRunCreateData {
   course: number;
   campus: number | undefined;
+  classroom: number | undefined;
   start_date: string;
   end_date: string;
   schedule_days: CourseRun['schedule_days'];
@@ -187,10 +188,20 @@ export async function POST(request: NextRequest) {
       campusId = parsedCampusId;
     }
 
+    // Parse classroom ID (may be a numeric ID from the classrooms table)
+    let classroomId: number | undefined = undefined;
+    if (aulaId && aulaId !== '') {
+      const parsed = parseInt(aulaId, 10);
+      if (!isNaN(parsed)) {
+        classroomId = parsed;
+      }
+    }
+
     // Prepare data for course-run creation
     const courseRunData: CourseRunCreateData = {
       course: parseInt(courseId),
       campus: campusId,
+      classroom: classroomId,
       start_date: fechaInicio,
       end_date: fechaFin,
       schedule_days: horario.map((e: ScheduleEntry) => e.day as DayKey),
@@ -202,7 +213,7 @@ export async function POST(request: NextRequest) {
       current_enrollments: 0,
       price_override: precio > 0 ? precio : undefined,
       instructor_name: profesorId !== '' ? profesorId : undefined,
-      notes: `Aula: ${aulaId !== '' ? aulaId : 'Sin asignar'}`,
+      notes: '',
     };
 
     // Crear convocatoria en Payload

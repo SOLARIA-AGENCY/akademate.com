@@ -93,75 +93,90 @@ export function PaymentMethodCard({
   }
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4">
+    <Card data-oid="l_us33e">
+      <CardContent className="p-6" data-oid="4m0ulow">
+        <div className="flex items-start justify-between" data-oid="r6ywcdf">
+          <div className="flex items-start gap-4" data-oid="ika92m7">
             {type === 'card' && card ? (
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-2xl">
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-2xl"
+                data-oid="s-j27.u"
+              >
                 {getCardBrandLogo(card.brand)}
               </div>
             ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-200">
-                <Building2 className="h-6 w-6 text-gray-600" />
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-200"
+                data-oid="57t8.pa"
+              >
+                <Building2 className="h-6 w-6 text-gray-600" data-oid="uwqb767" />
               </div>
             )}
 
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
+            <div className="flex-1" data-oid="o7_.1.0">
+              <div className="flex items-center gap-2" data-oid="2maepab">
                 {type === 'card' && card ? (
                   <>
-                    <p className="font-semibold capitalize">
+                    <p className="font-semibold capitalize" data-oid="pgcm2gk">
                       {card.brand}
                     </p>
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground" data-oid="7jk7.fh">
                       •••• {card.last4}
                     </span>
                   </>
                 ) : sepaDebit ? (
                   <>
-                    <p className="font-semibold">SEPA Débito Directo</p>
-                    <span className="text-muted-foreground">
+                    <p className="font-semibold" data-oid="7rl2rnh">
+                      SEPA Débito Directo
+                    </p>
+                    <span className="text-muted-foreground" data-oid="z.2tc-q">
                       •••• {sepaDebit.last4}
                     </span>
                   </>
                 ) : (
-                  <p className="font-semibold capitalize">{type}</p>
+                  <p className="font-semibold capitalize" data-oid="4e:nmju">
+                    {type}
+                  </p>
                 )}
                 {isDefault && (
-                  <Badge variant="secondary" className="gap-1">
-                    <Star className="h-3 w-3" />
+                  <Badge variant="secondary" className="gap-1" data-oid=".0qzpe.">
+                    <Star className="h-3 w-3" data-oid="4ay1jw:" />
                     Predeterminado
                   </Badge>
                 )}
               </div>
 
-              <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
+              <div
+                className="mt-1 flex items-center gap-4 text-sm text-muted-foreground"
+                data-oid="rqo-tlc"
+              >
                 {type === 'card' && card && (
-                  <span className={isExpired(card.expMonth, card.expYear) ? 'text-red-500' : ''}>
+                  <span
+                    className={isExpired(card.expMonth, card.expYear) ? 'text-red-500' : ''}
+                    data-oid="omyb7ef"
+                  >
                     Expira: {formatExpiry(card.expMonth, card.expYear)}
                     {isExpired(card.expMonth, card.expYear) && ' (Expirada)'}
                   </span>
                 )}
-                {sepaDebit && (
-                  <span>Banco: {sepaDebit.bankCode}</span>
-                )}
+                {sepaDebit && <span data-oid="h3pwq.3">Banco: {sepaDebit.bankCode}</span>}
               </div>
 
               {paymentMethod.billingDetails?.name && (
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-sm text-muted-foreground" data-oid="fi-7yzm">
                   {paymentMethod.billingDetails.name}
                 </p>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" data-oid="aun5azc">
             {!isDefault && (
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => onSetDefault?.(paymentMethod.id)}
+                data-oid="g4_9.0_"
               >
                 Establecer Predeterminado
               </Button>
@@ -171,8 +186,9 @@ export function PaymentMethodCard({
               variant="ghost"
               onClick={() => onDelete?.(paymentMethod.id)}
               className="text-destructive hover:bg-destructive/10"
+              data-oid="hxt_vl-"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" data-oid="q1852e." />
             </Button>
           </div>
         </div>

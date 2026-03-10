@@ -4,14 +4,14 @@ import AyudaPage from '@/app/(dashboard)/ayuda/page'
 
 describe('Help Page', () => {
   it('renders help page correctly', () => {
-    render(<AyudaPage />)
+    render(<AyudaPage data-oid="4j6r._i" />)
 
     expect(screen.getByText('Ayuda y Documentación')).toBeInTheDocument()
     expect(screen.getByText('Centro de recursos y soporte técnico')).toBeInTheDocument()
   })
 
   it('has search functionality', () => {
-    render(<AyudaPage />)
+    render(<AyudaPage data-oid="ff90:89" />)
 
     const searchInput = screen.getByPlaceholderText(/busca guías/i)
     expect(searchInput).toBeInTheDocument()
@@ -21,7 +21,7 @@ describe('Help Page', () => {
   })
 
   it('displays quick access cards', () => {
-    render(<AyudaPage />)
+    render(<AyudaPage data-oid="mp5oolt" />)
 
     expect(screen.getByText('Chat con Asistente IA')).toBeInTheDocument()
     expect(screen.getByText('Video Tutoriales')).toBeInTheDocument()
@@ -29,7 +29,7 @@ describe('Help Page', () => {
   })
 
   it('shows guide sections', () => {
-    render(<AyudaPage />)
+    render(<AyudaPage data-oid="chxalze" />)
 
     expect(screen.getByText('Primeros Pasos')).toBeInTheDocument()
     expect(screen.getByText('Gestión de Cursos')).toBeInTheDocument()
@@ -37,7 +37,7 @@ describe('Help Page', () => {
   })
 
   it('expands guide sections', async () => {
-    render(<AyudaPage />)
+    render(<AyudaPage data-oid="q_35:vs" />)
 
     // Find the CardHeader containing "Primeros Pasos" and click it
     const sectionTitle = screen.getByText('Primeros Pasos')
@@ -51,14 +51,14 @@ describe('Help Page', () => {
   })
 
   it('displays FAQ section', () => {
-    render(<AyudaPage />)
+    render(<AyudaPage data-oid="xjkfg4e" />)
 
     expect(screen.getByText(/preguntas frecuentes/i)).toBeInTheDocument()
     expect(screen.getByText(/cómo restablezco mi contraseña/i)).toBeInTheDocument()
   })
 
   it('has contact support section', () => {
-    render(<AyudaPage />)
+    render(<AyudaPage data-oid="gg7sx67" />)
 
     expect(screen.getByText(/necesitas más ayuda/i)).toBeInTheDocument()
     expect(screen.getByText('Chat en Vivo')).toBeInTheDocument()

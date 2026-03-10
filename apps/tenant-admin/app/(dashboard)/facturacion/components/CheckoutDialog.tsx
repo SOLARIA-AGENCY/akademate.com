@@ -53,38 +53,44 @@ export function CheckoutDialog({
   const monthlyEquivalent = interval === 'year' ? (price / 12 / 100).toFixed(2) : null
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-md">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
+    <AlertDialog open={open} onOpenChange={onOpenChange} data-oid="ay6e:ze">
+      <AlertDialogContent className="max-w-md" data-oid="e9a56o1">
+        <AlertDialogHeader data-oid="0_j609v">
+          <AlertDialogTitle className="flex items-center gap-2" data-oid="z3-a3r8">
+            <CreditCard className="h-5 w-5" data-oid="r2-vi1z" />
             Confirmar Cambio de Plan
           </AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogDescription data-oid="2mvdj9-">
             Serás redirigido a Stripe para completar el pago de forma segura.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4" data-oid="rjt7y4o">
           {/* Plan Summary */}
-          <div className="rounded-lg border p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-semibold text-lg">Plan {planName}</h3>
-                <p className="text-sm text-muted-foreground">
+          <div className="rounded-lg border p-4" data-oid="ohme_fy">
+            <div className="flex items-start justify-between" data-oid="l:v_cwj">
+              <div data-oid="n1morhs">
+                <h3 className="font-semibold text-lg" data-oid="y:5w1_r">
+                  Plan {planName}
+                </h3>
+                <p className="text-sm text-muted-foreground" data-oid="chjg-r_">
                   Facturación {interval === 'month' ? 'mensual' : 'anual'}
                 </p>
               </div>
-              <Badge>{planTier.toUpperCase()}</Badge>
+              <Badge data-oid=":_2jhlu">{planTier.toUpperCase()}</Badge>
             </div>
 
-            <div className="mt-4">
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold">€{displayPrice}</span>
-                <span className="text-muted-foreground">/{interval === 'month' ? 'mes' : 'año'}</span>
+            <div className="mt-4" data-oid="ubd89zw">
+              <div className="flex items-baseline gap-1" data-oid="-lrc6ul">
+                <span className="text-3xl font-bold" data-oid="pvbqrq7">
+                  €{displayPrice}
+                </span>
+                <span className="text-muted-foreground" data-oid="duqrjta">
+                  /{interval === 'month' ? 'mes' : 'año'}
+                </span>
               </div>
               {monthlyEquivalent && (
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-sm text-muted-foreground" data-oid="mvuit0s">
                   €{monthlyEquivalent}/mes facturado anualmente
                 </p>
               )}
@@ -92,35 +98,38 @@ export function CheckoutDialog({
           </div>
 
           {/* Features */}
-          <div>
-            <p className="mb-2 text-sm font-medium">Incluye:</p>
-            <ul className="space-y-2">
+          <div data-oid="h28_l-c">
+            <p className="mb-2 text-sm font-medium" data-oid="ze4mq:1">
+              Incluye:
+            </p>
+            <ul className="space-y-2" data-oid="p4:i_1l">
               {features.slice(0, 4).map((feature, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
-                  <Check className="h-4 w-4 shrink-0 text-green-500 mt-0.5" />
-                  <span>{feature}</span>
+                <li key={index} className="flex items-start gap-2 text-sm" data-oid="vrjj__i">
+                  <Check className="h-4 w-4 shrink-0 text-green-500 mt-0.5" data-oid="vbr.wg0" />
+                  <span data-oid="wqdwh48">{feature}</span>
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Info */}
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-            <p className="text-sm text-blue-800">
-              <strong>Nota:</strong> El pago se procesará de forma segura a través de Stripe.
-              Puedes cancelar en cualquier momento.
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-3" data-oid="kbcmd07">
+            <p className="text-sm text-blue-800" data-oid="iaedlhr">
+              <strong data-oid="bm9-10u">Nota:</strong> El pago se procesará de forma segura a
+              través de Stripe. Puedes cancelar en cualquier momento.
             </p>
           </div>
         </div>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>
+        <AlertDialogFooter data-oid="5p090:o">
+          <AlertDialogCancel disabled={isLoading} data-oid="8q3rg-9">
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isLoading}
             style={{ backgroundColor: '#F2014B' }}
+            data-oid="ynj9_ta"
           >
             {isLoading ? 'Redirigiendo...' : 'Continuar al Pago'}
           </AlertDialogAction>

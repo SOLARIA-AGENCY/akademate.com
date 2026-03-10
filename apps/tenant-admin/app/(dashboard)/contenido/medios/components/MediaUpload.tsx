@@ -68,35 +68,38 @@ export function MediaUpload({
     return null
   }
 
-  const handleFiles = useCallback((fileList: FileList | null) => {
-    if (!fileList) return
+  const handleFiles = useCallback(
+    (fileList: FileList | null) => {
+      if (!fileList) return
 
-    const newFiles: FileWithPreview[] = []
+      const newFiles: FileWithPreview[] = []
 
-    Array.from(fileList).forEach((file) => {
-      const error = validateFile(file)
+      Array.from(fileList).forEach((file) => {
+        const error = validateFile(file)
 
-      if (error) {
-        toast({
-          title: 'Error al cargar archivo',
-          description: `${file.name}: ${error}`,
-          variant: 'destructive',
+        if (error) {
+          toast({
+            title: 'Error al cargar archivo',
+            description: `${file.name}: ${error}`,
+            variant: 'destructive',
+          })
+          return
+        }
+
+        const preview = URL.createObjectURL(file)
+        newFiles.push({
+          file,
+          preview,
+          alt: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+          progress: 0,
+          status: 'pending',
         })
-        return
-      }
-
-      const preview = URL.createObjectURL(file)
-      newFiles.push({
-        file,
-        preview,
-        alt: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
-        progress: 0,
-        status: 'pending',
       })
-    })
 
-    setFiles((prev) => [...prev, ...newFiles])
-  }, [maxSize, toast])
+      setFiles((prev) => [...prev, ...newFiles])
+    },
+    [maxSize, toast]
+  )
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -255,16 +258,17 @@ export function MediaUpload({
   const canUpload = files.some((f) => f.status === 'pending')
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Subir Archivos</DialogTitle>
-          <DialogDescription>
-            Arrastra y suelta tus imágenes o selecciónalas manualmente. Tamaño máximo: {formatFileSize(maxSize)}
+    <Dialog open={open} onOpenChange={handleClose} data-oid="6o29okw">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" data-oid="rjczd:r">
+        <DialogHeader data-oid="9-z1qxn">
+          <DialogTitle data-oid="4.vq3kv">Subir Archivos</DialogTitle>
+          <DialogDescription data-oid="zxobhcu">
+            Arrastra y suelta tus imágenes o selecciónalas manualmente. Tamaño máximo:{' '}
+            {formatFileSize(maxSize)}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4" data-oid="._-12bu">
           {/* Drop Zone */}
           <div
             onDragOver={handleDragOver}
@@ -276,20 +280,21 @@ export function MediaUpload({
               transition-colors
               ${isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'}
             `}
+            data-oid="srr5fn6"
           >
-            <div className="flex flex-col items-center gap-3">
-              <div className="rounded-full bg-primary/10 p-4">
-                <Upload className="h-8 w-8 text-primary" />
+            <div className="flex flex-col items-center gap-3" data-oid="jkmjqbh">
+              <div className="rounded-full bg-primary/10 p-4" data-oid="fs_:yx3">
+                <Upload className="h-8 w-8 text-primary" data-oid="eb_p8dv" />
               </div>
-              <div>
-                <p className="font-medium">
+              <div data-oid="6ud4g7-">
+                <p className="font-medium" data-oid="jvh6_q7">
                   Arrastra y suelta tus imágenes aquí
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground" data-oid="kba8bbd">
                   o haz clic para seleccionar archivos
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground" data-oid="x8kho:o">
                 PNG, JPG, GIF, SVG hasta {formatFileSize(maxSize)}
               </p>
             </div>
@@ -302,33 +307,44 @@ export function MediaUpload({
             multiple
             onChange={handleFileInput}
             className="hidden"
+            data-oid="d0n:.b:"
           />
 
           {/* File Previews */}
           {hasFiles && (
-            <div className="space-y-3">
-              <h3 className="font-medium">Archivos seleccionados ({files.length})</h3>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-3" data-oid="i8-d0vp">
+              <h3 className="font-medium" data-oid="_c-t_6v">
+                Archivos seleccionados ({files.length})
+              </h3>
+              <div className="space-y-2 max-h-96 overflow-y-auto" data-oid="48mzxf:">
                 {files.map((fileWithPreview, index) => (
-                  <Card key={index} className="p-4">
-                    <div className="flex gap-4">
+                  <Card key={index} className="p-4" data-oid="dah42p:">
+                    <div className="flex gap-4" data-oid="0jb5djt">
                       {/* Preview */}
-                      <div className="h-20 w-20 flex-shrink-0 rounded overflow-hidden bg-muted">
+                      <div
+                        className="h-20 w-20 flex-shrink-0 rounded overflow-hidden bg-muted"
+                        data-oid="ei-mfps"
+                      >
                         <img
                           src={fileWithPreview.preview}
                           alt={fileWithPreview.alt}
                           className="h-full w-full object-cover"
+                          data-oid="q:8p3f6"
                         />
                       </div>
 
                       {/* Info */}
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate" title={fileWithPreview.file.name}>
+                      <div className="flex-1 min-w-0 space-y-2" data-oid="ig97:d.">
+                        <div className="flex items-start justify-between gap-2" data-oid="d8zuu_8">
+                          <div className="flex-1 min-w-0" data-oid="b0ftl4e">
+                            <p
+                              className="font-medium truncate"
+                              title={fileWithPreview.file.name}
+                              data-oid="wcnsj19"
+                            >
                               {fileWithPreview.file.name}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground" data-oid=":ixhnvb">
                               {formatFileSize(fileWithPreview.file.size)}
                             </p>
                           </div>
@@ -338,21 +354,22 @@ export function MediaUpload({
                               size="sm"
                               onClick={() => removeFile(index)}
                               disabled={isUploading}
+                              data-oid="lts0:sq"
                             >
-                              <X className="h-4 w-4" />
+                              <X className="h-4 w-4" data-oid="pfjsdms" />
                             </Button>
                           )}
                           {fileWithPreview.status === 'success' && (
-                            <CheckCircle2 className="h-5 w-5 text-green-500" />
+                            <CheckCircle2 className="h-5 w-5 text-green-500" data-oid="2_2f07-" />
                           )}
                           {fileWithPreview.status === 'error' && (
-                            <AlertCircle className="h-5 w-5 text-destructive" />
+                            <AlertCircle className="h-5 w-5 text-destructive" data-oid="2h:0rbf" />
                           )}
                         </div>
 
                         {/* Alt Text Input */}
-                        <div className="space-y-1">
-                          <Label htmlFor={`alt-${index}`} className="text-xs">
+                        <div className="space-y-1" data-oid="hbd46t-">
+                          <Label htmlFor={`alt-${index}`} className="text-xs" data-oid="u:9:7_x">
                             Texto alternativo
                           </Label>
                           <Input
@@ -362,14 +379,19 @@ export function MediaUpload({
                             placeholder="Describe la imagen"
                             disabled={fileWithPreview.status !== 'pending'}
                             className="h-8"
+                            data-oid="ikv5ljc"
                           />
                         </div>
 
                         {/* Progress Bar */}
                         {fileWithPreview.status === 'uploading' && (
-                          <div className="space-y-1">
-                            <Progress value={fileWithPreview.progress} className="h-1" />
-                            <p className="text-xs text-muted-foreground">
+                          <div className="space-y-1" data-oid="4gzyse.">
+                            <Progress
+                              value={fileWithPreview.progress}
+                              className="h-1"
+                              data-oid="7idxj6x"
+                            />
+                            <p className="text-xs text-muted-foreground" data-oid="5cqfr:.">
                               Subiendo... {fileWithPreview.progress}%
                             </p>
                           </div>
@@ -377,7 +399,9 @@ export function MediaUpload({
 
                         {/* Error Message */}
                         {fileWithPreview.status === 'error' && fileWithPreview.error && (
-                          <p className="text-xs text-destructive">{fileWithPreview.error}</p>
+                          <p className="text-xs text-destructive" data-oid="8d49tc_">
+                            {fileWithPreview.error}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -388,17 +412,20 @@ export function MediaUpload({
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isUploading}>
+        <DialogFooter data-oid="4bgt7v2">
+          <Button variant="outline" onClick={handleClose} disabled={isUploading} data-oid="k2830re">
             Cancelar
           </Button>
           <Button
             onClick={uploadFiles}
             disabled={!canUpload || isUploading}
             style={{ backgroundColor: canUpload && !isUploading ? '#F2014B' : undefined }}
+            data-oid="v9uoavz"
           >
-            <Upload className="mr-2 h-4 w-4" />
-            {isUploading ? 'Subiendo...' : `Subir ${files.filter((f) => f.status === 'pending').length} archivo(s)`}
+            <Upload className="mr-2 h-4 w-4" data-oid="j7x7xmm" />
+            {isUploading
+              ? 'Subiendo...'
+              : `Subir ${files.filter((f) => f.status === 'pending').length} archivo(s)`}
           </Button>
         </DialogFooter>
       </DialogContent>

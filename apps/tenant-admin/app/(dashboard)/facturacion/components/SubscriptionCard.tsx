@@ -1,6 +1,12 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Calendar, CreditCard, TrendingUp, AlertCircle } from 'lucide-react'
@@ -58,15 +64,15 @@ export function SubscriptionCard({
 }: SubscriptionCardProps) {
   if (!subscription) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Sin Suscripción Activa</CardTitle>
-          <CardDescription>
+      <Card data-oid="a0_qlv2">
+        <CardHeader data-oid="1kvcx-r">
+          <CardTitle data-oid="5-ny3ie">Sin Suscripción Activa</CardTitle>
+          <CardDescription data-oid="t95:2i7">
             No tienes una suscripción activa. Selecciona un plan para comenzar.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Button onClick={onUpgrade} style={{ backgroundColor: '#F2014B' }}>
+        <CardContent data-oid="i-1_7ia">
+          <Button onClick={onUpgrade} style={{ backgroundColor: '#F2014B' }} data-oid="qd2u88t">
             Ver Planes Disponibles
           </Button>
         </CardContent>
@@ -101,32 +107,40 @@ export function SubscriptionCard({
   }
 
   const daysUntilRenewal = Math.ceil(
-    (new Date(subscription.currentPeriodEnd).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    (new Date(subscription.currentPeriodEnd).getTime() - new Date().getTime()) /
+      (1000 * 60 * 60 * 24)
   )
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="text-2xl">
+    <Card data-oid="ef1tw:2">
+      <CardHeader data-oid="u7-ji36">
+        <div className="flex items-start justify-between" data-oid="yoqstx-">
+          <div data-oid="z8yfkai">
+            <CardTitle className="text-2xl" data-oid=".1uh6t4">
               Plan {planNames[subscription.plan]}
             </CardTitle>
-            <CardDescription>
+            <CardDescription data-oid="0_.7laf">
               Tu suscripción actual y detalles de facturación
             </CardDescription>
           </div>
-          <Badge variant={status.variant}>{status.label}</Badge>
+          <Badge variant={status.variant} data-oid="pyp.v:r">
+            {status.label}
+          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6" data-oid="3ag5p44">
         {/* Status Alert */}
         {subscription.status === 'past_due' && (
-          <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
-            <AlertCircle className="h-5 w-5 text-orange-500" />
-            <div className="flex-1">
-              <p className="font-medium text-orange-800">Pago Pendiente</p>
-              <p className="text-sm text-orange-600">
+          <div
+            className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4"
+            data-oid="9hj96:j"
+          >
+            <AlertCircle className="h-5 w-5 text-orange-500" data-oid="ww_nh14" />
+            <div className="flex-1" data-oid=".6rkh2w">
+              <p className="font-medium text-orange-800" data-oid="m89oq36">
+                Pago Pendiente
+              </p>
+              <p className="text-sm text-orange-600" data-oid="15240o8">
                 Actualiza tu método de pago para evitar la suspensión del servicio.
               </p>
             </div>
@@ -134,11 +148,16 @@ export function SubscriptionCard({
         )}
 
         {subscription.cancelAtPeriodEnd && (
-          <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <AlertCircle className="h-5 w-5 text-blue-500" />
-            <div className="flex-1">
-              <p className="font-medium text-blue-800">Cancelación Programada</p>
-              <p className="text-sm text-blue-600">
+          <div
+            className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4"
+            data-oid="9kxx3su"
+          >
+            <AlertCircle className="h-5 w-5 text-blue-500" data-oid="1v-i1oj" />
+            <div className="flex-1" data-oid="w_j:91x">
+              <p className="font-medium text-blue-800" data-oid="jiygbhe">
+                Cancelación Programada
+              </p>
+              <p className="text-sm text-blue-600" data-oid="f_gm:p.">
                 Tu suscripción se cancelará el {formatDate(subscription.currentPeriodEnd)}
               </p>
             </div>
@@ -146,36 +165,42 @@ export function SubscriptionCard({
         )}
 
         {/* Subscription Details */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="flex items-start gap-3">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium">Próxima Renovación</p>
-              <p className="text-sm text-muted-foreground">
+        <div className="grid gap-4 md:grid-cols-2" data-oid="70.e6k4">
+          <div className="flex items-start gap-3" data-oid="z:is0fc">
+            <Calendar className="h-5 w-5 text-muted-foreground" data-oid="k2ozzcd" />
+            <div data-oid="w09_-nk">
+              <p className="text-sm font-medium" data-oid="vaagt86">
+                Próxima Renovación
+              </p>
+              <p className="text-sm text-muted-foreground" data-oid="_e4gkkn">
                 {formatDate(subscription.currentPeriodEnd)}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground" data-oid="qpsmi70">
                 En {daysUntilRenewal} días
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3">
-            <CreditCard className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium">Facturación</p>
-              <p className="text-sm text-muted-foreground">
+          <div className="flex items-start gap-3" data-oid="olk4fjg">
+            <CreditCard className="h-5 w-5 text-muted-foreground" data-oid="fy.0aw3" />
+            <div data-oid="25f0y6w">
+              <p className="text-sm font-medium" data-oid="624eaj4">
+                Facturación
+              </p>
+              <p className="text-sm text-muted-foreground" data-oid="1uwf6-g">
                 Ciclo mensual
               </p>
             </div>
           </div>
 
           {subscription.trialEnd && new Date(subscription.trialEnd) > new Date() && (
-            <div className="flex items-start gap-3">
-              <TrendingUp className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">Periodo de Prueba</p>
-                <p className="text-sm text-muted-foreground">
+            <div className="flex items-start gap-3" data-oid="q6j0lei">
+              <TrendingUp className="h-5 w-5 text-muted-foreground" data-oid="8k3fb51" />
+              <div data-oid="9enwijm">
+                <p className="text-sm font-medium" data-oid="onp:4k8">
+                  Periodo de Prueba
+                </p>
+                <p className="text-sm text-muted-foreground" data-oid="d6k7gj9">
                   Finaliza el {formatDate(subscription.trialEnd)}
                 </p>
               </div>
@@ -184,21 +209,21 @@ export function SubscriptionCard({
         </div>
 
         {/* Actions */}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3" data-oid="tghf4bp">
           {subscription.cancelAtPeriodEnd ? (
-            <Button onClick={onResume} variant="default">
+            <Button onClick={onResume} variant="default" data-oid="eoyhalq">
               Reanudar Suscripción
             </Button>
           ) : (
             <>
-              <Button onClick={onUpgrade} style={{ backgroundColor: '#F2014B' }}>
+              <Button onClick={onUpgrade} style={{ backgroundColor: '#F2014B' }} data-oid="pxd5g38">
                 Cambiar Plan
               </Button>
-              <Button onClick={onManage} variant="outline">
+              <Button onClick={onManage} variant="outline" data-oid="7rk7pnf">
                 Portal de Facturación
               </Button>
               {subscription.status !== 'canceled' && (
-                <Button onClick={onCancel} variant="outline">
+                <Button onClick={onCancel} variant="outline" data-oid="cj3ue2n">
                   Cancelar Suscripción
                 </Button>
               )}

@@ -535,6 +535,18 @@ export const CourseRuns: CollectionConfig = {
     },
 
     /**
+     * Classroom - Physical room assignment for this course run
+     */
+    {
+      name: 'classroom',
+      type: 'relationship',
+      relationTo: 'classrooms',
+      admin: {
+        description: 'Aula asignada para esta convocatoria',
+      },
+    },
+
+    /**
      * Tenant - Multi-tenant support
      * Associates course run with a specific academy/organization
      */

@@ -22,14 +22,14 @@ const mockSubscription: Subscription = {
 
 describe('SubscriptionCard', () => {
   it('renders subscription details correctly', () => {
-    render(<SubscriptionCard subscription={mockSubscription} />)
+    render(<SubscriptionCard subscription={mockSubscription} data-oid="0zgz5se" />)
 
     expect(screen.getByText(/Plan Pro/i)).toBeInTheDocument()
     expect(screen.getByText(/Activa/i)).toBeInTheDocument()
   })
 
   it('renders no subscription state', () => {
-    render(<SubscriptionCard subscription={null} />)
+    render(<SubscriptionCard subscription={null} data-oid="-nzowkl" />)
 
     expect(screen.getByText(/Sin Suscripción Activa/i)).toBeInTheDocument()
     expect(screen.getByText(/Ver Planes Disponibles/i)).toBeInTheDocument()
@@ -37,7 +37,9 @@ describe('SubscriptionCard', () => {
 
   it('calls onUpgrade when upgrade button clicked', () => {
     const onUpgrade = jest.fn()
-    render(<SubscriptionCard subscription={mockSubscription} onUpgrade={onUpgrade} />)
+    render(
+      <SubscriptionCard subscription={mockSubscription} onUpgrade={onUpgrade} data-oid="6jfjg3q" />
+    )
 
     const upgradeButton = screen.getByText(/Cambiar Plan/i)
     fireEvent.click(upgradeButton)
@@ -47,7 +49,9 @@ describe('SubscriptionCard', () => {
 
   it('calls onCancel when cancel button clicked', () => {
     const onCancel = jest.fn()
-    render(<SubscriptionCard subscription={mockSubscription} onCancel={onCancel} />)
+    render(
+      <SubscriptionCard subscription={mockSubscription} onCancel={onCancel} data-oid="ximzi8y" />
+    )
 
     const cancelButton = screen.getByText(/Cancelar Suscripción/i)
     fireEvent.click(cancelButton)
@@ -62,7 +66,13 @@ describe('SubscriptionCard', () => {
     }
     const onResume = jest.fn()
 
-    render(<SubscriptionCard subscription={canceledSubscription} onResume={onResume} />)
+    render(
+      <SubscriptionCard
+        subscription={canceledSubscription}
+        onResume={onResume}
+        data-oid="19us8.b"
+      />
+    )
 
     const resumeButton = screen.getByText(/Reanudar Suscripción/i)
     expect(resumeButton).toBeInTheDocument()
@@ -77,7 +87,7 @@ describe('SubscriptionCard', () => {
       status: 'past_due' as const,
     }
 
-    render(<SubscriptionCard subscription={pastDueSubscription} />)
+    render(<SubscriptionCard subscription={pastDueSubscription} data-oid="3n2i--i" />)
 
     expect(screen.getByText(/Pago Pendiente/i)).toBeInTheDocument()
     expect(screen.getByText(/Actualiza tu método de pago/i)).toBeInTheDocument()
@@ -89,7 +99,7 @@ describe('SubscriptionCard', () => {
       cancelAtPeriodEnd: true,
     }
 
-    render(<SubscriptionCard subscription={cancelingSubscription} />)
+    render(<SubscriptionCard subscription={cancelingSubscription} data-oid="mywh997" />)
 
     expect(screen.getByText(/Cancelación Programada/i)).toBeInTheDocument()
   })

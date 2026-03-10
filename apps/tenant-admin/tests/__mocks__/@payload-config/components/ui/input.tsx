@@ -1,9 +1,17 @@
 import React from 'react'
 
-export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, type, ...props }, ref) => (
-    <input ref={ref} type={type} className={className} data-testid="input" {...props} />
-  )
-)
+export const Input = React.forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement>
+>(({ className, type, ...props }, ref) => (
+  <input
+    ref={ref}
+    type={type}
+    className={className}
+    data-testid="input"
+    {...props}
+    data-oid="hine2so"
+  />
+))
 
 Input.displayName = 'Input'

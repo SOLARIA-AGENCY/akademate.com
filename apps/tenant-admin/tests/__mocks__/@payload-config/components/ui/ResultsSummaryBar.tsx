@@ -11,9 +11,19 @@ export const ResultsSummaryBar = ({
   extra?: string
   className?: string
 }) => (
-  <div data-testid="results-summary-bar" className={className}>
-    <span data-testid="results-count">{count}</span>
-    <span data-testid="results-entity">{' '}{entity}</span>
-    {extra && <span data-testid="results-extra">{' · '}{extra}</span>}
+  <div data-testid="results-summary-bar" className={className} data-oid="9o6h.n-">
+    <span data-testid="results-count" data-oid="_px0kbu">
+      {count}
+    </span>
+    <span data-testid="results-entity" data-oid="zbs6kn2">
+      {' '}
+      {entity}
+    </span>
+    {extra && (
+      <span data-testid="results-extra" data-oid="9945p5x">
+        {' · '}
+        {extra}
+      </span>
+    )}
   </div>
 )

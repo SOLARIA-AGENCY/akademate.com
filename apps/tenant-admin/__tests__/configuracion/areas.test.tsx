@@ -4,38 +4,38 @@ import AreasPage from '@/app/(dashboard)/configuracion/areas/page'
 
 describe('Study Areas Page', () => {
   it('renders areas page correctly', () => {
-    render(<AreasPage />)
-    
+    render(<AreasPage data-oid="84x058a" />)
+
     expect(screen.getByText('Áreas de Estudio')).toBeInTheDocument()
     expect(screen.getByText('Nueva Área')).toBeInTheDocument()
   })
 
   it('displays area statistics', () => {
-    render(<AreasPage />)
-    
+    render(<AreasPage data-oid="-l2nu8x" />)
+
     expect(screen.getByText('Áreas Totales')).toBeInTheDocument()
     expect(screen.getByText('Áreas Activas')).toBeInTheDocument()
     expect(screen.getByText('Cursos Asignados')).toBeInTheDocument()
   })
 
   it('opens create area modal', () => {
-    render(<AreasPage />)
-    
+    render(<AreasPage data-oid="b46gftx" />)
+
     const createButton = screen.getByText('Nueva Área')
     fireEvent.click(createButton)
-    
+
     expect(screen.getByText('Crear Nueva Área de Estudio')).toBeInTheDocument()
     expect(screen.getByLabelText(/nombre del área/i)).toBeInTheDocument()
   })
 
   it('shows deletion protection warning', () => {
-    render(<AreasPage />)
-    
+    render(<AreasPage data-oid=":0382:a" />)
+
     // Click edit on an area with courses
     const editButtons = screen.getAllByText('Editar')
     if (editButtons.length > 0) {
       fireEvent.click(editButtons[0])
-      
+
       // Should show warning if area has courses
       const warnings = screen.queryAllByText(/esta área tiene.*curso/i)
       // Warning may or may not appear depending on mock data
@@ -44,7 +44,7 @@ describe('Study Areas Page', () => {
   })
 
   it('allows viewing courses per area', async () => {
-    render(<AreasPage />)
+    render(<AreasPage data-oid="e4avf5y" />)
 
     // Use "Ver Detalles" button which is always present
     const viewButtons = screen.getAllByText('Ver Detalles')

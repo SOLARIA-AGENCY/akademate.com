@@ -12,11 +12,15 @@ export const EmptyState = ({
   action?: { label: string; onClick: () => void }
   className?: string
 }) => (
-  <div data-testid="empty-state" className={className}>
-    <h3 data-testid="empty-state-title">{title}</h3>
-    <p data-testid="empty-state-description">{description}</p>
+  <div data-testid="empty-state" className={className} data-oid="iqrj:v8">
+    <h3 data-testid="empty-state-title" data-oid="bdfyf4e">
+      {title}
+    </h3>
+    <p data-testid="empty-state-description" data-oid="aiz7js1">
+      {description}
+    </p>
     {action && (
-      <button data-testid="empty-state-action" onClick={action.onClick}>
+      <button data-testid="empty-state-action" onClick={action.onClick} data-oid="guhhhue">
         {action.label}
       </button>
     )}

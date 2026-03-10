@@ -6,12 +6,12 @@ import CampusContenidoPage from '../../app/(dashboard)/campus-virtual/contenido/
 
 describe('CampusContenidoPage — filtros y búsqueda', () => {
   it('renderiza el título de la página', () => {
-    render(<CampusContenidoPage />)
+    render(<CampusContenidoPage data-oid="l.m:ten" />)
     expect(screen.getByTestId('page-header-title')).toHaveTextContent('Módulos y Lecciones')
   })
 
   it('muestra los 3 cursos por defecto (sin filtro)', () => {
-    render(<CampusContenidoPage />)
+    render(<CampusContenidoPage data-oid="27mmu_1" />)
     expect(screen.getByText('React Inicial')).toBeInTheDocument()
     expect(screen.getByText('Node Backend')).toBeInTheDocument()
     expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
@@ -20,7 +20,7 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
   describe('filtro de búsqueda por nombre', () => {
     it('filtra por término "React" → solo muestra React Inicial', async () => {
       const user = userEvent.setup()
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="9b3df-1" />)
       const input = screen.getByPlaceholderText('Buscar por curso...')
       await user.type(input, 'React')
       expect(screen.getByText('React Inicial')).toBeInTheDocument()
@@ -30,7 +30,7 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
 
     it('búsqueda es case-insensitive: "node" encuentra "Node Backend"', async () => {
       const user = userEvent.setup()
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="zc-kjkj" />)
       const input = screen.getByPlaceholderText('Buscar por curso...')
       await user.type(input, 'node')
       expect(screen.getByText('Node Backend')).toBeInTheDocument()
@@ -39,7 +39,7 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
 
     it('búsqueda con término que no existe → no muestra filas', async () => {
       const user = userEvent.setup()
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="68.kvlb" />)
       const input = screen.getByPlaceholderText('Buscar por curso...')
       await user.type(input, 'Python')
       expect(screen.queryByText('React Inicial')).toBeNull()
@@ -49,7 +49,7 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
 
     it('limpiar búsqueda restaura los 3 cursos', async () => {
       const user = userEvent.setup()
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="iy1tl_5" />)
       const input = screen.getByPlaceholderText('Buscar por curso...')
       await user.type(input, 'React')
       await user.clear(input)
@@ -61,7 +61,7 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
 
   describe('filtro por estado', () => {
     it('filtrar por "published" muestra solo cursos publicados', () => {
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="72mk6nb" />)
       const select = screen.getByRole('combobox')
       fireEvent.change(select, { target: { value: 'published' } })
       expect(screen.getByText('React Inicial')).toBeInTheDocument()
@@ -70,7 +70,7 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
     })
 
     it('filtrar por "draft" muestra solo borradores', () => {
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="zymci17" />)
       const select = screen.getByRole('combobox')
       fireEvent.change(select, { target: { value: 'draft' } })
       expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
@@ -79,7 +79,7 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
     })
 
     it('filtrar por "all" muestra todos los cursos', () => {
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="a55_08y" />)
       const select = screen.getByRole('combobox')
       // Change to draft then back to all
       fireEvent.change(select, { target: { value: 'draft' } })
@@ -93,7 +93,7 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
   describe('filtros combinados', () => {
     it('búsqueda + estado juntos aplican ambos filtros', async () => {
       const user = userEvent.setup()
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="6qw_--o" />)
       // Filter by "published" first
       const select = screen.getByRole('combobox')
       fireEvent.change(select, { target: { value: 'published' } })
@@ -107,7 +107,7 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
 
     it('búsqueda published + término inexistente → sin resultados', async () => {
       const user = userEvent.setup()
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="ybm8gwc" />)
       const select = screen.getByRole('combobox')
       fireEvent.change(select, { target: { value: 'published' } })
       const input = screen.getByPlaceholderText('Buscar por curso...')
@@ -120,20 +120,20 @@ describe('CampusContenidoPage — filtros y búsqueda', () => {
 
   describe('datos de la tabla', () => {
     it('muestra módulos y lecciones correctos para React Inicial', () => {
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="szikfvr" />)
       // React Inicial: 8 módulos, 42 lecciones
       expect(screen.getByText('8')).toBeInTheDocument()
       expect(screen.getByText('42')).toBeInTheDocument()
     })
 
     it('muestra módulos y lecciones correctos para Node Backend', () => {
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="1gxsxvs" />)
       expect(screen.getByText('6')).toBeInTheDocument()
       expect(screen.getByText('31')).toBeInTheDocument()
     })
 
     it('muestra las cabeceras de tabla correctas', () => {
-      render(<CampusContenidoPage />)
+      render(<CampusContenidoPage data-oid="apf8iea" />)
       expect(screen.getByText('Curso')).toBeInTheDocument()
       expect(screen.getByText('Módulos')).toBeInTheDocument()
       expect(screen.getByText('Lecciones')).toBeInTheDocument()

@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * Campus Virtual Session Provider
@@ -7,96 +7,96 @@
  * Uses JWT tokens stored in cookies or localStorage.
  */
 
-import type { ReactNode } from 'react';
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import type { ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface Student {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  avatar?: string;
-  tenantId: number;
+  id: string
+  email: string
+  firstName: string
+  lastName: string
+  fullName: string
+  avatar?: string
+  tenantId: number
 }
 
 export interface Enrollment {
-  id: string;
-  courseRunId: string;
-  courseTitle: string;
-  status: 'active' | 'completed' | 'expired' | 'suspended';
-  progressPercent: number;
-  startedAt?: string;
-  completedAt?: string;
+  id: string
+  courseRunId: string
+  courseTitle: string
+  status: 'active' | 'completed' | 'expired' | 'suspended'
+  progressPercent: number
+  startedAt?: string
+  completedAt?: string
 }
 
 export interface SessionContextValue {
-  student: Student | null;
-  enrollments: Enrollment[];
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-  refreshSession: () => Promise<void>;
+  student: Student | null
+  enrollments: Enrollment[]
+  isLoading: boolean
+  isAuthenticated: boolean
+  error: string | null
+  login: (email: string, password: string) => Promise<boolean>
+  logout: () => Promise<void>
+  refreshSession: () => Promise<void>
 }
 
 // API Response Types
 interface SessionApiResponse {
-  success: boolean;
-  student?: Student;
-  enrollments?: Enrollment[];
+  success: boolean
+  student?: Student
+  enrollments?: Enrollment[]
 }
 
 interface LoginApiResponse {
-  success: boolean;
-  token?: string;
-  student?: Student;
-  enrollments?: Enrollment[];
-  error?: string;
+  success: boolean
+  token?: string
+  student?: Student
+  enrollments?: Enrollment[]
+  error?: string
 }
 
 // ============================================================================
 // Context
 // ============================================================================
 
-const SessionContext = createContext<SessionContextValue | undefined>(undefined);
+const SessionContext = createContext<SessionContextValue | undefined>(undefined)
 
 // ============================================================================
 // Provider
 // ============================================================================
 
 interface SessionProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function SessionProvider({ children }: SessionProviderProps) {
-  const [student, setStudent] = useState<Student | null>(null);
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [student, setStudent] = useState<Student | null>(null)
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Check for existing session on mount
   useEffect(() => {
-    void checkSession();
-  }, []);
+    void checkSession()
+  }, [])
 
   const checkSession = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
+      setIsLoading(true)
+      setError(null)
 
       // Check for token in localStorage (campus uses separate auth)
-      const token = localStorage.getItem('campus_token');
+      const token = localStorage.getItem('campus_token')
 
       if (!token) {
-        setStudent(null);
-        setEnrollments([]);
-        return;
+        setStudent(null)
+        setEnrollments([])
+        return
       }
 
       // Validate token and get student data
@@ -104,72 +104,72 @@ export function SessionProvider({ children }: SessionProviderProps) {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
       if (!response.ok) {
         // Token expired or invalid
-        localStorage.removeItem('campus_token');
-        setStudent(null);
-        setEnrollments([]);
-        return;
+        localStorage.removeItem('campus_token')
+        setStudent(null)
+        setEnrollments([])
+        return
       }
 
-      const data = (await response.json()) as SessionApiResponse;
+      const data = (await response.json()) as SessionApiResponse
 
       if (data.success) {
-        setStudent(data.student ?? null);
-        setEnrollments(data.enrollments ?? []);
+        setStudent(data.student ?? null)
+        setEnrollments(data.enrollments ?? [])
       }
     } catch (err) {
-      console.error('[SessionProvider] Session check failed:', err);
-      setError('Failed to validate session');
-      setStudent(null);
-      setEnrollments([]);
+      console.error('[SessionProvider] Session check failed:', err)
+      setError('Failed to validate session')
+      setStudent(null)
+      setEnrollments([])
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     try {
-      setIsLoading(true);
-      setError(null);
+      setIsLoading(true)
+      setError(null)
 
       const response = await fetch('/api/campus/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-      });
+      })
 
-      const data = (await response.json()) as LoginApiResponse;
+      const data = (await response.json()) as LoginApiResponse
 
       if (!response.ok || !data.success) {
-        setError(data.error ?? 'Login failed');
-        return false;
+        setError(data.error ?? 'Login failed')
+        return false
       }
 
       // Store token
       if (data.token) {
-        localStorage.setItem('campus_token', data.token);
+        localStorage.setItem('campus_token', data.token)
       }
 
       // Set student and enrollments
-      setStudent(data.student ?? null);
-      setEnrollments(data.enrollments ?? []);
+      setStudent(data.student ?? null)
+      setEnrollments(data.enrollments ?? [])
 
-      return true;
+      return true
     } catch (err) {
-      console.error('[SessionProvider] Login failed:', err);
-      setError('Login failed. Please try again.');
-      return false;
+      console.error('[SessionProvider] Login failed:', err)
+      setError('Login failed. Please try again.')
+      return false
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, []);
+  }, [])
 
   const logout = useCallback(async () => {
     try {
-      setIsLoading(true);
+      setIsLoading(true)
 
       // Call logout API
       await fetch('/api/campus/logout', {
@@ -177,21 +177,21 @@ export function SessionProvider({ children }: SessionProviderProps) {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('campus_token')}`,
         },
-      });
+      })
     } catch (err) {
-      console.error('[SessionProvider] Logout error:', err);
+      console.error('[SessionProvider] Logout error:', err)
     } finally {
       // Always clear local state
-      localStorage.removeItem('campus_token');
-      setStudent(null);
-      setEnrollments([]);
-      setIsLoading(false);
+      localStorage.removeItem('campus_token')
+      setStudent(null)
+      setEnrollments([])
+      setIsLoading(false)
     }
-  }, []);
+  }, [])
 
   const refreshSession = useCallback(async () => {
-    await checkSession();
-  }, []);
+    await checkSession()
+  }, [])
 
   const value: SessionContextValue = {
     student,
@@ -202,13 +202,13 @@ export function SessionProvider({ children }: SessionProviderProps) {
     login,
     logout,
     refreshSession,
-  };
+  }
 
   return (
-    <SessionContext.Provider value={value}>
+    <SessionContext.Provider value={value} data-oid="kswwaih">
       {children}
     </SessionContext.Provider>
-  );
+  )
 }
 
 // ============================================================================
@@ -216,13 +216,13 @@ export function SessionProvider({ children }: SessionProviderProps) {
 // ============================================================================
 
 export function useSession(): SessionContextValue {
-  const context = useContext(SessionContext);
+  const context = useContext(SessionContext)
 
   if (context === undefined) {
-    throw new Error('useSession must be used within a SessionProvider');
+    throw new Error('useSession must be used within a SessionProvider')
   }
 
-  return context;
+  return context
 }
 
 // ============================================================================
@@ -230,34 +230,41 @@ export function useSession(): SessionContextValue {
 // ============================================================================
 
 interface RequireAuthProps {
-  children: ReactNode;
-  fallback?: ReactNode;
+  children: ReactNode
+  fallback?: ReactNode
 }
 
 export function RequireAuth({ children, fallback }: RequireAuthProps) {
-  const { isAuthenticated, isLoading } = useSession();
+  const { isAuthenticated, isLoading } = useSession()
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="flex items-center justify-center min-h-screen" data-oid="5zxro_m">
+        <div
+          className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"
+          data-oid="wg4dige"
+        />
       </div>
-    );
+    )
   }
 
   if (!isAuthenticated) {
-    return fallback ?? (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h2 className="text-2xl font-bold mb-4">Acceso Requerido</h2>
-        <p className="text-muted-foreground mb-4">
-          Debes iniciar sesion para acceder al Campus Virtual.
-        </p>
-        <a href="/campus/login" className="text-primary hover:underline">
-          Iniciar Sesion
-        </a>
-      </div>
-    );
+    return (
+      fallback ?? (
+        <div className="flex flex-col items-center justify-center min-h-screen" data-oid="h.8s:i2">
+          <h2 className="text-2xl font-bold mb-4" data-oid="w.e5wo4">
+            Acceso Requerido
+          </h2>
+          <p className="text-muted-foreground mb-4" data-oid="qvzc1_g">
+            Debes iniciar sesion para acceder al Campus Virtual.
+          </p>
+          <a href="/campus/login" className="text-primary hover:underline" data-oid="0hbyamp">
+            Iniciar Sesion
+          </a>
+        </div>
+      )
+    )
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }

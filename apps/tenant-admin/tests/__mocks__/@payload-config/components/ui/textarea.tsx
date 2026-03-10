@@ -18,5 +18,6 @@ export const Textarea = ({
     className={className}
     data-testid="textarea"
     {...props}
+    data-oid="bqvoi4u"
   />
 )

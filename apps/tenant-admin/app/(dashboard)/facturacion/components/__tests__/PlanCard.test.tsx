@@ -18,6 +18,7 @@ describe('PlanCard', () => {
       '500,000 llamadas API/mes',
       'Soporte prioritario',
     ],
+
     interval: 'month' as const,
     isCurrentPlan: false,
     isPopular: false,
@@ -29,19 +30,19 @@ describe('PlanCard', () => {
   })
 
   it('renders plan name and description', () => {
-    render(<PlanCard {...defaultProps} />)
+    render(<PlanCard {...defaultProps} data-oid="mq72z4v" />)
     expect(screen.getByText('Pro')).toBeInTheDocument()
     expect(screen.getByText('Para equipos en crecimiento')).toBeInTheDocument()
   })
 
   it('displays monthly price correctly', () => {
-    render(<PlanCard {...defaultProps} />)
+    render(<PlanCard {...defaultProps} data-oid="xwk6oxz" />)
     expect(screen.getByText('€299.00')).toBeInTheDocument()
     expect(screen.getByText('/mes')).toBeInTheDocument()
   })
 
   it('displays yearly price with monthly equivalent', () => {
-    render(<PlanCard {...defaultProps} interval="year" />)
+    render(<PlanCard {...defaultProps} interval="year" data-oid="pjj4ogs" />)
     expect(screen.getByText('€2990.00')).toBeInTheDocument()
     expect(screen.getByText('/año')).toBeInTheDocument()
     // 299000 / 12 / 100 = 249.17
@@ -49,12 +50,12 @@ describe('PlanCard', () => {
   })
 
   it('does not show monthly equivalent for monthly interval', () => {
-    render(<PlanCard {...defaultProps} interval="month" />)
+    render(<PlanCard {...defaultProps} interval="month" data-oid=".h4s0t:" />)
     expect(screen.queryByText(/facturado anualmente/)).not.toBeInTheDocument()
   })
 
   it('renders all features', () => {
-    render(<PlanCard {...defaultProps} />)
+    render(<PlanCard {...defaultProps} data-oid="uaaswlz" />)
     expect(screen.getByText('Hasta 500 usuarios')).toBeInTheDocument()
     expect(screen.getByText('100 GB de almacenamiento')).toBeInTheDocument()
     expect(screen.getByText('500,000 llamadas API/mes')).toBeInTheDocument()
@@ -62,73 +63,73 @@ describe('PlanCard', () => {
   })
 
   it('shows popular badge when isPopular is true', () => {
-    render(<PlanCard {...defaultProps} isPopular={true} />)
+    render(<PlanCard {...defaultProps} isPopular={true} data-oid="aaiovko" />)
     expect(screen.getByText('Más Popular')).toBeInTheDocument()
   })
 
   it('does not show popular badge when isPopular is false', () => {
-    render(<PlanCard {...defaultProps} isPopular={false} />)
+    render(<PlanCard {...defaultProps} isPopular={false} data-oid="vhnb364" />)
     expect(screen.queryByText('Más Popular')).not.toBeInTheDocument()
   })
 
   it('shows current plan badge when isCurrentPlan is true', () => {
-    render(<PlanCard {...defaultProps} isCurrentPlan={true} />)
+    render(<PlanCard {...defaultProps} isCurrentPlan={true} data-oid="73tdv-e" />)
     // Text appears in both badge and button
     expect(screen.getAllByText('Plan Actual').length).toBeGreaterThan(0)
   })
 
   it('does not show current plan badge when isCurrentPlan is false', () => {
-    render(<PlanCard {...defaultProps} isCurrentPlan={false} />)
+    render(<PlanCard {...defaultProps} isCurrentPlan={false} data-oid="_ne35wz" />)
     // Should show "Seleccionar Plan" button instead
     expect(screen.getByText('Seleccionar Plan')).toBeInTheDocument()
     expect(screen.queryByText('Plan Actual')).not.toBeInTheDocument()
   })
 
   it('calls onSelect with tier and interval when button clicked', () => {
-    render(<PlanCard {...defaultProps} />)
+    render(<PlanCard {...defaultProps} data-oid="el-sokr" />)
     const selectButton = screen.getByText('Seleccionar Plan')
     fireEvent.click(selectButton)
     expect(mockOnSelect).toHaveBeenCalledWith('pro', 'month')
   })
 
   it('disables button when isCurrentPlan is true', () => {
-    render(<PlanCard {...defaultProps} isCurrentPlan={true} />)
+    render(<PlanCard {...defaultProps} isCurrentPlan={true} data-oid="vj_1q3v" />)
     const buttons = screen.getAllByRole('button')
-    const planButton = buttons.find(btn => btn.textContent?.includes('Plan Actual'))
+    const planButton = buttons.find((btn) => btn.textContent?.includes('Plan Actual'))
     expect(planButton).toBeDisabled()
   })
 
   it('does not disable button when isCurrentPlan is false', () => {
-    render(<PlanCard {...defaultProps} isCurrentPlan={false} />)
+    render(<PlanCard {...defaultProps} isCurrentPlan={false} data-oid="y2dnty_" />)
     const button = screen.getByText('Seleccionar Plan')
     expect(button).not.toBeDisabled()
   })
 
   it('shows "Plan Actual" text when current plan', () => {
-    render(<PlanCard {...defaultProps} isCurrentPlan={true} />)
+    render(<PlanCard {...defaultProps} isCurrentPlan={true} data-oid="plbblfw" />)
     // Text appears in both badge and button
     expect(screen.getAllByText('Plan Actual').length).toBeGreaterThan(0)
   })
 
   it('shows "Seleccionar Plan" text when not current plan', () => {
-    render(<PlanCard {...defaultProps} isCurrentPlan={false} />)
+    render(<PlanCard {...defaultProps} isCurrentPlan={false} data-oid="55o3em0" />)
     expect(screen.getByText('Seleccionar Plan')).toBeInTheDocument()
   })
 
   it('applies custom border style when popular', () => {
-    const { container } = render(<PlanCard {...defaultProps} isPopular={true} />)
+    const { container } = render(<PlanCard {...defaultProps} isPopular={true} data-oid="hjts2s0" />)
     const card = container.querySelector('[data-testid="card"]')
     expect(card).toHaveClass('border-2', 'border-[#F2014B]')
   })
 
   it('applies custom button style when popular and not current', () => {
-    render(<PlanCard {...defaultProps} isPopular={true} isCurrentPlan={false} />)
+    render(<PlanCard {...defaultProps} isPopular={true} isCurrentPlan={false} data-oid=".w5_xkt" />)
     const button = screen.getByText('Seleccionar Plan')
     expect(button).toHaveStyle({ backgroundColor: '#F2014B' })
   })
 
   it('does not apply custom button style when not popular', () => {
-    render(<PlanCard {...defaultProps} isPopular={false} />)
+    render(<PlanCard {...defaultProps} isPopular={false} data-oid="kbt1vrs" />)
     const button = screen.getByText('Seleccionar Plan')
     expect(button).not.toHaveStyle({ backgroundColor: '#F2014B' })
   })
@@ -141,6 +142,7 @@ describe('PlanCard', () => {
         name="Starter"
         description="Para proyectos pequeños"
         priceMonthly={19900}
+        data-oid="gj8nsge"
       />
     )
     expect(screen.getByText('Starter')).toBeInTheDocument()
@@ -155,6 +157,7 @@ describe('PlanCard', () => {
         name="Enterprise"
         description="Para grandes organizaciones"
         priceMonthly={59900}
+        data-oid="dqjso2."
       />
     )
     expect(screen.getByText('Enterprise')).toBeInTheDocument()
@@ -163,27 +166,27 @@ describe('PlanCard', () => {
 
   it('handles many features correctly', () => {
     const manyFeatures = Array.from({ length: 10 }, (_, i) => `Feature ${i + 1}`)
-    render(<PlanCard {...defaultProps} features={manyFeatures} />)
-    manyFeatures.forEach(feature => {
+    render(<PlanCard {...defaultProps} features={manyFeatures} data-oid="fb:17g9" />)
+    manyFeatures.forEach((feature) => {
       expect(screen.getByText(feature)).toBeInTheDocument()
     })
   })
 
   it('handles empty features array', () => {
-    render(<PlanCard {...defaultProps} features={[]} />)
+    render(<PlanCard {...defaultProps} features={[]} data-oid="ilk0lj-" />)
     // Should still render the card
     expect(screen.getByText('Pro')).toBeInTheDocument()
   })
 
   it('calls onSelect with correct interval for yearly', () => {
-    render(<PlanCard {...defaultProps} interval="year" />)
+    render(<PlanCard {...defaultProps} interval="year" data-oid="ar9t7pz" />)
     const selectButton = screen.getByText('Seleccionar Plan')
     fireEvent.click(selectButton)
     expect(mockOnSelect).toHaveBeenCalledWith('pro', 'year')
   })
 
   it('renders check icons for features', () => {
-    const { container } = render(<PlanCard {...defaultProps} />)
+    const { container } = render(<PlanCard {...defaultProps} data-oid="99-:6gs" />)
     // Each feature should have a check icon
     const features = defaultProps.features
     expect(container.querySelectorAll('li').length).toBe(features.length)
@@ -191,24 +194,24 @@ describe('PlanCard', () => {
 
   it('calculates price correctly for different amounts', () => {
     const { rerender } = render(
-      <PlanCard {...defaultProps} priceMonthly={9999} interval="month" />
+      <PlanCard {...defaultProps} priceMonthly={9999} interval="month" data-oid="6_2gtsr" />
     )
     expect(screen.getByText('€99.99')).toBeInTheDocument()
 
-    rerender(
-      <PlanCard {...defaultProps} priceYearly={99999} interval="year" />
-    )
+    rerender(<PlanCard {...defaultProps} priceYearly={99999} interval="year" data-oid="x7.xc-z" />)
     expect(screen.getByText('€999.99')).toBeInTheDocument()
   })
 
   it('positions popular badge correctly', () => {
-    const { container: _container } = render(<PlanCard {...defaultProps} isPopular={true} />)
+    const { container: _container } = render(
+      <PlanCard {...defaultProps} isPopular={true} data-oid="gkmvpd5" />
+    )
     const badge = screen.getByText('Más Popular').parentElement
     expect(badge).toHaveClass('-top-3', 'left-1/2', '-translate-x-1/2')
   })
 
   it('applies custom badge color for popular plan', () => {
-    render(<PlanCard {...defaultProps} isPopular={true} />)
+    render(<PlanCard {...defaultProps} isPopular={true} data-oid="v_58bqz" />)
     const badge = screen.getByText('Más Popular')
     expect(badge).toBeInTheDocument()
     // Badge has inline style applied (hex color #F2014B)

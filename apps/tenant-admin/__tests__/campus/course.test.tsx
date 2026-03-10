@@ -77,6 +77,7 @@ const mockCourseData = {
       ],
     },
   ],
+
   progress: {
     totalModules: 2,
     totalLessons: 7,
@@ -123,7 +124,7 @@ describe('Campus Course Page', () => {
   })
 
   it('renders course title and description', async () => {
-    render(<CoursePage />)
+    render(<CoursePage data-oid="k0:_-jt" />)
 
     await waitFor(() => {
       expect(screen.getByText('Curso de React Avanzado')).toBeInTheDocument()
@@ -132,7 +133,7 @@ describe('Campus Course Page', () => {
   })
 
   it('displays overall progress', async () => {
-    render(<CoursePage />)
+    render(<CoursePage data-oid="ve5rivt" />)
 
     await waitFor(() => {
       expect(screen.getByText('14%')).toBeInTheDocument()
@@ -141,7 +142,7 @@ describe('Campus Course Page', () => {
   })
 
   it('renders module accordion', async () => {
-    render(<CoursePage />)
+    render(<CoursePage data-oid="wi.09-s" />)
 
     await waitFor(() => {
       expect(screen.getByText('Introduccion a React')).toBeInTheDocument()
@@ -150,7 +151,7 @@ describe('Campus Course Page', () => {
   })
 
   it('shows lesson list with progress', async () => {
-    render(<CoursePage />)
+    render(<CoursePage data-oid="_.5_zz9" />)
 
     await waitFor(() => {
       expect(screen.getByText('Que es React')).toBeInTheDocument()
@@ -160,7 +161,7 @@ describe('Campus Course Page', () => {
   })
 
   it('displays mandatory badge for required lessons', async () => {
-    render(<CoursePage />)
+    render(<CoursePage data-oid="qg4whoe" />)
 
     await waitFor(() => {
       const mandatoryBadges = screen.getAllByText(/obligatorio/i)
@@ -169,11 +170,11 @@ describe('Campus Course Page', () => {
   })
 
   it('links to lesson detail page', async () => {
-    render(<CoursePage />)
+    render(<CoursePage data-oid="b3ib6f." />)
 
     await waitFor(() => {
       const lessonLinks = screen.getAllByRole('link')
-      const lessonLink = lessonLinks.find(link =>
+      const lessonLink = lessonLinks.find((link) =>
         link.getAttribute('href')?.includes('/leccion/')
       )
       expect(lessonLink).toBeTruthy()
@@ -181,7 +182,7 @@ describe('Campus Course Page', () => {
   })
 
   it('has back button to campus', async () => {
-    render(<CoursePage />)
+    render(<CoursePage data-oid="4jsozo6" />)
 
     await waitFor(() => {
       const backButton = screen.getByText(/volver a mis cursos/i)
@@ -195,7 +196,7 @@ describe('Campus Course Page', () => {
       json: async () => ({ error: 'Not found' }),
     })
 
-    render(<CoursePage />)
+    render(<CoursePage data-oid="jloffvf" />)
 
     await waitFor(() => {
       expect(screen.getByText(/failed to load course/i)).toBeInTheDocument()

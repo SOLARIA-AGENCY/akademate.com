@@ -74,37 +74,55 @@ export function StaffCard({
   }
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
-      <div onClick={() => onView(id)}>
-        <CardContent className="p-6">
+    <Card
+      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+      data-oid="zwb_yf-"
+    >
+      <div onClick={() => onView(id)} data-oid="i0zslmk">
+        <CardContent className="p-6" data-oid="24ngeia">
           {/* Header with Avatar and Menu */}
-          <div className="flex items-start justify-between mb-4">
-            <Avatar className="h-16 w-16 border-2 border-background shadow-md ring-2 ring-offset-2 ring-muted">
-              <AvatarImage src={photo} alt={fullName} />
-              <AvatarFallback className="text-lg font-semibold">{getInitials(fullName)}</AvatarFallback>
+          <div className="flex items-start justify-between mb-4" data-oid="hdjhmzo">
+            <Avatar
+              className="h-16 w-16 border-2 border-background shadow-md ring-2 ring-offset-2 ring-muted"
+              data-oid="b3jc_lc"
+            >
+              <AvatarImage src={photo} alt={fullName} data-oid="1ywu7yr" />
+              <AvatarFallback className="text-lg font-semibold" data-oid="-ltb5aw">
+                {getInitials(fullName)}
+              </AvatarFallback>
             </Avatar>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="sr-only">Abrir menú</span>
-                  <MoreHorizontal className="h-4 w-4" />
+            <DropdownMenu data-oid="msf0ls9">
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()} data-oid="hxa2euo">
+                <Button
+                  variant="ghost"
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  data-oid="pfv9nwo"
+                >
+                  <span className="sr-only" data-oid="x53fj_-">
+                    Abrir menú
+                  </span>
+                  <MoreHorizontal className="h-4 w-4" data-oid="p.s5aqy" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => onView(id)}>
-                  <Eye className="mr-2 h-4 w-4" />
+              <DropdownMenuContent align="end" data-oid="9:6af3z">
+                <DropdownMenuLabel data-oid="ifwvtj3">Acciones</DropdownMenuLabel>
+                <DropdownMenuSeparator data-oid="seexs1g" />
+                <DropdownMenuItem onClick={() => onView(id)} data-oid="mr2ycq-">
+                  <Eye className="mr-2 h-4 w-4" data-oid="a4m-48a" />
                   Ver Detalle
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit(id)}>
-                  <Edit className="mr-2 h-4 w-4" />
+                <DropdownMenuItem onClick={() => onEdit(id)} data-oid="zbj8prj">
+                  <Edit className="mr-2 h-4 w-4" data-oid="45fhukj" />
                   Editar
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => onDelete(id, fullName)} className="text-destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
+                <DropdownMenuSeparator data-oid="zc64rui" />
+                <DropdownMenuItem
+                  onClick={() => onDelete(id, fullName)}
+                  className="text-destructive"
+                  data-oid="6ytwys:"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" data-oid="hjfpijo" />
                   Desactivar
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -112,55 +130,76 @@ export function StaffCard({
           </div>
 
           {/* Name and Position */}
-          <div className="space-y-2 mb-4">
-            <h3 className="font-semibold text-lg leading-tight">{fullName}</h3>
-            <p className="text-sm text-muted-foreground flex items-center gap-2">
-              <Briefcase className="h-3.5 w-3.5" />
+          <div className="space-y-2 mb-4" data-oid="1st-aup">
+            <h3 className="font-semibold text-lg leading-tight" data-oid="oqae0_.">
+              {fullName}
+            </h3>
+            <p className="text-sm text-muted-foreground flex items-center gap-2" data-oid="b.o40c_">
+              <Briefcase className="h-3.5 w-3.5" data-oid="yh6fxas" />
               {position}
             </p>
           </div>
 
           {/* Badges */}
-          <div className="flex gap-2 mb-4 flex-wrap">
-            <Badge variant={STATUS_VARIANTS[employmentStatus]} className="text-xs">
+          <div className="flex gap-2 mb-4 flex-wrap" data-oid="34c-.1s">
+            <Badge
+              variant={STATUS_VARIANTS[employmentStatus]}
+              className="text-xs"
+              data-oid="8_xl-hu"
+            >
               {STATUS_LABELS[employmentStatus]}
             </Badge>
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-xs" data-oid="0m5w5if">
               {CONTRACT_TYPE_LABELS[contractType]}
             </Badge>
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-2 mb-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="truncate">{email}</span>
+          <div className="space-y-2 mb-4" data-oid="lq81nmx">
+            <div
+              className="flex items-center gap-2 text-sm text-muted-foreground"
+              data-oid="1qrmnly"
+            >
+              <Mail className="h-3.5 w-3.5 flex-shrink-0" data-oid="d-nl2o." />
+              <span className="truncate" data-oid="2axlsrq">
+                {email}
+              </span>
             </div>
             {phone && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                <span>{phone}</span>
+              <div
+                className="flex items-center gap-2 text-sm text-muted-foreground"
+                data-oid="u-4v2i3"
+              >
+                <Phone className="h-3.5 w-3.5 flex-shrink-0" data-oid="xah4sk6" />
+                <span data-oid="8dxim-i">{phone}</span>
               </div>
             )}
           </div>
 
           {/* Bio Preview */}
           {bio && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{bio}</p>
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-4" data-oid="tgiu333">
+              {bio}
+            </p>
           )}
 
           {/* Assigned Campuses */}
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <div className="space-y-2" data-oid="f0-qctf">
+            <p
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+              data-oid="7d5jh7a"
+            >
               Sedes Asignadas
             </p>
-            <div className="flex gap-1 flex-wrap">
+            <div className="flex gap-1 flex-wrap" data-oid="fpgw5-j">
               {assignedCampuses.length === 0 ? (
-                <span className="text-sm text-muted-foreground">Sin sedes asignadas</span>
+                <span className="text-sm text-muted-foreground" data-oid="xgrw:yc">
+                  Sin sedes asignadas
+                </span>
               ) : (
                 assignedCampuses.map((campus) => (
-                  <Badge key={campus.id} variant="secondary" className="text-xs">
-                    <MapPin className="h-3 w-3 mr-1" />
+                  <Badge key={campus.id} variant="secondary" className="text-xs" data-oid=":pfs_wt">
+                    <MapPin className="h-3 w-3 mr-1" data-oid="x6:g9o9" />
                     {campus.name}
                   </Badge>
                 ))
@@ -170,9 +209,15 @@ export function StaffCard({
         </CardContent>
       </div>
 
-      <CardFooter className="bg-muted/50 p-4 border-t">
-        <Button variant="outline" size="sm" className="w-full" onClick={() => onView(id)}>
-          <Eye className="mr-2 h-4 w-4" />
+      <CardFooter className="bg-muted/50 p-4 border-t" data-oid="m18tdm8">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={() => onView(id)}
+          data-oid="hs3__v2"
+        >
+          <Eye className="mr-2 h-4 w-4" data-oid="qq_tri7" />
           Ver Ficha Completa
         </Button>
       </CardFooter>

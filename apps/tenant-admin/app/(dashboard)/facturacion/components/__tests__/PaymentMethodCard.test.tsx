@@ -59,6 +59,7 @@ describe('PaymentMethodCard', () => {
       <PaymentMethodCard
         paymentMethod={baseCardPaymentMethod}
         isDefault={false}
+        data-oid="ruzlh8i"
       />
     )
     expect(screen.getByText(/visa/i)).toBeInTheDocument()
@@ -70,6 +71,7 @@ describe('PaymentMethodCard', () => {
       <PaymentMethodCard
         paymentMethod={baseCardPaymentMethod}
         isDefault={false}
+        data-oid="5wjhajr"
       />
     )
     expect(screen.getByText(/Expira: 12\/25/)).toBeInTheDocument()
@@ -84,12 +86,7 @@ describe('PaymentMethodCard', () => {
         expYear: 2020,
       },
     }
-    render(
-      <PaymentMethodCard
-        paymentMethod={expiredCard}
-        isDefault={false}
-      />
-    )
+    render(<PaymentMethodCard paymentMethod={expiredCard} isDefault={false} data-oid="dh36c8i" />)
     expect(screen.getByText(/\(Expirada\)/)).toBeInTheDocument()
   })
 
@@ -98,6 +95,7 @@ describe('PaymentMethodCard', () => {
       <PaymentMethodCard
         paymentMethod={baseCardPaymentMethod}
         isDefault={true}
+        data-oid="t.fym5_"
       />
     )
     expect(screen.getByText('Predeterminado')).toBeInTheDocument()
@@ -108,6 +106,7 @@ describe('PaymentMethodCard', () => {
       <PaymentMethodCard
         paymentMethod={baseCardPaymentMethod}
         isDefault={false}
+        data-oid="r-1a200"
       />
     )
     expect(screen.queryByText('Predeterminado')).not.toBeInTheDocument()
@@ -118,6 +117,7 @@ describe('PaymentMethodCard', () => {
       <PaymentMethodCard
         paymentMethod={baseCardPaymentMethod}
         isDefault={false}
+        data-oid="ei1vv0g"
       />
     )
     expect(screen.getByText('John Doe')).toBeInTheDocument()
@@ -125,12 +125,7 @@ describe('PaymentMethodCard', () => {
 
   it('does not render name when billingDetails is not provided', () => {
     const noDetailsCard = { ...baseCardPaymentMethod, billingDetails: undefined }
-    render(
-      <PaymentMethodCard
-        paymentMethod={noDetailsCard}
-        isDefault={false}
-      />
-    )
+    render(<PaymentMethodCard paymentMethod={noDetailsCard} isDefault={false} data-oid="pz.iq-e" />)
     expect(screen.queryByText('John Doe')).not.toBeInTheDocument()
   })
 
@@ -140,6 +135,7 @@ describe('PaymentMethodCard', () => {
         paymentMethod={baseCardPaymentMethod}
         isDefault={false}
         onSetDefault={mockOnSetDefault}
+        data-oid="3p0yeow"
       />
     )
     expect(screen.getByText('Establecer Predeterminado')).toBeInTheDocument()
@@ -151,6 +147,7 @@ describe('PaymentMethodCard', () => {
         paymentMethod={baseCardPaymentMethod}
         isDefault={true}
         onSetDefault={mockOnSetDefault}
+        data-oid="oxlq9y."
       />
     )
     expect(screen.queryByText('Establecer Predeterminado')).not.toBeInTheDocument()
@@ -162,6 +159,7 @@ describe('PaymentMethodCard', () => {
         paymentMethod={baseCardPaymentMethod}
         isDefault={false}
         onSetDefault={mockOnSetDefault}
+        data-oid="1ap3k3g"
       />
     )
     const setDefaultButton = screen.getByText('Establecer Predeterminado')
@@ -175,11 +173,12 @@ describe('PaymentMethodCard', () => {
         paymentMethod={baseCardPaymentMethod}
         isDefault={false}
         onDelete={mockOnDelete}
+        data-oid="yfh6phd"
       />
     )
     const buttons = screen.getAllByRole('button')
     // Last button should be the delete button (has destructive class)
-    const deleteBtn = buttons.find(btn => btn.className?.includes('text-destructive'))
+    const deleteBtn = buttons.find((btn) => btn.className?.includes('text-destructive'))
     expect(deleteBtn).toBeDefined()
     fireEvent.click(deleteBtn!)
     expect(mockOnDelete).toHaveBeenCalledWith('pm_1')
@@ -187,10 +186,7 @@ describe('PaymentMethodCard', () => {
 
   it('renders SEPA debit payment method', () => {
     render(
-      <PaymentMethodCard
-        paymentMethod={sepaPaymentMethod}
-        isDefault={false}
-      />
+      <PaymentMethodCard paymentMethod={sepaPaymentMethod} isDefault={false} data-oid="x:ct3x4" />
     )
     expect(screen.getByText('SEPA Débito Directo')).toBeInTheDocument()
     expect(screen.getByText(/•••• 3000/)).toBeInTheDocument()
@@ -198,10 +194,7 @@ describe('PaymentMethodCard', () => {
 
   it('renders SEPA bank code', () => {
     render(
-      <PaymentMethodCard
-        paymentMethod={sepaPaymentMethod}
-        isDefault={false}
-      />
+      <PaymentMethodCard paymentMethod={sepaPaymentMethod} isDefault={false} data-oid="e0yz07t" />
     )
     expect(screen.getByText(/Banco: DEUTDEFF/)).toBeInTheDocument()
   })
@@ -212,10 +205,7 @@ describe('PaymentMethodCard', () => {
       card: { ...baseCardPaymentMethod.card!, brand: 'mastercard' },
     }
     const { rerender } = render(
-      <PaymentMethodCard
-        paymentMethod={mastercardMethod}
-        isDefault={false}
-      />
+      <PaymentMethodCard paymentMethod={mastercardMethod} isDefault={false} data-oid="hd9woxe" />
     )
     expect(screen.getByText(/mastercard/i)).toBeInTheDocument()
 
@@ -223,12 +213,7 @@ describe('PaymentMethodCard', () => {
       ...baseCardPaymentMethod,
       card: { ...baseCardPaymentMethod.card!, brand: 'amex' },
     }
-    rerender(
-      <PaymentMethodCard
-        paymentMethod={amexMethod}
-        isDefault={false}
-      />
-    )
+    rerender(<PaymentMethodCard paymentMethod={amexMethod} isDefault={false} data-oid="_k8bo01" />)
     expect(screen.getByText(/amex/i)).toBeInTheDocument()
   })
 
@@ -237,12 +222,7 @@ describe('PaymentMethodCard', () => {
       ...baseCardPaymentMethod,
       card: { ...baseCardPaymentMethod.card!, brand: 'unknown' },
     }
-    render(
-      <PaymentMethodCard
-        paymentMethod={noBrandCard}
-        isDefault={false}
-      />
-    )
+    render(<PaymentMethodCard paymentMethod={noBrandCard} isDefault={false} data-oid="gw2dx4h" />)
     expect(screen.getByText(/unknown/i)).toBeInTheDocument()
   })
 
@@ -254,10 +234,7 @@ describe('PaymentMethodCard', () => {
       sepaDebit: undefined,
     }
     render(
-      <PaymentMethodCard
-        paymentMethod={bankTransferMethod}
-        isDefault={false}
-      />
+      <PaymentMethodCard paymentMethod={bankTransferMethod} isDefault={false} data-oid="gcmdxqf" />
     )
     expect(screen.getByText(/bank_transfer/i)).toBeInTheDocument()
   })
@@ -267,6 +244,7 @@ describe('PaymentMethodCard', () => {
       <PaymentMethodCard
         paymentMethod={baseCardPaymentMethod}
         isDefault={false}
+        data-oid="8zq68t5"
       />
     )
     const setDefaultButton = screen.queryByText('Establecer Predeterminado')
@@ -281,11 +259,12 @@ describe('PaymentMethodCard', () => {
       <PaymentMethodCard
         paymentMethod={baseCardPaymentMethod}
         isDefault={false}
+        data-oid="7dqqidu"
       />
     )
     // Delete button should still render but not crash when clicked
     const buttons = screen.getAllByRole('button')
-    const deleteBtn = buttons.find(btn => btn.className?.includes('text-destructive'))
+    const deleteBtn = buttons.find((btn) => btn.className?.includes('text-destructive'))
     expect(deleteBtn).toBeDefined()
     fireEvent.click(deleteBtn!)
     // Should not throw error
@@ -300,12 +279,7 @@ describe('PaymentMethodCard', () => {
         expYear: 2026,
       },
     }
-    render(
-      <PaymentMethodCard
-        paymentMethod={janCard}
-        isDefault={false}
-      />
-    )
+    render(<PaymentMethodCard paymentMethod={janCard} isDefault={false} data-oid=":jvjs9e" />)
     expect(screen.getByText(/Expira: 01\/26/)).toBeInTheDocument()
   })
 
@@ -319,10 +293,7 @@ describe('PaymentMethodCard', () => {
       },
     }
     const { container: _container } = render(
-      <PaymentMethodCard
-        paymentMethod={expiredCard}
-        isDefault={false}
-      />
+      <PaymentMethodCard paymentMethod={expiredCard} isDefault={false} data-oid="7xakxr4" />
     )
     const expiryText = screen.getByText(/Expira:/)
     expect(expiryText).toHaveClass('text-red-500')

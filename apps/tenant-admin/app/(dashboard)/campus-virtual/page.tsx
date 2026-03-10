@@ -42,6 +42,22 @@ interface EnrollmentItem {
   }
 }
 
+const enrollmentStatusLabels: Record<string, string> = {
+  active: 'Activo',
+  completed: 'Completado',
+  cancelled: 'Cancelado',
+  paused: 'Pausado',
+  pending: 'Pendiente',
+}
+
+const enrollmentStatusVariants: Record<string, 'success' | 'info' | 'destructive' | 'warning' | 'secondary'> = {
+  active: 'success',
+  completed: 'info',
+  cancelled: 'destructive',
+  paused: 'warning',
+  pending: 'secondary',
+}
+
 const progressByCourseSeed = [
   { course: 'React Inicial', progress: 78 },
   { course: 'Node Backend', progress: 64 },
@@ -98,91 +114,129 @@ export default function CampusVirtualOverviewPage() {
   }, [enrollments])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-oid="3roq2tg">
       <PageHeader
         title="Campus Virtual"
         description="Panel operativo del campus con inscripciones, progreso y certificados por tenant."
         icon={GraduationCap}
-        badge={<Badge variant="default">LMS Sync</Badge>}
+        badge={
+          <Badge variant="default" data-oid="pf.vv2f">
+            LMS Sync
+          </Badge>
+        }
+        data-oid="fle6e1s"
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Total inscritos activos</CardDescription>
-            <Users className="h-5 w-5 text-primary/70" />
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-oid="p555u.a">
+        <Card data-oid="f0ne3u6">
+          <CardHeader
+            className="flex flex-row items-center justify-between pb-2"
+            data-oid="54rubhk"
+          >
+            <CardDescription data-oid="tgbum4j">Total inscritos activos</CardDescription>
+            <Users className="h-5 w-5 text-primary/70" data-oid="azirtnn" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{kpis.activeEnrollments}</div>
+          <CardContent data-oid="ey2_px1">
+            <div className="text-3xl font-bold" data-oid="ahv3gcg">
+              {kpis.activeEnrollments}
+            </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Cursos activos</CardDescription>
-            <BookOpen className="h-5 w-5 text-primary/70" />
+        <Card data-oid="vfurh.t">
+          <CardHeader
+            className="flex flex-row items-center justify-between pb-2"
+            data-oid="kbm-dc6"
+          >
+            <CardDescription data-oid="6e6d_23">Cursos activos</CardDescription>
+            <BookOpen className="h-5 w-5 text-primary/70" data-oid=".r_hxlt" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{kpis.activeCourses}</div>
+          <CardContent data-oid="vtf_fe_">
+            <div className="text-3xl font-bold" data-oid="t3gdjw.">
+              {kpis.activeCourses}
+            </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Tasa de finalización</CardDescription>
-            <GraduationCap className="h-5 w-5 text-primary/70" />
+        <Card data-oid="idnunsa">
+          <CardHeader
+            className="flex flex-row items-center justify-between pb-2"
+            data-oid="1t:-uzz"
+          >
+            <CardDescription data-oid="bm1m-hc">Tasa de finalización</CardDescription>
+            <GraduationCap className="h-5 w-5 text-primary/70" data-oid="5db21ga" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{kpis.completionRate}%</div>
+          <CardContent data-oid="yv5ix.6">
+            <div className="text-3xl font-bold" data-oid="3336zaq">
+              {kpis.completionRate}%
+            </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Certificados emitidos</CardDescription>
-            <Award className="h-5 w-5 text-primary/70" />
+        <Card data-oid="rwcdtq:">
+          <CardHeader
+            className="flex flex-row items-center justify-between pb-2"
+            data-oid="4xtn9bc"
+          >
+            <CardDescription data-oid="9fb:hng">Certificados emitidos</CardDescription>
+            <Award className="h-5 w-5 text-primary/70" data-oid=".g4v.b." />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{kpis.issuedCertificates}</div>
+          <CardContent data-oid="uov6o0w">
+            <div className="text-3xl font-bold" data-oid="56nr7:j">
+              {kpis.issuedCertificates}
+            </div>
           </CardContent>
         </Card>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-5">
-        <Card className="xl:col-span-3">
-          <CardHeader>
-            <CardTitle>Últimas inscripciones LMS</CardTitle>
-            <CardDescription>Últimos 10 registros sincronizados</CardDescription>
+      <section className="grid gap-4 xl:grid-cols-5" data-oid="ub58o8g">
+        <Card className="xl:col-span-3" data-oid="g60khsf">
+          <CardHeader data-oid="1erulti">
+            <CardTitle data-oid="ko1lyhn">Últimas inscripciones LMS</CardTitle>
+            <CardDescription data-oid="i::cz-4">Últimos 10 registros sincronizados</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent data-oid="lmk8b9_">
             {loading ? (
-              <p className="text-sm text-muted-foreground">Cargando inscripciones...</p>
+              <p className="text-sm text-muted-foreground" data-oid="fgxmgxd">
+                Cargando inscripciones...
+              </p>
             ) : error ? (
-              <p className="text-sm text-destructive">{error}</p>
+              <p className="text-sm text-destructive" data-oid="ok9n9zv">
+                {error}
+              </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Curso</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Progreso</TableHead>
-                    <TableHead>Fecha</TableHead>
+              <Table data-oid="x6sjqwg">
+                <TableHeader data-oid="2.n3_r9">
+                  <TableRow data-oid="zz5_x4z">
+                    <TableHead data-oid="mao9:q2">Curso</TableHead>
+                    <TableHead data-oid="_wup3g_">Estado</TableHead>
+                    <TableHead data-oid="zxgkbpc">Progreso</TableHead>
+                    <TableHead data-oid="y9ajvf_">Fecha</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody data-oid="k4:b_fb">
                   {enrollments.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
+                    <TableRow key={item.id} data-oid="u11numo">
+                      <TableCell data-oid="yorzuxt">
                         {item.courseRun?.course?.title ?? (
-                          <span className="text-muted-foreground italic" title="Pendiente de sincronización LMS">
+                          <span
+                            className="text-muted-foreground italic"
+                            title="Pendiente de sincronización LMS"
+                            data-oid="pddo90r"
+                          >
                             Sin título
                           </span>
                         )}
                       </TableCell>
-                      <TableCell>
-                        <Badge variant={item.status === 'active' ? 'default' : 'secondary'}>
-                          {item.status}
+                      <TableCell data-oid="o:1qbp7">
+                        <Badge
+                          variant={enrollmentStatusVariants[item.status] ?? 'secondary'}
+                          data-oid="l_pioj4"
+                        >
+                          {enrollmentStatusLabels[item.status] ?? item.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>{item.progress.percent}%</TableCell>
-                      <TableCell>{new Date(item.enrolledAt).toLocaleDateString('es-ES')}</TableCell>
+                      <TableCell data-oid="_wg.kjh">{item.progress.percent}%</TableCell>
+                      <TableCell data-oid="qcjxj99">
+                        {new Date(item.enrolledAt).toLocaleDateString('es-ES')}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -191,42 +245,54 @@ export default function CampusVirtualOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card className="xl:col-span-2">
-          <CardHeader>
-            <CardTitle>Progreso por curso</CardTitle>
-            <CardDescription>Distribución inicial de progreso</CardDescription>
+        <Card className="xl:col-span-2" data-oid="onu29q-">
+          <CardHeader data-oid="n8849-n">
+            <CardTitle data-oid="e26b6eh">Progreso por curso</CardTitle>
+            <CardDescription data-oid="x-xc:n2">Distribución inicial de progreso</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={progressByCourseSeed}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="course" tick={{ fontSize: 12 }} />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="progress" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+          <CardContent className="h-72" data-oid="sg_m7fb">
+            <ResponsiveContainer width="100%" height="100%" data-oid="fb7t2.p">
+              <BarChart data={progressByCourseSeed} data-oid="-zgc6lz">
+                <CartesianGrid strokeDasharray="3 3" data-oid="c3c.fm8" />
+                <XAxis dataKey="course" tick={{ fontSize: 12 }} data-oid="-4w-wp:" />
+                <YAxis data-oid="sl9iudn" />
+                <Tooltip data-oid="55qksqr" />
+                <Bar
+                  dataKey="progress"
+                  fill="hsl(var(--primary))"
+                  radius={[6, 6, 0, 0]}
+                  data-oid="dm1q_4n"
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </section>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Accesos rápidos</CardTitle>
-            <CardDescription>Operaciones frecuentes de campus</CardDescription>
+      <Card data-oid="6-7yidp">
+        <CardHeader className="flex flex-row items-center justify-between" data-oid="h2y012d">
+          <div data-oid="bkmj9a.">
+            <CardTitle data-oid="6tbv:h0">Accesos rápidos</CardTitle>
+            <CardDescription data-oid="gt3vcm9">Operaciones frecuentes de campus</CardDescription>
           </div>
-          <Badge variant="outline">Sincronización activa</Badge>
+          <Badge variant="outline" data-oid="tmnu5gw">
+            Sincronización activa
+          </Badge>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-3">
-          <Button asChild>
-            <a href="http://localhost:3005/dashboard" target="_blank" rel="noreferrer">
+        <CardContent className="flex flex-wrap gap-3" data-oid="9ae-i6n">
+          <Button asChild data-oid="tc7tii0">
+            <a
+              href="http://localhost:3005/dashboard"
+              target="_blank"
+              rel="noreferrer"
+              data-oid="5kc3b7n"
+            >
               Ir al Campus (:3005)
-              <ExternalLink className="ml-2 h-4 w-4" />
+              <ExternalLink className="ml-2 h-4 w-4" data-oid="16s3fm." />
             </a>
           </Button>
-          <Button asChild variant="outline">
-            <a href="/campus-virtual/contenido">
+          <Button asChild variant="outline" data-oid="16b8nz:">
+            <a href="/campus-virtual/contenido" data-oid="u01un-n">
               Gestionar Contenido
             </a>
           </Button>

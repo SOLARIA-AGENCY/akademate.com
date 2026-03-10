@@ -1,12 +1,12 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import ProgramacionPage from '@/app/(dashboard)/programacion/page';
+import ProgramacionPage from '@/app/(dashboard)/programacion/page'
 
 describe('ProgramacionPage', () => {
   beforeEach(() => {
     vi.mocked(global.fetch).mockImplementation((input: RequestInfo | URL) => {
-      const url = typeof input === 'string' ? input : input.toString();
+      const url = typeof input === 'string' ? input : input.toString()
 
       if (url.includes('/api/convocatorias')) {
         return Promise.resolve(
@@ -38,7 +38,7 @@ describe('ProgramacionPage', () => {
             }),
             { status: 200, headers: { 'Content-Type': 'application/json' } }
           )
-        );
+        )
       }
 
       return Promise.resolve(
@@ -46,17 +46,17 @@ describe('ProgramacionPage', () => {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         })
-      );
-    });
-  });
+      )
+    })
+  })
 
   it('renders teacher name when API returns populated instructor object', async () => {
-    render(<ProgramacionPage />);
+    render(<ProgramacionPage data-oid="212ssiu" />)
 
     await waitFor(() => {
-      expect(screen.getByText('Lucia Ortega')).toBeInTheDocument();
-    });
+      expect(screen.getByText('Lucia Ortega')).toBeInTheDocument()
+    })
 
-    expect(screen.getByText('Gestión Académica')).toBeInTheDocument();
-  });
-});
+    expect(screen.getByText('Gestión Académica')).toBeInTheDocument()
+  })
+})

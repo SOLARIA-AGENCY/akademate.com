@@ -18,5 +18,6 @@ export const Checkbox = ({
     onChange={(e) => onCheckedChange?.(e.target.checked)}
     data-testid="checkbox"
     {...props}
+    data-oid="z_up.ti"
   />
 )

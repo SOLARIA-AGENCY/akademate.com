@@ -44,77 +44,76 @@ describe('TransactionHistory', () => {
   beforeEach(() => {
     // No mocks needed
   })
-
   it('renders loading state', () => {
-    render(<TransactionHistory transactions={[]} loading={true} />)
+    render(<TransactionHistory transactions={[]} loading={true} data-oid="hu33iut" />)
     expect(screen.getByText('Historial de Transacciones')).toBeInTheDocument()
     const spinner = document.querySelector('.animate-spin')
     expect(spinner).toBeInTheDocument()
   })
 
   it('renders empty state when no transactions', () => {
-    render(<TransactionHistory transactions={[]} loading={false} />)
+    render(<TransactionHistory transactions={[]} loading={false} data-oid="apd37_x" />)
     expect(screen.getByText('Sin transacciones')).toBeInTheDocument()
     expect(screen.getByText('No hay transacciones registradas aún')).toBeInTheDocument()
   })
 
   it('renders transaction list', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="w6vypl0" />)
     expect(screen.getByText('Historial de Transacciones')).toBeInTheDocument()
     expect(screen.getByText(/Registro de pagos y transacciones \(2\)/)).toBeInTheDocument()
   })
 
   it('displays transaction description', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="60dwndj" />)
     expect(screen.getByText('Pago de suscripción mensual')).toBeInTheDocument()
   })
 
   it('displays default description when null', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="kxr4lo:" />)
     expect(screen.getByText('Pago de suscripción')).toBeInTheDocument()
   })
 
   it('renders succeeded status correctly', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="xd622g:" />)
     expect(screen.getByText('Exitoso')).toBeInTheDocument()
   })
 
   it('renders failed status correctly', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="yrgc3.w" />)
     expect(screen.getByText('Fallido')).toBeInTheDocument()
   })
 
   it('displays failure message for failed transactions', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="ii:70lb" />)
     expect(screen.getByText(/Error: Your card was declined/)).toBeInTheDocument()
   })
 
   it('does not display failure message for successful transactions', () => {
     const successOnly = [mockTransactions[0]]
-    render(<TransactionHistory transactions={successOnly} />)
+    render(<TransactionHistory transactions={successOnly} data-oid="l-volo2" />)
     expect(screen.queryByText(/Error:/)).not.toBeInTheDocument()
   })
 
   it('displays formatted date and time', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="_f3faw9" />)
     // Should show date in Spanish locale with time
     expect(screen.getByText(/15 ene\.? 2025.*10:30/i)).toBeInTheDocument()
   })
 
   it('displays formatted amount in EUR', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid=":ddmjy_" />)
     const amounts = screen.getAllByText(/299,00\s*€/)
     expect(amounts.length).toBe(2)
   })
 
   it('displays payment method type', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="l9llfaf" />)
     const methodLabels = screen.getAllByText(/Método: card/)
     expect(methodLabels.length).toBe(2)
   })
 
   it('displays truncated charge ID', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="i0po30f" />)
     expect(screen.getByText(/ID: 34567890/)).toBeInTheDocument()
     expect(screen.getByText(/ID: 87654321/)).toBeInTheDocument()
   })
@@ -125,7 +124,7 @@ describe('TransactionHistory', () => {
       id: 'txn-3',
       status: 'pending',
     }
-    render(<TransactionHistory transactions={[pendingTransaction]} />)
+    render(<TransactionHistory transactions={[pendingTransaction]} data-oid="_nc6-r_" />)
     expect(screen.getByText('Pendiente')).toBeInTheDocument()
   })
 
@@ -135,7 +134,7 @@ describe('TransactionHistory', () => {
       id: 'txn-4',
       status: 'processing',
     }
-    render(<TransactionHistory transactions={[processingTransaction]} />)
+    render(<TransactionHistory transactions={[processingTransaction]} data-oid="2d9x:li" />)
     expect(screen.getByText('Procesando')).toBeInTheDocument()
   })
 
@@ -145,7 +144,7 @@ describe('TransactionHistory', () => {
       id: 'txn-5',
       status: 'canceled',
     }
-    render(<TransactionHistory transactions={[canceledTransaction]} />)
+    render(<TransactionHistory transactions={[canceledTransaction]} data-oid="g3.n8kg" />)
     expect(screen.getByText('Cancelado')).toBeInTheDocument()
   })
 
@@ -155,25 +154,27 @@ describe('TransactionHistory', () => {
       id: 'txn-6',
       status: 'refunded',
     }
-    render(<TransactionHistory transactions={[refundedTransaction]} />)
+    render(<TransactionHistory transactions={[refundedTransaction]} data-oid="h:l1mlt" />)
     expect(screen.getByText('Reembolsado')).toBeInTheDocument()
   })
 
   it('applies hover effect to transaction rows', () => {
-    const { container } = render(<TransactionHistory transactions={mockTransactions} />)
+    const { container } = render(
+      <TransactionHistory transactions={mockTransactions} data-oid="vh45hi9" />
+    )
     const transactionRows = container.querySelectorAll('.hover\\:bg-muted\\/50')
     expect(transactionRows.length).toBeGreaterThan(0)
   })
 
   it('updates transaction count correctly', () => {
-    const { rerender } = render(<TransactionHistory transactions={mockTransactions} />)
+    const { rerender } = render(
+      <TransactionHistory transactions={mockTransactions} data-oid="b:anc5b" />
+    )
     expect(screen.getByText(/\(2\)/)).toBeInTheDocument()
 
-    const moreTransactions = [
-      ...mockTransactions,
-      { ...mockTransactions[0], id: 'txn-3' },
-    ]
-    rerender(<TransactionHistory transactions={moreTransactions} />)
+    const moreTransactions = [...mockTransactions, { ...mockTransactions[0], id: 'txn-3' }]
+
+    rerender(<TransactionHistory transactions={moreTransactions} data-oid="3yigp-n" />)
     expect(screen.getByText(/\(3\)/)).toBeInTheDocument()
   })
 
@@ -182,7 +183,7 @@ describe('TransactionHistory', () => {
       ...mockTransactions[0],
       id: `txn-${i}`,
     }))
-    render(<TransactionHistory transactions={manyTransactions} />)
+    render(<TransactionHistory transactions={manyTransactions} data-oid="ye4gjf1" />)
     expect(screen.getByText(/\(20\)/)).toBeInTheDocument()
   })
 
@@ -192,19 +193,21 @@ describe('TransactionHistory', () => {
       currency: 'USD',
       amount: 35000,
     }
-    render(<TransactionHistory transactions={[usdTransaction]} />)
+    render(<TransactionHistory transactions={[usdTransaction]} data-oid="utqs0v8" />)
     expect(screen.getByText(/350,00\s*US\$/)).toBeInTheDocument()
   })
 
   it('displays status icons correctly', () => {
-    render(<TransactionHistory transactions={mockTransactions} />)
+    render(<TransactionHistory transactions={mockTransactions} data-oid="bm7pv13" />)
     // Each transaction should have an icon
     const statusIcons = document.querySelectorAll('svg')
     expect(statusIcons.length).toBeGreaterThan(0)
   })
 
   it('applies correct color classes to status icons', () => {
-    const { container } = render(<TransactionHistory transactions={mockTransactions} />)
+    const { container } = render(
+      <TransactionHistory transactions={mockTransactions} data-oid="00dk8h9" />
+    )
     // Succeeded transaction should have green color
     expect(container.querySelector('.text-green-500')).toBeInTheDocument()
     // Failed transaction should have red color
@@ -216,7 +219,7 @@ describe('TransactionHistory', () => {
       ...mockTransactions[0],
       stripeChargeId: null,
     }
-    render(<TransactionHistory transactions={[noChargeIdTransaction]} />)
+    render(<TransactionHistory transactions={[noChargeIdTransaction]} data-oid="wdt4t-h" />)
     expect(screen.queryByText(/ID:/)).not.toBeInTheDocument()
   })
 
@@ -225,12 +228,12 @@ describe('TransactionHistory', () => {
       ...mockTransactions[0],
       amount: 123456789,
     }
-    render(<TransactionHistory transactions={[largeTransaction]} />)
+    render(<TransactionHistory transactions={[largeTransaction]} data-oid="x3gzk-m" />)
     expect(screen.getByText(/1\.234\.567,89\s*€/)).toBeInTheDocument()
   })
 
   it('displays clock icon in empty state', () => {
-    render(<TransactionHistory transactions={[]} />)
+    render(<TransactionHistory transactions={[]} data-oid="5yheoq2" />)
     expect(screen.getByText('Sin transacciones')).toBeInTheDocument()
     // Clock icon should be present
   })
@@ -241,7 +244,8 @@ describe('TransactionHistory', () => {
       { ...mockTransactions[0], id: 'txn-2', status: 'failed' },
       { ...mockTransactions[0], id: 'txn-3', status: 'pending' },
     ]
-    render(<TransactionHistory transactions={duplicateAmountTransactions} />)
+
+    render(<TransactionHistory transactions={duplicateAmountTransactions} data-oid="9zv9rpe" />)
     expect(screen.getByText('Exitoso')).toBeInTheDocument()
     expect(screen.getByText('Fallido')).toBeInTheDocument()
     expect(screen.getByText('Pendiente')).toBeInTheDocument()
@@ -252,7 +256,7 @@ describe('TransactionHistory', () => {
       ...mockTransactions[0],
       stripeChargeId: 'ch_1234567890123456',
     }
-    render(<TransactionHistory transactions={[longChargeId]} />)
+    render(<TransactionHistory transactions={[longChargeId]} data-oid="p-w_du_" />)
     expect(screen.getByText(/ID: 90123456/)).toBeInTheDocument()
   })
 })

@@ -2,7 +2,13 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
@@ -177,7 +183,9 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
 
         if (result.success && result.data) {
           // Find course by ID (convert to number if needed)
-          const course = result.data.find((c: CourseTemplate) => c.id === parseInt(id) || c.id === id)
+          const course = result.data.find(
+            (c: CourseTemplate) => c.id === parseInt(id) || c.id === id
+          )
 
           if (course) {
             setCourseTemplate(course)
@@ -235,10 +243,12 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-md">
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">Cargando curso...</p>
+      <div className="flex items-center justify-center min-h-[60vh]" data-oid="e8tepo1">
+        <Card className="w-full max-w-md" data-oid="t2pl7go">
+          <CardContent className="py-12 text-center" data-oid="5-w_ro0">
+            <p className="text-muted-foreground" data-oid="yyrlo60">
+              Cargando curso...
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -248,17 +258,17 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
   // Error or not found
   if (error || !courseTemplate) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Curso no encontrado</CardTitle>
-            <CardDescription>
+      <div className="flex items-center justify-center min-h-[60vh]" data-oid="twe5ckq">
+        <Card className="w-full max-w-md" data-oid="fqy.ezt">
+          <CardHeader data-oid="mqr.ajq">
+            <CardTitle data-oid="8rv0wwp">Curso no encontrado</CardTitle>
+            <CardDescription data-oid="z4vl5pl">
               {error ?? `El curso con ID ${id} no existe`}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button onClick={() => router.push('/cursos')}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
+          <CardContent data-oid="q1m-y:i">
+            <Button onClick={() => router.push('/cursos')} data-oid="qa44dxr">
+              <ArrowLeft className="mr-2 h-4 w-4" data-oid="nera8_-" />
               Volver a Cursos
             </Button>
           </CardContent>
@@ -329,49 +339,64 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-oid="2o0vkn-">
       <PageHeader
         title={toTitleCase(courseTemplate.nombre)}
         description="Detalle y gestión del curso"
         icon={BookOpen}
-        actions={(
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => router.push('/cursos')}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
+        actions={
+          <div className="flex items-center gap-2" data-oid="t9s2k4q">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/cursos')}
+              data-oid="-1jp6hn"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" data-oid="1t0za3d" />
               Volver
             </Button>
-            <Button variant="outline" onClick={() => router.push(`/cursos/${id}/editar`)}>
-              <Edit className="mr-2 h-4 w-4" />
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/cursos/${id}/editar`)}
+              data-oid="stbbm44"
+            >
+              <Edit className="mr-2 h-4 w-4" data-oid="8jyzcdp" />
               Editar Curso
             </Button>
-            <Button onClick={() => setIsModalOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button onClick={() => setIsModalOpen(true)} data-oid="i_itqo7">
+              <Plus className="mr-2 h-4 w-4" data-oid="oo1izbv" />
               Nueva Convocatoria
             </Button>
           </div>
-        )}
+        }
+        data-oid="dq5zcwd"
       />
 
       {/* Main Content: 2/3 + 1/3 Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" data-oid="q1qtbub">
         {/* LEFT SIDE: 2/3 - Course Information */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6" data-oid="iry5lp6">
           {/* Hero Image - Reduced height for better reading space */}
-          <Card>
-            <CardContent className="p-0">
-              <div className="relative h-56 overflow-hidden rounded-t-lg bg-muted">
+          <Card data-oid="p525z2h">
+            <CardContent className="p-0" data-oid="kwd6d8a">
+              <div
+                className="relative h-56 overflow-hidden rounded-t-lg bg-muted"
+                data-oid="wnurond"
+              >
                 {courseTemplate.imagenPortada && !heroImgError ? (
                   <img
                     src={courseTemplate.imagenPortada}
                     alt={courseTemplate.nombre}
                     className="w-full h-full object-cover"
                     onError={() => setHeroImgError(true)}
+                    data-oid="2q7ft:t"
                   />
                 ) : (
                   <img
                     src="/placeholder-course.svg?v=2"
                     alt={courseTemplate.nombre}
                     className="w-full h-full object-cover"
+                    data-oid="nbzcwzm"
                   />
                 )}
               </div>
@@ -379,114 +404,182 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
           </Card>
 
           {/* Tabs with Course Details */}
-          <Card>
-            <Tabs defaultValue="info" className="w-full">
-              <CardHeader>
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="info" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">Información</TabsTrigger>
-                  <TabsTrigger value="objetivos" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">Objetivos</TabsTrigger>
-                  <TabsTrigger value="contenidos" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">Contenidos</TabsTrigger>
-                  <TabsTrigger value="recursos" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">Recursos</TabsTrigger>
+          <Card data-oid="j-jbzo:">
+            <Tabs defaultValue="info" className="w-full" data-oid="k64gvcl">
+              <CardHeader data-oid="z9xsqyd">
+                <TabsList className="grid w-full grid-cols-4" data-oid="7zdtaav">
+                  <TabsTrigger
+                    value="info"
+                    className="data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    data-oid="9x_ba6m"
+                  >
+                    Información
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="objetivos"
+                    className="data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    data-oid="__853_-"
+                  >
+                    Objetivos
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="contenidos"
+                    className="data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    data-oid="kshszxg"
+                  >
+                    Contenidos
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="recursos"
+                    className="data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    data-oid="e40wrot"
+                  >
+                    Recursos
+                  </TabsTrigger>
                 </TabsList>
               </CardHeader>
 
-              <CardContent>
+              <CardContent data-oid="m14xk8k">
                 {/* INFO TAB */}
-                <TabsContent value="info" className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Descripción</h3>
-                    <p className="text-muted-foreground leading-relaxed">
+                <TabsContent value="info" className="space-y-6" data-oid="niotipa">
+                  <div data-oid="rluao14">
+                    <h3 className="text-lg font-semibold mb-2" data-oid="aj4-kx.">
+                      Descripción
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed" data-oid="mm4uo1o">
                       {courseTemplate.descripcion}
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-3 p-3 border rounded-lg">
-                      <Clock className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">Duración</p>
-                        <p className="font-semibold">{courseTemplate.duracionReferencia}H</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4" data-oid="xrwm8ns">
+                    <div
+                      className="flex items-center gap-3 p-3 border rounded-lg"
+                      data-oid="zdieclb"
+                    >
+                      <Clock className="h-5 w-5 text-muted-foreground" data-oid="6xi7:j2" />
+                      <div data-oid="a2tma5m">
+                        <p className="text-xs text-muted-foreground" data-oid="xcukr0f">
+                          Duración
+                        </p>
+                        <p className="font-semibold" data-oid="wc2zdz-">
+                          {courseTemplate.duracionReferencia}H
+                        </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-1 p-3 border rounded-lg">
-                      <p className="text-xs text-muted-foreground">Tipo</p>
-                      <Badge className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white w-fit`}>
+                    <div className="flex flex-col gap-1 p-3 border rounded-lg" data-oid="8afnddj">
+                      <p className="text-xs text-muted-foreground" data-oid="vh9lo0f">
+                        Tipo
+                      </p>
+                      <Badge
+                        className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-white w-fit`}
+                        data-oid="l4br7m5"
+                      >
                         {typeConfig.label}
                       </Badge>
                     </div>
 
-                    <div className="flex flex-col gap-1 p-3 border rounded-lg">
-                      <p className="text-xs text-muted-foreground">Área temática</p>
-                      <p className="font-semibold">{courseTemplate.area}</p>
+                    <div className="flex flex-col gap-1 p-3 border rounded-lg" data-oid="yrlfygc">
+                      <p className="text-xs text-muted-foreground" data-oid="cvpga-q">
+                        Área temática
+                      </p>
+                      <p className="font-semibold" data-oid="nguk1ha">
+                        {courseTemplate.area}
+                      </p>
                     </div>
                   </div>
                 </TabsContent>
 
                 {/* OBJETIVOS TAB */}
-                <TabsContent value="objetivos" className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                      <Target className="h-5 w-5" />
+                <TabsContent value="objetivos" className="space-y-4" data-oid="599kha:">
+                  <div data-oid="y.wy8x3">
+                    <h3
+                      className="text-lg font-semibold mb-3 flex items-center gap-2"
+                      data-oid="kjs-4-_"
+                    >
+                      <Target className="h-5 w-5" data-oid=":x-uooa" />
                       Objetivos del Curso
                     </h3>
-                    <ul className="space-y-2">
+                    <ul className="space-y-2" data-oid="3if2c8d">
                       {courseTemplate.objetivos?.length > 0 ? (
                         courseTemplate.objetivos.map((objetivo: string, index: number) => (
-                          <li key={index} className="flex gap-3">
-                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                          <li key={index} className="flex gap-3" data-oid=":.mn15h">
+                            <span
+                              className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold"
+                              data-oid="fo7mu15"
+                            >
                               {index + 1}
                             </span>
-                            <span className="text-muted-foreground">{objetivo}</span>
+                            <span className="text-muted-foreground" data-oid="n7g.tmt">
+                              {objetivo}
+                            </span>
                           </li>
                         ))
                       ) : (
-                        <p className="text-sm text-muted-foreground italic">No hay objetivos definidos</p>
+                        <p className="text-sm text-muted-foreground italic" data-oid="ilx7cak">
+                          No hay objetivos definidos
+                        </p>
                       )}
                     </ul>
                   </div>
                 </TabsContent>
 
                 {/* CONTENIDOS TAB */}
-                <TabsContent value="contenidos" className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                      <BookOpen className="h-5 w-5" />
+                <TabsContent value="contenidos" className="space-y-4" data-oid="hg2lww0">
+                  <div data-oid="xw8bq.:">
+                    <h3
+                      className="text-lg font-semibold mb-3 flex items-center gap-2"
+                      data-oid="c5:2frl"
+                    >
+                      <BookOpen className="h-5 w-5" data-oid="a3apv1g" />
                       Contenidos del Programa
                     </h3>
-                    <ul className="space-y-2">
+                    <ul className="space-y-2" data-oid="5mheqm4">
                       {courseTemplate.contenidos?.length > 0 ? (
                         courseTemplate.contenidos.map((contenido: string, index: number) => (
-                          <li key={index} className="flex gap-3 p-3 border rounded-lg hover:bg-accent transition-colors">
-                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-bold">
+                          <li
+                            key={index}
+                            className="flex gap-3 p-3 border rounded-lg hover:bg-accent transition-colors"
+                            data-oid="5rji03n"
+                          >
+                            <span
+                              className="flex-shrink-0 w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-bold"
+                              data-oid="icz4p31"
+                            >
                               {index + 1}
                             </span>
-                          <span>{contenido}</span>
-                        </li>
-                      ))
+                            <span data-oid="yxovfo9">{contenido}</span>
+                          </li>
+                        ))
                       ) : (
-                        <p className="text-sm text-muted-foreground italic">No hay contenidos definidos</p>
+                        <p className="text-sm text-muted-foreground italic" data-oid="4u2xnfz">
+                          No hay contenidos definidos
+                        </p>
                       )}
                     </ul>
                   </div>
                 </TabsContent>
 
                 {/* RECURSOS TAB */}
-                <TabsContent value="recursos" className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
+                <TabsContent value="recursos" className="space-y-4" data-oid="tdbo6vg">
+                  <div data-oid=".c23ia8">
+                    <h3
+                      className="text-lg font-semibold mb-3 flex items-center gap-2"
+                      data-oid="6gv.2ev"
+                    >
+                      <FileText className="h-5 w-5" data-oid="cg_-ytu" />
                       Recursos Disponibles
                     </h3>
-                    <p className="text-muted-foreground text-sm mb-4">
+                    <p className="text-muted-foreground text-sm mb-4" data-oid="r8zr02x">
                       Aquí se mostrarán los PDFs, documentos y materiales del curso
                     </p>
                     <Button
                       variant="outline"
                       className="w-full"
                       onClick={() => router.push(`/cursos/${id}/editar`)}
+                      data-oid="frixw7r"
                     >
-                      <Plus className="mr-2 h-4 w-4" />
+                      <Plus className="mr-2 h-4 w-4" data-oid="ylu.i0:" />
                       Gestionar recursos
                     </Button>
                   </div>
@@ -497,53 +590,58 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
         </div>
 
         {/* RIGHT SIDE: 1/3 - Convocations List */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center justify-between">
-                <span>Convocatorias Generadas</span>
-                <Badge variant="secondary">{courseConvocations.length}</Badge>
+        <div className="lg:col-span-1 space-y-6" data-oid="ig6.o8.">
+          <Card data-oid="3pohlap">
+            <CardHeader data-oid="7bubi62">
+              <CardTitle className="text-base flex items-center justify-between" data-oid="bqp9y0c">
+                <span data-oid="bbxixz0">Convocatorias Generadas</span>
+                <Badge variant="secondary" data-oid="gc9stm0">
+                  {courseConvocations.length}
+                </Badge>
               </CardTitle>
-              <CardDescription>
+              <CardDescription data-oid="5xjgy.l">
                 Instancias programadas de este curso
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" data-oid="okwtmel">
               {loadingConvocations ? (
-                <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">Cargando convocatorias...</p>
+                <div className="text-center py-8" data-oid="9i5enph">
+                  <p className="text-sm text-muted-foreground" data-oid="4nhhifl">
+                    Cargando convocatorias...
+                  </p>
                 </div>
               ) : courseConvocations.length === 0 ? (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground mb-4">
+                <div className="text-center py-8" data-oid="glxyupa">
+                  <Calendar
+                    className="h-12 w-12 text-muted-foreground mx-auto mb-3"
+                    data-oid="zsl6ex1"
+                  />
+                  <p className="text-sm text-muted-foreground mb-4" data-oid="6c.wnpq">
                     No hay convocatorias programadas
                   </p>
-                  <Button
-                    size="sm"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    <Plus className="mr-2 h-3 w-3" />
+                  <Button size="sm" onClick={() => setIsModalOpen(true)} data-oid="xc2ozuc">
+                    <Plus className="mr-2 h-3 w-3" data-oid="t6me0xs" />
                     Nueva Convocatoria
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4" data-oid="3mh3o3-">
                   {courseConvocations.map((convocation: Convocation) => {
                     // Calculate occupation percentage
-                    const ocupacion = convocation.plazasTotales > 0
-                      ? Math.round((convocation.plazasOcupadas / convocation.plazasTotales) * 100)
-                      : 0
+                    const ocupacion =
+                      convocation.plazasTotales > 0
+                        ? Math.round((convocation.plazasOcupadas / convocation.plazasTotales) * 100)
+                        : 0
 
                     // Map status to Spanish
                     const statusLabels: Record<ConvocationStatus, string> = {
-                      'enrollment_open': 'Inscripción Abierta',
-                      'draft': 'Borrador',
-                      'published': 'Publicada',
-                      'enrollment_closed': 'Inscripción Cerrada',
-                      'in_progress': 'En Progreso',
-                      'completed': 'Completada',
-                      'cancelled': 'Cancelada',
+                      enrollment_open: 'Inscripción Abierta',
+                      draft: 'Borrador',
+                      published: 'Publicada',
+                      enrollment_closed: 'Inscripción Cerrada',
+                      in_progress: 'En Progreso',
+                      completed: 'Completada',
+                      cancelled: 'Cancelada',
                     }
 
                     return (
@@ -551,9 +649,10 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                         key={convocation.id}
                         className="cursor-pointer hover:shadow-md transition-shadow"
                         onClick={() => handleViewConvocation(convocation.id)}
+                        data-oid="b7ivp2_"
                       >
-                        <CardContent className="p-4 space-y-2">
-                          <div className="flex items-start justify-between">
+                        <CardContent className="p-4 space-y-2" data-oid="3lvaz3f">
+                          <div className="flex items-start justify-between" data-oid="a5dp9xv">
                             <Badge
                               variant={
                                 convocation.estado === 'enrollment_open'
@@ -563,28 +662,35 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                                     : 'outline'
                               }
                               className="text-xs"
+                              data-oid="x6r9lrr"
                             >
                               {statusLabels[convocation.estado]}
                             </Badge>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-muted-foreground" data-oid=".ocj296">
                               {ocupacion}% ocupado
                             </span>
                           </div>
 
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2 text-xs">
-                              <Calendar className="h-3 w-3 text-muted-foreground" />
-                              <span>
-                                {new Date(convocation.fechaInicio).toLocaleDateString('es-ES')} - {new Date(convocation.fechaFin).toLocaleDateString('es-ES')}
+                          <div className="space-y-1" data-oid="ll5zoa.">
+                            <div className="flex items-center gap-2 text-xs" data-oid="idx:32c">
+                              <Calendar
+                                className="h-3 w-3 text-muted-foreground"
+                                data-oid="21s931t"
+                              />
+                              <span data-oid="eefcipl">
+                                {new Date(convocation.fechaInicio).toLocaleDateString('es-ES')} -{' '}
+                                {new Date(convocation.fechaFin).toLocaleDateString('es-ES')}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 text-xs">
-                              <Clock className="h-3 w-3 text-muted-foreground" />
-                              <span>{convocation.horario ?? 'Sin horario definido'}</span>
+                            <div className="flex items-center gap-2 text-xs" data-oid="v94rs8t">
+                              <Clock className="h-3 w-3 text-muted-foreground" data-oid="jg6qjr." />
+                              <span data-oid="z8gz4_l">
+                                {convocation.horario ?? 'Sin horario definido'}
+                              </span>
                             </div>
-                            <div className="flex items-center gap-2 text-xs">
-                              <Users className="h-3 w-3 text-muted-foreground" />
-                              <span>
+                            <div className="flex items-center gap-2 text-xs" data-oid="ynrq2rs">
+                              <Users className="h-3 w-3 text-muted-foreground" data-oid="0p32gbu" />
+                              <span data-oid="g1ps1.j">
                                 {convocation.plazasOcupadas}/{convocation.plazasTotales} plazas
                               </span>
                             </div>
@@ -606,6 +712,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
         onOpenChange={setIsModalOpen}
         courseTemplate={courseTemplateForModal}
         onSubmit={handleCreateConvocation}
+        data-oid="zxu4k.t"
       />
     </div>
   )

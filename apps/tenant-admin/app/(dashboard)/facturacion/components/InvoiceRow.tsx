@@ -57,23 +57,32 @@ export function InvoiceRow({ invoice, onDownload, onView }: InvoiceRowProps) {
   }
 
   return (
-    <tr className="border-b transition-colors hover:bg-muted/50">
-      <td className="p-4 font-medium">{invoice.number}</td>
-      <td className="p-4">{formatDate(invoice.createdAt)}</td>
-      <td className="p-4">
-        <Badge variant={status.variant}>{status.label}</Badge>
+    <tr className="border-b transition-colors hover:bg-muted/50" data-oid="rhhwl:7">
+      <td className="p-4 font-medium" data-oid="zak95c9">
+        {invoice.number}
       </td>
-      <td className="p-4 font-semibold">{formatAmount(invoice.total)}</td>
-      <td className="p-4">
-        <div className="flex items-center gap-2">
+      <td className="p-4" data-oid="70ybk00">
+        {formatDate(invoice.createdAt)}
+      </td>
+      <td className="p-4" data-oid="9afoq5n">
+        <Badge variant={status.variant} data-oid="tlzxgqe">
+          {status.label}
+        </Badge>
+      </td>
+      <td className="p-4 font-semibold" data-oid="kyt-yzz">
+        {formatAmount(invoice.total)}
+      </td>
+      <td className="p-4" data-oid="mu_cddn">
+        <div className="flex items-center gap-2" data-oid="lwdp7sv">
           {invoice.invoicePdfUrl && (
             <Button
               size="sm"
               variant="outline"
               onClick={() => onDownload?.(invoice)}
               className="gap-2"
+              data-oid="44.ios."
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-4 w-4" data-oid="gzn833f" />
               PDF
             </Button>
           )}
@@ -83,8 +92,9 @@ export function InvoiceRow({ invoice, onDownload, onView }: InvoiceRowProps) {
               variant="ghost"
               onClick={() => onView?.(invoice)}
               className="gap-2"
+              data-oid="zk3xe3r"
             >
-              <ExternalLink className="h-4 w-4" />
+              <ExternalLink className="h-4 w-4" data-oid="nyl5ld:" />
               Ver
             </Button>
           )}

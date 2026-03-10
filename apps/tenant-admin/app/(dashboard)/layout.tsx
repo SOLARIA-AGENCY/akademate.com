@@ -57,11 +57,7 @@ const shortcuts: ShortcutItem[] = [
   { label: 'Configuración', href: '/configuracion' },
 ]
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { branding } = useTenantBranding()
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -89,12 +85,13 @@ export default function DashboardLayout({
         if (!payload.authenticated || !user?.email) return
 
         const displayName = user.name?.trim() || user.email
-        const initials = displayName
-          .split(' ')
-          .filter(Boolean)
-          .slice(0, 2)
-          .map((part) => part[0]?.toUpperCase() ?? '')
-          .join('') || 'AU'
+        const initials =
+          displayName
+            .split(' ')
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part) => part[0]?.toUpperCase() ?? '')
+            .join('') || 'AU'
 
         setCurrentUser((prev) => ({
           ...prev,
@@ -113,7 +110,9 @@ export default function DashboardLayout({
   const filteredShortcuts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
     if (!query) return shortcuts.slice(0, 6)
-    return shortcuts.filter((item) => item.label.toLowerCase().includes(query) || item.href.includes(query))
+    return shortcuts.filter(
+      (item) => item.label.toLowerCase().includes(query) || item.href.includes(query)
+    )
   }, [searchQuery])
 
   const goToShortcut = (href: string) => {
@@ -129,16 +128,21 @@ export default function DashboardLayout({
   }
 
   return (
-    <RealtimeProvider tenantId={1}>
-      <div className="flex h-screen overflow-hidden bg-background text-foreground overscroll-none">
+    <RealtimeProvider tenantId={1} data-oid="xrr6i5x">
+      <div
+        className="flex h-screen overflow-hidden bg-background text-foreground overscroll-none"
+        data-oid="dq:3ws5"
+      >
         <aside
           className={`fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 ${
             sidebarOpen ? 'w-[240px]' : 'w-[80px]'
           }`}
+          data-oid="044wu:-"
         >
           <AppSidebar
             isCollapsed={!sidebarOpen}
             onToggle={() => setSidebarOpen(!sidebarOpen)}
+            data-oid="lb_jqia"
           />
         </aside>
 
@@ -146,15 +150,21 @@ export default function DashboardLayout({
           className={`flex-1 flex flex-col transition-all duration-300 ${
             sidebarOpen ? 'ml-[240px]' : 'ml-[80px]'
           }`}
+          data-oid="asfyqnr"
         >
-          <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6">
-            <div className="flex items-center gap-3 pr-4">
-            </div>
+          <header
+            className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6"
+            data-oid="oy8tn.c"
+          >
+            <div className="flex items-center gap-3 pr-4" data-oid="w2r2vqk"></div>
 
-            <div className="flex-1 max-w-md">
-              <div className="relative hidden lg:block">
-                <form onSubmit={handleSearchSubmit}>
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <div className="flex-1 max-w-md" data-oid="38sqxrv">
+              <div className="relative hidden lg:block" data-oid="37i3m-d">
+                <form onSubmit={handleSearchSubmit} data-oid="g45:h35">
+                  <Search
+                    className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground"
+                    data-oid="5gapg5:"
+                  />
                   <Input
                     type="search"
                     placeholder="Buscar sección..."
@@ -165,11 +175,15 @@ export default function DashboardLayout({
                     }}
                     onChange={(event) => setSearchQuery(event.target.value)}
                     className="w-full pl-8 bg-background/60 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    data-oid="03n16gh"
                   />
                 </form>
 
                 {searchOpen && (
-                  <div className="absolute left-0 right-0 top-11 z-50 rounded-md border bg-popover p-1 shadow-md">
+                  <div
+                    className="absolute left-0 right-0 top-11 z-50 rounded-md border bg-popover p-1 shadow-md"
+                    data-oid="8q4-tbc"
+                  >
                     {filteredShortcuts.length > 0 ? (
                       filteredShortcuts.slice(0, 6).map((item) => (
                         <button
@@ -177,83 +191,128 @@ export default function DashboardLayout({
                           type="button"
                           onMouseDown={() => goToShortcut(item.href)}
                           className="flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-sm hover:bg-accent"
+                          data-oid="lyvogvu"
                         >
-                          <span>{item.label}</span>
-                          <span className="text-xs text-muted-foreground">{item.href}</span>
+                          <span data-oid="tks9og7">{item.label}</span>
+                          <span className="text-xs text-muted-foreground" data-oid="oowdwwx">
+                            {item.href}
+                          </span>
                         </button>
                       ))
                     ) : (
-                      <p className="px-3 py-2 text-sm text-muted-foreground">Sin resultados</p>
+                      <p className="px-3 py-2 text-sm text-muted-foreground" data-oid="7e56m0c">
+                        Sin resultados
+                      </p>
                     )}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 ml-auto">
-              <ThemeToggle />
+            <div className="flex items-center justify-end gap-2 ml-auto" data-oid="4sbbb:o">
+              <ThemeToggle data-oid="87ssh43" />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute right-1 top-1 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              <DropdownMenu data-oid="i4:5xw_">
+                <DropdownMenuTrigger asChild data-oid="8m6zfpu">
+                  <Button variant="ghost" size="icon" className="relative" data-oid="6vshh.5">
+                    <Bell className="h-5 w-5" data-oid="qwj5..s" />
+                    <span className="absolute right-1 top-1 flex h-2 w-2" data-oid="a06hb5m">
+                      <span
+                        className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"
+                        data-oid="qa7w7sm"
+                      ></span>
+                      <span
+                        className="relative inline-flex rounded-full h-2 w-2 bg-primary"
+                        data-oid="24t0ba."
+                      ></span>
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-72">
-                  <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="flex-col items-start">
-                    <span className="font-medium">Sistema operativo</span>
-                    <span className="text-xs text-muted-foreground">Sin alertas críticas activas</span>
+                <DropdownMenuContent align="end" className="w-72" data-oid="0sv:9af">
+                  <DropdownMenuLabel data-oid="fia5phk">Notificaciones</DropdownMenuLabel>
+                  <DropdownMenuSeparator data-oid="47hmvch" />
+                  <DropdownMenuItem className="flex-col items-start" data-oid="wpd84l4">
+                    <span className="font-medium" data-oid="mn-sz9f">
+                      Sistema operativo
+                    </span>
+                    <span className="text-xs text-muted-foreground" data-oid="3:t92hx">
+                      Sin alertas críticas activas
+                    </span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="flex-col items-start">
-                    <span className="font-medium">Inscripciones LMS</span>
-                    <span className="text-xs text-muted-foreground">Revisa inscripciones recientes en Campus Virtual</span>
+                  <DropdownMenuItem className="flex-col items-start" data-oid="3_y4wk-">
+                    <span className="font-medium" data-oid="q2.pdks">
+                      Inscripciones LMS
+                    </span>
+                    <span className="text-xs text-muted-foreground" data-oid="z9:pbqw">
+                      Revisa inscripciones recientes en Campus Virtual
+                    </span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="gap-2">
-                    <Avatar className="h-8 w-8">
+              <DropdownMenu data-oid="lv2e625">
+                <DropdownMenuTrigger asChild data-oid="i8a8l:y">
+                  <Button variant="ghost" className="gap-2" data-oid="_cuht:m">
+                    <Avatar className="h-8 w-8" data-oid="axy-fl-">
                       {currentUser.avatar ? (
-                        <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+                        <AvatarImage
+                          src={currentUser.avatar}
+                          alt={currentUser.name}
+                          data-oid=".s8oaov"
+                        />
                       ) : null}
-                      <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
+                      <AvatarFallback
+                        className="bg-primary text-primary-foreground text-sm font-semibold"
+                        data-oid="xcvdnw_"
+                      >
                         {currentUser.initials}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden md:inline-block font-semibold text-foreground">
+                    <span
+                      className="hidden md:inline-block font-semibold text-foreground"
+                      data-oid="3i0gou8"
+                    >
                       {currentUser.name}
                     </span>
-                    <Badge variant="secondary" className="hidden xl:inline-flex text-[10px]">Admin</Badge>
+                    <Badge
+                      variant="secondary"
+                      className="hidden xl:inline-flex text-[10px]"
+                      data-oid="bprzsty"
+                    >
+                      Admin
+                    </Badge>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{currentUser.name}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{currentUser.email}</p>
+                <DropdownMenuContent align="end" className="w-56" data-oid="7_b7obl">
+                  <DropdownMenuLabel data-oid="zf2aajg">
+                    <div className="flex flex-col space-y-1" data-oid="__0-x6n">
+                      <p className="text-sm font-medium leading-none" data-oid="jl.n:19">
+                        {currentUser.name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground" data-oid="r6zges4">
+                        {currentUser.email}
+                      </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push('/perfil')}>
+                  <DropdownMenuSeparator data-oid="ih2ongq" />
+                  <DropdownMenuItem onClick={() => router.push('/perfil')} data-oid="io63_4s">
                     Perfil
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/configuracion')}>
+                  <DropdownMenuItem
+                    onClick={() => router.push('/configuracion')}
+                    data-oid="eyvl1.a"
+                  >
                     Configuración
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator data-oid=":nc4rud" />
                   <DropdownMenuItem
                     onClick={async (e: React.MouseEvent<HTMLDivElement>) => {
                       e.preventDefault()
                       try {
-                        await fetch('/api/auth/session', { method: 'DELETE', credentials: 'include' })
+                        await fetch('/api/auth/session', {
+                          method: 'DELETE',
+                          credentials: 'include',
+                        })
                         await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
                         router.push('/auth/login')
                         router.refresh()
@@ -261,6 +320,7 @@ export default function DashboardLayout({
                         console.error('Logout error:', error)
                       }
                     }}
+                    data-oid="et-g84s"
                   >
                     Cerrar sesión
                   </DropdownMenuItem>
@@ -269,12 +329,14 @@ export default function DashboardLayout({
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto overscroll-contain p-4 md:p-6">{children}</main>
+          <main className="flex-1 overflow-y-auto overscroll-contain p-4 md:p-6" data-oid="20tk9nh">
+            {children}
+          </main>
 
-          <DashboardFooter />
+          <DashboardFooter data-oid="jsy7wdn" />
         </div>
 
-        <ChatbotWidget />
+        <ChatbotWidget data-oid="2282j28" />
       </div>
     </RealtimeProvider>
   )

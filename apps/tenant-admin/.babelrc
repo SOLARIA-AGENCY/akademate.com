@@ -1,0 +1,9 @@
+{
+  "presets": ["next/babel"],
+  "overrides": [
+    {
+      "exclude": ["**/node_modules/**", "node_modules"],
+      "plugins": ["@onlook/babel-plugin-react"]
+    }
+  ]
+}

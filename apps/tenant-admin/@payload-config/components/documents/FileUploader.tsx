@@ -83,7 +83,7 @@ export function FileUploader({
       }
 
       // Type check
-      const isAccepted = accept.some(pattern => {
+      const isAccepted = accept.some((pattern) => {
         if (pattern.endsWith('/*')) {
           return file.type.startsWith(pattern.replace('/*', '/'))
         }
@@ -106,7 +106,7 @@ export function FileUploader({
       if (folder) formData.append('folder', folder)
 
       try {
-        setUploads(prev =>
+        setUploads((prev) =>
           prev.map((u, i) => (i === index ? { ...u, status: 'uploading', progress: 0 } : u))
         )
 
@@ -122,7 +122,7 @@ export function FileUploader({
 
         const result = await response.json()
 
-        setUploads(prev =>
+        setUploads((prev) =>
           prev.map((u, i) =>
             i === index ? { ...u, status: 'complete', progress: 100, result } : u
           )
@@ -131,10 +131,8 @@ export function FileUploader({
         return result
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-        setUploads(prev =>
-          prev.map((u, i) =>
-            i === index ? { ...u, status: 'error', error: errorMessage } : u
-          )
+        setUploads((prev) =>
+          prev.map((u, i) => (i === index ? { ...u, status: 'error', error: errorMessage } : u))
         )
         return null
       }
@@ -162,13 +160,13 @@ export function FileUploader({
       if (validFiles.length === 0) return
 
       // Initialize upload progress
-      const newUploads: UploadProgress[] = validFiles.map(file => ({
+      const newUploads: UploadProgress[] = validFiles.map((file) => ({
         file,
         progress: 0,
         status: 'pending',
       }))
 
-      setUploads(prev => [...prev, ...newUploads])
+      setUploads((prev) => [...prev, ...newUploads])
 
       // Upload files
       const startIndex = uploads.length
@@ -226,15 +224,15 @@ export function FileUploader({
   )
 
   const clearCompleted = useCallback(() => {
-    setUploads(prev => prev.filter(u => u.status !== 'complete'))
+    setUploads((prev) => prev.filter((u) => u.status !== 'complete'))
   }, [])
 
   const removeUpload = useCallback((index: number) => {
-    setUploads(prev => prev.filter((_, i) => i !== index))
+    setUploads((prev) => prev.filter((_, i) => i !== index))
   }, [])
 
   return (
-    <div className={className}>
+    <div className={className} data-oid=":vb-ysy">
       {/* Drop zone */}
       <div
         onDragEnter={handleDragEnter}
@@ -251,6 +249,7 @@ export function FileUploader({
               : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/50'
           }
         `}
+        data-oid="bt2cj_z"
       >
         <input
           ref={fileInputRef}
@@ -259,19 +258,22 @@ export function FileUploader({
           accept={accept.join(',')}
           onChange={handleFileSelect}
           className="hidden"
+          data-oid=".5e7o3j"
         />
 
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div className="text-4xl">{isDragging ? '📥' : '📤'}</div>
-          <div>
-            <p className="font-medium">
+        <div className="flex flex-col items-center gap-3 text-center" data-oid="kpi4rys">
+          <div className="text-4xl" data-oid="ou16mgj">
+            {isDragging ? '📥' : '📤'}
+          </div>
+          <div data-oid="9b4wu55">
+            <p className="font-medium" data-oid="3rl1cvf">
               {isDragging ? 'Suelta los archivos aqui' : 'Arrastra archivos aqui'}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground" data-oid="_bss59q">
               o haz clic para seleccionar
             </p>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground" data-oid="b5:s9wp">
             Max {maxSize}MB por archivo. Hasta {maxFiles} archivos.
           </p>
         </div>
@@ -279,13 +281,16 @@ export function FileUploader({
 
       {/* Upload progress list */}
       {uploads.length > 0 && (
-        <div className="mt-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium">Archivos</h4>
-            {uploads.some(u => u.status === 'complete') && (
+        <div className="mt-4 space-y-2" data-oid="gnsnb_g">
+          <div className="flex items-center justify-between" data-oid="w29ty38">
+            <h4 className="text-sm font-medium" data-oid="ao4lm93">
+              Archivos
+            </h4>
+            {uploads.some((u) => u.status === 'complete') && (
               <button
                 onClick={clearCompleted}
                 className="text-xs text-muted-foreground hover:text-foreground"
+                data-oid="d6lbrdo"
               >
                 Limpiar completados
               </button>
@@ -296,43 +301,62 @@ export function FileUploader({
             <div
               key={`${upload.file.name}-${index}`}
               className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
+              data-oid="we6.ck0"
             >
-              <span className="text-2xl">{getFileIcon(upload.file.type)}</span>
+              <span className="text-2xl" data-oid="lvsfqfv">
+                {getFileIcon(upload.file.type)}
+              </span>
 
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{upload.file.name}</p>
-                <p className="text-xs text-muted-foreground">
+              <div className="min-w-0 flex-1" data-oid="981gwoo">
+                <p className="truncate text-sm font-medium" data-oid="n7gv7.x">
+                  {upload.file.name}
+                </p>
+                <p className="text-xs text-muted-foreground" data-oid="5sns9q:">
                   {formatFileSize(upload.file.size)}
                 </p>
 
                 {upload.status === 'uploading' && (
-                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="mt-1 h-1 overflow-hidden rounded-full bg-muted"
+                    data-oid="4tbx012"
+                  >
                     <div
                       className="h-full bg-primary transition-all"
                       style={{ width: `${upload.progress}%` }}
+                      data-oid="kc29ybg"
                     />
                   </div>
                 )}
 
                 {upload.status === 'error' && (
-                  <p className="mt-1 text-xs text-destructive">{upload.error}</p>
+                  <p className="mt-1 text-xs text-destructive" data-oid="egb4tlu">
+                    {upload.error}
+                  </p>
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" data-oid="1nh:iug">
                 {upload.status === 'uploading' && (
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <div
+                    className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"
+                    data-oid="li4_i.m"
+                  />
                 )}
                 {upload.status === 'complete' && (
-                  <span className="text-lg text-green-500">✓</span>
+                  <span className="text-lg text-green-500" data-oid="d180a.v">
+                    ✓
+                  </span>
                 )}
                 {upload.status === 'error' && (
-                  <span className="text-lg text-destructive">✗</span>
+                  <span className="text-lg text-destructive" data-oid="jxieb78">
+                    ✗
+                  </span>
                 )}
                 {upload.status !== 'uploading' && (
                   <button
                     onClick={() => removeUpload(index)}
                     className="text-muted-foreground hover:text-destructive"
+                    data-oid="5by75mz"
                   >
                     ✕
                   </button>

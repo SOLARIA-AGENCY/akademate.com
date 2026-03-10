@@ -25,7 +25,16 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { traducirEstado } from '@payload-config/lib/estados'
 import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 import { useDashboardMetrics } from '@payload-config/hooks'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 
@@ -143,8 +152,13 @@ export default function DashboardPage() {
   // Use the combined hook for initial fetch + real-time updates
   // Type assertion required as TypeScript cannot resolve types through path alias
   const { branding } = useTenantBranding()
-  const tenantId = parseInt(branding.tenantId, 10) || parseInt(process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2', 10)
-  const hookResult: UseDashboardMetricsResult = useDashboardMetrics({ tenantId, enableRealtime: true }) as UseDashboardMetricsResult
+  const tenantId =
+    parseInt(branding.tenantId, 10) ||
+    parseInt(process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2', 10)
+  const hookResult: UseDashboardMetricsResult = useDashboardMetrics({
+    tenantId,
+    enableRealtime: true,
+  }) as UseDashboardMetricsResult
   const { data, loading, error, isConnected } = hookResult
 
   const [lmsSummary, setLmsSummary] = useState<LmsSummary>({
@@ -180,7 +194,8 @@ export default function DashboardPage() {
       const completedCount = enrollments.filter(
         (item) => (item.progress?.percent ?? 0) >= 100 || item.status === 'completed'
       ).length
-      const completionRate = enrollments.length > 0 ? Math.round((completedCount / enrollments.length) * 100) : 0
+      const completionRate =
+        enrollments.length > 0 ? Math.round((completedCount / enrollments.length) * 100) : 0
 
       setLmsSummary({
         totalEnrollments: enrollments.length,
@@ -246,10 +261,12 @@ export default function DashboardPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Cargando métricas del dashboard...</p>
+      <div className="flex items-center justify-center h-96" data-oid="vk.x.j2">
+        <div className="text-center space-y-4" data-oid="o8:n.yc">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" data-oid="kwj0duj" />
+          <p className="text-muted-foreground" data-oid="9en21sh">
+            Cargando métricas del dashboard...
+          </p>
         </div>
       </div>
     )
@@ -258,14 +275,19 @@ export default function DashboardPage() {
   // Error state
   if (error) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Card className="max-w-md">
-          <CardContent className="pt-6 text-center space-y-4">
-            <p className="text-destructive font-semibold">Error al cargar dashboard</p>
-            <p className="text-sm text-muted-foreground">{error.message}</p>
+      <div className="flex items-center justify-center h-96" data-oid="whcoip2">
+        <Card className="max-w-md" data-oid="wj55d45">
+          <CardContent className="pt-6 text-center space-y-4" data-oid="qe-_ke3">
+            <p className="text-destructive font-semibold" data-oid="ep:o68y">
+              Error al cargar dashboard
+            </p>
+            <p className="text-sm text-muted-foreground" data-oid="4jbulqb">
+              {error.message}
+            </p>
             <button
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              data-oid="cuj-a3y"
             >
               Reintentar
             </button>
@@ -276,31 +298,46 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-oid="re7drx3">
       <PageHeader
         title="Dashboard"
         description={`Vista general de la operativa de ${branding.academyName}`}
-        badge={(
-          <Badge variant={isConnected ? 'default' : 'outline'} className="text-xs">
+        badge={
+          <Badge
+            variant={isConnected ? 'default' : 'outline'}
+            className="text-xs"
+            data-oid="tnbqb:6"
+          >
             {isConnected ? 'En vivo' : 'Sin conexión'}
           </Badge>
-        )}
+        }
+        data-oid="qqq2bhb"
       />
 
       {/* Primera línea de KPIs */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
+      <div
+        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
+        data-oid="gtfb5.8"
+      >
         {primaryKpis.map((kpi) => {
           const Icon = kpi.icon
           return (
-            <Card key={kpi.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{kpi.title}</CardTitle>
-                <div className="rounded-full bg-primary/10 p-1.5">
-                  <Icon className="h-4 w-4 text-primary" />
+            <Card key={kpi.title} data-oid="2vutiv1">
+              <CardHeader
+                className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
+                data-oid="c0g4t-7"
+              >
+                <CardTitle className="text-sm font-medium text-muted-foreground" data-oid=":dyjg58">
+                  {kpi.title}
+                </CardTitle>
+                <div className="rounded-full bg-primary/10 p-1.5" data-oid="m2mi0bx">
+                  <Icon className="h-4 w-4 text-primary" data-oid=".uig.-." />
                 </div>
               </CardHeader>
-              <CardContent className="p-4 pt-1">
-                <div className="text-2xl font-bold">{kpi.value}</div>
+              <CardContent className="p-4 pt-1" data-oid="owkmxd3">
+                <div className="text-2xl font-bold" data-oid="1os:j:d">
+                  {kpi.value}
+                </div>
               </CardContent>
             </Card>
           )
@@ -308,19 +345,29 @@ export default function DashboardPage() {
       </div>
 
       {/* Segunda línea de KPIs */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
+      <div
+        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
+        data-oid="j786_4e"
+      >
         {secondaryKpis.map((kpi) => {
           const Icon = kpi.icon
           return (
-            <Card key={kpi.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{kpi.title}</CardTitle>
-                <div className="rounded-full bg-primary/10 p-1.5">
-                  <Icon className="h-4 w-4 text-primary" />
+            <Card key={kpi.title} data-oid="cy2berj">
+              <CardHeader
+                className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
+                data-oid="6ufjv33"
+              >
+                <CardTitle className="text-sm font-medium text-muted-foreground" data-oid=".xo8cz5">
+                  {kpi.title}
+                </CardTitle>
+                <div className="rounded-full bg-primary/10 p-1.5" data-oid="l-ernu4">
+                  <Icon className="h-4 w-4 text-primary" data-oid="02t67q_" />
                 </div>
               </CardHeader>
-              <CardContent className="p-4 pt-1">
-                <div className="text-2xl font-bold">{kpi.value}</div>
+              <CardContent className="p-4 pt-1" data-oid="888c_ox">
+                <div className="text-2xl font-bold" data-oid="m2fulny">
+                  {kpi.value}
+                </div>
               </CardContent>
             </Card>
           )
@@ -328,47 +375,69 @@ export default function DashboardPage() {
       </div>
 
       {/* Integración Campus Virtual */}
-      <Card>
-        <CardHeader className="flex flex-row items-start justify-between">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-primary" />
+      <Card data-oid="22e-.p_">
+        <CardHeader className="flex flex-row items-start justify-between" data-oid="bxh2a5d">
+          <div className="space-y-1" data-oid="7m3524m">
+            <CardTitle className="flex items-center gap-2" data-oid="ijt.71:">
+              <GraduationCap className="h-5 w-5 text-primary" data-oid="xhzaqjw" />
               Campus Virtual Integrado
             </CardTitle>
-            <CardDescription>
+            <CardDescription data-oid="c-cqodn">
               Estado operativo LMS y accesos directos desde el dashboard principal.
             </CardDescription>
           </div>
-          <Badge variant="outline" className="pointer-events-none cursor-default">
+          <Badge
+            variant="outline"
+            className="pointer-events-none cursor-default"
+            data-oid="v-oil83"
+          >
             Campus Virtual
           </Badge>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground">Inscripciones LMS</p>
-              <p className="text-2xl font-bold">{lmsSummary.totalEnrollments}</p>
+        <CardContent className="space-y-4" data-oid="zfclf:d">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-oid="n--3jcr">
+            <div className="rounded-lg border p-3" data-oid="t3px523">
+              <p className="text-xs text-muted-foreground" data-oid="62uhw6-">
+                Inscripciones LMS
+              </p>
+              <p className="text-2xl font-bold" data-oid="uo6us2f">
+                {lmsSummary.totalEnrollments}
+              </p>
             </div>
-            <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground">Activas</p>
-              <p className="text-2xl font-bold">{lmsSummary.activeEnrollments}</p>
+            <div className="rounded-lg border p-3" data-oid="64gsznz">
+              <p className="text-xs text-muted-foreground" data-oid="_k414kp">
+                Activas
+              </p>
+              <p className="text-2xl font-bold" data-oid="88xrs41">
+                {lmsSummary.activeEnrollments}
+              </p>
             </div>
-            <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground">Finalización</p>
-              <p className="text-2xl font-bold">{lmsSummary.completionRate}%</p>
+            <div className="rounded-lg border p-3" data-oid=":4az6dv">
+              <p className="text-xs text-muted-foreground" data-oid="skdtj.8">
+                Finalización
+              </p>
+              <p className="text-2xl font-bold" data-oid="1di0wxr">
+                {lmsSummary.completionRate}%
+              </p>
             </div>
-            <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground">Certificados</p>
-              <p className="text-2xl font-bold">{lmsSummary.certificatesIssued}</p>
+            <div className="rounded-lg border p-3" data-oid="326ricc">
+              <p className="text-xs text-muted-foreground" data-oid="kknaejh">
+                Certificados
+              </p>
+              <p className="text-2xl font-bold" data-oid="qyo8ot1">
+                {lmsSummary.certificatesIssued}
+              </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm">
-              <a href="/campus-virtual">Abrir módulo Campus</a>
+          <div className="flex flex-wrap gap-2" data-oid="13852wt">
+            <Button asChild size="sm" data-oid="g_h72m:">
+              <a href="/campus-virtual" data-oid="i2825fj">
+                Abrir módulo Campus
+              </a>
             </Button>
-            <Button asChild variant="outline" size="sm">
-              <a href="/campus/login" target="_blank" rel="noreferrer">
+            <Button asChild variant="outline" size="sm" data-oid="58p91m_">
+              <a href="/campus/login" target="_blank" rel="noreferrer" data-oid="3-295vh">
                 Ir al Campus alumno
               </a>
             </Button>
@@ -376,33 +445,40 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2" data-oid="80103c1">
         {/* Próximas Convocatorias */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Próximas Convocatorias</CardTitle>
-            <CardDescription>Cursos programados en los próximos meses</CardDescription>
+        <Card data-oid="mahxjkj">
+          <CardHeader data-oid="1smon18">
+            <CardTitle data-oid="k-9p4r5">Próximas Convocatorias</CardTitle>
+            <CardDescription data-oid="wlp33:b">
+              Cursos programados en los próximos meses
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent data-oid="_cqso::">
             {convocations.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-4" data-oid=".z-3fy7">
                 {convocations.slice(0, 5).map((conv: Convocation) => (
                   <div
                     key={conv.id}
                     className="flex items-center justify-between border-b pb-2 last:border-0"
+                    data-oid="67xx1nc"
                   >
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">{conv.course_title}</p>
-                      <p className="text-xs text-muted-foreground">{conv.campus_name}</p>
-                      <p className="text-xs text-muted-foreground">
+                    <div className="space-y-1" data-oid="pvyu5da">
+                      <p className="text-sm font-medium leading-none" data-oid=".bt2x8h">
+                        {conv.course_title}
+                      </p>
+                      <p className="text-xs text-muted-foreground" data-oid="l19a-ut">
+                        {conv.campus_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground" data-oid="azt2avg">
                         {new Date(conv.start_date).toLocaleDateString('es-ES')}
                       </p>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <Badge variant={traducirEstado(conv.status).variant}>
+                    <div className="flex flex-col items-end gap-2" data-oid="smqcdf2">
+                      <Badge variant={traducirEstado(conv.status).variant} data-oid="e-z94il">
                         {traducirEstado(conv.status).label}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground" data-oid="x.4n2xe">
                         {conv.enrolled}/{conv.capacity_max} plazas
                       </span>
                     </div>
@@ -410,7 +486,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8" data-oid="ac9pjtq">
                 No hay convocatorias programadas
               </p>
             )}
@@ -418,36 +494,41 @@ export default function DashboardPage() {
         </Card>
 
         {/* Campañas Activas */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Campañas de Marketing</CardTitle>
-            <CardDescription>Rendimiento de campañas publicitarias</CardDescription>
+        <Card data-oid="z7ypsgw">
+          <CardHeader data-oid="tf1:7kz">
+            <CardTitle data-oid="2ut3hrz">Campañas de Marketing</CardTitle>
+            <CardDescription data-oid="o4p_.dj">
+              Rendimiento de campañas publicitarias
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent data-oid="o7dkw5i">
             {campaigns.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-4" data-oid=":gr7n06">
                 {campaigns.slice(0, 5).map((campaign: Campaign) => (
                   <div
                     key={campaign.id}
                     className="flex items-center justify-between border-b pb-2 last:border-0"
+                    data-oid="qtaxg9z"
                   >
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">{campaign.name}</p>
-                      <p className="text-xs text-muted-foreground">
+                    <div className="space-y-1" data-oid="gc41tyn">
+                      <p className="text-sm font-medium leading-none" data-oid="fb0m7.4">
+                        {campaign.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground" data-oid="37i.2g0">
                         {campaign.leads_generated} leads • {campaign.conversion_rate}% conversión
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground" data-oid=".6p686f">
                         {campaign.cost_per_lead.toFixed(2)}€ por lead
                       </p>
                     </div>
-                    <Badge variant={traducirEstado(campaign.status).variant}>
+                    <Badge variant={traducirEstado(campaign.status).variant} data-oid="hyb0psg">
                       {traducirEstado(campaign.status).label}
                     </Badge>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8" data-oid="vwf4d0m">
                 No hay campañas configuradas
               </p>
             )}
@@ -456,30 +537,41 @@ export default function DashboardPage() {
       </div>
 
       {/* New Blocks Row 1: Activity Timeline + Activity Chart */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2" data-oid="fy2n-p0">
         {/* Actividad Reciente */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Actividad Reciente</CardTitle>
-            <CardDescription>Últimos eventos del sistema</CardDescription>
+        <Card data-oid="gyr4u6s">
+          <CardHeader data-oid="_1yx95t">
+            <CardTitle data-oid="yy10ure">Actividad Reciente</CardTitle>
+            <CardDescription data-oid="fb_-r1-">Últimos eventos del sistema</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent data-oid="ds2gh4z">
             {recentActivities.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-3" data-oid="4dur1yy">
                 {recentActivities.map((activity, idx) => (
-                  <div key={idx} className="flex items-start gap-3 border-b pb-3 last:border-0 last:pb-0">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <Clock className="h-4 w-4 text-primary" />
+                  <div
+                    key={idx}
+                    className="flex items-start gap-3 border-b pb-3 last:border-0 last:pb-0"
+                    data-oid="km06da7"
+                  >
+                    <div
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10"
+                      data-oid="bv5c4xc"
+                    >
+                      <Clock className="h-4 w-4 text-primary" data-oid="j9.3iof" />
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none">{activity.title}</p>
-                      <p className="text-xs text-muted-foreground">{activity.entity_name}</p>
-                      <p className="text-xs text-muted-foreground">
+                    <div className="flex-1 space-y-1" data-oid="852sqx:">
+                      <p className="text-sm font-medium leading-none" data-oid="36mp1xz">
+                        {activity.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground" data-oid="th0qltd">
+                        {activity.entity_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground" data-oid="d0i02-m">
                         {new Date(activity.timestamp).toLocaleDateString('es-ES', {
                           day: 'numeric',
                           month: 'short',
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
                         })}
                       </p>
                     </div>
@@ -487,7 +579,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8" data-oid="v:7wdlj">
                 No hay actividad reciente
               </p>
             )}
@@ -495,37 +587,60 @@ export default function DashboardPage() {
         </Card>
 
         {/* Gráfico de Actividad Mensual */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Actividad Mensual</CardTitle>
-            <CardDescription>Últimas 4 semanas</CardDescription>
+        <Card data-oid="3-_roh9">
+          <CardHeader data-oid="0xkikx0">
+            <CardTitle data-oid="rd.i6fv">Actividad Mensual</CardTitle>
+            <CardDescription data-oid="h-f:ic6">Últimas 4 semanas</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent data-oid="y1b-ygm">
             {weeklyMetrics.leads.length > 0 ? (
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={200} data-oid="boyfcdf">
                 <LineChart
-                  data={
-                    [0, 1, 2, 3].map((i): WeeklyChartDataPoint => ({
+                  data={[0, 1, 2, 3].map(
+                    (i): WeeklyChartDataPoint => ({
                       semana: `Sem ${i + 1}`,
                       Leads: weeklyMetrics.leads[i] ?? 0,
                       Inscripciones: weeklyMetrics.enrollments[i] ?? 0,
                       Cursos: weeklyMetrics.courses_added[i] ?? 0,
-                    }))
-                  }
+                    })
+                  )}
                   margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                  data-oid="rwmufty"
                 >
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="semana" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="Leads" stroke="hsl(var(--primary))" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Inscripciones" stroke="hsl(var(--chart-2))" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Cursos" stroke="hsl(var(--chart-3))" strokeWidth={2} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                    data-oid="ttd7xs9"
+                  />
+                  <XAxis dataKey="semana" className="text-xs" data-oid="rzuhvs4" />
+                  <YAxis className="text-xs" data-oid="hqk797f" />
+                  <Tooltip data-oid=".p55dds" />
+                  <Legend data-oid="u-sppg6" />
+                  <Line
+                    type="monotone"
+                    dataKey="Leads"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    data-oid="bauvw_m"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="Inscripciones"
+                    stroke="hsl(var(--chart-2))"
+                    strokeWidth={2}
+                    data-oid="cex0:jq"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="Cursos"
+                    stroke="hsl(var(--chart-3))"
+                    strokeWidth={2}
+                    data-oid="qvu-lsd"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8" data-oid="1gn:r0o">
                 No hay datos disponibles
               </p>
             )}
@@ -534,16 +649,16 @@ export default function DashboardPage() {
       </div>
 
       {/* New Blocks Row 2: Operational Alerts + Campus Distribution */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2" data-oid="ux:ka67">
         {/* Alertas Operativas */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Alertas Operativas</CardTitle>
-            <CardDescription>Requieren atención</CardDescription>
+        <Card data-oid="nn8l4ro">
+          <CardHeader data-oid="sw1lpxg">
+            <CardTitle data-oid="b8sbdxs">Alertas Operativas</CardTitle>
+            <CardDescription data-oid="k1p0m7w">Requieren atención</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent data-oid="ub9mtli">
             {alerts.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-3" data-oid="x_zot34">
                 {alerts.map((alert, idx) => (
                   <div
                     key={idx}
@@ -552,29 +667,60 @@ export default function DashboardPage() {
                         ? 'border-orange-200 bg-orange-50 dark:border-orange-900 dark:bg-orange-950'
                         : 'border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950'
                     }`}
+                    data-oid="veafq43"
                   >
                     {alert.severity === 'warning' ? (
-                      <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                      <AlertTriangle
+                        className="h-5 w-5 text-orange-600 dark:text-orange-400"
+                        data-oid="ze3xn31"
+                      />
                     ) : (
-                      <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      <Info
+                        className="h-5 w-5 text-blue-600 dark:text-blue-400"
+                        data-oid="pwd4oea"
+                      />
                     )}
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{alert.message}</p>
-                      <p className="text-xs text-muted-foreground">{alert.count} {alert.count === 1 ? 'elemento' : 'elementos'}</p>
+                    <div className="flex-1" data-oid="7ljnzmr">
+                      <p className="text-sm font-medium" data-oid="zsk6wl_">
+                        {alert.message}
+                      </p>
+                      <p className="text-xs text-muted-foreground" data-oid="2vgb_.1">
+                        {alert.count} {alert.count === 1 ? 'elemento' : 'elementos'}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center py-8 text-center">
-                <div className="space-y-2">
-                  <div className="flex h-12 w-12 mx-auto items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <div className="flex items-center justify-center py-8 text-center" data-oid="2.yzvcu">
+                <div className="space-y-2" data-oid="v7h5lg2">
+                  <div
+                    className="flex h-12 w-12 mx-auto items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
+                    data-oid="lalr5.7"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-green-600 dark:text-green-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      data-oid="syecflp"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                        data-oid="1bla-2o"
+                      />
                     </svg>
                   </div>
-                  <p className="text-sm font-medium">Todo en orden</p>
-                  <p className="text-xs text-muted-foreground">No hay alertas pendientes</p>
+                  <p className="text-sm font-medium" data-oid="3v5tqnd">
+                    Todo en orden
+                  </p>
+                  <p className="text-xs text-muted-foreground" data-oid="r2esh20">
+                    No hay alertas pendientes
+                  </p>
                 </div>
               </div>
             )}
@@ -582,28 +728,37 @@ export default function DashboardPage() {
         </Card>
 
         {/* Distribución de Alumnos por Sede */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Alumnos por Sede</CardTitle>
-            <CardDescription>Distribución actual</CardDescription>
+        <Card data-oid="n4di-0g">
+          <CardHeader data-oid="xf31n2n">
+            <CardTitle data-oid="kuuhjua">Alumnos por Sede</CardTitle>
+            <CardDescription data-oid="q:hqp0_">Distribución actual</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent data-oid="-ohuvq1">
             {campusDistribution.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-3" data-oid=".3-d.pc">
                 {campusDistribution.map((campus, idx) => {
-                  const maxStudents = Math.max(...campusDistribution.map(c => c.student_count))
-                  const percentage = maxStudents > 0 ? (campus.student_count / maxStudents) * 100 : 0
+                  const maxStudents = Math.max(...campusDistribution.map((c) => c.student_count))
+                  const percentage =
+                    maxStudents > 0 ? (campus.student_count / maxStudents) * 100 : 0
 
                   return (
-                    <div key={idx} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{campus.campus_name}</span>
-                        <span className="text-muted-foreground">{campus.student_count} alumnos</span>
+                    <div key={idx} className="space-y-2" data-oid="rhzr:6:">
+                      <div className="flex items-center justify-between text-sm" data-oid="9t-p7z9">
+                        <span className="font-medium" data-oid="nfciqco">
+                          {campus.campus_name}
+                        </span>
+                        <span className="text-muted-foreground" data-oid="b_gr7.u">
+                          {campus.student_count} alumnos
+                        </span>
                       </div>
-                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                      <div
+                        className="h-2 bg-secondary rounded-full overflow-hidden"
+                        data-oid="hq8w372"
+                      >
                         <div
                           className="h-full bg-primary transition-all"
                           style={{ width: `${percentage}%` }}
+                          data-oid="tqec.6n"
                         ></div>
                       </div>
                     </div>
@@ -611,7 +766,7 @@ export default function DashboardPage() {
                 })}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-sm text-muted-foreground text-center py-8" data-oid="msm:cek">
                 No hay datos de distribución
               </p>
             )}

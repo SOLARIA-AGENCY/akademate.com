@@ -84,9 +84,7 @@ export default function ProfesorDetailPage() {
         }
 
         // Find the specific professor
-        const foundProfessor = result.data.find(
-          (s: StaffMember) => s.id.toString() === professorId
-        )
+        const foundProfessor = result.data.find((s: StaffMember) => s.id.toString() === professorId)
 
         if (!foundProfessor) {
           throw new Error('Professor not found')
@@ -109,10 +107,12 @@ export default function ProfesorDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Cargando información del profesor...</p>
+      <div className="flex items-center justify-center h-96" data-oid="j7:sitz">
+        <div className="text-center space-y-4" data-oid="w.7r12z">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" data-oid="b7jynm2" />
+          <p className="text-muted-foreground" data-oid="ddh5-jw">
+            Cargando información del profesor...
+          </p>
         </div>
       </div>
     )
@@ -120,14 +120,20 @@ export default function ProfesorDetailPage() {
 
   if (error || !professor) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Card className="max-w-md">
-          <CardContent className="pt-6 text-center space-y-4">
-            <p className="text-destructive font-semibold">Error al cargar profesor</p>
-            <p className="text-sm text-muted-foreground">{error || 'Profesor no encontrado'}</p>
-            <div className="flex gap-2 justify-center">
-              <Button onClick={() => router.back()}>Volver</Button>
-              <Button variant="outline" onClick={() => window.location.reload()}>
+      <div className="flex items-center justify-center h-96" data-oid="7j2iy7-">
+        <Card className="max-w-md" data-oid=".d0xgey">
+          <CardContent className="pt-6 text-center space-y-4" data-oid="dkd966.">
+            <p className="text-destructive font-semibold" data-oid="lkwbblq">
+              Error al cargar profesor
+            </p>
+            <p className="text-sm text-muted-foreground" data-oid="ebr1g00">
+              {error || 'Profesor no encontrado'}
+            </p>
+            <div className="flex gap-2 justify-center" data-oid="4u1j:xq">
+              <Button onClick={() => router.back()} data-oid="5.bfae9">
+                Volver
+              </Button>
+              <Button variant="outline" onClick={() => window.location.reload()} data-oid="fl2zb4k">
                 Reintentar
               </Button>
             </div>
@@ -150,86 +156,116 @@ export default function ProfesorDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-oid=".5h6m09">
       <PageHeader
         title={professor.fullName}
         description={professor.position}
         icon={User}
-        actions={(
+        actions={
           <>
-            <Button variant="ghost" size="icon" onClick={() => router.back()}>
-              <ArrowLeft className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="q3z:.qx">
+              <ArrowLeft className="h-5 w-5" data-oid="1snqjt0" />
             </Button>
-            <Button onClick={() => router.push(`/profesores/${professorId}/editar`)}>
-              <Edit className="mr-2 h-4 w-4" />
+            <Button
+              onClick={() => router.push(`/profesores/${professorId}/editar`)}
+              data-oid="lojmz0i"
+            >
+              <Edit className="mr-2 h-4 w-4" data-oid="m-r0wcw" />
               Editar Profesor
             </Button>
           </>
-        )}
+        }
+        data-oid="i_9n5k8"
       />
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-3" data-oid="gcoo2ph">
         {/* Left Column - Photo and Basic Info */}
-        <Card className="md:col-span-1">
-          <CardContent className="pt-6 space-y-6">
+        <Card className="md:col-span-1" data-oid="d2j-.g8">
+          <CardContent className="pt-6 space-y-6" data-oid="bzau5u3">
             {/* Photo */}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center" data-oid="8ush656">
               {professor.photo ? (
                 <img
                   src={professor.photo}
                   alt={professor.fullName}
                   className="h-48 w-48 rounded-full object-cover border-4 border-background shadow-lg"
+                  data-oid="-ttwq2p"
                 />
               ) : (
-                <div className="flex h-48 w-48 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                  <span className="text-6xl font-bold">
+                <div
+                  className="flex h-48 w-48 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                  data-oid="zdxw6p2"
+                >
+                  <span className="text-6xl font-bold" data-oid="badncwd">
                     {professor.firstName[0]}
                     {professor.lastName[0]}
                   </span>
                 </div>
               )}
-              <div className="mt-4 text-center">
-                <h2 className="text-xl font-bold">{professor.fullName}</h2>
-                <p className="text-sm text-muted-foreground">{professor.position}</p>
+              <div className="mt-4 text-center" data-oid="xlofrur">
+                <h2 className="text-xl font-bold" data-oid="s.pjw6y">
+                  {professor.fullName}
+                </h2>
+                <p className="text-sm text-muted-foreground" data-oid="_t8dsn8">
+                  {professor.position}
+                </p>
               </div>
             </div>
 
-            <Separator />
+            <Separator data-oid="6hzyq45" />
 
             {/* Status Badges */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Estado</span>
-                <Badge variant={professor.employmentStatus === 'active' ? 'default' : 'secondary'}>
+            <div className="space-y-3" data-oid="91p6q7m">
+              <div className="flex items-center justify-between" data-oid="mwdit8:">
+                <span className="text-sm text-muted-foreground" data-oid="yc6qu9x">
+                  Estado
+                </span>
+                <Badge
+                  variant={professor.employmentStatus === 'active' ? 'default' : 'secondary'}
+                  data-oid=".w9t6n7"
+                >
                   {statusLabels[professor.employmentStatus] || professor.employmentStatus}
                 </Badge>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Contrato</span>
-                <Badge variant="outline">
+              <div className="flex items-center justify-between" data-oid="bbzsgm:">
+                <span className="text-sm text-muted-foreground" data-oid=":a.leh-">
+                  Contrato
+                </span>
+                <Badge variant="outline" data-oid="en.tqka">
                   {contractTypeLabels[professor.contractType] || professor.contractType}
                 </Badge>
               </div>
             </div>
 
-            <Separator />
+            <Separator data-oid="d0trccx" />
 
             {/* Contact Info */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold uppercase text-muted-foreground">
+            <div className="space-y-3" data-oid="b1zugzx">
+              <h3
+                className="text-sm font-semibold uppercase text-muted-foreground"
+                data-oid="q9xfntm"
+              >
                 Información de Contacto
               </h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <a href={`mailto:${professor.email}`} className="hover:underline">
+              <div className="space-y-2" data-oid="4hlgxlw">
+                <div className="flex items-center gap-3 text-sm" data-oid="qnp5vh6">
+                  <Mail className="h-4 w-4 text-muted-foreground" data-oid=":4rbdoa" />
+                  <a
+                    href={`mailto:${professor.email}`}
+                    className="hover:underline"
+                    data-oid="cw_3bbv"
+                  >
                     {professor.email}
                   </a>
                 </div>
                 {professor.phone && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <a href={`tel:${professor.phone}`} className="hover:underline">
+                  <div className="flex items-center gap-3 text-sm" data-oid="vjg-xch">
+                    <Phone className="h-4 w-4 text-muted-foreground" data-oid="yv9.7m8" />
+                    <a
+                      href={`tel:${professor.phone}`}
+                      className="hover:underline"
+                      data-oid="odnp8hl"
+                    >
                       {professor.phone}
                     </a>
                   </div>
@@ -239,12 +275,14 @@ export default function ProfesorDetailPage() {
 
             {professor.hireDate && (
               <>
-                <Separator />
-                <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-muted-foreground">Fecha de Contratación</p>
-                    <p className="font-medium">
+                <Separator data-oid="ysquwys" />
+                <div className="flex items-center gap-3 text-sm" data-oid="n1.q_ru">
+                  <Calendar className="h-4 w-4 text-muted-foreground" data-oid="q1k0rtq" />
+                  <div data-oid="6y70g22">
+                    <p className="text-muted-foreground" data-oid="scjvvkx">
+                      Fecha de Contratación
+                    </p>
+                    <p className="font-medium" data-oid="nw84wx1">
                       {new Date(professor.hireDate).toLocaleDateString('es-ES', {
                         year: 'numeric',
                         month: 'long',
@@ -259,99 +297,115 @@ export default function ProfesorDetailPage() {
         </Card>
 
         {/* Right Column - Detailed Info */}
-        <div className="md:col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-6" data-oid="7zawug:">
           {/* Bio */}
           {professor.bio && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
+            <Card data-oid="4nkdtyq">
+              <CardHeader data-oid="f73cenx">
+                <CardTitle className="flex items-center gap-2" data-oid="toje-_1">
+                  <User className="h-5 w-5" data-oid="bek14tx" />
                   Biografía
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground leading-relaxed">{professor.bio}</p>
+              <CardContent data-oid="n0wbchg">
+                <p className="text-muted-foreground leading-relaxed" data-oid="jbotr5z">
+                  {professor.bio}
+                </p>
               </CardContent>
             </Card>
           )}
 
           {/* Assigned Campuses */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
+          <Card data-oid="w5zl1sf">
+            <CardHeader data-oid="oft.cuq">
+              <CardTitle className="flex items-center gap-2" data-oid=":2uugga">
+                <MapPin className="h-5 w-5" data-oid="eut5go2" />
                 Sedes Asignadas
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent data-oid="i.-sa_p">
               {professor.assignedCampuses.length > 0 ? (
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-3 md:grid-cols-2" data-oid="-sry:dm">
                   {professor.assignedCampuses.map((campus) => (
                     <div
                       key={campus.id}
                       className="flex items-center gap-3 p-3 rounded-lg border bg-card"
+                      data-oid="kdufk12"
                     >
-                      <Building2 className="h-5 w-5 text-primary" />
-                      <div>
-                        <p className="font-medium">{campus.name}</p>
-                        <p className="text-sm text-muted-foreground">{campus.city}</p>
+                      <Building2 className="h-5 w-5 text-primary" data-oid="hk3ptvr" />
+                      <div data-oid=".cl8mfp">
+                        <p className="font-medium" data-oid="ihj9yhg">
+                          {campus.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground" data-oid="rcn-hys">
+                          {campus.city}
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No tiene sedes asignadas</p>
+                <p className="text-sm text-muted-foreground" data-oid="67h8..m">
+                  No tiene sedes asignadas
+                </p>
               )}
             </CardContent>
           </Card>
 
           {/* Course Runs (Convocatorias) */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
+          <Card data-oid="ftaknd_">
+            <CardHeader data-oid="o2xkexi">
+              <CardTitle className="flex items-center gap-2" data-oid="nvdpxly">
+                <Briefcase className="h-5 w-5" data-oid="8n83o8d" />
                 Convocatorias Asignadas
                 {professor.courseRunsCount ? (
-                  <Badge variant="secondary" className="ml-2">
+                  <Badge variant="secondary" className="ml-2" data-oid="k67gb6g">
                     {professor.courseRunsCount}
                   </Badge>
                 ) : null}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent data-oid="7m5v27-">
               {professor.courseRuns && professor.courseRuns.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-4" data-oid="i-2.5.3">
                   {professor.courseRuns.map((courseRun) => (
                     <div
                       key={courseRun.id}
                       className="flex flex-col gap-3 p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
+                      data-oid="m6.q:dp"
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold text-base">{courseRun.courseName}</h4>
+                      <div className="flex items-start justify-between" data-oid="81:0z2k">
+                        <div className="flex-1" data-oid="pck94z.">
+                          <div className="flex items-center gap-2 mb-1" data-oid="tbajzug">
+                            <h4 className="font-semibold text-base" data-oid="jx6vgmb">
+                              {courseRun.courseName}
+                            </h4>
                             <Badge
                               variant={
                                 courseRun.status === 'active'
                                   ? 'default'
                                   : courseRun.status === 'scheduled'
-                                  ? 'secondary'
-                                  : 'outline'
+                                    ? 'secondary'
+                                    : 'outline'
                               }
+                              data-oid="y1vx6lt"
                             >
                               {courseRun.status}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground" data-oid="w0ryve-">
                             Código: {courseRun.codigo}
                           </p>
                         </div>
                       </div>
 
-                      <div className="grid gap-2 text-sm">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          <span>
+                      <div className="grid gap-2 text-sm" data-oid=".bq79f1">
+                        <div
+                          className="flex items-center gap-2 text-muted-foreground"
+                          data-oid="cip7-0z"
+                        >
+                          <Calendar className="h-4 w-4" data-oid="w_rwktq" />
+                          <span data-oid="cayz76c">
                             {new Date(courseRun.startDate).toLocaleDateString('es-ES', {
                               year: 'numeric',
                               month: 'short',
@@ -365,9 +419,12 @@ export default function ProfesorDetailPage() {
                             })}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="h-4 w-4" />
-                          <span>
+                        <div
+                          className="flex items-center gap-2 text-muted-foreground"
+                          data-oid="sfxuwe-"
+                        >
+                          <MapPin className="h-4 w-4" data-oid="500_xym" />
+                          <span data-oid="pd8w5:6">
                             {courseRun.campusName} - {courseRun.campusCity}
                           </span>
                         </div>
@@ -376,7 +433,7 @@ export default function ProfesorDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground" data-oid="twab:1j">
                   No tiene convocatorias asignadas actualmente
                 </p>
               )}
@@ -384,55 +441,73 @@ export default function ProfesorDetailPage() {
           </Card>
 
           {/* Employment Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
+          <Card data-oid="a1:r32j">
+            <CardHeader data-oid="vj:812h">
+              <CardTitle className="flex items-center gap-2" data-oid="xtmg2cg">
+                <Briefcase className="h-5 w-5" data-oid="6:c:3fx" />
                 Detalles de Empleo
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Tipo de Contrato</p>
-                  <p className="font-medium">
+            <CardContent data-oid="ac6x9rf">
+              <div className="grid gap-4 md:grid-cols-2" data-oid="9elyyd_">
+                <div data-oid="gjd_-h.">
+                  <p className="text-sm text-muted-foreground mb-1" data-oid="dgj5a5c">
+                    Tipo de Contrato
+                  </p>
+                  <p className="font-medium" data-oid="l7wuhs4">
                     {contractTypeLabels[professor.contractType] || professor.contractType}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Estado de Empleo</p>
-                  <p className="font-medium">
+                <div data-oid="levhp16">
+                  <p className="text-sm text-muted-foreground mb-1" data-oid="ywn6qy7">
+                    Estado de Empleo
+                  </p>
+                  <p className="font-medium" data-oid="8g:n_9_">
                     {statusLabels[professor.employmentStatus] || professor.employmentStatus}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Tipo de Personal</p>
-                  <p className="font-medium capitalize">{professor.staffType}</p>
+                <div data-oid="iux8-9o">
+                  <p className="text-sm text-muted-foreground mb-1" data-oid="_7epd5j">
+                    Tipo de Personal
+                  </p>
+                  <p className="font-medium capitalize" data-oid="vhjs-2q">
+                    {professor.staffType}
+                  </p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">ID del Profesor</p>
-                  <p className="font-medium">#{professor.id}</p>
+                <div data-oid="5zfh_hc">
+                  <p className="text-sm text-muted-foreground mb-1" data-oid="w6dcmyz">
+                    ID del Profesor
+                  </p>
+                  <p className="font-medium" data-oid="itw8qyy">
+                    #{professor.id}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Metadata */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Metadatos</CardTitle>
+          <Card data-oid="muug_5s">
+            <CardHeader data-oid="blwr0zn">
+              <CardTitle className="text-sm" data-oid="lgwcq9p">
+                Metadatos
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Creado:</span>
-                  <span className="font-medium">
+            <CardContent data-oid="3iv8lc9">
+              <div className="grid gap-2 text-sm" data-oid="iolrju1">
+                <div className="flex justify-between" data-oid="b_fxjbs">
+                  <span className="text-muted-foreground" data-oid="5::g66m">
+                    Creado:
+                  </span>
+                  <span className="font-medium" data-oid="7r:olt-">
                     {new Date(professor.createdAt).toLocaleDateString('es-ES')}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Última actualización:</span>
-                  <span className="font-medium">
+                <div className="flex justify-between" data-oid="7k8uoe0">
+                  <span className="text-muted-foreground" data-oid="52sd36j">
+                    Última actualización:
+                  </span>
+                  <span className="font-medium" data-oid=":pg0o0q">
                     {new Date(professor.updatedAt).toLocaleDateString('es-ES')}
                   </span>
                 </div>
@@ -443,12 +518,12 @@ export default function ProfesorDetailPage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-4 justify-end">
-        <Button variant="outline" onClick={() => router.back()}>
+      <div className="flex gap-4 justify-end" data-oid="h.me6sd">
+        <Button variant="outline" onClick={() => router.back()} data-oid="0e8m5ik">
           Volver
         </Button>
-        <Button onClick={() => router.push(`/profesores/${professorId}/editar`)}>
-          <Edit className="mr-2 h-4 w-4" />
+        <Button onClick={() => router.push(`/profesores/${professorId}/editar`)} data-oid="awna7rh">
+          <Edit className="mr-2 h-4 w-4" data-oid="ljm_bgg" />
           Editar Profesor
         </Button>
       </div>

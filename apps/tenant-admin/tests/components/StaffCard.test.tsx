@@ -40,9 +40,7 @@ const mockStaffAdmin = {
   photo: '/media/admin-1.jpg',
   email: 'laura.fernandez@cepcomunicacion.com',
   phone: '+34 922 678 901',
-  assignedCampuses: [
-    { id: 1, name: 'CEP Norte', city: 'Santa Cruz de Tenerife' },
-  ],
+  assignedCampuses: [{ id: 1, name: 'CEP Norte', city: 'Santa Cruz de Tenerife' }],
 }
 
 describe('StaffCard Component', () => {
@@ -58,6 +56,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="2ldn6ig"
         />
       )
 
@@ -75,6 +74,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="094y8fl"
         />
       )
 
@@ -92,6 +92,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="-a5mxdh"
         />
       )
 
@@ -109,6 +110,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="-vcwxcv"
         />
       )
 
@@ -128,6 +130,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="tk802o8"
         />
       )
 
@@ -147,6 +150,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="rpmw4_:"
         />
       )
 
@@ -168,6 +172,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="a90e9an"
         />
       )
 
@@ -185,6 +190,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="jce-q:i"
         />
       )
 
@@ -207,6 +213,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="c8x2b2w"
         />
       )
 
@@ -226,6 +233,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="02u3.n1"
         />
       )
 
@@ -244,6 +252,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="gkcyqnz"
         />
       )
 
@@ -268,6 +277,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="l68o9sk"
         />
       )
 
@@ -287,6 +297,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="z7ppfck"
         />
       )
 
@@ -309,6 +320,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="2th5llc"
         />
       )
 
@@ -329,6 +341,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="k1bouz-"
         />
       )
 
@@ -350,6 +363,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="_7-1h1k"
         />
       )
 
@@ -372,6 +386,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="us_ra_j"
         />
       )
 
@@ -401,6 +416,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="k031_.l"
         />
       )
 
@@ -423,6 +439,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="x2gm84i"
         />
       )
 
@@ -442,6 +459,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="deu3:j5"
         />
       )
 
@@ -460,6 +478,7 @@ describe('StaffCard Component', () => {
           onView={mockOnView}
           onEdit={mockOnEdit}
           onDelete={mockOnDelete}
+          data-oid="2vyt48p"
         />
       )
 

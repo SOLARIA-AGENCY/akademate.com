@@ -23,7 +23,10 @@ interface RealtimeProviderProps {
   tenantId?: number
 }
 
-export function RealtimeProvider({ children, tenantId: defaultTenantId = 1 }: RealtimeProviderProps) {
+export function RealtimeProvider({
+  children,
+  tenantId: defaultTenantId = 1,
+}: RealtimeProviderProps) {
   const [authData, setAuthData] = useState<AuthData | null>(null)
   const [isReady, setIsReady] = useState(false)
   const [realtimeReady, setRealtimeReady] = useState(false)
@@ -133,6 +136,7 @@ export function RealtimeProvider({ children, tenantId: defaultTenantId = 1 }: Re
       token={authData.token}
       autoConnect={true}
       debug={process.env.NODE_ENV === 'development'}
+      data-oid="s811fv5"
     >
       {children}
     </SocketProvider>

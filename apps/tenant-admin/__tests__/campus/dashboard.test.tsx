@@ -89,7 +89,7 @@ describe('Campus Dashboard Page', () => {
   })
 
   it('renders welcome message with student name', async () => {
-    render(<CampusPage />)
+    render(<CampusPage data-oid="nn-4ah." />)
 
     await waitFor(() => {
       expect(screen.getByText(/hola, juan/i)).toBeInTheDocument()
@@ -97,7 +97,7 @@ describe('Campus Dashboard Page', () => {
   })
 
   it('displays stats cards', async () => {
-    render(<CampusPage />)
+    render(<CampusPage data-oid="-q0jq59" />)
 
     await waitFor(() => {
       expect(screen.getByText('2')).toBeInTheDocument() // totalCourses
@@ -107,7 +107,7 @@ describe('Campus Dashboard Page', () => {
   })
 
   it('renders enrollment cards', async () => {
-    render(<CampusPage />)
+    render(<CampusPage data-oid="hltwz4z" />)
 
     await waitFor(() => {
       expect(screen.getByText('Curso de React')).toBeInTheDocument()
@@ -116,7 +116,7 @@ describe('Campus Dashboard Page', () => {
   })
 
   it('shows progress for in-progress courses', async () => {
-    render(<CampusPage />)
+    render(<CampusPage data-oid="-.8xoej" />)
 
     await waitFor(() => {
       expect(screen.getByText('45%')).toBeInTheDocument()
@@ -125,11 +125,11 @@ describe('Campus Dashboard Page', () => {
   })
 
   it('links to course detail page', async () => {
-    render(<CampusPage />)
+    render(<CampusPage data-oid="dpfrun2" />)
 
     await waitFor(() => {
       const courseLinks = screen.getAllByRole('link')
-      const courseLink = courseLinks.find(link =>
+      const courseLink = courseLinks.find((link) =>
         link.getAttribute('href')?.includes('/campus/cursos/')
       )
       expect(courseLink).toBeTruthy()
@@ -145,7 +145,7 @@ describe('Campus Dashboard Page', () => {
       }),
     })
 
-    render(<CampusPage />)
+    render(<CampusPage data-oid="._de:fd" />)
 
     await waitFor(() => {
       expect(screen.getByText(/sin cursos activos/i)).toBeInTheDocument()

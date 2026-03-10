@@ -51,21 +51,25 @@ export function PageHeader({
   const content = (
     <>
       {/* Row 1: Title and Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+      <div className="flex items-center justify-between" data-oid="nq9arpo">
+        <div className="flex items-center gap-3" data-oid="_zscgyl">
+          <div data-oid="msm_hkf">
+            <h1 className="text-2xl font-bold" data-oid=".ik_qyi">
+              {title}
+            </h1>
             {description && (
-              <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+              <p className="text-sm text-muted-foreground mt-0.5" data-oid="eclyf72">
+                {description}
+              </p>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" data-oid="1n2t8tr">
           {actions}
           {showAddButton && onAdd && (
-            <Button onClick={onAdd} size="sm">
-              <Plus className="mr-2 h-4 w-4" />
+            <Button onClick={onAdd} size="sm" data-oid=":ke29tb">
+              <Plus className="mr-2 h-4 w-4" data-oid=":-fb6j5" />
               {addButtonText}
             </Button>
           )}
@@ -74,7 +78,10 @@ export function PageHeader({
 
       {/* Row 2: Filters (optional) */}
       {filters && (
-        <div className="flex items-center gap-3 flex-wrap mt-3 pt-3 border-t border-border">
+        <div
+          className="flex items-center gap-3 flex-wrap mt-3 pt-3 border-t border-border"
+          data-oid="on_hyte"
+        >
           {filters}
         </div>
       )}
@@ -83,14 +90,14 @@ export function PageHeader({
 
   if (withCard) {
     return (
-      <div className={`py-4 mb-2 ${className}`}>
+      <div className={`py-4 mb-2 ${className}`} data-oid="ecwgyxr">
         {content}
       </div>
     )
   }
 
   return (
-    <div className={`py-4 mb-2 ${className}`}>
+    <div className={`py-4 mb-2 ${className}`} data-oid="mtp78ig">
       {content}
     </div>
   )

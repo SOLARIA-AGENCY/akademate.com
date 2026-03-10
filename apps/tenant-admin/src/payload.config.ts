@@ -17,6 +17,7 @@ import { AreasFormativas } from './collections/AreasFormativas/AreasFormativas';
 import { EntidadesFinanciadoras } from './collections/EntidadesFinanciadoras/EntidadesFinanciadoras';
 import { Courses } from './collections/Courses/Courses';
 import { CourseRuns } from './collections/CourseRuns/CourseRuns';
+import { Classrooms } from './collections/Classrooms/Classrooms';
 import { Enrollments } from './collections/Enrollments/Enrollments';
 import { Students } from './collections/Students/Students';
 import { Leads } from './collections/Leads/Leads';
@@ -64,6 +65,7 @@ export const getPayloadConfig = () => buildConfig({
     // ===== Core entities =====
     Cycles,
     Campuses,
+    Classrooms, // ✅ Classrooms/aulas within campuses
     AreasFormativas, // ✅ Knowledge areas for course categorization
     EntidadesFinanciadoras, // ✅ Funding entities (grants, subsidies)
 

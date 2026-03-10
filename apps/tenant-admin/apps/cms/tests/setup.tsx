@@ -26,13 +26,17 @@ vi.mock('next/navigation', () => ({
 vi.mock('next/image', () => ({
   default: (props: any) => {
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    return <img {...props} />
+    return <img {...props} data-oid="jj8g.9t" />
   },
 }))
 
 // Mock Next.js Link
 vi.mock('next/link', () => ({
   default: ({ children, href }: any) => {
-    return <a href={href}>{children}</a>
+    return (
+      <a href={href} data-oid="puaahj5">
+        {children}
+      </a>
+    )
   },
 }))

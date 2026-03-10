@@ -32,13 +32,10 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({ user: null, authenticated: false }, { status: 401 })
+    return NextResponse.json({ user: null, authenticated: false })
   } catch (error) {
     console.error('[/api/auth/session] Error:', error)
-    return NextResponse.json(
-      { user: null, authenticated: false },
-      { status: 401 }
-    )
+    return NextResponse.json({ user: null, authenticated: false })
   }
 }
 

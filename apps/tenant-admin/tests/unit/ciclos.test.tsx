@@ -12,7 +12,7 @@ describe('Todos los Ciclos Page', () => {
   })
 
   it('renders page title and description', () => {
-    render(<TodosLosCiclosPage />)
+    render(<TodosLosCiclosPage data-oid="9yhlnr:" />)
     expect(screen.getByText('Todos los Ciclos Formativos')).toBeInTheDocument()
     expect(
       screen.getByText('Gestión completa de ciclos de Grado Medio y Grado Superior')
@@ -20,7 +20,7 @@ describe('Todos los Ciclos Page', () => {
   })
 
   it('displays correct stats cards', () => {
-    render(<TodosLosCiclosPage />)
+    render(<TodosLosCiclosPage data-oid="dar95tp" />)
 
     // Check for all 6 stat cards
     expect(screen.getByText('Total Ciclos')).toBeInTheDocument()
@@ -32,14 +32,14 @@ describe('Todos los Ciclos Page', () => {
   })
 
   it('renders all 10 ciclos cards', () => {
-    render(<TodosLosCiclosPage />)
-    
+    render(<TodosLosCiclosPage data-oid="igs-2gi" />)
+
     // Check for Grado Medio ciclos
     expect(screen.getByText('Gestión Administrativa')).toBeInTheDocument()
     expect(screen.getByText('Sistemas Microinformáticos y Redes')).toBeInTheDocument()
     expect(screen.getByText('Actividades Comerciales')).toBeInTheDocument()
     expect(screen.getByText('Gestión de Alojamientos Turísticos')).toBeInTheDocument()
-    
+
     // Check for Grado Superior ciclos
     expect(screen.getByText('Desarrollo de Aplicaciones Web')).toBeInTheDocument()
     expect(screen.getByText('Administración y Finanzas')).toBeInTheDocument()
@@ -50,18 +50,18 @@ describe('Todos los Ciclos Page', () => {
   })
 
   it('displays corporate color #ff2014 on cards', () => {
-    const { container } = render(<TodosLosCiclosPage />)
+    const { container } = render(<TodosLosCiclosPage data-oid="0_d_ruo" />)
     const cards = container.querySelectorAll('.border-2')
     expect(cards.length).toBe(10) // All 10 ciclos should have border-2 class
   })
 
   it('filters ciclos by search term', async () => {
     const user = userEvent.setup()
-    render(<TodosLosCiclosPage />)
-    
+    render(<TodosLosCiclosPage data-oid="079_wp2" />)
+
     const searchInput = screen.getByPlaceholderText('Buscar ciclos...')
     await user.type(searchInput, 'Desarrollo')
-    
+
     // Should show only DAW
     expect(screen.getByText('Desarrollo de Aplicaciones Web')).toBeInTheDocument()
     expect(screen.queryByText('Gestión Administrativa')).not.toBeInTheDocument()
@@ -69,40 +69,42 @@ describe('Todos los Ciclos Page', () => {
 
   it('filters ciclos by nivel (Grado Medio)', async () => {
     const user = userEvent.setup()
-    render(<TodosLosCiclosPage />)
-    
+    render(<TodosLosCiclosPage data-oid="dyqiqi6" />)
+
     // Open nivel select and choose Grado Medio
     const nivelSelect = screen.getAllByRole('combobox')[1] // Second select is nivel
     await user.click(nivelSelect)
-    
+
     await waitFor(() => {
       const gradoMedioOption = screen.getByRole('option', { name: /Grado Medio/i })
       user.click(gradoMedioOption)
     })
-    
+
     // Should show 4 Grado Medio ciclos
     expect(screen.getByText('Mostrando 4 de 10 ciclos formativos')).toBeInTheDocument()
   })
 
   it('filters ciclos by familia profesional', async () => {
     const user = userEvent.setup()
-    render(<TodosLosCiclosPage />)
-    
+    render(<TodosLosCiclosPage data-oid="m-pu17b" />)
+
     const familiaSelect = screen.getAllByRole('combobox')[2] // Third select is familia
     await user.click(familiaSelect)
-    
+
     await waitFor(() => {
-      const informaticaOption = screen.getByRole('option', { name: /Informática y Comunicaciones/i })
+      const informaticaOption = screen.getByRole('option', {
+        name: /Informática y Comunicaciones/i,
+      })
       user.click(informaticaOption)
     })
-    
+
     // Should show only informática ciclos
     expect(screen.getByText('Sistemas Microinformáticos y Redes')).toBeInTheDocument()
     expect(screen.getByText('Desarrollo de Aplicaciones Web')).toBeInTheDocument()
   })
 
   it('displays ocupación bars with correct colors', () => {
-    const { container } = render(<TodosLosCiclosPage />)
+    const { container } = render(<TodosLosCiclosPage data-oid="00h.9cb" />)
 
     // Check for ocupación percentage labels
     const ocupacionLabels = screen.getAllByText('Ocupación')
@@ -116,47 +118,47 @@ describe('Todos los Ciclos Page', () => {
   it('navigates to correct detail page on card click', async () => {
     const user = userEvent.setup()
     const { mockRouter } = await import('../utils/test-utils')
-    
-    render(<TodosLosCiclosPage />)
-    
+
+    render(<TodosLosCiclosPage data-oid="1gm6pr0" />)
+
     // Click on a Grado Medio ciclo
     const gestCard = screen.getByText('Gestión Administrativa').closest('.cursor-pointer')
     await user.click(gestCard!)
-    
+
     expect(mockRouter.push).toHaveBeenCalledWith('/ciclos-medio#cfgm-gestion-administrativa')
   })
 
   it('clears all filters when "Limpiar filtros" is clicked', async () => {
     const user = userEvent.setup()
-    render(<TodosLosCiclosPage />)
-    
+    render(<TodosLosCiclosPage data-oid="1l7b2d1" />)
+
     // Apply some filters
     const searchInput = screen.getByPlaceholderText('Buscar ciclos...')
     await user.type(searchInput, 'Desarrollo')
-    
+
     expect(screen.queryByText('Gestión Administrativa')).not.toBeInTheDocument()
-    
+
     // Clear filters
     const clearButton = screen.getByText('Limpiar filtros')
     await user.click(clearButton)
-    
+
     // All ciclos should be visible again
     expect(screen.getByText('Mostrando 10 de 10 ciclos formativos')).toBeInTheDocument()
   })
 
   it('shows empty state when no ciclos match filters', async () => {
     const user = userEvent.setup()
-    render(<TodosLosCiclosPage />)
-    
+    render(<TodosLosCiclosPage data-oid="myw-89t" />)
+
     const searchInput = screen.getByPlaceholderText('Buscar ciclos...')
     await user.type(searchInput, 'NonExistentCiclo')
-    
+
     expect(screen.getByText('No se encontraron ciclos')).toBeInTheDocument()
     expect(screen.getByText('Intenta ajustar los filtros de búsqueda')).toBeInTheDocument()
   })
 
   it('displays "Nuevo Ciclo Formativo" button', () => {
-    render(<TodosLosCiclosPage />)
+    render(<TodosLosCiclosPage data-oid="a93a469" />)
     expect(screen.getByText('Nuevo Ciclo Formativo')).toBeInTheDocument()
   })
 })
@@ -167,13 +169,13 @@ describe('Ciclos Medio Page', () => {
   })
 
   it('renders page title correctly', () => {
-    render(<CiclosMedioPage />)
+    render(<CiclosMedioPage data-oid="dl21j:_" />)
     expect(screen.getByText('Ciclos Formativos de Grado Medio')).toBeInTheDocument()
   })
 
   it('displays 4 CFGM programs', () => {
-    render(<CiclosMedioPage />)
-    
+    render(<CiclosMedioPage data-oid="_7o93py" />)
+
     expect(screen.getByText('Gestión Administrativa')).toBeInTheDocument()
     expect(screen.getByText('ADG201')).toBeInTheDocument()
     expect(screen.getByText('Sistemas Microinformáticos y Redes')).toBeInTheDocument()
@@ -185,7 +187,7 @@ describe('Ciclos Medio Page', () => {
   })
 
   it('displays correct stats for Grado Medio', () => {
-    render(<CiclosMedioPage />)
+    render(<CiclosMedioPage data-oid="792utbz" />)
 
     expect(screen.getByText('Total Ciclos')).toBeInTheDocument()
     expect(screen.getAllByText('4')[0]).toBeInTheDocument()
@@ -195,33 +197,33 @@ describe('Ciclos Medio Page', () => {
 
   it('searches ciclos by name', async () => {
     const user = userEvent.setup()
-    render(<CiclosMedioPage />)
-    
+    render(<CiclosMedioPage data-oid="-vytnup" />)
+
     const searchInput = screen.getByPlaceholderText('Buscar ciclos...')
     await user.type(searchInput, 'Sistemas')
-    
+
     expect(screen.getByText('Sistemas Microinformáticos y Redes')).toBeInTheDocument()
     expect(screen.queryByText('Gestión Administrativa')).not.toBeInTheDocument()
   })
 
   it('filters by familia profesional', async () => {
     const user = userEvent.setup()
-    render(<CiclosMedioPage />)
-    
+    render(<CiclosMedioPage data-oid="s5ixjh9" />)
+
     const familiaSelect = screen.getAllByRole('combobox')[0]
     await user.click(familiaSelect)
-    
+
     await waitFor(() => {
       const adminOption = screen.getByRole('option', { name: /Administración y Gestión/i })
       user.click(adminOption)
     })
-    
+
     expect(screen.getByText('Gestión Administrativa')).toBeInTheDocument()
   })
 
   it('shows ocupación percentage for each ciclo', () => {
-    render(<CiclosMedioPage />)
-    
+    render(<CiclosMedioPage data-oid="3o32wx2" />)
+
     // Check for ocupación labels
     const ocupacionLabels = screen.getAllByText('Ocupación')
     expect(ocupacionLabels.length).toBeGreaterThan(0)
@@ -230,12 +232,12 @@ describe('Ciclos Medio Page', () => {
   it('navigates to detail page on "Ver Detalles" click', async () => {
     const user = userEvent.setup()
     const { mockRouter } = await import('../utils/test-utils')
-    
-    render(<CiclosMedioPage />)
-    
+
+    render(<CiclosMedioPage data-oid="w:gvlp4" />)
+
     const verDetallesButtons = screen.getAllByText('Ver Detalles del Ciclo')
     await user.click(verDetallesButtons[0])
-    
+
     expect(mockRouter.push).toHaveBeenCalled()
   })
 })
@@ -246,13 +248,13 @@ describe('Ciclos Superior Page', () => {
   })
 
   it('renders page title correctly', () => {
-    render(<CiclosSuperiorPage />)
+    render(<CiclosSuperiorPage data-oid="ifmpehr" />)
     expect(screen.getByText('Ciclos Formativos de Grado Superior')).toBeInTheDocument()
   })
 
   it('displays 6 CFGS programs', () => {
-    render(<CiclosSuperiorPage />)
-    
+    render(<CiclosSuperiorPage data-oid="-p1afw2" />)
+
     expect(screen.getByText('Desarrollo de Aplicaciones Web')).toBeInTheDocument()
     expect(screen.getByText('IFC303')).toBeInTheDocument()
     expect(screen.getByText('Administración y Finanzas')).toBeInTheDocument()
@@ -268,7 +270,7 @@ describe('Ciclos Superior Page', () => {
   })
 
   it('displays correct stats for Grado Superior', () => {
-    render(<CiclosSuperiorPage />)
+    render(<CiclosSuperiorPage data-oid="xfpz.hb" />)
 
     expect(screen.getByText('Total Ciclos')).toBeInTheDocument()
     expect(screen.getAllByText('6')[0]).toBeInTheDocument()
@@ -278,61 +280,61 @@ describe('Ciclos Superior Page', () => {
 
   it('filters ciclos by search term', async () => {
     const user = userEvent.setup()
-    render(<CiclosSuperiorPage />)
-    
+    render(<CiclosSuperiorPage data-oid="3pfo_-h" />)
+
     const searchInput = screen.getByPlaceholderText('Buscar ciclos...')
     await user.type(searchInput, 'Marketing')
-    
+
     expect(screen.getByText('Marketing y Publicidad')).toBeInTheDocument()
     expect(screen.queryByText('Desarrollo de Aplicaciones Web')).not.toBeInTheDocument()
   })
 
   it('displays correct modality for each ciclo', () => {
-    render(<CiclosSuperiorPage />)
-    
+    render(<CiclosSuperiorPage data-oid="kl9ifm1" />)
+
     // All ciclos in this page should be "Presencial"
     const modalityLabels = screen.getAllByText('Presencial')
     expect(modalityLabels.length).toBeGreaterThan(0)
   })
 
   it('shows cursos activos count for each ciclo', () => {
-    render(<CiclosSuperiorPage />)
-    
+    render(<CiclosSuperiorPage data-oid=":ou:bu:" />)
+
     // Check for "cursos" text which appears in "{N} cursos"
     const cursosLabels = screen.getAllByText(/cursos/)
     expect(cursosLabels.length).toBeGreaterThan(0)
   })
 
   it('applies corporate color to all cards', () => {
-    const { container } = render(<CiclosSuperiorPage />)
-    
+    const { container } = render(<CiclosSuperiorPage data-oid="896vi37" />)
+
     const corporateColorCards = container.querySelectorAll('.border-\\[\\#ff2014\\]')
     expect(corporateColorCards.length).toBe(6) // 6 ciclos = 6 cards
   })
 
   it('displays "Nuevo Ciclo Superior" button', () => {
-    render(<CiclosSuperiorPage />)
+    render(<CiclosSuperiorPage data-oid="4x-84t-" />)
     expect(screen.getByText('Nuevo Ciclo Superior')).toBeInTheDocument()
   })
 })
 
 describe('Ciclos Corporate Color Consistency', () => {
   it('uses #ff2014 corporate color in Todos los Ciclos', () => {
-    const { container } = render(<TodosLosCiclosPage />)
+    const { container } = render(<TodosLosCiclosPage data-oid="y.3-nb_" />)
     // Check for border-2 cards (which have corporate color border)
     const cards = container.querySelectorAll('.border-2')
     expect(cards.length).toBeGreaterThan(0)
   })
 
   it('uses #ff2014 corporate color in Ciclos Medio', () => {
-    const { container } = render(<CiclosMedioPage />)
+    const { container } = render(<CiclosMedioPage data-oid="d23gbfx" />)
     // Check for border-2 cards (which have corporate color border)
     const cards = container.querySelectorAll('.border-2')
     expect(cards.length).toBe(4) // 4 CFGM programs
   })
 
   it('uses #ff2014 corporate color in Ciclos Superior', () => {
-    const { container } = render(<CiclosSuperiorPage />)
+    const { container } = render(<CiclosSuperiorPage data-oid="a66xlk." />)
     // Check for border-2 cards (which have corporate color border)
     const cards = container.querySelectorAll('.border-2')
     expect(cards.length).toBe(6) // 6 CFGS programs

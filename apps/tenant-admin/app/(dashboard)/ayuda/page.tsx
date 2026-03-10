@@ -20,7 +20,7 @@ import {
   HelpCircle,
   ExternalLink,
   CheckCircle,
-  Mail
+  Mail,
 } from 'lucide-react'
 
 interface GuideSection {
@@ -236,35 +236,43 @@ export default function AyudaPage() {
   const faqItems = [
     {
       question: '¿Cómo restablezco mi contraseña?',
-      answer: 'Haz clic en "¿Olvidaste tu contraseña?" en la página de login. Recibirás un correo con un enlace que expira en 1 hora. Si no recibes el correo, verifica la carpeta de spam.',
+      answer:
+        'Haz clic en "¿Olvidaste tu contraseña?" en la página de login. Recibirás un correo con un enlace que expira en 1 hora. Si no recibes el correo, verifica la carpeta de spam.',
     },
     {
       question: '¿Qué es 2FA y cómo lo activo?',
-      answer: 'La autenticación de dos factores (2FA) añade una capa extra de seguridad. Ve a tu perfil de usuario, haz clic en "Activar 2FA", escanea el código QR con Google Authenticator o Authy, e ingresa el código de verificación.',
+      answer:
+        'La autenticación de dos factores (2FA) añade una capa extra de seguridad. Ve a tu perfil de usuario, haz clic en "Activar 2FA", escanea el código QR con Google Authenticator o Authy, e ingresa el código de verificación.',
     },
     {
       question: '¿Puedo eliminar un área de estudio con cursos asignados?',
-      answer: 'No. Primero debes reasignar todos los cursos a otra área. Esto previene la pérdida accidental de datos. El sistema te mostrará un aviso y el botón de eliminación estará deshabilitado hasta que no haya cursos asociados.',
+      answer:
+        'No. Primero debes reasignar todos los cursos a otra área. Esto previene la pérdida accidental de datos. El sistema te mostrará un aviso y el botón de eliminación estará deshabilitado hasta que no haya cursos asociados.',
     },
     {
       question: '¿Cuál es la diferencia entre los roles?',
-      answer: 'Admin: acceso total. Gestor: cursos, staff, contenido. Marketing: campañas y leads. Asesor: solo gestión de leads. Lectura: solo visualización sin edición.',
+      answer:
+        'Admin: acceso total. Gestor: cursos, staff, contenido. Marketing: campañas y leads. Asesor: solo gestión de leads. Lectura: solo visualización sin edición.',
     },
     {
       question: '¿Cómo exporto los registros de actividad?',
-      answer: 'En la página de Registro de Actividad, usa los filtros para seleccionar los datos que necesitas, luego haz clic en el botón "Exportar" en la esquina superior derecha. Los datos se descargarán en formato CSV.',
+      answer:
+        'En la página de Registro de Actividad, usa los filtros para seleccionar los datos que necesitas, luego haz clic en el botón "Exportar" en la esquina superior derecha. Los datos se descargarán en formato CSV.',
     },
     {
       question: '¿Cómo aplico mi tema de colores personalizado?',
-      answer: 'Ve a Configuración → Personalización, ajusta los colores, verás la vista previa en tiempo real. Cuando estés satisfecho, haz clic en "Guardar Tema" para aplicar los cambios permanentemente.',
+      answer:
+        'Ve a Configuración → Personalización, ajusta los colores, verás la vista previa en tiempo real. Cuando estés satisfecho, haz clic en "Guardar Tema" para aplicar los cambios permanentemente.',
     },
     {
       question: '¿Qué hago si veo un error al crear un curso?',
-      answer: 'Verifica que todos los campos obligatorios estén completos. Revisa el formato de fechas y números. Si el error persiste, contacta con soporte técnico proporcionando el mensaje de error exacto.',
+      answer:
+        'Verifica que todos los campos obligatorios estén completos. Revisa el formato de fechas y números. Si el error persiste, contacta con soporte técnico proporcionando el mensaje de error exacto.',
     },
     {
       question: '¿Cómo vinculo un usuario a un miembro del staff?',
-      answer: 'Al crear o editar un usuario, verás el campo "Vincular a Staff". Selecciona el miembro del personal correspondiente. Esto conecta la cuenta de acceso con el perfil profesional.',
+      answer:
+        'Al crear o editar un usuario, verás el campo "Vincular a Staff". Selecciona el miembro del personal correspondiente. Esto conecta la cuenta de acceso con el perfil profesional.',
     },
   ]
 
@@ -292,115 +300,164 @@ export default function AyudaPage() {
     },
   ]
 
-  const filteredSections = guideSections.filter(section =>
-    section.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    section.guides.some(guide => 
-      guide.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+  const filteredSections = guideSections.filter(
+    (section) =>
+      section.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      section.guides.some((guide) => guide.title.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   return (
-    <div className="space-y-6 max-w-7xl">
+    <div className="space-y-6 max-w-7xl" data-oid="te:bxk1">
       <PageHeader
         title="Ayuda y Documentación"
         description="Centro de recursos y soporte técnico"
         icon={HelpCircle}
+        data-oid="no07hff"
       />
 
       {/* Search */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+      <Card data-oid="665qisx">
+        <CardContent className="pt-6" data-oid="viviebg">
+          <div className="relative" data-oid="2j:i_:q">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"
+              data-oid="9tqc0fh"
+            />
             <Input
               placeholder="Busca guías, tutoriales o preguntas frecuentes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 text-lg h-14"
+              data-oid="3nshkd2"
             />
           </div>
         </CardContent>
       </Card>
 
       {/* Quick Access */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="pt-6 text-center">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-              <MessageCircle className="h-6 w-6 text-primary" />
+      <div className="grid gap-4 md:grid-cols-3" data-oid="yfh9-1w">
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" data-oid="0.wn5sz">
+          <CardContent className="pt-6 text-center" data-oid="jruek86">
+            <div
+              className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3"
+              data-oid="y3xhb33"
+            >
+              <MessageCircle className="h-6 w-6 text-primary" data-oid="krs1c40" />
             </div>
-            <h3 className="font-semibold mb-1">Chat con Asistente IA</h3>
-            <p className="text-sm text-muted-foreground">Obtén ayuda instantánea 24/7</p>
+            <h3 className="font-semibold mb-1" data-oid="4a3qgr1">
+              Chat con Asistente IA
+            </h3>
+            <p className="text-sm text-muted-foreground" data-oid="045b8pg">
+              Obtén ayuda instantánea 24/7
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="pt-6 text-center">
-            <div className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-3">
-              <Video className="h-6 w-6 text-success" />
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" data-oid="g8s1e8n">
+          <CardContent className="pt-6 text-center" data-oid="nw.i3ik">
+            <div
+              className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-3"
+              data-oid="3ud6uj3"
+            >
+              <Video className="h-6 w-6 text-success" data-oid="ywgtyps" />
             </div>
-            <h3 className="font-semibold mb-1">Video Tutoriales</h3>
-            <p className="text-sm text-muted-foreground">Aprende viendo ejemplos</p>
+            <h3 className="font-semibold mb-1" data-oid="oeq4g:3">
+              Video Tutoriales
+            </h3>
+            <p className="text-sm text-muted-foreground" data-oid="znqou5y">
+              Aprende viendo ejemplos
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="pt-6 text-center">
-            <div className="h-12 w-12 rounded-full bg-warning/10 flex items-center justify-center mx-auto mb-3">
-              <FileText className="h-6 w-6 text-warning" />
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" data-oid="ost_qul">
+          <CardContent className="pt-6 text-center" data-oid="vlqd7ne">
+            <div
+              className="h-12 w-12 rounded-full bg-warning/10 flex items-center justify-center mx-auto mb-3"
+              data-oid="ax_7s.6"
+            >
+              <FileText className="h-6 w-6 text-warning" data-oid="y4dt867" />
             </div>
-            <h3 className="font-semibold mb-1">Documentación PDF</h3>
-            <p className="text-sm text-muted-foreground">Descarga manuales completos</p>
+            <h3 className="font-semibold mb-1" data-oid="51saam_">
+              Documentación PDF
+            </h3>
+            <p className="text-sm text-muted-foreground" data-oid="9k8--4t">
+              Descarga manuales completos
+            </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Guide Sections */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Guías por Tema</h2>
+      <div className="space-y-4" data-oid="8rbvkqm">
+        <h2 className="text-2xl font-bold" data-oid="ouysscl">
+          Guías por Tema
+        </h2>
         {filteredSections.map((section) => (
-          <Card key={section.id}>
-            <CardHeader 
+          <Card key={section.id} data-oid=":o6q_s.">
+            <CardHeader
               className="cursor-pointer hover:bg-accent/5"
               onClick={() => setExpandedSection(expandedSection === section.id ? null : section.id)}
+              data-oid="san5bcv"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <section.icon className="h-5 w-5 text-primary" />
+              <div className="flex items-center justify-between" data-oid=".vdsq7y">
+                <div className="flex items-center gap-3" data-oid="yv1rknr">
+                  <div
+                    className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center"
+                    data-oid="b_ngbpk"
+                  >
+                    <section.icon className="h-5 w-5 text-primary" data-oid="-f:3ynf" />
                   </div>
-                  <div>
-                    <CardTitle>{section.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{section.description}</p>
+                  <div data-oid="16.7ci9">
+                    <CardTitle data-oid="e1r5qwv">{section.title}</CardTitle>
+                    <p className="text-sm text-muted-foreground" data-oid="_72pkd0">
+                      {section.description}
+                    </p>
                   </div>
                 </div>
-                <ChevronRight 
-                  className={`h-5 w-5 transition-transform ${expandedSection === section.id ? 'rotate-90' : ''}`} 
+                <ChevronRight
+                  className={`h-5 w-5 transition-transform ${expandedSection === section.id ? 'rotate-90' : ''}`}
+                  data-oid="_d3s.59"
                 />
               </div>
             </CardHeader>
-            
+
             {expandedSection === section.id && (
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-2" data-oid="7o_-61c">
                 {section.guides.map((guide, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/5 cursor-pointer">
-                    <div className="flex-1">
-                      <p className="font-medium">{guide.title}</p>
-                      <p className="text-sm text-muted-foreground">{guide.description}</p>
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/5 cursor-pointer"
+                    data-oid="09qaq:2"
+                  >
+                    <div className="flex-1" data-oid="zlr8u1k">
+                      <p className="font-medium" data-oid="odnfdep">
+                        {guide.title}
+                      </p>
+                      <p className="text-sm text-muted-foreground" data-oid="w2rxg15">
+                        {guide.description}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        guide.level === 'Básico' ? 'bg-success/10 text-success' :
-                        guide.level === 'Intermedio' ? 'bg-warning/10 text-warning' :
-                        'bg-destructive/10 text-destructive'
-                      }`}>
+                    <div className="flex items-center gap-3 shrink-0" data-oid="bdphzzf">
+                      <span
+                        className={`text-xs px-2 py-1 rounded ${
+                          guide.level === 'Básico'
+                            ? 'bg-success/10 text-success'
+                            : guide.level === 'Intermedio'
+                              ? 'bg-warning/10 text-warning'
+                              : 'bg-destructive/10 text-destructive'
+                        }`}
+                        data-oid="ixixv-v"
+                      >
                         {guide.level}
                       </span>
                       {guide.duration && (
-                        <span className="text-xs text-muted-foreground">{guide.duration}</span>
+                        <span className="text-xs text-muted-foreground" data-oid="wv6raz6">
+                          {guide.duration}
+                        </span>
                       )}
-                      <Button variant="ghost" size="sm">
-                        <ExternalLink className="h-4 w-4" />
+                      <Button variant="ghost" size="sm" data-oid="x3cm4u6">
+                        <ExternalLink className="h-4 w-4" data-oid="yqwl-dj" />
                       </Button>
                     </div>
                   </div>
@@ -412,24 +469,37 @@ export default function AyudaPage() {
       </div>
 
       {/* Video Tutorials */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Video className="h-5 w-5" />
+      <Card data-oid="k-e.qhb">
+        <CardHeader data-oid="owdjtye">
+          <CardTitle className="flex items-center gap-2" data-oid="x._3:tz">
+            <Video className="h-5 w-5" data-oid="785rusr" />
             Tutoriales en Video
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
+        <CardContent data-oid="eagy215">
+          <div className="grid gap-4 md:grid-cols-3" data-oid="-3_op5-">
             {videoTutorials.map((video, idx) => (
-              <div key={idx} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-                <div className="aspect-video bg-muted flex items-center justify-center">
-                  <Video className="h-12 w-12 text-muted-foreground" />
+              <div
+                key={idx}
+                className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                data-oid="64l6ktm"
+              >
+                <div
+                  className="aspect-video bg-muted flex items-center justify-center"
+                  data-oid="nfa0ws3"
+                >
+                  <Video className="h-12 w-12 text-muted-foreground" data-oid=":jzuqdc" />
                 </div>
-                <div className="p-4">
-                  <p className="font-medium mb-1">{video.title}</p>
-                  <p className="text-sm text-muted-foreground mb-2">{video.description}</p>
-                  <p className="text-xs text-muted-foreground">{video.duration}</p>
+                <div className="p-4" data-oid="vz.c3b5">
+                  <p className="font-medium mb-1" data-oid="2v2pvwb">
+                    {video.title}
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-2" data-oid="el43.65">
+                    {video.description}
+                  </p>
+                  <p className="text-xs text-muted-foreground" data-oid="9zk9:.b">
+                    {video.duration}
+                  </p>
                 </div>
               </div>
             ))}
@@ -438,53 +508,70 @@ export default function AyudaPage() {
       </Card>
 
       {/* FAQ */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5" />
+      <Card data-oid="-a3ujwp">
+        <CardHeader data-oid="_9xdxa6">
+          <CardTitle className="flex items-center gap-2" data-oid="29qps3c">
+            <HelpCircle className="h-5 w-5" data-oid="3-i2fr:" />
             Preguntas Frecuentes (FAQ)
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4" data-oid="x5ts06_">
           {faqItems.map((faq, idx) => (
-            <div key={idx} className="border-b pb-4 last:border-0">
-              <p className="font-medium mb-2 flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-success shrink-0 mt-0.5" />
+            <div key={idx} className="border-b pb-4 last:border-0" data-oid="d23xuef">
+              <p className="font-medium mb-2 flex items-start gap-2" data-oid="5_h09x9">
+                <CheckCircle className="h-5 w-5 text-success shrink-0 mt-0.5" data-oid="vs7gax6" />
                 {faq.question}
               </p>
-              <p className="text-sm text-muted-foreground pl-7">{faq.answer}</p>
+              <p className="text-sm text-muted-foreground pl-7" data-oid="yegfdqi">
+                {faq.answer}
+              </p>
             </div>
           ))}
         </CardContent>
       </Card>
 
       {/* Documentation Downloads */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5" />
+      <Card data-oid="4njqi6q">
+        <CardHeader data-oid="o7yo4f2">
+          <CardTitle className="flex items-center gap-2" data-oid="-0:2m25">
+            <Download className="h-5 w-5" data-oid="1flspzo" />
             Documentación Descargable
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3" data-oid="5fmvs2_">
           {documentationFiles.map((file, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <file.icon className="h-5 w-5 text-primary" />
+            <div
+              key={idx}
+              className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 cursor-pointer"
+              data-oid="edhjt3v"
+            >
+              <div className="flex items-center gap-3" data-oid="df-t9-t">
+                <div
+                  className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center"
+                  data-oid="2himbeu"
+                >
+                  <file.icon className="h-5 w-5 text-primary" data-oid="8gonmzm" />
                 </div>
-                <div>
-                  <p className="font-medium">{file.title}</p>
-                  <p className="text-sm text-muted-foreground">{file.description}</p>
+                <div data-oid="r9zg7eu">
+                  <p className="font-medium" data-oid="wavxzfr">
+                    {file.title}
+                  </p>
+                  <p className="text-sm text-muted-foreground" data-oid="5h1gu4v">
+                    {file.description}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <p className="text-xs font-medium">{file.format}</p>
-                  <p className="text-xs text-muted-foreground">{file.size}</p>
+              <div className="flex items-center gap-3" data-oid="7m2b.o9">
+                <div className="text-right" data-oid="7pj0jr2">
+                  <p className="text-xs font-medium" data-oid="dzk4vh4">
+                    {file.format}
+                  </p>
+                  <p className="text-xs text-muted-foreground" data-oid="d1m7ym6">
+                    {file.size}
+                  </p>
                 </div>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4" />
+                <Button variant="outline" size="sm" data-oid="mhh6tkp">
+                  <Download className="h-4 w-4" data-oid="4aa9ccq" />
                 </Button>
               </div>
             </div>
@@ -493,24 +580,30 @@ export default function AyudaPage() {
       </Card>
 
       {/* Support Contact */}
-      <Card className="bg-primary/5 border-primary/20">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-              <MessageCircle className="h-6 w-6" />
+      <Card className="bg-primary/5 border-primary/20" data-oid="ofzh6i9">
+        <CardContent className="pt-6" data-oid="b5jwpi3">
+          <div className="flex items-start gap-4" data-oid="vcfidbr">
+            <div
+              className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0"
+              data-oid="b3116.p"
+            >
+              <MessageCircle className="h-6 w-6" data-oid="citcw88" />
             </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-lg mb-1">¿Necesitas más ayuda?</h3>
-              <p className="text-muted-foreground mb-4">
-                Nuestro equipo de soporte está disponible para ayudarte con cualquier duda o problema técnico.
+            <div className="flex-1" data-oid="vnvbk-8">
+              <h3 className="font-semibold text-lg mb-1" data-oid="fuf1egd">
+                ¿Necesitas más ayuda?
+              </h3>
+              <p className="text-muted-foreground mb-4" data-oid="j00tl13">
+                Nuestro equipo de soporte está disponible para ayudarte con cualquier duda o
+                problema técnico.
               </p>
-              <div className="flex gap-3">
-                <Button>
-                  <MessageCircle className="mr-2 h-4 w-4" />
+              <div className="flex gap-3" data-oid="lbayenx">
+                <Button data-oid=".x10mex">
+                  <MessageCircle className="mr-2 h-4 w-4" data-oid="eajlhsm" />
                   Chat en Vivo
                 </Button>
-                <Button variant="outline">
-                  <Mail className="mr-2 h-4 w-4" />
+                <Button variant="outline" data-oid="2hxs63j">
+                  <Mail className="mr-2 h-4 w-4" data-oid="2i:sy7z" />
                   Enviar Email
                 </Button>
               </div>

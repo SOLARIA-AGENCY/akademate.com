@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import type { Mock } from 'vitest';
+import type { Mock } from 'vitest'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { useRouter } from 'next/navigation'
 import LoginPage from '@/app/auth/login/page'
@@ -20,7 +20,7 @@ describe('Login Page', () => {
   })
 
   it('renders login form correctly', () => {
-    render(<LoginPage />)
+    render(<LoginPage data-oid="m:l9772" />)
 
     expect(screen.getByRole('heading', { name: /iniciar sesión/i })).toBeInTheDocument()
     expect(screen.getByLabelText(/correo electrónico/i)).toBeInTheDocument()
@@ -29,7 +29,7 @@ describe('Login Page', () => {
   })
 
   it('shows/hides password when eye icon is clicked', () => {
-    render(<LoginPage />)
+    render(<LoginPage data-oid="zcb061b" />)
 
     const passwordInput = screen.getByLabelText(/contraseña/i)
     const toggleButton = screen.getByRole('button', { name: '' })
@@ -47,7 +47,7 @@ describe('Login Page', () => {
   })
 
   it('validates required fields', async () => {
-    render(<LoginPage />)
+    render(<LoginPage data-oid="87juegc" />)
 
     const submitButton = screen.getByRole('button', { name: /iniciar sesión/i })
     fireEvent.click(submitButton)
@@ -59,7 +59,7 @@ describe('Login Page', () => {
 
   // Skip: requires proper API mock setup
   it.skip('handles successful login', async () => {
-    render(<LoginPage />)
+    render(<LoginPage data-oid="dhv_5xb" />)
 
     const emailInput = screen.getByLabelText(/correo electrónico/i)
     const passwordInput = screen.getByLabelText(/contraseña/i)
@@ -76,14 +76,17 @@ describe('Login Page', () => {
     expect(screen.getByText(/iniciando sesión/i)).toBeInTheDocument()
 
     // Wait for redirect
-    await waitFor(() => {
-      expect(window.localStorage.setItem).toHaveBeenCalled()
-      expect(mockPush).toHaveBeenCalledWith('/')
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        expect(window.localStorage.setItem).toHaveBeenCalled()
+        expect(mockPush).toHaveBeenCalledWith('/')
+      },
+      { timeout: 2000 }
+    )
   })
 
   it('handles remember me checkbox', () => {
-    render(<LoginPage />)
+    render(<LoginPage data-oid="fih55yl" />)
 
     const rememberCheckbox = screen.getByLabelText(/recordar mi sesión/i)
 
@@ -94,7 +97,7 @@ describe('Login Page', () => {
   })
 
   it('has link to forgot password', () => {
-    render(<LoginPage />)
+    render(<LoginPage data-oid="vdqfqsm" />)
 
     const forgotLink = screen.getByText(/olvidaste tu contraseña/i)
     expect(forgotLink).toBeInTheDocument()

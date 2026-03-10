@@ -43,11 +43,27 @@ const DEFAULT_CONSENTS: ConsentPreferences = {
 }
 
 const CONSENT_FIELDS = [
-  { key: 'marketing_email', label: 'Emails de marketing', description: 'Comunicaciones comerciales por email.' },
-  { key: 'marketing_sms', label: 'SMS de marketing', description: 'Comunicaciones comerciales por SMS.' },
-  { key: 'marketing_phone', label: 'Llamadas comerciales', description: 'Contacto telefónico para campañas.' },
+  {
+    key: 'marketing_email',
+    label: 'Emails de marketing',
+    description: 'Comunicaciones comerciales por email.',
+  },
+  {
+    key: 'marketing_sms',
+    label: 'SMS de marketing',
+    description: 'Comunicaciones comerciales por SMS.',
+  },
+  {
+    key: 'marketing_phone',
+    label: 'Llamadas comerciales',
+    description: 'Contacto telefónico para campañas.',
+  },
   { key: 'analytics', label: 'Analítica', description: 'Medición de uso y rendimiento del sitio.' },
-  { key: 'third_party_sharing', label: 'Compartir con terceros', description: 'Uso de proveedores externos.' },
+  {
+    key: 'third_party_sharing',
+    label: 'Compartir con terceros',
+    description: 'Uso de proveedores externos.',
+  },
   { key: 'profiling', label: 'Perfilado', description: 'Personalización basada en actividad.' },
   { key: 'newsletter', label: 'Newsletter', description: 'Boletines periódicos informativos.' },
 ] as const
@@ -160,57 +176,74 @@ export default function GdprSettingsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 max-w-5xl" data-oid="7aqfkpb">
       <PageHeader
         title="GDPR & Consentimientos"
         description="Gestiona el consentimiento del usuario, exportación y eliminación de datos personales."
         icon={ShieldCheck}
+        data-oid=":58zaom"
       />
 
       {status !== 'idle' && message && (
-        <Alert variant={status === 'error' ? 'destructive' : 'default'}>
-          <AlertTitle>{status === 'error' ? 'Error' : 'Estado'}</AlertTitle>
-          <AlertDescription>{message}</AlertDescription>
+        <Alert variant={status === 'error' ? 'destructive' : 'default'} data-oid="66d.bnr">
+          <AlertTitle data-oid="518cudf">{status === 'error' ? 'Error' : 'Estado'}</AlertTitle>
+          <AlertDescription data-oid="t4ct0fj">{message}</AlertDescription>
         </Alert>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Usuario objetivo</CardTitle>
+      <Card data-oid="8k:er85">
+        <CardHeader data-oid="i5rsqf5">
+          <CardTitle data-oid="xezaox3">Usuario objetivo</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-[1fr_auto_auto]">
-          <div className="space-y-2">
-            <Label htmlFor="userId">User ID</Label>
+        <CardContent className="grid gap-4 md:grid-cols-[1fr_auto_auto]" data-oid="zj2y3cq">
+          <div className="space-y-2" data-oid="-o3abw.">
+            <Label htmlFor="userId" data-oid="4lh0daf">
+              User ID
+            </Label>
             <Input
               id="userId"
               placeholder="UUID del usuario"
               value={userId}
               onChange={(event: ChangeEvent<HTMLInputElement>) => setUserId(event.target.value)}
+              data-oid="d5yjh0u"
             />
           </div>
-          <div className="flex items-end">
-            <Button variant="secondary" onClick={handleLoad} disabled={status === 'loading'}>
+          <div className="flex items-end" data-oid="fgb.iv-">
+            <Button
+              variant="secondary"
+              onClick={handleLoad}
+              disabled={status === 'loading'}
+              data-oid="sworg56"
+            >
               Cargar consentimiento
             </Button>
           </div>
-          <div className="flex items-end">
-            <Button onClick={handleSave} disabled={status === 'saving'}>
+          <div className="flex items-end" data-oid="tl.2n3g">
+            <Button onClick={handleSave} disabled={status === 'saving'} data-oid="qf1bc1k">
               Guardar cambios
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Preferencias de consentimiento</CardTitle>
+      <Card data-oid="btivzxl">
+        <CardHeader data-oid="c7sjm-1">
+          <CardTitle data-oid="-xo_0-t">Preferencias de consentimiento</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4" data-oid="p50xlix">
           {CONSENT_FIELDS.map((field) => (
-            <div key={field.key} className="flex items-start justify-between gap-4">
-              <div>
-                <p className="font-medium">{field.label}</p>
-                <p className="text-sm text-muted-foreground">{field.description}</p>
+            <div
+              key={field.key}
+              className="flex items-start justify-between gap-4"
+              data-oid="ab0dt6m"
+            >
+              <div data-oid="t0.el40">
+                <p className="font-medium" data-oid="dhebu4k">
+                  {field.label}
+                </p>
+                <p className="text-sm text-muted-foreground" data-oid="s-t3:u5">
+                  {field.description}
+                </p>
               </div>
               <Switch
                 checked={consents[field.key]}
@@ -220,21 +253,22 @@ export default function GdprSettingsPage() {
                     [field.key]: value,
                   }))
                 }
+                data-oid="53hxvq6"
               />
             </div>
           ))}
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Derechos del interesado</CardTitle>
+      <Card data-oid="dv:mab_">
+        <CardHeader data-oid="exjd1kk">
+          <CardTitle data-oid="ok2x4t9">Derechos del interesado</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-3">
-          <Button variant="outline" onClick={handleExport}>
+        <CardContent className="flex flex-wrap gap-3" data-oid="hcvxfq9">
+          <Button variant="outline" onClick={handleExport} data-oid="253jkn2">
             Exportar datos
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button variant="destructive" onClick={handleDelete} data-oid="srwv1fa">
             Solicitar eliminación
           </Button>
         </CardContent>

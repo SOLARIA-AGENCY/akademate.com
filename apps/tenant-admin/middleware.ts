@@ -94,6 +94,8 @@ const publicRoutes = [
   '/api/users/reset-password',
   '/api/users/me', // Allow preflight for auth check
   '/api/auth/session', // Session write after login (token may not be in cookie yet)
+  // DEV-ONLY: design-system accessible without auth for Onlook visual editing
+  ...(process.env.NODE_ENV !== 'production' ? ['/design-system'] : []),
 ]
 
 // Static asset paths to ignore

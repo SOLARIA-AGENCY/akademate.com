@@ -2,7 +2,13 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@payload-config/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@payload-config/components/ui/alert'
 import { Button } from '@payload-config/components/ui/button'
 import { DeleteCourseDialog } from '@payload-config/components/ui/DeleteCourseDialog'
@@ -48,45 +54,53 @@ export function DangerZone({
 
   return (
     <>
-      <Card className="border-destructive/50 bg-destructive/5">
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
-            <div className="flex-1">
-              <CardTitle className="text-destructive">Zona de Peligro</CardTitle>
-              <CardDescription className="text-destructive/80">
+      <Card className="border-destructive/50 bg-destructive/5" data-oid="9t_gyoj">
+        <CardHeader data-oid="y.z9:28">
+          <div className="flex items-start gap-3" data-oid="37wprjw">
+            <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" data-oid="as:fs_l" />
+            <div className="flex-1" data-oid="b.sn342">
+              <CardTitle className="text-destructive" data-oid="x7z8:b7">
+                Zona de Peligro
+              </CardTitle>
+              <CardDescription className="text-destructive/80" data-oid="32n0e0o">
                 Las acciones en esta sección son irreversibles
               </CardDescription>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent data-oid="yh03-.w">
+          <div className="space-y-4" data-oid="lfouah1">
             {/* Información sobre convocatorias */}
             {tieneConvocatorias && (
-              <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950/30">
-                <Info className="w-4 h-4 text-amber-600" />
-                <AlertTitle className="text-amber-900 dark:text-amber-100">
+              <Alert
+                className="border-amber-500 bg-amber-50 dark:bg-amber-950/30"
+                data-oid="y2srop4"
+              >
+                <Info className="w-4 h-4 text-amber-600" data-oid="ii4-4gg" />
+                <AlertTitle className="text-amber-900 dark:text-amber-100" data-oid="l-enluc">
                   Convocatorias Vinculadas
                 </AlertTitle>
-                <AlertDescription className="text-amber-800 dark:text-amber-200">
-                  Este curso tiene <strong>{numeroConvocatorias} convocatoria(s)</strong>{' '}
+                <AlertDescription className="text-amber-800 dark:text-amber-200" data-oid="no2.63w">
+                  Este curso tiene{' '}
+                  <strong data-oid="94xb_rr">{numeroConvocatorias} convocatoria(s)</strong>{' '}
                   asociada(s). Las convocatorias NO se eliminarán y quedarán huérfanas.
                 </AlertDescription>
               </Alert>
             )}
 
             {/* Descripción de la acción */}
-            <div className="space-y-2">
-              <h4 className="font-semibold text-sm">Eliminar Plantilla de Curso</h4>
-              <p className="text-sm text-muted-foreground">
+            <div className="space-y-2" data-oid="140ur0k">
+              <h4 className="font-semibold text-sm" data-oid="n-orzl4">
+                Eliminar Plantilla de Curso
+              </h4>
+              <p className="text-sm text-muted-foreground" data-oid="mg2uopr">
                 Esta acción eliminará permanentemente la plantilla del curso y toda su información
                 (objetivos, contenidos, recursos).{' '}
                 {tieneConvocatorias ? (
                   <>
-                    Las <strong>convocatorias permanecerán</strong> en el sistema pero quedarán
-                    desvinculadas de esta plantilla.
+                    Las <strong data-oid="00yh-ky">convocatorias permanecerán</strong> en el sistema
+                    pero quedarán desvinculadas de esta plantilla.
                   </>
                 ) : (
                   <>Esta acción no se puede deshacer.</>
@@ -95,16 +109,17 @@ export function DangerZone({
             </div>
 
             {/* Botón de eliminación */}
-            <div className="flex items-center justify-between pt-2">
-              <div className="text-xs text-muted-foreground">
+            <div className="flex items-center justify-between pt-2" data-oid="dc6d8x2">
+              <div className="text-xs text-muted-foreground" data-oid="k1yxnds">
                 Esta acción requiere confirmación
               </div>
               <Button
                 variant="destructive"
                 onClick={() => setIsDialogOpen(true)}
                 className="gap-2"
+                data-oid="y:wt9-r"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4" data-oid="s-fiq-0" />
                 Eliminar Curso
               </Button>
             </div>
@@ -121,6 +136,7 @@ export function DangerZone({
         tieneConvocatorias={tieneConvocatorias}
         numeroConvocatorias={numeroConvocatorias}
         isDeleting={isDeleting}
+        data-oid="zg0.2xa"
       />
     </>
   )

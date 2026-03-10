@@ -36,9 +36,9 @@ describe('InvoiceRow', () => {
 
   it('renders invoice number', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} />
+      <table data-oid="nb:zl9b">
+        <tbody data-oid="8ab9f0l">
+          <InvoiceRow invoice={baseInvoice} data-oid="fc.-_ar" />
         </tbody>
       </table>
     )
@@ -47,9 +47,9 @@ describe('InvoiceRow', () => {
 
   it('renders formatted date', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} />
+      <table data-oid="ku5j8.z">
+        <tbody data-oid="__m95.6">
+          <InvoiceRow invoice={baseInvoice} data-oid="4-po.1x" />
         </tbody>
       </table>
     )
@@ -58,9 +58,9 @@ describe('InvoiceRow', () => {
 
   it('renders paid status correctly', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} />
+      <table data-oid="ks0wbzw">
+        <tbody data-oid="ctx0gkg">
+          <InvoiceRow invoice={baseInvoice} data-oid="4n_nfx8" />
         </tbody>
       </table>
     )
@@ -70,9 +70,9 @@ describe('InvoiceRow', () => {
   it('renders open status correctly', () => {
     const openInvoice = { ...baseInvoice, status: 'open' as const }
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={openInvoice} />
+      <table data-oid="r661pol">
+        <tbody data-oid="nnwmp3c">
+          <InvoiceRow invoice={openInvoice} data-oid="mg27erd" />
         </tbody>
       </table>
     )
@@ -82,9 +82,9 @@ describe('InvoiceRow', () => {
   it('renders void status correctly', () => {
     const voidInvoice = { ...baseInvoice, status: 'void' as const }
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={voidInvoice} />
+      <table data-oid="_9fib72">
+        <tbody data-oid="e-uk1uf">
+          <InvoiceRow invoice={voidInvoice} data-oid="50znr_:" />
         </tbody>
       </table>
     )
@@ -94,9 +94,9 @@ describe('InvoiceRow', () => {
   it('renders draft status correctly', () => {
     const draftInvoice = { ...baseInvoice, status: 'draft' as const }
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={draftInvoice} />
+      <table data-oid="32g-aml">
+        <tbody data-oid="o-b6l0r">
+          <InvoiceRow invoice={draftInvoice} data-oid="o2.jj0t" />
         </tbody>
       </table>
     )
@@ -106,9 +106,9 @@ describe('InvoiceRow', () => {
   it('renders uncollectible status correctly', () => {
     const uncollectibleInvoice = { ...baseInvoice, status: 'uncollectible' as const }
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={uncollectibleInvoice} />
+      <table data-oid="f-:zyzm">
+        <tbody data-oid="0ssn6x9">
+          <InvoiceRow invoice={uncollectibleInvoice} data-oid="9wolhvt" />
         </tbody>
       </table>
     )
@@ -117,9 +117,9 @@ describe('InvoiceRow', () => {
 
   it('renders formatted amount in EUR', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} />
+      <table data-oid="ufz4qc5">
+        <tbody data-oid="r3-l9jo">
+          <InvoiceRow invoice={baseInvoice} data-oid="8tdnh.-" />
         </tbody>
       </table>
     )
@@ -128,9 +128,9 @@ describe('InvoiceRow', () => {
 
   it('renders download button when PDF URL exists', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} onDownload={mockOnDownload} />
+      <table data-oid="kt8gfrq">
+        <tbody data-oid=".t:ur7w">
+          <InvoiceRow invoice={baseInvoice} onDownload={mockOnDownload} data-oid="y601.4e" />
         </tbody>
       </table>
     )
@@ -140,9 +140,9 @@ describe('InvoiceRow', () => {
   it('does not render download button when no PDF URL', () => {
     const noPdfInvoice = { ...baseInvoice, invoicePdfUrl: null }
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={noPdfInvoice} onDownload={mockOnDownload} />
+      <table data-oid="e4-enpd">
+        <tbody data-oid="2mhc2sg">
+          <InvoiceRow invoice={noPdfInvoice} onDownload={mockOnDownload} data-oid="kudz2jh" />
         </tbody>
       </table>
     )
@@ -151,9 +151,9 @@ describe('InvoiceRow', () => {
 
   it('renders view button when hosted URL exists', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} onView={mockOnView} />
+      <table data-oid="7hj58hv">
+        <tbody data-oid="wh0x4ta">
+          <InvoiceRow invoice={baseInvoice} onView={mockOnView} data-oid="8.y4vp1" />
         </tbody>
       </table>
     )
@@ -163,9 +163,9 @@ describe('InvoiceRow', () => {
   it('does not render view button when no hosted URL', () => {
     const noHostedUrlInvoice = { ...baseInvoice, hostedInvoiceUrl: null }
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={noHostedUrlInvoice} onView={mockOnView} />
+      <table data-oid="db_vdd:">
+        <tbody data-oid="eiyhl2w">
+          <InvoiceRow invoice={noHostedUrlInvoice} onView={mockOnView} data-oid="j7hq6q." />
         </tbody>
       </table>
     )
@@ -174,9 +174,9 @@ describe('InvoiceRow', () => {
 
   it('calls onDownload when download button clicked', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} onDownload={mockOnDownload} />
+      <table data-oid="z4p4ho.">
+        <tbody data-oid="tqsve5v">
+          <InvoiceRow invoice={baseInvoice} onDownload={mockOnDownload} data-oid="7jxwsg4" />
         </tbody>
       </table>
     )
@@ -187,9 +187,9 @@ describe('InvoiceRow', () => {
 
   it('calls onView when view button clicked', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} onView={mockOnView} />
+      <table data-oid="uz7h50:">
+        <tbody data-oid="e0k9mwp">
+          <InvoiceRow invoice={baseInvoice} onView={mockOnView} data-oid="3pc3s.q" />
         </tbody>
       </table>
     )
@@ -200,9 +200,9 @@ describe('InvoiceRow', () => {
 
   it('does not call onDownload when not provided', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} />
+      <table data-oid="dqmnbkk">
+        <tbody data-oid="8l1n6ni">
+          <InvoiceRow invoice={baseInvoice} data-oid="0ddpt-o" />
         </tbody>
       </table>
     )
@@ -213,9 +213,9 @@ describe('InvoiceRow', () => {
 
   it('does not call onView when not provided', () => {
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} />
+      <table data-oid="p:u1bw0">
+        <tbody data-oid="ew1si_y">
+          <InvoiceRow invoice={baseInvoice} data-oid="mamcec:" />
         </tbody>
       </table>
     )
@@ -227,9 +227,9 @@ describe('InvoiceRow', () => {
   it('renders with null createdAt date', () => {
     const noDateInvoice = { ...baseInvoice, createdAt: null as any }
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={noDateInvoice} />
+      <table data-oid="7_hqd3b">
+        <tbody data-oid="ulujdsu">
+          <InvoiceRow invoice={noDateInvoice} data-oid="ht8koen" />
         </tbody>
       </table>
     )
@@ -238,9 +238,9 @@ describe('InvoiceRow', () => {
 
   it('applies hover effect on row', () => {
     const { container } = render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={baseInvoice} />
+      <table data-oid="d:hem.0">
+        <tbody data-oid="f5n9w1:">
+          <InvoiceRow invoice={baseInvoice} data-oid="laeuird" />
         </tbody>
       </table>
     )
@@ -251,9 +251,9 @@ describe('InvoiceRow', () => {
   it('renders different currency amounts correctly', () => {
     const usdInvoice = { ...baseInvoice, currency: 'USD', total: 35000 }
     const { rerender } = render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={usdInvoice} />
+      <table data-oid="ooo83ok">
+        <tbody data-oid="mup4xk0">
+          <InvoiceRow invoice={usdInvoice} data-oid="nue5ksq" />
         </tbody>
       </table>
     )
@@ -261,9 +261,9 @@ describe('InvoiceRow', () => {
 
     const gbpInvoice = { ...baseInvoice, currency: 'GBP', total: 25000 }
     rerender(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={gbpInvoice} />
+      <table data-oid="jvucrfa">
+        <tbody data-oid="jy-i69y">
+          <InvoiceRow invoice={gbpInvoice} data-oid="vz9inxf" />
         </tbody>
       </table>
     )
@@ -273,9 +273,9 @@ describe('InvoiceRow', () => {
   it('renders large amounts correctly', () => {
     const largeInvoice = { ...baseInvoice, total: 123456789 }
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={largeInvoice} />
+      <table data-oid="p3scrqq">
+        <tbody data-oid="me7s0la">
+          <InvoiceRow invoice={largeInvoice} data-oid="7joctbh" />
         </tbody>
       </table>
     )
@@ -285,9 +285,9 @@ describe('InvoiceRow', () => {
   it('handles different date formats correctly', () => {
     const decemberInvoice = { ...baseInvoice, createdAt: new Date('2025-12-25') }
     render(
-      <table>
-        <tbody>
-          <InvoiceRow invoice={decemberInvoice} />
+      <table data-oid="d2fw2r.">
+        <tbody data-oid="x0-4yps">
+          <InvoiceRow invoice={decemberInvoice} data-oid="y5ns-zg" />
         </tbody>
       </table>
     )

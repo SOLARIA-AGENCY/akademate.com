@@ -1,11 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { PlanCard } from '../../app/(dashboard)/facturacion/components/PlanCard'
 
-const mockFeatures = [
-  'Hasta 500 usuarios',
-  '100 GB de almacenamiento',
-  'Soporte prioritario',
-]
+const mockFeatures = ['Hasta 500 usuarios', '100 GB de almacenamiento', 'Soporte prioritario']
 
 describe('PlanCard', () => {
   it('renders plan details correctly', () => {
@@ -19,6 +15,7 @@ describe('PlanCard', () => {
         features={mockFeatures}
         interval="month"
         onSelect={jest.fn()}
+        data-oid="e_94mgn"
       />
     )
 
@@ -39,6 +36,7 @@ describe('PlanCard', () => {
         features={mockFeatures}
         interval="year"
         onSelect={jest.fn()}
+        data-oid="sr0vqgu"
       />
     )
 
@@ -58,6 +56,7 @@ describe('PlanCard', () => {
         features={mockFeatures}
         interval="month"
         onSelect={jest.fn()}
+        data-oid="uzx.syd"
       />
     )
 
@@ -78,6 +77,7 @@ describe('PlanCard', () => {
         interval="month"
         isPopular={true}
         onSelect={jest.fn()}
+        data-oid="ed7u1-z"
       />
     )
 
@@ -96,6 +96,7 @@ describe('PlanCard', () => {
         interval="month"
         isCurrentPlan={true}
         onSelect={jest.fn()}
+        data-oid="yit06wh"
       />
     )
 
@@ -114,6 +115,7 @@ describe('PlanCard', () => {
         interval="month"
         isCurrentPlan={true}
         onSelect={jest.fn()}
+        data-oid="my-5:0g"
       />
     )
 
@@ -133,6 +135,7 @@ describe('PlanCard', () => {
         features={mockFeatures}
         interval="month"
         onSelect={onSelect}
+        data-oid="7nzx-cd"
       />
     )
 

@@ -19,8 +19,8 @@ export const Default: Story = {
     layout: 'padded',
   },
   render: (args) => (
-    <div className="w-[420px]">
-      <Input {...args} />
+    <div className="w-[420px]" data-oid="ag.o7j5">
+      <Input {...args} data-oid="rt5zw3n" />
     </div>
   ),
 }
@@ -31,8 +31,8 @@ export const Disabled: Story = {
     value: 'admin@cep.es',
   },
   render: (args) => (
-    <div className="w-[420px]">
-      <Input {...args} />
+    <div className="w-[420px]" data-oid="0jan3bp">
+      <Input {...args} data-oid="t8wf_xk" />
     </div>
   ),
 }
@@ -43,8 +43,8 @@ export const Password: Story = {
     value: 'Admin1234!',
   },
   render: (args) => (
-    <div className="w-[420px]">
-      <Input {...args} />
+    <div className="w-[420px]" data-oid="tns5ll7">
+      <Input {...args} data-oid=".d0hpl3" />
     </div>
   ),
 }

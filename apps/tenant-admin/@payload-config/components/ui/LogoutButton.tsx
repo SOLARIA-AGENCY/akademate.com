@@ -25,8 +25,9 @@ export function LogoutButton() {
       variant="ghost"
       onClick={handleLogout}
       className="w-full justify-start"
+      data-oid="94.:9_n"
     >
-      <LogOut className="mr-2 h-4 w-4" />
+      <LogOut className="mr-2 h-4 w-4" data-oid="k6zz0ec" />
       Cerrar Sesión
     </Button>
   )

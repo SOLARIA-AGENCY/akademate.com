@@ -12,13 +12,22 @@ import { Badge } from '@payload-config/components/ui/badge'
 
 describe('EmptyState', () => {
   it('renders title and description', () => {
-    render(<EmptyState icon={Users} title="Sin datos" description="No hay elementos que mostrar." />)
+    render(
+      <EmptyState
+        icon={Users}
+        title="Sin datos"
+        description="No hay elementos que mostrar."
+        data-oid="z-z_.wq"
+      />
+    )
     expect(screen.getByTestId('empty-state-title')).toHaveTextContent('Sin datos')
-    expect(screen.getByTestId('empty-state-description')).toHaveTextContent('No hay elementos que mostrar.')
+    expect(screen.getByTestId('empty-state-description')).toHaveTextContent(
+      'No hay elementos que mostrar.'
+    )
   })
 
   it('renders without action button when action is omitted', () => {
-    render(<EmptyState icon={Users} title="Vacío" description="Descripción." />)
+    render(<EmptyState icon={Users} title="Vacío" description="Descripción." data-oid="r7_c8db" />)
     expect(screen.queryByTestId('empty-state-action')).toBeNull()
   })
 
@@ -30,6 +39,7 @@ describe('EmptyState', () => {
         title="Sin campañas"
         description="Crea tu primera campaña."
         action={{ label: 'Nueva campaña', onClick }}
+        data-oid="ldny77z"
       />
     )
     const btn = screen.getByTestId('empty-state-action')
@@ -44,6 +54,7 @@ describe('EmptyState', () => {
         title="T"
         description="D"
         action={{ label: 'Crear', onClick }}
+        data-oid="x_o1:ai"
       />
     )
     screen.getByTestId('empty-state-action').click()
@@ -52,7 +63,13 @@ describe('EmptyState', () => {
 
   it('applies custom className to wrapper', () => {
     const { container } = render(
-      <EmptyState icon={Users} title="T" description="D" className="custom-class" />
+      <EmptyState
+        icon={Users}
+        title="T"
+        description="D"
+        className="custom-class"
+        data-oid="r-on1.5"
+      />
     )
     expect(container.firstChild).toHaveClass('custom-class')
   })
@@ -62,29 +79,31 @@ describe('EmptyState', () => {
 
 describe('ResultsSummaryBar', () => {
   it('renders count and entity', () => {
-    render(<ResultsSummaryBar count={12} entity="alumnos" />)
+    render(<ResultsSummaryBar count={12} entity="alumnos" data-oid="n79v8i-" />)
     expect(screen.getByTestId('results-count')).toHaveTextContent('12')
     expect(screen.getByTestId('results-entity')).toHaveTextContent('alumnos')
   })
 
   it('renders zero count correctly', () => {
-    render(<ResultsSummaryBar count={0} entity="resultados" />)
+    render(<ResultsSummaryBar count={0} entity="resultados" data-oid="stg39jm" />)
     expect(screen.getByTestId('results-count')).toHaveTextContent('0')
   })
 
   it('renders extra when provided', () => {
-    render(<ResultsSummaryBar count={5} entity="leads" extra="3 sin gestionar" />)
+    render(
+      <ResultsSummaryBar count={5} entity="leads" extra="3 sin gestionar" data-oid="g8ce-5." />
+    )
     expect(screen.getByTestId('results-extra')).toHaveTextContent('3 sin gestionar')
   })
 
   it('does not render extra section when omitted', () => {
-    render(<ResultsSummaryBar count={5} entity="leads" />)
+    render(<ResultsSummaryBar count={5} entity="leads" data-oid="une3wq." />)
     expect(screen.queryByTestId('results-extra')).toBeNull()
   })
 
   it('applies custom className', () => {
     const { container } = render(
-      <ResultsSummaryBar count={1} entity="item" className="mt-4" />
+      <ResultsSummaryBar count={1} entity="item" className="mt-4" data-oid="v:nlw_3" />
     )
     expect(container.firstChild).toHaveClass('mt-4')
   })
@@ -94,25 +113,39 @@ describe('ResultsSummaryBar', () => {
 
 describe('Badge mock — data-variant propagation', () => {
   const variants = [
-    'default', 'secondary', 'destructive', 'outline',
-    'success', 'warning', 'info', 'neutral',
+    'default',
+    'secondary',
+    'destructive',
+    'outline',
+    'success',
+    'warning',
+    'info',
+    'neutral',
   ] as const
 
   variants.forEach((variant) => {
     it(`variant="${variant}" is set as data-variant attribute`, () => {
-      render(<Badge variant={variant}>Label</Badge>)
+      render(
+        <Badge variant={variant} data-oid="2qc_ts:">
+          Label
+        </Badge>
+      )
       const badge = screen.getByTestId('badge')
       expect(badge).toHaveAttribute('data-variant', variant)
     })
   })
 
   it('renders children text', () => {
-    render(<Badge>Activo</Badge>)
+    render(<Badge data-oid="_:2ctyo">Activo</Badge>)
     expect(screen.getByTestId('badge')).toHaveTextContent('Activo')
   })
 
   it('forwards className', () => {
-    render(<Badge className="custom">X</Badge>)
+    render(
+      <Badge className="custom" data-oid="68vq:l-">
+        X
+      </Badge>
+    )
     expect(screen.getByTestId('badge')).toHaveClass('custom')
   })
 })

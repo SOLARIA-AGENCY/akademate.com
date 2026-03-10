@@ -19,5 +19,6 @@ export const Switch = ({
     onChange={(e) => onCheckedChange?.(e.target.checked)}
     data-testid="switch"
     {...props}
+    data-oid="u_4:0sd"
   />
 )

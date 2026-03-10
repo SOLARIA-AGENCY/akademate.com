@@ -100,24 +100,32 @@ describe('badgeVariants', () => {
 
 describe('Badge component', () => {
   it('renders children', () => {
-    render(<Badge>Admin</Badge>)
+    render(<Badge data-oid="yji420x">Admin</Badge>)
     expect(screen.getByText('Admin')).toBeInTheDocument()
   })
 
   it('renders as a div element', () => {
-    const { container } = render(<Badge>Test</Badge>)
+    const { container } = render(<Badge data-oid="qdpk-ao">Test</Badge>)
     expect(container.firstChild?.nodeName).toBe('DIV')
   })
 
   it('applies secondary variant classes to the element', () => {
-    const { container } = render(<Badge variant="secondary">Admin</Badge>)
+    const { container } = render(
+      <Badge variant="secondary" data-oid="k.ziy5t">
+        Admin
+      </Badge>
+    )
     const el = container.firstChild as HTMLElement
     expect(el.className).toContain('bg-secondary')
     expect(el.className).toContain('text-secondary-foreground')
   })
 
   it('secondary badge does not have hardcoded dark slate classes on the element', () => {
-    const { container } = render(<Badge variant="secondary">Admin</Badge>)
+    const { container } = render(
+      <Badge variant="secondary" data-oid="r62hyc8">
+        Admin
+      </Badge>
+    )
     const el = container.firstChild as HTMLElement
     expect(el.className).not.toMatch(/dark:bg-slate-\d+/)
     expect(el.className).not.toMatch(/dark:text-slate-\d+/)
@@ -125,7 +133,7 @@ describe('Badge component', () => {
 
   it('merges custom className with variant classes', () => {
     const { container } = render(
-      <Badge variant="secondary" className="my-custom-class">
+      <Badge variant="secondary" className="my-custom-class" data-oid="-l2h0pn">
         Test
       </Badge>
     )
@@ -135,28 +143,44 @@ describe('Badge component', () => {
   })
 
   it('renders success variant with green classes', () => {
-    const { container } = render(<Badge variant="success">Activo</Badge>)
+    const { container } = render(
+      <Badge variant="success" data-oid="v1b6vns">
+        Activo
+      </Badge>
+    )
     const el = container.firstChild as HTMLElement
     expect(el.className).toContain('bg-green-100')
     expect(el.className).toContain('text-green-800')
   })
 
   it('renders warning variant with orange classes', () => {
-    const { container } = render(<Badge variant="warning">Pendiente</Badge>)
+    const { container } = render(
+      <Badge variant="warning" data-oid="9r3v2js">
+        Pendiente
+      </Badge>
+    )
     const el = container.firstChild as HTMLElement
     expect(el.className).toContain('bg-orange-100')
     expect(el.className).toContain('text-orange-800')
   })
 
   it('renders info variant with blue classes', () => {
-    const { container } = render(<Badge variant="info">Online</Badge>)
+    const { container } = render(
+      <Badge variant="info" data-oid="apgcp7q">
+        Online
+      </Badge>
+    )
     const el = container.firstChild as HTMLElement
     expect(el.className).toContain('bg-blue-100')
     expect(el.className).toContain('text-blue-800')
   })
 
   it('spreads additional HTML attributes', () => {
-    render(<Badge data-testid="my-badge" aria-label="role badge">Admin</Badge>)
+    render(
+      <Badge data-testid="my-badge" aria-label="role badge" data-oid="jv8:ro_">
+        Admin
+      </Badge>
+    )
     const el = screen.getByTestId('my-badge')
     expect(el).toBeInTheDocument()
     expect(el).toHaveAttribute('aria-label', 'role badge')

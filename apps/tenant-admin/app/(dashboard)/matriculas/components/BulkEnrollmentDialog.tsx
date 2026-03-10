@@ -225,14 +225,14 @@ export function BulkEnrollmentDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileSpreadsheet className="h-5 w-5" style={{ color: '#F2014B' }} />
+    <Dialog open={open} onOpenChange={handleClose} data-oid="t_95mic">
+      <DialogContent className="sm:max-w-2xl" data-oid="iho4-u2">
+        <DialogHeader data-oid="s_xbiql">
+          <DialogTitle className="flex items-center gap-2" data-oid="qlj-vy.">
+            <FileSpreadsheet className="h-5 w-5" style={{ color: '#F2014B' }} data-oid=":8p:nve" />
             Importar Matriculas desde CSV
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription data-oid="qvy2nl_">
             {step === 'upload' && 'Sube un archivo CSV con los datos de matriculacion'}
             {step === 'preview' && 'Revisa los datos antes de procesarlos'}
             {step === 'processing' && 'Procesando matriculas...'}
@@ -242,7 +242,7 @@ export function BulkEnrollmentDialog({
 
         {/* Upload Step */}
         {step === 'upload' && (
-          <div className="space-y-4">
+          <div className="space-y-4" data-oid="c:9rdij">
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragging
@@ -252,12 +252,13 @@ export function BulkEnrollmentDialog({
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
+              data-oid="yv5h8nh"
             >
-              <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-              <p className="mt-4 text-sm font-medium">
+              <Upload className="mx-auto h-12 w-12 text-muted-foreground" data-oid=".d1pt8p" />
+              <p className="mt-4 text-sm font-medium" data-oid="c5j_ixr">
                 Arrastra tu archivo CSV aqui
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-xs text-muted-foreground" data-oid="j-nn_v6">
                 o haz clic para seleccionar
               </p>
               <input
@@ -266,10 +267,12 @@ export function BulkEnrollmentDialog({
                 onChange={handleFileInput}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                data-oid="f0j-6gl"
               />
-              <div className="relative">
-                <Button variant="outline" className="mt-4" asChild>
-                  <label htmlFor="csv-file-input" className="cursor-pointer">
+
+              <div className="relative" data-oid="ekq.7rw">
+                <Button variant="outline" className="mt-4" asChild data-oid="_do.b5d">
+                  <label htmlFor="csv-file-input" className="cursor-pointer" data-oid="kjlr4dp">
                     Seleccionar archivo
                   </label>
                 </Button>
@@ -279,26 +282,40 @@ export function BulkEnrollmentDialog({
                   accept=".csv"
                   onChange={handleFileInput}
                   className="sr-only"
+                  data-oid="wnu.:jf"
                 />
               </div>
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 rounded-lg">
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <div
+                className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 rounded-lg"
+                data-oid="87x:lmo"
+              >
+                <AlertCircle className="h-4 w-4 flex-shrink-0" data-oid="a6x1x-1" />
                 {error}
               </div>
             )}
 
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div className="text-sm">
-                <p className="font-medium">Formato requerido:</p>
-                <p className="text-muted-foreground">
+            <div
+              className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+              data-oid="5y25p1l"
+            >
+              <div className="text-sm" data-oid="z5z39le">
+                <p className="font-medium" data-oid="yni-7o1">
+                  Formato requerido:
+                </p>
+                <p className="text-muted-foreground" data-oid=".gn76sl">
                   studentEmail, courseRunId, status, notes
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
-                <Download className="mr-2 h-4 w-4" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadTemplate}
+                data-oid="3vm6z:i"
+              >
+                <Download className="mr-2 h-4 w-4" data-oid="ng8f:k4" />
                 Plantilla
               </Button>
             </div>
@@ -307,12 +324,16 @@ export function BulkEnrollmentDialog({
 
         {/* Preview Step */}
         {step === 'preview' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{file?.name}</span>
-                <Badge variant="outline">{parsedRows.length} filas</Badge>
+          <div className="space-y-4" data-oid=":gj7h0c">
+            <div className="flex items-center justify-between" data-oid="-z-_c_.">
+              <div className="flex items-center gap-2" data-oid="d67tv72">
+                <FileSpreadsheet className="h-4 w-4 text-muted-foreground" data-oid="xana7d_" />
+                <span className="text-sm font-medium" data-oid="1yk5lw9">
+                  {file?.name}
+                </span>
+                <Badge variant="outline" data-oid="71sja0o">
+                  {parsedRows.length} filas
+                </Badge>
               </div>
               <Button
                 variant="ghost"
@@ -322,43 +343,60 @@ export function BulkEnrollmentDialog({
                   setParsedRows([])
                   setStep('upload')
                 }}
+                data-oid="g0lvpng"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" data-oid="3t.v_-4" />
               </Button>
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 rounded-lg">
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <div
+                className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 rounded-lg"
+                data-oid="687-uio"
+              >
+                <AlertCircle className="h-4 w-4 flex-shrink-0" data-oid="yrd2c.i" />
                 {error}
               </div>
             )}
 
-            <div className="max-h-64 overflow-auto border rounded-lg">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">#</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Course Run ID</TableHead>
-                    <TableHead>Estado</TableHead>
+            <div className="max-h-64 overflow-auto border rounded-lg" data-oid="fnxxvci">
+              <Table data-oid="rxc404f">
+                <TableHeader data-oid=":yh6-0e">
+                  <TableRow data-oid="_188v:o">
+                    <TableHead className="w-12" data-oid="2iihvzt">
+                      #
+                    </TableHead>
+                    <TableHead data-oid="vo8hy2k">Email</TableHead>
+                    <TableHead data-oid="9dqx9-w">Course Run ID</TableHead>
+                    <TableHead data-oid="a3o08s5">Estado</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody data-oid="60rf637">
                   {parsedRows.slice(0, 10).map((row, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
-                      <TableCell className="font-mono text-sm">{row.studentEmail}</TableCell>
-                      <TableCell className="font-mono text-sm">{row.courseRunId}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{row.status || 'active'}</Badge>
+                    <TableRow key={idx} data-oid="go9p1rj">
+                      <TableCell className="text-muted-foreground" data-oid="sx7b44f">
+                        {idx + 1}
+                      </TableCell>
+                      <TableCell className="font-mono text-sm" data-oid="buljh9w">
+                        {row.studentEmail}
+                      </TableCell>
+                      <TableCell className="font-mono text-sm" data-oid="qi_h5y3">
+                        {row.courseRunId}
+                      </TableCell>
+                      <TableCell data-oid="2nfyu6f">
+                        <Badge variant="outline" data-oid="fb87wrc">
+                          {row.status || 'active'}
+                        </Badge>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
               {parsedRows.length > 10 && (
-                <div className="p-2 text-center text-sm text-muted-foreground bg-muted/50">
+                <div
+                  className="p-2 text-center text-sm text-muted-foreground bg-muted/50"
+                  data-oid="b-31hzy"
+                >
                   ... y {parsedRows.length - 10} filas mas
                 </div>
               )}
@@ -368,9 +406,9 @@ export function BulkEnrollmentDialog({
 
         {/* Processing Step */}
         {step === 'processing' && (
-          <div className="flex flex-col items-center justify-center py-8">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <p className="mt-4 text-sm text-muted-foreground">
+          <div className="flex flex-col items-center justify-center py-8" data-oid=":n8-sj-">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" data-oid="j5y7h5q" />
+            <p className="mt-4 text-sm text-muted-foreground" data-oid="2vtl2yg">
               Procesando {parsedRows.length} matriculas...
             </p>
           </div>
@@ -378,43 +416,75 @@ export function BulkEnrollmentDialog({
 
         {/* Results Step */}
         {step === 'results' && result && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col items-center p-4 bg-green-50 rounded-lg">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
-                <span className="mt-2 text-2xl font-bold text-green-700">{result.created}</span>
-                <span className="text-sm text-green-600">Creadas</span>
+          <div className="space-y-4" data-oid="tpd:d_u">
+            <div className="grid grid-cols-3 gap-4" data-oid="7cwatz0">
+              <div
+                className="flex flex-col items-center p-4 bg-green-50 rounded-lg"
+                data-oid="a606-90"
+              >
+                <CheckCircle2 className="h-8 w-8 text-green-600" data-oid="iye.p8e" />
+                <span className="mt-2 text-2xl font-bold text-green-700" data-oid="axe7hrl">
+                  {result.created}
+                </span>
+                <span className="text-sm text-green-600" data-oid="teo2uxm">
+                  Creadas
+                </span>
               </div>
-              <div className="flex flex-col items-center p-4 bg-amber-50 rounded-lg">
-                <AlertCircle className="h-8 w-8 text-amber-600" />
-                <span className="mt-2 text-2xl font-bold text-amber-700">{result.skipped}</span>
-                <span className="text-sm text-amber-600">Omitidas</span>
+              <div
+                className="flex flex-col items-center p-4 bg-amber-50 rounded-lg"
+                data-oid="9eud0-4"
+              >
+                <AlertCircle className="h-8 w-8 text-amber-600" data-oid="zajke0h" />
+                <span className="mt-2 text-2xl font-bold text-amber-700" data-oid="2uge6uc">
+                  {result.skipped}
+                </span>
+                <span className="text-sm text-amber-600" data-oid="m7ywr6p">
+                  Omitidas
+                </span>
               </div>
-              <div className="flex flex-col items-center p-4 bg-red-50 rounded-lg">
-                <XCircle className="h-8 w-8 text-red-600" />
-                <span className="mt-2 text-2xl font-bold text-red-700">{result.failed}</span>
-                <span className="text-sm text-red-600">Fallidas</span>
+              <div
+                className="flex flex-col items-center p-4 bg-red-50 rounded-lg"
+                data-oid="q8az8um"
+              >
+                <XCircle className="h-8 w-8 text-red-600" data-oid="o21xfz9" />
+                <span className="mt-2 text-2xl font-bold text-red-700" data-oid="kyn3tch">
+                  {result.failed}
+                </span>
+                <span className="text-sm text-red-600" data-oid="ykvster">
+                  Fallidas
+                </span>
               </div>
             </div>
 
             {result.errors.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-red-600">Errores:</p>
-                <div className="max-h-40 overflow-auto border border-red-200 rounded-lg">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-12">Fila</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Error</TableHead>
+              <div className="space-y-2" data-oid="vfp21-6">
+                <p className="text-sm font-medium text-red-600" data-oid="1gckn15">
+                  Errores:
+                </p>
+                <div
+                  className="max-h-40 overflow-auto border border-red-200 rounded-lg"
+                  data-oid="_vo-y2j"
+                >
+                  <Table data-oid="pqyvdl-">
+                    <TableHeader data-oid="_6krbs:">
+                      <TableRow data-oid="jfr5l2e">
+                        <TableHead className="w-12" data-oid="a5xy9yu">
+                          Fila
+                        </TableHead>
+                        <TableHead data-oid="9wdycs9">Email</TableHead>
+                        <TableHead data-oid="a3sd5.2">Error</TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody data-oid="kqpzx.o">
                       {result.errors.map((err, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>{err.row}</TableCell>
-                          <TableCell className="font-mono text-sm">{err.email}</TableCell>
-                          <TableCell className="text-red-600">{err.error}</TableCell>
+                        <TableRow key={idx} data-oid="_gh7g:8">
+                          <TableCell data-oid="tl377ti">{err.row}</TableCell>
+                          <TableCell className="font-mono text-sm" data-oid="q5z1pjw">
+                            {err.email}
+                          </TableCell>
+                          <TableCell className="text-red-600" data-oid="n4wgy30">
+                            {err.error}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -425,24 +495,28 @@ export function BulkEnrollmentDialog({
           </div>
         )}
 
-        <DialogFooter>
+        <DialogFooter data-oid="klpwvua">
           {step === 'upload' && (
-            <Button variant="outline" onClick={handleClose}>
+            <Button variant="outline" onClick={handleClose} data-oid="w714.r1">
               Cancelar
             </Button>
           )}
           {step === 'preview' && (
             <>
-              <Button variant="outline" onClick={() => setStep('upload')}>
+              <Button variant="outline" onClick={() => setStep('upload')} data-oid="1l52y6s">
                 Atras
               </Button>
-              <Button onClick={handleSubmit} style={{ backgroundColor: '#F2014B' }}>
+              <Button
+                onClick={handleSubmit}
+                style={{ backgroundColor: '#F2014B' }}
+                data-oid=":y2m1s7"
+              >
                 Procesar {parsedRows.length} matriculas
               </Button>
             </>
           )}
           {step === 'results' && (
-            <Button onClick={handleDone} style={{ backgroundColor: '#F2014B' }}>
+            <Button onClick={handleDone} style={{ backgroundColor: '#F2014B' }} data-oid="g7x6b8y">
               {result && result.created > 0 ? 'Finalizar' : 'Cerrar'}
             </Button>
           )}

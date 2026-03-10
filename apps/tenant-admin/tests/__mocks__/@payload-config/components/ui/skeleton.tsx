@@ -1,5 +1,5 @@
 import React from 'react'
 
 export function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-id="skeleton" className={className} {...props} />
+  return <div data-id="skeleton" className={className} {...props} data-oid="yu5fv5:" />
 }

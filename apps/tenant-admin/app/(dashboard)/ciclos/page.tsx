@@ -15,14 +15,11 @@ import {
 import { Badge } from '@payload-config/components/ui/badge'
 import { OcupacionBadge } from '@payload-config/components/ui/OcupacionBadge'
 import { useRouter } from 'next/navigation'
-import {
-  Search,
-  GraduationCap,
-  Users,
-  BookOpen,
-  Clock,
-  Calendar,
-} from 'lucide-react'
+import { Search, GraduationCap, Users, BookOpen, Clock, Calendar } from 'lucide-react'
+import { usePlanLimits } from '../../../@payload-config/hooks/usePlanLimits'
+import { PlanLimitModal } from '../../../@payload-config/components/ui/PlanLimitModal'
+import { UsageBar } from '../../../@payload-config/components/ui/UsageBar'
+import { getLimit } from '../../../@payload-config/lib/planLimits'
 import { CicloListItem } from '@payload-config/components/ui/CicloListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '../../../@payload-config/hooks/useViewPreference'
@@ -36,6 +33,7 @@ function CicloImageWithFallback({ src, alt }: { src: string; alt: string }) {
         src="/placeholder-course.svg?v=2"
         alt={alt}
         className="w-full h-full object-cover"
+        data-oid="u6p303e"
       />
     )
   }
@@ -45,6 +43,7 @@ function CicloImageWithFallback({ src, alt }: { src: string; alt: string }) {
       alt={alt}
       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
       onError={() => setHasError(true)}
+      data-oid="1r.am3p"
     />
   )
 }
@@ -77,276 +76,7 @@ interface CycleApiResponse {
   docs?: CycleApiItem[]
 }
 
-const mockCiclosData: Ciclo[] = [
-  // GRADO MEDIO
-  {
-    id: 'cfgm-gestion-administrativa',
-    nombre: 'Gestión Administrativa',
-    codigo: 'ADG201',
-    familia: 'Administración y Gestión',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 30,
-    plazas_ocupadas: 28,
-    cursos_activos: 3,
-    nivel: 'Grado Medio',
-    imagen: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=400&fit=crop',
-    competencias: [
-      'Tramitar documentos y comunicaciones internas o externas',
-      'Gestionar archivos físicos y digitales',
-      'Realizar operaciones básicas de tesorería',
-      'Utilizar aplicaciones informáticas de gestión',
-    ],
-    salidas_profesionales: [
-      'Administrativo/a de oficina',
-      'Auxiliar administrativo/a',
-      'Recepcionista',
-      'Empleado/a de atención al cliente',
-    ],
-    requisitos: 'Título de Graduado en ESO o equivalente',
-  },
-  {
-    id: 'cfgm-sistemas-microinformaticos',
-    nombre: 'Sistemas Microinformáticos y Redes',
-    codigo: 'IFC301',
-    familia: 'Informática y Comunicaciones',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 25,
-    plazas_ocupadas: 25,
-    cursos_activos: 2,
-    nivel: 'Grado Medio',
-    imagen: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=400&fit=crop',
-    competencias: [
-      'Instalar y configurar sistemas operativos',
-      'Montar y configurar equipos microinformáticos',
-      'Administrar redes locales',
-      'Proporcionar soporte técnico',
-    ],
-    salidas_profesionales: [
-      'Técnico/a de soporte informático',
-      'Reparador/a de equipos informáticos',
-      'Instalador/a de redes',
-      'Operador/a de teleasistencia',
-    ],
-    requisitos: 'Título de Graduado en ESO o equivalente',
-  },
-  {
-    id: 'cfgm-actividades-comerciales',
-    nombre: 'Actividades Comerciales',
-    codigo: 'COM101',
-    familia: 'Comercio y Marketing',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 28,
-    plazas_ocupadas: 22,
-    cursos_activos: 2,
-    nivel: 'Grado Medio',
-    imagen: 'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=800&h=400&fit=crop',
-    competencias: [
-      'Realizar operaciones de venta',
-      'Gestionar stocks e inventarios',
-      'Animar el punto de venta',
-      'Realizar merchandising',
-    ],
-    salidas_profesionales: [
-      'Dependiente/a de comercio',
-      'Vendedor/a técnico/a',
-      'Teleoperador/a',
-      'Promotor/a de ventas',
-    ],
-    requisitos: 'Título de Graduado en ESO o equivalente',
-  },
-  {
-    id: 'cfgm-gestion-alojamientos',
-    nombre: 'Gestión de Alojamientos Turísticos',
-    codigo: 'HOT201',
-    familia: 'Hostelería y Turismo',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 24,
-    plazas_ocupadas: 20,
-    cursos_activos: 2,
-    nivel: 'Grado Medio',
-    imagen: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=400&fit=crop',
-    competencias: [
-      'Gestionar reservas y atención al cliente',
-      'Organizar servicios de recepción',
-      'Coordinar servicios de pisos',
-      'Controlar facturación',
-    ],
-    salidas_profesionales: [
-      'Recepcionista de hotel',
-      'Coordinador/a de alojamiento',
-      'Jefe/a de reservas',
-      'Gobernante/a',
-    ],
-    requisitos: 'Título de Graduado en ESO o equivalente',
-  },
-  // GRADO SUPERIOR
-  {
-    id: 'cfgs-desarrollo-aplicaciones-web',
-    nombre: 'Desarrollo de Aplicaciones Web',
-    codigo: 'IFC303',
-    familia: 'Informática y Comunicaciones',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 30,
-    plazas_ocupadas: 30,
-    cursos_activos: 4,
-    nivel: 'Grado Superior',
-    imagen: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop',
-    competencias: [
-      'Desarrollar aplicaciones web full-stack',
-      'Gestionar bases de datos relacionales y no relacionales',
-      'Implementar APIs REST y GraphQL',
-      'Desplegar aplicaciones en la nube',
-      'Aplicar patrones de diseño y arquitecturas modernas',
-    ],
-    salidas_profesionales: [
-      'Desarrollador/a web full-stack',
-      'Programador/a frontend/backend',
-      'Desarrollador/a de aplicaciones móviles',
-      'Consultor/a técnico/a',
-    ],
-    requisitos: 'Bachillerato, Título de Técnico o equivalente',
-  },
-  {
-    id: 'cfgs-administracion-finanzas',
-    nombre: 'Administración y Finanzas',
-    codigo: 'ADG202',
-    familia: 'Administración y Gestión',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 32,
-    plazas_ocupadas: 29,
-    cursos_activos: 3,
-    nivel: 'Grado Superior',
-    imagen: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop',
-    competencias: [
-      'Gestionar la tesorería y operaciones financieras',
-      'Elaborar estados contables e informes financieros',
-      'Gestionar recursos humanos',
-      'Realizar auditorías internas',
-      'Asesorar fiscalmente',
-    ],
-    salidas_profesionales: [
-      'Administrativo/a financiero/a',
-      'Contable',
-      'Técnico/a en recursos humanos',
-      'Asesor/a fiscal',
-    ],
-    requisitos: 'Bachillerato, Título de Técnico o equivalente',
-  },
-  {
-    id: 'cfgs-marketing-publicidad',
-    nombre: 'Marketing y Publicidad',
-    codigo: 'COM301',
-    familia: 'Comercio y Marketing',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 28,
-    plazas_ocupadas: 26,
-    cursos_activos: 3,
-    nivel: 'Grado Superior',
-    imagen: 'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800&h=400&fit=crop',
-    competencias: [
-      'Elaborar planes de marketing estratégico',
-      'Diseñar campañas publicitarias multicanal',
-      'Gestionar marketing digital y redes sociales',
-      'Realizar análisis de mercado',
-      'Coordinar acciones promocionales',
-    ],
-    salidas_profesionales: [
-      'Técnico/a de marketing',
-      'Community manager',
-      'Responsable de publicidad',
-      'Analista de mercado',
-    ],
-    requisitos: 'Bachillerato, Título de Técnico o equivalente',
-  },
-  {
-    id: 'cfgs-diseno-edicion',
-    nombre: 'Diseño y Edición de Publicaciones',
-    codigo: 'IMP501',
-    familia: 'Imagen y Sonido',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 20,
-    plazas_ocupadas: 18,
-    cursos_activos: 2,
-    nivel: 'Grado Superior',
-    imagen: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=400&fit=crop',
-    competencias: [
-      'Diseñar publicaciones digitales e impresas',
-      'Maquetar libros, revistas y catálogos',
-      'Gestionar flujos de producción editorial',
-      'Desarrollar identidad visual corporativa',
-      'Producir contenido multimedia',
-    ],
-    salidas_profesionales: [
-      'Diseñador/a gráfico/a editorial',
-      'Maquetador/a',
-      'Diseñador/a de UX/UI',
-      'Productor/a gráfico/a',
-    ],
-    requisitos: 'Bachillerato, Título de Técnico o equivalente',
-  },
-  {
-    id: 'cfgs-guia-turistica',
-    nombre: 'Guía, Información y Asistencias Turísticas',
-    codigo: 'HOT401',
-    familia: 'Hostelería y Turismo',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 25,
-    plazas_ocupadas: 21,
-    cursos_activos: 2,
-    nivel: 'Grado Superior',
-    imagen: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=400&fit=crop',
-    competencias: [
-      'Diseñar y operar itinerarios turísticos',
-      'Gestionar servicios de información turística',
-      'Coordinar grupos de viajeros',
-      'Aplicar protocolo y relaciones públicas',
-      'Comunicar en idiomas extranjeros',
-    ],
-    salidas_profesionales: [
-      'Guía turístico/a',
-      'Informador/a turístico/a',
-      'Jefe/a de oficina de turismo',
-      'Transfer',
-    ],
-    requisitos: 'Bachillerato, Título de Técnico o equivalente',
-  },
-  {
-    id: 'cfgs-produccion-audiovisuales',
-    nombre: 'Producción de Audiovisuales y Espectáculos',
-    codigo: 'IMS301',
-    familia: 'Imagen y Sonido',
-    duracion: '2000 horas (2 años)',
-    modalidad: 'Presencial',
-    plazas: 22,
-    plazas_ocupadas: 20,
-    cursos_activos: 2,
-    nivel: 'Grado Superior',
-    imagen: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800&h=400&fit=crop',
-    competencias: [
-      'Planificar y gestionar producciones audiovisuales',
-      'Coordinar equipos técnicos y artísticos',
-      'Gestionar presupuestos y recursos',
-      'Supervisar post-producción',
-      'Comercializar productos audiovisuales',
-    ],
-    salidas_profesionales: [
-      'Productor/a audiovisual',
-      'Ayudante de producción',
-      'Coordinador/a de eventos',
-      'Gestor/a de proyectos multimedia',
-    ],
-    requisitos: 'Bachillerato, Título de Técnico o equivalente',
-  },
-]
+const mockCiclosData: Ciclo[] = []
 
 export default function TodosLosCiclosPage() {
   const router = useRouter()
@@ -358,6 +88,18 @@ export default function TodosLosCiclosPage() {
   const [ciclosData, setCiclosData] = React.useState<Ciclo[]>(mockCiclosData)
   const [isLoading, setIsLoading] = React.useState(true)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
+  const [limitModal, setLimitModal] = React.useState<{ open: boolean; current: number; limit: number } | null>(null)
+
+  const { checkLimit, plan } = usePlanLimits()
+
+  const handleNuevoCiclo = () => {
+    const { allowed, limit } = checkLimit('ciclos', ciclosData.length)
+    if (!allowed) {
+      setLimitModal({ open: true, current: ciclosData.length, limit })
+      return
+    }
+    router.push('/ciclos/nuevo')
+  }
 
   // Calculate stats
   React.useEffect(() => {
@@ -371,7 +113,7 @@ export default function TodosLosCiclosPage() {
           throw new Error('No se pudieron cargar los ciclos')
         }
 
-        const payload: CycleApiResponse = await response.json() as CycleApiResponse
+        const payload: CycleApiResponse = (await response.json()) as CycleApiResponse
         const docs: CycleApiItem[] = Array.isArray(payload.docs) ? payload.docs : []
         const mapped: Ciclo[] = docs.map((cycle: CycleApiItem) => {
           const level = cycle.level
@@ -422,14 +164,6 @@ export default function TodosLosCiclosPage() {
     void fetchCycles()
   }, [])
 
-  const totalCiclos = ciclosData.length
-  const ciclosMedio = ciclosData.filter((c) => c.nivel === 'Grado Medio').length
-  const ciclosSuperior = ciclosData.filter((c) => c.nivel === 'Grado Superior').length
-  const totalPlazas = ciclosData.reduce((sum, c) => sum + c.plazas, 0)
-  const totalOcupadas = ciclosData.reduce((sum, c) => sum + c.plazas_ocupadas, 0)
-  const totalCursosActivos = ciclosData.reduce((sum, c) => sum + c.cursos_activos, 0)
-  const ocupacionPromedio = totalPlazas > 0 ? Math.round((totalOcupadas / totalPlazas) * 100) : 0
-
   // Get unique familias
   const familiasProfesionales = Array.from(new Set(ciclosData.map((c) => c.familia)))
 
@@ -459,15 +193,21 @@ export default function TodosLosCiclosPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-oid="6:b:ajh">
       {isLoading && (
-        <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <div
+          className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
+          data-oid="5lsp0x."
+        >
           Cargando ciclos...
         </div>
       )}
 
       {errorMessage && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+        <div
+          className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg"
+          data-oid="cgpy245"
+        >
           {errorMessage}
         </div>
       )}
@@ -476,75 +216,99 @@ export default function TodosLosCiclosPage() {
         title="Ciclos Formativos"
         description="Gestión unificada de ciclos de grado medio y superior."
         icon={GraduationCap}
-        badge={<Badge variant="secondary">{filteredCiclos.length} visibles</Badge>}
-        actions={<Button onClick={() => router.push('/ciclos/nuevo')}>Nuevo Ciclo</Button>}
-        filters={(
-          <div className="flex w-full flex-wrap items-center gap-2 bg-muted rounded-md p-3 text-sm">
-            <Badge variant="outline">{totalCiclos} ciclos</Badge>
-            <Badge variant="outline">{ciclosMedio} grado medio</Badge>
-            <Badge variant="outline">{ciclosSuperior} grado superior</Badge>
-            <Badge variant="outline">{totalPlazas} plazas</Badge>
-            <Badge variant="outline">Ocupación {ocupacionPromedio}%</Badge>
-            <Badge variant="outline">{totalCursosActivos} cursos activos</Badge>
-          </div>
-        )}
+        badge={
+          <Badge variant="secondary" data-oid="0h5qd3g">
+            {filteredCiclos.length} visibles
+          </Badge>
+        }
+        actions={
+          <Button onClick={handleNuevoCiclo} data-oid="b-t2nxs">
+            Nuevo Ciclo
+          </Button>
+        }
+        data-oid="3mf2uf_"
       />
 
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
-            <div className="relative min-w-[260px] flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <UsageBar resource="ciclos" current={ciclosData.length} limit={getLimit(plan, 'ciclos')} />
+
+      <Card data-oid="53yqrbe">
+        <CardContent className="pt-6" data-oid="lw2_c6e">
+          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="3s0b37y">
+            <div className="relative min-w-[260px] flex-1" data-oid="yjrwj2q">
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                data-oid="_:q8q:p"
+              />
               <Input
                 placeholder="Buscar ciclos..."
                 value={searchTerm}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 className="w-full pl-10"
+                data-oid="04h2w4u"
               />
             </div>
 
-            <Select value={nivelFilter} onValueChange={setNivelFilter}>
-              <SelectTrigger className="w-full min-w-[170px] md:w-[210px]">
-                <SelectValue placeholder="Todos los niveles" />
+            <Select value={nivelFilter} onValueChange={setNivelFilter} data-oid="blzx:fd">
+              <SelectTrigger className="w-full min-w-[170px] md:w-[210px]" data-oid="pi-0r.c">
+                <SelectValue placeholder="Todos los niveles" data-oid="hd:j28v" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos los niveles</SelectItem>
-                <SelectItem value="Grado Medio">Grado Medio</SelectItem>
-                <SelectItem value="Grado Superior">Grado Superior</SelectItem>
+              <SelectContent data-oid="igtax0_">
+                <SelectItem value="todos" data-oid="ey2v6a_">
+                  Todos los niveles
+                </SelectItem>
+                <SelectItem value="Grado Medio" data-oid="yw124d9">
+                  Grado Medio
+                </SelectItem>
+                <SelectItem value="Grado Superior" data-oid="k0e::_c">
+                  Grado Superior
+                </SelectItem>
               </SelectContent>
             </Select>
 
-            <Select value={familiaFilter} onValueChange={setFamiliaFilter}>
-              <SelectTrigger className="w-full min-w-[180px] md:w-[220px]">
-                <SelectValue placeholder="Todas las familias" />
+            <Select value={familiaFilter} onValueChange={setFamiliaFilter} data-oid="c5ha4_7">
+              <SelectTrigger className="w-full min-w-[180px] md:w-[220px]" data-oid="p:13p.5">
+                <SelectValue placeholder="Todas las familias" data-oid="exi7wr:" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas las familias</SelectItem>
+              <SelectContent data-oid="9:1vgmq">
+                <SelectItem value="todas" data-oid="52xr:un">
+                  Todas las familias
+                </SelectItem>
                 {familiasProfesionales.map((familia) => (
-                  <SelectItem key={familia} value={familia}>
+                  <SelectItem key={familia} value={familia} data-oid="6ahpvi.">
                     {familia}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Select value={modalidadFilter} onValueChange={setModalidadFilter}>
-              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]">
-                <SelectValue placeholder="Todas las modalidades" />
+            <Select value={modalidadFilter} onValueChange={setModalidadFilter} data-oid=":5r4u9g">
+              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="zi8xj2q">
+                <SelectValue placeholder="Todas las modalidades" data-oid=":09f_6q" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas las modalidades</SelectItem>
-                <SelectItem value="Presencial">Presencial</SelectItem>
-                <SelectItem value="Semipresencial">Semipresencial</SelectItem>
-                <SelectItem value="Telemático">Telemático</SelectItem>
+              <SelectContent data-oid="ixi74or">
+                <SelectItem value="todas" data-oid="g9iyos8">
+                  Todas las modalidades
+                </SelectItem>
+                <SelectItem value="Presencial" data-oid="a9v5sra">
+                  Presencial
+                </SelectItem>
+                <SelectItem value="Semipresencial" data-oid="qfts69s">
+                  Semipresencial
+                </SelectItem>
+                <SelectItem value="Telemático" data-oid="r8-1al8">
+                  Telemático
+                </SelectItem>
               </SelectContent>
             </Select>
 
-            <div className="hidden xl:block xl:ml-auto">
-              <ViewToggle view={view} onViewChange={setView} />
+            <div className="hidden xl:block xl:ml-auto" data-oid="3yrq3qi">
+              <ViewToggle view={view} onViewChange={setView} data-oid="hbmlqvq" />
             </div>
 
-            {(searchTerm || nivelFilter !== 'todos' || familiaFilter !== 'todas' || modalidadFilter !== 'todas') && (
+            {(searchTerm ||
+              nivelFilter !== 'todos' ||
+              familiaFilter !== 'todas' ||
+              modalidadFilter !== 'todas') && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -554,6 +318,7 @@ export default function TodosLosCiclosPage() {
                   setFamiliaFilter('todas')
                   setModalidadFilter('todas')
                 }}
+                data-oid="cu2brtn"
               >
                 Limpiar filtros
               </Button>
@@ -564,74 +329,93 @@ export default function TodosLosCiclosPage() {
 
       {/* Ciclos Grid o Lista */}
       {view === 'grid' ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid=":4nn89j">
           {filteredCiclos.map((ciclo) => {
             return (
               <Card
                 key={ciclo.id}
                 className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
                 onClick={() => handleViewCiclo(ciclo)}
+                data-oid=":0o:6ca"
               >
-                <div className="relative h-48 overflow-hidden bg-muted">
-                  <CicloImageWithFallback src={ciclo.imagen} alt={ciclo.nombre} />
-                  <div className="absolute left-4 top-4">
-                    <span className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold bg-black/70 backdrop-blur-sm border border-white/20 text-white">
+                <div className="relative h-48 overflow-hidden bg-muted" data-oid="w45omv8">
+                  <CicloImageWithFallback
+                    src={ciclo.imagen}
+                    alt={ciclo.nombre}
+                    data-oid="aj9q1sq"
+                  />
+                  <div className="absolute left-4 top-4" data-oid="k5si0ro">
+                    <span
+                      className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold bg-black/70 backdrop-blur-sm border border-white/20 text-white"
+                      data-oid="t:ogjxr"
+                    >
                       {ciclo.nivel}
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-4 p-5">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="outline" className="text-xs">
+                <div className="space-y-4 p-5" data-oid="h8hjlvu">
+                  <div data-oid="_y4z4k5">
+                    <div className="flex items-center gap-2 mb-2" data-oid="gnpou1n">
+                      <Badge variant="outline" className="text-xs" data-oid="7g8h7r4">
                         {ciclo.codigo}
                       </Badge>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs" data-oid="o6vh94q">
                         {ciclo.familia}
                       </Badge>
                     </div>
-                    <h3 className="line-clamp-2 text-base font-semibold">{ciclo.nombre}</h3>
+                    <h3 className="line-clamp-2 text-base font-semibold" data-oid="5d1ydem">
+                      {ciclo.nombre}
+                    </h3>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{ciclo.duracion}</span>
+                  <div className="grid grid-cols-2 gap-3 text-sm" data-oid="3f71-jd">
+                    <div className="flex items-center gap-2" data-oid="ow16bo-">
+                      <Clock className="h-4 w-4 text-muted-foreground" data-oid="hyt1r7o" />
+                      <span className="text-muted-foreground" data-oid="a-dsvyr">
+                        {ciclo.duracion}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{ciclo.modalidad}</span>
+                    <div className="flex items-center gap-2" data-oid="d.zcful">
+                      <Calendar className="h-4 w-4 text-muted-foreground" data-oid="emzpq8s" />
+                      <span className="text-muted-foreground" data-oid="ezbruhl">
+                        {ciclo.modalidad}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2" data-oid="sbi.hss">
+                      <Users className="h-4 w-4 text-muted-foreground" data-oid="sl7:rmi" />
                       <OcupacionBadge
                         plazasOcupadas={ciclo.plazas_ocupadas}
                         plazasTotal={ciclo.plazas}
                         showBar={true}
+                        data-oid="8in6pi9"
                       />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{ciclo.cursos_activos} cursos</span>
+                    <div className="flex items-center gap-2" data-oid="kca:zxv">
+                      <BookOpen className="h-4 w-4 text-muted-foreground" data-oid="ppeqt-2" />
+                      <span className="text-muted-foreground" data-oid="iufe18:">
+                        {ciclo.cursos_activos} cursos
+                      </span>
                     </div>
                   </div>
 
-                  <Button variant="outline" className="w-full">Ver ciclo</Button>
+                  <Button variant="outline" className="w-full" data-oid="-a8i1t0">
+                    Ver ciclo
+                  </Button>
                 </div>
               </Card>
             )
           })}
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-oid="1_bu5w6">
           {filteredCiclos.map((ciclo) => {
             // Adapt local Ciclo interface to CicloPlantilla expected by CicloListItem
             const adaptedCiclo: CicloPlantilla = {
               id: ciclo.id,
               nombre: ciclo.nombre,
               codigo: ciclo.codigo,
-              tipo: (ciclo.nivel === 'Grado Medio' ? 'medio' : 'superior'),
+              tipo: ciclo.nivel === 'Grado Medio' ? 'medio' : 'superior',
               familia_profesional: ciclo.familia,
               descripcion: '',
               objetivos: [],
@@ -662,6 +446,7 @@ export default function TodosLosCiclosPage() {
                 key={ciclo.id}
                 ciclo={adaptedCiclo}
                 onClick={() => handleViewCiclo(ciclo)}
+                data-oid=".f03sp4"
               />
             )
           })}
@@ -670,12 +455,14 @@ export default function TodosLosCiclosPage() {
 
       {/* Empty State */}
       {filteredCiclos.length === 0 && (
-        <Card>
-          <CardContent className="space-y-4 py-12 text-center">
-            <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground" />
-            <div>
-              <h3 className="text-lg font-semibold">No se encontraron ciclos</h3>
-              <p className="text-sm text-muted-foreground mt-2">
+        <Card data-oid="6-p1b-0">
+          <CardContent className="space-y-4 py-12 text-center" data-oid="z52psj1">
+            <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground" data-oid="x:2y::h" />
+            <div data-oid="ou218kn">
+              <h3 className="text-lg font-semibold" data-oid="h_di84_">
+                No se encontraron ciclos
+              </h3>
+              <p className="text-sm text-muted-foreground mt-2" data-oid="4t_dlbk">
                 Intenta ajustar los filtros de búsqueda
               </p>
             </div>
@@ -687,11 +474,23 @@ export default function TodosLosCiclosPage() {
                 setFamiliaFilter('todas')
                 setModalidadFilter('todas')
               }}
+              data-oid="4kcbc8a"
             >
               Limpiar filtros
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {limitModal && (
+        <PlanLimitModal
+          open={limitModal.open}
+          onClose={() => setLimitModal(null)}
+          resource="ciclos"
+          current={limitModal.current}
+          limit={limitModal.limit}
+          plan={plan}
+        />
       )}
     </div>
   )

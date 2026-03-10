@@ -32,38 +32,32 @@ describe('CheckoutDialog', () => {
 
   it('renders nothing when closed', () => {
     const { container } = render(
-      <CheckoutDialog {...defaultProps} open={false} />
+      <CheckoutDialog {...defaultProps} open={false} data-oid=".1zszmh" />
     )
     expect(container.querySelector('[data-testid="alert-dialog"]')).not.toBeInTheDocument()
   })
 
   it('renders dialog when open', () => {
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="gnercn9" />)
     expect(screen.getByTestId('alert-dialog')).toBeInTheDocument()
     expect(screen.getByText('Confirmar Cambio de Plan')).toBeInTheDocument()
   })
 
   it('displays plan name and tier', () => {
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="aq:.atu" />)
     expect(screen.getByText('Plan Pro')).toBeInTheDocument()
     expect(screen.getByText('PRO')).toBeInTheDocument()
   })
 
   it('displays monthly price correctly', () => {
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="2m.ex.v" />)
     expect(screen.getByText('€299.00')).toBeInTheDocument()
     expect(screen.getByText('/mes')).toBeInTheDocument()
     expect(screen.getByText('Facturación mensual')).toBeInTheDocument()
   })
 
   it('displays yearly price with monthly equivalent', () => {
-    render(
-      <CheckoutDialog
-        {...defaultProps}
-        price={299000}
-        interval="year"
-      />
-    )
+    render(<CheckoutDialog {...defaultProps} price={299000} interval="year" data-oid="wzrd_:f" />)
     expect(screen.getByText('€2990.00')).toBeInTheDocument()
     expect(screen.getByText('/año')).toBeInTheDocument()
     expect(screen.getByText('Facturación anual')).toBeInTheDocument()
@@ -71,7 +65,7 @@ describe('CheckoutDialog', () => {
   })
 
   it('displays up to 4 features', () => {
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="c0kwry0" />)
     expect(screen.getByText('Hasta 500 usuarios')).toBeInTheDocument()
     expect(screen.getByText('100 GB de almacenamiento')).toBeInTheDocument()
     expect(screen.getByText('500,000 llamadas API/mes')).toBeInTheDocument()
@@ -79,21 +73,23 @@ describe('CheckoutDialog', () => {
   })
 
   it('does not display more than 4 features', () => {
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="okdl3_1" />)
     // The 5th feature should not be displayed
     expect(screen.queryByText('Acceso a API avanzada')).not.toBeInTheDocument()
   })
 
   it('displays security information message', () => {
-    render(<CheckoutDialog {...defaultProps} />)
-    expect(screen.getByText(/El pago se procesará de forma segura a través de Stripe/i)).toBeInTheDocument()
+    render(<CheckoutDialog {...defaultProps} data-oid="so8xpqf" />)
+    expect(
+      screen.getByText(/El pago se procesará de forma segura a través de Stripe/i)
+    ).toBeInTheDocument()
     expect(screen.getByText(/Puedes cancelar en cualquier momento/i)).toBeInTheDocument()
   })
 
   it('calls onConfirm when confirm button clicked', async () => {
     mockOnConfirm.mockResolvedValue(undefined)
 
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="dwn91u2" />)
 
     const confirmButton = screen.getByTestId('alert-dialog-action')
     fireEvent.click(confirmButton)
@@ -110,7 +106,7 @@ describe('CheckoutDialog', () => {
     })
     mockOnConfirm.mockReturnValue(confirmPromise)
 
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="uvn-:_g" />)
 
     const confirmButton = screen.getByTestId('alert-dialog-action')
     fireEvent.click(confirmButton)
@@ -131,16 +127,13 @@ describe('CheckoutDialog', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     mockOnConfirm.mockRejectedValue(new Error('Payment failed'))
 
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="8i7:ig_" />)
 
     const confirmButton = screen.getByTestId('alert-dialog-action')
     fireEvent.click(confirmButton)
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to start checkout:',
-        expect.any(Error)
-      )
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to start checkout:', expect.any(Error))
     })
 
     // Should re-enable button after error
@@ -154,7 +147,7 @@ describe('CheckoutDialog', () => {
   it('does not close dialog on error', async () => {
     mockOnConfirm.mockRejectedValue(new Error('Payment failed'))
 
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="lr4r:w2" />)
 
     const confirmButton = screen.getByTestId('alert-dialog-action')
     fireEvent.click(confirmButton)
@@ -174,6 +167,7 @@ describe('CheckoutDialog', () => {
         planTier="starter"
         planName="Starter"
         price={19900}
+        data-oid="30-apdj"
       />
     )
     expect(screen.getByText('Plan Starter')).toBeInTheDocument()
@@ -188,6 +182,7 @@ describe('CheckoutDialog', () => {
         planTier="enterprise"
         planName="Enterprise"
         price={59900}
+        data-oid="jndqk.i"
       />
     )
     expect(screen.getByText('Plan Enterprise')).toBeInTheDocument()
@@ -196,48 +191,38 @@ describe('CheckoutDialog', () => {
   })
 
   it('applies custom button style', () => {
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="56mlbu0" />)
     const confirmButton = screen.getByTestId('alert-dialog-action')
     expect(confirmButton).toHaveStyle({ backgroundColor: '#F2014B' })
   })
 
   it('has correct button text in normal state', () => {
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="sotvyc0" />)
     const confirmButton = screen.getByTestId('alert-dialog-action')
     expect(confirmButton).toHaveTextContent('Continuar al Pago')
   })
 
   it('has cancel button', () => {
-    render(<CheckoutDialog {...defaultProps} />)
+    render(<CheckoutDialog {...defaultProps} data-oid="ru797i4" />)
     const cancelButton = screen.getByTestId('alert-dialog-cancel')
     expect(cancelButton).toHaveTextContent('Cancelar')
   })
 
   it('displays redirect information', () => {
-    render(<CheckoutDialog {...defaultProps} />)
-    expect(screen.getByText(/Serás redirigido a Stripe para completar el pago de forma segura/i)).toBeInTheDocument()
+    render(<CheckoutDialog {...defaultProps} data-oid="loszuc0" />)
+    expect(
+      screen.getByText(/Serás redirigido a Stripe para completar el pago de forma segura/i)
+    ).toBeInTheDocument()
   })
 
   it('calculates monthly equivalent for yearly plan correctly', () => {
-    render(
-      <CheckoutDialog
-        {...defaultProps}
-        price={599000}
-        interval="year"
-      />
-    )
+    render(<CheckoutDialog {...defaultProps} price={599000} interval="year" data-oid="xyvdk_v" />)
     // 599000 / 12 / 100 = 499.17
     expect(screen.getByText(/€499\.17\/mes facturado anualmente/i)).toBeInTheDocument()
   })
 
   it('does not show monthly equivalent for monthly plan', () => {
-    render(
-      <CheckoutDialog
-        {...defaultProps}
-        price={29900}
-        interval="month"
-      />
-    )
+    render(<CheckoutDialog {...defaultProps} price={29900} interval="month" data-oid="n5x:vaf" />)
     expect(screen.queryByText(/facturado anualmente/i)).not.toBeInTheDocument()
   })
 })

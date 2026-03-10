@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "react", "react-dom"],
+    "jsx": "react-jsx",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "plugins": []
+  },
+  "include": [
+    "../stories/**/*",
+    "../src/**/*",
+    "../app/**/*",
+    "../@payload-config/**/*",
+    "../types/**/*",
+    "../next-env.d.ts"
+  ]
+}

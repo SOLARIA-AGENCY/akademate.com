@@ -32,8 +32,9 @@ export function ThemeToggle() {
         className="flex h-9 w-9 items-center justify-center rounded-md border border-input bg-transparent hover:bg-accent hover:text-accent-foreground transition-colors"
         aria-label="Toggle theme"
         disabled
+        data-oid="msmnbx8"
       >
-        <Sun className="h-5 w-5" />
+        <Sun className="h-5 w-5" data-oid="_9m1.cy" />
       </button>
     )
   }
@@ -43,13 +44,16 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       className="flex h-9 w-9 items-center justify-center rounded-md border border-input bg-transparent hover:bg-accent hover:text-accent-foreground transition-colors"
       title={`Cambiar a modo ${isDark ? 'claro' : 'oscuro'}`}
+      data-oid="r-w_w5w"
     >
       {isDark ? (
-        <Sun className="h-5 w-5" />
+        <Sun className="h-5 w-5" data-oid="tu3-shi" />
       ) : (
-        <Moon className="h-5 w-5" />
+        <Moon className="h-5 w-5" data-oid="kmvk501" />
       )}
-      <span className="sr-only">Cambiar tema</span>
+      <span className="sr-only" data-oid="51pnpj4">
+        Cambiar tema
+      </span>
     </button>
   )
 }

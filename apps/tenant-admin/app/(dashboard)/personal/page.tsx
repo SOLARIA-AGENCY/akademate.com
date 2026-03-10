@@ -24,13 +24,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@payload-config/components/ui/dropdown-menu'
-import { Plus, MoreHorizontal, Eye, Edit, Trash2, Users, Briefcase, MapPin, LayoutGrid, List, Search } from 'lucide-react'
+import {
+  Plus,
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Trash2,
+  Users,
+  Briefcase,
+  MapPin,
+  LayoutGrid,
+  List,
+  Search,
+} from 'lucide-react'
 import { Input } from '@payload-config/components/ui/input'
 import { StaffCard } from '@payload-config/components/ui/StaffCard'
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from '@payload-config/components/ui/toggle-group'
+import { ToggleGroup, ToggleGroupItem } from '@payload-config/components/ui/toggle-group'
+import { EmptyState } from '@payload-config/components/ui/EmptyState'
 
 interface StaffMember {
   id: number
@@ -111,9 +121,10 @@ function PersonalPageContent() {
     void fetchStaff()
   }, [activeTab])
 
-  const filteredStaff = staff.filter((s) =>
-    s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStaff = staff.filter(
+    (s) =>
+      s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const handleViewDetail = (id: number) => {
@@ -157,72 +168,106 @@ function PersonalPageContent() {
   }
 
   return (
-    <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <PageHeader
-        title="Personal"
-        description="Gestión de profesorado y equipo administrativo."
-        icon={Users}
-        badge={<Badge variant="secondary">{filteredStaff.length} en vista</Badge>}
-        actions={(
-          <Button onClick={() => router.push('/personal/nuevo')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nuevo Miembro
-          </Button>
-        )}
-        filters={(
-          <div className="flex w-full flex-wrap items-center justify-between gap-3">
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nombre..."
-                className="pl-9"
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <TabsList>
-              <TabsTrigger value="profesores">
-                <Users className="mr-2 h-4 w-4" />
-                Profesores
-              </TabsTrigger>
-              <TabsTrigger value="administrativos">
-                <Briefcase className="mr-2 h-4 w-4" />
-                Administrativos
-              </TabsTrigger>
-            </TabsList>
-
-            <ToggleGroup
-              type="single"
-              value={viewMode}
-              onValueChange={(value: string) => {
-                if (value === 'list' || value === 'grid') setViewMode(value)
-              }}
+    <div className="space-y-6" data-oid="42ltni0">
+      <Tabs value={activeTab} onValueChange={setActiveTab} data-oid="54ch-hn">
+        <PageHeader
+          title="Personal"
+          description="Gestión de profesorado y equipo administrativo."
+          icon={Users}
+          badge={
+            <Badge variant="secondary" data-oid="qavqrr-">
+              {filteredStaff.length} en vista
+            </Badge>
+          }
+          actions={
+            <Button onClick={() => router.push('/personal/nuevo')} data-oid="o1k9qim">
+              <Plus className="mr-2 h-4 w-4" data-oid="ve7zz:n" />
+              {activeTab === 'profesores' ? 'Añadir Profesor' : 'Añadir Administrativo'}
+            </Button>
+          }
+          filters={
+            <div
+              className="flex w-full flex-wrap items-center justify-between gap-3"
+              data-oid="qa7_l4e"
             >
-              <ToggleGroupItem value="grid" aria-label="Vista de tarjetas">
-                <LayoutGrid className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="list" aria-label="Vista de lista">
-                <List className="h-4 w-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-        )}
-      />
-        <TabsContent value="profesores">
-          <Card>
-            <CardContent className="pt-6">
-              {loading ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">Cargando profesores...</p>
+              {staff.length > 0 && (
+                <div className="relative w-64" data-oid=".lj1q2:">
+                  <Search
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                    data-oid="o019w3h"
+                  />
+                  <Input
+                    placeholder="Buscar por nombre..."
+                    className="pl-9"
+                    value={searchTerm}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setSearchTerm(e.target.value)
+                    }
+                    data-oid="hlze4bs"
+                  />
                 </div>
+              )}
+              <TabsList data-oid="gm79umr">
+                <TabsTrigger value="profesores" data-oid="vjkz_n2">
+                  <Users className="mr-2 h-4 w-4" data-oid="vn:4jyh" />
+                  Profesores
+                </TabsTrigger>
+                <TabsTrigger value="administrativos" data-oid=":z:8bq3">
+                  <Briefcase className="mr-2 h-4 w-4" data-oid="5wxsguk" />
+                  Administrativos
+                </TabsTrigger>
+              </TabsList>
+
+              {staff.length > 0 && (
+                <ToggleGroup
+                  type="single"
+                  value={viewMode}
+                  onValueChange={(value: string) => {
+                    if (value === 'list' || value === 'grid') setViewMode(value)
+                  }}
+                  data-oid="t3liuqt"
+                >
+                  <ToggleGroupItem value="grid" aria-label="Vista de tarjetas" data-oid="p:6p7cb">
+                    <LayoutGrid className="h-4 w-4" data-oid="pekzrs0" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="list" aria-label="Vista de lista" data-oid="le9slld">
+                    <List className="h-4 w-4" data-oid="unanepf" />
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              )}
+            </div>
+          }
+          data-oid="lxq--yw"
+        />
+
+        <TabsContent value="profesores" data-oid="oq-9g8t">
+          <Card data-oid="auipqq.">
+            <CardContent className="pt-6" data-oid="16j-5gg">
+              {loading ? (
+                <div className="text-center py-8" data-oid=".xtrb_l">
+                  <p className="text-muted-foreground" data-oid="nqu9jo0">
+                    Cargando profesores...
+                  </p>
+                </div>
+              ) : staff.length === 0 ? (
+                <EmptyState
+                  icon={Users}
+                  title="Aún no hay profesores"
+                  description="Añade tu primer profesor para gestionar el equipo docente."
+                  action={{
+                    label: '+ Añadir Profesor',
+                    onClick: () => router.push('/personal/nuevo'),
+                  }}
+                />
               ) : filteredStaff.length === 0 ? (
-                <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">No hay profesores registrados</p>
+                <div className="text-center py-8 text-sm text-muted-foreground" data-oid="3a3w.w-">
+                  Sin resultados para &ldquo;{searchTerm}&rdquo;
                 </div>
               ) : viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  data-oid="pi09vlc"
+                >
                   {filteredStaff.map((member) => (
                     <StaffCard
                       key={member.id}
@@ -239,87 +284,119 @@ function PersonalPageContent() {
                       onView={handleViewDetail}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
+                      data-oid="sa54-rh"
                     />
                   ))}
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12"></TableHead>
-                      <TableHead>Nombre</TableHead>
-                      <TableHead>Cargo</TableHead>
-                      <TableHead>Contrato</TableHead>
-                      <TableHead>Sedes</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead className="w-12"></TableHead>
+                <Table data-oid="kn_u0i3">
+                  <TableHeader data-oid="eetu3qb">
+                    <TableRow data-oid="qnty0_3">
+                      <TableHead className="w-12" data-oid="aisipqm"></TableHead>
+                      <TableHead data-oid="cznag55">Nombre</TableHead>
+                      <TableHead data-oid="g77_b3x">Cargo</TableHead>
+                      <TableHead data-oid="ni42ued">Contrato</TableHead>
+                      <TableHead data-oid="xqi7c4p">Sedes</TableHead>
+                      <TableHead data-oid="7v_6x_2">Estado</TableHead>
+                      <TableHead className="w-12" data-oid="zy6f3vt"></TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
+                  <TableBody data-oid="0od-fqu">
                     {filteredStaff.map((member) => (
                       <TableRow
                         key={member.id}
                         className="cursor-pointer hover:bg-accent"
                         onClick={() => handleViewDetail(member.id)}
+                        data-oid="rj0.rty"
                       >
-                        <TableCell>
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={member.photo} alt={member.fullName} />
-                            <AvatarFallback>{getInitials(member.fullName)}</AvatarFallback>
+                        <TableCell data-oid="q68ixpu">
+                          <Avatar className="h-10 w-10" data-oid="s2q1s34">
+                            <AvatarImage
+                              src={member.photo}
+                              alt={member.fullName}
+                              data-oid="u8y4jco"
+                            />
+                            <AvatarFallback data-oid="98svq64">
+                              {getInitials(member.fullName)}
+                            </AvatarFallback>
                           </Avatar>
                         </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{member.fullName}</div>
-                            <div className="text-sm text-muted-foreground">{member.email}</div>
+                        <TableCell data-oid="ex45.m4">
+                          <div data-oid="lpz.7.e">
+                            <div className="font-medium" data-oid="szd.tt3">
+                              {member.fullName}
+                            </div>
+                            <div className="text-sm text-muted-foreground" data-oid="rbifo:8">
+                              {member.email}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell>{member.position}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
+                        <TableCell data-oid="7g15upt">{member.position}</TableCell>
+                        <TableCell data-oid="2au8fz:">
+                          <Badge variant="outline" data-oid=":_jltu9">
                             {CONTRACT_TYPE_LABELS[member.contractType] ?? member.contractType}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1 flex-wrap">
+                        <TableCell data-oid="l4ywjdb">
+                          <div className="flex gap-1 flex-wrap" data-oid="430_dsj">
                             {member.assignedCampuses.map((campus) => (
-                              <Badge key={campus.id} variant="secondary" className="text-xs">
-                                <MapPin className="h-3 w-3 mr-1" />
+                              <Badge
+                                key={campus.id}
+                                variant="secondary"
+                                className="text-xs"
+                                data-oid="8b-e5ak"
+                              >
+                                <MapPin className="h-3 w-3 mr-1" data-oid="u8rd37u" />
                                 {campus.name}
                               </Badge>
                             ))}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge variant={STATUS_VARIANTS[member.employmentStatus]}>
+                        <TableCell data-oid="axm3pj-">
+                          <Badge
+                            variant={STATUS_VARIANTS[member.employmentStatus]}
+                            data-oid="pki9dk3"
+                          >
                             {STATUS_LABELS[member.employmentStatus] ?? member.employmentStatus}
                           </Badge>
                         </TableCell>
-                        <TableCell onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Abrir menú</span>
-                                <MoreHorizontal className="h-4 w-4" />
+                        <TableCell
+                          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                          data-oid="63gmgfi"
+                        >
+                          <DropdownMenu data-oid="ohut-q4">
+                            <DropdownMenuTrigger asChild data-oid="ocgqcs7">
+                              <Button variant="ghost" className="h-8 w-8 p-0" data-oid=":74rfty">
+                                <span className="sr-only" data-oid="tuk3muc">
+                                  Abrir menú
+                                </span>
+                                <MoreHorizontal className="h-4 w-4" data-oid="ihrv-8o" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => handleViewDetail(member.id)}>
-                                <Eye className="mr-2 h-4 w-4" />
+                            <DropdownMenuContent align="end" data-oid="2mctn-l">
+                              <DropdownMenuLabel data-oid="kxk919m">Acciones</DropdownMenuLabel>
+                              <DropdownMenuSeparator data-oid="m8drjiz" />
+                              <DropdownMenuItem
+                                onClick={() => handleViewDetail(member.id)}
+                                data-oid="0x9ssp0"
+                              >
+                                <Eye className="mr-2 h-4 w-4" data-oid="lefb79w" />
                                 Ver Detalle
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEdit(member.id)}>
-                                <Edit className="mr-2 h-4 w-4" />
+                              <DropdownMenuItem
+                                onClick={() => handleEdit(member.id)}
+                                data-oid="t6nlfrn"
+                              >
+                                <Edit className="mr-2 h-4 w-4" data-oid="ca6hy4g" />
                                 Editar
                               </DropdownMenuItem>
-                              <DropdownMenuSeparator />
+                              <DropdownMenuSeparator data-oid="x6450.2" />
                               <DropdownMenuItem
                                 onClick={() => handleDelete(member.id, member.fullName)}
                                 className="text-destructive"
+                                data-oid="hrsftit"
                               >
-                                <Trash2 className="mr-2 h-4 w-4" />
+                                <Trash2 className="mr-2 h-4 w-4" data-oid="8pbbpp9" />
                                 Desactivar
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -334,20 +411,34 @@ function PersonalPageContent() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="administrativos">
-          <Card>
-            <CardContent className="pt-6">
+        <TabsContent value="administrativos" data-oid="p6yzr_a">
+          <Card data-oid="-j88tkq">
+            <CardContent className="pt-6" data-oid="11gdcrt">
               {loading ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">Cargando personal...</p>
+                <div className="text-center py-8" data-oid="zkb7zb6">
+                  <p className="text-muted-foreground" data-oid="sbdmj32">
+                    Cargando personal...
+                  </p>
                 </div>
+              ) : staff.length === 0 ? (
+                <EmptyState
+                  icon={Briefcase}
+                  title="Aún no hay administrativos"
+                  description="Añade tu primer miembro del equipo administrativo."
+                  action={{
+                    label: '+ Añadir Administrativo',
+                    onClick: () => router.push('/personal/nuevo'),
+                  }}
+                />
               ) : filteredStaff.length === 0 ? (
-                <div className="text-center py-8">
-                  <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">No hay personal administrativo registrado</p>
+                <div className="text-center py-8 text-sm text-muted-foreground" data-oid="g_4-sx5">
+                  Sin resultados para &ldquo;{searchTerm}&rdquo;
                 </div>
               ) : viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  data-oid="0v-w4x7"
+                >
                   {filteredStaff.map((member) => (
                     <StaffCard
                       key={member.id}
@@ -364,87 +455,119 @@ function PersonalPageContent() {
                       onView={handleViewDetail}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
+                      data-oid="11523jp"
                     />
                   ))}
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12"></TableHead>
-                      <TableHead>Nombre</TableHead>
-                      <TableHead>Cargo</TableHead>
-                      <TableHead>Contrato</TableHead>
-                      <TableHead>Sede</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead className="w-12"></TableHead>
+                <Table data-oid="ztkorn7">
+                  <TableHeader data-oid="-z:mrfl">
+                    <TableRow data-oid="uo5vmqo">
+                      <TableHead className="w-12" data-oid="73_.ppb"></TableHead>
+                      <TableHead data-oid="op16-gu">Nombre</TableHead>
+                      <TableHead data-oid="4_z7:il">Cargo</TableHead>
+                      <TableHead data-oid="k4xtxm2">Contrato</TableHead>
+                      <TableHead data-oid="9vrkzzy">Sede</TableHead>
+                      <TableHead data-oid="hqndg:x">Estado</TableHead>
+                      <TableHead className="w-12" data-oid="q5k.cms"></TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
+                  <TableBody data-oid="3rrgzvp">
                     {filteredStaff.map((member) => (
                       <TableRow
                         key={member.id}
                         className="cursor-pointer hover:bg-accent"
                         onClick={() => handleViewDetail(member.id)}
+                        data-oid=":jxu3pk"
                       >
-                        <TableCell>
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={member.photo} alt={member.fullName} />
-                            <AvatarFallback>{getInitials(member.fullName)}</AvatarFallback>
+                        <TableCell data-oid="68u9li3">
+                          <Avatar className="h-10 w-10" data-oid="dy9umrj">
+                            <AvatarImage
+                              src={member.photo}
+                              alt={member.fullName}
+                              data-oid="i.h5jmh"
+                            />
+                            <AvatarFallback data-oid=":jj-ga5">
+                              {getInitials(member.fullName)}
+                            </AvatarFallback>
                           </Avatar>
                         </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{member.fullName}</div>
-                            <div className="text-sm text-muted-foreground">{member.email}</div>
+                        <TableCell data-oid="93_frps">
+                          <div data-oid="oto6mnv">
+                            <div className="font-medium" data-oid="2172yx:">
+                              {member.fullName}
+                            </div>
+                            <div className="text-sm text-muted-foreground" data-oid="d:nlaia">
+                              {member.email}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell>{member.position}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
+                        <TableCell data-oid="c:4:_9p">{member.position}</TableCell>
+                        <TableCell data-oid="5.exyol">
+                          <Badge variant="outline" data-oid="gt8:7_3">
                             {CONTRACT_TYPE_LABELS[member.contractType] ?? member.contractType}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1 flex-wrap">
+                        <TableCell data-oid="4s2qwlo">
+                          <div className="flex gap-1 flex-wrap" data-oid="1ybys1o">
                             {member.assignedCampuses.map((campus) => (
-                              <Badge key={campus.id} variant="secondary" className="text-xs">
-                                <MapPin className="h-3 w-3 mr-1" />
+                              <Badge
+                                key={campus.id}
+                                variant="secondary"
+                                className="text-xs"
+                                data-oid="gh93mv2"
+                              >
+                                <MapPin className="h-3 w-3 mr-1" data-oid="6xnpcm4" />
                                 {campus.name}
                               </Badge>
                             ))}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge variant={STATUS_VARIANTS[member.employmentStatus]}>
+                        <TableCell data-oid="bxa7ydw">
+                          <Badge
+                            variant={STATUS_VARIANTS[member.employmentStatus]}
+                            data-oid="gvya5oe"
+                          >
                             {STATUS_LABELS[member.employmentStatus] ?? member.employmentStatus}
                           </Badge>
                         </TableCell>
-                        <TableCell onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Abrir menú</span>
-                                <MoreHorizontal className="h-4 w-4" />
+                        <TableCell
+                          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                          data-oid=":aj_8s0"
+                        >
+                          <DropdownMenu data-oid="w-hqrj.">
+                            <DropdownMenuTrigger asChild data-oid="hxif1i1">
+                              <Button variant="ghost" className="h-8 w-8 p-0" data-oid="-ex2y84">
+                                <span className="sr-only" data-oid="r264vth">
+                                  Abrir menú
+                                </span>
+                                <MoreHorizontal className="h-4 w-4" data-oid="g_e2xem" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => handleViewDetail(member.id)}>
-                                <Eye className="mr-2 h-4 w-4" />
+                            <DropdownMenuContent align="end" data-oid="5fmzn8e">
+                              <DropdownMenuLabel data-oid="c3rar4y">Acciones</DropdownMenuLabel>
+                              <DropdownMenuSeparator data-oid="rfhjn89" />
+                              <DropdownMenuItem
+                                onClick={() => handleViewDetail(member.id)}
+                                data-oid="0lhnpiq"
+                              >
+                                <Eye className="mr-2 h-4 w-4" data-oid="0.y-v49" />
                                 Ver Detalle
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEdit(member.id)}>
-                                <Edit className="mr-2 h-4 w-4" />
+                              <DropdownMenuItem
+                                onClick={() => handleEdit(member.id)}
+                                data-oid="hkgp01p"
+                              >
+                                <Edit className="mr-2 h-4 w-4" data-oid="-s1223o" />
                                 Editar
                               </DropdownMenuItem>
-                              <DropdownMenuSeparator />
+                              <DropdownMenuSeparator data-oid="m_048j." />
                               <DropdownMenuItem
                                 onClick={() => handleDelete(member.id, member.fullName)}
                                 className="text-destructive"
+                                data-oid="i228.eg"
                               >
-                                <Trash2 className="mr-2 h-4 w-4" />
+                                <Trash2 className="mr-2 h-4 w-4" data-oid="sa84m:_" />
                                 Desactivar
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -467,17 +590,22 @@ export default function PersonalPage() {
   return (
     <React.Suspense
       fallback={
-        <div className="space-y-6">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold tracking-tight">Personal</h1>
-              <p className="text-muted-foreground">Cargando datos de personal...</p>
+        <div className="space-y-6" data-oid="m1c.ljz">
+          <div className="flex items-start justify-between" data-oid="-6y:mh5">
+            <div className="space-y-1" data-oid="2pwh1-t">
+              <h1 className="text-3xl font-bold tracking-tight" data-oid="8bkv3k4">
+                Personal
+              </h1>
+              <p className="text-muted-foreground" data-oid="ynbsfjl">
+                Cargando datos de personal...
+              </p>
             </div>
           </div>
         </div>
       }
+      data-oid="6dlx:04"
     >
-      <PersonalPageContent />
+      <PersonalPageContent data-oid="cdvfy_l" />
     </React.Suspense>
   )
 }

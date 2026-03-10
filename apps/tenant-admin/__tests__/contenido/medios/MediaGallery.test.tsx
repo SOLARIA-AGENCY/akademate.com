@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { MediaGallery, type MediaItem } from '../../../app/(dashboard)/contenido/medios/components/MediaGallery'
+import {
+  MediaGallery,
+  type MediaItem,
+} from '../../../app/(dashboard)/contenido/medios/components/MediaGallery'
 
 const mockItems: MediaItem[] = [
   {
@@ -34,29 +37,29 @@ const mockItems: MediaItem[] = [
 
 describe('MediaGallery', () => {
   it('renders empty state when no items provided', () => {
-    render(<MediaGallery items={[]} />)
+    render(<MediaGallery items={[]} data-oid="0xmij:j" />)
     expect(screen.getByText('No hay archivos')).toBeInTheDocument()
     expect(screen.getByText('Sube tu primera imagen para empezar')).toBeInTheDocument()
   })
 
   it('renders skeleton loaders when loading', () => {
-    const { container } = render(<MediaGallery items={[]} loading={true} />)
+    const { container } = render(<MediaGallery items={[]} loading={true} data-oid=":as2m0:" />)
     const skeletons = container.querySelectorAll('[data-id="skeleton"]')
     expect(skeletons.length).toBeGreaterThan(0)
   })
 
   it('renders items in grid view by default', () => {
-    render(<MediaGallery items={mockItems} />)
+    render(<MediaGallery items={mockItems} data-oid="h4-khho" />)
     expect(screen.getByText('test-image.jpg')).toBeInTheDocument()
     expect(screen.getByText('test-image-2.png')).toBeInTheDocument()
   })
 
   it('toggles between grid and list view', () => {
-    const { container } = render(<MediaGallery items={mockItems} />)
+    const { container } = render(<MediaGallery items={mockItems} data-oid="1_w05a0" />)
 
     // Find list view button
     const buttons = container.querySelectorAll('button')
-    const listButton = Array.from(buttons).find(btn =>
+    const listButton = Array.from(buttons).find((btn) =>
       btn.querySelector('svg')?.classList.contains('lucide-list')
     )
 
@@ -68,21 +71,21 @@ describe('MediaGallery', () => {
   })
 
   it('displays file information correctly', () => {
-    render(<MediaGallery items={mockItems} />)
+    render(<MediaGallery items={mockItems} data-oid="cz8i-1w" />)
     expect(screen.getByText('test-image.jpg')).toBeInTheDocument()
     expect(screen.getByText('1.0 MB')).toBeInTheDocument()
     expect(screen.getByText('1920×1080')).toBeInTheDocument()
   })
 
   it('displays file type badge', () => {
-    render(<MediaGallery items={mockItems} />)
+    render(<MediaGallery items={mockItems} data-oid="mmshij6" />)
     expect(screen.getByText('JPG')).toBeInTheDocument()
     expect(screen.getByText('PNG')).toBeInTheDocument()
   })
 
   it('calls onItemClick when item is clicked', () => {
     const handleClick = vi.fn()
-    render(<MediaGallery items={mockItems} onItemClick={handleClick} />)
+    render(<MediaGallery items={mockItems} onItemClick={handleClick} data-oid="h-o-9ms" />)
 
     const firstItem = screen.getByText('test-image.jpg').closest('div')?.parentElement
     expect(firstItem).toBeTruthy()
@@ -93,7 +96,7 @@ describe('MediaGallery', () => {
 
   it('highlights selected item', () => {
     const { container } = render(
-      <MediaGallery items={mockItems} selectedId="1" />
+      <MediaGallery items={mockItems} selectedId="1" data-oid="wplj6qm" />
     )
 
     const selectedCard = container.querySelector('[class*="ring-2 ring-primary"]')
@@ -101,15 +104,15 @@ describe('MediaGallery', () => {
   })
 
   it('renders images with lazy loading', () => {
-    render(<MediaGallery items={mockItems} />)
+    render(<MediaGallery items={mockItems} data-oid="84aopb3" />)
     const images = screen.getAllByRole('img')
-    images.forEach(img => {
+    images.forEach((img) => {
       expect(img).toHaveAttribute('loading', 'lazy')
     })
   })
 
   it('uses thumbnail URL when available', () => {
-    render(<MediaGallery items={mockItems} />)
+    render(<MediaGallery items={mockItems} data-oid="c7._be_" />)
     const firstImage = screen.getAllByRole('img')[0]
     expect(firstImage).toHaveAttribute('src', mockItems[0].thumbnailURL)
   })
@@ -119,13 +122,13 @@ describe('MediaGallery', () => {
       ...mockItems[0],
       thumbnailURL: undefined,
     }
-    render(<MediaGallery items={[itemWithoutThumb]} />)
+    render(<MediaGallery items={[itemWithoutThumb]} data-oid="tnazrev" />)
     const image = screen.getByRole('img')
     expect(image).toHaveAttribute('src', itemWithoutThumb.url)
   })
 
   it('displays alt text correctly', () => {
-    render(<MediaGallery items={mockItems} />)
+    render(<MediaGallery items={mockItems} data-oid="iamlr81" />)
     const images = screen.getAllByRole('img')
     expect(images[0]).toHaveAttribute('alt', 'Test image')
     expect(images[1]).toHaveAttribute('alt', 'Second test image')
@@ -138,7 +141,7 @@ describe('MediaGallery', () => {
       { ...mockItems[0], id: '3', filesize: 1024 * 1024 * 5 }, // 5 MB
     ]
 
-    render(<MediaGallery items={itemsWithDifferentSizes} />)
+    render(<MediaGallery items={itemsWithDifferentSizes} data-oid="j2naij9" />)
     expect(screen.getByText('512 B')).toBeInTheDocument()
     expect(screen.getByText('500 KB')).toBeInTheDocument()
     expect(screen.getByText('5.0 MB')).toBeInTheDocument()
@@ -151,7 +154,7 @@ describe('MediaGallery', () => {
       filename: longFilename,
     }
 
-    render(<MediaGallery items={[itemWithLongName]} />)
+    render(<MediaGallery items={[itemWithLongName]} data-oid="dw1isyk" />)
     const filenameElement = screen.getByText(longFilename)
     expect(filenameElement).toHaveClass('truncate')
     expect(filenameElement).toHaveAttribute('title', longFilename)

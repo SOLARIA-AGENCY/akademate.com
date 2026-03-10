@@ -78,49 +78,62 @@ export default function DominiosPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl" data-oid="zar-aco">
       <PageHeader
         title="Dominios"
         description="Gestiona los dominios principales y alternativos del tenant"
         icon={Globe}
-        actions={(
-          <Button onClick={handleSave} disabled={isSaving || isLoading}>
-            <Save className="mr-2 h-4 w-4" />
+        actions={
+          <Button onClick={handleSave} disabled={isSaving || isLoading} data-oid="l9.-b.l">
+            <Save className="mr-2 h-4 w-4" data-oid="4vhp7nm" />
             Guardar cambios
           </Button>
-        )}
+        }
+        data-oid="vhmn9ii"
       />
 
       {showSaveSuccess && (
-        <div className="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-lg flex items-center gap-2">
-          <Check className="h-5 w-5" />
-          <span>Dominios guardados correctamente</span>
+        <div
+          className="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-lg flex items-center gap-2"
+          data-oid="-mrhtxh"
+        >
+          <Check className="h-5 w-5" data-oid="dv1.v39" />
+          <span data-oid="tq0g_5q">Dominios guardados correctamente</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+        <div
+          className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg"
+          data-oid="wequq47"
+        >
           {errorMessage}
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
+      <Card data-oid="c93nxzs">
+        <CardHeader data-oid="_s43kke">
+          <CardTitle className="flex items-center gap-2" data-oid="2k_sox8">
+            <Globe className="h-5 w-5" data-oid="hp7yfpx" />
             Dominios configurados
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
+        <CardContent className="space-y-4" data-oid="ne2yxo:">
+          <div className="space-y-3" data-oid="6:gk0fg">
             {domains.length === 0 && !isLoading && (
-              <p className="text-sm text-muted-foreground">No hay dominios configurados.</p>
+              <p className="text-sm text-muted-foreground" data-oid="jc_a_3.">
+                No hay dominios configurados.
+              </p>
             )}
 
             {domains.map((domain, index) => (
-              <div key={`${domain}-${index}`} className="flex items-center gap-2">
-                <div className="flex-1">
-                  <Label className="sr-only" htmlFor={`domain-${index}`}>
+              <div
+                key={`${domain}-${index}`}
+                className="flex items-center gap-2"
+                data-oid="t.8jr2u"
+              >
+                <div className="flex-1" data-oid="o.-:7.l">
+                  <Label className="sr-only" htmlFor={`domain-${index}`} data-oid="de.kjrs">
                     Dominio {index + 1}
                   </Label>
                   <Input
@@ -128,6 +141,7 @@ export default function DominiosPage() {
                     placeholder="midominio.com"
                     value={domain}
                     onChange={(event) => updateDomain(index, event.target.value)}
+                    data-oid="ykvhv1w"
                   />
                 </div>
                 <Button
@@ -137,15 +151,16 @@ export default function DominiosPage() {
                   className="text-muted-foreground hover:text-destructive"
                   onClick={() => removeDomain(index)}
                   aria-label="Eliminar dominio"
+                  data-oid="21lh.iu"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4" data-oid="g:qkdq8" />
                 </Button>
               </div>
             ))}
           </div>
 
-          <Button type="button" variant="outline" onClick={addDomain}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button type="button" variant="outline" onClick={addDomain} data-oid="991tv50">
+            <Plus className="mr-2 h-4 w-4" data-oid="e7.90z8" />
             Añadir dominio
           </Button>
         </CardContent>

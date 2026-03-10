@@ -1,25 +1,67 @@
 import React from 'react'
 
-export const Tabs = ({ children, className, defaultValue }: { children?: React.ReactNode; className?: string; defaultValue?: string }) => (
-  <div className={className} data-testid="tabs" data-default={defaultValue}>
+export const Tabs = ({
+  children,
+  className,
+  defaultValue,
+}: {
+  children?: React.ReactNode
+  className?: string
+  defaultValue?: string
+}) => (
+  <div className={className} data-testid="tabs" data-default={defaultValue} data-oid="ba4:l-c">
     {children}
   </div>
 )
 
-export const TabsList = ({ children, className }: { children?: React.ReactNode; className?: string }) => (
-  <div className={className} data-testid="tabs-list" role="tablist">
+export const TabsList = ({
+  children,
+  className,
+}: {
+  children?: React.ReactNode
+  className?: string
+}) => (
+  <div className={className} data-testid="tabs-list" role="tablist" data-oid="sqdttkv">
     {children}
   </div>
 )
 
-export const TabsTrigger = ({ children, className, value }: { children?: React.ReactNode; className?: string; value: string }) => (
-  <button className={className} data-testid="tabs-trigger" role="tab" data-value={value}>
+export const TabsTrigger = ({
+  children,
+  className,
+  value,
+}: {
+  children?: React.ReactNode
+  className?: string
+  value: string
+}) => (
+  <button
+    className={className}
+    data-testid="tabs-trigger"
+    role="tab"
+    data-value={value}
+    data-oid="zshb79x"
+  >
     {children}
   </button>
 )
 
-export const TabsContent = ({ children, className, value }: { children?: React.ReactNode; className?: string; value: string }) => (
-  <div className={className} data-testid="tabs-content" role="tabpanel" data-value={value}>
+export const TabsContent = ({
+  children,
+  className,
+  value,
+}: {
+  children?: React.ReactNode
+  className?: string
+  value: string
+}) => (
+  <div
+    className={className}
+    data-testid="tabs-content"
+    role="tabpanel"
+    data-value={value}
+    data-oid="ion522t"
+  >
     {children}
   </div>
 )

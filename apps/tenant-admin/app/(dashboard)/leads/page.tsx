@@ -38,13 +38,13 @@ interface Lead {
   createdAt?: string | null
 }
 
-const statusStyles: Record<string, string> = {
-  new: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
-  contacted: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
-  qualified: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300',
-  converted: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-  rejected: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
-  spam: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300',
+const statusVariants: Record<string, 'info' | 'warning' | 'default' | 'success' | 'destructive' | 'neutral'> = {
+  new: 'info',
+  contacted: 'warning',
+  qualified: 'default',
+  converted: 'success',
+  rejected: 'destructive',
+  spam: 'neutral',
 }
 
 const statusLabels: Record<string, string> = {
@@ -121,56 +121,74 @@ export default function LeadsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-oid="bge7wx4">
       <PageHeader
         title="Gestión de Leads"
         description="Control y seguimiento de leads capturados desde formularios y campañas"
         icon={UserCheck}
-        actions={(
+        actions={
           <>
-            <Button variant="outline" onClick={exportToCsv} disabled={isLoading}>
-              <Download className="mr-2 h-4 w-4" />
+            <Button variant="outline" onClick={exportToCsv} disabled={isLoading} data-oid="th9fcum">
+              <Download className="mr-2 h-4 w-4" data-oid="hku1nkp" />
               Exportar CSV
             </Button>
-            <Button onClick={() => window.open('/admin/collections/leads/create', '_blank', 'noopener,noreferrer')} disabled={isLoading}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button
+              onClick={() =>
+                window.open('/admin/collections/leads/create', '_blank', 'noopener,noreferrer')
+              }
+              disabled={isLoading}
+              data-oid="_qt3r71"
+            >
+              <Plus className="mr-2 h-4 w-4" data-oid="g_2ici6" />
               Añadir lead
             </Button>
           </>
-        )}
+        }
+        data-oid="t:6migs"
       />
 
       {errorMessage && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+        <div
+          className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg"
+          data-oid="k-mwif."
+        >
           {errorMessage}
         </div>
       )}
 
-      <div className="rounded-lg border bg-card overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Teléfono</TableHead>
-              <TableHead>Estado</TableHead>
-              {hasAnyOrigin && <TableHead>Origen</TableHead>}
-              <TableHead>Fecha registro</TableHead>
-              <TableHead className="w-10"></TableHead>
+      <div className="rounded-lg border bg-card overflow-x-auto" data-oid="krulg2:">
+        <Table data-oid="mn8p22s">
+          <TableHeader data-oid="32ncxg_">
+            <TableRow data-oid="z3pymf4">
+              <TableHead data-oid="se04f2g">Nombre</TableHead>
+              <TableHead data-oid="x0xv_f7">Email</TableHead>
+              <TableHead data-oid="rh6y4mh">Teléfono</TableHead>
+              <TableHead data-oid="giftdlx">Estado</TableHead>
+              {hasAnyOrigin && <TableHead data-oid="x35s7xy">Origen</TableHead>}
+              <TableHead data-oid="jxfyaxq">Fecha registro</TableHead>
+              <TableHead className="w-10" data-oid="0ofvjdn"></TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody data-oid="d8l8u33">
             {isLoading && (
-              <TableRow>
-                <TableCell colSpan={hasAnyOrigin ? 7 : 6} className="py-8 text-center text-muted-foreground">
+              <TableRow data-oid=":dez2tn">
+                <TableCell
+                  colSpan={hasAnyOrigin ? 7 : 6}
+                  className="py-8 text-center text-muted-foreground"
+                  data-oid="2aj4_b3"
+                >
                   Cargando leads...
                 </TableCell>
               </TableRow>
             )}
 
             {!isLoading && leads.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={hasAnyOrigin ? 7 : 6} className="py-8 text-center text-muted-foreground">
+              <TableRow data-oid="8gcaxz4">
+                <TableCell
+                  colSpan={hasAnyOrigin ? 7 : 6}
+                  className="py-8 text-center text-muted-foreground"
+                  data-oid="pmpy9is"
+                >
                   No hay leads disponibles.
                 </TableCell>
               </TableRow>
@@ -179,32 +197,41 @@ export default function LeadsPage() {
             {leads.map((lead) => {
               const statusKey = lead.status ?? 'new'
               return (
-                <TableRow key={lead.id}>
-                  <TableCell>
+                <TableRow key={lead.id} data-oid="1fcqk8b">
+                  <TableCell data-oid="t0h1fs7">
                     {[lead.first_name, lead.last_name].filter(Boolean).join(' ') || '—'}
                   </TableCell>
-                  <TableCell>{lead.email ?? '—'}</TableCell>
-                  <TableCell>{lead.phone ?? '—'}</TableCell>
-                  <TableCell>
-                    <Badge className={statusStyles[statusKey] ?? 'bg-muted text-muted-foreground'}>
+                  <TableCell data-oid="13ne36f">{lead.email ?? '—'}</TableCell>
+                  <TableCell data-oid="lni55sc">{lead.phone ?? '—'}</TableCell>
+                  <TableCell data-oid="27al33e">
+                    <Badge
+                      variant={statusVariants[statusKey] ?? 'neutral'}
+                      data-oid="tkdw4gv"
+                    >
                       {statusLabels[statusKey] ?? 'Nuevo'}
                     </Badge>
                   </TableCell>
-                  {hasAnyOrigin && <TableCell>{formatOrigin(lead)}</TableCell>}
-                  <TableCell>{formatDate(lead.createdAt)}</TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Acciones</span>
+                  {hasAnyOrigin && <TableCell data-oid="vytgx2l">{formatOrigin(lead)}</TableCell>}
+                  <TableCell data-oid="j.4sj2g">{formatDate(lead.createdAt)}</TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()} data-oid="wc.hdio">
+                    <DropdownMenu data-oid="seu2ecy">
+                      <DropdownMenuTrigger asChild data-oid="uo8ady:">
+                        <Button variant="ghost" size="icon" data-oid="3q:q8im">
+                          <MoreHorizontal className="h-4 w-4" data-oid="hy7nk9:" />
+                          <span className="sr-only" data-oid="a0y14jl">
+                            Acciones
+                          </span>
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Ver detalle</DropdownMenuItem>
-                        <DropdownMenuItem>Convertir a matrícula</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">Eliminar</DropdownMenuItem>
+                      <DropdownMenuContent align="end" data-oid=".ma8mm3">
+                        <DropdownMenuItem data-oid="ss_l:_6">Ver detalle</DropdownMenuItem>
+                        <DropdownMenuItem data-oid="0_y0poy">
+                          Convertir a matrícula
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator data-oid="u9iasqp" />
+                        <DropdownMenuItem className="text-destructive" data-oid="8v2yctn">
+                          Eliminar
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -213,9 +240,13 @@ export default function LeadsPage() {
             })}
           </TableBody>
           {!isLoading && leads.length > 0 && (
-            <tfoot>
-              <tr>
-                <td colSpan={hasAnyOrigin ? 7 : 6} className="py-3 px-4 text-sm text-muted-foreground border-t">
+            <tfoot data-oid="ioeyagf">
+              <tr data-oid="pa-ccpi">
+                <td
+                  colSpan={hasAnyOrigin ? 7 : 6}
+                  className="py-3 px-4 text-sm text-muted-foreground border-t"
+                  data-oid="iads7nf"
+                >
                   Mostrando {leads.length} lead{leads.length !== 1 ? 's' : ''}
                 </td>
               </tr>
