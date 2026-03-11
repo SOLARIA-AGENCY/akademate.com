@@ -22,8 +22,8 @@ COPY packages/realtime/package.json ./packages/realtime/
 COPY packages/mcp-server/package.json ./packages/mcp-server/
 
 # Install all dependencies directly in this stage (avoids COPY between stages)
-RUN --mount=type=cache,id=pnpm-tenant-admin,target=/root/.local/share/pnpm/store \
-    NODE_ENV=development pnpm install --frozen-lockfile --filter @akademate/tenant-admin... --include-workspace-root
+RUN --mount=type=cache,id=pnpm-tenant-admin-v2,target=/root/.local/share/pnpm/store \
+    NODE_ENV=development pnpm install --no-frozen-lockfile --filter @akademate/tenant-admin... --include-workspace-root
 
 # Copy source files
 COPY apps/tenant-admin ./apps/tenant-admin
