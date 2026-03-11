@@ -19,6 +19,7 @@ ENV NEXT_PUBLIC_DEFAULT_TENANT_ID=${NEXT_PUBLIC_DEFAULT_TENANT_ID}
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/tenant-admin/package.json ./apps/tenant-admin/
 COPY packages/realtime/package.json ./packages/realtime/
+COPY packages/mcp-server/package.json ./packages/mcp-server/
 
 # Install all dependencies directly in this stage (avoids COPY between stages)
 RUN --mount=type=cache,id=pnpm-tenant-admin,target=/root/.local/share/pnpm/store \
