@@ -1,713 +1,670 @@
 'use client'
-import { useState, type ChangeEvent } from 'react'
+
+import { useState, useEffect, useCallback } from 'react'
+import {
+  Key,
+  Plus,
+  Copy,
+  Trash2,
+  Check,
+  AlertTriangle,
+  Loader2,
+  ShieldCheck,
+  ShieldOff,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
+import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
-  Plus,
-  Key,
-  Globe,
-  Copy,
-  Eye,
-  EyeOff,
-  Trash2,
-  CheckCircle,
-  Facebook,
-  Chrome,
-  Zap,
-  Code,
-  Webhook,
-  Check,
-  Save,
-} from 'lucide-react'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@payload-config/components/ui/dialog'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@payload-config/components/ui/table'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
 
-interface APIKey {
-  id: number
+// ============================================================================
+// Types
+// ============================================================================
+
+type ApiScope =
+  | 'courses:read'
+  | 'courses:write'
+  | 'students:read'
+  | 'students:write'
+  | 'enrollments:read'
+  | 'enrollments:write'
+  | 'analytics:read'
+  | 'keys:manage'
+
+interface ApiKey {
+  id: string
   name: string
-  key: string
-  created: string
-  lastUsed?: string
-  active: boolean
+  scopes: ApiScope[]
+  is_active: boolean
+  rate_limit_per_day: number
+  last_used_at: string | null
+  created_at: string
 }
 
-interface FacebookPixelConfig {
-  enabled: boolean
-  pixelId: string
-  accessToken: string
+// ============================================================================
+// Scope definitions — grouped for UX
+// ============================================================================
+
+const SCOPE_GROUPS: { label: string; scopes: { value: ApiScope; label: string }[] }[] = [
+  {
+    label: 'Cursos',
+    scopes: [
+      { value: 'courses:read', label: 'Lectura' },
+      { value: 'courses:write', label: 'Escritura' },
+    ],
+  },
+  {
+    label: 'Alumnos',
+    scopes: [
+      { value: 'students:read', label: 'Lectura' },
+      { value: 'students:write', label: 'Escritura' },
+    ],
+  },
+  {
+    label: 'Matriculas',
+    scopes: [
+      { value: 'enrollments:read', label: 'Lectura' },
+      { value: 'enrollments:write', label: 'Escritura' },
+    ],
+  },
+  {
+    label: 'Analiticas',
+    scopes: [{ value: 'analytics:read', label: 'Lectura' }],
+  },
+  {
+    label: 'Gestion de claves',
+    scopes: [{ value: 'keys:manage', label: 'Gestionar API Keys' }],
+  },
+]
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+function formatDate(iso: string | null): string {
+  if (!iso) return 'Nunca'
+  try {
+    return new Intl.DateTimeFormat('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(iso))
+  } catch {
+    return iso
+  }
 }
 
-interface GoogleTagsConfig {
-  enabled: boolean
-  measurementId: string
-  analyticsId: string
-  tagManagerId: string
-  siteVerification: string
+function scopeColor(scope: ApiScope): 'default' | 'secondary' | 'destructive' | 'outline' {
+  if (scope.includes('write') || scope === 'keys:manage') return 'destructive'
+  if (scope.includes('analytics')) return 'secondary'
+  return 'outline'
 }
 
-interface MCPFeatures {
-  taskMaster: boolean
-  sequentialThinking: boolean
-  specKit: boolean
+// ============================================================================
+// API helpers
+// ============================================================================
+
+async function fetchApiKeys(): Promise<ApiKey[]> {
+  const res = await fetch('/api/internal/api-keys', { credentials: 'include', cache: 'no-store' })
+  if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`)
+  const json = (await res.json()) as { data: ApiKey[] }
+  return json.data
 }
 
-interface MCPConfig {
-  enabled: boolean
-  serverUrl: string
-  apiKey: string
-  features: MCPFeatures
-}
-
-interface WebhookConfig {
-  id: number
+async function createApiKey(body: {
   name: string
-  url: string
-  events: string[]
-  active: boolean
+  scopes: ApiScope[]
+  rate_limit_per_day: number
+}): Promise<{ id: string; name: string; scopes: ApiScope[]; plain_key: string; created_at: string; is_active: boolean; rate_limit_per_day: number }> {
+  const res = await fetch('/api/internal/api-keys', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const json = (await res.json()) as { error?: string }
+    throw new Error(json.error ?? `Error ${res.status}`)
+  }
+  const json = (await res.json()) as { data: { id: string; name: string; scopes: ApiScope[]; plain_key: string; created_at: string; is_active: boolean; rate_limit_per_day: number } }
+  return json.data
 }
 
-export default function APIsPage() {
-  const [keys, setKeys] = useState<APIKey[]>([
-    {
-      id: 1,
-      name: 'Production API',
-      key: 'pk_live_abc123xyz789def456ghi012jkl345mno678pqr901stu234vwx567',
-      created: '2025-01-10',
-      lastUsed: '2025-01-15 14:32',
-      active: true,
-    },
-    {
-      id: 2,
-      name: 'Development API',
-      key: 'pk_dev_test987zyx654wvu321tsr098qpo765nml432kji109hgf876edc543',
-      created: '2025-01-08',
-      lastUsed: '2025-01-15 09:15',
-      active: true,
-    },
-  ])
-
-  const [visibleKeys, setVisibleKeys] = useState<Set<number>>(new Set())
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [newKeyName, setNewKeyName] = useState('')
-
-  // Integration configurations
-  const [facebookPixel, setFacebookPixel] = useState<FacebookPixelConfig>({
-    enabled: false,
-    pixelId: '',
-    accessToken: '',
+async function revokeApiKey(id: string): Promise<void> {
+  const res = await fetch(`/api/internal/api-keys/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
   })
+  if (!res.ok) {
+    const json = (await res.json()) as { error?: string }
+    throw new Error(json.error ?? `Error ${res.status}`)
+  }
+}
 
-  const [googleTags, setGoogleTags] = useState<GoogleTagsConfig>({
-    enabled: false,
-    measurementId: 'G-XXXXXXXXXX',
-    analyticsId: 'UA-XXXXXXXXX-X',
-    tagManagerId: 'GTM-XXXXXXX',
-    siteVerification: '',
-  })
+// ============================================================================
+// Component: New Key Dialog
+// ============================================================================
 
-  const [mcpConfig, setMcpConfig] = useState<MCPConfig>({
-    enabled: false,
-    serverUrl: '',
-    apiKey: '',
-    features: {
-      taskMaster: true,
-      sequentialThinking: true,
-      specKit: false,
-    },
-  })
+interface NewKeyDialogProps {
+  open: boolean
+  onClose: () => void
+  onCreated: (key: ApiKey, plainKey: string) => void
+}
 
-  const [webhooks, _setWebhooks] = useState<WebhookConfig[]>([
-    {
-      id: 1,
-      name: 'Lead Created',
-      url: 'https://api.example.com/webhooks/lead-created',
-      events: ['lead.created'],
-      active: true,
-    },
-    {
-      id: 2,
-      name: 'Course Enrollment',
-      url: 'https://api.example.com/webhooks/enrollment',
-      events: ['enrollment.created', 'enrollment.completed'],
-      active: true,
-    },
-  ])
+function NewKeyDialog({ open, onClose, onCreated }: NewKeyDialogProps) {
+  const [name, setName] = useState('')
+  const [selectedScopes, setSelectedScopes] = useState<ApiScope[]>([])
+  const [rateLimit, setRateLimit] = useState<number>(1000)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const toggleKeyVisibility = (id: number) => {
-    const newVisible = new Set(visibleKeys)
-    if (newVisible.has(id)) {
-      newVisible.delete(id)
-    } else {
-      newVisible.add(id)
+  const resetForm = () => {
+    setName('')
+    setSelectedScopes([])
+    setRateLimit(1000)
+    setError(null)
+  }
+
+  const handleClose = () => {
+    resetForm()
+    onClose()
+  }
+
+  const toggleScope = (scope: ApiScope) => {
+    setSelectedScopes((prev) =>
+      prev.includes(scope) ? prev.filter((s) => s !== scope) : [...prev, scope],
+    )
+  }
+
+  const handleSubmit = async () => {
+    if (!name.trim()) {
+      setError('El nombre es obligatorio')
+      return
     }
-    setVisibleKeys(newVisible)
-  }
-
-  const copyToClipboard = (text: string) => {
-    void navigator.clipboard.writeText(text)
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 2000)
-  }
-
-  const generateAPIKey = () => {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
-    let key = 'pk_live_'
-    for (let i = 0; i < 48; i++) {
-      key += chars.charAt(Math.floor(Math.random() * chars.length))
+    if (selectedScopes.length === 0) {
+      setError('Selecciona al menos un permiso')
+      return
     }
-    return key
-  }
 
-  const handleCreateKey = () => {
-    const newKey: APIKey = {
-      id: keys.length + 1,
-      name: newKeyName,
-      key: generateAPIKey(),
-      created: new Date().toISOString().split('T')[0],
-      active: true,
+    setLoading(true)
+    setError(null)
+    try {
+      const created = await createApiKey({
+        name: name.trim(),
+        scopes: selectedScopes,
+        rate_limit_per_day: rateLimit,
+      })
+      onCreated(
+        {
+          id: created.id,
+          name: created.name,
+          scopes: created.scopes,
+          is_active: created.is_active,
+          rate_limit_per_day: created.rate_limit_per_day,
+          last_used_at: null,
+          created_at: created.created_at,
+        },
+        created.plain_key,
+      )
+      resetForm()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al crear la clave')
+    } finally {
+      setLoading(false)
     }
-    setKeys([...keys, newKey])
-    setShowCreateModal(false)
-    setNewKeyName('')
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
-  }
-
-  const handleDeleteKey = (id: number) => {
-    setKeys(keys.filter((k) => k.id !== id))
-  }
-
-  const handleSaveIntegrations = () => {
-    // TODO: Save to database/API
-    console.log('Saving integrations:', { facebookPixel, googleTags, mcpConfig })
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
   }
 
   return (
-    <div className="space-y-6 max-w-6xl" data-oid="vwlk:-i">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
+            Nueva API Key
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4 py-2">
+          {error && (
+            <div className="flex items-center gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          )}
+
+          {/* Name */}
+          <div className="space-y-1.5">
+            <Label htmlFor="api-key-name">Nombre</Label>
+            <Input
+              id="api-key-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ej: Integracion Moodle, App movil..."
+              disabled={loading}
+              autoFocus
+            />
+          </div>
+
+          {/* Scopes */}
+          <div className="space-y-2">
+            <Label>Permisos</Label>
+            <div className="rounded-md border p-3 space-y-3">
+              {SCOPE_GROUPS.map((group) => (
+                <div key={group.label}>
+                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-1.5">
+                    {group.label}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {group.scopes.map(({ value, label }) => (
+                      <div key={value} className="flex items-center gap-1.5">
+                        <Checkbox
+                          id={`scope-${value}`}
+                          checked={selectedScopes.includes(value)}
+                          onCheckedChange={() => toggleScope(value)}
+                          disabled={loading}
+                        />
+                        <label
+                          htmlFor={`scope-${value}`}
+                          className="text-sm cursor-pointer select-none"
+                        >
+                          {label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Rate limit */}
+          <div className="space-y-1.5">
+            <Label htmlFor="rate-limit">Limite de requests por dia</Label>
+            <Input
+              id="rate-limit"
+              type="number"
+              min={1}
+              max={1000000}
+              value={rateLimit}
+              onChange={(e) => setRateLimit(Number(e.target.value))}
+              disabled={loading}
+            />
+            <p className="text-xs text-muted-foreground">Default: 1000 requests/dia</p>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={handleClose} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} disabled={loading || !name.trim() || selectedScopes.length === 0}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generando...
+              </>
+            ) : (
+              <>
+                <Key className="mr-2 h-4 w-4" />
+                Generar clave
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ============================================================================
+// Component: Plain Key Modal (shown ONCE after creation)
+// ============================================================================
+
+interface PlainKeyModalProps {
+  open: boolean
+  keyName: string
+  plainKey: string
+  onClose: () => void
+}
+
+function PlainKeyModal({ open, keyName, plainKey, onClose }: PlainKeyModalProps) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(plainKey)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard not available — user must copy manually
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-green-700 dark:text-green-400">
+            <ShieldCheck className="h-5 w-5" />
+            Clave generada: {keyName}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4 py-2">
+          {/* Warning */}
+          <div className="flex items-start gap-2 rounded-md bg-amber-50 border border-amber-200 px-3 py-3 text-sm text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-200">
+            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+            <span>
+              <strong>Guarda esta clave ahora.</strong> No se mostrara de nuevo. Si la pierdes,
+              tendras que revocarla y crear una nueva.
+            </span>
+          </div>
+
+          {/* Key display */}
+          <div className="space-y-1.5">
+            <Label>Tu API Key</Label>
+            <div className="flex gap-2">
+              <div className="flex-1 rounded-md border bg-muted px-3 py-2 font-mono text-sm break-all select-all">
+                {plainKey}
+              </div>
+              <Button variant="outline" size="sm" onClick={handleCopy} className="shrink-0">
+                {copied ? (
+                  <Check className="h-4 w-4 text-green-600" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Usa esta clave en el header{' '}
+            <code className="rounded bg-muted px-1 py-0.5 font-mono">
+              Authorization: Bearer {'<tu-clave>'}
+            </code>{' '}
+            para autenticar requests a la API.
+          </p>
+        </div>
+
+        <DialogFooter>
+          <Button onClick={onClose}>Entendido, ya la guarde</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ============================================================================
+// Component: Revoke Confirm Dialog
+// ============================================================================
+
+interface RevokeDialogProps {
+  open: boolean
+  keyName: string
+  onConfirm: () => void
+  onCancel: () => void
+  loading: boolean
+}
+
+function RevokeDialog({ open, keyName, onConfirm, onCancel, loading }: RevokeDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onCancel}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-destructive">
+            <ShieldOff className="h-5 w-5" />
+            Revocar API Key
+          </DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground py-2">
+          Estas a punto de revocar la clave <strong>{keyName}</strong>. Las integraciones que usen
+          esta clave dejaran de funcionar inmediatamente.
+        </p>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button variant="destructive" onClick={onConfirm} disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Revocando...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Revocar clave
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ============================================================================
+// Main Page
+// ============================================================================
+
+export default function APIsPage() {
+  const [keys, setKeys] = useState<ApiKey[]>([])
+  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
+
+  // Dialog states
+  const [showNewDialog, setShowNewDialog] = useState(false)
+  const [newKeyResult, setNewKeyResult] = useState<{ key: ApiKey; plainKey: string } | null>(null)
+  const [revokeTarget, setRevokeTarget] = useState<ApiKey | null>(null)
+  const [revokeLoading, setRevokeLoading] = useState(false)
+
+  const loadKeys = useCallback(async () => {
+    setLoading(true)
+    setFetchError(null)
+    try {
+      const data = await fetchApiKeys()
+      setKeys(data)
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : 'No se pudieron cargar las claves')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadKeys()
+  }, [loadKeys])
+
+  const handleCreated = (key: ApiKey, plainKey: string) => {
+    setKeys((prev) => [key, ...prev])
+    setShowNewDialog(false)
+    setNewKeyResult({ key, plainKey })
+  }
+
+  const handleRevoke = async () => {
+    if (!revokeTarget) return
+    setRevokeLoading(true)
+    try {
+      await revokeApiKey(revokeTarget.id)
+      setKeys((prev) =>
+        prev.map((k) => (k.id === revokeTarget.id ? { ...k, is_active: false } : k)),
+      )
+      setRevokeTarget(null)
+    } catch (err) {
+      console.error('[APIsPage] revoke error:', err)
+    } finally {
+      setRevokeLoading(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6 max-w-5xl">
       <PageHeader
         title="APIs y Webhooks"
-        description="Gestiona claves de API, integraciones y webhooks"
-        icon={Webhook}
+        description="Gestiona claves de API para acceso programatico a tus datos"
+        icon={Key}
         actions={
-          <Button onClick={() => setShowCreateModal(true)} data-oid="gm_lxi-">
-            <Plus className="mr-2 h-4 w-4" data-oid="_doj69c" />
-            Nueva Clave API
+          <Button onClick={() => setShowNewDialog(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nueva API Key
           </Button>
         }
-        data-oid="8k9xwgt"
       />
 
-      {showSuccess && (
-        <div
-          className="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-lg flex items-center gap-2"
-          data-oid="ze6vsjt"
-        >
-          <Check className="h-5 w-5" data-oid="jfgx4pj" />
-          <span data-oid="k_brk0u">Cambios guardados correctamente</span>
-        </div>
-      )}
-
-      {/* API Keys */}
-      <Card data-oid=":qcgm3a">
-        <CardHeader data-oid="jujtj0s">
-          <CardTitle className="flex items-center gap-2" data-oid="2azh17k">
-            <Key className="h-5 w-5" data-oid="w2c06s:" />
+      {/* API Keys table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
             Claves de API
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3" data-oid="h5ftppf">
-          {keys.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground" data-oid="8mkaipe">
-              <Key className="h-12 w-12 mx-auto mb-3 opacity-50" data-oid="v_98b5w" />
-              <p data-oid="6wedzgn">No hay claves de API creadas</p>
+        <CardContent>
+          {loading && (
+            <div className="flex items-center justify-center py-12 text-muted-foreground">
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Cargando claves...
+            </div>
+          )}
+
+          {!loading && fetchError && (
+            <div className="flex items-center gap-2 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              {fetchError}
               <Button
-                variant="outline"
-                onClick={() => setShowCreateModal(true)}
-                className="mt-4"
-                data-oid="5e6gzjf"
+                variant="ghost"
+                size="sm"
+                className="ml-auto"
+                onClick={() => void loadKeys()}
               >
-                Crear Primera Clave
+                Reintentar
               </Button>
             </div>
-          ) : (
-            keys.map((key) => (
-              <div key={key.id} className="border rounded-lg p-4 space-y-3" data-oid="7csjynb">
-                <div className="flex items-start justify-between" data-oid="noxe6pi">
-                  <div className="flex-1" data-oid="no4c128">
-                    <div className="flex items-center gap-2" data-oid="yv9r6t:">
-                      <p className="font-medium" data-oid="y1w8w9l">
-                        {key.name}
-                      </p>
-                      {key.active && (
-                        <CheckCircle className="h-4 w-4 text-success" data-oid="rz9zjzo" />
+          )}
+
+          {!loading && !fetchError && keys.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <Key className="h-12 w-12 mb-3 opacity-30" />
+              <p className="mb-4">No hay claves de API creadas</p>
+              <Button variant="outline" onClick={() => setShowNewDialog(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Crear primera clave
+              </Button>
+            </div>
+          )}
+
+          {!loading && !fetchError && keys.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Permisos</TableHead>
+                  <TableHead>Ultimo uso</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {keys.map((key) => (
+                  <TableRow key={key.id} className={!key.is_active ? 'opacity-50' : undefined}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{key.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Creada {formatDate(key.created_at)} &middot; {key.rate_limit_per_day}/dia
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {key.scopes.map((scope) => (
+                          <Badge key={scope} variant={scopeColor(scope)} className="text-xs">
+                            {scope}
+                          </Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {formatDate(key.last_used_at)}
+                    </TableCell>
+                    <TableCell>
+                      {key.is_active ? (
+                        <Badge variant="default" className="bg-green-600 text-white">
+                          <ShieldCheck className="mr-1 h-3 w-3" />
+                          Activa
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary">
+                          <ShieldOff className="mr-1 h-3 w-3" />
+                          Revocada
+                        </Badge>
                       )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1" data-oid="4ibc-jz">
-                      Creada: {key.created}
-                      {key.lastUsed && ` • Último uso: ${key.lastUsed}`}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteKey(key.id)}
-                    data-oid="t4vmnj."
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" data-oid="_i-kgea" />
-                  </Button>
-                </div>
-
-                <div className="flex gap-2" data-oid="kvs3kts">
-                  <div
-                    className="flex-1 bg-muted px-3 py-2 rounded font-mono text-sm"
-                    data-oid="4.h7sto"
-                  >
-                    {visibleKeys.has(key.id) ? key.key : '•'.repeat(key.key.length)}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleKeyVisibility(key.id)}
-                    data-oid="8p24rk6"
-                  >
-                    {visibleKeys.has(key.id) ? (
-                      <EyeOff className="h-4 w-4" data-oid="r-3tw4b" />
-                    ) : (
-                      <Eye className="h-4 w-4" data-oid="o:4_8v-" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(key.key)}
-                    data-oid="klyvvni"
-                  >
-                    <Copy className="h-4 w-4" data-oid="69k-5v:" />
-                  </Button>
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Facebook Pixel */}
-      <Card data-oid="m.xjm7b">
-        <CardHeader data-oid="hztz0._">
-          <div className="flex items-center justify-between" data-oid="zradjmg">
-            <CardTitle className="flex items-center gap-2" data-oid="_36exj3">
-              <Facebook className="h-5 w-5" data-oid="wtku:2." />
-              Facebook Pixel
-            </CardTitle>
-            <div className="flex items-center gap-2" data-oid="8g2a5c1">
-              <Label
-                htmlFor="fb-pixel-toggle"
-                className="text-sm cursor-pointer"
-                data-oid="4g6zxj0"
-              >
-                {facebookPixel.enabled ? 'Activado' : 'Desactivado'}
-              </Label>
-              <input
-                id="fb-pixel-toggle"
-                type="checkbox"
-                checked={facebookPixel.enabled}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setFacebookPixel({ ...facebookPixel, enabled: e.target.checked })
-                }
-                className="rounded"
-                data-oid="c59cdf7"
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4" data-oid="bawbgv0">
-          <div className="grid gap-4 md:grid-cols-2" data-oid="o1duak7">
-            <div className="space-y-2" data-oid="-qt-f60">
-              <Label htmlFor="pixel-id" data-oid="jhegk1-">
-                Pixel ID
-              </Label>
-              <Input
-                id="pixel-id"
-                value={facebookPixel.pixelId}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setFacebookPixel({ ...facebookPixel, pixelId: e.target.value })
-                }
-                placeholder="1234567890123456"
-                disabled={!facebookPixel.enabled}
-                data-oid="x2b.z9z"
-              />
-            </div>
-            <div className="space-y-2" data-oid="-hfa:y8">
-              <Label htmlFor="fb-access-token" data-oid="07akama">
-                Access Token (Opcional)
-              </Label>
-              <Input
-                id="fb-access-token"
-                type="password"
-                value={facebookPixel.accessToken}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setFacebookPixel({ ...facebookPixel, accessToken: e.target.value })
-                }
-                placeholder="EAAxxxxxxxxxxxxx"
-                disabled={!facebookPixel.enabled}
-                data-oid="i30c3__"
-              />
-            </div>
-          </div>
-
-          {facebookPixel.enabled && facebookPixel.pixelId && (
-            <div className="bg-muted p-3 rounded-lg" data-oid="5lyn:7:">
-              <p className="text-sm font-medium mb-2" data-oid="7_2gu1u">
-                Código de Instalación (Web):
-              </p>
-              <pre className="text-xs bg-background p-3 rounded overflow-x-auto" data-oid="h6.6mf7">
-                {`<!-- Facebook Pixel Code -->
-<script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '${facebookPixel.pixelId}');
-  fbq('track', 'PageView');
-</script>
-<!-- End Facebook Pixel Code -->`}
-              </pre>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Google Tags */}
-      <Card data-oid="i1muol0">
-        <CardHeader data-oid="qgfrx7i">
-          <div className="flex items-center justify-between" data-oid="g.01fky">
-            <CardTitle className="flex items-center gap-2" data-oid="f3rmc5u">
-              <Chrome className="h-5 w-5" data-oid="szvs7d:" />
-              Google Analytics & Tags
-            </CardTitle>
-            <div className="flex items-center gap-2" data-oid="97zj6kz">
-              <Label htmlFor="google-toggle" className="text-sm cursor-pointer" data-oid="18466z3">
-                {googleTags.enabled ? 'Activado' : 'Desactivado'}
-              </Label>
-              <input
-                id="google-toggle"
-                type="checkbox"
-                checked={googleTags.enabled}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setGoogleTags({ ...googleTags, enabled: e.target.checked })
-                }
-                className="rounded"
-                data-oid="80qviif"
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4" data-oid="h2_1y95">
-          <div className="grid gap-4 md:grid-cols-2" data-oid=":nz1:1r">
-            <div className="space-y-2" data-oid="y1ujbha">
-              <Label htmlFor="ga4-id" data-oid="ar:2p-.">
-                GA4 Measurement ID
-              </Label>
-              <Input
-                id="ga4-id"
-                value={googleTags.measurementId}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setGoogleTags({ ...googleTags, measurementId: e.target.value })
-                }
-                placeholder="G-XXXXXXXXXX"
-                disabled={!googleTags.enabled}
-                data-oid="goxg-mx"
-              />
-            </div>
-            <div className="space-y-2" data-oid="s36ta-9">
-              <Label htmlFor="ua-id" data-oid="3_ikk0_">
-                Universal Analytics ID (Legacy)
-              </Label>
-              <Input
-                id="ua-id"
-                value={googleTags.analyticsId}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setGoogleTags({ ...googleTags, analyticsId: e.target.value })
-                }
-                placeholder="UA-XXXXXXXXX-X"
-                disabled={!googleTags.enabled}
-                data-oid="r34mvft"
-              />
-            </div>
-            <div className="space-y-2" data-oid="q6rpcm1">
-              <Label htmlFor="gtm-id" data-oid="8.mndok">
-                Google Tag Manager ID
-              </Label>
-              <Input
-                id="gtm-id"
-                value={googleTags.tagManagerId}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setGoogleTags({ ...googleTags, tagManagerId: e.target.value })
-                }
-                placeholder="GTM-XXXXXXX"
-                disabled={!googleTags.enabled}
-                data-oid="9sg.xvo"
-              />
-            </div>
-            <div className="space-y-2" data-oid="6:utyu3">
-              <Label htmlFor="site-verification" data-oid="1_ig8yt">
-                Site Verification Meta Tag
-              </Label>
-              <Input
-                id="site-verification"
-                value={googleTags.siteVerification}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setGoogleTags({ ...googleTags, siteVerification: e.target.value })
-                }
-                placeholder="google-site-verification=xxxxx"
-                disabled={!googleTags.enabled}
-                data-oid="wjhjay_"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* MCP (Model Context Protocol) */}
-      <Card data-oid="gws:-.2">
-        <CardHeader data-oid="o31n4jl">
-          <div className="flex items-center justify-between" data-oid="2bmhspj">
-            <CardTitle className="flex items-center gap-2" data-oid="9fjsu6i">
-              <Zap className="h-5 w-5" data-oid="knnftqa" />
-              MCP (Model Context Protocol)
-            </CardTitle>
-            <div className="flex items-center gap-2" data-oid="fu5xzdg">
-              <Label htmlFor="mcp-toggle" className="text-sm cursor-pointer" data-oid="b:lui4r">
-                {mcpConfig.enabled ? 'Activado' : 'Desactivado'}
-              </Label>
-              <input
-                id="mcp-toggle"
-                type="checkbox"
-                checked={mcpConfig.enabled}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setMcpConfig({ ...mcpConfig, enabled: e.target.checked })
-                }
-                className="rounded"
-                data-oid="9t5..69"
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4" data-oid=".ccsan_">
-          <div className="grid gap-4 md:grid-cols-2" data-oid="srh18pu">
-            <div className="space-y-2" data-oid="l7_i7wh">
-              <Label htmlFor="mcp-server" data-oid="ji_6lx:">
-                Server URL
-              </Label>
-              <Input
-                id="mcp-server"
-                value={mcpConfig.serverUrl}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setMcpConfig({ ...mcpConfig, serverUrl: e.target.value })
-                }
-                placeholder="https://mcp.example.com"
-                disabled={!mcpConfig.enabled}
-                data-oid="jou16-4"
-              />
-            </div>
-            <div className="space-y-2" data-oid="3g9k54q">
-              <Label htmlFor="mcp-key" data-oid="gay4ak_">
-                API Key
-              </Label>
-              <Input
-                id="mcp-key"
-                type="password"
-                value={mcpConfig.apiKey}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setMcpConfig({ ...mcpConfig, apiKey: e.target.value })
-                }
-                placeholder="mcp_xxxxxxxxxxxxx"
-                disabled={!mcpConfig.enabled}
-                data-oid="po5aom:"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2" data-oid="83_qxsu">
-            <Label data-oid="pndwxyk">Características Habilitadas</Label>
-            <div className="space-y-2" data-oid="rma41nd">
-              {(Object.entries(mcpConfig.features) as [keyof MCPFeatures, boolean][]).map(
-                ([feature, enabled]) => (
-                  <div key={feature} className="flex items-center gap-2" data-oid="8bv4o13">
-                    <input
-                      type="checkbox"
-                      id={`mcp-${feature}`}
-                      checked={enabled}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setMcpConfig({
-                          ...mcpConfig,
-                          features: { ...mcpConfig.features, [feature]: e.target.checked },
-                        })
-                      }
-                      disabled={!mcpConfig.enabled}
-                      className="rounded"
-                      data-oid="g:h-s2w"
-                    />
-
-                    <Label
-                      htmlFor={`mcp-${feature}`}
-                      className="cursor-pointer capitalize"
-                      data-oid="2g:a342"
-                    >
-                      {feature.replace(/([A-Z])/g, ' $1').trim()}
-                    </Label>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Webhooks */}
-      <Card data-oid="6piw9e2">
-        <CardHeader data-oid="i_i28xo">
-          <div className="flex items-center justify-between" data-oid="v0l-.be">
-            <CardTitle className="flex items-center gap-2" data-oid="vahe7g-">
-              <Webhook className="h-5 w-5" data-oid="aqfig4p" />
-              Webhooks
-            </CardTitle>
-            <Button variant="outline" size="sm" data-oid="_p2h8e3">
-              <Plus className="mr-2 h-4 w-4" data-oid="0aevgrk" />
-              Nuevo Webhook
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3" data-oid="j7yq3p6">
-          {webhooks.map((webhook) => (
-            <div key={webhook.id} className="border rounded-lg p-4" data-oid=":zxvh3:">
-              <div className="flex items-start justify-between mb-2" data-oid="5w._-z0">
-                <div className="flex-1" data-oid="jjpt_n9">
-                  <div className="flex items-center gap-2" data-oid="m2hk:ib">
-                    <p className="font-medium" data-oid="qe3tw53">
-                      {webhook.name}
-                    </p>
-                    {webhook.active && (
-                      <CheckCircle className="h-4 w-4 text-success" data-oid="bk9xroj" />
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1 font-mono" data-oid=".x5v6uy">
-                    {webhook.url}
-                  </p>
-                </div>
-                <Button variant="ghost" size="sm" data-oid="m8jbkle">
-                  <Trash2 className="h-4 w-4 text-destructive" data-oid="i6pl9m." />
-                </Button>
-              </div>
-              <div className="flex gap-2 flex-wrap" data-oid="nfok3i0">
-                {webhook.events.map((event) => (
-                  <span
-                    key={event}
-                    className="text-xs px-2 py-1 bg-primary/10 text-primary rounded"
-                    data-oid="ql7dtgq"
-                  >
-                    {event}
-                  </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {key.is_active && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setRevokeTarget(key)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Revocar</span>
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </div>
-            </div>
-          ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
-      {/* Documentation */}
-      <Card data-oid="z0oqqr9">
-        <CardHeader data-oid="jc5t61o">
-          <CardTitle className="flex items-center gap-2" data-oid="y.y8ny-">
-            <Code className="h-5 w-5" data-oid="-ic0rs4" />
-            Documentación de API
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3" data-oid="6o0bpuk">
-          <div className="space-y-2" data-oid="tcmb01.">
-            <p className="text-sm text-muted-foreground" data-oid="_xn0ct9">
-              Accede a la documentación completa de la API REST para integrar tu aplicación con
-              AKADEMATE Admin.
-            </p>
-            <div className="flex gap-2" data-oid="0ytw35t">
-              <Button variant="outline" data-oid="_4repvm">
-                <Globe className="mr-2 h-4 w-4" data-oid="zl3x9jp" />
-                Ver Documentación
-              </Button>
-              <Button variant="outline" data-oid=":p7-xlj">
-                <Code className="mr-2 h-4 w-4" data-oid="z45tv6k" />
-                Ejemplos de Código
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Dialogs */}
+      <NewKeyDialog
+        open={showNewDialog}
+        onClose={() => setShowNewDialog(false)}
+        onCreated={handleCreated}
+      />
 
-      <div className="flex justify-end" data-oid="cb:h3d5">
-        <Button onClick={handleSaveIntegrations} data-oid="kbhe55t">
-          <Save className="mr-2 h-4 w-4" data-oid="stfnxhz" />
-          Guardar Configuración
-        </Button>
-      </div>
+      {newKeyResult && (
+        <PlainKeyModal
+          open={true}
+          keyName={newKeyResult.key.name}
+          plainKey={newKeyResult.plainKey}
+          onClose={() => setNewKeyResult(null)}
+        />
+      )}
 
-      {/* Create API Key Modal */}
-      {showCreateModal && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          data-oid="xjwvq3f"
-        >
-          <Card className="w-full max-w-md mx-4" data-oid="uood3sx">
-            <CardHeader data-oid="6:vp9vr">
-              <CardTitle data-oid="9anou99">Crear Nueva Clave API</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4" data-oid="-mw5.po">
-              <div className="space-y-2" data-oid="5:hfeft">
-                <Label htmlFor="key-name" data-oid="0_so6mr">
-                  Nombre de la Clave
-                </Label>
-                <Input
-                  id="key-name"
-                  value={newKeyName}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setNewKeyName(e.target.value)}
-                  placeholder="Ej: Production API, Mobile App, etc."
-                  data-oid="u0m7759"
-                />
-              </div>
-              <div className="bg-muted p-3 rounded-lg text-sm" data-oid="bpp6.43">
-                <p className="text-muted-foreground" data-oid="i-o2z7g">
-                  Se generará una nueva clave de API única. Guárdala en un lugar seguro, no podrás
-                  verla nuevamente después de crearla.
-                </p>
-              </div>
-              <div className="flex gap-2" data-oid="cqiiuth">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowCreateModal(false)}
-                  className="flex-1"
-                  data-oid=".e7hy_3"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={handleCreateKey}
-                  className="flex-1"
-                  disabled={!newKeyName}
-                  data-oid="3o.rvgf"
-                >
-                  Generar Clave
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      {revokeTarget && (
+        <RevokeDialog
+          open={true}
+          keyName={revokeTarget.name}
+          onConfirm={() => void handleRevoke()}
+          onCancel={() => setRevokeTarget(null)}
+          loading={revokeLoading}
+        />
       )}
     </div>
   )
