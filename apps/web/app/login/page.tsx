@@ -7,6 +7,7 @@ export const metadata: Metadata = {
 }
 
 export default function LoginPage() {
-  const tenantUrl = process.env.NEXT_PUBLIC_TENANT_URL ?? 'https://admin.akademate.com'
+  // Server-only env var (no NEXT_PUBLIC_ prefix) — leída en runtime
+  const tenantUrl = process.env.TENANT_URL ?? 'https://admin.akademate.com'
   redirect(`${tenantUrl}/auth/login`)
 }
