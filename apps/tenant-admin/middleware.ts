@@ -271,6 +271,35 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // =========================================================================
+  // API Key (Bearer token) detection — Edge-safe pass-through
+  // =========================================================================
+  // NOTE: We intentionally do NOT validate the Bearer token here.
+  // Edge middleware cannot import Node.js crypto or query the DB.
+  // Actual validation happens inside each /api/v1/* route handler.
+  // We forward the presence of a Bearer token via custom headers so
+  // route handlers know to attempt API key auth instead of cookie auth.
+  const authorizationHeader = request.headers.get('authorization')
+  if (authorizationHeader && authorizationHeader.startsWith('Bearer ')) {
+    const bearerToken = authorizationHeader.slice(7).trim()
+    if (bearerToken) {
+      // Pass-through: let the route handler do the actual DB validation.
+      // We propagate the raw token via a header so downstream handlers
+      // can pick it up without re-parsing the Authorization header.
+      const response = NextResponse.next()
+      response.headers.set('x-api-bearer-token', bearerToken)
+      // Add CORS and security headers so Bearer-authenticated API calls work correctly
+      if (pathname.startsWith('/api/')) {
+        const corsHeaders = getCorsHeaders(origin)
+        Object.entries(corsHeaders).forEach(([k, v]) => response.headers.set(k, v))
+        Object.entries(rateLimitHeaders).forEach(([k, v]) => response.headers.set(k, v))
+      }
+      const securityHeaders = getSecurityHeaders()
+      Object.entries(securityHeaders).forEach(([k, v]) => response.headers.set(k, v))
+      return response
+    }
+  }
+
   // Check for authentication cookie (Payload CMS sets 'payload-token')
   const token = request.cookies.get('payload-token')?.value
 

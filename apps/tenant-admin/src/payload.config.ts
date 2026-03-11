@@ -28,7 +28,8 @@ import { FAQs } from './collections/FAQs/FAQs';
 import { Media } from './collections/Media';
 import { AuditLogs } from './collections/AuditLogs/AuditLogs';
 import { Staff } from './collections/Staff/Staff';
-import { Tenants } from './collections/Tenants/Tenants';
+import { Tenants } from './collections/Tenants/Tenants'
+import { ApiKeys } from './collections/ApiKeys/ApiKeys';
 
 // LMS Collections
 import { Modules } from './collections/Modules/Modules';
@@ -106,6 +107,9 @@ export const getPayloadConfig = () => buildConfig({
     // Compliance & System
     AuditLogs, // ✅ GDPR Article 30 compliance - Immutable audit trail
     // SEOMetadata,
+
+    // ===== API ACCESS =====
+    ApiKeys, // ✅ Programmatic API access via Bearer tokens
   ],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET ?? 'YOUR_SECRET_HERE',
