@@ -1,0 +1,39 @@
+# =============================================================================
+# Traefik v3 — Reverse Proxy + Let's Encrypt
+# Akademate Production Server (Hetzner 46.62.222.138)
+#
+# Deploy:
+#   cd /opt/akademate/traefik
+#   touch data/acme.json && chmod 600 data/acme.json
+#   docker compose up -d
+# =============================================================================
+
+services:
+  traefik:
+    image: traefik:v3.2
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./conf.d:/etc/traefik/conf.d:ro
+      - ./data/acme.json:/acme.json
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      # Dashboard (solo accesible via Tailscale / internamente)
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.akademate.local`)"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=web"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  proxy:
+    external: true

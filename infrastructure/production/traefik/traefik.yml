@@ -1,0 +1,52 @@
+# =============================================================================
+# Traefik v3 — Static Configuration
+# =============================================================================
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: INFO
+  format: json
+
+accessLog:
+  format: json
+  fields:
+    headers:
+      names:
+        X-Forwarded-For: keep
+        X-Real-IP: keep
+        CF-Connecting-IP: keep
+
+api:
+  dashboard: true
+  insecure: false
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: letsencrypt
+
+providers:
+  file:
+    directory: /etc/traefik/conf.d
+    watch: true
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: hola@akademate.com
+      storage: /acme.json
+      httpChallenge:
+        entryPoint: web

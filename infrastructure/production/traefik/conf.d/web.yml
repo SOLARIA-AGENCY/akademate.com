@@ -1,0 +1,35 @@
+# Routing para akademate.com → web container
+# File provider (evita Docker API version issues)
+
+http:
+  routers:
+    web-https:
+      rule: "Host(`akademate.com`) || Host(`www.akademate.com`)"
+      entrypoints:
+        - websecure
+      service: web
+      tls:
+        certresolver: letsencrypt
+        domains:
+          - main: akademate.com
+            sans:
+              - www.akademate.com
+      middlewares:
+        - www-redirect
+
+  middlewares:
+    www-redirect:
+      redirectRegex:
+        regex: "^https://www\\.akademate\\.com/(.*)"
+        replacement: "https://akademate.com/${1}"
+        permanent: true
+
+  services:
+    web:
+      loadBalancer:
+        servers:
+          - url: "http://akademate-web:3006"
+        healthCheck:
+          path: /
+          interval: 30s
+          timeout: 10s

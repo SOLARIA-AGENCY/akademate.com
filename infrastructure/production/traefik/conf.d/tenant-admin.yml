@@ -1,0 +1,23 @@
+# Routing para app.akademate.com → tenant-admin container
+
+http:
+  routers:
+    tenant-admin-https:
+      rule: "Host(`app.akademate.com`)"
+      entrypoints:
+        - websecure
+      service: tenant-admin
+      tls:
+        certresolver: letsencrypt
+        domains:
+          - main: app.akademate.com
+
+  services:
+    tenant-admin:
+      loadBalancer:
+        servers:
+          - url: "http://akademate-tenant:3009"
+        healthCheck:
+          path: /auth/login
+          interval: 30s
+          timeout: 10s

@@ -1,0 +1,59 @@
+# =============================================================================
+# Akademate Web — Coming Soon Landing
+# akademate.com | www.akademate.com
+#
+# Deploy:
+#   cd /opt/akademate/web
+#   cp .env.example .env  # editar valores
+#   docker compose build
+#   docker compose up -d
+# =============================================================================
+
+services:
+  web:
+    build:
+      context: /opt/akademate/repo
+      dockerfile: infrastructure/docker/Dockerfile.web
+    image: akademate-web:latest
+    container_name: akademate-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Payload CMS — cuando esté desplegado
+      PAYLOAD_CMS_URL: ${PAYLOAD_CMS_URL:-http://localhost:3003}
+      PAYLOAD_API_KEY: ${PAYLOAD_API_KEY:-}
+    labels:
+      - "traefik.enable=true"
+      # HTTP → HTTPS redirect ya está en traefik.yml (entrypoint level)
+      # Routing HTTPS
+      - "traefik.http.routers.web.rule=Host(`akademate.com`) || Host(`www.akademate.com`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls=true"
+      - "traefik.http.routers.web.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.web.tls.domains[0].main=akademate.com"
+      - "traefik.http.routers.web.tls.domains[0].sans=www.akademate.com"
+      # Service
+      - "traefik.http.services.web.loadbalancer.server.port=3006"
+      # www → apex redirect
+      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www\\.akademate\\.com/(.*)"
+      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://akademate.com/$${1}"
+      - "traefik.http.middlewares.www-redirect.redirectregex.permanent=true"
+      - "traefik.http.routers.web.middlewares=www-redirect"
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3006"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  proxy:
+    external: true
