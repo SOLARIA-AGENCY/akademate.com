@@ -1,16 +1,16 @@
-# Routing para app.akademate.com → tenant-admin container
+# Routing para admin.akademate.com → tenant-admin container
 
 http:
   routers:
     tenant-admin-https:
-      rule: "Host(`app.akademate.com`)"
+      rule: "Host(`admin.akademate.com`)"
       entrypoints:
         - websecure
       service: tenant-admin
       tls:
         certresolver: letsencrypt
         domains:
-          - main: app.akademate.com
+          - main: admin.akademate.com
 
   services:
     tenant-admin:

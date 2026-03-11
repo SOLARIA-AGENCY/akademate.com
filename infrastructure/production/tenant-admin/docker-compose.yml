@@ -1,15 +1,37 @@
 # =============================================================================
-# Akademate Tenant Admin Dashboard
-# app.akademate.com
+# Akademate Tenant Admin Dashboard — Stack Completo
+# admin.akademate.com
 #
 # Deploy:
 #   cd /opt/akademate/tenant-admin
-#   cp .env.example .env  # editar valores
-#   docker compose build
-#   docker compose up -d
+#   cp .env.example .env  # completar POSTGRES_PASSWORD, PAYLOAD_SECRET, BETTER_AUTH_SECRET
+#   docker compose up -d --build
 # =============================================================================
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: akademate-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-akademate}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-akademate}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-akademate}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
   tenant-admin:
     build:
       context: /opt/akademate/repo
@@ -17,33 +39,32 @@ services:
     image: akademate-tenant:latest
     container_name: akademate-tenant
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL required}
-      DATABASE_HOST: ${DATABASE_HOST:-localhost}
-      DATABASE_PORT: ${DATABASE_PORT:-5432}
-      DATABASE_NAME: ${DATABASE_NAME:-akademate}
-      DATABASE_USER: ${DATABASE_USER:-akademate}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD required}
-      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?PAYLOAD_SECRET required}
-      PAYLOAD_CMS_URL: ${PAYLOAD_CMS_URL:-http://localhost:3003}
-      PAYLOAD_API_KEY: ${PAYLOAD_API_KEY:-}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET required}
-      BETTER_AUTH_URL: https://app.akademate.com
+      DATABASE_URL: postgres://${POSTGRES_USER:-akademate}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-akademate}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: ${POSTGRES_DB:-akademate}
+      DATABASE_USER: ${POSTGRES_USER:-akademate}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?Set PAYLOAD_SECRET in .env}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: https://admin.akademate.com
       NEXT_PUBLIC_WEB_URL: https://akademate.com
-      NEXT_PUBLIC_TENANT_URL: https://app.akademate.com
+      NEXT_PUBLIC_TENANT_URL: https://admin.akademate.com
       NEXT_TELEMETRY_DISABLED: "1"
-      ENFORCE_HTTPS: "true"
-    labels:
-      - "traefik.enable=true"
     networks:
+      - internal
       - proxy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3009/auth/login"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 90s
+      start_period: 120s
     logging:
       driver: "json-file"
       options:
@@ -51,5 +72,11 @@ services:
         max-file: "3"
 
 networks:
+  internal:
+    driver: bridge
   proxy:
     external: true
+
+volumes:
+  postgres_data:
+    driver: local
