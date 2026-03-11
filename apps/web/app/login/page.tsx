@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function LoginPage() {
-  redirect('https://admin.akademate.com/auth/login')
+  redirect('https://app.akademate.com/auth/login')
 }
