@@ -14,6 +14,7 @@ import {
   DataTableHead,
   DataTableCell,
 } from '@/components/ui/data-table'
+import { DataTableEmpty } from '@/components/ui/data-table'
 import { useTenants, type OpsTenant } from '@/hooks/use-ops-data'
 
 function derivePlan(limits?: OpsTenant['limits']): string {
@@ -93,15 +94,15 @@ export default function TenantsPage() {
             </DataTableHeader>
             <DataTableBody>
               {tenants.length === 0 ? (
-                <DataTableRow>
-                  <DataTableCell colSpan={7}>
-                    <p className="text-center text-muted-foreground py-10">
-                      {search
-                        ? 'No se encontraron tenants con ese criterio'
-                        : 'No hay tenants registrados'}
-                    </p>
-                  </DataTableCell>
-                </DataTableRow>
+                <DataTableEmpty
+                  colSpan={7}
+                  title={search ? 'Sin resultados' : 'Sin tenants'}
+                  description={
+                    search
+                      ? 'No se encontraron tenants con ese criterio de búsqueda'
+                      : 'Crea el primer tenant para comenzar'
+                  }
+                />
               ) : (
                 tenants.map((tenant) => {
                   const plan = derivePlan(tenant.limits)
