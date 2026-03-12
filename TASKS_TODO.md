@@ -172,7 +172,7 @@
 - [x] It-5: Crear `/api/ops/health` con health checks reales de Payload CMS.
 - [x] It-6: Full responsiveness (mobile/tablet breakpoints en layout y páginas clave).
 - [x] It-7: Eliminar todos los mocks hardcoded restantes (soporte, facturación) — glass-panel removido de todas las páginas.
-- [ ] It-8: Tests unitarios y de integración (vitest + MSW, >80% cobertura).
+- [x] It-8: Tests unitarios y de integración (vitest + MSW, 66 tests pasando — hooks, UI components).
 - [x] It-9: Crear Dockerfile.admin-client para rebuild con código real.
 
 ## 22) AKADEMATE Cliente Platform (CEP -> AKADEMATE, shadcn, tenant branding)
