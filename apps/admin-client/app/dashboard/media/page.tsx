@@ -94,7 +94,7 @@ export default function MediaPage() {
         <MockDataBanner />
       </PageHeader>
 
-      <div className="glass-panel p-6">
+      <div className="bg-card border border-border rounded-xl p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
           <div className="p-4 rounded-lg border border-muted/20 bg-muted/20">
             <p className="text-muted-foreground text-sm">Endpoint S3</p>

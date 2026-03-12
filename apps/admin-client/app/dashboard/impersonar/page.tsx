@@ -218,7 +218,7 @@ export default function ImpersonarPage() {
       {/* Impersonation Confirmation Modal */}
       {selectedTenant && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="glass-panel border border-muted/30 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div className="bg-card border border-border rounded-xl border border-muted/30 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
             {!isImpersonating ? (
               <>
                 <div className="flex items-center gap-4 mb-6">
@@ -344,7 +344,7 @@ export default function ImpersonarPage() {
       )}
 
       {/* Info Panel */}
-      <div className="glass-panel/30 border border-muted/30/50 rounded-xl p-5">
+      <div className="bg-card border border-border rounded-xl/30 border border-muted/30/50 rounded-xl p-5">
         <h3 className="text-foreground font-semibold mb-3 flex items-center gap-2">
           <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

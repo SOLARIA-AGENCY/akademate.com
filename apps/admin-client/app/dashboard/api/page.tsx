@@ -313,15 +313,15 @@ export default function ApiPage() {
           </span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-foreground">
-          <div className="p-3 rounded-lg glass-panel/60 border border-muted/20">
+          <div className="p-3 rounded-lg bg-card border border-border rounded-xl/60 border border-muted/20">
             <p className="text-xs text-muted-foreground mb-1">Endpoint (mock)</p>
             <p className="font-mono break-all">{mockMcp.endpoint}</p>
           </div>
-          <div className="p-3 rounded-lg glass-panel/60 border border-muted/20">
+          <div className="p-3 rounded-lg bg-card border border-border rounded-xl/60 border border-muted/20">
             <p className="text-xs text-muted-foreground mb-1">Token</p>
             <p className="font-mono break-all">{mockMcp.authToken}</p>
           </div>
-          <div className="p-3 rounded-lg glass-panel/60 border border-muted/20">
+          <div className="p-3 rounded-lg bg-card border border-border rounded-xl/60 border border-muted/20">
             <p className="text-xs text-muted-foreground mb-1">Handshake</p>
             <p className="text-foreground text-sm">Pendiente de auth bearer + listado de resources/tools.</p>
           </div>
@@ -351,7 +351,7 @@ export default function ApiPage() {
               navigator.clipboard.writeText(mockMcp.authToken);
               setMcpMessage('Token MCP copiado (mock)');
             }}
-            className="px-4 py-2 glass-panel text-foreground rounded-lg hover:bg-muted/50 transition-colors text-sm font-medium"
+            className="px-4 py-2 bg-card border border-border rounded-xl text-foreground rounded-lg hover:bg-muted/50 transition-colors text-sm font-medium"
           >
             Copiar token
           </button>
@@ -368,7 +368,7 @@ export default function ApiPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="glass-panel p-5 rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">Endpoints Disponibles</p>
@@ -382,7 +382,7 @@ export default function ApiPage() {
           </div>
         </div>
 
-        <div className="glass-panel p-5 rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">API Keys Activas</p>
@@ -396,7 +396,7 @@ export default function ApiPage() {
           </div>
         </div>
 
-        <div className="glass-panel p-5 rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">Requests Hoy</p>
@@ -410,7 +410,7 @@ export default function ApiPage() {
           </div>
         </div>
 
-        <div className="glass-panel p-5 rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">Latencia Media</p>
@@ -426,7 +426,7 @@ export default function ApiPage() {
       </div>
 
       {/* API limits & scopes (mock) */}
-      <div className="glass-panel p-5 rounded-xl border border-muted/30 mb-6">
+      <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-foreground">API keys & rate limiting</h2>
@@ -449,7 +449,7 @@ export default function ApiPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 glass-panel p-1 rounded-lg w-fit">
+      <div className="flex gap-1 mb-6 bg-card border border-border rounded-xl p-1 rounded-lg w-fit">
         <button
           onClick={() => setActiveTab('endpoints')}
           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
@@ -479,7 +479,7 @@ export default function ApiPage() {
       {activeTab === 'endpoints' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Endpoints List */}
-          <div className="glass-panel rounded-xl border border-muted/30">
+          <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
             <div className="p-4 border-b border-muted/30">
               <div className="flex gap-2 flex-wrap">
                 {categories.map(cat => (
@@ -529,7 +529,7 @@ export default function ApiPage() {
           </div>
 
           {/* Request Builder */}
-          <div className="glass-panel rounded-xl border border-muted/30">
+          <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
             {selectedEndpoint ? (
               <>
                 <div className="p-4 border-b border-muted/30">
@@ -653,7 +653,7 @@ export default function ApiPage() {
       )}
 
       {activeTab === 'keys' && (
-        <div className="glass-panel rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
           <div className="p-4 border-b border-muted/30 flex justify-between items-center">
             <h3 className="text-foreground font-medium">API Keys</h3>
             <button className="px-4 py-2 bg-indigo-600 text-foreground rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 text-sm">
@@ -716,7 +716,7 @@ export default function ApiPage() {
       )}
 
       {activeTab === 'logs' && (
-        <div className="glass-panel rounded-xl border border-muted/30 p-8 text-center">
+        <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30 p-8 text-center">
           <svg className="w-16 h-16 text-muted-foreground mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>

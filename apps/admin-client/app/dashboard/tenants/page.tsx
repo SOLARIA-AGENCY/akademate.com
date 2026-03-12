@@ -80,6 +80,7 @@ export default function TenantsPage() {
             ))}
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <DataTable>
             <DataTableHeader>
               <DataTableRow>
@@ -174,6 +175,7 @@ export default function TenantsPage() {
               )}
             </DataTableBody>
           </DataTable>
+          </div>
         )}
 
         {/* Pagination footer */}

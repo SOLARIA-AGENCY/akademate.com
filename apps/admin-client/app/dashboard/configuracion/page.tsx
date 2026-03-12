@@ -145,7 +145,7 @@ export default function ConfiguracionPage() {
 
         {/* Settings Content */}
         <div className="flex-1">
-          <div className="glass-panel">
+          <div className="bg-card border border-border rounded-xl">
             {/* General Settings */}
             {activeTab === 'general' && (
               <div className="p-6">
@@ -698,7 +698,7 @@ export default function ConfiguracionPage() {
                     <p className="text-muted-foreground text-sm mb-2">Configura IdPs (Okta, Entra ID, Google). Mock pendiente de backend.</p>
                     <div className="flex gap-2 text-xs">
                       <span className="px-2 py-1 rounded bg-amber-500/15 text-amber-300">Gap 100%</span>
-                      <span className="px-2 py-1 rounded glass-panel text-foreground">workos / frontegg opcional</span>
+                      <span className="px-2 py-1 rounded bg-card border border-border rounded-xl text-foreground">workos / frontegg opcional</span>
                     </div>
                   </div>
                   <div className="p-4 rounded-lg bg-muted/20 border border-muted/30">

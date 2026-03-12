@@ -236,7 +236,7 @@ export default function EstadoPage() {
       {/* System Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
         {metrics.map((metric) => (
-          <div key={metric.name} className="glass-panel p-4 rounded-xl border border-muted/30">
+          <div key={metric.name} className="bg-card border border-border rounded-xl p-4 rounded-xl border border-muted/30">
             <p className="text-muted-foreground text-xs mb-2">{metric.name}</p>
             <div className="flex items-end gap-1">
               <span className="text-2xl font-bold text-foreground">{metric.value}</span>
@@ -255,7 +255,7 @@ export default function EstadoPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Services Status */}
         <div className="lg:col-span-2">
-          <div className="glass-panel rounded-xl border border-muted/30">
+          <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
             <div className="p-4 border-b border-muted/30">
               <h3 className="text-lg font-semibold text-foreground">Estado de Servicios</h3>
             </div>
@@ -307,7 +307,7 @@ export default function EstadoPage() {
 
         {/* Incidents */}
         <div>
-          <div className="glass-panel rounded-xl border border-muted/30">
+          <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
             <div className="p-4 border-b border-muted/30">
               <h3 className="text-lg font-semibold text-foreground">Incidentes Recientes</h3>
             </div>
@@ -346,7 +346,7 @@ export default function EstadoPage() {
           </div>
 
           {/* Uptime History */}
-          <div className="glass-panel rounded-xl border border-muted/30 mt-6">
+          <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30 mt-6">
             <div className="p-4 border-b border-muted/30">
               <h3 className="text-lg font-semibold text-foreground">Historial de Disponibilidad</h3>
               <p className="text-muted-foreground text-sm">Ultimos 30 dias</p>
@@ -385,7 +385,7 @@ export default function EstadoPage() {
       </div>
 
       {/* Response Times Chart */}
-      <div className="mt-6 glass-panel rounded-xl border border-muted/30 p-6">
+      <div className="mt-6 bg-card border border-border rounded-xl rounded-xl border border-muted/30 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-foreground">Tiempos de Respuesta (24h)</h3>

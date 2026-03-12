@@ -81,29 +81,29 @@ export default function RoadmapPage() {
 
       {/* Score Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-panel p-5">
+        <div className="bg-card border border-border rounded-xl p-5">
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Score Total</p>
           <div className="flex items-end gap-2 mt-2">
             <p className="text-4xl font-bold text-amber-600 dark:text-amber-400">{totalScore}</p>
             <p className="text-lg text-muted-foreground mb-1">/100</p>
           </div>
         </div>
-        <div className="glass-panel p-5">
+        <div className="bg-card border border-border rounded-xl p-5">
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Features Faltantes</p>
           <p className="text-4xl font-bold text-red-600 dark:text-red-400 mt-2">{missingCount}</p>
         </div>
-        <div className="glass-panel p-5">
+        <div className="bg-card border border-border rounded-xl p-5">
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Parcialmente Listos</p>
           <p className="text-4xl font-bold text-amber-600 dark:text-amber-400 mt-2">{partialCount}</p>
         </div>
-        <div className="glass-panel p-5">
+        <div className="bg-card border border-border rounded-xl p-5">
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Total Features</p>
           <p className="text-4xl font-bold text-foreground mt-2">{totalGaps}</p>
         </div>
       </div>
 
       {/* Gap Analysis */}
-      <div className="glass-panel p-6">
+      <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-semibold text-foreground">Gap Analysis</h2>
@@ -160,7 +160,7 @@ export default function RoadmapPage() {
       </div>
 
       {/* Roadmap */}
-      <div className="glass-panel p-6">
+      <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-semibold text-foreground">Roadmap de Implementacion</h2>
@@ -225,7 +225,7 @@ export default function RoadmapPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="glass-panel p-6">
+      <div className="bg-card border border-border rounded-xl p-6">
         <h2 className="text-lg font-semibold text-foreground mb-4">Acciones Rapidas</h2>
         <div className="flex flex-wrap gap-3">
           <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">

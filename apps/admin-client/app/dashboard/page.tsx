@@ -29,6 +29,7 @@ import {
   DataTableRow,
   DataTableHead,
   DataTableCell,
+  DataTableEmpty,
 } from '@/components/ui/data-table'
 import { useTenants, useOpsMetrics } from '@/hooks/use-ops-data'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -285,6 +286,7 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <DataTable>
             <DataTableHeader>
               <DataTableRow>
@@ -297,11 +299,11 @@ export default function DashboardPage() {
             </DataTableHeader>
             <DataTableBody>
               {tenants.length === 0 ? (
-                <DataTableRow>
-                  <DataTableCell colSpan={5}>
-                    <p className="text-center text-muted-foreground py-8">No hay tenants registrados</p>
-                  </DataTableCell>
-                </DataTableRow>
+                <DataTableEmpty
+                  colSpan={5}
+                  title="Sin tenants"
+                  description="No hay tenants registrados en la plataforma"
+                />
               ) : (
                 tenants.map((tenant) => {
                   const plan = deriveplan(tenant.limits)
@@ -340,6 +342,7 @@ export default function DashboardPage() {
               )}
             </DataTableBody>
           </DataTable>
+          </div>
         )}
       </Card>
     </div>

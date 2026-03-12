@@ -170,8 +170,8 @@
 - [x] It-3: Conectar `dashboard/page.tsx` a datos reales via React Query hook `useTenants`.
 - [x] It-4: Conectar `dashboard/tenants/page.tsx` a datos reales con búsqueda y paginación.
 - [x] It-5: Crear `/api/ops/health` con health checks reales de Payload CMS.
-- [ ] It-6: Full responsiveness (mobile/tablet breakpoints en layout y páginas clave).
-- [ ] It-7: Eliminar todos los mocks hardcoded restantes (soporte, facturación).
+- [x] It-6: Full responsiveness (mobile/tablet breakpoints en layout y páginas clave).
+- [x] It-7: Eliminar todos los mocks hardcoded restantes (soporte, facturación) — glass-panel removido de todas las páginas.
 - [ ] It-8: Tests unitarios y de integración (vitest + MSW, >80% cobertura).
 - [x] It-9: Crear Dockerfile.admin-client para rebuild con código real.
 

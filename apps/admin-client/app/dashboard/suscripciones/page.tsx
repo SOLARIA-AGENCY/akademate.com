@@ -299,7 +299,7 @@ export default function SuscripcionesPage() {
     ].filter(Boolean) as string[];
     if (!rows.length) return null;
     return (
-      <div className="mt-4 rounded-lg border border-muted/30 glass-panel/80 p-3 text-xs text-foreground">
+      <div className="mt-4 rounded-lg border border-muted/30 bg-card border border-border rounded-xl/80 p-3 text-xs text-foreground">
         <p className="font-semibold text-foreground mb-1">Módulos de expansión</p>
         <ul className="space-y-1">
           {rows.map((r, idx) => (
@@ -324,7 +324,7 @@ export default function SuscripcionesPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="glass-panel p-5 rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">MRR Total</p>
@@ -338,7 +338,7 @@ export default function SuscripcionesPage() {
           </div>
         </div>
 
-        <div className="glass-panel p-5 rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">Suscripciones Activas</p>
@@ -352,7 +352,7 @@ export default function SuscripcionesPage() {
           </div>
         </div>
 
-        <div className="glass-panel p-5 rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">En Trial</p>
@@ -366,7 +366,7 @@ export default function SuscripcionesPage() {
           </div>
         </div>
 
-        <div className="glass-panel p-5 rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">Riesgo de Baja</p>
@@ -382,7 +382,7 @@ export default function SuscripcionesPage() {
       </div>
 
       {/* Tabs */}
-      <div className="glass-panel rounded-xl border border-muted/30">
+      <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
         <div className="border-b border-muted/30">
           <div className="flex">
             <button
@@ -579,7 +579,7 @@ export default function SuscripcionesPage() {
       {/* Edit Plan Modal */}
       {showEditPlanModal && selectedPlan && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="glass-panel rounded-xl border border-muted/30 w-full max-w-lg mx-4">
+          <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30 w-full max-w-lg mx-4">
             <div className="p-6 border-b border-muted/30">
               <h2 className="text-xl font-bold text-foreground">Editar Plan: {selectedPlan.name}</h2>
             </div>
