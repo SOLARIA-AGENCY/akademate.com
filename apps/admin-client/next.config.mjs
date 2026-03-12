@@ -7,6 +7,13 @@ const __dirname = path.dirname(__filename)
 /** @type {import('next').NextConfig} */
 const config = {
   output: 'standalone',
+  transpilePackages: [
+    '@akademate/ui',
+    '@akademate/types',
+    '@akademate/realtime',
+    '@akademate/tenant',
+    '@akademate/api-client',
+  ],
   reactStrictMode: true,
   typescript: {
     ignoreBuildErrors: true,

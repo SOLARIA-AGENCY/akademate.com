@@ -174,6 +174,7 @@
 - [x] It-7: Eliminar todos los mocks hardcoded restantes (soporte, facturación) — glass-panel removido de todas las páginas.
 - [x] It-8: Tests unitarios y de integración (vitest + MSW, 66 tests pasando — hooks, UI components).
 - [x] It-9: Crear Dockerfile.admin-client para rebuild con código real.
+- [x] It-10: Deploy producción en Hetzner (admin.akademate.com) — imagen amd64 cargada y verificada con HTTP 200.
 
 ## 22) AKADEMATE Cliente Platform (CEP -> AKADEMATE, shadcn, tenant branding)
 - [x] Iteración 1 (Ralph Loop): crear `TenantBrandingProvider` runtime y conectarlo al shell (`app/layout` + `ClientLayout`) para centralizar nombre/logo/colores por tenant.

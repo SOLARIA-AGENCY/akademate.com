@@ -19,9 +19,20 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/realtime/package.json ./packages/realtime/
 COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/tenant/package.json ./packages/tenant/
+COPY packages/jobs/package.json ./packages/jobs/
+COPY packages/notifications/package.json ./packages/notifications/
+COPY packages/reports/package.json ./packages/reports/
+COPY packages/api/package.json ./packages/api/
+COPY packages/catalog/package.json ./packages/catalog/
+COPY packages/db/package.json ./packages/db/
+COPY packages/imports/package.json ./packages/imports/
+COPY packages/leads/package.json ./packages/leads/
+COPY packages/lms/package.json ./packages/lms/
+COPY packages/mcp-server/package.json ./packages/mcp-server/
+COPY packages/operations/package.json ./packages/operations/
 
 RUN --mount=type=cache,id=pnpm-admin-client,target=/root/.local/share/pnpm/store \
-    NODE_ENV=development pnpm install --no-frozen-lockfile --filter @akademate/admin-client... --include-workspace-root
+    NODE_ENV=development pnpm install --no-frozen-lockfile --shamefully-hoist
 
 COPY apps/admin-client ./apps/admin-client
 COPY packages ./packages
