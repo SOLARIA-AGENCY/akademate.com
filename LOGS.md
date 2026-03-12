@@ -4,6 +4,13 @@
 - Acción: Inicialicé plan maestro y backlog de tareas.
 - Resultado: IMPLEMENTATION_PLAN.md, TASKS_TODO.md, LOGS.md creados.
 
+## Iteración 23-01/02/03 (2026-03-12) — Ops Dashboard API Layer
+- Acción: Creadas rutas `/api/ops/tenants` y `/api/ops/metrics` que proxean Payload CMS usando el token de sesión de la cookie `akademate_admin_session`.
+- Creado `QueryProvider` y hooks `useTenants`/`useOpsMetrics` con React Query.
+- `dashboard/page.tsx` actualizado: elimina `mockTenants`, usa datos reales con skeleton loading.
+- Corregido Badge variant inválido y tsconfig include de hooks/providers.
+- Gate: 0 errores TS lógicos nuevos. Commit: `9a40e49`.
+
 ## Iteracion 1 (17-01-2026)
 - Accion: Consolide backlog unico desde docs y lo descompuse en tareas atomicas.
 - Resultado: TASKS_TODO.md actualizado con roadmap completo a 100%.
