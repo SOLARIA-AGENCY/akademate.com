@@ -1,0 +1,57 @@
+# Akademate.com - Admin Client Dockerfile
+# Ops Dashboard for superadmin (admin.akademate.com)
+
+FROM node:22-alpine AS base
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+
+# =============================================================================
+# Build Stage
+# =============================================================================
+FROM base AS build
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/admin-client/package.json ./apps/admin-client/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/auth/package.json ./packages/auth/
+COPY packages/types/package.json ./packages/types/
+COPY packages/realtime/package.json ./packages/realtime/
+COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/tenant/package.json ./packages/tenant/
+
+RUN --mount=type=cache,id=pnpm-admin-client,target=/root/.local/share/pnpm/store \
+    NODE_ENV=development pnpm install --no-frozen-lockfile --filter @akademate/admin-client... --include-workspace-root
+
+COPY apps/admin-client ./apps/admin-client
+COPY packages ./packages
+COPY tsconfig.json tsconfig.base.json postcss.config.cjs tailwind.config.js ./
+
+ENV NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app/apps/admin-client
+RUN pnpm build
+
+# =============================================================================
+# Runner Stage
+# =============================================================================
+FROM base AS runner
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+WORKDIR /app
+
+COPY --from=build --chown=nextjs:nodejs /app/apps/admin-client/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/apps/admin-client/.next/static ./apps/admin-client/.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/admin-client/public ./apps/admin-client/public
+
+USER nextjs
+
+EXPOSE 3010
+ENV PORT=3010
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "apps/admin-client/server.js"]

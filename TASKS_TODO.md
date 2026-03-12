@@ -168,12 +168,12 @@
 - [x] It-1: Crear `/api/ops/tenants` route que proxea Payload CMS con token de sesión.
 - [x] It-2: Crear `/api/ops/metrics` route que agrega KPIs desde Payload (tenants count, users, courses).
 - [x] It-3: Conectar `dashboard/page.tsx` a datos reales via React Query hook `useTenants`.
-- [ ] It-4: Conectar `dashboard/tenants/page.tsx` a datos reales con búsqueda y paginación.
-- [ ] It-5: Conectar páginas soporte, facturación y estado del sistema a datos reales.
-- [ ] It-6: Full responsiveness (mobile/tablet breakpoints).
-- [ ] It-7: Eliminar todos los mocks hardcoded, strict TypeScript.
+- [x] It-4: Conectar `dashboard/tenants/page.tsx` a datos reales con búsqueda y paginación.
+- [x] It-5: Crear `/api/ops/health` con health checks reales de Payload CMS.
+- [ ] It-6: Full responsiveness (mobile/tablet breakpoints en layout y páginas clave).
+- [ ] It-7: Eliminar todos los mocks hardcoded restantes (soporte, facturación).
 - [ ] It-8: Tests unitarios y de integración (vitest + MSW, >80% cobertura).
-- [ ] It-9: Rebuild Dockerfile.admin-client + CI/CD pipeline.
+- [x] It-9: Crear Dockerfile.admin-client para rebuild con código real.
 
 ## 22) AKADEMATE Cliente Platform (CEP -> AKADEMATE, shadcn, tenant branding)
 - [x] Iteración 1 (Ralph Loop): crear `TenantBrandingProvider` runtime y conectarlo al shell (`app/layout` + `ClientLayout`) para centralizar nombre/logo/colores por tenant.
