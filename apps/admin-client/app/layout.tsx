@@ -3,6 +3,7 @@ import React from 'react'
 
 import { ThemeProvider } from '@/components/theme-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { QueryProvider } from '@/providers/QueryProvider'
 
 import './globals.css'
 
@@ -26,9 +27,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem={false}
           storageKey="akademate-ops-theme"
         >
-          <TooltipProvider delayDuration={0}>
-            {children}
-          </TooltipProvider>
+          <QueryProvider>
+            <TooltipProvider delayDuration={0}>
+              {children}
+            </TooltipProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

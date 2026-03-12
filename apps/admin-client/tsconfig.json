@@ -17,7 +17,9 @@
   "include": [
     "app/**/*",
     "components/**/*",
+    "hooks/**/*",
     "lib/**/*",
+    "providers/**/*",
     "next-env.d.ts",
     ".next/types/**/*.ts"
   ],

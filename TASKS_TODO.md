@@ -164,6 +164,17 @@
 - [x] Validar build de Storybook (`build-storybook`) y documentar roadmap de crecimiento.
 - [ ] Integrar Storybook visual QA en loop de homogeneización de dashboard (pendiente CI + cobertura de módulos).
 
+## 23) Ops Dashboard — Productivización (admin.akademate.com)
+- [x] It-1: Crear `/api/ops/tenants` route que proxea Payload CMS con token de sesión.
+- [x] It-2: Crear `/api/ops/metrics` route que agrega KPIs desde Payload (tenants count, users, courses).
+- [x] It-3: Conectar `dashboard/page.tsx` a datos reales via React Query hook `useTenants`.
+- [ ] It-4: Conectar `dashboard/tenants/page.tsx` a datos reales con búsqueda y paginación.
+- [ ] It-5: Conectar páginas soporte, facturación y estado del sistema a datos reales.
+- [ ] It-6: Full responsiveness (mobile/tablet breakpoints).
+- [ ] It-7: Eliminar todos los mocks hardcoded, strict TypeScript.
+- [ ] It-8: Tests unitarios y de integración (vitest + MSW, >80% cobertura).
+- [ ] It-9: Rebuild Dockerfile.admin-client + CI/CD pipeline.
+
 ## 22) AKADEMATE Cliente Platform (CEP -> AKADEMATE, shadcn, tenant branding)
 - [x] Iteración 1 (Ralph Loop): crear `TenantBrandingProvider` runtime y conectarlo al shell (`app/layout` + `ClientLayout`) para centralizar nombre/logo/colores por tenant.
 - [x] Iteración 2 (Ralph Loop): conectar branding del provider al header del dashboard (badge dinámico) y actualizar metadata de shell a AKADEMATE.

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Link from 'next/link'
 import {
   ArrowRight,
@@ -16,7 +16,6 @@ import {
   Activity,
 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
-import { MockDataBanner } from '@/components/mock-data-banner'
 import { MetricsBarChart, type MetricDataPoint } from '@/components/charts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -31,54 +30,8 @@ import {
   DataTableHead,
   DataTableCell,
 } from '@/components/ui/data-table'
-
-interface Tenant {
-  id: string
-  name: string
-  slug: string
-  plan: 'starter' | 'professional' | 'enterprise'
-  status: 'active' | 'trial' | 'suspended' | 'cancelled'
-  usersCount: number
-  coursesCount: number
-  createdAt: string
-  mrr: number
-}
-
-const mockTenants: Tenant[] = [
-  {
-    id: '1',
-    name: 'CEP Formación',
-    slug: 'cepfp',
-    plan: 'professional',
-    status: 'active',
-    usersCount: 12,
-    coursesCount: 45,
-    createdAt: '2024-01-15',
-    mrr: 299,
-  },
-  {
-    id: '2',
-    name: 'Academia Madrid',
-    slug: 'academia-madrid',
-    plan: 'starter',
-    status: 'trial',
-    usersCount: 3,
-    coursesCount: 8,
-    createdAt: '2025-11-20',
-    mrr: 0,
-  },
-  {
-    id: '3',
-    name: 'Instituto Barcelona',
-    slug: 'instituto-barcelona',
-    plan: 'enterprise',
-    status: 'active',
-    usersCount: 28,
-    coursesCount: 120,
-    createdAt: '2024-06-10',
-    mrr: 599,
-  },
-]
+import { useTenants, useOpsMetrics } from '@/hooks/use-ops-data'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const planStyles: Record<string, string> = {
   starter: 'bg-muted text-muted-foreground',
@@ -86,24 +39,20 @@ const planStyles: Record<string, string> = {
   enterprise: 'bg-accent text-accent-foreground',
 }
 
-type TenantStatus = 'active' | 'trial' | 'suspended' | 'cancelled'
-
-const statusStyles: Record<TenantStatus, { bg: string; text: string; label: string }> = {
-  active: { bg: 'bg-success/10', text: 'text-success', label: 'Activo' },
-  trial: { bg: 'bg-warning/10', text: 'text-warning', label: 'Trial' },
-  suspended: { bg: 'bg-destructive/10', text: 'text-destructive', label: 'Suspendido' },
-  cancelled: { bg: 'bg-muted', text: 'text-muted-foreground', label: 'Cancelado' },
+function deriveplan(limits?: { maxUsers?: number; maxCourses?: number }): string {
+  const max = limits?.maxUsers ?? 0
+  if (max >= 100) return 'enterprise'
+  if (max >= 20) return 'professional'
+  return 'starter'
 }
 
 export default function DashboardPage() {
-  const [tenants] = useState<Tenant[]>(mockTenants)
+  const { data: tenantsData, isLoading: tenantsLoading } = useTenants()
+  const { data: metrics, isLoading: metricsLoading } = useOpsMetrics()
 
-  const totalMRR = tenants.reduce((sum, t) => sum + t.mrr, 0)
-  const activeTenants = tenants.filter(t => t.status === 'active').length
-  const trialTenants = tenants.filter(t => t.status === 'trial').length
-  const hasMock = useMemo(() => true, [])
+  const tenants = tenantsData?.docs ?? []
+  const isLoading = tenantsLoading || metricsLoading
 
-  // Weekly activity metrics for chart
   const weeklyMetrics = useMemo<MetricDataPoint[]>(() => [
     { name: 'Lun', value: 45, color: 'hsl(142 76% 36%)' },
     { name: 'Mar', value: 52, color: 'hsl(142 76% 36%)' },
@@ -116,52 +65,61 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Page Header */}
       <PageHeader
         title="Dashboard"
         description="Vista general de la plataforma Akademate"
-      >
-        {hasMock && <MockDataBanner />}
-      </PageHeader>
+      />
 
       <section className="flex flex-wrap items-center gap-3">
-        <button className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-          Create Tenant
-        </button>
-        <button className="rounded-md border px-4 py-2 text-sm font-medium">
-          Add User
-        </button>
+        <Link
+          href="/dashboard/tenants/create"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          Crear Tenant
+        </Link>
+        <Link
+          href="/dashboard/tenants"
+          className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted/50 transition-colors"
+        >
+          Ver todos
+        </Link>
       </section>
 
       {/* KPI Cards Grid */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="metrics-grid">
-        <KPICard
-          label="Total Tenants"
-          value={tenants.length}
-          data-testid="tenant-count"
-          icon={<Users className="h-5 w-5 text-primary" />}
-          trend={{ value: 12, direction: 'up', label: 'vs mes anterior' }}
-        />
-        <KPICard
-          label="Activos"
-          value={activeTenants}
-          data-testid="user-count"
-          icon={<CheckCircle2 className="h-5 w-5 text-success" />}
-          variant="success"
-        />
-        <KPICard
-          label="En Trial"
-          value={trialTenants}
-          icon={<Clock className="h-5 w-5 text-warning" />}
-          variant="warning"
-        />
-        <KPICard
-          label="MRR Total"
-          value={`$${totalMRR.toLocaleString()}`}
-          data-testid="revenue"
-          icon={<DollarSign className="h-5 w-5 text-primary" />}
-          trend={{ value: 8.5, direction: 'up', label: 'crecimiento' }}
-        />
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 rounded-xl" />
+          ))
+        ) : (
+          <>
+            <KPICard
+              label="Total Tenants"
+              value={metrics?.tenants.total ?? tenants.length}
+              data-testid="tenant-count"
+              icon={<Users className="h-5 w-5 text-primary" />}
+            />
+            <KPICard
+              label="Activos"
+              value={metrics?.tenants.active ?? tenants.filter(t => t.active).length}
+              data-testid="user-count"
+              icon={<CheckCircle2 className="h-5 w-5 text-success" />}
+              variant="success"
+            />
+            <KPICard
+              label="En Trial"
+              value={metrics?.tenants.trial ?? 0}
+              icon={<Clock className="h-5 w-5 text-warning" />}
+              variant="warning"
+            />
+            <KPICard
+              label="Total Usuarios"
+              value={metrics?.users.total ?? 0}
+              data-testid="revenue"
+              icon={<DollarSign className="h-5 w-5 text-primary" />}
+            />
+          </>
+        )}
       </section>
 
       {/* Action Cards Grid */}
@@ -169,26 +127,23 @@ export default function DashboardPage() {
         <ActionCard
           variant="gradient"
           icon={<UserPlus className="h-5 w-5 text-white" />}
-          title="Onboarding pendiente"
-          description="2 tenants necesitan completar el proceso de setup inicial"
+          title="Gestionar Tenants"
+          description="Administra academias y organizaciones registradas en la plataforma"
           href="/dashboard/tenants"
-          badge={{ text: '2 pendientes', variant: 'warning' }}
         />
         <ActionCard
           variant="warning"
           icon={<Headphones className="h-5 w-5" />}
-          title="Tickets de soporte"
-          description="3 tickets abiertos requieren atención inmediata"
+          title="Soporte"
+          description="Gestiona tickets y solicitudes de soporte de tenants"
           href="/dashboard/soporte"
-          badge={{ text: '3 abiertos', variant: 'warning' }}
         />
         <ActionCard
           variant="danger"
           icon={<CreditCard className="h-5 w-5" />}
-          title="Pagos fallidos"
-          description="1 pago rechazado en los últimos 7 días"
+          title="Facturación"
+          description="Revisa suscripciones y estado de pagos"
           href="/dashboard/facturacion"
-          badge={{ text: '$299', variant: 'danger' }}
         />
       </section>
 
@@ -213,28 +168,39 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-success" />
-                <CardTitle className="text-base">Crecimiento</CardTitle>
+                <CardTitle className="text-base">Estado del Sistema</CardTitle>
               </div>
-              <Badge variant="outline" className="text-success border-success/30">+15%</Badge>
             </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="space-y-1">
-                <p className="text-2xl font-bold text-foreground">287</p>
-                <p className="text-xs text-muted-foreground">Nuevos usuarios este mes</p>
+                {metricsLoading ? (
+                  <Skeleton className="h-8 w-16" />
+                ) : (
+                  <p className="text-2xl font-bold text-foreground">{metrics?.courses.total ?? 0}</p>
+                )}
+                <p className="text-xs text-muted-foreground">Cursos totales</p>
               </div>
               <div className="space-y-1">
-                <p className="text-2xl font-bold text-foreground">42</p>
-                <p className="text-xs text-muted-foreground">Cursos completados</p>
+                {metricsLoading ? (
+                  <Skeleton className="h-8 w-16" />
+                ) : (
+                  <p className="text-2xl font-bold text-foreground">{metrics?.enrollments.total ?? 0}</p>
+                )}
+                <p className="text-xs text-muted-foreground">Matrículas activas</p>
               </div>
               <div className="space-y-1">
-                <p className="text-2xl font-bold text-success">98.5%</p>
+                <p className="text-2xl font-bold text-success">—</p>
                 <p className="text-xs text-muted-foreground">Uptime del sistema</p>
               </div>
               <div className="space-y-1">
-                <p className="text-2xl font-bold text-foreground">4.8</p>
-                <p className="text-xs text-muted-foreground">Satisfacción media</p>
+                {metricsLoading ? (
+                  <Skeleton className="h-8 w-16" />
+                ) : (
+                  <p className="text-2xl font-bold text-foreground">{metrics?.users.total ?? 0}</p>
+                )}
+                <p className="text-xs text-muted-foreground">Usuarios registrados</p>
               </div>
             </div>
           </CardContent>
@@ -282,7 +248,7 @@ export default function DashboardPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h2 className="text-lg font-semibold text-foreground">Enterprise Readiness</h2>
-                  <Badge variant="outline" className="badge-warning">
+                  <Badge variant="outline" className="border-warning/50 text-warning">
                     Score 32/100
                   </Badge>
                 </div>
@@ -301,67 +267,80 @@ export default function DashboardPage() {
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between border-b border-border px-6 py-4">
           <div>
-            <CardTitle className="text-lg">Tenants recientes</CardTitle>
-            <p className="text-muted-foreground text-sm mt-1">Gestiona academias registradas en la plataforma</p>
+            <CardTitle className="text-lg">Tenants</CardTitle>
+            <p className="text-muted-foreground text-sm mt-1">Academias registradas en la plataforma</p>
           </div>
           <Link
-            href="/dashboard/tenants"
+            href="/dashboard/tenants/create"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             <UserPlus className="h-4 w-4" />
             Nuevo tenant
           </Link>
         </CardHeader>
-        <DataTable>
-          <DataTableHeader>
-            <DataTableRow>
-              <DataTableHead>Tenant</DataTableHead>
-              <DataTableHead>Plan</DataTableHead>
-              <DataTableHead>Estado</DataTableHead>
-              <DataTableHead align="right">Usuarios</DataTableHead>
-              <DataTableHead align="right">Cursos</DataTableHead>
-              <DataTableHead align="right">MRR</DataTableHead>
-            </DataTableRow>
-          </DataTableHeader>
-          <DataTableBody>
-            {tenants.map((tenant) => (
-              <DataTableRow key={tenant.id}>
-                <DataTableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-gradient-to-br from-primary to-cyan-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                      {tenant.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-foreground font-medium">{tenant.name}</p>
-                      <p className="text-muted-foreground text-xs">{tenant.slug}.akademate.com</p>
-                    </div>
-                  </div>
-                </DataTableCell>
-                <DataTableCell>
-                  <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${planStyles[tenant.plan]}`}>
-                    {tenant.plan.charAt(0).toUpperCase() + tenant.plan.slice(1)}
-                  </span>
-                </DataTableCell>
-                <DataTableCell>
-                  <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${statusStyles[tenant.status].bg} ${statusStyles[tenant.status].text}`}>
-                    {statusStyles[tenant.status].label}
-                  </span>
-                </DataTableCell>
-                <DataTableCell align="right" numeric>
-                  {tenant.usersCount}
-                </DataTableCell>
-                <DataTableCell align="right" numeric>
-                  {tenant.coursesCount}
-                </DataTableCell>
-                <DataTableCell align="right" numeric>
-                  <span className={tenant.mrr > 0 ? 'text-success font-semibold' : 'text-muted-foreground'}>
-                    {tenant.mrr > 0 ? `$${tenant.mrr}` : 'Trial'}
-                  </span>
-                </DataTableCell>
-              </DataTableRow>
+        {tenantsLoading ? (
+          <div className="p-6 space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
             ))}
-          </DataTableBody>
-        </DataTable>
+          </div>
+        ) : (
+          <DataTable>
+            <DataTableHeader>
+              <DataTableRow>
+                <DataTableHead>Tenant</DataTableHead>
+                <DataTableHead>Plan</DataTableHead>
+                <DataTableHead>Estado</DataTableHead>
+                <DataTableHead align="right">Límite usuarios</DataTableHead>
+                <DataTableHead align="right">Límite cursos</DataTableHead>
+              </DataTableRow>
+            </DataTableHeader>
+            <DataTableBody>
+              {tenants.length === 0 ? (
+                <DataTableRow>
+                  <DataTableCell colSpan={5}>
+                    <p className="text-center text-muted-foreground py-8">No hay tenants registrados</p>
+                  </DataTableCell>
+                </DataTableRow>
+              ) : (
+                tenants.map((tenant) => {
+                  const plan = deriveplan(tenant.limits)
+                  return (
+                    <DataTableRow key={tenant.id}>
+                      <DataTableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 bg-gradient-to-br from-primary to-cyan-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                            {tenant.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="text-foreground font-medium">{tenant.name}</p>
+                            <p className="text-muted-foreground text-xs">{tenant.slug}.akademate.com</p>
+                          </div>
+                        </div>
+                      </DataTableCell>
+                      <DataTableCell>
+                        <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${planStyles[plan]}`}>
+                          {plan.charAt(0).toUpperCase() + plan.slice(1)}
+                        </span>
+                      </DataTableCell>
+                      <DataTableCell>
+                        <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${tenant.active ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
+                          {tenant.active ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </DataTableCell>
+                      <DataTableCell align="right" numeric>
+                        {tenant.limits?.maxUsers ?? '∞'}
+                      </DataTableCell>
+                      <DataTableCell align="right" numeric>
+                        {tenant.limits?.maxCourses ?? '∞'}
+                      </DataTableCell>
+                    </DataTableRow>
+                  )
+                })
+              )}
+            </DataTableBody>
+          </DataTable>
+        )}
       </Card>
     </div>
   )
