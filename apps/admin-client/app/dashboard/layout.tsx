@@ -1,121 +1,35 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { LogOut, Bell, Search } from 'lucide-react'
 import { OpsSidebar, OpsSidebarInset, OpsSidebarShell, OpsSidebarTrigger } from '@/components/sidebar'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { useSession, signOut } from '@/lib/auth-client'
 
-const isDev = process.env.NODE_ENV === 'development'
-
-interface Session {
-  email: string
-  role: string
-  name?: string
-  tenantId?: string
-}
-
-const roleLabels: Record<string, string> = {
-  superadmin: 'Super Admin',
-  admin: 'Administrador',
-  support: 'Soporte',
-  viewer: 'Solo Lectura',
-}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const [session, setSession] = useState<Session | null>(() => {
-    if (isDev) {
-      return {
-        email: 'ops@akademate.com',
-        role: 'superadmin',
-        name: 'Demo Ops',
-        tenantId: 'global-ops',
-      }
-    }
-    return null
-  })
-  const [loading, setLoading] = useState(!isDev)
+  const { data: sessionData, isPending } = useSession()
 
-  useEffect(() => {
-    // Fetch session from server-side httpOnly cookie endpoint
-    const fetchSession = async () => {
-      try {
-        const res = await fetch('/api/auth/session', { credentials: 'include' })
-        if (res.ok) {
-          const data = await res.json()
-          if (data.authenticated && data.user) {
-            setSession({
-              email: data.user.email,
-              role: data.user.role,
-              name: data.user.name,
-              tenantId: data.user.tenantId,
-            })
-            setLoading(false)
-            return
-          }
-        }
-      } catch (error) {
-        console.warn('Failed to fetch session:', error)
-      }
-
-      // No valid session found
-      if (isDev) {
-        // In dev mode, auto-create session via server endpoint
-        try {
-          const loginRes = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              email: 'ops@akademate.com',
-              role: 'superadmin',
-              name: 'Demo Ops',
-              tenantId: 'global-ops',
-            }),
-          })
-          if (loginRes.ok) {
-            const data = await loginRes.json()
-            setSession({
-              email: data.user.email,
-              role: data.user.role,
-              name: data.user.name,
-              tenantId: data.user.tenantId,
-            })
-            setLoading(false)
-            return
-          }
-        } catch (error) {
-          console.warn('Dev auto-login failed:', error)
-        }
-      }
-
-      router.replace('/login')
-    }
-
-    fetchSession()
-  }, [router])
+  const user = sessionData?.user
 
   const handleLogout = async () => {
-    // Clear httpOnly session cookie via server endpoint
-    try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
-    } catch (error) {
-      console.error('Logout failed:', error)
-    }
+    await signOut()
     router.push('/login')
   }
 
   const initials = useMemo(() => {
-    if (session?.name) {
-      return session.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+    if (user?.name) {
+      return user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
     }
-    return session?.email?.charAt(0).toUpperCase() ?? 'A'
-  }, [session])
+    return user?.email?.charAt(0).toUpperCase() ?? 'A'
+  }, [user])
 
-  if (loading) {
+  if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-canvas">
         <div className="flex flex-col items-center gap-4">
@@ -131,7 +45,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     )
   }
 
-  if (!session) return null
+  if (!user) return null
 
   return (
     <OpsSidebarShell>
@@ -170,17 +84,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* User dropdown */}
             <div className="flex items-center gap-3 pl-2">
-              <Avatar className="h-8 w-8 border-2 border-primary/20">
-                <AvatarFallback className="bg-gradient-to-br from-primary to-cyan-600 text-white text-xs font-semibold">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+              <Link href="/dashboard/perfil">
+                <Avatar className="h-8 w-8 border-2 border-primary/20 cursor-pointer hover:opacity-80 transition-opacity">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-cyan-600 text-white text-xs font-semibold">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
               <div className="hidden md:flex flex-col">
                 <span className="text-sm font-medium leading-tight text-foreground">
-                  {session.name ?? session.email.split('@')[0]}
+                  {user.name ?? user.email.split('@')[0]}
                 </span>
                 <span className="text-[11px] text-muted-foreground">
-                  {roleLabels[session.role] ?? session.role}
+                  {user.email?.includes('ops@') ? 'Super Admin' : 'Administrador'}
                 </span>
               </div>
               <Button
@@ -197,7 +113,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Main content */}
-        <div className="flex-1 overflow-y-auto p-6">{children}</div>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</div>
 
         {/* Footer - 3 column layout */}
         <footer className="border-t border-border bg-card/50 px-6 py-4">

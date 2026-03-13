@@ -1,9 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/page-header';
-import { MockDataBanner } from '@/components/mock-data-banner';
-import { ResponseTimeChart, type ResponseTimeDataPoint } from '@/components/charts';
 import { useSystemStatus } from '@/hooks';
 
 // Type definitions for the system status data
@@ -43,12 +41,6 @@ type SeverityLabelMap = Record<Incident['severity'], string>;
 type IncidentStatusStyleMap = Record<Incident['status'], string>;
 type IncidentStatusLabelMap = Record<Incident['status'], string>;
 
-// Seeded random number generator for stable values
-function seededRandom(seed: number): number {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
-}
-
 // Interface for hook return to ensure type safety
 interface SystemStatusHookResult {
   data: {
@@ -68,39 +60,28 @@ export default function EstadoPage() {
   const hookResult = useSystemStatus({ enableRealtime: true }) as unknown as SystemStatusHookResult;
 
   // Extract data with proper typing
-  const { services, metrics, incidents, overallStatus } = hookResult.data;
+  const { services, incidents, overallStatus } = hookResult.data;
   const { isConnected, lastUpdate, refresh } = hookResult;
 
-  // Generate response time chart data with stable seeded random values
-  const responseTimeData = useMemo<ResponseTimeDataPoint[]>(() => {
-    const now = new Date();
-    return Array.from({ length: 24 }, (_, i) => {
-      const time = new Date(now.getTime() - (23 - i) * 3600000);
-      const seed = i * 1000;
-      // Simulate realistic response times with seeded variance
-      const baseApi = 45 + seededRandom(seed + 1) * 30;
-      const baseDb = 80 + seededRandom(seed + 2) * 50;
-      const baseCache = 5 + seededRandom(seed + 3) * 10;
-      // Add occasional spikes with seeded random
-      const spike = seededRandom(seed + 4) > 0.9 ? seededRandom(seed + 5) * 100 : 0;
-      return {
-        time: time.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-        api: Math.round(baseApi + spike),
-        database: Math.round(baseDb + spike * 1.5),
-        cache: Math.round(baseCache + spike * 0.2),
-      };
-    });
-  }, []);
 
-  // Generate uptime history with stable seeded values
-  const uptimeHistory = useMemo<ServiceStatus['status'][]>(() => {
-    return Array.from({ length: 30 }, (_, i) => {
-      const seed = i * 100;
-      const random1 = seededRandom(seed);
-      const random2 = seededRandom(seed + 1);
-      return random1 > 0.05 ? 'operational' : random2 > 0.5 ? 'degraded' : 'outage';
-    });
-  }, []);
+  const [serverMetrics, setServerMetrics] = useState<{
+    cpu: number
+    memory: { percent: number; used: number; total: number }
+    uptime: { display: string }
+    source: string
+  } | null>(null)
+
+  useEffect(() => {
+    const fetchMetrics = () => {
+      fetch('/api/ops/server-metrics')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => { if (data) setServerMetrics(data) })
+        .catch(() => {})
+    }
+    fetchMetrics()
+    const interval = setInterval(fetchMetrics, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   const operationalCount = services.filter((s) => s.status === 'operational').length;
 
@@ -122,13 +103,6 @@ export default function EstadoPage() {
       maintenance: 'Mantenimiento',
     };
     return labels[status];
-  };
-
-  const getMetricColor = (metric: SystemMetric): string => {
-    const percentage = (metric.value / metric.max) * 100;
-    if (percentage < 60) return 'bg-green-500';
-    if (percentage < 80) return 'bg-yellow-500';
-    return 'bg-red-500';
   };
 
   const getSeverityBadge = (severity: Incident['severity']): React.ReactNode => {
@@ -183,9 +157,7 @@ export default function EstadoPage() {
       <PageHeader
         title="Estado del Sistema"
         description="Monitorea el estado de todos los servicios de la plataforma"
-      >
-        <MockDataBanner />
-      </PageHeader>
+      />
 
       {/* Overall Status Banner */}
       <div className={`mb-6 p-6 rounded-xl border ${
@@ -234,22 +206,75 @@ export default function EstadoPage() {
       </div>
 
       {/* System Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
-        {metrics.map((metric) => (
-          <div key={metric.name} className="bg-card border border-border rounded-xl p-4 rounded-xl border border-muted/30">
-            <p className="text-muted-foreground text-xs mb-2">{metric.name}</p>
-            <div className="flex items-end gap-1">
-              <span className="text-2xl font-bold text-foreground">{metric.value}</span>
-              {metric.unit && <span className="text-muted-foreground text-sm mb-1">{metric.unit}</span>}
-            </div>
-            <div className="mt-2 h-2 bg-muted/50 rounded-full overflow-hidden">
-              <div
-                className={`h-full ${getMetricColor(metric)} transition-all`}
-                style={{ width: `${(metric.value / metric.max) * 100}%` }}
-              ></div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-muted-foreground text-xs mb-2">CPU</p>
+          <div className="flex items-end gap-1">
+            <span className="text-2xl font-bold text-foreground">
+              {serverMetrics ? serverMetrics.cpu : '—'}
+            </span>
+            {serverMetrics && <span className="text-muted-foreground text-sm mb-1">%</span>}
+          </div>
+          <div className="mt-2 h-2 bg-muted/50 rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all ${
+                serverMetrics && serverMetrics.cpu < 60 ? 'bg-green-500' :
+                serverMetrics && serverMetrics.cpu < 80 ? 'bg-yellow-500' : 'bg-red-500'
+              }`}
+              style={{ width: serverMetrics ? `${serverMetrics.cpu}%` : '0%' }}
+            />
+          </div>
+        </div>
+
+        <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-muted-foreground text-xs mb-2">Memoria</p>
+          <div className="flex items-end gap-1">
+            <span className="text-2xl font-bold text-foreground">
+              {serverMetrics ? serverMetrics.memory.percent : '—'}
+            </span>
+            {serverMetrics && <span className="text-muted-foreground text-sm mb-1">%</span>}
+          </div>
+          <div className="mt-2 h-2 bg-muted/50 rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all ${
+                serverMetrics && serverMetrics.memory.percent < 60 ? 'bg-green-500' :
+                serverMetrics && serverMetrics.memory.percent < 80 ? 'bg-yellow-500' : 'bg-red-500'
+              }`}
+              style={{ width: serverMetrics ? `${serverMetrics.memory.percent}%` : '0%' }}
+            />
+          </div>
+          {serverMetrics && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {serverMetrics.memory.used} / {serverMetrics.memory.total} MB
+            </p>
+          )}
+        </div>
+
+        <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-muted-foreground text-xs mb-2">Uptime Servidor</p>
+          <div className="flex items-end gap-1">
+            <span className="text-xl font-bold text-foreground">
+              {serverMetrics ? serverMetrics.uptime.display : '—'}
+            </span>
+          </div>
+          <div className="mt-2">
+            <div className="h-2 bg-green-500/30 rounded-full">
+              <div className="h-full bg-green-500 rounded-full w-full" />
             </div>
           </div>
-        ))}
+        </div>
+
+        <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-muted-foreground text-xs mb-2">Fuente de datos</p>
+          <div className="flex items-end gap-1">
+            <span className="text-sm font-medium text-foreground">
+              {serverMetrics ? (serverMetrics.source === 'hetzner' ? 'Hetzner API' : 'Sistema') : '—'}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            {serverMetrics ? 'Actualiza cada 30s' : 'Sin datos'}
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -352,32 +377,8 @@ export default function EstadoPage() {
               <p className="text-muted-foreground text-sm">Ultimos 30 dias</p>
             </div>
             <div className="p-4">
-              <div className="flex gap-0.5">
-                {uptimeHistory.map((uptimeStatus, i) => (
-                  <div
-                    key={i}
-                    className={`flex-1 h-8 rounded-sm ${getStatusColor(uptimeStatus)} opacity-80 hover:opacity-100 cursor-pointer`}
-                    title={`Dia ${30 - i}: ${getStatusLabel(uptimeStatus)}`}
-                  ></div>
-                ))}
-              </div>
-              <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                <span>30 dias atras</span>
-                <span>Hoy</span>
-              </div>
-              <div className="mt-4 flex items-center justify-center gap-6 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-green-500"></div>
-                  <span className="text-muted-foreground">Operativo</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-yellow-500"></div>
-                  <span className="text-muted-foreground">Degradado</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-red-500"></div>
-                  <span className="text-muted-foreground">Fuera de servicio</span>
-                </div>
+              <div className="flex flex-col items-center justify-center h-24 text-muted-foreground">
+                <p className="text-sm">Historial de uptime no disponible</p>
               </div>
             </div>
           </div>
@@ -398,12 +399,10 @@ export default function EstadoPage() {
             </span>
           </div>
         </div>
-        <ResponseTimeChart
-          data={responseTimeData}
-          height={220}
-          showLegend={true}
-          thresholdMs={200}
-        />
+        <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
+          <p className="text-sm">Datos de tiempo de respuesta no disponibles</p>
+          <p className="text-xs mt-1">Configura un sistema de monitorización para ver métricas en tiempo real</p>
+        </div>
       </div>
     </>
   );

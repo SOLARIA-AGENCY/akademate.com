@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DollarSign, Clock, AlertCircle, CreditCard, Download } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { KPICard } from '@/components/ui/kpi-card'
-import { Badge } from '@/components/ui/badge'
 
 interface Invoice {
   id: string
@@ -19,13 +18,6 @@ interface Invoice {
   period: string
 }
 
-const mockInvoices: Invoice[] = [
-  { id: '1', tenantName: 'CEP Formación', number: 'INV-2025-0012', amount: 299, status: 'paid', dueDate: '2025-12-01', paidDate: '2025-11-28', plan: 'Professional', period: 'Diciembre 2025' },
-  { id: '2', tenantName: 'Instituto Barcelona', number: 'INV-2025-0013', amount: 599, status: 'paid', dueDate: '2025-12-01', paidDate: '2025-12-01', plan: 'Enterprise', period: 'Diciembre 2025' },
-  { id: '3', tenantName: 'Centro Formativo Valencia', number: 'INV-2025-0014', amount: 299, status: 'overdue', dueDate: '2025-11-15', paidDate: null, plan: 'Professional', period: 'Noviembre 2025' },
-  { id: '4', tenantName: 'CEP Formación', number: 'INV-2025-0011', amount: 299, status: 'paid', dueDate: '2025-11-01', paidDate: '2025-10-30', plan: 'Professional', period: 'Noviembre 2025' },
-  { id: '5', tenantName: 'Instituto Barcelona', number: 'INV-2025-0010', amount: 599, status: 'paid', dueDate: '2025-11-01', paidDate: '2025-11-01', plan: 'Enterprise', period: 'Noviembre 2025' },
-]
 
 const statusConfig = {
   paid: { label: 'Pagado', className: 'bg-success/10 text-success' },
@@ -44,38 +36,47 @@ function formatDate(dateString: string) {
 
 export default function FacturacionPage() {
   const [statusFilter, setStatusFilter] = useState('all')
+  const [invoices, setInvoices] = useState<Invoice[]>([])
 
-  const totalRevenue = mockInvoices.filter((i) => i.status === 'paid').reduce((s, i) => s + i.amount, 0)
-  const pendingAmount = mockInvoices.filter((i) => i.status === 'pending' || i.status === 'overdue').reduce((s, i) => s + i.amount, 0)
-  const overdueCount = mockInvoices.filter((i) => i.status === 'overdue').length
+  useEffect(() => {
+    fetch('/api/ops/invoices')
+      .then((res) => {
+        if (!res.ok) throw new Error('Not found')
+        return res.json()
+      })
+      .then((data) => setInvoices(Array.isArray(data) ? data : []))
+      .catch(() => setInvoices([]))
+  }, [])
 
-  const filtered = mockInvoices.filter((i) => statusFilter === 'all' || i.status === statusFilter)
+  const totalRevenue = invoices.filter((i) => i.status === 'paid').reduce((s, i) => s + i.amount, 0)
+  const pendingAmount = invoices.filter((i) => i.status === 'pending' || i.status === 'overdue').reduce((s, i) => s + i.amount, 0)
+  const overdueCount = invoices.filter((i) => i.status === 'overdue').length
+
+  const filtered = invoices.filter((i) => statusFilter === 'all' || i.status === statusFilter)
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Facturación"
         description="Gestiona facturas y suscripciones de los tenants"
-      >
-        <Badge variant="outline">Demo data</Badge>
-      </PageHeader>
+      />
 
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <KPICard
           label="Ingresos del Mes"
-          value={`€${totalRevenue.toLocaleString()}`}
+          value={invoices.length === 0 ? '—' : `€${totalRevenue.toLocaleString()}`}
           icon={<DollarSign className="h-5 w-5 text-success" />}
           variant="success"
         />
         <KPICard
           label="Pendiente Cobro"
-          value={`€${pendingAmount.toLocaleString()}`}
+          value={invoices.length === 0 ? '—' : `€${pendingAmount.toLocaleString()}`}
           icon={<Clock className="h-5 w-5 text-warning" />}
           variant="warning"
         />
         <KPICard
           label="Facturas Vencidas"
-          value={overdueCount}
+          value={invoices.length === 0 ? '—' : overdueCount}
           icon={<AlertCircle className="h-5 w-5 text-destructive" />}
           variant="danger"
         />
@@ -117,7 +118,16 @@ export default function FacturacionPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filtered.length === 0 ? (
+              {invoices.length === 0 ? (
+                <tr>
+                  <td colSpan={6}>
+                    <div className="text-center py-12 text-muted-foreground">
+                      <p className="text-sm">Sin facturas registradas.</p>
+                      <p className="text-xs mt-1">Las facturas aparecerán aquí cuando se procesen suscripciones.</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
                     No hay facturas con ese filtro
@@ -161,7 +171,7 @@ export default function FacturacionPage() {
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           La integración completa con Stripe (webhooks, portal de cliente, metering) está planificada para
-          la próxima fase de desarrollo. Los datos mostrados son de demostración.
+          la próxima fase de desarrollo.
         </CardContent>
       </Card>
     </div>

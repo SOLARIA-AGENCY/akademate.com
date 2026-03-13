@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Headphones, Clock, AlertTriangle, Zap, ChevronRight, X } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { KPICard } from '@/components/ui/kpi-card'
-import { Badge } from '@/components/ui/badge'
 
 interface Ticket {
   id: string
@@ -19,69 +18,6 @@ interface Ticket {
   assignedTo: string | null
   messages: number
 }
-
-const mockTickets: Ticket[] = [
-  {
-    id: 'TKT-001',
-    tenantName: 'CEP Formación',
-    subject: 'Error al cargar el listado de alumnos',
-    description: 'Cuando intento cargar la página de alumnos, aparece un error 500...',
-    status: 'open',
-    priority: 'high',
-    category: 'technical',
-    createdAt: '2025-12-07T09:30:00',
-    assignedTo: null,
-    messages: 1,
-  },
-  {
-    id: 'TKT-002',
-    tenantName: 'Instituto Barcelona',
-    subject: 'Solicitud de aumento de límite de usuarios',
-    description: 'Necesitamos ampliar el límite de usuarios de 28 a 50...',
-    status: 'in_progress',
-    priority: 'medium',
-    category: 'billing',
-    createdAt: '2025-12-06T14:20:00',
-    assignedTo: 'Carlos Ruiz',
-    messages: 4,
-  },
-  {
-    id: 'TKT-003',
-    tenantName: 'Academia Madrid',
-    subject: 'Cómo configurar la integración con Mailchimp',
-    description: 'No encuentro la opción para conectar Mailchimp...',
-    status: 'waiting',
-    priority: 'low',
-    category: 'general',
-    createdAt: '2025-12-05T11:45:00',
-    assignedTo: 'Ana García',
-    messages: 3,
-  },
-  {
-    id: 'TKT-004',
-    tenantName: 'Centro Formativo Valencia',
-    subject: 'Problema con el pago de la suscripción',
-    description: 'El pago ha sido rechazado pero la tarjeta es válida...',
-    status: 'open',
-    priority: 'urgent',
-    category: 'billing',
-    createdAt: '2025-12-07T07:00:00',
-    assignedTo: null,
-    messages: 1,
-  },
-  {
-    id: 'TKT-005',
-    tenantName: 'CEP Formación',
-    subject: 'Sugerencia: Exportar a Excel con formato personalizado',
-    description: 'Sería muy útil poder exportar los datos con un formato...',
-    status: 'resolved',
-    priority: 'low',
-    category: 'feature_request',
-    createdAt: '2025-12-01T10:00:00',
-    assignedTo: 'Pedro López',
-    messages: 6,
-  },
-]
 
 const statusConfig = {
   open: { label: 'Abierto', className: 'bg-warning/10 text-warning' },
@@ -119,14 +55,25 @@ function formatDate(dateString: string) {
 export default function SoportePage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
+  const [tickets, setTickets] = useState<Ticket[]>([])
 
-  const filteredTickets = mockTickets.filter(
+  useEffect(() => {
+    fetch('/api/ops/support-tickets')
+      .then((res) => {
+        if (!res.ok) throw new Error('Not found')
+        return res.json()
+      })
+      .then((data) => setTickets(Array.isArray(data) ? data : []))
+      .catch(() => setTickets([]))
+  }, [])
+
+  const filteredTickets = tickets.filter(
     (t) => statusFilter === 'all' || t.status === statusFilter
   )
 
-  const openCount = mockTickets.filter((t) => t.status === 'open').length
-  const inProgressCount = mockTickets.filter((t) => t.status === 'in_progress').length
-  const urgentCount = mockTickets.filter(
+  const openCount = tickets.filter((t) => t.status === 'open').length
+  const inProgressCount = tickets.filter((t) => t.status === 'in_progress').length
+  const urgentCount = tickets.filter(
     (t) => t.priority === 'urgent' && t.status !== 'closed' && t.status !== 'resolved'
   ).length
 
@@ -135,9 +82,7 @@ export default function SoportePage() {
       <PageHeader
         title="Soporte"
         description="Gestiona tickets de soporte de los tenants"
-      >
-        <Badge variant="outline">Demo data</Badge>
-      </PageHeader>
+      />
 
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <KPICard
@@ -178,7 +123,13 @@ export default function SoportePage() {
           </div>
         </CardHeader>
         <div className="divide-y divide-border">
-          {filteredTickets.length === 0 ? (
+          {tickets.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              <p className="text-sm">No hay tickets de soporte registrados.</p>
+              <p className="text-xs mt-1">Los tickets aparecerán aquí cuando los tenants reporten incidencias.</p>
+            </div>
+          )}
+          {tickets.length > 0 && filteredTickets.length === 0 ? (
             <p className="text-center text-muted-foreground py-10">No hay tickets con ese filtro</p>
           ) : (
             filteredTickets.map((ticket) => (

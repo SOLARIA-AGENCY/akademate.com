@@ -1,54 +1,40 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { signIn } from '@/lib/auth-client'
 
-export default function OpsLoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const emailRef = useRef<HTMLInputElement>(null)
-  const passwordRef = useRef<HTMLInputElement>(null)
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    if (!email.trim()) {
-      setError('El email es obligatorio.')
-      emailRef.current?.focus()
-      return
-    }
-
-    if (!password.trim()) {
-      setError('La contraseña es obligatoria.')
-      passwordRef.current?.focus()
-      return
-    }
+    if (!email.trim()) { setError('El email es obligatorio.'); return }
+    if (!password.trim()) { setError('La contraseña es obligatoria.'); return }
 
     setIsLoading(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 450))
-
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          email: email.trim(),
-          password,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('No se pudo iniciar sesión en Ops')
+      const result = await signIn.email({ email: email.trim(), password })
+      if (result.error) {
+        setError(
+          result.error.message === 'Invalid email or password'
+            ? 'Credenciales inválidas.'
+            : (result.error.message ?? 'Error al iniciar sesión.')
+        )
+        setIsLoading(false)
+        return
       }
-
-      router.push('/dashboard')
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error inesperado al iniciar sesión')
+      router.push(redirectTo)
+    } catch {
+      setError('Error de conexión. Inténtalo de nuevo.')
       setIsLoading(false)
     }
   }
@@ -65,19 +51,15 @@ export default function OpsLoginPage() {
           <img
             src="/logos/akademate-icon-180.png"
             alt="Akademate"
-            className="w-16 h-16 object-contain mb-4"
+            className="w-16 h-16 object-contain mb-4 mx-auto block"
           />
           <h1 className="text-3xl font-bold text-white mb-1">Akademate Ops</h1>
           <p className="text-slate-400">Panel multitenant para superadmin</p>
           <p className="text-xs text-slate-500 mt-1">Acceso restringido. Integra auth real en Payload/IdP.</p>
         </div>
 
-        <div className="glass-panel p-8">
+        <div className="bg-slate-900/70 border border-slate-700/60 backdrop-blur-sm rounded-2xl p-8 shadow-2xl">
           <form onSubmit={onSubmit} className="space-y-5">
-            <div className="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-300 text-center">
-              Acceso con autenticación real contra Payload CMS.
-            </div>
-
             {error ? (
               <div className="p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-xs text-red-300 text-center">
                 {error}
@@ -92,7 +74,7 @@ export default function OpsLoginPage() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                ref={emailRef}
+
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-900/70 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
@@ -109,7 +91,7 @@ export default function OpsLoginPage() {
                 id="password"
                 type="password"
                 autoComplete="current-password"
-                ref={passwordRef}
+
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-900/70 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
@@ -133,8 +115,8 @@ export default function OpsLoginPage() {
             <div className="flex-1 border-t border-slate-700" />
           </div>
 
-          <div className="p-4 bg-slate-900/60 rounded-lg border border-slate-800 text-xs text-slate-400 text-center">
-            Requiere usuario con rol <code>superadmin</code> en Payload.
+          <div className="mt-6 p-4 bg-slate-800/60 rounded-lg border border-slate-700 text-xs text-slate-400 text-center">
+            Autenticación con <strong className="text-slate-300">Better Auth 1.5</strong> — sesiones seguras httpOnly
           </div>
         </div>
 
@@ -143,5 +125,13 @@ export default function OpsLoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function OpsLoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

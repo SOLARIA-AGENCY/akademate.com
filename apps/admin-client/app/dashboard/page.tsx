@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   ArrowRight,
@@ -54,15 +54,38 @@ export default function DashboardPage() {
   const tenants = tenantsData?.docs ?? []
   const isLoading = tenantsLoading || metricsLoading
 
-  const weeklyMetrics = useMemo<MetricDataPoint[]>(() => [
-    { name: 'Lun', value: 45, color: 'hsl(142 76% 36%)' },
-    { name: 'Mar', value: 52, color: 'hsl(142 76% 36%)' },
-    { name: 'Mié', value: 38, color: 'hsl(142 76% 36%)' },
-    { name: 'Jue', value: 65, color: 'hsl(142 76% 36%)' },
-    { name: 'Vie', value: 48, color: 'hsl(142 76% 36%)' },
-    { name: 'Sáb', value: 22, color: 'hsl(217 91% 60%)' },
-    { name: 'Dom', value: 15, color: 'hsl(217 91% 60%)' },
-  ], [])
+  const [metricsError, setMetricsError] = useState(false)
+  const [weeklyActivity, setWeeklyActivity] = useState<{ days: string[]; total: number[] }>({
+    days: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+    total: [0, 0, 0, 0, 0, 0, 0],
+  })
+  const [readinessScore, setReadinessScore] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/ops/weekly-activity')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setWeeklyActivity(data) })
+      .catch(() => {})
+
+    fetch('/api/ops/readiness-score')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setReadinessScore(data.score) })
+      .catch(() => {})
+
+    // Track metrics fetch errors for KPI fallback display
+    fetch('/api/ops/metrics')
+      .catch(() => { setMetricsError(true) })
+  }, [])
+
+  const weeklyMetrics = useMemo<MetricDataPoint[]>(() => {
+    const days = weeklyActivity.days
+    const totals = weeklyActivity.total
+    return days.map((name, i) => ({
+      name,
+      value: totals[i] ?? 0,
+      color: i < 5 ? 'hsl(142 76% 36%)' : 'hsl(217 91% 60%)',
+    }))
+  }, [weeklyActivity])
 
   return (
     <div className="space-y-8">
@@ -96,26 +119,26 @@ export default function DashboardPage() {
           <>
             <KPICard
               label="Total Tenants"
-              value={metrics?.tenants.total ?? tenants.length}
+              value={metrics?.tenants.total ?? (metricsError ? '—' : tenants.length)}
               data-testid="tenant-count"
               icon={<Users className="h-5 w-5 text-primary" />}
             />
             <KPICard
               label="Activos"
-              value={metrics?.tenants.active ?? tenants.filter(t => t.active).length}
+              value={metrics?.tenants.active ?? (metricsError ? '—' : tenants.filter(t => t.active).length)}
               data-testid="user-count"
               icon={<CheckCircle2 className="h-5 w-5 text-success" />}
               variant="success"
             />
             <KPICard
               label="En Trial"
-              value={metrics?.tenants.trial ?? 0}
+              value={metrics?.tenants.trial ?? (metricsError ? '—' : 0)}
               icon={<Clock className="h-5 w-5 text-warning" />}
               variant="warning"
             />
             <KPICard
               label="Total Usuarios"
-              value={metrics?.users.total ?? 0}
+              value={metrics?.users.total ?? (metricsError ? '—' : 0)}
               data-testid="revenue"
               icon={<DollarSign className="h-5 w-5 text-primary" />}
             />
@@ -192,8 +215,9 @@ export default function DashboardPage() {
                 <p className="text-xs text-muted-foreground">Matrículas activas</p>
               </div>
               <div className="space-y-1">
-                <p className="text-2xl font-bold text-success">—</p>
+                <p className="text-2xl font-bold text-muted-foreground" title="Sin monitorización configurada">N/A</p>
                 <p className="text-xs text-muted-foreground">Uptime del sistema</p>
+                <p className="text-xs text-muted-foreground/60">Sin monitorización configurada</p>
               </div>
               <div className="space-y-1">
                 {metricsLoading ? (
@@ -250,13 +274,13 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3 mb-2">
                   <h2 className="text-lg font-semibold text-foreground">Enterprise Readiness</h2>
                   <Badge variant="outline" className="border-warning/50 text-warning">
-                    Score 32/100
+                    Score {readinessScore ?? '—'}/100
                   </Badge>
                 </div>
                 <p className="text-muted-foreground text-sm mb-4">
                   Ver mapa de gaps y roadmap para alcanzar $1M+ ARR
                 </p>
-                <Progress value={32} max={100} variant="warning" size="md" />
+                <Progress value={readinessScore ?? 0} max={100} variant="warning" size="md" />
               </div>
             </div>
             <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all mt-2" />

@@ -39,6 +39,8 @@ COPY packages ./packages
 COPY tsconfig.json tsconfig.base.json postcss.config.cjs tailwind.config.js ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# Build-time placeholder — real secret is injected at runtime via docker-compose env
+ENV BETTER_AUTH_SECRET="build-time-placeholder-not-used-at-runtime"
 WORKDIR /app/apps/admin-client
 RUN pnpm build
 

@@ -48,8 +48,9 @@ export interface SystemStatusData {
   metrics: SystemMetric[];
   incidents: Incident[];
   overallStatus: 'operational' | 'degraded' | 'outage';
-  avgResponseTime: number;
-  avgUptime: number;
+  avgResponseTime: number | null;
+  avgUptime: number | null;
+  dataSource: 'placeholder' | 'real';
 }
 
 // ============================================================================
@@ -59,91 +60,80 @@ export interface SystemStatusData {
 const MOCK_SERVICES: ServiceStatus[] = [
   {
     name: 'API Principal',
-    status: 'operational',
-    latency: 45,
-    uptime: 99.98,
+    status: 'unknown' as unknown as ServiceStatus['status'],
+    latency: null,
+    uptime: 0,
     lastCheck: new Date().toISOString(),
-    details: 'Todas las operaciones funcionando correctamente',
+    details: 'Sin datos de monitorización',
   },
   {
     name: 'Base de Datos PostgreSQL',
-    status: 'operational',
-    latency: 12,
-    uptime: 99.99,
+    status: 'unknown' as unknown as ServiceStatus['status'],
+    latency: null,
+    uptime: 0,
     lastCheck: new Date().toISOString(),
-    details: 'Conexiones activas: 45/100',
+    details: 'Sin datos de monitorización',
   },
   {
     name: 'Redis Cache',
-    status: 'operational',
-    latency: 2,
-    uptime: 99.99,
+    status: 'unknown' as unknown as ServiceStatus['status'],
+    latency: null,
+    uptime: 0,
     lastCheck: new Date().toISOString(),
-    details: 'Memoria usada: 256MB/1GB',
+    details: 'Sin datos de monitorización',
   },
   {
     name: 'Cola de Trabajos (BullMQ)',
-    status: 'operational',
-    latency: 8,
-    uptime: 99.95,
+    status: 'unknown' as unknown as ServiceStatus['status'],
+    latency: null,
+    uptime: 0,
     lastCheck: new Date().toISOString(),
-    details: 'Jobs en cola: 12, Procesados hoy: 1,234',
+    details: 'Sin datos de monitorización',
   },
   {
     name: 'Almacenamiento (S3)',
-    status: 'operational',
-    latency: 89,
-    uptime: 99.99,
+    status: 'unknown' as unknown as ServiceStatus['status'],
+    latency: null,
+    uptime: 0,
     lastCheck: new Date().toISOString(),
-    details: 'Espacio usado: 45.2 GB',
+    details: 'Sin datos de monitorización',
   },
   {
     name: 'Email (SMTP)',
-    status: 'degraded',
-    latency: 1200,
-    uptime: 98.5,
+    status: 'unknown' as unknown as ServiceStatus['status'],
+    latency: null,
+    uptime: 0,
     lastCheck: new Date().toISOString(),
-    details: 'Latencia elevada - proveedor con retrasos',
+    details: 'Sin datos de monitorización',
   },
   {
     name: 'WhatsApp Cloud API',
-    status: 'operational',
-    latency: 156,
-    uptime: 99.9,
+    status: 'unknown' as unknown as ServiceStatus['status'],
+    latency: null,
+    uptime: 0,
     lastCheck: new Date().toISOString(),
-    details: 'Mensajes enviados hoy: 234',
+    details: 'Sin datos de monitorización',
   },
   {
     name: 'CDN (Cloudflare)',
-    status: 'operational',
-    latency: 15,
-    uptime: 99.99,
+    status: 'unknown' as unknown as ServiceStatus['status'],
+    latency: null,
+    uptime: 0,
     lastCheck: new Date().toISOString(),
-    details: 'Cache hit ratio: 94%',
+    details: 'Sin datos de monitorización',
   },
 ];
 
-const MOCK_METRICS: SystemMetric[] = [
-  { name: 'CPU', value: 42, max: 100, unit: '%', status: 'healthy' },
-  { name: 'Memoria', value: 68, max: 100, unit: '%', status: 'healthy' },
-  { name: 'Disco', value: 45, max: 100, unit: '%', status: 'healthy' },
-  { name: 'Conexiones DB', value: 45, max: 100, unit: '', status: 'healthy' },
-  { name: 'Requests/min', value: 1250, max: 5000, unit: '', status: 'healthy' },
-  { name: 'Errores/hora', value: 3, max: 50, unit: '', status: 'healthy' },
+const MOCK_METRICS: (SystemMetric & { monitoring: boolean })[] = [
+  { name: 'CPU', value: 0, max: 100, unit: '%', status: 'healthy', monitoring: false },
+  { name: 'Memoria', value: 0, max: 100, unit: '%', status: 'healthy', monitoring: false },
+  { name: 'Disco', value: 0, max: 100, unit: '%', status: 'healthy', monitoring: false },
+  { name: 'Conexiones DB', value: 0, max: 100, unit: '', status: 'healthy', monitoring: false },
+  { name: 'Requests/min', value: 0, max: 5000, unit: '', status: 'healthy', monitoring: false },
+  { name: 'Errores/hora', value: 0, max: 50, unit: '', status: 'healthy', monitoring: false },
 ];
 
-const MOCK_INCIDENTS: Incident[] = [
-  {
-    id: 'INC-003',
-    title: 'Latencia elevada en servicio de email',
-    status: 'monitoring',
-    severity: 'minor',
-    createdAt: '2025-12-07T12:30:00',
-    updatedAt: '2025-12-07T14:00:00',
-    description: 'El proveedor de email está experimentando retrasos en la entrega. Estamos monitoreando la situación.',
-    affectedServices: ['Email (SMTP)'],
-  },
-];
+const MOCK_INCIDENTS: Incident[] = [];
 
 // ============================================================================
 // HOOK
@@ -162,12 +152,6 @@ export interface UseSystemStatusReturn {
   refresh: () => void;
 }
 
-function calculateOverallStatus(services: ServiceStatus[]): 'operational' | 'degraded' | 'outage' {
-  const operationalCount = services.filter((s) => s.status === 'operational').length;
-  if (operationalCount === services.length) return 'operational';
-  if (operationalCount >= services.length - 1) return 'degraded';
-  return 'outage';
-}
 
 export function useSystemStatus(
   options: UseSystemStatusOptions = {}
@@ -185,9 +169,10 @@ export function useSystemStatus(
     services: MOCK_SERVICES,
     metrics: MOCK_METRICS,
     incidents: MOCK_INCIDENTS,
-    overallStatus: calculateOverallStatus(MOCK_SERVICES),
-    avgResponseTime: 190,
-    avgUptime: 99.5,
+    overallStatus: 'operational',
+    avgResponseTime: null,
+    avgUptime: null,
+    dataSource: 'placeholder',
   });
 
   // Manual refresh function
@@ -239,6 +224,7 @@ export function useSystemStatus(
         overallStatus: mapStatus(payload.overallStatus) as 'operational' | 'degraded' | 'outage',
         avgResponseTime: avgLatency,
         avgUptime: avgUptime,
+        dataSource: 'real',
       }));
 
       setLastUpdate(new Date());
