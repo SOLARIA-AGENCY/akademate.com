@@ -17,6 +17,11 @@
 - Creados: `/api/ops/analytics`, `/api/ops/analytics/retencion`
 - Páginas: `/dashboard/analytics` (MRR trend, LTV), `/dashboard/analytics/retencion` (cohort table, churn history)
 
+### Deploy
+- Docker build amd64: OK (sha256:cbb694d4bc06)
+- Deploy a ECO-tailscale (100.99.60.106:3009): OK
+- Health check: 307 redirect to /login (correcto)
+
 ### Validación
 - TypeScript sin errores (solo preexistentes de packages/realtime)
 - Total: 15 archivos nuevos, 4 modificados
