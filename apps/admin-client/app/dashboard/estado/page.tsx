@@ -160,18 +160,18 @@ export default function EstadoPage() {
       />
 
       {/* Overall Status Banner */}
-      <div className={`mb-6 p-6 rounded-xl border ${
+      <div className={`mb-6 p-4 sm:p-6 rounded-xl border ${
         overallStatus === 'operational'
           ? 'bg-green-500/10 border-green-500/30'
           : overallStatus === 'degraded'
             ? 'bg-yellow-500/10 border-yellow-500/30'
             : 'bg-red-500/10 border-red-500/30'
       }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className={`w-4 h-4 rounded-full ${getStatusColor(overallStatus)} animate-pulse`}></div>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`w-4 h-4 rounded-full flex-shrink-0 ${getStatusColor(overallStatus)} animate-pulse`}></div>
             <div>
-              <h2 className={`text-xl font-bold ${
+              <h2 className={`text-base sm:text-xl font-bold ${
                 overallStatus === 'operational' ? 'text-green-400' :
                 overallStatus === 'degraded' ? 'text-yellow-400' : 'text-red-400'
               }`}>
@@ -183,23 +183,19 @@ export default function EstadoPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {/* Connection status indicator */}
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5">
               <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
               <span className="text-xs text-muted-foreground">
                 {isConnected ? 'En vivo' : 'Sin conexion'}
               </span>
             </div>
-            <button
-              onClick={refresh}
-              className="text-xs text-primary hover:underline"
-            >
+            <button onClick={refresh} className="text-xs text-primary hover:underline">
               Actualizar
             </button>
-            <div className="text-right">
-              <p className="text-muted-foreground text-xs">Ultima actualizacion</p>
-              <p className="text-foreground text-sm">{lastUpdate ? formatDate(lastUpdate.toISOString()) : '-'}</p>
+            <div>
+              <p className="text-muted-foreground text-xs">Última actualización</p>
+              <p className="text-foreground text-xs sm:text-sm">{lastUpdate ? formatDate(lastUpdate.toISOString()) : '-'}</p>
             </div>
           </div>
         </div>
@@ -286,15 +282,15 @@ export default function EstadoPage() {
             </div>
             <div className="divide-y divide-muted/20">
               {services.map((service) => (
-                <div key={service.name} className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-3 h-3 rounded-full ${getStatusColor(service.status)}`}></div>
-                    <div>
-                      <p className="text-foreground font-medium">{service.name}</p>
-                      <p className="text-muted-foreground text-sm">{service.details}</p>
+                <div key={service.name} className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${getStatusColor(service.status)}`}></div>
+                    <div className="min-w-0">
+                      <p className="text-foreground font-medium truncate">{service.name}</p>
+                      <p className="text-muted-foreground text-sm truncate">{service.details}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-3 sm:gap-6 pl-6 sm:pl-0">
                     {service.latency !== null && (
                       <div className="text-right">
                         <p className="text-muted-foreground text-xs">Latencia</p>
@@ -315,7 +311,7 @@ export default function EstadoPage() {
                         {service.uptime}%
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    <span className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
                       service.status === 'operational' ? 'bg-green-500/20 text-green-400' :
                       service.status === 'degraded' ? 'bg-yellow-500/20 text-yellow-400' :
                       service.status === 'outage' ? 'bg-red-500/20 text-red-400' :

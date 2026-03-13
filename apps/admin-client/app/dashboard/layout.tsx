@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
       <OpsSidebarInset>
         {/* Header - Left/Right structure */}
-        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm px-6">
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm px-3 sm:px-6">
           {/* Left side */}
           <div className="flex items-center gap-4">
             <OpsSidebarTrigger />
@@ -115,9 +115,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Main content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</div>
 
-        {/* Footer - 3 column layout */}
-        <footer className="border-t border-border bg-card/50 px-6 py-4">
-          <div className="flex items-center justify-between text-xs">
+        {/* Footer */}
+        <footer className="border-t border-border bg-card/50 px-4 sm:px-6 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
             {/* Left: Branding */}
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 bg-gradient-to-br from-primary to-cyan-600 rounded flex items-center justify-center">
@@ -129,18 +129,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Badge>
             </div>
 
-            {/* Center: System status */}
-            <div className="flex items-center gap-4 text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                Todos los sistemas operativos
-              </span>
-            </div>
+            {/* Center: System status - hidden on xs */}
+            <span className="hidden sm:flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+              Todos los sistemas operativos
+            </span>
 
             {/* Right: Copyright */}
-            <div className="text-muted-foreground">
-              © {new Date().getFullYear()} SOLARIA Agency
-            </div>
+            <span>© {new Date().getFullYear()} SOLARIA Agency</span>
           </div>
         </footer>
       </OpsSidebarInset>

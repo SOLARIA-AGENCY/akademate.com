@@ -331,12 +331,12 @@ export default function SuscripcionesPage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
-        <div className="border-b border-muted/30">
-          <div className="flex">
+      <div className="bg-card border border-border rounded-xl border border-muted/30">
+        <div className="border-b border-muted/30 overflow-x-auto">
+          <div className="flex min-w-max">
             <button
               onClick={() => setActiveTab('plans')}
-              className={`px-6 py-3 text-sm font-medium ${
+              className={`px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap ${
                 activeTab === 'plans'
                   ? 'text-foreground border-b-2 border-indigo-500'
                   : 'text-muted-foreground hover:text-foreground'
@@ -346,7 +346,7 @@ export default function SuscripcionesPage() {
             </button>
             <button
               onClick={() => setActiveTab('subscriptions')}
-              className={`px-6 py-3 text-sm font-medium ${
+              className={`px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap ${
                 activeTab === 'subscriptions'
                   ? 'text-foreground border-b-2 border-indigo-500'
                   : 'text-muted-foreground hover:text-foreground'

@@ -89,7 +89,7 @@ export default function RoadmapPage() {
       </PageHeader>
 
       {/* Score Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-card border border-border rounded-xl p-5">
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Score Total</p>
           <div className="flex items-end gap-2 mt-2">
@@ -134,12 +134,12 @@ export default function RoadmapPage() {
               key={feature.name}
               className="p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
             >
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold text-foreground">{feature.name}</p>
                     <span
-                      className={`px-2 py-0.5 text-xs font-medium rounded ${
+                      className={`px-2 py-0.5 text-xs font-medium rounded whitespace-nowrap ${
                         feature.status === 'missing'
                           ? 'bg-red-500/10 text-red-600 dark:text-red-400'
                           : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
@@ -150,8 +150,8 @@ export default function RoadmapPage() {
                   </div>
                   <p className="text-muted-foreground text-sm mt-1">{feature.note}</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="w-24 sm:w-32 h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full ${
                         feature.gap === 100
@@ -163,7 +163,7 @@ export default function RoadmapPage() {
                       style={{ width: `${100 - feature.gap}%` }}
                     />
                   </div>
-                  <span className="text-sm font-medium text-muted-foreground w-12 text-right">
+                  <span className="text-sm font-medium text-muted-foreground w-10 sm:w-12 text-right">
                     {feature.gap}%
                   </span>
                 </div>
