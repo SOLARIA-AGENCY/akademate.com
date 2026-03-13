@@ -4,61 +4,82 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Activity,
+  BarChart3,
+  ChevronRight,
+  ClipboardList,
   Code,
-  CreditCard,
-  HelpCircle,
-  Image,
+  DollarSign,
   LayoutDashboard,
+  Map,
+  Receipt,
   Repeat,
   Settings,
-  Target,
+  Shield,
+  Ticket,
+  TrendingUp,
   UserCog,
   Users,
-  ChevronRight,
 } from 'lucide-react'
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
-    SidebarHeader,
-    SidebarInset,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarProvider,
-    SidebarTrigger,
-    SidebarRail,
-  } from '@/components/ui/sidebar'
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarRail,
+} from '@/components/ui/sidebar'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { cn } from '@/lib/utils'
 
-const mainNavItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Tenants', href: '/dashboard/tenants', icon: Users },
-  { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-  { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
-  { name: 'Roadmap', href: '/dashboard/roadmap', icon: Target },
+// ── Nav sections según diseño aprobado ────────────────────────────────────────
+
+const overviewItems = [
+  { name: 'Command Center', href: '/dashboard', icon: LayoutDashboard },
 ]
 
-const businessNavItems = [
-  { name: 'Facturacion', href: '/dashboard/facturacion', icon: CreditCard },
+const clientsItems = [
+  { name: 'Tenants', href: '/dashboard/tenants', icon: Users },
+  { name: 'Alta / Registro', href: '/dashboard/tenants/create', icon: UserCog },
+  { name: 'Impersonar', href: '/dashboard/impersonar', icon: Shield },
+]
+
+const financeItems = [
+  { name: 'P&L Overview', href: '/dashboard/finanzas', icon: DollarSign },
+  { name: 'Ingresos', href: '/dashboard/finanzas/ingresos', icon: TrendingUp },
+  { name: 'Gastos Operativos', href: '/dashboard/finanzas/gastos', icon: Receipt },
   { name: 'Suscripciones', href: '/dashboard/suscripciones', icon: Repeat },
 ]
 
-const systemNavItems = [
-  { name: 'API', href: '/dashboard/api', icon: Code },
-  { name: 'Estado', href: '/dashboard/estado', icon: Activity },
-  { name: 'Impersonar', href: '/dashboard/impersonar', icon: UserCog },
-  { name: 'Media', href: '/dashboard/media', icon: Image },
+const analyticsItems = [
+  { name: 'Crecimiento', href: '/dashboard/analytics', icon: BarChart3 },
+  { name: 'Retención & Churn', href: '/dashboard/analytics/retencion', icon: TrendingUp },
 ]
 
-const supportNavItems = [
-  { name: 'Soporte', href: '/dashboard/soporte', icon: HelpCircle },
-  { name: 'Configuracion', href: '/dashboard/configuracion', icon: Settings },
+const supportItems = [
+  { name: 'Tickets', href: '/dashboard/soporte', icon: Ticket },
 ]
+
+const infraItems = [
+  { name: 'Estado del Sistema', href: '/dashboard/estado', icon: Activity },
+  { name: 'API Console', href: '/dashboard/api', icon: Code },
+]
+
+const opsItems = [
+  { name: 'Equipo & Roles', href: '/dashboard/equipo', icon: Users },
+  { name: 'Audit Log', href: '/dashboard/auditoria', icon: ClipboardList },
+  { name: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
+  { name: 'Roadmap', href: '/dashboard/roadmap', icon: Map },
+]
+
+type NavItem = { name: string; href: string; icon: React.ComponentType<{ className?: string }> }
 
 export function OpsSidebarShell({ children }: { children: React.ReactNode }) {
   return <SidebarProvider>{children}</SidebarProvider>
@@ -67,10 +88,10 @@ export function OpsSidebarShell({ children }: { children: React.ReactNode }) {
 function NavSection({
   label,
   items,
-  pathname
+  pathname,
 }: {
   label: string
-  items: typeof mainNavItems
+  items: NavItem[]
   pathname: string | null
 }) {
   return (
@@ -81,11 +102,13 @@ function NavSection({
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href))
+            const isActive =
+              pathname === item.href ||
+              (item.href !== '/dashboard' && pathname?.startsWith(item.href))
             const Icon = item.icon
 
             return (
-              <SidebarMenuItem key={item.name}>
+              <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
                   isActive={isActive}
@@ -99,14 +122,14 @@ function NavSection({
                     {isActive && (
                       <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] bg-sidebar-primary rounded-r-sm" />
                     )}
-                    <Icon className={cn(
-                      "size-4 transition-colors",
-                      isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/70'
-                    )} />
+                    <Icon
+                      className={cn(
+                        'size-4 transition-colors',
+                        isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/70'
+                      )}
+                    />
                     <span className="truncate flex-1">{item.name}</span>
-                    {isActive && (
-                      <ChevronRight className="size-3 text-sidebar-primary/60" />
-                    )}
+                    {isActive && <ChevronRight className="size-3 text-sidebar-primary/60" />}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -132,17 +155,24 @@ export function OpsSidebar() {
             className="size-10 flex-shrink-0 rounded-xl"
           />
           <div className="grid group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-bold leading-tight text-sidebar-foreground tracking-tight">Akademate</span>
-            <span className="text-[11px] text-sidebar-foreground/60 leading-tight font-medium uppercase tracking-wider">Gestor SaaS</span>
+            <span className="text-sm font-bold leading-tight text-sidebar-foreground tracking-tight">
+              Akademate
+            </span>
+            <span className="text-[11px] text-sidebar-foreground/60 leading-tight font-medium uppercase tracking-wider">
+              Ops Center
+            </span>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-2 py-4">
-        <NavSection label="Principal" items={mainNavItems} pathname={pathname} />
-        <NavSection label="Negocio" items={businessNavItems} pathname={pathname} />
-        <NavSection label="Sistema" items={systemNavItems} pathname={pathname} />
-        <NavSection label="Soporte" items={supportNavItems} pathname={pathname} />
+        <NavSection label="Overview" items={overviewItems} pathname={pathname} />
+        <NavSection label="Clientes" items={clientsItems} pathname={pathname} />
+        <NavSection label="Finanzas" items={financeItems} pathname={pathname} />
+        <NavSection label="Analytics" items={analyticsItems} pathname={pathname} />
+        <NavSection label="Soporte" items={supportItems} pathname={pathname} />
+        <NavSection label="Infraestructura" items={infraItems} pathname={pathname} />
+        <NavSection label="Operaciones" items={opsItems} pathname={pathname} />
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-4">
@@ -154,7 +184,7 @@ export function OpsSidebar() {
         </div>
         <div className="mt-3 pt-3 border-t border-sidebar-border/50">
           <p className="text-[10px] text-sidebar-foreground/40 text-center uppercase tracking-wider">
-            v1.0.0 · SOLARIA
+            v1.1.0 · OPS CENTER
           </p>
         </div>
       </SidebarFooter>
