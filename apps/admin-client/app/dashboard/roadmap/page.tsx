@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, CheckCircle2, Circle, Clock } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
-import { MockDataBanner } from '@/components/mock-data-banner'
 
 const enterpriseGaps = [
   { name: 'Billing/Stripe + usage', status: 'missing', gap: 100, note: 'Planes, checkout, metering' },
@@ -59,7 +59,17 @@ const roadmap = [
 ]
 
 export default function RoadmapPage() {
-  const totalScore = 32
+  const [totalScore, setTotalScore] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/ops/readiness-score')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.score !== undefined) setTotalScore(data.score)
+      })
+      .catch(() => {})
+  }, [])
+
   const totalGaps = enterpriseGaps.length
   const missingCount = enterpriseGaps.filter(g => g.status === 'missing').length
   const partialCount = enterpriseGaps.filter(g => g.status === 'partial').length
@@ -76,7 +86,6 @@ export default function RoadmapPage() {
         >
           <ArrowLeft className="w-5 h-5 text-muted-foreground" />
         </Link>
-        <MockDataBanner />
       </PageHeader>
 
       {/* Score Overview */}
@@ -84,7 +93,12 @@ export default function RoadmapPage() {
         <div className="bg-card border border-border rounded-xl p-5">
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Score Total</p>
           <div className="flex items-end gap-2 mt-2">
-            <p className="text-4xl font-bold text-amber-600 dark:text-amber-400">{totalScore}</p>
+            <p className={`text-4xl font-bold mt-2 ${
+            totalScore === null ? 'text-muted-foreground' :
+            totalScore >= 70 ? 'text-green-600 dark:text-green-400' :
+            totalScore >= 40 ? 'text-amber-600 dark:text-amber-400' :
+            'text-red-600 dark:text-red-400'
+          }`}>{totalScore ?? '—'}</p>
             <p className="text-lg text-muted-foreground mb-1">/100</p>
           </div>
         </div>
@@ -110,7 +124,7 @@ export default function RoadmapPage() {
             <p className="text-muted-foreground text-sm">Features necesarios para enterprise-readiness</p>
           </div>
           <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold">
-            Mock data
+            Pendiente de implementación
           </span>
         </div>
 

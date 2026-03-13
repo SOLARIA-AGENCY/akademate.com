@@ -1,78 +1,44 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { getDb } from '@/lib/db'
 
-const PAYLOAD_URL =
-  process.env.PAYLOAD_CMS_URL?.trim() ||
-  process.env.NEXT_PUBLIC_PAYLOAD_URL?.trim() ||
-  'http://localhost:3003'
-
-interface SessionCookie {
-  token?: string
-}
-
-async function getPayloadToken(): Promise<string | null> {
-  const cookieStore = await cookies()
-  const raw = cookieStore.get('akademate_admin_session')?.value
-  if (!raw) return null
-  try {
-    const session = JSON.parse(raw) as SessionCookie
-    return session.token ?? null
-  } catch {
-    return null
-  }
-}
-
-async function payloadCount(token: string, collection: string): Promise<number> {
-  try {
-    const res = await fetch(`${PAYLOAD_URL}/api/${collection}?limit=1`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    })
-    if (!res.ok) return 0
-    const data = await res.json()
-    return typeof data?.totalDocs === 'number' ? data.totalDocs : 0
-  } catch {
-    return 0
-  }
-}
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const token = await getPayloadToken()
+  const db = getDb()
 
-  if (!token) {
-    return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
-  }
-
-  const [tenantsTotal, usersTotal, coursesTotal, enrollmentsTotal] = await Promise.all([
-    payloadCount(token, 'tenants'),
-    payloadCount(token, 'users'),
-    payloadCount(token, 'courses'),
-    payloadCount(token, 'enrollments'),
-  ])
-
-  // Active tenants count
-  let activeTenantsTotal = 0
   try {
-    const res = await fetch(`${PAYLOAD_URL}/api/tenants?limit=1&where[active][equals]=true`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    })
-    if (res.ok) {
-      const data = await res.json()
-      activeTenantsTotal = typeof data?.totalDocs === 'number' ? data.totalDocs : 0
-    }
-  } catch {
-    // ignore
-  }
+    const [
+      tenantsResult,
+      activeTenantsResult,
+      usersResult,
+      coursesResult,
+      enrollmentsResult,
+    ] = await Promise.all([
+      db.query('SELECT COUNT(*) AS total FROM tenants'),
+      db.query('SELECT COUNT(*) AS total FROM tenants WHERE active = true'),
+      db.query('SELECT COUNT(*) AS total FROM users'),
+      db.query('SELECT COUNT(*) AS total FROM courses').catch(() => ({ rows: [{ total: '0' }] })),
+      db.query('SELECT COUNT(*) AS total FROM enrollments').catch(() => ({ rows: [{ total: '0' }] })),
+    ])
 
-  return NextResponse.json({
-    tenants: {
-      total: tenantsTotal,
-      active: activeTenantsTotal,
-      trial: tenantsTotal - activeTenantsTotal,
-    },
-    users: { total: usersTotal },
-    courses: { total: coursesTotal },
-    enrollments: { total: enrollmentsTotal },
-  })
+    const tenantsTotal = parseInt(tenantsResult.rows[0]?.total ?? '0', 10)
+    const activeTenantsTotal = parseInt(activeTenantsResult.rows[0]?.total ?? '0', 10)
+    const usersTotal = parseInt(usersResult.rows[0]?.total ?? '0', 10)
+    const coursesTotal = parseInt(coursesResult.rows[0]?.total ?? '0', 10)
+    const enrollmentsTotal = parseInt(enrollmentsResult.rows[0]?.total ?? '0', 10)
+
+    return NextResponse.json({
+      tenants: {
+        total: tenantsTotal,
+        active: activeTenantsTotal,
+        trial: tenantsTotal - activeTenantsTotal,
+      },
+      users: { total: usersTotal },
+      courses: { total: coursesTotal },
+      enrollments: { total: enrollmentsTotal },
+    })
+  } catch (error) {
+    console.error('[ops/metrics] DB error', error)
+    return NextResponse.json({ error: 'Error al consultar métricas' }, { status: 500 })
+  }
 }

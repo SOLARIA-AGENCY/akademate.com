@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { PageHeader } from '@/components/page-header';
-import { MockDataBanner } from '@/components/mock-data-banner';
 
 interface PlatformSettings {
   general: {
@@ -120,7 +119,6 @@ export default function ConfiguracionPage() {
         title="Configuracion"
         description="Ajustes generales de la plataforma Akademate"
       >
-        <MockDataBanner />
       </PageHeader>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -689,13 +687,13 @@ export default function ConfiguracionPage() {
             {/* Enterprise Readiness */}
             {activeTab === 'enterprise' && (
               <div className="p-6 space-y-6">
-                <h2 className="text-xl font-bold text-foreground mb-2">Enterprise Readiness (mock)</h2>
+                <h2 className="text-xl font-bold text-foreground mb-2">Enterprise Readiness</h2>
                 <p className="text-muted-foreground text-sm">Checklist para SSO/SCIM, compliance y flags por tenant.</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 rounded-lg bg-muted/20 border border-muted/30">
                     <p className="text-foreground font-semibold mb-1">SSO / OIDC / SAML</p>
-                    <p className="text-muted-foreground text-sm mb-2">Configura IdPs (Okta, Entra ID, Google). Mock pendiente de backend.</p>
+                    <p className="text-muted-foreground text-sm mb-2">Configura IdPs (Okta, Entra ID, Google). Pendiente de implementación.</p>
                     <div className="flex gap-2 text-xs">
                       <span className="px-2 py-1 rounded bg-amber-500/15 text-amber-300">Gap 100%</span>
                       <span className="px-2 py-1 rounded bg-card border border-border rounded-xl text-foreground">workos / frontegg opcional</span>
@@ -729,7 +727,7 @@ export default function ConfiguracionPage() {
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/20 border border-muted/30">
-                  <p className="text-foreground font-semibold mb-2">Próximas acciones (mock)</p>
+                  <p className="text-foreground font-semibold mb-2">Próximas acciones</p>
                   <ul className="list-disc list-inside text-foreground text-sm space-y-1">
                     <li>Integrar Stripe Billing + pricing tiers.</li>
                     <li>Implementar SSO (OIDC/SAML) y SCIM con issuer central.</li>

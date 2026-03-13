@@ -16,7 +16,7 @@
 
 import { useState } from 'react';
 import { PageHeader } from '@/components/page-header';
-import { MockDataBanner } from '@/components/mock-data-banner';
+
 
 interface UploadResponse {
   success: boolean;
@@ -90,9 +90,7 @@ export default function MediaPage() {
       <PageHeader
         title="Gestion de Media"
         description="Uploads a storage compatible S3 con validacion de tipo/tamano"
-      >
-        <MockDataBanner />
-      </PageHeader>
+      />
 
       <div className="bg-card border border-border rounded-xl p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">

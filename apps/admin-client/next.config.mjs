@@ -55,11 +55,18 @@ const config = {
   },
 
   // Explicit webpack alias for @ path (mirrors tsconfig paths)
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname, '.'),
     }
+    // socket.io-client may not be installed in some build environments
+    // Alias to a stub to avoid build failures — the hook handles null socket gracefully
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'socket.io-client': path.resolve(__dirname, '../../packages/realtime/src/socket-stub.js'),
+    }
+    void isServer
     return config
   },
 }

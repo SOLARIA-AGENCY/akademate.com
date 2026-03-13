@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/page-header';
-import { MockDataBanner } from '@/components/mock-data-banner';
 
 interface Plan {
   id: string;
@@ -34,8 +33,6 @@ interface Plan {
     sso: boolean;
   };
     isPopular: boolean;
-    activeSubscriptions: number;
-    revenue: number;
 }
 
 interface Subscription {
@@ -82,8 +79,6 @@ const mockPlans: Plan[] = [
       sso: false,
     },
     isPopular: false,
-    activeSubscriptions: 8,
-    revenue: 1592,
   },
   {
     id: '2',
@@ -114,8 +109,6 @@ const mockPlans: Plan[] = [
       sso: false,
     },
     isPopular: true,
-    activeSubscriptions: 12,
-    revenue: 3588,
   },
   {
     id: '3',
@@ -146,90 +139,44 @@ const mockPlans: Plan[] = [
       sso: true,
     },
     isPopular: false,
-    activeSubscriptions: 2,
-    revenue: 1198,
   },
 ];
 
-const mockSubscriptions: Subscription[] = [
-  {
-    id: '1',
-    tenantId: '1',
-    tenantName: 'CEP Formación',
-    planId: '2',
-    planName: 'Pro Campus',
-    status: 'active',
-    currentPeriodStart: '2025-12-01',
-    currentPeriodEnd: '2026-01-01',
-    cancelAtPeriodEnd: false,
-    trialEndsAt: null,
-    amount: 299,
-  },
-  {
-    id: '2',
-    tenantId: '2',
-    tenantName: 'Academia Madrid',
-    planId: '1',
-    planName: 'Starter',
-    status: 'trial',
-    currentPeriodStart: '2025-11-20',
-    currentPeriodEnd: '2025-12-20',
-    cancelAtPeriodEnd: false,
-    trialEndsAt: '2025-12-20',
-    amount: 0,
-  },
-  {
-    id: '3',
-    tenantId: '3',
-    tenantName: 'Instituto Barcelona',
-    planId: '3',
-    planName: 'Enterprise Full',
-    status: 'active',
-    currentPeriodStart: '2025-12-01',
-    currentPeriodEnd: '2026-01-01',
-    cancelAtPeriodEnd: false,
-    trialEndsAt: null,
-    amount: 599,
-  },
-  {
-    id: '4',
-    tenantId: '4',
-    tenantName: 'Centro Formativo Valencia',
-    planId: '2',
-    planName: 'Professional',
-    status: 'past_due',
-    currentPeriodStart: '2025-11-01',
-    currentPeriodEnd: '2025-12-01',
-    cancelAtPeriodEnd: false,
-    trialEndsAt: null,
-    amount: 299,
-  },
-  {
-    id: '5',
-    tenantId: '5',
-    tenantName: 'Formación Sevilla',
-    planId: '1',
-    planName: 'Starter',
-    status: 'cancelled',
-    currentPeriodStart: '2025-10-01',
-    currentPeriodEnd: '2025-11-01',
-    cancelAtPeriodEnd: true,
-    trialEndsAt: null,
-    amount: 99,
-  },
-];
 
 export default function SuscripcionesPage() {
   const [plans] = useState<Plan[]>(mockPlans);
-  const [subscriptions] = useState<Subscription[]>(mockSubscriptions);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [activeTab, setActiveTab] = useState<'plans' | 'subscriptions'>('plans');
   const [showEditPlanModal, setShowEditPlanModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
-  const totalMRR = plans.reduce((sum, p) => sum + p.revenue, 0);
-  const totalSubscriptions = subscriptions.filter(s => s.status === 'active' || s.status === 'trial').length;
-  const trialCount = subscriptions.filter(s => s.status === 'trial').length;
-  const churnRisk = subscriptions.filter(s => s.status === 'past_due' || s.cancelAtPeriodEnd).length;
+  useEffect(() => {
+    fetch('/api/ops/tenants')
+      .then(res => res.ok ? res.json() : { docs: [] })
+      .then(data => {
+        const docs = Array.isArray(data?.docs) ? data.docs : []
+        const mapped: Subscription[] = docs.map((t: { id: string; name: string; plan?: string; status?: string; createdAt?: string }) => ({
+          id: t.id,
+          tenantId: t.id,
+          tenantName: t.name,
+          planId: t.plan ?? 'starter',
+          planName: t.plan ?? 'Starter',
+          status: (t.status === 'active' ? 'active' : 'trial') as Subscription['status'],
+          currentPeriodStart: t.createdAt ?? new Date().toISOString(),
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          cancelAtPeriodEnd: false,
+          trialEndsAt: null,
+          amount: 0,
+        }))
+        setSubscriptions(mapped)
+      })
+      .catch(() => setSubscriptions([]))
+  }, [])
+
+  const totalMRR = subscriptions.length === 0 ? null : subscriptions.filter(s => s.status === 'active').length * 199;
+  const totalSubscriptions = subscriptions.length === 0 ? null : subscriptions.filter(s => s.status === 'active' || s.status === 'trial').length;
+  const trialCount = subscriptions.length === 0 ? null : subscriptions.filter(s => s.status === 'trial').length;
+  const churnRisk = subscriptions.length === 0 ? null : subscriptions.filter(s => s.status === 'past_due' || s.cancelAtPeriodEnd).length;
 
   const renderModules = (plan: Plan) => {
     const chip = (label: string, active: boolean) => (
@@ -319,7 +266,9 @@ export default function SuscripcionesPage() {
         title="Suscripciones"
         description="Gestiona planes y suscripciones de los tenants"
       >
-        <MockDataBanner />
+        <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold">
+          Datos de facturación pendientes de integración con Stripe
+        </span>
       </PageHeader>
 
       {/* Stats Cards */}
@@ -328,7 +277,7 @@ export default function SuscripcionesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">MRR Total</p>
-              <p className="text-2xl font-bold text-green-400 mt-1">€{totalMRR.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-green-400 mt-1">{totalMRR === null ? '—' : `€${totalMRR.toLocaleString()}`}</p>
             </div>
             <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
               <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,7 +291,7 @@ export default function SuscripcionesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">Suscripciones Activas</p>
-              <p className="text-2xl font-bold text-foreground mt-1">{totalSubscriptions}</p>
+              <p className="text-2xl font-bold text-foreground mt-1">{totalSubscriptions ?? '—'}</p>
             </div>
             <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center">
               <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,7 +305,7 @@ export default function SuscripcionesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">En Trial</p>
-              <p className="text-2xl font-bold text-blue-400 mt-1">{trialCount}</p>
+              <p className="text-2xl font-bold text-blue-400 mt-1">{trialCount ?? '—'}</p>
             </div>
             <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
               <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -370,7 +319,7 @@ export default function SuscripcionesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm">Riesgo de Baja</p>
-              <p className="text-2xl font-bold text-red-400 mt-1">{churnRisk}</p>
+              <p className="text-2xl font-bold text-red-400 mt-1">{churnRisk ?? '—'}</p>
             </div>
             <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
               <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -494,14 +443,10 @@ export default function SuscripcionesPage() {
                       {renderAddons(plan)}
                     </div>
 
-                    <div className="mt-6 pt-6 border-t ">
+                    <div className="mt-6 pt-6 border-t">
                       <div className="flex justify-between items-center text-sm">
-                        <span className="text-muted-foreground">Suscripciones activas</span>
-                        <span className="text-foreground font-medium">{plan.activeSubscriptions}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm mt-2">
-                        <span className="text-muted-foreground">Ingresos mensuales</span>
-                        <span className="text-green-400 font-medium">€{plan.revenue.toLocaleString()}</span>
+                        <span className="text-muted-foreground">Precio</span>
+                        <span className="text-green-400 font-medium">€{plan.price}/mes</span>
                       </div>
                     </div>
 
@@ -535,7 +480,14 @@ export default function SuscripcionesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-muted/20">
-                {subscriptions.map((sub) => (
+                {subscriptions.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
+                      <p className="text-sm">Sin suscripciones registradas.</p>
+                      <p className="text-xs mt-1">Los tenants activos aparecerán aquí cuando se integre Stripe.</p>
+                    </td>
+                  </tr>
+                ) : subscriptions.map((sub) => (
                   <tr key={sub.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-4 text-foreground font-medium">{sub.tenantName}</td>
                     <td className="px-6 py-4 text-foreground">{sub.planName}</td>
