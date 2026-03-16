@@ -1,8 +1,184 @@
 # Akademate Architecture Overview
 
-**Version:** 1.0.0
-**Last Updated:** December 2025
-**Status:** Production-Ready with Remediation
+**Version:** 2.0.0
+**Last Updated:** March 2026
+**Status:** Production — Hetzner Docker Stack
+
+---
+
+## Infrastructure Overview (Hetzner Cloud)
+
+Akademate opera sobre **dos servidores Hetzner** con roles bien diferenciados:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           HETZNER CLOUD                                     │
+│                                                                             │
+│  ┌─────────────────────────────┐    ┌────────────────────────────────────┐  │
+│  │   Proyecto: CBIAS           │    │   Proyecto: AKADEMATE              │  │
+│  │   IP: 100.69.163.44         │    │   akademate-prod (CX23 #113412533) │  │
+│  │   Tipo: CAX11 (ARM64)       │    │   IP: 46.62.222.138                │  │
+│  │   OS: Ubuntu 24.04          │    │   IPv6: 2a01:4f9:c012:25e8::/64   │  │
+│  │                             │    │   Tipo: CX23 (2 vCPU Intel, 4 GB) │  │
+│  │   Servicios:                │    │   OS: Ubuntu 24.04                 │  │
+│  │   • Grafana (métricas)      │    │   Disco: 80 GB (55% usado)        │  │
+│  │   • Prometheus (scraping)   │◄───┤                                    │  │
+│  │   • Loki (logs)             │    │   Contenedores (Docker):           │  │
+│  │   • CrowdSec (seguridad)    │    │   • traefik v3.2 (:80/:443)       │  │
+│  │                             │    │   • akademate-web (:3006)          │  │
+│  │   Acceso: Tailscale VPN     │    │   • akademate-tenant (:3009)       │  │
+│  │   (red NEMESIS)             │    │   • akademate-ops (:3010)          │  │
+│  │                             │    │   • akademate-db postgres:16       │  │
+│  └─────────────────────────────┘    └────────────────────────────────────┘  │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │   Servidores Enterprise (futuro — uno por cliente dedicado)         │   │
+│  │   Ej: cep-prod (si CEP Formación firma Enterprise)                  │   │
+│  │   • Servidor CX/CAX independiente                                   │   │
+│  │   • Base de datos dedicada (PostgreSQL propio)                      │   │
+│  │   • Dominio propio (cepformacion.es)                                │   │
+│  │   • Gestionado desde akademate-prod                                 │   │
+│  │   • Métricas enviadas a CBIAS Grafana                               │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Servidor CBIAS (Central de Monitoreo)
+
+| Parámetro | Valor |
+|-----------|-------|
+| Nombre | cbias-central (o similar) |
+| Hetzner Project | CBIAS |
+| IP Pública | — (solo acceso Tailscale) |
+| IP Tailscale | `100.69.163.44` |
+| Tipo | CAX11 (ARM64, 2 vCPU Ampere, 4 GB RAM) |
+| OS | Ubuntu 24.04 |
+| Rol | Monitoreo central de todos los proyectos |
+
+**Stack de monitoreo:**
+- **Grafana** — Dashboards de métricas para todos los servidores
+- **Prometheus** — Scraping de métricas desde akademate-prod + clientes enterprise
+- **Loki** — Agregación de logs
+- **CrowdSec** — Detección de amenazas a nivel de red
+
+> CBIAS es privado — solo accesible via Tailscale (red NEMESIS). No tiene IP pública expuesta.
+
+---
+
+### Servidor akademate-prod (Producción Akademate)
+
+| Parámetro | Valor |
+|-----------|-------|
+| Nombre | akademate-prod |
+| ID Hetzner | #113412533 |
+| IP Pública | `46.62.222.138` |
+| IPv6 | `2a01:4f9:c012:25e8::/64` |
+| Tipo | CX23 (2 vCPU Intel Xeon, 3.7 GB RAM, 40 GB SSD) |
+| OS | Ubuntu 24.04 LTS |
+| Disco usado | ~20 GB / 38 GB (55%) |
+| Acceso SSH | `ssh -i ~/.ssh/akademate-prod root@46.62.222.138` |
+| Alias SSH | `ssh akademate-prod` |
+
+**Contenedores activos:**
+
+| Contenedor | Imagen | Puerto interno | Estado | Rol |
+|------------|--------|----------------|--------|-----|
+| `traefik` | traefik:v3.2 | 80, 443 → público | Healthy | SSL termination + reverse proxy |
+| `akademate-web` | akademate-web:latest | 3006 | Healthy | Landing page pública |
+| `akademate-tenant` | akademate-tenant:latest | 3009 | Healthy | Dashboard de academias (tenant) |
+| `akademate-ops` | akademate-ops:latest | 3010 | Healthy | Panel de administración SaaS |
+| `akademate-db` | postgres:16-alpine | 5432 (internal) | Healthy | Base de datos PostgreSQL compartida |
+
+**Estructura de directorios en servidor:**
+```
+/opt/akademate/
+├── backups/          # Dumps periódicos de PostgreSQL
+├── cep/              # Config específica CEP Comunicación
+├── monitoring/       # Configuración Prometheus exporters
+├── repo/             # Código fuente (git clone)
+├── shared/           # Volumenes compartidos (media, uploads)
+├── traefik/          # Configuración Traefik
+│   ├── traefik.yml   # Config principal
+│   └── conf.d/       # Dynamic routing por dominio
+├── tenant-admin/     # Docker compose tenant
+├── ops/              # Docker compose ops
+└── web/              # Docker compose web
+```
+
+---
+
+### Routing DNS → Contenedor (Traefik)
+
+| Dominio | Contenedor destino | Puerto | Notas |
+|---------|-------------------|--------|-------|
+| `akademate.com` | akademate-web | 3006 | www → no-www redirect |
+| `www.akademate.com` | akademate-web | 3006 | Redirect 301 a raíz |
+| `app.akademate.com` | akademate-tenant | 3009 | Dashboard genérico tenants |
+| `cepcomunicacion.akademate.com` | akademate-tenant | 3009 | Tenant CEP Comunicación |
+| `admin.akademate.com` | akademate-ops | 3010 | Panel SaaS operaciones |
+
+**SSL:** Let's Encrypt automático via Traefik certresolver.
+
+**Archivos de routing:** `/opt/akademate/traefik/conf.d/`
+- `web.yml` — akademate.com + www
+- `app.yml` — app.akademate.com
+- `cep-comunicacion.yml` — cepcomunicacion.akademate.com
+- `tenant-admin.yml` — admin.akademate.com
+
+---
+
+### Modelo Enterprise: Servidores Dedicados por Cliente
+
+Cuando un cliente firma plan Enterprise dedicado (€1200/mes), recibe:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  cliente-prod (Hetzner CX23/CX32)                   │
+│  IP: <dedicada>                                     │
+│                                                     │
+│  Contenedores:                                      │
+│  • traefik (SSL propio del dominio del cliente)     │
+│  • akademate-tenant (instancia exclusiva)           │
+│  • akademate-db (PostgreSQL dedicado = isolación     │
+│    total de datos)                                  │
+│                                                     │
+│  Dominio: cepformacion.es (DNS propio del cliente)  │
+│                                                     │
+│  Gestionado desde: admin.akademate.com              │
+│  Métricas enviadas a: CBIAS Grafana (100.69.163.44) │
+└─────────────────────────────────────────────────────┘
+```
+
+Ventajas del modelo dedicado:
+- Aislamiento completo de datos (GDPR / cumplimiento normativo)
+- SLA independiente (no comparte recursos con otros tenants)
+- Personalización avanzada (dominio propio, branding completo)
+- Capacidad de crecer el servidor sin afectar a otros clientes
+
+---
+
+### Workflow de Deployment
+
+```bash
+# 1. Build imagen amd64 (desde MacBook M-chip)
+docker buildx build --platform linux/amd64 \
+  -t akademate-ops:latest \
+  -f apps/admin-client/Dockerfile \
+  --load .
+
+# 2. Exportar + enviar al servidor
+docker save akademate-ops:latest | \
+  gzip | \
+  ssh -i ~/.ssh/akademate-prod root@46.62.222.138 \
+  'gunzip | docker load'
+
+# 3. Reiniciar contenedor en servidor
+ssh akademate-prod \
+  'cd /opt/akademate/ops && docker compose up -d --no-deps akademate-ops'
+
+# 4. Verificar salud
+ssh akademate-prod 'docker ps --format "{{.Names}} {{.Status}}"'
+```
 
 ---
 
@@ -304,30 +480,27 @@ pnpm test:e2e:ui       # Interactive UI mode
 
 ## Deployment Architecture
 
-### Production Stack
+> Ver sección **Infrastructure Overview** al inicio de este documento para la arquitectura completa y actualizada de Hetzner.
+
+### Resumen Stack Producción (marzo 2026)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Hetzner Cloud                              │
-├─────────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │   Nginx     │  │  Node.js    │  │  PostgreSQL │             │
-│  │ (Reverse    │──│  Apps       │──│  16         │             │
-│  │  Proxy)     │  │  (PM2)      │  │             │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
-│                                                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │   Redis     │  │   R2/MinIO  │  │   BullMQ    │             │
-│  │  (Cache)    │  │  (Storage)  │  │  (Workers)  │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
-└─────────────────────────────────────────────────────────────────┘
+Internet → Traefik v3.2 (SSL) → Docker containers en akademate-prod
+                                 ├── akademate-web (Next.js 15, :3006)
+                                 ├── akademate-tenant (Next.js 15 + Payload 3, :3009)
+                                 ├── akademate-ops (Next.js 15, :3010)
+                                 └── akademate-db (PostgreSQL 16, :5432 interno)
 ```
+
+**No hay Redis, Nginx, PM2 ni BullMQ activos en producción actualmente.** El stack es deliberadamente simple: Next.js standalone + PostgreSQL + Traefik.
 
 ### CI/CD Pipeline
 
 ```
-[Push] → [Lint/Type Check] → [Unit Tests] → [E2E Tests] → [Build] → [Deploy]
+[Push] → [Lint/Type Check] → [Unit Tests] → [Build Docker amd64] → [Deploy manual ssh]
 ```
+
+El deploy es manual actualmente (no hay GitHub Actions para producción). La automatización es work-in-progress.
 
 ---
 
@@ -381,5 +554,5 @@ pnpm format
 
 ---
 
-*Generated: December 2025*
-*Akademate v0.0.1*
+*Actualizado: Marzo 2026*
+*Akademate v1.x — Stack Docker/Hetzner*
