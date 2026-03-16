@@ -88,12 +88,16 @@ const publicRoutes = [
   '/auth/login',
   '/auth/forgot-password',
   '/auth/reset-password',
+  '/auth/signup',
   '/dev/auto-login',
   '/api/users/login',
   '/api/users/forgot-password',
   '/api/users/reset-password',
   '/api/users/me', // Allow preflight for auth check
+  '/api/users/first-register', // Payload create-first-user (no auth yet)
   '/api/auth/session', // Session write after login (token may not be in cookie yet)
+  // Legal pages must be publicly accessible (GDPR requirement)
+  '/legal',
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing
   ...(process.env.NODE_ENV !== 'production' ? ['/design-system'] : []),
 ]
@@ -169,6 +173,7 @@ function getCorsHeaders(origin: string | null) {
 export function middleware(request: NextRequest) {
   const { pathname, protocol, host: _host } = request.nextUrl
   const origin = request.headers.get('origin')
+  const host = request.headers.get('host') ?? ''
 
   // Always allow tenant dev-login endpoint in development/staging workflows.
   if (pathname === '/api/auth/dev-login' || pathname === '/api/auth/dev-login/') {
