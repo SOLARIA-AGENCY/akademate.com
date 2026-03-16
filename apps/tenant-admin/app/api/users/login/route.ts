@@ -81,6 +81,7 @@ export async function POST(request: Request) {
     const user = result.user as { id: string | number; email: string; name?: string; role?: string }
     const response = NextResponse.json({
       message: 'Auth Passed',
+      token: result.token,
       user: {
         id: String(user.id),
         email: user.email,
