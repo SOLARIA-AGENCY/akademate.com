@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import {
   Card,
   CardContent,
@@ -176,11 +176,28 @@ const rolConfig: Record<string, { color: string; bgColor: string }> = {
   Lectura: { color: 'text-gray-700 dark:text-gray-300', bgColor: 'bg-gray-100 dark:bg-gray-800' },
 }
 
+async function iniciarImpersonacion(userId: string, motivo: string): Promise<void> {
+  const res = await fetch('/api/auth/impersonate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, motivo }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { error?: string }).error ?? 'Error al impersonar')
+  }
+  const { token } = await res.json() as { token: string }
+  // Redirect through server route that sets httpOnly cookie
+  window.location.href = `/api/auth/impersonate-redirect?token=${encodeURIComponent(token)}`
+}
+
 export default function ImpersonarPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [rolFilter, setRolFilter] = useState('todos')
   const [sedeFilter, setSedeFilter] = useState('todas')
-  const [_selectedUser, _setSelectedUser] = useState<(typeof usuariosData)[0] | null>(null)
+  const [motivoMap, setMotivoMap] = useState<Record<string, string>>({})
+  const [errorMap, setErrorMap] = useState<Record<string, string>>({})
+  const [isPending, startTransition] = useTransition()
 
   const filteredUsuarios = usuariosData.filter((usuario) => {
     const matchesSearch =
@@ -468,7 +485,6 @@ export default function ImpersonarPage() {
                             variant="outline"
                             size="sm"
                             disabled={!usuario.activo}
-                            onClick={() => _setSelectedUser(usuario)}
                             data-oid="5pk:uvh"
                           >
                             <LogIn className="h-4 w-4 mr-2" data-oid="q78mv7f" />
@@ -490,39 +506,38 @@ export default function ImpersonarPage() {
                             <AlertDialogDescription asChild data-oid="3nxomfd">
                               <div className="space-y-4" data-oid="vdg9x1a">
                                 <p data-oid="u.ekybw">
-                                  Vas a acceder al sistema como{' '}
+                                  Vas a acceder al panel Payload como{' '}
                                   <strong data-oid="ioz_tca">{usuario.nombre}</strong> (
-                                  {usuario.rol}).
+                                  {usuario.rol}). Las credenciales no serán visibles.
                                 </p>
                                 <div
                                   className="bg-muted p-4 rounded-lg space-y-2"
                                   data-oid="3s2j4ez"
                                 >
-                                  <p className="text-sm font-medium" data-oid="dk7r4_b">
-                                    Durante la impersonación:
-                                  </p>
                                   <ul
                                     className="text-sm list-disc list-inside space-y-1"
                                     data-oid="erdu3go"
                                   >
                                     <li data-oid="3l2hdnj">
-                                      Tendrás los mismos permisos que este usuario
+                                      Tendrás los permisos de este usuario en Payload
                                     </li>
                                     <li data-oid="l3.7mdj">
-                                      Todas tus acciones quedarán registradas
+                                      La sesión expira en 2 horas
                                     </li>
                                     <li data-oid="44.8xx:">
-                                      El usuario original NO será notificado
-                                    </li>
-                                    <li data-oid="cop.09d">
-                                      Podrás finalizar la sesión en cualquier momento
+                                      Queda registrado en el log de auditoría
                                     </li>
                                   </ul>
                                 </div>
                                 <Input
-                                  placeholder="Motivo de la impersonación (obligatorio)"
+                                  placeholder="Motivo (obligatorio para auditoría)"
+                                  value={motivoMap[usuario.id] ?? ''}
+                                  onChange={(e) => setMotivoMap(prev => ({ ...prev, [usuario.id]: e.target.value }))}
                                   data-oid="05sytjh"
                                 />
+                                {errorMap[usuario.id] && (
+                                  <p className="text-sm text-destructive">{errorMap[usuario.id]}</p>
+                                )}
                               </div>
                             </AlertDialogDescription>
                           </AlertDialogHeader>
@@ -531,10 +546,23 @@ export default function ImpersonarPage() {
                             <AlertDialogAction
                               className="text-white"
                               style={{ backgroundColor: '#F2014B' }}
+                              disabled={isPending || !(motivoMap[usuario.id]?.trim())}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                const motivo = motivoMap[usuario.id]?.trim()
+                                if (!motivo) return
+                                startTransition(async () => {
+                                  try {
+                                    await iniciarImpersonacion(usuario.id, motivo)
+                                  } catch (err) {
+                                    setErrorMap(prev => ({ ...prev, [usuario.id]: (err as Error).message }))
+                                  }
+                                })
+                              }}
                               data-oid=":2dgexx"
                             >
                               <LogIn className="h-4 w-4 mr-2" data-oid="163lipl" />
-                              Iniciar Impersonación
+                              {isPending ? 'Accediendo...' : 'Acceder como este usuario'}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

@@ -53,6 +53,14 @@ export const getPayloadConfig = () => buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
   admin: {
     user: Users.slug, // CRITICAL: Specify auth collection
+    components: {
+      header: [
+        {
+          path: '@payload-config/components/admin/AdminHeader',
+          exportName: 'default',
+        },
+      ],
+    },
     meta: {
       titleSuffix: '- CEP Comunicación',
     },

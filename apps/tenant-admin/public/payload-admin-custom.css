@@ -1,0 +1,65 @@
+/* ============================================================
+   Akademate — Custom CSS para el panel Payload CMS Admin
+   Hace reconocible el panel como "Akademate / CEP"
+   ============================================================ */
+
+/* Banner superior identificativo */
+:root {
+  --theme-elevation-0: #0a0f1e;
+  --theme-elevation-50: #111827;
+  --theme-elevation-100: #1f2937;
+  --theme-text: #f9fafb;
+}
+
+/* Etiqueta identificativa encima del login */
+.login-logo::before {
+  content: 'Panel de Administración · Akademate';
+  display: block;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+/* Título de la página */
+.login h1,
+.login__intro {
+  font-family: system-ui, -apple-system, sans-serif !important;
+}
+
+/* Banner de aviso "Payload CMS" en footer del login */
+.login::after {
+  content: 'Sistema de gestión de contenidos · Powered by Payload CMS';
+  display: block;
+  text-align: center;
+  font-size: 0.65rem;
+  color: #4b5563;
+  margin-top: 2rem;
+  padding-bottom: 1rem;
+}
+
+/* Badge de entorno */
+body::before {
+  content: 'PAYLOAD ADMIN · AKADEMATE';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, #0066CC, #1A56D6);
+  color: white;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 4px 0;
+  z-index: 9999;
+  text-transform: uppercase;
+}
+
+/* Ajuste de margen por el banner */
+#app {
+  margin-top: 24px;
+}

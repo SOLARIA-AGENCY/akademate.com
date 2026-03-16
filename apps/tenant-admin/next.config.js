@@ -97,7 +97,12 @@ const nextConfig = {
   // Experimental features for Payload CMS 3.x compatibility
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', '46.62.222.138'],
+      allowedOrigins: [
+        'localhost:3000',
+        '46.62.222.138',
+        'app.akademate.com',
+        'cepcomunicacion.akademate.com',
+      ],
     },
     // Enable Partial Prerendering (Next.js 15+)
     // ppr: true,
