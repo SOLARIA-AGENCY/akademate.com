@@ -2,7 +2,39 @@
 
 SaaS multitenant para gestión integral de academias/escuelas. Dominio principal: `akademate.com`. Stack base: Next.js 15 + Payload 3.67+ + Postgres 16 + Drizzle + Tailwind v4/shadcn + Redis/BullMQ + R2/MinIO.
 
+## Infraestructura de Producción (Hetzner)
+
+> **CRITICO:** Toda la producción vive en Hetzner. NO desplegar en servidores privados (ECO/NEMESIS).
+
+| Servidor | IP | Rol |
+|----------|----|-----|
+| **akademate-prod** (CX23) | `46.62.222.138` | Producción Akademate — todos los contenedores |
+| **cbias** (CAX11 ARM64) | `100.69.163.44` *(Tailscale)* | Monitoreo central (Grafana/Prometheus/Loki) |
+
+**SSH:** `ssh -i ~/.ssh/akademate-prod root@46.62.222.138` o `ssh akademate-prod`
+
+**Dominios en producción:**
+- `akademate.com` → akademate-web:3006
+- `app.akademate.com` → akademate-tenant:3009
+- `cepcomunicacion.akademate.com` → akademate-tenant:3009
+- `admin.akademate.com` → akademate-ops:3010
+
+**Deploy:**
+```bash
+# Build amd64 (desde Mac M-chip)
+docker buildx build --platform linux/amd64 -t akademate-ops:latest -f apps/admin-client/Dockerfile --load .
+# Push al servidor
+docker save akademate-ops:latest | gzip | ssh akademate-prod 'gunzip | docker load'
+# Reiniciar
+ssh akademate-prod 'cd /opt/akademate/ops && docker compose up -d --no-deps akademate-ops'
+```
+
+Ver arquitectura completa: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+
+---
+
 ## Documentación
+- **Arquitectura completa:** `docs/ARCHITECTURE.md` (incluye diagrama Mermaid)
 - Especificación inicial: `docs/specs/ACADEIMATE_SPEC.md` (v1.5)
 - ADRs: `docs/adr/` (pendiente)
 - Informe SaaS enterprise: `docs/INFORME_SAAS_MULTITENANT_ENTERPRISE.md`

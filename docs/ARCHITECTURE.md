@@ -6,6 +6,80 @@
 
 ---
 
+## Diagrama de Infraestructura (Mermaid)
+
+```mermaid
+graph TB
+    subgraph Internet["🌐 Internet"]
+        Users["Usuarios / Tenants"]
+    end
+
+    subgraph DNS["DNS (Cloudflare)"]
+        D1["akademate.com"]
+        D2["app.akademate.com"]
+        D3["cepcomunicacion.akademate.com"]
+        D4["admin.akademate.com"]
+    end
+
+    subgraph HETZNER_AKADEMATE["Hetzner Cloud — Proyecto AKADEMATE"]
+        subgraph AKADEMATE_PROD["akademate-prod · CX23 · 46.62.222.138"]
+            TRAEFIK["traefik v3.2\n:80 / :443\nSSL Let's Encrypt"]
+            WEB["akademate-web\n:3006\nLanding pública"]
+            TENANT["akademate-tenant\n:3009\nDashboard academias\n(Payload 3 + Next.js 15)"]
+            OPS["akademate-ops\n:3010\nPanel SaaS Admin"]
+            DB["akademate-db\nPostgreSQL 16\n:5432 interno"]
+
+            TRAEFIK --> WEB
+            TRAEFIK --> TENANT
+            TRAEFIK --> OPS
+            WEB --> DB
+            TENANT --> DB
+            OPS --> DB
+        end
+    end
+
+    subgraph HETZNER_CBIAS["Hetzner Cloud — Proyecto CBIAS"]
+        subgraph CBIAS["cbias · CAX11 ARM64 · 100.69.163.44 (Tailscale)"]
+            GRAFANA["Grafana\nDashboards métricas"]
+            PROMETHEUS["Prometheus\nScraping"]
+            LOKI["Loki\nAgregación logs"]
+            CROWDSEC["CrowdSec\nSeguridad red"]
+
+            PROMETHEUS --> GRAFANA
+            LOKI --> GRAFANA
+        end
+    end
+
+    subgraph ENTERPRISE["Enterprise Dedicado (futuro)"]
+        subgraph CEP_PROD["cep-prod · CX23 · IP dedicada"]
+            CEP_TRAEFIK["traefik"]
+            CEP_TENANT["akademate-tenant"]
+            CEP_DB["PostgreSQL dedicado"]
+            CEP_TRAEFIK --> CEP_TENANT --> CEP_DB
+        end
+        CEP_DOMAIN["cepformacion.es"]
+        CEP_DOMAIN --> CEP_TRAEFIK
+    end
+
+    Users --> DNS
+    D1 --> TRAEFIK
+    D2 --> TRAEFIK
+    D3 --> TRAEFIK
+    D4 --> TRAEFIK
+
+    AKADEMATE_PROD -.->|"métricas\n(node-exporter)"| PROMETHEUS
+    ENTERPRISE -.->|"métricas"| PROMETHEUS
+
+    style HETZNER_AKADEMATE fill:#1a1a2e,stroke:#4a9eff,color:#fff
+    style HETZNER_CBIAS fill:#1a2e1a,stroke:#4aff9e,color:#fff
+    style ENTERPRISE fill:#2e1a1a,stroke:#ff9e4a,color:#ddd
+    style AKADEMATE_PROD fill:#0d1117,stroke:#4a9eff,color:#fff
+    style CBIAS fill:#0d1a0d,stroke:#4aff9e,color:#fff
+    style CEP_PROD fill:#1a0d0d,stroke:#ff9e4a,color:#fff
+```
+
+---
+
 ## Infrastructure Overview (Hetzner Cloud)
 
 Akademate opera sobre **dos servidores Hetzner** con roles bien diferenciados:
