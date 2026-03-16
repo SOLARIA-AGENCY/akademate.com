@@ -17,10 +17,15 @@
 - Creados: `/api/ops/analytics`, `/api/ops/analytics/retencion`
 - Páginas: `/dashboard/analytics` (MRR trend, LTV), `/dashboard/analytics/retencion` (cohort table, churn history)
 
-### Deploy
+### Deploy (ECO — INCORRECTO, ver abajo)
 - Docker build amd64: OK (sha256:cbb694d4bc06)
-- Deploy a ECO-tailscale (100.99.60.106:3009): OK
-- Health check: 307 redirect to /login (correcto)
+- Deploy a ECO-tailscale (100.99.60.106:3009): OK — SERVIDOR PRIVADO, NO PRODUCCION
+
+### Re-deploy correcto a Hetzner (2026-03-16)
+- Dockerfile: `infrastructure/docker/Dockerfile.admin-client` (apps/admin-client, NO apps/ops)
+- Docker build amd64: OK — akademate-ops:latest
+- Deploy a akademate-prod (46.62.222.138): OK — container creado 2026-03-16T09:06:10Z
+- Health check: healthy, /login → 200, /dashboard → 307→login (correcto)
 
 ### Validación
 - TypeScript sin errores (solo preexistentes de packages/realtime)
