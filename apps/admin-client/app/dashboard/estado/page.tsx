@@ -1,405 +1,492 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { PageHeader } from '@/components/page-header';
-import { useSystemStatus } from '@/hooks';
+import { useState, useEffect, useCallback } from 'react'
+import {
+  RefreshCw,
+  Server,
+  Globe,
+  HardDrive,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  Wifi,
+  WifiOff,
+  ExternalLink,
+} from 'lucide-react'
+import { PageHeader } from '@/components/page-header'
 
-// Type definitions for the system status data
-interface ServiceStatus {
-  name: string;
-  status: 'operational' | 'degraded' | 'outage' | 'maintenance';
-  latency: number | null;
-  uptime: number;
-  lastCheck: string;
-  details: string;
+// Types
+interface ServiceResult {
+  name: string
+  status: 'operational' | 'degraded' | 'outage'
+  latencyMs: number | null
+  message: string
+  uptime: number
 }
 
-interface SystemMetric {
-  name: string;
-  value: number;
-  max: number;
-  unit: string;
-  status: 'healthy' | 'warning' | 'critical';
+interface ServiceHealth {
+  overall: 'operational' | 'degraded' | 'outage'
+  operationalCount: number
+  totalServices: number
+  services: ServiceResult[]
+  checkedAt: string
 }
 
-interface Incident {
-  id: string;
-  title: string;
-  status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
-  severity: 'minor' | 'major' | 'critical';
-  createdAt: string;
-  updatedAt: string;
-  description: string;
-  affectedServices: string[];
+interface ServerMetrics {
+  cpu: number
+  memory: { used: number; total: number; percent: number }
+  uptime: { seconds: number; display: string }
+  platform: string
+  arch: string
+  hostname: string
+  source: 'hetzner' | 'system'
+  serverInfo: {
+    name: string
+    ip: string
+    type: string
+    datacenter: string
+    status: string
+  } | null
+  hetzner: {
+    cpu: number | null
+    diskRead: number | null
+    diskWrite: number | null
+    networkIn: number | null
+    networkOut: number | null
+  } | null
 }
 
-// Type definitions for lookup objects
-type StatusColorMap = Record<ServiceStatus['status'], string>;
-type StatusLabelMap = Record<ServiceStatus['status'], string>;
-type SeverityStyleMap = Record<Incident['severity'], string>;
-type SeverityLabelMap = Record<Incident['severity'], string>;
-type IncidentStatusStyleMap = Record<Incident['status'], string>;
-type IncidentStatusLabelMap = Record<Incident['status'], string>;
+function StatusBadge({ status }: { status: 'operational' | 'degraded' | 'outage' }) {
+  if (status === 'operational') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">
+        <CheckCircle className="w-3 h-3" />
+        Operativo
+      </span>
+    )
+  }
+  if (status === 'degraded') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-500/20 text-yellow-400">
+        <AlertTriangle className="w-3 h-3" />
+        Degradado
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-500/20 text-red-400">
+      <XCircle className="w-3 h-3" />
+      Fuera de servicio
+    </span>
+  )
+}
 
-// Interface for hook return to ensure type safety
-interface SystemStatusHookResult {
-  data: {
-    services: ServiceStatus[];
-    metrics: SystemMetric[];
-    incidents: Incident[];
-    overallStatus: ServiceStatus['status'];
-  };
-  isConnected: boolean;
-  lastUpdate: Date | null;
-  refresh: () => void;
+function MetricBar({ value, label }: { value: number; label: string }) {
+  const color =
+    value < 60 ? 'bg-green-500' : value < 80 ? 'bg-yellow-500' : 'bg-red-500'
+  return (
+    <div>
+      <div className="flex justify-between text-xs text-muted-foreground mb-1">
+        <span>{label}</span>
+        <span>{value}%</span>
+      </div>
+      <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+        <div
+          className={`h-full transition-all ${color}`}
+          style={{ width: `${value}%` }}
+        />
+      </div>
+    </div>
+  )
 }
 
 export default function EstadoPage() {
-  // Use the real-time system status hook with explicit type cast
-   
-  const hookResult = useSystemStatus({ enableRealtime: true }) as unknown as SystemStatusHookResult;
+  const [serviceHealth, setServiceHealth] = useState<ServiceHealth | null>(null)
+  const [serverMetrics, setServerMetrics] = useState<ServerMetrics | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [lastFetch, setLastFetch] = useState<Date | null>(null)
+  const [fetchError, setFetchError] = useState(false)
 
-  // Extract data with proper typing
-  const { services, incidents, overallStatus } = hookResult.data;
-  const { isConnected, lastUpdate, refresh } = hookResult;
-
-
-  const [serverMetrics, setServerMetrics] = useState<{
-    cpu: number
-    memory: { percent: number; used: number; total: number }
-    uptime: { display: string }
-    source: string
-  } | null>(null)
-
-  useEffect(() => {
-    const fetchMetrics = () => {
-      fetch('/api/ops/server-metrics')
-        .then(res => res.ok ? res.json() : null)
-        .then(data => { if (data) setServerMetrics(data) })
-        .catch(() => {})
+  const fetchAll = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const [metricsRes, healthRes] = await Promise.all([
+        fetch('/api/ops/server-metrics'),
+        fetch('/api/ops/service-health'),
+      ])
+      const [metricsData, healthData] = await Promise.all([
+        metricsRes.ok ? metricsRes.json() : null,
+        healthRes.ok ? healthRes.json() : null,
+      ])
+      if (metricsData) setServerMetrics(metricsData)
+      if (healthData) setServiceHealth(healthData)
+      setLastFetch(new Date())
+      setFetchError(false)
+    } catch {
+      setFetchError(true)
+    } finally {
+      setIsLoading(false)
     }
-    fetchMetrics()
-    const interval = setInterval(fetchMetrics, 30000)
-    return () => clearInterval(interval)
   }, [])
 
-  const operationalCount = services.filter((s) => s.status === 'operational').length;
+  useEffect(() => {
+    fetchAll()
+    const interval = setInterval(fetchAll, 30000)
+    return () => clearInterval(interval)
+  }, [fetchAll])
 
-  const getStatusColor = (status: ServiceStatus['status']): string => {
-    const colors: StatusColorMap = {
-      operational: 'bg-green-500',
-      degraded: 'bg-yellow-500',
-      outage: 'bg-red-500',
-      maintenance: 'bg-blue-500',
-    };
-    return colors[status];
-  };
+  // Connected = last fetch was less than 2 minutes ago and no error
+  const isConnected =
+    lastFetch !== null &&
+    !fetchError &&
+    Date.now() - lastFetch.getTime() < 2 * 60 * 1000
 
-  const getStatusLabel = (status: ServiceStatus['status']): string => {
-    const labels: StatusLabelMap = {
-      operational: 'Operativo',
-      degraded: 'Degradado',
-      outage: 'Fuera de servicio',
-      maintenance: 'Mantenimiento',
-    };
-    return labels[status];
-  };
+  const overallStatus = serviceHealth?.overall ?? 'operational'
+  const operationalCount = serviceHealth?.operationalCount ?? 0
+  const totalServices = serviceHealth?.totalServices ?? 0
 
-  const getSeverityBadge = (severity: Incident['severity']): React.ReactNode => {
-    const styles: SeverityStyleMap = {
-      minor: 'bg-yellow-100 text-yellow-800',
-      major: 'bg-orange-100 text-orange-800',
-      critical: 'bg-red-100 text-red-800',
-    };
-    const labels: SeverityLabelMap = {
-      minor: 'Menor',
-      major: 'Mayor',
-      critical: 'Critico',
-    };
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[severity]}`}>
-        {labels[severity]}
-      </span>
-    );
-  };
+  const overallBg =
+    overallStatus === 'operational'
+      ? 'bg-green-500/10 border-green-500/30'
+      : overallStatus === 'degraded'
+      ? 'bg-yellow-500/10 border-yellow-500/30'
+      : 'bg-red-500/10 border-red-500/30'
 
-  const getIncidentStatusBadge = (status: Incident['status']): React.ReactNode => {
-    const styles: IncidentStatusStyleMap = {
-      investigating: 'bg-red-100 text-red-800',
-      identified: 'bg-orange-100 text-orange-800',
-      monitoring: 'bg-blue-100 text-blue-800',
-      resolved: 'bg-green-100 text-green-800',
-    };
-    const labels: IncidentStatusLabelMap = {
-      investigating: 'Investigando',
-      identified: 'Identificado',
-      monitoring: 'Monitoreando',
-      resolved: 'Resuelto',
-    };
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
-        {labels[status]}
-      </span>
-    );
-  };
+  const overallTextColor =
+    overallStatus === 'operational'
+      ? 'text-green-400'
+      : overallStatus === 'degraded'
+      ? 'text-yellow-400'
+      : 'text-red-400'
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleString('es-ES', {
+  const overallDotColor =
+    overallStatus === 'operational'
+      ? 'bg-green-500'
+      : overallStatus === 'degraded'
+      ? 'bg-yellow-500'
+      : 'bg-red-500'
+
+  const overallLabel =
+    overallStatus === 'operational'
+      ? 'Todos los sistemas operativos'
+      : overallStatus === 'degraded'
+      ? 'Algunos sistemas degradados'
+      : 'Interrupciones detectadas'
+
+  const serverInfo = serverMetrics?.serverInfo ?? null
+
+  const formatDate = (d: Date) =>
+    d.toLocaleString('es-ES', {
       day: '2-digit',
       month: 'short',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  };
+    })
 
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
         title="Estado del Sistema"
         description="Monitorea el estado de todos los servicios de la plataforma"
       />
 
-      {/* Overall Status Banner */}
-      <div className={`mb-6 p-4 sm:p-6 rounded-xl border ${
-        overallStatus === 'operational'
-          ? 'bg-green-500/10 border-green-500/30'
-          : overallStatus === 'degraded'
-            ? 'bg-yellow-500/10 border-yellow-500/30'
-            : 'bg-red-500/10 border-red-500/30'
-      }`}>
+      {/* A) Banner superior */}
+      <div className={`p-4 sm:p-6 rounded-xl border ${overallBg}`}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-4 h-4 rounded-full flex-shrink-0 ${getStatusColor(overallStatus)} animate-pulse`}></div>
+            <div className={`w-4 h-4 rounded-full flex-shrink-0 ${overallDotColor} animate-pulse`} />
             <div>
-              <h2 className={`text-base sm:text-xl font-bold ${
-                overallStatus === 'operational' ? 'text-green-400' :
-                overallStatus === 'degraded' ? 'text-yellow-400' : 'text-red-400'
-              }`}>
-                {overallStatus === 'operational' ? 'Todos los sistemas operativos' :
-                 overallStatus === 'degraded' ? 'Algunos sistemas degradados' : 'Interrupciones detectadas'}
+              <h2 className={`text-base sm:text-xl font-bold ${overallTextColor}`}>
+                {overallLabel}
               </h2>
               <p className="text-muted-foreground text-sm">
-                {operationalCount}/{services.length} servicios operativos
+                {serviceHealth
+                  ? `${operationalCount}/${totalServices} servicios operativos`
+                  : 'Cargando...'}
               </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <div className="flex items-center gap-1.5">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+              {isConnected ? (
+                <Wifi className="w-3 h-3 text-green-500" />
+              ) : (
+                <WifiOff className="w-3 h-3 text-muted-foreground" />
+              )}
               <span className="text-xs text-muted-foreground">
                 {isConnected ? 'En vivo' : 'Sin conexion'}
               </span>
             </div>
-            <button onClick={refresh} className="text-xs text-primary hover:underline">
+            <button
+              onClick={() => fetchAll()}
+              disabled={isLoading}
+              className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
               Actualizar
             </button>
-            <div>
-              <p className="text-muted-foreground text-xs">Última actualización</p>
-              <p className="text-foreground text-xs sm:text-sm">{lastUpdate ? formatDate(lastUpdate.toISOString()) : '-'}</p>
-            </div>
+            {lastFetch && (
+              <div>
+                <p className="text-muted-foreground text-xs">Ultima actualización</p>
+                <p className="text-foreground text-xs sm:text-sm">{formatDate(lastFetch)}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* System Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* B) Tarjeta Servidor Hetzner */}
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Server className="w-5 h-5 text-muted-foreground" />
+          <h3 className="text-lg font-semibold text-foreground">Servidor Hetzner</h3>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Nombre</p>
+            {serverInfo ? (
+              <p className="text-sm font-medium text-foreground">{serverInfo.name}</p>
+            ) : (
+              <div className="animate-pulse bg-muted rounded h-4 w-24" />
+            )}
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">IP Publica</p>
+            {serverInfo ? (
+              <p className="text-sm font-medium text-foreground font-mono">{serverInfo.ip}</p>
+            ) : (
+              <div className="animate-pulse bg-muted rounded h-4 w-24" />
+            )}
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Tipo</p>
+            {serverInfo ? (
+              <p className="text-sm font-medium text-foreground uppercase">{serverInfo.type}</p>
+            ) : (
+              <div className="animate-pulse bg-muted rounded h-4 w-16" />
+            )}
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Datacenter</p>
+            {serverInfo ? (
+              <p className="text-sm font-medium text-foreground uppercase">{serverInfo.datacenter}</p>
+            ) : (
+              <div className="animate-pulse bg-muted rounded h-4 w-16" />
+            )}
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Estado</p>
+            {serverInfo ? (
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+                serverInfo.status === 'running'
+                  ? 'bg-green-500/20 text-green-400'
+                  : 'bg-red-500/20 text-red-400'
+              }`}>
+                {serverInfo.status === 'running' ? 'Activo' : serverInfo.status}
+              </span>
+            ) : (
+              <div className="animate-pulse bg-muted rounded h-4 w-16" />
+            )}
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Uptime</p>
+            {serverMetrics ? (
+              <p className="text-sm font-medium text-foreground">{serverMetrics.uptime.display}</p>
+            ) : (
+              <div className="animate-pulse bg-muted rounded h-4 w-20" />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* C) Grid de métricas */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-card border border-border rounded-xl p-4">
           <p className="text-muted-foreground text-xs mb-2">CPU</p>
-          <div className="flex items-end gap-1">
-            <span className="text-2xl font-bold text-foreground">
-              {serverMetrics ? serverMetrics.cpu : '—'}
-            </span>
-            {serverMetrics && <span className="text-muted-foreground text-sm mb-1">%</span>}
-          </div>
-          <div className="mt-2 h-2 bg-muted/50 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all ${
-                serverMetrics && serverMetrics.cpu < 60 ? 'bg-green-500' :
-                serverMetrics && serverMetrics.cpu < 80 ? 'bg-yellow-500' : 'bg-red-500'
-              }`}
-              style={{ width: serverMetrics ? `${serverMetrics.cpu}%` : '0%' }}
-            />
-          </div>
+          {serverMetrics ? (
+            <>
+              <div className="flex items-end gap-1 mb-2">
+                <span className="text-2xl font-bold text-foreground">{serverMetrics.cpu}</span>
+                <span className="text-muted-foreground text-sm mb-1">%</span>
+              </div>
+              <MetricBar value={serverMetrics.cpu} label="" />
+            </>
+          ) : (
+            <div className="animate-pulse bg-muted rounded h-8 w-16" />
+          )}
         </div>
 
         <div className="bg-card border border-border rounded-xl p-4">
-          <p className="text-muted-foreground text-xs mb-2">Memoria</p>
-          <div className="flex items-end gap-1">
-            <span className="text-2xl font-bold text-foreground">
-              {serverMetrics ? serverMetrics.memory.percent : '—'}
-            </span>
-            {serverMetrics && <span className="text-muted-foreground text-sm mb-1">%</span>}
-          </div>
-          <div className="mt-2 h-2 bg-muted/50 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all ${
-                serverMetrics && serverMetrics.memory.percent < 60 ? 'bg-green-500' :
-                serverMetrics && serverMetrics.memory.percent < 80 ? 'bg-yellow-500' : 'bg-red-500'
-              }`}
-              style={{ width: serverMetrics ? `${serverMetrics.memory.percent}%` : '0%' }}
-            />
-          </div>
-          {serverMetrics && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {serverMetrics.memory.used} / {serverMetrics.memory.total} MB
-            </p>
+          <p className="text-muted-foreground text-xs mb-2">Memoria RAM</p>
+          {serverMetrics ? (
+            <>
+              <div className="flex items-end gap-1 mb-2">
+                <span className="text-2xl font-bold text-foreground">{serverMetrics.memory.percent}</span>
+                <span className="text-muted-foreground text-sm mb-1">%</span>
+              </div>
+              <MetricBar value={serverMetrics.memory.percent} label="" />
+              <p className="text-xs text-muted-foreground mt-1">
+                {serverMetrics.memory.used} / {serverMetrics.memory.total} MB
+              </p>
+            </>
+          ) : (
+            <div className="animate-pulse bg-muted rounded h-8 w-16" />
           )}
         </div>
 
         <div className="bg-card border border-border rounded-xl p-4">
           <p className="text-muted-foreground text-xs mb-2">Uptime Servidor</p>
-          <div className="flex items-end gap-1">
-            <span className="text-xl font-bold text-foreground">
-              {serverMetrics ? serverMetrics.uptime.display : '—'}
-            </span>
-          </div>
-          <div className="mt-2">
-            <div className="h-2 bg-green-500/30 rounded-full">
-              <div className="h-full bg-green-500 rounded-full w-full" />
-            </div>
-          </div>
+          {serverMetrics ? (
+            <>
+              <div className="flex items-end gap-1 mb-2">
+                <span className="text-xl font-bold text-foreground">{serverMetrics.uptime.display}</span>
+              </div>
+              <div className="h-2 bg-green-500/30 rounded-full">
+                <div className="h-full bg-green-500 rounded-full w-full" />
+              </div>
+            </>
+          ) : (
+            <div className="animate-pulse bg-muted rounded h-8 w-24" />
+          )}
         </div>
 
         <div className="bg-card border border-border rounded-xl p-4">
           <p className="text-muted-foreground text-xs mb-2">Fuente de datos</p>
-          <div className="flex items-end gap-1">
-            <span className="text-sm font-medium text-foreground">
-              {serverMetrics ? (serverMetrics.source === 'hetzner' ? 'Hetzner API' : 'Sistema') : '—'}
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            {serverMetrics ? 'Actualiza cada 30s' : 'Sin datos'}
-          </p>
+          {serverMetrics ? (
+            <>
+              <div className="flex items-end gap-1 mb-2">
+                <span className="text-sm font-medium text-foreground">
+                  {serverMetrics.source === 'hetzner' ? 'Hetzner API' : 'Sistema'}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">Actualiza cada 30s</p>
+            </>
+          ) : (
+            <div className="animate-pulse bg-muted rounded h-8 w-24" />
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Services Status */}
-        <div className="lg:col-span-2">
-          <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
-            <div className="p-4 border-b border-muted/30">
-              <h3 className="text-lg font-semibold text-foreground">Estado de Servicios</h3>
-            </div>
-            <div className="divide-y divide-muted/20">
-              {services.map((service) => (
-                <div key={service.name} className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${getStatusColor(service.status)}`}></div>
-                    <div className="min-w-0">
-                      <p className="text-foreground font-medium truncate">{service.name}</p>
-                      <p className="text-muted-foreground text-sm truncate">{service.details}</p>
-                    </div>
+      {/* D) Estado de Servicios */}
+      <div className="bg-card border border-border rounded-xl">
+        <div className="p-4 border-b border-muted/30 flex items-center gap-2">
+          <Globe className="w-4 h-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold text-foreground">Estado de Servicios</h3>
+        </div>
+        <div className="divide-y divide-muted/20">
+          {serviceHealth ? (
+            serviceHealth.services.map((service) => (
+              <div
+                key={service.name}
+                className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                      service.status === 'operational'
+                        ? 'bg-green-500'
+                        : service.status === 'degraded'
+                        ? 'bg-yellow-500'
+                        : 'bg-red-500'
+                    }`}
+                  />
+                  <div className="min-w-0">
+                    <p className="text-foreground font-medium truncate">{service.name}</p>
+                    <p className="text-muted-foreground text-sm truncate">{service.message}</p>
                   </div>
-                  <div className="flex items-center gap-3 sm:gap-6 pl-6 sm:pl-0">
-                    {service.latency !== null && (
-                      <div className="text-right">
-                        <p className="text-muted-foreground text-xs">Latencia</p>
-                        <p className={`text-sm font-medium ${
-                          service.latency < 100 ? 'text-green-400' :
-                          service.latency < 500 ? 'text-yellow-400' : 'text-red-400'
-                        }`}>
-                          {service.latency}ms
-                        </p>
-                      </div>
-                    )}
+                </div>
+                <div className="flex items-center gap-3 sm:gap-6 pl-5 sm:pl-0">
+                  {service.latencyMs !== null && (
                     <div className="text-right">
-                      <p className="text-muted-foreground text-xs">Uptime</p>
-                      <p className={`text-sm font-medium ${
-                        service.uptime >= 99.9 ? 'text-green-400' :
-                        service.uptime >= 99 ? 'text-yellow-400' : 'text-red-400'
-                      }`}>
-                        {service.uptime}%
+                      <p className="text-muted-foreground text-xs">Latencia</p>
+                      <p
+                        className={`text-sm font-medium ${
+                          service.latencyMs < 100
+                            ? 'text-green-400'
+                            : service.latencyMs < 500
+                            ? 'text-yellow-400'
+                            : 'text-red-400'
+                        }`}
+                      >
+                        {service.latencyMs}ms
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
-                      service.status === 'operational' ? 'bg-green-500/20 text-green-400' :
-                      service.status === 'degraded' ? 'bg-yellow-500/20 text-yellow-400' :
-                      service.status === 'outage' ? 'bg-red-500/20 text-red-400' :
-                      'bg-blue-500/20 text-blue-400'
-                    }`}>
-                      {getStatusLabel(service.status)}
-                    </span>
+                  )}
+                  <div className="text-right">
+                    <p className="text-muted-foreground text-xs">Uptime</p>
+                    <p
+                      className={`text-sm font-medium ${
+                        service.uptime >= 99.9
+                          ? 'text-green-400'
+                          : service.uptime >= 99
+                          ? 'text-yellow-400'
+                          : 'text-red-400'
+                      }`}
+                    >
+                      {service.uptime}%
+                    </p>
                   </div>
+                  <StatusBadge status={service.status} />
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Incidents */}
-        <div>
-          <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
-            <div className="p-4 border-b border-muted/30">
-              <h3 className="text-lg font-semibold text-foreground">Incidentes Recientes</h3>
-            </div>
-            <div className="divide-y divide-muted/20">
-              {incidents.length === 0 ? (
-                <div className="p-6 text-center">
-                  <svg className="w-12 h-12 text-green-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-muted-foreground">Sin incidentes activos</p>
-                </div>
-              ) : (
-                incidents.map((incident) => (
-                  <div key={incident.id} className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      {getIncidentStatusBadge(incident.status)}
-                      {getSeverityBadge(incident.severity)}
-                    </div>
-                    <h4 className="text-foreground font-medium mb-1">{incident.title}</h4>
-                    <p className="text-muted-foreground text-sm mb-2">{incident.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>Inicio: {formatDate(incident.createdAt)}</span>
-                      <span>Actualizado: {formatDate(incident.updatedAt)}</span>
-                    </div>
-                    <div className="flex gap-1 mt-2">
-                      {incident.affectedServices.map((serviceName) => (
-                        <span key={serviceName} className="px-2 py-0.5 bg-muted/50 text-foreground text-xs rounded">
-                          {serviceName}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Uptime History */}
-          <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30 mt-6">
-            <div className="p-4 border-b border-muted/30">
-              <h3 className="text-lg font-semibold text-foreground">Historial de Disponibilidad</h3>
-              <p className="text-muted-foreground text-sm">Ultimos 30 dias</p>
-            </div>
-            <div className="p-4">
-              <div className="flex flex-col items-center justify-center h-24 text-muted-foreground">
-                <p className="text-sm">Historial de uptime no disponible</p>
               </div>
-            </div>
-          </div>
+            ))
+          ) : (
+            // Skeleton loading
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="p-3 sm:p-4 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="animate-pulse bg-muted rounded-full w-2.5 h-2.5" />
+                  <div className="space-y-1">
+                    <div className="animate-pulse bg-muted rounded h-4 w-32" />
+                    <div className="animate-pulse bg-muted rounded h-3 w-20" />
+                  </div>
+                </div>
+                <div className="animate-pulse bg-muted rounded h-6 w-20" />
+              </div>
+            ))
+          )}
         </div>
       </div>
 
-      {/* Response Times Chart */}
-      <div className="mt-6 bg-card border border-border rounded-xl rounded-xl border border-muted/30 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Tiempos de Respuesta (24h)</h3>
-            <p className="text-muted-foreground text-sm">Latencia promedio por servicio</p>
-          </div>
+      {/* E) Uptime Kuma */}
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-            <span className="text-xs text-muted-foreground">
-              {isConnected ? 'Actualizando en vivo' : 'Sin conexion'}
-            </span>
+            <HardDrive className="w-4 h-4 text-muted-foreground" />
+            <h3 className="text-lg font-semibold text-foreground">Monitoreo de Disponibilidad</h3>
           </div>
+          <a
+            href="https://status.akademate.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs text-primary hover:underline"
+          >
+            <ExternalLink className="w-3 h-3" />
+            Abrir en nueva ventana
+          </a>
         </div>
-        <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
-          <p className="text-sm">Datos de tiempo de respuesta no disponibles</p>
-          <p className="text-xs mt-1">Configura un sistema de monitorización para ver métricas en tiempo real</p>
+        <p className="text-muted-foreground text-sm mb-4">
+          Historial de disponibilidad en tiempo real. Abre en nueva ventana para ver detalles completos.
+        </p>
+        <iframe
+          src="https://status.akademate.com/status/akademate"
+          width="100%"
+          height="400"
+          style={{ border: 'none' }}
+          className="rounded-lg"
+          title="Uptime Kuma — Estado Akademate"
+        />
+      </div>
+
+      {/* F) Incidentes */}
+      <div className="bg-card border border-border rounded-xl">
+        <div className="p-4 border-b border-muted/30">
+          <h3 className="text-lg font-semibold text-foreground">Incidentes Recientes</h3>
+        </div>
+        <div className="p-4">
+          <p className="text-muted-foreground text-sm">Sin incidentes activos</p>
         </div>
       </div>
-    </>
-  );
+    </div>
+  )
 }

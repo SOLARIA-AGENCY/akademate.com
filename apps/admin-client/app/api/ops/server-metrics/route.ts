@@ -3,6 +3,50 @@ import os from 'os'
 
 export const dynamic = 'force-dynamic'
 
+// Cache for server info — refresh at most once every 5 minutes
+let serverInfoCache: {
+  name: string
+  ip: string
+  type: string
+  datacenter: string
+  status: string
+} | null = null
+let serverInfoCachedAt = 0
+const SERVER_INFO_TTL_MS = 5 * 60 * 1000
+
+async function getHetznerServerInfo() {
+  const token = process.env.HETZNER_API_TOKEN
+  const serverId = process.env.HETZNER_SERVER_ID
+  if (!token || !serverId) return null
+
+  const now = Date.now()
+  if (serverInfoCache && now - serverInfoCachedAt < SERVER_INFO_TTL_MS) {
+    return serverInfoCache
+  }
+
+  try {
+    const res = await fetch(`https://api.hetzner.cloud/v1/servers/${serverId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    const server = data?.server
+    if (!server) return null
+    serverInfoCache = {
+      name: server.name ?? 'akademate-prod',
+      ip: server.public_net?.ipv4?.ip ?? '46.62.222.138',
+      type: server.server_type?.name ?? 'cx23',
+      datacenter: server.datacenter?.name ?? 'fsn1',
+      status: server.status ?? 'running',
+    }
+    serverInfoCachedAt = now
+    return serverInfoCache
+  } catch {
+    return null
+  }
+}
+
 function getCpuUsage(): Promise<number> {
   return new Promise((resolve) => {
     const cpus1 = os.cpus()
@@ -69,6 +113,7 @@ export async function GET() {
     getCpuUsage(),
     getHetznerMetrics(),
   ])
+  const serverInfo = await getHetznerServerInfo()
 
   const totalMemory = os.totalmem()
   const freeMemory = os.freemem()
@@ -95,5 +140,6 @@ export async function GET() {
     hostname: os.hostname(),
     hetzner: hetznerMetrics,
     source: hetznerMetrics ? 'hetzner' : 'system',
+    serverInfo,
   })
 }
