@@ -152,7 +152,7 @@ export default function TenantsPage() {
                       <DataTableCell align="right">
                         <div className="flex items-center justify-end gap-1">
                           <a
-                            href={`https://${tenant.slug}.akademate.com`}
+                            href={tenant.domain ? `https://${tenant.domain}` : `https://${tenant.slug}.akademate.com`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1.5 rounded-md hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"

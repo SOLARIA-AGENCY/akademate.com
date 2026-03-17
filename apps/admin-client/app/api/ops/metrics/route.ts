@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
+import { logRequest } from '@/lib/api-logger'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(req: Request) {
+  const start = Date.now()
+  const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? undefined
   const db = getDb()
 
   try {
@@ -27,7 +30,7 @@ export async function GET() {
     const coursesTotal = parseInt(coursesResult.rows[0]?.total ?? '0', 10)
     const enrollmentsTotal = parseInt(enrollmentsResult.rows[0]?.total ?? '0', 10)
 
-    return NextResponse.json({
+    const body = {
       tenants: {
         total: tenantsTotal,
         active: activeTenantsTotal,
@@ -36,9 +39,12 @@ export async function GET() {
       users: { total: usersTotal },
       courses: { total: coursesTotal },
       enrollments: { total: enrollmentsTotal },
-    })
+    }
+    logRequest({ method: 'GET', path: '/api/ops/metrics', status: 200, latencyMs: Date.now() - start, ip })
+    return NextResponse.json(body)
   } catch (error) {
     console.error('[ops/metrics] DB error', error)
+    logRequest({ method: 'GET', path: '/api/ops/metrics', status: 500, latencyMs: Date.now() - start, ip })
     return NextResponse.json({ error: 'Error al consultar métricas' }, { status: 500 })
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/page-header';
 
 interface Endpoint {
@@ -11,9 +11,6 @@ interface Endpoint {
   description: string;
   category: string;
   auth: boolean;
-  params?: { name: string; type: string; required: boolean; description: string }[];
-  body?: string;
-  exampleResponse?: string;
 }
 
 interface ApiKey {
@@ -28,215 +25,152 @@ interface ApiKey {
   status: 'active' | 'revoked';
 }
 
+interface ApiStats {
+  period: string;
+  summary: {
+    totalRequests: number;
+    avgLatencyMs: number;
+    errorRate: number;
+    errorCount: number;
+  };
+  topEndpoints: { path: string; method: string; requests: number; avgLatencyMs: number }[];
+  topIps: { ip: string; requests: number }[];
+  byStatus: { status: number; count: number }[];
+}
+
+interface LogEntry {
+  id: string;
+  method: string;
+  path: string;
+  status: number;
+  latencyMs: number;
+  ip: string | null;
+  userAgent: string | null;
+  tenantId: string | null;
+  createdAt: string;
+}
+
+interface LogsResponse {
+  docs: LogEntry[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+const ENDPOINTS: Endpoint[] = [
+  { id: 'auth-session', name: 'Sesión actual', method: 'GET', path: '/api/auth/session', description: 'Devuelve la sesión activa del usuario autenticado', category: 'Auth', auth: true },
+  { id: 'auth-all', name: 'Better Auth handler', method: 'POST', path: '/api/auth/[...all]', description: 'Endpoints de Better Auth: sign-in, sign-out, session management', category: 'Auth', auth: false },
+  { id: 'ops-health', name: 'Health check', method: 'GET', path: '/api/ops/health', description: 'Estado de salud del servicio: Payload CMS + Auth', category: 'Ops', auth: true },
+  { id: 'ops-metrics', name: 'Métricas globales', method: 'GET', path: '/api/ops/metrics', description: 'Contadores globales: tenants, usuarios, cursos, matrículas', category: 'Ops', auth: true },
+  { id: 'ops-tenants', name: 'Listado de tenants', method: 'GET', path: '/api/ops/tenants', description: 'Lista paginada de tenants con estado y plan. Soporta ?limit= y ?page=', category: 'Ops', auth: true },
+  { id: 'ops-weekly-activity', name: 'Actividad semanal', method: 'GET', path: '/api/ops/weekly-activity', description: 'Conteo diario de tenants y usuarios creados en la semana actual', category: 'Ops', auth: true },
+  { id: 'ops-readiness-score', name: 'Enterprise readiness score', method: 'GET', path: '/api/ops/readiness-score', description: 'Puntuación 0-100 de madurez del sistema', category: 'Ops', auth: true },
+  { id: 'ops-server-metrics', name: 'Métricas del servidor', method: 'GET', path: '/api/ops/server-metrics', description: 'CPU, memoria, uptime. Usa Hetzner Cloud API si hay token', category: 'Ops', auth: true },
+  { id: 'ops-service-health', name: 'Estado de servicios', method: 'GET', path: '/api/ops/service-health', description: 'Checks reales de DB, Payload CMS, S3', category: 'Ops', auth: true },
+  { id: 'ops-api-stats', name: 'Estadísticas de API', method: 'GET', path: '/api/ops/api-stats', description: 'Requests totales, latencia, tasa de error, top endpoints/IPs', category: 'Ops', auth: true },
+  { id: 'ops-logs', name: 'Logs de requests', method: 'GET', path: '/api/ops/logs', description: 'Historial de requests con filtros por path, método, status, IP', category: 'Ops', auth: true },
+  { id: 'ops-api-keys', name: 'API Keys', method: 'GET', path: '/api/ops/api-keys', description: 'Listado de API keys activas (stub)', category: 'Ops', auth: true },
+  { id: 'profile-get', name: 'Perfil de usuario', method: 'GET', path: '/api/ops/profile', description: 'Devuelve nombre, email e imagen del usuario autenticado', category: 'Profile', auth: true },
+  { id: 'profile-patch', name: 'Actualizar perfil', method: 'PATCH', path: '/api/ops/profile', description: 'Actualiza el nombre del usuario. Body: { name: string }', category: 'Profile', auth: true },
+  { id: 'change-password', name: 'Cambiar contraseña', method: 'POST', path: '/api/ops/change-password', description: 'Cambia la contraseña del usuario', category: 'Profile', auth: true },
+  { id: 'upload', name: 'Upload de archivo', method: 'POST', path: '/api/upload', description: 'Sube un archivo directamente al servidor', category: 'Upload', auth: true },
+  { id: 'upload-presign', name: 'Presigned URL', method: 'POST', path: '/api/upload/presign', description: 'Genera URL prefirmada para subida directa a S3/R2', category: 'Upload', auth: true },
+];
+
 export default function ApiPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint | null>(null);
   const [activeTab, setActiveTab] = useState<'endpoints' | 'keys' | 'logs'>('endpoints');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [testResponse, setTestResponse] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [requestBody, setRequestBody] = useState<string>('');
-  const [requestHeaders, setRequestHeaders] = useState<string>('{\n  "Authorization": "Bearer YOUR_TOKEN",\n  "Content-Type": "application/json"\n}');
-  const [mcpStatus, setMcpStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
-  const [mcpMessage, setMcpMessage] = useState<string | null>(null);
+  const [isTestLoading, setIsTestLoading] = useState(false);
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [stats, setStats] = useState<ApiStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [logs, setLogs] = useState<LogsResponse | null>(null);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [logFilters, setLogFilters] = useState({ path: '', method: '', status: '', ip: '', hours: '24' });
 
   useEffect(() => {
     fetch('/api/ops/api-keys')
-      .then((res) => {
-        if (!res.ok) throw new Error('Not found')
-        return res.json()
-      })
+      .then((res) => res.ok ? res.json() : [])
       .then((data) => setApiKeys(Array.isArray(data) ? data : []))
-      .catch(() => setApiKeys([]))
+      .catch(() => setApiKeys([]));
+
+    fetch('/api/ops/api-stats?hours=24')
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => { if (data) setStats(data); })
+      .catch(() => {})
+      .finally(() => setStatsLoading(false));
   }, []);
 
-  const ENDPOINTS: Endpoint[] = [
-    // Auth
-    {
-      id: 'auth-session',
-      name: 'Sesión actual',
-      method: 'GET',
-      path: '/api/auth/session',
-      description: 'Devuelve la sesión activa del usuario autenticado',
-      category: 'Auth',
-      auth: true,
-    },
-    {
-      id: 'auth-all',
-      name: 'Better Auth handler',
-      method: 'POST',
-      path: '/api/auth/[...all]',
-      description: 'Endpoints de Better Auth: sign-in, sign-out, session management',
-      category: 'Auth',
-      auth: false,
-    },
-    // Ops
-    {
-      id: 'ops-health',
-      name: 'Health check',
-      method: 'GET',
-      path: '/api/ops/health',
-      description: 'Estado de salud del servicio: DB, Payload CMS, environment',
-      category: 'Ops',
-      auth: true,
-    },
-    {
-      id: 'ops-metrics',
-      name: 'Métricas globales',
-      method: 'GET',
-      path: '/api/ops/metrics',
-      description: 'Contadores globales: tenants, usuarios, cursos, matrículas',
-      category: 'Ops',
-      auth: true,
-    },
-    {
-      id: 'ops-tenants',
-      name: 'Listado de tenants',
-      method: 'GET',
-      path: '/api/ops/tenants',
-      description: 'Lista paginada de tenants con estado y plan. Soporta ?limit= y ?page=',
-      category: 'Ops',
-      auth: true,
-    },
-    {
-      id: 'ops-weekly-activity',
-      name: 'Actividad semanal',
-      method: 'GET',
-      path: '/api/ops/weekly-activity',
-      description: 'Conteo diario de tenants y usuarios creados en la semana actual',
-      category: 'Ops',
-      auth: true,
-    },
-    {
-      id: 'ops-readiness-score',
-      name: 'Enterprise readiness score',
-      method: 'GET',
-      path: '/api/ops/readiness-score',
-      description: 'Puntuación 0-100 de madurez del sistema basada en checks de infraestructura',
-      category: 'Ops',
-      auth: true,
-    },
-    {
-      id: 'ops-server-metrics',
-      name: 'Métricas del servidor',
-      method: 'GET',
-      path: '/api/ops/server-metrics',
-      description: 'CPU, memoria, uptime del servidor. Usa Hetzner Cloud API si hay token configurado',
-      category: 'Ops',
-      auth: true,
-    },
-    // Profile
-    {
-      id: 'profile-get',
-      name: 'Perfil de usuario',
-      method: 'GET',
-      path: '/api/ops/profile',
-      description: 'Devuelve nombre, email e imagen del usuario autenticado',
-      category: 'Profile',
-      auth: true,
-    },
-    {
-      id: 'profile-patch',
-      name: 'Actualizar perfil',
-      method: 'PATCH',
-      path: '/api/ops/profile',
-      description: 'Actualiza el nombre del usuario. Body: { name: string }',
-      category: 'Profile',
-      auth: true,
-    },
-    {
-      id: 'change-password',
-      name: 'Cambiar contraseña',
-      method: 'POST',
-      path: '/api/ops/change-password',
-      description: 'Cambia la contraseña del usuario. Body: { currentPassword, newPassword }',
-      category: 'Profile',
-      auth: true,
-    },
-    // Upload
-    {
-      id: 'upload',
-      name: 'Upload de archivo',
-      method: 'POST',
-      path: '/api/upload',
-      description: 'Sube un archivo directamente al servidor',
-      category: 'Upload',
-      auth: true,
-    },
-    {
-      id: 'upload-presign',
-      name: 'Presigned URL',
-      method: 'POST',
-      path: '/api/upload/presign',
-      description: 'Genera URL prefirmada para subida directa a S3/R2',
-      category: 'Upload',
-      auth: true,
-    },
-  ];
+  const fetchLogs = useCallback(async () => {
+    setLogsLoading(true);
+    const params = new URLSearchParams({ limit: '50', page: '1', hours: logFilters.hours });
+    if (logFilters.path) params.set('path', logFilters.path);
+    if (logFilters.method) params.set('method', logFilters.method);
+    if (logFilters.status) params.set('status', logFilters.status);
+    if (logFilters.ip) params.set('ip', logFilters.ip);
+
+    try {
+      const res = await fetch(`/api/ops/logs?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        setLogs(data);
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setLogsLoading(false);
+    }
+  }, [logFilters]);
+
+  useEffect(() => {
+    if (activeTab === 'logs') fetchLogs();
+  }, [activeTab, fetchLogs]);
 
   const categories = ['all', ...Array.from(new Set(ENDPOINTS.map(e => e.category)))];
   const filteredEndpoints = selectedCategory === 'all'
     ? ENDPOINTS
     : ENDPOINTS.filter(e => e.category === selectedCategory);
 
-  const rateLimits = [
-    { plan: 'Free', limit: '0 calls/día', note: 'Sin API en free' },
-    { plan: 'Starter', limit: '1K calls/día', note: 'Scopes básicos' },
-    { plan: 'Pro', limit: '100K calls/día', note: 'Scopes completos + burst' },
-    { plan: 'Enterprise', limit: 'Custom', note: 'Acordado por contrato' },
-  ];
-
   const getMethodColor = (method: string) => {
-    const colors = {
+    const colors: Record<string, string> = {
       GET: 'bg-green-500/20 text-green-400 border-green-500/30',
       POST: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
       PUT: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
       PATCH: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
       DELETE: 'bg-red-500/20 text-red-400 border-red-500/30',
     };
-    return colors[method as keyof typeof colors] || 'bg-gray-500/20 text-gray-400';
+    return colors[method] ?? 'bg-gray-500/20 text-gray-400';
+  };
+
+  const getStatusColor = (status: number) => {
+    if (status < 300) return 'text-green-400';
+    if (status < 400) return 'text-blue-400';
+    if (status < 500) return 'text-yellow-400';
+    return 'text-red-400';
   };
 
   const handleTestRequest = async () => {
     if (!selectedEndpoint) return;
-
-    setIsLoading(true);
+    setIsTestLoading(true);
     setTestResponse('');
+    const start = Date.now();
     try {
-      const res = await fetch('/api/ops/health');
-      if (res.ok) {
-        setTestResponse(JSON.stringify({ status: 'ok', message: 'Health check passed' }, null, 2));
-      } else {
-        setTestResponse(JSON.stringify({ status: 'error', message: `HTTP ${res.status}` }, null, 2));
-      }
-    } catch {
-      setTestResponse(JSON.stringify({ status: 'error', message: 'No se pudo conectar con el servidor' }, null, 2));
+      // Only GET endpoints without dynamic segments can be tested directly
+      const path = selectedEndpoint.path.includes('[') ? '/api/ops/health' : selectedEndpoint.path;
+      const res = await fetch(path, { method: selectedEndpoint.method === 'GET' ? 'GET' : 'GET' });
+      const latency = Date.now() - start;
+      let body: unknown;
+      try { body = await res.json(); } catch { body = await res.text(); }
+      setTestResponse(JSON.stringify({ status: res.status, latencyMs: latency, body }, null, 2));
+    } catch (err) {
+      setTestResponse(JSON.stringify({ error: err instanceof Error ? err.message : 'Error de red' }, null, 2));
     }
-    setIsLoading(false);
+    setIsTestLoading(false);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
-  const connectMcp = () => {
-    setMcpStatus('connecting');
-    setMcpMessage(null);
-    fetch('/api/ops/health')
-      .then((res) => {
-        if (res.ok) {
-          setMcpStatus('connected');
-          setMcpMessage('Conectado. Implementa handshake/auth bearer real en el servidor MCP.');
-        } else {
-          setMcpStatus('error');
-          setMcpMessage(`Error de conexión: HTTP ${res.status}`);
-        }
-      })
-      .catch(() => {
-        setMcpStatus('error');
-        setMcpMessage('Error de conexión: no se pudo alcanzar el servidor.');
-      });
-  };
+  const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
   return (
     <>
@@ -245,173 +179,90 @@ export default function ApiPage() {
         description="Explora, prueba y gestiona las APIs de Akademate"
       />
 
-      {/* MCP Server */}
-      <div className="bg-muted/20 border border-muted/20 rounded-xl p-5 space-y-3 mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">MCP Server</p>
-            <h3 className="text-lg font-semibold text-foreground">Akademate MCP</h3>
-          </div>
-          <span
-            className={`px-3 py-1 text-xs font-semibold rounded-full ${
-              mcpStatus === 'connected'
-                ? 'bg-emerald-500/15 text-emerald-300'
-                : mcpStatus === 'connecting'
-                  ? 'bg-amber-500/15 text-amber-300'
-                  : mcpStatus === 'error'
-                    ? 'bg-red-500/15 text-red-300'
-                    : 'bg-muted/50 text-foreground'
-            }`}
-          >
-            {mcpStatus === 'connected' ? 'Conectado' : mcpStatus === 'connecting' ? 'Conectando' : mcpStatus === 'error' ? 'Error' : 'Desconectado'}
-          </span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-foreground">
-          <div className="p-3 rounded-lg bg-card border border-muted/20">
-            <p className="text-xs text-muted-foreground mb-1">Endpoint</p>
-            <p className="font-mono break-all text-muted-foreground">Pendiente de configuración</p>
-          </div>
-          <div className="p-3 rounded-lg bg-card border border-muted/20">
-            <p className="text-xs text-muted-foreground mb-1">Token</p>
-            <p className="font-mono break-all text-muted-foreground">Sin configurar</p>
-          </div>
-          <div className="p-3 rounded-lg bg-card border border-muted/20">
-            <p className="text-xs text-muted-foreground mb-1">Handshake</p>
-            <p className="text-muted-foreground text-sm">Pendiente de auth bearer + listado de resources/tools.</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={connectMcp}
-            className="px-4 py-2 bg-indigo-600 text-foreground rounded-lg hover:bg-indigo-500 transition-colors text-sm font-medium"
-            disabled={mcpStatus === 'connecting'}
-          >
-            {mcpStatus === 'connecting' ? 'Conectando...' : 'Verificar conexión'}
-          </button>
-        </div>
-        {mcpMessage ? (
-          <div className={`text-xs rounded-lg px-3 py-2 ${mcpStatus === 'error' ? 'text-red-300 bg-red-500/10 border border-red-500/20' : 'text-emerald-300 bg-emerald-500/10 border border-emerald-500/20'}`}>
-            {mcpMessage}
-          </div>
-        ) : null}
-        <p className="text-xs text-muted-foreground">
-          Implementa el servidor MCP real con auth bearer y handshake; expone resources/tools y wirea el cliente SDK.
-        </p>
-      </div>
-
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm">Endpoints Disponibles</p>
-              <p className="text-2xl font-bold text-foreground mt-1">{ENDPOINTS.length}</p>
-            </div>
-            <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-            </div>
-          </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <p className="text-muted-foreground text-sm">Endpoints</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{ENDPOINTS.length}</p>
+          <p className="text-xs text-muted-foreground mt-1">Catalogados</p>
         </div>
-
-        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm">API Keys Activas</p>
-              <p className="text-2xl font-bold text-green-400 mt-1">{apiKeys.filter(k => k.status === 'active').length}</p>
-            </div>
-            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-            </div>
-          </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <p className="text-muted-foreground text-sm">Requests (24h)</p>
+          <p className="text-2xl font-bold text-blue-400 mt-1">
+            {statsLoading ? '—' : (stats?.summary.totalRequests ?? 0).toLocaleString()}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {stats ? `${stats.summary.errorCount} errores` : '—'}
+          </p>
         </div>
-
-        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm">Requests Hoy</p>
-              <p className="text-2xl font-bold text-blue-400 mt-1">{apiKeys.reduce((sum, k) => sum + k.requestsToday, 0).toLocaleString() || '—'}</p>
-            </div>
-            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
-          </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <p className="text-muted-foreground text-sm">Latencia media</p>
+          <p className="text-2xl font-bold text-purple-400 mt-1">
+            {statsLoading ? '—' : `${stats?.summary.avgLatencyMs ?? 0}ms`}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">Últimas 24h</p>
         </div>
-
-        <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm">Latencia Media</p>
-              <p className="text-2xl font-bold text-purple-400 mt-1">42ms</p>
-            </div>
-            <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <p className="text-muted-foreground text-sm">Tasa de error</p>
+          <p className={`text-2xl font-bold mt-1 ${(stats?.summary.errorRate ?? 0) > 5 ? 'text-red-400' : 'text-green-400'}`}>
+            {statsLoading ? '—' : `${stats?.summary.errorRate ?? 0}%`}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">HTTP 5xx</p>
         </div>
       </div>
 
-      {/* API limits & scopes */}
-      <div className="bg-card border border-border rounded-xl p-5 rounded-xl border border-muted/30 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">API keys & rate limiting</h2>
-            <p className="text-muted-foreground text-sm">Definir límites por plan y scopes granulares.</p>
+      {/* Top endpoints */}
+      {stats && stats.topEndpoints.length > 0 && (
+        <div className="bg-card border border-border rounded-xl p-5 mb-6">
+          <h3 className="text-foreground font-semibold mb-3">Top Endpoints (24h)</h3>
+          <div className="divide-y divide-border">
+            {stats.topEndpoints.slice(0, 5).map((ep, i) => (
+              <div key={i} className="flex items-center gap-3 py-2">
+                <span className={`px-1.5 py-0.5 text-xs font-mono font-semibold rounded border shrink-0 ${getMethodColor(ep.method)}`}>
+                  {ep.method}
+                </span>
+                <span className="font-mono text-sm text-foreground flex-1 truncate">{ep.path}</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">{ep.requests.toLocaleString()} req</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">{ep.avgLatencyMs}ms</span>
+              </div>
+            ))}
           </div>
-          <span className="text-xs px-3 py-1 rounded-full bg-amber-500/15 text-amber-400">Pendiente</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          {rateLimits.map(limit => (
-            <div key={limit.plan} className="p-4 rounded-lg bg-muted/20 border border-muted/20">
-              <p className="text-foreground font-semibold">{limit.plan}</p>
-              <p className="text-indigo-300 text-sm">{limit.limit}</p>
-              <p className="text-xs text-muted-foreground mt-1">{limit.note}</p>
-            </div>
-          ))}
+      )}
+
+      {/* Top IPs */}
+      {stats && stats.topIps.length > 0 && (
+        <div className="bg-card border border-border rounded-xl p-5 mb-6">
+          <h3 className="text-foreground font-semibold mb-3">Top IPs (24h)</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {stats.topIps.slice(0, 4).map((ip, i) => (
+              <div key={i} className="p-3 bg-muted/20 rounded-lg">
+                <p className="font-mono text-xs text-foreground">{ip.ip}</p>
+                <p className="text-xs text-muted-foreground mt-1">{ip.requests.toLocaleString()} requests</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-3">
-          Pendiente: generación/rotación de keys, scopes (read/write por recurso), rate limits en edge y logs de requests.
-        </p>
-      </div>
+      )}
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-card border border-border rounded-xl p-1 rounded-lg w-fit">
-        <button
-          onClick={() => setActiveTab('endpoints')}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-            activeTab === 'endpoints' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Endpoints
-        </button>
-        <button
-          onClick={() => setActiveTab('keys')}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-            activeTab === 'keys' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          API Keys
-        </button>
-        <button
-          onClick={() => setActiveTab('logs')}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-            activeTab === 'logs' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Logs
-        </button>
+      <div className="flex gap-1 mb-6 bg-card border border-border rounded-xl p-1 w-fit">
+        {(['endpoints', 'keys', 'logs'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors capitalize ${
+              activeTab === tab ? 'bg-indigo-600 text-white' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab === 'endpoints' ? 'Endpoints' : tab === 'keys' ? 'API Keys' : 'Logs'}
+          </button>
+        ))}
       </div>
 
+      {/* Endpoints tab */}
       {activeTab === 'endpoints' && (
         <div className="space-y-4">
-          {/* Category filter */}
           <div className="flex flex-wrap gap-2">
             {categories.map(cat => (
               <button
@@ -427,42 +278,33 @@ export default function ApiPage() {
               </button>
             ))}
           </div>
-
-          {/* Endpoints list */}
           <div className="bg-card border border-border rounded-xl divide-y divide-border">
-            {filteredEndpoints.length === 0 ? (
-              <div className="p-8 text-center">
-                <p className="text-muted-foreground text-sm">No hay endpoints en esta categoría.</p>
-              </div>
-            ) : (
-              filteredEndpoints.map(endpoint => (
-                <div
-                  key={endpoint.id}
-                  className={`p-4 flex items-start gap-4 hover:bg-muted/20 transition-colors cursor-pointer ${
-                    selectedEndpoint?.id === endpoint.id ? 'bg-muted/30' : ''
-                  }`}
-                  onClick={() => setSelectedEndpoint(selectedEndpoint?.id === endpoint.id ? null : endpoint)}
-                >
-                  <span className={`mt-0.5 px-2 py-0.5 text-xs font-mono font-semibold rounded border shrink-0 ${getMethodColor(endpoint.method)}`}>
-                    {endpoint.method}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-sm text-foreground">{endpoint.path}</span>
-                      <span className="text-xs text-muted-foreground">{endpoint.name}</span>
-                      {endpoint.auth && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/20">Auth</span>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">{endpoint.description}</p>
+            {filteredEndpoints.map(endpoint => (
+              <div
+                key={endpoint.id}
+                className={`p-4 flex items-start gap-4 hover:bg-muted/20 transition-colors cursor-pointer ${
+                  selectedEndpoint?.id === endpoint.id ? 'bg-muted/30' : ''
+                }`}
+                onClick={() => setSelectedEndpoint(selectedEndpoint?.id === endpoint.id ? null : endpoint)}
+              >
+                <span className={`mt-0.5 px-2 py-0.5 text-xs font-mono font-semibold rounded border shrink-0 ${getMethodColor(endpoint.method)}`}>
+                  {endpoint.method}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-sm text-foreground">{endpoint.path}</span>
+                    <span className="text-xs text-muted-foreground">{endpoint.name}</span>
+                    {endpoint.auth && (
+                      <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/20">Auth</span>
+                    )}
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded bg-muted/40 text-muted-foreground shrink-0">{endpoint.category}</span>
+                  <p className="text-sm text-muted-foreground mt-1">{endpoint.description}</p>
                 </div>
-              ))
-            )}
+                <span className="text-xs px-2 py-0.5 rounded bg-muted/40 text-muted-foreground shrink-0">{endpoint.category}</span>
+              </div>
+            ))}
           </div>
 
-          {/* Detail panel for selected endpoint */}
           {selectedEndpoint && (
             <div className="bg-card border border-border rounded-xl p-5 space-y-4">
               <div className="flex items-center gap-3">
@@ -472,23 +314,15 @@ export default function ApiPage() {
                 <span className="font-mono text-foreground">{selectedEndpoint.path}</span>
               </div>
               <p className="text-muted-foreground text-sm">{selectedEndpoint.description}</p>
-              <div className="flex items-center gap-4 text-sm">
-                <span className="text-muted-foreground">Autenticación:</span>
-                <span className={selectedEndpoint.auth ? 'text-amber-300' : 'text-muted-foreground'}>
-                  {selectedEndpoint.auth ? 'Requerida' : 'No requerida'}
-                </span>
-              </div>
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground font-medium">Probar endpoint</p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleTestRequest}
-                    disabled={isLoading}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-sm font-medium disabled:opacity-50"
-                  >
-                    {isLoading ? 'Enviando...' : 'Enviar request'}
-                  </button>
-                </div>
+                <button
+                  onClick={handleTestRequest}
+                  disabled={isTestLoading}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-sm font-medium disabled:opacity-50"
+                >
+                  {isTestLoading ? 'Enviando...' : 'Enviar request'}
+                </button>
                 {testResponse && (
                   <pre className="mt-2 p-3 bg-muted/30 rounded-lg text-xs font-mono text-foreground overflow-auto max-h-48">
                     {testResponse}
@@ -500,83 +334,163 @@ export default function ApiPage() {
         </div>
       )}
 
+      {/* API Keys tab */}
       {activeTab === 'keys' && (
-        <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30">
+        <div className="bg-card border border-border rounded-xl">
           <div className="p-4 border-b border-muted/30 flex justify-between items-center">
             <h3 className="text-foreground font-medium">API Keys</h3>
-            <button className="px-4 py-2 bg-indigo-600 text-foreground rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 text-sm">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+            <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium opacity-50 cursor-not-allowed" disabled>
               Nueva API Key
             </button>
           </div>
-          <div className="divide-y divide-muted/20">
-            {apiKeys.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
-                <p className="text-sm">No hay API keys creadas.</p>
-                <p className="text-xs mt-1">Usa el botón &quot;Nueva API Key&quot; para crear tu primera clave.</p>
-              </div>
-            )}
-            {apiKeys.map(key => (
-              <div key={key.id} className="p-4 hover:bg-muted/30 transition-colors">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-muted/50 rounded-lg flex items-center justify-center">
-                      <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-foreground font-medium">{key.name}</p>
-                      <p className="text-muted-foreground text-sm">{key.tenant}</p>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    key.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                  }`}>
-                    {key.status === 'active' ? 'Activa' : 'Revocada'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 bg-muted/20 rounded-lg px-3 py-2 mb-3">
-                  <span className="text-foreground font-mono text-sm flex-1">{key.key}</span>
-                  <button
-                    onClick={() => copyToClipboard(key.key)}
-                    className="p-1 text-muted-foreground hover:text-foreground"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="flex items-center gap-6 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Permisos:</span>
-                    <span className="text-foreground ml-2">{key.permissions.join(', ')}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Requests hoy:</span>
-                    <span className="text-foreground ml-2">{key.requestsToday.toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Creada:</span>
-                    <span className="text-foreground ml-2">{key.createdAt}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="p-8 text-center text-muted-foreground">
+            <p className="text-sm">No hay API keys creadas.</p>
+            <p className="text-xs mt-1">La gestión de API keys estará disponible próximamente.</p>
           </div>
+          {apiKeys.map(key => (
+            <div key={key.id} className="p-4 hover:bg-muted/30 border-t border-muted/20">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-foreground font-medium">{key.name}</p>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${key.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                  {key.status === 'active' ? 'Activa' : 'Revocada'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 bg-muted/20 rounded-lg px-3 py-2">
+                <span className="text-foreground font-mono text-sm flex-1">{key.key}</span>
+                <button onClick={() => copyToClipboard(key.key)} className="p-1 text-muted-foreground hover:text-foreground">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
+      {/* Logs tab */}
       {activeTab === 'logs' && (
-        <div className="bg-card border border-border rounded-xl rounded-xl border border-muted/30 p-8 text-center">
-          <svg className="w-16 h-16 text-muted-foreground mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <h3 className="text-foreground font-medium mb-2">Logs de API</h3>
-          <p className="text-muted-foreground text-sm mb-4">Visualiza el historial de requests y respuestas de la API</p>
-          <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-xs font-medium">Coming Soon</span>
+        <div className="space-y-4">
+          {/* Filters */}
+          <div className="bg-card border border-border rounded-xl p-4 flex flex-wrap gap-3 items-end">
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1">Path</label>
+              <input
+                type="text"
+                placeholder="/api/ops/..."
+                value={logFilters.path}
+                onChange={(e) => setLogFilters(f => ({ ...f, path: e.target.value }))}
+                className="bg-muted/30 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground outline-none w-48"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1">Método</label>
+              <select
+                value={logFilters.method}
+                onChange={(e) => setLogFilters(f => ({ ...f, method: e.target.value }))}
+                className="bg-muted/30 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground outline-none"
+              >
+                <option value="">Todos</option>
+                {['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1">Status</label>
+              <input
+                type="text"
+                placeholder="200"
+                value={logFilters.status}
+                onChange={(e) => setLogFilters(f => ({ ...f, status: e.target.value }))}
+                className="bg-muted/30 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground outline-none w-20"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1">IP</label>
+              <input
+                type="text"
+                placeholder="192.168..."
+                value={logFilters.ip}
+                onChange={(e) => setLogFilters(f => ({ ...f, ip: e.target.value }))}
+                className="bg-muted/30 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground outline-none w-32"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1">Período</label>
+              <select
+                value={logFilters.hours}
+                onChange={(e) => setLogFilters(f => ({ ...f, hours: e.target.value }))}
+                className="bg-muted/30 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground outline-none"
+              >
+                <option value="1">1h</option>
+                <option value="6">6h</option>
+                <option value="24">24h</option>
+                <option value="168">7 días</option>
+              </select>
+            </div>
+            <button
+              onClick={fetchLogs}
+              className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 text-sm font-medium transition-colors"
+            >
+              Filtrar
+            </button>
+          </div>
+
+          {/* Logs table */}
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="p-3 border-b border-border flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {logs ? `${logs.total.toLocaleString()} requests` : 'Cargando...'}
+              </p>
+              <button onClick={fetchLogs} className="text-xs text-primary hover:underline">
+                Actualizar
+              </button>
+            </div>
+            {logsLoading ? (
+              <div className="p-8 text-center text-muted-foreground text-sm">Cargando logs...</div>
+            ) : logs && logs.docs.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">
+                <p className="text-sm">Sin logs registrados.</p>
+                <p className="text-xs mt-1">Los requests se registran automáticamente al usar la API.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/20 text-xs text-muted-foreground">
+                    <tr>
+                      <th className="px-4 py-2 text-left">Timestamp</th>
+                      <th className="px-4 py-2 text-left">Método</th>
+                      <th className="px-4 py-2 text-left">Path</th>
+                      <th className="px-4 py-2 text-left">Status</th>
+                      <th className="px-4 py-2 text-right">Latencia</th>
+                      <th className="px-4 py-2 text-left">IP</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {logs?.docs.map((log) => (
+                      <tr key={log.id} className="hover:bg-muted/10">
+                        <td className="px-4 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(log.createdAt).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </td>
+                        <td className="px-4 py-2">
+                          <span className={`px-1.5 py-0.5 text-xs font-mono font-semibold rounded border ${getMethodColor(log.method)}`}>
+                            {log.method}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 font-mono text-xs text-foreground max-w-xs truncate">{log.path}</td>
+                        <td className={`px-4 py-2 font-mono text-sm font-semibold ${getStatusColor(log.status)}`}>
+                          {log.status}
+                        </td>
+                        <td className="px-4 py-2 text-right text-xs text-muted-foreground">{log.latencyMs}ms</td>
+                        <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{log.ip ?? '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </>
