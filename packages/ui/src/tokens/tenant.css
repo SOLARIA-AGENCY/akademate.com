@@ -1,0 +1,27 @@
+/*
+ * Akademate Design System — Tenant Brand Tokens v1.0
+ *
+ * --brand-accent is injected per-tenant at runtime (server-computed).
+ * Default: matches platform primary (blue-700).
+ *
+ * Rules:
+ *   - Must pass WCAG AA (≥4.5:1) with --brand-accent-foreground
+ *   - Computed server-side; fallback to --primary if contrast fails
+ *   - Use --brand-accent for brand CTAs, not for --primary (UI structure)
+ *
+ * Usage (Tailwind v4 apps):
+ *   @import "@akademate/ui/tokens/tenant.css";
+ *
+ * Runtime injection (server-side):
+ *   <style>:root { --brand-accent: H S% L%; --brand-accent-foreground: ... }</style>
+ */
+
+:root {
+  --brand-accent: 224 71% 48%;          /* Default = platform primary */
+  --brand-accent-foreground: 0 0% 100%;
+}
+
+.dark {
+  --brand-accent: 221 83% 63%;          /* Default dark = primary-dark */
+  --brand-accent-foreground: 0 0% 100%;
+}

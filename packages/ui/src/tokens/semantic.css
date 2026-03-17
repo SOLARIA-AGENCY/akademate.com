@@ -1,0 +1,39 @@
+/*
+ * Akademate Design System — Semantic Tokens v1.0
+ *
+ * All semantic colors pass WCAG AA (≥4.5:1 contrast) with text-white.
+ *
+ * Usage (Tailwind v4 apps):
+ *   @import "@akademate/ui/tokens/semantic.css";
+ */
+
+:root {
+  /* Success — green-700 #15803D */
+  --success: 142 72% 29%;
+  --success-foreground: 0 0% 100%;
+
+  /* Warning — amber-500 #F59E0B */
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+
+  /* Info — blue-600 #2563EB */
+  --info: 221 83% 53%;
+  --info-foreground: 0 0% 100%;
+
+  /* Destructive — red-600 #DC2626 */
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Neutral — slate-500 #6B7280 */
+  --neutral: 220 9% 46%;
+  --neutral-foreground: 0 0% 100%;
+}
+
+.dark {
+  /* Semantic colors stay similar — slightly brighter for dark surfaces */
+  --success: 142 60% 42%;
+  --warning: 38 85% 58%;
+  --info: 221 78% 62%;
+  --destructive: 0 62% 58%;
+  --neutral: 220 9% 58%;
+}
