@@ -3,7 +3,9 @@ import { NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
-    const upstream = new URL('/api/dashboard', request.nextUrl.origin)
+    // Use HTTP localhost for internal proxy to avoid SSL issues inside the container
+    const internalOrigin = `http://localhost:${process.env.PORT ?? '3009'}`
+    const upstream = new URL('/api/dashboard', internalOrigin)
 
     request.nextUrl.searchParams.forEach((value, key) => {
       upstream.searchParams.set(key, value)
