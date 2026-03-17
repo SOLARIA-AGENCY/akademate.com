@@ -42,6 +42,7 @@ const config = {
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
               "connect-src 'self' https://api.stripe.com wss:",
+              "frame-src 'self' https://status.akademate.com",
               "frame-ancestors 'none'",
             ].join('; '),
           },

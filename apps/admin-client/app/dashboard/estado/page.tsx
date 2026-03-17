@@ -448,33 +448,30 @@ export default function EstadoPage() {
         </div>
       </div>
 
-      {/* E) Uptime Kuma */}
-      <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-2">
+      {/* E) Uptime Kuma — Dashboard completo (todos los monitores) */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between p-4 sm:px-6 border-b border-muted/30">
           <div className="flex items-center gap-2">
             <HardDrive className="w-4 h-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold text-foreground">Monitoreo de Disponibilidad</h3>
+            <h3 className="text-lg font-semibold text-foreground">Uptime Kuma — Monitores</h3>
           </div>
           <a
-            href="https://status.akademate.com"
+            href="https://status.akademate.com/dashboard"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-xs text-primary hover:underline"
           >
             <ExternalLink className="w-3 h-3" />
-            Abrir en nueva ventana
+            Abrir dashboard completo
           </a>
         </div>
-        <p className="text-muted-foreground text-sm mb-4">
-          Historial de disponibilidad en tiempo real. Abre en nueva ventana para ver detalles completos.
-        </p>
         <iframe
-          src="https://status.akademate.com/status/akademate"
+          src="https://status.akademate.com/dashboard"
           width="100%"
-          height="400"
+          height="600"
           style={{ border: 'none' }}
-          className="rounded-lg"
-          title="Uptime Kuma — Estado Akademate"
+          className="bg-background"
+          title="Uptime Kuma — Dashboard completo"
         />
       </div>
 
