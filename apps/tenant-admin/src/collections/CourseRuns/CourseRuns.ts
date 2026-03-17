@@ -534,17 +534,8 @@ export const CourseRuns: CollectionConfig = {
       },
     },
 
-    /**
-     * Classroom - Physical room assignment for this course run
-     */
-    {
-      name: 'classroom',
-      type: 'relationship',
-      relationTo: 'classrooms',
-      admin: {
-        description: 'Aula asignada para esta convocatoria',
-      },
-    },
+    // NOTE: Classroom field removed — classrooms table not yet migrated.
+    // Will be re-added when the Classrooms feature is implemented.
 
     /**
      * Tenant - Multi-tenant support
