@@ -15,111 +15,31 @@ import {
 } from 'lucide-react'
 
 export default function AnaliticasPage() {
-  // Datos mockup de KPIs
-  const kpis = [
-    {
-      title: 'Visitas Totales',
-      value: '24,567',
-      change: '+12.5%',
-      trend: 'up',
-      icon: Eye,
-      color: 'blue',
-    },
-    {
-      title: 'Leads Generados',
-      value: '1,234',
-      change: '+8.3%',
-      trend: 'up',
-      icon: UserCheck,
-      color: 'green',
-    },
-    {
-      title: 'Tasa de Conversión',
-      value: '5.02%',
-      change: '-0.5%',
-      trend: 'down',
-      icon: Target,
-      color: 'orange',
-    },
-    {
-      title: 'Matrículas',
-      value: '487',
-      change: '+15.2%',
-      trend: 'up',
-      icon: Users,
-      color: 'purple',
-    },
-    {
-      title: 'CTR Medio',
-      value: '3.45%',
-      change: '+2.1%',
-      trend: 'up',
-      icon: MousePointerClick,
-      color: 'cyan',
-    },
-    {
-      title: 'Ingresos',
-      value: '€156,789',
-      change: '+22.4%',
-      trend: 'up',
-      icon: DollarSign,
-      color: 'emerald',
-    },
-  ]
+  // TODO: Fetch from API
+  const kpis: {
+    title: string
+    value: string
+    change: string
+    trend: string
+    icon: typeof Eye
+    color: string
+  }[] = []
 
-  // Datos mockup de fuentes de tráfico
-  const trafficSources = [
-    { source: 'Búsqueda Orgánica', visits: 12543, percentage: 51, color: 'bg-blue-500' },
-    { source: 'Meta Ads', visits: 6234, percentage: 25, color: 'bg-pink-500' },
-    { source: 'Directo', visits: 3456, percentage: 14, color: 'bg-green-500' },
-    { source: 'Email Marketing', visits: 1534, percentage: 6, color: 'bg-purple-500' },
-    { source: 'Otros', visits: 800, percentage: 4, color: 'bg-gray-400' },
-  ]
+  // TODO: Fetch from API
+  const trafficSources: { source: string; visits: number; percentage: number; color: string }[] = []
 
-  // Datos mockup de cursos más visitados
-  const topCourses = [
-    { name: 'Marketing Digital Avanzado', visits: 4532, conversions: 234, rate: '5.16%' },
-    { name: 'Desarrollo Web Full Stack', visits: 3890, conversions: 198, rate: '5.09%' },
-    { name: 'Data Science con Python', visits: 3456, conversions: 167, rate: '4.83%' },
-    { name: 'UX/UI Design', visits: 2987, conversions: 143, rate: '4.79%' },
-    { name: 'Community Manager', visits: 2654, conversions: 128, rate: '4.82%' },
-  ]
+  // TODO: Fetch from API
+  const topCourses: { name: string; visits: number; conversions: number; rate: string }[] = []
 
-  // Datos mockup de campañas activas
-  const campaigns = [
-    {
-      name: 'Campaña Black Friday',
-      clicks: 8543,
-      conversions: 456,
-      ctr: '5.34%',
-      budget: '€2,500',
-      status: 'Activa',
-    },
-    {
-      name: 'Retargeting Q4',
-      clicks: 5432,
-      conversions: 287,
-      ctr: '5.28%',
-      budget: '€1,800',
-      status: 'Activa',
-    },
-    {
-      name: 'Prospecting FP Superior',
-      clicks: 3210,
-      conversions: 154,
-      ctr: '4.80%',
-      budget: '€1,200',
-      status: 'Pausada',
-    },
-    {
-      name: 'Email Nurturing',
-      clicks: 2987,
-      conversions: 189,
-      ctr: '6.33%',
-      budget: '€500',
-      status: 'Activa',
-    },
-  ]
+  // TODO: Fetch from API
+  const campaigns: {
+    name: string
+    clicks: number
+    conversions: number
+    ctr: string
+    budget: string
+    status: string
+  }[] = []
 
   return (
     <div className="space-y-6" data-oid="-iwx.7c">

@@ -58,12 +58,8 @@ const enrollmentStatusVariants: Record<string, 'success' | 'info' | 'destructive
   pending: 'secondary',
 }
 
-const progressByCourseSeed = [
-  { course: 'React Inicial', progress: 78 },
-  { course: 'Node Backend', progress: 64 },
-  { course: 'Marketing Digital', progress: 55 },
-  { course: 'Inglés B2', progress: 84 },
-]
+// TODO: Fetch from API
+const progressByCourseSeed: { course: string; progress: number }[] = []
 
 export default function CampusVirtualOverviewPage() {
   const [enrollments, setEnrollments] = useState<EnrollmentItem[]>([])

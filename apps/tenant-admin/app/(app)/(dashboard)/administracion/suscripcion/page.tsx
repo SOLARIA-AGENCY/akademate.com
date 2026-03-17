@@ -37,122 +37,54 @@ import {
   RefreshCw,
 } from 'lucide-react'
 
-// Mock data del plan actual
+// TODO: Fetch from API
 const planActual = {
-  nombre: 'Profesional',
-  precio: 149,
+  nombre: '',
+  precio: 0,
   ciclo: 'mensual',
-  proximaFacturacion: '2025-01-07',
-  estado: 'activo',
-  fechaInicio: '2024-06-15',
+  proximaFacturacion: '',
+  estado: 'inactivo',
+  fechaInicio: '',
 }
 
-// Uso actual de recursos
+// TODO: Fetch from API
 const usoRecursos = {
-  usuarios: { usado: 8, limite: 15, porcentaje: 53 },
-  sedes: { usado: 3, limite: 5, porcentaje: 60 },
-  almacenamiento: { usado: 2.4, limite: 10, unidad: 'GB', porcentaje: 24 },
-  cursos: { usado: 24, limite: 100, porcentaje: 24 },
-  leads: { usado: 342, limite: 1000, porcentaje: 34 },
+  usuarios: { usado: 0, limite: 0, porcentaje: 0 },
+  sedes: { usado: 0, limite: 0, porcentaje: 0 },
+  almacenamiento: { usado: 0, limite: 0, unidad: 'GB', porcentaje: 0 },
+  cursos: { usado: 0, limite: 0, porcentaje: 0 },
+  leads: { usado: 0, limite: 0, porcentaje: 0 },
 }
 
-// Planes disponibles
-const planesDisponibles = [
-  {
-    id: 'starter',
-    nombre: 'Starter',
-    precio: 49,
-    descripcion: 'Ideal para academias pequeñas',
-    caracteristicas: {
-      usuarios: 3,
-      sedes: 1,
-      almacenamiento: '2 GB',
-      cursos: 20,
-      leads: 200,
-      soporte: 'Email',
-      analytics: false,
-      api: false,
-      whitelabel: false,
-    },
-    popular: false,
-  },
-  {
-    id: 'profesional',
-    nombre: 'Profesional',
-    precio: 149,
-    descripcion: 'Para academias en crecimiento',
-    caracteristicas: {
-      usuarios: 15,
-      sedes: 5,
-      almacenamiento: '10 GB',
-      cursos: 100,
-      leads: 1000,
-      soporte: 'Prioritario',
-      analytics: true,
-      api: true,
-      whitelabel: false,
-    },
-    popular: true,
-    actual: true,
-  },
-  {
-    id: 'enterprise',
-    nombre: 'Enterprise',
-    precio: 399,
-    descripcion: 'Solución completa para grandes instituciones',
-    caracteristicas: {
-      usuarios: 'Ilimitados',
-      sedes: 'Ilimitadas',
-      almacenamiento: '100 GB',
-      cursos: 'Ilimitados',
-      leads: 'Ilimitados',
-      soporte: '24/7 Dedicado',
-      analytics: true,
-      api: true,
-      whitelabel: true,
-    },
-    popular: false,
-  },
-]
+// TODO: Fetch from API
+const planesDisponibles: {
+  id: string
+  nombre: string
+  precio: number
+  descripcion: string
+  caracteristicas: {
+    usuarios: number | string
+    sedes: number | string
+    almacenamiento: string
+    cursos: number | string
+    leads: number | string
+    soporte: string
+    analytics: boolean
+    api: boolean
+    whitelabel: boolean
+  }
+  popular: boolean
+  actual?: boolean
+}[] = []
 
-// Historial de facturación
-const historialFacturacion = [
-  {
-    id: 'INV-2024-012',
-    fecha: '2024-12-07',
-    concepto: 'Plan Profesional - Diciembre 2024',
-    monto: 149.0,
-    estado: 'pagado',
-  },
-  {
-    id: 'INV-2024-011',
-    fecha: '2024-11-07',
-    concepto: 'Plan Profesional - Noviembre 2024',
-    monto: 149.0,
-    estado: 'pagado',
-  },
-  {
-    id: 'INV-2024-010',
-    fecha: '2024-10-07',
-    concepto: 'Plan Profesional - Octubre 2024',
-    monto: 149.0,
-    estado: 'pagado',
-  },
-  {
-    id: 'INV-2024-009',
-    fecha: '2024-09-07',
-    concepto: 'Plan Profesional - Septiembre 2024',
-    monto: 149.0,
-    estado: 'pagado',
-  },
-  {
-    id: 'INV-2024-008',
-    fecha: '2024-08-07',
-    concepto: 'Plan Profesional - Agosto 2024',
-    monto: 149.0,
-    estado: 'pagado',
-  },
-]
+// TODO: Fetch from API
+const historialFacturacion: {
+  id: string
+  fecha: string
+  concepto: string
+  monto: number
+  estado: string
+}[] = []
 
 export default function SuscripcionPage() {
   const [cicloFacturacion, setCicloFacturacion] = useState<'mensual' | 'anual'>('mensual')

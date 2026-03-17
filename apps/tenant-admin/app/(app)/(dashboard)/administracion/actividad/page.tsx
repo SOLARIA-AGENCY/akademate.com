@@ -49,129 +49,19 @@ import {
   RefreshCw,
 } from 'lucide-react'
 
-// Mock data del registro de actividad
-const actividadData = [
-  {
-    id: '1',
-    timestamp: '2024-12-07 10:45:23',
-    usuario: 'Carlos Pérez',
-    email: 'admin@akademate.com',
-    accion: 'LOGIN',
-    descripcion: 'Inicio de sesión exitoso',
-    modulo: 'Autenticación',
-    ip: '192.168.1.100',
-    severidad: 'info',
-    detalles: { navegador: 'Chrome 120', so: 'macOS' },
-  },
-  {
-    id: '2',
-    timestamp: '2024-12-07 10:30:15',
-    usuario: 'María García López',
-    email: 'maria.garcia@akademate.com',
-    accion: 'CREATE',
-    descripcion: 'Nuevo curso creado: "Marketing Digital Avanzado"',
-    modulo: 'Cursos',
-    ip: '192.168.1.101',
-    severidad: 'success',
-    detalles: { cursoId: 'CRS-2024-089' },
-  },
-  {
-    id: '3',
-    timestamp: '2024-12-07 10:15:42',
-    usuario: 'Juan Martínez Ruiz',
-    email: 'juan.martinez@akademate.com',
-    accion: 'UPDATE',
-    descripcion: 'Lead actualizado: María González → Estado: Cualificado',
-    modulo: 'Leads',
-    ip: '192.168.1.102',
-    severidad: 'info',
-    detalles: { leadId: 'LEAD-2024-342', estadoAnterior: 'Contactado' },
-  },
-  {
-    id: '4',
-    timestamp: '2024-12-07 09:58:10',
-    usuario: 'Sistema',
-    email: 'system@akademate.com',
-    accion: 'BACKUP',
-    descripcion: 'Backup automático completado',
-    modulo: 'Sistema',
-    ip: 'localhost',
-    severidad: 'success',
-    detalles: { tamaño: '245 MB', duracion: '3.2s' },
-  },
-  {
-    id: '5',
-    timestamp: '2024-12-07 09:45:33',
-    usuario: 'Ana Rodríguez Sánchez',
-    email: 'ana.rodriguez@akademate.com',
-    accion: 'DELETE',
-    descripcion: 'Lead eliminado: ID LEAD-2024-128',
-    modulo: 'Leads',
-    ip: '192.168.1.103',
-    severidad: 'warning',
-    detalles: { motivo: 'Duplicado' },
-  },
-  {
-    id: '6',
-    timestamp: '2024-12-07 09:30:00',
-    usuario: 'Carlos Pérez',
-    email: 'admin@akademate.com',
-    accion: 'CONFIG_CHANGE',
-    descripcion: 'Configuración de API modificada',
-    modulo: 'Configuración',
-    ip: '192.168.1.100',
-    severidad: 'warning',
-    detalles: { campo: 'Meta Ads Webhook URL' },
-  },
-  {
-    id: '7',
-    timestamp: '2024-12-07 09:15:22',
-    usuario: 'Sistema',
-    email: 'system@akademate.com',
-    accion: 'ERROR',
-    descripcion: 'Error en sincronización con Mailchimp',
-    modulo: 'Integraciones',
-    ip: 'localhost',
-    severidad: 'error',
-    detalles: { error: 'API rate limit exceeded', retry: '5 min' },
-  },
-  {
-    id: '8',
-    timestamp: '2024-12-07 09:00:05',
-    usuario: 'Pedro Sánchez López',
-    email: 'pedro.sanchez@akademate.com',
-    accion: 'LOGIN',
-    descripcion: 'Inicio de sesión exitoso',
-    modulo: 'Autenticación',
-    ip: '192.168.1.104',
-    severidad: 'info',
-    detalles: { navegador: 'Firefox 121', so: 'Windows 11' },
-  },
-  {
-    id: '9',
-    timestamp: '2024-12-06 18:45:10',
-    usuario: 'Laura Pérez Gómez',
-    email: 'laura.perez@akademate.com',
-    accion: 'VIEW',
-    descripcion: 'Visualizó informe de analíticas',
-    modulo: 'Analíticas',
-    ip: '192.168.1.105',
-    severidad: 'info',
-    detalles: { informe: 'Resumen mensual diciembre' },
-  },
-  {
-    id: '10',
-    timestamp: '2024-12-06 17:30:00',
-    usuario: 'Carlos Pérez',
-    email: 'admin@akademate.com',
-    accion: 'IMPERSONATE',
-    descripcion: 'Impersonación iniciada: María García López',
-    modulo: 'Administración',
-    ip: '192.168.1.100',
-    severidad: 'warning',
-    detalles: { motivo: 'Verificación de permisos', duracion: '15 min' },
-  },
-]
+// TODO: Fetch from API
+const actividadData: {
+  id: string
+  timestamp: string
+  usuario: string
+  email: string
+  accion: string
+  descripcion: string
+  modulo: string
+  ip: string
+  severidad: string
+  detalles: Record<string, string>
+}[] = []
 
 const severidadConfig: Record<
   string,

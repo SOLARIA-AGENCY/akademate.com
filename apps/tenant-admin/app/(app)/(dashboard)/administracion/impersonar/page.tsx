@@ -54,113 +54,29 @@ import {
   Users,
 } from 'lucide-react'
 
-// Mock data de usuarios para impersonar
-const usuariosData = [
-  {
-    id: '1',
-    nombre: 'María García López',
-    email: 'maria.garcia@akademate.com',
-    rol: 'Gestor',
-    sede: 'Sede Norte',
-    activo: true,
-    ultimoAcceso: '2024-12-07 09:15',
-    avatar: null,
-  },
-  {
-    id: '2',
-    nombre: 'Juan Martínez Ruiz',
-    email: 'juan.martinez@akademate.com',
-    rol: 'Marketing',
-    sede: 'Sede Santa Cruz',
-    activo: true,
-    ultimoAcceso: '2024-12-06 18:30',
-    avatar: null,
-  },
-  {
-    id: '3',
-    nombre: 'Ana Rodríguez Sánchez',
-    email: 'ana.rodriguez@akademate.com',
-    rol: 'Asesor',
-    sede: 'Sede Norte',
-    activo: true,
-    ultimoAcceso: '2024-12-07 10:45',
-    avatar: null,
-  },
-  {
-    id: '4',
-    nombre: 'Carlos Fernández Torres',
-    email: 'carlos.fernandez@akademate.com',
-    rol: 'Asesor',
-    sede: 'Sede Sur',
-    activo: false,
-    ultimoAcceso: '2024-11-28 14:20',
-    avatar: null,
-  },
-  {
-    id: '5',
-    nombre: 'Laura Pérez Gómez',
-    email: 'laura.perez@akademate.com',
-    rol: 'Lectura',
-    sede: 'Sede Santa Cruz',
-    activo: true,
-    ultimoAcceso: '2024-12-05 16:00',
-    avatar: null,
-  },
-  {
-    id: '6',
-    nombre: 'Pedro Sánchez López',
-    email: 'pedro.sanchez@akademate.com',
-    rol: 'Gestor',
-    sede: 'Sede Norte',
-    activo: true,
-    ultimoAcceso: '2024-12-07 08:30',
-    avatar: null,
-  },
-]
+// TODO: Fetch from API
+const usuariosData: {
+  id: string
+  nombre: string
+  email: string
+  rol: string
+  sede: string
+  activo: boolean
+  ultimoAcceso: string
+  avatar: string | null
+}[] = []
 
-// Historial de impersonaciones
-const historialImpersonaciones = [
-  {
-    id: '1',
-    adminNombre: 'Admin Principal',
-    usuarioImpersonado: 'María García López',
-    fechaInicio: '2024-12-07 09:00',
-    fechaFin: '2024-12-07 09:15',
-    duracion: '15 min',
-    motivo: 'Verificación de permisos de sede',
-    ip: '192.168.1.100',
-  },
-  {
-    id: '2',
-    adminNombre: 'Admin Principal',
-    usuarioImpersonado: 'Juan Martínez Ruiz',
-    fechaInicio: '2024-12-06 14:30',
-    fechaFin: '2024-12-06 14:45',
-    duracion: '15 min',
-    motivo: 'Soporte técnico - Error en campañas',
-    ip: '192.168.1.100',
-  },
-  {
-    id: '3',
-    adminNombre: 'Admin Principal',
-    usuarioImpersonado: 'Ana Rodríguez Sánchez',
-    fechaInicio: '2024-12-05 11:00',
-    fechaFin: '2024-12-05 11:20',
-    duracion: '20 min',
-    motivo: 'Verificación de vista de leads',
-    ip: '192.168.1.100',
-  },
-  {
-    id: '4',
-    adminNombre: 'Admin Principal',
-    usuarioImpersonado: 'Laura Pérez Gómez',
-    fechaInicio: '2024-12-04 16:00',
-    fechaFin: '2024-12-04 16:10',
-    duracion: '10 min',
-    motivo: 'Prueba de permisos de solo lectura',
-    ip: '192.168.1.100',
-  },
-]
+// TODO: Fetch from API
+const historialImpersonaciones: {
+  id: string
+  adminNombre: string
+  usuarioImpersonado: string
+  fechaInicio: string
+  fechaFin: string
+  duracion: string
+  motivo: string
+  ip: string
+}[] = []
 
 const rolConfig: Record<string, { color: string; bgColor: string }> = {
   Admin: { color: 'text-red-700 dark:text-red-300', bgColor: 'bg-red-100 dark:bg-red-950' },

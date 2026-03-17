@@ -20,11 +20,8 @@ import {
 import { BarChart3 } from 'lucide-react'
 import { traducirEstado } from '@payload-config/lib/estados'
 
-const progressRows = [
-  { student: 'Ana Pérez', course: 'React Inicial', progress: '82%', status: 'active' },
-  { student: 'Luis Martín', course: 'Node Backend', progress: '67%', status: 'active' },
-  { student: 'Nora Ramos', course: 'Marketing Digital', progress: '100%', status: 'completed' },
-]
+// TODO: Fetch from API
+const progressRows: { student: string; course: string; progress: string; status: string }[] = []
 
 export default function CampusProgresoPage() {
   return (

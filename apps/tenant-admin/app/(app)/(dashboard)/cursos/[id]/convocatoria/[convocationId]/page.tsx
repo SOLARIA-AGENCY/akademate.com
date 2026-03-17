@@ -93,44 +93,8 @@ interface ConvocationDetailPageProps {
   params: Promise<{ id: string; convocationId: string }>
 }
 
-// Mock student data
-const mockStudents: Student[] = [
-  {
-    id: '1',
-    nombre: 'María González',
-    email: 'maria.g@email.com',
-    phone: '+34 600 111 222',
-    estado: 'confirmado',
-  },
-  {
-    id: '2',
-    nombre: 'Juan Martínez',
-    email: 'juan.m@email.com',
-    phone: '+34 600 222 333',
-    estado: 'confirmado',
-  },
-  {
-    id: '3',
-    nombre: 'Ana López',
-    email: 'ana.l@email.com',
-    phone: '+34 600 333 444',
-    estado: 'confirmado',
-  },
-  {
-    id: '4',
-    nombre: 'Carlos Ruiz',
-    email: 'carlos.r@email.com',
-    phone: '+34 600 444 555',
-    estado: 'pendiente',
-  },
-  {
-    id: '5',
-    nombre: 'Laura Sánchez',
-    email: 'laura.s@email.com',
-    phone: '+34 600 555 666',
-    estado: 'confirmado',
-  },
-]
+// TODO: Fetch from API
+const mockStudents: Student[] = []
 
 export default function ConvocationDetailPage({ params }: ConvocationDetailPageProps) {
   const router = useRouter()

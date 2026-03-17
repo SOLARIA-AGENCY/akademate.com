@@ -61,113 +61,20 @@ import {
   User,
 } from 'lucide-react'
 
-// Mock data de usuarios
-const usuariosData = [
-  {
-    id: '1',
-    nombre: 'Carlos Pérez',
-    email: 'admin@akademate.com',
-    telefono: '+34 612 345 001',
-    rol: 'Admin',
-    sede: 'Todas',
-    activo: true,
-    verificado: true,
-    dosFactor: true,
-    ultimoAcceso: '2024-12-07 10:30',
-    fechaCreacion: '2024-01-15',
-  },
-  {
-    id: '2',
-    nombre: 'María García López',
-    email: 'maria.garcia@akademate.com',
-    telefono: '+34 612 345 002',
-    rol: 'Gestor',
-    sede: 'Sede Norte',
-    activo: true,
-    verificado: true,
-    dosFactor: true,
-    ultimoAcceso: '2024-12-07 09:15',
-    fechaCreacion: '2024-03-20',
-  },
-  {
-    id: '3',
-    nombre: 'Juan Martínez Ruiz',
-    email: 'juan.martinez@akademate.com',
-    telefono: '+34 612 345 003',
-    rol: 'Marketing',
-    sede: 'Sede Santa Cruz',
-    activo: true,
-    verificado: true,
-    dosFactor: false,
-    ultimoAcceso: '2024-12-06 18:30',
-    fechaCreacion: '2024-05-10',
-  },
-  {
-    id: '4',
-    nombre: 'Ana Rodríguez Sánchez',
-    email: 'ana.rodriguez@akademate.com',
-    telefono: '+34 612 345 004',
-    rol: 'Asesor',
-    sede: 'Sede Norte',
-    activo: true,
-    verificado: true,
-    dosFactor: false,
-    ultimoAcceso: '2024-12-07 10:45',
-    fechaCreacion: '2024-06-01',
-  },
-  {
-    id: '5',
-    nombre: 'Carlos Fernández Torres',
-    email: 'carlos.fernandez@akademate.com',
-    telefono: '+34 612 345 005',
-    rol: 'Asesor',
-    sede: 'Sede Sur',
-    activo: false,
-    verificado: true,
-    dosFactor: false,
-    ultimoAcceso: '2024-11-28 14:20',
-    fechaCreacion: '2024-04-15',
-  },
-  {
-    id: '6',
-    nombre: 'Laura Pérez Gómez',
-    email: 'laura.perez@akademate.com',
-    telefono: '+34 612 345 006',
-    rol: 'Lectura',
-    sede: 'Sede Santa Cruz',
-    activo: true,
-    verificado: false,
-    dosFactor: false,
-    ultimoAcceso: '2024-12-05 16:00',
-    fechaCreacion: '2024-11-20',
-  },
-  {
-    id: '7',
-    nombre: 'Pedro Sánchez López',
-    email: 'pedro.sanchez@akademate.com',
-    telefono: '+34 612 345 007',
-    rol: 'Gestor',
-    sede: 'Sede Norte',
-    activo: true,
-    verificado: true,
-    dosFactor: true,
-    ultimoAcceso: '2024-12-07 08:30',
-    fechaCreacion: '2024-02-10',
-  },
-  {
-    id: '8',
-    nombre: 'Elena Torres Ruiz',
-    email: 'elena.torres@akademate.com',
-    telefono: '+34 612 345 008',
-    rol: 'Marketing',
-    sede: 'Todas',
-    activo: true,
-    verificado: true,
-    dosFactor: true,
-    ultimoAcceso: '2024-12-06 17:45',
-    fechaCreacion: '2024-07-01',
-  },
-]
+// TODO: Fetch from API
+const usuariosData: {
+  id: string
+  nombre: string
+  email: string
+  telefono: string
+  rol: string
+  sede: string
+  activo: boolean
+  verificado: boolean
+  dosFactor: boolean
+  ultimoAcceso: string
+  fechaCreacion: string
+}[] = []
 
 const rolConfig: Record<string, { color: string; bgColor: string; icon: React.ReactNode }> = {
   Admin: {

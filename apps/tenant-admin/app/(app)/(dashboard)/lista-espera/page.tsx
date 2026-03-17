@@ -58,142 +58,22 @@ import {
   UserCheck,
 } from 'lucide-react'
 
-// Mock data de lista de espera
-const listaEsperaData = [
-  {
-    id: '1',
-    posicion: 1,
-    alumno: {
-      nombre: 'Sofía Martínez Pérez',
-      email: 'sofia.martinez@email.com',
-      telefono: '+34 612 345 101',
-    },
-    curso: 'DAW - Desarrollo Aplicaciones Web',
-    tipo: 'Ciclo Superior',
-    convocatoria: 'SEPT-2025-NORTE',
-    sede: 'Sede Norte',
-    prioridad: 'alta',
-    estado: 'en_lista',
-    fechaEntrada: '2024-11-15',
-    plazasDelante: 0,
-    ultimoContacto: '2024-12-05',
-    notas: 'Muy interesada. Disponibilidad inmediata.',
-  },
-  {
-    id: '2',
-    posicion: 2,
-    alumno: {
-      nombre: 'David González Ruiz',
-      email: 'david.gonzalez@email.com',
-      telefono: '+34 612 345 102',
-    },
-    curso: 'Marketing Digital Avanzado',
-    tipo: 'Curso',
-    convocatoria: 'ENE-2026-NORTE',
-    sede: 'Sede Norte',
-    prioridad: 'media',
-    estado: 'notificado',
-    fechaEntrada: '2024-11-18',
-    plazasDelante: 1,
-    ultimoContacto: '2024-12-06',
-    notas: 'Notificado de plaza disponible. Esperando confirmación.',
-  },
-  {
-    id: '3',
-    posicion: 3,
-    alumno: {
-      nombre: 'Isabel Fernández López',
-      email: 'isabel.fernandez@email.com',
-      telefono: '+34 612 345 103',
-    },
-    curso: 'Community Manager',
-    tipo: 'Curso',
-    convocatoria: 'FEB-2026-SCTF',
-    sede: 'Sede Santa Cruz',
-    prioridad: 'alta',
-    estado: 'en_lista',
-    fechaEntrada: '2024-11-20',
-    plazasDelante: 2,
-    ultimoContacto: '2024-12-01',
-    notas: 'Exalumna. Prioridad por fidelización.',
-  },
-  {
-    id: '4',
-    posicion: 4,
-    alumno: {
-      nombre: 'Miguel Ángel Sánchez',
-      email: 'miguel.sanchez@email.com',
-      telefono: '+34 612 345 104',
-    },
-    curso: 'DAM - Desarrollo Aplicaciones Multiplataforma',
-    tipo: 'Ciclo Superior',
-    convocatoria: 'SEPT-2025-SCTF',
-    sede: 'Sede Santa Cruz',
-    prioridad: 'baja',
-    estado: 'en_lista',
-    fechaEntrada: '2024-11-22',
-    plazasDelante: 5,
-    ultimoContacto: null,
-    notas: 'Opción secundaria. También interesado en DAW.',
-  },
-  {
-    id: '5',
-    posicion: 5,
-    alumno: {
-      nombre: 'Carmen Rodríguez Torres',
-      email: 'carmen.rodriguez@email.com',
-      telefono: '+34 612 345 105',
-    },
-    curso: 'Diseño UX/UI',
-    tipo: 'Curso',
-    convocatoria: 'MAR-2026-NORTE',
-    sede: 'Sede Norte',
-    prioridad: 'media',
-    estado: 'aceptado',
-    fechaEntrada: '2024-11-16',
-    plazasDelante: 0,
-    ultimoContacto: '2024-12-07',
-    notas: 'Plaza asignada. Proceso de matrícula iniciado.',
-  },
-  {
-    id: '6',
-    posicion: 6,
-    alumno: {
-      nombre: 'Roberto Díaz Martín',
-      email: 'roberto.diaz@email.com',
-      telefono: '+34 612 345 106',
-    },
-    curso: 'Ciberseguridad',
-    tipo: 'Curso',
-    convocatoria: 'ENE-2026-SUR',
-    sede: 'Sede Sur',
-    prioridad: 'alta',
-    estado: 'en_lista',
-    fechaEntrada: '2024-11-19',
-    plazasDelante: 3,
-    ultimoContacto: '2024-11-25',
-    notas: 'Urgente por requisitos laborales.',
-  },
-  {
-    id: '7',
-    posicion: 7,
-    alumno: {
-      nombre: 'Patricia Ruiz García',
-      email: 'patricia.ruiz@email.com',
-      telefono: '+34 612 345 107',
-    },
-    curso: 'Big Data y Business Intelligence',
-    tipo: 'Curso',
-    convocatoria: 'FEB-2026-NORTE',
-    sede: 'Sede Norte',
-    prioridad: 'media',
-    estado: 'rechazado',
-    fechaEntrada: '2024-11-17',
-    plazasDelante: 0,
-    ultimoContacto: '2024-12-04',
-    notas: 'Rechazó plaza por incompatibilidad horaria.',
-  },
-]
+// TODO: Fetch from API
+const listaEsperaData: {
+  id: string
+  posicion: number
+  alumno: { nombre: string; email: string; telefono: string }
+  curso: string
+  tipo: string
+  convocatoria: string
+  sede: string
+  prioridad: string
+  estado: string
+  fechaEntrada: string
+  plazasDelante: number
+  ultimoContacto: string | null
+  notas: string
+}[] = []
 
 const prioridadConfig: Record<string, { label: string; color: string; bgColor: string }> = {
   alta: {
@@ -660,12 +540,7 @@ export default function ListaEsperaPage() {
           </CardHeader>
           <CardContent data-oid="88ao7d1">
             <div className="space-y-3" data-oid="4pkb-bt">
-              {[
-                { curso: 'DAW - Desarrollo Aplicaciones Web', espera: 4 },
-                { curso: 'Marketing Digital Avanzado', espera: 3 },
-                { curso: 'Community Manager', espera: 2 },
-                { curso: 'DAM - Desarrollo Apps Multiplataforma', espera: 2 },
-              ].map((item, index) => (
+              {([] as { curso: string; espera: number }[]).map((item, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between p-2 rounded-lg bg-muted/50"

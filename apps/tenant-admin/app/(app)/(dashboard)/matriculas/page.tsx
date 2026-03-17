@@ -52,141 +52,22 @@ import {
 import { BulkEnrollmentDialog } from './components/BulkEnrollmentDialog'
 
 // Mock data de matrículas
-const matriculasData = [
-  {
-    id: '1',
-    alumno: {
-      nombre: 'María García López',
-      email: 'maria.garcia@email.com',
-      telefono: '+34 612 345 001',
-    },
-    curso: 'Marketing Digital Avanzado',
-    tipo: 'Curso',
-    convocatoria: 'ENE-2026-NORTE',
-    sede: 'Sede Norte',
-    estado: 'aceptada',
-    fechaSolicitud: '2024-11-20',
-    fechaAprobacion: '2024-11-22',
-    metodoPago: 'FUNDAE',
-    importe: 1200,
-    documentacionCompleta: true,
-    observaciones: 'Documentación completa. Beca FUNDAE aprobada.',
-  },
-  {
-    id: '2',
-    alumno: {
-      nombre: 'Juan Martínez Ruiz',
-      email: 'juan.martinez@email.com',
-      telefono: '+34 612 345 002',
-    },
-    curso: 'Desarrollo Web Full Stack',
-    tipo: 'Curso',
-    convocatoria: 'FEB-2026-SCTF',
-    sede: 'Sede Santa Cruz',
-    estado: 'pendiente',
-    fechaSolicitud: '2024-11-22',
-    fechaAprobacion: null,
-    metodoPago: 'Privado',
-    importe: 1500,
-    documentacionCompleta: false,
-    observaciones: 'Falta certificado académico y foto carnet.',
-  },
-  {
-    id: '3',
-    alumno: {
-      nombre: 'Ana Rodríguez Sánchez',
-      email: 'ana.rodriguez@email.com',
-      telefono: '+34 612 345 003',
-    },
-    curso: 'DAW - Desarrollo Aplicaciones Web',
-    tipo: 'Ciclo Superior',
-    convocatoria: 'SEPT-2025-NORTE',
-    sede: 'Sede Norte',
-    estado: 'aceptada',
-    fechaSolicitud: '2024-11-19',
-    fechaAprobacion: '2024-11-20',
-    metodoPago: 'Financiación',
-    importe: 3600,
-    documentacionCompleta: true,
-    observaciones: 'Pago fraccionado en 12 cuotas.',
-  },
-  {
-    id: '4',
-    alumno: {
-      nombre: 'Carlos Fernández Torres',
-      email: 'carlos.fernandez@email.com',
-      telefono: '+34 612 345 004',
-    },
-    curso: 'SEO y Posicionamiento Web',
-    tipo: 'Curso',
-    convocatoria: 'DIC-2025-SUR',
-    sede: 'Sede Sur',
-    estado: 'rechazada',
-    fechaSolicitud: '2024-11-18',
-    fechaAprobacion: null,
-    metodoPago: 'Privado',
-    importe: 800,
-    documentacionCompleta: true,
-    observaciones: 'Plazas completas. Ofrecido lista de espera.',
-  },
-  {
-    id: '5',
-    alumno: {
-      nombre: 'Laura Pérez Gómez',
-      email: 'laura.perez@email.com',
-      telefono: '+34 612 345 005',
-    },
-    curso: 'DAM - Desarrollo Aplicaciones Multiplataforma',
-    tipo: 'Ciclo Superior',
-    convocatoria: 'SEPT-2025-SCTF',
-    sede: 'Sede Santa Cruz',
-    estado: 'pendiente',
-    fechaSolicitud: '2024-11-23',
-    fechaAprobacion: null,
-    metodoPago: 'FUNDAE',
-    importe: 3600,
-    documentacionCompleta: true,
-    observaciones: 'Pendiente aprobación de la beca.',
-  },
-  {
-    id: '6',
-    alumno: {
-      nombre: 'Pedro Sánchez López',
-      email: 'pedro.sanchez@email.com',
-      telefono: '+34 612 345 006',
-    },
-    curso: 'Community Manager',
-    tipo: 'Curso',
-    convocatoria: 'ENE-2026-NORTE',
-    sede: 'Sede Norte',
-    estado: 'aceptada',
-    fechaSolicitud: '2024-11-21',
-    fechaAprobacion: '2024-11-23',
-    metodoPago: 'Privado',
-    importe: 900,
-    documentacionCompleta: true,
-    observaciones: 'Pago completo recibido.',
-  },
-  {
-    id: '7',
-    alumno: {
-      nombre: 'Elena Torres Ruiz',
-      email: 'elena.torres@email.com',
-      telefono: '+34 612 345 007',
-    },
-    curso: 'ASIR - Administración Sistemas Informáticos',
-    tipo: 'Ciclo Superior',
-    convocatoria: 'SEPT-2025-SUR',
-    sede: 'Sede Sur',
-    estado: 'aceptada',
-    fechaSolicitud: '2024-11-17',
-    fechaAprobacion: '2024-11-19',
-    metodoPago: 'Financiación',
-    importe: 3600,
-    documentacionCompleta: true,
-    observaciones: 'Financiación aprobada. Primera cuota pagada.',
-  },
-]
+const matriculasData: {
+  id: string
+  alumno: { nombre: string; email: string; telefono: string }
+  curso: string
+  tipo: string
+  convocatoria: string
+  sede: string
+  estado: string
+  fechaSolicitud: string
+  fechaAprobacion: string | null
+  metodoPago: string
+  importe: number
+  documentacionCompleta: boolean
+  observaciones: string
+}[] = []
+
 
 const estadoConfig: Record<
   string,
