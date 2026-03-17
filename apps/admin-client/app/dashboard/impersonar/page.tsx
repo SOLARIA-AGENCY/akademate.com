@@ -39,6 +39,7 @@ export default function ImpersonarPage() {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [accessType, setAccessType] = useState<AccessType>('dashboard');
   const [isImpersonating, setIsImpersonating] = useState(false);
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>('list');
 
   useEffect(() => {
     fetch('/api/ops/tenants?limit=100')
@@ -113,11 +114,38 @@ export default function ImpersonarPage() {
         />
       </div>
 
-      {/* Tenants Grid */}
+      {/* View Toggle + Count */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {loading ? 'Cargando...' : `${filteredTenants.length} tenant${filteredTenants.length !== 1 ? 's' : ''}`}
+        </p>
+        <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+            title="Vista de lista"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setViewMode('cards')}
+            className={`p-2 rounded-md transition-colors ${viewMode === 'cards' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+            title="Vista de tarjetas"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Tenants */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-muted/30 rounded-xl h-52 animate-pulse" />
+            <div key={i} className="bg-muted/30 rounded-xl h-16 animate-pulse" />
           ))}
         </div>
       ) : filteredTenants.length === 0 ? (
@@ -126,7 +154,78 @@ export default function ImpersonarPage() {
             ? 'No hay tenants registrados aún'
             : 'No se encontraron tenants con ese criterio'}
         </div>
+      ) : viewMode === 'list' ? (
+        /* ===== LIST VIEW ===== */
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Tenant</th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden md:table-cell">Dominio</th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden lg:table-cell">Admin</th>
+                <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden sm:table-cell">Estado</th>
+                <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden lg:table-cell">Usuarios</th>
+                <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filteredTenants.map((tenant) => (
+                <tr key={tenant.id} className="hover:bg-muted/20 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-bold text-sm">{tenant.name.charAt(0)}</span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-foreground font-medium truncate">{tenant.name}</p>
+                        <p className="text-muted-foreground text-xs">{tenant.slug}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    <span className="text-sm text-muted-foreground">{tenant.domain ?? `${tenant.slug}.akademate.com`}</span>
+                  </td>
+                  <td className="px-4 py-3 hidden lg:table-cell">
+                    <span className="text-sm text-muted-foreground truncate block max-w-[180px]">{tenant.contactEmail ?? '—'}</span>
+                  </td>
+                  <td className="px-4 py-3 text-center hidden sm:table-cell">
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
+                      tenant.active
+                        ? 'bg-green-500/10 text-green-500'
+                        : 'bg-red-500/10 text-red-500'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${tenant.active ? 'bg-green-500' : 'bg-red-500'}`} />
+                      {tenant.active ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center hidden lg:table-cell">
+                    <span className="text-sm text-muted-foreground">{tenant.limits.maxUsers}</span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleImpersonate(tenant, 'dashboard')}
+                        className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-xs font-medium"
+                        title="Dashboard CMS"
+                      >
+                        Dashboard
+                      </button>
+                      <button
+                        onClick={() => handleImpersonate(tenant, 'payload')}
+                        className="px-3 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-500 transition-colors text-xs font-medium"
+                        title="Payload Admin"
+                      >
+                        Payload
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
+        /* ===== CARDS VIEW ===== */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTenants.map((tenant) => (
             <div
