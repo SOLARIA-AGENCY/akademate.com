@@ -102,9 +102,9 @@ export const Tenants: CollectionConfig = {
           name: 'primaryColor',
           type: 'text',
           label: 'Color Primario',
-          defaultValue: '#F2014B',
+          defaultValue: '#0066CC',
           admin: {
-            description: 'Color hexadecimal (ej: "#F2014B")',
+            description: 'Color hexadecimal (ej: "#0066CC")',
           },
         },
         {
