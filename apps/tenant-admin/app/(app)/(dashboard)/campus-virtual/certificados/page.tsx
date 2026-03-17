@@ -19,29 +19,7 @@ import {
 } from '@payload-config/components/ui/table'
 import { Award } from 'lucide-react'
 
-const certificateRows = [
-  {
-    id: 'CERT-001',
-    student: 'Nora Ramos',
-    course: 'Marketing Digital',
-    issuedAt: '2026-02-12',
-    status: 'issued',
-  },
-  {
-    id: 'CERT-002',
-    student: 'Carlos Vega',
-    course: 'React Inicial',
-    issuedAt: '2026-02-09',
-    status: 'issued',
-  },
-  {
-    id: 'CERT-003',
-    student: 'Ana Pérez',
-    course: 'Node Backend',
-    issuedAt: '2026-02-20',
-    status: 'pending',
-  },
-]
+const certificateRows: { id: string; student: string; course: string; issuedAt: string; status: string }[] = []
 
 export default function CampusCertificadosPage() {
   return (

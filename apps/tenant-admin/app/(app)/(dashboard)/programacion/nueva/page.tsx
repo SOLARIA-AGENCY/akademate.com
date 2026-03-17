@@ -74,28 +74,10 @@ interface Conflicto {
   sugerencias?: string[]
 }
 
-// Mock data
-const cursosMock = [
-  { id: 'c1', nombre: 'Marketing Digital Avanzado', duracion: 60, modalidad: 'Presencial' },
-  { id: 'c2', nombre: 'SEO y Posicionamiento Web', duracion: 40, modalidad: 'Presencial' },
-  { id: 'c3', nombre: 'Desarrollo Web Full Stack', duracion: 200, modalidad: 'Presencial' },
-  { id: 'c4', nombre: 'Community Manager Profesional', duracion: 50, modalidad: 'Semipresencial' },
-  { id: 'c5', nombre: 'Excel Avanzado', duracion: 30, modalidad: 'Presencial' },
-]
-
-const profesoresMock = [
-  { id: 'p1', nombre: 'Juan García Martínez', especialidad: 'Marketing Digital' },
-  { id: 'p2', nombre: 'María López Ruiz', especialidad: 'SEO/SEM' },
-  { id: 'p3', nombre: 'Ana Ruiz Torres', especialidad: 'Desarrollo Web' },
-  { id: 'p4', nombre: 'Luis Sánchez Pérez', especialidad: 'Administración' },
-  { id: 'p5', nombre: 'Carmen Díaz López', especialidad: 'Diseño Gráfico' },
-]
-
-const sedesMock = [
-  { id: 's1', nombre: 'Sede Norte' },
-  { id: 's2', nombre: 'Sede Sur' },
-  { id: 's3', nombre: 'Sede Santa Cruz' },
-]
+// Data will come from API
+const cursosMock: { id: string; nombre: string; duracion: number; modalidad: string }[] = []
+const profesoresMock: { id: string; nombre: string; especialidad: string }[] = []
+const sedesMock: { id: string; nombre: string }[] = []
 
 export default function NuevaConvocatoriaPage() {
   const router = useRouter()

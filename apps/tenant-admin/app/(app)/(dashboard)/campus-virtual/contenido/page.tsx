@@ -23,11 +23,7 @@ import {
 import { BookOpen, Search, Edit } from 'lucide-react'
 import { traducirEstado } from '@payload-config/lib/estados'
 
-const contentRows = [
-  { course: 'React Inicial', modules: 8, lessons: 42, status: 'published' },
-  { course: 'Node Backend', modules: 6, lessons: 31, status: 'published' },
-  { course: 'Marketing Digital', modules: 5, lessons: 24, status: 'draft' },
-]
+const contentRows: { course: string; modules: number; lessons: number; status: string }[] = []
 
 export default function CampusContenidoPage() {
   const [searchTerm, setSearchTerm] = useState('')

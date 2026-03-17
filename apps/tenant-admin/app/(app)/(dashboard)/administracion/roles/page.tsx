@@ -439,66 +439,11 @@ export default function RolesPage() {
                         </>
                       )}
                       {selectedRole === 'gestor' && (
-                        <>
-                          <TableRow data-oid="o-.h3mj">
-                            <TableCell data-oid="kcvglc3">
-                              <div className="flex items-center gap-3" data-oid="g8qlja5">
-                                <div
-                                  className="h-8 w-8 rounded-full bg-muted flex items-center justify-center"
-                                  data-oid="1m9n_c9"
-                                >
-                                  <User className="h-4 w-4" data-oid="0-y6_x:" />
-                                </div>
-                                <div data-oid="0v0whb3">
-                                  <p className="font-medium" data-oid="3d1lac6">
-                                    María García López
-                                  </p>
-                                  <p className="text-sm text-muted-foreground" data-oid="0fv_zx2">
-                                    maria.garcia@akademate.com
-                                  </p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell data-oid="a0l45vv">Sede Norte</TableCell>
-                            <TableCell className="text-muted-foreground" data-oid="qi7014q">
-                              Hoy 09:15
-                            </TableCell>
-                            <TableCell className="text-right" data-oid=":zbf1gy">
-                              <Button variant="ghost" size="sm" data-oid="4y2ay8d">
-                                <Eye className="h-4 w-4" data-oid="hseluax" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                          <TableRow data-oid=":65:o1w">
-                            <TableCell data-oid="h3lked9">
-                              <div className="flex items-center gap-3" data-oid="qtljzp8">
-                                <div
-                                  className="h-8 w-8 rounded-full bg-muted flex items-center justify-center"
-                                  data-oid="s5b_vc0"
-                                >
-                                  <User className="h-4 w-4" data-oid="7s8il:-" />
-                                </div>
-                                <div data-oid="0-snv5.">
-                                  <p className="font-medium" data-oid="n2d9e9l">
-                                    Pedro Sánchez López
-                                  </p>
-                                  <p className="text-sm text-muted-foreground" data-oid="1jauvpz">
-                                    pedro.sanchez@akademate.com
-                                  </p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell data-oid="h0g3t2o">Sede Norte</TableCell>
-                            <TableCell className="text-muted-foreground" data-oid="15faacp">
-                              Hoy 08:30
-                            </TableCell>
-                            <TableCell className="text-right" data-oid="0z.dtgf">
-                              <Button variant="ghost" size="sm" data-oid="lzai98e">
-                                <Eye className="h-4 w-4" data-oid="39s36k8" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        </>
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                            Sin usuarios con rol gestor asignado
+                          </TableCell>
+                        </TableRow>
                       )}
                       {selectedRole !== 'admin' && selectedRole !== 'gestor' && (
                         <TableRow data-oid="pxxfvco">
