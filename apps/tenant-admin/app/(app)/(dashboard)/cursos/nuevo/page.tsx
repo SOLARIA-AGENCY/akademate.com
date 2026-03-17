@@ -36,11 +36,11 @@ import {
   getCourseTypeConfig,
   type CourseTypeKey,
   type CourseTypeConfigValue,
-} from '../../../../@payload-config/lib/courseTypeConfig'
+} from '@/lib/courseTypeConfig'
 import { SubvencionItem } from '@payload-config/components/ui/SubvencionItem'
 import { EntidadSelector } from '@payload-config/components/ui/EntidadSelector'
 import { Switch } from '@payload-config/components/ui/switch'
-import type { CourseType, Subvencion, EntidadFinanciadoraKey } from '../../../../types'
+import type { CourseType, Subvencion, EntidadFinanciadoraKey } from '@/types'
 
 interface PDFFile {
   id: string

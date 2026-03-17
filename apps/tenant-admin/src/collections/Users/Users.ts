@@ -192,7 +192,7 @@ export const Users: CollectionConfig = {
     {
       name: 'password',
       type: 'text',
-      required: ((args: OperationContext) => args.operation === 'create') as unknown as boolean,
+      required: false,
       admin: {
         description: 'Password (min 8 chars, must include uppercase, lowercase, number, special char)',
       },
@@ -246,7 +246,7 @@ export const Users: CollectionConfig = {
     {
       name: 'role',
       type: 'select',
-      required: ((args: OperationContext) => args.operation === 'create') as unknown as boolean,
+      required: false,
       defaultValue: 'lectura',
       options: [
         {

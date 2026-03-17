@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import { BulkEnrollmentDialog } from '@/app/(dashboard)/matriculas/components/BulkEnrollmentDialog'
+import { BulkEnrollmentDialog } from '@/app/(app)/(dashboard)/matriculas/components/BulkEnrollmentDialog'
 import { GraduationCap, PlusCircle } from 'lucide-react'
 import { traducirEstado } from '@payload-config/lib/estados'
 

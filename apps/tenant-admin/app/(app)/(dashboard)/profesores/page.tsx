@@ -17,7 +17,7 @@ import {
 import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Edit, Loader2 } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
-import { useViewPreference } from '../../../@payload-config/hooks/useViewPreference'
+import { useViewPreference } from '@/hooks/useViewPreference'
 
 interface Certification {
   title: string
