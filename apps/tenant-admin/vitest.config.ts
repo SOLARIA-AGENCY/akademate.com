@@ -25,10 +25,8 @@ export default defineConfig({
       '**/src/__tests__/collections/**/*.test.ts',
       '**/tests/integration/**',
       '**/tests/deployment.test.ts',
-      '**/tests/api/**',
       // Tests that import from @payload-config (should be tested in source location)
       '**/tests/components/footer.test.tsx',
-      '**/tests/components/AppSidebar.test.tsx',
       '**/tests/components/DashboardFooter.test.tsx',
       '**/tests/components/StaffCard.test.tsx',
       '**/tests/unit/ciclos.test.tsx',
