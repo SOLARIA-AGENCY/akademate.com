@@ -1,5 +1,7 @@
 'use client'
 import React, { useState } from 'react'
+import Image from 'next/image'
+import { Plug, Zap, ShieldCheck } from 'lucide-react'
 
 export default function ComingSoonPage() {
   const [email, setEmail] = useState('')
@@ -34,7 +36,7 @@ export default function ComingSoonPage() {
   return (
     <div className="relative min-h-screen flex flex-col bg-background overflow-hidden">
 
-      {/* Background gradient blob — igual que HeroSection */}
+      {/* Background gradient blob */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="absolute left-1/2 top-0 -translate-x-1/2 blur-3xl opacity-20">
           <div
@@ -45,7 +47,6 @@ export default function ComingSoonPage() {
             }}
           />
         </div>
-        {/* Segundo blob bottom-right */}
         <div className="absolute right-0 bottom-0 blur-3xl opacity-10">
           <div
             className="aspect-square w-[40rem] bg-gradient-to-tl from-primary to-accent"
@@ -54,21 +55,25 @@ export default function ComingSoonPage() {
         </div>
       </div>
 
-      {/* Header mínimo */}
+      {/* Header */}
       <header className="w-full px-6 py-6 flex items-center justify-between max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">A</span>
-          </div>
+          <Image
+            src="/logos/akademate-logo-official.png"
+            alt="Akademate"
+            width={32}
+            height={32}
+            priority
+            className="h-8 w-8 object-contain"
+          />
           <span className="font-bold text-lg tracking-tight">Akademate</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-          En construcción
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-muted-foreground hidden sm:inline">Lanzamiento próximo</span>
         </div>
       </header>
 
-      {/* Contenido principal */}
+      {/* Main content */}
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <div className="mx-auto max-w-2xl text-center">
 
@@ -85,7 +90,7 @@ export default function ComingSoonPage() {
             está llegando
           </h1>
 
-          {/* Descripción — qué es Akademate */}
+          {/* Description */}
           <p className="text-lg text-muted-foreground leading-relaxed mb-6 max-w-xl mx-auto">
             Akademate es la plataforma SaaS todo-en-uno diseñada para centros de formación y academias.
             Gestión de cursos, matrículas, alumnos, comunicaciones y facturación en un único lugar.
@@ -157,7 +162,7 @@ export default function ComingSoonPage() {
             </p>
           </div>
 
-          {/* Contador/indicador social proof */}
+          {/* Stats */}
           <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-muted-foreground">
             <div className="flex flex-col items-center gap-1">
               <span className="text-2xl font-bold text-foreground">100%</span>
@@ -177,7 +182,77 @@ export default function ComingSoonPage() {
         </div>
       </main>
 
-      {/* Footer mínimo */}
+      {/* AI Integration Section */}
+      <section className="w-full px-4 py-16 border-t bg-muted/30">
+        <div className="mx-auto max-w-3xl text-center">
+
+          {/* Badge */}
+          <div className="mb-6 inline-flex items-center rounded-full border bg-background px-4 py-1.5 text-sm shadow-sm gap-2">
+            <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <span className="text-muted-foreground font-medium">Compatible con IA</span>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-4">
+            Gestiona tu academia desde cualquier IA
+          </h2>
+          <p className="text-muted-foreground leading-relaxed mb-10 max-w-xl mx-auto">
+            Akademate se conecta con los principales asistentes de inteligencia artificial mediante conectores MCP.
+            Crea cursos, matricula alumnos, consulta analíticas y mucho más — directamente desde la IA que ya usas.
+          </p>
+
+          {/* AI logos grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-lg mx-auto mb-10">
+            {[
+              { name: 'Claude', logo: '/logos/ai/claude.svg', w: 120, h: 26, color: 'bg-orange-50 border-orange-100', desc: 'Anthropic' },
+              { name: 'ChatGPT', logo: '/logos/ai/openai.svg', w: 40, h: 40, color: 'bg-emerald-50 border-emerald-100', desc: 'OpenAI' },
+              { name: 'Grok', logo: '/logos/ai/grok.webp', w: 40, h: 40, color: 'bg-gray-50 border-gray-200', desc: 'xAI' },
+              { name: 'Gemini', logo: '/logos/ai/gemini.svg', w: 40, h: 40, color: 'bg-purple-50 border-purple-100', desc: 'Google' },
+            ].map((ai) => (
+              <div
+                key={ai.name}
+                className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${ai.color}`}
+              >
+                <div className="h-10 w-full flex items-center justify-center">
+                  <Image src={ai.logo} alt={ai.name} width={ai.w} height={ai.h} className="object-contain max-h-10 max-w-full" />
+                </div>
+                <span className="text-sm font-semibold text-foreground">{ai.name}</span>
+                <span className="text-xs text-muted-foreground">{ai.desc}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Feature bullets */}
+          <div className="grid sm:grid-cols-3 gap-4 text-sm text-left">
+            {[
+              {
+                Icon: Plug,
+                title: 'Conector MCP nativo',
+                desc: 'Integración directa con el protocolo Model Context Protocol para una conexión segura y en tiempo real.',
+              },
+              {
+                Icon: Zap,
+                title: 'Acciones desde el chat',
+                desc: 'Crea cursos, añade alumnos, genera informes o revisa matrículas con un simple mensaje de texto.',
+              },
+              {
+                Icon: ShieldCheck,
+                title: 'Seguro y con permisos',
+                desc: 'Cada acción respeta los roles y permisos de tu organización. Tu IA solo accede a lo que tú le autorices.',
+              },
+            ].map(({ Icon, title, desc }) => (
+              <div key={title} className="bg-background rounded-lg border p-4">
+                <Icon className="h-5 w-5 text-primary mb-2" strokeWidth={1.5} />
+                <p className="font-semibold text-foreground mb-1">{title}</p>
+                <p className="text-muted-foreground text-xs leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
       <footer className="px-6 py-6 text-center text-xs text-muted-foreground border-t">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <span>© {new Date().getFullYear()} Akademate. Todos los derechos reservados.</span>

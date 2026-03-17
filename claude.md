@@ -1,5 +1,56 @@
 # Claude Code - Dokumentación de Proyectos & Planes
 
+## REGLAS CRITICAS DE INFRAESTRUCTURA — LEER ANTES DE CUALQUIER DEPLOY
+
+### Servidores de Producción Akademate
+
+| Servidor | IP | Tailscale | Rol | SSH key |
+|----------|----|-----------|-----|---------|
+| **akademate-prod** | `46.62.222.138` | — | **PRODUCCION** — todos los contenedores | `~/.ssh/akademate-prod` |
+| **cbias** | — | `100.69.163.44` | Monitoreo central (Grafana/Prometheus/Loki) | Tailscale only |
+
+### Servidores PRIVADOS — NUNCA desplegar codigo Akademate aqui
+
+| Nombre | IP Tailscale | Uso |
+|--------|-------------|-----|
+| ECO / NEMESIS | `100.99.60.106` | Infraestructura privada C-BIAS. NO es produccion Akademate. |
+| Mac Mini DRAKE | `100.79.246.5` | Maquina local secundaria. NO es servidor. |
+
+### Contenedores en akademate-prod
+
+| Contenedor | Puerto | Dominio | App |
+|------------|--------|---------|-----|
+| `akademate-web` | 3006 | `akademate.com` | Landing publica |
+| `akademate-tenant` | 3009 | `app.akademate.com`, `cepcomunicacion.akademate.com` | Dashboard academias |
+| `akademate-ops` | 3010 | `admin.akademate.com` | Panel SaaS admin |
+| `akademate-db` | 5432 (interno) | — | PostgreSQL 16 |
+| `traefik` | 80/443 | — | Reverse proxy + SSL |
+
+### Workflow Deploy Correcto
+
+```bash
+# 1. Build amd64 desde Mac M-chip
+docker buildx build --platform linux/amd64 \
+  -t <nombre-imagen>:latest \
+  -f apps/<nombre-app>/Dockerfile --load .
+
+# 2. Enviar a akademate-prod (NO a ECO/NEMESIS)
+docker save <nombre-imagen>:latest | gzip | \
+  ssh -i ~/.ssh/akademate-prod root@46.62.222.138 'gunzip | docker load'
+
+# 3. Reiniciar contenedor especifico
+ssh akademate-prod 'cd /opt/akademate/<dir> && docker compose up -d --no-deps <contenedor>'
+
+# 4. Verificar salud
+ssh akademate-prod 'docker ps --format "{{.Names}} {{.Status}}"'
+```
+
+### Documentacion de Arquitectura
+
+- Diagrama Mermaid + tabla routing + modelo enterprise: `docs/ARCHITECTURE.md`
+
+---
+
 ## Plan Activo: CEP FORMACIÓN - Infraestructura Dedicada
 
 **Estado:** Documentación completada - Listo para implementación
