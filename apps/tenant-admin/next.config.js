@@ -119,6 +119,8 @@ const nextConfig = {
       '@payload-config$': path.resolve(__dirname, './src/payload.config.ts'),
       '@payload-config': path.resolve(__dirname, './@payload-config'),
       '@': path.resolve(__dirname, '.'),
+      // socket.io-client may not be installed in Docker build — alias to stub
+      'socket.io-client': path.resolve(__dirname, '../../packages/realtime/src/socket-stub.js'),
     }
 
     // Fix: @onlook/babel-plugin-react crashes on zod v4 node_modules (ar.js locale).

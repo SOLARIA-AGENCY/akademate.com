@@ -12,7 +12,7 @@ RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 FROM base AS build
 
 # Build-time env vars baked into the Next.js client bundle.
-ARG NEXT_PUBLIC_DEFAULT_TENANT_ID=2
+ARG NEXT_PUBLIC_DEFAULT_TENANT_ID=1
 ARG NEXT_PUBLIC_WEB_URL=https://akademate.com
 ARG NEXT_PUBLIC_TENANT_URL=https://app.akademate.com
 ENV NEXT_PUBLIC_DEFAULT_TENANT_ID=${NEXT_PUBLIC_DEFAULT_TENANT_ID}
