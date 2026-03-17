@@ -68,13 +68,6 @@ interface ColorScheme {
   danger: string
 }
 
-interface StudyAreaSummary {
-  id: number
-  name: string
-  code: string
-  active: boolean
-  courseCount: number
-}
 
 interface ConsentPreferences {
   marketing_email: boolean
@@ -132,6 +125,15 @@ const CONSENT_LABELS: Record<string, string> = {
   newsletter: 'Newsletter',
 }
 
+const COLOR_FIELDS = [
+  { key: 'primary' as const, label: 'Primario', hint: 'Botones, links, sidebar' },
+  { key: 'secondary' as const, label: 'Secundario', hint: 'Fondos secundarios' },
+  { key: 'accent' as const, label: 'Acento', hint: 'Elementos destacados' },
+  { key: 'success' as const, label: 'Exito', hint: 'Estados positivos' },
+  { key: 'warning' as const, label: 'Alerta', hint: 'Avisos' },
+  { key: 'danger' as const, label: 'Error', hint: 'Errores, destructivo' },
+] as const
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -173,12 +175,6 @@ export default function ConfiguracionUnifiedPage() {
 
   // ---- Personalizacion state ----
   const [colors, setColors] = useState<ColorScheme>(DEFAULT_COLORS)
-
-  // ---- Areas state ----
-  const [areas, setAreas] = useState<StudyAreaSummary[]>([])
-
-  // ---- APIs state ----
-  const [apiKeyCount, setApiKeyCount] = useState(0)
 
   // ---- GDPR state ----
   const [consents, setConsents] = useState<ConsentPreferences>({
@@ -250,6 +246,8 @@ export default function ConfiguracionUnifiedPage() {
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
+    if (loading) return
+
     const observers: IntersectionObserver[] = []
 
     SECTIONS.forEach(({ id }) => {
@@ -288,10 +286,13 @@ export default function ConfiguracionUnifiedPage() {
   // Save helpers
   // ---------------------------------------------------------------------------
 
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const showSaved = (section: string) => {
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current)
     setSavedSection(section)
-    setTimeout(() => setSavedSection(null), 3000)
+    savedTimerRef.current = setTimeout(() => setSavedSection(null), 3000)
   }
+  useEffect(() => () => { if (savedTimerRef.current) clearTimeout(savedTimerRef.current) }, [])
 
   const saveSection = useCallback(
     async (section: string, data: unknown, endpoint = '/api/config') => {
@@ -331,6 +332,8 @@ export default function ConfiguracionUnifiedPage() {
   const handleLogoUpload = (type: keyof LogosConfig, event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      const prevUrl = logos[type]
+      if (prevUrl?.startsWith('blob:')) URL.revokeObjectURL(prevUrl)
       const url = URL.createObjectURL(file)
       setLogos((prev) => ({ ...prev, [type]: url }))
     }
@@ -588,35 +591,13 @@ export default function ConfiguracionUnifiedPage() {
               <SaveButton
                 section="personalizacion"
                 onClick={async () => {
-                  // Save colors, logo, and academy name
                   setSavingSection('personalizacion')
                   try {
                     await Promise.all([
-                      fetch('/api/config', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ section: 'personalizacion', tenantId, data: colors }),
-                      }),
-                      fetch('/api/config', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ section: 'logos', tenantId, data: logos }),
-                      }),
-                      fetch('/api/config', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          section: 'academia',
-                          tenantId,
-                          data: { nombre: academia.nombre },
-                        }),
-                      }),
+                      saveSection('personalizacion', colors),
+                      saveSection('logos', logos),
+                      saveSection('academia', { nombre: academia.nombre }),
                     ])
-                    await refresh()
-                    showSaved('personalizacion')
-                    window.dispatchEvent(new Event('config-updated'))
-                  } catch (err) {
-                    console.error('Error saving personalizacion:', err)
                   } finally {
                     setSavingSection(null)
                   }
@@ -693,16 +674,7 @@ export default function ConfiguracionUnifiedPage() {
                   Colores de Marca
                 </h4>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {(
-                    [
-                      { key: 'primary', label: 'Primario', hint: 'Botones, links, sidebar' },
-                      { key: 'secondary', label: 'Secundario', hint: 'Fondos secundarios' },
-                      { key: 'accent', label: 'Acento', hint: 'Elementos destacados' },
-                      { key: 'success', label: 'Exito', hint: 'Estados positivos' },
-                      { key: 'warning', label: 'Alerta', hint: 'Avisos' },
-                      { key: 'danger', label: 'Error', hint: 'Errores, destructivo' },
-                    ] as const
-                  ).map(({ key, label, hint }) => (
+                  {COLOR_FIELDS.map(({ key, label, hint }) => (
                     <div key={key} className="space-y-2">
                       <Label htmlFor={`color-${key}`} className="text-sm">
                         {label}
