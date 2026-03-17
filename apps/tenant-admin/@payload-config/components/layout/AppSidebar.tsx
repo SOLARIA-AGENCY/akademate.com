@@ -29,7 +29,6 @@ import {
   Globe,
   FileInput,
   Eye,
-  UserCog,
   CreditCard,
   Award,
   School,
@@ -145,22 +144,20 @@ const menuItems: MenuItemWithSection[] = [
     ],
   },
   {
-    title: 'Configuración',
-    icon: Settings,
+    title: 'Administración',
+    icon: Shield,
     sectionBefore: 'ADMINISTRACIÓN',
     items: [
       { title: 'Usuarios', icon: Users, url: '/administracion/usuarios' },
       { title: 'Roles y Permisos', icon: Shield, url: '/administracion/roles' },
-      { title: 'Impersonar Usuario', icon: UserCog, url: '/administracion/impersonar' },
       { title: 'Suscripción', icon: CreditCard, url: '/administracion/suscripcion' },
       { title: 'Registro de Actividad', icon: FileText, url: '/administracion/actividad' },
-      { title: 'General', icon: Settings, url: '/configuracion/general' },
-      { title: 'Áreas de Estudio', icon: BookOpen, url: '/configuracion/areas' },
-      { title: 'APIs y Webhooks', icon: Globe, url: '/configuracion/apis' },
-      { title: 'Personalización', icon: Sparkles, url: '/configuracion/personalizacion' },
-      { title: 'Design System', icon: Sparkles, url: '/design-system' },
-      { title: 'Mockup Dashboard v2', icon: LayoutDashboard, url: '/diseno/mockup-dashboard' },
     ],
+  },
+  {
+    title: 'Configuración',
+    icon: Settings,
+    url: '/configuracion',
   },
 ]
 
