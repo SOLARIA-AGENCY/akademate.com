@@ -507,7 +507,7 @@ export default function NuevoCicloPage() {
               ) : (
                 <div className="space-y-3">
                   {requirements.map((req, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
                       <div className="flex-1 space-y-2">
                         <Input
                           placeholder="Ej: Titulo de Bachillerato o equivalente"
@@ -573,8 +573,8 @@ export default function NuevoCicloPage() {
               ) : (
                 <div className="space-y-3">
                   {modules.map((mod, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                      <div className="flex-1 grid gap-3 sm:grid-cols-4">
+                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                      <div className="flex-1 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                         <div className="sm:col-span-2">
                           <Input
                             placeholder="Nombre del modulo"
@@ -661,7 +661,7 @@ export default function NuevoCicloPage() {
               ) : (
                 <div className="space-y-3">
                   {careerPaths.map((cp, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
                       <div className="flex-1 grid gap-3 sm:grid-cols-2">
                         <Input
                           placeholder="Titulo / Puesto"
@@ -720,7 +720,7 @@ export default function NuevoCicloPage() {
               ) : (
                 <div className="space-y-3">
                   {competencies.map((comp, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
                       <div className="flex-1 space-y-2">
                         <Input
                           placeholder="Titulo de la competencia"
@@ -818,7 +818,7 @@ export default function NuevoCicloPage() {
                 ) : (
                   <div className="space-y-3">
                     {paymentOptions.map((opt, i) => (
-                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                      <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
                         <div className="flex-1 grid gap-3 sm:grid-cols-2">
                           <Input
                             placeholder="Ej: Pago unico"
@@ -900,7 +900,7 @@ export default function NuevoCicloPage() {
               ) : (
                 <div className="space-y-3">
                   {scholarships.map((sch, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
                       <div className="flex-1 grid gap-3 sm:grid-cols-2">
                         <Input
                           placeholder="Nombre de la beca"
@@ -971,7 +971,7 @@ export default function NuevoCicloPage() {
                 ) : (
                   <div className="space-y-3">
                     {furtherStudies.map((fs, i) => (
-                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                      <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
                         <div className="flex-1 space-y-2">
                           <Input
                             placeholder="Titulo (Ej: Grado en Ingenieria Informatica)"
@@ -1018,7 +1018,7 @@ export default function NuevoCicloPage() {
                 ) : (
                   <div className="space-y-3">
                     {documents.map((doc, i) => (
-                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                      <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
                         <div className="flex-1 grid gap-3 sm:grid-cols-2">
                           <Input
                             placeholder="Titulo del documento"
@@ -1076,7 +1076,7 @@ export default function NuevoCicloPage() {
               ) : (
                 <div className="space-y-3">
                   {features.map((feat, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
                       <div className="flex-1 space-y-2">
                         <Input
                           placeholder="Titulo de la caracteristica"
