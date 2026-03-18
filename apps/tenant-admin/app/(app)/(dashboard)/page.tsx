@@ -168,6 +168,18 @@ export default function DashboardPage() {
     certificatesIssued: 0,
   })
 
+  const [cycleStats, setCycleStats] = useState<{
+    gradoMedio: number
+    gradoSuperior: number
+    totalInscritos: number
+    plazasDisponibles: number
+  }>({
+    gradoMedio: 0,
+    gradoSuperior: 0,
+    totalInscritos: 0,
+    plazasDisponibles: 0,
+  })
+
   // Destructure data for easier access with explicit types
   const metrics: DashboardMetrics = data.metrics
   const convocations: Convocation[] = data.convocations
@@ -208,8 +220,38 @@ export default function DashboardPage() {
     }
   }
 
+  const refreshCycleStats = async () => {
+    try {
+      const [medioRes, superiorRes] = await Promise.all([
+        fetch('/api/cycles?where[level][equals]=grado_medio&limit=0', {
+          credentials: 'include',
+          cache: 'no-store',
+        }),
+        fetch('/api/cycles?where[level][equals]=grado_superior&limit=0', {
+          credentials: 'include',
+          cache: 'no-store',
+        }),
+      ])
+
+      const medioData = medioRes.ok ? ((await medioRes.json()) as { totalDocs?: number }) : null
+      const superiorData = superiorRes.ok
+        ? ((await superiorRes.json()) as { totalDocs?: number })
+        : null
+
+      setCycleStats({
+        gradoMedio: medioData?.totalDocs ?? 0,
+        gradoSuperior: superiorData?.totalDocs ?? 0,
+        totalInscritos: 0,
+        plazasDisponibles: 0,
+      })
+    } catch {
+      // Keep previous stats on transient errors
+    }
+  }
+
   useEffect(() => {
     void refreshCampusSummary()
+    void refreshCycleStats()
   }, [])
 
   // Format current date in Spanish
@@ -372,6 +414,88 @@ export default function DashboardPage() {
             </Card>
           )
         })}
+      </div>
+
+      {/* Ciclos Formativos KPIs */}
+      <div
+        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full"
+        data-oid="cycle-kpis"
+      >
+        <Card data-oid="kpi-gm">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
+            data-oid="kpi-gm-h"
+          >
+            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-gm-t">
+              Ciclos Grado Medio
+            </CardTitle>
+            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-gm-i">
+              <GraduationCap className="h-4 w-4 text-primary" data-oid="kpi-gm-ic" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-1" data-oid="kpi-gm-c">
+            <div className="text-2xl font-bold" data-oid="kpi-gm-v">
+              {cycleStats.gradoMedio}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-oid="kpi-gs">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
+            data-oid="kpi-gs-h"
+          >
+            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-gs-t">
+              Ciclos Grado Superior
+            </CardTitle>
+            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-gs-i">
+              <GraduationCap className="h-4 w-4 text-primary" data-oid="kpi-gs-ic" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-1" data-oid="kpi-gs-c">
+            <div className="text-2xl font-bold" data-oid="kpi-gs-v">
+              {cycleStats.gradoSuperior}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-oid="kpi-ti">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
+            data-oid="kpi-ti-h"
+          >
+            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-ti-t">
+              Total Inscritos
+            </CardTitle>
+            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-ti-i">
+              <Users className="h-4 w-4 text-primary" data-oid="kpi-ti-ic" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-1" data-oid="kpi-ti-c">
+            <div className="text-2xl font-bold" data-oid="kpi-ti-v">
+              {cycleStats.totalInscritos}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-oid="kpi-pd">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
+            data-oid="kpi-pd-h"
+          >
+            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-pd-t">
+              Plazas Disponibles
+            </CardTitle>
+            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-pd-i">
+              <BookOpen className="h-4 w-4 text-primary" data-oid="kpi-pd-ic" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-1" data-oid="kpi-pd-c">
+            <div className="text-2xl font-bold" data-oid="kpi-pd-v">
+              {cycleStats.plazasDisponibles}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Integración Campus Virtual */}

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Progress } from '@payload-config/components/ui/progress'
 import {
   ArrowLeft,
   GraduationCap,
@@ -25,6 +26,9 @@ import {
   MapPin,
   ExternalLink,
   CheckCircle2,
+  Users,
+  Download,
+  FolderOpen,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -39,7 +43,8 @@ interface CycleDetail {
   family?: string
   officialTitle?: string
   description?: string
-  image?: string
+  image?: string | { url?: string; filename?: string }
+  capacity?: number
   totalHours?: number
   courses?: number
   modality?: string
@@ -58,7 +63,7 @@ interface CycleDetail {
   scholarships?: Array<{ name: string; description: string; url: string; type: string }>
   fundaeEligible?: boolean
   furtherStudies?: Array<{ title: string; description: string }>
-  documents?: Array<{ title: string }>
+  documents?: Array<{ title: string; type?: string; url?: string }>
   features?: Array<{ title: string; description: string }>
   createdAt?: string
   updatedAt?: string
@@ -91,6 +96,25 @@ const MODULE_TYPE_COLORS: Record<string, string> = {
 function formatCurrency(value: number | undefined): string {
   if (value == null) return '-'
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value)
+}
+
+function resolveImageUrl(image: CycleDetail['image']): string | null {
+  if (!image) return null
+  if (typeof image === 'string') return image
+  if (image.url) return image.url
+  if (image.filename) return `/media/${image.filename}`
+  return null
+}
+
+const CYCLE_PDF_MAP: Record<string, { title: string; type: string; url: string }[]> = {
+  '1': [{ title: 'CFGM Farmacia y Parafarmacia', type: 'catalogo', url: '/media/cfgm-farmacia-parafarmacia.pdf' }],
+  '2': [{ title: 'CFGS Higiene Bucodental', type: 'catalogo', url: '/media/cfgs-higiene-bucodental.pdf' }],
+}
+
+const DOC_TYPE_COLORS: Record<string, string> = {
+  catalogo: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  ficha: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+  programa: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
 }
 
 // ---------------------------------------------------------------------------
@@ -173,12 +197,12 @@ export default function CicloDetailPage() {
       />
 
       {/* Hero Image */}
-      {cycle.image && (
+      {resolveImageUrl(cycle.image) && (
         <Card>
           <CardContent className="p-0">
             <div className="w-full h-56 overflow-hidden bg-muted rounded-lg">
               <img
-                src={cycle.image}
+                src={resolveImageUrl(cycle.image)!}
                 alt={cycle.name}
                 className="w-full h-full object-cover"
               />
@@ -527,28 +551,121 @@ export default function CicloDetailPage() {
       )}
 
       {/* ================================================================
+          GESTION ACADEMICA
+      ================================================================ */}
+      {(() => {
+        const capacity = cycle.capacity ?? 30
+        const enrolled = 0 // TODO: fetch from course_runs
+        const available = capacity - enrolled
+        const occupationPct = capacity > 0 ? Math.round((enrolled / capacity) * 100) : 0
+
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Gestion Academica
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="p-4 rounded-lg bg-muted/50 text-center">
+                  <p className="text-xs text-muted-foreground uppercase font-semibold">Plazas totales</p>
+                  <p className="text-2xl font-bold mt-1">{capacity}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50 text-center">
+                  <p className="text-xs text-muted-foreground uppercase font-semibold">Inscritos</p>
+                  <p className="text-2xl font-bold mt-1">{enrolled}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50 text-center">
+                  <p className="text-xs text-muted-foreground uppercase font-semibold">Plazas disponibles</p>
+                  <p className="text-2xl font-bold mt-1">{available}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Ocupacion</span>
+                  <span className="font-medium">{occupationPct}%</span>
+                </div>
+                <Progress value={occupationPct} className="h-2" />
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(`/matriculas?cycleId=${cycleId}`)}
+                >
+                  <Users className="h-4 w-4 mr-1" />
+                  Ver inscripciones
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(`/cursos?cycleId=${cycleId}`)}
+                >
+                  <FolderOpen className="h-4 w-4 mr-1" />
+                  Gestionar convocatorias
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })()}
+
+      {/* ================================================================
           DOCUMENTOS
       ================================================================ */}
-      {cycle.documents && cycle.documents.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Documentos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {cycle.documents.map((doc, i) => (
-                <div key={i} className="flex items-center gap-3 p-2 rounded-lg border border-border">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{doc.title}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {(() => {
+        const apiDocs = (cycle.documents ?? []).map((doc) => ({
+          title: doc.title,
+          type: doc.type ?? 'ficha',
+          url: doc.url ?? '#',
+        }))
+        const pdfDocs = CYCLE_PDF_MAP[cycleId] ?? []
+        const allDocs = [...apiDocs, ...pdfDocs]
+
+        if (allDocs.length === 0) return null
+
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Documentos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {allDocs.map((doc, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-border"
+                  >
+                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-sm flex-1">{doc.title}</span>
+                    <Badge
+                      variant="secondary"
+                      className={DOC_TYPE_COLORS[doc.type] ?? ''}
+                    >
+                      {doc.type}
+                    </Badge>
+                    <a
+                      href={doc.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                    >
+                      <Button variant="ghost" size="sm">
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })()}
 
       {/* ================================================================
           CARACTERISTICAS

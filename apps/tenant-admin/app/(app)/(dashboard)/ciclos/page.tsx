@@ -326,7 +326,7 @@ export default function TodosLosCiclosPage() {
 
       {/* Ciclos Grid o Lista */}
       {view === 'grid' ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid=":4nn89j">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2" data-oid=":4nn89j">
           {filteredCiclos.map((ciclo) => {
             return (
               <Card
@@ -335,19 +335,24 @@ export default function TodosLosCiclosPage() {
                 onClick={() => handleViewCiclo(ciclo)}
                 data-oid=":0o:6ca"
               >
-                <div className="relative h-48 overflow-hidden bg-muted" data-oid="w45omv8">
+                <div className="relative h-56 overflow-hidden bg-muted" data-oid="w45omv8">
                   <CicloImageWithFallback
                     src={ciclo.imagen}
                     alt={ciclo.nombre}
                     data-oid="aj9q1sq"
                   />
                   <div className="absolute left-4 top-4" data-oid="k5si0ro">
-                    <span
-                      className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold bg-black/70 backdrop-blur-sm border border-white/20 text-white"
+                    <Badge
+                      variant={ciclo.nivel === 'Grado Superior' ? 'default' : 'secondary'}
+                      className={`text-xs font-semibold backdrop-blur-sm border ${
+                        ciclo.nivel === 'Grado Superior'
+                          ? 'bg-primary/90 text-primary-foreground border-primary/50'
+                          : 'bg-black/70 text-white border-white/20'
+                      }`}
                       data-oid="t:ogjxr"
                     >
                       {ciclo.nivel}
-                    </span>
+                    </Badge>
                   </div>
                 </div>
 
@@ -405,7 +410,7 @@ export default function TodosLosCiclosPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col gap-2" data-oid="1_bu5w6">
+        <div className="flex flex-col gap-2 w-full" data-oid="1_bu5w6">
           {filteredCiclos.map((ciclo) => {
             // Adapt local Ciclo interface to CicloPlantilla expected by CicloListItem
             const adaptedCiclo: CicloPlantilla = {
