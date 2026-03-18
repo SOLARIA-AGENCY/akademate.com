@@ -34,7 +34,7 @@ type TenantBrandingContextValue = {
 const DEFAULT_BRANDING: TenantBranding = {
   academyName: 'Akademate',
   logos: {
-    principal: '/logos/akademate-logo.svg',
+    principal: '/logos/akademate-logo-official.png',
     oscuro: '/logos/akademate-logo-alpha.svg',
     claro: '/logos/akademate-logo-mono.svg',
     favicon: '/logos/akademate-favicon.svg',
