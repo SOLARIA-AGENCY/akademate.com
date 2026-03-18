@@ -21,7 +21,7 @@
 | Contenedor | Puerto | Dominio | App |
 |------------|--------|---------|-----|
 | `akademate-web` | 3006 | `akademate.com` | Landing publica |
-| `akademate-tenant` | 3009 | `app.akademate.com`, `cepcomunicacion.akademate.com` | Dashboard academias |
+| `akademate-tenant` | 3009 | `app.akademate.com`, `cepformacion.akademate.com` | Dashboard academias |
 | `akademate-ops` | 3010 | `admin.akademate.com` | Panel SaaS admin |
 | `akademate-db` | 5432 (interno) | — | PostgreSQL 16 |
 | `traefik` | 80/443 | — | Reverse proxy + SSL |

@@ -163,7 +163,7 @@ export const getPayloadConfig = () => buildConfig({
     'http://localhost:3002', // CMS dashboard
     'http://localhost:3003', // ACADEMIX admin portal
     'https://app.akademate.com',
-    'https://cepcomunicacion.akademate.com',
+    'https://cepformacion.akademate.com',
     process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
   ],
   csrf: [
@@ -171,7 +171,7 @@ export const getPayloadConfig = () => buildConfig({
     'http://localhost:3002',
     'http://localhost:3003',
     'https://app.akademate.com',
-    'https://cepcomunicacion.akademate.com',
+    'https://cepformacion.akademate.com',
     process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
   ],
 });

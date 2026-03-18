@@ -101,7 +101,7 @@ const nextConfig = {
         'localhost:3000',
         '46.62.222.138',
         'app.akademate.com',
-        'cepcomunicacion.akademate.com',
+        'cepformacion.akademate.com',
       ],
     },
     // Enable Partial Prerendering (Next.js 15+)

@@ -8,7 +8,7 @@ const mockTenants = [
     id: '1',
     name: 'CEP Comunicación',
     slug: 'cepcomunicacion',
-    domain: 'cepcomunicacion.akademate.com',
+    domain: 'cepformacion.akademate.com',
     active: true,
     contactEmail: 'admin@cepcomunicacion.com',
     limits: { maxUsers: 100, maxCourses: 50 },

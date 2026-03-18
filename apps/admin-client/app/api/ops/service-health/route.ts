@@ -155,8 +155,8 @@ export async function GET() {
       checkS3(),
       checkHttp('Web (akademate.com)', 'https://akademate.com', 5000),
       checkHttp('App Dashboard', 'https://app.akademate.com/auth/login', 5000),
-      checkHttp('CEP Comunicacion', 'https://cepcomunicacion.akademate.com', 5000),
-      checkHttp('CEP Payload Admin', 'https://cepcomunicacion.akademate.com/admin', 5000),
+      checkHttp('CEP Comunicacion', 'https://cepformacion.akademate.com', 5000),
+      checkHttp('CEP Payload Admin', 'https://cepformacion.akademate.com/admin', 5000),
       checkHttp('Uptime Kuma', 'https://status.akademate.com', 5000),
     ])
 
