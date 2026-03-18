@@ -125,15 +125,6 @@ const CONSENT_LABELS: Record<string, string> = {
   newsletter: 'Newsletter',
 }
 
-const COLOR_FIELDS = [
-  { key: 'primary' as const, label: 'Primario', hint: 'Botones, links, sidebar' },
-  { key: 'secondary' as const, label: 'Secundario', hint: 'Fondos secundarios' },
-  { key: 'accent' as const, label: 'Acento', hint: 'Elementos destacados' },
-  { key: 'success' as const, label: 'Exito', hint: 'Estados positivos' },
-  { key: 'warning' as const, label: 'Alerta', hint: 'Avisos' },
-  { key: 'danger' as const, label: 'Error', hint: 'Errores, destructivo' },
-] as const
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -323,10 +314,6 @@ export default function ConfiguracionUnifiedPage() {
 
   const handleAcademiaChange = (field: keyof AcademiaConfig) => (e: ChangeEvent<HTMLInputElement>) => {
     setAcademia((prev) => ({ ...prev, [field]: e.target.value }))
-  }
-
-  const handleColorChange = (key: keyof ColorScheme, value: string) => {
-    setColors((prev) => ({ ...prev, [key]: value }))
   }
 
   const handleLogoUpload = (type: keyof LogosConfig, event: ChangeEvent<HTMLInputElement>) => {
