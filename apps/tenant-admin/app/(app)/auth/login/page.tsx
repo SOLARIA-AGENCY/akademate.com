@@ -30,7 +30,7 @@ interface LoginResponse {
 
 export default function LoginPage() {
   const router = useRouter()
-  const { branding } = useTenantBranding()
+  const { branding, loading: brandingLoading } = useTenantBranding()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -117,12 +117,12 @@ export default function LoginPage() {
         <div className="text-center mb-8" data-oid="1vf7s_f">
           <div className="flex flex-col items-center gap-2 mb-2" data-oid="ou4cocr">
             <img
-              src="/logos/akademate-icon-180.png"
-              alt="Akademate"
-              className="w-16 h-16 object-contain"
+              src={branding.logos.principal || '/logos/akademate-icon-180.png'}
+              alt={branding.academyName}
+              className={`w-16 h-16 object-contain transition-opacity duration-300 ${brandingLoading ? 'opacity-0' : 'opacity-100'}`}
             />
-            <span className="text-2xl font-bold tracking-tight text-foreground">
-              AKADEMATE
+            <span className={`text-2xl font-bold tracking-tight text-foreground transition-opacity duration-300 ${brandingLoading ? 'opacity-0' : 'opacity-100'}`}>
+              {branding.academyName}
             </span>
           </div>
           <p className="text-muted-foreground text-sm" data-oid="_0xxfde">
