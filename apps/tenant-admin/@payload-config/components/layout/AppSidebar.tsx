@@ -113,6 +113,7 @@ const menuItems: MenuItemWithSection[] = [
     items: [
       { title: 'Cursos Publicados', icon: BookOpen, url: '/web/cursos' },
       { title: 'Ciclos Publicados', icon: GraduationCap, url: '/web/ciclos' },
+      { title: 'Convocatorias', icon: Calendar, url: '/web/convocatorias' },
       { title: 'Noticias/Blog', icon: Newspaper, url: '/contenido/blog' },
       { title: 'Páginas', icon: FileEdit, url: '/contenido/paginas' },
       { title: 'FAQs', icon: HelpCircle, url: '/contenido/faqs' },
