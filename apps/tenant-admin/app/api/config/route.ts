@@ -6,18 +6,18 @@ import { db, tenants } from '@/@payload-config/lib/db'
 
 const PersonalizacionSchema = z.object({
   primary: z.string().min(4),
-  secondary: z.string().min(4),
-  accent: z.string().min(4),
-  success: z.string().min(4),
-  warning: z.string().min(4),
-  danger: z.string().min(4),
+  secondary: z.string().min(4).default('#64748b'),
+  accent: z.string().min(4).default('#1d4ed8'),
+  success: z.string().min(4).default('#22c55e'),
+  warning: z.string().min(4).default('#f59e0b'),
+  danger: z.string().min(4).default('#ef4444'),
 })
 const DomainsSchema = z.array(z.string().min(3))
 const LogosSchema = z.object({
   principal: z.string().min(1),
-  oscuro: z.string().min(1),
-  claro: z.string().min(1),
-  favicon: z.string().min(1),
+  oscuro: z.string().default(''),
+  claro: z.string().default(''),
+  favicon: z.string().default(''),
 })
 const AcademiaSchema = z.object({
   nombre: z.string().min(1),
@@ -125,23 +125,39 @@ async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult
   if (isNumeric) {
     // Payload CMS tenants table uses integer PKs and separate branding columns.
     // Use raw SQL to avoid Drizzle UUID type mismatch.
-    type PayloadRow = { id: number; name: string; branding_primary_color: string | null; branding_secondary_color: string | null }
+    type PayloadRow = {
+      id: number
+      name: string
+      branding_primary_color: string | null
+      branding_secondary_color: string | null
+      contact_email: string | null
+      contact_phone: string | null
+      contact_address: string | null
+      contact_website: string | null
+    }
     const rows = await db.execute(
-      sql`SELECT id, name, branding_primary_color, branding_secondary_color FROM tenants WHERE id = ${parseInt(tenantId, 10)} LIMIT 1`
+      sql`SELECT id, name, branding_primary_color, branding_secondary_color, contact_email, contact_phone, contact_address, contact_website FROM tenants WHERE id = ${parseInt(tenantId, 10)} LIMIT 1`
     )
     const row = (rows as unknown as PayloadRow[])[0]
     if (!row) return undefined
 
     const branding: TenantBranding = {}
-    if (row.branding_primary_color ?? row.branding_secondary_color) {
-      branding.theme = {
-        primary: row.branding_primary_color ?? mockConfig.personalizacion.primary,
-        secondary: row.branding_secondary_color ?? mockConfig.personalizacion.secondary,
-        accent: mockConfig.personalizacion.accent,
-        success: mockConfig.personalizacion.success,
-        warning: mockConfig.personalizacion.warning,
-        danger: mockConfig.personalizacion.danger,
-      }
+    branding.theme = {
+      primary: row.branding_primary_color ?? mockConfig.personalizacion.primary,
+      secondary: row.branding_secondary_color ?? mockConfig.personalizacion.secondary,
+      accent: mockConfig.personalizacion.accent,
+      success: mockConfig.personalizacion.success,
+      warning: mockConfig.personalizacion.warning,
+      danger: mockConfig.personalizacion.danger,
+    }
+    // Map Payload contact columns to academia structure
+    branding.academia = {
+      ...mockConfig.academia,
+      nombre: row.name || mockConfig.academia.nombre,
+      email1: row.contact_email ?? '',
+      telefono1: row.contact_phone ?? '',
+      direccion: row.contact_address ?? '',
+      web: row.contact_website ?? '',
     }
     return { id: String(row.id), name: row.name, branding }
   }
@@ -216,13 +232,42 @@ async function getTenantDomains(tenantId: string): Promise<TenantDomainsResult |
 }
 
 async function updateTenantBranding(tenantId: string, branding: TenantBranding): Promise<void> {
-   
+  const isNumeric = /^\d+$/.test(tenantId)
+
+  if (isNumeric) {
+    // Payload CMS tenants table uses integer PKs and separate columns.
+    // Update the specific columns that exist in the Payload schema.
+    const id = parseInt(tenantId, 10)
+    const primaryColor = branding.theme?.primary ?? null
+    const secondaryColor = branding.theme?.secondary ?? null
+    const academia = branding.academia
+
+    // Update branding colors if present
+    if (primaryColor || secondaryColor) {
+      await db.execute(
+        sql`UPDATE tenants SET branding_primary_color = ${primaryColor}, branding_secondary_color = ${secondaryColor}, updated_at = NOW() WHERE id = ${id}`
+      )
+    }
+    // Update name and contact info if academia data is present
+    if (academia) {
+      const name = academia.nombre || null
+      const contactEmail = academia.email1 || null
+      const contactPhone = academia.telefono1 || null
+      const contactAddress = academia.direccion || null
+      const contactWebsite = academia.web || null
+      await db.execute(
+        sql`UPDATE tenants SET name = COALESCE(${name}, name), contact_email = ${contactEmail}, contact_phone = ${contactPhone}, contact_address = ${contactAddress}, contact_website = ${contactWebsite}, updated_at = NOW() WHERE id = ${id}`
+      )
+    }
+    return
+  }
+
+  // UUID IDs → Drizzle SaaS schema (packages/db)
   await db
     .update(tenants)
     .set({ branding, updatedAt: new Date() })
     .where(eq(tenants.id, tenantId))
     .execute()
-   
 }
 
 async function updateTenantDomains(tenantId: string, domains: string[]): Promise<void> {

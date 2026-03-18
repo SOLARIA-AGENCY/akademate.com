@@ -70,6 +70,9 @@ interface CycleApiItem {
   name?: string
   slug?: string
   level?: 'grado_superior' | 'grado_medio' | 'fp_basica' | 'certificado_profesionalidad'
+  image?: { url?: string; filename?: string } | string | number | null
+  totalHours?: number
+  modality?: string
 }
 
 interface CycleApiResponse {
@@ -106,7 +109,7 @@ export default function TodosLosCiclosPage() {
     const fetchCycles = async () => {
       try {
         setErrorMessage(null)
-        const response = await fetch('/api/cycles?limit=100&sort=order_display', {
+        const response = await fetch('/api/cycles?limit=100&sort=order_display&depth=1', {
           cache: 'no-cache',
         })
         if (!response.ok) {
@@ -132,19 +135,32 @@ export default function TodosLosCiclosPage() {
             }
           })()
 
+          // Resolve image URL from API response (depth=1 returns object)
+          let imageUrl = ''
+          if (cycle.image) {
+            if (typeof cycle.image === 'object' && cycle.image !== null && 'url' in cycle.image) {
+              imageUrl = (cycle.image as { url?: string; filename?: string }).url
+                ?? ((cycle.image as { filename?: string }).filename
+                  ? `/media/${(cycle.image as { filename?: string }).filename}`
+                  : '')
+            } else if (typeof cycle.image === 'string') {
+              imageUrl = cycle.image
+            }
+            // typeof cycle.image === 'number' means depth didn't expand — skip
+          }
+
           return {
             id: cycle.id,
             nombre: cycle.name ?? 'Ciclo sin nombre',
             codigo: cycle.slug ?? cycle.id,
             familia: 'Formación Profesional',
-            duracion: '2000 horas',
-            modalidad: 'Presencial',
+            duracion: cycle.totalHours ? `${cycle.totalHours} horas` : '2000 horas',
+            modalidad: cycle.modality ?? 'Presencial',
             plazas: 0,
             plazas_ocupadas: 0,
             cursos_activos: 0,
             nivel: nivelLabel,
-            imagen:
-              'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=400&fit=crop',
+            imagen: imageUrl,
             competencias: [],
             salidas_profesionales: [],
             requisitos: '',

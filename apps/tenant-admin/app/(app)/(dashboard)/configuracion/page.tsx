@@ -615,10 +615,19 @@ export default function ConfiguracionUnifiedPage() {
                       }),
                     ]
                     const results = await Promise.all(requests)
+                    const failedSections = ['personalizacion', 'logos', 'academia']
+                    for (let i = 0; i < results.length; i++) {
+                      if (!results[i].ok) {
+                        const errorBody = await results[i].json().catch(() => ({}))
+                        console.error(`Error saving ${failedSections[i]}:`, results[i].status, errorBody)
+                      }
+                    }
                     if (results.every((r) => r.ok)) {
                       await refresh()
                       showSaved('personalizacion')
                       window.dispatchEvent(new Event('config-updated'))
+                    } else {
+                      console.error('Some sections failed to save. Check console for details.')
                     }
                   } catch (err) {
                     console.error('Error saving personalizacion:', err)

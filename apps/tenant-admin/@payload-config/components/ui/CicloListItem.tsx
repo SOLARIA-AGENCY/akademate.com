@@ -29,12 +29,18 @@ export function CicloListItem({ ciclo, onClick, className }: CicloListItemProps)
 
       {/* Thumbnail - Pegada al borde sin gap */}
       <div className="flex-shrink-0 h-full" data-oid="i_utyui">
-        <img
-          src={ciclo.image}
-          alt={ciclo.nombre}
-          className="h-full w-20 object-cover"
-          data-oid="znzsh04"
-        />
+        {ciclo.image ? (
+          <img
+            src={ciclo.image}
+            alt={ciclo.nombre}
+            className="h-full w-20 object-cover"
+            data-oid="znzsh04"
+          />
+        ) : (
+          <div className="h-full w-20 bg-muted flex items-center justify-center">
+            <BookOpen className="h-5 w-5 text-muted-foreground" />
+          </div>
+        )}
       </div>
 
       {/* Contenido con padding interno */}

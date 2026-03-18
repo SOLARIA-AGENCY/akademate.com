@@ -16,7 +16,7 @@ interface CycleApiItem {
   slug?: string
   level?: 'grado_superior' | 'grado_medio' | 'fp_basica' | 'certificado_profesionalidad'
   active?: boolean
-  image?: { url?: string; filename?: string } | string | null
+  image?: { url?: string; filename?: string } | string | number | null
 }
 
 interface CycleApiResponse {
@@ -51,8 +51,13 @@ function getLevelVariant(level?: string): 'default' | 'secondary' | 'outline' {
 
 function getImageUrl(image: CycleApiItem['image']): string | null {
   if (!image) return null
+  if (typeof image === 'number') return null
   if (typeof image === 'string') return image
-  return image.url ?? null
+  if (typeof image === 'object' && image !== null) {
+    if (image.url) return image.url
+    if (image.filename) return `/media/${image.filename}`
+  }
+  return null
 }
 
 export default function WebCiclosPage() {
@@ -66,7 +71,7 @@ export default function WebCiclosPage() {
   const fetchCycles = React.useCallback(async () => {
     try {
       setErrorMessage(null)
-      const response = await fetch('/api/cycles?limit=100&sort=order_display', {
+      const response = await fetch('/api/cycles?limit=100&sort=order_display&depth=1', {
         cache: 'no-cache',
       })
       if (!response.ok) {
