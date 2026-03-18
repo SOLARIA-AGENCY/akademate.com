@@ -185,11 +185,7 @@ export default function TodosLosCiclosPage() {
   })
 
   const handleViewCiclo = (ciclo: Ciclo) => {
-    if (ciclo.nivel === 'Grado Medio') {
-      router.push(`/ciclos-medio#${ciclo.id}`)
-    } else {
-      router.push(`/ciclos-superior#${ciclo.id}`)
-    }
+    router.push(`/ciclos/${ciclo.id}`)
   }
 
   return (
