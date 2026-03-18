@@ -1,33 +1,151 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
-import { ArrowLeft, GraduationCap, Users, Calendar, TrendingUp, BookOpen } from 'lucide-react'
-// TODO: Fetch from Payload API
-// import { CICLOS_DETALLE_MOCK } from '@payload-config/data/mockCiclos'
-import { CursoCicloCard } from '@payload-config/components/ui/CursoCicloCard'
-import type { CicloDetalleView, CursoCiclo, InstanciaGrado } from '../../../../types'
+import {
+  ArrowLeft,
+  GraduationCap,
+  Clock,
+  ClipboardCheck,
+  Layers,
+  Briefcase,
+  Award,
+  DollarSign,
+  Heart,
+  FileText,
+  Star,
+  Edit,
+  Loader2,
+  BookOpen,
+  Calendar,
+  MapPin,
+  ExternalLink,
+  CheckCircle2,
+} from 'lucide-react'
+
+// ---------------------------------------------------------------------------
+// Types — matches the creation form payload
+// ---------------------------------------------------------------------------
+
+interface CycleDetail {
+  id: string
+  name: string
+  code?: string
+  level: string
+  family?: string
+  officialTitle?: string
+  description?: string
+  image?: string
+  totalHours?: number
+  courses?: number
+  modality?: string
+  classFrequency?: string
+  schedule?: string
+  practiceHours?: number
+  requirements?: Array<{ text: string; type: string }>
+  modules?: Array<{ name: string; courseYear: string; hours: number; type: string }>
+  careerPaths?: Array<{ title: string; sector: string }>
+  competencies?: Array<{ title: string; description: string }>
+  enrollmentFee?: number
+  monthlyFee?: number
+  totalPrice?: number
+  paymentOptions?: Array<{ label: string; description: string }>
+  priceNotes?: string
+  scholarships?: Array<{ name: string; description: string; url: string; type: string }>
+  fundaeEligible?: boolean
+  furtherStudies?: Array<{ title: string; description: string }>
+  documents?: Array<{ title: string }>
+  features?: Array<{ title: string; description: string }>
+  createdAt?: string
+  updatedAt?: string
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const LEVEL_LABELS: Record<string, string> = {
+  basico: 'Formacion Profesional Basica',
+  medio: 'Grado Medio',
+  superior: 'Grado Superior',
+}
+
+const MODALITY_LABELS: Record<string, string> = {
+  presencial: 'Presencial',
+  semipresencial: 'Semipresencial',
+  online: 'Online',
+  dual: 'Dual',
+}
+
+const MODULE_TYPE_COLORS: Record<string, string> = {
+  troncal: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  optativo: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+  transversal: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+  fct: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+}
+
+function formatCurrency(value: number | undefined): string {
+  if (value == null) return '-'
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value)
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export default function CicloDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const cicloId = params.id as string
+  const cycleId = params.id as string
 
-  // TODO: Replace with API call - GET /api/ciclos/:id
-  const CICLOS_DETALLE_MOCK: CicloDetalleView[] = []
-  const ciclo: CicloDetalleView | undefined = CICLOS_DETALLE_MOCK.find((c) => c.id === cicloId)
+  const [cycle, setCycle] = useState<CycleDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  if (!ciclo) {
+  useEffect(() => {
+    const fetchCycle = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch(`/api/cycles/${cycleId}`)
+        if (!res.ok) {
+          setError('No se pudo cargar el ciclo')
+          return
+        }
+        const data = await res.json()
+        setCycle(data.doc ?? data)
+      } catch (err) {
+        console.error('Error fetching cycle:', err)
+        setError('Error al cargar el ciclo')
+      } finally {
+        setLoading(false)
+      }
+    }
+    void fetchCycle()
+  }, [cycleId])
+
+  // Loading state
+  if (loading) {
     return (
-      <div className="text-center py-12" data-oid="cv0xuv.">
-        <h2 className="text-2xl font-bold" data-oid="fkq:krr">
-          Ciclo no encontrado
-        </h2>
-        <Button onClick={() => router.push('/ciclos')} className="mt-4" data-oid="u3-6wxq">
+      <div className="space-y-6">
+        <PageHeader title="Cargando ciclo..." description="" icon={GraduationCap} />
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    )
+  }
+
+  // Error / not found
+  if (error || !cycle) {
+    return (
+      <div className="text-center py-12">
+        <GraduationCap className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+        <h2 className="text-2xl font-bold mb-2">{error ?? 'Ciclo no encontrado'}</h2>
+        <Button onClick={() => router.push('/ciclos')} className="mt-4">
           Volver a Ciclos
         </Button>
       </div>
@@ -35,284 +153,428 @@ export default function CicloDetailPage() {
   }
 
   return (
-    <div className="space-y-6" data-oid=".5agarg">
+    <div className="space-y-6">
       <PageHeader
-        title={ciclo.nombre}
-        description={`${ciclo.codigo} · ${ciclo.tipo === 'superior' ? 'Grado Superior' : 'Grado Medio'}`}
+        title={cycle.name}
+        description={`${cycle.code ? cycle.code + ' · ' : ''}${LEVEL_LABELS[cycle.level] ?? cycle.level}`}
         icon={GraduationCap}
         actions={
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/ciclos')}
-            className="gap-2"
-            data-oid="6:ieh96"
-          >
-            <ArrowLeft className="h-4 w-4" data-oid="ridou.d" />
-            Volver a Ciclos
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" onClick={() => router.push('/ciclos')}>
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Volver
+            </Button>
+            <Button onClick={() => router.push(`/ciclos/${cycleId}/editar`)}>
+              <Edit className="h-4 w-4 mr-1" />
+              Editar
+            </Button>
+          </div>
         }
-        data-oid="s4q9ub5"
       />
 
-      {/* Hero Section */}
-      <Card data-oid="2qzlveq">
-        <CardContent className="p-0" data-oid="c1:7oib">
-          <div className="w-full h-72 overflow-hidden bg-gray-100 relative" data-oid="82.ytbq">
-            <img
-              src={ciclo.image}
-              alt={ciclo.nombre}
-              className="w-full h-full object-cover"
-              data-oid="w3s2i_-"
-            />
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"
-              data-oid="jx8htbf"
-            />
-            <div className="absolute bottom-6 left-6 text-white" data-oid="t1r865u">
-              <Badge className={`${ciclo.color} text-white mb-2`} data-oid="7-r2j7o">
-                {ciclo.tipo === 'superior' ? 'Grado Superior' : 'Grado Medio'}
-              </Badge>
-              <h1 className="text-4xl font-bold" data-oid="a5o8t0q">
-                {ciclo.nombre}
-              </h1>
-              <p className="text-lg opacity-90 mt-1" data-oid="lvzzri8">
-                {ciclo.codigo}
-              </p>
+      {/* Hero Image */}
+      {cycle.image && (
+        <Card>
+          <CardContent className="p-0">
+            <div className="w-full h-56 overflow-hidden bg-muted rounded-lg">
+              <img
+                src={cycle.image}
+                alt={cycle.name}
+                className="w-full h-full object-cover"
+              />
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick Info Badges */}
+      <div className="flex flex-wrap gap-2">
+        <Badge variant="default">{LEVEL_LABELS[cycle.level] ?? cycle.level}</Badge>
+        {cycle.family && <Badge variant="secondary">{cycle.family}</Badge>}
+        {cycle.modality && <Badge variant="outline">{MODALITY_LABELS[cycle.modality] ?? cycle.modality}</Badge>}
+        {cycle.totalHours && (
+          <Badge variant="outline" className="gap-1">
+            <Clock className="h-3 w-3" />
+            {cycle.totalHours}h
+          </Badge>
+        )}
+        {cycle.courses && (
+          <Badge variant="outline" className="gap-1">
+            <Calendar className="h-3 w-3" />
+            {cycle.courses} curso{cycle.courses > 1 ? 's' : ''}
+          </Badge>
+        )}
+        {cycle.fundaeEligible && (
+          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+            FUNDAE
+          </Badge>
+        )}
+      </div>
+
+      {/* ================================================================
+          DATOS BASICOS
+      ================================================================ */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            Informacion General
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {cycle.officialTitle && (
+            <div>
+              <h4 className="text-sm font-semibold text-muted-foreground mb-1">Titulo Oficial</h4>
+              <p>{cycle.officialTitle}</p>
+            </div>
+          )}
+          {cycle.description && (
+            <div>
+              <h4 className="text-sm font-semibold text-muted-foreground mb-1">Descripcion</h4>
+              <p className="text-sm leading-relaxed whitespace-pre-line">{cycle.description}</p>
+            </div>
+          )}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+            {cycle.classFrequency && (
+              <div>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase">Frecuencia</h4>
+                <p className="text-sm mt-1">{cycle.classFrequency}</p>
+              </div>
+            )}
+            {cycle.schedule && (
+              <div>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase">Horario</h4>
+                <p className="text-sm mt-1">{cycle.schedule}</p>
+              </div>
+            )}
+            {cycle.practiceHours != null && cycle.practiceHours > 0 && (
+              <div>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase">Horas FCT</h4>
+                <p className="text-sm mt-1">{cycle.practiceHours}h</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-5" data-oid="oot6k_v">
-        <Card data-oid="m67k1c2">
-          <CardHeader className="pb-2" data-oid="_:s-zym">
-            <CardTitle
-              className="text-sm font-medium text-muted-foreground flex items-center gap-2"
-              data-oid="5kmltlj"
-            >
-              <BookOpen className="h-4 w-4" data-oid="kk2-ghz" />
-              Cursos
+      {/* ================================================================
+          REQUISITOS DE ACCESO
+      ================================================================ */}
+      {cycle.requirements && cycle.requirements.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ClipboardCheck className="h-5 w-5" />
+              Requisitos de Acceso
             </CardTitle>
           </CardHeader>
-          <CardContent data-oid="5bgy_yq">
-            <div className="text-3xl font-bold" data-oid="ktcg8rh">
-              {ciclo.cursos.length}
-            </div>
+          <CardContent>
+            <ul className="space-y-2">
+              {cycle.requirements.map((req, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <CheckCircle2 className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                  <div className="flex-1">
+                    <span className="text-sm">{req.text}</span>
+                    <Badge variant="outline" className="ml-2 text-xs">
+                      {req.type}
+                    </Badge>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
-        <Card data-oid="44xstj0">
-          <CardHeader className="pb-2" data-oid="ao-.i8t">
-            <CardTitle
-              className="text-sm font-medium text-muted-foreground flex items-center gap-2"
-              data-oid="-i3-unh"
-            >
-              <Calendar className="h-4 w-4" data-oid="acq24x." />
-              Convocatorias
-            </CardTitle>
-          </CardHeader>
-          <CardContent data-oid="pip6sfg">
-            <div className="text-3xl font-bold" data-oid="90bko-u">
-              {ciclo.total_instancias}
-            </div>
-          </CardContent>
-        </Card>
-        <Card data-oid="7kqk6--">
-          <CardHeader className="pb-2" data-oid="87uvvms">
-            <CardTitle
-              className="text-sm font-medium text-muted-foreground flex items-center gap-2"
-              data-oid="_hndols"
-            >
-              <Users className="h-4 w-4" data-oid="niyme6s" />
-              Alumnos
-            </CardTitle>
-          </CardHeader>
-          <CardContent data-oid="89:iqek">
-            <div className="text-3xl font-bold" data-oid="tfzoj:8">
-              {ciclo.alumnos_actuales}
-            </div>
-          </CardContent>
-        </Card>
-        <Card data-oid="ivacqwl">
-          <CardHeader className="pb-2" data-oid="gsg0wxi">
-            <CardTitle
-              className="text-sm font-medium text-muted-foreground flex items-center gap-2"
-              data-oid="ow8em7n"
-            >
-              <TrendingUp className="h-4 w-4" data-oid="0fgc4ni" />
-              Empleabilidad
-            </CardTitle>
-          </CardHeader>
-          <CardContent data-oid="vsl-xpo">
-            <div className="text-3xl font-bold" data-oid="5d:s:-2">
-              {ciclo.tasa_empleabilidad}%
-            </div>
-          </CardContent>
-        </Card>
-        <Card data-oid="cllqaqh">
-          <CardHeader className="pb-2" data-oid="ne3a0h7">
-            <CardTitle
-              className="text-sm font-medium text-muted-foreground flex items-center gap-2"
-              data-oid=".in59nm"
-            >
-              <GraduationCap className="h-4 w-4" data-oid="7eipx-t" />
-              Duración
-            </CardTitle>
-          </CardHeader>
-          <CardContent data-oid="-tge3um">
-            <div className="text-2xl font-bold" data-oid="rz0e4qw">
-              {ciclo.duracion_total_horas}H
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      )}
 
-      {/* Tabs */}
-      <Tabs defaultValue="informacion" data-oid="-al_wng">
-        <TabsList data-oid="tn-gyfm">
-          <TabsTrigger value="informacion" data-oid=":mw7.bv">
-            Información
-          </TabsTrigger>
-          <TabsTrigger value="cursos" data-oid="k8sf-7t">
-            Cursos del Ciclo ({ciclo.cursos.length})
-          </TabsTrigger>
-          <TabsTrigger value="convocatorias" data-oid="dtdv9ql">
-            Convocatorias ({ciclo.instancias.length})
-          </TabsTrigger>
-          <TabsTrigger value="salidas" data-oid="qx638w8">
-            Salidas Profesionales
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="informacion" data-oid="beescxn">
-          <Card data-oid="f:tdc8y">
-            <CardHeader data-oid="s:qms_y">
-              <CardTitle data-oid="rzxlwj9">Información del Ciclo</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4" data-oid="zykb2:r">
-              <div data-oid="pa_csyf">
-                <h3 className="font-semibold mb-2" data-oid="zq65erc">
-                  Descripción
-                </h3>
-                <p className="text-muted-foreground" data-oid="_tjlszc">
-                  {ciclo.descripcion}
-                </p>
-              </div>
-              <div data-oid="u3kf7p:">
-                <h3 className="font-semibold mb-2" data-oid="dy400gu">
-                  Perfil Profesional
-                </h3>
-                <p className="text-muted-foreground" data-oid="tc1anm2">
-                  {ciclo.perfil_profesional}
-                </p>
-              </div>
-              <div data-oid="4jxh2yc">
-                <h3 className="font-semibold mb-2" data-oid="amkokbv">
-                  Objetivos
-                </h3>
-                <ul className="list-disc list-inside space-y-1" data-oid="9yl1zk8">
-                  {ciclo.objetivos.map((obj: string, idx: number) => (
-                    <li key={idx} className="text-muted-foreground" data-oid="jtdudr7">
-                      {obj}
-                    </li>
+      {/* ================================================================
+          MODULOS
+      ================================================================ */}
+      {cycle.modules && cycle.modules.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Layers className="h-5 w-5" />
+              Modulos ({cycle.modules.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Modulo</th>
+                    <th className="text-center py-2 px-4 font-medium text-muted-foreground">Curso</th>
+                    <th className="text-center py-2 px-4 font-medium text-muted-foreground">Horas</th>
+                    <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Tipo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cycle.modules.map((mod, i) => (
+                    <tr key={i} className="border-b border-border last:border-0">
+                      <td className="py-2.5 pr-4">{mod.name}</td>
+                      <td className="py-2.5 px-4 text-center">{mod.courseYear}o</td>
+                      <td className="py-2.5 px-4 text-center">{mod.hours}h</td>
+                      <td className="py-2.5 pl-4 text-center">
+                        <Badge className={MODULE_TYPE_COLORS[mod.type] ?? ''} variant="secondary">
+                          {mod.type}
+                        </Badge>
+                      </td>
+                    </tr>
                   ))}
-                </ul>
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-border font-semibold">
+                    <td className="py-2 pr-4">Total</td>
+                    <td className="py-2 px-4 text-center">-</td>
+                    <td className="py-2 px-4 text-center">
+                      {cycle.modules.reduce((sum, m) => sum + (m.hours || 0), 0)}h
+                    </td>
+                    <td className="py-2 pl-4 text-center">-</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ================================================================
+          SALIDAS PROFESIONALES
+      ================================================================ */}
+      {cycle.careerPaths && cycle.careerPaths.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="h-5 w-5" />
+              Salidas Profesionales
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {cycle.careerPaths.map((cp, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border">
+                  <Briefcase className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">{cp.title}</p>
+                    {cp.sector && <p className="text-xs text-muted-foreground">{cp.sector}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ================================================================
+          COMPETENCIAS
+      ================================================================ */}
+      {cycle.competencies && cycle.competencies.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5" />
+              Competencias
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {cycle.competencies.map((comp, i) => (
+                <div key={i} className="border-b border-border last:border-0 pb-3 last:pb-0">
+                  <h4 className="font-medium text-sm">{comp.title}</h4>
+                  {comp.description && (
+                    <p className="text-sm text-muted-foreground mt-1">{comp.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ================================================================
+          PRECIOS
+      ================================================================ */}
+      {(cycle.enrollmentFee != null || cycle.monthlyFee != null || cycle.totalPrice != null) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              Precios
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-3">
+              {cycle.enrollmentFee != null && (
+                <div className="p-4 rounded-lg bg-muted/50 text-center">
+                  <p className="text-xs text-muted-foreground uppercase font-semibold">Matricula</p>
+                  <p className="text-2xl font-bold mt-1">{formatCurrency(cycle.enrollmentFee)}</p>
+                </div>
+              )}
+              {cycle.monthlyFee != null && (
+                <div className="p-4 rounded-lg bg-muted/50 text-center">
+                  <p className="text-xs text-muted-foreground uppercase font-semibold">Cuota Mensual</p>
+                  <p className="text-2xl font-bold mt-1">{formatCurrency(cycle.monthlyFee)}</p>
+                </div>
+              )}
+              {cycle.totalPrice != null && (
+                <div className="p-4 rounded-lg bg-primary/10 text-center">
+                  <p className="text-xs text-muted-foreground uppercase font-semibold">Precio Total</p>
+                  <p className="text-2xl font-bold mt-1 text-primary">{formatCurrency(cycle.totalPrice)}</p>
+                </div>
+              )}
+            </div>
+
+            {cycle.paymentOptions && cycle.paymentOptions.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Opciones de Pago</h4>
+                <div className="space-y-2">
+                  {cycle.paymentOptions.map((opt, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      <span className="font-medium">{opt.label}</span>
+                      {opt.description && <span className="text-muted-foreground">- {opt.description}</span>}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            )}
 
-        <TabsContent value="cursos" data-oid="goxd5g3">
-          <div className="grid gap-4 md:grid-cols-3" data-oid="chg26gx">
-            {ciclo.cursos.map((curso: CursoCiclo) => (
-              <CursoCicloCard
-                key={curso.id}
-                curso={curso}
-                cicloImagen={ciclo.image}
-                cicloColor={ciclo.color}
-                data-oid="5q-5u6v"
-              />
-            ))}
-          </div>
-        </TabsContent>
+            {cycle.priceNotes && (
+              <div>
+                <h4 className="text-sm font-semibold mb-1">Notas</h4>
+                <p className="text-sm text-muted-foreground whitespace-pre-line">{cycle.priceNotes}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-        <TabsContent value="convocatorias" data-oid="i_5h2tz">
-          <Card data-oid="lcrd4t2">
-            <CardHeader data-oid="r14o9su">
-              <CardTitle data-oid="4ppt9zt">Convocatorias Activas</CardTitle>
-            </CardHeader>
-            <CardContent data-oid="gj.vrm4">
-              <div className="space-y-4" data-oid="gkn8-:2">
-                {ciclo.instancias.map((instancia: InstanciaGrado) => (
-                  <Card key={instancia.id} data-oid="9:02cf5">
-                    <CardContent className="p-4" data-oid="z00vgr6">
-                      <div className="flex items-center justify-between" data-oid="q1k8is:">
-                        <div data-oid="-llwqy2">
-                          <h4 className="font-semibold" data-oid="dhm53m:">
-                            {instancia.nombre_convocatoria}
-                          </h4>
-                          <p className="text-sm text-muted-foreground" data-oid="n-395qa">
-                            {instancia.codigo_convocatoria}
-                          </p>
-                          <div className="flex gap-2 mt-2" data-oid="3kpxu4n">
-                            <Badge data-oid="tkhw6:7">{instancia.campus.name}</Badge>
-                            <Badge variant="outline" data-oid="1b0byz9">
-                              {instancia.turno}
-                            </Badge>
-                            <Badge
-                              className={
-                                instancia.estado === 'abierta'
-                                  ? 'bg-green-600'
-                                  : instancia.estado === 'en_curso'
-                                    ? 'bg-blue-600'
-                                    : 'bg-gray-600'
-                              }
-                              data-oid="ayg2wi."
-                            >
-                              {instancia.estado}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="text-right" data-oid="93wqmzd">
-                          <p className="text-sm text-muted-foreground" data-oid="pveiqa5">
-                            Plazas
-                          </p>
-                          <p className="text-2xl font-bold" data-oid="do2hvwn">
-                            {instancia.plazas_ocupadas}/{instancia.plazas_totales}
-                          </p>
-                          {instancia.lista_espera > 0 && (
-                            <p className="text-xs text-orange-600" data-oid="ut7or-.">
-                              +{instancia.lista_espera} en espera
-                            </p>
-                          )}
-                        </div>
+      {/* ================================================================
+          BECAS Y SUBVENCIONES
+      ================================================================ */}
+      {(cycle.fundaeEligible || (cycle.scholarships && cycle.scholarships.length > 0)) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5" />
+              Becas y Subvenciones
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {cycle.fundaeEligible && (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                <span className="text-sm font-medium text-green-800 dark:text-green-300">
+                  Bonificable a traves de FUNDAE
+                </span>
+              </div>
+            )}
+            {cycle.scholarships && cycle.scholarships.length > 0 && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {cycle.scholarships.map((sch, i) => (
+                  <div key={i} className="p-3 rounded-lg border border-border">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium text-sm">{sch.name}</p>
+                        {sch.type && (
+                          <Badge variant="outline" className="mt-1 text-xs">{sch.type}</Badge>
+                        )}
                       </div>
-                    </CardContent>
-                  </Card>
+                      {sch.url && (
+                        <a href={sch.url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                        </a>
+                      )}
+                    </div>
+                    {sch.description && (
+                      <p className="text-xs text-muted-foreground mt-2">{sch.description}</p>
+                    )}
+                  </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-        <TabsContent value="salidas" data-oid="1w_v417">
-          <Card data-oid="7hcxvcw">
-            <CardHeader data-oid="gywtwzb">
-              <CardTitle data-oid="ulkmcj9">Salidas Profesionales</CardTitle>
-            </CardHeader>
-            <CardContent data-oid="n7zv4uo">
-              <ul className="space-y-2" data-oid="k2_7cof">
-                {ciclo.salidas_profesionales.map((salida: string, idx: number) => (
-                  <li key={idx} className="flex items-center gap-2" data-oid=":-edp3o">
-                    <div className="h-2 w-2 rounded-full bg-primary" data-oid="6glealb" />
-                    <span data-oid="hh6oyr7">{salida}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* ================================================================
+          CONTINUIDAD
+      ================================================================ */}
+      {cycle.furtherStudies && cycle.furtherStudies.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Estudios de Continuidad
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {cycle.furtherStudies.map((fs, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <GraduationCap className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">{fs.title}</p>
+                    {fs.description && (
+                      <p className="text-xs text-muted-foreground">{fs.description}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ================================================================
+          DOCUMENTOS
+      ================================================================ */}
+      {cycle.documents && cycle.documents.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Documentos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {cycle.documents.map((doc, i) => (
+                <div key={i} className="flex items-center gap-3 p-2 rounded-lg border border-border">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{doc.title}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ================================================================
+          CARACTERISTICAS
+      ================================================================ */}
+      {cycle.features && cycle.features.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5" />
+              Caracteristicas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {cycle.features.map((feat, i) => (
+                <div key={i} className="p-3 rounded-lg border border-border">
+                  <p className="font-medium text-sm">{feat.title}</p>
+                  {feat.description && (
+                    <p className="text-xs text-muted-foreground mt-1">{feat.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

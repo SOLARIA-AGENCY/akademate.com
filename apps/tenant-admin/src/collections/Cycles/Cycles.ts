@@ -30,7 +30,7 @@ export const Cycles: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'level', 'order_display'],
+    defaultColumns: ['name', 'level', 'family', 'active', 'order_display'],
     group: 'Core',
     description: 'Educational cycles that categorize courses',
   },
@@ -81,8 +81,8 @@ export const Cycles: CollectionConfig = {
         description: 'Detailed description of the cycle',
       },
       validate: (val: string | undefined) => {
-        if (val && val.length > 500) {
-          return 'Description must be less than 500 characters';
+        if (val && val.length > 2000) {
+          return 'Description must be less than 2000 characters';
         }
         return true;
       },
@@ -116,6 +116,208 @@ export const Cycles: CollectionConfig = {
         return true;
       },
     },
+
+    // --- Image ---
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Imagen ilustrativa del ciclo' },
+    },
+
+    // --- Duration & Modality ---
+    {
+      name: 'duration',
+      type: 'group',
+      label: 'Duración y Modalidad',
+      fields: [
+        { name: 'totalHours', type: 'number', label: 'Horas totales', admin: { description: 'Ej: 2000' } },
+        { name: 'courses', type: 'number', label: 'Cursos escolares', admin: { description: 'Ej: 2' } },
+        {
+          name: 'modality',
+          type: 'select',
+          label: 'Modalidad',
+          options: [
+            { label: 'Presencial', value: 'presencial' },
+            { label: 'Semipresencial', value: 'semipresencial' },
+            { label: 'Online', value: 'online' },
+            { label: 'Mixto', value: 'mixto' },
+          ],
+        },
+        { name: 'classFrequency', type: 'text', label: 'Frecuencia de clases', admin: { description: 'Ej: 1 día a la semana' } },
+        { name: 'schedule', type: 'text', label: 'Horario', admin: { description: 'Ej: Viernes 9:00-14:00' } },
+        { name: 'practiceHours', type: 'number', label: 'Horas prácticas (FCT)', admin: { description: 'Ej: 500' } },
+      ],
+    },
+
+    // --- Official title & Family ---
+    { name: 'officialTitle', type: 'text', label: 'Título oficial', admin: { description: 'Título que se obtiene al completar' } },
+    { name: 'family', type: 'text', label: 'Familia profesional', admin: { description: 'Ej: Sanidad, Informática' } },
+
+    // --- Requirements ---
+    {
+      name: 'requirements',
+      type: 'array',
+      label: 'Requisitos de acceso',
+      fields: [
+        { name: 'text', type: 'text', required: true, label: 'Requisito' },
+        {
+          name: 'type',
+          type: 'select',
+          label: 'Tipo',
+          defaultValue: 'alternativo',
+          options: [
+            { label: 'Obligatorio', value: 'obligatorio' },
+            { label: 'Alternativo', value: 'alternativo' },
+          ],
+        },
+      ],
+    },
+
+    // --- Modules ---
+    {
+      name: 'modules',
+      type: 'array',
+      label: 'Módulos / Asignaturas',
+      fields: [
+        { name: 'name', type: 'text', required: true, label: 'Nombre del módulo' },
+        {
+          name: 'courseYear',
+          type: 'select',
+          label: 'Curso',
+          options: [
+            { label: 'Primero', value: '1' },
+            { label: 'Segundo', value: '2' },
+          ],
+        },
+        { name: 'hours', type: 'number', label: 'Horas' },
+        {
+          name: 'type',
+          type: 'select',
+          label: 'Tipo',
+          defaultValue: 'troncal',
+          options: [
+            { label: 'Troncal', value: 'troncal' },
+            { label: 'Optativo', value: 'optativo' },
+            { label: 'Transversal', value: 'transversal' },
+            { label: 'FCT', value: 'fct' },
+          ],
+        },
+      ],
+    },
+
+    // --- Career Paths ---
+    {
+      name: 'careerPaths',
+      type: 'array',
+      label: 'Salidas profesionales',
+      fields: [
+        { name: 'title', type: 'text', required: true, label: 'Puesto / Salida' },
+        { name: 'sector', type: 'text', label: 'Sector' },
+      ],
+    },
+
+    // --- Competencies ---
+    {
+      name: 'competencies',
+      type: 'array',
+      label: 'Competencias y enfoque diferenciador',
+      fields: [
+        { name: 'title', type: 'text', required: true, label: 'Competencia' },
+        { name: 'description', type: 'textarea', label: 'Descripción' },
+      ],
+    },
+
+    // --- Pricing ---
+    {
+      name: 'pricing',
+      type: 'group',
+      label: 'Precios',
+      fields: [
+        { name: 'enrollmentFee', type: 'number', label: 'Matrícula (€)' },
+        { name: 'monthlyFee', type: 'number', label: 'Mensualidad (€)' },
+        { name: 'totalPrice', type: 'number', label: 'Precio total (€)' },
+        {
+          name: 'paymentOptions',
+          type: 'array',
+          label: 'Opciones de pago',
+          fields: [
+            { name: 'option', type: 'text', required: true },
+          ],
+        },
+        { name: 'priceNotes', type: 'textarea', label: 'Notas sobre precios' },
+      ],
+    },
+
+    // --- Scholarships ---
+    {
+      name: 'scholarships',
+      type: 'array',
+      label: 'Becas y subvenciones',
+      fields: [
+        { name: 'name', type: 'text', required: true, label: 'Nombre' },
+        { name: 'description', type: 'textarea', label: 'Descripción' },
+        { name: 'url', type: 'text', label: 'URL información' },
+        {
+          name: 'type',
+          type: 'select',
+          label: 'Tipo',
+          options: [
+            { label: 'Beca', value: 'beca' },
+            { label: 'Subvención', value: 'subvencion' },
+            { label: 'Financiación', value: 'financiacion' },
+          ],
+        },
+      ],
+    },
+    { name: 'fundaeEligible', type: 'checkbox', label: 'Bonificable por FUNDAE', defaultValue: false },
+
+    // --- Further Studies ---
+    {
+      name: 'furtherStudies',
+      type: 'array',
+      label: 'Continuidad formativa',
+      fields: [
+        { name: 'title', type: 'text', required: true, label: 'Estudio / Certificación' },
+        { name: 'description', type: 'textarea', label: 'Descripción' },
+      ],
+    },
+
+    // --- Documents ---
+    {
+      name: 'documents',
+      type: 'array',
+      label: 'Documentos y catálogo',
+      fields: [
+        { name: 'title', type: 'text', required: true, label: 'Título del documento' },
+        { name: 'file', type: 'upload', relationTo: 'media', required: true, label: 'Archivo' },
+        {
+          name: 'type',
+          type: 'select',
+          label: 'Tipo',
+          options: [
+            { label: 'Catálogo', value: 'catalogo' },
+            { label: 'Ficha técnica', value: 'ficha' },
+            { label: 'Programa', value: 'programa' },
+            { label: 'Otro', value: 'otro' },
+          ],
+        },
+      ],
+    },
+
+    // --- Features ---
+    {
+      name: 'features',
+      type: 'array',
+      label: 'Características destacadas',
+      fields: [
+        { name: 'title', type: 'text', required: true, label: 'Característica' },
+        { name: 'description', type: 'textarea', label: 'Descripción' },
+      ],
+    },
+
+    // --- Active status ---
+    { name: 'active', type: 'checkbox', label: 'Activo', defaultValue: true, admin: { position: 'sidebar' } },
 
     /**
      * Tenant - Multi-tenant support
