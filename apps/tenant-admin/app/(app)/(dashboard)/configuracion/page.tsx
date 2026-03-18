@@ -711,49 +711,46 @@ export default function ConfiguracionUnifiedPage() {
                 </div>
               </div>
 
-              {/* Color palette */}
+              {/* Brand color - single color */}
               <div>
                 <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                   <Palette className="h-4 w-4 text-muted-foreground" />
-                  Colores de Marca
+                  Color de Marca
                 </h4>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {COLOR_FIELDS.map(({ key, label, hint }) => (
-                    <div key={key} className="space-y-2">
-                      <Label htmlFor={`color-${key}`} className="text-sm">
-                        {label}
-                      </Label>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="color"
-                          id={`color-${key}`}
-                          value={colors[key]}
-                          onChange={(e) => handleColorChange(key, e.target.value)}
-                          className="h-10 w-10 cursor-pointer rounded-lg border border-border bg-transparent p-0.5"
-                        />
-                        <Input
-                          value={colors[key]}
-                          onChange={(e) => handleColorChange(key, e.target.value)}
-                          className="font-mono text-sm max-w-28"
-                          maxLength={7}
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">{hint}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Live preview strip */}
-                <div className="mt-4 flex gap-2 items-center">
-                  <span className="text-xs text-muted-foreground mr-2">Vista previa:</span>
-                  {Object.entries(colors).map(([key, hex]) => (
-                    <div
-                      key={key}
-                      className="h-8 w-8 rounded-md border border-border"
-                      style={{ backgroundColor: hex }}
-                      title={key}
+                <div className="max-w-md space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Este color se aplica a botones, enlaces, sidebar, badges y todos los elementos de la plataforma.
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="color"
+                      id="color-primary"
+                      value={colors.primary}
+                      onChange={(e) => {
+                        const hex = e.target.value
+                        setColors((prev) => ({ ...prev, primary: hex, accent: hex }))
+                      }}
+                      className="h-12 w-12 cursor-pointer rounded-lg border border-border bg-transparent p-0.5"
                     />
-                  ))}
+                    <div className="space-y-1">
+                      <Input
+                        value={colors.primary}
+                        onChange={(e) => {
+                          const hex = e.target.value
+                          setColors((prev) => ({ ...prev, primary: hex, accent: hex }))
+                        }}
+                        className="font-mono text-sm max-w-28"
+                        maxLength={7}
+                      />
+                      <p className="text-xs text-muted-foreground">Codigo hexadecimal</p>
+                    </div>
+                    <div
+                      className="h-10 flex-1 rounded-lg border border-border flex items-center justify-center text-sm font-medium text-white"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Vista previa
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
