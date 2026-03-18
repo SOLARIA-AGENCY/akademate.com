@@ -43,7 +43,7 @@ interface CycleDetail {
   family?: string
   officialTitle?: string
   description?: string
-  image?: string | { url?: string; filename?: string }
+  image?: number | string | { url?: string; filename?: string }
   capacity?: number
   totalHours?: number
   courses?: number
@@ -100,9 +100,12 @@ function formatCurrency(value: number | undefined): string {
 
 function resolveImageUrl(image: CycleDetail['image']): string | null {
   if (!image) return null
+  if (typeof image === 'number') return null
   if (typeof image === 'string') return image
-  if (image.url) return image.url
-  if (image.filename) return `/media/${image.filename}`
+  if (typeof image === 'object') {
+    if (image.url) return image.url
+    if (image.filename) return `/media/${image.filename}`
+  }
   return null
 }
 
@@ -134,7 +137,7 @@ export default function CicloDetailPage() {
     const fetchCycle = async () => {
       setLoading(true)
       try {
-        const res = await fetch(`/api/cycles/${cycleId}`)
+        const res = await fetch(`/api/cycles/${cycleId}?depth=1`)
         if (!res.ok) {
           setError('No se pudo cargar el ciclo')
           return
@@ -649,16 +652,27 @@ export default function CicloDetailPage() {
                     >
                       {doc.type}
                     </Badge>
-                    <a
-                      href={doc.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      download
-                    >
-                      <Button variant="ghost" size="sm">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </a>
+                    <div className="flex items-center gap-1">
+                      <a
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="ghost" size="sm" className="gap-1">
+                          <ExternalLink className="h-4 w-4" />
+                          <span className="text-xs">Ver</span>
+                        </Button>
+                      </a>
+                      <a
+                        href={doc.url}
+                        download
+                      >
+                        <Button variant="ghost" size="sm" className="gap-1">
+                          <Download className="h-4 w-4" />
+                          <span className="text-xs">Descargar</span>
+                        </Button>
+                      </a>
+                    </div>
                   </div>
                 ))}
               </div>

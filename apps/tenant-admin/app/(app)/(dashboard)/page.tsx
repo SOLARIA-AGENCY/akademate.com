@@ -465,7 +465,7 @@ export default function DashboardPage() {
             data-oid="kpi-ti-h"
           >
             <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-ti-t">
-              Total Inscritos
+              Total Inscritos Ciclos
             </CardTitle>
             <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-ti-i">
               <Users className="h-4 w-4 text-primary" data-oid="kpi-ti-ic" />
@@ -484,7 +484,7 @@ export default function DashboardPage() {
             data-oid="kpi-pd-h"
           >
             <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-pd-t">
-              Plazas Disponibles
+              Plazas Disponibles Ciclos
             </CardTitle>
             <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-pd-i">
               <BookOpen className="h-4 w-4 text-primary" data-oid="kpi-pd-ic" />
