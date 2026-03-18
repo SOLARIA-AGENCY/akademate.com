@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback, type ChangeEvent } from 'react'
-import Image from 'next/image'
+// Image import removed — using native <img> for dynamic logos
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -315,10 +315,6 @@ export default function ConfiguracionUnifiedPage() {
     setAcademia((prev) => ({ ...prev, [field]: e.target.value }))
   }
 
-  const handleLogoUrlChange = (type: keyof LogosConfig, value: string) => {
-    setLogos((prev) => ({ ...prev, [type]: value }))
-  }
-
   const handleConsentToggle = (key: keyof ConsentPreferences) => {
     setConsents((prev) => ({ ...prev, [key]: !prev[key] }))
   }
@@ -596,6 +592,27 @@ export default function ConfiguracionUnifiedPage() {
                 onClick={async () => {
                   setSavingSection('personalizacion')
                   try {
+                    // If logo is a blob URL, upload it first
+                    let logosToSave = { ...logos }
+                    if (logos.principal?.startsWith('blob:')) {
+                      try {
+                        const blob = await fetch(logos.principal).then((r) => r.blob())
+                        const formData = new FormData()
+                        formData.append('file', blob, 'logo.png')
+                        formData.append('alt', 'Logo de la academia')
+                        const uploadRes = await fetch('/api/media', { method: 'POST', body: formData })
+                        if (uploadRes.ok) {
+                          const uploaded = await uploadRes.json()
+                          const uploadedUrl = uploaded.doc?.url || `/media/${uploaded.doc?.filename}`
+                          logosToSave = { ...logosToSave, principal: uploadedUrl, oscuro: uploadedUrl, claro: uploadedUrl }
+                          setLogos(logosToSave)
+                          URL.revokeObjectURL(logos.principal)
+                        }
+                      } catch (uploadErr) {
+                        console.error('Logo upload failed:', uploadErr)
+                      }
+                    }
+
                     const endpoint = '/api/config'
                     const requests = [
                       fetch(endpoint, {
@@ -606,7 +623,7 @@ export default function ConfiguracionUnifiedPage() {
                       fetch(endpoint, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ section: 'logos', tenantId, data: logos }),
+                        body: JSON.stringify({ section: 'logos', tenantId, data: logosToSave }),
                       }),
                       fetch(endpoint, {
                         method: 'PUT',
@@ -638,7 +655,7 @@ export default function ConfiguracionUnifiedPage() {
               />
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Logo URL */}
+              {/* Logo Upload */}
               <div>
                 <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                   <ImageIcon className="h-4 w-4 text-muted-foreground" />
@@ -647,12 +664,10 @@ export default function ConfiguracionUnifiedPage() {
                 <div className="flex items-start gap-6">
                   <div className="flex-shrink-0 rounded-xl border border-border bg-muted/50 p-4 flex items-center justify-center w-32 h-32">
                     {logos.principal ? (
-                      <Image
+                      <img
                         src={logos.principal}
                         alt="Logo"
-                        width={96}
-                        height={96}
-                        className="object-contain max-h-24"
+                        className="object-contain max-h-24 max-w-24"
                       />
                     ) : (
                       <ImageIcon className="h-12 w-12 text-muted-foreground" />
@@ -660,18 +675,44 @@ export default function ConfiguracionUnifiedPage() {
                   </div>
                   <div className="space-y-3 flex-1">
                     <div className="space-y-2">
-                      <Label htmlFor="logo-url">URL del logo</Label>
-                      <Input
-                        id="logo-url"
-                        value={logos.principal}
-                        onChange={(e) => handleLogoUrlChange('principal', e.target.value)}
-                        placeholder="/logos/mi-logo.png"
-                        className="max-w-md"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Sube el logo desde Payload Admin (/admin) y pega la URL aqui.
-                        Ejemplo: /media/mi-logo.png
-                      </p>
+                      <Label htmlFor="logo-upload">Subir logo</Label>
+                      <div
+                        className="relative max-w-md border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                        onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-primary') }}
+                        onDragLeave={(e) => { e.currentTarget.classList.remove('border-primary') }}
+                        onDrop={(e) => {
+                          e.preventDefault()
+                          e.currentTarget.classList.remove('border-primary')
+                          const file = e.dataTransfer.files?.[0]
+                          if (file && file.type.startsWith('image/')) {
+                            const url = URL.createObjectURL(file)
+                            setLogos((prev) => ({ ...prev, principal: url }))
+                          }
+                        }}
+                        onClick={() => document.getElementById('logo-upload')?.click()}
+                      >
+                        <ImageIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground">
+                          Arrastra una imagen o <span className="text-primary font-medium">haz click para seleccionar</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">PNG, JPG o SVG. Recomendado: 512x512px</p>
+                        <input
+                          id="logo-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              const url = URL.createObjectURL(file)
+                              setLogos((prev) => ({ ...prev, principal: url }))
+                            }
+                          }}
+                        />
+                      </div>
+                      {logos.principal && logos.principal !== '/logos/akademate-logo-official.png' && (
+                        <p className="text-xs text-green-500">Logo actualizado (se guardara al hacer click en Guardar)</p>
+                      )}
                     </div>
                   </div>
                 </div>
