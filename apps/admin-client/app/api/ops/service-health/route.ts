@@ -16,6 +16,7 @@ interface ServiceResult {
   latencyMs: number | null
   message: string
   uptime: number
+  url: string | null
 }
 
 async function checkHttp(
@@ -31,9 +32,9 @@ async function checkHttp(
     clearTimeout(timer)
     const latencyMs = Date.now() - start
     const status = res.ok ? 'operational' : latencyMs < 3000 ? 'degraded' : 'outage'
-    return { name, status, latencyMs, message: `HTTP ${res.status}`, uptime: res.ok ? 100 : 95 }
+    return { name, status, latencyMs, message: `HTTP ${res.status}`, uptime: res.ok ? 100 : 95, url }
   } catch {
-    return { name, status: 'outage', latencyMs: Date.now() - start, message: 'No responde', uptime: 0 }
+    return { name, status: 'outage', latencyMs: Date.now() - start, message: 'No responde', uptime: 0, url }
   }
 }
 
@@ -49,6 +50,7 @@ async function checkDatabase(): Promise<ServiceResult> {
       latencyMs,
       message: 'Conexión OK',
       uptime: 100,
+      url: null,
     }
   } catch (err) {
     return {
@@ -57,6 +59,7 @@ async function checkDatabase(): Promise<ServiceResult> {
       latencyMs: Date.now() - start,
       message: err instanceof Error ? err.message : 'Error de conexión',
       uptime: 0,
+      url: null,
     }
   }
 }
@@ -69,6 +72,7 @@ async function checkS3(): Promise<ServiceResult> {
       latencyMs: null,
       message: 'No configurado (sin almacenamiento externo)',
       uptime: 100,
+      url: null,
     }
   }
 
@@ -88,6 +92,7 @@ async function checkS3(): Promise<ServiceResult> {
       latencyMs,
       message: `HTTP ${res.status}`,
       uptime: reachable ? 100 : 90,
+      url: S3_ENDPOINT,
     }
   } catch {
     return {
@@ -96,21 +101,68 @@ async function checkS3(): Promise<ServiceResult> {
       latencyMs: Date.now() - start,
       message: 'No responde',
       uptime: 0,
+      url: S3_ENDPOINT,
     }
   }
 }
 
-export async function GET() {
-  const [db, payloadCms, payloadAuth, s3, web, appDashboard] = await Promise.all([
-    checkDatabase(),
-    checkHttp('Payload CMS', `${PAYLOAD_URL}/api/health`),
-    checkHttp('Payload Auth', `${PAYLOAD_URL}/api/users/me`, 3000),
-    checkS3(),
-    checkHttp('Web (akademate.com)', 'https://akademate.com', 5000),
-    checkHttp('App Dashboard', 'https://app.akademate.com/auth/login', 5000),
-  ])
+/** Self-check returns immediately healthy (we are running to serve this request). */
+function checkSelf(): ServiceResult {
+  return {
+    name: 'Ops Dashboard',
+    status: 'operational',
+    latencyMs: 0,
+    message: 'Self-check OK',
+    uptime: 100,
+    url: 'https://admin.akademate.com/api/ops/health',
+  }
+}
 
-  const services = [db, payloadCms, payloadAuth, s3, web, appDashboard]
+/** Fire-and-forget: persist check results to history table. */
+function persistHistory(services: ServiceResult[]): void {
+  setImmediate(async () => {
+    try {
+      const db = getDb()
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS service_health_history (
+          id BIGSERIAL PRIMARY KEY,
+          service_name VARCHAR(128) NOT NULL,
+          status VARCHAR(20) NOT NULL,
+          latency_ms INTEGER,
+          checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS idx_health_history_service ON service_health_history(service_name);
+        CREATE INDEX IF NOT EXISTS idx_health_history_checked ON service_health_history(checked_at);
+      `)
+      for (const s of services) {
+        await db.query(
+          `INSERT INTO service_health_history (service_name, status, latency_ms) VALUES ($1, $2, $3)`,
+          [s.name, s.status, s.latencyMs]
+        )
+      }
+    } catch {
+      // History logging must never crash the health check
+    }
+  })
+}
+
+export async function GET() {
+  const [db, payloadCms, payloadAuth, s3, web, appDashboard, cepSite, cepAdmin, uptimeKuma] =
+    await Promise.all([
+      checkDatabase(),
+      checkHttp('Payload CMS', `${PAYLOAD_URL}/api/health`),
+      checkHttp('Payload Auth', `${PAYLOAD_URL}/api/users/me`, 3000),
+      checkS3(),
+      checkHttp('Web (akademate.com)', 'https://akademate.com', 5000),
+      checkHttp('App Dashboard', 'https://app.akademate.com/auth/login', 5000),
+      checkHttp('CEP Comunicacion', 'https://cepcomunicacion.akademate.com', 5000),
+      checkHttp('CEP Payload Admin', 'https://cepcomunicacion.akademate.com/admin', 5000),
+      checkHttp('Uptime Kuma', 'https://status.akademate.com', 5000),
+    ])
+
+  const opsSelf = checkSelf()
+
+  const services = [db, payloadCms, payloadAuth, s3, web, appDashboard, cepSite, cepAdmin, opsSelf, uptimeKuma]
 
   const overall =
     services.every((s) => s.status === 'operational')
@@ -120,6 +172,9 @@ export async function GET() {
       : 'degraded'
 
   const operationalCount = services.filter((s) => s.status === 'operational').length
+
+  // Persist to history (fire-and-forget)
+  persistHistory(services)
 
   return NextResponse.json({
     overall,

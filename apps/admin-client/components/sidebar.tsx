@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Code,
   DollarSign,
+  Key,
   LayoutDashboard,
   Map,
   Receipt,
@@ -70,6 +71,7 @@ const supportItems = [
 const infraItems = [
   { name: 'Estado del Sistema', href: '/dashboard/estado', icon: Activity },
   { name: 'API Console', href: '/dashboard/api', icon: Code },
+  { name: 'API Keys', href: '/dashboard/api-keys', icon: Key },
 ]
 
 const opsItems = [

@@ -14,6 +14,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
+import { HealthSparkline } from '@/components/health-sparkline'
 
 // Types
 interface ServiceResult {
@@ -22,6 +23,14 @@ interface ServiceResult {
   latencyMs: number | null
   message: string
   uptime: number
+  url: string | null
+}
+
+interface HistoryEntry {
+  service_name: string
+  status: string
+  latency_ms: number | null
+  checked_at: string
 }
 
 interface ServiceHealth {
@@ -103,6 +112,7 @@ function MetricBar({ value, label }: { value: number; label: string }) {
 export default function EstadoPage() {
   const [serviceHealth, setServiceHealth] = useState<ServiceHealth | null>(null)
   const [serverMetrics, setServerMetrics] = useState<ServerMetrics | null>(null)
+  const [healthHistory, setHealthHistory] = useState<Record<string, HistoryEntry[]>>({})
   const [isLoading, setIsLoading] = useState(false)
   const [lastFetch, setLastFetch] = useState<Date | null>(null)
   const [fetchError, setFetchError] = useState(false)
@@ -110,16 +120,19 @@ export default function EstadoPage() {
   const fetchAll = useCallback(async () => {
     setIsLoading(true)
     try {
-      const [metricsRes, healthRes] = await Promise.all([
+      const [metricsRes, healthRes, historyRes] = await Promise.all([
         fetch('/api/ops/server-metrics'),
         fetch('/api/ops/service-health'),
+        fetch('/api/ops/service-health/history?limit=20'),
       ])
-      const [metricsData, healthData] = await Promise.all([
+      const [metricsData, healthData, historyData] = await Promise.all([
         metricsRes.ok ? metricsRes.json() : null,
         healthRes.ok ? healthRes.json() : null,
+        historyRes.ok ? historyRes.json() : null,
       ])
       if (metricsData) setServerMetrics(metricsData)
       if (healthData) setServiceHealth(healthData)
+      if (historyData?.history) setHealthHistory(historyData.history)
       setLastFetch(new Date())
       setFetchError(false)
     } catch {
@@ -375,61 +388,82 @@ export default function EstadoPage() {
         </div>
         <div className="divide-y divide-muted/20">
           {serviceHealth ? (
-            serviceHealth.services.map((service) => (
-              <div
-                key={service.name}
-                className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                      service.status === 'operational'
-                        ? 'bg-green-500'
-                        : service.status === 'degraded'
-                        ? 'bg-yellow-500'
-                        : 'bg-red-500'
-                    }`}
-                  />
-                  <div className="min-w-0">
-                    <p className="text-foreground font-medium truncate">{service.name}</p>
-                    <p className="text-muted-foreground text-sm truncate">{service.message}</p>
+            serviceHealth.services.map((service) => {
+              const history = healthHistory[service.name] ?? []
+              const sparkData = history
+                .filter((h) => h.latency_ms !== null)
+                .map((h) => ({ latency: h.latency_ms as number }))
+              const sparkColor =
+                service.status === 'operational'
+                  ? '#22c55e'
+                  : service.status === 'degraded'
+                  ? '#eab308'
+                  : '#ef4444'
+
+              return (
+                <div
+                  key={service.name}
+                  className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                        service.status === 'operational'
+                          ? 'bg-green-500 animate-pulse'
+                          : service.status === 'degraded'
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
+                      }`}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-foreground font-medium truncate">{service.name}</p>
+                      {service.url && (
+                        <p className="text-muted-foreground text-xs font-mono truncate">{service.url}</p>
+                      )}
+                      <p className="text-muted-foreground text-sm truncate">{service.message}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 sm:gap-6 pl-5 sm:pl-0">
-                  {service.latencyMs !== null && (
+                  <div className="flex items-center gap-3 sm:gap-6 pl-5 sm:pl-0">
+                    {sparkData.length >= 2 && (
+                      <div className="hidden sm:block">
+                        <HealthSparkline data={sparkData} color={sparkColor} />
+                      </div>
+                    )}
+                    {service.latencyMs !== null && (
+                      <div className="text-right">
+                        <p className="text-muted-foreground text-xs">Latencia</p>
+                        <p
+                          className={`text-sm font-medium ${
+                            service.latencyMs < 100
+                              ? 'text-green-400'
+                              : service.latencyMs < 500
+                              ? 'text-yellow-400'
+                              : 'text-red-400'
+                          }`}
+                        >
+                          {service.latencyMs}ms
+                        </p>
+                      </div>
+                    )}
                     <div className="text-right">
-                      <p className="text-muted-foreground text-xs">Latencia</p>
+                      <p className="text-muted-foreground text-xs">Uptime</p>
                       <p
                         className={`text-sm font-medium ${
-                          service.latencyMs < 100
+                          service.uptime >= 99.9
                             ? 'text-green-400'
-                            : service.latencyMs < 500
+                            : service.uptime >= 99
                             ? 'text-yellow-400'
                             : 'text-red-400'
                         }`}
                       >
-                        {service.latencyMs}ms
+                        {service.uptime}%
                       </p>
                     </div>
-                  )}
-                  <div className="text-right">
-                    <p className="text-muted-foreground text-xs">Uptime</p>
-                    <p
-                      className={`text-sm font-medium ${
-                        service.uptime >= 99.9
-                          ? 'text-green-400'
-                          : service.uptime >= 99
-                          ? 'text-yellow-400'
-                          : 'text-red-400'
-                      }`}
-                    >
-                      {service.uptime}%
-                    </p>
+                    <StatusBadge status={service.status} />
                   </div>
-                  <StatusBadge status={service.status} />
                 </div>
-              </div>
-            ))
+              )
+            })
           ) : (
             // Skeleton loading
             Array.from({ length: 4 }).map((_, i) => (
