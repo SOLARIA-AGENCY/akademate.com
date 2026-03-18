@@ -97,9 +97,9 @@ const mockConfig: ConfigData = {
     youtube: '',
   },
   logos: {
-    principal: '/logos/akademate-logo.svg',
-    oscuro: '/logos/akademate-logo-alpha.svg',
-    claro: '/logos/akademate-logo-mono.svg',
+    principal: '/logos/akademate-logo-official.png',
+    oscuro: '/logos/akademate-logo-official.png',
+    claro: '/logos/akademate-logo-official.png',
     favicon: '/logos/akademate-favicon.svg',
   },
   personalizacion: {

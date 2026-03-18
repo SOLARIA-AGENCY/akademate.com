@@ -35,8 +35,8 @@ const DEFAULT_BRANDING: TenantBranding = {
   academyName: 'Akademate',
   logos: {
     principal: '/logos/akademate-logo-official.png',
-    oscuro: '/logos/akademate-logo-alpha.svg',
-    claro: '/logos/akademate-logo-mono.svg',
+    oscuro: '/logos/akademate-logo-official.png',
+    claro: '/logos/akademate-logo-official.png',
     favicon: '/logos/akademate-favicon.svg',
   },
   // Akademate brand palette (shown when no custom tenant config is found).

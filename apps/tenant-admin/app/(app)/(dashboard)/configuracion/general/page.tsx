@@ -164,9 +164,9 @@ export default function ConfigGeneralPage() {
   })
 
   const [logos, setLogos] = useState<LogosConfig>({
-    principal: '/logos/akademate-logo.svg',
-    oscuro: '/logos/akademate-logo.svg',
-    claro: '/logos/akademate-logo-alpha.svg',
+    principal: '/logos/akademate-logo-official.png',
+    oscuro: '/logos/akademate-logo-official.png',
+    claro: '/logos/akademate-logo-official.png',
     favicon: '/logos/akademate-favicon.svg',
   })
 
@@ -627,7 +627,7 @@ export default function ConfigGeneralPage() {
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => setLogos({ ...logos, principal: '/logos/akademate-logo.svg' })}
+                      onClick={() => setLogos({ ...logos, principal: '/logos/akademate-logo-official.png' })}
                       data-oid="fec-xrs"
                     >
                       Cambiar
@@ -690,7 +690,7 @@ export default function ConfigGeneralPage() {
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => setLogos({ ...logos, oscuro: '/logos/akademate-logo.svg' })}
+                      onClick={() => setLogos({ ...logos, oscuro: '/logos/akademate-logo-official.png' })}
                       data-oid="75jc8.0"
                     >
                       Cambiar
@@ -754,7 +754,7 @@ export default function ConfigGeneralPage() {
                       size="sm"
                       className="mt-2"
                       onClick={() =>
-                        setLogos({ ...logos, claro: '/logos/akademate-logo-alpha.svg' })
+                        setLogos({ ...logos, claro: '/logos/akademate-logo-official.png' })
                       }
                       data-oid=".kagj:l"
                     >
