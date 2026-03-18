@@ -616,11 +616,32 @@ export default function ConfiguracionUnifiedPage() {
                 onClick={async () => {
                   setSavingSection('personalizacion')
                   try {
-                    await Promise.all([
-                      saveSection('personalizacion', colors),
-                      saveSection('logos', logos),
-                      saveSection('academia', { nombre: academia.nombre }),
-                    ])
+                    const endpoint = '/api/config'
+                    const requests = [
+                      fetch(endpoint, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ section: 'personalizacion', tenantId, data: colors }),
+                      }),
+                      fetch(endpoint, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ section: 'logos', tenantId, data: logos }),
+                      }),
+                      fetch(endpoint, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ section: 'academia', tenantId, data: { nombre: academia.nombre } }),
+                      }),
+                    ]
+                    const results = await Promise.all(requests)
+                    if (results.every((r) => r.ok)) {
+                      await refresh()
+                      showSaved('personalizacion')
+                      window.dispatchEvent(new Event('config-updated'))
+                    }
+                  } catch (err) {
+                    console.error('Error saving personalizacion:', err)
                   } finally {
                     setSavingSection(null)
                   }
