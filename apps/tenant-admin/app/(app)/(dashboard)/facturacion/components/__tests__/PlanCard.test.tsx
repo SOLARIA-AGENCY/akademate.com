@@ -37,16 +37,17 @@ describe('PlanCard', () => {
 
   it('displays monthly price correctly', () => {
     render(<PlanCard {...defaultProps} data-oid="xwk6oxz" />)
-    expect(screen.getByText('€299.00')).toBeInTheDocument()
+    expect(screen.getByText(/299/)).toBeInTheDocument()
     expect(screen.getByText('/mes')).toBeInTheDocument()
   })
 
-  it('displays yearly price with monthly equivalent', () => {
+  it('displays yearly price as discounted monthly with annual total', () => {
     render(<PlanCard {...defaultProps} interval="year" data-oid="pjj4ogs" />)
-    expect(screen.getByText('€2990.00')).toBeInTheDocument()
-    expect(screen.getByText('/año')).toBeInTheDocument()
-    // 299000 / 12 / 100 = 249.17
-    expect(screen.getByText(/€249\.17\/mes facturado anualmente/)).toBeInTheDocument()
+    // Shows discounted monthly price: 29900 * 0.83 = 24817 cents = €248/mes
+    expect(screen.getByText(/248/)).toBeInTheDocument()
+    expect(screen.getByText('/mes')).toBeInTheDocument()
+    // Shows annual total facturado anualmente
+    expect(screen.getByText(/Facturado anualmente/)).toBeInTheDocument()
   })
 
   it('does not show monthly equivalent for monthly interval', () => {
@@ -146,10 +147,12 @@ describe('PlanCard', () => {
       />
     )
     expect(screen.getByText('Starter')).toBeInTheDocument()
-    expect(screen.getByText('€199.00')).toBeInTheDocument()
+    expect(screen.getByText(/199/)).toBeInTheDocument()
+    // Should show trial badge
+    expect(screen.getByText('15 días de prueba gratuita')).toBeInTheDocument()
   })
 
-  it('renders enterprise plan correctly', () => {
+  it('renders enterprise plan with Contáctanos instead of price', () => {
     render(
       <PlanCard
         {...defaultProps}
@@ -161,7 +164,11 @@ describe('PlanCard', () => {
       />
     )
     expect(screen.getByText('Enterprise')).toBeInTheDocument()
-    expect(screen.getByText('€599.00')).toBeInTheDocument()
+    expect(screen.getByText('Contáctanos')).toBeInTheDocument()
+    // Enterprise should show "Contactar Ventas" button
+    expect(screen.getByText('Contactar Ventas')).toBeInTheDocument()
+    // Enterprise should NOT show trial badge
+    expect(screen.queryByText('15 días de prueba gratuita')).not.toBeInTheDocument()
   })
 
   it('handles many features correctly', () => {
@@ -196,10 +203,12 @@ describe('PlanCard', () => {
     const { rerender } = render(
       <PlanCard {...defaultProps} priceMonthly={9999} interval="month" data-oid="6_2gtsr" />
     )
-    expect(screen.getByText('€99.99')).toBeInTheDocument()
+    // 9999 / 100 = 99.99, toFixed(0) = 100
+    expect(screen.getByText(/100/)).toBeInTheDocument()
 
-    rerender(<PlanCard {...defaultProps} priceYearly={99999} interval="year" data-oid="x7.xc-z" />)
-    expect(screen.getByText('€999.99')).toBeInTheDocument()
+    rerender(<PlanCard {...defaultProps} priceMonthly={29900} interval="year" data-oid="x7.xc-z" />)
+    // 29900 * 0.83 = 24817 cents = €248/mes
+    expect(screen.getByText(/248/)).toBeInTheDocument()
   })
 
   it('positions popular badge correctly', () => {

@@ -260,12 +260,15 @@ export const Tenants: CollectionConfig = {
     },
 
     // ===== LIMITS =====
+    // For enterprise tenants, set all limits to 999999 to bypass plan restrictions.
+    // The usePlanLimits hook infers plan='enterprise' when maxUsers or maxCourses >= 999999.
     {
       name: 'limits',
       type: 'group',
       label: 'Límites',
       admin: {
         position: 'sidebar',
+        description: 'Para planes Enterprise, usar 999999 en todos los campos.',
       },
       fields: [
         {
@@ -274,6 +277,9 @@ export const Tenants: CollectionConfig = {
           label: 'Máx. Usuarios',
           defaultValue: 50,
           min: 1,
+          admin: {
+            description: 'Starter: 50 | Pro: 500 | Enterprise: 999999',
+          },
         },
         {
           name: 'maxCourses',
@@ -281,6 +287,9 @@ export const Tenants: CollectionConfig = {
           label: 'Máx. Cursos',
           defaultValue: 100,
           min: 1,
+          admin: {
+            description: 'Starter: 100 | Pro: 500 | Enterprise: 999999',
+          },
         },
         {
           name: 'maxLeadsPerMonth',
@@ -288,6 +297,9 @@ export const Tenants: CollectionConfig = {
           label: 'Máx. Leads/Mes',
           defaultValue: 1000,
           min: 1,
+          admin: {
+            description: 'Starter: 1000 | Pro: 10000 | Enterprise: 999999',
+          },
         },
         {
           name: 'storageQuotaMB',
@@ -295,6 +307,9 @@ export const Tenants: CollectionConfig = {
           label: 'Almacenamiento (MB)',
           defaultValue: 5120, // 5GB
           min: 100,
+          admin: {
+            description: 'Starter: 5120 (5GB) | Pro: 51200 (50GB) | Enterprise: 999999',
+          },
         },
       ],
     },

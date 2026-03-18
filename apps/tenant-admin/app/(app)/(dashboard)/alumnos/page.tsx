@@ -123,7 +123,7 @@ export default function AlumnosPage() {
   }, [])
 
   const handleAdd = () => {
-    console.log('Crear nuevo alumno')
+    router.push('/alumnos/nuevo')
   }
 
   const handleViewStudent = (studentId: string) => {
@@ -221,7 +221,7 @@ export default function AlumnosPage() {
               </Button>
             </div>
             <Button onClick={handleAdd} data-oid="y8vld12">
-              <Plus className="mr-2 h-4 w-4" data-oid="jdkge43" />
+              <Plus className="h-4 w-4" data-oid="jdkge43" />
               Nuevo Alumno
             </Button>
           </>

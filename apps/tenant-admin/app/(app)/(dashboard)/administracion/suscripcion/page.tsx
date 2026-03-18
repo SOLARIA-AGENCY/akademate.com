@@ -87,7 +87,7 @@ const historialFacturacion: {
 }[] = []
 
 export default function SuscripcionPage() {
-  const [cicloFacturacion, setCicloFacturacion] = useState<'mensual' | 'anual'>('mensual')
+  const [cicloFacturacion, setCicloFacturacion] = useState<'mensual' | 'anual'>('anual')
 
   return (
     <div className="space-y-6" data-oid=".pkzf_z">
@@ -294,7 +294,7 @@ export default function SuscripcionPage() {
                 className="ml-2 bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
                 data-oid="bis..bx"
               >
-                -20%
+                -17%
               </Badge>
             </Button>
           </div>
@@ -331,7 +331,7 @@ export default function SuscripcionPage() {
               <CardContent className="space-y-4" data-oid="1tt2-he">
                 <div className="flex items-baseline gap-1" data-oid="ovudrln">
                   <span className="text-3xl font-bold" data-oid=":0ep671">
-                    {cicloFacturacion === 'anual' ? Math.round(plan.precio * 0.8) : plan.precio}€
+                    {cicloFacturacion === 'anual' ? Math.round(plan.precio * 0.83) : plan.precio}€
                   </span>
                   <span className="text-muted-foreground" data-oid="l4m9nq:">
                     /mes

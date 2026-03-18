@@ -51,13 +51,13 @@ const PLAN_FEATURES = {
 }
 
 const PLAN_PRICING = {
-  starter: { monthly: 19900, yearly: 199000 }, // €199/mo, €1990/yr
-  pro: { monthly: 29900, yearly: 299000 }, // €299/mo, €2990/yr
-  enterprise: { monthly: 59900, yearly: 599000 }, // €599/mo, €5990/yr
+  starter: { monthly: 19900, yearly: 198204 }, // €199/mo, €1982.04/yr (€165.17/mo x 12)
+  pro: { monthly: 29900, yearly: 297804 }, // €299/mo, €2978.04/yr (€248.17/mo x 12)
+  enterprise: { monthly: 59900, yearly: 0 }, // Enterprise: custom pricing, "Contáctanos"
 }
 
 export function PlanComparison({ currentPlan, onSelectPlan }: PlanComparisonProps) {
-  const [interval, setInterval] = useState<'month' | 'year'>('month')
+  const [interval, setInterval] = useState<'month' | 'year'>('year')
   const [selectedPlan, setSelectedPlan] = useState<{
     tier: PlanTier
     interval: 'month' | 'year'

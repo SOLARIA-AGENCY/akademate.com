@@ -334,6 +334,43 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    if (section === 'limits') {
+      const limitsTenantId = resolveTenantId(searchParams.get('tenantId'))
+      if (!limitsTenantId) {
+        return NextResponse.json(
+          { success: false, error: 'tenantId parameter is required' },
+          { status: 400 }
+        )
+      }
+
+      try {
+        const isNumeric = /^\d+$/.test(limitsTenantId)
+        if (isNumeric) {
+          type LimitsRow = { limits_max_users: number | null; limits_max_courses: number | null; limits_max_leads_per_month: number | null; limits_storage_quota_m_b: number | null }
+          const rows = await db.execute(
+            sql`SELECT limits_max_users, limits_max_courses, limits_max_leads_per_month, limits_storage_quota_m_b FROM tenants WHERE id = ${parseInt(limitsTenantId, 10)} LIMIT 1`
+          )
+          const row = (rows as unknown as LimitsRow[])[0]
+          if (!row) {
+            return NextResponse.json({ success: true, data: { maxUsers: 50, maxCourses: 100, maxLeadsPerMonth: 1000, storageQuotaMB: 5120 } })
+          }
+          return NextResponse.json({
+            success: true,
+            data: {
+              maxUsers: row.limits_max_users ?? 50,
+              maxCourses: row.limits_max_courses ?? 100,
+              maxLeadsPerMonth: row.limits_max_leads_per_month ?? 1000,
+              storageQuotaMB: row.limits_storage_quota_m_b ?? 5120,
+            },
+          })
+        }
+        // UUID tenants — limits not stored in SaaS schema yet, return defaults
+        return NextResponse.json({ success: true, data: { maxUsers: 50, maxCourses: 100, maxLeadsPerMonth: 1000, storageQuotaMB: 5120 } })
+      } catch {
+        return NextResponse.json({ success: true, data: { maxUsers: 50, maxCourses: 100, maxLeadsPerMonth: 1000, storageQuotaMB: 5120 } })
+      }
+    }
+
     if (section === 'domains') {
       const tenantId = searchParams.get('tenantId')
       if (!tenantId) {

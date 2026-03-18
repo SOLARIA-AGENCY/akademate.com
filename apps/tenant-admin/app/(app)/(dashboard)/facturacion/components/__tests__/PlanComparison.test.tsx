@@ -33,35 +33,33 @@ describe('PlanComparison', () => {
     expect(screen.getByText('Ahorra 17%')).toBeInTheDocument()
   })
 
-  it('defaults to monthly interval', () => {
+  it('defaults to annual interval', () => {
     render(<PlanComparison onSelectPlan={mockOnSelectPlan} data-oid="zjg9876" />)
     const toggle = screen.getByTestId('switch')
-    expect(toggle).not.toBeChecked()
+    expect(toggle).toBeChecked()
   })
 
-  it('switches to yearly interval when toggled', () => {
+  it('switches to monthly interval when toggled', () => {
     render(<PlanComparison onSelectPlan={mockOnSelectPlan} data-oid="j8kdx1f" />)
     const toggle = screen.getByTestId('switch')
     fireEvent.click(toggle)
-    expect(toggle).toBeChecked()
+    expect(toggle).not.toBeChecked()
   })
 
   it('updates prices when interval changes', () => {
     render(<PlanComparison onSelectPlan={mockOnSelectPlan} data-oid="0nfs.l7" />)
 
-    // Initially shows monthly prices
-    expect(screen.getByText('€199.00')).toBeInTheDocument()
-    expect(screen.getByText('€299.00')).toBeInTheDocument()
-    expect(screen.getByText('€599.00')).toBeInTheDocument()
+    // Initially shows annual (discounted monthly) prices
+    // Starter: 199*0.83=165, Pro: 299*0.83=248, Enterprise: "Contáctanos"
+    expect(screen.getByText('Contáctanos')).toBeInTheDocument()
 
-    // Switch to yearly
+    // Switch to monthly
     const toggle = screen.getByTestId('switch')
     fireEvent.click(toggle)
 
-    // Should show yearly prices
-    expect(screen.getByText('€1990.00')).toBeInTheDocument()
-    expect(screen.getByText('€2990.00')).toBeInTheDocument()
-    expect(screen.getByText('€5990.00')).toBeInTheDocument()
+    // Should show monthly prices (no discount)
+    expect(screen.getByText(/199/)).toBeInTheDocument()
+    expect(screen.getByText(/299/)).toBeInTheDocument()
   })
 
   it('marks Pro plan as popular', () => {
@@ -124,7 +122,7 @@ describe('PlanComparison', () => {
     fireEvent.click(confirmButton)
 
     await waitFor(() => {
-      expect(mockOnSelectPlan).toHaveBeenCalledWith('starter', 'month')
+      expect(mockOnSelectPlan).toHaveBeenCalledWith('starter', 'year')
     })
   })
 
@@ -179,11 +177,7 @@ describe('PlanComparison', () => {
   it('maintains selected interval when switching plans', async () => {
     render(<PlanComparison onSelectPlan={mockOnSelectPlan} data-oid="z0lu5-u" />)
 
-    // Switch to yearly
-    const toggle = screen.getByTestId('switch')
-    fireEvent.click(toggle)
-
-    // Select a plan
+    // Default is already yearly, select a plan
     const selectButtons = screen.getAllByText('Seleccionar Plan')
     fireEvent.click(selectButtons[0])
 
@@ -212,16 +206,12 @@ describe('PlanComparison', () => {
     expect(grid).toBeInTheDocument()
   })
 
-  it('handles plan selection with yearly interval', async () => {
+  it('handles plan selection with yearly interval (default)', async () => {
     mockOnSelectPlan.mockResolvedValue(undefined)
 
     render(<PlanComparison onSelectPlan={mockOnSelectPlan} data-oid="_y1h5be" />)
 
-    // Switch to yearly
-    const toggle = screen.getByTestId('switch')
-    fireEvent.click(toggle)
-
-    // Select Pro plan
+    // Default is already yearly, select Pro plan
     const selectButtons = screen.getAllByText('Seleccionar Plan')
     fireEvent.click(selectButtons[1])
 
@@ -241,11 +231,7 @@ describe('PlanComparison', () => {
   it('shows monthly equivalent for yearly plans in checkout', async () => {
     render(<PlanComparison onSelectPlan={mockOnSelectPlan} data-oid="7fna.fn" />)
 
-    // Switch to yearly
-    const toggle = screen.getByTestId('switch')
-    fireEvent.click(toggle)
-
-    // Select Starter plan
+    // Default is already yearly, select Starter plan
     const selectButtons = screen.getAllByText('Seleccionar Plan')
     fireEvent.click(selectButtons[0])
 

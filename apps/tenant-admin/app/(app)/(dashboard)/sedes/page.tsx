@@ -6,7 +6,7 @@ import { Card, CardContent } from '@payload-config/components/ui/card'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { MapPin, DoorOpen, Users, BookOpen, Phone, Mail } from 'lucide-react'
+import { MapPin, DoorOpen, Users, BookOpen, Phone, Mail, Plus } from 'lucide-react'
 import { SedeListItem } from '@payload-config/components/ui/SedeListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
@@ -184,6 +184,7 @@ export default function SedesPage() {
         }
         actions={
           <Button onClick={handleAdd} data-oid="hrtnwkn">
+            <Plus className="h-4 w-4" />
             Nueva Sede
           </Button>
         }

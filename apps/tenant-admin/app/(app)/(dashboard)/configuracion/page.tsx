@@ -403,15 +403,16 @@ export default function ConfiguracionUnifiedPage() {
         />
       </div>
 
-      {/* ── Sticky tab navigation ── */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <nav className="flex gap-1 overflow-x-auto py-2 scrollbar-none">
+      {/* ── Layout: sidebar nav + content ── */}
+      <div className="flex gap-8 pt-4">
+        {/* Vertical sidebar nav */}
+        <nav className="hidden md:flex flex-col gap-1 w-48 flex-shrink-0 sticky top-4 self-start">
           {SECTIONS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => scrollTo(id)}
               className={`
-                flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors
+                flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-left
                 ${
                   activeSection === id
                     ? 'bg-primary text-primary-foreground'
@@ -419,15 +420,37 @@ export default function ConfiguracionUnifiedPage() {
                 }
               `}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-4 w-4 flex-shrink-0" />
               {label}
             </button>
           ))}
         </nav>
-      </div>
 
-      {/* ── Sections ── */}
-      <div className="space-y-8 pt-6 max-w-5xl">
+        {/* Mobile horizontal nav */}
+        <div className="md:hidden sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border -mx-4 px-4">
+          <div className="flex gap-1 overflow-x-auto py-2 scrollbar-none">
+            {SECTIONS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => scrollTo(id)}
+                className={`
+                  flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors
+                  ${
+                    activeSection === id
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }
+                `}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Sections content */}
+        <div className="space-y-8 flex-1 min-w-0 max-w-4xl">
         {/* ================================================================
             GENERAL
         ================================================================ */}
@@ -948,6 +971,7 @@ export default function ConfiguracionUnifiedPage() {
           </Card>
         </section>
       </div>
+      </div>{/* close flex layout */}
     </div>
   )
 }

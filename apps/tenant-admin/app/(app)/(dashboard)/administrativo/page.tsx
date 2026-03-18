@@ -162,7 +162,7 @@ export default function AdministrativosPage() {
         icon={Briefcase}
         actions={
           <Button onClick={handleAdd} data-oid="7xp380:">
-            <Plus className="mr-2 h-4 w-4" data-oid="koic1br" />
+            <Plus className="h-4 w-4" data-oid="koic1br" />
             Nuevo Administrativo
           </Button>
         }

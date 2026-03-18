@@ -42,3 +42,27 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = (await request.json()) as Record<string, unknown>
+    const payload: Payload = await getPayloadHMR({ config: configPromise })
+
+    const doc = await payload.create({
+      collection: 'students',
+      data: body,
+      overrideAccess: true,
+    })
+
+    return NextResponse.json({ doc }, { status: 201 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error al crear alumno'
+    return NextResponse.json(
+      {
+        success: false,
+        errors: [{ message }],
+      },
+      { status: 500 },
+    )
+  }
+}

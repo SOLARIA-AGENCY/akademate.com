@@ -128,7 +128,7 @@ export default function ProfesoresPage() {
   }
 
   const handleAdd = () => {
-    console.log('Crear nuevo profesor')
+    router.push('/profesores/nuevo')
   }
 
   const handleViewTeacher = (teacherId: number) => {
@@ -215,7 +215,7 @@ export default function ProfesoresPage() {
         }
         actions={
           <Button onClick={handleAdd} data-oid="p6j7z6w">
-            <Plus className="mr-2 h-4 w-4" data-oid="f-mq7s4" />
+            <Plus className="h-4 w-4" data-oid="f-mq7s4" />
             Nuevo Profesor
           </Button>
         }

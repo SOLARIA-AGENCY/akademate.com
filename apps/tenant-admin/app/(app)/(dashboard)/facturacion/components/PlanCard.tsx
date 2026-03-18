@@ -37,9 +37,13 @@ export function PlanCard({
   isPopular,
   onSelect,
 }: PlanCardProps) {
-  const price = interval === 'month' ? priceMonthly : priceYearly
-  const displayPrice = (price / 100).toFixed(2)
-  const monthlyEquivalent = interval === 'year' ? (price / 12 / 100).toFixed(2) : null
+  const isEnterprise = tier === 'enterprise'
+
+  // For annual interval, show monthly price with 17% discount applied
+  // Formula: monthlyPrice * (1 - 0.17) = discounted monthly cost
+  const discountedMonthly = Math.round(priceMonthly * 0.83)
+  const displayPriceCents = interval === 'year' ? discountedMonthly : priceMonthly
+  const displayPrice = (displayPriceCents / 100).toFixed(0)
 
   return (
     <Card className={`relative ${isPopular ? 'border-2 border-[#F2014B]' : ''}`} data-oid="5066gyq">
@@ -68,20 +72,47 @@ export function PlanCard({
         </div>
 
         <div className="mt-4" data-oid="bezs2jz">
-          <div className="flex items-baseline gap-1" data-oid="db-klh4">
-            <span className="text-4xl font-bold" data-oid="u.htull">
-              €{displayPrice}
-            </span>
-            <span className="text-muted-foreground" data-oid="ek6ivjt">
-              /{interval === 'month' ? 'mes' : 'año'}
-            </span>
-          </div>
-          {monthlyEquivalent && (
-            <p className="mt-1 text-sm text-muted-foreground" data-oid=":qp3f34">
-              €{monthlyEquivalent}/mes facturado anualmente
-            </p>
+          {isEnterprise ? (
+            <div>
+              <span className="text-4xl font-bold" data-oid="u.htull">
+                Contáctanos
+              </span>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Precio personalizado según necesidades
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-baseline gap-1" data-oid="db-klh4">
+                <span className="text-4xl font-bold" data-oid="u.htull">
+                  {'\u20AC'}{displayPrice}
+                </span>
+                <span className="text-muted-foreground" data-oid="ek6ivjt">
+                  /mes
+                </span>
+              </div>
+              {interval === 'year' && (
+                <div className="mt-1 space-y-1">
+                  <p className="text-sm text-muted-foreground" data-oid=":qp3f34">
+                    Facturado anualmente ({'\u20AC'}{((discountedMonthly * 12) / 100).toFixed(0)}/año)
+                  </p>
+                  <p className="text-xs line-through text-muted-foreground/60">
+                    {'\u20AC'}{(priceMonthly / 100).toFixed(0)}/mes sin descuento
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
+
+        {/* Trial badge for non-enterprise plans */}
+        {!isEnterprise && (
+          <div className="mt-3">
+            <Badge variant="outline" className="text-xs border-blue-200 text-blue-700 dark:border-blue-800 dark:text-blue-400 bg-blue-50 dark:bg-blue-950">
+              15 días de prueba gratuita
+            </Badge>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="space-y-6" data-oid="xlf1csn">
@@ -106,7 +137,7 @@ export function PlanCard({
           variant={isPopular && !isCurrentPlan ? 'default' : 'outline'}
           data-oid="pqm1swr"
         >
-          {isCurrentPlan ? 'Plan Actual' : 'Seleccionar Plan'}
+          {isCurrentPlan ? 'Plan Actual' : isEnterprise ? 'Contactar Ventas' : 'Seleccionar Plan'}
         </Button>
       </CardContent>
     </Card>

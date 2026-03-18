@@ -15,7 +15,7 @@ import {
 import { Badge } from '@payload-config/components/ui/badge'
 import { OcupacionBadge } from '@payload-config/components/ui/OcupacionBadge'
 import { useRouter } from 'next/navigation'
-import { Search, GraduationCap, Users, BookOpen, Clock, Calendar } from 'lucide-react'
+import { Search, GraduationCap, Users, BookOpen, Clock, Calendar, Plus } from 'lucide-react'
 import { usePlanLimits } from '@/hooks/usePlanLimits'
 import { PlanLimitModal } from '@/components/ui/PlanLimitModal'
 import { UsageBar } from '@/components/ui/UsageBar'
@@ -223,6 +223,7 @@ export default function TodosLosCiclosPage() {
         }
         actions={
           <Button onClick={handleNuevoCiclo} data-oid="b-t2nxs">
+            <Plus className="h-4 w-4" />
             Nuevo Ciclo
           </Button>
         }

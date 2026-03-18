@@ -231,7 +231,7 @@ function CursosPageContent() {
         }
         actions={
           <Button onClick={handleAdd} data-oid="dn:ljue">
-            <Plus className="mr-2 h-4 w-4" data-oid="mp04.p1" />
+            <Plus className="h-4 w-4" data-oid="mp04.p1" />
             Nuevo Curso
           </Button>
         }

@@ -49,8 +49,10 @@ export function CheckoutDialog({
     }
   }
 
-  const displayPrice = (price / 100).toFixed(2)
-  const monthlyEquivalent = interval === 'year' ? (price / 12 / 100).toFixed(2) : null
+  // Always show the monthly equivalent price
+  const monthlyPrice = interval === 'year' ? price / 12 : price
+  const displayPrice = (monthlyPrice / 100).toFixed(0)
+  const annualTotal = interval === 'year' ? (price / 100).toFixed(0) : null
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange} data-oid="ay6e:ze">
@@ -83,15 +85,15 @@ export function CheckoutDialog({
             <div className="mt-4" data-oid="ubd89zw">
               <div className="flex items-baseline gap-1" data-oid="-lrc6ul">
                 <span className="text-3xl font-bold" data-oid="pvbqrq7">
-                  €{displayPrice}
+                  {'\u20AC'}{displayPrice}
                 </span>
                 <span className="text-muted-foreground" data-oid="duqrjta">
-                  /{interval === 'month' ? 'mes' : 'año'}
+                  /mes
                 </span>
               </div>
-              {monthlyEquivalent && (
+              {annualTotal && (
                 <p className="mt-1 text-sm text-muted-foreground" data-oid="mvuit0s">
-                  €{monthlyEquivalent}/mes facturado anualmente
+                  {'\u20AC'}{annualTotal}/año facturado anualmente (17% dto.)
                 </p>
               )}
             </div>
