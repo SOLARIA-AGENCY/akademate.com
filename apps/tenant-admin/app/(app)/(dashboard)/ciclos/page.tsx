@@ -235,7 +235,7 @@ export default function TodosLosCiclosPage() {
       <Card data-oid="53yqrbe">
         <CardContent className="pt-6" data-oid="lw2_c6e">
           <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="3s0b37y">
-            <div className="relative min-w-[260px] flex-1" data-oid="yjrwj2q">
+            <div className="relative min-w-0 flex-1" data-oid="yjrwj2q">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
                 data-oid="_:q8q:p"
@@ -250,7 +250,7 @@ export default function TodosLosCiclosPage() {
             </div>
 
             <Select value={nivelFilter} onValueChange={setNivelFilter} data-oid="blzx:fd">
-              <SelectTrigger className="w-full min-w-[170px] md:w-[210px]" data-oid="pi-0r.c">
+              <SelectTrigger className="w-full min-w-0 md:w-[210px]" data-oid="pi-0r.c">
                 <SelectValue placeholder="Todos los niveles" data-oid="hd:j28v" />
               </SelectTrigger>
               <SelectContent data-oid="igtax0_">
@@ -267,7 +267,7 @@ export default function TodosLosCiclosPage() {
             </Select>
 
             <Select value={familiaFilter} onValueChange={setFamiliaFilter} data-oid="c5ha4_7">
-              <SelectTrigger className="w-full min-w-[180px] md:w-[220px]" data-oid="p:13p.5">
+              <SelectTrigger className="w-full min-w-0 md:w-[220px]" data-oid="p:13p.5">
                 <SelectValue placeholder="Todas las familias" data-oid="exi7wr:" />
               </SelectTrigger>
               <SelectContent data-oid="9:1vgmq">
@@ -283,7 +283,7 @@ export default function TodosLosCiclosPage() {
             </Select>
 
             <Select value={modalidadFilter} onValueChange={setModalidadFilter} data-oid=":5r4u9g">
-              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="zi8xj2q">
+              <SelectTrigger className="w-full min-w-0 md:w-[210px]" data-oid="zi8xj2q">
                 <SelectValue placeholder="Todas las modalidades" data-oid=":09f_6q" />
               </SelectTrigger>
               <SelectContent data-oid="ixi74or">
