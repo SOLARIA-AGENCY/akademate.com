@@ -38,6 +38,32 @@ interface ApiStats {
   byStatus: { status: number; count: number }[];
 }
 
+interface TrafficSummary {
+  totalRequests: number;
+  avgLatencyMs: number;
+  errorRate: number;
+  serverErrorRate: number;
+  errorCount: number;
+  serverErrorCount: number;
+  uniqueIps: number;
+}
+
+interface TrafficEndpoint {
+  path: string;
+  method: string;
+  requests: number;
+  avgLatencyMs: number;
+  errors: number;
+  errorRate: number;
+}
+
+interface TrafficAlert {
+  type: 'rate_abuse' | 'high_error_rate' | 'traffic_domination';
+  severity: 'warning' | 'critical';
+  message: string;
+  metadata: Record<string, unknown>;
+}
+
 interface LogEntry {
   id: string;
   method: string;
@@ -79,7 +105,7 @@ const ENDPOINTS: Endpoint[] = [
 
 export default function ApiPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint | null>(null);
-  const [activeTab, setActiveTab] = useState<'endpoints' | 'keys' | 'logs'>('endpoints');
+  const [activeTab, setActiveTab] = useState<'endpoints' | 'keys' | 'logs' | 'traffic'>('endpoints');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [testResponse, setTestResponse] = useState<string>('');
   const [isTestLoading, setIsTestLoading] = useState(false);
@@ -89,6 +115,10 @@ export default function ApiPage() {
   const [logs, setLogs] = useState<LogsResponse | null>(null);
   const [logsLoading, setLogsLoading] = useState(false);
   const [logFilters, setLogFilters] = useState({ path: '', method: '', status: '', ip: '', hours: '24' });
+  const [trafficSummary, setTrafficSummary] = useState<TrafficSummary | null>(null);
+  const [trafficEndpoints, setTrafficEndpoints] = useState<TrafficEndpoint[]>([]);
+  const [trafficAlerts, setTrafficAlerts] = useState<TrafficAlert[]>([]);
+  const [trafficLoading, setTrafficLoading] = useState(false);
 
   useEffect(() => {
     fetch('/api/ops/api-keys')
@@ -127,6 +157,38 @@ export default function ApiPage() {
   useEffect(() => {
     if (activeTab === 'logs') fetchLogs();
   }, [activeTab, fetchLogs]);
+
+  const fetchTrafficData = useCallback(async () => {
+    setTrafficLoading(true);
+    try {
+      const [summaryRes, endpointsRes, alertsRes] = await Promise.all([
+        fetch('/api/ops/api-stats?type=summary&hours=24'),
+        fetch('/api/ops/api-stats?type=byEndpoint&hours=24'),
+        fetch('/api/ops/api-stats/alerts'),
+      ]);
+
+      if (summaryRes.ok) {
+        const data = await summaryRes.json();
+        setTrafficSummary(data);
+      }
+      if (endpointsRes.ok) {
+        const data = await endpointsRes.json();
+        setTrafficEndpoints(data.endpoints ?? []);
+      }
+      if (alertsRes.ok) {
+        const data = await alertsRes.json();
+        setTrafficAlerts(data.alerts ?? []);
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setTrafficLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'traffic') fetchTrafficData();
+  }, [activeTab, fetchTrafficData]);
 
   const categories = ['all', ...Array.from(new Set(ENDPOINTS.map(e => e.category)))];
   const filteredEndpoints = selectedCategory === 'all'
@@ -247,7 +309,7 @@ export default function ApiPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-card border border-border rounded-xl p-1 w-fit">
-        {(['endpoints', 'keys', 'logs'] as const).map((tab) => (
+        {(['endpoints', 'keys', 'logs', 'traffic'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -255,7 +317,7 @@ export default function ApiPage() {
               activeTab === tab ? 'bg-indigo-600 text-white' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {tab === 'endpoints' ? 'Endpoints' : tab === 'keys' ? 'API Keys' : 'Logs'}
+            {tab === 'endpoints' ? 'Endpoints' : tab === 'keys' ? 'API Keys' : tab === 'logs' ? 'Logs' : 'Traffic'}
           </button>
         ))}
       </div>
@@ -491,6 +553,140 @@ export default function ApiPage() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Traffic tab */}
+      {activeTab === 'traffic' && (
+        <div className="space-y-6">
+          {trafficLoading ? (
+            <div className="p-8 text-center text-muted-foreground text-sm">Cargando datos de trafico...</div>
+          ) : (
+            <>
+              {/* Summary cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-card border border-border rounded-xl p-5">
+                  <p className="text-muted-foreground text-sm">Requests (24h)</p>
+                  <p className="text-2xl font-bold text-blue-400 mt-1">
+                    {(trafficSummary?.totalRequests ?? 0).toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">Total en las ultimas 24h</p>
+                </div>
+                <div className="bg-card border border-border rounded-xl p-5">
+                  <p className="text-muted-foreground text-sm">Latencia media</p>
+                  <p className="text-2xl font-bold text-purple-400 mt-1">
+                    {trafficSummary?.avgLatencyMs ?? 0}ms
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">Promedio por request</p>
+                </div>
+                <div className="bg-card border border-border rounded-xl p-5">
+                  <p className="text-muted-foreground text-sm">Tasa de error</p>
+                  <p className={`text-2xl font-bold mt-1 ${(trafficSummary?.errorRate ?? 0) > 10 ? 'text-red-400' : (trafficSummary?.errorRate ?? 0) > 5 ? 'text-yellow-400' : 'text-green-400'}`}>
+                    {trafficSummary?.errorRate ?? 0}%
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    HTTP 4xx+5xx ({trafficSummary?.errorCount ?? 0} errores)
+                  </p>
+                </div>
+                <div className="bg-card border border-border rounded-xl p-5">
+                  <p className="text-muted-foreground text-sm">IPs unicas</p>
+                  <p className="text-2xl font-bold text-cyan-400 mt-1">
+                    {(trafficSummary?.uniqueIps ?? 0).toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">Clientes distintos</p>
+                </div>
+              </div>
+
+              {/* Abuse alerts */}
+              {trafficAlerts.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-foreground font-semibold">Alertas activas</h3>
+                  <div className="space-y-2">
+                    {trafficAlerts.map((alert, i) => (
+                      <div
+                        key={i}
+                        className={`border rounded-xl p-4 flex items-start gap-3 ${
+                          alert.severity === 'critical'
+                            ? 'bg-red-500/10 border-red-500/30'
+                            : 'bg-yellow-500/10 border-yellow-500/30'
+                        }`}
+                      >
+                        <span className={`shrink-0 mt-0.5 px-2 py-0.5 text-xs font-semibold rounded-full ${
+                          alert.severity === 'critical'
+                            ? 'bg-red-500/20 text-red-400'
+                            : 'bg-yellow-500/20 text-yellow-400'
+                        }`}>
+                          {alert.severity === 'critical' ? 'CRITICO' : 'AVISO'}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground">{alert.message}</p>
+                          <p className="text-xs text-muted-foreground mt-1 capitalize">
+                            {alert.type === 'rate_abuse' ? 'Abuso de tasa' : alert.type === 'high_error_rate' ? 'Alta tasa de error' : 'Dominacion de trafico'}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {trafficAlerts.length === 0 && (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+                  <p className="text-sm text-green-400 font-medium">Sin alertas activas</p>
+                  <p className="text-xs text-muted-foreground mt-1">No se detectan patrones de abuso en este momento.</p>
+                </div>
+              )}
+
+              {/* Top endpoints table */}
+              <div className="bg-card border border-border rounded-xl overflow-hidden">
+                <div className="p-4 border-b border-border flex items-center justify-between">
+                  <h3 className="text-foreground font-semibold">Top Endpoints (24h)</h3>
+                  <button onClick={fetchTrafficData} className="text-xs text-primary hover:underline">
+                    Actualizar
+                  </button>
+                </div>
+                {trafficEndpoints.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p className="text-sm">Sin datos de endpoints.</p>
+                    <p className="text-xs mt-1">Los datos aparecen conforme se registra actividad en la API.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/20 text-xs text-muted-foreground">
+                        <tr>
+                          <th className="px-4 py-2 text-left">Método</th>
+                          <th className="px-4 py-2 text-left">Path</th>
+                          <th className="px-4 py-2 text-right">Requests</th>
+                          <th className="px-4 py-2 text-right">Latencia</th>
+                          <th className="px-4 py-2 text-right">Errores</th>
+                          <th className="px-4 py-2 text-right">Tasa error</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {trafficEndpoints.map((ep, i) => (
+                          <tr key={i} className="hover:bg-muted/10">
+                            <td className="px-4 py-2">
+                              <span className={`px-1.5 py-0.5 text-xs font-mono font-semibold rounded border ${getMethodColor(ep.method)}`}>
+                                {ep.method}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2 font-mono text-xs text-foreground max-w-xs truncate">{ep.path}</td>
+                            <td className="px-4 py-2 text-right text-foreground font-medium">{ep.requests.toLocaleString()}</td>
+                            <td className="px-4 py-2 text-right text-xs text-muted-foreground">{ep.avgLatencyMs}ms</td>
+                            <td className="px-4 py-2 text-right text-xs text-muted-foreground">{ep.errors}</td>
+                            <td className={`px-4 py-2 text-right text-xs font-semibold ${ep.errorRate > 20 ? 'text-red-400' : ep.errorRate > 5 ? 'text-yellow-400' : 'text-green-400'}`}>
+                              {ep.errorRate}%
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
     </>
