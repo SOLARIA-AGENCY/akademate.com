@@ -108,16 +108,6 @@ export function TenantBrandingProvider({ children }: { children: React.ReactNode
   const [loading, setLoading] = React.useState(true)
 
   const refresh = React.useCallback(async () => {
-    // On the generic app.akademate.com domain, use Akademate defaults — don't load tenant branding
-    const hostname = typeof window !== 'undefined' ? window.location.hostname : ''
-    const isGenericDomain = hostname === 'app.akademate.com' || hostname === 'localhost'
-    if (isGenericDomain) {
-      setBranding(DEFAULT_BRANDING)
-      applyThemeVariables(DEFAULT_BRANDING.theme)
-      setLoading(false)
-      return
-    }
-
     const tenantId = DEFAULT_BRANDING.tenantId
     setLoading(true)
     try {

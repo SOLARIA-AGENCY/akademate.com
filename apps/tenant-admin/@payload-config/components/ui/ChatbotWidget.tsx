@@ -16,7 +16,7 @@ export function ChatbotWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: '¡Hola! Soy tu asistente virtual de CEP Admin. ¿En qué puedo ayudarte hoy?',
+      content: '¡Hola! Soy el asistente de Akademate. Aun no estoy disponible, pero pronto podre resolver todas tus dudas sobre la gestion de tu academia. ¡Vuelve pronto!',
       timestamp: new Date(),
     },
   ])
@@ -36,16 +36,16 @@ export function ChatbotWidget() {
     setInput('')
     setIsTyping(true)
 
-    // Simulate AI response (replace with actual API call)
+    // AI not yet connected — show placeholder response
     setTimeout(() => {
       const aiResponse: Message = {
         role: 'assistant',
-        content: getAIResponse(input),
+        content: 'Aun no estoy disponible para responder consultas, pero estoy en proceso de configuracion. Pronto podre ayudarte con todo lo relacionado con la gestion de tu academia. ¡Gracias por tu paciencia!',
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, aiResponse])
       setIsTyping(false)
-    }, 1000)
+    }, 800)
   }
 
   const getAIResponse = (query: string): string => {

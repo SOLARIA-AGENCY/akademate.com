@@ -20,7 +20,6 @@ import {
   Globe,
   Save,
   Check,
-  Upload,
   Plus,
   Trash2,
   Mail,
@@ -316,14 +315,8 @@ export default function ConfiguracionUnifiedPage() {
     setAcademia((prev) => ({ ...prev, [field]: e.target.value }))
   }
 
-  const handleLogoUpload = (type: keyof LogosConfig, event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const prevUrl = logos[type]
-      if (prevUrl?.startsWith('blob:')) URL.revokeObjectURL(prevUrl)
-      const url = URL.createObjectURL(file)
-      setLogos((prev) => ({ ...prev, [type]: url }))
-    }
+  const handleLogoUrlChange = (type: keyof LogosConfig, value: string) => {
+    setLogos((prev) => ({ ...prev, [type]: value }))
   }
 
   const handleConsentToggle = (key: keyof ConsentPreferences) => {
@@ -618,7 +611,7 @@ export default function ConfiguracionUnifiedPage() {
                       fetch(endpoint, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ section: 'academia', tenantId, data: { nombre: academia.nombre } }),
+                        body: JSON.stringify({ section: 'academia', tenantId, data: academia }),
                       }),
                     ]
                     const results = await Promise.all(requests)
@@ -636,7 +629,7 @@ export default function ConfiguracionUnifiedPage() {
               />
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Logo upload */}
+              {/* Logo URL */}
               <div>
                 <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                   <ImageIcon className="h-4 w-4 text-muted-foreground" />
@@ -658,18 +651,17 @@ export default function ConfiguracionUnifiedPage() {
                   </div>
                   <div className="space-y-3 flex-1">
                     <div className="space-y-2">
-                      <Label htmlFor="logo-upload">Subir nuevo logo</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="logo-upload"
-                          type="file"
-                          accept="image/svg+xml,image/png,image/jpeg,image/webp"
-                          onChange={(e) => handleLogoUpload('principal', e)}
-                          className="max-w-xs"
-                        />
-                      </div>
+                      <Label htmlFor="logo-url">URL del logo</Label>
+                      <Input
+                        id="logo-url"
+                        value={logos.principal}
+                        onChange={(e) => handleLogoUrlChange('principal', e.target.value)}
+                        placeholder="/logos/mi-logo.png"
+                        className="max-w-md"
+                      />
                       <p className="text-xs text-muted-foreground">
-                        SVG, PNG o JPEG. Recomendado: 512x512px o vector.
+                        Sube el logo desde Payload Admin (/admin) y pega la URL aqui.
+                        Ejemplo: /media/mi-logo.png
                       </p>
                     </div>
                   </div>

@@ -21,23 +21,23 @@ const LogosSchema = z.object({
 })
 const AcademiaSchema = z.object({
   nombre: z.string().min(1),
-  razonSocial: z.string().min(1),
-  cif: z.string().min(1),
-  direccion: z.string().min(1),
-  codigoPostal: z.string().min(1),
-  ciudad: z.string().min(1),
-  provincia: z.string().min(1),
-  telefono1: z.string().min(1),
-  telefono2: z.string().min(1),
-  email1: z.string().min(1),
-  email2: z.string().min(1),
-  web: z.string().min(1),
-  horario: z.string().min(1),
-  facebook: z.string().min(1),
-  twitter: z.string().min(1),
-  instagram: z.string().min(1),
-  linkedin: z.string().min(1),
-  youtube: z.string().min(1),
+  razonSocial: z.string().default(''),
+  cif: z.string().default(''),
+  direccion: z.string().default(''),
+  codigoPostal: z.string().default(''),
+  ciudad: z.string().default(''),
+  provincia: z.string().default(''),
+  telefono1: z.string().default(''),
+  telefono2: z.string().default(''),
+  email1: z.string().default(''),
+  email2: z.string().default(''),
+  web: z.string().default(''),
+  horario: z.string().default(''),
+  facebook: z.string().default(''),
+  twitter: z.string().default(''),
+  instagram: z.string().default(''),
+  linkedin: z.string().default(''),
+  youtube: z.string().default(''),
 })
 
 // Branding structure stored in tenant.branding jsonb
@@ -178,7 +178,7 @@ function mapAcademiaInput(data: unknown): z.infer<typeof AcademiaSchema> | null 
   if (maybeApiShape.success) return maybeApiShape.data
 
   const mapped = {
-    nombre: typeof raw.academyName === 'string' ? raw.academyName : '',
+    nombre: typeof raw.nombre === 'string' ? raw.nombre : (typeof raw.academyName === 'string' ? raw.academyName : ''),
     razonSocial: typeof raw.fiscalName === 'string' ? raw.fiscalName : '',
     cif: typeof raw.cif === 'string' ? raw.cif : '',
     direccion: typeof raw.address === 'string' ? raw.address : '',
