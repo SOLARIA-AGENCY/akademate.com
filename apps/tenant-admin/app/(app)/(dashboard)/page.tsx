@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Card,
   CardContent,
@@ -139,6 +140,7 @@ interface KpiItem {
   title: string
   value: number
   icon: LucideIcon
+  href?: string
 }
 
 // Weekly chart data point type
@@ -152,6 +154,7 @@ interface WeeklyChartDataPoint {
 export default function DashboardPage() {
   // Use the combined hook for initial fetch + real-time updates
   // Type assertion required as TypeScript cannot resolve types through path alias
+  const router = useRouter()
   const { branding } = useTenantBranding()
   const tenantId =
     parseInt(branding.tenantId, 10) ||
@@ -287,16 +290,19 @@ export default function DashboardPage() {
       title: 'Cursos',
       value: metrics.total_courses,
       icon: BookOpen,
+      href: '/cursos',
     },
     {
       title: 'Alumnos',
       value: metrics.active_students,
       icon: GraduationCap,
+      href: '/alumnos',
     },
     {
       title: 'Leads este Mes',
       value: metrics.leads_this_month,
       icon: FileText,
+      href: '/leads',
     },
   ]
 
@@ -306,16 +312,19 @@ export default function DashboardPage() {
       title: 'Profesores',
       value: metrics.total_teachers,
       icon: Users,
+      href: '/personal/profesores',
     },
     {
       title: 'Sedes',
       value: metrics.total_campuses,
       icon: Building2,
+      href: '/sedes',
     },
     {
       title: 'Convocatorias',
       value: metrics.active_convocations,
       icon: Calendar,
+      href: '/programacion',
     },
   ]
 
@@ -383,22 +392,17 @@ export default function DashboardPage() {
         {primaryKpis.map((kpi) => {
           const Icon = kpi.icon
           return (
-            <Card key={kpi.title} data-oid="2vutiv1">
-              <CardHeader
-                className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-                data-oid="c0g4t-7"
-              >
-                <CardTitle className="text-sm font-medium text-muted-foreground" data-oid=":dyjg58">
+            <Card key={kpi.title} className={kpi.href ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''} onClick={kpi.href ? () => router.push(kpi.href!) : undefined}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   {kpi.title}
                 </CardTitle>
-                <div className="rounded-full bg-primary/10 p-1.5" data-oid="m2mi0bx">
-                  <Icon className="h-4 w-4 text-primary" data-oid=".uig.-." />
+                <div className="rounded-full bg-primary/10 p-1.5">
+                  <Icon className="h-4 w-4 text-primary" />
                 </div>
               </CardHeader>
-              <CardContent className="p-4 pt-1" data-oid="owkmxd3">
-                <div className="text-2xl font-bold" data-oid="1os:j:d">
-                  {kpi.value}
-                </div>
+              <CardContent className="p-4 pt-1">
+                <div className="text-2xl font-bold">{kpi.value}</div>
               </CardContent>
             </Card>
           )
@@ -413,22 +417,17 @@ export default function DashboardPage() {
         {secondaryKpis.map((kpi) => {
           const Icon = kpi.icon
           return (
-            <Card key={kpi.title} data-oid="cy2berj">
-              <CardHeader
-                className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-                data-oid="6ufjv33"
-              >
-                <CardTitle className="text-sm font-medium text-muted-foreground" data-oid=".xo8cz5">
+            <Card key={kpi.title} className={kpi.href ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''} onClick={kpi.href ? () => router.push(kpi.href!) : undefined}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   {kpi.title}
                 </CardTitle>
-                <div className="rounded-full bg-primary/10 p-1.5" data-oid="l-ernu4">
-                  <Icon className="h-4 w-4 text-primary" data-oid="02t67q_" />
+                <div className="rounded-full bg-primary/10 p-1.5">
+                  <Icon className="h-4 w-4 text-primary" />
                 </div>
               </CardHeader>
-              <CardContent className="p-4 pt-1" data-oid="888c_ox">
-                <div className="text-2xl font-bold" data-oid="m2fulny">
-                  {kpi.value}
-                </div>
+              <CardContent className="p-4 pt-1">
+                <div className="text-2xl font-bold">{kpi.value}</div>
               </CardContent>
             </Card>
           )
@@ -440,12 +439,11 @@ export default function DashboardPage() {
         className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
         data-oid="cycle-kpis"
       >
-        <Card data-oid="kpi-gm">
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/ciclos')}>
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-            data-oid="kpi-gm-h"
           >
-            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-gm-t">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Ciclos Grado Medio
             </CardTitle>
             <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-gm-i">
@@ -459,12 +457,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card data-oid="kpi-gs">
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/ciclos')}>
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
-            data-oid="kpi-gs-h"
           >
-            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-gs-t">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Ciclos Grado Superior
             </CardTitle>
             <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-gs-i">
@@ -478,7 +475,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card data-oid="kpi-ti">
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/matriculas')}>
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
             data-oid="kpi-ti-h"
@@ -497,7 +494,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card data-oid="kpi-pd">
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/ciclos')}>
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
             data-oid="kpi-pd-h"
@@ -516,7 +513,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card data-oid="kpi-ca">
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/programacion')}>
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
             data-oid="kpi-ca-h"
@@ -535,7 +532,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card data-oid="kpi-cp">
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/programacion')}>
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
             data-oid="kpi-cp-h"

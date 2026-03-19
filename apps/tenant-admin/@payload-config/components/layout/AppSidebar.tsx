@@ -32,6 +32,7 @@ import {
   CreditCard,
   Award,
   School,
+  Briefcase,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -87,7 +88,10 @@ const menuItems: MenuItemWithSection[] = [
   {
     title: 'Personal',
     icon: Users,
-    url: '/personal',
+    items: [
+      { title: 'Profesores', icon: GraduationCap, url: '/personal/profesores' },
+      { title: 'Administrativos', icon: Briefcase, url: '/personal/administrativos' },
+    ],
   },
   {
     title: 'Marketing',

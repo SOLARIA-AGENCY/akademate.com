@@ -298,25 +298,8 @@ export const Campuses: CollectionConfig = {
     },
 
     // ====================================================================
-    // ACADEMIC — Cycles & Courses offered at this campus
-    // ====================================================================
-    {
-      name: 'cycles_offered',
-      type: 'relationship',
-      relationTo: 'cycles',
-      hasMany: true,
-      admin: { description: 'Ciclos formativos que se imparten en esta sede' },
-    },
-    {
-      name: 'courses_offered',
-      type: 'relationship',
-      relationTo: 'courses',
-      hasMany: true,
-      admin: { description: 'Cursos que se imparten en esta sede' },
-    },
-
-    // ====================================================================
-    // NOTES
+    // NOTES (Cycles/Courses are NOT assigned to campuses — they live independently.
+    // Convocatorias (CourseRuns) are the entities assigned to campuses via course_runs.campus field.)
     // ====================================================================
     {
       name: 'notes',
