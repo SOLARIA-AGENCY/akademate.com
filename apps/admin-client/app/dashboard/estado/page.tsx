@@ -12,6 +12,7 @@ import {
   Wifi,
   WifiOff,
   ExternalLink,
+  Eye,
 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { HealthSparkline } from '@/components/health-sparkline'
@@ -39,6 +40,14 @@ interface ServiceHealth {
   totalServices: number
   services: ServiceResult[]
   checkedAt: string
+}
+
+interface PageViewStats {
+  hours: number
+  totalViews: number
+  uniqueIps: number
+  topPages: { path: string; views: number; uniqueIps: number }[]
+  perDay: { day: string; views: number }[]
 }
 
 interface ServerMetrics {
@@ -113,6 +122,7 @@ export default function EstadoPage() {
   const [serviceHealth, setServiceHealth] = useState<ServiceHealth | null>(null)
   const [serverMetrics, setServerMetrics] = useState<ServerMetrics | null>(null)
   const [healthHistory, setHealthHistory] = useState<Record<string, HistoryEntry[]>>({})
+  const [pageViews, setPageViews] = useState<PageViewStats | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [lastFetch, setLastFetch] = useState<Date | null>(null)
   const [fetchError, setFetchError] = useState(false)
@@ -120,19 +130,22 @@ export default function EstadoPage() {
   const fetchAll = useCallback(async () => {
     setIsLoading(true)
     try {
-      const [metricsRes, healthRes, historyRes] = await Promise.all([
+      const [metricsRes, healthRes, historyRes, pageViewsRes] = await Promise.all([
         fetch('/api/ops/server-metrics'),
         fetch('/api/ops/service-health'),
         fetch('/api/ops/service-health/history?limit=20'),
+        fetch('/api/ops/page-views?hours=24'),
       ])
-      const [metricsData, healthData, historyData] = await Promise.all([
+      const [metricsData, healthData, historyData, pageViewsData] = await Promise.all([
         metricsRes.ok ? metricsRes.json() : null,
         healthRes.ok ? healthRes.json() : null,
         historyRes.ok ? historyRes.json() : null,
+        pageViewsRes.ok ? pageViewsRes.json() : null,
       ])
       if (metricsData) setServerMetrics(metricsData)
       if (healthData) setServiceHealth(healthData)
       if (historyData?.history) setHealthHistory(historyData.history)
+      if (pageViewsData) setPageViews(pageViewsData)
       setLastFetch(new Date())
       setFetchError(false)
     } catch {
@@ -478,6 +491,61 @@ export default function EstadoPage() {
                 <div className="animate-pulse bg-muted rounded h-6 w-20" />
               </div>
             ))
+          )}
+        </div>
+      </div>
+
+      {/* D.5) Visitas a páginas web */}
+      <div className="bg-card border border-border rounded-xl">
+        <div className="p-4 border-b border-muted/30 flex items-center gap-2">
+          <Eye className="w-4 h-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold text-foreground">Visitas a paginas web</h3>
+          <span className="text-xs text-muted-foreground ml-auto">Ultimas 24h</span>
+        </div>
+        <div className="p-4">
+          {pageViews ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-muted-foreground">Total visitas</p>
+                  <p className="text-2xl font-bold text-foreground">{pageViews.totalViews.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">IPs unicas</p>
+                  <p className="text-2xl font-bold text-foreground">{pageViews.uniqueIps.toLocaleString()}</p>
+                </div>
+              </div>
+              {pageViews.topPages.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-muted/30">
+                        <th className="text-left text-xs text-muted-foreground font-medium py-2 pr-4">Pagina</th>
+                        <th className="text-right text-xs text-muted-foreground font-medium py-2 px-4">Visitas</th>
+                        <th className="text-right text-xs text-muted-foreground font-medium py-2 pl-4">IPs unicas</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pageViews.topPages.slice(0, 5).map((page) => (
+                        <tr key={page.path} className="border-b border-muted/10">
+                          <td className="py-2 pr-4 font-mono text-xs text-foreground truncate max-w-[300px]">{page.path}</td>
+                          <td className="py-2 px-4 text-right text-foreground">{page.views.toLocaleString()}</td>
+                          <td className="py-2 pl-4 text-right text-muted-foreground">{page.uniqueIps.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Sin datos de visitas aun</p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="animate-pulse bg-muted rounded h-8 w-24" />
+              <div className="animate-pulse bg-muted rounded h-4 w-full" />
+              <div className="animate-pulse bg-muted rounded h-4 w-3/4" />
+            </div>
           )}
         </div>
       </div>
