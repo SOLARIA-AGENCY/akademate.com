@@ -207,11 +207,25 @@ export default function NuevoCicloPage() {
 
     setSaving(true)
     try {
+      // Upload image first if selected
+      let imageId: number | undefined
+      if (imageFile) {
+        const formData = new FormData()
+        formData.append('file', imageFile)
+        formData.append('alt', name)
+        const uploadRes = await fetch('/api/media', { method: 'POST', body: formData })
+        if (uploadRes.ok) {
+          const uploaded = await uploadRes.json()
+          imageId = uploaded.doc?.id
+        }
+      }
+
       const payload = {
         name,
         code: code || undefined,
         level,
         family: family || undefined,
+        ...(imageId ? { image: imageId } : {}),
         officialTitle: officialTitle || undefined,
         description: description || undefined,
         totalHours: totalHours ? parseInt(totalHours, 10) : undefined,

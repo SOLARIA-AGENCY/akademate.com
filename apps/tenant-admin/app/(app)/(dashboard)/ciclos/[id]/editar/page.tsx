@@ -321,6 +321,19 @@ export default function EditarCicloPage() {
 
     setSaving(true)
     try {
+      // Upload image first if a new one was selected
+      let imageId: number | undefined
+      if (imageFile) {
+        const formData = new FormData()
+        formData.append('file', imageFile)
+        formData.append('alt', name)
+        const uploadRes = await fetch('/api/media', { method: 'POST', body: formData })
+        if (uploadRes.ok) {
+          const uploaded = await uploadRes.json()
+          imageId = uploaded.doc?.id
+        }
+      }
+
       const payload = {
         name,
         code: code || undefined,
@@ -328,6 +341,7 @@ export default function EditarCicloPage() {
         family: family || undefined,
         officialTitle: officialTitle || undefined,
         description: description || undefined,
+        ...(imageId ? { image: imageId } : {}),
         totalHours: totalHours ? parseInt(totalHours, 10) : undefined,
         courses: courses ? parseInt(courses, 10) : undefined,
         modality,
