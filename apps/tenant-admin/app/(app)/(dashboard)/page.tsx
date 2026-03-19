@@ -13,6 +13,7 @@ import {
   Users,
   FileText,
   Calendar,
+  CalendarClock,
   GraduationCap,
   Building2,
   Loader2,
@@ -173,11 +174,15 @@ export default function DashboardPage() {
     gradoSuperior: number
     totalInscritos: number
     plazasDisponibles: number
+    convAbiertas: number
+    convPlanificadas: number
   }>({
     gradoMedio: 0,
     gradoSuperior: 0,
     totalInscritos: 0,
     plazasDisponibles: 0,
+    convAbiertas: 0,
+    convPlanificadas: 0,
   })
 
   // Destructure data for easier access with explicit types
@@ -222,12 +227,20 @@ export default function DashboardPage() {
 
   const refreshCycleStats = async () => {
     try {
-      const [medioRes, superiorRes] = await Promise.all([
+      const [medioRes, superiorRes, openRes, plannedRes] = await Promise.all([
         fetch('/api/cycles?where[level][equals]=grado_medio&limit=0', {
           credentials: 'include',
           cache: 'no-store',
         }),
         fetch('/api/cycles?where[level][equals]=grado_superior&limit=0', {
+          credentials: 'include',
+          cache: 'no-store',
+        }),
+        fetch('/api/course-runs?where[status][equals]=enrollment_open&limit=0', {
+          credentials: 'include',
+          cache: 'no-store',
+        }),
+        fetch('/api/course-runs?where[status][equals]=published&limit=0', {
           credentials: 'include',
           cache: 'no-store',
         }),
@@ -237,12 +250,18 @@ export default function DashboardPage() {
       const superiorData = superiorRes.ok
         ? ((await superiorRes.json()) as { totalDocs?: number })
         : null
+      const openData = openRes.ok ? ((await openRes.json()) as { totalDocs?: number }) : null
+      const plannedData = plannedRes.ok
+        ? ((await plannedRes.json()) as { totalDocs?: number })
+        : null
 
       setCycleStats({
         gradoMedio: medioData?.totalDocs ?? 0,
         gradoSuperior: superiorData?.totalDocs ?? 0,
         totalInscritos: 0,
         plazasDisponibles: 0,
+        convAbiertas: openData?.totalDocs ?? 0,
+        convPlanificadas: plannedData?.totalDocs ?? 0,
       })
     } catch {
       // Keep previous stats on transient errors
@@ -418,7 +437,7 @@ export default function DashboardPage() {
 
       {/* Ciclos Formativos KPIs */}
       <div
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full"
+        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
         data-oid="cycle-kpis"
       >
         <Card data-oid="kpi-gm">
@@ -493,6 +512,44 @@ export default function DashboardPage() {
           <CardContent className="p-4 pt-1" data-oid="kpi-pd-c">
             <div className="text-2xl font-bold" data-oid="kpi-pd-v">
               {cycleStats.plazasDisponibles}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-oid="kpi-ca">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
+            data-oid="kpi-ca-h"
+          >
+            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-ca-t">
+              Conv. Abiertas
+            </CardTitle>
+            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-ca-i">
+              <Calendar className="h-4 w-4 text-primary" data-oid="kpi-ca-ic" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-1" data-oid="kpi-ca-c">
+            <div className="text-2xl font-bold" data-oid="kpi-ca-v">
+              {cycleStats.convAbiertas}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-oid="kpi-cp">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
+            data-oid="kpi-cp-h"
+          >
+            <CardTitle className="text-sm font-medium text-muted-foreground" data-oid="kpi-cp-t">
+              Conv. Planificadas
+            </CardTitle>
+            <div className="rounded-full bg-primary/10 p-1.5" data-oid="kpi-cp-i">
+              <CalendarClock className="h-4 w-4 text-primary" data-oid="kpi-cp-ic" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-1" data-oid="kpi-cp-c">
+            <div className="text-2xl font-bold" data-oid="kpi-cp-v">
+              {cycleStats.convPlanificadas}
             </div>
           </CardContent>
         </Card>
