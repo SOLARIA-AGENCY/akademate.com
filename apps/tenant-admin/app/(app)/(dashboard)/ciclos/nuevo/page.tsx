@@ -188,12 +188,38 @@ export default function NuevoCicloPage() {
   // Image handler
   // ---------------------------------------------------------------------------
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imageUploaded, setImageUploaded] = useState(false)
+  const [uploadedImageId, setUploadedImageId] = useState<number | null>(null)
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      setImageFile(file)
-      const url = URL.createObjectURL(file)
-      setImagePreview(url)
+    if (!file) return
+
+    const previewUrl = URL.createObjectURL(file)
+    setImagePreview(previewUrl)
+    setImageFile(file)
+    setImageUploaded(false)
+
+    // Upload immediately
+    setUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('alt', name || 'Ciclo')
+      const res = await fetch('/api/media', { method: 'POST', body: formData })
+      if (res.ok) {
+        const uploaded = await res.json()
+        if (uploaded.doc?.id) {
+          setUploadedImageId(uploaded.doc.id)
+          setImageUploaded(true)
+          setImageFile(null) // Already uploaded
+        }
+      }
+    } catch (err) {
+      console.error('Error uploading image:', err)
+    } finally {
+      setUploadingImage(false)
     }
   }
 
@@ -207,18 +233,8 @@ export default function NuevoCicloPage() {
 
     setSaving(true)
     try {
-      // Upload image first if selected
-      let imageId: number | undefined
-      if (imageFile) {
-        const formData = new FormData()
-        formData.append('file', imageFile)
-        formData.append('alt', name)
-        const uploadRes = await fetch('/api/media', { method: 'POST', body: formData })
-        if (uploadRes.ok) {
-          const uploaded = await uploadRes.json()
-          imageId = uploaded.doc?.id
-        }
-      }
+      // Use already-uploaded image ID if available
+      const imageId = uploadedImageId || undefined
 
       const payload = {
         name,
@@ -376,25 +392,37 @@ export default function NuevoCicloPage() {
               </div>
 
               {/* Image upload */}
-              <div className="space-y-2">
-                <Label htmlFor="image">Imagen del Ciclo</Label>
-                <div className="flex items-start gap-4">
-                  {imagePreview && (
-                    <div className="flex-shrink-0 w-32 h-20 rounded-lg border border-border overflow-hidden bg-muted">
+              <div className="space-y-3">
+                <Label>Imagen del Ciclo</Label>
+                <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <div className="flex-shrink-0 w-full sm:w-48 h-32 rounded-lg border border-border overflow-hidden bg-muted flex items-center justify-center">
+                    {imagePreview ? (
                       <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="max-w-xs"
-                  />
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Sin imagen</span>
+                    )}
+                  </div>
+                  <div className="space-y-2 w-full sm:w-auto">
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full sm:max-w-xs"
+                    />
+                    {uploadingImage && (
+                      <p className="text-xs text-primary flex items-center gap-1">
+                        <Loader2 className="h-3 w-3 animate-spin" /> Subiendo imagen...
+                      </p>
+                    )}
+                    {imageUploaded && (
+                      <p className="text-xs text-green-500">Imagen subida correctamente</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      La imagen se sube automaticamente al seleccionarla.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Imagen de portada del ciclo. Recomendado: 1200x400px.
-                </p>
               </div>
 
               {/* Description */}

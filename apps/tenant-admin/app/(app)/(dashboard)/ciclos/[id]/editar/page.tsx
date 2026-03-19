@@ -302,12 +302,45 @@ export default function EditarCicloPage() {
   // Image handler
   // ---------------------------------------------------------------------------
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imageUploaded, setImageUploaded] = useState(false)
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      setImageFile(file)
-      const url = URL.createObjectURL(file)
-      setImagePreview(url)
+    if (!file) return
+
+    // Show preview immediately
+    const previewUrl = URL.createObjectURL(file)
+    setImagePreview(previewUrl)
+    setImageFile(file)
+    setImageUploaded(false)
+
+    // Upload immediately
+    setUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('alt', name || 'Ciclo')
+      const res = await fetch('/api/media', { method: 'POST', body: formData })
+      if (res.ok) {
+        const uploaded = await res.json()
+        const mediaId = uploaded.doc?.id
+        if (mediaId) {
+          // Link image to cycle immediately
+          await fetch(`/api/cycles/${cycleId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: mediaId }),
+          })
+          setImageUploaded(true)
+          setImageFile(null) // Already uploaded, don't re-upload on submit
+        }
+      }
+    } catch (err) {
+      console.error('Error uploading image:', err)
+    } finally {
+      setUploadingImage(false)
+      URL.revokeObjectURL(previewUrl)
     }
   }
 
@@ -501,25 +534,37 @@ export default function EditarCicloPage() {
               </div>
 
               {/* Image upload */}
-              <div className="space-y-2">
-                <Label htmlFor="image">Imagen del Ciclo</Label>
-                <div className="flex items-start gap-4">
-                  {imagePreview && (
-                    <div className="flex-shrink-0 w-32 h-20 rounded-lg border border-border overflow-hidden bg-muted">
+              <div className="space-y-3">
+                <Label>Imagen del Ciclo</Label>
+                <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <div className="flex-shrink-0 w-full sm:w-48 h-32 rounded-lg border border-border overflow-hidden bg-muted flex items-center justify-center">
+                    {imagePreview ? (
                       <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="max-w-xs"
-                  />
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Sin imagen</span>
+                    )}
+                  </div>
+                  <div className="space-y-2 w-full sm:w-auto">
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full sm:max-w-xs"
+                    />
+                    {uploadingImage && (
+                      <p className="text-xs text-primary flex items-center gap-1">
+                        <Loader2 className="h-3 w-3 animate-spin" /> Subiendo imagen...
+                      </p>
+                    )}
+                    {imageUploaded && (
+                      <p className="text-xs text-green-500">Imagen subida y guardada correctamente</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      La imagen se sube automaticamente al seleccionarla. Recomendado: 1200x400px.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Imagen de portada del ciclo. Recomendado: 1200x400px.
-                </p>
               </div>
 
               {/* Description */}
