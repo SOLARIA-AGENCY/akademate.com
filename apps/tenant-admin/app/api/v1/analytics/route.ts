@@ -6,12 +6,6 @@ import { requireV1Auth } from '@/lib/v1Auth'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-// ============================================================================
-// GET /api/v1/analytics
-// Returns KPI aggregates for the authenticated tenant.
-// Requires: analytics:read
-// ============================================================================
-
 export async function GET(request: Request) {
   const auth = await requireV1Auth(request, 'analytics:read')
   if (!auth.ok) return auth.response
@@ -20,69 +14,39 @@ export async function GET(request: Request) {
     const payload = await getPayloadHMR({ config: configPromise })
     const tenantFilter = { tenant: { equals: Number(auth.auth.tenantId) } }
 
-    // Fetch counts in parallel for performance
-    const [studentsResult, coursesResult, enrollmentsResult] = await Promise.all([
-      payload.find({
-        collection: 'students',
-        where: tenantFilter,
-        limit: 1,
-        depth: 0,
-      }),
-      payload.find({
-        collection: 'courses',
-        where: tenantFilter,
-        limit: 1,
-        depth: 0,
-      }),
-      payload.find({
-        collection: 'enrollments',
-        where: tenantFilter,
-        limit: 1000,
-        depth: 0,
-      }),
+    // Collections WITH tenant: courses, cycles, campuses, course_runs, leads
+    // Collections WITHOUT tenant: students, enrollments, staff
+    const [coursesResult, cyclesResult, campusesResult, studentsResult, enrollmentsResult, staffResult] = await Promise.all([
+      payload.find({ collection: 'courses', where: tenantFilter, limit: 0, depth: 0 }),
+      payload.find({ collection: 'cycles', where: tenantFilter, limit: 0, depth: 0 }),
+      payload.find({ collection: 'campuses', where: tenantFilter, limit: 0, depth: 0 }),
+      payload.find({ collection: 'students', limit: 0, depth: 0 }),
+      payload.find({ collection: 'enrollments', limit: 1000, depth: 0 }),
+      payload.find({ collection: 'staff', limit: 0, depth: 0 }),
     ])
 
-    const totalStudents = studentsResult.totalDocs
-    const totalCourses = coursesResult.totalDocs
-    const totalEnrollments = enrollmentsResult.totalDocs
-
-    // Derive active and completed counts from enrollments
-    interface EnrollmentDoc {
-      status?: string
-    }
+    interface EnrollmentDoc { status?: string }
     const enrollmentDocs = enrollmentsResult.docs as unknown as EnrollmentDoc[]
+    const activeEnrollments = enrollmentDocs.filter((e) => e.status === 'active').length
+    const completedEnrollments = enrollmentDocs.filter((e) => e.status === 'completed').length
+    const completionRate = enrollmentsResult.totalDocs > 0
+      ? Math.round((completedEnrollments / enrollmentsResult.totalDocs) * 100)
+      : 0
 
-    const activeEnrollments = enrollmentDocs.filter(
-      (e) => e.status === 'active',
-    ).length
-
-    const completedEnrollments = enrollmentDocs.filter(
-      (e) => e.status === 'completed',
-    ).length
-
-    const completionRate =
-      totalEnrollments > 0
-        ? Math.round((completedEnrollments / totalEnrollments) * 100)
-        : 0
-
-    return NextResponse.json(
-      {
-        data: {
-          total_students: totalStudents,
-          total_courses: totalCourses,
-          total_enrollments: totalEnrollments,
-          active_enrollments: activeEnrollments,
-          completion_rate: completionRate,
-        },
+    return NextResponse.json({
+      data: {
+        total_courses: coursesResult.totalDocs,
+        total_cycles: cyclesResult.totalDocs,
+        total_campuses: campusesResult.totalDocs,
+        total_students: studentsResult.totalDocs,
+        total_staff: staffResult.totalDocs,
+        total_enrollments: enrollmentsResult.totalDocs,
+        active_enrollments: activeEnrollments,
+        completion_rate: completionRate,
       },
-      { headers: { 'Content-Type': 'application/json' } },
-    )
+    })
   } catch (err) {
     console.error('[v1/analytics] GET error:', err)
-    const message = err instanceof Error ? err.message : 'Internal server error'
-    return NextResponse.json(
-      { error: message, code: 'INTERNAL_ERROR' },
-      { status: 500, headers: { 'Content-Type': 'application/json' } },
-    )
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal server error', code: 'INTERNAL_ERROR' }, { status: 500 })
   }
 }

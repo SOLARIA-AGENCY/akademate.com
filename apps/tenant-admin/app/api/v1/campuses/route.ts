@@ -7,13 +7,13 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 // ============================================================================
-// GET /api/v1/students
-// Lists students for the authenticated tenant (paginated).
-// Requires: students:read
+// GET /api/v1/campuses
+// Lists campuses for the authenticated tenant (paginated).
+// Requires: campuses:read
 // ============================================================================
 
 export async function GET(request: Request) {
-  const auth = await requireV1Auth(request, 'students:read')
+  const auth = await requireV1Auth(request, 'campuses:read')
   if (!auth.ok) return auth.response
 
   try {
@@ -25,7 +25,10 @@ export async function GET(request: Request) {
     const payload = await getPayloadHMR({ config: configPromise })
 
     const result = await payload.find({
-      collection: 'students',
+      collection: 'campuses',
+      where: {
+        tenant: { equals: Number(auth.auth.tenantId) },
+      },
       limit,
       page,
       sort: '-createdAt',
@@ -42,7 +45,7 @@ export async function GET(request: Request) {
       { headers: { 'Content-Type': 'application/json' } },
     )
   } catch (err) {
-    console.error('[v1/students] GET error:', err)
+    console.error('[v1/campuses] GET error:', err)
     const message = err instanceof Error ? err.message : 'Internal server error'
     return NextResponse.json(
       { error: message, code: 'INTERNAL_ERROR' },
@@ -52,13 +55,13 @@ export async function GET(request: Request) {
 }
 
 // ============================================================================
-// POST /api/v1/students
-// Creates a student for the authenticated tenant.
-// Requires: students:write
+// POST /api/v1/campuses
+// Creates a campus for the authenticated tenant.
+// Requires: campuses:write
 // ============================================================================
 
 export async function POST(request: Request) {
-  const auth = await requireV1Auth(request, 'students:write')
+  const auth = await requireV1Auth(request, 'campuses:write')
   if (!auth.ok) return auth.response
 
   try {
@@ -71,19 +74,14 @@ export async function POST(request: Request) {
       )
     }
 
-    // Require minimum fields
-    if (!body.email) {
-      return NextResponse.json(
-        { error: 'Field "email" is required', code: 'VALIDATION_ERROR' },
-        { status: 400, headers: { 'Content-Type': 'application/json' } },
-      )
-    }
-
     const payload = await getPayloadHMR({ config: configPromise })
 
     const created = await payload.create({
-      collection: 'students',
-      data: body,
+      collection: 'campuses',
+      data: {
+        ...body,
+        tenant: Number(auth.auth.tenantId),
+      },
     })
 
     return NextResponse.json(
@@ -91,7 +89,7 @@ export async function POST(request: Request) {
       { status: 201, headers: { 'Content-Type': 'application/json' } },
     )
   } catch (err) {
-    console.error('[v1/students] POST error:', err)
+    console.error('[v1/campuses] POST error:', err)
     const message = err instanceof Error ? err.message : 'Internal server error'
     return NextResponse.json(
       { error: message, code: 'INTERNAL_ERROR' },

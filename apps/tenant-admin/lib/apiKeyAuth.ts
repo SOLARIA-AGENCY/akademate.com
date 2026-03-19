@@ -14,6 +14,14 @@ export type ApiScope =
   | 'enrollments:write'
   | 'analytics:read'
   | 'keys:manage'
+  | 'cycles:read'
+  | 'cycles:write'
+  | 'campuses:read'
+  | 'campuses:write'
+  | 'staff:read'
+  | 'staff:write'
+  | 'convocatorias:read'
+  | 'convocatorias:write'
 
 export interface ValidatedApiKey {
   valid: true
@@ -72,7 +80,8 @@ export async function validateBearerToken(
     const hash = hashApiKey(token)
     const payload = await getPayload()
 
-    const result = await payload.find({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (payload as any).find({
       collection: 'api-keys',
       where: {
         key_hash: {
@@ -83,36 +92,36 @@ export async function validateBearerToken(
         },
       },
       limit: 1,
-      depth: 1, // Populate tenant relation to get tenantId
+      depth: 1,
     })
 
     if (!result.docs || result.docs.length === 0) {
       return null
     }
 
-    const apiKey = result.docs[0]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const apiKey = result.docs[0] as any
+    if (!apiKey) return null
 
     // Extract tenantId from the relation (may be populated object or raw id)
     const tenantId =
       typeof apiKey.tenant === 'object' && apiKey.tenant !== null
-        ? String((apiKey.tenant as { id: string | number }).id)
+        ? String(apiKey.tenant.id)
         : String(apiKey.tenant)
 
     // Extract scopes from the array field
     const scopes: ApiScope[] = Array.isArray(apiKey.scopes)
-      ? (apiKey.scopes as Array<{ scope: ApiScope }>)
-          .map((s) => s.scope)
-          .filter(Boolean)
+      ? apiKey.scopes.map((s: { scope: ApiScope }) => s.scope).filter(Boolean)
       : []
 
     // Fire-and-forget: update last_used_at without blocking the request
-    payload
+    ;(payload as any)
       .update({
         collection: 'api-keys',
         id: String(apiKey.id),
         data: { last_used_at: new Date().toISOString() },
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.warn('[apiKeyAuth] Failed to update last_used_at:', err)
       })
 

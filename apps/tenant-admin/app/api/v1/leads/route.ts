@@ -7,8 +7,8 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 // ============================================================================
-// GET /api/v1/students
-// Lists students for the authenticated tenant (paginated).
+// GET /api/v1/leads
+// Lists leads for the authenticated tenant (paginated).
 // Requires: students:read
 // ============================================================================
 
@@ -25,7 +25,10 @@ export async function GET(request: Request) {
     const payload = await getPayloadHMR({ config: configPromise })
 
     const result = await payload.find({
-      collection: 'students',
+      collection: 'leads',
+      where: {
+        tenant: { equals: Number(auth.auth.tenantId) },
+      },
       limit,
       page,
       sort: '-createdAt',
@@ -42,7 +45,7 @@ export async function GET(request: Request) {
       { headers: { 'Content-Type': 'application/json' } },
     )
   } catch (err) {
-    console.error('[v1/students] GET error:', err)
+    console.error('[v1/leads] GET error:', err)
     const message = err instanceof Error ? err.message : 'Internal server error'
     return NextResponse.json(
       { error: message, code: 'INTERNAL_ERROR' },
@@ -52,8 +55,8 @@ export async function GET(request: Request) {
 }
 
 // ============================================================================
-// POST /api/v1/students
-// Creates a student for the authenticated tenant.
+// POST /api/v1/leads
+// Creates a lead for the authenticated tenant.
 // Requires: students:write
 // ============================================================================
 
@@ -71,19 +74,14 @@ export async function POST(request: Request) {
       )
     }
 
-    // Require minimum fields
-    if (!body.email) {
-      return NextResponse.json(
-        { error: 'Field "email" is required', code: 'VALIDATION_ERROR' },
-        { status: 400, headers: { 'Content-Type': 'application/json' } },
-      )
-    }
-
     const payload = await getPayloadHMR({ config: configPromise })
 
     const created = await payload.create({
-      collection: 'students',
-      data: body,
+      collection: 'leads',
+      data: {
+        ...body,
+        tenant: Number(auth.auth.tenantId),
+      },
     })
 
     return NextResponse.json(
@@ -91,7 +89,7 @@ export async function POST(request: Request) {
       { status: 201, headers: { 'Content-Type': 'application/json' } },
     )
   } catch (err) {
-    console.error('[v1/students] POST error:', err)
+    console.error('[v1/leads] POST error:', err)
     const message = err instanceof Error ? err.message : 'Internal server error'
     return NextResponse.json(
       { error: message, code: 'INTERNAL_ERROR' },

@@ -12,6 +12,10 @@ import type { CollectionConfig } from 'payload'
  *   enrollments:read, enrollments:write
  *   analytics:read
  *   keys:manage
+ *   cycles:read, cycles:write
+ *   campuses:read, campuses:write
+ *   staff:read, staff:write
+ *   convocatorias:read, convocatorias:write
  */
 export const ApiKeys: CollectionConfig = {
   slug: 'api-keys',
@@ -29,7 +33,7 @@ export const ApiKeys: CollectionConfig = {
       // Tenant admins see only their tenant's keys
       return {
         tenant: {
-          equals: req.user.tenantId,
+          equals: (req.user as any).tenant,
         },
       }
     },
@@ -95,6 +99,14 @@ export const ApiKeys: CollectionConfig = {
             { label: 'Matrículas — Escritura', value: 'enrollments:write' },
             { label: 'Analíticas — Lectura', value: 'analytics:read' },
             { label: 'API Keys — Gestión', value: 'keys:manage' },
+            { label: 'Ciclos — Lectura', value: 'cycles:read' },
+            { label: 'Ciclos — Escritura', value: 'cycles:write' },
+            { label: 'Sedes — Lectura', value: 'campuses:read' },
+            { label: 'Sedes — Escritura', value: 'campuses:write' },
+            { label: 'Personal — Lectura', value: 'staff:read' },
+            { label: 'Personal — Escritura', value: 'staff:write' },
+            { label: 'Convocatorias — Lectura', value: 'convocatorias:read' },
+            { label: 'Convocatorias — Escritura', value: 'convocatorias:write' },
           ],
         },
       ],

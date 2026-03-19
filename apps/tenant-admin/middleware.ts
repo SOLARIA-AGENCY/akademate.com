@@ -96,6 +96,7 @@ const publicRoutes = [
   '/api/users/me', // Allow preflight for auth check
   '/api/users/first-register', // Payload create-first-user (no auth yet)
   '/api/auth/session', // Session write after login (token may not be in cookie yet)
+  '/api/v1/openapi', // OpenAPI spec is public (no auth needed)
   // Legal pages must be publicly accessible (GDPR requirement)
   '/legal',
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing

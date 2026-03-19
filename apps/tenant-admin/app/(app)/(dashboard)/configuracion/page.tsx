@@ -28,6 +28,10 @@ import {
   Image as ImageIcon,
   Loader2,
   ChevronRight,
+  Copy,
+  Eye,
+  EyeOff,
+  AlertTriangle,
 } from 'lucide-react'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 
@@ -84,6 +88,35 @@ interface FeatureFlag {
   effectiveValue: unknown
   eligible: boolean
 }
+
+interface ApiKeyItem {
+  id: string
+  name: string
+  scopes: string[]
+  is_active: boolean
+  rate_limit_per_day: number
+  last_used_at: string | null
+  created_at: string
+}
+
+const ALL_SCOPES = [
+  { value: 'courses:read', label: 'Cursos (Lectura)' },
+  { value: 'courses:write', label: 'Cursos (Escritura)' },
+  { value: 'cycles:read', label: 'Ciclos (Lectura)' },
+  { value: 'cycles:write', label: 'Ciclos (Escritura)' },
+  { value: 'campuses:read', label: 'Sedes (Lectura)' },
+  { value: 'campuses:write', label: 'Sedes (Escritura)' },
+  { value: 'staff:read', label: 'Personal (Lectura)' },
+  { value: 'staff:write', label: 'Personal (Escritura)' },
+  { value: 'convocatorias:read', label: 'Convocatorias (Lectura)' },
+  { value: 'convocatorias:write', label: 'Convocatorias (Escritura)' },
+  { value: 'students:read', label: 'Alumnos (Lectura)' },
+  { value: 'students:write', label: 'Alumnos (Escritura)' },
+  { value: 'enrollments:read', label: 'Matriculas (Lectura)' },
+  { value: 'enrollments:write', label: 'Matriculas (Escritura)' },
+  { value: 'analytics:read', label: 'Analiticas (Lectura)' },
+  { value: 'keys:manage', label: 'API Keys (Gestion)' },
+]
 
 // ---------------------------------------------------------------------------
 // Sections config
@@ -182,6 +215,16 @@ export default function ConfiguracionUnifiedPage() {
 
   // ---- Domains state ----
   const [domains, setDomains] = useState<string[]>([])
+
+  // ---- API Keys state ----
+  const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([])
+  const [apiKeysLoading, setApiKeysLoading] = useState(false)
+  const [showCreateKey, setShowCreateKey] = useState(false)
+  const [newKeyName, setNewKeyName] = useState('')
+  const [newKeyScopes, setNewKeyScopes] = useState<string[]>(['courses:read', 'cycles:read', 'analytics:read'])
+  const [createdKeyPlaintext, setCreatedKeyPlaintext] = useState<string | null>(null)
+  const [copiedKey, setCopiedKey] = useState(false)
+  const [creatingKey, setCreatingKey] = useState(false)
 
   // ---- Loading ----
   const [loading, setLoading] = useState(true)
@@ -323,6 +366,68 @@ export default function ConfiguracionUnifiedPage() {
   const removeDomain = (index: number) => setDomains((prev) => prev.filter((_, i) => i !== index))
   const updateDomain = (index: number, value: string) => {
     setDomains((prev) => prev.map((d, i) => (i === index ? value : d)))
+  }
+
+  // ---- API Keys functions ----
+  const loadApiKeys = useCallback(async () => {
+    setApiKeysLoading(true)
+    try {
+      const res = await fetch('/api/internal/api-keys')
+      if (res.ok) {
+        const json = await res.json()
+        setApiKeys(json.data || [])
+      }
+    } catch (err) {
+      console.error('Failed to load API keys:', err)
+    } finally {
+      setApiKeysLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadApiKeys() }, [loadApiKeys])
+
+  const createApiKey = async () => {
+    if (!newKeyName.trim() || newKeyScopes.length === 0) return
+    setCreatingKey(true)
+    try {
+      const res = await fetch('/api/internal/api-keys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newKeyName, scopes: newKeyScopes }),
+      })
+      if (res.ok) {
+        const json = await res.json()
+        setCreatedKeyPlaintext(json.data?.plain_key || null)
+        setNewKeyName('')
+        setNewKeyScopes(['courses:read', 'cycles:read', 'analytics:read'])
+        void loadApiKeys()
+      }
+    } catch (err) {
+      console.error('Failed to create API key:', err)
+    } finally {
+      setCreatingKey(false)
+    }
+  }
+
+  const revokeApiKey = async (keyId: string) => {
+    try {
+      await fetch(`/api/internal/api-keys/${keyId}`, { method: 'DELETE' })
+      void loadApiKeys()
+    } catch (err) {
+      console.error('Failed to revoke API key:', err)
+    }
+  }
+
+  const copyToClipboard = (text: string) => {
+    void navigator.clipboard.writeText(text)
+    setCopiedKey(true)
+    setTimeout(() => setCopiedKey(false), 2000)
+  }
+
+  const toggleScope = (scope: string) => {
+    setNewKeyScopes((prev) =>
+      prev.includes(scope) ? prev.filter((s) => s !== scope) : [...prev, scope]
+    )
   }
 
   // ---------------------------------------------------------------------------
@@ -825,7 +930,7 @@ export default function ConfiguracionUnifiedPage() {
         {/* ================================================================
             APIs
         ================================================================ */}
-        <section id="apis" ref={setRef('apis')} className="scroll-mt-20">
+        <section id="apis" ref={setRef('apis')} className="scroll-mt-20 space-y-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center gap-3">
@@ -833,26 +938,131 @@ export default function ConfiguracionUnifiedPage() {
                   <Key className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <CardTitle>API Keys y Webhooks</CardTitle>
+                  <CardTitle>API Keys</CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Gestiona tus claves de API y endpoints de webhook
+                    Genera claves para acceso programatico a tu academia via REST API
                   </p>
                 </div>
               </div>
-              <Button size="sm" variant="outline" asChild>
-                <a href="/configuracion/apis">
-                  Gestionar
-                  <ChevronRight className="ml-1 h-4 w-4" />
-                </a>
+              <Button size="sm" onClick={() => { setShowCreateKey(true); setCreatedKeyPlaintext(null) }}>
+                <Plus className="mr-1 h-4 w-4" /> Nueva API Key
               </Button>
             </CardHeader>
-            <CardContent>
-              <div className="rounded-lg border border-border p-4 text-center text-muted-foreground">
-                <Key className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">
-                  Accede a la pagina completa de APIs para crear claves, configurar
-                  permisos y gestionar webhooks.
+            <CardContent className="space-y-4">
+              {/* Created key alert */}
+              {createdKeyPlaintext && (
+                <div className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-semibold">Guarda esta clave ahora — no se mostrara de nuevo</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 bg-background rounded px-3 py-2 text-xs font-mono break-all border">
+                      {createdKeyPlaintext}
+                    </code>
+                    <Button size="sm" variant="outline" onClick={() => copyToClipboard(createdKeyPlaintext)}>
+                      {copiedKey ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Create key form */}
+              {showCreateKey && !createdKeyPlaintext && (
+                <div className="rounded-lg border border-border p-4 space-y-4">
+                  <div>
+                    <Label>Nombre</Label>
+                    <Input
+                      placeholder="Ej: Integracion MCP, ChatGPT, CRM..."
+                      value={newKeyName}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setNewKeyName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="mb-2 block">Permisos</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {ALL_SCOPES.map((s) => (
+                        <label key={s.value} className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={newKeyScopes.includes(s.value)}
+                            onChange={() => toggleScope(s.value)}
+                            className="rounded border-border"
+                          />
+                          {s.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => void createApiKey()} disabled={creatingKey || !newKeyName.trim()}>
+                      {creatingKey ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Key className="mr-1 h-4 w-4" />}
+                      Generar API Key
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setShowCreateKey(false)}>
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Keys list */}
+              {apiKeysLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : apiKeys.length === 0 ? (
+                <div className="rounded-lg border border-border p-6 text-center text-muted-foreground">
+                  <Key className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No hay API keys creadas.</p>
+                  <p className="text-xs mt-1">Crea una para conectar herramientas externas como MCP, ChatGPT o tu CRM.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {apiKeys.map((k) => (
+                    <div key={k.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border border-border p-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-sm truncate">{k.name}</span>
+                          <Badge variant={k.is_active ? 'default' : 'secondary'} className="text-[10px]">
+                            {k.is_active ? 'Activa' : 'Revocada'}
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {k.scopes.map((s) => (
+                            <Badge key={s} variant="outline" className="text-[10px] font-mono">{s}</Badge>
+                          ))}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          Creada {new Date(k.created_at).toLocaleDateString('es-ES')}
+                          {k.last_used_at && ` · Ultimo uso ${new Date(k.last_used_at).toLocaleDateString('es-ES')}`}
+                        </p>
+                      </div>
+                      {k.is_active && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive shrink-0"
+                          onClick={() => void revokeApiKey(k.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* API docs link */}
+              <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
+                <p><strong>Base URL:</strong> <code className="bg-background px-1 rounded">https://app.akademate.com/api/v1/</code></p>
+                <p className="mt-1"><strong>Autenticacion:</strong> <code className="bg-background px-1 rounded">Authorization: Bearer {'<tu-api-key>'}</code></p>
+                <p className="mt-1"><strong>Documentacion:</strong>{' '}
+                  <a href="/api/v1/openapi" target="_blank" className="text-primary hover:underline">
+                    OpenAPI Spec (JSON)
+                  </a>
                 </p>
+                <p className="mt-1">17 endpoints disponibles: ciclos, cursos, sedes, personal, convocatorias, alumnos, matriculas, leads, analiticas, media.</p>
               </div>
             </CardContent>
           </Card>

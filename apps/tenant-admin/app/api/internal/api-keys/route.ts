@@ -197,6 +197,14 @@ export async function POST(request: Request) {
     'enrollments:write',
     'analytics:read',
     'keys:manage',
+    'cycles:read',
+    'cycles:write',
+    'campuses:read',
+    'campuses:write',
+    'staff:read',
+    'staff:write',
+    'convocatorias:read',
+    'convocatorias:write',
   ]
 
   const invalidScopes = scopes.filter((s) => !validScopes.includes(s))

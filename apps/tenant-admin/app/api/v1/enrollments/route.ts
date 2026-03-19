@@ -26,13 +26,10 @@ export async function GET(request: Request) {
 
     const result = await payload.find({
       collection: 'enrollments',
-      where: {
-        tenant: { equals: Number(auth.auth.tenantId) },
-      },
       limit,
       page,
       sort: '-createdAt',
-      depth: 1, // Populate student and courseRun references
+      depth: 1,
     })
 
     return NextResponse.json(
@@ -97,7 +94,6 @@ export async function POST(request: Request) {
       data: {
         student: studentId,
         course_run: courseRunId,
-        tenant: Number(auth.auth.tenantId),
         status: 'active',
         enrollment_date: new Date().toISOString(),
       },

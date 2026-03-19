@@ -105,9 +105,11 @@ export const Users: CollectionConfig = {
     tokenExpiration: 7200,
 
     /**
-     * Use email as login field
+     * Enable API Key authentication
+     * Users can generate API keys for programmatic access
+     * Header: Authorization: users API-Key <key>
      */
-    useAPIKey: false,
+    useAPIKey: true,
   },
 
   labels: {

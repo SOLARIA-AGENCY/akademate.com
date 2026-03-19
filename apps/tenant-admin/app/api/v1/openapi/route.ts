@@ -307,10 +307,19 @@ const OPENAPI_SPEC = {
                 'enrollments:read',
                 'enrollments:write',
                 'analytics:read',
+                'keys:manage',
+                'cycles:read',
+                'cycles:write',
+                'campuses:read',
+                'campuses:write',
+                'staff:read',
+                'staff:write',
+                'convocatorias:read',
+                'convocatorias:write',
               ],
             },
             description: 'List of permission scopes granted to this key',
-            example: ['courses:read', 'students:read', 'analytics:read'],
+            example: ['courses:read', 'cycles:read', 'analytics:read'],
           },
           tenant_id: {
             type: 'string',
@@ -827,6 +836,67 @@ const OPENAPI_SPEC = {
         },
       },
     },
+    '/api/v1/cycles': {
+      get: {
+        operationId: 'listCycles', tags: ['Cycles'], summary: 'List ciclos formativos',
+        description: 'Returns paginated list of ciclos for the authenticated tenant.',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+          { name: 'offset', in: 'query', schema: { type: 'integer', default: 0 } },
+        ],
+        responses: { '200': { description: 'Paginated list of cycles' }, '401': { '$ref': '#/components/responses/Unauthorized' } },
+      },
+      post: {
+        operationId: 'createCycle', tags: ['Cycles'], summary: 'Create a ciclo formativo',
+        security: [{ bearerAuth: [] }],
+        requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['title'] } } } },
+        responses: { '201': { description: 'Cycle created' }, '401': { '$ref': '#/components/responses/Unauthorized' } },
+      },
+    },
+    '/api/v1/cycles/{id}': {
+      get: { operationId: 'getCycle', tags: ['Cycles'], summary: 'Get cycle detail', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Cycle detail' } } },
+      patch: { operationId: 'updateCycle', tags: ['Cycles'], summary: 'Update a cycle', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Updated cycle' } } },
+      delete: { operationId: 'deleteCycle', tags: ['Cycles'], summary: 'Delete a cycle', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Deleted' } } },
+    },
+    '/api/v1/campuses': {
+      get: { operationId: 'listCampuses', tags: ['Campuses'], summary: 'List campuses/sedes', security: [{ bearerAuth: [] }], parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } }, { name: 'offset', in: 'query', schema: { type: 'integer', default: 0 } }], responses: { '200': { description: 'Paginated list' } } },
+      post: { operationId: 'createCampus', tags: ['Campuses'], summary: 'Create a campus/sede', security: [{ bearerAuth: [] }], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['name'] } } } }, responses: { '201': { description: 'Campus created' } } },
+    },
+    '/api/v1/campuses/{id}': {
+      get: { operationId: 'getCampus', tags: ['Campuses'], summary: 'Get campus detail', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Campus detail' } } },
+      patch: { operationId: 'updateCampus', tags: ['Campuses'], summary: 'Update campus', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Updated' } } },
+      delete: { operationId: 'deleteCampus', tags: ['Campuses'], summary: 'Delete campus', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Deleted' } } },
+    },
+    '/api/v1/staff': {
+      get: { operationId: 'listStaff', tags: ['Staff'], summary: 'List staff/professors', security: [{ bearerAuth: [] }], parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } }, { name: 'offset', in: 'query', schema: { type: 'integer', default: 0 } }], responses: { '200': { description: 'Paginated list' } } },
+      post: { operationId: 'createStaff', tags: ['Staff'], summary: 'Create staff member', security: [{ bearerAuth: [] }], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['name'] } } } }, responses: { '201': { description: 'Staff created' } } },
+    },
+    '/api/v1/staff/{id}': {
+      get: { operationId: 'getStaff', tags: ['Staff'], summary: 'Get staff detail', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Staff detail' } } },
+      patch: { operationId: 'updateStaff', tags: ['Staff'], summary: 'Update staff', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Updated' } } },
+      delete: { operationId: 'deleteStaff', tags: ['Staff'], summary: 'Delete staff', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Deleted' } } },
+    },
+    '/api/v1/convocatorias': {
+      get: { operationId: 'listConvocatorias', tags: ['Convocatorias'], summary: 'List convocatorias (course runs)', security: [{ bearerAuth: [] }], parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } }, { name: 'offset', in: 'query', schema: { type: 'integer', default: 0 } }], responses: { '200': { description: 'Paginated list' } } },
+      post: { operationId: 'createConvocatoria', tags: ['Convocatorias'], summary: 'Create convocatoria', security: [{ bearerAuth: [] }], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '201': { description: 'Convocatoria created' } } },
+    },
+    '/api/v1/convocatorias/{id}': {
+      get: { operationId: 'getConvocatoria', tags: ['Convocatorias'], summary: 'Get convocatoria detail', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Convocatoria detail' } } },
+      patch: { operationId: 'updateConvocatoria', tags: ['Convocatorias'], summary: 'Update convocatoria', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Updated' } } },
+      delete: { operationId: 'deleteConvocatoria', tags: ['Convocatorias'], summary: 'Delete convocatoria', security: [{ bearerAuth: [] }], parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Deleted' } } },
+    },
+    '/api/v1/leads': {
+      get: { operationId: 'listLeads', tags: ['Leads'], summary: 'List leads', security: [{ bearerAuth: [] }], parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } }, { name: 'offset', in: 'query', schema: { type: 'integer', default: 0 } }], responses: { '200': { description: 'Paginated list' } } },
+      post: { operationId: 'createLead', tags: ['Leads'], summary: 'Create a lead', security: [{ bearerAuth: [] }], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['email'] } } } }, responses: { '201': { description: 'Lead created' } } },
+    },
+    '/api/v1/keys': {
+      get: { operationId: 'listKeys', tags: ['Keys'], summary: 'List API keys', security: [{ bearerAuth: [] }], responses: { '200': { description: 'List of API keys for tenant' } } },
+      post: { operationId: 'createKey', tags: ['Keys'], summary: 'Create API key', description: 'Creates a new API key. The plaintext key is returned ONCE in the response.', security: [{ bearerAuth: [] }], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['name', 'scopes'], properties: { name: { type: 'string' }, scopes: { type: 'array', items: { type: 'string' } }, rate_limit_per_day: { type: 'integer', default: 1000 } } } } } }, responses: { '201': { description: 'Key created — plaintext key included in response' } } },
+    },
+    '/api/v1/media': {
+      post: { operationId: 'uploadMedia', tags: ['Media'], summary: 'Upload a file', security: [{ bearerAuth: [] }], requestBody: { required: true, content: { 'multipart/form-data': { schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } } } }, responses: { '201': { description: 'File uploaded' } } },
+    },
     '/api/v1/analytics': {
       get: {
         operationId: 'getAnalytics',
@@ -857,26 +927,18 @@ const OPENAPI_SPEC = {
     },
   },
   tags: [
-    {
-      name: 'Auth',
-      description: 'API key verification and metadata',
-    },
-    {
-      name: 'Courses',
-      description: 'Course catalog management',
-    },
-    {
-      name: 'Students',
-      description: 'Student registration and lookup',
-    },
-    {
-      name: 'Enrollments',
-      description: 'Student-course enrollment management',
-    },
-    {
-      name: 'Analytics',
-      description: 'Dashboard KPI metrics',
-    },
+    { name: 'Auth', description: 'API key verification and metadata' },
+    { name: 'Courses', description: 'Course catalog management' },
+    { name: 'Cycles', description: 'Ciclos formativos (FP, grado medio/superior)' },
+    { name: 'Campuses', description: 'Campus/sede management' },
+    { name: 'Staff', description: 'Profesores y personal docente' },
+    { name: 'Convocatorias', description: 'Convocatorias (course runs / scheduled editions)' },
+    { name: 'Students', description: 'Student registration and lookup' },
+    { name: 'Enrollments', description: 'Student-course enrollment management' },
+    { name: 'Leads', description: 'Lead capture and management' },
+    { name: 'Analytics', description: 'Dashboard KPI metrics' },
+    { name: 'Keys', description: 'API key management' },
+    { name: 'Media', description: 'File uploads (images, documents)' },
   ],
 }
 
