@@ -362,6 +362,39 @@ export default function ConfiguracionUnifiedPage() {
     setConsents((prev) => ({ ...prev, [key]: !prev[key] }))
   }
 
+  // ---- Logo upload (instant) ----
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [logoUploaded, setLogoUploaded] = useState(false)
+
+  const handleLogoFile = async (file: File) => {
+    if (!file.type.startsWith('image/')) return
+    // Show preview immediately
+    const previewUrl = URL.createObjectURL(file)
+    setLogos((prev) => ({ ...prev, principal: previewUrl }))
+    setUploadingLogo(true)
+    setLogoUploaded(false)
+    try {
+      const formData = new FormData()
+      formData.append('file', file, file.name)
+      formData.append('alt', 'Logo de la academia')
+      const res = await fetch('/api/media', { method: 'POST', body: formData })
+      if (res.ok) {
+        const uploaded = await res.json()
+        const uploadedUrl = uploaded.doc?.url || `/media/${uploaded.doc?.filename}`
+        URL.revokeObjectURL(previewUrl)
+        setLogos((prev) => ({ ...prev, principal: uploadedUrl, oscuro: uploadedUrl, claro: uploadedUrl }))
+        setLogoUploaded(true)
+        setTimeout(() => setLogoUploaded(false), 3000)
+      } else {
+        console.error('Logo upload failed:', res.status)
+      }
+    } catch (err) {
+      console.error('Logo upload error:', err)
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
   const addDomain = () => setDomains((prev) => [...prev, ''])
   const removeDomain = (index: number) => setDomains((prev) => prev.filter((_, i) => i !== index))
   const updateDomain = (index: number, value: string) => {
@@ -697,29 +730,9 @@ export default function ConfiguracionUnifiedPage() {
                 onClick={async () => {
                   setSavingSection('personalizacion')
                   try {
-                    // If logo is a blob URL, upload it first
-                    let logosToSave = { ...logos }
-                    if (logos.principal?.startsWith('blob:')) {
-                      try {
-                        const blob = await fetch(logos.principal).then((r) => r.blob())
-                        const formData = new FormData()
-                        formData.append('file', blob, 'logo.png')
-                        formData.append('alt', 'Logo de la academia')
-                        const uploadRes = await fetch('/api/media', { method: 'POST', body: formData })
-                        if (uploadRes.ok) {
-                          const uploaded = await uploadRes.json()
-                          const uploadedUrl = uploaded.doc?.url || `/media/${uploaded.doc?.filename}`
-                          logosToSave = { ...logosToSave, principal: uploadedUrl, oscuro: uploadedUrl, claro: uploadedUrl }
-                          setLogos(logosToSave)
-                          URL.revokeObjectURL(logos.principal)
-                        }
-                      } catch (uploadErr) {
-                        console.error('Logo upload failed:', uploadErr)
-                      }
-                    }
-
                     const endpoint = '/api/config'
-                    const requests = [
+                    // Logo already uploaded instantly via handleLogoFile — no blob URLs
+                    const results = await Promise.all([
                       fetch(endpoint, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
@@ -728,28 +741,25 @@ export default function ConfiguracionUnifiedPage() {
                       fetch(endpoint, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ section: 'logos', tenantId, data: logosToSave }),
+                        body: JSON.stringify({ section: 'logos', tenantId, data: logos }),
                       }),
                       fetch(endpoint, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ section: 'academia', tenantId, data: academia }),
                       }),
-                    ]
-                    const results = await Promise.all(requests)
-                    const failedSections = ['personalizacion', 'logos', 'academia']
-                    for (let i = 0; i < results.length; i++) {
-                      if (!results[i].ok) {
-                        const errorBody = await results[i].json().catch(() => ({}))
-                        console.error(`Error saving ${failedSections[i]}:`, results[i].status, errorBody)
-                      }
-                    }
+                    ])
                     if (results.every((r) => r.ok)) {
                       await refresh()
                       showSaved('personalizacion')
                       window.dispatchEvent(new Event('config-updated'))
                     } else {
-                      console.error('Some sections failed to save. Check console for details.')
+                      for (let i = 0; i < results.length; i++) {
+                        if (!results[i].ok) {
+                          const err = await results[i].json().catch(() => ({}))
+                          console.error(`Save error [${['personalizacion','logos','academia'][i]}]:`, results[i].status, err)
+                        }
+                      }
                     }
                   } catch (err) {
                     console.error('Error saving personalizacion:', err)
@@ -789,16 +799,17 @@ export default function ConfiguracionUnifiedPage() {
                           e.preventDefault()
                           e.currentTarget.classList.remove('border-primary')
                           const file = e.dataTransfer.files?.[0]
-                          if (file && file.type.startsWith('image/')) {
-                            const url = URL.createObjectURL(file)
-                            setLogos((prev) => ({ ...prev, principal: url }))
-                          }
+                          if (file) void handleLogoFile(file)
                         }}
                         onClick={() => document.getElementById('logo-upload')?.click()}
                       >
-                        <ImageIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                        {uploadingLogo ? (
+                          <Loader2 className="h-8 w-8 text-primary mx-auto mb-2 animate-spin" />
+                        ) : (
+                          <ImageIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                        )}
                         <p className="text-sm text-muted-foreground">
-                          Arrastra una imagen o <span className="text-primary font-medium">haz click para seleccionar</span>
+                          {uploadingLogo ? 'Subiendo...' : <>Arrastra una imagen o <span className="text-primary font-medium">haz click para seleccionar</span></>}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">PNG, JPG o SVG. Recomendado: 512x512px</p>
                         <input
@@ -808,15 +819,12 @@ export default function ConfiguracionUnifiedPage() {
                           className="hidden"
                           onChange={(e) => {
                             const file = e.target.files?.[0]
-                            if (file) {
-                              const url = URL.createObjectURL(file)
-                              setLogos((prev) => ({ ...prev, principal: url }))
-                            }
+                            if (file) void handleLogoFile(file)
                           }}
                         />
                       </div>
-                      {logos.principal && logos.principal !== '/logos/akademate-logo-official.png' && (
-                        <p className="text-xs text-green-500">Logo actualizado (se guardara al hacer click en Guardar)</p>
+                      {logoUploaded && (
+                        <p className="text-xs text-green-500 flex items-center gap-1"><Check className="h-3 w-3" /> Logo subido correctamente</p>
                       )}
                     </div>
                   </div>

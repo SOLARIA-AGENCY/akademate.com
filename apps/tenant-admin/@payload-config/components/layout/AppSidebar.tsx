@@ -388,18 +388,18 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
           className={`flex items-center w-full transition-all duration-300 ease-in-out ${isCollapsed ? 'justify-center' : 'gap-2.5'}`}
           data-oid="opzrczc"
         >
-          {/* Logo Akademate — visible siempre */}
+          {/* Logo — visible siempre, usa branding si disponible */}
           <img
-            src="/logos/akademate-icon-32.png"
-            alt="Akademate"
-            className="h-8 w-8 flex-shrink-0"
+            src={branding.logos.principal || '/logos/akademate-logo-official.png'}
+            alt={academyName}
+            className="h-8 w-8 flex-shrink-0 rounded object-contain"
             title={isCollapsed ? academyName : undefined}
           />
 
-          {/* Nombre AKADEMATE — solo en expanded */}
+          {/* Nombre academia — solo en expanded */}
           {!isCollapsed && (
-            <span className="font-bold text-base tracking-tight text-sidebar-foreground truncate select-none">
-              AKADEMATE
+            <span className="font-bold text-base tracking-tight text-sidebar-foreground truncate select-none uppercase">
+              {academyName}
             </span>
           )}
         </div>

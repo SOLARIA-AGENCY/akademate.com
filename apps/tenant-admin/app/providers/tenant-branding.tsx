@@ -152,6 +152,13 @@ export function TenantBrandingProvider({ children }: { children: React.ReactNode
     void refresh()
   }, [refresh])
 
+  // Listen for config-updated events from the Configuracion page
+  React.useEffect(() => {
+    const handler = () => void refresh()
+    window.addEventListener('config-updated', handler)
+    return () => window.removeEventListener('config-updated', handler)
+  }, [refresh])
+
   React.useEffect(() => {
     applyThemeVariables(branding.theme)
   }, [branding.theme])
