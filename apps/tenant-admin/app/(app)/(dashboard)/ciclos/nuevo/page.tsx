@@ -33,6 +33,7 @@ import {
   Heart,
   FileText,
   Star,
+  Image as ImageIcon,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -301,30 +302,34 @@ export default function NuevoCicloPage() {
         </Button>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="border-b border-border">
-        <div className="flex gap-1 overflow-x-auto pb-px scrollbar-none">
-          {TABS.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setActiveTab(id)}
-              className={`
-                flex items-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium border-b-2 transition-colors
-                ${
-                  activeTab === id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                }
-              `}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Tab Navigation — vertical sidebar on desktop, horizontal scroll on mobile */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        <nav className="lg:w-56 shrink-0">
+          {/* Mobile: horizontal scroll */}
+          <div className="flex lg:hidden gap-1 overflow-x-auto pb-2 scrollbar-none">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button key={id} type="button" onClick={() => setActiveTab(id)}
+                className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-sm rounded-md transition-colors ${
+                  activeTab === id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted'
+                }`}>
+                <Icon className="h-4 w-4" />{label}
+              </button>
+            ))}
+          </div>
+          {/* Desktop: vertical list */}
+          <div className="hidden lg:flex lg:flex-col gap-1 sticky top-20">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button key={id} type="button" onClick={() => setActiveTab(id)}
+                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors text-left w-full ${
+                  activeTab === id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}>
+                <Icon className="h-4 w-4 shrink-0" />{label}
+              </button>
+            ))}
+          </div>
+        </nav>
 
+        <div className="flex-1 min-w-0">
       <form onSubmit={handleSubmit}>
         {/* ================================================================
             TAB 1: DATOS BASICOS
@@ -402,16 +407,21 @@ export default function NuevoCicloPage() {
                       <span className="text-muted-foreground text-sm">Sin imagen</span>
                     )}
                   </div>
-                  <div className="space-y-2 w-full sm:w-auto">
-                    <Input
-                      id="image"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="w-full sm:max-w-xs"
-                    />
+                  <div className="flex-1">
+                    <label className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors block">
+                      {uploadingImage ? (
+                        <Loader2 className="h-6 w-6 mx-auto animate-spin text-primary" />
+                      ) : (
+                        <ImageIcon className="h-6 w-6 mx-auto text-muted-foreground" />
+                      )}
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {uploadingImage ? 'Subiendo...' : 'Arrastra o haz click para seleccionar'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG. Recomendado: 1200x400px</p>
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { handleImageChange(e); e.target.value = '' }} />
+                    </label>
                     {uploadingImage && (
-                      <p className="text-xs text-primary flex items-center gap-1">
+                      <p className="text-xs text-primary flex items-center gap-1 mt-2">
                         <Loader2 className="h-3 w-3 animate-spin" /> Subiendo imagen...
                       </p>
                     )}
@@ -1162,6 +1172,8 @@ export default function NuevoCicloPage() {
           </Button>
         </div>
       </form>
+        </div>{/* end flex-1 */}
+      </div>{/* end flex-col lg:flex-row */}
     </div>
   )
 }
