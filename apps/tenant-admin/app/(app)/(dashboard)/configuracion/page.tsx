@@ -365,6 +365,7 @@ export default function ConfiguracionUnifiedPage() {
   // ---- Logo upload (instant) ----
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [logoUploaded, setLogoUploaded] = useState(false)
+  const logoInputRef = useRef<HTMLInputElement>(null)
 
   const handleLogoFile = async (file: File) => {
     if (!file.type.startsWith('image/')) return
@@ -791,7 +792,21 @@ export default function ConfiguracionUnifiedPage() {
                   <div className="space-y-3 flex-1">
                     <div className="space-y-2">
                       <Label htmlFor="logo-upload">Subir logo</Label>
+                      <input
+                        ref={logoInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        tabIndex={-1}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) void handleLogoFile(file)
+                          e.target.value = ''
+                        }}
+                      />
                       <div
+                        role="button"
+                        tabIndex={0}
                         className="relative max-w-md border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
                         onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-primary') }}
                         onDragLeave={(e) => { e.currentTarget.classList.remove('border-primary') }}
@@ -801,7 +816,8 @@ export default function ConfiguracionUnifiedPage() {
                           const file = e.dataTransfer.files?.[0]
                           if (file) void handleLogoFile(file)
                         }}
-                        onClick={() => document.getElementById('logo-upload')?.click()}
+                        onClick={() => logoInputRef.current?.click()}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') logoInputRef.current?.click() }}
                       >
                         {uploadingLogo ? (
                           <Loader2 className="h-8 w-8 text-primary mx-auto mb-2 animate-spin" />
@@ -812,16 +828,6 @@ export default function ConfiguracionUnifiedPage() {
                           {uploadingLogo ? 'Subiendo...' : <>Arrastra una imagen o <span className="text-primary font-medium">haz click para seleccionar</span></>}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">PNG, JPG o SVG. Recomendado: 512x512px</p>
-                        <input
-                          id="logo-upload"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) void handleLogoFile(file)
-                          }}
-                        />
                       </div>
                       {logoUploaded && (
                         <p className="text-xs text-green-500 flex items-center gap-1"><Check className="h-3 w-3" /> Logo subido correctamente</p>

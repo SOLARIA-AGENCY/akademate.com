@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
@@ -306,6 +306,7 @@ export default function EditarCicloPage() {
 
   const [uploadingImage, setUploadingImage] = useState(false)
   const [imageUploaded, setImageUploaded] = useState(false)
+  const imageInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageFile = async (file: File) => {
     if (!file.type.startsWith('image/')) return
@@ -572,7 +573,21 @@ export default function EditarCicloPage() {
                       </div>
                       {/* Upload zone */}
                       <div className="flex-1">
+                        <input
+                          ref={imageInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="sr-only"
+                          tabIndex={-1}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) void handleImageFile(file)
+                            e.target.value = ''
+                          }}
+                        />
                         <div
+                          role="button"
+                          tabIndex={0}
                           className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors"
                           onDragOver={(e) => {
                             e.preventDefault()
@@ -587,7 +602,8 @@ export default function EditarCicloPage() {
                             const file = e.dataTransfer.files?.[0]
                             if (file) void handleImageFile(file)
                           }}
-                          onClick={() => document.getElementById('cycle-image-upload')?.click()}
+                          onClick={() => imageInputRef.current?.click()}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') imageInputRef.current?.click() }}
                         >
                           {uploadingImage ? (
                             <Loader2 className="h-6 w-6 mx-auto animate-spin text-primary" />
@@ -598,16 +614,6 @@ export default function EditarCicloPage() {
                             {uploadingImage ? 'Subiendo...' : 'Arrastra o haz click para seleccionar'}
                           </p>
                           <p className="text-xs text-muted-foreground">PNG, JPG. Recomendado: 1200x400px</p>
-                          <input
-                            id="cycle-image-upload"
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0]
-                              if (file) void handleImageFile(file)
-                            }}
-                          />
                         </div>
                         {imageUploaded && (
                           <p className="text-xs text-green-500 mt-2 flex items-center gap-1">
