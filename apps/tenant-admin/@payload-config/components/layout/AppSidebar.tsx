@@ -33,6 +33,7 @@ import {
   Award,
   School,
   Briefcase,
+  Tag,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -159,6 +160,8 @@ const menuItems: MenuItemWithSection[] = [
     items: [
       { title: 'Usuarios', icon: Users, url: '/administracion/usuarios' },
       { title: 'Roles y Permisos', icon: Shield, url: '/administracion/roles' },
+      { title: 'Areas de Estudio', icon: BookOpen, url: '/administracion/areas-estudio' },
+      { title: 'Tipos de Estudio', icon: Tag, url: '/administracion/tipos-estudio' },
       { title: 'Suscripción', icon: CreditCard, url: '/administracion/suscripcion' },
       { title: 'Registro de Actividad', icon: FileText, url: '/administracion/actividad' },
     ],

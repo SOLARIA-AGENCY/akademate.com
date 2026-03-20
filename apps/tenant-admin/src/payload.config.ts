@@ -30,6 +30,7 @@ import { AuditLogs } from './collections/AuditLogs/AuditLogs';
 import { Staff } from './collections/Staff/Staff';
 import { Tenants } from './collections/Tenants/Tenants'
 import { ApiKeys } from './collections/ApiKeys/ApiKeys';
+import { CourseTypes } from './collections/CourseTypes/CourseTypes';
 
 // LMS Collections
 import { Modules } from './collections/Modules/Modules';
@@ -118,6 +119,9 @@ export const getPayloadConfig = () => buildConfig({
 
     // ===== API ACCESS =====
     ApiKeys, // ✅ Programmatic API access via Bearer tokens
+
+    // ===== CATALOG =====
+    CourseTypes, // ✅ Course types by audience (Desempleados, Ocupados, Teleformacion)
   ],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET ?? 'YOUR_SECRET_HERE',

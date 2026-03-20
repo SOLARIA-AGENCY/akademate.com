@@ -918,26 +918,17 @@ export default function ConfiguracionUnifiedPage() {
                 <div>
                   <CardTitle>Areas de Estudio</CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Gestiona las areas academicas y sus cursos asociados
+                    Gestiona las areas de conocimiento para ciclos y cursos
                   </p>
                 </div>
               </div>
               <Button size="sm" variant="outline" asChild>
-                <a href="/configuracion/areas">
+                <a href="/administracion/areas-estudio">
                   Gestionar
                   <ChevronRight className="ml-1 h-4 w-4" />
                 </a>
               </Button>
             </CardHeader>
-            <CardContent>
-              <div className="rounded-lg border border-border p-4 text-center text-muted-foreground">
-                <BookOpen className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">
-                  Accede a la pagina completa de areas para crear, editar y organizar
-                  las areas de estudio de tu academia.
-                </p>
-              </div>
-            </CardContent>
           </Card>
         </section>
 
