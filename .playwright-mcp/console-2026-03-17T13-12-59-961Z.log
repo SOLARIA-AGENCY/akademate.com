@@ -1,0 +1,5 @@
+[     417ms] [ERROR] WebSocket connection to 'ws://0.0.0.0:13100/?token=1ppkPXhBFYDI' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://100.112.153.111:3100/@vite/client:801
+[     417ms] [ERROR] [vite] failed to connect to websocket (Error: WebSocket closed without opened.).  @ http://100.112.153.111:3100/@vite/client:840
+[     421ms] Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (http://100.112.153.111:3100/@vite/client:454:22)
+[    4588ms] [WARNING] WebSocket connection to 'ws://100.112.153.111:3100/api/companies/0bb6d93a-0799-4e3e-b438-4a3dad184370/events/ws' failed: WebSocket is closed before the connection is established. @ http://100.112.153.111:3100/src/context/LiveUpdatesProvider.tsx:410

@@ -1,0 +1,9 @@
+[     343ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3006/tour?_rsc=3lb4g:0
+[   17414ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3006/privacidad?_rsc=3lb4g:0
+[   17525ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3006/instructores?_rsc=3lb4g:0
+[   17536ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3006/terminos?_rsc=3lb4g:0
+[   17560ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3006/precios?_rsc=3lb4g:0
+[   17566ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3006/cookies?_rsc=3lb4g:0
+[   17596ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3006/faq?_rsc=3lb4g:0
+[   17607ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3006/empleo?_rsc=3lb4g:0
+[ 1765070ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3006/tour?_rsc=3lb4g:0

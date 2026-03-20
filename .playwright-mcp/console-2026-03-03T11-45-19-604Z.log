@@ -1,0 +1,8 @@
+[  867450ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.99.60.106:3009/api/dashboard/metrics?tenantId=2:0
+[  867451ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.99.60.106:3009/api/dashboard/metrics?tenantId=2:0
+[  867893ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.99.60.106:3009/api/dashboard/metrics?tenantId=2:0
+[  869016ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.99.60.106:3009/api/dashboard/metrics?tenantId=2:0
+[  869017ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.99.60.106:3009/api/dashboard/metrics?tenantId=2:0
+[  869551ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.99.60.106:3009/api/dashboard/metrics?tenantId=2:0
+[  869667ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.99.60.106:3009/api/dashboard/metrics?tenantId=2:0
+[  896045ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://100.99.60.106:3009/api/dashboard/stream?tenantId=2:0

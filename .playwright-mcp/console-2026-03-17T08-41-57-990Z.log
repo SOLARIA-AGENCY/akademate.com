@@ -1,0 +1,6 @@
+[  111383ms] [ERROR] Failed to load resource: the server responded with a status of 502 () @ https://status.akademate.com/socket.io/?EIO=4&transport=polling&t=d8b0ar0u:0
+[  111384ms] [ERROR] Failed to connect to the backend. Socket.io connect_error: xhr poll error @ https://status.akademate.com/assets/index-BBxTfFCS.js:20
+[  112985ms] [ERROR] Failed to load resource: the server responded with a status of 502 () @ https://status.akademate.com/socket.io/?EIO=4&transport=polling&t=d8c8slxo:0
+[  112985ms] [ERROR] Failed to connect to the backend. Socket.io connect_error: xhr poll error @ https://status.akademate.com/assets/index-BBxTfFCS.js:20
+[  116533ms] [ERROR] Failed to load resource: the server responded with a status of 502 () @ https://status.akademate.com/socket.io/?EIO=4&transport=polling&t=d8ez93hf:0
+[  116533ms] [ERROR] Failed to connect to the backend. Socket.io connect_error: xhr poll error @ https://status.akademate.com/assets/index-BBxTfFCS.js:20

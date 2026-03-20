@@ -1,0 +1,3 @@
+[   19316ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1774000235373:0
+[   19697ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cepformacion.akademate.com/api/course-runs?where[status][equals]=enrollment_open&limit=0:0
+[   19706ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cepformacion.akademate.com/api/course-runs?where[status][equals]=published&limit=0:0

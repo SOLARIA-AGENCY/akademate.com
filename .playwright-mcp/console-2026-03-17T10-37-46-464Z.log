@@ -1,0 +1,7 @@
+[    2181ms] [ERROR] WebSocket connection to 'ws://0.0.0.0:13100/?token=1ppkPXhBFYDI' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://100.112.153.111:3100/@vite/client:801
+[    2181ms] [ERROR] [vite] failed to connect to websocket (Error: WebSocket closed without opened.).  @ http://100.112.153.111:3100/@vite/client:840
+[    2187ms] Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (http://100.112.153.111:3100/@vite/client:454:22)
+[    5954ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.112.153.111:3100/api/auth/get-session:0
+[    5967ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ http://100.112.153.111:3100/api/companies:0
+[   76458ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ http://100.112.153.111:3100/api/companies:0

@@ -1,0 +1,28 @@
+[     290ms] Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rD (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:35062)
+    at rO (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:36095)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:118083
+    at ix (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:122955)
+    at ik (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:114743)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110730
+    at iu (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110831)
+    at iX (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:132934)
+    at MessagePort.w (https://cepcomunicacion.akademate.com/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:98627)
+[     398ms] [ERROR] Access to fetch at 'https://app.akademate.com/api/users/me' from origin 'https://cepcomunicacion.akademate.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cepcomunicacion.akademate.com/admin/login:0
+[     399ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://app.akademate.com/api/users/me:0
+[     482ms] [ERROR] Access to fetch at 'https://app.akademate.com/api/users/me' from origin 'https://cepcomunicacion.akademate.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cepcomunicacion.akademate.com/admin/login:0
+[     482ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://app.akademate.com/api/users/me:0
+[  148414ms] Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rD (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:35062)
+    at rO (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:36095)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:118083
+    at ix (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:122955)
+    at ik (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:114743)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110730
+    at iu (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110831)
+    at iX (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:132934)
+    at MessagePort.w (https://cepcomunicacion.akademate.com/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:98627)
+[  148523ms] [ERROR] Access to fetch at 'https://app.akademate.com/api/users/me' from origin 'https://cepcomunicacion.akademate.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cepcomunicacion.akademate.com/admin/login:0
+[  148523ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://app.akademate.com/api/users/me:0
+[  148598ms] [ERROR] Access to fetch at 'https://app.akademate.com/api/users/me' from origin 'https://cepcomunicacion.akademate.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cepcomunicacion.akademate.com/admin/login:0
+[  148599ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://app.akademate.com/api/users/me:0

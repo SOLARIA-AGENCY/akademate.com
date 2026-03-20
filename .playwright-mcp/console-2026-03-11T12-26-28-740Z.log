@@ -1,0 +1,207 @@
+[77004709ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/auth/login:0
+[78384266ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/176-aff2a3fb0f1ac108.js:0
+[82231268ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/476-516910c51c69bcec.js:0
+[82231654ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[82232760ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[82238035ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/476-516910c51c69bcec.js:0
+[82238185ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[82239292ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[82241368ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[82242463ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[82255541ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/476-516910c51c69bcec.js:0
+[82255649ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[82256756ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[82303873ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/476-516910c51c69bcec.js:0
+[82303999ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[82305090ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[84003620ms] [WARNING] The resource https://admin.akademate.com/_next/static/css/333be484e2d7b3d7.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://admin.akademate.com/dashboard:0
+[84354665ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/auth/sign-in/email:0
+[91409534ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/476-516910c51c69bcec.js:0
+[91409671ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[91409684ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[91410753ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[91410763ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[92204957ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/476-516910c51c69bcec.js:0
+[92205047ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[92205057ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[92206134ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[92206144ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[92217297ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/476-516910c51c69bcec.js:0
+[92217402ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[92217412ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[92218487ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[92218498ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[93067020ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/128-e38b8af4bb7a6c38.js:0
+[93067125ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[93067142ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[93067165ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/weekly-activity:0
+[93067202ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/readiness-score:0
+[93067230ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[93068209ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[93068223ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[93072856ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[93073939ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[93143185ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/invoices:0
+[93168804ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/api-keys:0
+[93236256ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/support-tickets:0
+[158372024ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[158372132ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[158372151ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/weekly-activity:0
+[158372168ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[158372189ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/readiness-score:0
+[158372236ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[158373208ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[158373241ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/metrics:0
+[158375175ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[158376258ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants?limit=100:0
+[158376531ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/invoices:0
+[158381042ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/readiness-score:0
+[158383601ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/invoices:0
+[158386549ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://admin.akademate.com/api/ops/tenants:0
+[158392969ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/api-keys:0
+[158451066ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/support-tickets:0
+[162562225ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[162567547ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1?_rsc=123h5:0
+[162594694ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1:0
+[162608677ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1?_rsc=123h5:0
+[164308030ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[164309114ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[164321124ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[164335084ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/invoices:0
+[164337823ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[164339302ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/support-tickets:0
+[164341197ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[164342318ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1?_rsc=123h5:0
+[164346955ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1?_rsc=123h5:0
+[164364238ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1:0
+[164368337ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1?_rsc=123h5:0
+[165772571ms] [WARNING] The resource https://admin.akademate.com/_next/static/css/625df9bdd5e5cda0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://admin.akademate.com/dashboard/tenants:0
+[167510147ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[178869890ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[419605699ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[419607864ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1?_rsc=123h5:0
+[419626639ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[419628729ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[419631271ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/7128-d3b5a006a4a3cd57.js:0
+[420870319ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/6584-a57f017b663a60f2.js:0
+[420870844ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[420871139ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1?_rsc=skepm:0
+[420871935ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[420884281ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/analytics:0
+[420884282ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/6584-a57f017b663a60f2.js:0
+[420884282ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/6584-a57f017b663a60f2.js:0
+[420885554ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/6584-a57f017b663a60f2.js:0
+[420885663ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[420886764ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[422323212ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/6584-a57f017b663a60f2.js:0
+[422323474ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[422323624ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1?_rsc=skepm:0
+[422324562ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[422419996ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/finanzas/pl:0
+[422425177ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[422428690ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/finanzas/pl:0
+[422433180ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[422434670ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/finanzas/pl:0
+[422523987ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/analytics:0
+[422523988ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/6584-a57f017b663a60f2.js:0
+[422523988ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/6584-a57f017b663a60f2.js:0
+[422536813ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/support-tickets:0
+[422556477ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/support-tickets:0
+[422577849ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/api/ops/support-tickets:0
+[422579795ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://admin.akademate.com/_next/static/chunks/6584-a57f017b663a60f2.js:0
+[422579985ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[422580208ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://admin.akademate.com/dashboard/tenants/1?_rsc=skepm:0
+[422581071ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/mrr:0
+[422582969ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://admin.akademate.com/api/ops/finanzas/pl:0
+[422586937ms] [ERROR] Framing 'https://status.akademate.com/' violates the following Content Security Policy directive: "default-src 'self'". The request has been blocked. Note that 'frame-src' was not explicitly set, so 'default-src' is used as a fallback.
+ @ https://admin.akademate.com/_next/static/chunks/6f147f51-09c50b100421353b.js:0

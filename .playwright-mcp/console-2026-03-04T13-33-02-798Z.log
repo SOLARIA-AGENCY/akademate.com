@@ -1,0 +1,10 @@
+[  114965ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://100.99.60.106:3009/api/billing/subscriptions?tenantId=2:0
+[  115003ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[  115017ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[  115031ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[  115239ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 5842072ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://100.99.60.106:3009/api/billing/subscriptions?tenantId=2:0
+[ 5850198ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 5853152ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 5853740ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 5864684ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0

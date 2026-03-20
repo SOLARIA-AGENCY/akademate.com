@@ -1,0 +1,11 @@
+[    1536ms] Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rD (http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:35062)
+    at rO (http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:36095)
+    at http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:118083
+    at ix (http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:122955)
+    at ik (http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:114743)
+    at http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110730
+    at iu (http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110831)
+    at iX (http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:132934)
+    at MessagePort.w (http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:98627)
+[  112468ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://gs4g0c0k8ws0oo4wwgwsskkg.100.99.60.106.sslip.io/api/users/login:0

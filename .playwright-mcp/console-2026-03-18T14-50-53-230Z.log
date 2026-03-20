@@ -1,0 +1,4 @@
+[     415ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[     924ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773845453461:0
+[   29315ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[   29315ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0

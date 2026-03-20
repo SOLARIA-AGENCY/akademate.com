@@ -1,0 +1,6 @@
+[     696ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[    1134ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1774003685288:0
+[   23774ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/media:0
+[   23774ms] [ERROR] Upload failed: 400 @ https://cepformacion.akademate.com/_next/static/chunks/app/(app)/(dashboard)/ciclos/%5Bid%5D/editar/page-874ff034c3898a06.js:0
+[  434715ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1774004119250:0
+[  434957ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0

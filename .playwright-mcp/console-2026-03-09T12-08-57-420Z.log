@@ -1,0 +1,14 @@
+[     268ms] [ERROR] Connecting to 'http://localhost:3009/api/users/me' violates the following Content Security Policy directive: "connect-src 'self' wss:". The action has been blocked. @ http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/app/layout-b1d83b62e69befe0.js:0
+[     268ms] [ERROR] Fetch API cannot load http://localhost:3009/api/users/me. Refused to connect because it violates the document's Content Security Policy. @ http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/app/layout-b1d83b62e69befe0.js:0
+[     270ms] [ERROR] [SessionProvider] Error fetching session: TypeError: Failed to fetch
+    at http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/app/layout-b1d83b62e69befe0.js:1:420
+    at http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/app/layout-b1d83b62e69befe0.js:1:1962
+    at o1 (http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-5d645d4042a2fee1.js:1:88950)
+    at uE (http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-5d645d4042a2fee1.js:1:104842)
+    at ux (http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-5d645d4042a2fee1.js:1:104726)
+    at uE (http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-5d645d4042a2fee1.js:1:104887)
+    at ux (http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-5d645d4042a2fee1.js:1:104726)
+    at uE (http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-5d645d4042a2fee1.js:1:104887)
+    at ux (http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-5d645d4042a2fee1.js:1:104726)
+    at uE (http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/6f147f51-5d645d4042a2fee1.js:1:104887) @ http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/_next/static/chunks/app/layout-b1d83b62e69befe0.js:0
+[     292ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://ewggsg4ssgoc8w0048k8wggk.100.99.60.106.sslip.io/api/auth/session:0

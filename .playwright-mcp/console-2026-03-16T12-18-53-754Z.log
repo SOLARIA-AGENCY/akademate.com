@@ -1,0 +1,12 @@
+[     974ms] Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rD (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:35062)
+    at rO (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:36095)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:118083
+    at ix (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:122955)
+    at ik (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:114743)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110730
+    at iu (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110831)
+    at iX (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:132934)
+    at MessagePort.w (https://cepcomunicacion.akademate.com/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:98627)
+[  111044ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepcomunicacion.akademate.com/api/users/login:0
+[  114205ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepcomunicacion.akademate.com/api/users/login:0

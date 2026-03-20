@@ -1,0 +1,263 @@
+[  419011ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773834632499:0
+[  475005ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  475019ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  480010ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  480024ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  480178ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  480182ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  490016ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  490030ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  490158ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  490173ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  544830ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  544831ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  545132ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  545141ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  549836ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  549841ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  549994ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  550001ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  569842ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  569849ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  569993ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  569997ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  614855ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  615067ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  619849ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  620002ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  659854ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  660169ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[  696929ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/campuses/nueva:0
+[  852006ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/campuses/nueva:0
+[  883909ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/staff/nuevo:0
+[  910809ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cepformacion.akademate.com/api/campaigns?limit=50&sort=-createdAt:0
+[  915365ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos?_rsc=1ymwd:0
+[  917519ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos:0
+[  917732ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/favicon.ico:0
+[  920236ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773835133797:0
+[  920390ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos?_rsc=1u1gj:0
+[ 1018111ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 1018185ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 1277070ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1277073ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1282075ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1282219ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1287077ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1287212ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1405745ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773835619309:0
+[ 1411037ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1411044ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1416042ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1416047ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1416190ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1416195ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1436051ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1436194ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1441048ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1441191ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1471052ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1471362ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1491055ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1491195ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1531227ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1591314ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1701564ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1726344ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 1906910ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 2156580ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 2632244ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/subscriptions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 3056892ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/billing/transactions?tenantId=123e4567-e89b-12d3-a456-426614174001:0
+[ 3494614ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 3494614ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 3494786ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 3494889ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773837708396:0
+[ 3494920ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3494920ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3495147ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3535002ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 3535059ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 3535063ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 3536778ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 3536788ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 3536790ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 3569409ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773837782945:0
+[ 3579338ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 3579338ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 3579388ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3579388ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3579480ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 3579567ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3579652ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773837793042:0
+[ 4314265ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773838527587:0
+[ 5456055ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773839669257:0
+[ 5960177ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773840173136:0
+[ 5972421ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773840185983:0
+[ 6150572ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773840363791:0
+[ 6171470ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/ciclos-medio/1?_rsc=1pn2m:0
+[ 6171569ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/ciclos-medio/1:0
+[ 6177076ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773840390305:0
+[ 6257093ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/ciclos-superior/2?_rsc=12aj9:0
+[ 6257184ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/ciclos-superior/2:0
+[ 6390186ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773840603647:0
+[ 6391775ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos?_rsc=yj8v1:0
+[ 6393970ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos:0
+[ 6413757ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773840627099:0
+[ 6474876ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773840688457:0
+[ 6614869ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 6614987ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 6616998ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 6638307ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 6638379ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 6638385ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 6639576ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 6639598ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 6639601ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 6838997ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773841052310:0
+[ 6898599ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773841112155:0
+[ 7116817ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos?_rsc=1dsz1:0
+[ 7118396ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos:0
+[ 7410088ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos:0
+[ 7411276ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos:0
+[ 8179231ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773842392396:0
+[ 8179440ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos?_rsc=1u1gj:0
+[ 8180235ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos?_rsc=1u1gj:0
+[ 8180248ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773842393594:0
+[ 8181385ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos?_rsc=1u1gj:0
+[ 8181394ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773842394865:0
+[ 8183128ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos:0
+[ 8185107ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/web/ciclos?_rsc=1u1gj:0
+[ 8185114ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773842398613:0
+[ 8189697ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773842403064:0
+[ 8288301ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773842501233:0
+[ 8307978ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773842520918:0
+[ 8313963ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8313985ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 8348722ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cepformacion.akademate.com/api/cycles/1:0
+[ 8349462ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cepformacion.akademate.com/api/cycles/1:0
+[ 8349978ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cepformacion.akademate.com/api/cycles/1:0
+[ 8351130ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8366102ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 8391245ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/ciclos/2/editar?_rsc=1hz4h:0
+[ 8391345ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/ciclos/2/editar:0
+[ 8415418ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 8415779ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773842629292:0
+[ 8475622ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8528686ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8546406ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8599889ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8599889ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 8609331ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8609331ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 8617047ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8617047ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 8620414ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8620414ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 8672383ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8672383ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 8790267ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 8790268ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8790418ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773843003967:0
+[ 8793188ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 8793194ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 8807172ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 8807186ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 8807189ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 8867764ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://cepformacion.akademate.com/_next/static/chunks/2563-335ab545788dec61.js:0
+[ 8945753ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773843159333:0
+[ 8946835ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773843160367:0
+[ 8949421ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 8952345ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/ciclos/1/editar?_rsc=1wn2d:0
+[ 8952446ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/ciclos/1/editar:0
+[ 9009520ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 9009924ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773843223279:0
+[ 9011684ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773843225223:0
+[ 9011703ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 9014746ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9014751ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9320471ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9320472ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9320678ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9320899ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9320899ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9320921ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773843534405:0
+[ 9321038ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9324061ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 9324071ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9324077ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9334296ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 9334305ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9334308ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9335084ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 9335100ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9335104ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9335343ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/config:0
+[ 9335353ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9335356ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9847058ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9847059ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9847197ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9847360ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9847361ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9847574ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9847618ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773844060934:0
+[ 9859035ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9859042ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9859049ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9860008ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9860013ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9860018ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9860276ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9860280ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9860286ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9860681ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9860684ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9860690ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config:0
+[ 9894318ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9894318ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9894319ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9894319ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9894790ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9894860ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9894872ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773844108097:0
+[ 9894884ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9894944ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[ 9896918ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 9896919ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[ 9900221ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[ 9963626ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[ 9963700ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11024764ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11024765ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11024930ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11025531ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11025531ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11025603ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773845238584:0
+[11025667ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11035285ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11035285ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11035292ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11035292ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11035414ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11035448ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11035521ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11035584ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11035789ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773845249069:0
+[11036838ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11036838ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11036845ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11036845ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11037003ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11037117ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cepformacion.akademate.com/api/feature-flags?tenantId=1:0
+[11037174ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11037178ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773845250622:0
+[11037263ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/config?section=domains&tenantId=1:0
+[11103051ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[11103052ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[11104857ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[11113248ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[11189186ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[11189186ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/higiene-hero.png:0
+[11192503ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0

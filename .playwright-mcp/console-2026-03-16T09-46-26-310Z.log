@@ -1,0 +1,42 @@
+[     934ms] Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rD (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:35062)
+    at rO (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:36095)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:118083
+    at ix (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:122955)
+    at ik (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:114743)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110730
+    at iu (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:110831)
+    at iX (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:132934)
+    at MessagePort.w (https://cepcomunicacion.akademate.com/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:98627)
+[    1025ms] [ERROR] Access to fetch at 'https://admin.akademate.com/api/users/me' from origin 'https://cepcomunicacion.akademate.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cepcomunicacion.akademate.com/admin:0
+[    1026ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://admin.akademate.com/api/users/me:0
+[    1162ms] [ERROR] Access to fetch at 'https://admin.akademate.com/api/users/me' from origin 'https://cepcomunicacion.akademate.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cepcomunicacion.akademate.com/admin:0
+[    1162ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://admin.akademate.com/api/users/me:0
+[    1311ms] [ERROR] Access to fetch at 'https://admin.akademate.com/api/payload-preferences/nav' from origin 'https://cepcomunicacion.akademate.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cepcomunicacion.akademate.com/admin:0
+[    1312ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://admin.akademate.com/api/payload-preferences/nav:0
+[    1314ms] TypeError: Failed to fetch
+    at Object.get (https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:126903)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:155306
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:155502
+    at new Promise (<anonymous>)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:155264
+    at fQ (https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:557521)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:557831
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:557839
+    at o1 (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:88957)
+    at uE (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:104849)
+[    1495ms] [ERROR] Access to fetch at 'https://admin.akademate.com/api/users/me' from origin 'https://cepcomunicacion.akademate.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cepcomunicacion.akademate.com/admin/login:0
+[    1495ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://admin.akademate.com/api/users/me:0
+[    1582ms] [ERROR] Access to fetch at 'https://admin.akademate.com/api/payload-preferences/nav' from origin 'https://cepcomunicacion.akademate.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cepcomunicacion.akademate.com/admin/login:0
+[    1582ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://admin.akademate.com/api/payload-preferences/nav:0
+[    1591ms] TypeError: Failed to fetch
+    at Object.get (https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:126903)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:155306
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:155502
+    at new Promise (<anonymous>)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:155264
+    at fQ (https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:557521)
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:557831
+    at https://cepcomunicacion.akademate.com/_next/static/chunks/d958cbb5-f4cf0c294f047de9.js:1:557839
+    at o1 (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:88957)
+    at uE (https://cepcomunicacion.akademate.com/_next/static/chunks/6f147f51-d0369bed8f7906dc.js:1:104849)

@@ -241,7 +241,7 @@ export default function WebCiclosPage() {
                         title="Ver pagina publica"
                         onClick={() => {
                           if (cycle.slug) {
-                            window.open(`/web/ciclos/${cycle.slug}`, '_blank')
+                            window.open(`/p/ciclos/${cycle.slug}`, '_blank')
                           }
                         }}
                       >

@@ -1,0 +1,14 @@
+[   16624ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://app.akademate.com/socket.io?EIO=4&transport=polling&t=1773916928857:0
+[   16694ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://app.akademate.com/api/course-runs?where[status][equals]=enrollment_open&limit=0:0
+[   16731ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://app.akademate.com/api/course-runs?where[status][equals]=published&limit=0:0
+[   26182ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://app.akademate.com/api/feature-flags?tenantId=1:0
+[   26280ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://app.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3990741ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://app.akademate.com/api/feature-flags?tenantId=1:0
+[ 3990750ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://app.akademate.com/api/feature-flags?tenantId=1:0
+[ 3990936ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://app.akademate.com/api/feature-flags?tenantId=1:0
+[ 3991111ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://app.akademate.com/socket.io?EIO=4&transport=polling&t=1773920903438:0
+[ 3991121ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://app.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3991122ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://app.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3991358ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://app.akademate.com/api/config?section=domains&tenantId=1:0
+[ 3996959ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://app.akademate.com/api/course-runs?where[status][equals]=enrollment_open&limit=0:0
+[ 3996984ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://app.akademate.com/api/course-runs?where[status][equals]=published&limit=0:0

@@ -1,0 +1,41 @@
+[   53779ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773748962505:0
+[  588096ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cepcomunicacion.akademate.com/api/campaigns?limit=50&sort=-createdAt:0
+[  590450ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cepcomunicacion.akademate.com/api/campaigns?limit=50&sort=-createdAt:0
+[  628982ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/web/ciclos?_rsc=1ymwd:0
+[  631913ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/web/ciclos:0
+[  634125ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773749542856:0
+[  634291ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/web/ciclos?_rsc=1u1gj:0
+[  644508ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/web/ciclos:0
+[  658914ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/web/ciclos?_rsc=8z1nl:0
+[  658915ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773749567500:0
+[  674645ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://cepcomunicacion.akademate.com/_next/static/chunks/2563-335ab545788dec61.js:0
+[ 1446497ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773750354802:0
+[ 1452319ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://cepcomunicacion.akademate.com/_next/static/chunks/2563-335ab545788dec61.js:0
+[ 1761055ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773750669776:0
+[ 2015498ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773750924143:0
+[ 2193247ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773751101817:0
+[ 2197014ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://cepcomunicacion.akademate.com/_next/static/chunks/2563-335ab545788dec61.js:0
+[ 2209418ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773751118016:0
+[ 2211599ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://cepcomunicacion.akademate.com/_next/static/chunks/2563-335ab545788dec61.js:0
+[ 2211609ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ https://cepcomunicacion.akademate.com/_next/static/chunks/2563-335ab545788dec61.js:0
+[ 2211906ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773751120589:0
+[ 2304093ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://cepcomunicacion.akademate.com/api/internal/api-keys:0
+[ 2341559ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://cepcomunicacion.akademate.com/api/internal/api-keys:0
+[ 2492620ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepcomunicacion.akademate.com/api/campuses/nueva:0
+[ 2878683ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773751787323:0
+[ 3299109ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepcomunicacion.akademate.com/socket.io?EIO=4&transport=polling&t=1773752207438:0

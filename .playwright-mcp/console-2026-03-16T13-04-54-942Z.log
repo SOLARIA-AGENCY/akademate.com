@@ -1,0 +1,2 @@
+[     469ms] [ERROR] Framing 'https://status.akademate.com/' violates the following Content Security Policy directive: "default-src 'self'". The request has been blocked. Note that 'frame-src' was not explicitly set, so 'default-src' is used as a fallback.
+ @ https://admin.akademate.com/_next/static/chunks/6f147f51-09c50b100421353b.js:0

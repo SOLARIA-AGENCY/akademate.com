@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AKADEMATE — Guía Cliente Enterprise</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AKADEMATE — Guía Cliente Enterprise</h1>
+</header>
+<h1 id="akademate-guía-completa-para-el-cliente-enterprise">AKADEMATE —
+Guía Completa para el Cliente Enterprise</h1>
+<blockquote>
+<p>Tu centro de formación, todo en un solo lugar: web pública, campus
+virtual, marketing y gestión operativa.</p>
+</blockquote>
+<hr />
+<h2 id="qué-es-akademate">¿Qué es AKADEMATE?</h2>
+<p>AKADEMATE es la plataforma de gestión integral para centros de
+formación. Con tu plan <strong>Enterprise</strong>, dispones de un
+entorno completamente propio — instalado en tu servidor, bajo tu dominio
+— que conecta tu web pública, tu campus virtual para alumnos y tu panel
+de control interno en un único sistema.</p>
+<p>No necesitas herramientas externas. No dependes de terceros. Todo
+vive en tu infraestructura.</p>
+<hr />
+<h2 id="tu-entorno-en-el-plan-enterprise">Tu entorno en el plan
+Enterprise</h2>
+<table>
+<colgroup>
+<col style="width: 43%" />
+<col style="width: 56%" />
+</colgroup>
+<thead>
+<tr>
+<th>Elemento</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Servidor dedicado</strong></td>
+<td>Instalación exclusiva en tu propio servidor. Nadie más comparte tus
+recursos ni tus datos.</td>
+</tr>
+<tr>
+<td><strong>Dominio propio</strong></td>
+<td>La plataforma funciona bajo tu dominio (ej:
+<code>cepformacion.es</code>).</td>
+</tr>
+<tr>
+<td><strong>Panel de administración</strong></td>
+<td>Acceso privado para tu equipo desde cualquier navegador.</td>
+</tr>
+<tr>
+<td><strong>Web pública</strong></td>
+<td>Tu catálogo de cursos visible para el público, conectado en tiempo
+real con tu panel.</td>
+</tr>
+<tr>
+<td><strong>Campus virtual</strong></td>
+<td>Espacio online donde tus alumnos acceden a los cursos, siguen su
+progreso y obtienen certificados.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="tu-web-pública-siempre-actualizada">1. Tu web pública, siempre
+actualizada</h2>
+<p>Tu sitio web está integrado directamente con tu panel de
+administración. Cuando modificas un curso, una fecha o una convocatoria,
+la web se actualiza automáticamente. No hace falta un gestor de
+contenidos separado.</p>
+<p><strong>Qué puedes publicar en tu web:</strong></p>
+<ul>
+<li>Catálogo de cursos organizado por tipo (privados, teleformación,
+para ocupados, para desempleados, ciclos medios y superiores)</li>
+<li>Fichas de curso con descripción, área formativa, fechas y plazas
+disponibles</li>
+<li>Páginas de contenido (inicio, sobre nosotros, contacto, etc.)</li>
+<li>Blog y noticias del centro</li>
+<li>Testimonios de alumnos</li>
+<li>Preguntas frecuentes (FAQ)</li>
+<li>Formularios de contacto y solicitud de información</li>
+</ul>
+<hr />
+<h2 id="gestión-de-tu-oferta-formativa">2. Gestión de tu oferta
+formativa</h2>
+<p>Desde el panel de administración controlas todo el catálogo de cursos
+y su programación.</p>
+<h3 id="catálogo-de-cursos">Catálogo de cursos</h3>
+<p>Puedes crear y gestionar distintos tipos de formación:</p>
+<table>
+<colgroup>
+<col style="width: 54%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cursos privados</strong></td>
+<td>Formación de pago para empresas y particulares</td>
+</tr>
+<tr>
+<td><strong>Teleformación</strong></td>
+<td>Cursos 100 % online con certificación oficial</td>
+</tr>
+<tr>
+<td><strong>Formación para ocupados</strong></td>
+<td>Con financiación FUNDAE para trabajadores</td>
+</tr>
+<tr>
+<td><strong>Formación para desempleados</strong></td>
+<td>Gratuita, subvencionada</td>
+</tr>
+<tr>
+<td><strong>Ciclos de Grado Medio</strong></td>
+<td>FP oficial de grado medio</td>
+</tr>
+<tr>
+<td><strong>Ciclos de Grado Superior</strong></td>
+<td>FP oficial de grado superior</td>
+</tr>
+</tbody>
+</table>
+<p>Para cada curso puedes definir nombre, descripción, área formativa,
+tipo y toda la información que quieres mostrar en la web.</p>
+<h3 id="convocatorias-y-programación">Convocatorias y programación</h3>
+<p>Cada curso puede tener múltiples ediciones (convocatorias). Para cada
+una estableces:</p>
+<ul>
+<li>Fecha de inicio y fin</li>
+<li>Sede donde se imparte</li>
+<li>Número máximo de plazas</li>
+<li>Estado (abierta, en curso, finalizada)</li>
+</ul>
+<p>El sistema controla automáticamente las plazas ocupadas y te avisa
+cuando una convocatoria está a punto de llenarse.</p>
+<h3 id="áreas-formativas">Áreas formativas</h3>
+<p>Organiza tu catálogo en áreas (informática, idiomas, marketing, etc.)
+para que los alumnos encuentren fácilmente lo que buscan.</p>
+<hr />
+<h2 id="campus-virtual-para-tus-alumnos">3. Campus virtual para tus
+alumnos</h2>
+<p>Tus alumnos acceden a un espacio online propio bajo tu dominio donde
+pueden:</p>
+<ul>
+<li>Entrar a los cursos en los que están matriculados</li>
+<li>Seguir las lecciones y el contenido del curso</li>
+<li>Ver su progreso en tiempo real (porcentaje completado)</li>
+<li>Descargar su certificado cuando finalizan</li>
+</ul>
+<p>Tú, desde el panel de administración, ves en todo momento:</p>
+<ul>
+<li>Cuántos alumnos están activos en el campus</li>
+<li>El progreso de cada uno en cada curso</li>
+<li>La tasa de finalización global</li>
+<li>Cuántos certificados se han emitido</li>
+</ul>
+<hr />
+<h2 id="gestión-de-alumnos-y-matrículas">4. Gestión de alumnos y
+matrículas</h2>
+<h3 id="ficha-de-alumno">Ficha de alumno</h3>
+<p>Cada alumno tiene su propio perfil con datos de contacto, cursos en
+los que está matriculado, historial de progreso y certificados
+obtenidos.</p>
+<h3 id="matrículas">Matrículas</h3>
+<p>Puedes matricular alumnos de forma individual o en bloque
+(inscripción masiva). También gestionas:</p>
+<ul>
+<li>Estado de la matrícula (activa, completada, cancelada, pausada)</li>
+<li>Historial de inscripciones por alumno</li>
+</ul>
+<h3 id="lista-de-espera">Lista de espera</h3>
+<p>Cuando una convocatoria se llena, los interesados pueden apuntarse a
+la lista de espera. El sistema los registra y puedes gestionarlos desde
+el panel.</p>
+<hr />
+<h2 id="captación-y-seguimiento-de-leads">5. Captación y seguimiento de
+leads</h2>
+<p>Cualquier persona que rellene un formulario en tu web (solicitud de
+información, contacto, inscripción) queda registrada automáticamente
+como lead en tu panel.</p>
+<h3 id="qué-ves-de-cada-lead">Qué ves de cada lead</h3>
+<ul>
+<li>Nombre, email y teléfono</li>
+<li>De dónde vino: qué campaña, fuente o medio lo trajo (UTM)</li>
+<li>Fecha de registro</li>
+<li>Estado: nuevo, contactado, cualificado, convertido, rechazado</li>
+</ul>
+<h3 id="qué-puedes-hacer">Qué puedes hacer</h3>
+<ul>
+<li>Cambiar el estado del lead según avance el proceso de venta</li>
+<li>Convertirlo directamente en matrícula con un clic</li>
+<li>Exportar todos los leads a un archivo CSV para trabajarlos en Excel
+o tu CRM</li>
+</ul>
+<hr />
+<h2 id="marketing-facebook-ads-y-google-ads-conectados">6. Marketing:
+Facebook Ads y Google Ads conectados</h2>
+<p>Desde el mismo panel donde gestionas tus cursos, conectas tus cuentas
+publicitarias y controlas el rendimiento de tus campañas.</p>
+<h3 id="facebook-pixel">Facebook Pixel</h3>
+<p>Introduces tu Pixel ID de Facebook una sola vez y el sistema lo
+instala automáticamente en toda tu web. Esto te permite:</p>
+<ul>
+<li>Medir conversiones de tus anuncios en Facebook e Instagram</li>
+<li>Crear audiencias personalizadas a partir de los visitantes de tu
+web</li>
+<li>Optimizar tus campañas automáticamente</li>
+</ul>
+<h3 id="google-analytics-y-google-tag-manager">Google Analytics y Google
+Tag Manager</h3>
+<p>Configuras tu cuenta de Google Analytics 4 y Google Tag Manager
+directamente desde el panel. Sin tocar código. Esto activa:</p>
+<ul>
+<li>Seguimiento de visitas y comportamiento en tu web</li>
+<li>Conversiones de formularios y matrículas</li>
+<li>Datos para optimizar tus campañas de Google Ads</li>
+</ul>
+<h3 id="seguimiento-de-campañas">Seguimiento de campañas</h3>
+<p>En el panel de campañas ves, para cada campaña activa:</p>
+<ul>
+<li>Leads generados</li>
+<li>Conversiones (leads que se han matriculado)</li>
+<li>Presupuesto total asignado</li>
+<li>Coste por lead</li>
+<li>Estado de la campaña</li>
+</ul>
+<p>Todo en un solo lugar, sin tener que abrir Facebook Business Manager
+o Google Ads por separado para los datos básicos.</p>
+<hr />
+<h2 id="gestión-de-tu-equipo">7. Gestión de tu equipo</h2>
+<h3 id="profesores">Profesores</h3>
+<p>Fichas individuales de cada profesor con datos de contacto y cursos
+asignados. Puedes crear, editar y dar de baja profesores desde el
+panel.</p>
+<h3 id="personal-administrativo">Personal administrativo</h3>
+<p>Gestión del resto del equipo del centro (administrativos,
+coordinadores, etc.) con sus datos y accesos.</p>
+<h3 id="sedes">Sedes</h3>
+<p>Si tienes más de un centro o aula, registras cada sede con su
+información. Cada convocatoria se asocia a una sede concreta.</p>
+<hr />
+<h2 id="panel-de-control-y-analíticas">8. Panel de control y
+analíticas</h2>
+<p>Nada más entrar al panel ves un resumen en tiempo real de lo más
+importante:</p>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Qué te dice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cursos activos</td>
+<td>Cuántos cursos tienes en tu catálogo</td>
+</tr>
+<tr>
+<td>Alumnos</td>
+<td>Total de alumnos activos</td>
+</tr>
+<tr>
+<td>Leads del mes</td>
+<td>Cuántos contactos nuevos has captado este mes</td>
+</tr>
+<tr>
+<td>Profesores</td>
+<td>Total de profesores en plantilla</td>
+</tr>
+<tr>
+<td>Sedes</td>
+<td>Centros activos</td>
+</tr>
+<tr>
+<td>Convocatorias</td>
+<td>Ediciones de cursos abiertas actualmente</td>
+</tr>
+</tbody>
+</table>
+<p>Además ves de un vistazo:</p>
+<ul>
+<li>Próximas convocatorias con plazas y estado</li>
+<li>Campañas activas y su rendimiento</li>
+<li>Actividad reciente del sistema</li>
+<li>Gráfico de evolución semanal de leads, inscripciones y cursos
+añadidos</li>
+<li>Distribución de alumnos por sede</li>
+<li>Alertas operativas (convocatorias próximas a llenarse, etc.)</li>
+</ul>
+<hr />
+<h2 id="contenido-y-comunicación">9. Contenido y comunicación</h2>
+<p>Desde el módulo de contenido gestionas todo lo que aparece en tu web
+sin necesitar conocimientos técnicos:</p>
+<ul>
+<li><strong>Blog:</strong> Publica artículos y noticias de tu
+centro</li>
+<li><strong>Páginas:</strong> Crea y edita páginas (inicio, quiénes
+somos, contacto…)</li>
+<li><strong>FAQs:</strong> Gestiona preguntas frecuentes</li>
+<li><strong>Testimonios:</strong> Añade opiniones de alumnos</li>
+<li><strong>Formularios:</strong> Crea formularios de contacto e
+información</li>
+<li><strong>Medios:</strong> Sube y organiza imágenes y documentos</li>
+</ul>
+<hr />
+<h2 id="configuración-y-personalización">10. Configuración y
+personalización</h2>
+<p>Adaptas la plataforma a tu imagen y necesidades sin intervención
+técnica:</p>
+<ul>
+<li><strong>Nombre del centro y logotipo:</strong> Se aplican en todo el
+panel y la web</li>
+<li><strong>Colores de marca:</strong> El panel se adapta a tu identidad
+visual</li>
+<li><strong>Dominio propio:</strong> Ya configurado en el plan
+Enterprise</li>
+<li><strong>GDPR:</strong> Configuración de política de privacidad y
+consentimientos</li>
+<li><strong>Usuarios y roles:</strong> Decides qué puede ver y hacer
+cada miembro de tu equipo (administrador, coordinador, marketing, solo
+lectura…)</li>
+<li><strong>Integraciones API:</strong> Conectas herramientas externas
+mediante webhooks o claves de API</li>
+</ul>
+<hr />
+<h2 id="resumen-de-lo-que-incluye-tu-plan-enterprise">Resumen de lo que
+incluye tu plan Enterprise</h2>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr>
+<th>Área</th>
+<th>Lo que puedes hacer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Web pública</strong></td>
+<td>Publicar y actualizar cursos, contenido y formularios</td>
+</tr>
+<tr>
+<td><strong>Campus virtual</strong></td>
+<td>Formar a tus alumnos online con seguimiento y certificados</td>
+</tr>
+<tr>
+<td><strong>Leads y CRM</strong></td>
+<td>Capturar, gestionar y convertir contactos en matrículas</td>
+</tr>
+<tr>
+<td><strong>Marketing</strong></td>
+<td>Conectar Facebook Ads y Google Ads, medir resultados</td>
+</tr>
+<tr>
+<td><strong>Gestión operativa</strong></td>
+<td>Cursos, convocatorias, alumnos, profesores, sedes</td>
+</tr>
+<tr>
+<td><strong>Analíticas</strong></td>
+<td>Dashboard en tiempo real con métricas clave</td>
+</tr>
+<tr>
+<td><strong>Personalización</strong></td>
+<td>Tu marca, tu dominio, tus usuarios y permisos</td>
+</tr>
+<tr>
+<td><strong>Infraestructura</strong></td>
+<td>Servidor dedicado, solo para ti, bajo tu control</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="lo-que-cambia-con-el-plan-enterprise-frente-a-otros-planes">Lo
+que cambia con el plan Enterprise frente a otros planes</h2>
+<ul>
+<li><strong>Servidor exclusivo:</strong> Tus datos no comparten
+infraestructura con nadie</li>
+<li><strong>Dominio propio:</strong> La plataforma vive en tu dominio
+(cepformacion.es, tucentro.com…)</li>
+<li><strong>Sin límites de cursos, alumnos ni usuarios</strong></li>
+<li><strong>Rendimiento garantizado:</strong> Recursos dedicados solo a
+tu centro</li>
+<li><strong>Privacidad total:</strong> Control absoluto sobre dónde
+están tus datos</li>
+</ul>
+<hr />
+<p><em>AKADEMATE — Plataforma de gestión integral para centros de
+formación</em></p>
+</body>
+</html>

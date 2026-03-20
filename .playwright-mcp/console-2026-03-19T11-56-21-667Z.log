@@ -1,0 +1,7 @@
+[    1505ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://app.akademate.com/api/feature-flags?tenantId=1:0
+[    1505ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://app.akademate.com/api/feature-flags?tenantId=1:0
+[    1751ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://app.akademate.com/api/feature-flags?tenantId=1:0
+[    2037ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://app.akademate.com/api/config?section=domains&tenantId=1:0
+[    2037ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://app.akademate.com/api/config?section=domains&tenantId=1:0
+[    2213ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://app.akademate.com/api/config?section=domains&tenantId=1:0
+[    2331ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://app.akademate.com/socket.io?EIO=4&transport=polling&t=1773921383407:0

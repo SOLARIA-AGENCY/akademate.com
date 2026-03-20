@@ -1,0 +1,51 @@
+[     182ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://100.99.60.106:3009/api/billing/subscriptions?tenantId=2:0
+[     192ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[     207ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[     278ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[     343ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[     415ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://100.99.60.106:3009/api/billing/subscriptions?tenantId=2:0
+[ 1114769ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://100.99.60.106:3009/api/billing/subscriptions?tenantId=2:0
+[ 1114788ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 1114810ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 1114917ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 1114972ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 1124669ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://100.99.60.106:3009/api/billing/subscriptions?tenantId=2:0
+[ 1124678ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 1124684ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 1125947ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 1125953ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://100.99.60.106:3009/api/auth/session:0
+[ 1126269ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.99.60.106:3009/favicon.ico:0
+[133651680ms] [ERROR] Failed to fetch RSC payload for http://100.99.60.106:3009/dashboard. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:133373)
+    at _ (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:132243)
+    at http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:34838
+    at Object.o [as task] (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:90997)
+    at c.s (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:91702)
+    at c.enqueue (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:91127)
+    at s (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:34801)
+    at i (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:34317)
+    at l (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:58725)
+    at Object.prefetch (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:16353) @ http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:0
+[133651682ms] [ERROR] Failed to fetch RSC payload for http://100.99.60.106:3009/programacion. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:133373)
+    at _ (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:132243)
+    at http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:34838
+    at Object.o [as task] (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:90997)
+    at c.s (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:91702)
+    at c.enqueue (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:91127)
+    at s (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:34801)
+    at i (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:34317)
+    at l (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:58725)
+    at Object.prefetch (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:16353) @ http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:0
+[141749417ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.99.60.106:3009/ayuda?_rsc=hie6p:0
+[141749418ms] [ERROR] Failed to fetch RSC payload for http://100.99.60.106:3009/ayuda. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:133373)
+    at _ (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:132243)
+    at http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:34838
+    at Object.o [as task] (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:90997)
+    at c.s (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:91702)
+    at c.enqueue (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:91127)
+    at s (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:34801)
+    at i (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:34317)
+    at l (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:58725)
+    at Object.prefetch (http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:1:16353) @ http://100.99.60.106:3009/_next/static/chunks/9878-8ed6452a7ad85c33.js:0

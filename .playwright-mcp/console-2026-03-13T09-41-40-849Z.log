@@ -1,0 +1,62 @@
+[    2082ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://dash.cloudflare.com/api/v4/accounts/522997f4f57193b06db3286d8d6f2778/organizations:0
+[    2092ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2092ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2093ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2093ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2097ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2098ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2098ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2098ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2098ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2130ms] [ERROR] error loading authz policy data, displayed UI may not reflect actual policies @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2181ms] TypeError: n[t] is not a function
+    at i (https://dash.cloudflare.com/cf-e01a18811e80bc9a.js:3:6047)
+    at https://dash.cloudflare.com/cf-e01a18811e80bc9a.js:3:184072
+    at O.loadLocale (https://dash.cloudflare.com/cf-2d18f7c6c3229d5c.js:3:3433)
+    at O.componentDidMount (https://dash.cloudflare.com/cf-2d18f7c6c3229d5c.js:3:2984)
+    at uZ (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:92077)
+    at e (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:111115)
+    at e (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:111141)
+    at https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:111256
+    at oU (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:111757)
+    at ox (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:95164)
+    at x (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:130665)
+    at T (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:131195)
+    at e.exports (https://dash.cloudflare.com/cf-app.6737272a1a2d2d25.js:3:26945)
+    at p.<computed> (https://dash.cloudflare.com/cf-app.6737272a1a2d2d25.js:3:59758)
+    at Number.h (https://dash.cloudflare.com/cf-app.6737272a1a2d2d25.js:3:59616)
+    at MessagePort.v (https://dash.cloudflare.com/cf-app.6737272a1a2d2d25.js:3:59638)
+[    2332ms] [ERROR] [AgentLee] Error checking auth status: TypeError: Failed to fetch
+    at https://dash.cloudflare.com/cf-3ee395b76fca1067.js:3:117509
+    at async https://dash.cloudflare.com/cf-fc84873520ef45b0.js:3:1336260 @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    2333ms] [ERROR] Failed to fetch authentication token: TypeError: Failed to fetch
+    at https://dash.cloudflare.com/cf-3ee395b76fca1067.js:3:117509
+    at async https://dash.cloudflare.com/cf-fc84873520ef45b0.js:3:1331132 @ https://dash.cloudflare.com/cf-b9849d3b09d1015c.js:2
+[    4456ms] [ERROR]  Note that 'script-src' was not explicitly set, so 'default-src' is used as a fallback. @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/1qktk/0x4AAAAAAAJel0iaAR3mgkjp/dark/fbE/new/flexible?lang=auto:0
+[    4584ms] [ERROR] %c%d font-size:0;color:transparent NaN @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/1qktk/0x4AAAAAAAJel0iaAR3mgkjp/dark/fbE/new/flexible?lang=auto:0
+[    4584ms] [ERROR] %c%d font-size:0;color:transparent NaN @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/1qktk/0x4AAAAAAAJel0iaAR3mgkjp/dark/fbE/new/flexible?lang=auto:0
+[    4585ms] [WARNING] %c%d font-size:0;color:transparent NaN @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/1qktk/0x4AAAAAAAJel0iaAR3mgkjp/dark/fbE/new/flexible?lang=auto:0
+[    4585ms] [WARNING] %c%d font-size:0;color:transparent NaN @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/1qktk/0x4AAAAAAAJel0iaAR3mgkjp/dark/fbE/new/flexible?lang=auto:0
+[    4776ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/pat/9dba15abfa1cf448/1773394905151/32b9b19cf5413561f47a1e25552dda8effe517da2e6342e4fc4acfdd5bbcf375/ylmV7WLZkzy7l-K:0
+[    8135ms] [WARNING] The resource https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/cmg/1 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/1qktk/0x4AAAAAAAJel0iaAR3mgkjp/dark/fbE/new/flexible?lang=auto:0
+[   13843ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://dash.cloudflare.com/api/v4/sso/connector?domain=gmail.com:0
+[   29347ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://dash.cloudflare.com/api/v4/sso/connector?domain=gmail.com:0
+[   42913ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://dash.cloudflare.com/api/v4/zones?order=name&direction=asc&per_page=1&type=full%2Cpartial%2Csecondary:0
+[   49531ms] TypeError: n[t] is not a function
+    at i (https://dash.cloudflare.com/cf-e01a18811e80bc9a.js:3:6047)
+    at https://dash.cloudflare.com/cf-e01a18811e80bc9a.js:3:184072
+    at O.loadLocale (https://dash.cloudflare.com/cf-2d18f7c6c3229d5c.js:3:3433)
+    at O.componentDidMount (https://dash.cloudflare.com/cf-2d18f7c6c3229d5c.js:3:2984)
+    at uX (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:90763)
+    at e (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:111245)
+    at e (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:111141)
+    at e (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:111141)
+    at https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:111256
+    at oU (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:111757)
+    at ox (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:95164)
+    at x (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:130665)
+    at T (https://dash.cloudflare.com/cf-7a558b35d4204b06.js:3:131195)
+    at https://dash.cloudflare.com/cf-app.6737272a1a2d2d25.js:3:26945
+    at https://dash.cloudflare.com/cf-app.6737272a1a2d2d25.js:3:59758
+    at Number.h (https://dash.cloudflare.com/cf-app.6737272a1a2d2d25.js:3:59616)
+    at MessagePort.v (https://dash.cloudflare.com/cf-app.6737272a1a2d2d25.js:3:59638)

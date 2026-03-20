@@ -1,0 +1,6 @@
+[     181ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ http://100.112.153.111:3100/:0
+[     273ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ http://100.112.153.111:3100/favicon.ico:0
+[   11978ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ http://100.112.153.111:3100/:0
+[   12051ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ http://100.112.153.111:3100/favicon.ico:0
+[   12881ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ http://100.112.153.111:3100/:0
+[   12955ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ http://100.112.153.111:3100/favicon.ico:0

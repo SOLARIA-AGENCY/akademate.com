@@ -1,0 +1,11 @@
+[     601ms] [ERROR] WebSocket connection to 'ws://0.0.0.0:13100/?token=1ppkPXhBFYDI' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://100.112.153.111:3100/@vite/client:801
+[     601ms] [ERROR] [vite] failed to connect to websocket (Error: WebSocket closed without opened.).  @ http://100.112.153.111:3100/@vite/client:840
+[     601ms] Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (http://100.112.153.111:3100/@vite/client:454:22)
+[    4571ms] [WARNING] WebSocket connection to 'ws://100.112.153.111:3100/api/companies/0bb6d93a-0799-4e3e-b438-4a3dad184370/events/ws' failed: WebSocket is closed before the connection is established. @ http://100.112.153.111:3100/src/context/LiveUpdatesProvider.tsx:410
+[   49911ms] [ERROR] `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog @ http://100.112.153.111:3100/node_modules/.vite/deps/chunk-CLJP3BHF.js?v=176ee129:2178
+[   49911ms] [WARNING] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. @ http://100.112.153.111:3100/node_modules/.vite/deps/chunk-CLJP3BHF.js?v=176ee129:2192

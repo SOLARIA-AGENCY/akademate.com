@@ -1,0 +1,2 @@
+[    1658ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://app.akademate.com/api/campuses?limit=20&sort=createdAt:0
+[    1847ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://app.akademate.com/socket.io?EIO=4&transport=polling&t=1773923388587:0

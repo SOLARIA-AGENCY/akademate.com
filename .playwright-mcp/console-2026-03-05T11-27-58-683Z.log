@@ -1,0 +1,1944 @@
+[    1635ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ar.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ar.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1639ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/az.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/az.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1639ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/be.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/be.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1639ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/bg.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/bg.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1639ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ca.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ca.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1639ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/cs.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/cs.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1639ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/da.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/da.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1639ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/de.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/de.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1639ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/en.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/en.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1639ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/eo.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/eo.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/es.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/es.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fa.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fa.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fi.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fi.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr-CA.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr-CA.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/he.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/he.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hu.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hu.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hy.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hy.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/id.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/id.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/is.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/is.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/it.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/it.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ja.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ja.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ka.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ka.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/kh.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/kh.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/km.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/km.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ko.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ko.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/lt.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/lt.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/mk.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/mk.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ms.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ms.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/nl.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/nl.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/no.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/no.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ota.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ota.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pl.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pl.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ps.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ps.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pt.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pt.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1640ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ru.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ru.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sl.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sl.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sv.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sv.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ta.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ta.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/th.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/th.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/tr.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/tr.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ua.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ua.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uk.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uk.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ur.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ur.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uz.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uz.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/vi.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/vi.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/yo.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/yo.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-CN.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-CN.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    1641ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-TW.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-TW.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28847ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ar.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ar.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28851ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/az.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/az.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28851ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/be.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/be.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28851ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/bg.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/bg.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28851ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ca.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ca.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28851ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/cs.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/cs.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28851ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/da.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/da.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28851ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/de.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/de.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28851ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/en.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/en.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28851ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/eo.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/eo.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/es.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/es.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fa.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fa.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fi.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fi.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr-CA.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr-CA.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/he.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/he.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hu.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hu.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hy.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hy.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/id.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/id.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/is.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/is.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/it.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/it.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ja.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ja.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ka.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ka.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/kh.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/kh.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/km.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/km.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ko.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ko.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/lt.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/lt.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/mk.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/mk.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ms.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ms.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/nl.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/nl.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/no.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/no.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ota.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ota.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pl.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pl.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ps.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ps.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28852ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pt.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pt.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ru.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ru.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sl.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sl.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sv.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sv.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ta.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ta.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/th.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/th.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/tr.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/tr.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ua.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ua.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uk.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uk.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ur.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ur.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uz.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uz.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/vi.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/vi.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/yo.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/yo.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-CN.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-CN.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   28853ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-TW.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-TW.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32300ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ar.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ar.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/az.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/az.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/be.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/be.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/bg.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/bg.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ca.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ca.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/cs.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/cs.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/da.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/da.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/de.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/de.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/en.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/en.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/eo.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/eo.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32303ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/es.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/es.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fa.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fa.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fi.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fi.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr-CA.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr-CA.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/he.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/he.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hu.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hu.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hy.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hy.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/id.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/id.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/is.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/is.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/it.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/it.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ja.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ja.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ka.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ka.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/kh.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/kh.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/km.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/km.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ko.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ko.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/lt.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/lt.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/mk.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/mk.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ms.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ms.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/nl.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/nl.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/no.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/no.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ota.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ota.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pl.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pl.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ps.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ps.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pt.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pt.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ru.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ru.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sl.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sl.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sv.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sv.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ta.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ta.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/th.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/th.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/tr.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/tr.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ua.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ua.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uk.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uk.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32304ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ur.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ur.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32305ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uz.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uz.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32305ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/vi.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/vi.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32305ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/yo.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/yo.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32305ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-CN.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-CN.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32305ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-TW.js
+TypeError: Cannot read properties of null (reading 'name')
+Import trace for requested module:
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-TW.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/index.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/classic/external.js
+../../node_modules/.bun/zod@4.3.6/node_modules/zod/index.js
+./app/api/config/route.ts @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[   32444ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/api/config?section=logos&tenantId=2:0
+[   32444ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/api/config?section=personalizacion&tenantId=2:0
+[   32444ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/api/config?section=academia&tenantId=2:0
+[   32445ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/api/config?section=logos&tenantId=2:0
+[   32445ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/api/config?section=academia&tenantId=2:0
+[   32445ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/api/config?section=personalizacion&tenantId=2:0
+[   32542ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/api/config?section=logos&tenantId=2:0
+[   32542ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/api/config?section=academia&tenantId=2:0
+[   32542ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/api/config?section=personalizacion&tenantId=2:0
+[   32561ms] [WARNING] [Fast Refresh] performing full reload
+
+Fast Refresh will perform a full reload when you edit a file that's imported by modules outside of the React rendering tree.
+You might have a file which exports a React component but also exports a value that is imported by a non-React component file.
+Consider migrating the non-React component export to a separate file and importing it into both files.
+
+It is also possible the parent component of the component you edited is a class component, which disables Fast Refresh.
+Fast Refresh requires at least one parent function component in your React tree. @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:112
+[   32563ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3009/auth/login:0
+[   32639ms] ModuleBuildError: Module build failed (from ../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/index.js):
+TypeError: Cannot read properties of null (reading 'name')
+    at PluginPass.enter (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/@onlook+babel-plugin-react@2.1.1/node_modules/@onlook/babel-plugin-react/build/bundle.cjs:1:276715)
+    at n (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:81843)
+    at NodePath._call (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:23116)
+    at NodePath.call (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:22936)
+    at NodePath.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:24052)
+    at TraversalContext.visitQueue (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16989)
+    at TraversalContext.visitSingle (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16622)
+    at TraversalContext.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:17310)
+    at traverseNode (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:78753)
+    at NodePath.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:24206)
+    at TraversalContext.visitQueue (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16989)
+    at TraversalContext.visitMultiple (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16552)
+    at TraversalContext.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:17272)
+    at traverseNode (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:78753)
+    at NodePath.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:24206)
+    at TraversalContext.visitQueue (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16989)
+    at TraversalContext.visitSingle (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16622)
+    at TraversalContext.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:17310)
+    at traverseNode (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:78753)
+    at traverse (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:18602)
+    at /Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:64:85
+    at Span.traceFn (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/trace/trace.js:150:20)
+    at transformAstPass (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:64:51)
+    at transformAst (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:69:9)
+    at transform (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:92:5)
+    at async /Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/index.js:36:108
+    at async Span.traceAsyncFn (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/trace/trace.js:157:20)
+    at async nextBabelLoader (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/index.js:36:63)
+    at async Span.traceAsyncFn (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/trace/trace.js:157:20)
+    at PluginPass.enter (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/@onlook+babel-plugin-react@2.1.1/node_modules/@onlook/babel-plugin-react/build/bundle.cjs:1:276715)
+    at n (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:81843)
+    at NodePath._call (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:23116)
+    at NodePath.call (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:22936)
+    at NodePath.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:24052)
+    at TraversalContext.visitQueue (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16989)
+    at TraversalContext.visitSingle (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16622)
+    at TraversalContext.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:17310)
+    at traverseNode (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:78753)
+    at NodePath.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:24206)
+    at TraversalContext.visitQueue (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16989)
+    at TraversalContext.visitMultiple (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16552)
+    at TraversalContext.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:17272)
+    at traverseNode (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:78753)
+    at NodePath.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:24206)
+    at TraversalContext.visitQueue (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16989)
+    at TraversalContext.visitSingle (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16622)
+    at TraversalContext.visit (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:17310)
+    at traverseNode (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:78753)
+    at traverse (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:18602)
+    at /Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:64:85
+    at Span.traceFn (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/trace/trace.js:150:20)
+    at transformAstPass (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:64:51)
+    at transformAst (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:69:9)
+    at transform (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:92:5)
+    at async /Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/index.js:36:108
+    at async Span.traceAsyncFn (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/trace/trace.js:157:20)
+    at async nextBabelLoader (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/index.js:36:63)
+    at async Span.traceAsyncFn (/Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/trace/trace.js:157:20)
+    at PluginPass.enter (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/@onlook+babel-plugin-react@2.1.1/node_modules/@onlook/babel-plugin-react/build/bundle.cjs:1:276715)
+    at n (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:81843)
+    at NodePath._call (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:23116)
+    at NodePath.call (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:22936)
+    at NodePath.visit (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:24052)
+    at TraversalContext.visitQueue (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16989)
+    at TraversalContext.visitSingle (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16622)
+    at TraversalContext.visit (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:17310)
+    at traverseNode (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:78753)
+    at NodePath.visit (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:24206)
+    at TraversalContext.visitQueue (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16989)
+    at TraversalContext.visitMultiple (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16552)
+    at TraversalContext.visit (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:17272)
+    at traverseNode (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:78753)
+    at NodePath.visit (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:24206)
+    at TraversalContext.visitQueue (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16989)
+    at TraversalContext.visitSingle (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:16622)
+    at TraversalContext.visit (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:17310)
+    at traverseNode (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:227:78753)
+    at traverse (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/babel/bundle.js:215:18602)
+    at <unknown> (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:64:85)
+    at Span.traceFn (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/trace/trace.js:150:20)
+    at transformAstPass (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:64:51)
+    at transformAst (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:69:9)
+    at transform (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/transform.js:92:5)
+    at async (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/index.js:36:108)
+    at async Span.traceAsyncFn (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/trace/trace.js:157:20)
+    at async nextBabelLoader (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/index.js:36:63)
+    at async Span.traceAsyncFn (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/trace/trace.js:157:20)
+    at processResult (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/webpack/bundle5.js:29:407086)
+    at <unknown> (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/webpack/bundle5.js:29:408881)
+    at <unknown> (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js:1:8645)
+    at <unknown> (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js:1:5828)
+    at r.callback (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js:1:4039)
+    at <unknown> (file:///Users/carlosjperez/Documents/GitHub/akademate.com/node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/build/babel/loader/index.js:47:37)
+[   32648ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ar.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/az.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/be.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/bg.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ca.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/cs.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/da.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/de.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/en.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/eo.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/es.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fa.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fi.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr-CA.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/fr.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32650ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/he.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hu.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/hy.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/id.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/is.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/it.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ja.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ka.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/kh.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/km.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ko.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/lt.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/mk.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ms.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/nl.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/no.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ota.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pl.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ps.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/pt.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32651ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ru.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sl.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/sv.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ta.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/th.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/tr.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ua.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uk.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/ur.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/uz.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/vi.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/yo.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-CN.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   32652ms] [ERROR] ../../node_modules/.bun/zod@4.3.6/node_modules/zod/v4/locales/zh-TW.js
+TypeError: Cannot read properties of null (reading 'name') @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  108472ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3009/_next/static/webpack/41830c4474033349.webpack.hot-update.json:0
+[  108472ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/client/dev/hot-reloader/pages/hot-reloader-pages.js:372
+[  161784ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3009/_next/static/webpack/41830c4474033349.webpack.hot-update.json:0
+[  161784ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/client/dev/hot-reloader/pages/hot-reloader-pages.js:372
+[  164774ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <RenderFromTemplateContext>
+      <ScrollAndFocusHandler segmentPath={[...]}>
+        <InnerScrollAndFocusHandler segmentPath={[...]} focusAndScrollRef={{apply:false, ...}}>
+          <_ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+            <LoadingBoundary loading={null}>
+              <HTTPAccessFallbackBoundary notFound={<_SegmentViewNode>} forbidden={undefined} unauthorized={undefined}>
+                <HTTPAccessFallbackErrorBoundary pathname="/auth/login" notFound={<_SegmentViewNode>} ...>
+                  <_RedirectBoundary>
+                    <_RedirectErrorBoundary router={{...}}>
+                      <InnerLayoutRouter url="/auth/login" tree={[...]} cacheNode={{lazyData:null, ...}} ...>
+                        <_SegmentViewNode type="layout" pagePath="auth/layou...">
+                          <SegmentTrieNode>
+                          <ClientSegmentRoot Component={function AuthLayout} slots={{...}} params={{}}>
+                            <AuthLayout params={Promise}>
+                              <div
+                                className="min-h-screen bg-background"
+                                data-oid="nbtty1x"
++                               data-onlook-id="H4sIALQUqGkAA32MSwrCMBBA7zLr2rGIFrIW9AB6gDEdbDQ/kgmoJXeX0o2L4u7xHrwJIs..."
+-                               data-onlook-id="H4sIAEtpqWkAA32PvQrCQBCE32Xr6BpEA+kEQQtLfYD1spjo/XG3B2rIu3sxjUWwG2bg45..."
+                              >
+                                <div
+                                  className="fixed top-4 right-4 z-50"
+                                  data-oid="z1l9dhm"
++                                 data-onlook-id="H4sIALQUqGkAA32MOwrCQBBA7zJ1dIiFwa0FPYAeYNwMJro/dmZBDXt3CWksgt3jPXgT..."
+-                                 data-onlook-id="H4sIAEtpqWkAA32PvQrCQBCE32XrmCUWBtMJghaW+gDrZTHR++NuD9SQd/diGotgN8zA..."
+                                >
+                                  <ThemeToggle data-oid="c-sfidw" data-onlook-id="H4sIALQUqG...">
+                                    <button
+                                      className="flex h-9 w-9 items-center justify-center rounded-md border border-inp..."
+                                      aria-label="Toggle theme"
+                                      disabled={true}
+                                      data-oid="msmnbx8"
++                                     data-onlook-id="H4sIALQUqGkAA33Myw6CMBCF4XeZNTIhxktYuTDRB8AHGMsI1Xba0CFRCe/uhQ0b..."
+-                                     data-onlook-id="H4sIAE9pqWkAA32QSwrCQBBE79LraCPih6xcCHqAeIB20sbRmZ4h0wE15O4mBiQb..."
+                                    >
+                                      <Sun className="h-5 w-5" data-oid="_9m1.cy" data-onlook-id="H4sIALQUqG...">
+                                        <_c ref={null} iconNode={[...]} className="lucide-sun..." data-oid="_9m1.cy" ...>
+                                          <svg
+                                            ref={null}
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={24}
+                                            height={24}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-sun h-5 w-5"
+                                            aria-hidden="true"
+                                            data-oid="_9m1.cy"
++                                           data-onlook-id="H4sIALQUqGkAA22MOw7CMAxA7+K51AMgRCcGJDhAOYBJTRtInChxJKDK3f..."
+-                                           data-onlook-id="H4sIAE9pqWkAA22PQQrCMBBF7zLrtrNQEbtyIegB6gHGdGyjySQ0E1BL72..."
+                                          >
+                                ...
+                                  <_SegmentViewNode type="page" pagePath="auth/login...">
+                                    <SegmentTrieNode>
+                                    <ClientPageRoot Component={function LoginPage} searchParams={{}} params={{}}>
+                                      <LoginPage params={Promise} searchParams={Promise}>
+                                        <div
+                                          className="min-h-screen flex items-center justify-center bg-background p-4"
+                                          data-oid="qp-da09"
++                                         data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr6lilXWQt6AH0AGM6tNX8kUxALLm7lm4q..."
+-                                         data-onlook-id="H4sIAEtpqWkAA32Puw6CQBBF/2VqZEQDBbWJFhYW+gEjTABlH9mdTYyEf3c3..."
+                                        >
+                                          <div
+                                            className="w-full max-w-md relative z-10"
+                                            data-oid="2gm3fiy"
++                                           data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2qGKFbIW9AB6gDEd2mr+SCYgltzdlq..."
+-                                           data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6BLFCKkFLSws9AHWy5JE74+7PRBD3t..."
+                                          >
+                                            <div
+                                              className="text-center mb-8"
+                                              data-oid="1vf7s_f"
++                                             data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr6hCoolkLegA9wJgObTV/JBMQS+6u..."
+-                                             data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32XrmCUQRVMLWlhY6AOsyZJE74+7PRBD..."
+                                            >
+                                              <div
+                                                className="inline-flex items-center justify-center mb-6"
+                                                data-oid="ou4cocr"
++                                               data-onlook-id="H4sIALQUqGkAA32MSwrCQBAF79LrmCYIYrIW9AB6gHbSJNH5Md0DYp..."
+-                                               data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6BIEMakFLSws9AHWy5JE74+7PR..."
+                                              >
+                                                <div
+                                                  className="relative rounded-full border-4 border-primary bg-white ov..."
+                                                  style={{boxShadow:"0 20px 40p..."}}
+                                                  data-oid="hj.7dxu"
++                                                 data-onlook-id="H4sIALQUqGkAA3WMSwrCQBBE79LrmFazULIW9AB6gHbSJNH5MdMD..."
+-                                                 data-onlook-id="H4sIAEtpqWkAA3WQvQ7CMAyE38VzqYEOoM5IMDAwwAOY1moL+VPi..."
+                                                >
+                                                  <img
+                                                    alt="Akademate"
+                                                    data-oid="7teew:-"
++                                                   data-onlook-id="H4sIALQUqGkAA02JSwrCMBBA7zLr2kHFIl0LegA9wJgObTQ/Mh..."
+-                                                   data-onlook-id="H4sIAEtpqWkAA02OsQ7CMAxE/8VzqQWICnVGgoGBAT7ApFZbSJ..."
+                                                    fetchPriority={undefined}
+                                                    loading={undefined}
+                                                    width={120}
+                                                    height={120}
+                                                    decoding="async"
+                                                    data-nimg="1"
+                                                    className="object-contain w-[100px] h-[100px]"
+                                                    style={{color:"transparent"}}
+                                                    sizes={undefined}
+                                                    srcSet={undefined}
+                                                    src="/logos/akademate-favicon.svg"
+                                                    ref={function}
+                                                    onLoad={function onLoad}
+                                                    onError={function onError}
+                                                  >
+                                                  ...
+                                              <h1
+                                                className="text-3xl font-bold"
+                                                data-oid="vdz:nyd"
++                                               data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2qFYBbsW9AB6gDEd2mj+SCYglt..."
+-                                               data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32XrmCUYBVMLWlhY6AOsyZJE74+7PR..."
+                                              >
++                                               Akademate
+                                              <p
+                                                className="text-muted-foreground mt-2"
+                                                data-oid="_0xxfde"
++                                               data-onlook-id="H4sIALQUqGkAA32MSwrCQBAF79LrmCYSELIW9AB6gHbSJNH5Md0DYp..."
+-                                               data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32XrmCUSEFILWlhY6AOslyWJ3h93ey..."
+                                              >
++                                               Panel de Administración
+                                            <_c className="shadow-2xl..." data-oid="eohhita" ...>
+                                              <div
+                                                ref={null}
+                                                className="rounded-xl bg-card text-card-foreground shadow-2xl border-2"
+                                                data-oid="-uj_58s"
++                                               data-onlook-id="H4sIALQUqGkAA0WMQQrCMBAA/7Ln2kVBhZ48CPoAfcCarDXabEKyAb..."
+-                                               data-onlook-id="H4sIAE9pqWkAA0WPUQrCMBBE77LfbRcFFfolKOgB9ABrstZoswnNFt..."
+                                              >
+                                                <_c3 className="space-y-1" data-oid="4t.knld" ...>
+                                                  <div
+                                                    ref={null}
+                                                    className="flex flex-col p-6 space-y-1"
+                                                    data-oid="uf01v-v"
++                                                   data-onlook-id="H4sIALQUqGkAA0WMQQrCMBAA/7Lntouigj15EPQB+oA1WWu02Y..."
+-                                                   data-onlook-id="H4sIAE9pqWkAA0WP0QrCMAxF/yXP06Co4J4EBf0A/YDYRq2uaW..."
+                                                  >
+                                                    <_c5 className="text-2xl" data-oid="0kha606" ...>
+                                                      <div
+                                                        ref={null}
+                                                        className="font-semibold tracking-tight text-2xl"
+                                                        data-oid="sy2spb:"
++                                                       data-onlook-id="H4sIALQUqGkAA02MMQ7CMAwA/+K51EKIDp0YkOAB8ACTmB..."
+-                                                       data-onlook-id="H4sIAE9pqWkAA02PQQrCMBBF7zLr2kHELroSFPQA9QBjMt..."
+                                                      >
++                                                       Iniciar Sesión
+                                                    <_c7 data-oid="ij6r3f-" data-onlook-id="H4sIALQUqG...">
+                                                      <div
+                                                        ref={null}
+                                                        className="text-sm text-muted-foreground"
+                                                        data-oid="g-o6ip:"
++                                                       data-onlook-id="H4sIALQUqGkAA02MOw7CMAxA7+K51AMfoU4MSHAAOIBJTA..."
+-                                                       data-onlook-id="H4sIAE9pqWkAA02PTQrCMBCF7zLr2ln4g3QlWNAD6AHGZK..."
+                                                      >
++                                                       Ingresa tus credenciales para acceder al sistema
+                                                <_c9 data-oid="d1v.eyn" data-onlook-id="H4sIALQUqG...">
+                                                  <div
+                                                    ref={null}
+                                                    className="p-6 pt-0"
+                                                    data-oid="tp_jfrj"
++                                                   data-onlook-id="H4sIALQUqGkAA23MMQ7CMAyF4bt4buupEnRiQIIDwAFMYkqgca..."
+-                                                   data-onlook-id="H4sIAE9pqWkAA22PTQrCMBCF7zLr2lkVtCuhgh5ADzAmY402k9..."
+                                                  >
+                                                    <form
+                                                      onSubmit={function handleLogin}
+                                                      className="space-y-4"
+                                                      data-oid="-gbykj4"
++                                                     data-onlook-id="H4sIALQUqGkAA32MSwrCQBAF79LrmMaIRrMW9AB6gHbSJNH5..."
+-                                                     data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32XrmMWIRlMLWlhY6AOsyZJE..."
+                                                    >
+                                                      <div
+                                                        className="space-y-2"
+                                                        data-oid="m2g:gwu"
++                                                       data-onlook-id="H4sIALQUqGkAA32MSw6CQBAF79JrtFGjRtYmegA9QDt0AJ..."
+-                                                       data-onlook-id="H4sIAEtpqWkAA32QvQ6CQBCE32VrZFGjRmoTLSws9AFW2A..."
+                                                      >
+                                                        <Label htmlFor="email" data-oid="170hxjt" ...>
+                                                          <_c data-slot="label" className="flex items..." htmlFor="email" ...>
+                                                            <Primitive.label data-slot="label" className="flex items..." ...>
+                                                              <label
+                                                                data-slot="label"
+                                                                className="flex items-center gap-2 text-sm leading-non..."
+                                                                htmlFor="email"
+                                                                data-oid="qc864e1"
++                                                               data-onlook-id="H4sIALQUqGkAA0WMOw7CMAxA7+K51GKgQp0YkO..."
+-                                                               data-onlook-id="H4sIAE9pqWkAA0WPwQrCMBBE/2XPtYsHi/TkQd..."
+                                                                onMouseDown={function onMouseDown}
+                                                                ref={null}
+                                                              >
++                                                               Correo Electrónico
+                                                        <div
+                                                          className="relative"
+                                                          data-oid="t0a2owq"
++                                                         data-onlook-id="H4sIALQUqGkAA32MSwrCQBAF79LraJMgilkLegA9QDtp..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32XrmCVBFFMLWlhY6AOs..."
+                                                        >
+                                                          <Mail className="absolute l..." data-oid="lh:tteo" ...>
+                                                            <_c ref={null} iconNode={[...]} className="lucide-mai..." ...>
+                                                              <svg
+                                                                ref={null}
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width={24}
+                                                                height={24}
+                                                                viewBox="0 0 24 24"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                strokeWidth={2}
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                className="lucide lucide-mail absolute left-3 top-1/2 ..."
+                                                                aria-hidden="true"
+                                                                data-oid="lh:tteo"
++                                                               data-onlook-id="H4sIALQUqGkAA02JSwrCMBBA7zLr2lFB1K4FPY..."
+-                                                               data-onlook-id="H4sIAEtpqWkAA02OsQ7CMAxE/8VzqQEJAZ2RYG..."
+                                                              >
+                                                          <_c id="email" type="email" placeholder="usuario@ak..." ...>
+                                                            <input
+                                                              type="email"
+                                                              className="flex h-9 w-full rounded-md border border-inpu..."
+                                                              ref={{current:null}}
+                                                              id="email"
+                                                              placeholder="usuario@akademate.com"
+                                                              value=""
+                                                              onChange={function onChange}
+                                                              required={true}
+                                                              data-oid="zhg4:ez"
++                                                             data-onlook-id="H4sIALQUqGkAA0WMOw7CMAxA7+K5rcXUqhMDEhwA..."
+-                                                             data-onlook-id="H4sIAE9pqWkAA0WPwQ6CMBBE/2XPwMYThJMHE/Wu..."
+                                                            >
+                                                      <div
+                                                        className="space-y-2"
+                                                        data-oid="0b:e2ud"
++                                                       data-onlook-id="H4sIALQUqGkAA32MSwrCQBAF79LrmI7BCGYt6AH0AO2kSa..."
+-                                                       data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6MZgBFMLWlhY6AOsyZ..."
+                                                      >
+                                                        <div
+                                                          className="flex items-center justify-between"
+                                                          data-oid="-dre3if"
++                                                         data-onlook-id="H4sIALQUqGkAA32MSw6CQBAF79JrpJUFKGsTPYAeoB06..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA32QvQ6CQBCE32VrZJUClNpECwsLfYAV..."
+                                                        >
+                                                          <Label htmlFor="password" data-oid="-ckjl-b" ...>
+                                                            <_c data-slot="label" className="flex items..." ...>
+                                                              <Primitive.label data-slot="label" ...>
+                                                                <label
+                                                                  data-slot="label"
+                                                                  className="flex items-center gap-2 text-sm leading-n..."
+                                                                  htmlFor="password"
+                                                                  data-oid="qc864e1"
++                                                                 data-onlook-id="H4sIALQUqGkAA0WMOw7CMAxA7+K51GKgQp0Y..."
+-                                                                 data-onlook-id="H4sIAE9pqWkAA0WPwQrCMBBE/2XPtYsHi/Tk..."
+                                                                  onMouseDown={function onMouseDown}
+                                                                  ref={null}
+                                                                >
++                                                                 Contraseña
+                                                          <a
+                                                            href="/auth/forgot-password"
+                                                            className="text-sm text-primary hover:underline"
+                                                            data-oid="o6q.v_7"
++                                                           data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2qlFBLMW9AB6gD..."
+-                                                           data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6MYggqkFLSws9A..."
+                                                          >
++                                                           ¿Olvidaste tu contraseña?
+                                                        <div
+                                                          className="relative"
+                                                          data-oid="kel3-el"
++                                                         data-onlook-id="H4sIALQUqGkAA32MSwrCQBAF79LraJsIfmYt6AH0AO2k..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA32QvQ6CQBCE32VrZAUTf6hNtLCw0AdY..."
+                                                        >
+                                                          <Lock className="absolute l..." data-oid="v:-ugmg" ...>
+                                                            <_c ref={null} iconNode={[...]} className="lucide-loc..." ...>
+                                                              <svg
+                                                                ref={null}
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width={24}
+                                                                height={24}
+                                                                viewBox="0 0 24 24"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                strokeWidth={2}
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                className="lucide lucide-lock absolute left-3 top-1/2 ..."
+                                                                aria-hidden="true"
+                                                                data-oid="v:-ugmg"
++                                                               data-onlook-id="H4sIALQUqGkAA02JSw6CMBBA7zJrZIAdXZvoAf..."
+-                                                               data-onlook-id="H4sIAEtpqWkAA02OsQ7CMAxE/8VzwW23dkaCgY..."
+                                                              >
+                                                          <_c id="password" type="password" placeholder="••••••••" ...>
+                                                            <input
+                                                              type="password"
+                                                              className="flex h-9 w-full rounded-md border border-inpu..."
+                                                              ref={{current:null}}
+                                                              id="password"
+                                                              placeholder="••••••••"
+                                                              value=""
+                                                              onChange={function onChange}
+                                                              required={true}
+                                                              data-oid="zhg4:ez"
++                                                             data-onlook-id="H4sIALQUqGkAA0WMOw7CMAxA7+K5rcXUqhMDEhwA..."
+-                                                             data-onlook-id="H4sIAE9pqWkAA0WPwQ6CMBBE/2XPwMYThJMHE/Wu..."
+                                                            >
+                                                          <button
+                                                            type="button"
+                                                            onClick={function onClick}
+                                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-..."
+                                                            data-oid="i84gx:1"
++                                                           data-onlook-id="H4sIALQUqGkAA32MOw7CMBAF77J1YEVSBFwjwQHgAI..."
+-                                                           data-onlook-id="H4sIAEtpqWkAA32QvQ6CQBCE32VrZCMUKLWJFhYW+g..."
+                                                          >
+                                                            <Eye className="h-5 w-5" data-oid="b81r2vg" ...>
+                                                              <_c ref={null} iconNode={[...]} className="lucide-eye..." ...>
+                                                                <svg
+                                                                  ref={null}
+                                                                  xmlns="http://www.w3.org/2000/svg"
+                                                                  width={24}
+                                                                  height={24}
+                                                                  viewBox="0 0 24 24"
+                                                                  fill="none"
+                                                                  stroke="currentColor"
+                                                                  strokeWidth={2}
+                                                                  strokeLinecap="round"
+                                                                  strokeLinejoin="round"
+                                                                  className="lucide lucide-eye h-5 w-5"
+                                                                  aria-hidden="true"
+                                                                  data-oid="b81r2vg"
++                                                                 data-onlook-id="H4sIALQUqGkAA3WJXQrCMAyA75LnuYDCkD0L..."
+-                                                                 data-onlook-id="H4sIAEtpqWkAA3WOvwrCMBCH3+Xm2gOFIp0F..."
+                                                                >
+                                                      <div
+                                                        className="flex items-center gap-2"
+                                                        data-oid="daw.r_j"
++                                                       data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2tHSImQt6AH0AGM6tN..."
+-                                                       data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6GpIEFILWlhY6AOsyZ..."
+                                                      >
+                                                        <input
+                                                          type="checkbox"
+                                                          id="remember"
+                                                          checked={false}
+                                                          onChange={function onChange}
+                                                          className="rounded"
+                                                          data-oid="1:m6f5w"
++                                                         data-onlook-id="H4sIALQUqGkAA02JSwrCMBBA7zLr2vGLkrWgB9ADjOnQ..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA02OOw7CMBBE77J1YPkKlBoJCgoKOMDi..."
+                                                        >
+                                                        <Label htmlFor="remember" className="cursor-poi..." ...>
+                                                          <_c data-slot="label" className="flex items..." ...>
+                                                            <Primitive.label data-slot="label" className="flex items..." ...>
+                                                              <label
+                                                                data-slot="label"
+                                                                className="flex items-center gap-2 font-medium select-..."
+                                                                htmlFor="remember"
+                                                                data-oid="qc864e1"
++                                                               data-onlook-id="H4sIALQUqGkAA0WMOw7CMAxA7+K51GKgQp0YkO..."
+-                                                               data-onlook-id="H4sIAE9pqWkAA0WPwQrCMBBE/2XPtYsHi/TkQd..."
+                                                                onMouseDown={function onMouseDown}
+                                                                ref={null}
+                                                              >
++                                                               Recordar mi sesión
+                                                      <_c type="submit" className="w-full" size="lg" disabled={false} ...>
+                                                        <button
+                                                          className={"inline-flex items-center justify-center gap-2 w..."}
+                                                          ref={null}
+                                                          type="submit"
+                                                          disabled={false}
+                                                          data-oid="s-kmz26"
++                                                         data-onlook-id="H4sIALQUqGkAA02MOw7CMAxA7+K51EsloBMDEhwADuCm..."
+-                                                         data-onlook-id="H4sIAE9pqWkAA02PQQrCMBBF7zLr2tkU1K5EBD2AHmCa..."
+                                                        >
+                                                          <Shield className="mr-2 h-5 w-5" data-oid="zw.slo_" ...>
+                                                            <_c ref={null} iconNode={[...]} className="lucide-shi..." ...>
+                                                              <svg
+                                                                ref={null}
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width={24}
+                                                                height={24}
+                                                                viewBox="0 0 24 24"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                strokeWidth={2}
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                className="lucide lucide-shield mr-2 h-5 w-5"
+                                                                aria-hidden="true"
+                                                                data-oid="zw.slo_"
++                                                               data-onlook-id="H4sIALQUqGkAA3WJXQrCMAyA75LnuTARBnsW9A..."
+-                                                               data-onlook-id="H4sIAEtpqWkAA3WOvwrCMBCH3+Xm2qMiFDoLOj..."
+                                                              >
+                                                          ...
+                                                    <div
+                                                      className="relative my-5"
+                                                      data-oid="6eh1a7t"
++                                                     data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2sEKWrMW9AB6gDEd2mr+..."
+-                                                     data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6GIEjakFLSws9AHWZEmi..."
+                                                    >
+                                                      <div
+                                                        className="absolute inset-0 flex items-center"
+                                                        data-oid="t.t-uds"
++                                                       data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2qmFQsla0APoAcZ0aK..."
+-                                                       data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6MZAIKQWtLCw0AdYky..."
+                                                      >
+                                                        <span
+                                                          className="w-full border-t"
+                                                          data-oid="z-.kw69"
++                                                         data-onlook-id="H4sIALQUqGkAA3WJOw7CMAxA7+K5YJWlKDMSHAAOYFKr..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA3WOPQ7CMAxG7+K51CpLUWYkGBgY4AAm..."
+                                                        >
+                                                      <div
+                                                        className="relative flex justify-center text-xs uppercase"
+                                                        data-oid="f8klqxs"
++                                                       data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr6mhFqlkLegA9wJgObT..."
+-                                                       data-onlook-id="H4sIAEtpqWkAA32QvQ6CQBCE32VrZBVjUGoTLSws9AFW2A..."
+                                                      >
+                                                        <span
+                                                          className="bg-card px-2 text-muted-foreground"
+                                                          data-oid="vioid0d"
++                                                         data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2sEqWrIW9AB6gDEd..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6GIUDakFLSws9AHW..."
+                                                        >
++                                                         O continúa con
+                                                    <a
+                                                      href="http://localhost:3006/api/auth/signin/google?callbackURL=h..."
+                                                      className="flex w-full items-center justify-center gap-3 rounded..."
+                                                      data-oid="30v5rwa"
++                                                     data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr6lCLQrMW9AB6gDEd2mr+..."
+-                                                     data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32XrmCUGhaQWtLCw0AdYkyWJ..."
+                                                    >
+                                                      <svg
+                                                        viewBox="0 0 24 24"
+                                                        className="h-5 w-5"
+                                                        aria-hidden="true"
+                                                        data-oid="no8qira"
++                                                       data-onlook-id="H4sIALQUqGkAA32MSwrCQBAF79LraJuIhmQt6AH0AO2kSa..."
+-                                                       data-onlook-id="H4sIAEtpqWkAA32QvQ6CQBCE32VrZAWjBGoTLSws9AFW2A..."
+                                                      >
+                                                        <path
+                                                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.3..."
+                                                          fill="#4285F4"
+                                                          data-oid="vfnvszg"
++                                                         data-onlook-id="H4sIALQUqGkAA02JOw7CMAxA7+K5YApDITMSHAAOYFKr..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA02OOw7CMBBE77J1yBIoAq6RoKCggAMs..."
+                                                        >
+                                                        <path
+                                                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 ..."
+                                                          fill="#34A853"
+                                                          data-oid="knj1zc8"
++                                                         data-onlook-id="H4sIALQUqGkAA02JSwrCMBBA7zLr2vEDKlkLegA9wJgO..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA02OOw7CMBBE77J1yPKRAKVGgoKCAg6w..."
+                                                        >
+                                                        <path
+                                                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7..."
+                                                          fill="#FBBC05"
+                                                          data-oid="tgi1avg"
++                                                         data-onlook-id="H4sIALQUqGkAA02JSw6CMBBA7zJrZCQuMF2b6AH0AGOZ..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA02OsQ7CMAxE/8VzqakYijojwcDAAB9g..."
+                                                        >
+                                                        <path
+                                                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14..."
+                                                          fill="#EA4335"
+                                                          data-oid="eey571a"
++                                                         data-onlook-id="H4sIALQUqGkAA02JSwrCMBBA7zLr2qEKKlkLegA9wJgO..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA02OsQ7CMAxE/8VzqVWQAHVGgoGBAT7A..."
+                                                        >
+                                                      ...
+                                                    <p
+                                                      className="mt-5 text-center text-sm text-muted-foreground"
+                                                      data-oid="sqpl6o:"
++                                                     data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr6tAGBLMW9AB6gDEd2mr+..."
+-                                                     data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32XrmCUJCKYWtLCw0AdYkyWJ..."
+                                                    >
+                                                      <LinkComponent href="/auth/signup" className="font-mediu..." ...>
+                                                        <a
+                                                          className="font-medium text-primary hover:underline"
+                                                          data-oid="rnucokc"
++                                                         data-onlook-id="H4sIALQUqGkAA32MSw6CQBAF79JrpAU0MaxN9AB6gHbo..."
+-                                                         data-onlook-id="H4sIAEtpqWkAA32QvQ6CQBCE32VrdAU0MdQmWlhY6AOs..."
+                                                          ref={function}
+                                                          onClick={function onClick}
+                                                          onMouseEnter={function onMouseEnter}
+                                                          onTouchStart={function onTouchStart}
+                                                          href="/auth/signup"
+                                                        >
++                                                         Regístrate aquí
+                                            <div
+                                              className="mt-8 text-center text-sm text-muted-foreground"
+                                              data-oid="scsub3k"
++                                             data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2qG0CmYt6AH0AGM6tNX8kUxALLm7..."
+-                                             data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6BISBVMLWlhY6AOsyZJE74+7PRBD..."
+                                            >
+                                              <p
+                                                data-oid="4f2bl55"
++                                               data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2qFWRLIW9AB6gDEd2mr+SCYglt..."
+-                                               data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32XrmCVGRFILWlhY6AOsyZJE74+7PR..."
+                                              >
+                                              <div
+                                                className="flex items-center justify-center gap-4 mt-2"
+                                                data-oid="f3ayrgb"
++                                               data-onlook-id="H4sIALQUqGkAA32MTQrCMBBG7zLr2rEUCs1a0APoAcZ0aKv5I5mAWH..."
+-                                               data-onlook-id="H4sIAEtpqWkAA32QvQrCQBCE32Xr6BoCgaQWtLCw0AdYkyWJ3h93ey..."
+                                              >
+                                                <a
+                                                  href="/legal/privacidad"
+                                                  className="hover:text-foreground transition-colors"
+                                                  data-oid="8xdptus"
++                                                 data-onlook-id="H4sIALQUqGkAA32MTQ6CMBBG7zJrZDQQFl2b6AH0AGOZANq/tNPE..."
+-                                                 data-onlook-id="H4sIAEtpqWkAA32QvQ6CQBCE32VrdDUQCmoTLSws9AFW2AB6f7nb..."
+                                                >
++                                                 Política de Privacidad
+                                                <span
+                                                  data-oid="9c4tw03"
++                                                 data-onlook-id="H4sIALQUqGkAA42MTQrCMBBG7zLr6iCpFLMW9AB6gDEd2mr+SCYg..."
+-                                                 data-onlook-id="H4sIAEtpqWkAA42QvQrCQBCE32XrmEUSCaYWtLCw0AdYkyWJ3h93..."
+                                                >
++                                                 •
+                                                <a
+                                                  href="/legal/terminos"
+                                                  className="hover:text-foreground transition-colors"
+                                                  data-oid=":9i5:6l"
++                                                 data-onlook-id="H4sIALQUqGkAA32MSw6CQBAF79JrpKOAMaxN9AB6gHboADq/zPQk..."
+-                                                 data-onlook-id="H4sIAEtpqWkAA32QvQ6CQBCE32VrdKOAMdQmWlhY6AOssAGU+8nd..."
+                                                >
++                                                 Términos y Condiciones
+                                                <span
+                                                  data-oid="7b.1qfl"
++                                                 data-onlook-id="H4sIALQUqGkAA42MTQrCMBBG7zLr2kFiEbMW9AB6gDEd2mr+SCYg..."
+-                                                 data-onlook-id="H4sIAEtpqWkAA42QvQrCQBCE32Xr6CIxiKkFLSws9AHWy5JE74+7..."
+                                                >
++                                                 •
+                                                <a
+                                                  href="/legal/cookies"
+                                                  className="hover:text-foreground transition-colors"
+                                                  data-oid="vk:_fed"
++                                                 data-onlook-id="H4sIALQUqGkAA32MOw7CMBAF77J1yAIRKVwjwQHgAIuzSgL+yV5L..."
+-                                                 data-onlook-id="H4sIAEtpqWkAA32QvQ7CMAyE38VzwUBFh85IMDAwwAOY1moL+VPi..."
+                                                >
++                                                 Cookies
+                      ...
+          ...
+ @ webpack-internal:///(app-pages-browser)/../../node_modules/.bun/next@15.5.9+8f708e3022b846db/node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
