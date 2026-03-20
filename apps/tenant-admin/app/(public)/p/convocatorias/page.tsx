@@ -52,7 +52,7 @@ export default async function ConvocatoriasPage() {
             const porcentajeOcupado = conv.max_students ? Math.round(((conv.current_enrollments || 0) / conv.max_students) * 100) : 0
 
             return (
-              <Link key={conv.id} href={`/convocatorias/${conv.codigo || conv.id}`} className="group">
+              <Link key={conv.id} href={`/p/convocatorias/${conv.codigo || conv.id}`} className="group">
                 <div className="bg-white rounded-xl border-2 border-green-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-green-400">
                   <div className="relative h-40 bg-gradient-to-br from-green-600 to-green-800">
                     {imageUrl && <img src={imageUrl} alt={course?.title || ''} className="w-full h-full object-cover" />}

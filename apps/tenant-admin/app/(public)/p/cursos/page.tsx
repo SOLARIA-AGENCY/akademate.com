@@ -46,7 +46,7 @@ export default async function CursosCatalogPage() {
           {courses.map((course: any) => {
             const imageUrl = resolveImageUrl(course.image)
             return (
-              <Link key={course.id} href={`/cursos/${course.slug}`} className="group">
+              <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group">
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
                   <div className="relative h-48 bg-gradient-to-br from-indigo-600 to-indigo-800">
                     {imageUrl && <img src={imageUrl} alt={course.title} className="w-full h-full object-cover" />}
