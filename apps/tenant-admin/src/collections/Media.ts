@@ -6,7 +6,7 @@ export const Media: CollectionConfig = {
     read: () => true, // Public read access for images
   },
   upload: {
-    staticDir: '../uploads',
+    staticDir: process.env.MEDIA_DIR || '../uploads',
     imageSizes: [
       {
         name: 'thumbnail',
@@ -34,7 +34,7 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      required: true,
+      required: false,
     },
   ],
 }

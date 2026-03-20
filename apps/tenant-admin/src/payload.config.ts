@@ -142,21 +142,25 @@ export const getPayloadConfig = () => buildConfig({
     migrationDir: path.resolve(__dirname, '../migrations'),
   }),
   plugins: [
-    s3Storage({
-      collections: {
-        media: true,
-      },
-      bucket: process.env.MINIO_BUCKET ?? 'cepcomunicacion',
-      config: {
-        endpoint: process.env.MINIO_ENDPOINT ?? 'http://minio:9000',
-        credentials: {
-          accessKeyId: process.env.MINIO_ACCESS_KEY ?? 'minioadmin',
-          secretAccessKey: process.env.MINIO_SECRET_KEY ?? 'minioadmin_dev_2025',
-        },
-        region: 'us-east-1', // MinIO requires a region
-        forcePathStyle: true, // Required for MinIO
-      },
-    }),
+    // S3 storage only if MINIO_ENDPOINT is explicitly configured
+    // Otherwise Payload uses local filesystem storage (./media)
+    ...(process.env.MINIO_ENDPOINT
+      ? [
+          s3Storage({
+            collections: { media: true },
+            bucket: process.env.MINIO_BUCKET ?? 'cepcomunicacion',
+            config: {
+              endpoint: process.env.MINIO_ENDPOINT,
+              credentials: {
+                accessKeyId: process.env.MINIO_ACCESS_KEY ?? 'minioadmin',
+                secretAccessKey: process.env.MINIO_SECRET_KEY ?? 'minioadmin_dev_2025',
+              },
+              region: 'us-east-1',
+              forcePathStyle: true,
+            },
+          }),
+        ]
+      : []),
   ],
   cors: [
     'http://localhost:3000', // React frontend

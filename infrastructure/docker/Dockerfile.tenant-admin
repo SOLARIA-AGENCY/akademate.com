@@ -59,6 +59,9 @@ COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/.next/standalone 
 COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/.next/static ./apps/tenant-admin/.next/static
 COPY --from=build --chown=nextjs:nodejs /app/apps/tenant-admin/public ./apps/tenant-admin/public
 
+# Create writable directories for local file uploads (when S3/MinIO is not configured)
+RUN mkdir -p /app/apps/tenant-admin/public/media /app/apps/uploads && chown -R nextjs:nodejs /app/apps/tenant-admin/public/media /app/apps/uploads
+
 USER nextjs
 
 EXPOSE 3009
