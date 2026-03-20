@@ -343,7 +343,7 @@ export default function CicloDetailPage({ params }: Props) {
                 <Button
                   variant="outline"
                   className="w-full justify-between"
-                  onClick={() => router.push(`/ciclos/${id}/editar`)}
+                  onClick={() => router.push(`/ciclos/${id}/detalle`)}
                 >
                   <span className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />

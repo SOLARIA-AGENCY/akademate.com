@@ -895,21 +895,29 @@ export default function NuevaSedeRage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="main-image">Subir imagen</Label>
-                  <Input
-                    id="main-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    disabled={uploadingImage}
-                  />
+                  <Label>Subir imagen</Label>
+                  <label className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors block">
+                    {uploadingImage ? (
+                      <Loader2 className="h-6 w-6 mx-auto animate-spin text-primary" />
+                    ) : (
+                      <ImageIcon className="h-6 w-6 mx-auto text-muted-foreground" />
+                    )}
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {uploadingImage ? 'Subiendo...' : 'Arrastra o haz click para seleccionar'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG. Recomendado: 1200x400px</p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        handleImageChange(e)
+                        e.target.value = ''
+                      }}
+                      disabled={uploadingImage}
+                    />
+                  </label>
                 </div>
-                {uploadingImage && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Subiendo imagen...
-                  </div>
-                )}
                 {imagePreview && (
                   <div className="relative w-full max-w-md">
                     <img
