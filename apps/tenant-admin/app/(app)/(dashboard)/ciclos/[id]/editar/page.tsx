@@ -33,6 +33,8 @@ import {
   Heart,
   FileText,
   Star,
+  Image as ImageIcon,
+  Check,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -305,26 +307,24 @@ export default function EditarCicloPage() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [imageUploaded, setImageUploaded] = useState(false)
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleImageFile = async (file: File) => {
+    if (!file.type.startsWith('image/')) return
 
-    // Show preview immediately
     const previewUrl = URL.createObjectURL(file)
     setImagePreview(previewUrl)
     setImageFile(file)
+    setUploadingImage(true)
     setImageUploaded(false)
 
-    // Upload immediately
-    setUploadingImage(true)
     try {
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('alt', name || 'Ciclo')
+      formData.append('alt', name || 'Ciclo formativo')
       const res = await fetch('/api/media', { method: 'POST', body: formData })
       if (res.ok) {
         const uploaded = await res.json()
         const mediaId = uploaded.doc?.id
+        const mediaUrl = uploaded.doc?.url || `/media/${uploaded.doc?.filename}`
         if (mediaId) {
           // Link image to cycle immediately
           await fetch(`/api/cycles/${cycleId}`, {
@@ -332,15 +332,20 @@ export default function EditarCicloPage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: mediaId }),
           })
-          setImageUploaded(true)
+          // Replace blob URL with real URL
+          URL.revokeObjectURL(previewUrl)
+          setImagePreview(mediaUrl)
           setImageFile(null) // Already uploaded, don't re-upload on submit
+          setImageUploaded(true)
+          setTimeout(() => setImageUploaded(false), 3000)
         }
+      } else {
+        console.error('Upload failed:', res.status)
       }
     } catch (err) {
-      console.error('Error uploading image:', err)
+      console.error('Upload error:', err)
     } finally {
       setUploadingImage(false)
-      URL.revokeObjectURL(previewUrl)
     }
   }
 
@@ -443,867 +448,915 @@ export default function EditarCicloPage() {
         </Button>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="border-b border-border">
-        <div className="flex gap-1 overflow-x-auto pb-px scrollbar-none">
-          {TABS.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setActiveTab(id)}
-              className={`
-                flex items-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium border-b-2 transition-colors
-                ${
+      {/* Sidebar + Content layout */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sidebar / Mobile tabs */}
+        <nav className="lg:w-56 shrink-0">
+          {/* Mobile: horizontal scroll */}
+          <div className="flex lg:hidden gap-1 overflow-x-auto pb-2 scrollbar-none">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActiveTab(id)}
+                className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-sm rounded-md transition-colors ${
                   activeTab === id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                }
-              `}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </button>
-          ))}
+                    ? 'bg-primary/10 text-primary font-medium'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                {label}
+              </button>
+            ))}
+          </div>
+          {/* Desktop: vertical list */}
+          <div className="hidden lg:flex lg:flex-col gap-1 sticky top-20">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActiveTab(id)}
+                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors text-left w-full ${
+                  activeTab === id
+                    ? 'bg-primary/10 text-primary font-medium'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <form onSubmit={handleSubmit}>
+            {/* ================================================================
+                TAB 1: DATOS BASICOS
+            ================================================================ */}
+            {activeTab === 'basicos' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5" />
+                    Datos Basicos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nombre del Ciclo *</Label>
+                      <Input
+                        id="name"
+                        placeholder="Ej: Desarrollo de Aplicaciones Web"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="code">Codigo</Label>
+                      <Input
+                        id="code"
+                        placeholder="Ej: DAW-2026"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="level">Nivel</Label>
+                      <Select value={level} onValueChange={setLevel}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar nivel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="basico">Formacion Profesional Basica</SelectItem>
+                          <SelectItem value="medio">Grado Medio</SelectItem>
+                          <SelectItem value="superior">Grado Superior</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="family">Familia Profesional</Label>
+                      <Input
+                        id="family"
+                        placeholder="Ej: Informatica y Comunicaciones"
+                        value={family}
+                        onChange={(e) => setFamily(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2 sm:col-span-2">
+                      <Label htmlFor="officialTitle">Titulo Oficial</Label>
+                      <Input
+                        id="officialTitle"
+                        placeholder="Ej: Tecnico Superior en Desarrollo de Aplicaciones Web"
+                        value={officialTitle}
+                        onChange={(e) => setOfficialTitle(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Image upload with drag & drop */}
+                  <div className="space-y-3">
+                    <Label>Imagen del Ciclo</Label>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      {/* Preview */}
+                      <div className="w-full sm:w-48 h-32 rounded-lg border overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                        {imagePreview ? (
+                          <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-muted-foreground text-sm">Sin imagen</span>
+                        )}
+                      </div>
+                      {/* Upload zone */}
+                      <div className="flex-1">
+                        <div
+                          className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                          onDragOver={(e) => {
+                            e.preventDefault()
+                            e.currentTarget.classList.add('border-primary')
+                          }}
+                          onDragLeave={(e) => {
+                            e.currentTarget.classList.remove('border-primary')
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault()
+                            e.currentTarget.classList.remove('border-primary')
+                            const file = e.dataTransfer.files?.[0]
+                            if (file) void handleImageFile(file)
+                          }}
+                          onClick={() => document.getElementById('cycle-image-upload')?.click()}
+                        >
+                          {uploadingImage ? (
+                            <Loader2 className="h-6 w-6 mx-auto animate-spin text-primary" />
+                          ) : (
+                            <ImageIcon className="h-6 w-6 mx-auto text-muted-foreground" />
+                          )}
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {uploadingImage ? 'Subiendo...' : 'Arrastra o haz click para seleccionar'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG. Recomendado: 1200x400px</p>
+                          <input
+                            id="cycle-image-upload"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) void handleImageFile(file)
+                            }}
+                          />
+                        </div>
+                        {imageUploaded && (
+                          <p className="text-xs text-green-500 mt-2 flex items-center gap-1">
+                            <Check className="h-3 w-3" /> Imagen subida correctamente
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Descripcion</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Descripcion detallada del ciclo formativo, competencias generales, perfil profesional..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={6}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                TAB 2: DURACION Y MODALIDAD
+            ================================================================ */}
+            {activeTab === 'duracion' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Duracion y Modalidad
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="totalHours">Horas Totales</Label>
+                      <Input
+                        id="totalHours"
+                        type="number"
+                        placeholder="Ej: 2000"
+                        value={totalHours}
+                        onChange={(e) => setTotalHours(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="courses">Cursos Academicos</Label>
+                      <Input
+                        id="courses"
+                        type="number"
+                        placeholder="Ej: 2"
+                        value={courses}
+                        onChange={(e) => setCourses(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="modality">Modalidad</Label>
+                      <Select value={modality} onValueChange={setModality}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar modalidad" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="presencial">Presencial</SelectItem>
+                          <SelectItem value="semipresencial">Semipresencial</SelectItem>
+                          <SelectItem value="online">Online</SelectItem>
+                          <SelectItem value="dual">Dual</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="classFrequency">Frecuencia de Clases</Label>
+                      <Input
+                        id="classFrequency"
+                        placeholder="Ej: Lunes a Viernes"
+                        value={classFrequency}
+                        onChange={(e) => setClassFrequency(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="schedule">Horario</Label>
+                      <Input
+                        id="schedule"
+                        placeholder="Ej: 08:00 - 14:30"
+                        value={schedule}
+                        onChange={(e) => setSchedule(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="practiceHours">Horas de Practicas (FCT)</Label>
+                      <Input
+                        id="practiceHours"
+                        type="number"
+                        placeholder="Ej: 400"
+                        value={practiceHours}
+                        onChange={(e) => setPracticeHours(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                TAB 3: REQUISITOS DE ACCESO
+            ================================================================ */}
+            {activeTab === 'requisitos' && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <ClipboardCheck className="h-5 w-5" />
+                    Requisitos de Acceso
+                  </CardTitle>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addItem(setRequirements, { text: '', type: 'obligatorio' })}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Anadir Requisito
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {requirements.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
+                      <ClipboardCheck className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No hay requisitos definidos. Anade el primero.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {requirements.map((req, i) => (
+                        <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                          <div className="flex-1 w-full space-y-2">
+                            <Input
+                              placeholder="Ej: Titulo de Bachillerato o equivalente"
+                              value={req.text}
+                              onChange={(e) => updateItem(setRequirements, i, 'text', e.target.value)}
+                            />
+                          </div>
+                          <Select
+                            value={req.type}
+                            onValueChange={(v) => updateItem(setRequirements, i, 'type', v)}
+                          >
+                            <SelectTrigger className="w-full sm:w-40">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="obligatorio">Obligatorio</SelectItem>
+                              <SelectItem value="alternativo">Alternativo</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive shrink-0"
+                            onClick={() => removeItem(setRequirements, i)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                TAB 4: MODULOS
+            ================================================================ */}
+            {activeTab === 'modulos' && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Layers className="h-5 w-5" />
+                    Modulos del Ciclo
+                  </CardTitle>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addItem(setModules, { name: '', courseYear: '1', hours: '', type: 'troncal' })}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Anadir Modulo
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {modules.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
+                      <Layers className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No hay modulos definidos. Anade el primero.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {modules.map((mod, i) => (
+                        <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                          <div className="flex-1 w-full grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="sm:col-span-2">
+                              <Input
+                                placeholder="Nombre del modulo"
+                                value={mod.name}
+                                onChange={(e) => updateItem(setModules, i, 'name', e.target.value)}
+                              />
+                            </div>
+                            <Select
+                              value={mod.courseYear}
+                              onValueChange={(v) => updateItem(setModules, i, 'courseYear', v)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Curso" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="1">1er Curso</SelectItem>
+                                <SelectItem value="2">2do Curso</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Input
+                              type="number"
+                              placeholder="Horas"
+                              value={mod.hours}
+                              onChange={(e) => updateItem(setModules, i, 'hours', e.target.value)}
+                            />
+                          </div>
+                          <Select
+                            value={mod.type}
+                            onValueChange={(v) => updateItem(setModules, i, 'type', v)}
+                          >
+                            <SelectTrigger className="w-full sm:w-36">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="troncal">Troncal</SelectItem>
+                              <SelectItem value="optativo">Optativo</SelectItem>
+                              <SelectItem value="transversal">Transversal</SelectItem>
+                              <SelectItem value="fct">FCT</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive shrink-0"
+                            onClick={() => removeItem(setModules, i)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                TAB 5: SALIDAS PROFESIONALES
+            ================================================================ */}
+            {activeTab === 'salidas' && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    Salidas Profesionales
+                  </CardTitle>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addItem(setCareerPaths, { title: '', sector: '' })}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Anadir Salida
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {careerPaths.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
+                      <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No hay salidas profesionales definidas.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {careerPaths.map((cp, i) => (
+                        <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                          <div className="flex-1 w-full grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            <Input
+                              placeholder="Titulo / Puesto"
+                              value={cp.title}
+                              onChange={(e) => updateItem(setCareerPaths, i, 'title', e.target.value)}
+                            />
+                            <Input
+                              placeholder="Sector"
+                              value={cp.sector}
+                              onChange={(e) => updateItem(setCareerPaths, i, 'sector', e.target.value)}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive shrink-0"
+                            onClick={() => removeItem(setCareerPaths, i)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                TAB 6: COMPETENCIAS
+            ================================================================ */}
+            {activeTab === 'competencias' && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="h-5 w-5" />
+                    Competencias
+                  </CardTitle>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addItem(setCompetencies, { title: '', description: '' })}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Anadir Competencia
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {competencies.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
+                      <Award className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No hay competencias definidas.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {competencies.map((comp, i) => (
+                        <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                          <div className="flex-1 w-full space-y-2">
+                            <Input
+                              placeholder="Titulo de la competencia"
+                              value={comp.title}
+                              onChange={(e) => updateItem(setCompetencies, i, 'title', e.target.value)}
+                            />
+                            <Textarea
+                              placeholder="Descripcion de la competencia"
+                              value={comp.description}
+                              onChange={(e) => updateItem(setCompetencies, i, 'description', e.target.value)}
+                              rows={2}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive shrink-0"
+                            onClick={() => removeItem(setCompetencies, i)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                TAB 7: PRECIOS
+            ================================================================ */}
+            {activeTab === 'precios' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5" />
+                    Precios
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="enrollmentFee">Matricula</Label>
+                      <Input
+                        id="enrollmentFee"
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={enrollmentFee}
+                        onChange={(e) => setEnrollmentFee(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="monthlyFee">Cuota Mensual</Label>
+                      <Input
+                        id="monthlyFee"
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={monthlyFee}
+                        onChange={(e) => setMonthlyFee(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="totalPrice">Precio Total</Label>
+                      <Input
+                        id="totalPrice"
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={totalPrice}
+                        onChange={(e) => setTotalPrice(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Payment Options */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <Label>Opciones de Pago</Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => addItem(setPaymentOptions, { label: '', description: '' })}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Anadir Opcion
+                      </Button>
+                    </div>
+                    {paymentOptions.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">Sin opciones de pago adicionales.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {paymentOptions.map((opt, i) => (
+                          <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                            <div className="flex-1 w-full grid gap-3 grid-cols-1 sm:grid-cols-2">
+                              <Input
+                                placeholder="Ej: Pago unico"
+                                value={opt.label}
+                                onChange={(e) => updateItem(setPaymentOptions, i, 'label', e.target.value)}
+                              />
+                              <Input
+                                placeholder="Ej: 10% descuento"
+                                value={opt.description}
+                                onChange={(e) => updateItem(setPaymentOptions, i, 'description', e.target.value)}
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive shrink-0"
+                              onClick={() => removeItem(setPaymentOptions, i)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="priceNotes">Notas sobre Precios</Label>
+                    <Textarea
+                      id="priceNotes"
+                      placeholder="Informacion adicional sobre precios, descuentos, condiciones..."
+                      value={priceNotes}
+                      onChange={(e) => setPriceNotes(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                TAB 8: BECAS Y SUBVENCIONES
+            ================================================================ */}
+            {activeTab === 'becas' && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Heart className="h-5 w-5" />
+                    Becas y Subvenciones
+                  </CardTitle>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addItem(setScholarships, { name: '', description: '', url: '', type: '' })}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Anadir Beca
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                    <Checkbox
+                      id="fundae"
+                      checked={fundaeEligible}
+                      onCheckedChange={(v) => setFundaeEligible(v === true)}
+                    />
+                    <Label htmlFor="fundae" className="cursor-pointer">
+                      Bonificable a traves de FUNDAE
+                    </Label>
+                  </div>
+
+                  {scholarships.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
+                      <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No hay becas o subvenciones definidas.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {scholarships.map((sch, i) => (
+                        <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                          <div className="flex-1 w-full grid gap-3 grid-cols-1 sm:grid-cols-2">
+                            <Input
+                              placeholder="Nombre de la beca"
+                              value={sch.name}
+                              onChange={(e) => updateItem(setScholarships, i, 'name', e.target.value)}
+                            />
+                            <Input
+                              placeholder="Tipo (publica, privada, europea)"
+                              value={sch.type}
+                              onChange={(e) => updateItem(setScholarships, i, 'type', e.target.value)}
+                            />
+                            <Input
+                              placeholder="Descripcion"
+                              value={sch.description}
+                              onChange={(e) => updateItem(setScholarships, i, 'description', e.target.value)}
+                            />
+                            <Input
+                              placeholder="URL de informacion"
+                              value={sch.url}
+                              onChange={(e) => updateItem(setScholarships, i, 'url', e.target.value)}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive shrink-0"
+                            onClick={() => removeItem(setScholarships, i)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                TAB 9: CONTINUIDAD Y DOCUMENTOS
+            ================================================================ */}
+            {activeTab === 'continuidad' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Continuidad y Documentos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Further Studies */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <Label className="text-base font-semibold">Estudios de Continuidad</Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => addItem(setFurtherStudies, { title: '', description: '' })}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Anadir
+                      </Button>
+                    </div>
+                    {furtherStudies.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">Sin estudios de continuidad definidos.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {furtherStudies.map((fs, i) => (
+                          <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                            <div className="flex-1 w-full space-y-2">
+                              <Input
+                                placeholder="Titulo (Ej: Grado en Ingenieria Informatica)"
+                                value={fs.title}
+                                onChange={(e) => updateItem(setFurtherStudies, i, 'title', e.target.value)}
+                              />
+                              <Input
+                                placeholder="Descripcion"
+                                value={fs.description}
+                                onChange={(e) => updateItem(setFurtherStudies, i, 'description', e.target.value)}
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive shrink-0"
+                              onClick={() => removeItem(setFurtherStudies, i)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Documents */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <Label className="text-base font-semibold">Documentos</Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => addItem(setDocuments, { title: '' })}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Anadir Documento
+                      </Button>
+                    </div>
+                    {documents.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">Sin documentos adjuntos.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {documents.map((doc, i) => (
+                          <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                            <div className="flex-1 w-full grid gap-3 grid-cols-1 sm:grid-cols-2">
+                              <Input
+                                placeholder="Titulo del documento"
+                                value={doc.title}
+                                onChange={(e) => updateItem(setDocuments, i, 'title', e.target.value)}
+                              />
+                              <Input
+                                type="file"
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive shrink-0"
+                              onClick={() => removeItem(setDocuments, i)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                TAB 10: CARACTERISTICAS
+            ================================================================ */}
+            {activeTab === 'caracteristicas' && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Caracteristicas
+                  </CardTitle>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addItem(setFeatures, { title: '', description: '' })}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Anadir Caracteristica
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {features.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
+                      <Star className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No hay caracteristicas definidas.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {features.map((feat, i) => (
+                        <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                          <div className="flex-1 w-full space-y-2">
+                            <Input
+                              placeholder="Titulo de la caracteristica"
+                              value={feat.title}
+                              onChange={(e) => updateItem(setFeatures, i, 'title', e.target.value)}
+                            />
+                            <Textarea
+                              placeholder="Descripcion"
+                              value={feat.description}
+                              onChange={(e) => updateItem(setFeatures, i, 'description', e.target.value)}
+                              rows={2}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive shrink-0"
+                            onClick={() => removeItem(setFeatures, i)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ================================================================
+                SUBMIT BAR
+            ================================================================ */}
+            <div className="flex justify-end gap-3 pt-6">
+              <Button type="button" variant="outline" onClick={() => router.push(`/ciclos/${cycleId}`)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={saving || !name.trim()}>
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+                {saving ? 'Guardando...' : 'Guardar Cambios'}
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
-
-      <form onSubmit={handleSubmit}>
-        {/* ================================================================
-            TAB 1: DATOS BASICOS
-        ================================================================ */}
-        {activeTab === 'basicos' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                Datos Basicos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nombre del Ciclo *</Label>
-                  <Input
-                    id="name"
-                    placeholder="Ej: Desarrollo de Aplicaciones Web"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="code">Codigo</Label>
-                  <Input
-                    id="code"
-                    placeholder="Ej: DAW-2026"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="level">Nivel</Label>
-                  <Select value={level} onValueChange={setLevel}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar nivel" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="basico">Formacion Profesional Basica</SelectItem>
-                      <SelectItem value="medio">Grado Medio</SelectItem>
-                      <SelectItem value="superior">Grado Superior</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="family">Familia Profesional</Label>
-                  <Input
-                    id="family"
-                    placeholder="Ej: Informatica y Comunicaciones"
-                    value={family}
-                    onChange={(e) => setFamily(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="officialTitle">Titulo Oficial</Label>
-                  <Input
-                    id="officialTitle"
-                    placeholder="Ej: Tecnico Superior en Desarrollo de Aplicaciones Web"
-                    value={officialTitle}
-                    onChange={(e) => setOfficialTitle(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Image upload */}
-              <div className="space-y-3">
-                <Label>Imagen del Ciclo</Label>
-                <div className="flex flex-col sm:flex-row items-start gap-4">
-                  <div className="flex-shrink-0 w-full sm:w-48 h-32 rounded-lg border border-border overflow-hidden bg-muted flex items-center justify-center">
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-muted-foreground text-sm">Sin imagen</span>
-                    )}
-                  </div>
-                  <div className="space-y-2 w-full sm:w-auto">
-                    <Input
-                      id="image"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="w-full sm:max-w-xs"
-                    />
-                    {uploadingImage && (
-                      <p className="text-xs text-primary flex items-center gap-1">
-                        <Loader2 className="h-3 w-3 animate-spin" /> Subiendo imagen...
-                      </p>
-                    )}
-                    {imageUploaded && (
-                      <p className="text-xs text-green-500">Imagen subida y guardada correctamente</p>
-                    )}
-                    <p className="text-xs text-muted-foreground">
-                      La imagen se sube automaticamente al seleccionarla. Recomendado: 1200x400px.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description">Descripcion</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Descripcion detallada del ciclo formativo, competencias generales, perfil profesional..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={6}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            TAB 2: DURACION Y MODALIDAD
-        ================================================================ */}
-        {activeTab === 'duracion' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Duracion y Modalidad
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="space-y-2">
-                  <Label htmlFor="totalHours">Horas Totales</Label>
-                  <Input
-                    id="totalHours"
-                    type="number"
-                    placeholder="Ej: 2000"
-                    value={totalHours}
-                    onChange={(e) => setTotalHours(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="courses">Cursos Academicos</Label>
-                  <Input
-                    id="courses"
-                    type="number"
-                    placeholder="Ej: 2"
-                    value={courses}
-                    onChange={(e) => setCourses(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="modality">Modalidad</Label>
-                  <Select value={modality} onValueChange={setModality}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar modalidad" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="presencial">Presencial</SelectItem>
-                      <SelectItem value="semipresencial">Semipresencial</SelectItem>
-                      <SelectItem value="online">Online</SelectItem>
-                      <SelectItem value="dual">Dual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="classFrequency">Frecuencia de Clases</Label>
-                  <Input
-                    id="classFrequency"
-                    placeholder="Ej: Lunes a Viernes"
-                    value={classFrequency}
-                    onChange={(e) => setClassFrequency(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="schedule">Horario</Label>
-                  <Input
-                    id="schedule"
-                    placeholder="Ej: 08:00 - 14:30"
-                    value={schedule}
-                    onChange={(e) => setSchedule(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="practiceHours">Horas de Practicas (FCT)</Label>
-                  <Input
-                    id="practiceHours"
-                    type="number"
-                    placeholder="Ej: 400"
-                    value={practiceHours}
-                    onChange={(e) => setPracticeHours(e.target.value)}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            TAB 3: REQUISITOS DE ACCESO
-        ================================================================ */}
-        {activeTab === 'requisitos' && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <ClipboardCheck className="h-5 w-5" />
-                Requisitos de Acceso
-              </CardTitle>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => addItem(setRequirements, { text: '', type: 'obligatorio' })}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Anadir Requisito
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {requirements.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-                  <ClipboardCheck className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No hay requisitos definidos. Anade el primero.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {requirements.map((req, i) => (
-                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                      <div className="flex-1 space-y-2">
-                        <Input
-                          placeholder="Ej: Titulo de Bachillerato o equivalente"
-                          value={req.text}
-                          onChange={(e) => updateItem(setRequirements, i, 'text', e.target.value)}
-                        />
-                      </div>
-                      <Select
-                        value={req.type}
-                        onValueChange={(v) => updateItem(setRequirements, i, 'type', v)}
-                      >
-                        <SelectTrigger className="w-40">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="obligatorio">Obligatorio</SelectItem>
-                          <SelectItem value="alternativo">Alternativo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive flex-shrink-0"
-                        onClick={() => removeItem(setRequirements, i)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            TAB 4: MODULOS
-        ================================================================ */}
-        {activeTab === 'modulos' && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Layers className="h-5 w-5" />
-                Modulos del Ciclo
-              </CardTitle>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => addItem(setModules, { name: '', courseYear: '1', hours: '', type: 'troncal' })}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Anadir Modulo
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {modules.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-                  <Layers className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No hay modulos definidos. Anade el primero.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {modules.map((mod, i) => (
-                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                      <div className="flex-1 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                        <div className="sm:col-span-2">
-                          <Input
-                            placeholder="Nombre del modulo"
-                            value={mod.name}
-                            onChange={(e) => updateItem(setModules, i, 'name', e.target.value)}
-                          />
-                        </div>
-                        <Select
-                          value={mod.courseYear}
-                          onValueChange={(v) => updateItem(setModules, i, 'courseYear', v)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Curso" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="1">1er Curso</SelectItem>
-                            <SelectItem value="2">2do Curso</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Input
-                          type="number"
-                          placeholder="Horas"
-                          value={mod.hours}
-                          onChange={(e) => updateItem(setModules, i, 'hours', e.target.value)}
-                        />
-                      </div>
-                      <Select
-                        value={mod.type}
-                        onValueChange={(v) => updateItem(setModules, i, 'type', v)}
-                      >
-                        <SelectTrigger className="w-36">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="troncal">Troncal</SelectItem>
-                          <SelectItem value="optativo">Optativo</SelectItem>
-                          <SelectItem value="transversal">Transversal</SelectItem>
-                          <SelectItem value="fct">FCT</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive flex-shrink-0"
-                        onClick={() => removeItem(setModules, i)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            TAB 5: SALIDAS PROFESIONALES
-        ================================================================ */}
-        {activeTab === 'salidas' && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
-                Salidas Profesionales
-              </CardTitle>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => addItem(setCareerPaths, { title: '', sector: '' })}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Anadir Salida
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {careerPaths.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-                  <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No hay salidas profesionales definidas.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {careerPaths.map((cp, i) => (
-                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                      <div className="flex-1 grid gap-3 sm:grid-cols-2">
-                        <Input
-                          placeholder="Titulo / Puesto"
-                          value={cp.title}
-                          onChange={(e) => updateItem(setCareerPaths, i, 'title', e.target.value)}
-                        />
-                        <Input
-                          placeholder="Sector"
-                          value={cp.sector}
-                          onChange={(e) => updateItem(setCareerPaths, i, 'sector', e.target.value)}
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive flex-shrink-0"
-                        onClick={() => removeItem(setCareerPaths, i)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            TAB 6: COMPETENCIAS
-        ================================================================ */}
-        {activeTab === 'competencias' && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Competencias
-              </CardTitle>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => addItem(setCompetencies, { title: '', description: '' })}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Anadir Competencia
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {competencies.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-                  <Award className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No hay competencias definidas.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {competencies.map((comp, i) => (
-                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                      <div className="flex-1 space-y-2">
-                        <Input
-                          placeholder="Titulo de la competencia"
-                          value={comp.title}
-                          onChange={(e) => updateItem(setCompetencies, i, 'title', e.target.value)}
-                        />
-                        <Textarea
-                          placeholder="Descripcion de la competencia"
-                          value={comp.description}
-                          onChange={(e) => updateItem(setCompetencies, i, 'description', e.target.value)}
-                          rows={2}
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive flex-shrink-0"
-                        onClick={() => removeItem(setCompetencies, i)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            TAB 7: PRECIOS
-        ================================================================ */}
-        {activeTab === 'precios' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
-                Precios
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <Label htmlFor="enrollmentFee">Matricula</Label>
-                  <Input
-                    id="enrollmentFee"
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={enrollmentFee}
-                    onChange={(e) => setEnrollmentFee(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="monthlyFee">Cuota Mensual</Label>
-                  <Input
-                    id="monthlyFee"
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={monthlyFee}
-                    onChange={(e) => setMonthlyFee(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="totalPrice">Precio Total</Label>
-                  <Input
-                    id="totalPrice"
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={totalPrice}
-                    onChange={(e) => setTotalPrice(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Payment Options */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <Label>Opciones de Pago</Label>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => addItem(setPaymentOptions, { label: '', description: '' })}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Anadir Opcion
-                  </Button>
-                </div>
-                {paymentOptions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Sin opciones de pago adicionales.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {paymentOptions.map((opt, i) => (
-                      <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                        <div className="flex-1 grid gap-3 sm:grid-cols-2">
-                          <Input
-                            placeholder="Ej: Pago unico"
-                            value={opt.label}
-                            onChange={(e) => updateItem(setPaymentOptions, i, 'label', e.target.value)}
-                          />
-                          <Input
-                            placeholder="Ej: 10% descuento"
-                            value={opt.description}
-                            onChange={(e) => updateItem(setPaymentOptions, i, 'description', e.target.value)}
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive flex-shrink-0"
-                          onClick={() => removeItem(setPaymentOptions, i)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="priceNotes">Notas sobre Precios</Label>
-                <Textarea
-                  id="priceNotes"
-                  placeholder="Informacion adicional sobre precios, descuentos, condiciones..."
-                  value={priceNotes}
-                  onChange={(e) => setPriceNotes(e.target.value)}
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            TAB 8: BECAS Y SUBVENCIONES
-        ================================================================ */}
-        {activeTab === 'becas' && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5" />
-                Becas y Subvenciones
-              </CardTitle>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => addItem(setScholarships, { name: '', description: '', url: '', type: '' })}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Anadir Beca
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
-                <Checkbox
-                  id="fundae"
-                  checked={fundaeEligible}
-                  onCheckedChange={(v) => setFundaeEligible(v === true)}
-                />
-                <Label htmlFor="fundae" className="cursor-pointer">
-                  Bonificable a traves de FUNDAE
-                </Label>
-              </div>
-
-              {scholarships.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-                  <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No hay becas o subvenciones definidas.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {scholarships.map((sch, i) => (
-                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                      <div className="flex-1 grid gap-3 sm:grid-cols-2">
-                        <Input
-                          placeholder="Nombre de la beca"
-                          value={sch.name}
-                          onChange={(e) => updateItem(setScholarships, i, 'name', e.target.value)}
-                        />
-                        <Input
-                          placeholder="Tipo (publica, privada, europea)"
-                          value={sch.type}
-                          onChange={(e) => updateItem(setScholarships, i, 'type', e.target.value)}
-                        />
-                        <Input
-                          placeholder="Descripcion"
-                          value={sch.description}
-                          onChange={(e) => updateItem(setScholarships, i, 'description', e.target.value)}
-                        />
-                        <Input
-                          placeholder="URL de informacion"
-                          value={sch.url}
-                          onChange={(e) => updateItem(setScholarships, i, 'url', e.target.value)}
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive flex-shrink-0"
-                        onClick={() => removeItem(setScholarships, i)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            TAB 9: CONTINUIDAD Y DOCUMENTOS
-        ================================================================ */}
-        {activeTab === 'continuidad' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Continuidad y Documentos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Further Studies */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <Label className="text-base font-semibold">Estudios de Continuidad</Label>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => addItem(setFurtherStudies, { title: '', description: '' })}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Anadir
-                  </Button>
-                </div>
-                {furtherStudies.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Sin estudios de continuidad definidos.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {furtherStudies.map((fs, i) => (
-                      <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                        <div className="flex-1 space-y-2">
-                          <Input
-                            placeholder="Titulo (Ej: Grado en Ingenieria Informatica)"
-                            value={fs.title}
-                            onChange={(e) => updateItem(setFurtherStudies, i, 'title', e.target.value)}
-                          />
-                          <Input
-                            placeholder="Descripcion"
-                            value={fs.description}
-                            onChange={(e) => updateItem(setFurtherStudies, i, 'description', e.target.value)}
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive flex-shrink-0"
-                          onClick={() => removeItem(setFurtherStudies, i)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Documents */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <Label className="text-base font-semibold">Documentos</Label>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => addItem(setDocuments, { title: '' })}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Anadir Documento
-                  </Button>
-                </div>
-                {documents.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Sin documentos adjuntos.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {documents.map((doc, i) => (
-                      <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                        <div className="flex-1 grid gap-3 sm:grid-cols-2">
-                          <Input
-                            placeholder="Titulo del documento"
-                            value={doc.title}
-                            onChange={(e) => updateItem(setDocuments, i, 'title', e.target.value)}
-                          />
-                          <Input
-                            type="file"
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive flex-shrink-0"
-                          onClick={() => removeItem(setDocuments, i)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            TAB 10: CARACTERISTICAS
-        ================================================================ */}
-        {activeTab === 'caracteristicas' && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Star className="h-5 w-5" />
-                Caracteristicas
-              </CardTitle>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => addItem(setFeatures, { title: '', description: '' })}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Anadir Caracteristica
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {features.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-                  <Star className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No hay caracteristicas definidas.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {features.map((feat, i) => (
-                    <div key={i} className="flex flex-col sm:flex-row items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                      <div className="flex-1 space-y-2">
-                        <Input
-                          placeholder="Titulo de la caracteristica"
-                          value={feat.title}
-                          onChange={(e) => updateItem(setFeatures, i, 'title', e.target.value)}
-                        />
-                        <Textarea
-                          placeholder="Descripcion"
-                          value={feat.description}
-                          onChange={(e) => updateItem(setFeatures, i, 'description', e.target.value)}
-                          rows={2}
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive flex-shrink-0"
-                        onClick={() => removeItem(setFeatures, i)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ================================================================
-            SUBMIT BAR
-        ================================================================ */}
-        <div className="flex justify-end gap-3 pt-6">
-          <Button type="button" variant="outline" onClick={() => router.push(`/ciclos/${cycleId}`)}>
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={saving || !name.trim()}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            {saving ? 'Guardando...' : 'Guardar Cambios'}
-          </Button>
-        </div>
-      </form>
     </div>
   )
 }
