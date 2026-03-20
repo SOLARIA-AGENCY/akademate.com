@@ -97,6 +97,12 @@ const publicRoutes = [
   '/api/users/first-register', // Payload create-first-user (no auth yet)
   '/api/auth/session', // Session write after login (token may not be in cookie yet)
   '/api/v1/openapi', // OpenAPI spec is public (no auth needed)
+  '/api/leads', // Lead capture from public landing pages
+  // Public web pages (landing pages, catalogs) — no auth required
+  '/p/ciclos',
+  '/p/cursos',
+  '/p/convocatorias',
+  '/p/blog',
   // Legal pages must be publicly accessible (GDPR requirement)
   '/legal',
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing
