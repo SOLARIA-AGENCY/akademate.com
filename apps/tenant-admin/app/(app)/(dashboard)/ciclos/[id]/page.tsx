@@ -1,38 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import * as React from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Progress } from '@payload-config/components/ui/progress'
 import {
-  ArrowLeft,
-  GraduationCap,
-  Clock,
-  ClipboardCheck,
-  Layers,
-  Briefcase,
-  Award,
-  DollarSign,
-  Heart,
-  FileText,
-  Star,
-  Edit,
-  Loader2,
-  BookOpen,
-  Calendar,
-  MapPin,
-  ExternalLink,
-  CheckCircle2,
-  Users,
-  Download,
-  FolderOpen,
+  GraduationCap, Clock, Layers, Briefcase, Award, DollarSign, Heart,
+  FileText, Star, Edit, ArrowLeft, Loader2, BookOpen, Calendar, Users,
+  Download, CheckCircle2, ChevronRight,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
-// Types — matches the creation form payload
+// Types
 // ---------------------------------------------------------------------------
 
 interface CycleDetail {
@@ -65,6 +46,7 @@ interface CycleDetail {
   furtherStudies?: Array<{ title: string; description: string }>
   documents?: Array<{ title: string; type?: string; url?: string }>
   features?: Array<{ title: string; description: string }>
+  active?: boolean
   createdAt?: string
   updatedAt?: string
 }
@@ -93,6 +75,17 @@ const MODULE_TYPE_COLORS: Record<string, string> = {
   fct: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
 }
 
+const DOC_TYPE_COLORS: Record<string, string> = {
+  catalogo: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  ficha: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+  programa: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+}
+
+const CYCLE_PDF_MAP: Record<string, { title: string; type: string; url: string }[]> = {
+  '1': [{ title: 'CFGM Farmacia y Parafarmacia', type: 'catalogo', url: '/media/cfgm-farmacia-parafarmacia.pdf' }],
+  '2': [{ title: 'CFGS Higiene Bucodental', type: 'catalogo', url: '/media/cfgs-higiene-bucodental.pdf' }],
+}
+
 function formatCurrency(value: number | undefined): string {
   if (value == null) return '-'
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value)
@@ -109,603 +102,503 @@ function resolveImageUrl(image: CycleDetail['image']): string | null {
   return null
 }
 
-const CYCLE_PDF_MAP: Record<string, { title: string; type: string; url: string }[]> = {
-  '1': [{ title: 'CFGM Farmacia y Parafarmacia', type: 'catalogo', url: '/media/cfgm-farmacia-parafarmacia.pdf' }],
-  '2': [{ title: 'CFGS Higiene Bucodental', type: 'catalogo', url: '/media/cfgs-higiene-bucodental.pdf' }],
-}
-
-const DOC_TYPE_COLORS: Record<string, string> = {
-  catalogo: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-  ficha: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-  programa: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-}
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-export default function CicloDetailPage() {
-  const params = useParams()
+interface Props { params: Promise<{ id: string }> }
+
+export default function CicloDetailPage({ params }: Props) {
   const router = useRouter()
-  const cycleId = params.id as string
+  const { id } = React.use(params)
 
-  const [cycle, setCycle] = useState<CycleDetail | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [cycle, setCycle] = React.useState<CycleDetail | null>(null)
+  const [loading, setLoading] = React.useState(true)
+  const [error, setError] = React.useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchCycle = async () => {
-      setLoading(true)
+  React.useEffect(() => {
+    let mounted = true
+    const load = async () => {
       try {
-        const res = await fetch(`/api/cycles/${cycleId}?depth=1`)
-        if (!res.ok) {
-          setError('No se pudo cargar el ciclo')
-          return
-        }
+        const res = await fetch(`/api/cycles/${id}?depth=1`, { cache: 'no-store' })
+        if (!res.ok) throw new Error('No se pudo cargar el ciclo')
         const data = await res.json()
-        setCycle(data.doc ?? data)
+        if (mounted) setCycle(data.doc ?? data)
       } catch (err) {
-        console.error('Error fetching cycle:', err)
-        setError('Error al cargar el ciclo')
+        if (mounted) setError(err instanceof Error ? err.message : 'Error')
       } finally {
-        setLoading(false)
+        if (mounted) setLoading(false)
       }
     }
-    void fetchCycle()
-  }, [cycleId])
+    void load()
+    return () => { mounted = false }
+  }, [id])
 
-  // Loading state
   if (loading) {
     return (
-      <div className="space-y-6">
-        <PageHeader title="Cargando ciclo..." description="" icon={GraduationCap} />
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     )
   }
 
-  // Error / not found
   if (error || !cycle) {
     return (
-      <div className="text-center py-12">
-        <GraduationCap className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-        <h2 className="text-2xl font-bold mb-2">{error ?? 'Ciclo no encontrado'}</h2>
-        <Button onClick={() => router.push('/ciclos')} className="mt-4">
-          Volver a Ciclos
-        </Button>
+      <div className="space-y-6">
+        <PageHeader title="Ciclo" description="Detalle de ciclo" icon={GraduationCap}
+          actions={<Button variant="ghost" onClick={() => router.push('/ciclos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
+        <Card><CardContent className="p-8 text-center">
+          <p className="font-medium">No se pudo cargar el ciclo</p>
+          <p className="text-sm text-muted-foreground mt-1">{error}</p>
+        </CardContent></Card>
       </div>
     )
   }
+
+  // Derived data
+  const modules = Array.isArray(cycle.modules) ? cycle.modules : []
+  const competencies = Array.isArray(cycle.competencies) ? cycle.competencies : []
+  const careerPaths = Array.isArray(cycle.careerPaths) ? cycle.careerPaths : []
+  const requirements = Array.isArray(cycle.requirements) ? cycle.requirements : []
+  const scholarships = Array.isArray(cycle.scholarships) ? cycle.scholarships : []
+  const furtherStudies = Array.isArray(cycle.furtherStudies) ? cycle.furtherStudies : []
+  const features = Array.isArray(cycle.features) ? cycle.features : []
+  const paymentOptions = Array.isArray(cycle.paymentOptions) ? cycle.paymentOptions : []
+  const imageUrl = resolveImageUrl(cycle.image)
+
+  // Documents: merge API docs + PDF map
+  const apiDocs = (cycle.documents ?? []).map((doc) => ({
+    title: doc.title, type: doc.type ?? 'ficha', url: doc.url ?? '#',
+  }))
+  const pdfDocs = CYCLE_PDF_MAP[id] ?? []
+  const allDocs = [...apiDocs, ...pdfDocs]
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <PageHeader
         title={cycle.name}
-        description={`${cycle.code ? cycle.code + ' · ' : ''}${LEVEL_LABELS[cycle.level] ?? cycle.level}`}
+        description={cycle.code ? `${cycle.code}` : ''}
         icon={GraduationCap}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => router.push('/ciclos')}>
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Volver
-            </Button>
-            <Button onClick={() => router.push(`/ciclos/${cycleId}/editar`)}>
-              <Edit className="h-4 w-4 mr-1" />
-              Editar
-            </Button>
-          </div>
+        badge={
+          <Badge variant="default">
+            {LEVEL_LABELS[cycle.level] ?? cycle.level}
+          </Badge>
         }
+        actions={<>
+          <Button variant="ghost" onClick={() => router.push('/ciclos')}><ArrowLeft className="mr-2 h-4 w-4" />Ciclos</Button>
+          <Button onClick={() => router.push(`/ciclos/${id}/editar`)}><Edit className="mr-2 h-4 w-4" />Editar</Button>
+        </>}
       />
 
-      {/* Hero Image */}
-      {resolveImageUrl(cycle.image) && (
-        <Card>
-          <CardContent className="p-0">
-            <div className="w-full h-56 overflow-hidden bg-muted rounded-lg">
-              <img
-                src={resolveImageUrl(cycle.image)!}
-                alt={cycle.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Quick Info Badges */}
-      <div className="flex flex-wrap gap-2">
-        <Badge variant="default">{LEVEL_LABELS[cycle.level] ?? cycle.level}</Badge>
-        {cycle.family && <Badge variant="secondary">{cycle.family}</Badge>}
-        {cycle.modality && <Badge variant="outline">{MODALITY_LABELS[cycle.modality] ?? cycle.modality}</Badge>}
-        {cycle.totalHours && (
-          <Badge variant="outline" className="gap-1">
-            <Clock className="h-3 w-3" />
-            {cycle.totalHours}h
-          </Badge>
-        )}
-        {cycle.courses && (
-          <Badge variant="outline" className="gap-1">
-            <Calendar className="h-3 w-3" />
-            {cycle.courses} curso{cycle.courses > 1 ? 's' : ''}
-          </Badge>
-        )}
-        {cycle.fundaeEligible && (
-          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-            FUNDAE
-          </Badge>
-        )}
+      {/* KPI Cards */}
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
+        {[
+          { label: 'Modulos', value: modules.length, icon: Layers },
+          { label: 'Horas totales', value: cycle.totalHours || 0, icon: Clock },
+          { label: 'Convocatorias', value: 0, icon: Calendar },
+          { label: 'Alumnos', value: 0, icon: Users },
+          { label: 'Plazas', value: cycle.capacity || 0, icon: GraduationCap },
+        ].map(({ label, value, icon: Icon }) => (
+          <Card key={label}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{label}</span>
+                <Icon className="h-4 w-4 text-primary" />
+              </div>
+              <p className="mt-2 text-2xl font-semibold">{value}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* ================================================================
-          DATOS BASICOS
-      ================================================================ */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            Informacion General
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {cycle.officialTitle && (
-            <div>
-              <h4 className="text-sm font-semibold text-muted-foreground mb-1">Titulo Oficial</h4>
-              <p>{cycle.officialTitle}</p>
-            </div>
-          )}
-          {cycle.description && (
-            <div>
-              <h4 className="text-sm font-semibold text-muted-foreground mb-1">Descripcion</h4>
-              <p className="text-sm leading-relaxed whitespace-pre-line">{cycle.description}</p>
-            </div>
-          )}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2">
-            {cycle.classFrequency && (
-              <div>
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase">Frecuencia</h4>
-                <p className="text-sm mt-1">{cycle.classFrequency}</p>
-              </div>
-            )}
-            {cycle.schedule && (
-              <div>
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase">Horario</h4>
-                <p className="text-sm mt-1">{cycle.schedule}</p>
-              </div>
-            )}
-            {cycle.practiceHours != null && cycle.practiceHours > 0 && (
-              <div>
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase">Horas FCT</h4>
-                <p className="text-sm mt-1">{cycle.practiceHours}h</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ================================================================
-          REQUISITOS DE ACCESO
-      ================================================================ */}
-      {cycle.requirements && cycle.requirements.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ClipboardCheck className="h-5 w-5" />
-              Requisitos de Acceso
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {cycle.requirements.map((req, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <CheckCircle2 className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <div className="flex-1">
-                    <span className="text-sm">{req.text}</span>
-                    <Badge variant="outline" className="ml-2 text-xs">
-                      {req.type}
-                    </Badge>
+      {/* Main content grid */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* LEFT: Main content (2/3) */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Image + Description */}
+          {(imageUrl || cycle.description) && (
+            <Card>
+              <CardContent className="p-0">
+                {imageUrl && (
+                  <img src={imageUrl} alt={cycle.name} className="w-full h-48 object-cover rounded-t-lg" />
+                )}
+                {cycle.description && (
+                  <div className="p-4">
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{cycle.description}</p>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-      {/* ================================================================
-          MODULOS
-      ================================================================ */}
-      {cycle.modules && cycle.modules.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Layers className="h-5 w-5" />
-              Modulos ({cycle.modules.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Modulo</th>
-                    <th className="text-center py-2 px-4 font-medium text-muted-foreground">Curso</th>
-                    <th className="text-center py-2 px-4 font-medium text-muted-foreground">Horas</th>
-                    <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Tipo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cycle.modules.map((mod, i) => (
-                    <tr key={i} className="border-b border-border last:border-0">
-                      <td className="py-2.5 pr-4">{mod.name}</td>
-                      <td className="py-2.5 px-4 text-center">{mod.courseYear}o</td>
-                      <td className="py-2.5 px-4 text-center">{mod.hours}h</td>
-                      <td className="py-2.5 pl-4 text-center">
-                        <Badge className={MODULE_TYPE_COLORS[mod.type] ?? ''} variant="secondary">
-                          {mod.type}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr className="border-t-2 border-border font-semibold">
-                    <td className="py-2 pr-4">Total</td>
-                    <td className="py-2 px-4 text-center">-</td>
-                    <td className="py-2 px-4 text-center">
-                      {cycle.modules.reduce((sum, m) => sum + (m.hours || 0), 0)}h
-                    </td>
-                    <td className="py-2 pl-4 text-center">-</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ================================================================
-          SALIDAS PROFESIONALES
-      ================================================================ */}
-      {cycle.careerPaths && cycle.careerPaths.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase className="h-5 w-5" />
-              Salidas Profesionales
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {cycle.careerPaths.map((cp, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border">
-                  <Briefcase className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <div>
-                    <p className="font-medium text-sm">{cp.title}</p>
-                    {cp.sector && <p className="text-xs text-muted-foreground">{cp.sector}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ================================================================
-          COMPETENCIAS
-      ================================================================ */}
-      {cycle.competencies && cycle.competencies.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5" />
-              Competencias
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {cycle.competencies.map((comp, i) => (
-                <div key={i} className="border-b border-border last:border-0 pb-3 last:pb-0">
-                  <h4 className="font-medium text-sm">{comp.title}</h4>
-                  {comp.description && (
-                    <p className="text-sm text-muted-foreground mt-1">{comp.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ================================================================
-          PRECIOS
-      ================================================================ */}
-      {(cycle.enrollmentFee != null || cycle.monthlyFee != null || cycle.totalPrice != null) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Precios
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-3">
-              {cycle.enrollmentFee != null && (
-                <div className="p-4 rounded-lg bg-muted/50 text-center">
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">Matricula</p>
-                  <p className="text-2xl font-bold mt-1">{formatCurrency(cycle.enrollmentFee)}</p>
+          {/* Modulos del Ciclo */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Layers className="h-4 w-4 text-primary" />
+                Modulos del Ciclo
+              </CardTitle>
+              <Badge variant="outline">{modules.length}</Badge>
+            </CardHeader>
+            <CardContent>
+              {modules.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No hay modulos definidos</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Modulo</th>
+                        <th className="text-center py-2 px-4 font-medium text-muted-foreground">Curso</th>
+                        <th className="text-center py-2 px-4 font-medium text-muted-foreground">Horas</th>
+                        <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Tipo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {modules.map((mod, i) => (
+                        <tr key={i} className="border-b border-border last:border-0">
+                          <td className="py-2.5 pr-4">{mod.name}</td>
+                          <td className="py-2.5 px-4 text-center">{mod.courseYear}o</td>
+                          <td className="py-2.5 px-4 text-center">{mod.hours}h</td>
+                          <td className="py-2.5 pl-4 text-center">
+                            <Badge className={MODULE_TYPE_COLORS[mod.type] ?? ''} variant="secondary">
+                              {mod.type}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t-2 border-border font-semibold">
+                        <td className="py-2 pr-4">Total</td>
+                        <td className="py-2 px-4 text-center">-</td>
+                        <td className="py-2 px-4 text-center">
+                          {modules.reduce((sum, m) => sum + (m.hours || 0), 0)}h
+                        </td>
+                        <td className="py-2 pl-4 text-center">-</td>
+                      </tr>
+                    </tfoot>
+                  </table>
                 </div>
               )}
-              {cycle.monthlyFee != null && (
-                <div className="p-4 rounded-lg bg-muted/50 text-center">
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">Cuota Mensual</p>
-                  <p className="text-2xl font-bold mt-1">{formatCurrency(cycle.monthlyFee)}</p>
-                </div>
-              )}
-              {cycle.totalPrice != null && (
-                <div className="p-4 rounded-lg bg-primary/10 text-center">
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">Precio Total</p>
-                  <p className="text-2xl font-bold mt-1 text-primary">{formatCurrency(cycle.totalPrice)}</p>
-                </div>
-              )}
-            </div>
+            </CardContent>
+          </Card>
 
-            {cycle.paymentOptions && cycle.paymentOptions.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold mb-2">Opciones de Pago</h4>
-                <div className="space-y-2">
-                  {cycle.paymentOptions.map((opt, i) => (
-                    <div key={i} className="flex items-center gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
-                      <span className="font-medium">{opt.label}</span>
-                      {opt.description && <span className="text-muted-foreground">- {opt.description}</span>}
+          {/* Competencias */}
+          {competencies.length > 0 && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Award className="h-4 w-4 text-primary" />
+                  Competencias
+                </CardTitle>
+                <Badge variant="outline">{competencies.length}</Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {competencies.map((comp, i) => (
+                    <div key={i} className="border-b border-border last:border-0 pb-3 last:pb-0">
+                      <h4 className="font-medium text-sm">{comp.title}</h4>
+                      {comp.description && (
+                        <p className="text-sm text-muted-foreground mt-1">{comp.description}</p>
+                      )}
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              </CardContent>
+            </Card>
+          )}
 
-            {cycle.priceNotes && (
-              <div>
-                <h4 className="text-sm font-semibold mb-1">Notas</h4>
-                <p className="text-sm text-muted-foreground whitespace-pre-line">{cycle.priceNotes}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ================================================================
-          BECAS Y SUBVENCIONES
-      ================================================================ */}
-      {(cycle.fundaeEligible || (cycle.scholarships && cycle.scholarships.length > 0)) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Heart className="h-5 w-5" />
-              Becas y Subvenciones
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {cycle.fundaeEligible && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium text-green-800 dark:text-green-300">
-                  Bonificable a traves de FUNDAE
-                </span>
-              </div>
-            )}
-            {cycle.scholarships && cycle.scholarships.length > 0 && (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {cycle.scholarships.map((sch, i) => (
-                  <div key={i} className="p-3 rounded-lg border border-border">
-                    <div className="flex items-start justify-between">
+          {/* Salidas Profesionales */}
+          {careerPaths.length > 0 && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Briefcase className="h-4 w-4 text-primary" />
+                  Salidas Profesionales
+                </CardTitle>
+                <Badge variant="outline">{careerPaths.length}</Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {careerPaths.map((cp, i) => (
+                    <div key={i} className="flex items-start gap-3 rounded-lg border p-3">
+                      <Briefcase className="h-4 w-4 mt-0.5 text-primary shrink-0" />
                       <div>
-                        <p className="font-medium text-sm">{sch.name}</p>
-                        {sch.type && (
-                          <Badge variant="outline" className="mt-1 text-xs">{sch.type}</Badge>
-                        )}
+                        <p className="font-medium text-sm">{cp.title}</p>
+                        {cp.sector && <p className="text-xs text-muted-foreground">{cp.sector}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Caracteristicas */}
+          {features.length > 0 && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Star className="h-4 w-4 text-primary" />
+                  Caracteristicas
+                </CardTitle>
+                <Badge variant="outline">{features.length}</Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {features.map((feat, i) => (
+                    <div key={i} className="rounded-lg border p-3">
+                      <p className="font-medium text-sm">{feat.title}</p>
+                      {feat.description && (
+                        <p className="text-xs text-muted-foreground mt-1">{feat.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* RIGHT: Sidebar (1/3) */}
+        <div className="space-y-6">
+          {/* Informacion del Ciclo */}
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Informacion del Ciclo</CardTitle></CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Nivel</span>
+                <Badge variant="default">{LEVEL_LABELS[cycle.level] ?? cycle.level}</Badge>
+              </div>
+              {cycle.family && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Familia</span>
+                  <span className="font-medium text-right max-w-[60%] truncate">{cycle.family}</span>
+                </div>
+              )}
+              {cycle.officialTitle && (
+                <div className="flex flex-col gap-1">
+                  <span className="text-muted-foreground">Titulo oficial</span>
+                  <span className="text-xs">{cycle.officialTitle}</span>
+                </div>
+              )}
+              {cycle.modality && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Modalidad</span>
+                  <Badge variant="outline">{MODALITY_LABELS[cycle.modality] ?? cycle.modality}</Badge>
+                </div>
+              )}
+              {cycle.schedule && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Horario</span>
+                  <span>{cycle.schedule}</span>
+                </div>
+              )}
+              {cycle.totalHours != null && cycle.totalHours > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Horas totales</span>
+                  <span className="font-medium">{cycle.totalHours}h</span>
+                </div>
+              )}
+              {cycle.courses != null && cycle.courses > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Duracion</span>
+                  <span>{cycle.courses} curso{cycle.courses > 1 ? 's' : ''}</span>
+                </div>
+              )}
+              {cycle.practiceHours != null && cycle.practiceHours > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Horas FCT</span>
+                  <span>{cycle.practiceHours}h</span>
+                </div>
+              )}
+              {cycle.classFrequency && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Frecuencia</span>
+                  <span>{cycle.classFrequency}</span>
+                </div>
+              )}
+              {cycle.fundaeEligible && (
+                <div className="flex items-center gap-2 pt-1">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                  <span className="text-green-700 dark:text-green-400 font-medium text-xs">Bonificable FUNDAE</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Precios */}
+          {(cycle.enrollmentFee != null || cycle.monthlyFee != null || cycle.totalPrice != null) && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Precios
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                {cycle.enrollmentFee != null && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Matricula</span>
+                    <span className="font-semibold">{formatCurrency(cycle.enrollmentFee)}</span>
+                  </div>
+                )}
+                {cycle.monthlyFee != null && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Cuota mensual</span>
+                    <span className="font-semibold">{formatCurrency(cycle.monthlyFee)}</span>
+                  </div>
+                )}
+                {cycle.totalPrice != null && (
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <span className="text-muted-foreground font-medium">Precio total</span>
+                    <span className="font-bold text-primary">{formatCurrency(cycle.totalPrice)}</span>
+                  </div>
+                )}
+                {paymentOptions.length > 0 && (
+                  <div className="pt-2 border-t space-y-1.5">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase">Opciones de pago</span>
+                    {paymentOptions.map((opt, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-green-600 shrink-0" />
+                        <div>
+                          <span className="text-xs font-medium">{opt.label}</span>
+                          {opt.description && <span className="text-xs text-muted-foreground"> - {opt.description}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {cycle.priceNotes && (
+                  <p className="text-xs text-muted-foreground pt-1 whitespace-pre-line">{cycle.priceNotes}</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Requisitos */}
+          {requirements.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Requisitos de Acceso
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {requirements.map((req, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <span>{req.text}</span>
+                        <Badge variant="outline" className="ml-2 text-[10px]">{req.type}</Badge>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Becas y Subvenciones */}
+          {(cycle.fundaeEligible || scholarships.length > 0) && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Heart className="h-4 w-4" />
+                  Becas y Subvenciones
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {cycle.fundaeEligible && (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                    <span className="text-xs font-medium text-green-800 dark:text-green-300">
+                      Bonificable a traves de FUNDAE
+                    </span>
+                  </div>
+                )}
+                {scholarships.map((sch, i) => (
+                  <div key={i} className="rounded-lg border p-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{sch.name}</p>
+                        {sch.type && <Badge variant="outline" className="mt-1 text-[10px]">{sch.type}</Badge>}
                       </div>
                       {sch.url && (
                         <a href={sch.url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground hover:text-primary" />
                         </a>
                       )}
                     </div>
                     {sch.description && (
-                      <p className="text-xs text-muted-foreground mt-2">{sch.description}</p>
+                      <p className="text-xs text-muted-foreground mt-1.5">{sch.description}</p>
                     )}
                   </div>
                 ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+              </CardContent>
+            </Card>
+          )}
 
-      {/* ================================================================
-          CONTINUIDAD
-      ================================================================ */}
-      {cycle.furtherStudies && cycle.furtherStudies.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Estudios de Continuidad
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {cycle.furtherStudies.map((fs, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <GraduationCap className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <div>
-                    <p className="font-medium text-sm">{fs.title}</p>
-                    {fs.description && (
-                      <p className="text-xs text-muted-foreground">{fs.description}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ================================================================
-          GESTION ACADEMICA
-      ================================================================ */}
-      {(() => {
-        const capacity = cycle.capacity ?? 30
-        const enrolled = 0 // TODO: fetch from course_runs
-        const available = capacity - enrolled
-        const occupationPct = capacity > 0 ? Math.round((enrolled / capacity) * 100) : 0
-
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Gestion Academica
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="p-4 rounded-lg bg-muted/50 text-center">
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">Plazas totales</p>
-                  <p className="text-2xl font-bold mt-1">{capacity}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50 text-center">
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">Inscritos</p>
-                  <p className="text-2xl font-bold mt-1">{enrolled}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50 text-center">
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">Plazas disponibles</p>
-                  <p className="text-2xl font-bold mt-1">{available}</p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Ocupacion</span>
-                  <span className="font-medium">{occupationPct}%</span>
-                </div>
-                <Progress value={occupationPct} className="h-2" />
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => router.push(`/matriculas?cycleId=${cycleId}`)}
-                >
-                  <Users className="h-4 w-4 mr-1" />
-                  Ver inscripciones
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => router.push(`/cursos?cycleId=${cycleId}`)}
-                >
-                  <FolderOpen className="h-4 w-4 mr-1" />
-                  Gestionar convocatorias
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )
-      })()}
-
-      {/* ================================================================
-          DOCUMENTOS
-      ================================================================ */}
-      {(() => {
-        const apiDocs = (cycle.documents ?? []).map((doc) => ({
-          title: doc.title,
-          type: doc.type ?? 'ficha',
-          url: doc.url ?? '#',
-        }))
-        const pdfDocs = CYCLE_PDF_MAP[cycleId] ?? []
-        const allDocs = [...apiDocs, ...pdfDocs]
-
-        if (allDocs.length === 0) return null
-
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Documentos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+          {/* Documentos */}
+          {allDocs.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Documentos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
                 {allDocs.map((doc, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-border"
-                  >
-                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <span className="text-sm flex-1">{doc.title}</span>
-                    <Badge
-                      variant="secondary"
-                      className={DOC_TYPE_COLORS[doc.type] ?? ''}
-                    >
+                  <div key={i} className="flex items-center gap-2 rounded-lg border p-2.5">
+                    <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="text-sm flex-1 truncate">{doc.title}</span>
+                    <Badge variant="secondary" className={`text-[10px] shrink-0 ${DOC_TYPE_COLORS[doc.type] ?? ''}`}>
                       {doc.type}
                     </Badge>
-                    <div className="flex items-center gap-1">
-                      <a
-                        href={doc.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="ghost" size="sm" className="gap-1">
-                          <ExternalLink className="h-4 w-4" />
-                          <span className="text-xs">Ver</span>
-                        </Button>
-                      </a>
-                      <a
-                        href={doc.url}
-                        download
-                      >
-                        <Button variant="ghost" size="sm" className="gap-1">
-                          <Download className="h-4 w-4" />
-                          <span className="text-xs">Descargar</span>
-                        </Button>
-                      </a>
-                    </div>
+                    <a href={doc.url} download>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 shrink-0">
+                        <Download className="h-3.5 w-3.5" />
+                      </Button>
+                    </a>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        )
-      })()}
+              </CardContent>
+            </Card>
+          )}
 
-      {/* ================================================================
-          CARACTERISTICAS
-      ================================================================ */}
-      {cycle.features && cycle.features.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5" />
-              Caracteristicas
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {cycle.features.map((feat, i) => (
-                <div key={i} className="p-3 rounded-lg border border-border">
-                  <p className="font-medium text-sm">{feat.title}</p>
-                  {feat.description && (
-                    <p className="text-xs text-muted-foreground mt-1">{feat.description}</p>
-                  )}
+          {/* Continuidad de Estudios */}
+          {furtherStudies.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <GraduationCap className="h-4 w-4" />
+                  Continuidad de Estudios
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {furtherStudies.map((fs, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm">
+                      <GraduationCap className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                      <div>
+                        <p className="font-medium">{fs.title}</p>
+                        {fs.description && (
+                          <p className="text-xs text-muted-foreground">{fs.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
