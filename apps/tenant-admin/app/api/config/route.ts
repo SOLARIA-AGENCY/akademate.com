@@ -219,16 +219,31 @@ function mapAcademiaInput(data: unknown): z.infer<typeof AcademiaSchema> | null 
 }
 
 async function getTenantDomains(tenantId: string): Promise<TenantDomainsResult | undefined> {
-   
-  const results = await db
-    .select({ domains: tenants.domains })
-    .from(tenants)
-    .where(eq(tenants.id, tenantId))
-    .limit(1)
-    .execute()
-  const first = results[0]
-   
-  return first as TenantDomainsResult | undefined
+  const isNumeric = /^\d+$/.test(tenantId)
+  if (isNumeric) {
+    const result = await db.execute(
+      sql`SELECT domain FROM tenants WHERE id = ${parseInt(tenantId, 10)} LIMIT 1`
+    )
+    const row = (result as any).rows?.[0]
+    if (!row) return undefined
+    const domainValue = row.domain || ''
+    return { domains: domainValue ? [domainValue] : [] } as TenantDomainsResult
+  }
+  // UUID path
+  try {
+    const results = await db
+      .select({ domain: tenants.domain })
+      .from(tenants)
+      .where(eq(tenants.id, tenantId))
+      .limit(1)
+      .execute()
+    const first = results[0]
+    if (!first) return undefined
+    const d = (first as any).domain || ''
+    return { domains: d ? [d] : [] } as TenantDomainsResult
+  } catch {
+    return undefined
+  }
 }
 
 async function updateTenantBranding(tenantId: string, branding: TenantBranding): Promise<void> {
@@ -271,13 +286,19 @@ async function updateTenantBranding(tenantId: string, branding: TenantBranding):
 }
 
 async function updateTenantDomains(tenantId: string, domains: string[]): Promise<void> {
-   
-  await db
-    .update(tenants)
-    .set({ domains, updatedAt: new Date() })
-    .where(eq(tenants.id, tenantId))
-    .execute()
-   
+  const domainValue = domains[0] || ''
+  const isNumeric = /^\d+$/.test(tenantId)
+  if (isNumeric) {
+    await db.execute(
+      sql`UPDATE tenants SET domain = ${domainValue}, updated_at = NOW() WHERE id = ${parseInt(tenantId, 10)}`
+    )
+  } else {
+    await db
+      .update(tenants)
+      .set({ domain: domainValue, updatedAt: new Date() } as any)
+      .where(eq(tenants.id, tenantId))
+      .execute()
+  }
 }
 
 // ============================================================================
