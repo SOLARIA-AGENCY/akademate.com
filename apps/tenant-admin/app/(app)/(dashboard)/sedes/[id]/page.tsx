@@ -462,7 +462,7 @@ export default function SedeDetailPage({ params }: Props) {
                 >
                   <span className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />
-                    Ver ficha completa
+                    Ver Sede
                   </span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>

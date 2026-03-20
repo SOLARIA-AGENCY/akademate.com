@@ -29,6 +29,20 @@ interface CycleDetail {
   courses?: number
   modality?: string
   schedule?: string
+  duration?: {
+    totalHours?: number
+    courses?: number
+    modality?: string
+    classFrequency?: string
+    schedule?: string
+    practiceHours?: number
+  }
+  pricing?: {
+    enrollmentFee?: number
+    monthlyFee?: number
+    totalPrice?: number
+    priceNotes?: string
+  }
   requirements?: Array<{ text: string; type: string }>
   modules?: Array<{ name: string; courseYear: string; hours: number; type: string }>
   careerPaths?: Array<{ title: string; sector: string }>
@@ -180,7 +194,7 @@ export default function CicloDetailPage({ params }: Props) {
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
         {[
           { label: 'Modulos', value: modules.length, icon: Layers },
-          { label: 'Horas totales', value: cycle.totalHours || 0, icon: Clock },
+          { label: 'Horas totales', value: cycle.duration?.totalHours || cycle.totalHours || 0, icon: Clock },
           { label: 'Convocatorias', value: 0, icon: Calendar },
           { label: 'Alumnos', value: 0, icon: Users },
           { label: 'Plazas', value: cycle.capacity || 0, icon: GraduationCap },
@@ -288,29 +302,33 @@ export default function CicloDetailPage({ params }: Props) {
               )}
 
               {/* Duration */}
-              {(cycle.totalHours || cycle.courses) && (
+              {/* Duration */}
+              {(cycle.duration?.totalHours || cycle.totalHours || cycle.duration?.courses || cycle.courses) && (
                 <InfoRow label="Duracion">
                   {[
-                    cycle.totalHours ? `${cycle.totalHours}h` : null,
-                    cycle.courses ? `${cycle.courses} curso${cycle.courses > 1 ? 's' : ''}` : null,
+                    (cycle.duration?.totalHours || cycle.totalHours) ? `${cycle.duration?.totalHours || cycle.totalHours}h` : null,
+                    (cycle.duration?.courses || cycle.courses) ? `${cycle.duration?.courses || cycle.courses} curso${(cycle.duration?.courses || cycle.courses || 0) > 1 ? 's' : ''}` : null,
                   ].filter(Boolean).join(' / ')}
                 </InfoRow>
               )}
 
               {/* Modality */}
-              {cycle.modality && (
+              {(cycle.duration?.modality || cycle.modality) && (
                 <InfoRow label="Modalidad">
-                  {MODALITY_LABELS[cycle.modality] ?? cycle.modality}
+                  {MODALITY_LABELS[cycle.duration?.modality || cycle.modality || ''] ?? (cycle.duration?.modality || cycle.modality)}
                 </InfoRow>
               )}
 
               {/* Schedule */}
-              {cycle.schedule && <InfoRow label="Horario">{cycle.schedule}</InfoRow>}
+              {(cycle.duration?.schedule || cycle.schedule) && <InfoRow label="Horario">{cycle.duration?.schedule || cycle.schedule}</InfoRow>}
+
+              {/* Practice hours */}
+              {cycle.duration?.practiceHours && <InfoRow label="Practicas">{cycle.duration.practiceHours}h</InfoRow>}
 
               {/* Price */}
-              {cycle.totalPrice != null && (
+              {(cycle.pricing?.totalPrice || cycle.totalPrice) != null && (
                 <InfoRow label="Precio total">
-                  <span className="text-primary font-semibold">{formatCurrency(cycle.totalPrice)}</span>
+                  <span className="text-primary font-semibold">{formatCurrency(cycle.pricing?.totalPrice || cycle.totalPrice)}</span>
                 </InfoRow>
               )}
 
@@ -329,7 +347,7 @@ export default function CicloDetailPage({ params }: Props) {
                 >
                   <span className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />
-                    Ver ficha completa
+                    Ver Ciclo
                   </span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
