@@ -29,7 +29,7 @@ interface Sede {
   profesores: number
   color: string
   borderColor: string
-  imagen: string
+  imagen: string | null
 }
 
 /** Campus data from API response */
@@ -42,6 +42,7 @@ interface ApiCampus {
   phone?: string
   email?: string
   staff_members?: unknown[]
+  image?: { url?: string } | number | null
 }
 
 /** API response shape for campuses endpoint */
@@ -125,7 +126,9 @@ export default function SedesPage() {
             color: 'bg-primary',
             borderColor: 'border-primary',
             imagen:
-              'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&h=400&fit=crop',
+              campus.image && typeof campus.image === 'object' && campus.image.url
+                ? campus.image.url
+                : null,
           }
         })
 
@@ -222,12 +225,17 @@ export default function SedesPage() {
             >
               <CardContent className="space-y-4 p-5" data-oid="rke.tyb">
                 <div className="flex items-center gap-3" data-oid="mjlo9s9">
-                  <img
-                    src={sede.imagen}
-                    alt={sede.nombre}
-                    className="h-12 w-12 rounded-md object-cover"
-                    data-oid="x6gliby"
-                  />
+                  {sede.imagen ? (
+                    <img
+                      src={sede.imagen}
+                      alt={sede.nombre}
+                      className="h-12 w-12 rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                      <MapPin className="h-6 w-6 text-primary" />
+                    </div>
+                  )}
 
                   <div className="min-w-0" data-oid="x6kzf:k">
                     <h3 className="truncate text-base font-semibold" data-oid="ccek8r3">
