@@ -94,6 +94,11 @@ const menuItems: MenuItemWithSection[] = [
     ],
   },
   {
+    title: 'Matriculacion',
+    icon: UserPlus,
+    url: '/matriculas',
+  },
+  {
     title: 'Marketing',
     icon: Megaphone,
     sectionBefore: 'GESTIÓN COMERCIAL',
@@ -107,7 +112,6 @@ const menuItems: MenuItemWithSection[] = [
     icon: FileText,
     items: [
       { title: 'Leads', icon: FileText, url: '/leads' },
-      { title: 'Matrículas', icon: UserPlus, url: '/matriculas' },
       { title: 'Lista de Espera', icon: ListTodo, url: '/lista-espera' },
     ],
   },
