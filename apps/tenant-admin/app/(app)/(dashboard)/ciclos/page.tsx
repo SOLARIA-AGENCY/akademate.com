@@ -412,7 +412,7 @@ export default function TodosLosCiclosPage() {
                     <div className="flex items-center gap-2" data-oid="kca:zxv">
                       <BookOpen className="h-4 w-4 text-muted-foreground" data-oid="ppeqt-2" />
                       <span className="text-muted-foreground" data-oid="iufe18:">
-                        {ciclo.cursos_activos} cursos
+                        {ciclo.cursos_activos} convocatorias
                       </span>
                     </div>
                   </div>

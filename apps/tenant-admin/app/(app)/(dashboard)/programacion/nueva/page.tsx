@@ -535,41 +535,8 @@ export default function NuevaConvocatoriaPage() {
     )
   }
 
-  if (staff.length === 0) {
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          title="Nueva Convocatoria"
-          description="Crear una nueva convocatoria de curso"
-          icon={Calendar}
-          actions={
-            <Button variant="outline" onClick={() => router.push('/programacion')}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver
-            </Button>
-          }
-        />
-        <Card className="p-8">
-          <div className="flex flex-col items-center text-center space-y-4">
-            <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
-              <User className="h-8 w-8 text-amber-600" />
-            </div>
-            <h2 className="text-xl font-semibold">Se necesita al menos un profesor</h2>
-            <p className="text-muted-foreground max-w-md">
-              Necesitas al menos un profesor para crear una convocatoria. Puedes crear uno aqui
-              mismo:
-            </p>
-          </div>
-          <div className="mt-6 max-w-xl mx-auto">
-            <InlineProfesorForm onCreated={handleProfesorCreated} />
-          </div>
-        </Card>
-      </div>
-    )
-  }
-
   // -------------------------------------------------------------------------
-  // Main form
+  // Main form (profesor is optional — can be assigned later)
   // -------------------------------------------------------------------------
 
   return (

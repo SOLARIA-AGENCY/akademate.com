@@ -9,8 +9,9 @@ import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, GraduationCap, Edit, Loader2, BookOpen, Clock, Layers,
   Briefcase, Award, DollarSign, Heart, FileText, Star, ClipboardCheck,
-  ExternalLink, Download, Image as ImageIcon,
+  ExternalLink, Download, Printer,
 } from 'lucide-react'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -143,6 +144,7 @@ interface Props { params: Promise<{ id: string }> }
 export default function CicloDetallePage({ params }: Props) {
   const router = useRouter()
   const { id } = React.use(params)
+  const { branding } = useTenantBranding()
 
   const [cycle, setCycle] = React.useState<CycleDetail | null>(null)
   const [loading, setLoading] = React.useState(true)
@@ -204,6 +206,27 @@ export default function CicloDetallePage({ params }: Props) {
 
   return (
     <div className="space-y-6 max-w-4xl">
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          nav, header, footer, aside, button, .no-print,
+          [data-slot="sidebar"], [role="banner"], [role="contentinfo"] { display: none !important; }
+          .print-header { display: flex !important; }
+          body { background: white !important; color: black !important; }
+          * { border-color: #e5e7eb !important; }
+        }
+        .print-header { display: none; }
+      `}</style>
+
+      {/* Print header — only visible when printing */}
+      <div className="print-header items-center gap-4 pb-4 mb-4 border-b-2 border-primary">
+        <img src={branding.logos.principal} alt={branding.academyName} className="h-12 w-12 object-contain" />
+        <div>
+          <p className="text-lg font-bold">{branding.academyName}</p>
+          <p className="text-sm text-muted-foreground">Ficha informativa de ciclo formativo</p>
+        </div>
+      </div>
+
       {/* ================================================================
           HEADER
       ================================================================ */}
@@ -220,6 +243,9 @@ export default function CicloDetallePage({ params }: Props) {
         actions={<>
           <Button variant="ghost" onClick={() => router.push('/ciclos')}>
             <ArrowLeft className="mr-2 h-4 w-4" />Volver
+          </Button>
+          <Button variant="outline" onClick={() => window.print()}>
+            <Printer className="mr-2 h-4 w-4" />Imprimir
           </Button>
           <Button onClick={() => router.push(`/ciclos/${id}/editar`)}>
             <Edit className="mr-2 h-4 w-4" />Editar Ciclo
