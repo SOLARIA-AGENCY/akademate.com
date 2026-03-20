@@ -55,6 +55,7 @@ interface StaffMember {
 interface Campus {
   id: string
   name: string
+  slug?: string
   code?: string
 }
 
@@ -438,19 +439,25 @@ export default function NuevaConvocatoriaPage() {
       courseId = courseId.replace('cycle:', '')
     }
 
+    // Auto-generate codigo from campus slug + year
+    const selectedCampus = campuses.find(c => String(c.id) === form.campus)
+    const campusCode = selectedCampus?.slug?.substring(0, 3).toUpperCase() || 'GEN'
+    const year = new Date().getFullYear()
+    const autoCode = form.codigo || `${campusCode}-${year}-${String(Date.now()).slice(-3)}`
+
     const body: Record<string, unknown> = {
       course: courseId,
-      start_date: form.start_date,
-      end_date: form.end_date,
       max_students: form.max_students,
-      min_students: form.min_students,
+      min_students: form.min_students || 1,
       status: form.status,
+      codigo: autoCode,
     }
 
+    if (form.start_date) body.start_date = form.start_date
+    if (form.end_date) body.end_date = form.end_date
     if (form.campus) body.campus = form.campus
     if (form.instructor) body.instructor = form.instructor
     if (form.price_override !== '') body.price_override = Number(form.price_override)
-    if (form.codigo) body.codigo = form.codigo
     if (form.notes) body.notes = form.notes
 
     try {
@@ -477,11 +484,7 @@ export default function NuevaConvocatoriaPage() {
   const canSubmit =
     form.course !== '' &&
     form.campus !== '' &&
-    form.instructor !== '' &&
-    form.start_date !== '' &&
-    form.end_date !== '' &&
     form.max_students > 0 &&
-    form.min_students > 0 &&
     !submitting
 
   // -------------------------------------------------------------------------
