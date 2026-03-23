@@ -135,21 +135,19 @@ export default function CicloDetailPage({ params }: Props) {
         const data = await res.json()
         if (mounted) setCycle(data.doc ?? data)
 
-        // Load convocatorias: find courses for this cycle, then their convocatorias
+        // Load convocatorias: fetch all and filter by cycle_id client-side
         try {
-          const coursesRes = await fetch(`/api/courses?where[cycle_id][equals]=${id}&depth=0&limit=50`)
-          if (coursesRes.ok) {
-            const coursesData = await coursesRes.json()
-            const courseIds = (coursesData.docs || []).map((c: any) => c.id)
-            if (courseIds.length > 0) {
-              // Fetch convocatorias for all courses of this cycle
-              const convsPromises = courseIds.map((cid: number) =>
-                fetch(`/api/course-runs?where[course][equals]=${cid}&depth=1&limit=50`).then(r => r.ok ? r.json() : { docs: [] })
-              )
-              const convsResults = await Promise.all(convsPromises)
-              const allConvs = convsResults.flatMap((r: any) => r.docs || [])
-              if (mounted) setConvocatorias(allConvs)
-            }
+          const convsRes = await fetch(`/api/course-runs?depth=1&limit=100`, { cache: 'no-store' })
+          if (convsRes.ok) {
+            const convsData = await convsRes.json()
+            const allConvs = convsData.docs || []
+            // Filter: convocatorias where cycle matches this cycle ID
+            const cycleConvs = allConvs.filter((c: any) => {
+              const cycleRef = c.cycle
+              const cycleId = typeof cycleRef === 'object' && cycleRef ? cycleRef.id : cycleRef
+              return String(cycleId) === String(id)
+            })
+            if (mounted) setConvocatorias(cycleConvs)
           }
         } catch { /* convocatorias are optional */ }
       } catch (err) {

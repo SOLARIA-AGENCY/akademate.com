@@ -32,7 +32,7 @@ export const canReadCourseRuns: Access = ({ req: { user } }) => {
   }
 
   // Admin, Gestor, Marketing, and Asesor can read all runs
-  if (['admin', 'gestor', 'marketing', 'asesor'].includes(user.role)) {
+  if (['superadmin', 'admin', 'gestor', 'marketing', 'asesor'].includes(user.role)) {
     return true;
   }
 

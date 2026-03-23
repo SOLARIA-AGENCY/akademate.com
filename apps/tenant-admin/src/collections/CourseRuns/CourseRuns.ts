@@ -163,14 +163,19 @@ export const CourseRuns: CollectionConfig = {
       name: 'course',
       type: 'relationship',
       relationTo: 'courses',
-      required: true,
       index: true,
       admin: {
-        description: 'The course being offered in this run',
+        description: 'Curso asociado a esta convocatoria (opcional si es convocatoria de ciclo)',
       },
-      validate: (val: any) => {
-        if (!val) return 'Course is required';
-        return true;
+    },
+
+    {
+      name: 'cycle',
+      type: 'relationship',
+      relationTo: 'cycles',
+      index: true,
+      admin: {
+        description: 'Ciclo formativo asociado a esta convocatoria',
       },
     },
 
@@ -184,7 +189,7 @@ export const CourseRuns: CollectionConfig = {
       relationTo: 'campuses',
       index: true,
       admin: {
-        description: 'Campus where this course run takes place (optional for online courses)',
+        description: 'Sede donde se realiza la convocatoria',
       },
     },
 
