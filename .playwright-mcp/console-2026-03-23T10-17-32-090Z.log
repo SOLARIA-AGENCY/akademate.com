@@ -1,0 +1,3 @@
+[     190ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/p/ciclos:0
+[   60004ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/farmacia-hero.png:0
+[   66839ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/:0

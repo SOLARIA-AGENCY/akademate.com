@@ -5,10 +5,12 @@ import { useState } from 'react'
 interface Props {
   convocatoriaId: string
   convocatoriaCodigo: string
-  courseName: string
+  displayName?: string
+  courseName?: string
 }
 
-export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, courseName }: Props) {
+export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, displayName, courseName }: Props) {
+  const name_ = displayName || courseName || ''
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -33,7 +35,7 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, courseN
           name,
           phone: phone || undefined,
           source: 'preinscripcion_convocatoria',
-          notes: `Preinscripcion: ${courseName} (${convocatoriaCodigo})${message ? `\nMensaje: ${message}` : ''}`,
+          notes: `Preinscripcion: ${name_} (${convocatoriaCodigo})${message ? `\nMensaje: ${message}` : ''}`,
           convocatoria_id: convocatoriaId,
           type: 'lead',
         }),

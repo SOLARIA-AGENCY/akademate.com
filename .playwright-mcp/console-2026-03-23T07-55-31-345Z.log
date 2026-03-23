@@ -1,0 +1,5 @@
+[      31ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/CFGM%20FARMACIA%202026%20-%20HERO%202.png:0
+[   28761ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/CFGM%20FARMACIA%202026%20-%20HERO%202.png:0
+[   28761ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ https://cepformacion.akademate.com/api/media/file/CGS%20HIGIENE%20BUCODENTAL%202026%20HERO-2.png:0
+[   34963ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/p/blog:0
+[  442835ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cepformacion.akademate.com/p/blog:0

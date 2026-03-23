@@ -1,0 +1,6 @@
+[ 7162697ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:335
+[ 7163144ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ https://static.xx.fbcdn.net/rsrc.php/v4ixaG4/yU/l/es_ES~es_LA-j/-ige8cPcQnbuEe6_shXJ4WPJ0L2ygnAf13FPyXnmOuCz3BwbjEibhVRbn_e5XiPTv-kcw6ZaWYYJmbqnF-QpaUG_MF6CZdh7Qqv4L_mNUimMCIcvl9leEtn3ika9d_1CBN-l0fKzxcdkUvUfje0n7qOIUFfgngRZgrMIhnrRwbbAuh1izGjP3q-cuDcU5aF2729_Tbf_SlX34MtYpFc5a2uzK5LWDMMDldlFjzx.js:664
+[ 7166101ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[ 7166109ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[ 7166119ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[ 7166120ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0

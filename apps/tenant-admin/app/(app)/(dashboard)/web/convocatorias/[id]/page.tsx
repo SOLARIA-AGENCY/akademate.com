@@ -260,10 +260,19 @@ export default function WebConvocatoriaPreviewPage() {
         </Button>
       </div>
 
-      {/* Preview banner */}
-      <div className="mb-4 rounded-lg border border-dashed border-amber-500/50 bg-amber-500/10 px-4 py-2 text-sm text-amber-600 dark:text-amber-400">
-        Vista previa de la landing page publica de esta convocatoria. Esta es una simulacion del aspecto final.
-      </div>
+      {/* Status banner — show link to live page if published */}
+      {data && ['enrollment_open', 'published', 'in_progress'].includes(data.status) ? (
+        <div className="mb-4 rounded-lg border border-green-500/50 bg-green-500/10 px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-green-700 dark:text-green-400 font-medium">Esta convocatoria esta publicada y visible en la web</span>
+          <Button size="sm" variant="outline" onClick={() => window.open(`/p/convocatorias/${data.codigo || id}`, '_blank')}>
+            Abrir web &rarr;
+          </Button>
+        </div>
+      ) : (
+        <div className="mb-4 rounded-lg border border-dashed border-amber-500/50 bg-amber-500/10 px-4 py-2 text-sm text-amber-600 dark:text-amber-400">
+          Vista previa. Esta convocatoria no esta publicada aun.
+        </div>
+      )}
 
       {/* ================================================================
           HERO SECTION

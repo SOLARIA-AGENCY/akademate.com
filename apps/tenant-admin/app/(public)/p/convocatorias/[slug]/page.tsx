@@ -30,10 +30,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   })
   const conv = result.docs[0] as any
   if (!conv) return { title: 'Convocatoria no encontrada' }
-  const courseName = typeof conv.course === 'object' ? (conv.course.title || conv.course.name) : ''
+  const displayName = typeof conv.course === 'object' ? (conv.course.title || conv.course.name) : ''
   return {
-    title: `${courseName} — Inscripcion Abierta`,
-    description: `Reserva tu plaza en ${courseName}. Plazas limitadas.`,
+    title: `${displayName} — Inscripcion Abierta`,
+    description: `Reserva tu plaza en ${displayName}. Plazas limitadas.`,
   }
 }
 
@@ -61,21 +61,34 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   if (!conv) notFound()
 
   const course = typeof conv.course === 'object' ? conv.course : null
+  const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
   const campus = typeof conv.campus === 'object' ? conv.campus : null
-  const imageUrl = course ? resolveImageUrl(course.image) : null
-  const courseName = course?.title || course?.name || ''
+  // Image: try cycle first, then course
+  const cycleImage = cycle ? resolveImageUrl(cycle.image) : null
+  const courseImage = course ? resolveImageUrl(course.image || course.featured_image) : null
+  const imageUrl = cycleImage || courseImage
+  // Name: prefer cycle name, then course
+  const displayName = cycle?.name || course?.title || course?.name || ''
   const plazasDisponibles = (conv.max_students || 0) - (conv.current_enrollments || 0)
   const porcentajeOcupado = conv.max_students ? Math.round(((conv.current_enrollments || 0) / conv.max_students) * 100) : 0
 
   return (
     <div>
-      {/* HERO — aggressive CTA */}
-      <div className="relative h-72 sm:h-96 bg-gradient-to-br from-green-700 to-green-900">
-        {imageUrl && <img src={imageUrl} alt={courseName} className="absolute inset-0 w-full h-full object-cover" />}
+      {/* HERO — aggressive CTA with brand color */}
+      <div className="relative h-72 sm:h-96 brand-bg">
+        {imageUrl && <img src={imageUrl} alt={displayName} className="absolute inset-0 w-full h-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-12 max-w-7xl mx-auto">
-          <span className="inline-block px-4 py-1.5 bg-green-500 text-white text-sm font-bold rounded-full mb-3 uppercase tracking-wide">Inscripcion Abierta</span>
-          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2">{courseName}</h1>
+          <div className="flex flex-wrap gap-2 mb-3">
+            <span className="inline-block px-4 py-1.5 brand-btn text-sm font-bold rounded-full uppercase tracking-wide">Convocatoria Abierta</span>
+            {plazasDisponibles <= 10 && plazasDisponibles > 0 && (
+              <span className="inline-block px-4 py-1.5 bg-white text-gray-900 text-sm font-bold rounded-full uppercase tracking-wide animate-pulse">Plazas Limitadas</span>
+            )}
+            {plazasDisponibles > 10 && (
+              <span className="inline-block px-4 py-1.5 bg-white/20 text-white text-sm font-bold rounded-full uppercase tracking-wide">{plazasDisponibles} plazas disponibles</span>
+            )}
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2">{displayName}</h1>
           {conv.codigo && <p className="text-lg text-white/70 font-mono">{conv.codigo}</p>}
         </div>
       </div>
@@ -120,13 +133,13 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
 
             {/* Plazas progress */}
             {conv.max_students && (
-              <div className="p-6 bg-white border-2 border-green-200 rounded-xl">
+              <div className="p-6 bg-white border-2 brand-border rounded-xl">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-lg font-bold text-gray-900">Plazas disponibles</h3>
-                  <span className="text-2xl font-bold text-green-600">{plazasDisponibles}</span>
+                  <span className="text-2xl font-bold brand-text">{plazasDisponibles}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                  <div className="bg-green-500 h-3 rounded-full transition-all" style={{ width: `${Math.min(porcentajeOcupado, 100)}%` }} />
+                  <div className="brand-bg h-3 rounded-full transition-all" style={{ width: `${Math.min(porcentajeOcupado, 100)}%` }} />
                 </div>
                 <p className="text-sm text-gray-500">{conv.current_enrollments || 0} de {conv.max_students} plazas ocupadas ({porcentajeOcupado}%)</p>
                 {plazasDisponibles <= 5 && plazasDisponibles > 0 && (
@@ -138,7 +151,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
             {/* Course description */}
             {course?.description && (
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Sobre {courseName}</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Sobre {displayName}</h2>
                 <p className="text-gray-600 leading-relaxed whitespace-pre-line">{course.description}</p>
               </section>
             )}
@@ -147,15 +160,16 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
           {/* SIDEBAR — preinscripcion */}
           <div className="space-y-6">
             {/* CTA Card */}
-            <div className="bg-green-50 border-2 border-green-300 rounded-xl p-6 sticky top-24">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Reserva tu plaza</h3>
+            <div className="brand-bg-light border-2 brand-border rounded-xl p-6 sticky top-24">
+              <h3 className="text-xl font-bold text-gray-900 mb-1">Inscribete ahora</h3>
+              <p className="text-sm font-semibold brand-text mb-1">Convocatoria abierta · Plazas limitadas</p>
               <p className="text-sm text-gray-600 mb-4">
-                Completa el formulario y nos pondremos en contacto contigo para formalizar tu inscripcion.
+                Completa el formulario para reservar tu plaza. Te contactaremos en 24h.
               </p>
               <PreinscripcionForm
                 convocatoriaId={String(conv.id)}
                 convocatoriaCodigo={conv.codigo || ''}
-                courseName={courseName}
+                displayName={displayName}
               />
             </div>
 
@@ -163,7 +177,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
             <div className="bg-white border border-gray-200 rounded-xl p-6">
               <h3 className="font-semibold text-gray-900 mb-3">Compartir</h3>
               <div className="flex gap-3">
-                <a href={`https://wa.me/?text=${encodeURIComponent(`${courseName} — Inscripcion abierta!`)}`} target="_blank" rel="noopener" className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">WhatsApp</a>
+                <a href={`https://wa.me/?text=${encodeURIComponent(`${displayName} — Inscripcion abierta!`)}`} target="_blank" rel="noopener" className="flex items-center gap-2 px-4 py-2 brand-bg text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">WhatsApp</a>
                 <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">Copiar enlace</button>
               </div>
             </div>
