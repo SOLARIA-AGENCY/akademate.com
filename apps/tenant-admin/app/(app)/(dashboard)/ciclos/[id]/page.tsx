@@ -8,7 +8,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, GraduationCap, Clock, Layers, Edit, Loader2,
-  Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus,
+  Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -252,31 +252,61 @@ export default function CicloDetailPage({ params }: Props) {
                 hint="Las convocatorias se crean desde Programacion"
               />
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {convocatorias.map((conv: any) => {
                     const campusName = typeof conv.campus === 'object' && conv.campus ? conv.campus.name : null
                     const statusLabels: Record<string, string> = {
                       enrollment_open: 'Inscripcion abierta', published: 'Publicada',
                       in_progress: 'En curso', completed: 'Finalizada', cancelled: 'Cancelada',
                     }
+                    const statusColors: Record<string, string> = {
+                      enrollment_open: 'border-l-green-500', published: 'border-l-blue-500',
+                      in_progress: 'border-l-amber-500', completed: 'border-l-gray-400', cancelled: 'border-l-red-500',
+                    }
+                    const plazas = conv.max_students || 0
+                    const inscritos = conv.current_enrollments || 0
+                    const porcentaje = plazas > 0 ? Math.round((inscritos / plazas) * 100) : 0
                     return (
-                      <div key={conv.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border p-3">
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs text-muted-foreground">{conv.codigo}</span>
-                            <Badge variant={conv.status === 'enrollment_open' ? 'default' : 'secondary'} className="text-[10px]">
-                              {statusLabels[conv.status] || conv.status}
-                            </Badge>
+                      <div
+                        key={conv.id}
+                        className={`rounded-lg border border-l-4 ${statusColors[conv.status] || 'border-l-gray-300'} hover:shadow-md transition-all cursor-pointer overflow-hidden`}
+                        onClick={() => router.push(`/programacion/${conv.id}`)}
+                      >
+                        <div className="flex">
+                          {/* Foto heredada del ciclo */}
+                          {imageUrl && (
+                            <div className="hidden sm:block w-28 h-full shrink-0">
+                              <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          <div className="flex-1 p-3">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-xs text-muted-foreground">{conv.codigo}</span>
+                                <Badge variant={conv.status === 'enrollment_open' ? 'default' : 'secondary'} className="text-[10px]">
+                                  {statusLabels[conv.status] || conv.status}
+                                </Badge>
+                              </div>
+                              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                            </div>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
+                              {campusName && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{campusName}</span>}
+                              {conv.start_date && <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{new Date(conv.start_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+                              {conv.price_override && <span className="font-medium">{new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(conv.price_override)}</span>}
+                            </div>
+                            {plazas > 0 && (
+                              <div className="mt-2">
+                                <div className="flex justify-between text-xs mb-1">
+                                  <span className="text-muted-foreground">Plazas</span>
+                                  <span className="font-medium">{inscritos}/{plazas} ({porcentaje}%)</span>
+                                </div>
+                                <div className="w-full bg-muted rounded-full h-1.5">
+                                  <div className="bg-primary h-1.5 rounded-full transition-all" style={{ width: `${Math.min(porcentaje, 100)}%` }} />
+                                </div>
+                              </div>
+                            )}
                           </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {campusName && <span>{campusName} · </span>}
-                            {conv.start_date && new Date(conv.start_date).toLocaleDateString('es-ES')}
-                            {conv.max_students && ` · ${conv.current_enrollments || 0}/${conv.max_students} plazas`}
-                          </p>
                         </div>
-                        <Button size="sm" variant="ghost" className="shrink-0" onClick={() => router.push('/programacion')}>
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
                       </div>
                     )
                   })}
