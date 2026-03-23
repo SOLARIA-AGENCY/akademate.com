@@ -116,6 +116,7 @@ const staticPaths = [
   '/logos',
   '/favicon',
   '/api/config',
+  '/api/media/file', // Serve uploaded media files without auth
   '/placeholder-course.svg',
   '/media',
 ]
