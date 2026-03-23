@@ -65,23 +65,23 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, courseN
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <input type="text" required placeholder="Nombre completo *" value={name} onChange={(e) => setName(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent" />
       <input type="email" required placeholder="Email *" value={email} onChange={(e) => setEmail(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent" />
       <input type="tel" placeholder="Telefono (recomendado)" value={phone} onChange={(e) => setPhone(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent" />
       <textarea placeholder="Mensaje o consulta (opcional)" value={message} onChange={(e) => setMessage(e.target.value)} rows={3}
-        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none" />
+        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent resize-none" />
 
       <label className="flex items-start gap-2 cursor-pointer">
         <input type="checkbox" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} className="mt-1 rounded border-gray-300" />
-        <span className="text-xs text-gray-600">Acepto la <a href="/legal/privacidad" className="text-blue-600 underline" target="_blank">politica de privacidad</a> y el tratamiento de mis datos.</span>
+        <span className="text-xs text-gray-600">Acepto la <a href="/legal/privacidad" className="brand-text underline" target="_blank">politica de privacidad</a> y el tratamiento de mis datos.</span>
       </label>
 
       {error && <p className="text-xs text-red-600">{error}</p>}
 
       <button type="submit" disabled={submitting || !email || !name || !privacy}
-        className="w-full px-4 py-3 bg-green-600 text-white rounded-lg text-base font-bold hover:bg-green-700 disabled:opacity-50 transition-colors uppercase tracking-wide">
+        className="w-full px-4 py-3 brand-btn text-white rounded-lg text-base font-bold  disabled:opacity-50 transition-colors uppercase tracking-wide">
         {submitting ? 'Enviando...' : 'Reserva tu plaza'}
       </button>
 

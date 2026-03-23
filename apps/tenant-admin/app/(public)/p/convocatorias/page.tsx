@@ -40,7 +40,7 @@ export default async function ConvocatoriasPage() {
       {convocatorias.length === 0 ? (
         <div className="text-center py-16 text-gray-500">
           <p className="text-lg">No hay convocatorias abiertas en este momento</p>
-          <p className="text-sm mt-2">Consulta nuestros <a href="/p/ciclos" className="text-blue-600 hover:underline">ciclos formativos</a> y dejanos tu email para enterarte de nuevas convocatorias.</p>
+          <p className="text-sm mt-2">Consulta nuestros <a href="/p/ciclos" className="brand-text hover:underline">ciclos formativos</a> y dejanos tu email para enterarte de nuevas convocatorias.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

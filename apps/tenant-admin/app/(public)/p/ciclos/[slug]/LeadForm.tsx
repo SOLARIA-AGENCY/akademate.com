@@ -70,11 +70,11 @@ export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFor
         placeholder="Tu email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
       />
 
       {!showFull && (
-        <button type="button" onClick={() => setShowFull(true)} className="text-xs text-blue-600 hover:underline">
+        <button type="button" onClick={() => setShowFull(true)} className="text-xs brand-text hover:underline">
           + Agregar nombre y telefono
         </button>
       )}
@@ -86,14 +86,14 @@ export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFor
             placeholder="Tu nombre (opcional)"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
           />
           <input
             type="tel"
             placeholder="Tu telefono (opcional)"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
           />
         </>
       )}
@@ -103,7 +103,7 @@ export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFor
       <button
         type="submit"
         disabled={submitting || !email}
-        className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+        className="w-full px-4 py-2.5 brand-bg text-white rounded-lg text-sm font-medium hover:brand-bg disabled:opacity-50 transition-colors"
       >
         {submitting ? 'Enviando...' : hasActiveConvocatorias ? 'Solicitar informacion' : 'Avisame de proximas convocatorias'}
       </button>

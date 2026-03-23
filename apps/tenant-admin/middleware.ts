@@ -104,6 +104,7 @@ const publicRoutes = [
   '/p/cursos',
   '/p/convocatorias',
   '/p/blog',
+  '/p/legal',
   // Legal pages must be publicly accessible (GDPR requirement)
   '/legal',
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing

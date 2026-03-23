@@ -55,7 +55,7 @@ export default async function CiclosCatalogPage() {
               <Link key={cycle.id} href={`/p/ciclos/${cycle.slug}`} className="group">
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
                   {/* Image */}
-                  <div className="relative h-48 bg-gradient-to-br from-blue-600 to-blue-800">
+                  <div className="relative h-48 bg-gradient-to-br brand-bg">
                     {imageUrl && (
                       <img src={imageUrl} alt={cycle.name} className="w-full h-full object-cover" />
                     )}
@@ -77,7 +77,7 @@ export default async function CiclosCatalogPage() {
                       {cycle.duration?.modality && (
                         <span className="text-gray-500 capitalize">{cycle.duration.modality}</span>
                       )}
-                      <span className="text-blue-600 font-medium group-hover:text-blue-700">Ver mas &rarr;</span>
+                      <span className="brand-text font-medium group-hover:brand-text">Ver mas &rarr;</span>
                     </div>
                   </div>
                 </div>

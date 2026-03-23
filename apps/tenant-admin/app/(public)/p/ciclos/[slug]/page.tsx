@@ -91,7 +91,7 @@ export default async function CicloLandingPage({ params }: Props) {
   return (
     <div>
       {/* HERO */}
-      <div className="relative h-72 sm:h-96 bg-gradient-to-br from-blue-700 to-blue-900">
+      <div className="relative h-72 sm:h-96 bg-gradient-to-br brand-bg">
         {imageUrl && <img src={imageUrl} alt={cycle.name} className="absolute inset-0 w-full h-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-12 max-w-7xl mx-auto">
@@ -115,9 +115,9 @@ export default async function CicloLandingPage({ params }: Props) {
 
             {/* Key info pills */}
             <div className="flex flex-wrap gap-3">
-              {duration.totalHours && <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">{duration.totalHours}h totales</span>}
-              {duration.courses && <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">{duration.courses} cursos</span>}
-              {duration.modality && <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium capitalize">{duration.modality}</span>}
+              {duration.totalHours && <span className="px-4 py-2 brand-bg-light brand-text rounded-full text-sm font-medium">{duration.totalHours}h totales</span>}
+              {duration.courses && <span className="px-4 py-2 brand-bg-light brand-text rounded-full text-sm font-medium">{duration.courses} cursos</span>}
+              {duration.modality && <span className="px-4 py-2 brand-bg-light brand-text rounded-full text-sm font-medium capitalize">{duration.modality}</span>}
               {duration.practiceHours && <span className="px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium">{duration.practiceHours}h practicas</span>}
               {cycle.family && <span className="px-4 py-2 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">{cycle.family}</span>}
             </div>
@@ -186,7 +186,7 @@ export default async function CicloLandingPage({ params }: Props) {
                   {careerPaths.map((cp: any, i: number) => (
                     <div key={i} className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg">
                       <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                        <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.193 23.193 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        <svg className="h-5 w-5 brand-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.193 23.193 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{cp.title}</p>
@@ -233,10 +233,10 @@ export default async function CicloLandingPage({ params }: Props) {
           <div className="space-y-6">
             {/* Pricing card */}
             {(pricing.totalPrice || pricing.enrollmentFee || pricing.monthlyFee) && (
-              <div className="bg-white border-2 border-blue-200 rounded-xl p-6 sticky top-24">
+              <div className="bg-white border-2 brand-border rounded-xl p-6 sticky top-24">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Precios</h3>
                 {pricing.totalPrice != null && (
-                  <p className="text-3xl font-bold text-blue-600 mb-2">{formatCurrency(pricing.totalPrice)}</p>
+                  <p className="text-3xl font-bold brand-text mb-2">{formatCurrency(pricing.totalPrice)}</p>
                 )}
                 {pricing.enrollmentFee != null && (
                   <p className="text-sm text-gray-600">Matricula: {formatCurrency(pricing.enrollmentFee)}</p>
@@ -268,10 +268,10 @@ export default async function CicloLandingPage({ params }: Props) {
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Convocatorias Abiertas</h3>
                 <div className="space-y-3">
                   {activeConvocatorias.map((conv: any) => (
-                    <a key={conv.id} href={`/p/convocatorias/${conv.codigo || conv.id}`} className="block p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                    <a key={conv.id} href={`/p/convocatorias/${conv.codigo || conv.id}`} className="block p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:brand-bg-light transition-colors">
                       <p className="font-medium text-gray-900 text-sm">{conv.codigo}</p>
                       {conv.start_date && <p className="text-xs text-gray-500">Inicio: {new Date(conv.start_date).toLocaleDateString('es-ES')}</p>}
-                      {conv.max_students && <p className="text-xs text-blue-600 font-medium">{conv.max_students - (conv.current_enrollments || 0)} plazas disponibles</p>}
+                      {conv.max_students && <p className="text-xs brand-text font-medium">{conv.max_students - (conv.current_enrollments || 0)} plazas disponibles</p>}
                     </a>
                   ))}
                 </div>
