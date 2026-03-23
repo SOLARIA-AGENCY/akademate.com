@@ -98,6 +98,7 @@ const publicRoutes = [
   '/api/auth/session', // Session write after login (token may not be in cookie yet)
   '/api/v1/openapi', // OpenAPI spec is public (no auth needed)
   '/api/leads', // Lead capture from public landing pages
+  '/api/media/file', // Serve uploaded media files publicly (images, PDFs)
   // Public web pages (landing pages, catalogs) — no auth required
   '/p/ciclos',
   '/p/cursos',
