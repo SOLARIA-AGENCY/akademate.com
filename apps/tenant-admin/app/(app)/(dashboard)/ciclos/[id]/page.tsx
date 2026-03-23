@@ -121,6 +121,7 @@ export default function CicloDetailPage({ params }: Props) {
   const { id } = React.use(params)
 
   const [cycle, setCycle] = React.useState<CycleDetail | null>(null)
+  const [convocatorias, setConvocatorias] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -128,10 +129,29 @@ export default function CicloDetailPage({ params }: Props) {
     let mounted = true
     const load = async () => {
       try {
+        // Load cycle
         const res = await fetch(`/api/cycles/${id}?depth=1`, { cache: 'no-store' })
         if (!res.ok) throw new Error('No se pudo cargar el ciclo')
         const data = await res.json()
         if (mounted) setCycle(data.doc ?? data)
+
+        // Load convocatorias: find courses for this cycle, then their convocatorias
+        try {
+          const coursesRes = await fetch(`/api/courses?where[cycle_id][equals]=${id}&depth=0&limit=50`)
+          if (coursesRes.ok) {
+            const coursesData = await coursesRes.json()
+            const courseIds = (coursesData.docs || []).map((c: any) => c.id)
+            if (courseIds.length > 0) {
+              // Fetch convocatorias for all courses of this cycle
+              const convsPromises = courseIds.map((cid: number) =>
+                fetch(`/api/course-runs?where[course][equals]=${cid}&depth=1&limit=50`).then(r => r.ok ? r.json() : { docs: [] })
+              )
+              const convsResults = await Promise.all(convsPromises)
+              const allConvs = convsResults.flatMap((r: any) => r.docs || [])
+              if (mounted) setConvocatorias(allConvs)
+            }
+          }
+        } catch { /* convocatorias are optional */ }
       } catch (err) {
         if (mounted) setError(err instanceof Error ? err.message : 'Error')
       } finally {
@@ -195,7 +215,7 @@ export default function CicloDetailPage({ params }: Props) {
         {[
           { label: 'Modulos', value: modules.length, icon: Layers },
           { label: 'Horas totales', value: cycle.duration?.totalHours || cycle.totalHours || 0, icon: Clock },
-          { label: 'Convocatorias', value: 0, icon: Calendar },
+          { label: 'Convocatorias', value: convocatorias.length, icon: Calendar },
           { label: 'Alumnos', value: 0, icon: Users },
           { label: 'Plazas', value: cycle.capacity || 0, icon: GraduationCap },
         ].map(({ label, value, icon: Icon }) => (
@@ -221,17 +241,49 @@ export default function CicloDetailPage({ params }: Props) {
               <CardTitle className="text-base flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-primary" />
                 Convocatorias
-                <Badge variant="outline">0</Badge>
+                <Badge variant="outline">{convocatorias.length}</Badge>
               </CardTitle>
               <Button size="sm" onClick={() => router.push(`/programacion/nueva?ciclo=${id}`)}>
                 <Plus className="mr-1.5 h-3.5 w-3.5" />Crear convocatoria
               </Button>
             </CardHeader>
             <CardContent>
+              {convocatorias.length === 0 ? (
               <EmptyState
                 message="No hay convocatorias de este ciclo"
                 hint="Las convocatorias se crean desde Programacion"
               />
+              ) : (
+                <div className="space-y-2">
+                  {convocatorias.map((conv: any) => {
+                    const campusName = typeof conv.campus === 'object' && conv.campus ? conv.campus.name : null
+                    const statusLabels: Record<string, string> = {
+                      enrollment_open: 'Inscripcion abierta', published: 'Publicada',
+                      in_progress: 'En curso', completed: 'Finalizada', cancelled: 'Cancelada',
+                    }
+                    return (
+                      <div key={conv.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border p-3">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs text-muted-foreground">{conv.codigo}</span>
+                            <Badge variant={conv.status === 'enrollment_open' ? 'default' : 'secondary'} className="text-[10px]">
+                              {statusLabels[conv.status] || conv.status}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {campusName && <span>{campusName} · </span>}
+                            {conv.start_date && new Date(conv.start_date).toLocaleDateString('es-ES')}
+                            {conv.max_students && ` · ${conv.current_enrollments || 0}/${conv.max_students} plazas`}
+                          </p>
+                        </div>
+                        <Button size="sm" variant="ghost" className="shrink-0" onClick={() => router.push('/programacion')}>
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
 
