@@ -6,6 +6,10 @@ import { PreinscripcionForm } from './PreinscripcionForm'
 
 export const dynamic = 'force-dynamic'
 
+/* -------------------------------------------------------------------------- */
+/*  Helpers                                                                    */
+/* -------------------------------------------------------------------------- */
+
 function resolveImageUrl(image: any): string | null {
   if (!image) return null
   if (typeof image === 'object' && image.url) return image.url
@@ -13,12 +17,39 @@ function resolveImageUrl(image: any): string | null {
   return null
 }
 
-function formatCurrency(v: number | undefined): string {
-  if (v == null) return ''
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(v)
+function formatMonth(date: string): string {
+  const d = new Date(date)
+  const month = d.toLocaleDateString('es-ES', { month: 'long' })
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${d.getFullYear()}`
 }
 
-interface Props { params: Promise<{ slug: string }> }
+function modalityLabel(modality: string | undefined): string {
+  const map: Record<string, string> = {
+    presencial: 'Presencial',
+    semipresencial: 'Semipresencial',
+    online: '100% Online',
+    mixto: 'Modalidad mixta',
+  }
+  return modality ? map[modality] || modality : ''
+}
+
+function levelLabel(level: string | undefined): string {
+  const map: Record<string, string> = {
+    fp_basica: 'FP Basica',
+    grado_medio: 'Grado Medio',
+    grado_superior: 'Grado Superior',
+    certificado_profesionalidad: 'Certificado de Profesionalidad',
+  }
+  return level ? map[level] || level : ''
+}
+
+/* -------------------------------------------------------------------------- */
+/*  SEO Metadata                                                               */
+/* -------------------------------------------------------------------------- */
+
+interface Props {
+  params: Promise<{ slug: string }>
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
@@ -26,22 +57,106 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const result = await payload.find({
     collection: 'course-runs',
     where: { codigo: { equals: slug } },
-    limit: 1, depth: 1,
+    limit: 1,
+    depth: 2,
   })
   const conv = result.docs[0] as any
   if (!conv) return { title: 'Convocatoria no encontrada' }
-  const displayName = typeof conv.course === 'object' ? (conv.course.title || conv.course.name) : ''
+
+  const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
+  const course = typeof conv.course === 'object' ? conv.course : null
+  const campus = typeof conv.campus === 'object' ? conv.campus : null
+  const displayName = cycle?.name || course?.title || course?.name || ''
+  const sedeName = campus?.name || ''
+
   return {
-    title: `${displayName} — Inscripcion Abierta`,
-    description: `Reserva tu plaza en ${displayName}. Plazas limitadas.`,
+    title: `${displayName} — Convocatoria abierta${sedeName ? ` en ${sedeName}` : ''}`,
+    description: `Inscripcion abierta para ${displayName}${sedeName ? ` en ${sedeName}` : ''}. Formacion oficial con orientacion practica y profesional. Solicita informacion sin compromiso.`,
+    openGraph: {
+      title: `${displayName} — Inscripcion abierta`,
+      description: `Reserva tu plaza en ${displayName}. Formacion oficial.`,
+    },
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Icon components (inline SVG, no external deps)                             */
+/* -------------------------------------------------------------------------- */
+
+const IconCalendar = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+  </svg>
+)
+const IconMapPin = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+  </svg>
+)
+const IconAcademicCap = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
+  </svg>
+)
+const IconBriefcase = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0" />
+  </svg>
+)
+const IconCurrencyEuro = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 7.756a4.5 4.5 0 100 8.488M7.5 10.5H5.25m2.25 3H5.25M9 7.5h3.75M9 16.5h3.75" />
+  </svg>
+)
+const IconClock = () => (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+)
+const IconCheck = () => (
+  <svg className="h-4 w-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+  </svg>
+)
+const IconChevronDown = () => (
+  <svg className="h-4 w-4 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+  </svg>
+)
+const IconShield = () => (
+  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+  </svg>
+)
+
+/* -------------------------------------------------------------------------- */
+/*  Summary card component                                                     */
+/* -------------------------------------------------------------------------- */
+
+function SummaryCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4">
+      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg brand-bg-light brand-text">
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</p>
+        <p className="text-sm font-semibold text-gray-900">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Page                                                                       */
+/* -------------------------------------------------------------------------- */
 
 export default async function ConvocatoriaLandingPage({ params }: Props) {
   const { slug } = await params
   const payload = await getPayload({ config: configPromise })
 
-  // Try by codigo first, then by ID
+  // Fetch by codigo first, then by ID
   let result = await payload.find({
     collection: 'course-runs',
     where: { codigo: { equals: slug } },
@@ -60,128 +175,390 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   const conv = result.docs[0] as any
   if (!conv) notFound()
 
+  // Resolve relationships
   const course = typeof conv.course === 'object' ? conv.course : null
   const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
   const campus = typeof conv.campus === 'object' ? conv.campus : null
-  // Image: try cycle first, then course
+
+  // Image: cycle first, then course
   const cycleImage = cycle ? resolveImageUrl(cycle.image) : null
   const courseImage = course ? resolveImageUrl(course.image || course.featured_image) : null
   const imageUrl = cycleImage || courseImage
-  // Name: prefer cycle name, then course
+
+  // Display name
   const displayName = cycle?.name || course?.title || course?.name || ''
-  const plazasDisponibles = (conv.max_students || 0) - (conv.current_enrollments || 0)
-  const porcentajeOcupado = conv.max_students ? Math.round(((conv.current_enrollments || 0) / conv.max_students) * 100) : 0
+  const sedeName = campus?.name || ''
+
+  // Cycle data
+  const modality = cycle?.duration?.modality
+  const totalHours = cycle?.duration?.totalHours
+  const practiceHours = cycle?.duration?.practiceHours
+  const scheduleText = cycle?.duration?.schedule
+  const classFrequency = cycle?.duration?.classFrequency
+  const competencies = Array.isArray(cycle?.competencies) ? cycle.competencies : []
+  const careerPaths = Array.isArray(cycle?.careerPaths) ? cycle.careerPaths : []
+  const requirements = Array.isArray(cycle?.requirements) ? cycle.requirements : []
+  const cycleLevel = cycle?.level
+  const officialTitle = cycle?.officialTitle
+
+  // Start month
+  const startMonth = conv.start_date ? formatMonth(conv.start_date) : null
+
+  // Build summary cards
+  const summaryCards: { icon: React.ReactNode; label: string; value: string }[] = []
+  if (startMonth) {
+    summaryCards.push({ icon: <IconCalendar />, label: 'Inicio', value: startMonth })
+  }
+  if (sedeName) {
+    summaryCards.push({ icon: <IconMapPin />, label: 'Sede', value: sedeName })
+  }
+  if (officialTitle || cycleLevel) {
+    summaryCards.push({ icon: <IconAcademicCap />, label: 'Titulacion', value: officialTitle || `${levelLabel(cycleLevel)} oficial` })
+  }
+  if (practiceHours) {
+    summaryCards.push({ icon: <IconBriefcase />, label: 'Practicas', value: `${practiceHours}h en empresa` })
+  }
+  if (modality) {
+    summaryCards.push({ icon: <IconClock />, label: 'Modalidad', value: modalityLabel(modality) })
+  }
+  if (conv.financial_aid_available) {
+    summaryCards.push({ icon: <IconCurrencyEuro />, label: 'Financiacion', value: 'Disponible' })
+  }
 
   return (
-    <div>
-      {/* HERO — aggressive CTA with brand color */}
-      <div className="relative h-72 sm:h-96 brand-bg">
-        {imageUrl && <img src={imageUrl} alt={displayName} className="absolute inset-0 w-full h-full object-cover" />}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-12 max-w-7xl mx-auto">
-          <div className="flex flex-wrap gap-2 mb-3">
-            <span className="inline-block px-4 py-1.5 brand-btn text-sm font-bold rounded-full uppercase tracking-wide">Convocatoria Abierta</span>
-            {plazasDisponibles <= 10 && plazasDisponibles > 0 && (
-              <span className="inline-block px-4 py-1.5 bg-white text-gray-900 text-sm font-bold rounded-full uppercase tracking-wide animate-pulse">Plazas Limitadas</span>
-            )}
-            {plazasDisponibles > 10 && (
-              <span className="inline-block px-4 py-1.5 bg-white/20 text-white text-sm font-bold rounded-full uppercase tracking-wide">{plazasDisponibles} plazas disponibles</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* ================================================================== */}
+      {/* 1. HERO                                                             */}
+      {/* ================================================================== */}
+      <section className="relative min-h-[420px] sm:min-h-[480px] flex items-end">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={displayName}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 brand-bg" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20" />
+
+        <div className="relative z-10 w-full px-4 pb-10 pt-32 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            {/* Badges */}
+            <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
+              <span className="inline-flex items-center rounded-full brand-btn px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+                Inscripcion abierta
+              </span>
+              <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-sm">
+                Plazas limitadas
+              </span>
+            </div>
+
+            {/* Headline */}
+            <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
+              {displayName}
+              {sedeName && (
+                <span className="mt-1 block text-lg font-medium text-white/80 sm:text-xl">
+                  Convocatoria abierta en {sedeName}
+                </span>
+              )}
+            </h1>
+
+            {/* Subtitle */}
+            <p className="mx-auto mt-4 max-w-xl text-base text-white/75 sm:text-lg">
+              {startMonth ? `Comienza en ${startMonth.toLowerCase()}. ` : ''}
+              Formacion oficial con orientacion practica y profesional
+            </p>
+
+            {/* CTA */}
+            <a
+              href="#formulario"
+              className="mt-6 inline-flex items-center rounded-lg brand-btn px-8 py-3.5 text-base font-bold uppercase tracking-wide text-white shadow-lg transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/50"
+            >
+              Solicitar informacion
+            </a>
+
+            {/* Codigo subtle */}
+            {conv.codigo && (
+              <p className="mt-4 text-xs font-mono text-white/40">
+                Ref. {conv.codigo}
+              </p>
             )}
           </div>
-          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2">{displayName}</h1>
-          {conv.codigo && <p className="text-lg text-white/70 font-mono">{conv.codigo}</p>}
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* MAIN */}
-          <div className="lg:col-span-2 space-y-10">
-            {/* Key info cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {campus && (
-                <div className="p-5 bg-white border border-gray-200 rounded-xl">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <svg className="h-5 w-5 brand-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+      {/* ================================================================== */}
+      {/* 2. ESTA CONVOCATORIA INCLUYE                                        */}
+      {/* ================================================================== */}
+      {summaryCards.length > 0 && (
+        <section className="relative z-10 -mt-8 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl">
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+              <h2 className="mb-5 text-center text-lg font-bold text-gray-900">
+                Esta convocatoria incluye
+              </h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {summaryCards.map((card, i) => (
+                  <SummaryCard key={i} {...card} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Centered single-column content */}
+      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 space-y-16">
+
+        {/* ================================================================ */}
+        {/* 3. QUE APRENDERAS Y SALIDAS                                       */}
+        {/* ================================================================ */}
+        {(competencies.length > 0 || careerPaths.length > 0) && (
+          <section>
+            {competencies.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-2xl font-bold text-gray-900 mb-5">Que aprenderas</h2>
+                <ul className="space-y-3">
+                  {competencies.slice(0, 6).map((c: any, i: number) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="brand-text"><IconCheck /></span>
+                      <div>
+                        <p className="font-medium text-gray-900">{c.title}</p>
+                        {c.description && (
+                          <p className="mt-0.5 text-sm text-gray-600">{c.description}</p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {careerPaths.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-5">Salidas profesionales</h2>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {careerPaths.slice(0, 8).map((cp: any, i: number) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4"
+                    >
+                      <span className="brand-text"><IconBriefcase /></span>
+                      <div>
+                        <p className="font-medium text-gray-900">{cp.title}</p>
+                        {cp.sector && (
+                          <p className="text-xs text-gray-500">{cp.sector}</p>
+                        )}
+                      </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ================================================================ */}
+        {/* 4. SEDE Y MODALIDAD                                               */}
+        {/* ================================================================ */}
+        {(campus || modality || scheduleText) && (
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">Sede y modalidad</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {campus && (
+                <div className="rounded-xl border border-gray-200 bg-white p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="brand-text"><IconMapPin /></span>
                     <h3 className="font-semibold text-gray-900">Sede</h3>
                   </div>
                   <p className="font-medium text-gray-900">{campus.name}</p>
-                  {campus.address && <p className="text-sm text-gray-600">{campus.address}</p>}
+                  {campus.address && <p className="text-sm text-gray-600 mt-1">{campus.address}</p>}
                   {campus.city && <p className="text-sm text-gray-600">{campus.city}</p>}
                   {campus.phone && <p className="text-sm text-gray-600 mt-1">Tel: {campus.phone}</p>}
+                  {campus.maps_url && (
+                    <a
+                      href={campus.maps_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center text-sm font-medium brand-text hover:underline"
+                    >
+                      Ver en mapa
+                    </a>
+                  )}
                 </div>
               )}
-              <div className="p-5 bg-white border border-gray-200 rounded-xl">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="h-10 w-10 bg-amber-100 rounded-full flex items-center justify-center">
-                    <svg className="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  </div>
-                  <h3 className="font-semibold text-gray-900">Fechas</h3>
+
+              <div className="rounded-xl border border-gray-200 bg-white p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="brand-text"><IconClock /></span>
+                  <h3 className="font-semibold text-gray-900">Horario y modalidad</h3>
                 </div>
-                {conv.start_date ? (
-                  <>
-                    <p className="text-gray-900">Inicio: <strong>{new Date(conv.start_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</strong></p>
-                    {conv.end_date && <p className="text-sm text-gray-600">Fin: {new Date(conv.end_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
-                  </>
-                ) : (
-                  <p className="text-gray-600">Fechas por confirmar</p>
-                )}
+                <ul className="space-y-2 text-sm text-gray-700">
+                  {modality && (
+                    <li><span className="font-medium">Modalidad:</span> {modalityLabel(modality)}</li>
+                  )}
+                  {scheduleText && (
+                    <li><span className="font-medium">Horario:</span> {scheduleText}</li>
+                  )}
+                  {classFrequency && (
+                    <li><span className="font-medium">Frecuencia:</span> {classFrequency}</li>
+                  )}
+                  {totalHours && (
+                    <li><span className="font-medium">Duracion:</span> {totalHours} horas</li>
+                  )}
+                  {conv.start_date && (
+                    <li>
+                      <span className="font-medium">Inicio:</span>{' '}
+                      {new Date(conv.start_date).toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </li>
+                  )}
+                  {conv.end_date && (
+                    <li>
+                      <span className="font-medium">Fin:</span>{' '}
+                      {new Date(conv.end_date).toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </li>
+                  )}
+                </ul>
               </div>
             </div>
+          </section>
+        )}
 
-            {/* Plazas progress */}
-            {conv.max_students && (
-              <div className="p-6 bg-white border-2 brand-border rounded-xl">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-bold text-gray-900">Plazas disponibles</h3>
-                  <span className="text-2xl font-bold brand-text">{plazasDisponibles}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                  <div className="brand-bg h-3 rounded-full transition-all" style={{ width: `${Math.min(porcentajeOcupado, 100)}%` }} />
-                </div>
-                <p className="text-sm text-gray-500">{conv.current_enrollments || 0} de {conv.max_students} plazas ocupadas ({porcentajeOcupado}%)</p>
-                {plazasDisponibles <= 5 && plazasDisponibles > 0 && (
-                  <p className="text-sm font-semibold text-red-600 mt-2">Ultimas plazas disponibles</p>
-                )}
-              </div>
-            )}
+        {/* ================================================================ */}
+        {/* 5. REQUISITOS DE ACCESO                                           */}
+        {/* ================================================================ */}
+        {requirements.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">Requisitos de acceso</h2>
+            <div className="rounded-xl border border-gray-200 bg-white p-5">
+              <ul className="space-y-2.5">
+                {requirements.map((req: any, i: number) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="brand-text"><IconCheck /></span>
+                    <span className="text-sm text-gray-700">
+                      {req.text}
+                      {req.type === 'obligatorio' && (
+                        <span className="ml-1.5 text-xs font-medium text-red-600">(obligatorio)</span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {cycle?.slug && (
+                <p className="mt-4 text-sm text-gray-500">
+                  Consulta todos los detalles en la{' '}
+                  <a href={`/p/ciclos/${cycle.slug}`} className="brand-text font-medium hover:underline">
+                    ficha completa del ciclo
+                  </a>
+                  .
+                </p>
+              )}
+            </div>
+          </section>
+        )}
 
-            {/* Course description */}
-            {course?.description && (
-              <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Sobre {displayName}</h2>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{course.description}</p>
-              </section>
-            )}
-          </div>
-
-          {/* SIDEBAR — preinscripcion */}
-          <div className="space-y-6">
-            {/* CTA Card */}
-            <div className="brand-bg-light border-2 brand-border rounded-xl p-6 sticky top-24">
-              <h3 className="text-xl font-bold text-gray-900 mb-1">Inscribete ahora</h3>
-              <p className="text-sm font-semibold brand-text mb-1">Convocatoria abierta · Plazas limitadas</p>
-              <p className="text-sm text-gray-600 mb-4">
-                Completa el formulario para reservar tu plaza. Te contactaremos en 24h.
+        {/* ================================================================ */}
+        {/* 6. FORMULARIO CENTRADO (the star)                                  */}
+        {/* ================================================================ */}
+        <section id="formulario" className="scroll-mt-24">
+          <div className="mx-auto max-w-xl rounded-2xl brand-bg-light border-2 brand-border p-6 sm:p-8">
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
+                Solicita informacion o inicia tu inscripcion
+              </h2>
+              <p className="mt-2 text-sm text-gray-600">
+                Te contactaremos para confirmar detalles sobre sede, fechas, acceso y proceso de matricula
               </p>
-              <PreinscripcionForm
-                convocatoriaId={String(conv.id)}
-                convocatoriaCodigo={conv.codigo || ''}
-                displayName={displayName}
-              />
             </div>
 
-            {/* Share */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Compartir</h3>
-              <div className="flex gap-3">
-                <a href={`https://wa.me/?text=${encodeURIComponent(`${displayName} — Inscripcion abierta!`)}`} target="_blank" rel="noopener" className="flex items-center gap-2 px-4 py-2 brand-bg text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">WhatsApp</a>
-                <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">Copiar enlace</button>
-              </div>
-            </div>
+            <PreinscripcionForm
+              convocatoriaId={String(conv.id)}
+              convocatoriaCodigo={conv.codigo || ''}
+              displayName={displayName}
+            />
           </div>
+        </section>
+
+        {/* ================================================================ */}
+        {/* 7. CONFIANZA / FAQ                                                */}
+        {/* ================================================================ */}
+        <section>
+          {/* Trust badges */}
+          <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {[
+              { icon: <IconShield />, title: '26 anos de experiencia', desc: 'Formando profesionales desde 2000' },
+              { icon: <IconAcademicCap />, title: 'Centro autorizado', desc: 'Titulaciones reconocidas por el MEC' },
+              { icon: <IconCheck />, title: 'Calidad certificada', desc: 'Sistema de gestion ISO 9001' },
+            ].map((badge, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center rounded-xl border border-gray-200 bg-white p-5 text-center"
+              >
+                <span className="brand-text mb-2">{badge.icon}</span>
+                <p className="text-sm font-semibold text-gray-900">{badge.title}</p>
+                <p className="mt-0.5 text-xs text-gray-500">{badge.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* FAQ */}
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Preguntas frecuentes</h2>
+          <div className="space-y-2">
+            {[
+              {
+                q: 'Que necesito para inscribirme?',
+                a: 'Rellena el formulario de esta pagina y nos pondremos en contacto contigo en menos de 24h para guiarte en el proceso de matricula y verificar los requisitos de acceso.',
+              },
+              {
+                q: 'Puedo financiar mis estudios?',
+                a: conv.financial_aid_available
+                  ? 'Si, esta convocatoria dispone de opciones de financiacion. Te informaremos de las condiciones cuando contactemos contigo.'
+                  : 'Consulta con nuestro equipo las opciones de financiacion y becas disponibles.',
+              },
+              {
+                q: 'La titulacion es oficial?',
+                a: officialTitle
+                  ? `Si, al completar el ciclo obtendras el titulo de "${officialTitle}", reconocido oficialmente.`
+                  : 'Si, nuestras titulaciones son oficiales y reconocidas por el Ministerio de Educacion.',
+              },
+              {
+                q: 'Cuando puedo empezar?',
+                a: startMonth
+                  ? `Esta convocatoria tiene previsto su inicio en ${startMonth.toLowerCase()}. El plazo de inscripcion esta abierto.`
+                  : 'Las fechas exactas se confirman al completar la inscripcion. Contactanos para mas informacion.',
+              },
+            ].map((faq, i) => (
+              <details key={i} className="group rounded-xl border border-gray-200 bg-white">
+                <summary className="flex cursor-pointer items-center justify-between gap-2 px-5 py-4 text-sm font-semibold text-gray-900 list-none [&::-webkit-details-marker]:hidden">
+                  {faq.q}
+                  <IconChevronDown />
+                </summary>
+                <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* Bottom CTA */}
+        <div className="text-center pb-4">
+          <a
+            href="#formulario"
+            className="inline-flex items-center rounded-lg brand-btn px-8 py-3 text-sm font-bold uppercase tracking-wide text-white transition-transform hover:scale-[1.02]"
+          >
+            Solicitar informacion
+          </a>
+          <p className="mt-2 text-xs text-gray-400">Sin compromiso. Te contactamos en 24h.</p>
         </div>
       </div>
     </div>
