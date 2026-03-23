@@ -58,6 +58,17 @@ interface MediaApiDocument {
   updatedAt: string
 }
 
+/** Convert absolute Payload media URLs to relative paths */
+function toRelativeUrl(url: string): string {
+  if (!url) return ''
+  try {
+    const parsed = new URL(url, 'http://localhost')
+    return parsed.pathname
+  } catch {
+    return url
+  }
+}
+
 function toStrictVariant(variant?: {
   url?: string
   width?: number
@@ -142,8 +153,8 @@ export default function MediaPage() {
           width: doc.width,
           height: doc.height,
           alt: doc.alt ?? doc.filename ?? 'Media',
-          url: doc.url ?? doc.file?.url ?? '',
-          thumbnailURL: doc.sizes?.thumbnail?.url,
+          url: toRelativeUrl(doc.url ?? doc.file?.url ?? ''),
+          thumbnailURL: toRelativeUrl(doc.sizes?.thumbnail?.url ?? ''),
           sizes: {
             ...(thumbnail ? { thumbnail } : {}),
             ...(card ? { card } : {}),
