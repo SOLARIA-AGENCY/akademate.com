@@ -120,8 +120,8 @@ const menuItems: MenuItemWithSection[] = [
     title: 'Contenido Web',
     icon: Globe,
     items: [
-      { title: 'Cursos Publicados', icon: BookOpen, url: '/web/cursos' },
-      { title: 'Ciclos Publicados', icon: GraduationCap, url: '/web/ciclos' },
+      { title: 'Cursos', icon: BookOpen, url: '/web/cursos' },
+      { title: 'Ciclos', icon: GraduationCap, url: '/web/ciclos' },
       { title: 'Convocatorias', icon: Calendar, url: '/web/convocatorias' },
       { title: 'Noticias/Blog', icon: Newspaper, url: '/contenido/blog' },
       { title: 'Páginas', icon: FileEdit, url: '/contenido/paginas' },
@@ -162,6 +162,7 @@ const menuItems: MenuItemWithSection[] = [
       { title: 'Roles y Permisos', icon: Shield, url: '/administracion/roles' },
       { title: 'Areas de Estudio', icon: BookOpen, url: '/administracion/areas-estudio' },
       { title: 'Tipos de Estudio', icon: Tag, url: '/administracion/tipos-estudio' },
+      { title: 'Historial', icon: FileText, url: '/administracion/historial' },
       { title: 'Suscripción', icon: CreditCard, url: '/administracion/suscripcion' },
       { title: 'Registro de Actividad', icon: FileText, url: '/administracion/actividad' },
     ],
