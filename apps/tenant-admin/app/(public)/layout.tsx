@@ -17,9 +17,20 @@ async function getTenantData() {
     const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
     const tenant = tenants.docs[0] as any
     const primaryColor = tenant?.branding_primary_color || '#cc0000'
+
+    // Read logo from config API
+    let logo = '/logos/akademate-logo-official.png'
+    try {
+      const logoRes = await fetch(`${process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3009'}/api/config?section=logos&tenantId=${tenant?.id || 1}`)
+      if (logoRes.ok) {
+        const logoData = await logoRes.json()
+        if (logoData.data?.principal) logo = logoData.data.principal
+      }
+    } catch { /* use default */ }
+
     return {
       name: tenant?.name || 'Akademate',
-      logo: '/logos/akademate-logo-official.png',
+      logo,
       primaryColor,
       metaPixelId: tenant?.integrations_meta_pixel_id || tenant?.integrations?.metaPixelId || '',
       ga4MeasurementId: tenant?.integrations_ga4_measurement_id || tenant?.integrations?.ga4MeasurementId || '',
