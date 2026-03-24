@@ -3,6 +3,9 @@ import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 interface LeadsWhere {
   status?: { equals: string }
   or?: Array<Record<string, { like: string }>>
@@ -58,5 +61,88 @@ export async function GET(request: NextRequest) {
       hasPrevPage: false,
       warning: 'Leads no disponibles temporalmente.',
     })
+  }
+}
+
+// POST /api/leads — Create a new lead from public forms
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+
+    if (!body.email) {
+      return NextResponse.json(
+        { error: 'Email es obligatorio' },
+        { status: 400 }
+      )
+    }
+
+    const payload = await getPayloadHMR({ config: configPromise })
+
+    // Parse name into first/last
+    const fullName = body.first_name || body.name || ''
+    const nameParts = fullName.trim().split(/\s+/)
+    const firstName = nameParts[0] || body.email.split('@')[0]
+    const lastName = nameParts.slice(1).join(' ') || '-'
+
+    // Normalize phone to Spanish format: +34 XXX XXX XXX
+    let phone = (body.phone || '').replace(/\s+/g, '').replace(/^0+/, '')
+    if (phone && !phone.startsWith('+34')) phone = phone.startsWith('34') ? `+${phone}` : `+34${phone}`
+    // Format with spaces: +34 XXX XXX XXX
+    if (phone.startsWith('+34') && phone.length >= 12) {
+      const digits = phone.replace('+34', '')
+      phone = `+34 ${digits.slice(0,3)} ${digits.slice(3,6)} ${digits.slice(6,9)}`
+    }
+    if (!phone || phone.length < 10) phone = '+34 000 000 000'
+
+    // Build lead data
+    const leadData: Record<string, unknown> = {
+      email: body.email,
+      first_name: firstName,
+      last_name: lastName,
+      phone,
+      message: body.message || undefined,
+      gdpr_consent: body.gdpr_consent ?? true,
+      consent_timestamp: body.consent_timestamp || new Date().toISOString(),
+      privacy_policy_accepted: true,
+      status: 'new',
+      lead_score: 0,
+      // Source tracking
+      lead_type: body.lead_type || 'lead',
+      source_form: body.source_form || 'web',
+      source_page: body.source_page || undefined,
+      // UTM tracking
+      utm_source: body.utm_source || undefined,
+      utm_medium: body.utm_medium || undefined,
+      utm_campaign: body.utm_campaign || undefined,
+      // Priority
+      priority: body.priority || (body.lead_type === 'inscripcion' ? 'high' : 'medium'),
+      // Notes
+      callback_notes: body.notes || undefined,
+      // RGPD retention (24 months)
+      gdpr_retention_until: new Date(Date.now() + 24 * 30 * 24 * 60 * 60 * 1000).toISOString(),
+      // Tenant
+      tenant: 1,
+    }
+
+    // Remove undefined values
+    Object.keys(leadData).forEach(key => {
+      if (leadData[key] === undefined) delete leadData[key]
+    })
+
+    const created = await payload.create({
+      collection: 'leads',
+      data: leadData as any,
+    })
+
+    return NextResponse.json(
+      { success: true, id: created.id },
+      { status: 201 }
+    )
+  } catch (error) {
+    console.error('[API][Leads] POST error:', error)
+    return NextResponse.json(
+      { error: 'No se pudo crear el lead' },
+      { status: 500 }
+    )
   }
 }
