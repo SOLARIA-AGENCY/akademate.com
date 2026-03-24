@@ -1,6 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, BarChart, Bar, Legend,
+} from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
@@ -268,6 +272,136 @@ function StatusBadge({ status }: { status: string }) {
 // Tab Content Components
 // ---------------------------------------------------------------------------
 
+// Generate 30 days of mock traffic data
+function generateTrafficData() {
+  const data = []
+  const now = new Date()
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(now)
+    date.setDate(date.getDate() - i)
+    const dayOfWeek = date.getDay()
+    // More traffic on weekdays, less on weekends
+    const base = dayOfWeek === 0 || dayOfWeek === 6 ? 80 : 150
+    const organic = Math.round(base + Math.random() * 60)
+    const facebook = Math.round(30 + Math.random() * 40)
+    const google = Math.round(15 + Math.random() * 25)
+    data.push({
+      date: date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+      fullDate: date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }),
+      Organico: organic,
+      'Facebook Ads': facebook,
+      'Google Ads': google,
+      Total: organic + facebook + google,
+    })
+  }
+  return data
+}
+
+const TRAFFIC_DATA = generateTrafficData()
+
+function TrafficChart() {
+  const [view, setView] = useState<'area' | 'bar'>('area')
+  const [showChannels, setShowChannels] = useState(true)
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-base">Trafico por dia</CardTitle>
+        <div className="flex gap-1">
+          <Button size="sm" variant={view === 'area' ? 'default' : 'outline'} onClick={() => setView('area')} className="text-xs h-7 px-2">Area</Button>
+          <Button size="sm" variant={view === 'bar' ? 'default' : 'outline'} onClick={() => setView('bar')} className="text-xs h-7 px-2">Barras</Button>
+          <Button size="sm" variant="ghost" onClick={() => setShowChannels(!showChannels)} className="text-xs h-7 px-2">
+            {showChannels ? 'Total' : 'Canales'}
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="h-72 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            {view === 'area' ? (
+              <AreaChart data={TRAFFIC_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="colorOrganic" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorFb" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorGoogle" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    color: 'hsl(var(--foreground))',
+                  }}
+                  labelFormatter={(label, payload) => {
+                    const item = payload?.[0]?.payload
+                    return item?.fullDate || label
+                  }}
+                />
+                {showChannels ? (
+                  <>
+                    <Area type="monotone" dataKey="Organico" stroke="#10B981" fill="url(#colorOrganic)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="Facebook Ads" stroke="#3B82F6" fill="url(#colorFb)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="Google Ads" stroke="#F59E0B" fill="url(#colorGoogle)" strokeWidth={2} />
+                  </>
+                ) : (
+                  <Area type="monotone" dataKey="Total" stroke="hsl(var(--primary))" fill="url(#colorTotal)" strokeWidth={2.5} />
+                )}
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+              </AreaChart>
+            ) : (
+              <BarChart data={TRAFFIC_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    color: 'hsl(var(--foreground))',
+                  }}
+                  labelFormatter={(label, payload) => {
+                    const item = payload?.[0]?.payload
+                    return item?.fullDate || label
+                  }}
+                />
+                {showChannels ? (
+                  <>
+                    <Bar dataKey="Organico" fill="#10B981" radius={[2, 2, 0, 0]} />
+                    <Bar dataKey="Facebook Ads" fill="#3B82F6" radius={[2, 2, 0, 0]} />
+                    <Bar dataKey="Google Ads" fill="#F59E0B" radius={[2, 2, 0, 0]} />
+                  </>
+                ) : (
+                  <Bar dataKey="Total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                )}
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+              </BarChart>
+            )}
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 function OverviewTab() {
   const d = MOCK.overview
   return (
@@ -294,6 +428,9 @@ function OverviewTab() {
           icon={TrendingUp}
         />
       </div>
+
+      {/* Traffic chart */}
+      <TrafficChart />
 
       {/* Channel distribution */}
       <div className="grid gap-4 sm:grid-cols-3">
