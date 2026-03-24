@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -48,6 +49,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 }
 
 export default function InscripcionesPage() {
+  const router = useRouter()
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -126,7 +128,7 @@ export default function InscripcionesPage() {
             const timeSince = lead.createdAt ? Math.round((Date.now() - new Date(lead.createdAt).getTime()) / (1000 * 60 * 60)) : 0
             const isUrgent = timeSince < 24 && (!lead.status || lead.status === 'new')
             return (
-              <Card key={lead.id} className={`${isUrgent ? 'border-l-4 border-l-red-500' : ''} hover:shadow-md transition-shadow`}>
+              <Card key={lead.id} className={`${isUrgent ? 'border-l-4 border-l-red-500' : ''} hover:shadow-md transition-shadow cursor-pointer`} onClick={() => router.push(`/inscripciones/${lead.id}`)}>
                 <CardContent className="p-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="min-w-0 flex-1">
