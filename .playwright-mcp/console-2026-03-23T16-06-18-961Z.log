@@ -1,0 +1,13 @@
+[    7043ms] [ERROR] ErrorUtils caught an error:
+
+e is not a constructor [Caught in: An uncaught error was thrown inside `RelayObservable`.]
+
+Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. {column: 1272, clientTime: 1774281986, extra: Object, guardList: Array(2), hash: ipsiaw} @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:77
+[ 8109143ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:335
+[ 8109375ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:335
+[ 8109388ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:335
+[ 8109440ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:335
+[ 8109441ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:335
+[ 8109442ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:335
+[44613446ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:335
+[48956649ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yr/r/r8ezPNlMi4F.js:335

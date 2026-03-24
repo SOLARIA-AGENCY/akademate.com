@@ -29,12 +29,17 @@ export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFor
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          name: name || undefined,
+          first_name: name || undefined,
           phone: phone || undefined,
-          source: 'landing_ciclo',
+          source_form: 'landing_ciclo',
+          source_page: typeof window !== 'undefined' ? window.location.href : '',
           notes: `Interesado en: ${cycleName}`,
-          cycle_id: cycleId,
-          type: hasActiveConvocatorias ? 'lead' : 'waiting_list',
+          lead_type: hasActiveConvocatorias ? 'lead' : 'waiting_list',
+          gdpr_consent: true,
+          consent_timestamp: new Date().toISOString(),
+          utm_source: typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('utm_source') || undefined : undefined,
+          utm_medium: typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('utm_medium') || undefined : undefined,
+          utm_campaign: typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('utm_campaign') || undefined : undefined,
         }),
       })
 

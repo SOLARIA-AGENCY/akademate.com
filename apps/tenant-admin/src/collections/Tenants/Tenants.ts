@@ -227,16 +227,51 @@ export const Tenants: CollectionConfig = {
           },
         },
         {
+          name: 'gtmContainerId',
+          type: 'text',
+          label: 'Google Tag Manager ID',
+          admin: {
+            description: 'Ej: GTM-XXXXXXX',
+          },
+        },
+        {
           name: 'metaPixelId',
           type: 'text',
           label: 'Meta Pixel ID',
+          admin: {
+            description: 'ID del pixel de Meta/Facebook',
+          },
+        },
+        {
+          name: 'metaAdAccountId',
+          type: 'text',
+          label: 'Meta Ad Account ID',
+          admin: {
+            description: 'Ej: 730494526974837',
+          },
+        },
+        {
+          name: 'metaBusinessId',
+          type: 'text',
+          label: 'Meta Business ID',
+          admin: {
+            description: 'ID del Business Manager',
+          },
+        },
+        {
+          name: 'metaConversionsApiToken',
+          type: 'text',
+          label: 'Meta Conversions API Token',
+          admin: {
+            description: 'Token secreto para la API de Conversiones. Solo visible para Admin.',
+          },
         },
         {
           name: 'mailchimpApiKey',
           type: 'text',
           label: 'Mailchimp API Key',
           admin: {
-            description: 'Para integración de email marketing',
+            description: 'Para integracion de email marketing',
           },
         },
         {

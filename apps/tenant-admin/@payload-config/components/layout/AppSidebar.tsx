@@ -109,10 +109,11 @@ const menuItems: MenuItemWithSection[] = [
     ],
   },
   {
-    title: 'Leads e Inscripciones',
+    title: 'Captacion',
     icon: FileText,
     items: [
       { title: 'Leads', icon: FileText, url: '/leads' },
+      { title: 'Inscripciones', icon: UserPlus, url: '/inscripciones' },
       { title: 'Lista de Espera', icon: ListTodo, url: '/lista-espera' },
     ],
   },
