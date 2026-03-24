@@ -32,6 +32,7 @@ import {
   Eye,
   EyeOff,
   AlertTriangle,
+  Plug,
 } from 'lucide-react'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 
@@ -71,6 +72,17 @@ interface ColorScheme {
   danger: string
 }
 
+
+interface IntegrationsConfig {
+  ga4MeasurementId: string
+  gtmContainerId: string
+  metaPixelId: string
+  metaAdAccountId: string
+  metaBusinessId: string
+  metaConversionsApiToken: string
+  mailchimpApiKey: string
+  whatsappBusinessId: string
+}
 
 interface ConsentPreferences {
   marketing_email: boolean
@@ -126,6 +138,7 @@ const SECTIONS = [
   { id: 'general', label: 'General', icon: Building2 },
   { id: 'personalizacion', label: 'Personalizacion', icon: Palette },
   { id: 'areas', label: 'Areas', icon: BookOpen },
+  { id: 'integraciones', label: 'Integraciones', icon: Plug },
   { id: 'apis', label: 'APIs', icon: Key },
   { id: 'gdpr', label: 'GDPR', icon: ShieldCheck },
   { id: 'flags', label: 'Feature Flags', icon: ToggleLeft },
@@ -216,6 +229,14 @@ export default function ConfiguracionUnifiedPage() {
   // ---- Domains state ----
   const [domains, setDomains] = useState<string[]>([])
 
+  // ---- Integrations state ----
+  const [integrations, setIntegrations] = useState<IntegrationsConfig>({
+    ga4MeasurementId: '', gtmContainerId: '', metaPixelId: '', metaAdAccountId: '',
+    metaBusinessId: '', metaConversionsApiToken: '', mailchimpApiKey: '', whatsappBusinessId: '',
+  })
+  const [showCapiToken, setShowCapiToken] = useState(false)
+  const [showMailchimpKey, setShowMailchimpKey] = useState(false)
+
   // ---- API Keys state ----
   const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([])
   const [apiKeysLoading, setApiKeysLoading] = useState(false)
@@ -264,6 +285,15 @@ export default function ConfiguracionUnifiedPage() {
         if (domainsRes.ok) {
           const payload = await domainsRes.json()
           if (Array.isArray(payload.data)) setDomains(payload.data)
+        }
+
+        // Load integrations from branding
+        const brandingRes = await fetch(`/api/config?section=integrations&tenantId=${tenantId}`)
+        if (brandingRes.ok) {
+          const payload = await brandingRes.json()
+          if (payload.data) {
+            setIntegrations(prev => ({ ...prev, ...payload.data }))
+          }
         }
       } catch (err) {
         console.error('Error loading configuration:', err)
@@ -922,6 +952,300 @@ export default function ConfiguracionUnifiedPage() {
                 </a>
               </Button>
             </CardHeader>
+          </Card>
+        </section>
+
+        {/* ================================================================
+            INTEGRACIONES
+        ================================================================ */}
+        <section id="integraciones" ref={setRef('integraciones')} className="scroll-mt-20 space-y-4">
+          {/* Google */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Plug className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle>Google</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Google Analytics 4 y Google Tag Manager
+                  </p>
+                </div>
+              </div>
+              <SaveButton section="integrations-google" onClick={() => void saveSection('integrations', integrations)} />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="cfg-ga4">GA4 Measurement ID</Label>
+                  <Input
+                    id="cfg-ga4"
+                    value={integrations.ga4MeasurementId}
+                    onChange={(e) => setIntegrations(prev => ({ ...prev, ga4MeasurementId: e.target.value }))}
+                    placeholder="G-XXXXXXXXXX"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cfg-gtm">GTM Container ID</Label>
+                  <Input
+                    id="cfg-gtm"
+                    value={integrations.gtmContainerId}
+                    onChange={(e) => setIntegrations(prev => ({ ...prev, gtmContainerId: e.target.value }))}
+                    placeholder="GTM-XXXXXXX"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Meta / Facebook */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Plug className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle>Meta / Facebook</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Pixel, Conversions API y cuentas publicitarias
+                  </p>
+                </div>
+              </div>
+              <SaveButton section="integrations-meta" onClick={() => void saveSection('integrations', integrations)} />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="cfg-pixel">Meta Pixel ID</Label>
+                  <Input
+                    id="cfg-pixel"
+                    value={integrations.metaPixelId}
+                    onChange={(e) => setIntegrations(prev => ({ ...prev, metaPixelId: e.target.value }))}
+                    placeholder="ID del Pixel"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cfg-ad-account">Meta Ad Account ID</Label>
+                  <Input
+                    id="cfg-ad-account"
+                    value={integrations.metaAdAccountId}
+                    onChange={(e) => setIntegrations(prev => ({ ...prev, metaAdAccountId: e.target.value }))}
+                    placeholder="ID de cuenta publicitaria"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cfg-business">Meta Business ID</Label>
+                  <Input
+                    id="cfg-business"
+                    value={integrations.metaBusinessId}
+                    onChange={(e) => setIntegrations(prev => ({ ...prev, metaBusinessId: e.target.value }))}
+                    placeholder="ID del Business Manager"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cfg-capi">Meta Conversions API Token</Label>
+                  <div className="relative">
+                    <Input
+                      id="cfg-capi"
+                      type={showCapiToken ? 'text' : 'password'}
+                      value={integrations.metaConversionsApiToken}
+                      onChange={(e) => setIntegrations(prev => ({ ...prev, metaConversionsApiToken: e.target.value }))}
+                      placeholder="Token de Conversions API"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCapiToken(!showCapiToken)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showCapiToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Email y Messaging */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Mail className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle>Email y Messaging</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Mailchimp y WhatsApp Business
+                  </p>
+                </div>
+              </div>
+              <SaveButton section="integrations-messaging" onClick={() => void saveSection('integrations', integrations)} />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="cfg-mailchimp">Mailchimp API Key</Label>
+                  <div className="relative">
+                    <Input
+                      id="cfg-mailchimp"
+                      type={showMailchimpKey ? 'text' : 'password'}
+                      value={integrations.mailchimpApiKey}
+                      onChange={(e) => setIntegrations(prev => ({ ...prev, mailchimpApiKey: e.target.value }))}
+                      placeholder="API Key de Mailchimp"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowMailchimpKey(!showMailchimpKey)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showMailchimpKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cfg-whatsapp">WhatsApp Business ID</Label>
+                  <Input
+                    id="cfg-whatsapp"
+                    value={integrations.whatsappBusinessId}
+                    onChange={(e) => setIntegrations(prev => ({ ...prev, whatsappBusinessId: e.target.value }))}
+                    placeholder="ID de WhatsApp Business"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* ================================================================
+            Integraciones
+        ================================================================ */}
+        <section id="integraciones" ref={setRef('integraciones')} className="scroll-mt-20 space-y-4">
+          {/* Google */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Globe className="h-5 w-5" />
+                Google
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Google Analytics 4 ID</Label>
+                  <Input
+                    placeholder="G-XXXXXXXXXX"
+                    value={integrations.ga4MeasurementId}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setIntegrations(prev => ({ ...prev, ga4MeasurementId: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Google Tag Manager ID</Label>
+                  <Input
+                    placeholder="GTM-XXXXXXX"
+                    value={integrations.gtmContainerId}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setIntegrations(prev => ({ ...prev, gtmContainerId: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Meta / Facebook */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Plug className="h-5 w-5" />
+                Meta / Facebook
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Meta Pixel ID</Label>
+                  <Input
+                    placeholder="1189071876088388"
+                    value={integrations.metaPixelId}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setIntegrations(prev => ({ ...prev, metaPixelId: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Ad Account ID</Label>
+                  <Input
+                    placeholder="730494526974837"
+                    value={integrations.metaAdAccountId}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setIntegrations(prev => ({ ...prev, metaAdAccountId: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Business ID</Label>
+                  <Input
+                    placeholder="598666359737310"
+                    value={integrations.metaBusinessId}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setIntegrations(prev => ({ ...prev, metaBusinessId: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Conversions API Token</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type={showCapiToken ? 'text' : 'password'}
+                      placeholder="EAAHqi5Y9X4..."
+                      value={integrations.metaConversionsApiToken}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setIntegrations(prev => ({ ...prev, metaConversionsApiToken: e.target.value }))}
+                    />
+                    <Button variant="outline" size="icon" onClick={() => setShowCapiToken(!showCapiToken)}>
+                      {showCapiToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Email y Messaging */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Mail className="h-5 w-5" />
+                Email y Messaging
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Mailchimp API Key</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type={showMailchimpKey ? 'text' : 'password'}
+                      placeholder="xxxxxxxx-us1"
+                      value={integrations.mailchimpApiKey}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setIntegrations(prev => ({ ...prev, mailchimpApiKey: e.target.value }))}
+                    />
+                    <Button variant="outline" size="icon" onClick={() => setShowMailchimpKey(!showMailchimpKey)}>
+                      {showMailchimpKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>WhatsApp Business ID</Label>
+                  <Input
+                    placeholder="ID de WhatsApp Business"
+                    value={integrations.whatsappBusinessId}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setIntegrations(prev => ({ ...prev, whatsappBusinessId: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={() => saveSection('integrations', integrations)} disabled={savingSection === 'integrations'}>
+                  {savingSection === 'integrations' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : savedSection === 'integrations' ? <Check className="h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                  {savedSection === 'integrations' ? 'Guardado' : 'Guardar Integraciones'}
+                </Button>
+              </div>
+            </CardContent>
           </Card>
         </section>
 

@@ -27,6 +27,27 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
     setError('')
 
     try {
+      const eventId = crypto.randomUUID()
+
+      // Read Meta cookies for better matching
+      const getCookie = (name_c: string) => document.cookie.split('; ').find(c => c.startsWith(name_c + '='))?.split('=')[1]
+      const fbc = getCookie('_fbc')
+      const fbp = getCookie('_fbp')
+
+      // Read UTM params from URL
+      const urlParams = new URLSearchParams(window.location.search)
+      const utmSource = urlParams.get('utm_source') || ''
+      const utmMedium = urlParams.get('utm_medium') || ''
+      const utmCampaign = urlParams.get('utm_campaign') || ''
+
+      // Fire browser Pixel Lead event
+      if ((window as any).fbq) {
+        ;(window as any).fbq('track', 'Lead', {
+          content_name: courseName || '',
+          content_category: 'convocatoria',
+        }, { eventID: eventId })
+      }
+
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -43,9 +64,12 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
           priority: 'urgente',
           gdpr_consent: true,
           consent_timestamp: new Date().toISOString(),
-          utm_source: typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('utm_source') || undefined : undefined,
-          utm_medium: typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('utm_medium') || undefined : undefined,
-          utm_campaign: typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('utm_campaign') || undefined : undefined,
+          event_id: eventId,
+          fbc,
+          fbp,
+          utm_source: utmSource || undefined,
+          utm_medium: utmMedium || undefined,
+          utm_campaign: utmCampaign || undefined,
         }),
       })
       if (res.ok) {

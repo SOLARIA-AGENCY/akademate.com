@@ -21,9 +21,11 @@ async function getTenantData() {
       name: tenant?.name || 'Akademate',
       logo: '/logos/akademate-logo-official.png',
       primaryColor,
+      metaPixelId: tenant?.integrations?.metaPixelId || '',
+      ga4MeasurementId: tenant?.integrations?.ga4MeasurementId || '',
     }
   } catch {
-    return { name: 'Akademate', logo: '/logos/akademate-logo-official.png', primaryColor: '#0066CC' }
+    return { name: 'Akademate', logo: '/logos/akademate-logo-official.png', primaryColor: '#0066CC', metaPixelId: '', ga4MeasurementId: '' }
   }
 }
 
@@ -33,6 +35,32 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <html lang="es">
+      <head>
+        {tenant.metaPixelId && (
+          <>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${tenant.metaPixelId}');
+fbq('track', 'PageView');`,
+              }}
+            />
+            <noscript>
+              <img
+                height="1"
+                width="1"
+                style={{ display: 'none' }}
+                src={`https://www.facebook.com/tr?id=${tenant.metaPixelId}&ev=PageView&noscript=1`}
+                alt=""
+              />
+            </noscript>
+          </>
+        )}
+      </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
         {/* Inject brand color as CSS variable */}
         <style>{`

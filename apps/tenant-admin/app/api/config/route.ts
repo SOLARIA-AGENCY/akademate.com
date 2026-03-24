@@ -19,6 +19,17 @@ const LogosSchema = z.object({
   claro: z.string().default(''),
   favicon: z.string().default(''),
 })
+const IntegrationsSchema = z.object({
+  ga4MeasurementId: z.string().default(''),
+  gtmContainerId: z.string().default(''),
+  metaPixelId: z.string().default(''),
+  metaAdAccountId: z.string().default(''),
+  metaBusinessId: z.string().default(''),
+  metaConversionsApiToken: z.string().default(''),
+  mailchimpApiKey: z.string().default(''),
+  whatsappBusinessId: z.string().default(''),
+})
+
 const AcademiaSchema = z.object({
   nombre: z.string().min(1),
   razonSocial: z.string().default(''),
@@ -45,6 +56,7 @@ interface TenantBranding {
   academia?: z.infer<typeof AcademiaSchema>
   logos?: z.infer<typeof LogosSchema>
   theme?: z.infer<typeof PersonalizacionSchema>
+  integrations?: z.infer<typeof IntegrationsSchema>
   [key: string]: unknown
 }
 
@@ -463,6 +475,27 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    if (section === 'integrations') {
+      if (tenantId) {
+        try {
+          const tenant = await getTenantBranding(tenantId)
+          if (tenant) {
+            const fromBranding = IntegrationsSchema.safeParse(tenant.branding?.integrations ?? {})
+            return NextResponse.json({
+              success: true,
+              data: fromBranding.success ? fromBranding.data : IntegrationsSchema.parse({}),
+            })
+          }
+        } catch {
+          // Fallback to defaults
+        }
+      }
+      return NextResponse.json({
+        success: true,
+        data: IntegrationsSchema.parse({}),
+      })
+    }
+
     // Section not found
     return NextResponse.json(
       { success: false, error: 'Section not found' },
@@ -620,6 +653,44 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Logos actualizados correctamente',
+        data: parsed.data,
+      })
+    }
+
+    if (section === 'integrations') {
+      if (!tenantId) {
+        return NextResponse.json(
+          { success: false, error: 'tenantId is required' },
+          { status: 400 }
+        )
+      }
+
+      const parsed = IntegrationsSchema.safeParse(data)
+      if (!parsed.success) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid integrations payload', details: parsed.error.flatten() },
+          { status: 400 }
+        )
+      }
+
+      const tenant = await getTenantBranding(tenantId)
+      if (!tenant) {
+        return NextResponse.json(
+          { success: false, error: 'Tenant not found' },
+          { status: 404 }
+        )
+      }
+
+      const nextBranding: TenantBranding = {
+        ...(tenant.branding ?? {}),
+        integrations: parsed.data,
+      }
+
+      await updateTenantBranding(tenantId, nextBranding)
+
+      return NextResponse.json({
+        success: true,
+        message: 'Integraciones actualizadas correctamente',
         data: parsed.data,
       })
     }
