@@ -116,11 +116,13 @@ export default function LoginPage() {
         {/* Logo/Brand */}
         <div className="text-center mb-8" data-oid="1vf7s_f">
           <div className="flex flex-col items-center gap-2 mb-2" data-oid="ou4cocr">
-            <img
-              src={branding.logos.principal || '/logos/akademate-icon-180.png'}
-              alt={branding.academyName}
-              className={`w-16 h-16 object-contain transition-opacity duration-300 ${brandingLoading ? 'opacity-0' : 'opacity-100'}`}
-            />
+            <div className={`w-20 h-20 rounded-full bg-white shadow-lg border border-border flex items-center justify-center overflow-hidden transition-opacity duration-300 ${brandingLoading ? 'opacity-0' : 'opacity-100'}`}>
+              <img
+                src={branding.logos.principal || '/logos/akademate-icon-180.png'}
+                alt={branding.academyName}
+                className="w-14 h-14 object-contain"
+              />
+            </div>
             <span className={`text-2xl font-bold tracking-tight text-foreground transition-opacity duration-300 ${brandingLoading ? 'opacity-0' : 'opacity-100'}`}>
               {branding.academyName}
             </span>
