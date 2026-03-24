@@ -89,6 +89,7 @@ export default function TodosLosCiclosPage() {
   const [familiaFilter, setFamiliaFilter] = React.useState<string>('todas')
   const [modalidadFilter, setModalidadFilter] = React.useState<string>('todas')
   const [ciclosData, setCiclosData] = React.useState<Ciclo[]>(mockCiclosData)
+  const [convocatoriasCountMap, setConvocatoriasCountMap] = React.useState<Record<string, number>>({})
   const [isLoading, setIsLoading] = React.useState(true)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const [limitModal, setLimitModal] = React.useState<{ open: boolean; current: number; limit: number } | null>(null)
@@ -170,6 +171,23 @@ export default function TodosLosCiclosPage() {
         if (mapped.length > 0) {
           setCiclosData(mapped)
         }
+
+        // Fetch convocatorias (course-runs) to count per cycle
+        try {
+          const crRes = await fetch('/api/course-runs?depth=0&limit=500', { cache: 'no-cache' })
+          if (crRes.ok) {
+            const crPayload = await crRes.json()
+            const crDocs: any[] = Array.isArray(crPayload.docs) ? crPayload.docs : []
+            const countMap: Record<string, number> = {}
+            for (const cr of crDocs) {
+              const cycleId = typeof cr.cycle === 'object' && cr.cycle ? cr.cycle.id : cr.cycle
+              if (cycleId) {
+                countMap[String(cycleId)] = (countMap[String(cycleId)] || 0) + 1
+              }
+            }
+            setConvocatoriasCountMap(countMap)
+          }
+        } catch { /* convocatorias count is optional */ }
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : 'Error al cargar ciclos')
       } finally {
@@ -412,7 +430,7 @@ export default function TodosLosCiclosPage() {
                     <div className="flex items-center gap-2" data-oid="kca:zxv">
                       <BookOpen className="h-4 w-4 text-muted-foreground" data-oid="ppeqt-2" />
                       <span className="text-muted-foreground" data-oid="iufe18:">
-                        {ciclo.cursos_activos} convocatorias
+                        {convocatoriasCountMap[ciclo.id] || 0} convocatorias
                       </span>
                     </div>
                   </div>
@@ -441,7 +459,7 @@ export default function TodosLosCiclosPage() {
               duracion_total_horas: parseInt(ciclo.duracion) || 2000,
               image: ciclo.imagen,
               color: '',
-              cursos: Array.from({ length: ciclo.cursos_activos }, (_, index) => ({
+              cursos: Array.from({ length: convocatoriasCountMap[ciclo.id] || 0 }, (_, index) => ({
                 id: `curso-${ciclo.id}-${index}`,
                 ciclo_plantilla_id: ciclo.id,
                 nombre: `Curso ${index + 1}`,

@@ -24,7 +24,6 @@ import {
   ChevronLeft,
   ChevronRight,
   GraduationCap,
-  MapPin,
   Shield,
   Globe,
   FileInput,
@@ -37,11 +36,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import useSWR from 'swr'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 // Menu structure with sections
 // Section: null = no separator, otherwise show separator before item.
@@ -310,29 +306,8 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const [openSections, setOpenSections] = React.useState<string[]>([])
   const { branding } = useTenantBranding()
   const academyName = branding.academyName
-  // Cargar campuses dinámicamente para reemplazar las sedes hardcodeadas
-  const { data: campusesData } = useSWR<{ docs: { id: number; name: string }[] }>(
-    '/api/campuses?limit=20&sort=createdAt',
-    fetcher,
-    { revalidateOnFocus: false }
-  )
-
-  const dynamicMenuItems: MenuItemWithSection[] = menuItems.map((item) => {
-    if (item.title !== 'Sedes') return item
-    const campusList = campusesData?.docs ?? []
-    // Sin sedes: link directo a /sedes
-    if (campusList.length === 0) return item
-    // Con sedes: accordion con cada campus individual
-    return {
-      ...item,
-      url: undefined,
-      items: campusList.map((c) => ({
-        title: c.name,
-        icon: MapPin,
-        url: `/sedes/${c.id}`,
-      })),
-    }
-  })
+  // Menu items used directly (Sedes is a simple link to /sedes)
+  const dynamicMenuItems: MenuItemWithSection[] = menuItems
 
   // Sincroniza el search string cuando cambia la ruta
   React.useEffect(() => {

@@ -8,7 +8,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, GraduationCap, Clock, Layers, Edit, Loader2,
-  Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin,
+  Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin, FileText,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -49,6 +49,7 @@ interface CycleDetail {
   competencies?: Array<{ title: string; description: string }>
   totalPrice?: number
   active?: boolean
+  documents?: Array<{ title: string; type?: string; file?: { url?: string } | number }>
 }
 
 // ---------------------------------------------------------------------------
@@ -260,7 +261,7 @@ export default function CicloDetailPage({ params }: Props) {
                       in_progress: 'En curso', completed: 'Finalizada', cancelled: 'Cancelada',
                     }
                     const statusColors: Record<string, string> = {
-                      enrollment_open: 'border-l-green-500', published: 'border-l-blue-500',
+                      enrollment_open: 'border-l-green-500', published: 'border-l-primary',
                       in_progress: 'border-l-amber-500', completed: 'border-l-gray-400', cancelled: 'border-l-red-500',
                     }
                     const plazas = conv.max_students || 0
@@ -432,6 +433,23 @@ export default function CicloDetailPage({ params }: Props) {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
+
+              {/* PDF Documents */}
+              {Array.isArray(cycle.documents) && cycle.documents.length > 0 && (
+                <div className="border-t border-border pt-3 space-y-2">
+                  {cycle.documents.map((doc: any, i: number) => {
+                    const fileUrl = typeof doc.file === 'object' ? doc.file?.url : null
+                    if (!fileUrl) return null
+                    return (
+                      <a key={i} href={fileUrl} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-primary hover:underline">
+                        <FileText className="h-4 w-4" />
+                        {doc.title || 'Documento'}
+                      </a>
+                    )
+                  })}
+                </div>
+              )}
 
               {/* Description */}
               {cycle.description && (

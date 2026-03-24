@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from '@payload-config/components/ui/select'
 import {
-  Plus,
   Search,
   User,
   Mail,
@@ -28,6 +27,7 @@ import {
   List,
   MapPin,
   GraduationCap,
+  UserPlus,
 } from 'lucide-react'
 
 interface Student {
@@ -122,10 +122,6 @@ export default function AlumnosPage() {
     void fetchStudents()
   }, [])
 
-  const handleAdd = () => {
-    router.push('/alumnos/nuevo')
-  }
-
   const handleViewStudent = (studentId: string) => {
     router.push(`/alumnos/${studentId}`)
   }
@@ -189,42 +185,36 @@ export default function AlumnosPage() {
         description={`${filteredStudents.length} alumnos de ${students.length} totales`}
         icon={User}
         actions={
-          <>
-            <div className="flex items-center gap-1 bg-muted p-1 rounded-lg" data-oid="mddf.5b">
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="sm"
-                className={
-                  viewMode === 'list'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }
-                onClick={() => setViewMode('list')}
-                data-oid="f.4b31g"
-              >
-                <List className="h-4 w-4 mr-2" data-oid="skj-s5p" />
-                Listado
-              </Button>
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                size="sm"
-                className={
-                  viewMode === 'grid'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }
-                onClick={() => setViewMode('grid')}
-                data-oid="t_--gmp"
-              >
-                <LayoutGrid className="h-4 w-4 mr-2" data-oid="frog:b0" />
-                Fichas
-              </Button>
-            </div>
-            <Button onClick={handleAdd} data-oid="y8vld12">
-              <Plus className="h-4 w-4" data-oid="jdkge43" />
-              Nuevo Alumno
+          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg" data-oid="mddf.5b">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              className={
+                viewMode === 'list'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }
+              onClick={() => setViewMode('list')}
+              data-oid="f.4b31g"
+            >
+              <List className="h-4 w-4 mr-2" data-oid="skj-s5p" />
+              Listado
             </Button>
-          </>
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              className={
+                viewMode === 'grid'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }
+              onClick={() => setViewMode('grid')}
+              data-oid="t_--gmp"
+            >
+              <LayoutGrid className="h-4 w-4 mr-2" data-oid="frog:b0" />
+              Fichas
+            </Button>
+          </div>
         }
         data-oid="2bu4ozx"
       />
@@ -507,10 +497,22 @@ export default function AlumnosPage() {
                 </div>
 
                 {filteredStudents.length === 0 && (
-                  <div className="py-12 text-center" data-oid="ioxw5-:">
-                    <p className="text-muted-foreground" data-oid="h21g4jj">
-                      No se encontraron alumnos que coincidan con los filtros seleccionados.
-                    </p>
+                  <div className="py-12 text-center space-y-3" data-oid="ioxw5-:">
+                    {students.length === 0 ? (
+                      <>
+                        <p className="text-muted-foreground" data-oid="h21g4jj">
+                          Los alumnos se crean automaticamente al realizar una matriculacion
+                        </p>
+                        <Button onClick={() => router.push('/matriculas')} data-oid="ir-matri-list">
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Ir a Matriculacion
+                        </Button>
+                      </>
+                    ) : (
+                      <p className="text-muted-foreground" data-oid="h21g4jj">
+                        No se encontraron alumnos que coincidan con los filtros seleccionados.
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -798,10 +800,22 @@ export default function AlumnosPage() {
 
           {filteredStudents.length === 0 && (
             <Card className="col-span-full" data-oid="2lx:bjr">
-              <CardContent className="py-12 text-center" data-oid="b1d0:0p">
-                <p className="text-muted-foreground" data-oid="k_an-0i">
-                  No se encontraron alumnos que coincidan con los filtros seleccionados.
-                </p>
+              <CardContent className="py-12 text-center space-y-3" data-oid="b1d0:0p">
+                {students.length === 0 ? (
+                  <>
+                    <p className="text-muted-foreground" data-oid="k_an-0i">
+                      Los alumnos se crean automaticamente al realizar una matriculacion
+                    </p>
+                    <Button onClick={() => router.push('/matriculas')} data-oid="ir-matri-grid">
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Ir a Matriculacion
+                    </Button>
+                  </>
+                ) : (
+                  <p className="text-muted-foreground" data-oid="k_an-0i">
+                    No se encontraron alumnos que coincidan con los filtros seleccionados.
+                  </p>
+                )}
               </CardContent>
             </Card>
           )}
