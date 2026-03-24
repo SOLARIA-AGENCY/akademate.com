@@ -120,6 +120,7 @@ const staticPaths = [
   '/api/media/file', // Serve uploaded media files without auth
   '/placeholder-course.svg',
   '/media',
+  '/og-image',
 ]
 
 // Payload native admin - let Payload handle its own auth

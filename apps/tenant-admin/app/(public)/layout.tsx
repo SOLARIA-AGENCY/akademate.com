@@ -5,8 +5,30 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
 export const metadata: Metadata = {
-  title: 'Formacion Profesional | Akademate',
-  description: 'Descubre ciclos formativos y cursos de formacion profesional.',
+  title: 'CEP Formacion — Centro de Formacion Profesional en Tenerife',
+  description: 'Ciclos formativos oficiales de Grado Medio y Superior. Modalidad semipresencial, 1 dia de clase a la semana, 500h de practicas en empresa. Mas de 26 anos formando profesionales.',
+  openGraph: {
+    title: 'CEP Formacion — Formacion Profesional en Tenerife',
+    description: 'Ciclos formativos oficiales. Semipresencial, practicas en empresa, financiacion disponible.',
+    url: 'https://cepformacion.akademate.com',
+    siteName: 'CEP Formacion',
+    images: [
+      {
+        url: 'https://cepformacion.akademate.com/og-image.png',
+        width: 1000,
+        height: 1000,
+        alt: 'CEP Formacion',
+      },
+    ],
+    locale: 'es_ES',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CEP Formacion — Formacion Profesional en Tenerife',
+    description: 'Ciclos formativos oficiales. Semipresencial, practicas en empresa.',
+    images: ['https://cepformacion.akademate.com/og-image.png'],
+  },
 }
 
 export const dynamic = 'force-dynamic'
