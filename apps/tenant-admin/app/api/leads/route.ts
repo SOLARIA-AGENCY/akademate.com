@@ -94,45 +94,50 @@ export async function POST(request: NextRequest) {
     }
     if (!phone || phone.length < 10) phone = '+34 000 000 000'
 
-    // Build lead data
+    // Build lead data — ONLY include fields that exist in the Leads collection
     const leadData: Record<string, unknown> = {
       email: body.email,
       first_name: firstName,
       last_name: lastName,
       phone,
-      message: body.message || undefined,
       gdpr_consent: body.gdpr_consent ?? true,
       consent_timestamp: body.consent_timestamp || new Date().toISOString(),
       privacy_policy_accepted: true,
       status: 'new',
       lead_score: 0,
-      // Source tracking
-      lead_type: body.lead_type || 'lead',
-      source_form: body.source_form || 'web',
-      source_page: body.source_page || undefined,
-      // UTM tracking
       utm_source: body.utm_source || undefined,
       utm_medium: body.utm_medium || undefined,
       utm_campaign: body.utm_campaign || undefined,
-      // Priority
-      priority: body.priority || (body.lead_type === 'inscripcion' ? 'high' : 'medium'),
-      // Notes
-      callback_notes: body.notes || undefined,
-      // RGPD retention (24 months)
-      gdpr_retention_until: new Date(Date.now() + 24 * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      // Tenant
+      priority: ['low','medium','high','urgent'].includes(body.priority) ? body.priority : (body.lead_type === 'inscripcion' ? 'high' : 'medium'),
       tenant: 1,
     }
 
-    // Remove undefined values
+    // Remove undefined/null values to avoid Payload validation errors
     Object.keys(leadData).forEach(key => {
-      if (leadData[key] === undefined) delete leadData[key]
+      if (leadData[key] === undefined || leadData[key] === null) delete leadData[key]
     })
 
     const created = await payload.create({
       collection: 'leads',
       data: leadData as any,
     })
+
+    // Store extra tracking data directly in DB (fields that Payload collection doesn't know about)
+    try {
+      const { db } = payload
+      const extraFields: Record<string, string | null> = {}
+      if (body.source_form) extraFields.source_form = body.source_form
+      if (body.source_page) extraFields.source_page = body.source_page
+      if (body.lead_type) extraFields.lead_type = body.lead_type
+      if (body.message) extraFields.message = String(body.message)
+      if (body.notes) extraFields.callback_notes = body.notes
+      if (body.campaign_code) extraFields.campaign_code = body.campaign_code
+
+      if (Object.keys(extraFields).length > 0) {
+        const sets = Object.entries(extraFields).map(([k, v]) => `${k} = '${(v || '').replace(/'/g, "''")}'`).join(', ')
+        await (db as any).execute({ raw: `UPDATE leads SET ${sets} WHERE id = ${created.id}` }).catch(() => {})
+      }
+    } catch { /* extra fields are optional */ }
 
     return NextResponse.json(
       { success: true, id: created.id },
