@@ -32,23 +32,22 @@ type TenantBrandingContextValue = {
 }
 
 const DEFAULT_BRANDING: TenantBranding = {
-  academyName: 'Akademate',
+  academyName: 'CEP FORMACION',
   logos: {
-    principal: '/logos/akademate-logo-official.png',
-    oscuro: '/logos/akademate-logo-official.png',
-    claro: '/logos/akademate-logo-official.png',
-    favicon: '/logos/akademate-favicon.svg',
+    principal: '/logos/cep-formacion-logo.png',
+    oscuro: '/logos/cep-formacion-logo.png',
+    claro: '/logos/cep-formacion-logo.png',
+    favicon: '/logos/cep-formacion-logo.png',
   },
-  // Akademate brand palette (shown when no custom tenant config is found).
   theme: {
-    primary: '#0066CC',
+    primary: '#cc0000',
     secondary: '#1a1a2e',
-    accent: '#0088FF',
+    accent: '#cc0000',
     success: '#22c55e',
     warning: '#f59e0b',
     danger: '#ef4444',
   },
-  tenantId: process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2',
+  tenantId: process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '1',
 }
 
 const TenantBrandingContext = React.createContext<TenantBrandingContextValue | undefined>(undefined)
