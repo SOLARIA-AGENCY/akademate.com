@@ -21,8 +21,8 @@ async function getTenantData() {
       name: tenant?.name || 'Akademate',
       logo: '/logos/akademate-logo-official.png',
       primaryColor,
-      metaPixelId: tenant?.integrations?.metaPixelId || '',
-      ga4MeasurementId: tenant?.integrations?.ga4MeasurementId || '',
+      metaPixelId: tenant?.integrations_meta_pixel_id || tenant?.integrations?.metaPixelId || '',
+      ga4MeasurementId: tenant?.integrations_ga4_measurement_id || tenant?.integrations?.ga4MeasurementId || '',
     }
   } catch {
     return { name: 'Akademate', logo: '/logos/akademate-logo-official.png', primaryColor: '#0066CC', metaPixelId: '', ga4MeasurementId: '' }
