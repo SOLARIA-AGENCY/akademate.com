@@ -142,13 +142,14 @@ async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult
       name: string
       branding_primary_color: string | null
       branding_secondary_color: string | null
+      branding_logo_url: string | null
       contact_email: string | null
       contact_phone: string | null
       contact_address: string | null
       contact_website: string | null
     }
     const rows = await db.execute(
-      sql`SELECT id, name, branding_primary_color, branding_secondary_color, contact_email, contact_phone, contact_address, contact_website FROM tenants WHERE id = ${parseInt(tenantId, 10)} LIMIT 1`
+      sql`SELECT id, name, branding_primary_color, branding_secondary_color, branding_logo_url, contact_email, contact_phone, contact_address, contact_website FROM tenants WHERE id = ${parseInt(tenantId, 10)} LIMIT 1`
     )
     const row = (rows as unknown as PayloadRow[])[0]
     if (!row) return undefined
@@ -170,6 +171,15 @@ async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult
       telefono1: row.contact_phone ?? '',
       direccion: row.contact_address ?? '',
       web: row.contact_website ?? '',
+    }
+    // Logos from branding_logo_url column
+    if (row.branding_logo_url) {
+      branding.logos = {
+        principal: row.branding_logo_url,
+        oscuro: row.branding_logo_url,
+        claro: row.branding_logo_url,
+        favicon: row.branding_logo_url,
+      }
     }
     return { id: String(row.id), name: row.name, branding }
   }
