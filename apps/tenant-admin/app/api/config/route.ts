@@ -26,6 +26,7 @@ const IntegrationsSchema = z.object({
   metaAdAccountId: z.string().default(''),
   metaBusinessId: z.string().default(''),
   metaConversionsApiToken: z.string().default(''),
+  metaMarketingApiToken: z.string().default(''),
   mailchimpApiKey: z.string().default(''),
   whatsappBusinessId: z.string().default(''),
 })

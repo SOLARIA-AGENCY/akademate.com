@@ -66,13 +66,11 @@ export async function POST(request: NextRequest) {
     let accessToken = ''
 
     try {
-      const db = (payload as any).db
-      const result = await db.execute({
-        raw: `SELECT meta_marketing_api_token FROM tenants WHERE id = 1 LIMIT 1`,
-      })
-      accessToken = result?.rows?.[0]?.meta_marketing_api_token || ''
+      const tenants = await payload.find({ collection: 'tenants', limit: 1 })
+      const tenant = tenants.docs[0] as any
+      const integrations = tenant?.branding?.integrations
+      accessToken = integrations?.metaMarketingApiToken || process.env.META_MARKETING_API_TOKEN || ''
     } catch {
-      // Try env var fallback
       accessToken = process.env.META_MARKETING_API_TOKEN || ''
     }
 

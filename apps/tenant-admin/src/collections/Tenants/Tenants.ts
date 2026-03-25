@@ -267,6 +267,14 @@ export const Tenants: CollectionConfig = {
           },
         },
         {
+          name: 'metaMarketingApiToken',
+          type: 'text',
+          label: 'Meta Marketing API Token',
+          admin: {
+            description: 'Token para crear campanas via API. Generar en Business Manager > System Users.',
+          },
+        },
+        {
           name: 'mailchimpApiKey',
           type: 'text',
           label: 'Mailchimp API Key',

@@ -80,6 +80,7 @@ interface IntegrationsConfig {
   metaAdAccountId: string
   metaBusinessId: string
   metaConversionsApiToken: string
+  metaMarketingApiToken: string
   mailchimpApiKey: string
   whatsappBusinessId: string
 }
@@ -232,9 +233,10 @@ export default function ConfiguracionUnifiedPage() {
   // ---- Integrations state ----
   const [integrations, setIntegrations] = useState<IntegrationsConfig>({
     ga4MeasurementId: '', gtmContainerId: '', metaPixelId: '', metaAdAccountId: '',
-    metaBusinessId: '', metaConversionsApiToken: '', mailchimpApiKey: '', whatsappBusinessId: '',
+    metaBusinessId: '', metaConversionsApiToken: '', metaMarketingApiToken: '', mailchimpApiKey: '', whatsappBusinessId: '',
   })
   const [showCapiToken, setShowCapiToken] = useState(false)
+  const [showMarketingToken, setShowMarketingToken] = useState(false)
   const [showMailchimpKey, setShowMailchimpKey] = useState(false)
 
   // ---- API Keys state ----
@@ -1201,6 +1203,21 @@ export default function ConfiguracionUnifiedPage() {
                       {showCapiToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
+                </div>
+                <div className="space-y-1">
+                  <Label>Marketing API Token</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type={showMarketingToken ? 'text' : 'password'}
+                      placeholder="EAAzAMZCufB1IB..."
+                      value={integrations.metaMarketingApiToken}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setIntegrations(prev => ({ ...prev, metaMarketingApiToken: e.target.value }))}
+                    />
+                    <Button variant="outline" size="icon" onClick={() => setShowMarketingToken(!showMarketingToken)}>
+                      {showMarketingToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Para crear campanas via API. Generar en Business Manager &gt; System Users.</p>
                 </div>
               </div>
             </CardContent>
