@@ -21,6 +21,7 @@ import {
   CalendarRange,
   Loader2,
   Building2,
+  List,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 
@@ -50,7 +51,7 @@ interface Campus {
   name: string
 }
 
-type ViewMode = 'anual' | 'mes' | 'semana' | 'dia'
+type ViewMode = 'anual' | 'mes' | 'semana' | 'dia' | 'lista'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -627,6 +628,7 @@ export default function ProgramacionPage() {
     { key: 'mes', label: 'Mes', icon: CalendarDays },
     { key: 'semana', label: 'Semana', icon: Calendar },
     { key: 'dia', label: 'Dia', icon: Clock },
+    { key: 'lista', label: 'Lista', icon: List },
   ]
 
   return (
@@ -743,6 +745,69 @@ export default function ProgramacionPage() {
 
       {!isLoading && view === 'dia' && (
         <DayView convocatorias={filtered} date={selectedDate} holidays={HOLIDAYS_2026} onConvClick={handleConvClick} />
+      )}
+
+      {/* List View */}
+      {!isLoading && view === 'lista' && (
+        <Card>
+          <CardContent className="p-0">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/30">
+                  <th className="text-left p-3 font-medium">Curso / Ciclo</th>
+                  <th className="text-left p-3 font-medium hidden sm:table-cell">Sede</th>
+                  <th className="text-left p-3 font-medium hidden md:table-cell">Fechas</th>
+                  <th className="text-left p-3 font-medium hidden lg:table-cell">Horario</th>
+                  <th className="text-center p-3 font-medium">Plazas</th>
+                  <th className="text-center p-3 font-medium">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr><td colSpan={6} className="text-center py-8 text-muted-foreground">No hay convocatorias</td></tr>
+                ) : (
+                  filtered.map((conv) => {
+                    const ocupacion = conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
+                    return (
+                      <tr
+                        key={conv.id}
+                        className="border-b hover:bg-muted/20 cursor-pointer transition-colors"
+                        onClick={() => handleConvClick(conv.id)}
+                      >
+                        <td className="p-3">
+                          <p className="font-medium">{conv.curso}</p>
+                          <p className="text-xs text-muted-foreground sm:hidden">{conv.sede}</p>
+                        </td>
+                        <td className="p-3 text-muted-foreground hidden sm:table-cell">
+                          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{conv.sede}</span>
+                        </td>
+                        <td className="p-3 text-muted-foreground hidden md:table-cell whitespace-nowrap">
+                          {conv.fechaInicio ? new Date(conv.fechaInicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : '—'}
+                          {conv.fechaFin ? ` — ${new Date(conv.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })}` : ''}
+                        </td>
+                        <td className="p-3 text-muted-foreground hidden lg:table-cell">
+                          <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{conv.horaInicio}–{conv.horaFin}</span>
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className="font-medium">{conv.inscritos}</span>
+                          <span className="text-muted-foreground">/{conv.plazas}</span>
+                          <div className="w-full h-1 bg-muted rounded-full mt-1">
+                            <div className={`h-1 rounded-full ${ocupacion >= 90 ? 'bg-primary' : ocupacion >= 70 ? 'bg-orange-500' : 'bg-green-500'}`} style={{ width: `${ocupacion}%` }} />
+                          </div>
+                        </td>
+                        <td className="p-3 text-center">
+                          <Badge className={`text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}>
+                            {STATUS_LABELS[conv.estado] || conv.estado}
+                          </Badge>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
       )}
 
       {/* Legend */}
