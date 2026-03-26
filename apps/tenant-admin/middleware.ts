@@ -89,6 +89,7 @@ const publicRoutes = [
   '/auth/forgot-password',
   '/auth/reset-password',
   '/auth/signup',
+  '/auth/accept-invite',
   '/dev/auto-login',
   '/api/users/login',
   '/api/users/forgot-password',
@@ -96,6 +97,9 @@ const publicRoutes = [
   '/api/users/me', // Allow preflight for auth check
   '/api/users/first-register', // Payload create-first-user (no auth yet)
   '/api/auth/session', // Session write after login (token may not be in cookie yet)
+  '/api/email/', // Email endpoints (called from authenticated frontend)
+  '/api/internal/invitations/verify', // Invitation token verification (public)
+  '/api/internal/invitations/accept', // Accept invitation (public — token-based auth)
   '/api/v1/openapi', // OpenAPI spec is public (no auth needed)
   '/api/leads', // Lead capture from public landing pages
   '/api/media/file', // Serve uploaded media files publicly (images, PDFs)

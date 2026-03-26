@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Akademate MCP Server
+ * Akademate MCP Server v0.2.0
  *
- * Exposes Akademate V1 API as MCP tools and resources so Claude Desktop,
+ * Exposes the Akademate V1 API as MCP tools and resources so Claude Desktop,
  * Cursor, Continue.dev and any other MCP client can manage your academy.
  *
  * Configuration (environment variables):
- *   AKADEMATE_API_URL  — Base URL of your Akademate instance (default: http://localhost:3000)
+ *   AKADEMATE_API_URL  — Base URL of your Akademate instance (default: https://cepformacion.akademate.com)
  *   AKADEMATE_API_KEY  — API key obtained from /configuracion/apis
  */
 
@@ -23,7 +23,7 @@ import {
 // Config
 // ---------------------------------------------------------------------------
 
-const API_URL = (process.env.AKADEMATE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '')
+const API_URL = (process.env.AKADEMATE_API_URL ?? 'https://cepformacion.akademate.com').replace(/\/$/, '')
 const API_KEY = process.env.AKADEMATE_API_KEY ?? ''
 
 if (!API_KEY) {
@@ -33,20 +33,17 @@ if (!API_KEY) {
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// HTTP helpers
 // ---------------------------------------------------------------------------
 
 async function apiGet(path: string): Promise<unknown> {
   const res = await fetch(`${API_URL}${path}`, {
-    headers: {
-      Authorization: `Bearer ${API_KEY}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { Authorization: `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
   })
   const data = await res.json()
   if (!res.ok) {
     const err = data as { error?: string; code?: string }
-    throw new Error(`API error ${res.status}: ${err.error ?? JSON.stringify(data)} (${err.code ?? 'UNKNOWN'})`)
+    throw new Error(`API ${res.status}: ${err.error ?? JSON.stringify(data)}`)
   }
   return data
 }
@@ -54,16 +51,13 @@ async function apiGet(path: string): Promise<unknown> {
 async function apiPost(path: string, body: unknown): Promise<unknown> {
   const res = await fetch(`${API_URL}${path}`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${API_KEY}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { Authorization: `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
   const data = await res.json()
   if (!res.ok) {
     const err = data as { error?: string; code?: string }
-    throw new Error(`API error ${res.status}: ${err.error ?? JSON.stringify(data)} (${err.code ?? 'UNKNOWN'})`)
+    throw new Error(`API ${res.status}: ${err.error ?? JSON.stringify(data)}`)
   }
   return data
 }
@@ -72,138 +66,196 @@ function toText(data: unknown): string {
   return JSON.stringify(data, null, 2)
 }
 
+// Pagination helper
+function paginationParams(params: Record<string, unknown>): string {
+  const limit = typeof params.limit === 'number' ? params.limit : 20
+  const offset = typeof params.offset === 'number' ? params.offset : 0
+  return `limit=${limit}&offset=${offset}`
+}
+
 // ---------------------------------------------------------------------------
-// Server definition
+// Server
 // ---------------------------------------------------------------------------
 
 const server = new Server(
-  {
-    name: 'akademate',
-    version: '0.1.0',
-  },
-  {
-    capabilities: {
-      tools: {},
-      resources: {},
-    },
-  },
+  { name: 'akademate', version: '0.2.0' },
+  { capabilities: { tools: {}, resources: {} } },
 )
 
 // ---------------------------------------------------------------------------
 // Tools — list
 // ---------------------------------------------------------------------------
 
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: [
-      {
-        name: 'get_courses',
-        description:
-          'List courses in the academy. Returns a paginated list with title, status, and creation date. Use this to browse the course catalog before fetching a specific course.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            limit: {
-              type: 'number',
-              description: 'Number of courses to return (1-100, default 20)',
-              minimum: 1,
-              maximum: 100,
-            },
-            offset: {
-              type: 'number',
-              description: 'Number of courses to skip for pagination (default 0)',
-              minimum: 0,
-            },
-            search: {
-              type: 'string',
-              description: 'Optional text to filter courses by title (client-side filter on returned results)',
-            },
-          },
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: [
+    // ── Courses ────────────────────────────────────────────────────────
+    {
+      name: 'list_courses',
+      description: 'List courses in the academy catalog. Returns title, type, area, duration, price. Use search to filter by name.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number', description: 'Results per page (1-100, default 20)' },
+          offset: { type: 'number', description: 'Skip N results (default 0)' },
+          search: { type: 'string', description: 'Filter courses by name' },
         },
       },
-      {
-        name: 'get_course',
-        description:
-          'Get full details of a single course by its ID. Returns all course fields including description, status, and associated metadata.',
-        inputSchema: {
-          type: 'object',
-          required: ['id'],
-          properties: {
-            id: {
-              type: 'string',
-              description: 'Course ID (obtain from get_courses)',
-            },
-          },
+    },
+    {
+      name: 'get_course',
+      description: 'Get full details of a course by ID.',
+      inputSchema: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string', description: 'Course ID' } },
+      },
+    },
+
+    // ── Cycles ─────────────────────────────────────────────────────────
+    {
+      name: 'list_cycles',
+      description: 'List ciclos formativos (grado medio / superior). Returns name, level, family, hours, capacity.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number', description: 'Results per page (default 20)' },
+          offset: { type: 'number', description: 'Skip N results' },
         },
       },
-      {
-        name: 'get_students',
-        description:
-          'List students registered in the academy. Returns a paginated list with name, email, and registration date.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            limit: {
-              type: 'number',
-              description: 'Number of students to return (1-100, default 20)',
-              minimum: 1,
-              maximum: 100,
-            },
-            offset: {
-              type: 'number',
-              description: 'Number of students to skip for pagination (default 0)',
-              minimum: 0,
-            },
-          },
+    },
+    {
+      name: 'get_cycle',
+      description: 'Get full details of a ciclo formativo by ID, including modules, requirements, career paths.',
+      inputSchema: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string', description: 'Cycle ID' } },
+      },
+    },
+
+    // ── Campuses (Sedes) ───────────────────────────────────────────────
+    {
+      name: 'list_campuses',
+      description: 'List academy campuses/sedes. Returns name, address, city, phone, email, capacity.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number', description: 'Results per page (default 20)' },
+          offset: { type: 'number', description: 'Skip N results' },
         },
       },
-      {
-        name: 'get_analytics',
-        description:
-          'Get dashboard KPI metrics: total students, courses, enrollments, active enrollments, and completion rate percentage. Use this to get a quick summary of the academy\'s performance.',
-        inputSchema: {
-          type: 'object',
-          properties: {},
+    },
+    {
+      name: 'get_campus',
+      description: 'Get full details of a campus/sede by ID, including classrooms, services, schedule.',
+      inputSchema: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string', description: 'Campus ID' } },
+      },
+    },
+
+    // ── Convocatorias (Course Runs) ────────────────────────────────────
+    {
+      name: 'list_convocatorias',
+      description: 'List convocatorias (course runs / enrollment periods). Returns course name, campus, dates, enrollment status, available seats.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number', description: 'Results per page (default 20)' },
+          offset: { type: 'number', description: 'Skip N results' },
         },
       },
-      {
-        name: 'create_enrollment',
-        description:
-          'Enroll a student in a course run (convocatoria). Requires both the student ID and the course run ID. The enrollment is created with status "active".',
-        inputSchema: {
-          type: 'object',
-          required: ['studentId', 'courseRunId'],
-          properties: {
-            studentId: {
-              type: 'string',
-              description: 'ID of the student to enroll (obtain from get_students)',
-            },
-            courseRunId: {
-              type: 'string',
-              description: 'ID of the course run / convocatoria to enroll the student in',
-            },
-          },
+    },
+    {
+      name: 'get_convocatoria',
+      description: 'Get full details of a convocatoria by ID: dates, schedule, seats, price, instructor.',
+      inputSchema: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string', description: 'Convocatoria ID' } },
+      },
+    },
+
+    // ── Leads ──────────────────────────────────────────────────────────
+    {
+      name: 'list_leads',
+      description: 'List leads (prospective students from forms, ads, etc). Returns name, email, phone, status, source, score.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number', description: 'Results per page (default 20)' },
+          offset: { type: 'number', description: 'Skip N results' },
         },
       },
-      {
-        name: 'get_schedule',
-        description:
-          'Get upcoming course runs / convocatorias. Lists all courses with their available runs ordered by creation date. Useful to check what sessions are available before enrolling a student.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            limit: {
-              type: 'number',
-              description: 'Number of courses to inspect (default 20)',
-              minimum: 1,
-              maximum: 50,
-            },
-          },
+    },
+    {
+      name: 'create_lead',
+      description: 'Create a new lead from a prospective student. Requires at minimum an email. Optionally provide name, phone, utm_source, utm_campaign.',
+      inputSchema: {
+        type: 'object',
+        required: ['email'],
+        properties: {
+          email: { type: 'string', description: 'Lead email (required)' },
+          first_name: { type: 'string', description: 'First name' },
+          last_name: { type: 'string', description: 'Last name' },
+          phone: { type: 'string', description: 'Phone number' },
+          source: { type: 'string', description: 'Lead source (e.g. facebook_ads, google_ads, organic, referral)' },
+          utm_campaign: { type: 'string', description: 'UTM campaign code for tracking' },
+          utm_source: { type: 'string', description: 'UTM source' },
+          utm_medium: { type: 'string', description: 'UTM medium' },
         },
       },
-    ],
-  }
-})
+    },
+
+    // ── Students ───────────────────────────────────────────────────────
+    {
+      name: 'list_students',
+      description: 'List enrolled students. Returns name, email, enrollment status.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number', description: 'Results per page (default 20)' },
+          offset: { type: 'number', description: 'Skip N results' },
+        },
+      },
+    },
+
+    // ── Enrollments ────────────────────────────────────────────────────
+    {
+      name: 'create_enrollment',
+      description: 'Enroll a student in a convocatoria. Creates an active enrollment.',
+      inputSchema: {
+        type: 'object',
+        required: ['studentId', 'courseRunId'],
+        properties: {
+          studentId: { type: 'string', description: 'Student ID' },
+          courseRunId: { type: 'string', description: 'Convocatoria / course-run ID' },
+        },
+      },
+    },
+
+    // ── Staff ──────────────────────────────────────────────────────────
+    {
+      name: 'list_staff',
+      description: 'List academy staff (professors, administrative). Returns name, role, email, campus assignment.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number', description: 'Results per page (default 20)' },
+          offset: { type: 'number', description: 'Skip N results' },
+        },
+      },
+    },
+
+    // ── Analytics ──────────────────────────────────────────────────────
+    {
+      name: 'get_analytics',
+      description: 'Get dashboard KPIs: total students, courses, enrollments, active enrollments, completion rate. Quick academy health check.',
+      inputSchema: { type: 'object', properties: {} },
+    },
+  ],
+}))
 
 // ---------------------------------------------------------------------------
 // Tools — call
@@ -215,54 +267,80 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     switch (name) {
-      case 'get_courses': {
-        const limit = typeof params.limit === 'number' ? params.limit : 20
-        const offset = typeof params.offset === 'number' ? params.offset : 0
-        const search = typeof params.search === 'string' ? params.search.toLowerCase() : ''
-
-        const data = await apiGet(`/api/v1/courses?limit=${limit}&offset=${offset}`)
-        const result = data as { data: Array<Record<string, unknown>>; total: number; limit: number; offset: number }
-
-        // Client-side text filter when search param is provided
-        if (search) {
-          result.data = result.data.filter((c) => {
-            const title = String(c.title ?? '').toLowerCase()
-            return title.includes(search)
-          })
-        }
-
-        return { content: [{ type: 'text', text: toText(result) }] }
+      // Courses
+      case 'list_courses': {
+        const data = await apiGet(`/api/v1/courses?${paginationParams(params)}`)
+        return { content: [{ type: 'text', text: toText(data) }] }
       }
-
       case 'get_course': {
-        const id = String(params.id)
-        const data = await apiGet(`/api/v1/courses/${id}`)
+        const data = await apiGet(`/api/v1/courses/${params.id}`)
         return { content: [{ type: 'text', text: toText(data) }] }
       }
 
-      case 'get_students': {
-        const limit = typeof params.limit === 'number' ? params.limit : 20
-        const offset = typeof params.offset === 'number' ? params.offset : 0
-        const data = await apiGet(`/api/v1/students?limit=${limit}&offset=${offset}`)
+      // Cycles
+      case 'list_cycles': {
+        const data = await apiGet(`/api/v1/cycles?${paginationParams(params)}`)
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+      case 'get_cycle': {
+        const data = await apiGet(`/api/v1/cycles/${params.id}`)
         return { content: [{ type: 'text', text: toText(data) }] }
       }
 
+      // Campuses
+      case 'list_campuses': {
+        const data = await apiGet(`/api/v1/campuses?${paginationParams(params)}`)
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+      case 'get_campus': {
+        const data = await apiGet(`/api/v1/campuses/${params.id}`)
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+
+      // Convocatorias
+      case 'list_convocatorias': {
+        const data = await apiGet(`/api/v1/convocatorias?${paginationParams(params)}`)
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+      case 'get_convocatoria': {
+        const data = await apiGet(`/api/v1/convocatorias/${params.id}`)
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+
+      // Leads
+      case 'list_leads': {
+        const data = await apiGet(`/api/v1/leads?${paginationParams(params)}`)
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+      case 'create_lead': {
+        const data = await apiPost('/api/v1/leads', params)
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+
+      // Students
+      case 'list_students': {
+        const data = await apiGet(`/api/v1/students?${paginationParams(params)}`)
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+
+      // Enrollments
+      case 'create_enrollment': {
+        const data = await apiPost('/api/v1/enrollments', {
+          studentId: params.studentId,
+          courseRunId: params.courseRunId,
+        })
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+
+      // Staff
+      case 'list_staff': {
+        const data = await apiGet(`/api/v1/staff?${paginationParams(params)}`)
+        return { content: [{ type: 'text', text: toText(data) }] }
+      }
+
+      // Analytics
       case 'get_analytics': {
         const data = await apiGet('/api/v1/analytics')
-        return { content: [{ type: 'text', text: toText(data) }] }
-      }
-
-      case 'create_enrollment': {
-        const studentId = String(params.studentId)
-        const courseRunId = String(params.courseRunId)
-        const data = await apiPost('/api/v1/enrollments', { studentId, courseRunId })
-        return { content: [{ type: 'text', text: toText(data) }] }
-      }
-
-      case 'get_schedule': {
-        const limit = typeof params.limit === 'number' ? params.limit : 20
-        // Fetch courses — course runs are typically nested in course objects
-        const data = await apiGet(`/api/v1/courses?limit=${limit}&offset=0`)
         return { content: [{ type: 'text', text: toText(data) }] }
       }
 
@@ -271,91 +349,82 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    return {
-      content: [{ type: 'text', text: `Error: ${message}` }],
-      isError: true,
-    }
+    return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true }
   }
 })
 
 // ---------------------------------------------------------------------------
-// Resources — list
+// Resources
 // ---------------------------------------------------------------------------
 
-server.setRequestHandler(ListResourcesRequestSchema, async () => {
-  return {
-    resources: [
-      {
-        uri: 'akademate://courses',
-        name: 'Course Catalog',
-        description: 'Full list of courses available in the academy (first 100)',
-        mimeType: 'application/json',
-      },
-      {
-        uri: 'akademate://students',
-        name: 'Student List',
-        description: 'List of students registered in the academy (first 100)',
-        mimeType: 'application/json',
-      },
-    ],
-  }
-})
-
-// ---------------------------------------------------------------------------
-// Resources — read
-// ---------------------------------------------------------------------------
+server.setRequestHandler(ListResourcesRequestSchema, async () => ({
+  resources: [
+    {
+      uri: 'akademate://courses',
+      name: 'Catalogo de Cursos',
+      description: 'All courses in the academy (first 100)',
+      mimeType: 'application/json',
+    },
+    {
+      uri: 'akademate://cycles',
+      name: 'Ciclos Formativos',
+      description: 'All ciclos formativos (grado medio y superior)',
+      mimeType: 'application/json',
+    },
+    {
+      uri: 'akademate://convocatorias',
+      name: 'Convocatorias Activas',
+      description: 'Active enrollment periods with seats and dates',
+      mimeType: 'application/json',
+    },
+    {
+      uri: 'akademate://campuses',
+      name: 'Sedes',
+      description: 'Academy campuses with address and contact info',
+      mimeType: 'application/json',
+    },
+    {
+      uri: 'akademate://analytics',
+      name: 'Dashboard KPIs',
+      description: 'Key performance indicators: students, enrollments, completion rate',
+      mimeType: 'application/json',
+    },
+  ],
+}))
 
 server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   const { uri } = request.params
 
+  const RESOURCE_PATHS: Record<string, string> = {
+    'akademate://courses': '/api/v1/courses?limit=100&offset=0',
+    'akademate://cycles': '/api/v1/cycles?limit=100&offset=0',
+    'akademate://convocatorias': '/api/v1/convocatorias?limit=100&offset=0',
+    'akademate://campuses': '/api/v1/campuses?limit=100&offset=0',
+    'akademate://analytics': '/api/v1/analytics',
+  }
+
+  const path = RESOURCE_PATHS[uri]
+  if (!path) throw new Error(`Unknown resource: ${uri}`)
+
   try {
-    switch (uri) {
-      case 'akademate://courses': {
-        const data = await apiGet('/api/v1/courses?limit=100&offset=0')
-        return {
-          contents: [
-            {
-              uri,
-              mimeType: 'application/json',
-              text: toText(data),
-            },
-          ],
-        }
-      }
-
-      case 'akademate://students': {
-        const data = await apiGet('/api/v1/students?limit=100&offset=0')
-        return {
-          contents: [
-            {
-              uri,
-              mimeType: 'application/json',
-              text: toText(data),
-            },
-          ],
-        }
-      }
-
-      default:
-        throw new Error(`Unknown resource URI: ${uri}`)
-    }
+    const data = await apiGet(path)
+    return { contents: [{ uri, mimeType: 'application/json', text: toText(data) }] }
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    throw new Error(`Failed to read resource ${uri}: ${message}`)
+    throw new Error(`Failed to read ${uri}: ${err instanceof Error ? err.message : err}`)
   }
 })
 
 // ---------------------------------------------------------------------------
-// Start server
+// Start
 // ---------------------------------------------------------------------------
 
 async function main() {
   const transport = new StdioServerTransport()
   await server.connect(transport)
-  process.stderr.write('[akademate-mcp] Server started. Listening on stdio.\n')
+  process.stderr.write('[akademate-mcp] v0.2.0 ready — 16 tools, 5 resources\n')
 }
 
 main().catch((err) => {
-  process.stderr.write(`[akademate-mcp] Fatal error: ${err instanceof Error ? err.message : err}\n`)
+  process.stderr.write(`[akademate-mcp] Fatal: ${err instanceof Error ? err.message : err}\n`)
   process.exit(1)
 })

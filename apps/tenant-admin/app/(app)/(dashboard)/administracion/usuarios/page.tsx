@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -61,8 +61,7 @@ import {
   User,
 } from 'lucide-react'
 
-// TODO: Fetch from API
-const usuariosData: {
+interface UsuarioData {
   id: string
   nombre: string
   email: string
@@ -74,7 +73,7 @@ const usuariosData: {
   dosFactor: boolean
   ultimoAcceso: string
   fechaCreacion: string
-}[] = []
+}
 
 const rolConfig: Record<string, { color: string; bgColor: string; icon: React.ReactNode }> = {
   Admin: {
@@ -104,12 +103,116 @@ const rolConfig: Record<string, { color: string; bgColor: string; icon: React.Re
   },
 }
 
+const ROLE_MAP: Record<string, string> = {
+  superadmin: 'Admin',
+  admin: 'Admin',
+  gestor: 'Gestor',
+  marketing: 'Marketing',
+  asesor: 'Asesor',
+  lectura: 'Lectura',
+}
+
 export default function UsuariosPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [rolFilter, setRolFilter] = useState('todos')
   const [sedeFilter, setSedeFilter] = useState('todas')
   const [estadoFilter, setEstadoFilter] = useState('todos')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [usuariosData, setUsuariosData] = useState<UsuarioData[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Form state
+  const [formName, setFormName] = useState('')
+  const [formEmail, setFormEmail] = useState('')
+  const [formRole, setFormRole] = useState('lectura')
+  const [formPhone, setFormPhone] = useState('')
+  const [formPassword, setFormPassword] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState('')
+
+  // Fetch users + invitations from internal API
+  const fetchAll = async () => {
+    try {
+      const res = await fetch('/api/internal/users', { cache: 'no-cache' })
+      if (res.ok) {
+        const data = await res.json()
+        const users = (data.users || []).map((u: Record<string, unknown>) => ({
+          id: String(u.id),
+          nombre: (u.name as string) || 'Sin nombre',
+          email: (u.email as string) || '',
+          telefono: (u.phone as string) || '',
+          rol: ROLE_MAP[(u.role as string) || 'lectura'] || 'Lectura',
+          sede: 'Todas',
+          activo: (u.is_active as boolean) !== false,
+          verificado: true,
+          dosFactor: false,
+          ultimoAcceso: (u.last_login_at as string) || '',
+          fechaCreacion: (u.createdAt as string) || '',
+          status: 'active',
+        }))
+        const invitations = (data.invitations || []).map((inv: Record<string, unknown>) => ({
+          id: String(inv.id),
+          nombre: (inv.name as string) || 'Sin nombre',
+          email: (inv.email as string) || '',
+          telefono: '',
+          rol: ROLE_MAP[(inv.role as string) || 'lectura'] || 'Lectura',
+          sede: 'Todas',
+          activo: false,
+          verificado: false,
+          dosFactor: false,
+          ultimoAcceso: '',
+          fechaCreacion: (inv.createdAt as string) || '',
+          status: 'pending',
+        }))
+        setUsuariosData([...users, ...invitations])
+      }
+    } catch { /* graceful */ }
+    finally { setIsLoading(false) }
+  }
+
+  useEffect(() => { void fetchAll() }, [])
+
+  // Invite user handler (sends invitation email)
+  const handleCreateUser = async () => {
+    if (!formName.trim() || !formEmail.trim()) {
+      setCreateError('Nombre y email son obligatorios')
+      return
+    }
+
+    setCreating(true)
+    setCreateError('')
+
+    try {
+      const res = await fetch('/api/internal/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formName,
+          email: formEmail,
+          role: formRole,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setDialogOpen(false)
+        setFormName('')
+        setFormEmail('')
+        setFormPassword('')
+        setFormRole('lectura')
+        setFormPhone('')
+        // Refresh list
+        void fetchAll()
+      } else {
+        setCreateError(data.error || 'Error al enviar invitacion')
+      }
+    } catch {
+      setCreateError('Error de conexion')
+    } finally {
+      setCreating(false)
+    }
+  }
 
   const filteredUsuarios = usuariosData.filter((usuario) => {
     const matchesSearch =
@@ -157,99 +260,63 @@ export default function UsuariosPage() {
               </DialogTrigger>
               <DialogContent className="sm:max-w-[500px]" data-oid="0ktbxn.">
                 <DialogHeader data-oid="-l7v85m">
-                  <DialogTitle data-oid="3hptxrw">Crear Nuevo Usuario</DialogTitle>
+                  <DialogTitle data-oid="3hptxrw">Invitar Colaborador</DialogTitle>
                   <DialogDescription data-oid=".-v_cqt">
-                    Añade un nuevo usuario al sistema. Se enviará un email de verificación
-                    automáticamente.
+                    Se enviara un email de invitacion. El usuario creara su contrasena al aceptar.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4" data-oid="xbiqhup">
-                  <div className="grid grid-cols-2 gap-4" data-oid="55yrsms">
-                    <div className="space-y-2" data-oid="vbo4bzx">
-                      <Label htmlFor="nombre" data-oid="nl15qz6">
-                        Nombre completo
-                      </Label>
-                      <Input id="nombre" placeholder="Nombre Apellidos" data-oid="zy34ei2" />
+                <div className="grid gap-4 py-4">
+                  {createError && (
+                    <div className="bg-destructive/10 border border-destructive/20 text-destructive px-3 py-2 rounded text-sm">
+                      {createError}
                     </div>
-                    <div className="space-y-2" data-oid="lz0xvme">
-                      <Label htmlFor="email" data-oid="1loedc:">
-                        Email
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="usuario@academia.com"
-                        data-oid="-ux7g9x"
-                      />
+                  )}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nombre">Nombre completo</Label>
+                      <Input id="nombre" placeholder="Nombre Apellidos" value={formName} onChange={(e) => setFormName(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" type="email" placeholder="usuario@academia.com" value={formEmail} onChange={(e) => setFormEmail(e.target.value)} />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4" data-oid="9h-ovu2">
-                    <div className="space-y-2" data-oid="v3opjev">
-                      <Label htmlFor="rol" data-oid="5wg7teg">
-                        Rol
-                      </Label>
-                      <Select data-oid="c.vfnn5">
-                        <SelectTrigger data-oid="tdgui2l">
-                          <SelectValue placeholder="Seleccionar rol" data-oid="fjortee" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="rol">Rol de acceso</Label>
+                      <Select value={formRole} onValueChange={setFormRole}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar rol" />
                         </SelectTrigger>
-                        <SelectContent data-oid="r5viksh">
-                          <SelectItem value="gestor" data-oid="1tl_vh.">
-                            Gestor
-                          </SelectItem>
-                          <SelectItem value="marketing" data-oid="_eg9ksx">
-                            Marketing
-                          </SelectItem>
-                          <SelectItem value="asesor" data-oid="2:k6usa">
-                            Asesor
-                          </SelectItem>
-                          <SelectItem value="lectura" data-oid="cty:cbh">
-                            Lectura
-                          </SelectItem>
+                        <SelectContent>
+                          <SelectItem value="admin">Admin — Control total</SelectItem>
+                          <SelectItem value="gestor">Gestor — Contenido y usuarios</SelectItem>
+                          <SelectItem value="marketing">Marketing — Campanas y contenido</SelectItem>
+                          <SelectItem value="asesor">Asesor — Lectura + notas clientes</SelectItem>
+                          <SelectItem value="lectura">Lectura — Solo consulta</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2" data-oid="h0dpvv-">
-                      <Label htmlFor="sede" data-oid="8d4p124">
-                        Sede
-                      </Label>
-                      <Select data-oid="xa_s5f0">
-                        <SelectTrigger data-oid="oz3mb4t">
-                          <SelectValue placeholder="Seleccionar sede" data-oid="39.:71_" />
-                        </SelectTrigger>
-                        <SelectContent data-oid="s82n8nw">
-                          <SelectItem value="todas" data-oid="uy0tae7">
-                            Todas las sedes
-                          </SelectItem>
-                          <SelectItem value="norte" data-oid="2l0n.l8">
-                            Sede Norte
-                          </SelectItem>
-                          <SelectItem value="santacruz" data-oid="rbhth0s">
-                            Sede Santa Cruz
-                          </SelectItem>
-                          <SelectItem value="sur" data-oid="epozcl0">
-                            Sede Sur
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="space-y-2">
+                      <Label htmlFor="telefono">Telefono (opcional)</Label>
+                      <Input id="telefono" placeholder="+34 600 000 000" value={formPhone} onChange={(e) => setFormPhone(e.target.value)} />
                     </div>
                   </div>
-                  <div className="space-y-2" data-oid=":w2lzmr">
-                    <Label htmlFor="telefono" data-oid="i-:ys:j">
-                      Teléfono (opcional)
-                    </Label>
-                    <Input id="telefono" placeholder="+34 600 000 000" data-oid="eaunhth" />
-                  </div>
+                  <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3 border border-dashed">
+                    El usuario recibira un email con un enlace para crear su contrasena. La invitacion expira en 7 dias.
+                  </p>
                 </div>
-                <DialogFooter data-oid="ixoqg6e">
-                  <Button variant="outline" onClick={() => setDialogOpen(false)} data-oid="nsw3rc3">
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => { setDialogOpen(false); setCreateError('') }}>
                     Cancelar
                   </Button>
                   <Button
-                    onClick={() => setDialogOpen(false)}
+                    onClick={handleCreateUser}
+                    disabled={creating}
                     style={{ backgroundColor: '#F2014B' }}
                     data-oid="co090dm"
                   >
-                    Crear Usuario
+                    Enviar Invitacion
                   </Button>
                 </DialogFooter>
               </DialogContent>

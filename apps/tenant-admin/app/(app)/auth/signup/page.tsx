@@ -334,11 +334,12 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Google OAuth */}
-            <a
-              href={`${process.env.NEXT_PUBLIC_WEB_URL ?? 'http://localhost:3006'}/api/auth/signin/google?callbackURL=${encodeURIComponent((process.env.NEXT_PUBLIC_TENANT_URL ?? 'http://localhost:3009') + '/dashboard')}`}
-              className="flex w-full items-center justify-center gap-3 rounded-md border border-input bg-background px-4 py-2.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-              data-oid="a_uz1bn"
+            {/* Google OAuth — disabled */}
+            <button
+              type="button"
+              disabled
+              className="flex w-full items-center justify-center gap-3 rounded-md border border-input bg-muted/50 px-4 py-2.5 text-sm font-medium text-muted-foreground cursor-not-allowed opacity-60"
+              title="Google SSO estara disponible proximamente"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true" data-oid="21hswd.">
                 <path
@@ -363,7 +364,8 @@ export default function SignupPage() {
                 />
               </svg>
               Continuar con Google
-            </a>
+              <span className="text-[10px] ml-1">(Proximamente)</span>
+            </button>
 
             {/* Login link */}
             <p className="mt-5 text-center text-sm text-muted-foreground" data-oid="a6s5.9_">

@@ -1,6 +1,6 @@
 {
   "name": "@akademate/mcp-server",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP Server for Akademate — connect Claude and other MCP clients to your academy",
   "type": "module",
   "main": "dist/index.js",
