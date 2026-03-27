@@ -46,8 +46,12 @@ export default async function ConvocatoriasPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {convocatorias.map((conv: any) => {
             const course = typeof conv.course === 'object' ? conv.course : null
+            const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
             const campus = typeof conv.campus === 'object' ? conv.campus : null
-            const imageUrl = course ? resolveImageUrl(course.image) : null
+            // Image priority: course.featured_image → cycle.image → null
+            const imageUrl = (course ? resolveImageUrl(course.featured_image) : null)
+              || (cycle ? resolveImageUrl(cycle.image) : null)
+              || (course ? resolveImageUrl(course.image) : null)
             const plazasDisponibles = (conv.max_students || 0) - (conv.current_enrollments || 0)
             const porcentajeOcupado = conv.max_students ? Math.round(((conv.current_enrollments || 0) / conv.max_students) * 100) : 0
 

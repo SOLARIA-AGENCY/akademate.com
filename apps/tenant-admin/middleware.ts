@@ -104,11 +104,7 @@ const publicRoutes = [
   '/api/leads', // Lead capture from public landing pages
   '/api/media/file', // Serve uploaded media files publicly (images, PDFs)
   // Public web pages (landing pages, catalogs) — no auth required
-  '/p/ciclos',
-  '/p/cursos',
-  '/p/convocatorias',
-  '/p/blog',
-  '/p/legal',
+  '/p/',  // All public web pages under /p/ are accessible without auth
   // Legal pages must be publicly accessible (GDPR requirement)
   '/legal',
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing

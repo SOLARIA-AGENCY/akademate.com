@@ -169,7 +169,7 @@ function LeadForm({ source, dark }: { source: string; dark?: boolean }) {
         <option value="ciclos">Ciclos FP (CFGM/CFGS)</option>
       </select>
       <button type="submit" disabled={sending} style={{ width: '100%', padding: 14, background: sending ? '#999' : '#cc0000', color: '#fff', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer' }}>
-        {sending ? 'Enviando...' : 'Solicitar informacion gratis'}
+        {sending ? 'Enviando...' : 'Solicitar informacion'}
       </button>
       <p style={{ fontSize: 10, color: dark ? 'rgba(255,255,255,0.4)' : '#9ca3af', margin: '8px 0 0', textAlign: 'center' }}>
         Al enviar aceptas nuestra <a href="/p/legal/privacidad" style={{ color: '#cc0000' }}>politica de privacidad</a>
@@ -267,6 +267,26 @@ export default function FormacionLandingPage() {
         </div>
       </section>
 
+      {/* ============ CATEGORIAS DE CURSOS ============ */}
+      <section style={{ padding: '48px 20px', background: '#f4f4f5' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px', textAlign: 'center' }}>Explora por categoria</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+            {[
+              { label: 'Cursos Privados', desc: 'Formacion especializada de pago', href: '/p/cursos?tipo=privados', color: '#cc0000' },
+              { label: 'Cursos Desempleados', desc: 'Gratuitos para personas en desempleo', href: '/p/cursos?tipo=desempleados', color: '#2563eb' },
+              { label: 'Cursos Ocupados', desc: 'Para trabajadores activos (FUNDAE)', href: '/p/cursos?tipo=ocupados', color: '#16a34a' },
+              { label: 'Cursos Teleformacion', desc: '100% online con certificacion', href: '/p/cursos?tipo=teleformacion', color: '#ea580c' },
+            ].map(cat => (
+              <a key={cat.label} href={cat.href} style={{ display: 'block', background: '#fff', borderRadius: 12, padding: 20, textDecoration: 'none', color: '#111', borderLeft: `4px solid ${cat.color}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', transition: 'box-shadow 0.2s' }}>
+                <p style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px', color: cat.color }}>{cat.label}</p>
+                <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>{cat.desc}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ============ TIPOS DE FORMACION ============ */}
       <section style={{ padding: '60px 20px', background: '#f4f4f5' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
@@ -340,13 +360,14 @@ export default function FormacionLandingPage() {
       </section>
 
       {/* ============ CTA FINAL ============ */}
-      <section style={{ background: 'linear-gradient(135deg, #cc0000 0%, #a00000 100%)', padding: '60px 20px', color: '#fff' }}>
+      <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', padding: '60px 20px', color: '#fff' }}>
         <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ display: 'inline-block', background: '#cc0000', padding: '4px 14px', borderRadius: 4, fontSize: 12, fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>PLAZAS LIMITADAS</div>
           <h2 style={{ fontSize: 32, fontWeight: 800, margin: '0 0 12px' }}>El momento es ahora</h2>
-          <p style={{ fontSize: 16, opacity: 0.9, margin: '0 0 28px', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 16, opacity: 0.85, margin: '0 0 28px', lineHeight: 1.6 }}>
             Solicita informacion sin compromiso y descubre cual es la formacion que mejor se adapta a tus objetivos profesionales.
           </p>
-          <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 28, border: '1px solid rgba(255,255,255,0.1)' }}>
             <LeadForm source="cta-final-formacion" dark />
           </div>
         </div>
