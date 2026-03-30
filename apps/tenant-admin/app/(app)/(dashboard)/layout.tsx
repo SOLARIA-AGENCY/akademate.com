@@ -5,7 +5,8 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
+import { NotificationBell } from '@payload-config/components/ui/NotificationBell'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -212,43 +213,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center justify-end gap-2 ml-auto" data-oid="4sbbb:o">
               <ThemeToggle data-oid="87ssh43" />
 
-              <DropdownMenu data-oid="i4:5xw_">
-                <DropdownMenuTrigger asChild data-oid="8m6zfpu">
-                  <Button variant="ghost" size="icon" className="relative" data-oid="6vshh.5">
-                    <Bell className="h-5 w-5" data-oid="qwj5..s" />
-                    <span className="absolute right-1 top-1 flex h-2 w-2" data-oid="a06hb5m">
-                      <span
-                        className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"
-                        data-oid="qa7w7sm"
-                      ></span>
-                      <span
-                        className="relative inline-flex rounded-full h-2 w-2 bg-primary"
-                        data-oid="24t0ba."
-                      ></span>
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-72" data-oid="0sv:9af">
-                  <DropdownMenuLabel data-oid="fia5phk">Notificaciones</DropdownMenuLabel>
-                  <DropdownMenuSeparator data-oid="47hmvch" />
-                  <DropdownMenuItem className="flex-col items-start" data-oid="wpd84l4">
-                    <span className="font-medium" data-oid="mn-sz9f">
-                      Sistema operativo
-                    </span>
-                    <span className="text-xs text-muted-foreground" data-oid="3:t92hx">
-                      Sin alertas críticas activas
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="flex-col items-start" data-oid="3_y4wk-">
-                    <span className="font-medium" data-oid="q2.pdks">
-                      Inscripciones LMS
-                    </span>
-                    <span className="text-xs text-muted-foreground" data-oid="z9:pbqw">
-                      Revisa inscripciones recientes en Campus Virtual
-                    </span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <NotificationBell />
 
               <DropdownMenu data-oid="lv2e625">
                 <DropdownMenuTrigger asChild data-oid="i8a8l:y">

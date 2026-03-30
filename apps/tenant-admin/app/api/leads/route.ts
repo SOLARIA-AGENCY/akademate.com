@@ -122,6 +122,21 @@ export async function POST(request: NextRequest) {
       data: leadData as any,
     })
 
+    // Create real-time notification for the dashboard
+    try {
+      const { db } = payload
+      const leadName = `${firstName} ${lastName !== '-' ? lastName : ''}`.trim()
+      const notifTitle = body.lead_type === 'inscripcion'
+        ? `Nueva preinscripcion: ${leadName}`
+        : `Nuevo lead: ${leadName}`
+      const notifBody = body.notes
+        ? body.notes.replace('Preinscripcion: ', '').replace('Interes: ', '')
+        : (body.email || '')
+      await (db as any).execute({
+        raw: `INSERT INTO notifications (type, title, body, link, tenant_id) VALUES ('new_lead', '${notifTitle.replace(/'/g, "''")}', '${notifBody.replace(/'/g, "''")}', '/leads/${created.id}', 1)`,
+      }).catch(() => {})
+    } catch { /* notification is best-effort */ }
+
     // Store extra tracking data directly in DB (fields that Payload collection doesn't know about)
     try {
       const { db } = payload
