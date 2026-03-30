@@ -13,15 +13,15 @@ import {
 } from 'lucide-react'
 
 const STATUS_OPTIONS = [
-  { value: 'new', label: 'Nuevo', color: 'bg-blue-100 text-blue-800' },
-  { value: 'contacted', label: 'Contactado', color: 'bg-amber-100 text-amber-800' },
+  { value: 'new', label: 'Nuevo', color: 'bg-amber-100 text-amber-800 border border-amber-300' },
+  { value: 'contacted', label: 'Contactado', color: 'bg-blue-100 text-blue-800' },
   { value: 'interested', label: 'Interesado', color: 'bg-green-100 text-green-800' },
-  { value: 'not_interested', label: 'No interesado', color: 'bg-gray-100 text-gray-800' },
+  { value: 'not_interested', label: 'No interesado', color: 'bg-red-50 text-red-600' },
   { value: 'no_answer', label: 'No contesta', color: 'bg-orange-100 text-orange-800' },
-  { value: 'wrong_number', label: 'Numero incorrecto', color: 'bg-red-100 text-red-800' },
-  { value: 'callback', label: 'Callback solicitado', color: 'bg-purple-100 text-purple-800' },
-  { value: 'enrolled', label: 'Matriculado', color: 'bg-green-200 text-green-900' },
-  { value: 'discarded', label: 'Descartado', color: 'bg-gray-100 text-gray-600' },
+  { value: 'wrong_number', label: 'No contactable', color: 'bg-red-100 text-red-800' },
+  { value: 'callback', label: 'En espera', color: 'bg-gray-100 text-gray-600' },
+  { value: 'enrolled', label: 'Matriculado', color: 'bg-emerald-100 text-emerald-800 border border-emerald-300' },
+  { value: 'discarded', label: 'Descartado', color: 'bg-gray-50 text-gray-400' },
 ]
 
 const CONTACT_RESULTS = [

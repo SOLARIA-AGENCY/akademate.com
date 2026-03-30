@@ -13,24 +13,24 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     const payload = await getPayloadHMR({ config: configPromise })
-    const db = (payload as any).db
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
-    const result = await db.execute({
-      raw: `SELECT id, type, title, body, link, read, created_at
-            FROM notifications
-            WHERE tenant_id = 1
-            ORDER BY created_at DESC
-            LIMIT 50`,
-    })
+    let notifications: any[] = []
+    let unreadCount = 0
 
-    const unreadResult = await db.execute({
-      raw: `SELECT count(*) as count FROM notifications WHERE read = false AND tenant_id = 1`,
-    })
+    if (drizzle?.execute) {
+      const result = await drizzle.execute(`SELECT id, type, title, body, link, read, created_at FROM notifications WHERE tenant_id = 1 ORDER BY created_at DESC LIMIT 50`)
+      notifications = result?.rows || result || []
+      const unreadResult = await drizzle.execute(`SELECT count(*) as count FROM notifications WHERE read = false AND tenant_id = 1`)
+      unreadCount = parseInt((unreadResult?.rows || unreadResult)?.[0]?.count || '0', 10)
+    } else if (drizzle?.query) {
+      const result = await drizzle.query(`SELECT id, type, title, body, link, read, created_at FROM notifications WHERE tenant_id = 1 ORDER BY created_at DESC LIMIT 50`)
+      notifications = result?.rows || []
+      const unreadResult = await drizzle.query(`SELECT count(*) as count FROM notifications WHERE read = false AND tenant_id = 1`)
+      unreadCount = parseInt(unreadResult?.rows?.[0]?.count || '0', 10)
+    }
 
-    return NextResponse.json({
-      notifications: result?.rows || [],
-      unreadCount: parseInt(unreadResult?.rows?.[0]?.count || '0', 10),
-    })
+    return NextResponse.json({ notifications, unreadCount })
   } catch {
     return NextResponse.json({ notifications: [], unreadCount: 0 })
   }
@@ -42,13 +42,21 @@ export async function PATCH(request: NextRequest) {
     const { ids, markAllRead } = body
 
     const payload = await getPayloadHMR({ config: configPromise })
-    const db = (payload as any).db
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
-    if (markAllRead) {
-      await db.execute({ raw: `UPDATE notifications SET read = true WHERE tenant_id = 1 AND read = false` })
-    } else if (Array.isArray(ids) && ids.length > 0) {
-      const idList = ids.map((id: number) => parseInt(String(id), 10)).join(',')
-      await db.execute({ raw: `UPDATE notifications SET read = true WHERE id IN (${idList})` })
+    if (drizzle?.execute) {
+      if (markAllRead) {
+        await drizzle.execute(`UPDATE notifications SET read = true WHERE tenant_id = 1 AND read = false`)
+      } else if (Array.isArray(ids) && ids.length > 0) {
+        const idList = ids.map((id: number) => parseInt(String(id), 10)).join(',')
+        await drizzle.execute(`UPDATE notifications SET read = true WHERE id IN (${idList})`)
+      }
+    } else if (drizzle?.query) {
+      if (markAllRead) {
+        await drizzle.query(`UPDATE notifications SET read = true WHERE tenant_id = 1 AND read = false`)
+      } else if (Array.isArray(ids) && ids.length > 0) {
+        await drizzle.query(`UPDATE notifications SET read = true WHERE id = ANY($1)`, [ids])
+      }
     }
 
     return NextResponse.json({ success: true })

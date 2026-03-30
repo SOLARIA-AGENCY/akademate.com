@@ -124,7 +124,6 @@ export async function POST(request: NextRequest) {
 
     // Create real-time notification for the dashboard
     try {
-      const { db } = payload
       const leadName = `${firstName} ${lastName !== '-' ? lastName : ''}`.trim()
       const notifTitle = body.lead_type === 'inscripcion'
         ? `Nueva preinscripcion: ${leadName}`
@@ -132,10 +131,18 @@ export async function POST(request: NextRequest) {
       const notifBody = body.notes
         ? body.notes.replace('Preinscripcion: ', '').replace('Interes: ', '')
         : (body.email || '')
-      await (db as any).execute({
-        raw: `INSERT INTO notifications (type, title, body, link, tenant_id) VALUES ('new_lead', '${notifTitle.replace(/'/g, "''")}', '${notifBody.replace(/'/g, "''")}', '/leads/${created.id}', 1)`,
-      }).catch(() => {})
-    } catch { /* notification is best-effort */ }
+      // Use drizzle's raw SQL execution
+      const drizzle = (payload.db as any).drizzle || (payload.db as any).pool
+      if (drizzle?.execute) {
+        await drizzle.execute(`INSERT INTO notifications (type, title, body, link, tenant_id) VALUES ('new_lead', '${notifTitle.replace(/'/g, "''")}', '${notifBody.replace(/'/g, "''")}', '/leads/${created.id}', 1)`)
+      } else {
+        // Fallback: try pool query
+        const pool = (payload.db as any).pool
+        if (pool?.query) {
+          await pool.query(`INSERT INTO notifications (type, title, body, link, tenant_id) VALUES ('new_lead', $1, $2, $3, 1)`, [notifTitle, notifBody, `/leads/${created.id}`])
+        }
+      }
+    } catch (notifErr) { console.error('[leads] Notification insert failed:', notifErr) }
 
     // Store extra tracking data directly in DB (fields that Payload collection doesn't know about)
     try {

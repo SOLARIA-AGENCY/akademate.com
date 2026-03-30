@@ -27,16 +27,19 @@ export async function GET(request: NextRequest) {
 
         try {
           const payload = await getPayloadHMR({ config: configPromise })
-          const db = (payload as any).db
+          const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
+          if (!drizzle) return
 
-          const result = await db.execute({
-            raw: `SELECT id, type, title, body, link, created_at
-                  FROM notifications
-                  WHERE id > ${lastId} AND read = false AND tenant_id = 1
-                  ORDER BY id ASC LIMIT 10`,
-          })
-
-          const rows = result?.rows || []
+          let rows: any[] = []
+          try {
+            if (drizzle.execute) {
+              const result = await drizzle.execute(`SELECT id, type, title, body, link, created_at FROM notifications WHERE id > ${lastId} AND read = false AND tenant_id = 1 ORDER BY id ASC LIMIT 10`)
+              rows = result?.rows || result || []
+            } else if (drizzle.query) {
+              const result = await drizzle.query(`SELECT id, type, title, body, link, created_at FROM notifications WHERE id > $1 AND read = false AND tenant_id = 1 ORDER BY id ASC LIMIT 10`, [lastId])
+              rows = result?.rows || []
+            }
+          } catch { return }
           for (const row of rows) {
             const event = {
               id: row.id,
