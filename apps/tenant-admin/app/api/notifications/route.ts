@@ -30,11 +30,15 @@ export async function GET() {
       unreadCount = parseInt(unreadResult?.rows?.[0]?.count || '0', 10)
     }
 
-    // Normalize snake_case to camelCase
-    const normalized = notifications.map((n: any) => ({
-      ...n,
-      createdAt: n.created_at || n.createdAt,
-    }))
+    // Normalize snake_case to camelCase + ensure UTC timezone
+    const normalized = notifications.map((n: any) => {
+      let ts = n.created_at || n.createdAt || ''
+      // Append Z if no timezone info (PostgreSQL timestamp without tz)
+      if (ts && typeof ts === 'string' && !ts.endsWith('Z') && !ts.includes('+')) {
+        ts = ts + 'Z'
+      }
+      return { ...n, createdAt: ts }
+    })
 
     return NextResponse.json({ notifications: normalized, unreadCount })
   } catch {

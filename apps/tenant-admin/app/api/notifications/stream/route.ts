@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
               title: row.title,
               body: row.body,
               link: row.link,
-              createdAt: row.created_at,
+              createdAt: (row.created_at && typeof row.created_at === 'string' && !row.created_at.endsWith('Z')) ? row.created_at + 'Z' : row.created_at,
             }
             controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`))
             lastId = Math.max(lastId, row.id)
