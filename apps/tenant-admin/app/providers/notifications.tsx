@@ -34,33 +34,58 @@ export function useNotifications() {
   return useContext(NotificationContext)
 }
 
-// Notification sound — short professional ding
+// Persistent AudioContext — activated on first user interaction
+let audioCtx: AudioContext | null = null
+
+function ensureAudioContext() {
+  if (!audioCtx && typeof window !== 'undefined') {
+    audioCtx = new AudioContext()
+  }
+  if (audioCtx?.state === 'suspended') {
+    audioCtx.resume()
+  }
+  return audioCtx
+}
+
+// Activate audio on first user click/touch
+if (typeof window !== 'undefined') {
+  const activateAudio = () => {
+    ensureAudioContext()
+    document.removeEventListener('click', activateAudio)
+    document.removeEventListener('touchstart', activateAudio)
+  }
+  document.addEventListener('click', activateAudio)
+  document.addEventListener('touchstart', activateAudio)
+}
+
 function playNotificationSound() {
   try {
-    const ctx = new AudioContext()
+    const ctx = ensureAudioContext()
+    if (!ctx) return
+
+    // First tone
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.connect(gain)
     gain.connect(ctx.destination)
-    osc.frequency.value = 880 // A5
+    osc.frequency.value = 880
     osc.type = 'sine'
-    gain.gain.value = 0.3
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+    gain.gain.setValueAtTime(0.3, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
     osc.start(ctx.currentTime)
-    osc.stop(ctx.currentTime + 0.5)
-    // Second tone
-    setTimeout(() => {
-      const osc2 = ctx.createOscillator()
-      const gain2 = ctx.createGain()
-      osc2.connect(gain2)
-      gain2.connect(ctx.destination)
-      osc2.frequency.value = 1320 // E6
-      osc2.type = 'sine'
-      gain2.gain.value = 0.2
-      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
-      osc2.start(ctx.currentTime)
-      osc2.stop(ctx.currentTime + 0.4)
-    }, 150)
+    osc.stop(ctx.currentTime + 0.4)
+
+    // Second tone (higher)
+    const osc2 = ctx.createOscillator()
+    const gain2 = ctx.createGain()
+    osc2.connect(gain2)
+    gain2.connect(ctx.destination)
+    osc2.frequency.value = 1320
+    osc2.type = 'sine'
+    gain2.gain.setValueAtTime(0.2, ctx.currentTime + 0.15)
+    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+    osc2.start(ctx.currentTime + 0.15)
+    osc2.stop(ctx.currentTime + 0.5)
   } catch { /* audio not available */ }
 }
 
@@ -117,7 +142,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             body: data.body,
             link: data.link,
             read: false,
-            createdAt: data.createdAt,
+            createdAt: data.createdAt || data.created_at || new Date().toISOString(),
           }
 
           // Skip if already seen

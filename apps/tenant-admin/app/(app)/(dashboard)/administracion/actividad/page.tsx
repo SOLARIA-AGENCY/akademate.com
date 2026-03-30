@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Card,
   CardContent,
@@ -49,8 +49,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 
-// TODO: Fetch from API
-const actividadData: {
+interface ActividadItem {
   id: string
   timestamp: string
   usuario: string
@@ -61,7 +60,7 @@ const actividadData: {
   ip: string
   severidad: string
   detalles: Record<string, string>
-}[] = []
+}
 
 const severidadConfig: Record<
   string,
@@ -104,6 +103,26 @@ export default function ActividadPage() {
   const [severidadFilter, setSeveridadFilter] = useState('todas')
   const [moduloFilter, setModuloFilter] = useState('todos')
   const [accionFilter, setAccionFilter] = useState('todas')
+  const [actividadData, setActividadData] = useState<ActividadItem[]>([])
+
+  // Fetch notifications as activity log
+  useEffect(() => {
+    fetch('/api/notifications').then(r => r.json()).then(data => {
+      const notifs = data.notifications || []
+      setActividadData(notifs.map((n: any) => ({
+        id: String(n.id),
+        timestamp: new Date(n.createdAt || n.created_at).toLocaleString('es-ES'),
+        usuario: 'Sistema',
+        email: '',
+        accion: n.type === 'new_lead' ? 'CREATE' : 'VIEW',
+        descripcion: n.title || '',
+        modulo: n.type === 'new_lead' ? 'Leads' : 'Sistema',
+        ip: '',
+        severidad: n.type === 'new_lead' ? 'info' : 'success',
+        detalles: {},
+      })))
+    }).catch(() => {})
+  }, [])
 
   const filteredActividad = actividadData.filter((item) => {
     const matchesSearch =

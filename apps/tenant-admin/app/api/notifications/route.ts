@@ -30,7 +30,13 @@ export async function GET() {
       unreadCount = parseInt(unreadResult?.rows?.[0]?.count || '0', 10)
     }
 
-    return NextResponse.json({ notifications, unreadCount })
+    // Normalize snake_case to camelCase
+    const normalized = notifications.map((n: any) => ({
+      ...n,
+      createdAt: n.created_at || n.createdAt,
+    }))
+
+    return NextResponse.json({ notifications: normalized, unreadCount })
   } catch {
     return NextResponse.json({ notifications: [], unreadCount: 0 })
   }
