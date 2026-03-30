@@ -139,6 +139,92 @@ export async function POST(request: NextRequest) {
       }
     } catch { /* extra fields are optional */ }
 
+    // Send confirmation email to the lead (non-blocking, via Brevo)
+    try {
+      const leadType = body.lead_type || 'informacion'
+      const heroImages: Record<string, string> = {
+        inscripcion: 'https://i.imgur.com/3URhTS6.png',   // Creemos en ti
+        informacion: 'https://i.imgur.com/1ueas0V.png',   // El momento es ahora
+        contacto: 'https://i.imgur.com/6MUQn8h.png',      // Poder de la actitud
+      }
+      const titles: Record<string, string> = {
+        inscripcion: 'Tu preinscripcion ha sido recibida',
+        informacion: 'Hemos recibido tu solicitud',
+        contacto: 'Gracias por contactarnos',
+      }
+      const heroImage = heroImages[leadType] || heroImages.informacion
+      const title = titles[leadType] || titles.informacion
+      const courseName = body.notes?.replace('Preinscripcion: ', '').replace('Interes: ', '') || ''
+
+      const emailHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif;">
+<table width="100%" style="background:#f4f4f5;"><tr><td align="center" style="padding:40px 20px;">
+<table width="600" style="max-width:600px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+<tr><td style="background:#cc0000;padding:28px;text-align:center;">
+<table cellspacing="0" cellpadding="0" border="0" align="center"><tr><td align="center">
+<table cellspacing="0" cellpadding="0" border="0"><tr>
+<td width="80" height="80" align="center" valign="middle" style="background:#ffffff;border-radius:50%;width:80px;height:80px;">
+<img src="https://i.imgur.com/32LbMla.png" alt="CEP" width="56" height="56" style="display:block;margin:0 auto;">
+</td></tr></table></td></tr></table>
+<p style="color:#fff;font-size:20px;font-weight:700;margin:14px 0 0;letter-spacing:1px;">CEP FORMACION</p>
+</td></tr>
+<tr><td style="padding:0;"><img src="${heroImage}" alt="CEP Formacion" width="600" style="display:block;width:100%;height:auto;"></td></tr>
+<tr><td style="padding:32px;">
+<h1 style="font-size:22px;color:#111;margin:0 0 16px;">${title}</h1>
+<p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 20px;">
+Hola <strong>${firstName}</strong>, gracias por tu interes en <strong>CEP Formacion</strong>${courseName ? ` y en <strong>${courseName}</strong>` : ''}.
+</p>
+<p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 20px;">
+Nuestro equipo revisara tu solicitud y te contactara en las proximas <strong>24-48 horas</strong> para darte toda la informacion que necesitas.
+</p>
+<table width="100%" style="background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;margin:0 0 20px;">
+<tr><td style="padding:16px;">
+<p style="font-size:14px;color:#166534;margin:0;font-weight:600;">Mientras tanto, puedes:</p>
+<ul style="font-size:14px;color:#166534;margin:8px 0 0;padding-left:20px;">
+<li>Visitar nuestra web para mas informacion</li>
+<li>Llamarnos al 922 219 257</li>
+<li>Escribirnos por WhatsApp</li>
+</ul>
+</td></tr></table>
+<table width="100%">
+<tr><td align="center" style="padding-bottom:10px;">
+<a href="https://wa.me/34622416020?text=Hola%2C%20me%20gustaria%20recibir%20informacion%20sobre%20los%20cursos" style="display:inline-block;background:#25D366;color:#fff;font-size:15px;font-weight:600;padding:12px 32px;border-radius:8px;text-decoration:none;">Contactar por WhatsApp</a>
+</td></tr>
+<tr><td align="center">
+<a href="https://cursostenerife.es" style="display:inline-block;background:#cc0000;color:#fff;font-size:15px;font-weight:600;padding:12px 32px;border-radius:8px;text-decoration:none;">Ver oferta formativa</a>
+</td></tr></table>
+</td></tr>
+<tr><td style="padding:16px 32px;border-top:1px solid #e5e7eb;text-align:center;">
+<p style="font-size:12px;color:#9ca3af;margin:0;">CEP FORMACION — Centro de Estudios Profesionales</p>
+<p style="font-size:11px;color:#d1d5db;margin:4px 0 0;">Este email fue enviado automaticamente.</p>
+</td></tr>
+</table></td></tr></table></body></html>`
+
+      // Send via Brevo SMTP (non-blocking)
+      fetch(`${process.env.NEXT_PUBLIC_TENANT_URL || 'https://cepformacion.akademate.com'}/api/email/send-welcome`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: firstName, email: body.email, password: '', role: '' }),
+      }).catch(() => {})
+
+      // Direct SMTP send for the custom lead confirmation (more reliable)
+      const nodemailer = require('nodemailer')
+      const transport = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: false,
+        auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
+        tls: { rejectUnauthorized: false },
+      })
+      transport.sendMail({
+        from: process.env.SMTP_FROM || 'CEP Formacion <noreply@cepcomunicacion.com>',
+        to: body.email,
+        subject: `CEP Formacion — ${title}`,
+        html: emailHtml,
+        replyTo: 'info@cepcomunicacion.com',
+      }).catch((err: Error) => console.error('[leads] Email failed:', err.message))
+    } catch { /* email is best-effort, don't block lead creation */ }
+
     return NextResponse.json(
       { success: true, id: created.id },
       { status: 201 }

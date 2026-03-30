@@ -50,15 +50,15 @@ interface Lead {
 // ---------------------------------------------------------------------------
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  new: { label: 'Nuevo', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' },
-  contacted: { label: 'Contactado', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' },
+  new: { label: 'Nuevo', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-300' },
+  contacted: { label: 'Contactado', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' },
   interested: { label: 'Interesado', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' },
-  not_interested: { label: 'No interesado', color: 'bg-gray-100 text-gray-600' },
+  not_interested: { label: 'No interesado', color: 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' },
   no_answer: { label: 'No contesta', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300' },
-  wrong_number: { label: 'Num. incorrecto', color: 'bg-red-100 text-red-800' },
-  callback: { label: 'Callback', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' },
-  enrolled: { label: 'Matriculado', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' },
-  discarded: { label: 'Descartado', color: 'bg-gray-100 text-gray-500' },
+  wrong_number: { label: 'No contactable', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' },
+  callback: { label: 'En espera', color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' },
+  enrolled: { label: 'Matriculado', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-300' },
+  discarded: { label: 'Descartado', color: 'bg-gray-50 text-gray-400 dark:bg-gray-900 dark:text-gray-500' },
 }
 
 const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
