@@ -8,29 +8,50 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import {
-  ArrowLeft, UserPlus, Phone, Mail, Calendar, MapPin, MessageSquare,
+  ArrowLeft, UserPlus, Phone, Mail, MessageSquare,
   Loader2, CheckCircle2, XCircle, Clock, Copy, Check, AlertCircle, PhoneOff,
+  GraduationCap,
 } from 'lucide-react'
 
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
 const STATUS_OPTIONS = [
-  { value: 'new', label: 'Nuevo', color: 'bg-amber-100 text-amber-800 border border-amber-300' },
-  { value: 'contacted', label: 'Contactado', color: 'bg-blue-100 text-blue-800' },
-  { value: 'interested', label: 'Interesado', color: 'bg-green-100 text-green-800' },
-  { value: 'not_interested', label: 'No interesado', color: 'bg-red-50 text-red-600' },
-  { value: 'no_answer', label: 'No contesta', color: 'bg-orange-100 text-orange-800' },
-  { value: 'wrong_number', label: 'No contactable', color: 'bg-red-100 text-red-800' },
-  { value: 'callback', label: 'En espera', color: 'bg-gray-100 text-gray-600' },
-  { value: 'enrolled', label: 'Matriculado', color: 'bg-emerald-100 text-emerald-800 border border-emerald-300' },
-  { value: 'discarded', label: 'Descartado', color: 'bg-gray-50 text-gray-400' },
+  { value: 'new', label: 'Nuevo', color: 'bg-red-100 text-red-800 border border-red-300', dot: 'bg-red-500' },
+  { value: 'contacted', label: 'Contactado', color: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500' },
+  { value: 'following_up', label: 'En seguimiento', color: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500' },
+  { value: 'interested', label: 'Interesado', color: 'bg-green-100 text-green-800', dot: 'bg-green-500' },
+  { value: 'enrolling', label: 'En matriculacion', color: 'bg-blue-100 text-blue-800', dot: 'bg-blue-500' },
+  { value: 'enrolled', label: 'Matriculado', color: 'bg-emerald-100 text-emerald-800 border border-emerald-300', dot: 'bg-emerald-500' },
+  { value: 'on_hold', label: 'En espera', color: 'bg-gray-100 text-gray-600', dot: 'bg-amber-500' },
+  { value: 'not_interested', label: 'No interesado', color: 'bg-gray-100 text-gray-500', dot: 'bg-gray-400' },
+  { value: 'unreachable', label: 'No contactable', color: 'bg-gray-100 text-gray-500', dot: 'bg-gray-400' },
+  { value: 'discarded', label: 'Descartado', color: 'bg-gray-50 text-gray-400', dot: 'bg-gray-400' },
 ]
 
 const CONTACT_RESULTS = [
-  { value: 'sin_respuesta', label: 'Sin respuesta', icon: PhoneOff },
-  { value: 'positivo', label: 'Respondio positivo', icon: CheckCircle2 },
-  { value: 'negativo', label: 'Respondio negativo', icon: XCircle },
+  { value: 'no_answer', label: 'Sin respuesta', icon: PhoneOff },
+  { value: 'positive', label: 'Respondio positivo', icon: CheckCircle2 },
+  { value: 'negative', label: 'Respondio negativo', icon: XCircle },
   { value: 'callback', label: 'Pide callback', icon: Clock },
-  { value: 'incorrecto', label: 'Numero incorrecto', icon: AlertCircle },
+  { value: 'wrong_number', label: 'Numero incorrecto', icon: AlertCircle },
 ]
+
+const RESULT_LABELS: Record<string, string> = {
+  no_answer: 'Sin respuesta',
+  positive: 'Respondio positivo',
+  negative: 'Respondio negativo',
+  callback: 'Pide callback',
+  wrong_number: 'Numero incorrecto',
+  message_sent: 'Mensaje enviado',
+  email_sent: 'Email enviado',
+  enrollment_started: 'Matriculacion iniciada',
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -43,18 +64,44 @@ export default function LeadDetailPage({ params }: Props) {
   const [copied, setCopied] = React.useState<string | null>(null)
   const [noteText, setNoteText] = React.useState('')
 
+  // Interactions state
+  const [interactions, setInteractions] = React.useState<any[]>([])
+
+  // Contact modal state
+  const [showContactModal, setShowContactModal] = React.useState<{ channel: 'phone' | 'whatsapp' | 'email' } | null>(null)
+  const [contactResult, setContactResult] = React.useState('')
+  const [contactNote, setContactNote] = React.useState('')
+
+  // ---------------------------------------------------------------------------
+  // Data fetching
+  // ---------------------------------------------------------------------------
+
   const loadLead = React.useCallback(async () => {
     try {
       const res = await fetch(`/api/leads/${id}?depth=1`, { cache: 'no-store' })
-      if (res.ok) {
-        const data = await res.json()
-        setLead(data)
-      }
-    } catch { /* */ }
+      if (res.ok) setLead(await res.json())
+    } catch {}
     finally { setLoading(false) }
   }, [id])
 
-  React.useEffect(() => { void loadLead() }, [loadLead])
+  const loadInteractions = React.useCallback(async () => {
+    try {
+      const res = await fetch(`/api/leads/${id}/interactions`)
+      if (res.ok) {
+        const data = await res.json()
+        setInteractions(data.interactions ?? [])
+      }
+    } catch {}
+  }, [id])
+
+  React.useEffect(() => {
+    void loadLead()
+    void loadInteractions()
+  }, [loadLead, loadInteractions])
+
+  // ---------------------------------------------------------------------------
+  // Actions
+  // ---------------------------------------------------------------------------
 
   const updateLead = async (updates: Record<string, any>) => {
     setSaving(true)
@@ -65,29 +112,47 @@ export default function LeadDetailPage({ params }: Props) {
         body: JSON.stringify(updates),
       })
       await loadLead()
-    } catch { /* */ }
+    } catch {}
     finally { setSaving(false) }
   }
 
-  const markContacted = async (channel: 'phone' | 'email' | 'whatsapp', result?: string) => {
-    const now = new Date().toISOString()
-    const updates: Record<string, any> = {
-      [`contacted_${channel}`]: true,
-      [`contacted_${channel}_date`]: now,
-      last_contacted_at: now,
-      contact_attempts: (lead?.contact_attempts || 0) + 1,
-      status: 'contacted',
-    }
-    if (channel === 'phone' && result) {
-      updates.contacted_phone_result = result
-      updates.last_contact_result = result
-      if (result === 'positivo') updates.status = 'interested'
-      if (result === 'negativo') updates.status = 'not_interested'
-      if (result === 'callback') updates.status = 'callback'
-      if (result === 'incorrecto') updates.status = 'wrong_number'
-      if (result === 'sin_respuesta') updates.status = 'no_answer'
-    }
-    await updateLead(updates)
+  const registerInteraction = async () => {
+    if (!showContactModal || !contactResult) return
+    setSaving(true)
+    try {
+      await fetch(`/api/leads/${id}/interactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel: showContactModal.channel,
+          result: contactResult,
+          note: contactNote || undefined,
+        }),
+      })
+      await loadLead()
+      await loadInteractions()
+      setShowContactModal(null)
+      setContactResult('')
+      setContactNote('')
+    } catch {}
+    finally { setSaving(false) }
+  }
+
+  const handleEnroll = async () => {
+    if (!confirm('Iniciar proceso de matriculacion para este lead?')) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/leads/${id}/enroll`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      })
+      const data = await res.json()
+      if (data.success && data.enrollmentId) {
+        router.push(`/matriculaciones/${data.enrollmentId}`)
+      }
+    } catch {}
+    finally { setSaving(false) }
   }
 
   const copyToClipboard = (text: string, label: string) => {
@@ -95,6 +160,10 @@ export default function LeadDetailPage({ params }: Props) {
     setCopied(label)
     setTimeout(() => setCopied(null), 2000)
   }
+
+  // ---------------------------------------------------------------------------
+  // Render guards
+  // ---------------------------------------------------------------------------
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
   if (!lead) return (
@@ -104,35 +173,39 @@ export default function LeadDetailPage({ params }: Props) {
     </div>
   )
 
+  // ---------------------------------------------------------------------------
+  // Derived data
+  // ---------------------------------------------------------------------------
+
   const name = lead.first_name || lead.last_name ? `${lead.first_name || ''} ${lead.last_name || ''}`.trim() : lead.email
   const statusConfig = STATUS_OPTIONS.find(s => s.value === (lead.status || 'new')) || STATUS_OPTIONS[0]
   const isInscripcion = lead.lead_type === 'inscripcion'
   const timeSince = lead.createdAt ? Math.round((Date.now() - new Date(lead.createdAt).getTime()) / (1000 * 60 * 60)) : 0
+  const canEnroll = ['interested', 'following_up'].includes(lead.status) && !lead.enrollment_id
 
-  // Guion personalizado para telemarketing
-  const phoneScript = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. ¿Es buen momento para hablar?
+  // Pre-built messages
+  const phoneScript = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. Es buen momento para hablar?
 
 Si responde SI:
-"Perfecto. Le cuento brevemente: el ciclo es en modalidad semipresencial, con solo 1 dia de clase presencial a la semana, 500 horas de practicas en empresa, y disponemos de financiacion flexible. ¿Le gustaria que le enviemos toda la informacion detallada por email o WhatsApp?"
+"Perfecto. Le cuento brevemente: el ciclo es en modalidad semipresencial, con solo 1 dia de clase presencial a la semana, 500 horas de practicas en empresa, y disponemos de financiacion flexible. Le gustaria que le enviemos toda la informacion detallada por email o WhatsApp?"
 
 Si responde NO / NO ES BUEN MOMENTO:
-"Entiendo perfectamente. ¿Cuando le vendria bien que le llame? Puedo llamarle en otro horario que le convenga mejor."
+"Entiendo perfectamente. Cuando le vendria bien que le llame? Puedo llamarle en otro horario que le convenga mejor."
 
 Si responde NO INTERESADO:
 "De acuerdo, sin problema. Si en algun momento necesita informacion, puede contactarnos. Que tenga buen dia."`
 
-  // Mensaje WhatsApp pre-escrito
-  const whatsappMessage = `Hola${lead.first_name ? ` ${lead.first_name}` : ''}! 👋
+  const whatsappMessage = `Hola${lead.first_name ? ` ${lead.first_name}` : ''}!
 
 Soy del equipo de CEP Formacion. Hemos recibido tu ${isInscripcion ? 'solicitud de preinscripcion' : 'interes'} en nuestro ciclo formativo.
 
 Te escribo para resolver cualquier duda que tengas sobre:
-📚 El programa y los modulos
-📅 Las fechas de inicio y horarios
-💰 Opciones de financiacion y matricula
-🏥 Las practicas en empresa
+- El programa y los modulos
+- Las fechas de inicio y horarios
+- Opciones de financiacion y matricula
+- Las practicas en empresa
 
-¿Te viene bien que hablemos o prefieres que te enviemos la informacion por aqui?`
+Te viene bien que hablemos o prefieres que te enviemos la informacion por aqui?`
 
   const emailSubject = `Informacion sobre tu ${isInscripcion ? 'preinscripcion' : 'solicitud'} en CEP Formacion`
   const emailBody = `Hola${lead.first_name ? ` ${lead.first_name}` : ''},
@@ -146,6 +219,10 @@ Puedes contactarnos por telefono, WhatsApp o respondiendo a este email.
 Un saludo,
 Equipo CEP Formacion`
 
+  // ---------------------------------------------------------------------------
+  // JSX
+  // ---------------------------------------------------------------------------
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -153,7 +230,21 @@ Equipo CEP Formacion`
         description={`${isInscripcion ? 'Preinscripcion' : 'Lead'} · ${lead.email || ''}`}
         icon={UserPlus}
         badge={<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>{statusConfig.label}</span>}
-        actions={<Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>}
+        actions={
+          <div className="flex gap-2">
+            {canEnroll && (
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={saving} onClick={handleEnroll}>
+                <GraduationCap className="mr-2 h-4 w-4" />Iniciar Matriculacion
+              </Button>
+            )}
+            {lead.enrollment_id && (
+              <Button variant="outline" onClick={() => router.push(`/matriculaciones/${lead.enrollment_id}`)}>
+                <GraduationCap className="mr-2 h-4 w-4" />Ver ficha matricula
+              </Button>
+            )}
+            <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
+          </div>
+        }
       />
 
       {/* Urgency alert */}
@@ -182,16 +273,12 @@ Equipo CEP Formacion`
                       <Phone className="h-4 w-4 text-primary" />
                       <span className="font-medium">Llamar: {lead.phone}</span>
                     </div>
-                    <a href={`tel:${lead.phone}`} className="inline-flex items-center px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-medium">Llamar</a>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {CONTACT_RESULTS.map(({ value, label, icon: Icon }) => (
-                      <Button key={value} size="sm" variant="outline" disabled={saving}
-                        onClick={() => void markContacted('phone', value)}
-                        className="text-xs">
-                        <Icon className="h-3 w-3 mr-1" />{label}
+                    <div className="flex gap-2">
+                      <a href={`tel:${lead.phone}`} className="inline-flex items-center px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-medium">Llamar</a>
+                      <Button size="sm" variant="outline" onClick={() => setShowContactModal({ channel: 'phone' })}>
+                        Registrar resultado
                       </Button>
-                    ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -217,8 +304,8 @@ Equipo CEP Formacion`
                     </div>
                   </div>
                   <Button size="sm" variant="ghost" className="text-xs" disabled={saving}
-                    onClick={() => void markContacted('whatsapp')}>
-                    Marcar como contactado por WhatsApp
+                    onClick={() => { setContactResult('message_sent'); setShowContactModal({ channel: 'whatsapp' }) }}>
+                    Registrar contacto WhatsApp
                   </Button>
                 </div>
               )}
@@ -243,9 +330,42 @@ Equipo CEP Formacion`
                     </div>
                   </div>
                   <Button size="sm" variant="ghost" className="text-xs" disabled={saving}
-                    onClick={() => void markContacted('email')}>
-                    Marcar como contactado por email
+                    onClick={() => { setContactResult('email_sent'); setShowContactModal({ channel: 'email' }) }}>
+                    Registrar contacto email
                   </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Interaction History */}
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Historial de contacto</CardTitle></CardHeader>
+            <CardContent>
+              {interactions.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Sin interacciones registradas</p>
+              ) : (
+                <div className="space-y-3">
+                  {interactions.map((i: any) => (
+                    <div key={i.id} className="flex items-start gap-3 text-sm border-l-2 border-muted pl-3">
+                      <div className="shrink-0 mt-0.5">
+                        {i.channel === 'phone' && <Phone className="h-4 w-4 text-primary" />}
+                        {i.channel === 'whatsapp' && <MessageSquare className="h-4 w-4 text-green-600" />}
+                        {i.channel === 'email' && <Mail className="h-4 w-4 text-blue-600" />}
+                        {i.channel === 'system' && <CheckCircle2 className="h-4 w-4 text-muted-foreground" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium">{i.user_first_name || 'Sistema'}</span>
+                          <Badge variant="outline" className="text-[10px]">{RESULT_LABELS[i.result] ?? i.result}</Badge>
+                        </div>
+                        {i.note && <p className="text-muted-foreground mt-0.5">{i.note}</p>}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(i.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>
@@ -299,12 +419,13 @@ Equipo CEP Formacion`
           {/* Status */}
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Estado</CardTitle></CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-1">
               {STATUS_OPTIONS.map(opt => (
                 <button key={opt.value}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${lead.status === opt.value ? opt.color + ' font-medium' : 'hover:bg-muted'}`}
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${lead.status === opt.value ? opt.color + ' font-medium' : 'hover:bg-muted'}`}
                   disabled={saving}
                   onClick={() => void updateLead({ status: opt.value })}>
+                  <span className={`inline-block w-2 h-2 rounded-full ${opt.dot}`} />
                   {opt.label}
                 </button>
               ))}
@@ -315,37 +436,30 @@ Equipo CEP Formacion`
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Informacion</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-sm">
-              {lead.first_name && <div className="flex justify-between"><span className="text-muted-foreground">Nombre</span><span className="font-medium">{lead.first_name}</span></div>}
+              {lead.first_name && <div className="flex justify-between"><span className="text-muted-foreground">Nombre</span><span className="font-medium">{lead.first_name} {lead.last_name}</span></div>}
               {lead.email && <div className="flex justify-between"><span className="text-muted-foreground">Email</span><span className="font-medium truncate max-w-[60%]">{lead.email}</span></div>}
               {lead.phone && <div className="flex justify-between"><span className="text-muted-foreground">Telefono</span><span className="font-medium">{lead.phone}</span></div>}
               <div className="border-t pt-2 mt-2" />
               <div className="flex justify-between"><span className="text-muted-foreground">Tipo</span><Badge variant={isInscripcion ? 'default' : 'secondary'} className="text-[10px]">{isInscripcion ? 'Inscripcion' : lead.lead_type || 'Lead'}</Badge></div>
               {lead.source_form && <div className="flex justify-between"><span className="text-muted-foreground">Formulario</span><span className="text-xs">{lead.source_form}</span></div>}
               {lead.createdAt && <div className="flex justify-between"><span className="text-muted-foreground">Fecha</span><span className="text-xs">{new Date(lead.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>}
-              {lead.campaign_code && <div className="flex justify-between"><span className="text-muted-foreground">Campaña</span><span className="font-mono text-xs">{lead.campaign_code}</span></div>}
-              <div className="border-t pt-2 mt-2" />
-              <div className="flex justify-between"><span className="text-muted-foreground">Intentos contacto</span><span className="font-medium">{lead.contact_attempts || 0}</span></div>
-              {lead.last_contact_result && <div className="flex justify-between"><span className="text-muted-foreground">Ultimo resultado</span><span className="text-xs">{lead.last_contact_result}</span></div>}
-              {lead.last_contacted_at && <div className="flex justify-between"><span className="text-muted-foreground">Ultimo contacto</span><span className="text-xs">{new Date(lead.last_contacted_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span></div>}
-            </CardContent>
-          </Card>
+              {lead.campaign_code && <div className="flex justify-between"><span className="text-muted-foreground">Campana</span><span className="font-mono text-xs">{lead.campaign_code}</span></div>}
 
-          {/* Contact history */}
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Canales utilizados</CardTitle></CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <Phone className={`h-4 w-4 ${lead.contacted_phone ? 'text-green-500' : 'text-muted-foreground'}`} />
-                <span>{lead.contacted_phone ? `Llamado ${lead.contacted_phone_date ? new Date(lead.contacted_phone_date).toLocaleDateString('es-ES') : ''}` : 'No llamado'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MessageSquare className={`h-4 w-4 ${lead.contacted_whatsapp ? 'text-green-500' : 'text-muted-foreground'}`} />
-                <span>{lead.contacted_whatsapp ? `WhatsApp ${lead.contacted_whatsapp_date ? new Date(lead.contacted_whatsapp_date).toLocaleDateString('es-ES') : ''}` : 'No enviado'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className={`h-4 w-4 ${lead.contacted_email ? 'text-green-500' : 'text-muted-foreground'}`} />
-                <span>{lead.contacted_email ? `Email ${lead.contacted_email_date ? new Date(lead.contacted_email_date).toLocaleDateString('es-ES') : ''}` : 'No enviado'}</span>
-              </div>
+              <div className="border-t pt-2 mt-2" />
+              <div className="flex justify-between"><span className="text-muted-foreground">Asesor</span><span className="font-medium text-xs">{lead.assigned_to?.first_name || 'Sin asignar'}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Interacciones</span><span className="font-medium">{interactions.length}</span></div>
+              {interactions.length > 0 && (
+                <div className="flex justify-between"><span className="text-muted-foreground">Ultimo contacto</span><span className="text-xs">{new Date(interactions[0].created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span></div>
+              )}
+
+              {/* Next action */}
+              {lead.next_action_date && (
+                <>
+                  <div className="border-t pt-2 mt-2" />
+                  <div className="flex justify-between"><span className="text-muted-foreground">Proxima accion</span><span className="text-xs">{new Date(lead.next_action_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span></div>
+                  {lead.next_action_note && <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">{lead.next_action_note}</div>}
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -361,6 +475,48 @@ Equipo CEP Formacion`
           </Card>
         </div>
       </div>
+
+      {/* Contact Result Modal */}
+      {showContactModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowContactModal(null)}>
+          <Card className="w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <CardHeader>
+              <CardTitle className="text-base">Registrar resultado — {showContactModal.channel === 'phone' ? 'Llamada' : showContactModal.channel === 'whatsapp' ? 'WhatsApp' : 'Email'}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                {CONTACT_RESULTS.map(({ value, label, icon: Icon }) => (
+                  <Button key={value} variant={contactResult === value ? 'default' : 'outline'} size="sm" className="justify-start"
+                    onClick={() => setContactResult(value)}>
+                    <Icon className="h-3 w-3 mr-1.5" />{label}
+                  </Button>
+                ))}
+                {showContactModal.channel === 'whatsapp' && (
+                  <Button variant={contactResult === 'message_sent' ? 'default' : 'outline'} size="sm" className="justify-start"
+                    onClick={() => setContactResult('message_sent')}>
+                    <MessageSquare className="h-3 w-3 mr-1.5" />Mensaje enviado
+                  </Button>
+                )}
+                {showContactModal.channel === 'email' && (
+                  <Button variant={contactResult === 'email_sent' ? 'default' : 'outline'} size="sm" className="justify-start"
+                    onClick={() => setContactResult('email_sent')}>
+                    <Mail className="h-3 w-3 mr-1.5" />Email enviado
+                  </Button>
+                )}
+              </div>
+              <Textarea placeholder="Nota opcional..." value={contactNote}
+                onChange={e => setContactNote(e.target.value)} rows={2} />
+              <div className="flex gap-2 justify-end">
+                <Button variant="ghost" onClick={() => { setShowContactModal(null); setContactResult(''); setContactNote('') }}>Cancelar</Button>
+                <Button disabled={!contactResult || saving} onClick={() => void registerInteraction()}>
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                  Guardar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
