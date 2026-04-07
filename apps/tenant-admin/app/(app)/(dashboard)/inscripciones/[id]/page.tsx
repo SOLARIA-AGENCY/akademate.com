@@ -116,6 +116,34 @@ export default function LeadDetailPage({ params }: Props) {
     finally { setSaving(false) }
   }
 
+  const changeStatus = async (newStatus: string) => {
+    if (newStatus === lead.status) return
+    setSaving(true)
+    try {
+      // 1. Update lead status
+      await fetch(`/api/leads/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      // 2. Register status change as system interaction
+      const oldLabel = STATUS_OPTIONS.find(s => s.value === lead.status)?.label ?? lead.status
+      const newLabel = STATUS_OPTIONS.find(s => s.value === newStatus)?.label ?? newStatus
+      await fetch(`/api/leads/${id}/interactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel: 'system',
+          result: 'positive',
+          note: `Estado cambiado: ${oldLabel} → ${newLabel}`,
+        }),
+      })
+      await loadLead()
+      await loadInteractions()
+    } catch {}
+    finally { setSaving(false) }
+  }
+
   const registerInteraction = async () => {
     if (!showContactModal || !contactResult) return
     setSaving(true)
@@ -301,12 +329,11 @@ Equipo CEP Formacion`
                         className="inline-flex items-center px-3 py-1.5 rounded-md bg-green-600 text-white text-sm font-medium">
                         Abrir WhatsApp
                       </a>
+                      <Button size="sm" variant="outline" onClick={() => setShowContactModal({ channel: 'whatsapp' })}>
+                        Registrar resultado
+                      </Button>
                     </div>
                   </div>
-                  <Button size="sm" variant="ghost" className="text-xs" disabled={saving}
-                    onClick={() => { setContactResult('message_sent'); setShowContactModal({ channel: 'whatsapp' }) }}>
-                    Registrar contacto WhatsApp
-                  </Button>
                 </div>
               )}
 
@@ -327,12 +354,11 @@ Equipo CEP Formacion`
                         className="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm font-medium">
                         Enviar email
                       </a>
+                      <Button size="sm" variant="outline" onClick={() => setShowContactModal({ channel: 'email' })}>
+                        Registrar resultado
+                      </Button>
                     </div>
                   </div>
-                  <Button size="sm" variant="ghost" className="text-xs" disabled={saving}
-                    onClick={() => { setContactResult('email_sent'); setShowContactModal({ channel: 'email' }) }}>
-                    Registrar contacto email
-                  </Button>
                 </div>
               )}
             </CardContent>
@@ -424,7 +450,7 @@ Equipo CEP Formacion`
                 <button key={opt.value}
                   className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${lead.status === opt.value ? opt.color + ' font-medium' : 'hover:bg-muted'}`}
                   disabled={saving}
-                  onClick={() => void updateLead({ status: opt.value })}>
+                  onClick={() => void changeStatus(opt.value)}>
                   <span className={`inline-block w-2 h-2 rounded-full ${opt.dot}`} />
                   {opt.label}
                 </button>
