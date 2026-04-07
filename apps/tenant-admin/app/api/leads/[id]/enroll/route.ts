@@ -49,11 +49,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
         data: {
           student_id: lead.id,
           status: 'pending',
-          payment_status: 'unpaid',
+          payment_status: 'pending',
           enrolled_at: new Date().toISOString(),
           ...(lead.course_id ? { course_run_id: lead.course_id } : {}),
-          tenant: tenantId,
-        },
+        } as any,
       })
 
       // 2. Update lead

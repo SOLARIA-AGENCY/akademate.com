@@ -26,46 +26,49 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const body = await request.json()
     const payload = await getPayloadHMR({ config: configPromise })
 
-    // Only allow specific fields to be updated
-    const allowedFields = [
-      'status', 'priority', 'assigned_to',
-      'last_contacted_at', 'converted_at',
-    ]
-
-    const updateData: Record<string, unknown> = {}
-    for (const field of allowedFields) {
-      if (body[field] !== undefined) updateData[field] = body[field]
+    // Fields updatable via Payload
+    const payloadFields = ['status', 'priority', 'assigned_to', 'last_contacted_at', 'converted_at']
+    const payloadData: Record<string, unknown> = {}
+    for (const field of payloadFields) {
+      if (body[field] !== undefined) payloadData[field] = body[field]
     }
 
-    const updated = await payload.update({
-      collection: 'leads',
-      id,
-      data: updateData as any,
-    })
+    if (Object.keys(payloadData).length > 0) {
+      await payload.update({ collection: 'leads', id, data: payloadData as any })
+    }
 
-    // Update extra fields via raw SQL (fields not in Payload collection)
-    try {
-      const extraFields: string[] = []
-      if (body.contact_attempts !== undefined) extraFields.push(`contact_attempts = ${parseInt(body.contact_attempts)}`)
-      if (body.last_contact_result) extraFields.push(`last_contact_result = '${body.last_contact_result.replace(/'/g, "''")}'`)
-      if (body.contacted_phone !== undefined) extraFields.push(`contacted_phone = ${body.contacted_phone}`)
-      if (body.contacted_phone_date) extraFields.push(`contacted_phone_date = '${body.contacted_phone_date}'`)
-      if (body.contacted_phone_result) extraFields.push(`contacted_phone_result = '${body.contacted_phone_result.replace(/'/g, "''")}'`)
-      if (body.contacted_email !== undefined) extraFields.push(`contacted_email = ${body.contacted_email}`)
-      if (body.contacted_email_date) extraFields.push(`contacted_email_date = '${body.contacted_email_date}'`)
-      if (body.contacted_whatsapp !== undefined) extraFields.push(`contacted_whatsapp = ${body.contacted_whatsapp}`)
-      if (body.contacted_whatsapp_date) extraFields.push(`contacted_whatsapp_date = '${body.contacted_whatsapp_date}'`)
-      if (body.callback_notes !== undefined) extraFields.push(`callback_notes = '${(body.callback_notes || '').replace(/'/g, "''")}'`)
-      if (body.next_callback_date) extraFields.push(`next_callback_date = '${body.next_callback_date}'`)
-      if (body.rejection_reason) extraFields.push(`rejection_reason = '${body.rejection_reason.replace(/'/g, "''")}'`)
+    // Extra fields via parameterized SQL
+    const sqlSets: string[] = []
+    const sqlValues: unknown[] = []
+    let idx = 1
 
-      if (extraFields.length > 0) {
-        const sql = `UPDATE leads SET ${extraFields.join(', ')}, updated_at = NOW() WHERE id = ${id}`
-        await (payload.db as any).execute({ raw: sql }).catch(() => {})
-      }
-    } catch { /* extra fields optional */ }
+    if (body.next_action_date !== undefined) {
+      sqlSets.push(`next_action_date = $${idx++}`)
+      sqlValues.push(body.next_action_date)
+    }
+    if (body.next_action_note !== undefined) {
+      sqlSets.push(`next_action_note = $${idx++}`)
+      sqlValues.push(body.next_action_note)
+    }
+    if (body.enrollment_id !== undefined) {
+      sqlSets.push(`enrollment_id = $${idx++}`)
+      sqlValues.push(body.enrollment_id)
+    }
+    if (body.callback_notes !== undefined) {
+      sqlSets.push(`callback_notes = $${idx++}`)
+      sqlValues.push(body.callback_notes)
+    }
 
-    return NextResponse.json({ success: true, id: updated.id })
+    if (sqlSets.length > 0) {
+      sqlSets.push('updated_at = NOW()')
+      sqlValues.push(parseInt(id))
+      await (payload.db as any).execute({
+        raw: `UPDATE leads SET ${sqlSets.join(', ')} WHERE id = $${idx}`,
+        values: sqlValues,
+      }).catch(() => {})
+    }
+
+    return NextResponse.json({ success: true, id })
   } catch (error) {
     console.error('[API][Leads] PATCH error:', error)
     return NextResponse.json({ error: 'Failed to update lead' }, { status: 500 })
