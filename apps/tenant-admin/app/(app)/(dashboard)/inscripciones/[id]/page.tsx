@@ -65,6 +65,9 @@ export default function LeadDetailPage({ params }: Props) {
   const [copied, setCopied] = React.useState<string | null>(null)
   const [noteText, setNoteText] = React.useState('')
 
+  // Local status for immediate UI feedback
+  const [localStatus, setLocalStatus] = React.useState<string | null>(null)
+
   // Interactions state
   const [interactions, setInteractions] = React.useState<any[]>([])
 
@@ -118,7 +121,9 @@ export default function LeadDetailPage({ params }: Props) {
   }
 
   const changeStatus = async (newStatus: string) => {
-    if (newStatus === lead.status) return
+    const currentStatus = localStatus ?? lead.status
+    if (newStatus === currentStatus) return
+    setLocalStatus(newStatus) // Immediate UI feedback
     setSaving(true)
     try {
       // 1. Update lead status
@@ -128,7 +133,7 @@ export default function LeadDetailPage({ params }: Props) {
         body: JSON.stringify({ status: newStatus }),
       })
       // 2. Register status change as system interaction
-      const oldLabel = STATUS_OPTIONS.find(s => s.value === lead.status)?.label ?? lead.status
+      const oldLabel = STATUS_OPTIONS.find(s => s.value === currentStatus)?.label ?? currentStatus
       const newLabel = STATUS_OPTIONS.find(s => s.value === newStatus)?.label ?? newStatus
       await fetch(`/api/leads/${id}/interactions`, {
         method: 'POST',
@@ -206,11 +211,13 @@ export default function LeadDetailPage({ params }: Props) {
   // Derived data
   // ---------------------------------------------------------------------------
 
+  const currentStatus = localStatus ?? lead.status ?? 'new'
   const name = lead.first_name || lead.last_name ? `${lead.first_name || ''} ${lead.last_name || ''}`.trim() : lead.email
-  const statusConfig = STATUS_OPTIONS.find(s => s.value === (lead.status || 'new')) || STATUS_OPTIONS[0]
+  const statusConfig = STATUS_OPTIONS.find(s => s.value === currentStatus) || STATUS_OPTIONS[0]
   const isInscripcion = lead.lead_type === 'inscripcion'
   const timeSince = lead.createdAt ? Math.round((Date.now() - new Date(lead.createdAt).getTime()) / (1000 * 60 * 60)) : 0
-  const canEnroll = lead.status === 'interested' && !lead.enrollment_id
+  const showEnrollButton = currentStatus === 'interested' && !lead.enrollment_id
+  const showEnrollLink = !!lead.enrollment_id
 
   // Pre-built messages
   const phoneScript = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. Es buen momento para hablar?
@@ -261,12 +268,12 @@ Equipo CEP Formacion`
         badge={<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>{statusConfig.label}</span>}
         actions={
           <div className="flex gap-2">
-            {canEnroll && (
+            {showEnrollButton && (
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={saving} onClick={handleEnroll}>
                 <GraduationCap className="mr-2 h-4 w-4" />Iniciar Matriculacion
               </Button>
             )}
-            {lead.enrollment_id && (
+            {showEnrollLink && (
               <Button variant="outline" onClick={() => router.push(`/matriculaciones/${lead.enrollment_id}`)}>
                 <GraduationCap className="mr-2 h-4 w-4" />Ver ficha matricula
               </Button>
@@ -277,7 +284,7 @@ Equipo CEP Formacion`
       />
 
       {/* Urgency alert */}
-      {isInscripcion && timeSince < 48 && (!lead.status || lead.status === 'new') && (
+      {isInscripcion && timeSince < 48 && currentStatus === 'new' && (
         <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 p-4 flex items-center gap-3">
           <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
           <div>
@@ -449,7 +456,7 @@ Equipo CEP Formacion`
             <CardContent className="space-y-1">
               {STATUS_OPTIONS.map(opt => (
                 <button key={opt.value}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${lead.status === opt.value ? opt.color + ' font-medium' : 'hover:bg-muted'}`}
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${currentStatus === opt.value ? opt.color + ' font-medium ring-1 ring-offset-1 ring-current' : 'hover:bg-muted'}`}
                   disabled={saving}
                   onClick={() => void changeStatus(opt.value)}>
                   <span className={`inline-block w-2 h-2 rounded-full ${opt.dot}`} />

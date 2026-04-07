@@ -21,7 +21,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
-    const allowedStatuses = ['interested', 'following_up']
+    const allowedStatuses = ['interested', 'following_up', 'enrolling']
     if (!allowedStatuses.includes(lead.status)) {
       return NextResponse.json(
         { error: `Status "${lead.status}" no permite matriculacion. Debe ser: ${allowedStatuses.join(', ')}` },
