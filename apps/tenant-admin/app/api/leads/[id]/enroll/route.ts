@@ -14,7 +14,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const { id } = await context.params
     const body = await request.json()
     const payload = await getPayloadHMR({ config: configPromise })
-    const db = payload.db as any
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
     const lead = await payload.findByID({ collection: 'leads', id, depth: 0 }) as any
     if (!lead) {
@@ -38,42 +38,26 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const userId = body.user_id ?? 1
     const tenantId = lead.tenant_id ?? lead.tenant ?? 1
+    const leadId = parseInt(id)
 
-    // Atomic transaction
-    try {
-      await db.execute({ raw: 'BEGIN' })
+    // Create enrollment via Payload, then update lead + log via raw SQL
+    const enrollment = await payload.create({
+      collection: 'enrollments',
+      data: {
+        student_id: lead.id,
+        status: 'pending',
+        payment_status: 'pending',
+        enrolled_at: new Date().toISOString(),
+        ...(lead.course_id ? { course_run_id: lead.course_id } : {}),
+      } as any,
+    })
 
-      // 1. Create enrollment
-      const enrollment = await payload.create({
-        collection: 'enrollments',
-        data: {
-          student_id: lead.id,
-          status: 'pending',
-          payment_status: 'pending',
-          enrolled_at: new Date().toISOString(),
-          ...(lead.course_id ? { course_run_id: lead.course_id } : {}),
-        } as any,
-      })
-
-      // 2. Update lead
-      await db.execute({
-        raw: `UPDATE leads SET status = 'enrolling', enrollment_id = $1, updated_at = NOW() WHERE id = $2`,
-        values: [enrollment.id, parseInt(id)],
-      })
-
-      // 3. Log interaction
-      await db.execute({
-        raw: `INSERT INTO lead_interactions (lead_id, user_id, channel, result, note, tenant_id) VALUES ($1, $2, 'system', 'enrollment_started', 'Ficha de matricula creada', $3)`,
-        values: [parseInt(id), userId, tenantId],
-      })
-
-      await db.execute({ raw: 'COMMIT' })
-
-      return NextResponse.json({ success: true, enrollmentId: enrollment.id })
-    } catch (txError) {
-      await db.execute({ raw: 'ROLLBACK' }).catch(() => {})
-      throw txError
+    if (drizzle?.execute) {
+      await drizzle.execute(`UPDATE leads SET status = 'enrolling', enrollment_id = ${enrollment.id}, updated_at = NOW() WHERE id = ${leadId}`)
+      await drizzle.execute(`INSERT INTO lead_interactions (lead_id, user_id, channel, result, note, tenant_id) VALUES (${leadId}, ${userId}, 'system', 'enrollment_started', 'Ficha de matricula creada', ${tenantId})`)
     }
+
+    return NextResponse.json({ success: true, enrollmentId: enrollment.id })
   } catch (error) {
     console.error('[API][LeadEnroll] error:', error)
     return NextResponse.json({ error: 'Failed to create enrollment' }, { status: 500 })

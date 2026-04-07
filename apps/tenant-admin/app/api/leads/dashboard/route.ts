@@ -7,11 +7,22 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     const payload = await getPayloadHMR({ config: configPromise })
-    const db = payload.db as any
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
-    const query = async (raw: string) => {
-      const res = await db.execute({ raw })
-      return (res.rows ?? res ?? [])[0]
+    if (!drizzle?.execute) {
+      console.error('[LeadsDashboard] No drizzle.execute available')
+      throw new Error('DB not available')
+    }
+
+    const query = async (sql: string) => {
+      const res = await drizzle.execute(sql)
+      const rows = Array.isArray(res) ? res : (res?.rows ?? [])
+      return rows[0] ?? {}
+    }
+
+    const queryAll = async (sql: string) => {
+      const res = await drizzle.execute(sql)
+      return Array.isArray(res) ? res : (res?.rows ?? [])
     }
 
     const totalLeads = parseInt((await query(`SELECT COUNT(*) as cnt FROM leads`)).cnt ?? '0')
@@ -45,11 +56,11 @@ export async function GET() {
       (await query(`SELECT COUNT(*) as cnt FROM leads WHERE status = 'enrolling'`)).cnt ?? '0',
     )
 
-    const breakdownRes = await db.execute({
-      raw: `SELECT status, COUNT(*) as cnt FROM leads WHERE status IN ('contacted', 'following_up', 'interested', 'on_hold') GROUP BY status`,
-    })
+    const breakdownRows = await queryAll(
+      `SELECT status, COUNT(*) as cnt FROM leads WHERE status IN ('contacted', 'following_up', 'interested', 'on_hold') GROUP BY status`,
+    )
     const followUpBreakdown: Record<string, number> = {}
-    for (const row of (breakdownRes.rows ?? breakdownRes ?? [])) {
+    for (const row of breakdownRows) {
       followUpBreakdown[row.status] = parseInt(row.cnt)
     }
 

@@ -15,25 +15,32 @@ const VALID_RESULTS = [
   'message_sent', 'email_sent', 'enrollment_started',
 ] as const
 
+function esc(s: string): string {
+  return s.replace(/'/g, "''")
+}
+
 // GET /api/leads/[id]/interactions
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
     const payload = await getPayloadHMR({ config: configPromise })
-    const db = payload.db as any
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
-    const result = await db.execute({
-      raw: `
-        SELECT li.*, u.email as user_email, u.first_name as user_first_name, u.last_name as user_last_name
-        FROM lead_interactions li
-        LEFT JOIN users u ON u.id = li.user_id
-        WHERE li.lead_id = $1
-        ORDER BY li.created_at DESC
-      `,
-      values: [parseInt(id)],
-    })
+    if (!drizzle?.execute) {
+      return NextResponse.json({ interactions: [] })
+    }
 
-    return NextResponse.json({ interactions: result.rows ?? result ?? [] })
+    const leadId = parseInt(id)
+    const result = await drizzle.execute(`
+      SELECT li.*, u.email as user_email, u.first_name as user_first_name, u.last_name as user_last_name
+      FROM lead_interactions li
+      LEFT JOIN users u ON u.id = li.user_id
+      WHERE li.lead_id = ${leadId}
+      ORDER BY li.created_at DESC
+    `)
+
+    const rows = Array.isArray(result) ? result : (result?.rows ?? [])
+    return NextResponse.json({ interactions: rows })
   } catch (error) {
     console.error('[API][LeadInteractions] GET error:', error)
     return NextResponse.json({ interactions: [] })
@@ -58,7 +65,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     const payload = await getPayloadHMR({ config: configPromise })
-    const db = payload.db as any
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
+    if (!drizzle?.execute) throw new Error('DB not available')
+
     const leadId = parseInt(id)
 
     // Get current lead
@@ -69,51 +78,36 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const tenantId = lead.tenant_id ?? lead.tenant ?? 1
     const userId = body.user_id ?? 1
+    const noteEsc = note ? `'${esc(note)}'` : 'NULL'
 
     // 1. Insert interaction (append-only)
-    await db.execute({
-      raw: `INSERT INTO lead_interactions (lead_id, user_id, channel, result, note, tenant_id) VALUES ($1, $2, $3, $4, $5, $6)`,
-      values: [leadId, userId, channel, result, note ?? null, tenantId],
-    })
+    await drizzle.execute(
+      `INSERT INTO lead_interactions (lead_id, user_id, channel, result, note, tenant_id) VALUES (${leadId}, ${userId}, '${esc(channel)}', '${esc(result)}', ${noteEsc}, ${tenantId})`,
+    )
 
     // 2. Update lead.last_contacted_at
-    await db.execute({
-      raw: `UPDATE leads SET last_contacted_at = NOW(), updated_at = NOW() WHERE id = $1`,
-      values: [leadId],
-    })
+    await drizzle.execute(`UPDATE leads SET last_contacted_at = NOW(), updated_at = NOW() WHERE id = ${leadId}`)
 
-    // 3. If first interaction, auto-change status to 'contacted'
-    const countResult = await db.execute({
-      raw: `SELECT COUNT(*) as cnt FROM lead_interactions WHERE lead_id = $1`,
-      values: [leadId],
-    })
-    const count = parseInt((countResult.rows ?? countResult)?.[0]?.cnt ?? '0')
+    // 3. If first interaction, auto-change to 'contacted'
+    const countRes = await drizzle.execute(`SELECT COUNT(*) as cnt FROM lead_interactions WHERE lead_id = ${leadId}`)
+    const countRows = Array.isArray(countRes) ? countRes : (countRes?.rows ?? [])
+    const count = parseInt(countRows[0]?.cnt ?? '0')
 
     if (count === 1) {
-      await db.execute({
-        raw: `UPDATE leads SET status = 'contacted' WHERE id = $1 AND status = 'new'`,
-        values: [leadId],
-      })
+      await drizzle.execute(`UPDATE leads SET status = 'contacted' WHERE id = ${leadId} AND status = 'new'`)
     }
 
-    // 4. Auto status transitions based on result
-    const statusTransitions: Record<string, { to: string; from: string[] }> = {
-      positive: { to: 'interested', from: ['new', 'contacted', 'following_up'] },
-      wrong_number: { to: 'unreachable', from: ['new', 'contacted', 'following_up', 'on_hold'] },
-      callback: { to: 'on_hold', from: ['new', 'contacted', 'following_up'] },
-      negative: { to: 'not_interested', from: ['new', 'contacted', 'following_up', 'interested'] },
+    // 4. Auto status transitions
+    if (result === 'positive') {
+      await drizzle.execute(`UPDATE leads SET status = 'interested' WHERE id = ${leadId} AND status IN ('new', 'contacted', 'following_up')`)
+    } else if (result === 'wrong_number') {
+      await drizzle.execute(`UPDATE leads SET status = 'unreachable' WHERE id = ${leadId}`)
+    } else if (result === 'callback') {
+      await drizzle.execute(`UPDATE leads SET status = 'on_hold' WHERE id = ${leadId}`)
+    } else if (result === 'negative') {
+      await drizzle.execute(`UPDATE leads SET status = 'not_interested' WHERE id = ${leadId} AND status IN ('new', 'contacted', 'following_up', 'interested')`)
     }
 
-    const transition = statusTransitions[result]
-    if (transition) {
-      const placeholders = transition.from.map((_, i) => `$${i + 2}`).join(', ')
-      await db.execute({
-        raw: `UPDATE leads SET status = $1 WHERE id = $${transition.from.length + 2} AND status IN (${placeholders})`,
-        values: [transition.to, ...transition.from, leadId],
-      })
-    }
-
-    // Return updated lead
     const updatedLead = await payload.findByID({ collection: 'leads', id, depth: 0 })
     return NextResponse.json({ success: true, lead: updatedLead })
   } catch (error) {

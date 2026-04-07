@@ -37,35 +37,21 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       await payload.update({ collection: 'leads', id, data: payloadData as any })
     }
 
-    // Extra fields via parameterized SQL
-    const sqlSets: string[] = []
-    const sqlValues: unknown[] = []
-    let idx = 1
+    // Extra fields via drizzle raw SQL
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
+    if (drizzle?.execute) {
+      const sqlSets: string[] = []
+      const esc = (s: string) => s.replace(/'/g, "''")
 
-    if (body.next_action_date !== undefined) {
-      sqlSets.push(`next_action_date = $${idx++}`)
-      sqlValues.push(body.next_action_date)
-    }
-    if (body.next_action_note !== undefined) {
-      sqlSets.push(`next_action_note = $${idx++}`)
-      sqlValues.push(body.next_action_note)
-    }
-    if (body.enrollment_id !== undefined) {
-      sqlSets.push(`enrollment_id = $${idx++}`)
-      sqlValues.push(body.enrollment_id)
-    }
-    if (body.callback_notes !== undefined) {
-      sqlSets.push(`callback_notes = $${idx++}`)
-      sqlValues.push(body.callback_notes)
-    }
+      if (body.next_action_date !== undefined) sqlSets.push(`next_action_date = '${esc(String(body.next_action_date))}'`)
+      if (body.next_action_note !== undefined) sqlSets.push(`next_action_note = '${esc(String(body.next_action_note))}'`)
+      if (body.enrollment_id !== undefined) sqlSets.push(`enrollment_id = ${parseInt(body.enrollment_id)}`)
+      if (body.callback_notes !== undefined) sqlSets.push(`callback_notes = '${esc(String(body.callback_notes))}'`)
 
-    if (sqlSets.length > 0) {
-      sqlSets.push('updated_at = NOW()')
-      sqlValues.push(parseInt(id))
-      await (payload.db as any).execute({
-        raw: `UPDATE leads SET ${sqlSets.join(', ')} WHERE id = $${idx}`,
-        values: sqlValues,
-      }).catch(() => {})
+      if (sqlSets.length > 0) {
+        sqlSets.push('updated_at = NOW()')
+        await drizzle.execute(`UPDATE leads SET ${sqlSets.join(', ')} WHERE id = ${parseInt(id)}`).catch(() => {})
+      }
     }
 
     return NextResponse.json({ success: true, id })

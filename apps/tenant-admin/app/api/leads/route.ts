@@ -6,6 +6,10 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
+function esc(s: string): string {
+  return s.replace(/'/g, "''")
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -16,75 +20,68 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('q')?.trim()
 
     const payload = await getPayloadHMR({ config: configPromise })
-    const db = payload.db as any
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
-    // Build WHERE clause with parameterized values
+    if (!drizzle?.execute) {
+      // Fallback to Payload API if drizzle not available
+      const leads = await payload.find({ collection: 'leads', limit, page, sort: '-createdAt', depth: 1 })
+      return NextResponse.json(leads)
+    }
+
+    // Build WHERE clause
     const conditions: string[] = []
-    const values: unknown[] = []
-    let paramIdx = 1
-
-    if (status) {
-      conditions.push(`l.status = $${paramIdx++}`)
-      values.push(status)
-    }
-
+    if (status) conditions.push(`l.status = '${esc(status)}'`)
     if (search) {
-      conditions.push(`(l.first_name ILIKE $${paramIdx} OR l.last_name ILIKE $${paramIdx} OR l.email ILIKE $${paramIdx} OR l.phone ILIKE $${paramIdx})`)
-      values.push(`%${search}%`)
-      paramIdx++
+      const q = esc(search)
+      conditions.push(`(l.first_name ILIKE '%${q}%' OR l.last_name ILIKE '%${q}%' OR l.email ILIKE '%${q}%' OR l.phone ILIKE '%${q}%')`)
     }
-
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
     // Count total
-    const countRes = await db.execute({
-      raw: `SELECT COUNT(*) as cnt FROM leads l ${whereClause}`,
-      values,
-    })
-    const totalDocs = parseInt((countRes.rows ?? countRes)?.[0]?.cnt ?? '0')
+    const countRes = await drizzle.execute(`SELECT COUNT(*) as cnt FROM leads l ${whereClause}`)
+    const countRows = Array.isArray(countRes) ? countRes : (countRes?.rows ?? [])
+    const totalDocs = parseInt(countRows[0]?.cnt ?? '0')
 
     const offset = (page - 1) * limit
 
     // Main query: priority sort + last interactor via LATERAL JOIN
-    const result = await db.execute({
-      raw: `
-        SELECT
-          l.*,
-          li_last.user_first_name as last_interactor_name,
-          li_last.channel as last_interactor_channel,
-          li_last.created_at as last_interaction_at,
-          COALESCE(li_count.cnt, 0) as interaction_count
-        FROM leads l
-        LEFT JOIN LATERAL (
-          SELECT li.channel, li.created_at, u.first_name as user_first_name
-          FROM lead_interactions li
-          LEFT JOIN users u ON u.id = li.user_id
-          WHERE li.lead_id = l.id
-          ORDER BY li.created_at DESC
-          LIMIT 1
-        ) li_last ON true
-        LEFT JOIN LATERAL (
-          SELECT COUNT(*) as cnt FROM lead_interactions WHERE lead_id = l.id
-        ) li_count ON true
-        ${whereClause}
-        ORDER BY
-          CASE l.status
-            WHEN 'new' THEN 0
-            WHEN 'contacted' THEN 1
-            WHEN 'following_up' THEN 2
-            WHEN 'interested' THEN 3
-            WHEN 'on_hold' THEN 4
-            WHEN 'enrolling' THEN 5
-            ELSE 6
-          END,
-          CASE WHEN l.status = 'new' THEN l.created_at END ASC,
-          l.created_at DESC
-        LIMIT $${paramIdx} OFFSET $${paramIdx + 1}
-      `,
-      values: [...values, limit, offset],
-    })
+    const result = await drizzle.execute(`
+      SELECT
+        l.*,
+        li_last.user_first_name as last_interactor_name,
+        li_last.channel as last_interactor_channel,
+        li_last.created_at as last_interaction_at,
+        COALESCE(li_count.cnt, 0) as interaction_count
+      FROM leads l
+      LEFT JOIN LATERAL (
+        SELECT li.channel, li.created_at, u.first_name as user_first_name
+        FROM lead_interactions li
+        LEFT JOIN users u ON u.id = li.user_id
+        WHERE li.lead_id = l.id
+        ORDER BY li.created_at DESC
+        LIMIT 1
+      ) li_last ON true
+      LEFT JOIN LATERAL (
+        SELECT COUNT(*) as cnt FROM lead_interactions WHERE lead_id = l.id
+      ) li_count ON true
+      ${whereClause}
+      ORDER BY
+        CASE l.status
+          WHEN 'new' THEN 0
+          WHEN 'contacted' THEN 1
+          WHEN 'following_up' THEN 2
+          WHEN 'interested' THEN 3
+          WHEN 'on_hold' THEN 4
+          WHEN 'enrolling' THEN 5
+          ELSE 6
+        END,
+        CASE WHEN l.status = 'new' THEN l.created_at END ASC,
+        l.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `)
 
-    const docs = (result.rows ?? result ?? []).map((row: any) => ({
+    const rows = Array.isArray(result) ? result : (result?.rows ?? [])
+    const docs = rows.map((row: any) => ({
       ...row,
       lastInteractor: row.last_interactor_name
         ? { name: row.last_interactor_name, channel: row.last_interactor_channel, at: row.last_interaction_at }
