@@ -44,41 +44,8 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * limit
 
-    // Main query: priority sort + last interactor via LATERAL JOIN
-    const result = await drizzle.execute(`
-      SELECT
-        l.*,
-        li_last.user_first_name as last_interactor_name,
-        li_last.channel as last_interactor_channel,
-        li_last.created_at as last_interaction_at,
-        COALESCE(li_count.cnt, 0) as interaction_count
-      FROM leads l
-      LEFT JOIN LATERAL (
-        SELECT li.channel, li.created_at, u.first_name as user_first_name
-        FROM lead_interactions li
-        LEFT JOIN users u ON u.id = li.user_id
-        WHERE li.lead_id = l.id
-        ORDER BY li.created_at DESC
-        LIMIT 1
-      ) li_last ON true
-      LEFT JOIN LATERAL (
-        SELECT COUNT(*) as cnt FROM lead_interactions WHERE lead_id = l.id
-      ) li_count ON true
-      ${whereClause}
-      ORDER BY
-        CASE l.status
-          WHEN 'new' THEN 0
-          WHEN 'contacted' THEN 1
-          WHEN 'following_up' THEN 2
-          WHEN 'interested' THEN 3
-          WHEN 'on_hold' THEN 4
-          WHEN 'enrolling' THEN 5
-          ELSE 6
-        END,
-        CASE WHEN l.status = 'new' THEN l.created_at END ASC,
-        l.created_at DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `)
+    // Main query: priority sort + last interactor via scalar subqueries
+    const result = await drizzle.execute(`SELECT l.*, (SELECT COUNT(*) FROM lead_interactions WHERE lead_id = l.id) as interaction_count, (SELECT u.first_name FROM lead_interactions li LEFT JOIN users u ON u.id = li.user_id WHERE li.lead_id = l.id ORDER BY li.created_at DESC LIMIT 1) as last_interactor_name, (SELECT li.channel FROM lead_interactions li WHERE li.lead_id = l.id ORDER BY li.created_at DESC LIMIT 1) as last_interactor_channel, (SELECT li.created_at FROM lead_interactions li WHERE li.lead_id = l.id ORDER BY li.created_at DESC LIMIT 1) as last_interaction_at FROM leads l ${whereClause} ORDER BY CASE l.status WHEN 'new' THEN 0 WHEN 'contacted' THEN 1 WHEN 'following_up' THEN 2 WHEN 'interested' THEN 3 WHEN 'on_hold' THEN 4 WHEN 'enrolling' THEN 5 ELSE 6 END, CASE WHEN l.status = 'new' THEN l.created_at END ASC, l.created_at DESC LIMIT ${limit} OFFSET ${offset}`)
 
     const rows = Array.isArray(result) ? result : (result?.rows ?? [])
     const docs = rows.map((row: any) => ({
