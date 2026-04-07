@@ -1,0 +1,384 @@
+- generic [ref=e1]:
+  - generic [ref=e12]:
+    - generic [ref=e698]:
+      - generic [ref=e700]:
+        - link "Administrador de anuncios Meta" [ref=e702] [cursor=pointer]:
+          - /url: /adsmanager/?act=730494526974837
+          - generic [ref=e704]:
+            - generic [ref=e705]: Administrador de anuncios
+            - img "Meta" [ref=e708]
+        - generic [ref=e709]:
+          - generic [ref=e712]:
+            - button "Pressable" [ref=e713] [cursor=pointer]
+            - generic:
+              - generic:
+                - generic:
+                  - button:
+                    - generic:
+                      - generic: "7"
+          - separator [ref=e718]
+      - navigation "herramientas" [ref=e722]:
+        - list [ref=e723]:
+          - listitem [ref=e725]:
+            - button "Resumen de la cuenta" [ref=e727] [cursor=pointer]:
+              - generic [ref=e735]:
+                - generic [ref=e737]: "2"
+                - status [ref=e738]: 2 notificaciones nuevas
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Resumen de la cuenta
+                  - generic [ref=e740]:
+                    - generic [ref=e742]: "2"
+                    - status [ref=e743]: 2 notificaciones nuevas
+          - listitem [ref=e745]:
+            - button "Campañas" [ref=e747] [cursor=pointer]
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Campañas
+          - listitem [ref=e753]:
+            - link "Informes de anuncios" [ref=e755] [cursor=pointer]:
+              - /url: /adsreporting/?act=730494526974837&business_id=598666359737310
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Informes de anuncios
+          - listitem [ref=e761]:
+            - link "Audiencias" [ref=e763] [cursor=pointer]:
+              - /url: /adsmanager/?act=730494526974837&business_id=598666359737310&tool=AUDIENCES&nav_entry_point=ads_ecosystem_navigation_menu&nav_source=ads_manager
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Audiencias
+          - listitem [ref=e769]:
+            - link "Facturación y pagos" [ref=e771] [cursor=pointer]:
+              - /url: /billing_hub/payment_settings/?placement=ads_manager&asset_id=730494526974837&business_id=598666359737310&payment_account_id_from_jsmodule=730494526974837&entrypoint=ad_ecosystem_navigation_ads_billing_tool_plugin
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Facturación y pagos
+          - listitem [ref=e777]:
+            - button "Configuración de la publicidad" [ref=e779] [cursor=pointer]
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Configuración de la publicidad
+          - listitem [ref=e785]:
+            - link "Administrador de eventos" [ref=e787] [cursor=pointer]:
+              - /url: /events_manager2/?business_id=598666359737310&act=730494526974837&nav_source=ads_ecosystem_nav
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Administrador de eventos
+          - listitem [ref=e792]:
+            - button "Todas las herramientas" [ref=e794] [cursor=pointer]
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Todas las herramientas
+      - generic [ref=e801]:
+        - separator [ref=e802]
+        - list [ref=e805]:
+          - listitem [ref=e806]:
+            - button "Asistente para empresas de Meta AI" [ref=e808] [cursor=pointer]
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Asistente para empresas de Meta AI
+        - generic [ref=e818]:
+          - listitem [ref=e822]:
+            - button "Ayuda" [ref=e824] [cursor=pointer]
+            - generic:
+              - listitem:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Ayuda
+          - button "Novedades para cuentas publicitarias" [ref=e832] [cursor=pointer]:
+            - generic [ref=e835]: Novedades para cuentas publicitarias
+          - link "Configuración de la empresa" [ref=e838] [cursor=pointer]:
+            - /url: https://business.facebook.com/latest/settings/business_users/?nav_ref=ads_navigation_gear_icon&bm_redirect_migration=true&business_id=598666359737310
+            - generic [ref=e841]: Configuración de la empresa
+          - button "Buscar" [ref=e845] [cursor=pointer]:
+            - generic [ref=e848]: Buscar
+          - button "Informar de un problema" [ref=e851] [cursor=pointer]:
+            - generic [ref=e854]: Informar de un problema
+    - generic [ref=e8225]:
+      - generic [ref=e8226]:
+        - button "Cerrar" [ref=e8227] [cursor=pointer]
+        - button "Ver gráficos (Ctrl + Y)" [ref=e8235] [cursor=pointer]
+        - button "Editar (Ctrl+U)" [ref=e8241] [cursor=pointer]
+        - button "Ver historial (Ctrl + I)" [ref=e8247] [cursor=pointer]
+        - button "Contraer vista" [ref=e8253] [cursor=pointer]
+      - generic [ref=e8255]:
+        - grid "grid" [ref=e9625]:
+          - generic [ref=e9626]:
+            - row "Campaña" [ref=e9627]:
+              - rowheader "Campaña" [ref=e9630] [cursor=pointer]:
+                - generic [ref=e9631]:
+                  - img [ref=e9633]
+                  - generic:
+                    - generic:
+                      - generic: SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-HIG-2628-CIC-CAP26
+                  - button "predeterminada" [ref=e9638]:
+                    - generic [ref=e9641]: predeterminada
+            - row "Conjunto de anuncios" [ref=e9644]:
+              - rowheader "Conjunto de anuncios" [ref=e9647] [cursor=pointer]:
+                - generic [ref=e9648]:
+                  - img [ref=e9650]
+                  - generic:
+                    - generic:
+                      - generic: CFGS Higiene Bucodental / Tenerife SC
+                  - button "predeterminada" [ref=e9659]:
+                    - generic [ref=e9662]: predeterminada
+            - row "anuncio" [ref=e9669]:
+              - rowheader "anuncio" [ref=e9672] [cursor=pointer]:
+                - generic [ref=e9673]:
+                  - img [ref=e9675]
+                  - generic:
+                    - generic:
+                      - generic: Nuevo anuncio de Clientes potenciales
+                  - button "predeterminada" [ref=e9682]:
+                    - generic [ref=e9685]: predeterminada
+        - generic [ref=e8997]:
+          - generic [ref=e8999]:
+            - generic [ref=e9000]:
+              - button "Abrir" [ref=e9002] [cursor=pointer]:
+                - generic [ref=e9005]: Abrir
+              - generic [ref=e9008]:
+                - generic [ref=e9010]:
+                  - link "SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-HIG-2628-CIC-CAP26" [ref=e9015] [cursor=pointer]:
+                    - /url: "#"
+                    - generic [ref=e9016]:
+                      - img [ref=e9018]
+                      - heading "SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-HIG-2628-CIC-CAP26" [level=4] [ref=e9021]
+                  - generic [ref=e9028]:
+                    - img [ref=e9030]
+                    - heading "CFGS Higiene Bucodental / Tenerife SC" [level=4] [ref=e9688]
+                  - link "1 anuncio" [ref=e9044] [cursor=pointer]:
+                    - /url: "#"
+                    - generic [ref=e9045]:
+                      - img [ref=e9047]
+                      - heading "1 anuncio" [level=4] [ref=e9052]:
+                        - generic [ref=e9053]: 1 anuncio
+                - generic [ref=e9054]:
+                  - generic [ref=e9056]:
+                    - generic [ref=e9062]: En borrador
+                    - switch "Activar/Desactivar" [checked] [ref=e9069] [cursor=pointer]
+                  - button "Menú de acciones" [ref=e9075] [cursor=pointer]:
+                    - generic [ref=e9078]: Menú de acciones
+            - tablist [ref=e9085]:
+              - tab "Editar" [selected] [ref=e9086] [cursor=pointer]:
+                - generic [ref=e9090]: Editar
+              - tab "Revisar" [ref=e9091] [cursor=pointer]:
+                - generic [ref=e9095]: Revisar
+          - generic [ref=e9102]:
+            - generic [ref=e9111]:
+              - generic [ref=e9112]:
+                - generic [ref=e9121]:
+                  - heading "Nombre del conjunto de anuncios" [level=3] [ref=e9129]:
+                    - heading "Nombre del conjunto de anuncios" [level=3] [ref=e9130]
+                  - generic [ref=e9135]:
+                    - combobox [ref=e9147]: CFGS Higiene Bucodental / Tenerife SC
+                    - button "Crear plantilla" [ref=e9150] [cursor=pointer]:
+                      - generic [ref=e9154]: Crear plantilla
+                - generic [ref=e9163]:
+                  - heading "Conversión" [level=3] [ref=e9172]
+                  - generic [ref=e9176]:
+                    - generic [ref=e9179]:
+                      - generic [ref=e9185]: Ubicación de la conversión
+                      - generic [ref=e9190]:
+                        - generic [ref=e9191]:
+                          - generic [ref=e9193]:
+                            - text: Elige dónde quieres generar clientes potenciales.
+                            - link "Información sobre las ubicaciones de conversiones" [ref=e9195] [cursor=pointer]:
+                              - /url: https://www.facebook.com/business/help/2035196646663270
+                          - generic [ref=e9199]:
+                            - generic [ref=e9205]: Lugar de la conversión
+                            - combobox "Lugar de la conversión Sitio web y llamadas" [ref=e9210] [cursor=pointer]:
+                              - generic [ref=e9217]: Sitio web y llamadas
+                        - generic [ref=e9228]:
+                          - generic [ref=e9234]: Objetivo de rendimiento
+                          - generic [ref=e9238]:
+                            - generic [ref=e9239]:
+                              - text: Cómo mides el éxito de tus anuncios.
+                              - link "Información sobre objetivos de rendimiento" [ref=e9241] [cursor=pointer]:
+                                - /url: https://www.facebook.com/business/help/355670007911605
+                            - generic [ref=e9242]:
+                              - combobox "Maximizar el número de conversiones" [disabled] [ref=e9249]:
+                                - generic [ref=e9256]: Maximizar el número de conversiones
+                              - generic [ref=e9259]: Intentaremos entregar tus anuncios para ayudarte a conseguir el mayor número de clientes potenciales posible.
+                        - generic [ref=e9264]:
+                          - generic [ref=e9266]:
+                            - generic [ref=e9272]: "* Conjunto de datos"
+                            - generic [ref=e9278]:
+                              - generic [ref=e9279]: Haz un seguimiento de las acciones que realizan los usuarios en tu sitio web.
+                              - generic [ref=e9281]:
+                                - generic [ref=e9287]: Píxel
+                                - combobox "Píxel CEP COMUNICACION Pixel Solaria Agency" [ref=e9292] [cursor=pointer]:
+                                  - generic [ref=e9299]: CEP COMUNICACION Pixel Solaria Agency
+                          - generic [ref=e9304]:
+                            - generic [ref=e9310]: "* Evento de conversión"
+                            - generic [ref=e9315]:
+                              - generic [ref=e9317]:
+                                - text: Acción que quieres que realicen las personas cuando vean tus anuncios.
+                                - link "Información sobre los eventos de conversión" [ref=e9319] [cursor=pointer]:
+                                  - /url: https://www.facebook.com/business/help/964258670337005
+                              - generic [ref=e9321]:
+                                - generic [ref=e9327]: Evento
+                                - combobox "Evento Cliente potencial" [active] [ref=e10029] [cursor=pointer]:
+                                  - generic [ref=e9339]: Cliente potencial
+                          - generic [ref=e10046]:
+                            - generic [ref=e10048]:
+                              - generic [ref=e10049]:
+                                - generic [ref=e10051]: Es posible que tu anuncio no esté optimizado para conversiones porque no hemos recibido ninguna actividad para la conversión seleccionada o hace más de 14 días que no se ha registrado ninguna.
+                                - generic [ref=e10053]: "Para optimizar para conversiones:"
+                              - generic [ref=e10054]:
+                                - link "Ve el píxel" [ref=e10058] [cursor=pointer]:
+                                  - /url: "#"
+                                - link "envía el código del píxel por correo" [ref=e10062] [cursor=pointer]:
+                                  - /url: "#"
+                                - link "Obtén ayuda" [ref=e10066] [cursor=pointer]:
+                                  - /url: /help/952192354843755
+                            - button "Cerrar" [ref=e10068] [cursor=pointer]:
+                              - generic [ref=e10071]: Cerrar
+                    - generic [ref=e9343]:
+                      - list [ref=e9345]:
+                        - button "Objetivo de coste por resultado Ninguno" [disabled] [ref=e9346]:
+                          - listitem [ref=e9350]:
+                            - generic [ref=e9353]:
+                              - generic [ref=e9356]: Objetivo de coste por resultado
+                              - generic [ref=e9359]: Ninguno
+                      - generic [ref=e9360]:
+                        - generic [ref=e9363]: Modelo de atribución
+                        - generic [ref=e9370]:
+                          - generic [ref=e9376]: Modelo de atribución
+                          - combobox "Modelo de atribución Estándar" [ref=e9381] [cursor=pointer]:
+                            - generic [ref=e9388]: Estándar
+                      - generic [ref=e10074]:
+                        - heading "Reglas de valor de conversión" [level=4] [ref=e10075]: Reglas de valor de conversión
+                        - text: Ajusta el valor de conversión de las distintas ubicaciones en función de la importancia que estas tengan para tu empresa. Usaremos esta información para orientar la entrega.
+                        - radiogroup [ref=e10086]:
+                          - generic [ref=e10089] [cursor=pointer]:
+                            - radio "El valor de conversión es igual en todas las ubicaciones" [ref=e10094]
+                            - generic [ref=e10097]: El valor de conversión es igual en todas las ubicaciones
+                          - generic [ref=e10100] [cursor=pointer]:
+                            - radio "El valor de conversión es distinto según la ubicación" [checked] [ref=e10105]
+                            - generic [ref=e10110]: El valor de conversión es distinto según la ubicación
+                        - generic [ref=e10111]:
+                          - generic [ref=e10112]:
+                            - heading "Conversiones en el sitio web" [level=4] [ref=e10114]
+                            - generic [ref=e10116]:
+                              - generic [ref=e10122]: Adjustment type selector
+                              - generic [ref=e10126]:
+                                - generic [ref=e10127]:
+                                  - generic [ref=e10133]: Adjustment sign
+                                  - combobox "Adjustment type selector Adjustment sign Aumentar" [ref=e10138] [cursor=pointer]:
+                                    - generic [ref=e10145]: Aumentar
+                                - generic [ref=e10148]:
+                                  - generic [ref=e10154]: Percentage input
+                                  - generic [ref=e10162]:
+                                    - spinbutton "Adjustment type selector Percentage input" [ref=e10164]: "100"
+                                    - generic [ref=e10166]: "%"
+                          - generic [ref=e10167]:
+                            - heading "Conversiones en llamada" [level=4] [ref=e10169]
+                            - generic [ref=e10171]:
+                              - generic [ref=e10177]: Adjustment type selector
+                              - generic [ref=e10181]:
+                                - generic [ref=e10182]:
+                                  - generic [ref=e10188]: Adjustment sign
+                                  - combobox "Adjustment type selector Adjustment sign Reducir" [ref=e10193] [cursor=pointer]:
+                                    - generic [ref=e10200]: Reducir
+                                - generic [ref=e10203]:
+                                  - generic [ref=e10209]: Percentage input
+                                  - generic [ref=e10217]:
+                                    - spinbutton "Adjustment type selector Percentage input" [ref=e10219]: "20"
+                                    - generic [ref=e10221]: "%"
+                          - generic [ref=e10233]:
+                            - text: Los ajustes de valor tienen que estar comprendidos entre el 20 y el 1000 %, en caso de
+                            - strong [ref=e10234]: aumento
+                            - text: ", y entre el 20 y el 90 %, en caso de"
+                            - strong [ref=e10235]: reducción
+                            - text: .
+                      - link "Mostrar más opciones" [ref=e9394] [cursor=pointer]:
+                        - /url: "#"
+                        - generic [ref=e9395]: Mostrar más opciones
+              - generic [ref=e9434]:
+                - generic [ref=e9446]:
+                  - generic [ref=e9449]:
+                    - img "Opportunity Score Progress Ring" [ref=e9451]:
+                      - generic [ref=e9454]: "100"
+                    - generic [ref=e9456]:
+                      - heading "Puntuación de la campaña" [level=3] [ref=e9459]: Puntuación de la campaña
+                      - generic [ref=e9466]: Estás usando nuestra configuración recomendada.
+                  - generic [ref=e9469]:
+                    - button "Campaña de clientes potenciales de Advantage+ Activado" [ref=e9475] [cursor=pointer]:
+                      - generic [ref=e9480]:
+                        - heading "Campaña de clientes potenciales de Advantage+" [level=4] [ref=e9481]: Campaña de clientes potenciales de Advantage+
+                        - generic [ref=e9486]:
+                          - generic [ref=e9488]: Activado
+                          - status [ref=e9489]: Activado
+                    - separator [ref=e9492]
+                    - generic [ref=e9493]: No hay recomendaciones adicionales disponibles.
+                - generic [ref=e9501]:
+                  - heading "Es posible que el rendimiento se vea afectado" [level=3] [ref=e9506]
+                  - generic [ref=e9509]:
+                    - generic [ref=e9510]: Los cambios que están teniendo lugar en el ecosistema de anuncios pueden afectar al rendimiento o los informes.
+                    - list [ref=e9513]:
+                      - listitem [ref=e9514]:
+                        - button "Conjuntos de anuncios que incluyen la Región europea" [ref=e9515] [cursor=pointer]:
+                          - listitem [ref=e9519]:
+                            - generic [ref=e9521]: Conjuntos de anuncios que incluyen la Región europea
+                - generic [ref=e9532]:
+                  - heading "Definición de la audiencia" [level=3] [ref=e9536]:
+                    - generic [ref=e9537]: Definición de la audiencia
+                  - generic [ref=e9551]:
+                    - generic [ref=e9552]:
+                      - generic [ref=e10237]:
+                        - text: Tu audiencia es amplia.
+                        - text: Las audiencias amplias pueden mejorar el rendimiento y llegar a más personas susceptibles de responder.
+                      - generic [ref=e10241]:
+                        - generic [ref=e10242]: Reducida
+                        - generic [ref=e10243]: Amplia
+                    - generic [ref=e10245]:
+                      - text: "Tamaño de la audiencia estimada:"
+                      - generic [ref=e10247]: 33 000 000 - 38 800 000
+                    - generic [ref=e10255]:
+                      - strong [ref=e10256]: Las estimaciones no incluyen las opciones de audiencia de Advantage+
+                      - text: y pueden variar considerablemente a lo largo del tiempo según tus selecciones de segmentación y los datos disponibles.
+                    - generic [ref=e9576]:
+                      - heading "De impacto potencial a tamaño de la audiencia estimada" [level=4] [ref=e9584]
+                      - generic [ref=e9587]:
+                        - text: A medida que las personas de la Región europea tomen decisiones sobre su experiencia publicitaria en nuestros productos, es posible que veas una reducción del tamaño de la audiencia estimada en este conjunto de anuncios.
+                        - link "Información sobre las preferencias de anuncios en la Región europea" [ref=e9588] [cursor=pointer]:
+                          - /url: "#"
+            - generic [ref=e9594]:
+              - generic [ref=e9595]:
+                - button "Cerrar" [ref=e9596] [cursor=pointer]:
+                  - generic [ref=e9600]: Cerrar
+                - generic [ref=e10266]: Se han guardado todos los cambios
+              - generic [ref=e9610]:
+                - button "Atrás" [ref=e9613] [cursor=pointer]:
+                  - generic [ref=e9617]: Atrás
+                - button "Siguiente" [ref=e9620] [cursor=pointer]:
+                  - generic [ref=e9624]: Siguiente
+  - generic: Se ha encontrado 1 resultado

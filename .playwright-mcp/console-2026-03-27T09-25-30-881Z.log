@@ -1,0 +1,12 @@
+[    7219ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://static.brevo.com/images/favicon.ico:0
+[  507067ms] [WARNING] Unsatisfied version 18.3.1 from micro-frontend-container of shared singleton module react (required =18.2.0) @ https://unified-marketing.brevo.com/6618.bbce207472f0299a3338.js:1
+[  507068ms] [WARNING] Unsatisfied version 18.3.1 from micro-frontend-container of shared singleton module react-dom (required =18.2.0) @ https://unified-marketing.brevo.com/6618.bbce207472f0299a3338.js:1
+[  507133ms] [WARNING] Unsatisfied version 18.3.1 from micro-frontend-container of shared singleton module react (required =18.2.0) @ https://unified-marketing.brevo.com/6618.bbce207472f0299a3338.js:1
+[  507186ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://notifications-banner-api.brevo.com/banner-info?app=brevo_marketing_channels:0
+[  507256ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://marketing-common-api.brevo.com/client/feature-toggles:0
+[  507265ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://folder-engine.brevo.com/folders/layers:0
+[  507266ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://email-campaigns-backend.brevo.com/email-campaign/api/config:0
+[  507309ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://marketing-common-api.brevo.com/client/info:0
+[  507315ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://email-campaigns-backend.brevo.com/email-campaign/api/campaigns?pageNumber=1&pagingLimit=25&showTotal=true:0
+[  514143ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ about:srcdoc:0
+[  517356ms] [WARNING] The resource https://product-homepage.brevo.com/remoteEntryContainer.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ about:srcdoc:0

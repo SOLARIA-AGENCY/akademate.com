@@ -1,0 +1,19 @@
+[     340ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ https://developers.facebook.com/tools/explorer/:0
+[    1687ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    1687ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    1712ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    1712ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    1715ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    1715ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    1717ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    1717ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    3631ms] [ERROR] Refused to get unsafe header "X-FB-Debug" @ https://static.xx.fbcdn.net/rsrc.php/v4i7M54/yG/l/es_ES~es_LA-j/zTKUI8BYYUQ.js:24
+[   26914ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ https://developers.facebook.com/tools/explorer/3589029217896274/:0
+[   28039ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[   28040ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[   28042ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[   28042ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[   28044ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[   28045ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[   28062ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[   28063ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0

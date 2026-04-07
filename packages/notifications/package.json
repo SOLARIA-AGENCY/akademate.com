@@ -8,16 +8,18 @@
     "./templates": "./src/templates/index.ts",
     "./service": "./src/email-service.ts"
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
     "@akademate/types": "workspace:*",
-    "resend": "^4.0.0"
+    "resend": "^6.10.0"
   },
   "devDependencies": {
-    "vitest": "^4.0.16"
+    "vitest": "^4.1.2"
   }
 }

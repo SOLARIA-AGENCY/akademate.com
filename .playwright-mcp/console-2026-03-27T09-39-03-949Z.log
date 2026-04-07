@@ -1,0 +1,58 @@
+[     628ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://account-management.brevo.com/8259.431c27a438138e1ec772.js:0
+[     628ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://account-management.brevo.com/8259.431c27a438138e1ec772.js:0
+[     629ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://account-management.brevo.com/8259.431c27a438138e1ec772.js:0
+[     629ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://account-management.brevo.com/8259.431c27a438138e1ec772.js:0
+[     819ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://account-management.brevo.com/8259.431c27a438138e1ec772.js:0
+[     819ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://account-management.brevo.com/8259.431c27a438138e1ec772.js:0
+[   98551ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://account-management-backend.brevo.com/api/keys/api_v3:0
+[  102158ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://account-management-backend.brevo.com/api/keys/api_v3:0
+[  103512ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://account-management-backend.brevo.com/api/keys/api_v3:0
+[  103525ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://fsrelay.brevo.com/s/fs.js:3
+[  103525ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://fsrelay.brevo.com/s/fs.js:3
+[  125803ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://onboarding-api.brevo.com/dashboard-information:0
+[  125939ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://onboarding-api.brevo.com/dashboard-information:0
+[  125997ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://onboarding-api.brevo.com/dashboard-information:0
+[  126019ms] [ERROR] AxiosError: Network Error
+    at p.onerror (https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:774898)
+    at ht.request (https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:783032)
+    at async https://product-homepage.brevo.com/5904.7b4fe677f306a02c2b87.js:1:13107
+    at async https://product-homepage.brevo.com/5904.7b4fe677f306a02c2b87.js:1:13073
+    at async https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:747175
+    at async https://product-homepage.brevo.com/AuraSettingsPage.e314d0ccd92b8919078a.js:1:61600 @ https://fsrelay.brevo.com/s/fs.js:3
+[  126020ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://onboarding-backend-api.brevo.com/settings/ai/agents:0
+[  126052ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://onboarding-api.brevo.com/dashboard-information:0
+[  126067ms] [ERROR] AxiosError: Network Error
+    at p.onerror (https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:774898)
+    at ht.request (https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:783032)
+    at async https://product-homepage.brevo.com/5904.7b4fe677f306a02c2b87.js:1:13107
+    at async https://product-homepage.brevo.com/5904.7b4fe677f306a02c2b87.js:1:13073
+    at async https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:747175
+    at async https://product-homepage.brevo.com/AuraSettingsPage.e314d0ccd92b8919078a.js:1:61600 @ https://fsrelay.brevo.com/s/fs.js:3
+[  126067ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://onboarding-backend-api.brevo.com/settings/ai/agents:0
+[  126112ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://onboarding-api.brevo.com/dashboard-information:0
+[  126119ms] [ERROR] AxiosError: Network Error
+    at p.onerror (https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:774898)
+    at ht.request (https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:783032)
+    at async https://product-homepage.brevo.com/5904.7b4fe677f306a02c2b87.js:1:13107
+    at async https://product-homepage.brevo.com/5904.7b4fe677f306a02c2b87.js:1:13073
+    at async https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:747175
+    at async https://product-homepage.brevo.com/AuraSettingsPage.e314d0ccd92b8919078a.js:1:61600 @ https://fsrelay.brevo.com/s/fs.js:3
+[  126119ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://onboarding-backend-api.brevo.com/settings/ai/agents:0
+[  131325ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://notifications-banner-api.brevo.com/banner-info?app=brevo_security:0
+[  139781ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://pricing-backend.brevo.com/public/pricing/api/get-deliverability-data:0
+[  139783ms] [ERROR] AxiosError: Request failed with status code 400
+    at we (https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:769815)
+    at XMLHttpRequest.f (https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:774338)
+    at ht.request (https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:783032)
+    at async https://product-homepage.brevo.com/5904.7b4fe677f306a02c2b87.js:1:18112
+    at async https://product-homepage.brevo.com/5904.7b4fe677f306a02c2b87.js:1:18078
+    at async https://product-homepage.brevo.com/8624.60b3f43d709ae0075bd5.js:2:747175 @ https://fsrelay.brevo.com/s/fs.js:3
+[  143581ms] Uncaught (in promise) ReferenceError: REACT_APP_APM_SERVICE_URL is not defined
+    at h (https://objects-frontend.brevo.com/6040.d987570f1e4add68d140.js:0:26773)
+    at <anonymous> (https://objects-frontend.brevo.com/6040.d987570f1e4add68d140.js:0:19030)
+[  145921ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://fsrelay.brevo.com/s/fs.js:3
+[  145921ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://fsrelay.brevo.com/s/fs.js:3
+[  150598ms] [WARNING] The resource https://account-billing-frontend-v2.brevo.com/SubscriptionWrapper.fb344105e3279ede0578.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://app.brevo.com/billing/account/plans/upgrade:0
+[  155832ms] [WARNING] The resource https://account-billing-frontend-v2.brevo.com/SubscriptionWrapper.fb344105e3279ede0578.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://app.brevo.com/billing/account/plans/upgrade:0
+[  175192ms] [WARNING] The resource https://account-billing-frontend-v2.brevo.com/SubscriptionWrapper.fb344105e3279ede0578.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://app.brevo.com/billing/account/plans/upgrade:0
+[  180182ms] [WARNING] The resource https://account-billing-frontend-v2.brevo.com/SubscriptionWrapper.fb344105e3279ede0578.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://app.brevo.com/billing/account/plans/upgrade:0

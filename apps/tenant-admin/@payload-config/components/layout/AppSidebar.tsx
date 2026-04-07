@@ -33,6 +33,12 @@ import {
   School,
   Briefcase,
   Tag,
+  Wallet,
+  Receipt,
+  Landmark,
+  PiggyBank,
+  HandCoins,
+  ClipboardList,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -137,6 +143,19 @@ const menuItems: MenuItemWithSection[] = [
     title: 'Analíticas',
     icon: BarChart3,
     url: '/analiticas',
+  },
+  {
+    title: 'Finanzas',
+    icon: Landmark,
+    sectionBefore: 'GESTIÓN FINANCIERA',
+    upcoming: true,
+    items: [
+      { title: 'Resumen Financiero', icon: Wallet, url: '/finanzas', upcoming: true },
+      { title: 'Cobros y Pagos', icon: HandCoins, url: '/finanzas/cobros-pagos', upcoming: true },
+      { title: 'Facturacion', icon: Receipt, url: '/finanzas/facturacion', upcoming: true },
+      { title: 'Nominas y Costes', icon: PiggyBank, url: '/finanzas/nominas', upcoming: true },
+      { title: 'Informes', icon: ClipboardList, url: '/finanzas/informes', upcoming: true },
+    ],
   },
   {
     title: 'Campus Virtual',
@@ -287,8 +306,8 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
         data-oid="c:6sgov"
       />
 
-      <SubIcon className="h-4 w-4 shrink-0 text-foreground/70" data-oid=":he6p21" />
-      <span data-oid="-wiel.j">{subItem.title}</span>
+      <SubIcon className={`h-4 w-4 shrink-0 ${subItem.upcoming ? 'text-muted-foreground/40' : 'text-foreground/70'}`} data-oid=":he6p21" />
+      <span className={subItem.upcoming ? 'italic text-muted-foreground/60' : ''} data-oid="-wiel.j">{subItem.title}</span>
     </Link>
   )
 }
@@ -501,7 +520,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     />
 
                     <Icon
-                      className="h-5 w-5 shrink-0 text-foreground/80"
+                      className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-muted-foreground/40' : 'text-foreground/80'}`}
                       data-oid="o_-brke"
                     />
 
@@ -510,7 +529,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                         isCollapsed
                           ? 'w-0 opacity-0 overflow-hidden'
                           : 'flex-1 w-auto opacity-100 text-left'
-                      }`}
+                      } ${item.upcoming ? 'italic text-muted-foreground/60' : ''}`}
                       data-oid="eg9lgi8"
                     >
                       {item.title}

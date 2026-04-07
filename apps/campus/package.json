@@ -12,19 +12,19 @@
     "@akademate/realtime": "workspace:*",
     "@akademate/types": "workspace:*",
     "@akademate/ui": "workspace:*",
-    "@yudiel/react-qr-scanner": "^2.5.0",
-    "isomorphic-dompurify": "^2.30.1",
-    "lucide-react": "^0.559.0",
-    "next": "^15.5.9",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "@yudiel/react-qr-scanner": "^2.5.1",
+    "isomorphic-dompurify": "^3.7.1",
+    "lucide-react": "^1.7.0",
+    "next": "^15.5.14",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
-    "@testing-library/react": "^16.3.1",
-    "@vitejs/plugin-react": "^5.1.2",
-    "jsdom": "^27.0.1",
-    "vitest": "^4.0.16"
+    "@testing-library/react": "^16.3.2",
+    "@vitejs/plugin-react": "^5.2.0",
+    "jsdom": "^27.4.0",
+    "vitest": "^4.1.2"
   }
 }

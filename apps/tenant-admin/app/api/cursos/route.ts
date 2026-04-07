@@ -242,6 +242,11 @@ export async function GET() {
 
     const cursos = await payload.find({
       collection: 'courses',
+      where: {
+        course_type: {
+          not_in: ['ciclo_medio', 'ciclo_superior'],
+        },
+      },
       limit: 100,
       sort: '-createdAt',
       depth: 2, // Populate relationships (area_formativa)

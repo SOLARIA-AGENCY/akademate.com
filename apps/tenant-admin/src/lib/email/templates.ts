@@ -310,5 +310,102 @@ export function notificationEmail(params: {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Platform Access / Open Doors
+// ---------------------------------------------------------------------------
+
+export function platformAccessEmail(params: {
+  name: string
+  email: string
+  password: string
+  role: string
+  loginUrl: string
+  heroImageUrl?: string
+  branding?: BrandingConfig
+}): { subject: string; html: string } {
+  const b = params.branding || DEFAULT_BRANDING
+  const heroImage = params.heroImageUrl || `${b.siteUrl}/og-image.png`
+
+  const roleLabels: Record<string, string> = {
+    admin: 'Administrador', gestor: 'Gestor', marketing: 'Marketing',
+    asesor: 'Asesor', lectura: 'Solo lectura (visualizacion)',
+  }
+
+  const content = `
+    <!-- Hero Image -->
+    <div style="margin:-32px -32px 24px;overflow:hidden;border-radius:0;">
+      <img src="${heroImage}" alt="${b.academyName}" width="600" style="display:block;width:100%;height:auto;">
+    </div>
+
+    <h1 style="font-size:24px;color:#111827;margin:0 0 8px;text-align:center;">Jornada de Puertas Abiertas</h1>
+    <p style="font-size:14px;color:${b.primaryColor};text-align:center;font-weight:600;margin:0 0 20px;">Descubre tu nuevo portal de gestion academica</p>
+
+    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 20px;">
+      Hola <strong>${params.name}</strong>,
+    </p>
+    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 20px;">
+      Os invitamos a explorar el <strong>nuevo portal de gestion de ${b.academyName}</strong>.
+      Hemos preparado un acceso de demostracion para que podais recorrer todas las secciones.
+    </p>
+
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;margin:0 0 24px;">
+      <tr>
+        <td style="padding:20px;">
+          <p style="font-size:13px;color:#6b7280;margin:0 0 4px;">Acceso de demostracion</p>
+          <p style="font-size:15px;color:#111827;font-weight:600;margin:0 0 12px;">${params.email}</p>
+          <p style="font-size:13px;color:#6b7280;margin:0 0 4px;">Contrasena temporal</p>
+          <p style="font-size:15px;color:#111827;font-weight:600;margin:0 0 12px;font-family:monospace;background:#fff3cd;padding:4px 8px;border-radius:4px;display:inline-block;">${params.password}</p>
+          <p style="font-size:13px;color:#6b7280;margin:0 0 4px;">Tipo de acceso</p>
+          <p style="font-size:15px;color:#111827;font-weight:600;margin:0;">${roleLabels[params.role] || params.role}</p>
+        </td>
+      </tr>
+    </table>
+
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr>
+        <td align="center">
+          <a href="${params.loginUrl}" style="display:inline-block;background-color:${b.primaryColor};color:#ffffff;font-size:16px;font-weight:700;padding:16px 48px;border-radius:8px;text-decoration:none;letter-spacing:0.5px;">
+            Acceder al Panel
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <p style="font-size:14px;color:#374151;line-height:1.6;margin:24px 0 16px;">
+      <strong>Que podeis explorar:</strong>
+    </p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:0 0 20px;">
+      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#374151;">
+        <span style="color:${b.primaryColor};font-weight:600;">Dashboard</span> — Vision general con KPIs del centro
+      </td></tr>
+      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#374151;">
+        <span style="color:${b.primaryColor};font-weight:600;">Programacion</span> — Calendario anual con convocatorias y festivos
+      </td></tr>
+      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#374151;">
+        <span style="color:${b.primaryColor};font-weight:600;">Ciclos y Cursos</span> — Catalogo formativo con detalle
+      </td></tr>
+      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#374151;">
+        <span style="color:${b.primaryColor};font-weight:600;">Sedes</span> — Gestion de centros, aulas y personal
+      </td></tr>
+      <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#374151;">
+        <span style="color:${b.primaryColor};font-weight:600;">Marketing</span> — Campanas y captacion de leads
+      </td></tr>
+      <tr><td style="padding:8px 0;font-size:14px;color:#374151;">
+        <span style="color:${b.primaryColor};font-weight:600;">Analiticas</span> — Graficos de trafico y rendimiento
+      </td></tr>
+    </table>
+
+    <p style="font-size:13px;color:#6b7280;line-height:1.6;padding:12px;background:#f0f4ff;border-radius:6px;border:1px solid #dbeafe;">
+      <strong>Nota:</strong> Este acceso es de solo lectura para la jornada de demostracion.
+      Las funciones de edicion estaran disponibles con vuestras credenciales definitivas.
+    </p>
+  `
+
+  return {
+    subject: `${b.academyName} — Jornada de Puertas Abiertas Virtual`,
+    html: baseLayout(content, b),
+  }
+}
+
 export { DEFAULT_BRANDING }
 export type { BrandingConfig }

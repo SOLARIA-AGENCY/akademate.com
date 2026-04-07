@@ -1,0 +1,15 @@
+[    3532ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ https://developers.facebook.com/tools/explorer/:0
+[    5122ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    5123ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    5148ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    5148ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    5151ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    5151ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    5152ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    5153ms] [ERROR] The source list for the Content Security Policy directive 'connect-src' contains an invalid source: 'https://*-fort.facebook.com'. It will be ignored. @ about:blank:0
+[    6758ms] [ERROR] Refused to get unsafe header "X-FB-Debug" @ https://static.xx.fbcdn.net/rsrc.php/v4i7M54/yG/l/es_ES~es_LA-j/zTKUI8BYYUQ.js:24
+[   66618ms] [ERROR] ErrorUtils caught an error:
+
+Converting to a string will drop content data. Hash="undefined" Translation="Registrar compras en aplicación automáticamente (recomendado) {log-in-tooltip}" Content="Context not logged." (type=object,Object)
+
+Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. {column: 17870, clientTime: 1774435771, extra: Object, guardList: Array(4), hash: qlkc2j} @ https://static.xx.fbcdn.net/rsrc.php/v4/yO/r/Zrhn78WmgiK.js:77

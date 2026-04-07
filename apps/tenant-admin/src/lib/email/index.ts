@@ -6,5 +6,6 @@ export {
   leadConfirmationEmail,
   enrollmentConfirmationEmail,
   notificationEmail,
+  platformAccessEmail,
 } from './templates'
 export type { BrandingConfig } from './templates'

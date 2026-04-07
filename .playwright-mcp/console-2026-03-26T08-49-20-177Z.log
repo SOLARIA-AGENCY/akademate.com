@@ -1,0 +1,1 @@
+[ 3752924ms] [ERROR] Failed to load resource: the server responded with a status of 429 () @ https://sentry.hetzner.com/api/134/envelope/?sentry_version=7&sentry_key=f59acc71797fe976e8c5488c277eea5c&sentry_client=sentry.javascript.angular%2F10.32.1:0

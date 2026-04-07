@@ -23,7 +23,10 @@ import {
   Calendar,
   Loader2,
   Plus,
+  MapPin,
+  Users,
 } from 'lucide-react'
+import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -102,6 +105,14 @@ function formatDate(dateStr: string | undefined): string {
   })
 }
 
+function formatDateShort(dateStr: string | undefined): string {
+  if (!dateStr) return '--'
+  return new Date(dateStr).toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: 'short',
+  })
+}
+
 // ---------------------------------------------------------------------------
 // Page Component
 // ---------------------------------------------------------------------------
@@ -124,7 +135,6 @@ export default function WebConvocatoriasPage() {
 
         const mapped: Convocatoria[] = data.map((item) => {
           const estado = item.estado ?? 'draft'
-          // Convocatorias with status published, enrollment_open, or in_progress are considered "publishable" for web
           const publishableStatuses = ['published', 'enrollment_open', 'enrollment_closed', 'in_progress']
           return {
             id: String(item.id),
@@ -152,11 +162,9 @@ export default function WebConvocatoriasPage() {
     void fetchConvocatorias()
   }, [])
 
-  // Toggle publish status via PATCH to course-runs API
   const handleTogglePublish = async (conv: Convocatoria) => {
     setTogglingIds((prev) => new Set(prev).add(conv.id))
     try {
-      // Toggle between enrollment_open (published on web) and draft (unpublished)
       const newStatus = conv.isPublishable ? 'draft' : 'enrollment_open'
       const response = await fetch(`/api/course-runs/${conv.id}`, {
         method: 'PATCH',
@@ -168,17 +176,13 @@ export default function WebConvocatoriasPage() {
         setConvocatorias((prev) =>
           prev.map((c) =>
             c.id === conv.id
-              ? {
-                  ...c,
-                  estado: newStatus,
-                  isPublishable: newStatus !== 'draft',
-                }
+              ? { ...c, estado: newStatus, isPublishable: newStatus !== 'draft' }
               : c,
           ),
         )
       }
     } catch {
-      // Silently fail — user can retry
+      // Silently fail
     } finally {
       setTogglingIds((prev) => {
         const next = new Set(prev)
@@ -190,15 +194,11 @@ export default function WebConvocatoriasPage() {
 
   const publishedCount = convocatorias.filter((c) => c.isPublishable).length
 
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
-
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Gestion de Paginas Web -- Convocatorias"
-        description="Administra que convocatorias se publican como landing pages en el sitio web"
+        title="Gestion Web — Convocatorias"
+        description="Administra que convocatorias se publican como landing pages"
         icon={Globe}
         badge={
           <div className="flex items-center gap-2">
@@ -244,18 +244,102 @@ export default function WebConvocatoriasPage() {
         </Card>
       )}
 
-      {/* Table */}
+      {/* MOBILE: Card layout (visible on sm and below) */}
       {!isLoading && convocatorias.length > 0 && (
-        <Card>
-          <Table>
+        <div className="space-y-3 lg:hidden">
+          {convocatorias.map((conv) => {
+            const estadoConfig = ESTADO_MAP[conv.estado] ?? { label: conv.estado, variant: 'outline' as const }
+            const isToggling = togglingIds.has(conv.id)
+            const ocupacion = conv.plazasTotales > 0
+              ? Math.round((conv.plazasOcupadas / conv.plazasTotales) * 100)
+              : 0
+
+            return (
+              <Card key={conv.id} className="overflow-hidden">
+                <CardContent className="p-4 space-y-3">
+                  {/* Header row */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-sm leading-tight line-clamp-2">{conv.cursoNombre}</h3>
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <Badge variant={estadoConfig.variant} className="text-[10px]">{estadoConfig.label}</Badge>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={conv.isPublishable}
+                      onCheckedChange={() => void handleTogglePublish(conv)}
+                      disabled={isToggling || conv.estado === 'completed' || conv.estado === 'cancelled'}
+                      aria-label={`Publicar ${conv.cursoNombre}`}
+                    />
+                  </div>
+
+                  {/* Info grid */}
+                  <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{conv.sedeName}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3 w-3 shrink-0" />
+                      <span>{formatDateShort(conv.fechaInicio)} — {formatDateShort(conv.fechaFin)}</span>
+                    </div>
+                  </div>
+
+                  {/* Campaign badge */}
+                  <CampaignBadge status="none" />
+
+                  {/* Plazas bar */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        <Users className="h-3 w-3" />Plazas
+                      </span>
+                      <span className="font-medium">{conv.plazasOcupadas}/{conv.plazasTotales} ({ocupacion}%)</span>
+                    </div>
+                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${ocupacion >= 90 ? 'bg-primary' : ocupacion >= 70 ? 'bg-orange-500' : 'bg-green-500'}`}
+                        style={{ width: `${ocupacion}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-1 border-t">
+                    {conv.isPublishable && (
+                      <Button variant="outline" size="sm" className="flex-1" asChild>
+                        <Link href={`/web/convocatorias/${conv.id}`} target="_blank">
+                          <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                          Ver landing
+                        </Link>
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                      <Link href={`/programacion/${conv.id}`}>
+                        <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                        Editar
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+
+      {/* DESKTOP: Table layout (visible on lg and above) */}
+      {!isLoading && convocatorias.length > 0 && (
+        <Card className="hidden lg:block overflow-x-auto">
+          <Table className="min-w-[800px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Ciclo / Curso</TableHead>
                 <TableHead>Sede</TableHead>
-                <TableHead>Profesor</TableHead>
                 <TableHead>Fechas</TableHead>
                 <TableHead className="text-center">Plazas</TableHead>
                 <TableHead className="text-center">Estado</TableHead>
+                <TableHead className="text-center">Campaña</TableHead>
                 <TableHead className="text-center">Publicada</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -270,38 +354,26 @@ export default function WebConvocatoriasPage() {
 
                 return (
                   <TableRow key={conv.id}>
-                    {/* Curso */}
                     <TableCell className="font-medium max-w-[220px] truncate">
                       {conv.cursoNombre}
                     </TableCell>
-
-                    {/* Sede */}
                     <TableCell className="text-muted-foreground">
                       {conv.sedeName}
                     </TableCell>
-
-                    {/* Profesor */}
-                    <TableCell className="text-muted-foreground">
-                      {conv.profesorName}
-                    </TableCell>
-
-                    {/* Fechas */}
                     <TableCell className="whitespace-nowrap text-sm">
                       {formatDate(conv.fechaInicio)} - {formatDate(conv.fechaFin)}
                     </TableCell>
-
-                    {/* Plazas */}
                     <TableCell className="text-center">
                       <span className="font-medium">{conv.plazasOcupadas}</span>
                       <span className="text-muted-foreground">/{conv.plazasTotales}</span>
                     </TableCell>
-
-                    {/* Estado */}
                     <TableCell className="text-center">
                       <Badge variant={estadoConfig.variant}>{estadoConfig.label}</Badge>
                     </TableCell>
-
-                    {/* Toggle published */}
+                    {/* Campaign status */}
+                    <TableCell className="text-center">
+                      <CampaignBadge status="none" />
+                    </TableCell>
                     <TableCell className="text-center">
                       <Switch
                         checked={conv.isPublishable}
@@ -310,8 +382,6 @@ export default function WebConvocatoriasPage() {
                         aria-label={`Publicar convocatoria ${conv.cursoNombre}`}
                       />
                     </TableCell>
-
-                    {/* Actions */}
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button

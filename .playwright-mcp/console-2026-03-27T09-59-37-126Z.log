@@ -1,0 +1,4 @@
+[  755812ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome://favicon2/?size=16&scaleFactor=2x&pageUrl=chrome%3A%2F%2Fchrome-urls%2F&allowGoogleServerFallback=0&forceLightMode=true&forceEmptyDefaultFavicon=1:0
+[  759199ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome://favicon2/?size=16&scaleFactor=2x&pageUrl=http%3A%2F%2Fcursostenerife.es%2F&allowGoogleServerFallback=0&forceLightMode=true&forceEmptyDefaultFavicon=1:0
+[  771785ms] [ERROR] Attestation check for Attribution Reporting on https://www.facebook.com failed. @ https://cursostenerife.es/:0
+[  773261ms] [WARNING] [Meta Pixel] - Duplicate Pixel ID: 831036194188836. @ https://connect.facebook.net/en_US/fbevents.js:175

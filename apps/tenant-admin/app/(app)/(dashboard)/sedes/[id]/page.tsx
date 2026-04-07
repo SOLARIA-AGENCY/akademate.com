@@ -382,8 +382,16 @@ export default function SedeDetailPage({ params }: Props) {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               {/* Image */}
-              {imageUrl && (
+              {imageUrl ? (
                 <img src={imageUrl} alt={sede.name || 'Sede'} className="w-full h-40 object-cover rounded-lg" />
+              ) : (
+                <div
+                  className="w-full h-40 rounded-lg bg-muted flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-muted/80 transition-colors border-2 border-dashed border-border"
+                  onClick={() => router.push(`/sedes/${id}/editar`)}
+                >
+                  <MapPin className="h-8 w-8 text-muted-foreground/50" />
+                  <span className="text-xs text-muted-foreground">Click para subir imagen</span>
+                </div>
               )}
 
               {/* Address */}

@@ -1,0 +1,298 @@
+[     324ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://designsystem.brevo.com/designsystem/c8ba52b05a9ef10f4758.woff2:0
+[     329ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ https://designsystem.brevo.com/designsystem/component/design-tokens/33805d0d83d3a4480e85.css:0
+[     968ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://account-management.brevo.com/8259.431c27a438138e1ec772.js:0
+[     968ms] [WARNING] WARNING: An object ref will not guarantee the observer is cleaned up when the observed element unmounts @ https://account-management.brevo.com/8259.431c27a438138e1ec772.js:0
+[   12587ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   13108ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   13856ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   14956ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   15488ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   17457ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   22427ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   25026ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   27427ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   31477ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   32407ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   37417ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   38147ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   42427ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   47427ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   52427ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   67427ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   82428ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[   99448ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  112418ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  112458ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  112458ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  112508ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  112509ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  112509ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  117468ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  117468ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  127478ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  129098ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  132418ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  137419ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  139128ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  142498ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  147409ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  152438ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  157577ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  162438ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  167418ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  172428ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  177428ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  182428ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  187429ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  188128ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  192418ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  197418ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  202428ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  207418ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  212418ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  217419ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  222409ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  227429ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  232429ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  232458ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  232459ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  232507ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  232507ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  232507ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  237429ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  237471ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  237472ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  237522ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  237522ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  237523ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  239164ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  239164ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  239215ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  239216ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  239216ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  242464ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  242464ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  242513ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  242514ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  242515ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  247471ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  247471ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  247527ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  247528ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  247528ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  262419ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  267419ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  274670ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  277429ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  282419ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  292419ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  297430ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  312430ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  327430ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  335679ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  342420ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  347430ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  357421ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  396681ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  407530ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  422420ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  432421ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  437431ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  446162ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  447421ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  452731ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  457421ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  461801ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  462491ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  467422ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  467483ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  467484ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  467539ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  467540ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  467541ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  468606ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  468607ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  468749ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  468749ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  468750ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  472452ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  482431ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  487431ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  487475ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  487475ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  487529ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  487530ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  487530ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  493126ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  493126ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  493214ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  493214ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  493214ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  539531ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  552492ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  567422ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  582432ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  597413ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  600672ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  612422ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  627432ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  642422ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  657422ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  661532ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  672422ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  677433ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  682495ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  682495ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  682546ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  682546ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  682547ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  687423ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  687469ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  687469ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  687524ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  687524ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  687525ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  692467ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  692467ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  692522ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  692522ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  692522ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  697577ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  697577ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  697629ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  697630ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  697630ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  702486ms] [ERROR] Access to fetch at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  702487ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  702541ms] [ERROR] Access to XMLHttpRequest at 'https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events' from origin 'https://app.brevo.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://app.brevo.com/settings/keys/smtp:0
+[  702542ms] [WARNING] [Elastic APM] Failed sending events! Error: https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io:443/intake/v2/rum/events HTTP status: 0
+    at t._constructError (https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:20908)
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:19303 @ https://fsrelay.brevo.com/s/fs.js:3
+[  702542ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://596808a16dec4fc39413bf34b0a70240.apm.eu-west-1.aws.cloud.es.io/intake/v2/rum/events:0
+[  717441ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  732420ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  747419ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  753478ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[  762430ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3

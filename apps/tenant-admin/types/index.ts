@@ -446,4 +446,5 @@ export interface MenuItem {
   icon: any // lucide-react icon component
   url?: string
   items?: MenuItem[]
+  upcoming?: boolean
 }

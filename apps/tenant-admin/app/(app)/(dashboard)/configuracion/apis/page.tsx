@@ -42,10 +42,18 @@ import { Checkbox } from '@payload-config/components/ui/checkbox'
 type ApiScope =
   | 'courses:read'
   | 'courses:write'
+  | 'cycles:read'
+  | 'cycles:write'
+  | 'campuses:read'
+  | 'campuses:write'
+  | 'convocatorias:read'
+  | 'convocatorias:write'
   | 'students:read'
   | 'students:write'
   | 'enrollments:read'
   | 'enrollments:write'
+  | 'staff:read'
+  | 'staff:write'
   | 'analytics:read'
   | 'keys:manage'
 
@@ -72,7 +80,28 @@ const SCOPE_GROUPS: { label: string; scopes: { value: ApiScope; label: string }[
     ],
   },
   {
-    label: 'Alumnos',
+    label: 'Ciclos Formativos',
+    scopes: [
+      { value: 'cycles:read', label: 'Lectura' },
+      { value: 'cycles:write', label: 'Escritura' },
+    ],
+  },
+  {
+    label: 'Sedes',
+    scopes: [
+      { value: 'campuses:read', label: 'Lectura' },
+      { value: 'campuses:write', label: 'Escritura' },
+    ],
+  },
+  {
+    label: 'Convocatorias',
+    scopes: [
+      { value: 'convocatorias:read', label: 'Lectura' },
+      { value: 'convocatorias:write', label: 'Escritura' },
+    ],
+  },
+  {
+    label: 'Alumnos y Leads',
     scopes: [
       { value: 'students:read', label: 'Lectura' },
       { value: 'students:write', label: 'Escritura' },
@@ -83,6 +112,13 @@ const SCOPE_GROUPS: { label: string; scopes: { value: ApiScope; label: string }[
     scopes: [
       { value: 'enrollments:read', label: 'Lectura' },
       { value: 'enrollments:write', label: 'Escritura' },
+    ],
+  },
+  {
+    label: 'Personal',
+    scopes: [
+      { value: 'staff:read', label: 'Lectura' },
+      { value: 'staff:write', label: 'Escritura' },
     ],
   },
   {

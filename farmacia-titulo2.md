@@ -1,0 +1,570 @@
+- generic [ref=e12]:
+  - generic [ref=e18]:
+    - generic [ref=e20]:
+      - link "Administrador de anuncios Meta" [ref=e22] [cursor=pointer]:
+        - /url: /adsmanager/?act=730494526974837
+        - generic [ref=e24]:
+          - generic [ref=e25]: Administrador de anuncios
+          - img "Meta" [ref=e28]
+      - generic [ref=e29]:
+        - generic [ref=e32]:
+          - button "Pressable" [ref=e33] [cursor=pointer]
+          - generic:
+            - generic:
+              - generic:
+                - button:
+                  - generic:
+                    - generic: "6"
+        - separator [ref=e38]
+    - navigation "herramientas" [ref=e42]:
+      - list [ref=e43]:
+        - listitem [ref=e45]:
+          - button "Resumen de la cuenta" [ref=e47] [cursor=pointer]:
+            - generic [ref=e112]:
+              - generic [ref=e114]: "2"
+              - status [ref=e115]: 2 notificaciones nuevas
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Resumen de la cuenta
+                - generic [ref=e117]:
+                  - generic [ref=e119]: "2"
+                  - status [ref=e120]: 2 notificaciones nuevas
+        - listitem [ref=e54]:
+          - button "Campañas" [ref=e56] [cursor=pointer]
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Campañas
+        - listitem [ref=e62]:
+          - link "Informes de anuncios" [ref=e64] [cursor=pointer]:
+            - /url: /adsreporting/?act=730494526974837&business_id=598666359737310
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Informes de anuncios
+        - listitem [ref=e70]:
+          - link "Audiencias" [ref=e72] [cursor=pointer]:
+            - /url: /adsmanager/?act=730494526974837&business_id=598666359737310&tool=AUDIENCES&nav_entry_point=ads_ecosystem_navigation_menu&nav_source=ads_manager
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Audiencias
+        - listitem [ref=e78]:
+          - link "Facturación y pagos" [ref=e80] [cursor=pointer]:
+            - /url: /billing_hub/payment_settings/?placement=ads_manager&asset_id=730494526974837&business_id=598666359737310&payment_account_id_from_jsmodule=730494526974837&entrypoint=ad_ecosystem_navigation_ads_billing_tool_plugin
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Facturación y pagos
+        - listitem [ref=e86]:
+          - button "Configuración de la publicidad" [ref=e88] [cursor=pointer]
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Configuración de la publicidad
+        - listitem [ref=e94]:
+          - link "Administrador de eventos" [ref=e96] [cursor=pointer]:
+            - /url: /events_manager2/?business_id=598666359737310&act=730494526974837&nav_source=ads_ecosystem_nav
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Administrador de eventos
+        - listitem [ref=e101]:
+          - button "Todas las herramientas" [ref=e103] [cursor=pointer]
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Todas las herramientas
+    - generic [ref=e122]:
+      - separator [ref=e123]
+      - list [ref=e126]:
+        - listitem [ref=e127]:
+          - button "Asistente para empresas de Meta AI" [ref=e129] [cursor=pointer]
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Asistente para empresas de Meta AI
+      - generic [ref=e139]:
+        - listitem [ref=e143]:
+          - button "Ayuda" [ref=e145] [cursor=pointer]
+          - generic:
+            - listitem:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Ayuda
+        - button "Novedades para cuentas publicitarias" [ref=e153] [cursor=pointer]:
+          - generic [ref=e156]: Novedades para cuentas publicitarias
+        - link "Configuración de la empresa" [ref=e159] [cursor=pointer]:
+          - /url: https://business.facebook.com/latest/settings/business_users/?nav_ref=ads_navigation_gear_icon&bm_redirect_migration=true&business_id=598666359737310
+          - generic [ref=e162]: Configuración de la empresa
+        - button "Buscar" [ref=e166] [cursor=pointer]:
+          - generic [ref=e169]: Buscar
+        - button "Informar de un problema" [ref=e172] [cursor=pointer]:
+          - generic [ref=e175]: Informar de un problema
+  - generic [ref=e179]:
+    - generic [ref=e180]:
+      - button "Cerrar" [ref=e181] [cursor=pointer]
+      - button "Ver gráficos (Ctrl + Y)" [ref=e189] [cursor=pointer]
+      - button "Editar (Ctrl+U)" [ref=e195] [cursor=pointer]
+      - button "Ver historial (Ctrl + I)" [ref=e201] [cursor=pointer]
+      - button "Contraer vista" [ref=e207] [cursor=pointer]
+    - generic [ref=e209]:
+      - grid "grid" [ref=e213]:
+        - generic [ref=e214]:
+          - row "Campaña" [ref=e215]:
+            - rowheader "Campaña" [ref=e218] [cursor=pointer]:
+              - generic [ref=e219]:
+                - img [ref=e221]
+                - generic [ref=e226]: SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-FAR-2628-CIC-CAP26
+                - button "predeterminada" [ref=e229]:
+                  - generic [ref=e232]: predeterminada
+          - row "Conjunto de anuncios" [ref=e235]:
+            - rowheader "Conjunto de anuncios" [ref=e238] [cursor=pointer]:
+              - generic [ref=e239]:
+                - img [ref=e241]
+                - generic [ref=e251]: CFGM Farmacia y Parafarmacia / Tenerife SC
+                - button "predeterminada" [ref=e254]:
+                  - generic [ref=e257]: predeterminada
+          - row "anuncio" [ref=e260]:
+            - rowheader "anuncio" [ref=e263] [cursor=pointer]:
+              - generic [ref=e264]:
+                - img [ref=e266]
+                - generic [ref=e271]: AD-01 / CFGM Farmacia / Imagen + CTA Reserva
+                - button "predeterminada" [ref=e274]:
+                  - generic [ref=e277]: predeterminada
+      - generic [ref=e281]:
+        - generic [ref=e283]:
+          - generic [ref=e284]:
+            - button "Abrir" [ref=e286] [cursor=pointer]:
+              - generic [ref=e289]: Abrir
+            - generic [ref=e292]:
+              - generic [ref=e294]:
+                - link "SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-FAR-2628-CIC-CAP26" [ref=e299] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e300]:
+                    - img [ref=e302]
+                    - heading "SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-FAR-2628-CIC-CAP26" [level=4] [ref=e305]
+                - link "CFGM Farmacia y Parafarmacia / Tenerife SC" [ref=e312] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e313]:
+                    - img [ref=e315]
+                    - heading "CFGM Farmacia y Parafarmacia / Tenerife SC" [level=4] [ref=e323]
+                - generic [ref=e330]:
+                  - img [ref=e332]
+                  - heading "AD-01 / CFGM Farmacia / Imagen + CTA Reserva" [level=4] [ref=e335]
+              - generic [ref=e336]:
+                - generic [ref=e338]:
+                  - generic [ref=e344]: En borrador
+                  - switch "Activar/Desactivar" [checked] [ref=e350] [cursor=pointer]
+                - button "Menú de acciones" [ref=e356] [cursor=pointer]:
+                  - generic [ref=e359]: Menú de acciones
+          - tablist [ref=e366]:
+            - tab "Editar" [selected] [ref=e367] [cursor=pointer]:
+              - generic [ref=e371]: Editar
+            - tab "Revisar" [ref=e372] [cursor=pointer]:
+              - generic [ref=e376]: Revisar
+        - generic [ref=e383]:
+          - generic [ref=e391]:
+            - generic [ref=e394]:
+              - generic [ref=e634]:
+                - heading "Configuración del anuncio" [level=3] [ref=e647]
+                - generic [ref=e780]:
+                  - generic [ref=e782]:
+                    - heading "Destino" [level=3] [ref=e788]
+                    - generic [ref=e790]:
+                      - text: Proporciona un sitio web y un número de teléfono para ayudar a las personas a contactar contigo cuando toquen en tu anuncio.
+                      - link "Más información" [ref=e792] [cursor=pointer]:
+                        - /url: https://www.facebook.com/business/help/1174990279685960
+                  - generic [ref=e795]:
+                    - generic [ref=e796]:
+                      - generic [ref=e802]:
+                        - generic [ref=e803]:
+                          - generic [ref=e811]:
+                            - generic [ref=e812]: "*"
+                            - text: URL del sitio web
+                          - generic [ref=e819]:
+                            - generic [ref=e821]:
+                              - generic [ref=e827]: URL del sitio web
+                              - textbox "URL del sitio web" [ref=e836]:
+                                - /placeholder: http://www.ejemplo.com/página
+                                - text: https://cursos.cepcomunicacion.com/p/convocatorias/SC-2026-001
+                            - link "Vista previa de la URL" [ref=e838] [cursor=pointer]:
+                              - /url: https://cursos.cepcomunicacion.com/p/convocatorias/SC-2026-001?fbclid=fbclid
+                              - generic [ref=e843]: Vista previa de la URL
+                        - generic [ref=e855]:
+                          - generic [ref=e856]:
+                            - text: Los parámetros de URL se han movido a
+                            - strong [ref=e857]: Seguimiento
+                            - text: para que los puedas administrar en un mismo lugar.
+                          - link "Ir a Seguimiento" [ref=e858] [cursor=pointer]:
+                            - /url: "#"
+                      - generic [ref=e866]:
+                        - generic [ref=e872]: Enlace visible
+                        - textbox "Enlace visible" [ref=e881]:
+                          - /placeholder: Introduce el enlace para mostrar en el anuncio
+                          - text: cursos.cepcomunicacion.com
+                    - generic [ref=e882]:
+                      - generic [ref=e889]:
+                        - generic [ref=e890]: "*"
+                        - text: Llamar
+                      - generic [ref=e896]:
+                        - combobox "+34" [ref=e904] [cursor=pointer]:
+                          - generic [ref=e911]: "+34"
+                        - generic [ref=e915]:
+                          - generic:
+                            - generic:
+                              - heading [level=4]
+                          - textbox [ref=e918]:
+                            - /placeholder: Introduce un número de teléfono
+                            - text: 922 21 92 57
+                - generic [ref=e923]:
+                  - generic [ref=e925]:
+                    - heading "Contenido del anuncio" [level=3] [ref=e931]
+                    - generic [ref=e933]: Selecciona y optimiza el texto, el contenido multimedia y las mejoras de tus anuncios.
+                  - generic [ref=e936]:
+                    - generic [ref=e943]:
+                      - generic [ref=e950]:
+                        - generic [ref=e951]: "*"
+                        - text: Contenido multimedia
+                      - button "Añadir contenido multimedia" [ref=e963] [cursor=pointer]:
+                        - generic [ref=e968]: Añadir contenido multimedia
+                    - generic [ref=e976]:
+                      - generic [ref=e980]:
+                        - generic [ref=e981]:
+                          - generic [ref=e988]: Texto principal
+                          - generic [ref=e1004]:
+                            - textbox [ref=e1006]: "Conviertete en Tecnico en Farmacia y Parafarmacia. Formacion semipresencial (1 dia/semana) con 500h de practicas en empresa. Inscripcion abierta - plazas limitadas. Inicio: septiembre 2026 en Santa Cruz de Tenerife."
+                            - generic [ref=e2104]: "Conviertete en Tecnico en Farmacia y Parafarmacia. Formacion semipresencial (1 dia/semana) con 500h de practicas en empresa. Inscripcion abierta - plazas limitadas. Inicio: septiembre 2026 en Santa Cruz de Tenerife."
+                        - generic [ref=e1010]:
+                          - button "Añadir opción de texto" [ref=e1014] [cursor=pointer]:
+                            - generic [ref=e1019]: Añadir opción de texto
+                          - list [ref=e1022]:
+                            - listitem [ref=e1023]:
+                              - button "Generación de texto de contenido de Advantage+ IA Ver Condiciones" [expanded] [ref=e1024] [cursor=pointer]:
+                                - listitem [ref=e1028]:
+                                  - generic [ref=e1030]:
+                                    - generic [ref=e1031]:
+                                      - heading "Generación de texto de contenido de Advantage+" [level=4] [ref=e1032]
+                                      - generic [ref=e1036]: IA
+                                    - link "Ver Condiciones" [ref=e1038]:
+                                      - /url: https://m.facebook.com/legal/terms/ad_creative_generative_ai_terms?wtsid=rdr_0zgLh3bTohmxM1kt2
+                            - region [ref=e1041]:
+                              - generic [ref=e1045]:
+                                - generic [ref=e1046]:
+                                  - generic [ref=e1047]:
+                                    - generic [ref=e1050] [cursor=pointer]:
+                                      - generic [ref=e1054]:
+                                        - checkbox "Verificar todas las variaciones de texto" [checked] [ref=e1055]
+                                        - img [ref=e1057]
+                                      - generic [ref=e1061]: Verificar todas las variaciones de texto
+                                    - generic [ref=e1062]: Aplicar todo
+                                    - generic [ref=e1063]: (5 de 5)
+                                  - generic [ref=e1068]:
+                                    - generic [ref=e1070]: Oportunidad de aumentar la CTR un 3.85%
+                                    - status [ref=e1071]: Oportunidad de aumentar la CTR un 3.85%
+                                - generic [ref=e1073]:
+                                  - generic [ref=e1076]:
+                                    - generic [ref=e1080] [cursor=pointer]:
+                                      - generic [ref=e1084]:
+                                        - checkbox "Etiqueta" [checked] [ref=e1085]
+                                        - img [ref=e1087]
+                                      - generic [ref=e1091]: Etiqueta
+                                    - textbox [ref=e1100]: "¿Quieres convertirte en técnico de farmacia y parafarmacia? Aprende con nuestra formación semipresencial: • 1 día a la semana • 500h de prácticas en empresa Inscríbete ahora, plazas limitadas. Inicia tu carrera en septiembre 2026 en Santa Cruz de Tenerife"
+                                  - generic [ref=e1104]:
+                                    - generic [ref=e1108] [cursor=pointer]:
+                                      - generic [ref=e1112]:
+                                        - checkbox "Etiqueta" [checked] [ref=e1113]
+                                        - img [ref=e1115]
+                                      - generic [ref=e1119]: Etiqueta
+                                    - textbox [ref=e1128]: "¿Quieres ser Técnico en Farmacia y Parafarmacia? Nuestra formación semipresencial te ofrece: • 1 día de clases a la semana • 500 horas de prácticas en empresa Inscríbete ahora, plazas limitadas. Comienza septiembre 2026 en Santa Cruz de Tenerife."
+                                  - generic [ref=e1132]:
+                                    - generic [ref=e1136] [cursor=pointer]:
+                                      - generic [ref=e1140]:
+                                        - checkbox "Etiqueta" [checked] [ref=e1141]
+                                        - img [ref=e1143]
+                                      - generic [ref=e1147]: Etiqueta
+                                    - textbox [ref=e1156]: ¡Conviértete en Técnico de Farmacia y Parafarmacia! • Formación semipresencial (1 día/semana) • 500h de prácticas en empresa Inscripción abierta - ¡plazas limitadas! ¿Estás listo para empezar en septiembre 2026 en Santa Cruz de Tenerife?
+                                  - generic [ref=e1160]:
+                                    - generic [ref=e1164] [cursor=pointer]:
+                                      - generic [ref=e1168]:
+                                        - checkbox "Etiqueta" [checked] [ref=e1169]
+                                        - img [ref=e1171]
+                                      - generic [ref=e1175]: Etiqueta
+                                    - textbox [ref=e1184]: "¿Quieres ser un Técnico en Farmacia y Parafarmacia? • Formación semipresencial: 1 día a la semana • 500 horas de prácticas en empresa Inscríbete ahora, plazas limitadas. Comienza septiembre 2026 en Santa Cruz de Tenerife"
+                                  - generic [ref=e1188]:
+                                    - generic [ref=e1192] [cursor=pointer]:
+                                      - generic [ref=e1196]:
+                                        - checkbox "Etiqueta" [checked] [ref=e1197]
+                                        - img [ref=e1199]
+                                      - generic [ref=e1203]: Etiqueta
+                                    - textbox [ref=e1212]: "¿Quieres ser Técnico en Farmacia y Parafarmacia? • Formación semipresencial (1 día a la semana) • 500 horas de prácticas en empresa Inscríbete ahora, plazas limitadas! Inicio: septiembre 2026 en Santa Cruz de Tenerife"
+                                - generic [ref=e1215]:
+                                  - group [ref=e1217]:
+                                    - button "positive_feedback" [ref=e1218] [cursor=pointer]:
+                                      - generic [ref=e1221]: positive_feedback
+                                    - button "negative_feedback" [ref=e1225] [cursor=pointer]:
+                                      - generic [ref=e1228]: negative_feedback
+                                  - link "Generar variaciones nuevas" [ref=e1236] [cursor=pointer]:
+                                    - /url: "#"
+                                    - generic [ref=e1237]: Generar variaciones nuevas
+                          - separator [ref=e1238]
+                          - generic [ref=e1242] [cursor=pointer]:
+                            - generic [ref=e1246]:
+                              - checkbox "Compara las variaciones de texto de IA con tu texto principal" [ref=e1247]
+                              - generic:
+                                - img
+                            - generic [ref=e1250]:
+                              - generic [ref=e1252]: Compara las variaciones de texto de IA con tu texto principal
+                              - generic [ref=e1253]: Puedes seleccionar 5 variaciones de texto como máximo para el test. Si no seleccionas ninguna, usa las variaciones que se muestran arriba.
+                      - generic [ref=e1256]:
+                        - generic [ref=e1257]:
+                          - generic [ref=e1260]:
+                            - generic [ref=e1264]: Título
+                            - text: 2 de 5
+                          - generic [ref=e1280]:
+                            - textbox [ref=e1282]: Grado Medio en Farmacia - Inscripcion Abierta
+                            - generic [ref=e2105]: Grado Medio en Farmacia - Inscripcion Abierta
+                          - generic [ref=e1922]:
+                            - generic [ref=e1930]:
+                              - textbox [active] [ref=e1933]: Tecnico en Farmacia y Parafarmacia - Sep 2026
+                              - generic [ref=e2106]: Tecnico en Farmacia y Parafarmacia - Sep 2026
+                            - button "Suprimir" [ref=e1940] [cursor=pointer]:
+                              - generic [ref=e1943]: Suprimir
+                        - button "Añadir opción de título" [ref=e1290] [cursor=pointer]:
+                          - generic [ref=e1295]: Añadir opción de título
+                      - generic [ref=e1299]:
+                        - generic [ref=e1306]: Descripción
+                        - generic [ref=e1322]:
+                          - textbox [ref=e1324]: 2.000h + 500h practicas. Titulacion MEC oficial. Financiacion disponible.
+                          - generic [ref=e2107]: 2.000h + 500h practicas. Titulacion MEC oficial. Financiacion disponible.
+                      - generic [ref=e1331]:
+                        - heading "Optimizar texto por persona" [level=4] [ref=e1335]:
+                          - text: Optimizar texto por
+                          - link "persona" [ref=e1336] [cursor=pointer]:
+                            - /url: https://www.facebook.com/business/help/283579896000936
+                        - generic [ref=e1337]: Activada
+                      - generic [ref=e1341]:
+                        - generic [ref=e1347]: Llamada a la acción
+                        - generic [ref=e1359]:
+                          - generic [ref=e1365]: Selecciona un elemento
+                          - combobox "Selecciona un elemento Más información" [ref=e1370] [cursor=pointer]:
+                            - generic [ref=e1377]: Más información
+              - generic [ref=e1383]:
+                - generic [ref=e1953]:
+                  - heading "Tests de contenido" [level=3] [ref=e1954]: Tests de contenido
+                  - generic [ref=e1960]:
+                    - text: Compara hasta 5 versiones diferentes de tu contenido en un test que ayuda a garantizar la entrega de nuevos anuncios de prueba.
+                    - link "Información sobre los tests de contenido" [ref=e1962] [cursor=pointer]:
+                      - /url: https://www.facebook.com/business/help/1423851372208214
+                - button "Configurar prueba" [ref=e1968] [cursor=pointer]:
+                  - generic [ref=e1972]: Configurar prueba
+              - generic [ref=e1392]:
+                - generic [ref=e2038]:
+                  - heading "Idiomas" [level=3] [ref=e2039]
+                  - generic [ref=e2041]:
+                    - generic [ref=e2044] [cursor=pointer]: Desactivado
+                    - switch "Desactivado" [ref=e2046] [cursor=pointer]
+                - generic [ref=e1406]:
+                  - text: Añade tus propias traducciones o traduce automáticamente tu anuncio para llegar a más personas en más idiomas.
+                  - link "Más información" [ref=e1407] [cursor=pointer]:
+                    - /url: "#"
+              - generic [ref=e1412]:
+                - generic [ref=e1414]:
+                  - heading "Seguimiento" [level=3] [ref=e1420]
+                  - generic [ref=e1422]: Elige los eventos de conversión a los que quieres hacerles seguimiento. Se hará seguimiento de forma predeterminada del conjunto de datos de conversión seleccionado de esta cuenta publicitaria.
+                - generic [ref=e1431]:
+                  - generic [ref=e1436]:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - heading [level=4]
+                    - generic [ref=e1439]:
+                      - generic [ref=e1445]:
+                        - generic [ref=e1450]:
+                          - generic [ref=e1454]:
+                            - checkbox "Eventos del sitio web" [checked] [disabled]
+                            - img [ref=e1456]
+                          - generic [ref=e1460]: Eventos del sitio web
+                        - generic [ref=e1469]:
+                          - generic [ref=e1470]: CEP COMUNICACION Pixel Solaria Agency
+                          - generic [ref=e1472]: "Pixel ID: 1189071876088388"
+                      - generic [ref=e1481] [cursor=pointer]:
+                        - generic [ref=e1485]:
+                          - checkbox "Eventos de la aplicación" [ref=e1486]
+                          - generic:
+                            - img
+                        - generic [ref=e1489]: Eventos de la aplicación
+                      - generic [ref=e1494]:
+                        - generic [ref=e1499]:
+                          - generic [ref=e1503]:
+                            - checkbox "Eventos offline" [checked] [disabled]
+                            - img [ref=e1505]
+                          - generic [ref=e1509]: Eventos offline
+                        - generic [ref=e1510]: "Usaremos el siguiente conjunto de eventos fuera de internet para el seguimiento y la subida de datos:"
+                        - generic [ref=e1519]:
+                          - generic [ref=e1521]: Píxel de CEP Formación
+                          - generic [ref=e1522]:
+                            - generic [ref=e1523]: "Dataset ID: 831036194188836"
+                            - generic [ref=e1525]: AUTOMÁTICO
+                        - generic [ref=e1526]:
+                          - link "Editar conjuntos de eventos fuera de internet registrados" [ref=e1528] [cursor=pointer]:
+                            - /url: "#"
+                          - link "Administrar conjuntos de datos del Administrador de eventos" [ref=e1530] [cursor=pointer]:
+                            - /url: https://business.facebook.com/settings/offline-event-sets/?business_id=598666359737310
+                  - generic [ref=e1531]:
+                    - generic [ref=e1533]:
+                      - generic [ref=e1539]: Parámetros de URL
+                      - textbox "Parámetros de URL" [ref=e1550]:
+                        - /placeholder: key1=value1&key2=value2
+                        - text: utm_source=facebook&utm_medium=paid&utm_campaign=SA-SC-SAN-FAR-2628-CIC-CAP26
+                    - link "Crear un parámetro de URL" [ref=e1553] [cursor=pointer]:
+                      - /url: "#"
+            - generic [ref=e1555]:
+              - button "Mostrar cómo mejorar la puntuación de la campaña" [ref=e1567] [cursor=pointer]:
+                - generic [ref=e1569]:
+                  - img "Opportunity Score Progress Ring" [ref=e1571]:
+                    - generic [ref=e1574]: "100"
+                  - generic [ref=e1575]:
+                    - heading "Puntuación de la campaña" [level=3] [ref=e1577]
+                    - generic [ref=e1584]: Estás usando nuestra configuración recomendada.
+              - generic [ref=e1603]:
+                - generic [ref=e1605]:
+                  - generic [ref=e1606]:
+                    - generic [ref=e1608]:
+                      - switch "Vista previa del anuncio" [checked] [ref=e1610] [cursor=pointer]
+                      - generic [ref=e1616] [cursor=pointer]: Vista previa del anuncio
+                    - generic [ref=e1617]:
+                      - button "Vista previa avanzada" [ref=e1619] [cursor=pointer]:
+                        - generic [ref=e1624]: Vista previa avanzada
+                      - button "Compartir" [ref=e1625] [cursor=pointer]:
+                        - generic [ref=e1628]: Compartir
+                  - separator [ref=e1632]
+                  - generic [ref=e1635]:
+                    - tablist [ref=e1638]:
+                      - tab "Todas" [selected] [ref=e1639] [cursor=pointer]
+                      - tab "Feeds, Anuncios in-stream para reels" [ref=e1643] [cursor=pointer]
+                      - tab "Historias, estado y reels, Resultados de la búsqueda, Aplicaciones y sitios web" [ref=e1647] [cursor=pointer]
+                      - tab "Columna derecha, Resultados de la búsqueda" [ref=e1651] [cursor=pointer]
+                    - tablist [ref=e1656]:
+                      - tab "Tu anuncio no se entregará en 1 ubicación" [ref=e1657] [cursor=pointer]:
+                        - generic [ref=e1661]:
+                          - generic [ref=e1663]: "1"
+                          - status [ref=e1664]: Tu anuncio no se entregará en 1 ubicación
+                - generic [ref=e1665]:
+                  - generic [ref=e1672]:
+                    - generic [ref=e1675]:
+                      - heading "Ahora puedes ver más variaciones de tu anuncio en las vistas previas" [level=4] [ref=e1682]
+                      - button "Abrir" [ref=e1683] [cursor=pointer]:
+                        - generic [ref=e1686]: Abrir
+                    - generic [ref=e1690]:
+                      - generic [ref=e2050]:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: CEP Formación
+                                - generic: Anuncio ·
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - link "... Ver más" [ref=e2051] [cursor=pointer]:
+                                    - /url: "#"
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - generic: "Conviertete en Tecnico en Farmacia y Parafarmacia. Formacion semipresencial (1 dia/semana) con 500h de practicas en empresa. Inscripcion abierta - plazas limitadas. Inicio: septiembre 2026 en Santa Cruz de Tenerife."
+                                    - text: ","
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic: cursos.cepcomunicacion.com
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - generic: Grado Medio en Farmacia - Inscripcion Abierta
+                                  - generic:
+                                    - generic: 2.000h + 500h practicas. Titulacion MEC oficial. Financiacion disponible.
+                                - generic:
+                                  - generic:
+                                    - button "Más información":
+                                      - generic:
+                                        - generic:
+                                          - generic: Más información
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic: Me gusta
+                                - generic:
+                                  - generic:
+                                    - generic: Comentar
+                                - generic:
+                                  - generic:
+                                    - generic: Compartir
+                      - generic [ref=e2055]:
+                        - generic [ref=e2061]:
+                          - generic [ref=e2064]: cep_formacion
+                          - generic [ref=e2065]: Anuncio
+                        - generic [ref=e2072]: Más información
+                        - generic [ref=e2076]:
+                          - generic [ref=e2078]:
+                            - button "Me gusta" [ref=e2080]
+                            - button "Comentar" [ref=e2082]
+                            - button "Republicar" [ref=e2084]
+                            - button "Compartir" [ref=e2086]
+                          - button "Guardar" [ref=e2089]
+                        - generic [ref=e2092]:
+                          - text: cep_formacion
+                          - generic [ref=e2094]:
+                            - generic [ref=e2095]: Conviertete en Tecnico en
+                            - generic [ref=e2096]:
+                              - text: Farmacia y Parafarmacia. Formacion ...
+                              - button "more" [ref=e2097]
+                    - button "Ver más variaciones" [ref=e1865] [cursor=pointer]:
+                      - generic [ref=e1870]: Ver más variaciones
+                  - generic [ref=e1872]: El aspecto del anuncio y la interacción pueden variar según el dispositivo, el formato y otros factores.
+          - generic [ref=e1882]:
+            - generic [ref=e1885]:
+              - text: Al hacer clic en Publicar, reconoces que tu uso de las herramientas de anuncios de Meta está sujeto a nuestros
+              - link "Términos y condiciones" [ref=e1886] [cursor=pointer]:
+                - /url: "#"
+              - text: .
+            - generic [ref=e1887]:
+              - generic [ref=e1888]:
+                - button "Cerrar" [ref=e1889] [cursor=pointer]:
+                  - generic [ref=e1893]: Cerrar
+                - generic [ref=e2111]: Se han guardado todos los cambios
+              - generic [ref=e1905]:
+                - button "Atrás" [ref=e1908] [cursor=pointer]:
+                  - generic [ref=e1912]: Atrás
+                - button "Publicar" [ref=e1914] [cursor=pointer]:
+                  - generic [ref=e1918]: Publicar

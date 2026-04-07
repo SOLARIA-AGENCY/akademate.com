@@ -1,0 +1,9 @@
+[      49ms] [WARNING] [Elastic APM] Failed sending events! AbortError: signal is aborted without reason
+    at https://account-management.brevo.com/6052.7e5de455c4d54b3f3ff6.js:1:34697 @ https://fsrelay.brevo.com/s/fs.js:3
+[     172ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://check.spamhaus.org/results/?query=46.62.222.138:0
+[    2448ms] [ERROR]  Note that 'script-src' was not explicitly set, so 'default-src' is used as a fallback. @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/b7ipq/0x4AAAAAAADnPIDROrmt1Wwj/light/fbE/new/normal?lang=auto:0
+[    2566ms] [ERROR] %c%d font-size:0;color:transparent NaN @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/b7ipq/0x4AAAAAAADnPIDROrmt1Wwj/light/fbE/new/normal?lang=auto:0
+[    2566ms] [ERROR] %c%d font-size:0;color:transparent NaN @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/b7ipq/0x4AAAAAAADnPIDROrmt1Wwj/light/fbE/new/normal?lang=auto:0
+[    2567ms] [WARNING] %c%d font-size:0;color:transparent NaN @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/b7ipq/0x4AAAAAAADnPIDROrmt1Wwj/light/fbE/new/normal?lang=auto:0
+[    2568ms] [WARNING] %c%d font-size:0;color:transparent NaN @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/f/ov2/av0/rch/b7ipq/0x4AAAAAAADnPIDROrmt1Wwj/light/fbE/new/normal?lang=auto:0
+[    3571ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/pat/9e4648387c34f625/1774864982050/d4a0e1ed1a7b36205d16bdd074057edc39bf491dc769eaccbb10e98f2ad1500c/aOg1u6OrAApVLiN:0

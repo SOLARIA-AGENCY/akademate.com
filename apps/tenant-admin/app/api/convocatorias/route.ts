@@ -280,23 +280,35 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: convocations.docs.map((conv: PopulatedCourseRun) => ({
-        id: conv.id,
-        cursoId: typeof conv.course === 'object' ? conv.course.id : conv.course,
-        cursoNombre: typeof conv.course === 'object' ? conv.course.name : 'Curso',
-        cursoTipo: typeof conv.course === 'object' ? conv.course.course_type : undefined,
-        campusId: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.id : conv.campus,
-        campusNombre: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.name : 'Sin sede',
-        fechaInicio: conv.start_date,
-        fechaFin: conv.end_date,
-        horario: `${conv.schedule_days?.join(', ') ?? ''} ${conv.schedule_time_start ?? ''}-${conv.schedule_time_end ?? ''}`,
-        estado: conv.status,
-        plazasTotales: conv.max_students,
-        plazasOcupadas: conv.current_enrollments,
-        precio: conv.price_override ?? 0,
-        profesor: normalizeInstructorName(conv.instructor),
-        modalidad: conv.modality ?? 'presencial',
-      })),
+      data: convocations.docs.map((conv: PopulatedCourseRun) => {
+        // Extract course image URL
+        let cursoImagen: string | null = null;
+        if (typeof conv.course === 'object' && conv.course !== null) {
+          const fi = (conv.course as unknown as Record<string, unknown>).featured_image;
+          if (typeof fi === 'object' && fi !== null && (fi as Record<string, unknown>).filename) {
+            cursoImagen = `/media/${(fi as Record<string, unknown>).filename}`;
+          }
+        }
+
+        return {
+          id: conv.id,
+          cursoId: typeof conv.course === 'object' ? conv.course.id : conv.course,
+          cursoNombre: typeof conv.course === 'object' ? conv.course.name : 'Curso',
+          cursoTipo: typeof conv.course === 'object' ? conv.course.course_type : undefined,
+          cursoImagen,
+          campusId: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.id : conv.campus,
+          campusNombre: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.name : 'Sin sede',
+          fechaInicio: conv.start_date,
+          fechaFin: conv.end_date,
+          horario: `${conv.schedule_days?.join(', ') ?? ''} ${conv.schedule_time_start ?? ''}-${conv.schedule_time_end ?? ''}`,
+          estado: conv.status,
+          plazasTotales: conv.max_students,
+          plazasOcupadas: conv.current_enrollments,
+          precio: conv.price_override ?? 0,
+          profesor: normalizeInstructorName(conv.instructor),
+          modalidad: conv.modality ?? 'presencial',
+        };
+      }),
       total: convocations.totalDocs,
     });
   } catch (error: unknown) {

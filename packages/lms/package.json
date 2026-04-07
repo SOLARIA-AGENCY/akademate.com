@@ -15,12 +15,12 @@
   },
   "dependencies": {
     "@akademate/db": "workspace:*",
-    "drizzle-orm": "^0.45.0",
+    "drizzle-orm": "^0.45.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^22.19.0",
-    "typescript": "^5.9.0",
-    "vitest": "^4.0.16"
+    "@types/node": "^22.19.17",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.2"
   }
 }

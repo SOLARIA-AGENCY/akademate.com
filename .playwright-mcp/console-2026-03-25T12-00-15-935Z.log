@@ -1,0 +1,6 @@
+[   43339ms] [ERROR] ErrorUtils caught an error:
+
+Triggered an unintended ad object spec mutation! Action: ADS_ADGROUP_EDITOR_SET_HEADLINE_AT_INDEX, browser event type: undefined
+
+Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. {blameModule: AdsUEditorAdgroupHeadlineFieldContainer.react, column: 17870, clientTime: 1774440059, extra: Object, guardList: Array(3)} @ https://static.xx.fbcdn.net/rsrc.php/v4/yX/r/WEEOGDEKRKz.js:78
+[  215531ms] [ERROR] Failed to load resource: the server responded with a status of 410 () @ https://scontent-mrs2-1.xx.fbcdn.net/v/t15.5256-10/545518947_4243679075868425_3984561380862858611_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=e3495b&_nc_ohc=scEERxc0K88Q7kNvwEhXyg_&_nc_oc=AdpZeaQzavTxxz3Mk8lN1U4jYwZHfi5T2MX9aICOE-holbyzch_F5GpC3O_2tCTXK3Q&_nc_zt=23&_nc_ht=scontent-mrs2-1.xx&_nc_gid=wgWnQDwZiHHFLngolsVXsA&_nc_ss=7a32e&oh=00_Afz385o_Tbx7ARZM8l6zf0BO2HiGt_n1hd4ahn6e9GtBQA&oe=69C99D10:0

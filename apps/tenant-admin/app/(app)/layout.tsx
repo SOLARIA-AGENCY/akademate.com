@@ -7,9 +7,12 @@ export const metadata: Metadata = {
   title: 'CEP Formacion — Centro de Formacion Profesional',
   description: 'Ciclos formativos oficiales de Grado Medio y Superior en Tenerife. Modalidad semipresencial, practicas en empresa, financiacion disponible.',
   icons: {
-    icon: '/logos/cep-formacion-logo.png',
+    icon: [
+      { url: '/logos/cep-formacion-isotipo.svg', type: 'image/svg+xml' },
+      { url: '/logos/cep-formacion-logo.png', sizes: '32x32', type: 'image/png' },
+    ],
     apple: '/logos/cep-formacion-logo.png',
-    shortcut: '/logos/cep-formacion-logo.png',
+    shortcut: '/logos/cep-formacion-isotipo.svg',
   },
   openGraph: {
     title: 'CEP Formacion — Formacion Profesional en Tenerife',

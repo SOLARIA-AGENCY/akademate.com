@@ -15,13 +15,9 @@ import {
   MapPin,
   Globe,
   Image as ImageIcon,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Youtube,
   Check,
   Upload,
+  ExternalLink,
 } from 'lucide-react'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 
@@ -519,7 +515,7 @@ export default function ConfigGeneralPage() {
           <div className="grid gap-4 md:grid-cols-2" data-oid="f.0fqeo">
             <div className="space-y-2" data-oid="d9c70f5">
               <Label htmlFor="facebook" className="flex items-center gap-2" data-oid="vkj6hrq">
-                <Facebook className="h-4 w-4" data-oid="38_azg." />
+                <ExternalLink className="h-4 w-4" data-oid="38_azg." />
                 Facebook
               </Label>
               <Input
@@ -534,7 +530,7 @@ export default function ConfigGeneralPage() {
 
             <div className="space-y-2" data-oid="po2f9b6">
               <Label htmlFor="twitter" className="flex items-center gap-2" data-oid="utxw7kd">
-                <Twitter className="h-4 w-4" data-oid="x4x7.a2" />
+                <ExternalLink className="h-4 w-4" data-oid="x4x7.a2" />
                 Twitter / X
               </Label>
               <Input
@@ -549,7 +545,7 @@ export default function ConfigGeneralPage() {
 
             <div className="space-y-2" data-oid="ce699dr">
               <Label htmlFor="instagram" className="flex items-center gap-2" data-oid="fu1vtzp">
-                <Instagram className="h-4 w-4" data-oid="2xgqyfz" />
+                <ExternalLink className="h-4 w-4" data-oid="2xgqyfz" />
                 Instagram
               </Label>
               <Input
@@ -564,7 +560,7 @@ export default function ConfigGeneralPage() {
 
             <div className="space-y-2" data-oid="4y_qku_">
               <Label htmlFor="linkedin" className="flex items-center gap-2" data-oid="f7rrw7y">
-                <Linkedin className="h-4 w-4" data-oid="b:li8nl" />
+                <ExternalLink className="h-4 w-4" data-oid="b:li8nl" />
                 LinkedIn
               </Label>
               <Input
@@ -579,7 +575,7 @@ export default function ConfigGeneralPage() {
 
             <div className="space-y-2 md:col-span-2" data-oid="67.mq:s">
               <Label htmlFor="youtube" className="flex items-center gap-2" data-oid="m89q.hc">
-                <Youtube className="h-4 w-4" data-oid="._wfejr" />
+                <ExternalLink className="h-4 w-4" data-oid="._wfejr" />
                 YouTube
               </Label>
               <Input

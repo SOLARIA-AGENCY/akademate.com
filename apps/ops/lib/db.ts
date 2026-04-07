@@ -2,14 +2,10 @@ import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import { subscriptions, tenants, users } from '../../../packages/db/src/schema'
 
-interface OpsSchema {
-  users: typeof users
-  tenants: typeof tenants
-  subscriptions: typeof subscriptions
-}
+const opsSchema = { users, tenants, subscriptions }
 
 let client: postgres.Sql | null = null
-let dbInstance: PostgresJsDatabase<OpsSchema> | null = null
+let dbInstance: PostgresJsDatabase<typeof opsSchema> | null = null
 
 export const getDb = () => {
   if (dbInstance) {
@@ -27,7 +23,7 @@ export const getDb = () => {
     connect_timeout: 10,
   })
 
-  dbInstance = drizzle(client, { schema: { users, tenants, subscriptions } })
+  dbInstance = drizzle(client, { schema: opsSchema })
   return dbInstance
 }
 

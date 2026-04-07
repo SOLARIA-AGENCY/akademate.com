@@ -10,6 +10,7 @@ import {
   ArrowLeft, GraduationCap, Clock, Layers, Edit, Loader2,
   Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin, FileText,
 } from 'lucide-react'
+import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -306,6 +307,10 @@ export default function CicloDetailPage({ params }: Props) {
                                 </div>
                               </div>
                             )}
+                            {/* Marketing campaign badge */}
+                            <div className="mt-2">
+                              <CampaignBadge status="none" />
+                            </div>
                           </div>
                         </div>
                       </div>
