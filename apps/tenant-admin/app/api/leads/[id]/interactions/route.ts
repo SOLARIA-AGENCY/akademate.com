@@ -12,7 +12,7 @@ interface RouteContext {
 const VALID_CHANNELS = ['phone', 'whatsapp', 'email', 'system'] as const
 const VALID_RESULTS = [
   'no_answer', 'positive', 'negative', 'callback', 'wrong_number',
-  'message_sent', 'email_sent', 'enrollment_started',
+  'message_sent', 'email_sent', 'enrollment_started', 'status_changed',
 ] as const
 
 function esc(s: string): string {
@@ -95,24 +95,29 @@ export async function POST(request: NextRequest, context: RouteContext) {
     // 2. Update lead.last_contacted_at
     await drizzle.execute(`UPDATE leads SET last_contacted_at = NOW(), updated_at = NOW() WHERE id = ${leadId}`)
 
-    // 3. If first interaction, auto-change to 'contacted'
-    const countRes = await drizzle.execute(`SELECT COUNT(*) as cnt FROM lead_interactions WHERE lead_id = ${leadId}`)
-    const countRows = Array.isArray(countRes) ? countRes : (countRes?.rows ?? [])
-    const count = parseInt(countRows[0]?.cnt ?? '0')
+    // 3-4. Auto status transitions (skip for manual status changes and system events)
+    const skipAutoTransition = ['status_changed', 'enrollment_started'].includes(result)
 
-    if (count === 1) {
-      await drizzle.execute(`UPDATE leads SET status = 'contacted' WHERE id = ${leadId} AND status = 'new'`)
-    }
+    if (!skipAutoTransition) {
+      // If first contact interaction, auto-change to 'contacted'
+      const countRes = await drizzle.execute(`SELECT COUNT(*) as cnt FROM lead_interactions WHERE lead_id = ${leadId} AND result != 'status_changed'`)
+      const countRows = Array.isArray(countRes) ? countRes : (countRes?.rows ?? [])
+      const count = parseInt(countRows[0]?.cnt ?? '0')
 
-    // 4. Auto status transitions
-    if (result === 'positive') {
-      await drizzle.execute(`UPDATE leads SET status = 'interested' WHERE id = ${leadId} AND status IN ('new', 'contacted', 'following_up')`)
-    } else if (result === 'wrong_number') {
-      await drizzle.execute(`UPDATE leads SET status = 'unreachable' WHERE id = ${leadId}`)
-    } else if (result === 'callback') {
-      await drizzle.execute(`UPDATE leads SET status = 'on_hold' WHERE id = ${leadId}`)
-    } else if (result === 'negative') {
-      await drizzle.execute(`UPDATE leads SET status = 'not_interested' WHERE id = ${leadId} AND status IN ('new', 'contacted', 'following_up', 'interested')`)
+      if (count === 1) {
+        await drizzle.execute(`UPDATE leads SET status = 'contacted' WHERE id = ${leadId} AND status = 'new'`)
+      }
+
+      // Auto transitions based on contact result
+      if (result === 'positive') {
+        await drizzle.execute(`UPDATE leads SET status = 'interested' WHERE id = ${leadId} AND status IN ('new', 'contacted', 'following_up')`)
+      } else if (result === 'wrong_number') {
+        await drizzle.execute(`UPDATE leads SET status = 'unreachable' WHERE id = ${leadId}`)
+      } else if (result === 'callback') {
+        await drizzle.execute(`UPDATE leads SET status = 'on_hold' WHERE id = ${leadId}`)
+      } else if (result === 'negative') {
+        await drizzle.execute(`UPDATE leads SET status = 'not_interested' WHERE id = ${leadId} AND status IN ('new', 'contacted', 'following_up', 'interested')`)
+      }
     }
 
     const updatedLead = await payload.findByID({ collection: 'leads', id, depth: 0 })

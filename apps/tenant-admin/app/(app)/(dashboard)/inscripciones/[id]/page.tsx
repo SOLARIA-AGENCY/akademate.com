@@ -47,6 +47,7 @@ const RESULT_LABELS: Record<string, string> = {
   message_sent: 'Mensaje enviado',
   email_sent: 'Email enviado',
   enrollment_started: 'Matriculacion iniciada',
+  status_changed: 'Cambio de estado',
 }
 
 // ---------------------------------------------------------------------------
@@ -134,7 +135,7 @@ export default function LeadDetailPage({ params }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           channel: 'system',
-          result: 'positive',
+          result: 'status_changed',
           note: `Estado cambiado: ${oldLabel} → ${newLabel}`,
         }),
       })
@@ -209,7 +210,7 @@ export default function LeadDetailPage({ params }: Props) {
   const statusConfig = STATUS_OPTIONS.find(s => s.value === (lead.status || 'new')) || STATUS_OPTIONS[0]
   const isInscripcion = lead.lead_type === 'inscripcion'
   const timeSince = lead.createdAt ? Math.round((Date.now() - new Date(lead.createdAt).getTime()) / (1000 * 60 * 60)) : 0
-  const canEnroll = ['interested', 'following_up'].includes(lead.status) && !lead.enrollment_id
+  const canEnroll = lead.status === 'interested' && !lead.enrollment_id
 
   // Pre-built messages
   const phoneScript = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. Es buen momento para hablar?
