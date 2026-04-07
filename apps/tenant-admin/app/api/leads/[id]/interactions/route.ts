@@ -31,16 +31,23 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     }
 
     const leadId = parseInt(id)
-    const result = await drizzle.execute(`
-      SELECT li.*, u.email as user_email, u.first_name as user_first_name, u.last_name as user_last_name
-      FROM lead_interactions li
-      LEFT JOIN users u ON u.id = li.user_id
-      WHERE li.lead_id = ${leadId}
-      ORDER BY li.created_at DESC
-    `)
-
+    // Fetch interactions
+    const result = await drizzle.execute(`SELECT * FROM lead_interactions WHERE lead_id = ${leadId} ORDER BY created_at DESC`)
     const rows = Array.isArray(result) ? result : (result?.rows ?? [])
-    return NextResponse.json({ interactions: rows })
+
+    // Enrich with user names
+    const interactions = await Promise.all(rows.map(async (li: any) => {
+      try {
+        const uRes = await drizzle.execute(`SELECT first_name, last_name, email FROM users WHERE id = ${li.user_id} LIMIT 1`)
+        const uRows = Array.isArray(uRes) ? uRes : (uRes?.rows ?? [])
+        const u = uRows[0]
+        return { ...li, user_first_name: u?.first_name ?? null, user_last_name: u?.last_name ?? null, user_email: u?.email ?? null }
+      } catch {
+        return { ...li, user_first_name: null, user_last_name: null, user_email: null }
+      }
+    }))
+
+    return NextResponse.json({ interactions })
   } catch (error) {
     console.error('[API][LeadInteractions] GET error:', error)
     return NextResponse.json({ interactions: [] })
