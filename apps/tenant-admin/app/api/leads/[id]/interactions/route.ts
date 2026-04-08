@@ -19,6 +19,49 @@ function esc(s: string): string {
   return s.replace(/'/g, "''")
 }
 
+function toPositiveInt(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
+  if (typeof value === 'string' && /^\d+$/.test(value)) return parseInt(value, 10)
+  return null
+}
+
+async function getAuthenticatedUser(request: NextRequest, payload: any): Promise<{
+  userId: number
+  tenantId: number | null
+} | null> {
+  const token = request.cookies.get('payload-token')?.value
+  if (!token) return null
+
+  try {
+    const authResult = await payload.auth({
+      collection: 'users',
+      headers: new Headers({ cookie: `payload-token=${token}` }),
+    }) as {
+      user?: {
+        id?: string | number
+        tenantId?: string | number
+        tenant?: string | number | { id?: string | number }
+      }
+    } | null
+
+    const userId = toPositiveInt(authResult?.user?.id)
+    if (!userId) return null
+
+    const tenantCandidate =
+      authResult?.user?.tenantId ??
+      (typeof authResult?.user?.tenant === 'object' && authResult?.user?.tenant !== null
+        ? authResult.user.tenant.id
+        : authResult?.user?.tenant)
+
+    return {
+      userId,
+      tenantId: toPositiveInt(tenantCandidate),
+    }
+  } catch {
+    return null
+  }
+}
+
 // GET /api/leads/[id]/interactions
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
@@ -30,21 +73,31 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       return NextResponse.json({ interactions: [] })
     }
 
-    const leadId = parseInt(id)
-    // Fetch interactions
-    const result = await drizzle.execute(`SELECT * FROM lead_interactions WHERE lead_id = ${leadId} ORDER BY created_at DESC`)
+    const authUser = await getAuthenticatedUser(_request, payload)
+    if (!authUser) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
+
+    const leadId = toPositiveInt(id)
+    if (!leadId) {
+      return NextResponse.json({ error: 'Lead ID invalido' }, { status: 400 })
+    }
+
+    const tenantFilter = authUser.tenantId ? ` AND li.tenant_id = ${authUser.tenantId}` : ''
+    const result = await drizzle.execute(`
+      SELECT li.*, u.first_name, u.last_name, u.email
+      FROM lead_interactions li
+      LEFT JOIN users u ON u.id = li.user_id
+      WHERE li.lead_id = ${leadId}${tenantFilter}
+      ORDER BY li.created_at DESC
+    `)
     const rows = Array.isArray(result) ? result : (result?.rows ?? [])
 
-    // Enrich with user names
-    const interactions = await Promise.all(rows.map(async (li: any) => {
-      try {
-        const uRes = await drizzle.execute(`SELECT first_name, last_name, email FROM users WHERE id = ${li.user_id} LIMIT 1`)
-        const uRows = Array.isArray(uRes) ? uRes : (uRes?.rows ?? [])
-        const u = uRows[0]
-        return { ...li, user_first_name: u?.first_name ?? null, user_last_name: u?.last_name ?? null, user_email: u?.email ?? null }
-      } catch {
-        return { ...li, user_first_name: null, user_last_name: null, user_email: null }
-      }
+    const interactions = rows.map((li: any) => ({
+      ...li,
+      user_first_name: li.first_name ?? null,
+      user_last_name: li.last_name ?? null,
+      user_email: li.email ?? null,
     }))
 
     return NextResponse.json({ interactions })
@@ -75,7 +128,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
     if (!drizzle?.execute) throw new Error('DB not available')
 
-    const leadId = parseInt(id)
+    const authUser = await getAuthenticatedUser(request, payload)
+    if (!authUser) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
+
+    const leadId = toPositiveInt(id)
+    if (!leadId) {
+      return NextResponse.json({ error: 'Lead ID invalido' }, { status: 400 })
+    }
 
     // Get current lead
     const lead = await payload.findByID({ collection: 'leads', id, depth: 0 }) as any
@@ -83,8 +144,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
-    const tenantId = lead.tenant_id ?? lead.tenant ?? 1
-    const userId = body.user_id ?? 1
+    const leadTenantId = toPositiveInt(lead.tenant_id ?? lead.tenant?.id ?? lead.tenant)
+    if (leadTenantId && authUser.tenantId && leadTenantId !== authUser.tenantId) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+    }
+
+    const tenantId =
+      toPositiveInt(lead.tenant_id ?? lead.tenant?.id ?? lead.tenant) ??
+      authUser.tenantId ??
+      1
+    const userId = authUser.userId
     const noteEsc = note ? `'${esc(note)}'` : 'NULL'
 
     // 1. Insert interaction (append-only)

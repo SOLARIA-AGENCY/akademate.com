@@ -1,5 +1,9 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
+}))
 
 // Simple empty-state pages (icon + heading + description, no external deps)
 import EnrollmentsPage from '@/app/(app)/enrollments/page'

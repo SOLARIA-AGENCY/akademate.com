@@ -183,7 +183,9 @@ export default function LeadDetailPage({ params }: Props) {
       })
       const data = await res.json()
       if (data.success && data.enrollmentId) {
-        router.push(`/matriculaciones/${data.enrollmentId}`)
+        router.push(`/matriculas?enrollmentId=${data.enrollmentId}`)
+      } else if (data?.error) {
+        alert(data.error)
       }
     } catch {}
     finally { setSaving(false) }
@@ -274,7 +276,7 @@ Equipo CEP Formacion`
               </Button>
             )}
             {showEnrollLink && (
-              <Button variant="outline" onClick={() => router.push(`/matriculaciones/${lead.enrollment_id}`)}>
+              <Button variant="outline" onClick={() => router.push(`/matriculas?enrollmentId=${lead.enrollment_id}`)}>
                 <GraduationCap className="mr-2 h-4 w-4" />Ver ficha matricula
               </Button>
             )}
@@ -380,7 +382,13 @@ Equipo CEP Formacion`
                 <p className="text-sm text-muted-foreground">Sin interacciones registradas</p>
               ) : (
                 <div className="space-y-3">
-                  {interactions.map((i: any) => (
+                  {interactions.map((i: any) => {
+                    const actorName =
+                      [i.user_first_name, i.user_last_name].filter(Boolean).join(' ').trim() ||
+                      i.user_email ||
+                      'Sistema'
+
+                    return (
                     <div key={i.id} className="flex items-start gap-3 text-sm border-l-2 border-muted pl-3">
                       <div className="shrink-0 mt-0.5">
                         {i.channel === 'phone' && <Phone className="h-4 w-4 text-primary" />}
@@ -390,7 +398,7 @@ Equipo CEP Formacion`
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium">{i.user_first_name || 'Sistema'}</span>
+                          <span className="font-medium">{actorName}</span>
                           <Badge variant="outline" className="text-[10px]">{RESULT_LABELS[i.result] ?? i.result}</Badge>
                         </div>
                         {i.note && <p className="text-muted-foreground mt-0.5">{i.note}</p>}
@@ -399,7 +407,8 @@ Equipo CEP Formacion`
                         </p>
                       </div>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </CardContent>

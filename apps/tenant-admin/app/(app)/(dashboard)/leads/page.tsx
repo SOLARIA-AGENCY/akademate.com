@@ -49,6 +49,7 @@ interface DashboardKPIs {
   totalLeads: number
   unattended: number
   conversionRate: number
+  avgResponseHours: number
   openEnrollments: number
   followUpBreakdown: Record<string, number>
 }
@@ -95,6 +96,16 @@ function fullName(lead: Lead): string {
   return [lead.first_name, lead.last_name].filter(Boolean).join(' ') || 'Sin nombre'
 }
 
+async function fetchWithTimeout(input: string, timeoutMs = 12000): Promise<Response> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    return await fetch(input, { signal: controller.signal })
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -111,25 +122,27 @@ export default function LeadsPage() {
   const [typeFilter, setTypeFilter] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
 
-  // Fetch leads and KPIs in parallel
+  // Fetch leads and KPIs in parallel with isolated fallbacks.
   useEffect(() => {
     const fetchData = async () => {
       try {
         setError(null)
-        const [leadsRes, kpisRes] = await Promise.all([
-          fetch('/api/leads?limit=200'),
-          fetch('/api/leads/dashboard'),
+        const [leadsResult, kpisResult] = await Promise.allSettled([
+          fetchWithTimeout('/api/leads?limit=200'),
+          fetchWithTimeout('/api/leads/dashboard'),
         ])
 
-        if (leadsRes.ok) {
-          const payload = await leadsRes.json()
+        if (leadsResult.status === 'fulfilled' && leadsResult.value.ok) {
+          const payload = await leadsResult.value.json()
           setLeads(Array.isArray(payload?.docs) ? payload.docs : [])
         } else {
-          throw new Error('No se pudieron cargar los leads')
+          throw new Error('No se pudieron cargar los leads del CRM')
         }
 
-        if (kpisRes.ok) {
-          setKpis(await kpisRes.json())
+        if (kpisResult.status === 'fulfilled' && kpisResult.value.ok) {
+          setKpis(await kpisResult.value.json())
+        } else {
+          setKpis(null)
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al cargar leads')
@@ -180,7 +193,7 @@ export default function LeadsPage() {
       />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -233,6 +246,20 @@ export default function LeadsPage() {
                 <p className="text-2xl font-bold text-emerald-600">{isLoading ? '-' : `${kpis?.conversionRate ?? 0}%`}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-emerald-400/40" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">T. respuesta</p>
+                <p className="text-2xl font-bold text-violet-600">
+                  {isLoading ? '-' : `${kpis?.avgResponseHours ?? 0}h`}
+                </p>
+              </div>
+              <Clock className="h-8 w-8 text-violet-400/40" />
             </div>
           </CardContent>
         </Card>

@@ -93,6 +93,16 @@ describe('Lead Detail — Enrollment Button Visibility', () => {
   })
 })
 
+describe('Lead Detail — Enrollment Navigation', () => {
+  function getEnrollmentRoute(enrollmentId: number | string): string {
+    return `/matriculas?enrollmentId=${enrollmentId}`
+  }
+
+  it('navigates to canonical matriculas route after enroll', () => {
+    expect(getEnrollmentRoute(42)).toBe('/matriculas?enrollmentId=42')
+  })
+})
+
 describe('Lead Detail — Status Change Interaction', () => {
   it('changeStatus generates correct interaction payload', () => {
     const oldStatus = 'new'

@@ -1,18 +1,65 @@
 import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+function toPositiveInt(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
+  if (typeof value === 'string' && /^\d+$/.test(value)) return parseInt(value, 10)
+  return null
+}
+
+async function getAuthenticatedTenant(request: NextRequest, payload: any): Promise<number | null> {
+  const token = request.cookies.get('payload-token')?.value
+  if (!token) return null
+
+  try {
+    const authResult = await payload.auth({
+      collection: 'users',
+      headers: new Headers({ cookie: `payload-token=${token}` }),
+    }) as {
+      user?: {
+        id?: string | number
+        tenantId?: string | number
+        tenant?: string | number | { id?: string | number }
+      }
+    } | null
+
+    const userId = toPositiveInt(authResult?.user?.id)
+    if (!userId) return null
+
+    return (
+      toPositiveInt(authResult?.user?.tenantId) ??
+      toPositiveInt(
+        typeof authResult?.user?.tenant === 'object' && authResult?.user?.tenant !== null
+          ? authResult.user.tenant.id
+          : authResult?.user?.tenant,
+      )
+    )
+  } catch {
+    return null
+  }
+}
+
+export async function GET(request: NextRequest) {
   try {
     const payload = await getPayloadHMR({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
+
+    const tenantId = await getAuthenticatedTenant(request, payload)
+    if (tenantId === null) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
 
     if (!drizzle?.execute) {
       console.error('[LeadsDashboard] No drizzle.execute available')
       throw new Error('DB not available')
     }
+
+    const whereTenant = `WHERE tenant_id = ${tenantId}`
+    const andTenant = `AND l.tenant_id = ${tenantId}`
 
     const query = async (sql: string) => {
       const res = await drizzle.execute(sql)
@@ -25,10 +72,10 @@ export async function GET() {
       return Array.isArray(res) ? res : (res?.rows ?? [])
     }
 
-    const totalLeads = parseInt((await query(`SELECT COUNT(*) as cnt FROM leads`)).cnt ?? '0')
+    const totalLeads = parseInt((await query(`SELECT COUNT(*) as cnt FROM leads ${whereTenant}`)).cnt ?? '0')
 
     const newThisMonth = parseInt(
-      (await query(`SELECT COUNT(*) as cnt FROM leads WHERE created_at >= date_trunc('month', CURRENT_DATE)`)).cnt ?? '0',
+      (await query(`SELECT COUNT(*) as cnt FROM leads WHERE tenant_id = ${tenantId} AND created_at >= date_trunc('month', CURRENT_DATE)`)).cnt ?? '0',
     )
 
     const unattended = parseInt(
@@ -36,11 +83,12 @@ export async function GET() {
         SELECT COUNT(*) as cnt FROM leads l
         WHERE l.status = 'new'
           AND l.created_at < NOW() - INTERVAL '24 hours'
+          ${andTenant}
           AND NOT EXISTS (SELECT 1 FROM lead_interactions li WHERE li.lead_id = l.id)
       `)).cnt ?? '0',
     )
 
-    const enrolled = parseInt((await query(`SELECT COUNT(*) as cnt FROM leads WHERE status = 'enrolled'`)).cnt ?? '0')
+    const enrolled = parseInt((await query(`SELECT COUNT(*) as cnt FROM leads WHERE tenant_id = ${tenantId} AND status = 'enrolled'`)).cnt ?? '0')
     const conversionRate = totalLeads > 0 ? Math.round((enrolled / totalLeads) * 1000) / 10 : 0
 
     const avgTimeRow = await query(`
@@ -49,15 +97,16 @@ export async function GET() {
       INNER JOIN (
         SELECT lead_id, MIN(created_at) as first_at FROM lead_interactions GROUP BY lead_id
       ) fi ON fi.lead_id = l.id
+      WHERE l.tenant_id = ${tenantId}
     `)
     const avgResponseHours = Math.round(parseFloat(avgTimeRow?.avg_hours ?? '0') * 10) / 10
 
     const openEnrollments = parseInt(
-      (await query(`SELECT COUNT(*) as cnt FROM leads WHERE status = 'enrolling'`)).cnt ?? '0',
+      (await query(`SELECT COUNT(*) as cnt FROM leads WHERE tenant_id = ${tenantId} AND status = 'enrolling'`)).cnt ?? '0',
     )
 
     const breakdownRows = await queryAll(
-      `SELECT status, COUNT(*) as cnt FROM leads WHERE status IN ('contacted', 'following_up', 'interested', 'on_hold') GROUP BY status`,
+      `SELECT status, COUNT(*) as cnt FROM leads WHERE tenant_id = ${tenantId} AND status IN ('contacted', 'following_up', 'interested', 'on_hold') GROUP BY status`,
     )
     const followUpBreakdown: Record<string, number> = {}
     for (const row of breakdownRows) {
@@ -65,7 +114,7 @@ export async function GET() {
     }
 
     const convertedThisMonth = parseInt(
-      (await query(`SELECT COUNT(*) as cnt FROM leads WHERE status = 'enrolled' AND updated_at >= date_trunc('month', CURRENT_DATE)`)).cnt ?? '0',
+      (await query(`SELECT COUNT(*) as cnt FROM leads WHERE tenant_id = ${tenantId} AND status = 'enrolled' AND updated_at >= date_trunc('month', CURRENT_DATE)`)).cnt ?? '0',
     )
 
     return NextResponse.json({
