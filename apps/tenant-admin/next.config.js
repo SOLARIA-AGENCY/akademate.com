@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  outputFileTracingRoot: path.resolve(__dirname, '../../'),
 
   // pg is a native module required by @payloadcms/db-postgres at runtime
   serverExternalPackages: ['pg', '@payloadcms/db-postgres'],

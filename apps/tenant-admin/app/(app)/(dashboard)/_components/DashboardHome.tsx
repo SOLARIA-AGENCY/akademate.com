@@ -171,6 +171,7 @@ export default function DashboardPage() {
     completionRate: 0,
     certificatesIssued: 0,
   })
+  const [isClient, setIsClient] = useState(false)
 
   const [cycleStats, setCycleStats] = useState<{
     gradoMedio: number
@@ -272,6 +273,7 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
+    setIsClient(true)
     void refreshCampusSummary()
     void refreshCycleStats()
   }, [])
@@ -771,7 +773,7 @@ export default function DashboardPage() {
             <CardDescription data-oid="h-f:ic6">Últimas 4 semanas</CardDescription>
           </CardHeader>
           <CardContent data-oid="y1b-ygm">
-            {weeklyMetrics.leads.length > 0 ? (
+            {isClient && weeklyMetrics.leads.length > 0 ? (
               <ResponsiveContainer width="100%" height={200} data-oid="boyfcdf">
                 <LineChart
                   data={[0, 1, 2, 3].map(

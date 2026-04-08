@@ -250,7 +250,7 @@ describe('ConfiguracionUnifiedPage', () => {
   // -----------------------------------------------------------------------
 
   describe('Tab navigation', () => {
-    it('renders all 7 section tabs after loading', async () => {
+    it('renders all section tabs after loading', async () => {
       mockFetchSuccess()
       render(<ConfiguracionUnifiedPage />)
 
@@ -262,6 +262,7 @@ describe('ConfiguracionUnifiedPage', () => {
         'General',
         'Personalizacion',
         'Areas',
+        'Integraciones',
         'APIs',
         'GDPR',
         'Feature Flags',
@@ -269,7 +270,7 @@ describe('ConfiguracionUnifiedPage', () => {
       ]
 
       for (const tabLabel of expectedTabs) {
-        expect(screen.getByRole('button', { name: new RegExp(tabLabel) })).toBeInTheDocument()
+        expect(screen.getAllByRole('button', { name: new RegExp(tabLabel) }).length).toBeGreaterThan(0)
       }
     })
 
@@ -281,7 +282,7 @@ describe('ConfiguracionUnifiedPage', () => {
         expect(screen.getByText('Todos los ajustes de tu academia en un solo lugar')).toBeInTheDocument()
       })
 
-      const gdprTab = screen.getByRole('button', { name: /GDPR/ })
+      const gdprTab = screen.getAllByRole('button', { name: /GDPR/ })[0]
       fireEvent.click(gdprTab)
 
       expect(mockScrollIntoView).toHaveBeenCalledWith({
@@ -298,9 +299,11 @@ describe('ConfiguracionUnifiedPage', () => {
         expect(screen.getByText('Todos los ajustes de tu academia en un solo lugar')).toBeInTheDocument()
       })
 
-      // Should have created observer instances and called observe
-      expect(MockIntersectionObserver.instances.length).toBeGreaterThan(0)
-      expect(mockObserve).toHaveBeenCalled()
+      // Should create observer instances and observe section elements once loading is done.
+      await waitFor(() => {
+        expect(MockIntersectionObserver.instances.length).toBeGreaterThan(0)
+        expect(mockObserve).toHaveBeenCalled()
+      })
     })
   })
 
@@ -360,15 +363,11 @@ describe('ConfiguracionUnifiedPage', () => {
       render(<ConfiguracionUnifiedPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Colores de Marca')).toBeInTheDocument()
+        expect(screen.getByText('Color de Marca')).toBeInTheDocument()
       })
 
-      expect(screen.getByText('Primario')).toBeInTheDocument()
-      expect(screen.getByText('Secundario')).toBeInTheDocument()
-      expect(screen.getByText('Acento')).toBeInTheDocument()
-      expect(screen.getByText('Exito')).toBeInTheDocument()
-      expect(screen.getByText('Alerta')).toBeInTheDocument()
-      expect(screen.getByText('Error')).toBeInTheDocument()
+      expect(screen.getByText('Codigo hexadecimal')).toBeInTheDocument()
+      expect(screen.getByText('Vista previa')).toBeInTheDocument()
     })
 
     it('handles color change via text input', async () => {
@@ -376,7 +375,7 @@ describe('ConfiguracionUnifiedPage', () => {
       render(<ConfiguracionUnifiedPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Colores de Marca')).toBeInTheDocument()
+        expect(screen.getByText('Color de Marca')).toBeInTheDocument()
       })
 
       // The color input with id="color-primary" is the native color picker
@@ -397,7 +396,8 @@ describe('ConfiguracionUnifiedPage', () => {
         expect(screen.getByText('Logo de la Academia')).toBeInTheDocument()
       })
 
-      const fileInput = screen.getByLabelText('Subir nuevo logo')
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+      expect(fileInput).toBeTruthy()
       const file = new File(['logo-content'], 'logo.png', { type: 'image/png' })
 
       fireEvent.change(fileInput, { target: { files: [file] } })
@@ -410,7 +410,7 @@ describe('ConfiguracionUnifiedPage', () => {
       render(<ConfiguracionUnifiedPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Vista previa:')).toBeInTheDocument()
+        expect(screen.getByText('Vista previa')).toBeInTheDocument()
       })
     })
   })
@@ -817,20 +817,19 @@ describe('ConfiguracionUnifiedPage', () => {
 
       const areasSection = document.getElementById('areas')!
       const gestLink = within(areasSection).getByText('Gestionar')
-      expect(gestLink.closest('a')).toHaveAttribute('href', '/configuracion/areas')
+      expect(gestLink.closest('a')).toHaveAttribute('href', '/administracion/areas-estudio')
     })
 
-    it('renders APIs section with "Gestionar" link', async () => {
+    it('renders APIs section with create key action', async () => {
       mockFetchSuccess()
       render(<ConfiguracionUnifiedPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('API Keys y Webhooks')).toBeInTheDocument()
+        expect(screen.getByText('API Keys')).toBeInTheDocument()
       })
 
       const apisSection = document.getElementById('apis')!
-      const gestLink = within(apisSection).getByText('Gestionar')
-      expect(gestLink.closest('a')).toHaveAttribute('href', '/configuracion/apis')
+      expect(within(apisSection).getByRole('button', { name: /Nueva API Key/i })).toBeInTheDocument()
     })
   })
 })

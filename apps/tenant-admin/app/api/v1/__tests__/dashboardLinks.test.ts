@@ -2,7 +2,7 @@
  * @fileoverview Tests para los enlaces KPI del Dashboard
  * Valida: que cada KPI card tiene el href correcto para navegacion
  *
- * Los KPIs se definen en app/(app)/(dashboard)/page.tsx como primaryKpis y secondaryKpis.
+ * Los KPIs se definen en app/(app)/(dashboard)/_components/DashboardHome.tsx como primaryKpis y secondaryKpis.
  * Dado que es un componente React con hooks, las estructuras se replican aqui
  * para validar la logica de mapeo de enlaces.
  */

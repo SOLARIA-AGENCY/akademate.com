@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename)
 /** @type {import('next').NextConfig} */
 const config = {
   output: 'standalone',
+  outputFileTracingRoot: path.resolve(__dirname, '../../'),
   transpilePackages: [
     '@akademate/ui',
     '@akademate/types',

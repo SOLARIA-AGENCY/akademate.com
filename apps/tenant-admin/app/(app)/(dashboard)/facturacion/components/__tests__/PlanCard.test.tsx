@@ -204,11 +204,11 @@ describe('PlanCard', () => {
       <PlanCard {...defaultProps} priceMonthly={9999} interval="month" data-oid="6_2gtsr" />
     )
     // 9999 / 100 = 99.99, toFixed(0) = 100
-    expect(screen.getByText(/100/)).toBeInTheDocument()
+    expect(screen.getByText('€100')).toBeInTheDocument()
 
     rerender(<PlanCard {...defaultProps} priceMonthly={29900} interval="year" data-oid="x7.xc-z" />)
     // 29900 * 0.83 = 24817 cents = €248/mes
-    expect(screen.getByText(/248/)).toBeInTheDocument()
+    expect(screen.getByText('€248')).toBeInTheDocument()
   })
 
   it('positions popular badge correctly', () => {

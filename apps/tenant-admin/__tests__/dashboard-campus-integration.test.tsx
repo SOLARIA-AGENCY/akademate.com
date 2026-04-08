@@ -31,7 +31,7 @@ vi.mock('@payload-config/hooks', () => ({
   }),
 }))
 
-import DashboardPage from '@/app/(dashboard)/page'
+import DashboardPage from '@/app/(dashboard)/_components/DashboardHome'
 
 describe('Dashboard campus integration', () => {
   beforeEach(() => {

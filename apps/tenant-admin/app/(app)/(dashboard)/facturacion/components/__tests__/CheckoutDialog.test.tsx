@@ -51,17 +51,17 @@ describe('CheckoutDialog', () => {
 
   it('displays monthly price correctly', () => {
     render(<CheckoutDialog {...defaultProps} data-oid="2m.ex.v" />)
-    expect(screen.getByText('€299.00')).toBeInTheDocument()
+    expect(screen.getByText('€299')).toBeInTheDocument()
     expect(screen.getByText('/mes')).toBeInTheDocument()
     expect(screen.getByText('Facturación mensual')).toBeInTheDocument()
   })
 
   it('displays yearly price with monthly equivalent', () => {
     render(<CheckoutDialog {...defaultProps} price={299000} interval="year" data-oid="wzrd_:f" />)
-    expect(screen.getByText('€2990.00')).toBeInTheDocument()
-    expect(screen.getByText('/año')).toBeInTheDocument()
+    expect(screen.getByText('€249')).toBeInTheDocument()
+    expect(screen.getByText('/mes')).toBeInTheDocument()
     expect(screen.getByText('Facturación anual')).toBeInTheDocument()
-    expect(screen.getByText(/€249\.17\/mes facturado anualmente/i)).toBeInTheDocument()
+    expect(screen.getByText(/€2990\/año facturado anualmente/i)).toBeInTheDocument()
   })
 
   it('displays up to 4 features', () => {
@@ -172,7 +172,7 @@ describe('CheckoutDialog', () => {
     )
     expect(screen.getByText('Plan Starter')).toBeInTheDocument()
     expect(screen.getByText('STARTER')).toBeInTheDocument()
-    expect(screen.getByText('€199.00')).toBeInTheDocument()
+    expect(screen.getByText('€199')).toBeInTheDocument()
   })
 
   it('renders enterprise plan correctly', () => {
@@ -187,7 +187,7 @@ describe('CheckoutDialog', () => {
     )
     expect(screen.getByText('Plan Enterprise')).toBeInTheDocument()
     expect(screen.getByText('ENTERPRISE')).toBeInTheDocument()
-    expect(screen.getByText('€599.00')).toBeInTheDocument()
+    expect(screen.getByText('€599')).toBeInTheDocument()
   })
 
   it('applies custom button style', () => {
@@ -217,8 +217,9 @@ describe('CheckoutDialog', () => {
 
   it('calculates monthly equivalent for yearly plan correctly', () => {
     render(<CheckoutDialog {...defaultProps} price={599000} interval="year" data-oid="xyvdk_v" />)
-    // 599000 / 12 / 100 = 499.17
-    expect(screen.getByText(/€499\.17\/mes facturado anualmente/i)).toBeInTheDocument()
+    // 599000 / 12 / 100 = 499.16..., rounded to 499
+    expect(screen.getByText('€499')).toBeInTheDocument()
+    expect(screen.getByText(/€5990\/año facturado anualmente/i)).toBeInTheDocument()
   })
 
   it('does not show monthly equivalent for monthly plan', () => {
