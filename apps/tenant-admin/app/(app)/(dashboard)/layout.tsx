@@ -67,10 +67,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [searchQuery, setSearchQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState({
-    name: 'Admin User',
-    email: 'admin@akademate.com',
+    name: 'Administrador',
+    email: 'admin@tenant.local',
     avatar: null as string | null,
-    initials: 'AU',
+    initials: 'AD',
   })
 
   useEffect(() => {
@@ -182,7 +182,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </aside>
 
         <div
-          className={`flex-1 flex flex-col transition-all duration-300 ${
+          className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ${
             isMobile ? 'ml-0' : sidebarOpen ? 'ml-[240px]' : 'ml-[80px]'
           }`}
           data-oid="asfyqnr"
@@ -204,7 +204,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Button>
             </div>
 
-            <div className="flex-1 max-w-md" data-oid="38sqxrv">
+            <div className="flex-1 min-w-0 max-w-md" data-oid="38sqxrv">
               <div className="relative hidden lg:block" data-oid="37i3m-d">
                 <form onSubmit={handleSearchSubmit} data-oid="g45:h35">
                   <Search

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { MessageCircle, X, Send, Sparkles } from 'lucide-react'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
+import { useTenantBranding } from '@/app/providers/tenant-branding'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -12,11 +13,12 @@ interface Message {
 }
 
 export function ChatbotWidget() {
+  const { branding } = useTenantBranding()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: '¡Hola! Soy el asistente de Akademate. Aun no estoy disponible, pero pronto podre resolver todas tus dudas sobre la gestion de tu academia. ¡Vuelve pronto!',
+      content: '¡Hola! Soy el asistente virtual del centro. Aun no estoy disponible, pero pronto podre resolver tus dudas de gestion academica.',
       timestamp: new Date(),
     },
   ])
@@ -72,7 +74,7 @@ export function ChatbotWidget() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-primary to-blue-600 text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center group"
+        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center group"
         data-oid="_2h6sl-"
       >
         {isOpen ? (
@@ -102,7 +104,7 @@ export function ChatbotWidget() {
         >
           {/* Header */}
           <div
-            className="bg-gradient-to-r from-primary to-blue-600 text-primary-foreground p-4 flex items-center gap-3"
+            className="bg-primary text-primary-foreground p-4 flex items-center gap-3"
             data-oid="crwno0."
           >
             <div
@@ -113,10 +115,10 @@ export function ChatbotWidget() {
             </div>
             <div className="flex-1" data-oid="e.9is0h">
               <h3 className="font-semibold" data-oid="zn_.2uo">
-                Asistente IA CEP
+                Asistente IA
               </h3>
               <p className="text-xs opacity-90" data-oid="x-zx8ck">
-                Online • Siempre listo para ayudar
+                {branding.academyName}
               </p>
             </div>
             <button

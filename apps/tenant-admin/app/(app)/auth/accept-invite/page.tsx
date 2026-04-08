@@ -104,7 +104,7 @@ function AcceptInviteContent() {
         <div className="text-center mb-8">
           <div className="flex flex-col items-center gap-2 mb-2">
             <div className="w-20 h-20 rounded-full bg-white shadow-lg border border-border flex items-center justify-center overflow-hidden">
-              <img src={branding.logos.principal || '/logos/akademate-logo-official.png'} alt={branding.academyName} className="w-14 h-14 object-contain" />
+              <img src={branding.logos.principal || branding.logos.favicon} alt={branding.academyName} className="w-14 h-14 object-contain" />
             </div>
             <span className="text-2xl font-bold tracking-tight text-foreground">{branding.academyName}</span>
           </div>

@@ -204,7 +204,7 @@ function generateJsonLdScript(courseRun: any, courseName: string, description: s
     description,
     provider: {
       '@type': 'Organization',
-      name: 'Akademate',
+      name: 'Centro de Formacion',
     },
     hasCourseInstance: {
       '@type': 'CourseInstance',
@@ -563,7 +563,7 @@ export default async function LandingPage({
       ================================================================ */}
       <footer className="border-t border-gray-200 bg-gray-50 py-8">
         <div className="mx-auto max-w-5xl px-6 text-center text-sm text-gray-500">
-          <p>Powered by Akademate</p>
+          <p>&copy; {new Date().getFullYear()} Centro de Formacion</p>
           <div className="mt-2 flex justify-center gap-4">
             <a href="/legal/privacidad" className="hover:text-gray-700 transition">Privacidad</a>
             <a href="/legal/terminos" className="hover:text-gray-700 transition">Terminos</a>

@@ -448,12 +448,22 @@ nextjs-portal {
    DASHBOARD MEDIA + RESPONSIVE HARDENING
    ============================================================================ */
 
-/* Keep photo crops anchored to the top edge on dashboard cards/hero blocks. */
-.dashboard-shell img.object-cover:not(.rounded-full):not(.object-center):not(.object-bottom) {
-  object-position: center top;
+/* Keep photo crops anchored to the top edge to avoid cutting faces on resize. */
+body:not(.payload-admin) img.object-cover:not(.rounded-full) {
+  object-position: center top !important;
 }
 
 /* Smooth horizontal scrolling for tables/cards on mobile. */
 .dashboard-shell .overflow-x-auto {
   -webkit-overflow-scrolling: touch;
+}
+
+/* Global anti-overflow guard for dashboard/public shells on narrow screens. */
+body:not(.payload-admin) {
+  overflow-x: hidden;
+}
+
+.dashboard-shell,
+.dashboard-shell main {
+  min-width: 0;
 }

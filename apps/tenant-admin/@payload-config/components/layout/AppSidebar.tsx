@@ -397,7 +397,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
         >
           {/* Logo — visible siempre, usa branding si disponible */}
           <img
-            src={branding.logos.principal || '/logos/akademate-logo-official.png'}
+            src={branding.logos.principal || branding.logos.favicon}
             alt={academyName}
             className="h-8 w-8 flex-shrink-0 rounded object-contain"
             title={isCollapsed ? academyName : undefined}

@@ -273,11 +273,8 @@ async function resolveTenantId(request: NextRequest, inputTenantId?: string | nu
   const numericSchema = z.string().regex(/^\d+$/)
 
   // 1) Explicit tenantId in request (query/body) takes precedence.
-  const candidates = [inputTenantId, envTenantId]
-  for (const candidate of candidates) {
-    if (uuidSchema.safeParse(candidate).success) return candidate as string
-    if (numericSchema.safeParse(candidate).success) return candidate as string
-  }
+  if (uuidSchema.safeParse(inputTenantId).success) return inputTenantId as string
+  if (numericSchema.safeParse(inputTenantId).success) return inputTenantId as string
 
   // 2) Resolve by request host for tenant-driven runtime.
   const hostTenantId = await resolveTenantIdFromHost(
@@ -285,7 +282,17 @@ async function resolveTenantId(request: NextRequest, inputTenantId?: string | nu
   )
   if (hostTenantId) return hostTenantId
 
+  // 3) Env fallback only when host cannot be resolved.
+  if (uuidSchema.safeParse(envTenantId).success) return envTenantId as string
+  if (numericSchema.safeParse(envTenantId).success) return envTenantId as string
+
   return null
+}
+
+function hostLooksLikeCep(hostHeader?: string | null): boolean {
+  const host = (hostHeader ?? '').split(',')[0]?.trim().toLowerCase() ?? ''
+  const normalizedHost = host.replace(/:\d+$/, '')
+  return /(^|\.)cepformacion(\.|$)/i.test(normalizedHost) || normalizedHost.includes('cep-formacion')
 }
 
 function mapAcademiaInput(data: unknown): z.infer<typeof AcademiaSchema> | null {
@@ -419,6 +426,16 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const section = searchParams.get('section')
     const tenantId = await resolveTenantId(request, searchParams.get('tenantId'))
+    const requestHost = request.headers.get('x-forwarded-host') || request.headers.get('host')
+    const cepHost = hostLooksLikeCep(requestHost)
+    const hostDefaultLogos = cepHost
+      ? {
+          principal: '/logos/cep-formacion-logo.png',
+          oscuro: '/logos/cep-formacion-logo.png',
+          claro: '/logos/cep-formacion-logo.png',
+          favicon: '/logos/cep-formacion-isotipo.svg',
+        }
+      : mockConfig.logos
 
     // Section parameter is required
     if (!section || section === '') {
@@ -434,10 +451,19 @@ export async function GET(request: NextRequest) {
         try {
           const tenant = await getTenantBranding(tenantId)
           if (tenant) {
-            const logos = LogosSchema.safeParse(tenant.branding?.logos ?? mockConfig.logos)
+            const logos = LogosSchema.safeParse(tenant.branding?.logos ?? hostDefaultLogos)
+            const logosData = logos.success ? logos.data : hostDefaultLogos
+
+            if (cepHost) {
+              if (!logosData.principal) logosData.principal = hostDefaultLogos.principal
+              if (!logosData.favicon || logosData.favicon === logosData.principal) {
+                logosData.favicon = hostDefaultLogos.favicon
+              }
+            }
+
             return NextResponse.json({
               success: true,
-              data: logos.success ? logos.data : mockConfig.logos,
+              data: logosData,
             })
           }
         } catch {
@@ -447,7 +473,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        data: mockConfig.logos,
+        data: hostDefaultLogos,
       })
     }
 

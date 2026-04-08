@@ -128,42 +128,41 @@ export default function ConfigGeneralPage() {
   const [showSuccess, setShowSuccess] = useState(false)
   const [config, setConfig] = useState<AcademyConfig>({
     // Información de la Academia
-    academyName: 'AKADEMATE',
-    fiscalName: 'Akademate Platform S.L.',
-    cif: 'B12345678',
+    academyName: branding.academyName,
+    fiscalName: '',
+    cif: '',
 
     // Contacto
-    address: 'Calle Principal 123, 28001 Madrid',
-    city: 'Madrid',
-    postalCode: '28001',
+    address: '',
+    city: '',
+    postalCode: '',
     country: 'España',
-    phone: '+34 910 123 456',
-    phoneAlternative: '+34 910 654 321',
-    email: 'info@akademate.com',
-    emailAdmissions: 'admisiones@akademate.com',
-    emailSupport: 'support@akademate.com',
-    website: 'https://akademate.com',
+    phone: '',
+    phoneAlternative: '',
+    email: '',
+    emailAdmissions: '',
+    emailSupport: '',
+    website: '',
 
     // Redes Sociales
-    facebook: 'https://facebook.com/akademate',
-    twitter: 'https://x.com/akademate',
-    instagram: 'https://instagram.com/akademate',
-    linkedin: 'https://linkedin.com/company/akademate',
-    youtube: 'https://youtube.com/@akademate',
+    facebook: '',
+    twitter: '',
+    instagram: '',
+    linkedin: '',
+    youtube: '',
 
     // Información Adicional
-    description:
-      'Plataforma SaaS multitenant para academias y centros de formación con módulos de gestión académica, comercial y campus virtual.',
-    slogan: 'La plataforma operativa de tu academia',
-    foundedYear: '2026',
-    accreditation: 'Infraestructura cloud y estándares de seguridad aplicados a entorno educativo',
+    description: '',
+    slogan: '',
+    foundedYear: '',
+    accreditation: '',
   })
 
   const [logos, setLogos] = useState<LogosConfig>({
-    principal: '/logos/akademate-logo-official.png',
-    oscuro: '/logos/akademate-logo-official.png',
-    claro: '/logos/akademate-logo-official.png',
-    favicon: '/logos/akademate-favicon.svg',
+    principal: branding.logos.principal,
+    oscuro: branding.logos.oscuro,
+    claro: branding.logos.claro,
+    favicon: branding.logos.favicon,
   })
 
   // Fetch existing configuration
@@ -623,7 +622,7 @@ export default function ConfigGeneralPage() {
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => setLogos({ ...logos, principal: '/logos/akademate-logo-official.png' })}
+                      onClick={() => setLogos({ ...logos, principal: branding.logos.principal })}
                       data-oid="fec-xrs"
                     >
                       Cambiar
@@ -686,7 +685,7 @@ export default function ConfigGeneralPage() {
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => setLogos({ ...logos, oscuro: '/logos/akademate-logo-official.png' })}
+                      onClick={() => setLogos({ ...logos, oscuro: branding.logos.oscuro })}
                       data-oid="75jc8.0"
                     >
                       Cambiar
@@ -750,7 +749,7 @@ export default function ConfigGeneralPage() {
                       size="sm"
                       className="mt-2"
                       onClick={() =>
-                        setLogos({ ...logos, claro: '/logos/akademate-logo-official.png' })
+                        setLogos({ ...logos, claro: branding.logos.claro })
                       }
                       data-oid=".kagj:l"
                     >
@@ -815,7 +814,7 @@ export default function ConfigGeneralPage() {
                       size="sm"
                       className="mt-2"
                       onClick={() =>
-                        setLogos({ ...logos, favicon: '/logos/akademate-favicon.svg' })
+                        setLogos({ ...logos, favicon: branding.logos.favicon })
                       }
                       data-oid="c5xsxpi"
                     >

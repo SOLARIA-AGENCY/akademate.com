@@ -9,7 +9,7 @@ import { SessionProvider } from './providers/SessionProvider'
 import { CampusNavbar } from './components/CampusNavbar'
 
 export const metadata = {
-  title: 'Campus Virtual | Akademate',
+  title: 'Campus Virtual',
   description: 'Tu espacio de aprendizaje en linea',
 }
 

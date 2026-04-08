@@ -1,37 +1,60 @@
 import type React from 'react'
 import type { Metadata } from 'next'
 import '../globals.css'
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
+import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
 
-export const metadata: Metadata = {
-  title: 'Akademate — Plataforma Educativa Multitenant',
-  description: 'Gestion integral para centros de formacion con branding, campus virtual y operaciones SaaS.',
-  openGraph: {
-    title: 'Akademate — Plataforma Educativa',
-    description: 'Gestion academica y operativa multitenant para centros de formacion.',
-    url: 'https://akademate.com',
-    siteName: 'Akademate',
-    images: [
-      {
-        url: 'https://akademate.com/og-image.png',
-        width: 1000,
-        height: 1000,
-        alt: 'Akademate',
-      },
-    ],
-    locale: 'es_ES',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Akademate — Plataforma Educativa',
-    description: 'SaaS multitenant para centros de formacion.',
-    images: ['https://akademate.com/og-image.png'],
-  },
+function getIconMimeType(url: string): string {
+  if (url.endsWith('.svg')) return 'image/svg+xml'
+  if (url.endsWith('.png')) return 'image/png'
+  if (url.endsWith('.ico')) return 'image/x-icon'
+  return 'image/png'
 }
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const tenant = await getTenantHostBranding()
+  const title = `${tenant.academyName} — Plataforma Educativa`
+  const description =
+    'Gestion integral para centros de formacion con branding, campus virtual y operaciones SaaS.'
+  const ogImage = toAbsoluteAssetUrl(tenant.origin, tenant.logoUrl)
+
+  return {
+    metadataBase: new URL(tenant.origin),
+    title,
+    description,
+    icons: {
+      icon: [
+        { url: tenant.faviconUrl, type: getIconMimeType(tenant.faviconUrl) },
+        { url: tenant.logoUrl, sizes: '32x32', type: getIconMimeType(tenant.logoUrl) },
+      ],
+      apple: tenant.logoUrl,
+      shortcut: tenant.faviconUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: tenant.origin,
+      siteName: tenant.academyName,
+      images: [
+        {
+          url: ogImage,
+          width: 1000,
+          height: 1000,
+          alt: tenant.academyName,
+        },
+      ],
+      locale: 'es_ES',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+  }
+}
 
 type TenantData = {
   name: string
@@ -58,36 +81,12 @@ function shortCodeFromLabel(label: string): string {
 
 async function getTenantData(): Promise<TenantData> {
   try {
-    const payload = await getPayload({ config: configPromise })
-    const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
-    const tenant = tenants.docs[0] as any
-    const primaryColor = tenant?.branding_primary_color || '#cc0000'
-    const tenantId = tenant?.id || 1
-
-    // Read tenant-facing runtime config from /api/config
-    let logo = '/logos/akademate-logo-official.png'
-    let academyName = tenant?.name || 'Akademate'
-    let phone1 = ''
-    let phone2 = ''
-    try {
-      const baseUrl = process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3009'
-      const [logoRes, academyRes] = await Promise.all([
-        fetch(`${baseUrl}/api/config?section=logos&tenantId=${tenantId}`),
-        fetch(`${baseUrl}/api/config?section=academia&tenantId=${tenantId}`),
-      ])
-
-      if (logoRes.ok) {
-        const logoData = await logoRes.json()
-        if (logoData.data?.principal) logo = logoData.data.principal
-      }
-
-      if (academyRes.ok) {
-        const academyData = await academyRes.json()
-        academyName = academyData.data?.nombre?.trim() || academyName
-        phone1 = academyData.data?.telefono1?.trim() || ''
-        phone2 = academyData.data?.telefono2?.trim() || ''
-      }
-    } catch { /* use default */ }
+    const tenant = await getTenantHostBranding()
+    const primaryColor = tenant.primaryColor || '#cc0000'
+    const logo = tenant.logoUrl
+    const academyName = tenant.academyName
+    const phone1 = tenant.contactPhone
+    const phone2 = tenant.contactPhoneAlternative
 
     const whatsappContacts = [
       { label: 'Contacto', phone: phone1, message: 'Hola, me gustaria recibir informacion sobre la oferta formativa.' },
@@ -109,15 +108,27 @@ async function getTenantData(): Promise<TenantData> {
       name: academyName,
       logo,
       primaryColor,
-      metaPixelId: tenant?.integrations_meta_pixel_id || tenant?.integrations?.metaPixelId || '',
-      ga4MeasurementId: tenant?.integrations_ga4_measurement_id || tenant?.integrations?.ga4MeasurementId || '',
+      metaPixelId: tenant.metaPixelId,
+      ga4MeasurementId: tenant.ga4MeasurementId,
       whatsappContacts,
     }
   } catch {
+    const fallbackTenant = await getTenantHostBranding().catch(() => null)
+    if (fallbackTenant) {
+      return {
+        name: fallbackTenant.academyName,
+        logo: fallbackTenant.logoUrl,
+        primaryColor: fallbackTenant.primaryColor,
+        metaPixelId: fallbackTenant.metaPixelId,
+        ga4MeasurementId: fallbackTenant.ga4MeasurementId,
+        whatsappContacts: [],
+      }
+    }
+
     return {
-      name: 'Akademate',
+      name: 'Academia',
       logo: '/logos/akademate-logo-official.png',
-      primaryColor: '#0066CC',
+      primaryColor: '#64748b',
       metaPixelId: '',
       ga4MeasurementId: '',
       whatsappContacts: [],
@@ -229,7 +240,7 @@ fbq('track', 'PageView');`,
             </div>
             <div className="border-t border-white/10 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-xs text-gray-400">&copy; {new Date().getFullYear()} {tenant.name}. Todos los derechos reservados.</p>
-              <p className="text-xs text-gray-400">Powered by <a href="https://akademate.com" className="brand-text hover:underline" target="_blank" rel="noopener">Akademate</a></p>
+              <p className="text-xs text-gray-400">Plataforma de gestión académica</p>
             </div>
           </div>
         </footer>

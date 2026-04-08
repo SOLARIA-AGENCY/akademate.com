@@ -50,7 +50,39 @@ const DEFAULT_BRANDING: TenantBranding = {
   tenantId: process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? 'default',
 }
 
+const CEP_DEFAULT_BRANDING: TenantBranding = {
+  academyName: 'CEP Formación',
+  logos: {
+    principal: '/logos/cep-formacion-logo.png',
+    oscuro: '/logos/cep-formacion-logo.png',
+    claro: '/logos/cep-formacion-logo.png',
+    favicon: '/logos/cep-formacion-isotipo.svg',
+  },
+  theme: {
+    primary: '#cc0000',
+    secondary: '#1a1a2e',
+    accent: '#cc0000',
+    success: '#22c55e',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+  },
+  tenantId: '1',
+}
+
 const TenantBrandingContext = React.createContext<TenantBrandingContextValue | undefined>(undefined)
+
+function getRuntimeHost(): string {
+  if (typeof window === 'undefined') return ''
+  return window.location.hostname.toLowerCase()
+}
+
+function isCepHost(hostname: string): boolean {
+  return /(^|\.)cepformacion(\.|$)/i.test(hostname) || hostname.includes('cep-formacion')
+}
+
+function getHostAwareDefaultBranding(): TenantBranding {
+  return isCepHost(getRuntimeHost()) ? CEP_DEFAULT_BRANDING : DEFAULT_BRANDING
+}
 
 function hexToHSL(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
@@ -102,51 +134,58 @@ function applyThemeVariables(theme: TenantTheme): void {
   root.style.setProperty('--destructive', hexToHSL(theme.danger))
 }
 
-export function TenantBrandingProvider({ children }: { children: React.ReactNode }) {
-  const [branding, setBranding] = React.useState<TenantBranding>(DEFAULT_BRANDING)
+export function TenantBrandingProvider({
+  children,
+  initialBranding,
+}: {
+  children: React.ReactNode
+  initialBranding?: TenantBranding
+}) {
+  const [branding, setBranding] = React.useState<TenantBranding>(
+    () => initialBranding ?? getHostAwareDefaultBranding()
+  )
   const [loading, setLoading] = React.useState(true)
 
   const refresh = React.useCallback(async () => {
-    const tenantId = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID?.trim() || null
-    const tenantQuery = tenantId ? `&tenantId=${tenantId}` : ''
+    const fallbackBranding = initialBranding ?? getHostAwareDefaultBranding()
     setLoading(true)
     try {
       const [logosRes, academyRes, themeRes] = await Promise.all([
-        fetch(`/api/config?section=logos${tenantQuery}`, { cache: 'no-store' }),
-        fetch(`/api/config?section=academia${tenantQuery}`, { cache: 'no-store' }),
-        fetch(`/api/config?section=personalizacion${tenantQuery}`, { cache: 'no-store' }),
+        fetch('/api/config?section=logos', { cache: 'no-store' }),
+        fetch('/api/config?section=academia', { cache: 'no-store' }),
+        fetch('/api/config?section=personalizacion', { cache: 'no-store' }),
       ])
 
       const nextBranding: TenantBranding = {
-        ...DEFAULT_BRANDING,
-        tenantId: tenantId || DEFAULT_BRANDING.tenantId,
+        ...fallbackBranding,
+        tenantId: fallbackBranding.tenantId,
       }
 
       if (logosRes.ok) {
         const logosPayload = (await logosRes.json()) as { data?: Partial<TenantLogos> }
-        nextBranding.logos = { ...DEFAULT_BRANDING.logos, ...logosPayload.data }
+        nextBranding.logos = { ...fallbackBranding.logos, ...logosPayload.data }
       }
 
       if (academyRes.ok) {
         const academyPayload = (await academyRes.json()) as { data?: { nombre?: string } }
         nextBranding.academyName =
-          academyPayload.data?.nombre?.trim() || DEFAULT_BRANDING.academyName
+          academyPayload.data?.nombre?.trim() || fallbackBranding.academyName
       }
 
       if (themeRes.ok) {
         const themePayload = (await themeRes.json()) as { data?: Partial<TenantTheme> }
-        nextBranding.theme = { ...DEFAULT_BRANDING.theme, ...themePayload.data }
+        nextBranding.theme = { ...fallbackBranding.theme, ...themePayload.data }
       }
 
       setBranding(nextBranding)
       applyThemeVariables(nextBranding.theme)
     } catch {
-      setBranding(DEFAULT_BRANDING)
-      applyThemeVariables(DEFAULT_BRANDING.theme)
+      setBranding(fallbackBranding)
+      applyThemeVariables(fallbackBranding.theme)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [initialBranding])
 
   React.useEffect(() => {
     void refresh()
@@ -182,8 +221,9 @@ export function TenantBrandingProvider({ children }: { children: React.ReactNode
 export function useTenantBranding(): TenantBrandingContextValue {
   const context = React.useContext(TenantBrandingContext)
   if (!context) {
+    const fallbackBranding = getHostAwareDefaultBranding()
     return {
-      branding: DEFAULT_BRANDING,
+      branding: fallbackBranding,
       loading: false,
       refresh: async () => undefined,
     }

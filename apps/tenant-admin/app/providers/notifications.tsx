@@ -162,7 +162,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
           if (permissionGranted && typeof window !== 'undefined' && 'Notification' in window) {
             const browserNotif = new window.Notification(notif.title, {
               body: notif.body || '',
-              icon: branding.logos.principal || '/logos/akademate-logo-official.png',
+              icon: branding.logos.favicon || branding.logos.principal,
               tag: `notif-${notif.id}`,
             })
             browserNotif.onclick = () => {
