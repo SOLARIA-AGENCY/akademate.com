@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
+import { useTenantBranding } from './tenant-branding'
 
 interface Notification {
   id: number
@@ -90,6 +91,7 @@ function playNotificationSound() {
 }
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
+  const { branding } = useTenantBranding()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [permissionGranted, setPermissionGranted] = useState(false)
@@ -160,7 +162,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
           if (permissionGranted && typeof window !== 'undefined' && 'Notification' in window) {
             const browserNotif = new window.Notification(notif.title, {
               body: notif.body || '',
-              icon: '/logos/cep-formacion-logo.png',
+              icon: branding.logos.principal || '/logos/akademate-logo-official.png',
               tag: `notif-${notif.id}`,
             })
             browserNotif.onclick = () => {
@@ -231,7 +233,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               borderRadius: 12,
               padding: '14px 18px',
               boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-              borderLeft: '4px solid #cc0000',
+              borderLeft: `4px solid ${branding.theme.primary}`,
               cursor: 'pointer',
               animation: 'slideInRight 0.3s ease-out',
             }}

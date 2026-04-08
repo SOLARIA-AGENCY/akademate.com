@@ -95,7 +95,7 @@ describe('NuevaConvocatoriaPage', () => {
     })
   })
 
-  it('shows "Se necesita al menos un profesor" when no staff but has campuses', async () => {
+  it('allows proceeding when no staff but has campuses', async () => {
     mockAllFetches({
       cycles: sampleCycles,
       courses: sampleCourses,
@@ -105,8 +105,9 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Se necesita al menos un profesor/)).toBeInTheDocument()
+      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
     })
+    expect(screen.getByTitle('Crear nuevo profesor')).toBeInTheDocument()
   })
 
   it('shows form when both campuses and staff exist', async () => {

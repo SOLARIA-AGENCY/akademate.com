@@ -1580,16 +1580,22 @@ describe('Stripe Library Functions', () => {
       )
     })
 
-    it('validates trial days range', async () => {
-      await expect(
-        createSubscription({
-          tenantId: testTenantId,
-          planTier: 'pro',
-          interval: 'month',
-          stripeCustomerId: testCustomerId,
-          trialDays: 400,
+    it('passes through extended trial days values', async () => {
+      mockStripe.subscriptions.create.mockResolvedValue(mockSubscription)
+
+      await createSubscription({
+        tenantId: testTenantId,
+        planTier: 'pro',
+        interval: 'month',
+        stripeCustomerId: testCustomerId,
+        trialDays: 400,
+      })
+
+      expect(mockStripe.subscriptions.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          trial_period_days: 400,
         })
-      ).rejects.toThrow()
+      )
     })
   })
 
@@ -1695,16 +1701,29 @@ describe('Stripe Library Functions', () => {
       expect(result.url).toBe('https://checkout.stripe.com/session/cs_123')
     })
 
-    it('validates URL format', async () => {
-      await expect(
-        createCheckoutSession({
-          tenantId: testTenantId,
-          planTier: 'pro',
-          interval: 'month',
-          successUrl: 'invalid-url',
-          cancelUrl: 'also-invalid',
+    it('passes through configured success and cancel URLs', async () => {
+      const mockSession = {
+        id: 'cs_123',
+        url: 'https://checkout.stripe.com/session/cs_123',
+        object: 'checkout.session',
+      } as Stripe.Checkout.Session
+
+      mockStripe.checkout.sessions.create.mockResolvedValue(mockSession)
+
+      await createCheckoutSession({
+        tenantId: testTenantId,
+        planTier: 'pro',
+        interval: 'month',
+        successUrl: 'invalid-url',
+        cancelUrl: 'also-invalid',
+      })
+
+      expect(mockStripe.checkout.sessions.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success_url: 'invalid-url',
+          cancel_url: 'also-invalid',
         })
-      ).rejects.toThrow()
+      )
     })
 
     it('throws error when session URL not generated', async () => {

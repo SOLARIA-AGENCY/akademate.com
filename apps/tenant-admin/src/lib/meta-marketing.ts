@@ -270,7 +270,8 @@ export async function listCampaigns(
 // ---------------------------------------------------------------------------
 
 export function buildLandingUrl(convocatoriaCode: string): string {
-  return `https://cursos.cepcomunicacion.com/p/convocatorias/${convocatoriaCode}`
+  const baseUrl = process.env.NEXT_PUBLIC_TENANT_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://akademate.com'
+  return `${baseUrl.replace(/\/$/, '')}/p/convocatorias/${convocatoriaCode}`
 }
 
 export function buildUtmParams(campaignCode: string): string {

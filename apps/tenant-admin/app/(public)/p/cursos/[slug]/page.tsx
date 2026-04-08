@@ -25,9 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   })
   const course = result.docs[0]
   if (!course) return { title: 'Curso no encontrado' }
+  const title = (course as { title?: string; name?: string }).title ?? (course as { name?: string }).name ?? 'Curso'
+  const description =
+    (course as { description?: string }).description ??
+    `Curso: ${title}`
   return {
-    title: `${course.title} | Curso`,
-    description: course.description?.substring(0, 160) || `Curso: ${course.title}`,
+    title: `${title} | Curso`,
+    description: description.substring(0, 160),
   }
 }
 

@@ -45,6 +45,7 @@ describe('Logout API', () => {
     await POST()
 
     expect(mockCookieStore.delete).toHaveBeenCalledWith('payload-token')
+    expect(mockCookieStore.delete).toHaveBeenCalledWith('akademate_session')
     expect(mockCookieStore.delete).toHaveBeenCalledWith('cep_session')
   })
 })

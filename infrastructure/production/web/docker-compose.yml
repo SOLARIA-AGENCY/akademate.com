@@ -23,6 +23,9 @@ services:
       # Payload CMS — cuando esté desplegado
       PAYLOAD_CMS_URL: ${PAYLOAD_CMS_URL:-http://localhost:3003}
       PAYLOAD_API_KEY: ${PAYLOAD_API_KEY:-}
+      NEXT_PUBLIC_TENANT_URL: https://admin.akademate.com
+      TENANT_URL: https://admin.akademate.com
+      NEXT_PUBLIC_WEB_URL: https://akademate.com
     labels:
       - "traefik.enable=true"
       # HTTP → HTTPS redirect ya está en traefik.yml (entrypoint level)

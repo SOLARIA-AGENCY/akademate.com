@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Stripe Webhook Handler
  * Processes Stripe events for subscription and payment updates

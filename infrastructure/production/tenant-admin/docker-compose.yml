@@ -44,7 +44,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://${POSTGRES_USER:-akademate}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-akademate}
+      DATABASE_URL: ${DATABASE_URL}
       DATABASE_HOST: postgres
       DATABASE_PORT: "5432"
       DATABASE_NAME: ${POSTGRES_DB:-akademate}
@@ -52,10 +52,23 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:?Set PAYLOAD_SECRET in .env}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
-      BETTER_AUTH_URL: https://admin.akademate.com
+      BETTER_AUTH_URL: https://app.akademate.com
+      PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL:-https://cepcomunicacion.akademate.com}
       NEXT_PUBLIC_WEB_URL: https://akademate.com
-      NEXT_PUBLIC_TENANT_URL: https://admin.akademate.com
+      NEXT_PUBLIC_TENANT_URL: https://app.akademate.com
       NEXT_TELEMETRY_DISABLED: "1"
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_FROM: ${SMTP_FROM}
+      DKIM_DOMAIN: ${DKIM_DOMAIN}
+      DKIM_SELECTOR: ${DKIM_SELECTOR}
+      DKIM_PRIVATE_KEY_PATH: ${DKIM_PRIVATE_KEY_PATH}
+    volumes:
+      - media_data:/app/apps/tenant-admin/public/media
+      - /opt/akademate/mail/dkim:/app/dkim:ro
     networks:
       - internal
       - proxy
@@ -79,4 +92,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  media_data:
     driver: local

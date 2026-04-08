@@ -4,7 +4,7 @@ import '@testing-library/jest-dom'
 import {
   MediaGallery,
   type MediaItem,
-} from '../../../app/(dashboard)/contenido/medios/components/MediaGallery'
+} from '../../../app/(app)/(dashboard)/contenido/medios/components/MediaGallery'
 
 const mockItems: MediaItem[] = [
   {

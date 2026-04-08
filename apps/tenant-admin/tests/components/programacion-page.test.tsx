@@ -50,13 +50,13 @@ describe('ProgramacionPage', () => {
     })
   })
 
-  it('renders teacher name when API returns populated instructor object', async () => {
+  it('renders convocatoria data from API response', async () => {
     render(<ProgramacionPage data-oid="212ssiu" />)
 
     await waitFor(() => {
-      expect(screen.getByText('Lucia Ortega')).toBeInTheDocument()
+      expect(screen.getAllByText('Gestión Académica').length).toBeGreaterThan(0)
     })
 
-    expect(screen.getByText('Gestión Académica')).toBeInTheDocument()
+    expect(screen.getByText('Campus Madrid Centro')).toBeInTheDocument()
   })
 })

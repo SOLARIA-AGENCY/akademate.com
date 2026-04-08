@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     // Convert File to Buffer for Payload
     const arrayBuffer = await file.arrayBuffer()
@@ -46,9 +46,8 @@ export async function POST(request: Request) {
     const created = await payload.create({
       collection: 'media',
       data: {
-        tenant: Number(auth.auth.tenantId),
         alt: formData.get('alt')?.toString() ?? file.name,
-      },
+      } as any,
       file: {
         data: buffer,
         mimetype: file.type,

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
-import EstadoSistemaPage from '../../app/(dashboard)/estado/page'
+import EstadoSistemaPage from '../../app/(app)/(dashboard)/estado/page'
 
 describe('System Status Page', () => {
   const mockFetch = vi.fn()

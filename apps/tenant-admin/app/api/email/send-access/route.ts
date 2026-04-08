@@ -15,8 +15,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'name, email, password required' }, { status: 400 })
     }
 
-    const loginUrl = `${process.env.NEXT_PUBLIC_TENANT_URL || 'https://cepformacion.akademate.com'}/auth/login`
-    const heroImageUrl = `${process.env.NEXT_PUBLIC_TENANT_URL || 'https://cepformacion.akademate.com'}/og-image.png`
+    const tenantBaseUrl = process.env.NEXT_PUBLIC_TENANT_URL?.trim() || request.nextUrl.origin
+    const loginUrl = `${tenantBaseUrl}/auth/login`
+    const heroImageUrl = `${tenantBaseUrl}/og-image.png`
 
     const { subject, html } = platformAccessEmail({
       name,

@@ -129,7 +129,7 @@ describe('QR Checkin Schema Validation', () => {
 
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid session ID')
+        expect(result.error.issues[0].message).toBe('Invalid session ID')
       }
     })
 
@@ -139,7 +139,7 @@ describe('QR Checkin Schema Validation', () => {
 
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid course run ID')
+        expect(result.error.issues[0].message).toBe('Invalid course run ID')
       }
     })
 
@@ -149,7 +149,7 @@ describe('QR Checkin Schema Validation', () => {
 
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid user ID')
+        expect(result.error.issues[0].message).toBe('Invalid user ID')
       }
     })
 
@@ -159,7 +159,7 @@ describe('QR Checkin Schema Validation', () => {
 
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid enrollment ID')
+        expect(result.error.issues[0].message).toBe('Invalid enrollment ID')
       }
     })
 

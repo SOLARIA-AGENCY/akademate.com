@@ -8,9 +8,10 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request) {
   try {
-    // 1. Verify caller is admin via cep_session
+    // 1. Verify caller is admin via session cookie (new + legacy compatible)
     const cookieStore = await cookies()
-    const sessionRaw = cookieStore.get('cep_session')?.value
+    const sessionRaw =
+      cookieStore.get('akademate_session')?.value || cookieStore.get('cep_session')?.value
     if (!sessionRaw) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
     }
@@ -55,11 +56,11 @@ export async function POST(request: Request) {
 
     // 5. Log impersonation in audit (best-effort)
     try {
-      await payload.create({
+      await (payload as any).create({
         collection: 'audit-logs',
         overrideAccess: true,
         data: {
-          action: 'impersonate',
+          action: 'update',
           actor: session.user.id ?? 'unknown',
           target: String(user.id),
           targetEmail: user.email,

@@ -94,7 +94,7 @@ describe('OpsSidebar', () => {
     expect(screen.getByText('P&L Overview')).toBeInTheDocument()
     expect(screen.getByText('Ingresos')).toBeInTheDocument()
     expect(screen.getByText('Gastos Operativos')).toBeInTheDocument()
-    expect(screen.getByText('Suscripciones')).toBeInTheDocument()
+    expect(screen.getByText('Facturación')).toBeInTheDocument()
   })
 
   it('renders Analytics section nav items', () => {
@@ -112,6 +112,7 @@ describe('OpsSidebar', () => {
     renderSidebar()
     expect(screen.getByText('Estado del Sistema')).toBeInTheDocument()
     expect(screen.getByText('API Console')).toBeInTheDocument()
+    expect(screen.getByText('API Keys')).toBeInTheDocument()
   })
 
   it('renders Operaciones section nav items', () => {
@@ -131,7 +132,7 @@ describe('OpsSidebar', () => {
       'Impersonar': '/dashboard/impersonar',
       'Estado del Sistema': '/dashboard/estado',
       'API Console': '/dashboard/api',
-      'Suscripciones': '/dashboard/suscripciones',
+      'Facturación': '/dashboard/facturacion',
       'Tickets': '/dashboard/soporte',
       'Roadmap': '/dashboard/roadmap',
     }
@@ -161,16 +162,16 @@ describe('OpsSidebar', () => {
     const allNavItems = [
       'Command Center',
       'Tenants', 'Alta / Registro', 'Impersonar',
-      'P&L Overview', 'Ingresos', 'Gastos Operativos', 'Suscripciones',
+      'P&L Overview', 'Ingresos', 'Gastos Operativos', 'Facturación',
       'Crecimiento', 'Retención & Churn',
       'Tickets',
-      'Estado del Sistema', 'API Console',
+      'Estado del Sistema', 'API Console', 'API Keys',
       'Equipo & Roles', 'Audit Log', 'Configuración', 'Roadmap',
     ]
 
     for (const item of allNavItems) {
       expect(screen.getByText(item)).toBeInTheDocument()
     }
-    expect(allNavItems).toHaveLength(17)
+    expect(allNavItems).toHaveLength(18)
   })
 })

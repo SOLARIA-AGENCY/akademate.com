@@ -9,7 +9,7 @@ const isDevLoginEnabled =
 
 const DEV_CREDENTIAL_CANDIDATES = [
   {
-    email: process.env.PAYLOAD_SUPERADMIN_EMAIL ?? 'superadmin@cepcomunicacion.com',
+    email: process.env.PAYLOAD_SUPERADMIN_EMAIL ?? 'superadmin@akademate.com',
     password: process.env.PAYLOAD_SUPERADMIN_PASSWORD ?? 'Dev12345!',
   },
   {
@@ -102,6 +102,27 @@ async function handleDevLogin(request: NextRequest) {
     path: '/',
     maxAge: 60 * 60 * 12,
   })
+
+  response.cookies.set(
+    'akademate_session',
+    JSON.stringify({
+      user: {
+        id: String(loginResult.user.id ?? ''),
+        email: String(loginResult.user.email ?? ''),
+        name: String(loginResult.user.name ?? ''),
+        role: String(loginResult.user.role ?? ''),
+        tenantId: String(loginResult.user.tenant_id ?? loginResult.user.tenantId ?? '1'),
+      },
+      token: loginResult.token,
+    }),
+    {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 12,
+    },
+  )
 
   response.cookies.set(
     'cep_session',

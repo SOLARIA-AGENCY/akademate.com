@@ -118,7 +118,7 @@ export default function LoginPage() {
           <div className="flex flex-col items-center gap-2 mb-2" data-oid="ou4cocr">
             <div className={`w-20 h-20 rounded-full bg-white shadow-lg border border-border flex items-center justify-center overflow-hidden transition-opacity duration-300 ${brandingLoading ? 'opacity-0' : 'opacity-100'}`}>
               <img
-                src={branding.logos.principal || '/logos/cep-formacion-logo.png'}
+                src={branding.logos.principal || '/logos/akademate-logo-official.png'}
                 alt={branding.academyName}
                 className="w-14 h-14 object-contain"
               />

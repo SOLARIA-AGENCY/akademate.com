@@ -35,7 +35,7 @@ async function fireCapiEvent(request: NextRequest, eventName: string, eventId: s
     accessToken,
     eventName,
     eventId,
-    eventSourceUrl: body.path ? 'https://cepformacion.akademate.com' + body.path : '',
+    eventSourceUrl: body.path ? `${process.env.NEXT_PUBLIC_TENANT_URL?.trim() || request.nextUrl.origin}${body.path}` : '',
     userData: {
       email: body.email,
       phone: body.phone,

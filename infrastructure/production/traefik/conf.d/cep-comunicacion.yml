@@ -1,0 +1,45 @@
+# Routing cepformacion.akademate.com -> tenant-admin
+# Also routes cursos.cepcomunicacion.com for Facebook Ads branding
+
+http:
+  routers:
+    cep-formacion-https:
+      rule: "Host(`cepformacion.akademate.com`)"
+      entryPoints:
+        - websecure
+      service: cep-formacion-tenant
+      tls:
+        certResolver: letsencrypt
+
+    # cursos.cepcomunicacion.com — subdominio para Ads de Facebook
+    cursos-cep-https:
+      rule: "Host(`cursos.cepcomunicacion.com`)"
+      entryPoints:
+        - websecure
+      service: cep-formacion-tenant
+      tls:
+        certResolver: letsencrypt
+
+    # Keep old domain working during transition
+    cep-comunicacion-https:
+      rule: "Host(`cepcomunicacion.akademate.com`)"
+      entryPoints:
+        - websecure
+      service: cep-formacion-tenant
+      middlewares:
+        - cep-redirect
+      tls:
+        certResolver: letsencrypt
+
+  middlewares:
+    cep-redirect:
+      redirectRegex:
+        regex: "^https://cepcomunicacion\\.akademate\\.com/(.*)"
+        replacement: "https://cepformacion.akademate.com/${1}"
+        permanent: true
+
+  services:
+    cep-formacion-tenant:
+      loadBalancer:
+        servers:
+          - url: "http://akademate-tenant:3009"

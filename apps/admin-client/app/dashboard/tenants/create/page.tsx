@@ -1,19 +1,28 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function TenantCreatePage() {
+  const router = useRouter()
   const [domain, setDomain] = useState('')
   const [name, setName] = useState('')
   const [plan, setPlan] = useState('')
   const [errors, setErrors] = useState<string[]>([])
+  const [saving, setSaving] = useState(false)
   const domainPattern = /^[a-z0-9-]+$/
   const domainError =
     domain.length > 0 && !domainPattern.test(domain)
       ? 'domain: formato inválido'
       : null
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const planLimits = {
+    starter: { limitsMaxUsers: 5, limitsMaxCourses: 20, limitsMaxLeadsPerMonth: 2000, limitsStorageQuotaMB: 10240 },
+    professional: { limitsMaxUsers: 20, limitsMaxCourses: 100, limitsMaxLeadsPerMonth: 7500, limitsStorageQuotaMB: 51200 },
+    enterprise: { limitsMaxUsers: 100, limitsMaxCourses: 500, limitsMaxLeadsPerMonth: 50000, limitsStorageQuotaMB: 204800 },
+  } as const
+
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const nextErrors: string[] = []
     if (!domain) nextErrors.push('Dominio requerido')
@@ -22,6 +31,34 @@ export default function TenantCreatePage() {
     if (domain && !domainPattern.test(domain)) nextErrors.push('domain: formato inválido')
 
     setErrors(nextErrors)
+    if (nextErrors.length > 0) return
+
+    setSaving(true)
+    try {
+      const response = await fetch('/api/ops/tenants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name,
+          slug: domain,
+          domain: `${domain}.akademate.com`,
+          ...planLimits[plan as keyof typeof planLimits],
+        }),
+      })
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}))
+        throw new Error(payload.error ?? 'No se pudo crear el tenant')
+      }
+
+      const payload = await response.json()
+      router.push(`/dashboard/tenants/${payload.doc.id}`)
+    } catch (error) {
+      setErrors([error instanceof Error ? error.message : 'No se pudo crear el tenant'])
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -89,16 +126,17 @@ export default function TenantCreatePage() {
 
         <button
           type="submit"
+          disabled={saving}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
         >
-          Save
+          {saving ? 'Guardando...' : 'Guardar'}
         </button>
         <button
           type="button"
           className="ml-2 rounded-md border px-4 py-2 text-sm font-medium"
-          onClick={() => { window.location.href = '/tenants' }}
+          onClick={() => { router.push('/dashboard/tenants') }}
         >
-          Cancel
+          Cancelar
         </button>
       </form>
     </div>

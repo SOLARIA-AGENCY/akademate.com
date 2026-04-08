@@ -42,7 +42,7 @@ describe('AppSidebar', () => {
 
   it('renders the AKADEMATE logo', () => {
     render(<AppSidebar {...defaultProps} />)
-    expect(screen.getByAltText('Akademate')).toBeInTheDocument()
+    expect(screen.getByAltText('Test Academy')).toBeInTheDocument()
   })
 
   it('renders Dashboard menu item', () => {
@@ -53,9 +53,9 @@ describe('AppSidebar', () => {
   it('renders main navigation sections', () => {
     render(<AppSidebar {...defaultProps} />)
     expect(screen.getByText('Programación')).toBeInTheDocument()
-    expect(screen.getByText('Cursos')).toBeInTheDocument()
-    expect(screen.getByText('Ciclos')).toBeInTheDocument()
-    expect(screen.getByText('Sedes')).toBeInTheDocument()
+    expect(screen.getAllByText('Cursos').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Ciclos').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Sedes').length).toBeGreaterThan(0)
   })
 
   it('does not render logout button (removed from sidebar)', () => {
@@ -76,7 +76,7 @@ describe('AppSidebar', () => {
 
   it('shows collapsed state correctly', () => {
     render(<AppSidebar {...defaultProps} isCollapsed={true} />)
-    expect(screen.getByAltText('Akademate')).toBeInTheDocument()
+    expect(screen.getByAltText('Test Academy')).toBeInTheDocument()
   })
 
   it('renders icons with brand color styles', () => {

@@ -31,7 +31,7 @@ interface CreateCampaignBody {
 }
 
 // ---------------------------------------------------------------------------
-// Meta config defaults (CEP Formacion)
+// Meta config defaults (tenant-driven with env fallback)
 // ---------------------------------------------------------------------------
 
 const META_AD_ACCOUNT = process.env.META_AD_ACCOUNT_ID || '730494526974837'
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
           const imgResult = await uploadAdImage(
             META_AD_ACCOUNT,
             accessToken,
-            `${process.env.NEXT_PUBLIC_TENANT_URL || 'https://cepformacion.akademate.com'}${(media as any).url}`,
+            `${(process.env.NEXT_PUBLIC_TENANT_URL || request.nextUrl.origin).replace(/\/$/, '')}${(media as any).url}`,
           )
           if (imgResult.success) {
             imageHash = imgResult.data!.hash

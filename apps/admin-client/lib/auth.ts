@@ -1,6 +1,12 @@
 import { betterAuth } from 'better-auth'
 import { Pool } from 'pg'
 
+const authBaseUrl = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3010'
+const authSecret =
+  process.env.BETTER_AUTH_SECRET ??
+  process.env.PAYLOAD_SECRET ??
+  'akademate-dev-auth-secret-local-only'
+
 /**
  * Better Auth — Server-side auth instance for Akademate Ops dashboard.
  *
@@ -11,6 +17,9 @@ import { Pool } from 'pg'
  * Required env: DATABASE_URL
  */
 export const auth = betterAuth({
+  baseURL: authBaseUrl,
+  secret: authSecret,
+
   database: new Pool({
     connectionString: process.env.DATABASE_URL,
   }),
@@ -38,6 +47,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     'https://admin.akademate.com',
     'http://localhost:3010',
+    authBaseUrl,
   ],
 })
 

@@ -65,6 +65,7 @@ export default function CampusVirtualOverviewPage() {
   const [enrollments, setEnrollments] = useState<EnrollmentItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isChartReady, setIsChartReady] = useState(false)
 
   const loadEnrollments = async () => {
     setLoading(true)
@@ -88,6 +89,10 @@ export default function CampusVirtualOverviewPage() {
 
   useEffect(() => {
     void loadEnrollments()
+  }, [])
+
+  useEffect(() => {
+    setIsChartReady(true)
   }, [])
 
   const kpis = useMemo(() => {
@@ -247,20 +252,24 @@ export default function CampusVirtualOverviewPage() {
             <CardDescription data-oid="x-xc:n2">Distribución inicial de progreso</CardDescription>
           </CardHeader>
           <CardContent className="h-72" data-oid="sg_m7fb">
-            <ResponsiveContainer width="100%" height="100%" data-oid="fb7t2.p">
-              <BarChart data={progressByCourseSeed} data-oid="-zgc6lz">
-                <CartesianGrid strokeDasharray="3 3" data-oid="c3c.fm8" />
-                <XAxis dataKey="course" tick={{ fontSize: 12 }} data-oid="-4w-wp:" />
-                <YAxis data-oid="sl9iudn" />
-                <Tooltip data-oid="55qksqr" />
-                <Bar
-                  dataKey="progress"
-                  fill="hsl(var(--primary))"
-                  radius={[6, 6, 0, 0]}
-                  data-oid="dm1q_4n"
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {isChartReady ? (
+              <ResponsiveContainer width="100%" height="100%" data-oid="fb7t2.p">
+                <BarChart data={progressByCourseSeed} data-oid="-zgc6lz">
+                  <CartesianGrid strokeDasharray="3 3" data-oid="c3c.fm8" />
+                  <XAxis dataKey="course" tick={{ fontSize: 12 }} data-oid="-4w-wp:" />
+                  <YAxis data-oid="sl9iudn" />
+                  <Tooltip data-oid="55qksqr" />
+                  <Bar
+                    dataKey="progress"
+                    fill="hsl(var(--primary))"
+                    radius={[6, 6, 0, 0]}
+                    data-oid="dm1q_4n"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full w-full rounded-md bg-muted/30" />
+            )}
           </CardContent>
         </Card>
       </section>

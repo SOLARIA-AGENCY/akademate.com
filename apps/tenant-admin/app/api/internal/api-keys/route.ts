@@ -61,7 +61,7 @@ async function getAuthenticatedTenantId(request: Request): Promise<{
 
     if (!token) return null
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     // Use Payload's built-in token verification
     const result = await payload.auth({
@@ -110,7 +110,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     const result = await payload.find({
       collection: 'api-keys',
@@ -219,7 +219,7 @@ export async function POST(request: Request) {
     const plainKey = generateApiKey()
     const keyHash = hashApiKey(plainKey)
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     const created = await payload.create({
       collection: 'api-keys',
@@ -227,7 +227,7 @@ export async function POST(request: Request) {
         name: name.trim(),
         key_hash: keyHash,
         scopes: scopes.map((s) => ({ scope: s })),
-        tenant: session.tenantId,
+        tenant: session.tenantId as any,
         is_active: true,
         rate_limit_per_day,
       },

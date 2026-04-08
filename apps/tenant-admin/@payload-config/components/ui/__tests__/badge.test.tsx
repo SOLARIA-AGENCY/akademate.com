@@ -48,32 +48,25 @@ describe('badgeVariants', () => {
   it('destructive variant uses destructive token', () => {
     const classes = badgeVariants({ variant: 'destructive' })
     expect(classes).toContain('bg-destructive')
-    expect(classes).toContain('text-destructive-foreground')
+    expect(classes).toContain('text-white')
   })
 
   it('success variant uses semantic green', () => {
     const classes = badgeVariants({ variant: 'success' })
-    expect(classes).toContain('bg-green-100')
-    expect(classes).toContain('text-green-800')
-    // Dark mode uses CSS class toggle — these need dark: variants
-    expect(classes).toContain('dark:bg-green-900')
-    expect(classes).toContain('dark:text-green-200')
+    expect(classes).toContain('bg-emerald-600')
+    expect(classes).toContain('text-white')
   })
 
   it('warning variant uses semantic orange', () => {
     const classes = badgeVariants({ variant: 'warning' })
-    expect(classes).toContain('bg-orange-100')
-    expect(classes).toContain('text-orange-800')
-    expect(classes).toContain('dark:bg-orange-900')
-    expect(classes).toContain('dark:text-orange-200')
+    expect(classes).toContain('bg-amber-500')
+    expect(classes).toContain('text-white')
   })
 
   it('info variant uses semantic blue', () => {
     const classes = badgeVariants({ variant: 'info' })
-    expect(classes).toContain('bg-blue-100')
-    expect(classes).toContain('text-blue-800')
-    expect(classes).toContain('dark:bg-blue-900')
-    expect(classes).toContain('dark:text-blue-200')
+    expect(classes).toContain('bg-blue-600')
+    expect(classes).toContain('text-white')
   })
 
   it('neutral variant uses semantic gray', () => {
@@ -149,8 +142,8 @@ describe('Badge component', () => {
       </Badge>
     )
     const el = container.firstChild as HTMLElement
-    expect(el.className).toContain('bg-green-100')
-    expect(el.className).toContain('text-green-800')
+    expect(el.className).toContain('bg-emerald-600')
+    expect(el.className).toContain('text-white')
   })
 
   it('renders warning variant with orange classes', () => {
@@ -160,8 +153,8 @@ describe('Badge component', () => {
       </Badge>
     )
     const el = container.firstChild as HTMLElement
-    expect(el.className).toContain('bg-orange-100')
-    expect(el.className).toContain('text-orange-800')
+    expect(el.className).toContain('bg-amber-500')
+    expect(el.className).toContain('text-white')
   })
 
   it('renders info variant with blue classes', () => {
@@ -171,8 +164,8 @@ describe('Badge component', () => {
       </Badge>
     )
     const el = container.firstChild as HTMLElement
-    expect(el.className).toContain('bg-blue-100')
-    expect(el.className).toContain('text-blue-800')
+    expect(el.className).toContain('bg-blue-600')
+    expect(el.className).toContain('text-white')
   })
 
   it('spreads additional HTML attributes', () => {

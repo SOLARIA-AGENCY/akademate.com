@@ -10,8 +10,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { desc, eq } from 'drizzle-orm'
-import { db, subscriptions } from '@/@payload-config/lib/db'
+import { queryRows } from '@/@payload-config/lib/db'
 
 /**
  * Usage meter item stored in the subscription record
@@ -81,13 +80,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Type assertion needed: db has conditional type that prevents proper inference
-    const result = await db
-      .select()
-      .from(subscriptions)
-      .where(eq(subscriptions.tenantId, validation.data.tenantId))
-      .orderBy(desc(subscriptions.updatedAt))
-      .limit(1)
-      .execute() as SubscriptionRecord[]
+    const result = await queryRows<SubscriptionRecord>(
+      `SELECT
+         id,
+         tenant_id AS "tenantId",
+         plan,
+         status,
+         stripe_subscription_id AS "stripeSubscriptionId",
+         stripe_customer_id AS "stripeCustomerId",
+         current_period_start AS "currentPeriodStart",
+         current_period_end AS "currentPeriodEnd",
+         cancel_at_period_end AS "cancelAtPeriodEnd",
+         canceled_at AS "canceledAt",
+         trial_start AS "trialStart",
+         trial_end AS "trialEnd",
+         usage_meter AS "usageMeter",
+         metadata,
+         created_at AS "createdAt",
+         updated_at AS "updatedAt"
+       FROM subscriptions
+       WHERE tenant_id = $1
+       ORDER BY updated_at DESC
+       LIMIT 1`,
+      [validation.data.tenantId]
+    )
 
     const subscription = result[0]
 
@@ -131,13 +147,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { tenantId, usage } = validation.data
 
     // Type assertion needed: db has conditional type that prevents proper inference
-    const result = await db
-      .select()
-      .from(subscriptions)
-      .where(eq(subscriptions.tenantId, tenantId))
-      .orderBy(desc(subscriptions.updatedAt))
-      .limit(1)
-      .execute() as SubscriptionRecord[]
+    const result = await queryRows<SubscriptionRecord>(
+      `SELECT
+         id,
+         tenant_id AS "tenantId",
+         plan,
+         status,
+         stripe_subscription_id AS "stripeSubscriptionId",
+         stripe_customer_id AS "stripeCustomerId",
+         current_period_start AS "currentPeriodStart",
+         current_period_end AS "currentPeriodEnd",
+         cancel_at_period_end AS "cancelAtPeriodEnd",
+         canceled_at AS "canceledAt",
+         trial_start AS "trialStart",
+         trial_end AS "trialEnd",
+         usage_meter AS "usageMeter",
+         metadata,
+         created_at AS "createdAt",
+         updated_at AS "updatedAt"
+       FROM subscriptions
+       WHERE tenant_id = $1
+       ORDER BY updated_at DESC
+       LIMIT 1`,
+      [tenantId]
+    )
 
     const subscription = result[0]
 
@@ -167,14 +200,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const nextUsage = Array.from(usageMap.values())
 
     // Type assertion needed: db has conditional type that prevents proper inference
-    await (db
-      .update(subscriptions)
-      .set({
-        usageMeter: nextUsage,
-        updatedAt: new Date(),
-      })
-      .where(eq(subscriptions.id, subscription.id))
-      .execute() as Promise<unknown>)
+    await queryRows(
+      `UPDATE subscriptions
+       SET usage_meter = $2::jsonb, updated_at = NOW()
+       WHERE id = $1`,
+      [subscription.id, JSON.stringify(nextUsage)]
+    )
 
     return NextResponse.json({
       subscriptionId: subscription.id,

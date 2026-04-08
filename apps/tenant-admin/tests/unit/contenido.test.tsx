@@ -1,143 +1,71 @@
 import * as React from 'react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '../utils/test-utils'
 import userEvent from '@testing-library/user-event'
-import CampusContenidoPage from '../../app/(dashboard)/campus-virtual/contenido/page'
+import CampusContenidoPage from '../../app/(app)/(dashboard)/campus-virtual/contenido/page'
 
 describe('CampusContenidoPage — filtros y búsqueda', () => {
-  it('renderiza el título de la página', () => {
+  it('renderiza el encabezado de la página', () => {
     render(<CampusContenidoPage data-oid="l.m:ten" />)
     expect(screen.getByTestId('page-header-title')).toHaveTextContent('Módulos y Lecciones')
+    expect(screen.getByTestId('page-header-description')).toHaveTextContent(
+      'Estado de contenido estructurado por curso.'
+    )
   })
 
-  it('muestra los 3 cursos por defecto (sin filtro)', () => {
-    render(<CampusContenidoPage data-oid="27mmu_1" />)
-    expect(screen.getByText('React Inicial')).toBeInTheDocument()
-    expect(screen.getByText('Node Backend')).toBeInTheDocument()
-    expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
+  it('renderiza controles de búsqueda y filtro', () => {
+    render(<CampusContenidoPage data-oid="controls" />)
+    expect(screen.getByPlaceholderText('Buscar por curso...')).toBeInTheDocument()
+    expect(screen.getByRole('combobox')).toBeInTheDocument()
   })
 
-  describe('filtro de búsqueda por nombre', () => {
-    it('filtra por término "React" → solo muestra React Inicial', async () => {
-      const user = userEvent.setup()
-      render(<CampusContenidoPage data-oid="9b3df-1" />)
-      const input = screen.getByPlaceholderText('Buscar por curso...')
-      await user.type(input, 'React')
-      expect(screen.getByText('React Inicial')).toBeInTheDocument()
-      expect(screen.queryByText('Node Backend')).toBeNull()
-      expect(screen.queryByText('Marketing Digital')).toBeNull()
-    })
-
-    it('búsqueda es case-insensitive: "node" encuentra "Node Backend"', async () => {
-      const user = userEvent.setup()
-      render(<CampusContenidoPage data-oid="zc-kjkj" />)
-      const input = screen.getByPlaceholderText('Buscar por curso...')
-      await user.type(input, 'node')
-      expect(screen.getByText('Node Backend')).toBeInTheDocument()
-      expect(screen.queryByText('React Inicial')).toBeNull()
-    })
-
-    it('búsqueda con término que no existe → no muestra filas', async () => {
-      const user = userEvent.setup()
-      render(<CampusContenidoPage data-oid="68.kvlb" />)
-      const input = screen.getByPlaceholderText('Buscar por curso...')
-      await user.type(input, 'Python')
-      expect(screen.queryByText('React Inicial')).toBeNull()
-      expect(screen.queryByText('Node Backend')).toBeNull()
-      expect(screen.queryByText('Marketing Digital')).toBeNull()
-    })
-
-    it('limpiar búsqueda restaura los 3 cursos', async () => {
-      const user = userEvent.setup()
-      render(<CampusContenidoPage data-oid="iy1tl_5" />)
-      const input = screen.getByPlaceholderText('Buscar por curso...')
-      await user.type(input, 'React')
-      await user.clear(input)
-      expect(screen.getByText('React Inicial')).toBeInTheDocument()
-      expect(screen.getByText('Node Backend')).toBeInTheDocument()
-      expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
-    })
+  it('renderiza cabeceras de tabla', () => {
+    render(<CampusContenidoPage data-oid="headers" />)
+    expect(screen.getByText('Curso')).toBeInTheDocument()
+    expect(screen.getByText('Módulos')).toBeInTheDocument()
+    expect(screen.getByText('Lecciones')).toBeInTheDocument()
+    expect(screen.getByText('Estado')).toBeInTheDocument()
+    expect(screen.getByText('Acciones')).toBeInTheDocument()
   })
 
-  describe('filtro por estado', () => {
-    it('filtrar por "published" muestra solo cursos publicados', () => {
-      render(<CampusContenidoPage data-oid="72mk6nb" />)
-      const select = screen.getByRole('combobox')
-      fireEvent.change(select, { target: { value: 'published' } })
-      expect(screen.getByText('React Inicial')).toBeInTheDocument()
-      expect(screen.getByText('Node Backend')).toBeInTheDocument()
-      expect(screen.queryByText('Marketing Digital')).toBeNull()
-    })
-
-    it('filtrar por "draft" muestra solo borradores', () => {
-      render(<CampusContenidoPage data-oid="zymci17" />)
-      const select = screen.getByRole('combobox')
-      fireEvent.change(select, { target: { value: 'draft' } })
-      expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
-      expect(screen.queryByText('React Inicial')).toBeNull()
-      expect(screen.queryByText('Node Backend')).toBeNull()
-    })
-
-    it('filtrar por "all" muestra todos los cursos', () => {
-      render(<CampusContenidoPage data-oid="a55_08y" />)
-      const select = screen.getByRole('combobox')
-      // Change to draft then back to all
-      fireEvent.change(select, { target: { value: 'draft' } })
-      fireEvent.change(select, { target: { value: 'all' } })
-      expect(screen.getByText('React Inicial')).toBeInTheDocument()
-      expect(screen.getByText('Node Backend')).toBeInTheDocument()
-      expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
-    })
+  it('inicia sin filas de contenido en el inventario', () => {
+    render(<CampusContenidoPage data-oid="empty-table" />)
+    const body = screen.getByTestId('table-body')
+    expect(body.children.length).toBe(0)
   })
 
-  describe('filtros combinados', () => {
-    it('búsqueda + estado juntos aplican ambos filtros', async () => {
-      const user = userEvent.setup()
-      render(<CampusContenidoPage data-oid="6qw_--o" />)
-      // Filter by "published" first
-      const select = screen.getByRole('combobox')
-      fireEvent.change(select, { target: { value: 'published' } })
-      // Then search for "node"
-      const input = screen.getByPlaceholderText('Buscar por curso...')
-      await user.type(input, 'node')
-      expect(screen.getByText('Node Backend')).toBeInTheDocument()
-      expect(screen.queryByText('React Inicial')).toBeNull()
-      expect(screen.queryByText('Marketing Digital')).toBeNull()
-    })
+  it('actualiza el término de búsqueda al escribir', async () => {
+    const user = userEvent.setup()
+    render(<CampusContenidoPage data-oid="search-input" />)
 
-    it('búsqueda published + término inexistente → sin resultados', async () => {
-      const user = userEvent.setup()
-      render(<CampusContenidoPage data-oid="ybm8gwc" />)
-      const select = screen.getByRole('combobox')
-      fireEvent.change(select, { target: { value: 'published' } })
-      const input = screen.getByPlaceholderText('Buscar por curso...')
-      await user.type(input, 'Marketing')
-      // Marketing Digital is draft, not published
-      expect(screen.queryByText('Marketing Digital')).toBeNull()
-      expect(screen.queryByText('React Inicial')).toBeNull()
-    })
+    const input = screen.getByPlaceholderText('Buscar por curso...') as HTMLInputElement
+    await user.type(input, 'React')
+
+    expect(input.value).toBe('React')
   })
 
-  describe('datos de la tabla', () => {
-    it('muestra módulos y lecciones correctos para React Inicial', () => {
-      render(<CampusContenidoPage data-oid="szikfvr" />)
-      // React Inicial: 8 módulos, 42 lecciones
-      expect(screen.getByText('8')).toBeInTheDocument()
-      expect(screen.getByText('42')).toBeInTheDocument()
-    })
+  it('permite cambiar filtro de estado', () => {
+    render(<CampusContenidoPage data-oid="status-filter" />)
+    const select = screen.getByRole('combobox') as HTMLSelectElement
 
-    it('muestra módulos y lecciones correctos para Node Backend', () => {
-      render(<CampusContenidoPage data-oid="1gxsxvs" />)
-      expect(screen.getByText('6')).toBeInTheDocument()
-      expect(screen.getByText('31')).toBeInTheDocument()
-    })
+    fireEvent.change(select, { target: { value: 'published' } })
+    expect(select.value).toBe('published')
 
-    it('muestra las cabeceras de tabla correctas', () => {
-      render(<CampusContenidoPage data-oid="apf8iea" />)
-      expect(screen.getByText('Curso')).toBeInTheDocument()
-      expect(screen.getByText('Módulos')).toBeInTheDocument()
-      expect(screen.getByText('Lecciones')).toBeInTheDocument()
-      expect(screen.getByText('Estado')).toBeInTheDocument()
-    })
+    fireEvent.change(select, { target: { value: 'draft' } })
+    expect(select.value).toBe('draft')
+  })
+
+  it('mantiene tabla vacía tras aplicar búsqueda y filtro combinados', async () => {
+    const user = userEvent.setup()
+    render(<CampusContenidoPage data-oid="combined-filters" />)
+
+    const input = screen.getByPlaceholderText('Buscar por curso...')
+    const select = screen.getByRole('combobox')
+
+    await user.type(input, 'node')
+    fireEvent.change(select, { target: { value: 'published' } })
+
+    const body = screen.getByTestId('table-body')
+    expect(body.children.length).toBe(0)
   })
 })

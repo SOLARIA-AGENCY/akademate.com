@@ -6,23 +6,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET, PATCH } from '../route'
 
-const { mockDbOperations, resetDbMocks, setExecuteQueue } = vi.hoisted(() => {
+const { mockQueryRows, resetDbMocks, setExecuteQueue } = vi.hoisted(() => {
   let executeQueue: unknown[] = []
 
-  const mockDbOperations = {
-    select: vi.fn().mockReturnThis(),
-    from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    set: vi.fn().mockReturnThis(),
-    execute: vi.fn(async () => executeQueue.shift()),
-  }
+  const mockQueryRows = vi.fn(async () => executeQueue.shift())
 
   const resetDbMocks = () => {
     vi.clearAllMocks()
     executeQueue = []
-    mockDbOperations.execute.mockImplementation(async () => executeQueue.shift())
+    mockQueryRows.mockImplementation(async () => executeQueue.shift())
   }
 
   const setExecuteQueue = (queue: unknown[]) => {
@@ -30,20 +22,14 @@ const { mockDbOperations, resetDbMocks, setExecuteQueue } = vi.hoisted(() => {
   }
 
   return {
-    mockDbOperations,
+    mockQueryRows,
     resetDbMocks,
     setExecuteQueue,
   }
 })
 
 vi.mock('@/@payload-config/lib/db', () => ({
-  db: mockDbOperations,
-  featureFlags: {
-    key: 'key',
-  },
-  tenants: {
-    id: 'id',
-  },
+  queryRows: mockQueryRows,
 }))
 
 const validTenantId = '550e8400-e29b-41d4-a716-446655440000'
@@ -167,11 +153,13 @@ describe('PATCH /api/feature-flags', () => {
 
     expect(response.status).toBe(200)
     expect(data.overrideValue).toBe(true)
-    expect(mockDbOperations.update).toHaveBeenCalled()
-    expect(mockDbOperations.set).toHaveBeenCalledWith(
-      expect.objectContaining({
-        overrides: [{ tenantId: validTenantId, value: true }],
-      })
+    expect(mockQueryRows).toHaveBeenCalledTimes(2)
+    expect(mockQueryRows).toHaveBeenLastCalledWith(
+      expect.stringContaining('UPDATE feature_flags'),
+      [
+        'beta-feature',
+        JSON.stringify([{ tenantId: validTenantId, value: true }]),
+      ]
     )
   })
 })

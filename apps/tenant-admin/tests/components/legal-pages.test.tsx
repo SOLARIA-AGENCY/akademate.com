@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import PrivacidadPage from '../../app/legal/privacidad/page'
-import TerminosPage from '../../app/legal/terminos/page'
-import CookiesPage from '../../app/legal/cookies/page'
+import PrivacidadPage from '../../app/(app)/legal/privacidad/page'
+import TerminosPage from '../../app/(app)/legal/terminos/page'
+import CookiesPage from '../../app/(app)/legal/cookies/page'
 
 describe('Legal Pages', () => {
   describe('Privacy Policy Page', () => {

@@ -28,8 +28,14 @@ const mockTenants = [
 
 function setupFetchMock(tenants = mockTenants) {
   ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+    ok: true,
     json: () => Promise.resolve({ docs: tenants }),
   })
+}
+
+async function renderReady() {
+  render(<ImpersonarPage />)
+  await screen.findByText('2 tenants')
 }
 
 describe('ImpersonarPage', () => {
@@ -38,123 +44,95 @@ describe('ImpersonarPage', () => {
   })
 
   it('renders page title "Impersonar Tenant"', async () => {
-    render(<ImpersonarPage />)
+    await renderReady()
     expect(screen.getByText('Impersonar Tenant')).toBeInTheDocument()
   })
 
   it('renders page description', async () => {
-    render(<ImpersonarPage />)
+    await renderReady()
     expect(
-      screen.getByText('Accede al dashboard de un tenant como super-administrador')
+      screen.getByText('Acceso auditado a dashboard y admin de tenant')
     ).toBeInTheDocument()
   })
 
   it('shows warning banner about elevated privileges', async () => {
-    render(<ImpersonarPage />)
+    await renderReady()
     expect(screen.getByText('Acceso con privilegios elevados')).toBeInTheDocument()
     expect(
-      screen.getByText(/Al impersonar un tenant, tendrás acceso completo/)
+      screen.getByText('Todas las acciones quedan auditadas por tenant, URL de destino y operador.')
     ).toBeInTheDocument()
   })
 
   it('shows search input', async () => {
-    render(<ImpersonarPage />)
+    await renderReady()
     expect(
       screen.getByPlaceholderText('Buscar por nombre, slug o email del admin...')
     ).toBeInTheDocument()
   })
 
   it('shows view toggle buttons', async () => {
-    render(<ImpersonarPage />)
-    expect(screen.getByTitle('Vista de lista')).toBeInTheDocument()
-    expect(screen.getByTitle('Vista de tarjetas')).toBeInTheDocument()
+    await renderReady()
+    expect(screen.getByRole('button', { name: 'Lista' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Tarjetas' })).toBeInTheDocument()
   })
 
   it('defaults to list view', async () => {
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      // In list view, the table header columns should be visible
-      expect(screen.getByText('Tenant')).toBeInTheDocument()
-      expect(screen.getByText('Acciones')).toBeInTheDocument()
-    })
+    await renderReady()
+    expect(screen.getByText('Tenant')).toBeInTheDocument()
+    expect(screen.getByText('Acciones')).toBeInTheDocument()
   })
 
   it('shows table with correct column headers in list view', async () => {
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Tenant')).toBeInTheDocument()
-      expect(screen.getByText('Dominio')).toBeInTheDocument()
-      expect(screen.getByText('Estado')).toBeInTheDocument()
-      expect(screen.getByText('Acciones')).toBeInTheDocument()
-    })
+    await renderReady()
+    expect(screen.getByText('Tenant')).toBeInTheDocument()
+    expect(screen.getByText('Dominio')).toBeInTheDocument()
+    expect(screen.getByText('Estado')).toBeInTheDocument()
+    expect(screen.getByText('Acciones')).toBeInTheDocument()
   })
 
   it('shows tenant data in the table', async () => {
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      expect(screen.getByText('CEP Comunicación')).toBeInTheDocument()
-      expect(screen.getByText('cepcomunicacion')).toBeInTheDocument()
-      expect(screen.getByText('Academia Test')).toBeInTheDocument()
-      expect(screen.getByText('academia-test')).toBeInTheDocument()
-    })
+    await renderReady()
+    expect(screen.getByText('CEP Comunicación')).toBeInTheDocument()
+    expect(screen.getByText('cepcomunicacion')).toBeInTheDocument()
+    expect(screen.getByText('Academia Test')).toBeInTheDocument()
+    expect(screen.getByText('academia-test')).toBeInTheDocument()
   })
 
   it('shows Dashboard and Payload action buttons for each tenant', async () => {
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      const dashboardButtons = screen.getAllByText('Dashboard')
-      const payloadButtons = screen.getAllByText('Payload')
-      expect(dashboardButtons).toHaveLength(2)
-      expect(payloadButtons).toHaveLength(2)
-    })
+    await renderReady()
+    const dashboardButtons = screen.getAllByText('Dashboard')
+    const payloadButtons = screen.getAllByText('Payload')
+    expect(dashboardButtons).toHaveLength(2)
+    expect(payloadButtons).toHaveLength(2)
   })
 
   it('shows active/inactive status badges', async () => {
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Activo')).toBeInTheDocument()
-      expect(screen.getByText('Inactivo')).toBeInTheDocument()
-    })
+    await renderReady()
+    expect(screen.getByText('Activo')).toBeInTheDocument()
+    expect(screen.getByText('Inactivo')).toBeInTheDocument()
   })
 
   it('shows tenant count', async () => {
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      expect(screen.getByText('2 tenants')).toBeInTheDocument()
-    })
+    await renderReady()
+    expect(screen.getByText('2 tenants')).toBeInTheDocument()
   })
 
   it('switches to card view when cards toggle is clicked', async () => {
     const user = userEvent.setup()
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      expect(screen.getByText('CEP Comunicación')).toBeInTheDocument()
-    })
-
-    const cardsToggle = screen.getByTitle('Vista de tarjetas')
+    await renderReady()
+    const cardsToggle = screen.getByRole('button', { name: 'Tarjetas' })
     await user.click(cardsToggle)
 
-    // In card view, we see "Dashboard CMS" instead of just "Dashboard"
     await waitFor(() => {
-      expect(screen.getAllByText('Dashboard CMS')).toHaveLength(2)
-      expect(screen.getAllByText(/Payload Admin/)).toHaveLength(2)
+      expect(screen.queryByText('Tenant')).not.toBeInTheDocument()
+      expect(screen.getAllByText('Dashboard')).toHaveLength(2)
+      expect(screen.getAllByText('Payload')).toHaveLength(2)
     })
   })
 
   it('filters tenants by search term', async () => {
     const user = userEvent.setup()
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      expect(screen.getByText('CEP Comunicación')).toBeInTheDocument()
-    })
+    await renderReady()
 
     const searchInput = screen.getByPlaceholderText(
       'Buscar por nombre, slug o email del admin...'
@@ -171,17 +149,14 @@ describe('ImpersonarPage', () => {
 
   it('shows confirmation modal when Dashboard button is clicked', async () => {
     const user = userEvent.setup()
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      expect(screen.getAllByText('Dashboard')).toHaveLength(2)
-    })
+    await renderReady()
 
     const dashboardButtons = screen.getAllByText('Dashboard')
     await user.click(dashboardButtons[0])
 
     await waitFor(() => {
-      expect(screen.getByText('Acceso Dashboard CMS')).toBeInTheDocument()
+      expect(screen.getByText('Destino previsto')).toBeInTheDocument()
+      expect(screen.getByText('Motivo (opcional)')).toBeInTheDocument()
       expect(screen.getByText('Cancelar')).toBeInTheDocument()
       expect(screen.getByText('Abrir Dashboard')).toBeInTheDocument()
     })
@@ -189,28 +164,21 @@ describe('ImpersonarPage', () => {
 
   it('shows confirmation modal when Payload button is clicked', async () => {
     const user = userEvent.setup()
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      expect(screen.getAllByText('Payload')).toHaveLength(2)
-    })
+    await renderReady()
 
     const payloadButtons = screen.getAllByText('Payload')
     await user.click(payloadButtons[0])
 
     await waitFor(() => {
-      expect(screen.getByText('Acceso Payload Admin (Base de Datos)')).toBeInTheDocument()
+      expect(screen.getByText('Destino previsto')).toBeInTheDocument()
       expect(screen.getByText('Abrir Payload Admin')).toBeInTheDocument()
+      expect(screen.getByText('https://cepformacion.akademate.com/admin')).toBeInTheDocument()
     })
   })
 
   it('closes modal when Cancelar is clicked', async () => {
     const user = userEvent.setup()
-    render(<ImpersonarPage />)
-
-    await waitFor(() => {
-      expect(screen.getAllByText('Dashboard')).toHaveLength(2)
-    })
+    await renderReady()
 
     await user.click(screen.getAllByText('Dashboard')[0])
 
@@ -221,7 +189,7 @@ describe('ImpersonarPage', () => {
     await user.click(screen.getByText('Cancelar'))
 
     await waitFor(() => {
-      expect(screen.queryByText('Acceso Dashboard CMS')).not.toBeInTheDocument()
+      expect(screen.queryByText('Abrir Dashboard')).not.toBeInTheDocument()
     })
   })
 

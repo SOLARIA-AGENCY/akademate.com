@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Card,
@@ -74,6 +75,12 @@ function statusLabel(status: string): string {
 }
 
 export default function ClientDashboardMockupPage() {
+  const [isChartReady, setIsChartReady] = useState(false)
+
+  useEffect(() => {
+    setIsChartReady(true)
+  }, [])
+
   return (
     <div className="space-y-6" data-oid="awr.:7b">
       <PageHeader
@@ -131,20 +138,24 @@ export default function ClientDashboardMockupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="h-80" data-oid="bd.smj3">
-            <ResponsiveContainer width="100%" height="100%" data-oid="7vamcun">
-              <BarChart data={funnelData} data-oid="4mvlwvw">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" data-oid="m5hak5h" />
-                <XAxis dataKey="etapa" data-oid="fc7jflo" />
-                <YAxis data-oid="y5p.ck1" />
-                <Tooltip data-oid="qtuqa-." />
-                <Bar
-                  dataKey="total"
-                  fill="hsl(var(--primary))"
-                  radius={[6, 6, 0, 0]}
-                  data-oid="82pkh7l"
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {isChartReady ? (
+              <ResponsiveContainer width="100%" height="100%" data-oid="7vamcun">
+                <BarChart data={funnelData} data-oid="4mvlwvw">
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" data-oid="m5hak5h" />
+                  <XAxis dataKey="etapa" data-oid="fc7jflo" />
+                  <YAxis data-oid="y5p.ck1" />
+                  <Tooltip data-oid="qtuqa-." />
+                  <Bar
+                    dataKey="total"
+                    fill="hsl(var(--primary))"
+                    radius={[6, 6, 0, 0]}
+                    data-oid="82pkh7l"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full w-full rounded-md bg-muted/30" />
+            )}
           </CardContent>
         </Card>
 

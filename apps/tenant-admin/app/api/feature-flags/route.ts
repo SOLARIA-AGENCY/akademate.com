@@ -9,8 +9,7 @@
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { eq } from 'drizzle-orm'
-import { db, featureFlags, tenants } from '@/@payload-config/lib/db'
+import { queryRows } from '@/@payload-config/lib/db'
 
 /** Override entry for a specific tenant */
 interface FlagOverride {
@@ -130,12 +129,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Type assertion needed: db has conditional type that prevents proper inference
-    const tenantResults = await db
-      .select()
-      .from(tenants)
-      .where(eq(tenants.id, validation.data.tenantId))
-      .limit(1)
-      .execute() as Tenant[]
+    const tenantResults = await queryRows<Tenant>(
+      `SELECT
+         id,
+         name,
+         slug,
+         plan,
+         status,
+         mrr,
+         domains,
+         branding,
+         created_at AS "createdAt",
+         updated_at AS "updatedAt"
+       FROM tenants
+       WHERE id = $1
+       LIMIT 1`,
+      [validation.data.tenantId]
+    )
 
     const tenant = tenantResults[0]
 
@@ -144,7 +154,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Type assertion needed: db has conditional type that prevents proper inference
-    const flags = await db.select().from(featureFlags).execute() as FeatureFlag[]
+    const flags = await queryRows<FeatureFlag>(
+      `SELECT
+         id,
+         key,
+         type,
+         default_value AS "defaultValue",
+         overrides,
+         plan_requirement AS "planRequirement"
+       FROM feature_flags`
+    )
     const evaluated = flags.map((flag: FeatureFlag) =>
       evaluateFlag(flag, tenant.plan, validation.data.tenantId)
     )
@@ -182,12 +201,19 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     const { tenantId, key, value } = validation.data
 
     // Type assertion needed: db has conditional type that prevents proper inference
-    const flagResults = await db
-      .select()
-      .from(featureFlags)
-      .where(eq(featureFlags.key, key))
-      .limit(1)
-      .execute() as FeatureFlag[]
+    const flagResults = await queryRows<FeatureFlag>(
+      `SELECT
+         id,
+         key,
+         type,
+         default_value AS "defaultValue",
+         overrides,
+         plan_requirement AS "planRequirement"
+       FROM feature_flags
+       WHERE key = $1
+       LIMIT 1`,
+      [key]
+    )
 
     const flag = flagResults[0]
 
@@ -208,11 +234,12 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     }
 
     // Type assertion needed: db has conditional type that prevents proper inference
-    await (db
-      .update(featureFlags)
-      .set({ overrides: newOverrides })
-      .where(eq(featureFlags.key, key))
-      .execute() as Promise<unknown>)
+    await queryRows(
+      `UPDATE feature_flags
+       SET overrides = $2::jsonb
+       WHERE key = $1`,
+      [key, JSON.stringify(newOverrides)]
+    )
 
     return NextResponse.json({
       key,

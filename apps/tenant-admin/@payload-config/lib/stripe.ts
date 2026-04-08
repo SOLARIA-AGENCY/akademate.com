@@ -533,7 +533,7 @@ export async function createCheckoutSession(options: {
   const priceId = `price_${options.planTier}_${options.interval}` // TODO: Map to actual Stripe Price ID
 
   try {
-    const sessionParams: Stripe.Checkout.SessionCreateParams = {
+    const sessionParams: Parameters<typeof client.checkout.sessions.create>[0] = {
       mode: 'subscription',
       line_items: [
         {

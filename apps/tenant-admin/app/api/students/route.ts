@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     const doc = await payload.create({
       collection: 'students',
-      data: body,
+      data: body as any,
       overrideAccess: true,
     })
 

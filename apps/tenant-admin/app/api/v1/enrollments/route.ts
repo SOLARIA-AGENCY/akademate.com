@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const offset = Math.max(Number(url.searchParams.get('offset') ?? '0'), 0)
     const page = Math.floor(offset / limit) + 1
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     const result = await payload.find({
       collection: 'enrollments',
@@ -87,16 +87,16 @@ export async function POST(request: Request) {
       )
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     const created = await payload.create({
       collection: 'enrollments',
       data: {
-        student: studentId,
-        course_run: courseRunId,
-        status: 'active',
+        student: studentId as any,
+        course_run: courseRunId as any,
+        status: 'confirmed',
         enrollment_date: new Date().toISOString(),
-      },
+      } as any,
     })
 
     return NextResponse.json(

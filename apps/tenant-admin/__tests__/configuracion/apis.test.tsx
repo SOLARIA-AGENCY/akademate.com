@@ -1,56 +1,71 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import APIsPage from '@/app/(dashboard)/configuracion/apis/page'
 
-describe('APIs & Webhooks Page', () => {
-  it('renders APIs page correctly', () => {
-    render(<APIsPage data-oid="9akf8k2" />)
+function mockApiKeysSuccess(keys: unknown[] = []) {
+  ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+    new Response(JSON.stringify({ data: keys }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }),
+  )
+}
+
+function mockApiKeysError(status = 500, statusText = 'Internal Server Error') {
+  ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+    new Response(JSON.stringify({ error: 'boom' }), {
+      status,
+      statusText,
+      headers: { 'Content-Type': 'application/json' },
+    }),
+  )
+}
+
+describe('APIs Page', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('renders header and primary action', async () => {
+    mockApiKeysSuccess([])
+    render(<APIsPage />)
 
     expect(screen.getByText('APIs y Webhooks')).toBeInTheDocument()
-    expect(screen.getByText('Nueva Clave API')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Nueva API Key/i })).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(screen.getByText('No hay claves de API creadas')).toBeInTheDocument()
+    })
   })
 
-  it('displays API keys section', () => {
-    render(<APIsPage data-oid="lkr1sie" />)
+  it('displays API keys section', async () => {
+    mockApiKeysSuccess([])
+    render(<APIsPage />)
 
     expect(screen.getByText('Claves de API')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('No hay claves de API creadas')).toBeInTheDocument()
+    })
   })
 
-  it('displays Facebook Pixel section', () => {
-    render(<APIsPage data-oid="2zoqg-r" />)
+  it('opens create API key modal', async () => {
+    mockApiKeysSuccess([])
+    render(<APIsPage />)
 
-    expect(screen.getByText('Facebook Pixel')).toBeInTheDocument()
-  })
-
-  it('displays Google Analytics section', () => {
-    render(<APIsPage data-oid="uz_oiym" />)
-
-    expect(screen.getByText(/google analytics.*tags/i)).toBeInTheDocument()
-  })
-
-  it('displays MCP section', () => {
-    render(<APIsPage data-oid="0:rj_0f" />)
-
-    expect(screen.getByText(/mcp.*model context protocol/i)).toBeInTheDocument()
-  })
-
-  it('displays webhooks section', () => {
-    render(<APIsPage data-oid="ub4_rcf" />)
-
-    expect(screen.getByText('Webhooks')).toBeInTheDocument()
-  })
-
-  it('opens create API key modal', () => {
-    render(<APIsPage data-oid="oguwvgo" />)
-
-    const createButton = screen.getByText('Nueva Clave API')
+    const createButton = screen.getByRole('button', { name: /Nueva API Key/i })
     fireEvent.click(createButton)
 
-    expect(screen.getByText('Crear Nueva Clave API')).toBeInTheDocument()
+    expect(screen.getByText('Permisos')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Generar clave/i })).toBeInTheDocument()
   })
 
-  it('has save configuration button', () => {
-    render(<APIsPage data-oid="ix:rbpm" />)
+  it('shows fetch error and retry control', async () => {
+    mockApiKeysError()
+    render(<APIsPage />)
 
-    expect(screen.getByText('Guardar Configuración')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/Error 500/i)).toBeInTheDocument()
+    })
+    expect(screen.getByRole('button', { name: /Reintentar/i })).toBeInTheDocument()
   })
 })

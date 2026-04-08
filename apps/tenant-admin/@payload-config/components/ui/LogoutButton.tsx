@@ -14,6 +14,7 @@ export function LogoutButton() {
       console.error('Server logout failed:', error)
     }
     // Clear non-sensitive user metadata from localStorage
+    localStorage.removeItem('akademate-user')
     localStorage.removeItem('cep_user')
 
     // Redirect to login

@@ -1,19 +1,8 @@
 'use client';
 
-/**
- * useSystemStatus Hook
- *
- * Real-time system status monitoring for admin dashboard.
- * Replaces polling with WebSocket subscription.
- */
-
 import { useState, useEffect, useCallback } from 'react';
 import { useSocketContextOptional } from '@akademate/realtime/context';
 import type { SystemStatusPayload } from '@akademate/realtime';
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 export interface ServiceStatus {
   name: string;
@@ -50,98 +39,112 @@ export interface SystemStatusData {
   overallStatus: 'operational' | 'degraded' | 'outage';
   avgResponseTime: number | null;
   avgUptime: number | null;
-  dataSource: 'placeholder' | 'real';
+  dataSource: 'degraded' | 'real';
 }
 
-// ============================================================================
-// MOCK DATA (fallback when no real-time connection)
-// ============================================================================
+interface ServiceHealthApiResponse {
+  overall: 'operational' | 'degraded' | 'outage';
+  services: Array<{
+    name: string;
+    status: 'operational' | 'degraded' | 'outage';
+    latencyMs: number | null;
+    uptime: number;
+    message: string;
+  }>;
+  checkedAt: string;
+}
 
-const MOCK_SERVICES: ServiceStatus[] = [
+interface ServerMetricsApiResponse {
+  cpu?: number;
+  memory?: { percent?: number };
+  uptime?: { seconds?: number };
+}
+
+const DEGRADED_SERVICES: ServiceStatus[] = [
   {
-    name: 'API Principal',
-    status: 'unknown' as unknown as ServiceStatus['status'],
+    name: 'Monitoreo de servicios',
+    status: 'degraded',
     latency: null,
     uptime: 0,
     lastCheck: new Date().toISOString(),
-    details: 'Sin datos de monitorización',
-  },
-  {
-    name: 'Base de Datos PostgreSQL',
-    status: 'unknown' as unknown as ServiceStatus['status'],
-    latency: null,
-    uptime: 0,
-    lastCheck: new Date().toISOString(),
-    details: 'Sin datos de monitorización',
-  },
-  {
-    name: 'Redis Cache',
-    status: 'unknown' as unknown as ServiceStatus['status'],
-    latency: null,
-    uptime: 0,
-    lastCheck: new Date().toISOString(),
-    details: 'Sin datos de monitorización',
-  },
-  {
-    name: 'Cola de Trabajos (BullMQ)',
-    status: 'unknown' as unknown as ServiceStatus['status'],
-    latency: null,
-    uptime: 0,
-    lastCheck: new Date().toISOString(),
-    details: 'Sin datos de monitorización',
-  },
-  {
-    name: 'Almacenamiento (S3)',
-    status: 'unknown' as unknown as ServiceStatus['status'],
-    latency: null,
-    uptime: 0,
-    lastCheck: new Date().toISOString(),
-    details: 'Sin datos de monitorización',
-  },
-  {
-    name: 'Email (SMTP)',
-    status: 'unknown' as unknown as ServiceStatus['status'],
-    latency: null,
-    uptime: 0,
-    lastCheck: new Date().toISOString(),
-    details: 'Sin datos de monitorización',
-  },
-  {
-    name: 'WhatsApp Cloud API',
-    status: 'unknown' as unknown as ServiceStatus['status'],
-    latency: null,
-    uptime: 0,
-    lastCheck: new Date().toISOString(),
-    details: 'Sin datos de monitorización',
-  },
-  {
-    name: 'CDN (Cloudflare)',
-    status: 'unknown' as unknown as ServiceStatus['status'],
-    latency: null,
-    uptime: 0,
-    lastCheck: new Date().toISOString(),
-    details: 'Sin datos de monitorización',
+    details: 'No hay datos en tiempo real disponibles',
   },
 ];
 
-const MOCK_METRICS: (SystemMetric & { monitoring: boolean })[] = [
-  { name: 'CPU', value: 0, max: 100, unit: '%', status: 'healthy', monitoring: false },
-  { name: 'Memoria', value: 0, max: 100, unit: '%', status: 'healthy', monitoring: false },
-  { name: 'Disco', value: 0, max: 100, unit: '%', status: 'healthy', monitoring: false },
-  { name: 'Conexiones DB', value: 0, max: 100, unit: '', status: 'healthy', monitoring: false },
-  { name: 'Requests/min', value: 0, max: 5000, unit: '', status: 'healthy', monitoring: false },
-  { name: 'Errores/hora', value: 0, max: 50, unit: '', status: 'healthy', monitoring: false },
+const DEGRADED_METRICS: SystemMetric[] = [
+  { name: 'CPU', value: 0, max: 100, unit: '%', status: 'warning' },
+  { name: 'Memoria', value: 0, max: 100, unit: '%', status: 'warning' },
+  { name: 'Uptime', value: 0, max: 100, unit: 'h', status: 'healthy' },
 ];
 
-const MOCK_INCIDENTS: Incident[] = [];
+function mapServiceStatus(
+  status: 'operational' | 'degraded' | 'down' | 'maintenance' | 'outage'
+): ServiceStatus['status'] {
+  if (status === 'down') return 'outage';
+  return status;
+}
 
-// ============================================================================
-// HOOK
-// ============================================================================
+function metricStatus(value: number, warnFrom: number, criticalFrom: number): SystemMetric['status'] {
+  if (value >= criticalFrom) return 'critical';
+  if (value >= warnFrom) return 'warning';
+  return 'healthy';
+}
+
+function mapApiData(
+  health: ServiceHealthApiResponse | null,
+  metrics: ServerMetricsApiResponse | null,
+): SystemStatusData {
+  if (!health) {
+    return {
+      services: DEGRADED_SERVICES,
+      metrics: DEGRADED_METRICS,
+      incidents: [],
+      overallStatus: 'degraded',
+      avgResponseTime: null,
+      avgUptime: null,
+      dataSource: 'degraded',
+    };
+  }
+
+  const mappedServices: ServiceStatus[] = health.services.map((service) => ({
+    name: service.name,
+    status: mapServiceStatus(service.status),
+    latency: service.latencyMs,
+    uptime: service.uptime ?? 0,
+    lastCheck: health.checkedAt,
+    details: service.message ?? '',
+  }));
+
+  const latencyValues = mappedServices.map((service) => service.latency).filter((value): value is number => value !== null);
+  const avgResponseTime = latencyValues.length > 0
+    ? Math.round(latencyValues.reduce((sum, value) => sum + value, 0) / latencyValues.length)
+    : null;
+  const avgUptime = mappedServices.length > 0
+    ? Number((mappedServices.reduce((sum, service) => sum + service.uptime, 0) / mappedServices.length).toFixed(2))
+    : null;
+
+  const cpuValue = Math.round(metrics?.cpu ?? 0);
+  const memoryValue = Math.round(metrics?.memory?.percent ?? 0);
+  const uptimeHours = Math.max(0, Math.round((metrics?.uptime?.seconds ?? 0) / 3600));
+
+  return {
+    services: mappedServices.length > 0 ? mappedServices : DEGRADED_SERVICES,
+    metrics: [
+      { name: 'CPU', value: cpuValue, max: 100, unit: '%', status: metricStatus(cpuValue, 70, 85) },
+      { name: 'Memoria', value: memoryValue, max: 100, unit: '%', status: metricStatus(memoryValue, 75, 90) },
+      { name: 'Uptime', value: uptimeHours, max: Math.max(24, uptimeHours), unit: 'h', status: 'healthy' },
+    ],
+    incidents: [],
+    overallStatus: health.overall,
+    avgResponseTime,
+    avgUptime,
+    dataSource: 'real',
+  };
+}
 
 export interface UseSystemStatusOptions {
   enableRealtime?: boolean;
-  autoRefreshInterval?: number; // Fallback polling interval in ms
+  autoRefreshInterval?: number;
 }
 
 export interface UseSystemStatusReturn {
@@ -152,82 +155,93 @@ export interface UseSystemStatusReturn {
   refresh: () => void;
 }
 
-
-export function useSystemStatus(
-  options: UseSystemStatusOptions = {}
-): UseSystemStatusReturn {
+export function useSystemStatus(options: UseSystemStatusOptions = {}): UseSystemStatusReturn {
   const { enableRealtime = true, autoRefreshInterval = 30000 } = options;
-
-  // Get socket context (optional - returns null if not in provider)
   const socketContext = useSocketContextOptional();
   const socket = socketContext?.socket ?? null;
   const isConnected = socketContext?.isConnected ?? false;
 
-  const [loading, _setLoading] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(() => new Date());
+  const [loading, setLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [data, setData] = useState<SystemStatusData>({
-    services: MOCK_SERVICES,
-    metrics: MOCK_METRICS,
-    incidents: MOCK_INCIDENTS,
-    overallStatus: 'operational',
+    services: DEGRADED_SERVICES,
+    metrics: DEGRADED_METRICS,
+    incidents: [],
+    overallStatus: 'degraded',
     avgResponseTime: null,
     avgUptime: null,
-    dataSource: 'placeholder',
+    dataSource: 'degraded',
   });
 
-  // Manual refresh function
-  const refresh = useCallback(() => {
-    // In real implementation, this would fetch from API
-    // For now, just update timestamp
-    setLastUpdate(new Date());
+  const fetchStatusFromApi = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [healthRes, metricsRes] = await Promise.all([
+        fetch('/api/ops/service-health', { cache: 'no-store', credentials: 'include' }),
+        fetch('/api/ops/server-metrics', { cache: 'no-store', credentials: 'include' }),
+      ]);
+
+      const [healthData, metricsData] = await Promise.all([
+        healthRes.ok ? (healthRes.json() as Promise<ServiceHealthApiResponse>) : Promise.resolve(null),
+        metricsRes.ok ? (metricsRes.json() as Promise<ServerMetricsApiResponse>) : Promise.resolve(null),
+      ]);
+
+      setData(mapApiData(healthData, metricsData));
+    } catch {
+      setData((prev) => ({
+        ...prev,
+        dataSource: 'degraded',
+        overallStatus: 'degraded',
+        services: prev.services.length > 0 ? prev.services : DEGRADED_SERVICES,
+      }));
+    } finally {
+      setLoading(false);
+      setLastUpdate(new Date());
+    }
   }, []);
 
+  const refresh = useCallback(() => {
+    void fetchStatusFromApi();
+  }, [fetchStatusFromApi]);
 
-  // Subscribe to real-time system status updates
+  useEffect(() => {
+    void fetchStatusFromApi();
+  }, [fetchStatusFromApi]);
+
   useEffect(() => {
     if (!socket || !enableRealtime) return;
 
     const room = 'system:status';
+    socket.emit('subscribe:room', room);
 
-    // Subscribe to system status room
-    socket.emit('subscribe:room', room, (success: boolean) => {
-      if (success) {
-        console.log('[useSystemStatus] Subscribed to real-time updates');
-      }
-    });
-
-    // Map payload status to our local format
-    const mapStatus = (status: 'operational' | 'degraded' | 'down' | 'maintenance'): ServiceStatus['status'] => {
-      if (status === 'down') return 'outage';
-      return status;
-    };
-
-    // Handle system status updates
     const handleSystemStatus = (payload: SystemStatusPayload) => {
-      // Map payload to our local format
-      const mappedServices: ServiceStatus[] = payload.services.map((s) => ({
-        name: s.name,
-        status: mapStatus(s.status),
-        latency: s.latency ?? null,
-        uptime: s.uptime ?? 99.9,
-        lastCheck: s.lastChecked,
-        details: s.details ?? '',
+      const mappedServices: ServiceStatus[] = payload.services.map((service) => ({
+        name: service.name,
+        status: mapServiceStatus(service.status),
+        latency: service.latency ?? null,
+        uptime: service.uptime ?? 0,
+        lastCheck: service.lastChecked,
+        details: service.details ?? '',
       }));
 
-      // Calculate averages from services
-      const avgLatency = mappedServices.reduce((sum, s) => sum + (s.latency ?? 0), 0) / mappedServices.length;
-      const avgUptime = mappedServices.reduce((sum, s) => sum + s.uptime, 0) / mappedServices.length;
+      const latencyValues = mappedServices.map((service) => service.latency).filter((value): value is number => value !== null);
+      const avgResponseTime = latencyValues.length > 0
+        ? Math.round(latencyValues.reduce((sum, value) => sum + value, 0) / latencyValues.length)
+        : null;
+      const avgUptime = mappedServices.length > 0
+        ? Number((mappedServices.reduce((sum, service) => sum + service.uptime, 0) / mappedServices.length).toFixed(2))
+        : null;
 
       setData((prev) => ({
         ...prev,
         services: mappedServices.length > 0 ? mappedServices : prev.services,
-        overallStatus: mapStatus(payload.overallStatus) as 'operational' | 'degraded' | 'outage',
-        avgResponseTime: avgLatency,
-        avgUptime: avgUptime,
+        overallStatus: mapServiceStatus(payload.overallStatus) as 'operational' | 'degraded' | 'outage',
+        avgResponseTime,
+        avgUptime,
         dataSource: 'real',
       }));
-
       setLastUpdate(new Date());
+      setLoading(false);
     };
 
     socket.on('system:status', handleSystemStatus);
@@ -238,20 +252,17 @@ export function useSystemStatus(
     };
   }, [socket, enableRealtime]);
 
-  // Fallback polling when not connected to WebSocket
   useEffect(() => {
     if (isConnected && enableRealtime) {
-      // WebSocket is handling updates, no need for polling
       return;
     }
 
-    // Fallback: poll for updates
     const interval = setInterval(() => {
-      setLastUpdate(new Date());
+      void fetchStatusFromApi();
     }, autoRefreshInterval);
 
     return () => clearInterval(interval);
-  }, [isConnected, enableRealtime, autoRefreshInterval]);
+  }, [autoRefreshInterval, fetchStatusFromApi, isConnected, enableRealtime]);
 
   return {
     data,

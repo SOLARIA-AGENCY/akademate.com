@@ -4,27 +4,27 @@ import '../globals.css'
 import { ClientLayout } from '../ClientLayout'
 
 export const metadata: Metadata = {
-  title: 'CEP Formacion — Centro de Formacion Profesional',
-  description: 'Ciclos formativos oficiales de Grado Medio y Superior en Tenerife. Modalidad semipresencial, practicas en empresa, financiacion disponible.',
+  title: 'Akademate — Plataforma Educativa',
+  description: 'Gestion academica, operaciones y campus virtual para centros de formacion.',
   icons: {
     icon: [
-      { url: '/logos/cep-formacion-isotipo.svg', type: 'image/svg+xml' },
-      { url: '/logos/cep-formacion-logo.png', sizes: '32x32', type: 'image/png' },
+      { url: '/logos/akademate-favicon.svg', type: 'image/svg+xml' },
+      { url: '/logos/akademate-logo-official.png', sizes: '32x32', type: 'image/png' },
     ],
-    apple: '/logos/cep-formacion-logo.png',
-    shortcut: '/logos/cep-formacion-isotipo.svg',
+    apple: '/logos/akademate-logo-official.png',
+    shortcut: '/logos/akademate-favicon.svg',
   },
   openGraph: {
-    title: 'CEP Formacion — Formacion Profesional en Tenerife',
-    description: 'Ciclos formativos oficiales. Semipresencial, practicas en empresa, financiacion disponible.',
-    url: 'https://cepformacion.akademate.com',
-    siteName: 'CEP Formacion',
+    title: 'Akademate — Plataforma Educativa',
+    description: 'SaaS multitenant para gestion academica y operativa.',
+    url: 'https://akademate.com',
+    siteName: 'Akademate',
     images: [
       {
-        url: 'https://cepformacion.akademate.com/og-image.png',
+        url: 'https://akademate.com/og-image.png',
         width: 1000,
         height: 1000,
-        alt: 'CEP Formacion',
+        alt: 'Akademate',
       },
     ],
     locale: 'es_ES',
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CEP Formacion — Formacion Profesional en Tenerife',
-    description: 'Ciclos formativos oficiales. Semipresencial, practicas en empresa.',
-    images: ['https://cepformacion.akademate.com/og-image.png'],
+    title: 'Akademate — Plataforma Educativa',
+    description: 'SaaS multitenant para centros de formacion.',
+    images: ['https://akademate.com/og-image.png'],
   },
 }
 

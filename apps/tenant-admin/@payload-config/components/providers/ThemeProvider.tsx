@@ -15,6 +15,8 @@ const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = React.useState<Theme>('system')
   const [mounted, setMounted] = React.useState(false)
+  const THEME_KEY = 'akademate-theme'
+  const LEGACY_THEME_KEY = 'cep-theme'
 
   // Get system preference
   const getSystemTheme = (): 'light' | 'dark' => {
@@ -28,7 +30,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Initialize theme from localStorage
   React.useEffect(() => {
     setMounted(true)
-    const stored = localStorage.getItem('cep-theme') as Theme | null
+    const stored =
+      (localStorage.getItem(THEME_KEY) as Theme | null) ??
+      (localStorage.getItem(LEGACY_THEME_KEY) as Theme | null)
     if (stored) {
       setThemeState(stored)
     }
@@ -37,7 +41,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Update theme
   const setTheme = React.useCallback((newTheme: Theme) => {
     setThemeState(newTheme)
-    localStorage.setItem('cep-theme', newTheme)
+    localStorage.setItem(THEME_KEY, newTheme)
   }, [])
 
   // Apply theme to document

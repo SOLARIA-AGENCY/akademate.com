@@ -1,0 +1,24 @@
+http:
+  routers:
+    uptime-kuma:
+      rule: "Host(`status.akademate.com`)"
+      entrypoints:
+        - websecure
+      service: uptime-kuma-svc
+      middlewares:
+        - kuma-headers
+      tls:
+        certresolver: letsencrypt
+
+  middlewares:
+    kuma-headers:
+      headers:
+        customResponseHeaders:
+          X-Frame-Options: ""
+        contentSecurityPolicy: "frame-ancestors 'self' https://admin.akademate.com"
+
+  services:
+    uptime-kuma-svc:
+      loadBalancer:
+        servers:
+          - url: "http://uptime-kuma:3001"

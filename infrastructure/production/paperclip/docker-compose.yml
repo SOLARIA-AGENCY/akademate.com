@@ -1,0 +1,32 @@
+services:
+  paperclip:
+    build: .
+    container_name: paperclip
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - paperclip-home:/root/.paperclip
+    environment:
+      - NODE_ENV=production
+      - PORT=3100
+      - HOST=0.0.0.0
+      - PAPERCLIP_DEPLOYMENT_MODE=authenticated
+      - PAPERCLIP_AGENT_JWT_SECRET=${PAPERCLIP_AGENT_JWT_SECRET}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - BETTER_AUTH_BASE_URL=http://100.112.153.111:3100
+      - PAPERCLIP_ALLOWED_HOSTNAMES=100.112.153.111,paperclip.akademate.com,localhost
+      - DATABASE_URL=${DATABASE_URL}
+    networks:
+      - proxy
+      - db
+
+volumes:
+  paperclip-home:
+
+networks:
+  proxy:
+    external: true
+  db:
+    name: tenant-admin_internal
+    external: true

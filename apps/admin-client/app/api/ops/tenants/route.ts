@@ -1,107 +1,85 @@
 import { NextResponse } from 'next/server'
-import { getDb } from '@/lib/db'
+import { z } from 'zod'
+import { logRequest } from '@/lib/api-logger'
+import { createTenant, listTenants } from '@/lib/ops/tenants'
 
 export const dynamic = 'force-dynamic'
 
+const tenantsListSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(200).default(100),
+  page: z.coerce.number().int().min(1).default(1),
+  search: z.string().trim().optional(),
+})
+
+const tenantCreateSchema = z.object({
+  name: z.string().trim().min(1),
+  slug: z.string().trim().min(2).regex(/^[a-z0-9-]+$/),
+  domain: z.string().trim().optional().or(z.literal('')),
+  contactEmail: z.string().email().optional().or(z.literal('')),
+  contactPhone: z.string().trim().optional().or(z.literal('')),
+  notes: z.string().trim().optional().or(z.literal('')),
+  limitsMaxUsers: z.coerce.number().int().min(1).default(50),
+  limitsMaxCourses: z.coerce.number().int().min(1).default(100),
+  limitsMaxLeadsPerMonth: z.coerce.number().int().min(1).default(5000),
+  limitsStorageQuotaMB: z.coerce.number().int().min(128).default(10240),
+})
+
 export async function GET(request: Request) {
-  const db = getDb()
+  const start = Date.now()
+  const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? undefined
   const { searchParams } = new URL(request.url)
-  const limit = parseInt(searchParams.get('limit') ?? '100', 10)
-  const page = parseInt(searchParams.get('page') ?? '1', 10)
-  const offset = (page - 1) * limit
+  const validation = tenantsListSchema.safeParse({
+    limit: searchParams.get('limit') ?? undefined,
+    page: searchParams.get('page') ?? undefined,
+    search: searchParams.get('search') ?? undefined,
+  })
+
+  if (!validation.success) {
+    logRequest({ method: 'GET', path: '/api/ops/tenants', status: 400, latencyMs: Date.now() - start, ip })
+    return NextResponse.json({ error: 'Parámetros inválidos', details: validation.error.flatten() }, { status: 400 })
+  }
 
   try {
-    const [countResult, rowsResult] = await Promise.all([
-      db.query('SELECT COUNT(*) AS total FROM tenants'),
-      db.query(
-        `SELECT id, name, slug, domain, active,
-                contact_email, contact_phone,
-                limits_max_users, limits_max_courses, limits_max_leads_per_month,
-                limits_storage_quota_m_b, notes,
-                created_at, updated_at
-         FROM tenants
-         ORDER BY created_at DESC
-         LIMIT $1 OFFSET $2`,
-        [limit, offset],
-      ),
-    ])
-
-    const total = parseInt(countResult.rows[0]?.total ?? '0', 10)
-    const docs = rowsResult.rows.map((r) => ({
-      id: r.id,
-      name: r.name,
-      slug: r.slug,
-      domain: r.domain,
-      active: r.active,
-      contactEmail: r.contact_email,
-      contactPhone: r.contact_phone,
-      limits: {
-        maxUsers: r.limits_max_users,
-        maxCourses: r.limits_max_courses,
-        maxLeadsPerMonth: r.limits_max_leads_per_month,
-        storageQuotaMB: r.limits_storage_quota_m_b,
-      },
-      notes: r.notes,
-      createdAt: r.created_at,
-      updatedAt: r.updated_at,
-    }))
-
-    return NextResponse.json({ docs, totalDocs: total, limit, page })
+    const result = await listTenants(validation.data)
+    logRequest({ method: 'GET', path: '/api/ops/tenants', status: 200, latencyMs: Date.now() - start, ip })
+    return NextResponse.json(result)
   } catch (error) {
     console.error('[ops/tenants] DB error', error)
+    logRequest({ method: 'GET', path: '/api/ops/tenants', status: 500, latencyMs: Date.now() - start, ip })
     return NextResponse.json({ error: 'Error al consultar tenants' }, { status: 500 })
   }
 }
 
 export async function POST(request: Request) {
-  const db = getDb()
+  const start = Date.now()
+  const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? undefined
   try {
     const body = await request.json()
-    const {
-      name,
-      slug,
-      domain,
-      contactEmail,
-      contactPhone,
-      notes,
-      limitsMaxUsers = 50,
-      limitsMaxCourses = 100,
-      limitsMaxLeadsPerMonth = 5000,
-      limitsStorageQuotaMB = 10240,
-    } = body as {
-      name: string
-      slug: string
-      domain?: string
-      contactEmail?: string
-      contactPhone?: string
-      notes?: string
-      limitsMaxUsers?: number
-      limitsMaxCourses?: number
-      limitsMaxLeadsPerMonth?: number
-      limitsStorageQuotaMB?: number
+    const validation = tenantCreateSchema.safeParse(body)
+
+    if (!validation.success) {
+      logRequest({ method: 'POST', path: '/api/ops/tenants', status: 400, latencyMs: Date.now() - start, ip })
+      return NextResponse.json({ error: 'Datos inválidos', details: validation.error.flatten() }, { status: 400 })
     }
 
-    if (!name || !slug) {
-      return NextResponse.json({ error: 'name y slug son requeridos' }, { status: 400 })
-    }
+    const result = await createTenant({
+      ...validation.data,
+      domain: validation.data.domain || null,
+      contactEmail: validation.data.contactEmail || null,
+      contactPhone: validation.data.contactPhone || null,
+      notes: validation.data.notes || null,
+    })
 
-    const result = await db.query(
-      `INSERT INTO tenants (name, slug, domain, contact_email, contact_phone, notes,
-        limits_max_users, limits_max_courses, limits_max_leads_per_month, limits_storage_quota_m_b,
-        active, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true, NOW(), NOW())
-       RETURNING id, name, slug`,
-      [name, slug, domain ?? null, contactEmail ?? null, contactPhone ?? null, notes ?? null,
-       limitsMaxUsers, limitsMaxCourses, limitsMaxLeadsPerMonth, limitsStorageQuotaMB],
-    )
-
-    return NextResponse.json({ doc: result.rows[0] }, { status: 201 })
+    logRequest({ method: 'POST', path: '/api/ops/tenants', status: 201, latencyMs: Date.now() - start, ip, tenantId: result.id })
+    return NextResponse.json({ doc: result }, { status: 201 })
   } catch (error: unknown) {
     const pgError = error as { code?: string }
     if (pgError.code === '23505') {
+      logRequest({ method: 'POST', path: '/api/ops/tenants', status: 409, latencyMs: Date.now() - start, ip })
       return NextResponse.json({ error: 'El slug ya existe' }, { status: 409 })
     }
     console.error('[ops/tenants POST] DB error', error)
+    logRequest({ method: 'POST', path: '/api/ops/tenants', status: 500, latencyMs: Date.now() - start, ip })
     return NextResponse.json({ error: 'Error al crear tenant' }, { status: 500 })
   }
 }

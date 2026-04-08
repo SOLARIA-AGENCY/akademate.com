@@ -6,11 +6,13 @@ import { Moon, Sun } from 'lucide-react'
 export function ThemeToggle() {
   const [isDark, setIsDark] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
+  const THEME_KEY = 'akademate-theme'
+  const LEGACY_THEME_KEY = 'cep-theme'
 
   React.useEffect(() => {
     setMounted(true)
     // Check initial theme from localStorage or system preference
-    const stored = localStorage.getItem('cep-theme')
+    const stored = localStorage.getItem(THEME_KEY) ?? localStorage.getItem(LEGACY_THEME_KEY)
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const isCurrentlyDark = stored === 'dark' || (!stored && systemDark)
 
@@ -21,7 +23,7 @@ export function ThemeToggle() {
   const toggleTheme = () => {
     const newIsDark = !isDark
     setIsDark(newIsDark)
-    localStorage.setItem('cep-theme', newIsDark ? 'dark' : 'light')
+    localStorage.setItem(THEME_KEY, newIsDark ? 'dark' : 'light')
     document.documentElement.classList.toggle('dark', newIsDark)
   }
 

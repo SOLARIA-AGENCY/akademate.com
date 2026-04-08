@@ -10,7 +10,7 @@
  *   SMTP_FROM       — Default sender
  *   DKIM_PRIVATE_KEY — DKIM private key (PEM format, base64 encoded or file path)
  *   DKIM_SELECTOR   — DKIM selector (default: akademate)
- *   DKIM_DOMAIN     — DKIM domain (default: cepcomunicacion.com)
+ *   DKIM_DOMAIN     — DKIM domain (default: akademate.com)
  */
 
 import nodemailer from 'nodemailer'
@@ -18,7 +18,7 @@ import fs from 'fs'
 
 // DKIM configuration
 const DKIM_SELECTOR = process.env.DKIM_SELECTOR || 'akademate'
-const DKIM_DOMAIN = process.env.DKIM_DOMAIN || 'cepcomunicacion.com'
+const DKIM_DOMAIN = process.env.DKIM_DOMAIN || 'akademate.com'
 
 function getDkimKey(): string | null {
   // Try env var first
@@ -27,9 +27,9 @@ function getDkimKey(): string | null {
   // Try file path (Docker volume mount)
   const keyPaths = [
     process.env.DKIM_PRIVATE_KEY_PATH || '',
-    '/app/dkim/cepcomunicacion.key',
-    '/opt/akademate/mail/dkim/cepcomunicacion.key',
-    './dkim/cepcomunicacion.key',
+    '/app/dkim/akademate.key',
+    '/opt/akademate/mail/dkim/akademate.key',
+    './dkim/akademate.key',
   ].filter(Boolean)
   for (const p of keyPaths) {
     try {
@@ -75,7 +75,8 @@ const transporter = nodemailer.createTransport({
   ...dkimConfig,
 } as any)
 
-const DEFAULT_FROM = process.env.SMTP_FROM || `CEP Formacion <noreply@cepcomunicacion.com>`
+const DEFAULT_FROM = process.env.SMTP_FROM || 'Akademate <noreply@akademate.com>'
+const DEFAULT_REPLY_TO = process.env.SMTP_REPLY_TO || 'soporte@akademate.com'
 
 export interface SendMailOptions {
   to: string
@@ -92,7 +93,7 @@ export async function sendMail(options: SendMailOptions): Promise<{ success: boo
       to: options.to,
       subject: options.subject,
       html: options.html,
-      replyTo: options.replyTo || 'info@cepcomunicacion.com',
+      replyTo: options.replyTo || DEFAULT_REPLY_TO,
     })
     console.log(`[email] Sent to ${options.to}: ${info.messageId}`)
     return { success: true, messageId: info.messageId }

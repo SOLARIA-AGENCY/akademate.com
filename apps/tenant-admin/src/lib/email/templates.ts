@@ -6,7 +6,7 @@
  * to support multi-tenant white-label emails.
  */
 
-interface BrandingConfig {
+export interface BrandingConfig {
   academyName: string
   logoUrl: string
   primaryColor: string
@@ -14,10 +14,10 @@ interface BrandingConfig {
 }
 
 const DEFAULT_BRANDING: BrandingConfig = {
-  academyName: 'CEP FORMACION',
-  logoUrl: 'https://cepformacion.akademate.com/logos/cep-formacion-logo.png',
-  primaryColor: '#cc0000',
-  siteUrl: 'https://cepformacion.akademate.com',
+  academyName: 'Akademate',
+  logoUrl: `${process.env.NEXT_PUBLIC_TENANT_URL || 'https://akademate.com'}/logos/akademate-logo-official.png`,
+  primaryColor: '#0066CC',
+  siteUrl: process.env.NEXT_PUBLIC_TENANT_URL || 'https://akademate.com',
 }
 
 // ---------------------------------------------------------------------------
@@ -408,4 +408,3 @@ export function platformAccessEmail(params: {
 }
 
 export { DEFAULT_BRANDING }
-export type { BrandingConfig }

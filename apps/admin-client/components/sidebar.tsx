@@ -56,7 +56,7 @@ const financeItems = [
   { name: 'P&L Overview', href: '/dashboard/finanzas', icon: DollarSign },
   { name: 'Ingresos', href: '/dashboard/finanzas/ingresos', icon: TrendingUp },
   { name: 'Gastos Operativos', href: '/dashboard/finanzas/gastos', icon: Receipt },
-  { name: 'Suscripciones', href: '/dashboard/suscripciones', icon: Repeat },
+  { name: 'Facturación', href: '/dashboard/facturacion', icon: Repeat },
 ]
 
 const analyticsItems = [

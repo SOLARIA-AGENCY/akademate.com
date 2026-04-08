@@ -4,7 +4,7 @@
  */
 
 import { drizzle } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
+import postgres, { type Sql } from 'postgres'
 import { schema, subscriptions, invoices, paymentMethods, paymentTransactions, tenants, users, memberships, featureFlags } from '../../../../packages/db/src/schema'
 
 /**
@@ -28,6 +28,8 @@ const queryClient = databaseUrl
     })
   : null
 
+export type RawDbClient = Sql<Record<string, unknown>>
+
 /**
  * Drizzle ORM instance with full schema
  * Use this for all database operations
@@ -44,11 +46,43 @@ const missingDbProxy = new Proxy(
 ) as unknown as ReturnType<typeof drizzle>
 
 export const db = queryClient ? drizzle(queryClient, { schema }) : missingDbProxy
+export const rawDb = (queryClient ?? missingDbProxy) as unknown as RawDbClient
 
 /**
  * Export table references for convenience
  */
 export { subscriptions, invoices, paymentMethods, paymentTransactions, tenants, users, memberships, featureFlags }
+
+function ensureRawDb(): RawDbClient {
+  if (!queryClient) {
+    throw new Error(
+      'DATABASE_URL environment variable is not set. Please configure database connection.'
+    )
+  }
+
+  return queryClient as RawDbClient
+}
+
+export async function queryRows<T = Record<string, unknown>>(
+  query: string,
+  params: unknown[] = []
+): Promise<T[]> {
+  return (await ensureRawDb().unsafe(query, params)) as unknown as T[]
+}
+
+export async function queryFirst<T = Record<string, unknown>>(
+  query: string,
+  params: unknown[] = []
+): Promise<T | undefined> {
+  const rows = await queryRows<T>(query, params)
+  return rows[0]
+}
+
+export async function withTransaction<T>(
+  callback: (tx: RawDbClient) => Promise<T>
+): Promise<T> {
+  return ensureRawDb().begin(async (tx) => callback(tx as unknown as RawDbClient)) as unknown as Promise<T>
+}
 
 /**
  * Graceful shutdown helper

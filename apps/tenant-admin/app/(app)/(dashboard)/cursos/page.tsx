@@ -32,7 +32,7 @@ type ViewMode = 'grid' | 'list'
 // TODO: Import from Payload API
 // import { plantillasCursosData, plantillasStats } from '@payload-config/data/mockCourseTemplatesData'
 
-import type { PlantillaCurso } from '../../../types'
+import type { PlantillaCurso } from '../../../../types'
 
 // TypeScript interfaces
 interface ApiResponse {

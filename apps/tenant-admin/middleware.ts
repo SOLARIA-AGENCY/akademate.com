@@ -215,7 +215,7 @@ export function middleware(request: NextRequest) {
     const clientIP = getClientIP(request)
 
     // Determine rate limit tier
-    let rateLimit = RATE_LIMITS.standard
+    let rateLimit: { windowMs: number; maxRequests: number } = RATE_LIMITS.standard
     if (authEndpoints.some(ep => pathname.startsWith(ep))) {
       rateLimit = RATE_LIMITS.auth
     } else if (bulkEndpoints.some(ep => pathname.startsWith(ep))) {

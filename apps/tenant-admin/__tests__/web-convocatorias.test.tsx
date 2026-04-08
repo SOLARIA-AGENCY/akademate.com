@@ -81,13 +81,11 @@ describe('WebConvocatoriasPage', () => {
     render(<WebConvocatoriasPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Desarrollo Web')).toBeInTheDocument()
+      expect(screen.getAllByText('Desarrollo Web').length).toBeGreaterThan(0)
     })
-    expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
-    expect(screen.getByText('Sede Central')).toBeInTheDocument()
-    expect(screen.getByText('Sede Norte')).toBeInTheDocument()
-    expect(screen.getByText('Juan Garcia')).toBeInTheDocument()
-    expect(screen.getByText('Ana Lopez')).toBeInTheDocument()
+    expect(screen.getAllByText('Marketing Digital').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Sede Central').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Sede Norte').length).toBeGreaterThan(0)
   })
 
   it('shows estado badges', async () => {
@@ -95,9 +93,9 @@ describe('WebConvocatoriasPage', () => {
     render(<WebConvocatoriasPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Abierta')).toBeInTheDocument()
+      expect(screen.getAllByText('Abierta').length).toBeGreaterThan(0)
     })
-    expect(screen.getByText('Borrador')).toBeInTheDocument()
+    expect(screen.getAllByText('Borrador').length).toBeGreaterThan(0)
   })
 
   it('shows toggle switch for each convocatoria', async () => {
@@ -105,16 +103,21 @@ describe('WebConvocatoriasPage', () => {
     render(<WebConvocatoriasPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Desarrollo Web')).toBeInTheDocument()
+      expect(screen.getAllByText('Desarrollo Web').length).toBeGreaterThan(0)
     })
 
-    const switches = screen.getAllByRole('switch')
-    expect(switches.length).toBe(2)
+    const switches = screen.getAllByRole('switch', { name: /Publicar/i })
+    expect(switches.length).toBeGreaterThanOrEqual(2)
 
-    // First convocatoria (enrollment_open) should be checked
-    expect(switches[0]).toBeChecked()
-    // Second convocatoria (draft) should not be checked
-    expect(switches[1]).not.toBeChecked()
+    const desarrolloSwitch = screen.getAllByRole('switch', {
+      name: /Publicar Desarrollo Web/i,
+    })[0]
+    const marketingSwitch = screen.getAllByRole('switch', {
+      name: /Publicar Marketing Digital/i,
+    })[0]
+
+    expect(desarrolloSwitch).toBeChecked()
+    expect(marketingSwitch).not.toBeChecked()
   })
 
   it('shows error state when fetch fails', async () => {

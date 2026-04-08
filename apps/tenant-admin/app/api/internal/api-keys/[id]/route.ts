@@ -60,7 +60,7 @@ async function getAuthenticatedTenantId(): Promise<{
 
     if (!token) return null
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     const result = await payload.auth({
       collection: 'users',
@@ -96,7 +96,7 @@ async function getAuthenticatedTenantId(): Promise<{
 
 async function getKeyForTenant(keyId: string, tenantId: string): Promise<ApiKeyDoc | null> {
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     const doc = await payload.findByID({
       collection: 'api-keys',
@@ -188,7 +188,7 @@ export async function PATCH(
   }
 
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     const updated = await payload.update({
       collection: 'api-keys',
@@ -250,7 +250,7 @@ export async function DELETE(
   const hardDelete = searchParams.get('hard') === 'true'
 
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     if (hardDelete) {
       await payload.delete({

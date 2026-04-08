@@ -1,0 +1,15 @@
+http:
+  routers:
+    paperclip-https:
+      rule: "Host(`paperclip.akademate.com`)"
+      entrypoints:
+        - websecure
+      service: paperclip-svc
+      tls:
+        certresolver: letsencrypt
+
+  services:
+    paperclip-svc:
+      loadBalancer:
+        servers:
+          - url: "http://paperclip:3100"

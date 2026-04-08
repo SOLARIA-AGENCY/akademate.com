@@ -527,15 +527,21 @@ describe('listCampaigns', () => {
 // ---------------------------------------------------------------------------
 
 describe('buildLandingUrl', () => {
+  const expectedBase = (
+    process.env.NEXT_PUBLIC_TENANT_URL ||
+    process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+    'https://akademate.com'
+  ).replace(/\/$/, '')
+
   it('builds correct landing URL', () => {
     expect(buildLandingUrl('SC-2026-001')).toBe(
-      'https://cursos.cepcomunicacion.com/p/convocatorias/SC-2026-001',
+      `${expectedBase}/p/convocatorias/SC-2026-001`,
     )
   })
 
   it('handles special characters in code', () => {
     expect(buildLandingUrl('SC-2026-SPECIAL')).toBe(
-      'https://cursos.cepcomunicacion.com/p/convocatorias/SC-2026-SPECIAL',
+      `${expectedBase}/p/convocatorias/SC-2026-SPECIAL`,
     )
   })
 })

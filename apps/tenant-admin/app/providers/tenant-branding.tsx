@@ -32,22 +32,22 @@ type TenantBrandingContextValue = {
 }
 
 const DEFAULT_BRANDING: TenantBranding = {
-  academyName: 'CEP FORMACION',
+  academyName: 'Akademate',
   logos: {
-    principal: '/logos/cep-formacion-logo.png',
-    oscuro: '/logos/cep-formacion-logo.png',
-    claro: '/logos/cep-formacion-logo.png',
-    favicon: '/logos/cep-formacion-logo.png',
+    principal: '/logos/akademate-logo-official.png',
+    oscuro: '/logos/akademate-logo-official.png',
+    claro: '/logos/akademate-logo-official.png',
+    favicon: '/logos/akademate-favicon.svg',
   },
   theme: {
-    primary: '#cc0000',
+    primary: '#0066CC',
     secondary: '#1a1a2e',
-    accent: '#cc0000',
+    accent: '#0088FF',
     success: '#22c55e',
     warning: '#f59e0b',
     danger: '#ef4444',
   },
-  tenantId: process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '1',
+  tenantId: process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? 'default',
 }
 
 const TenantBrandingContext = React.createContext<TenantBrandingContextValue | undefined>(undefined)
@@ -107,18 +107,19 @@ export function TenantBrandingProvider({ children }: { children: React.ReactNode
   const [loading, setLoading] = React.useState(true)
 
   const refresh = React.useCallback(async () => {
-    const tenantId = DEFAULT_BRANDING.tenantId
+    const tenantId = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID?.trim() || null
+    const tenantQuery = tenantId ? `&tenantId=${tenantId}` : ''
     setLoading(true)
     try {
       const [logosRes, academyRes, themeRes] = await Promise.all([
-        fetch(`/api/config?section=logos&tenantId=${tenantId}`, { cache: 'no-store' }),
-        fetch(`/api/config?section=academia&tenantId=${tenantId}`, { cache: 'no-store' }),
-        fetch(`/api/config?section=personalizacion&tenantId=${tenantId}`, { cache: 'no-store' }),
+        fetch(`/api/config?section=logos${tenantQuery}`, { cache: 'no-store' }),
+        fetch(`/api/config?section=academia${tenantQuery}`, { cache: 'no-store' }),
+        fetch(`/api/config?section=personalizacion${tenantQuery}`, { cache: 'no-store' }),
       ])
 
       const nextBranding: TenantBranding = {
         ...DEFAULT_BRANDING,
-        tenantId,
+        tenantId: tenantId || DEFAULT_BRANDING.tenantId,
       }
 
       if (logosRes.ok) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
 
 interface Tenant {
@@ -10,26 +10,34 @@ interface Tenant {
   domain: string | null;
   active: boolean;
   contactEmail: string | null;
-  limits: {
-    maxUsers: number;
-    maxCourses: number;
+  limits?: {
+    maxUsers?: number | null;
+    maxCourses?: number | null;
   };
   createdAt: string;
 }
 
 type AccessType = 'dashboard' | 'payload';
 
-const TENANT_ADMIN_URL =
-  process.env.NEXT_PUBLIC_TENANT_ADMIN_URL ?? 'http://akademate-tenant:3009';
+const FALLBACK_TENANT_BASE = process.env.NEXT_PUBLIC_TENANT_ADMIN_URL ?? 'http://akademate-tenant:3009';
 
-function getTenantDashboardUrl(tenant: Tenant): string {
-  if (tenant.domain) return `https://${tenant.domain}`;
-  return `${TENANT_ADMIN_URL}`;
+function normalizeBaseUrl(input: string): string {
+  const value = input.trim();
+  if (!value) return FALLBACK_TENANT_BASE;
+  if (value.startsWith('http://') || value.startsWith('https://')) return value.replace(/\/$/, '');
+  return `https://${value}`.replace(/\/$/, '');
 }
 
-function getTenantPayloadUrl(tenant: Tenant): string {
-  if (tenant.domain) return `https://${tenant.domain}/admin`;
-  return `${TENANT_ADMIN_URL}/admin`;
+function getPreviewUrl(tenant: Tenant, accessType: AccessType): string {
+  const base = tenant.domain ? normalizeBaseUrl(tenant.domain) : normalizeBaseUrl(FALLBACK_TENANT_BASE);
+  return accessType === 'payload' ? `${base}/admin` : base;
+}
+
+function getEnvironment(tenant: Tenant): 'production' | 'staging' | 'development' {
+  const base = getPreviewUrl(tenant, 'dashboard');
+  if (base.includes('localhost') || base.includes('127.0.0.1') || base.startsWith('http://')) return 'development';
+  if (base.includes('staging') || base.includes('preview') || base.includes('dev.')) return 'staging';
+  return 'production';
 }
 
 export default function ImpersonarPage() {
@@ -38,83 +46,107 @@ export default function ImpersonarPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [accessType, setAccessType] = useState<AccessType>('dashboard');
+  const [reason, setReason] = useState('');
   const [isImpersonating, setIsImpersonating] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('list');
+  const [error, setError] = useState<string | null>(null);
+  const [lastResult, setLastResult] = useState<{
+    reachable: boolean;
+    status: number | null;
+    checkedAt: string;
+    url: string;
+  } | null>(null);
 
   useEffect(() => {
     fetch('/api/ops/tenants?limit=100')
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data) => setTenants(Array.isArray(data.docs) ? data.docs : []))
       .catch(() => setTenants([]))
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredTenants = tenants.filter(
-    (t) =>
-      t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (t.contactEmail ?? '').toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredTenants = useMemo(
+    () =>
+      tenants.filter(
+        (tenant) =>
+          tenant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          tenant.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (tenant.contactEmail ?? '').toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    [searchTerm, tenants],
   );
 
   const handleImpersonate = (tenant: Tenant, type: AccessType) => {
     setSelectedTenant(tenant);
     setAccessType(type);
+    setReason('');
+    setError(null);
   };
 
-  const confirmImpersonate = () => {
+  const confirmImpersonate = async () => {
     if (!selectedTenant) return;
     setIsImpersonating(true);
-    setTimeout(() => {
-      const url =
-        accessType === 'payload'
-          ? getTenantPayloadUrl(selectedTenant)
-          : getTenantDashboardUrl(selectedTenant);
-      window.open(url, '_blank');
-      setIsImpersonating(false);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/ops/impersonation', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantId: selectedTenant.id,
+          accessType,
+          reason: reason.trim() || undefined,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'No se pudo iniciar la impersonacion');
+        return;
+      }
+
+      setLastResult({
+        reachable: Boolean(data.destination?.reachable),
+        status: typeof data.destination?.status === 'number' ? data.destination.status : null,
+        checkedAt: String(data.destination?.checkedAt || new Date().toISOString()),
+        url: String(data.targetUrl),
+      });
+
+      window.open(String(data.targetUrl), '_blank', 'noopener,noreferrer');
       setSelectedTenant(null);
-    }, 1500);
+      setReason('');
+    } catch {
+      setError('Error de red al iniciar impersonacion');
+    } finally {
+      setIsImpersonating(false);
+    }
   };
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Impersonar Tenant"
-        description="Accede al dashboard de un tenant como super-administrador"
+        description="Acceso auditado a dashboard y admin de tenant"
       />
 
-      {/* Warning Banner */}
       <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-            <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-red-400 font-semibold">Acceso con privilegios elevados</h3>
-            <p className="text-red-300/70 text-sm mt-1">
-              Al impersonar un tenant, tendrás acceso completo a su configuración y datos.
-              Todas las acciones quedan registradas en el log de auditoría.
-            </p>
-          </div>
-        </div>
+        <h3 className="text-red-400 font-semibold">Acceso con privilegios elevados</h3>
+        <p className="text-red-300/70 text-sm mt-1">
+          Todas las acciones quedan auditadas por tenant, URL de destino y operador.
+        </p>
       </div>
 
-      {/* Search */}
       <div className="relative">
-        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
         <input
           type="text"
           placeholder="Buscar por nombre, slug o email del admin..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-muted/50 border border-muted/30 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          onChange={(event) => setSearchTerm(event.target.value)}
+          className="w-full px-4 py-3 bg-muted/50 border border-muted/30 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
       </div>
 
-      {/* View Toggle + Count */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {loading ? 'Cargando...' : `${filteredTenants.length} tenant${filteredTenants.length !== 1 ? 's' : ''}`}
@@ -122,40 +154,41 @@ export default function ImpersonarPage() {
         <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
           <button
             onClick={() => setViewMode('list')}
-            className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-            title="Vista de lista"
+            className={`px-3 py-1 rounded-md text-sm ${viewMode === 'list' ? 'bg-background text-foreground' : 'text-muted-foreground'}`}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
+            Lista
           </button>
           <button
             onClick={() => setViewMode('cards')}
-            className={`p-2 rounded-md transition-colors ${viewMode === 'cards' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-            title="Vista de tarjetas"
+            className={`px-3 py-1 rounded-md text-sm ${viewMode === 'cards' ? 'bg-background text-foreground' : 'text-muted-foreground'}`}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-            </svg>
+            Tarjetas
           </button>
         </div>
       </div>
 
-      {/* Tenants */}
+      {lastResult && (
+        <div className={`rounded-xl border p-4 ${lastResult.reachable ? 'bg-green-500/10 border-green-500/30' : 'bg-yellow-500/10 border-yellow-500/30'}`}>
+          <p className="text-sm font-medium text-foreground">
+            Ultima impersonacion: {lastResult.url}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Check destino: {lastResult.reachable ? 'reachable' : 'unreachable'}{lastResult.status ? ` (HTTP ${lastResult.status})` : ''} · {new Date(lastResult.checkedAt).toLocaleString('es-ES')}
+          </p>
+        </div>
+      )}
+
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-muted/30 rounded-xl h-16 animate-pulse" />
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="bg-muted/30 rounded-xl h-16 animate-pulse" />
           ))}
         </div>
       ) : filteredTenants.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
-          {tenants.length === 0
-            ? 'No hay tenants registrados aún'
-            : 'No se encontraron tenants con ese criterio'}
+          {tenants.length === 0 ? 'No hay tenants registrados aún' : 'No se encontraron tenants con ese criterio'}
         </div>
       ) : viewMode === 'list' ? (
-        /* ===== LIST VIEW ===== */
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full">
             <thead>
@@ -172,48 +205,34 @@ export default function ImpersonarPage() {
               {filteredTenants.map((tenant) => (
                 <tr key={tenant.id} className="hover:bg-muted/20 transition-colors">
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-sm">{tenant.name.charAt(0)}</span>
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-foreground font-medium truncate">{tenant.name}</p>
-                        <p className="text-muted-foreground text-xs">{tenant.slug}</p>
-                      </div>
-                    </div>
+                    <p className="text-foreground font-medium">{tenant.name}</p>
+                    <p className="text-muted-foreground text-xs">{tenant.slug}</p>
                   </td>
-                  <td className="px-4 py-3 hidden md:table-cell">
-                    <span className="text-sm text-muted-foreground">{tenant.domain ?? `${tenant.slug}.akademate.com`}</span>
+                  <td className="px-4 py-3 hidden md:table-cell text-sm text-muted-foreground">
+                    {tenant.domain ?? `${tenant.slug}.akademate.com`}
                   </td>
-                  <td className="px-4 py-3 hidden lg:table-cell">
-                    <span className="text-sm text-muted-foreground truncate block max-w-[180px]">{tenant.contactEmail ?? '—'}</span>
+                  <td className="px-4 py-3 hidden lg:table-cell text-sm text-muted-foreground">
+                    {tenant.contactEmail ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-center hidden sm:table-cell">
-                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
-                      tenant.active
-                        ? 'bg-green-500/10 text-green-500'
-                        : 'bg-red-500/10 text-red-500'
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${tenant.active ? 'bg-green-500' : 'bg-red-500'}`} />
+                    <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full ${tenant.active ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                       {tenant.active ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center hidden lg:table-cell">
-                    <span className="text-sm text-muted-foreground">{tenant.limits.maxUsers}</span>
+                  <td className="px-4 py-3 text-center hidden lg:table-cell text-sm text-muted-foreground">
+                    {tenant.limits?.maxUsers ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleImpersonate(tenant, 'dashboard')}
                         className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-xs font-medium"
-                        title="Dashboard CMS"
                       >
                         Dashboard
                       </button>
                       <button
                         onClick={() => handleImpersonate(tenant, 'payload')}
                         className="px-3 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-500 transition-colors text-xs font-medium"
-                        title="Payload Admin"
                       >
                         Payload
                       </button>
@@ -225,62 +244,24 @@ export default function ImpersonarPage() {
           </table>
         </div>
       ) : (
-        /* ===== CARDS VIEW ===== */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTenants.map((tenant) => (
-            <div
-              key={tenant.id}
-              className="bg-muted/50 backdrop-blur border border-muted/30 rounded-xl p-5 hover:border-indigo-500/50 transition-all"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">{tenant.name.charAt(0)}</span>
-                  </div>
-                  <div>
-                    <h3 className="text-foreground font-semibold">{tenant.name}</h3>
-                    <p className="text-muted-foreground text-sm">{tenant.domain ?? `${tenant.slug}.akademate.com`}</p>
-                  </div>
-                </div>
-                <div
-                  className={`w-3 h-3 rounded-full ${tenant.active ? 'bg-green-500' : 'bg-red-500'}`}
-                  title={tenant.active ? 'Activo' : 'Inactivo'}
-                />
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Admin</span>
-                  <span className="text-foreground truncate max-w-[160px]">{tenant.contactEmail ?? '—'}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Límite usuarios</span>
-                  <span className="text-foreground">{tenant.limits.maxUsers}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Registrado</span>
-                  <span className="text-foreground">{new Date(tenant.createdAt).toLocaleDateString('es-ES')}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
+            <div key={tenant.id} className="bg-muted/50 backdrop-blur border border-muted/30 rounded-xl p-5">
+              <h3 className="text-foreground font-semibold">{tenant.name}</h3>
+              <p className="text-muted-foreground text-sm mt-1">{tenant.domain ?? `${tenant.slug}.akademate.com`}</p>
+              <p className="text-muted-foreground text-xs mt-1">{tenant.contactEmail ?? 'Sin email'}</p>
+              <div className="flex gap-2 mt-4">
                 <button
                   onClick={() => handleImpersonate(tenant, 'dashboard')}
-                  className="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 text-sm"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                  </svg>
-                  Dashboard CMS
+                  Dashboard
                 </button>
                 <button
                   onClick={() => handleImpersonate(tenant, 'payload')}
-                  className="w-full px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-500 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500 text-sm"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-                  </svg>
-                  Payload Admin (DB)
+                  Payload
                 </button>
               </div>
             </div>
@@ -288,60 +269,57 @@ export default function ImpersonarPage() {
         </div>
       )}
 
-      {/* Impersonation Confirmation Modal */}
       {selectedTenant && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl">
             {!isImpersonating ? (
               <>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-xl">{selectedTenant.name.charAt(0)}</span>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-foreground">{selectedTenant.name}</h3>
-                    <p className="text-muted-foreground text-sm">{selectedTenant.domain ?? `${selectedTenant.slug}.akademate.com`}</p>
-                  </div>
+                <h3 className="text-xl font-bold text-foreground">{selectedTenant.name}</h3>
+                <p className="text-muted-foreground text-sm mt-1">
+                  {selectedTenant.domain ?? `${selectedTenant.slug}.akademate.com`} · {getEnvironment(selectedTenant)}
+                </p>
+
+                <div className="mt-4 p-3 rounded-lg bg-muted/40 border border-border text-sm">
+                  <p className="text-muted-foreground">Destino previsto</p>
+                  <p className="font-mono text-foreground break-all mt-1">
+                    {getPreviewUrl(selectedTenant, accessType)}
+                  </p>
                 </div>
-                <div className={`mb-4 px-4 py-2 rounded-lg text-center font-medium ${
-                  accessType === 'payload'
-                    ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-                    : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                }`}>
-                  {accessType === 'payload' ? 'Acceso Payload Admin (Base de Datos)' : 'Acceso Dashboard CMS'}
+
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-foreground mb-2">Motivo (opcional)</label>
+                  <textarea
+                    value={reason}
+                    onChange={(event) => setReason(event.target.value)}
+                    rows={3}
+                    className="w-full rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm text-foreground"
+                    placeholder="Ej. soporte de incidente P1 en login del tenant"
+                  />
                 </div>
-                <div className="flex gap-3">
+
+                {error && <p className="text-sm text-red-500 mt-3">{error}</p>}
+
+                <div className="flex gap-3 mt-6">
                   <button
                     onClick={() => setSelectedTenant(null)}
-                    className="flex-1 px-4 py-3 bg-muted/50 text-foreground rounded-xl hover:bg-muted transition-colors font-medium"
+                    className="flex-1 px-4 py-3 bg-muted/50 text-foreground rounded-xl hover:bg-muted"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={confirmImpersonate}
-                    className={`flex-1 px-4 py-3 text-white rounded-xl transition-colors font-medium flex items-center justify-center gap-2 ${
-                      accessType === 'payload'
-                        ? 'bg-orange-600 hover:bg-orange-500'
-                        : 'bg-indigo-600 hover:bg-indigo-500'
+                    className={`flex-1 px-4 py-3 text-white rounded-xl ${
+                      accessType === 'payload' ? 'bg-orange-600 hover:bg-orange-500' : 'bg-indigo-600 hover:bg-indigo-500'
                     }`}
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
                     {accessType === 'payload' ? 'Abrir Payload Admin' : 'Abrir Dashboard'}
                   </button>
                 </div>
               </>
             ) : (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-indigo-400 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">Iniciando sesión...</h3>
-                <p className="text-muted-foreground">Accediendo como admin de {selectedTenant.name}</p>
+                <p className="text-foreground font-semibold">Creando sesion de impersonacion...</p>
+                <p className="text-muted-foreground text-sm mt-1">Auditando y validando destino</p>
               </div>
             )}
           </div>

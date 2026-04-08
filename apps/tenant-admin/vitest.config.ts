@@ -64,15 +64,55 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './'),
-      '@akademate/types': path.resolve(__dirname, '../../packages/types/src/index'),
-      '@payload-config/components/layout': path.resolve(__dirname, './tests/__mocks__/@payload-config/components/layout'),
-      '@payload-config/components/ui': path.resolve(__dirname, './tests/__mocks__/@payload-config/components/ui'),
-      '@payload-config/components': path.resolve(__dirname, './tests/__mocks__/@payload-config/components'),
-      '@payload-config/hooks': path.resolve(__dirname, './tests/__mocks__/@payload-config/hooks'),
-      '@payload-config': path.resolve(__dirname, './tests/__mocks__/@payload-config'),
-      'next/navigation': 'next-router-mock',
-    },
+    alias: [
+      {
+        find: /^@\/app\/\(dashboard\)\//,
+        replacement: `${path.resolve(__dirname, './app/(app)/(dashboard)')}/`,
+      },
+      {
+        find: /^@\/app\/auth\//,
+        replacement: `${path.resolve(__dirname, './app/(app)/auth')}/`,
+      },
+      {
+        find: /^@\/app\/campus\//,
+        replacement: `${path.resolve(__dirname, './app/(app)/campus')}/`,
+      },
+      {
+        find: /^@\/app\/legal\//,
+        replacement: `${path.resolve(__dirname, './app/(app)/legal')}/`,
+      },
+      {
+        find: '@akademate/types',
+        replacement: path.resolve(__dirname, '../../packages/types/src/index'),
+      },
+      {
+        find: '@payload-config/components/layout',
+        replacement: path.resolve(__dirname, './tests/__mocks__/@payload-config/components/layout'),
+      },
+      {
+        find: '@payload-config/components/ui',
+        replacement: path.resolve(__dirname, './tests/__mocks__/@payload-config/components/ui'),
+      },
+      {
+        find: '@payload-config/components',
+        replacement: path.resolve(__dirname, './tests/__mocks__/@payload-config/components'),
+      },
+      {
+        find: '@payload-config/hooks',
+        replacement: path.resolve(__dirname, './tests/__mocks__/@payload-config/hooks'),
+      },
+      {
+        find: '@payload-config',
+        replacement: path.resolve(__dirname, './tests/__mocks__/@payload-config'),
+      },
+      {
+        find: 'next/navigation',
+        replacement: 'next-router-mock',
+      },
+      {
+        find: '@',
+        replacement: path.resolve(__dirname, './'),
+      },
+    ],
   },
 })

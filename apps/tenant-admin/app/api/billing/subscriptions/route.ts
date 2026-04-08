@@ -6,14 +6,13 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { desc, eq } from 'drizzle-orm'
 import type Stripe from 'stripe'
 import {
   createSubscription,
   createStripeCustomer,
   isStripeConfigured,
 } from '@/@payload-config/lib/stripe'
-import { db, subscriptions } from '@/@payload-config/lib/db'
+import { queryRows } from '@/@payload-config/lib/db'
 
 // ============================================================================
 // Types
@@ -79,15 +78,30 @@ export async function GET(request: NextRequest) {
       )
     }
 
-     
-    const results = await (db
-      .select()
-      .from(subscriptions)
-      .where(eq(subscriptions.tenantId, validation.data.tenantId))
-      .orderBy(desc(subscriptions.updatedAt))
-      .limit(1)
-      .execute() as Promise<SubscriptionRecord[]>)
-     
+    const results = await queryRows<SubscriptionRecord>(
+      `SELECT
+         id,
+         tenant_id AS "tenantId",
+         plan,
+         status,
+         stripe_subscription_id AS "stripeSubscriptionId",
+         stripe_customer_id AS "stripeCustomerId",
+         current_period_start AS "currentPeriodStart",
+         current_period_end AS "currentPeriodEnd",
+         cancel_at_period_end AS "cancelAtPeriodEnd",
+         canceled_at AS "canceledAt",
+         trial_start AS "trialStart",
+         trial_end AS "trialEnd",
+         usage_meter AS "usageMeter",
+         metadata,
+         created_at AS "createdAt",
+         updated_at AS "updatedAt"
+       FROM subscriptions
+       WHERE tenant_id = $1
+       ORDER BY updated_at DESC
+       LIMIT 1`,
+      [validation.data.tenantId]
+    )
 
     const subscription = results[0]
 

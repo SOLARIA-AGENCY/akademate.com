@@ -5,19 +5,19 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
 export const metadata: Metadata = {
-  title: 'CEP Formacion — Centro de Formacion Profesional en Tenerife',
-  description: 'Ciclos formativos oficiales de Grado Medio y Superior. Modalidad semipresencial, 1 dia de clase a la semana, 500h de practicas en empresa. Mas de 26 anos formando profesionales.',
+  title: 'Akademate — Plataforma Educativa Multitenant',
+  description: 'Gestion integral para centros de formacion con branding, campus virtual y operaciones SaaS.',
   openGraph: {
-    title: 'CEP Formacion — Formacion Profesional en Tenerife',
-    description: 'Ciclos formativos oficiales. Semipresencial, practicas en empresa, financiacion disponible.',
-    url: 'https://cepformacion.akademate.com',
-    siteName: 'CEP Formacion',
+    title: 'Akademate — Plataforma Educativa',
+    description: 'Gestion academica y operativa multitenant para centros de formacion.',
+    url: 'https://akademate.com',
+    siteName: 'Akademate',
     images: [
       {
-        url: 'https://cepformacion.akademate.com/og-image.png',
+        url: 'https://akademate.com/og-image.png',
         width: 1000,
         height: 1000,
-        alt: 'CEP Formacion',
+        alt: 'Akademate',
       },
     ],
     locale: 'es_ES',
@@ -25,40 +25,103 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CEP Formacion — Formacion Profesional en Tenerife',
-    description: 'Ciclos formativos oficiales. Semipresencial, practicas en empresa.',
-    images: ['https://cepformacion.akademate.com/og-image.png'],
+    title: 'Akademate — Plataforma Educativa',
+    description: 'SaaS multitenant para centros de formacion.',
+    images: ['https://akademate.com/og-image.png'],
   },
 }
 
 export const dynamic = 'force-dynamic'
 
-async function getTenantData() {
+type TenantData = {
+  name: string
+  logo: string
+  primaryColor: string
+  metaPixelId: string
+  ga4MeasurementId: string
+  whatsappContacts: Array<{ label: string; phone: string; shortCode: string; message: string }>
+}
+
+function normalizeWhatsAppPhone(raw: string): string | null {
+  const digits = raw.replace(/[^\d+]/g, '').replace(/\+/g, '')
+  if (!digits) return null
+  if (digits.startsWith('34')) return digits
+  return `34${digits}`
+}
+
+function shortCodeFromLabel(label: string): string {
+  const words = label.trim().split(/\s+/).filter(Boolean)
+  if (words.length === 0) return 'WA'
+  if (words.length === 1) return words[0]!.slice(0, 2).toUpperCase()
+  return `${words[0]![0] ?? ''}${words[1]![0] ?? ''}`.toUpperCase()
+}
+
+async function getTenantData(): Promise<TenantData> {
   try {
     const payload = await getPayload({ config: configPromise })
     const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
     const tenant = tenants.docs[0] as any
     const primaryColor = tenant?.branding_primary_color || '#cc0000'
+    const tenantId = tenant?.id || 1
 
-    // Read logo from config API
+    // Read tenant-facing runtime config from /api/config
     let logo = '/logos/akademate-logo-official.png'
+    let academyName = tenant?.name || 'Akademate'
+    let phone1 = ''
+    let phone2 = ''
     try {
-      const logoRes = await fetch(`${process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3009'}/api/config?section=logos&tenantId=${tenant?.id || 1}`)
+      const baseUrl = process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3009'
+      const [logoRes, academyRes] = await Promise.all([
+        fetch(`${baseUrl}/api/config?section=logos&tenantId=${tenantId}`),
+        fetch(`${baseUrl}/api/config?section=academia&tenantId=${tenantId}`),
+      ])
+
       if (logoRes.ok) {
         const logoData = await logoRes.json()
         if (logoData.data?.principal) logo = logoData.data.principal
       }
+
+      if (academyRes.ok) {
+        const academyData = await academyRes.json()
+        academyName = academyData.data?.nombre?.trim() || academyName
+        phone1 = academyData.data?.telefono1?.trim() || ''
+        phone2 = academyData.data?.telefono2?.trim() || ''
+      }
     } catch { /* use default */ }
 
+    const whatsappContacts = [
+      { label: 'Contacto', phone: phone1, message: 'Hola, me gustaria recibir informacion sobre la oferta formativa.' },
+      { label: 'Admision', phone: phone2, message: 'Hola, necesito informacion sobre admision y matricula.' },
+    ]
+      .map((entry) => ({
+        ...entry,
+        normalizedPhone: normalizeWhatsAppPhone(entry.phone),
+      }))
+      .filter((entry) => Boolean(entry.normalizedPhone))
+      .map((entry) => ({
+        label: entry.label,
+        phone: entry.phone,
+        shortCode: shortCodeFromLabel(entry.label),
+        message: entry.message,
+      }))
+
     return {
-      name: tenant?.name || 'Akademate',
+      name: academyName,
       logo,
       primaryColor,
       metaPixelId: tenant?.integrations_meta_pixel_id || tenant?.integrations?.metaPixelId || '',
       ga4MeasurementId: tenant?.integrations_ga4_measurement_id || tenant?.integrations?.ga4MeasurementId || '',
+      whatsappContacts,
     }
   } catch {
-    return { name: 'Akademate', logo: '/logos/akademate-logo-official.png', primaryColor: '#0066CC', metaPixelId: '', ga4MeasurementId: '' }
+    return {
+      name: 'Akademate',
+      logo: '/logos/akademate-logo-official.png',
+      primaryColor: '#0066CC',
+      metaPixelId: '',
+      ga4MeasurementId: '',
+      whatsappContacts: [],
+    }
   }
 }
 
@@ -180,22 +243,32 @@ fbq('track', 'PageView');`,
           `}</style>
           <div id="wa-popup">
             <div style={{background:'#25D366',padding:'16px 20px',color:'#fff'}}>
-              <p style={{margin:0,fontWeight:700,fontSize:16}}>CEP Formacion</p>
+              <p style={{margin:0,fontWeight:700,fontSize:16}}>{tenant.name}</p>
               <p style={{margin:'4px 0 0',fontSize:13,opacity:0.9}}>Contacta por WhatsApp</p>
             </div>
             <div style={{padding:12}}>
-              <a href="https://wa.me/34622416020?text=Hola%2C%20me%20gustaria%20recibir%20informacion%20sobre%20los%20cursos" target="_blank" rel="noopener" style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,textDecoration:'none',color:'#111',fontSize:14,transition:'background 0.2s',background:'#f9fafb',marginBottom:6}}>
-                <span style={{width:36,height:36,borderRadius:'50%',background:'#25D366',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,flexShrink:0}}>N</span>
-                <span><strong>CEP Norte</strong><br/><span style={{fontSize:12,color:'#6b7280'}}>+34 622 41 60 20</span></span>
-              </a>
-              <a href="https://wa.me/34618989648?text=Hola%2C%20me%20gustaria%20recibir%20informacion%20sobre%20los%20cursos" target="_blank" rel="noopener" style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,textDecoration:'none',color:'#111',fontSize:14,transition:'background 0.2s',background:'#f9fafb',marginBottom:6}}>
-                <span style={{width:36,height:36,borderRadius:'50%',background:'#25D366',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,flexShrink:0}}>SC</span>
-                <span><strong>CEP Santa Cruz</strong><br/><span style={{fontSize:12,color:'#6b7280'}}>+34 618 98 96 48</span></span>
-              </a>
-              <a href="https://wa.me/34622736101?text=Hola%2C%20quiero%20informacion%20sobre%20cursos%20subvencionados" target="_blank" rel="noopener" style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,textDecoration:'none',color:'#111',fontSize:14,transition:'background 0.2s',background:'#f0fdf4',border:'1px solid #bbf7d0'}}>
-                <span style={{width:36,height:36,borderRadius:'50%',background:'#16a34a',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,flexShrink:0}}>SUB</span>
-                <span><strong>Cursos Subvencionados</strong><br/><span style={{fontSize:12,color:'#6b7280'}}>+34 622 73 61 01</span></span>
-              </a>
+              {tenant.whatsappContacts.length === 0 ? (
+                <p style={{margin:0,padding:'8px 4px',fontSize:13,color:'#6b7280'}}>WhatsApp no configurado para este tenant.</p>
+              ) : tenant.whatsappContacts.map((contact) => {
+                const phone = normalizeWhatsAppPhone(contact.phone)
+                if (!phone) return null
+                return (
+                  <a
+                    key={`${contact.label}-${contact.phone}`}
+                    href={`https://wa.me/${phone}?text=${encodeURIComponent(contact.message)}`}
+                    target="_blank"
+                    rel="noopener"
+                    style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,textDecoration:'none',color:'#111',fontSize:14,transition:'background 0.2s',background:'#f9fafb',marginBottom:6}}
+                  >
+                    <span style={{width:36,height:36,borderRadius:'50%',background:'#25D366',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,flexShrink:0}}>{contact.shortCode}</span>
+                    <span>
+                      <strong>{contact.label}</strong>
+                      <br />
+                      <span style={{fontSize:12,color:'#6b7280'}}>{contact.phone}</span>
+                    </span>
+                  </a>
+                )
+              })}
             </div>
           </div>
           <button aria-label="Contactar por WhatsApp" style={{width:60,height:60,borderRadius:'50%',background:'#25D366',border:'none',cursor:'pointer',boxShadow:'0 4px 12px rgba(37,211,102,0.4)',display:'flex',alignItems:'center',justifyContent:'center',transition:'transform 0.2s'}}>

@@ -1,0 +1,40 @@
+services:
+  ops:
+    image: akademate-ops:latest
+    container_name: akademate-ops
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3010"
+      HOST: "0.0.0.0"
+      HOSTNAME: "0.0.0.0"
+      NEXT_TELEMETRY_DISABLED: "1"
+      PAYLOAD_CMS_URL: http://akademate-tenant:3009
+      DEFAULT_TENANT_ID: "1"
+      NEXT_PUBLIC_APP_URL: https://admin.akademate.com
+      DATABASE_URL: ${DATABASE_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: https://admin.akademate.com
+      HETZNER_SERVER_ID: "113412533"
+      HETZNER_API_TOKEN: ${HETZNER_API_TOKEN}
+    networks:
+      - proxy
+      - tenant_internal
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3010/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  proxy:
+    external: true
+  tenant_internal:
+    external: true
+    name: tenant-admin_internal

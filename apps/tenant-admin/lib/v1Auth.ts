@@ -11,8 +11,8 @@ import type { ApiScope, ValidatedApiKey } from './apiKeyAuth'
 export type { ApiScope, ValidatedApiKey }
 
 export type V1AuthResult =
-  | { ok: true; auth: ValidatedApiKey }
-  | { ok: false; response: NextResponse }
+  | { ok: true; auth: ValidatedApiKey; response?: never }
+  | { ok: false; response: NextResponse; auth?: never }
 
 // ============================================================================
 // Helper

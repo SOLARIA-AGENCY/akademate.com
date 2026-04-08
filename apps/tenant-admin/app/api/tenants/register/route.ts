@@ -11,9 +11,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
-import { db, tenants, users, memberships } from '@/@payload-config/lib/db'
+import { queryFirst, withTransaction } from '@/@payload-config/lib/db'
 import {
   checkRateLimit,
   getClientIP,
@@ -104,12 +103,10 @@ export async function POST(request: NextRequest) {
     const { name, slug, adminEmail, adminPassword, plan } = validation.data
 
     // Check if slug is already taken
-    const [existingTenant] = await db
-      .select({ id: tenants.id })
-      .from(tenants)
-      .where(eq(tenants.slug, slug))
-      .limit(1)
-      .execute()
+    const existingTenant = await queryFirst<{ id: string }>(
+      `SELECT id FROM tenants WHERE slug = $1 LIMIT 1`,
+      [slug]
+    )
 
     if (existingTenant) {
       return NextResponse.json(
@@ -119,12 +116,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if admin email is already registered
-    const [existingUser] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.email, adminEmail.toLowerCase()))
-      .limit(1)
-      .execute()
+    const existingUser = await queryFirst<{ id: string }>(
+      `SELECT id FROM users WHERE email = $1 LIMIT 1`,
+      [adminEmail.toLowerCase()]
+    )
 
     if (existingUser) {
       return NextResponse.json(
@@ -138,56 +133,45 @@ export async function POST(request: NextRequest) {
 
     // Use a transaction to ensure atomicity: tenant, user, and membership
     // are all created together or not at all.
-    const result = await db.transaction(async (tx) => {
-      // Create tenant record
-      const [tenant] = await tx
-        .insert(tenants)
-        .values({
-          name,
-          slug,
-          plan,
-          status: 'trial',
-          domains: [],
-          branding: {},
-        })
-        .returning({
-          id: tenants.id,
-          slug: tenants.slug,
-          plan: tenants.plan,
-          status: tenants.status,
-        })
+    const result = await withTransaction(async (tx) => {
+      const tenantRows = await tx.unsafe<{
+        id: string
+        slug: string
+        plan: string
+        status: string
+      }[]>(
+        `INSERT INTO tenants (name, slug, plan, status, domains, branding, created_at, updated_at)
+         VALUES ($1, $2, $3, 'trial', $4::jsonb, $5::jsonb, NOW(), NOW())
+         RETURNING id, slug, plan, status`,
+        [name, slug, plan, JSON.stringify([]), JSON.stringify({})]
+      )
+      const tenant = tenantRows[0]
 
       if (!tenant) {
         throw new Error('Failed to create tenant record')
       }
 
-      // Create admin user
-      const [adminUser] = await tx
-        .insert(users)
-        .values({
-          email: adminEmail.toLowerCase(),
-          name,
-          passwordHash,
-        })
-        .returning({
-          id: users.id,
-          email: users.email,
-          name: users.name,
-        })
+      const userRows = await tx.unsafe<{
+        id: string
+        email: string
+        name: string
+      }[]>(
+        `INSERT INTO users (email, name, password_hash, created_at, updated_at)
+         VALUES ($1, $2, $3, NOW(), NOW())
+         RETURNING id, email, name`,
+        [adminEmail.toLowerCase(), name, passwordHash]
+      )
+      const adminUser = userRows[0]
 
       if (!adminUser) {
         throw new Error('Failed to create admin user record')
       }
 
-      // Create membership linking admin user to the new tenant
-      await tx
-        .insert(memberships)
-        .values({
-          userId: adminUser.id,
-          tenantId: tenant.id,
-          roles: ['admin'],
-          status: 'active',
-        })
+      await tx.unsafe(
+        `INSERT INTO memberships (user_id, tenant_id, roles, status, created_at)
+         VALUES ($1, $2, $3::jsonb, 'active', NOW())`,
+        [adminUser.id, tenant.id, JSON.stringify(['admin'])]
+      )
 
       return { tenant, adminUser }
     })

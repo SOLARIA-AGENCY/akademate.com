@@ -8,7 +8,7 @@ interface AreaFormativaDocument {
   codigo: string;
   nombre: string;
   descripcion?: string;
-  active?: boolean;
+  activo?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,7 +37,7 @@ export async function GET() {
         codigo: area.codigo,
         nombre: area.nombre,
         descripcion: area.descripcion ?? '',
-        active: area.active ?? true,
+        active: area.activo ?? true,
       })),
       total: result.totalDocs,
     });
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
         codigo: body.codigo,
         nombre: body.nombre,
         descripcion: body.descripcion ?? '',
-        active: true,
+        activo: true,
       },
     });
 

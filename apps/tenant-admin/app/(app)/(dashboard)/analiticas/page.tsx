@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar, Legend,
@@ -302,6 +302,11 @@ const TRAFFIC_DATA = generateTrafficData()
 function TrafficChart() {
   const [view, setView] = useState<'area' | 'bar'>('area')
   const [showChannels, setShowChannels] = useState(true)
+  const [isChartReady, setIsChartReady] = useState(false)
+
+  useEffect(() => {
+    setIsChartReady(true)
+  }, [])
 
   return (
     <Card>
@@ -317,85 +322,89 @@ function TrafficChart() {
       </CardHeader>
       <CardContent>
         <div className="h-72 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            {view === 'area' ? (
-              <AreaChart data={TRAFFIC_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                <defs>
-                  <linearGradient id="colorOrganic" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="colorFb" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="colorGoogle" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    color: 'hsl(var(--foreground))',
-                  }}
-                  labelFormatter={(label, payload) => {
-                    const item = payload?.[0]?.payload
-                    return item?.fullDate || label
-                  }}
-                />
-                {showChannels ? (
-                  <>
-                    <Area type="monotone" dataKey="Organico" stroke="#10B981" fill="url(#colorOrganic)" strokeWidth={2} />
-                    <Area type="monotone" dataKey="Facebook Ads" stroke="#3B82F6" fill="url(#colorFb)" strokeWidth={2} />
-                    <Area type="monotone" dataKey="Google Ads" stroke="#F59E0B" fill="url(#colorGoogle)" strokeWidth={2} />
-                  </>
-                ) : (
-                  <Area type="monotone" dataKey="Total" stroke="hsl(var(--primary))" fill="url(#colorTotal)" strokeWidth={2.5} />
-                )}
-                <Legend wrapperStyle={{ fontSize: '12px' }} />
-              </AreaChart>
-            ) : (
-              <BarChart data={TRAFFIC_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    color: 'hsl(var(--foreground))',
-                  }}
-                  labelFormatter={(label, payload) => {
-                    const item = payload?.[0]?.payload
-                    return item?.fullDate || label
-                  }}
-                />
-                {showChannels ? (
-                  <>
-                    <Bar dataKey="Organico" fill="#10B981" radius={[2, 2, 0, 0]} />
-                    <Bar dataKey="Facebook Ads" fill="#3B82F6" radius={[2, 2, 0, 0]} />
-                    <Bar dataKey="Google Ads" fill="#F59E0B" radius={[2, 2, 0, 0]} />
-                  </>
-                ) : (
-                  <Bar dataKey="Total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                )}
-                <Legend wrapperStyle={{ fontSize: '12px' }} />
-              </BarChart>
-            )}
-          </ResponsiveContainer>
+          {isChartReady ? (
+            <ResponsiveContainer width="100%" height="100%">
+              {view === 'area' ? (
+                <AreaChart data={TRAFFIC_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="colorOrganic" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorFb" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorGoogle" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      color: 'hsl(var(--foreground))',
+                    }}
+                    labelFormatter={(label, payload) => {
+                      const item = payload?.[0]?.payload
+                      return item?.fullDate || label
+                    }}
+                  />
+                  {showChannels ? (
+                    <>
+                      <Area type="monotone" dataKey="Organico" stroke="#10B981" fill="url(#colorOrganic)" strokeWidth={2} />
+                      <Area type="monotone" dataKey="Facebook Ads" stroke="#3B82F6" fill="url(#colorFb)" strokeWidth={2} />
+                      <Area type="monotone" dataKey="Google Ads" stroke="#F59E0B" fill="url(#colorGoogle)" strokeWidth={2} />
+                    </>
+                  ) : (
+                    <Area type="monotone" dataKey="Total" stroke="hsl(var(--primary))" fill="url(#colorTotal)" strokeWidth={2.5} />
+                  )}
+                  <Legend wrapperStyle={{ fontSize: '12px' }} />
+                </AreaChart>
+              ) : (
+                <BarChart data={TRAFFIC_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      color: 'hsl(var(--foreground))',
+                    }}
+                    labelFormatter={(label, payload) => {
+                      const item = payload?.[0]?.payload
+                      return item?.fullDate || label
+                    }}
+                  />
+                  {showChannels ? (
+                    <>
+                      <Bar dataKey="Organico" fill="#10B981" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="Facebook Ads" fill="#3B82F6" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="Google Ads" fill="#F59E0B" radius={[2, 2, 0, 0]} />
+                    </>
+                  ) : (
+                    <Bar dataKey="Total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  )}
+                  <Legend wrapperStyle={{ fontSize: '12px' }} />
+                </BarChart>
+              )}
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full w-full rounded-md bg-muted/30" />
+          )}
         </div>
       </CardContent>
     </Card>

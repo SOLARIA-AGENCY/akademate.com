@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   if (!auth.ok) return auth.response
 
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = (await getPayloadHMR({ config: configPromise })) as any
 
     const keyDoc = await payload.findByID({
       collection: 'api-keys',

@@ -1,5 +1,6 @@
 {
   "presets": ["next/babel"],
+  "compact": true,
   "overrides": [
     {
       "exclude": ["**/node_modules/**", "node_modules"],

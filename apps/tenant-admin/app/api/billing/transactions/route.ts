@@ -6,12 +6,26 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import type { InferSelectModel } from 'drizzle-orm'
-import { desc, eq } from 'drizzle-orm'
-import { db, paymentTransactions } from '@/@payload-config/lib/db'
+import { queryRows } from '@/@payload-config/lib/db'
 
 /** Payment transaction record from database */
-type PaymentTransaction = InferSelectModel<typeof paymentTransactions>
+interface PaymentTransaction {
+  id: string
+  tenantId: string
+  invoiceId: string | null
+  stripePaymentIntentId: string | null
+  stripeChargeId: string | null
+  amount: number
+  currency: string
+  status: 'pending' | 'refunded' | 'processing' | 'canceled' | 'succeeded' | 'failed'
+  paymentMethodType: string | null
+  description: string | null
+  failureCode: string | null
+  failureMessage: string | null
+  metadata: Record<string, unknown>
+  createdAt: Date
+  updatedAt: Date
+}
 
 /** API response for transactions list */
 interface TransactionsResponse {
@@ -51,15 +65,29 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
       )
     }
 
-     
-    const transactions: PaymentTransaction[] = await db
-      .select()
-      .from(paymentTransactions)
-      .where(eq(paymentTransactions.tenantId, validation.data.tenantId))
-      .orderBy(desc(paymentTransactions.createdAt))
-      .limit(validation.data.limit)
-      .execute()
-     
+    const transactions = await queryRows<PaymentTransaction>(
+      `SELECT
+         id,
+         tenant_id AS "tenantId",
+         invoice_id AS "invoiceId",
+         stripe_payment_intent_id AS "stripePaymentIntentId",
+         stripe_charge_id AS "stripeChargeId",
+         amount,
+         currency,
+         status,
+         payment_method_type AS "paymentMethodType",
+         description,
+         failure_code AS "failureCode",
+         failure_message AS "failureMessage",
+         metadata,
+         created_at AS "createdAt",
+         updated_at AS "updatedAt"
+       FROM payment_transactions
+       WHERE tenant_id = $1
+       ORDER BY created_at DESC
+       LIMIT $2`,
+      [validation.data.tenantId, validation.data.limit]
+    )
 
     return NextResponse.json({ transactions })
   } catch (error) {

@@ -4,12 +4,18 @@ export interface OpsTenant {
   id: string
   name: string
   slug: string
-  domain?: string
+  domain?: string | null
   active: boolean
+  contactEmail?: string | null
+  contactPhone?: string | null
+  notes?: string | null
   createdAt: string
+  updatedAt?: string
   limits?: {
-    maxUsers?: number
-    maxCourses?: number
+    maxUsers?: number | null
+    maxCourses?: number | null
+    maxLeadsPerMonth?: number | null
+    storageQuotaMB?: number | null
   }
 }
 
@@ -31,6 +37,13 @@ async function fetchTenants(): Promise<OpsTenantsResponse> {
   const res = await fetch('/api/ops/tenants?limit=100', { credentials: 'include' })
   if (!res.ok) throw new Error('Error al obtener tenants')
   return res.json()
+}
+
+async function fetchTenant(id: string): Promise<OpsTenant> {
+  const res = await fetch(`/api/ops/tenants/${id}`, { credentials: 'include' })
+  if (!res.ok) throw new Error('Error al obtener tenant')
+  const data = await res.json()
+  return data.doc
 }
 
 async function fetchMetrics(): Promise<OpsMetrics> {
@@ -80,6 +93,14 @@ export function useTenants() {
   return useQuery({
     queryKey: ['ops', 'tenants'],
     queryFn: fetchTenants,
+  })
+}
+
+export function useTenant(id: string) {
+  return useQuery({
+    queryKey: ['ops', 'tenant', id],
+    queryFn: () => fetchTenant(id),
+    enabled: Boolean(id),
   })
 }
 

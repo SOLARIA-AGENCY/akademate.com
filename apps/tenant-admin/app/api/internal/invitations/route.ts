@@ -85,6 +85,32 @@ export async function POST(request: NextRequest) {
 
     const payload = await getPayloadHMR({ config: configPromise })
     const db = (payload as any).db
+    const tenantQuery = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
+    const tenant = tenantQuery.docs[0] as unknown as Record<string, unknown> | undefined
+    const tenantIdRaw = tenant?.id
+    const tenantId =
+      typeof tenantIdRaw === 'number'
+        ? tenantIdRaw
+        : typeof tenantIdRaw === 'string' && /^\d+$/.test(tenantIdRaw)
+        ? parseInt(tenantIdRaw, 10)
+        : 1
+
+    const academyName =
+      (typeof tenant?.name === 'string' && tenant.name.trim()) ||
+      process.env.NEXT_PUBLIC_TENANT_NAME ||
+      'Akademate'
+    const primaryColor =
+      (typeof tenant?.branding_primary_color === 'string' && tenant.branding_primary_color.trim()) ||
+      process.env.NEXT_PUBLIC_TENANT_PRIMARY_COLOR ||
+      '#0066CC'
+    const requestOrigin = request.nextUrl.origin
+    const configuredBaseUrl = process.env.NEXT_PUBLIC_TENANT_URL?.trim()
+    const domainFromTenant =
+      (typeof tenant?.domain === 'string' && tenant.domain.trim()) || null
+    const baseUrl = configuredBaseUrl || (domainFromTenant ? `https://${domainFromTenant}` : requestOrigin)
+    const logoUrl =
+      (typeof tenant?.branding_logo_url === 'string' && tenant.branding_logo_url.trim()) ||
+      `${baseUrl}/logos/akademate-logo-official.png`
 
     // Check if user already exists
     const existing = await payload.find({
@@ -110,11 +136,10 @@ export async function POST(request: NextRequest) {
     const token = generateToken()
     await db.execute({
       raw: `INSERT INTO user_invitations (email, name, role, token, status, tenant_id)
-            VALUES ('${email.trim().toLowerCase().replace(/'/g, "''")}', '${name.trim().replace(/'/g, "''")}', '${role || 'lectura'}', '${token}', 'pending', 1)`,
+            VALUES ('${email.trim().toLowerCase().replace(/'/g, "''")}', '${name.trim().replace(/'/g, "''")}', '${role || 'lectura'}', '${token}', 'pending', ${tenantId})`,
     })
 
     // Send invitation email
-    const baseUrl = process.env.NEXT_PUBLIC_TENANT_URL || 'https://cepformacion.akademate.com'
     const acceptUrl = `${baseUrl}/auth/accept-invite?token=${token}`
 
     const html = invitationEmailHtml({
@@ -122,14 +147,14 @@ export async function POST(request: NextRequest) {
       email: email.trim().toLowerCase(),
       role: role || 'lectura',
       acceptUrl,
-      academyName: 'CEP Formacion',
-      logoUrl: `${baseUrl}/logos/cep-formacion-logo.png`,
-      primaryColor: '#cc0000',
+      academyName,
+      logoUrl,
+      primaryColor,
     })
 
     const emailResult = await sendMail({
       to: email.trim().toLowerCase(),
-      subject: 'CEP Formacion — Has sido invitado al panel de administracion',
+      subject: `${academyName} — Has sido invitado al panel de administracion`,
       html,
     })
 

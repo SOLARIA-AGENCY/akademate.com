@@ -9,6 +9,11 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function parseCsvEnv(value: string | undefined): string[] {
+  if (!value) return []
+  return value.split(',').map((entry) => entry.trim()).filter(Boolean)
+}
+
 // Import collections (will be implemented next with TDD methodology)
 import { Cycles } from './collections/Cycles/Cycles';
 import { Campuses } from './collections/Campuses/Campuses';
@@ -63,7 +68,7 @@ export const getPayloadConfig = () => buildConfig({
       ],
     },
     meta: {
-      titleSuffix: '- CEP Comunicación',
+      titleSuffix: '- Akademate',
     },
   },
   collections: [
@@ -152,7 +157,7 @@ export const getPayloadConfig = () => buildConfig({
       ? [
           s3Storage({
             collections: { media: true },
-            bucket: process.env.MINIO_BUCKET ?? 'cepcomunicacion',
+            bucket: process.env.MINIO_BUCKET ?? 'akademate',
             config: {
               endpoint: process.env.MINIO_ENDPOINT,
               credentials: {
@@ -166,22 +171,24 @@ export const getPayloadConfig = () => buildConfig({
         ]
       : []),
   ],
-  cors: [
+  cors: [...new Set([
     'http://localhost:3000', // React frontend
     'http://localhost:3002', // CMS dashboard
-    'http://localhost:3003', // ACADEMIX admin portal
+    'http://localhost:3003', // Admin portal
     'https://app.akademate.com',
-    'https://cepformacion.akademate.com',
     process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
-  ],
-  csrf: [
+    process.env.NEXT_PUBLIC_TENANT_URL ?? '',
+    ...parseCsvEnv(process.env.PAYLOAD_ALLOWED_ORIGINS),
+  ].filter(Boolean))],
+  csrf: [...new Set([
     'http://localhost:3000',
     'http://localhost:3002',
     'http://localhost:3003',
     'https://app.akademate.com',
-    'https://cepformacion.akademate.com',
     process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
-  ],
+    process.env.NEXT_PUBLIC_TENANT_URL ?? '',
+    ...parseCsvEnv(process.env.PAYLOAD_ALLOWED_ORIGINS),
+  ].filter(Boolean))],
 });
 
 // Note: Use named export getPayloadConfig() for lazy evaluation

@@ -12,6 +12,7 @@ export async function POST() {
     cookieStore.delete('payload-token')
 
     // Clear any session cookies
+    cookieStore.delete('akademate_session')
     cookieStore.delete('cep_session')
 
     return NextResponse.json(
