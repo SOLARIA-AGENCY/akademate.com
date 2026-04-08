@@ -346,10 +346,6 @@ Equipo CEP Formacion`
                       <span className="font-medium">WhatsApp</span>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(whatsappMessage, 'whatsapp')}>
-                        {copied === 'whatsapp' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                        {copied === 'whatsapp' ? 'Copiado' : 'Copiar mensaje'}
-                      </Button>
                       <a href={`https://wa.me/${lead.phone.replace(/\s+/g, '')}?text=${encodeURIComponent(whatsappMessage)}`}
                         target="_blank" rel="noopener"
                         className="inline-flex items-center px-3 py-1.5 rounded-md bg-green-600 text-white text-sm font-medium">
@@ -372,10 +368,6 @@ Equipo CEP Formacion`
                       <span className="font-medium">{lead.email}</span>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(emailBody, 'email')}>
-                        {copied === 'email' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                        {copied === 'email' ? 'Copiado' : 'Copiar email'}
-                      </Button>
                       <a href={`mailto:${lead.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`}
                         className="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm font-medium">
                         Enviar email
