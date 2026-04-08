@@ -443,3 +443,17 @@ body:not([data-payload-admin]) {
 nextjs-portal {
   pointer-events: none;
 }
+
+/* ============================================================================
+   DASHBOARD MEDIA + RESPONSIVE HARDENING
+   ============================================================================ */
+
+/* Keep photo crops anchored to the top edge on dashboard cards/hero blocks. */
+.dashboard-shell img.object-cover:not(.rounded-full):not(.object-center):not(.object-bottom) {
+  object-position: center top;
+}
+
+/* Smooth horizontal scrolling for tables/cards on mobile. */
+.dashboard-shell .overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}

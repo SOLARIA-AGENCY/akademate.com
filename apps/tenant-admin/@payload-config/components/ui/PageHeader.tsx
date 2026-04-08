@@ -51,10 +51,10 @@ export function PageHeader({
   const content = (
     <>
       {/* Row 1: Title and Actions */}
-      <div className="flex items-center justify-between" data-oid="nq9arpo">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between" data-oid="nq9arpo">
         <div className="flex items-center gap-3" data-oid="_zscgyl">
           <div data-oid="msm_hkf">
-            <h1 className="text-2xl font-bold" data-oid=".ik_qyi">
+            <h1 className="text-xl sm:text-2xl font-bold" data-oid=".ik_qyi">
               {title}
             </h1>
             {description && (
@@ -65,7 +65,10 @@ export function PageHeader({
           </div>
         </div>
 
-        <div className="flex items-center gap-2" data-oid="1n2t8tr">
+        <div
+          className="flex w-full sm:w-auto flex-wrap items-center justify-start sm:justify-end gap-2"
+          data-oid="1n2t8tr"
+        >
           {actions}
           {showAddButton && onAdd && (
             <Button onClick={onAdd} size="sm" data-oid=":ke29tb">

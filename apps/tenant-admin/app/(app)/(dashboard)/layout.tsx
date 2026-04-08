@@ -4,8 +4,8 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Search } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { Menu, Search } from 'lucide-react'
 import { NotificationBell } from '@payload-config/components/ui/NotificationBell'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -60,8 +60,10 @@ const shortcuts: ShortcutItem[] = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const { branding } = useTenantBranding()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState({
@@ -108,6 +110,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     void loadSession()
   }, [])
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)')
+    const syncBreakpoint = () => {
+      const mobile = mediaQuery.matches
+      setIsMobile(mobile)
+      if (mobile) setSidebarOpen(false)
+    }
+
+    syncBreakpoint()
+    mediaQuery.addEventListener('change', syncBreakpoint)
+    return () => mediaQuery.removeEventListener('change', syncBreakpoint)
+  }, [])
+
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false)
+    }
+  }, [isMobile, pathname])
+
   const filteredShortcuts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
     if (!query) return shortcuts.slice(0, 6)
@@ -131,12 +152,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <RealtimeProvider tenantId={1} data-oid="xrr6i5x">
       <div
-        className="flex h-screen overflow-hidden bg-background text-foreground overscroll-none"
+        className="dashboard-shell flex h-screen overflow-hidden bg-background text-foreground overscroll-none"
         data-oid="dq:3ws5"
       >
+        {isMobile && sidebarOpen && (
+          <button
+            type="button"
+            aria-label="Cerrar menú lateral"
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-30 bg-black/40 md:hidden"
+          />
+        )}
+
         <aside
           className={`fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 ${
-            sidebarOpen ? 'w-[240px]' : 'w-[80px]'
+            isMobile
+              ? `w-[280px] ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`
+              : sidebarOpen
+                ? 'w-[240px]'
+                : 'w-[80px]'
           }`}
           data-oid="044wu:-"
         >
@@ -149,7 +183,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div
           className={`flex-1 flex flex-col transition-all duration-300 ${
-            sidebarOpen ? 'ml-[240px]' : 'ml-[80px]'
+            isMobile ? 'ml-0' : sidebarOpen ? 'ml-[240px]' : 'ml-[80px]'
           }`}
           data-oid="asfyqnr"
         >
@@ -157,7 +191,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b bg-card/95 backdrop-blur px-4 md:px-6"
             data-oid="oy8tn.c"
           >
-            <div className="flex items-center gap-3 pr-4" data-oid="w2r2vqk"></div>
+            <div className="flex items-center gap-2 pr-2 md:pr-4" data-oid="w2r2vqk">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                aria-label="Abrir menú lateral"
+                onClick={() => setSidebarOpen((prev) => !prev)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </div>
 
             <div className="flex-1 max-w-md" data-oid="38sqxrv">
               <div className="relative hidden lg:block" data-oid="37i3m-d">
@@ -294,7 +339,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto overscroll-contain p-4 md:p-6" data-oid="20tk9nh">
+          <main
+            className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 md:p-6"
+            data-oid="20tk9nh"
+          >
             {children}
           </main>
 

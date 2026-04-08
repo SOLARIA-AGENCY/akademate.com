@@ -362,7 +362,7 @@ export default function LeadsPage() {
               return (
                 <div
                   key={lead.id}
-                  className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors"
+                  className="flex flex-col gap-3 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors sm:flex-row sm:items-center"
                   onClick={() => router.push(`/leads/${lead.id}`)}
                 >
                   {/* Status dot + Name */}
@@ -372,45 +372,47 @@ export default function LeadsPage() {
                       <span className="font-medium truncate">{fullName(lead)}</span>
                       <ArrowUpRight className="h-3 w-3 text-muted-foreground shrink-0" />
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground mt-0.5 pl-[18px]">
-                      {lead.email && <span className="truncate max-w-[200px]">{lead.email}</span>}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground mt-0.5 pl-[18px]">
+                      {lead.email && <span className="truncate max-w-full sm:max-w-[220px]">{lead.email}</span>}
                       {lead.phone && <span>{lead.phone}</span>}
                     </div>
                   </div>
 
-                  {/* Type badge */}
-                  <Badge variant="outline" className={`shrink-0 text-xs ${typeCfg.color}`}>
-                    {typeCfg.label}
-                  </Badge>
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end sm:ml-auto">
+                    {/* Type badge */}
+                    <Badge variant="outline" className={`text-xs ${typeCfg.color}`}>
+                      {typeCfg.label}
+                    </Badge>
 
-                  {/* Status badge */}
-                  <Badge variant="outline" className={`shrink-0 text-xs ${statusCfg.badge}`}>
-                    {statusCfg.label}
-                  </Badge>
+                    {/* Status badge */}
+                    <Badge variant="outline" className={`text-xs ${statusCfg.badge}`}>
+                      {statusCfg.label}
+                    </Badge>
 
-                  {/* Last interactor */}
-                  {lead.lastInteractor && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0" title={`Ultimo contacto: ${lead.lastInteractor.name}`}>
-                      {lead.lastInteractor.channel === 'phone' && <Phone className="h-3 w-3" />}
-                      {lead.lastInteractor.channel === 'whatsapp' && <MessageSquare className="h-3 w-3" />}
-                      {lead.lastInteractor.channel === 'email' && <Mail className="h-3 w-3" />}
-                      <span className="truncate max-w-[80px]">{lead.lastInteractor.name}</span>
-                    </div>
-                  )}
+                    {/* Last interactor */}
+                    {lead.lastInteractor && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground" title={`Ultimo contacto: ${lead.lastInteractor.name}`}>
+                        {lead.lastInteractor.channel === 'phone' && <Phone className="h-3 w-3" />}
+                        {lead.lastInteractor.channel === 'whatsapp' && <MessageSquare className="h-3 w-3" />}
+                        {lead.lastInteractor.channel === 'email' && <Mail className="h-3 w-3" />}
+                        <span className="truncate max-w-[100px]">{lead.lastInteractor.name}</span>
+                      </div>
+                    )}
 
-                  {/* Interaction count */}
-                  {(lead.interactionCount ?? 0) > 0 && (
-                    <span className="text-xs text-muted-foreground shrink-0" title="Intentos de contacto">
-                      {lead.interactionCount}x
-                    </span>
-                  )}
+                    {/* Interaction count */}
+                    {(lead.interactionCount ?? 0) > 0 && (
+                      <span className="text-xs text-muted-foreground" title="Intentos de contacto">
+                        {lead.interactionCount}x
+                      </span>
+                    )}
 
-                  {/* Time ago */}
-                  {created && (
-                    <span className="text-xs text-muted-foreground shrink-0 w-24 text-right">
-                      {timeAgo(created)}
-                    </span>
-                  )}
+                    {/* Time ago */}
+                    {created && (
+                      <span className="text-xs text-muted-foreground">
+                        {timeAgo(created)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               )
             })}
