@@ -129,4 +129,31 @@ describe('Lead enroll route', () => {
     expect(mockExecute.mock.calls[0][0]).toContain("UPDATE leads SET status = 'enrolling'")
     expect(mockExecute.mock.calls[1][0]).toContain("VALUES (16, 4, 'system', 'enrollment_started'")
   })
+
+  it('returns existing enrollment as idempotent success when lead is already enrolled', async () => {
+    mockFindByID.mockResolvedValue({
+      id: 16,
+      status: 'enrolling',
+      tenant_id: 2,
+      enrollment_id: 73,
+      course_id: 11,
+    })
+
+    const request = new NextRequest('http://localhost/api/leads/16/enroll', {
+      method: 'POST',
+      headers: { cookie: 'payload-token=ok' },
+    })
+
+    const response = await POST(request, buildContext())
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload).toEqual({
+      success: true,
+      alreadyExists: true,
+      enrollmentId: 73,
+    })
+    expect(mockCreate).not.toHaveBeenCalled()
+    expect(mockExecute).not.toHaveBeenCalled()
+  })
 })

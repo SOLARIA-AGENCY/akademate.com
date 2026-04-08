@@ -87,10 +87,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     if (lead.enrollment_id) {
-      return NextResponse.json(
-        { error: 'Lead ya tiene ficha de matricula', enrollmentId: lead.enrollment_id },
-        { status: 409 },
-      )
+      return NextResponse.json({
+        success: true,
+        alreadyExists: true,
+        enrollmentId: lead.enrollment_id,
+      })
     }
 
     const tenantId =

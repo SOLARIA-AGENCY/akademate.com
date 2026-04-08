@@ -107,6 +107,8 @@ export default function LeadDetailPage({ params }: Props) {
   // Actions
   // ---------------------------------------------------------------------------
 
+  const getEnrollmentRoute = (enrollmentId: string | number) => `/matriculas?enrollmentId=${enrollmentId}`
+
   const updateLead = async (updates: Record<string, any>) => {
     setSaving(true)
     try {
@@ -181,13 +183,27 @@ export default function LeadDetailPage({ params }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       })
-      const data = await res.json()
-      if (data.success && data.enrollmentId) {
-        router.push(`/matriculas?enrollmentId=${data.enrollmentId}`)
-      } else if (data?.error) {
-        alert(data.error)
+      let data: any = null
+      try {
+        data = await res.json()
+      } catch {
+        data = null
       }
-    } catch {}
+
+      const enrollmentId = data?.enrollmentId ?? data?.enrollment_id ?? data?.id ?? data?.enrollment?.id
+      if (enrollmentId) {
+        router.push(getEnrollmentRoute(enrollmentId))
+        return
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.error || 'No se pudo iniciar la matriculacion')
+      }
+      throw new Error('No se pudo obtener la ficha de matricula')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo iniciar la matriculacion'
+      alert(message)
+    }
     finally { setSaving(false) }
   }
 
@@ -276,7 +292,7 @@ Equipo CEP Formacion`
               </Button>
             )}
             {showEnrollLink && (
-              <Button variant="outline" onClick={() => router.push(`/matriculas?enrollmentId=${lead.enrollment_id}`)}>
+              <Button variant="outline" onClick={() => router.push(getEnrollmentRoute(lead.enrollment_id))}>
                 <GraduationCap className="mr-2 h-4 w-4" />Ver ficha matricula
               </Button>
             )}
