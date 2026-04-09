@@ -51,8 +51,20 @@ describe('Public website routing middleware', () => {
     expect(getHeader(response, 'x-middleware-rewrite')).toBe('')
   })
 
-  it('does not rewrite canonical routes for authenticated users', () => {
+  it('keeps canonical website routes public on CEP host even for authenticated users', () => {
     const request = new NextRequest('https://cepformacion.akademate.com/cursos', {
+      headers: { cookie: 'payload-token=session-token' },
+    })
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'x-middleware-rewrite')).toBe(
+      'https://cepformacion.akademate.com/p/cursos'
+    )
+  })
+
+  it('does not force website rewrite on non-CEP hosts for authenticated users', () => {
+    const request = new NextRequest('https://app.akademate.com/cursos', {
       headers: { cookie: 'payload-token=session-token' },
     })
     const response = middleware(request)

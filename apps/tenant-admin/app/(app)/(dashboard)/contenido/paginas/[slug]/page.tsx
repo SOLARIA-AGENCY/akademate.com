@@ -39,6 +39,58 @@ function asSectionWithLimit(
   return 'limit' in section
 }
 
+function SectionGraphicPreview({ section }: { section: WebsiteSection }) {
+  if (section.kind === 'heroCarousel') {
+    const slide = section.slides?.[0]
+    return (
+      <div className="mt-2 overflow-hidden rounded-md border bg-black/80">
+        {slide ? (
+          <div className="relative h-20">
+            <img src={slide.image} alt={slide.alt} className="h-full w-full object-cover opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+            <div className="absolute left-2 top-2 right-2 text-white">
+              <p className="line-clamp-1 text-[11px] font-semibold">{section.title}</p>
+              <p className="line-clamp-1 text-[10px] text-white/75">{section.subtitle}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="h-20 bg-muted" />
+        )}
+      </div>
+    )
+  }
+
+  if (section.kind === 'statsStrip') {
+    return (
+      <div className="mt-2 grid grid-cols-4 gap-1">
+        {section.items.slice(0, 4).map((item) => (
+          <div key={item.label} className="rounded bg-muted p-1 text-center">
+            <p className="text-[10px] font-semibold">{item.value}</p>
+            <p className="truncate text-[9px] text-muted-foreground">{item.label}</p>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if ('title' in section) {
+    return (
+      <div className="mt-2 rounded-md border bg-muted/40 p-2">
+        <p className="line-clamp-1 text-[11px] font-medium">{section.title}</p>
+        {'subtitle' in section ? (
+          <p className="line-clamp-1 text-[10px] text-muted-foreground">{section.subtitle || 'Sin subtítulo'}</p>
+        ) : null}
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-2 rounded-md border bg-muted/40 p-2">
+      <p className="text-[10px] text-muted-foreground">Vista previa disponible al seleccionar bloque.</p>
+    </div>
+  )
+}
+
 export default function EditWebsitePage({
   params,
 }: {
@@ -224,42 +276,45 @@ export default function EditWebsitePage({
                   key={section.id || `${section.kind}-${index}`}
                   type="button"
                   onClick={() => setSelectedSectionId(section.id || null)}
-                  className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition ${isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/40'}`}
+                  className={`w-full rounded-lg border p-3 text-left transition ${isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/40'}`}
                 >
-                  <GripVertical className="h-4 w-4 text-muted-foreground" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{section.label || section.kind}</p>
-                    <p className="text-xs text-muted-foreground">{section.kind}</p>
+                  <div className="flex items-center gap-3">
+                    <GripVertical className="h-4 w-4 text-muted-foreground" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{section.label || section.kind}</p>
+                      <p className="text-xs text-muted-foreground">{section.kind}</p>
+                    </div>
+                    <Badge variant={section.enabled === false ? 'outline' : 'secondary'}>
+                      {section.enabled === false ? 'Oculta' : 'Activa'}
+                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        disabled={index === 0}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          moveSection(section.id || '', 'up')
+                        }}
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        disabled={index === page.sections.length - 1}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          moveSection(section.id || '', 'down')
+                        }}
+                      >
+                        <ArrowDown className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <Badge variant={section.enabled === false ? 'outline' : 'secondary'}>
-                    {section.enabled === false ? 'Oculta' : 'Activa'}
-                  </Badge>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      disabled={index === 0}
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        moveSection(section.id || '', 'up')
-                      }}
-                    >
-                      <ArrowUp className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      disabled={index === page.sections.length - 1}
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        moveSection(section.id || '', 'down')
-                      }}
-                    >
-                      <ArrowDown className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <SectionGraphicPreview section={section} />
                 </button>
               )
             })}
@@ -333,6 +388,89 @@ export default function EditWebsitePage({
                         }))
                       }
                     />
+                  </div>
+                ) : null}
+
+                {'slides' in selectedSection ? (
+                  <div className="space-y-3">
+                    <Separator />
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium">Slides del Hero</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          updateSection(selectedSection.id || '', (section) => ({
+                            ...(section as Extract<WebsiteSection, { kind: 'heroCarousel' }>),
+                            slides: [
+                              ...((section as Extract<WebsiteSection, { kind: 'heroCarousel' }>).slides || []),
+                              {
+                                image: '',
+                                alt: `Slide ${(section as Extract<WebsiteSection, { kind: 'heroCarousel' }>).slides.length + 1}`,
+                              },
+                            ],
+                          }))
+                        }
+                      >
+                        Añadir foto
+                      </Button>
+                    </div>
+
+                    {(selectedSection.slides || []).map((slide, slideIndex) => (
+                      <div key={`${slide.image}-${slideIndex}`} className="space-y-2 rounded-md border p-3">
+                        <div className="space-y-2">
+                          <Label>URL imagen #{slideIndex + 1}</Label>
+                          <Input
+                            value={slide.image}
+                            onChange={(event) =>
+                              updateSection(selectedSection.id || '', (section) => {
+                                const hero = section as Extract<WebsiteSection, { kind: 'heroCarousel' }>
+                                const nextSlides = [...hero.slides]
+                                nextSlides[slideIndex] = { ...nextSlides[slideIndex], image: event.target.value }
+                                return { ...hero, slides: nextSlides }
+                              })
+                            }
+                            placeholder="/website/cep/hero/slide-1.jpg"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Alt #{slideIndex + 1}</Label>
+                          <Input
+                            value={slide.alt}
+                            onChange={(event) =>
+                              updateSection(selectedSection.id || '', (section) => {
+                                const hero = section as Extract<WebsiteSection, { kind: 'heroCarousel' }>
+                                const nextSlides = [...hero.slides]
+                                nextSlides[slideIndex] = { ...nextSlides[slideIndex], alt: event.target.value }
+                                return { ...hero, slides: nextSlides }
+                              })
+                            }
+                            placeholder="Descripción breve de la imagen"
+                          />
+                        </div>
+                        <div className="flex justify-end">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            disabled={(selectedSection.slides || []).length <= 1}
+                            onClick={() =>
+                              updateSection(selectedSection.id || '', (section) => {
+                                const hero = section as Extract<WebsiteSection, { kind: 'heroCarousel' }>
+                                return {
+                                  ...hero,
+                                  slides: hero.slides.filter((_, index) => index !== slideIndex),
+                                }
+                              })
+                            }
+                          >
+                            Eliminar foto
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : null}
 

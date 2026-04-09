@@ -77,7 +77,7 @@ export default async function PublicLayout({ children }: { children: React.React
               <img
                 src={website.visualIdentity.logoPrimary || tenant.logoUrl}
                 alt={tenant.academyName}
-                className="h-11 w-auto object-contain"
+                className="h-14 w-auto object-contain lg:h-16"
               />
             </Link>
             <nav className="hidden items-center gap-6 lg:flex">
@@ -107,7 +107,7 @@ export default async function PublicLayout({ children }: { children: React.React
               <img
                 src={website.visualIdentity.logoPrimary || tenant.logoUrl}
                 alt={tenant.academyName}
-                className="h-12 w-auto object-contain brightness-0 invert"
+                className="h-14 w-auto object-contain brightness-0 invert lg:h-16"
               />
               <p className="mt-5 max-w-md text-sm leading-7 text-white/65">{website.footer.description}</p>
             </div>

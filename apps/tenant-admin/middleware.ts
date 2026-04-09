@@ -191,10 +191,14 @@ function getCorsHeaders(origin: string | null) {
   return headers
 }
 
+function hostLooksLikeCep(host: string): boolean {
+  return /(^|\.)cepformacion(\.|$)/i.test(host) || host.includes('cep-formacion')
+}
+
 export function middleware(request: NextRequest) {
-  const { pathname, protocol, host: _host } = request.nextUrl
+  const { pathname, protocol, host: nextUrlHost } = request.nextUrl
   const origin = request.headers.get('origin')
-  const host = request.headers.get('host') ?? ''
+  const host = request.headers.get('host') ?? nextUrlHost ?? ''
   const hasSession = Boolean(request.cookies.get('payload-token')?.value)
 
   // Always allow tenant dev-login endpoint in development/staging workflows.
@@ -231,7 +235,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  if (!hasSession) {
+  const isCepHost = hostLooksLikeCep(host.toLowerCase())
+  if (!hasSession || isCepHost) {
     const publicRewrites: Array<[RegExp, string | ((match: RegExpMatchArray) => string)]> = [
       [/^\/cursos\/?$/, '/p/cursos'],
       [/^\/cursos\/([^/]+)\/?$/, (match) => `/p/cursos/${match[1]}`],

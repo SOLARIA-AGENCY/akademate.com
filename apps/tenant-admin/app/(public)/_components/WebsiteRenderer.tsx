@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
+import { HeroCarouselClient } from './HeroCarouselClient'
 
 function resolveImageUrl(image: any): string | null {
   if (!image) return null
@@ -18,47 +19,7 @@ async function HeroCarouselSection({
   section: Extract<WebsiteSection, { kind: 'heroCarousel' }>
   brandColor: string
 }) {
-  const firstSlide = section.slides[0]
-  return (
-    <section className="relative overflow-hidden bg-[#140816] text-white">
-      {firstSlide && (
-        <div className="absolute inset-0">
-          <img src={firstSlide.image} alt={firstSlide.alt} className="h-full w-full object-cover opacity-30" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/25" />
-        </div>
-      )}
-      <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-24 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:px-8 lg:py-28">
-        <div className="max-w-3xl">
-          {section.eyebrow ? (
-            <span className="mb-6 inline-flex rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em]" style={{ backgroundColor: brandColor }}>
-              {section.eyebrow}
-            </span>
-          ) : null}
-          <h1 className="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">{section.title}</h1>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-lg">{section.subtitle}</p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            {section.primaryCta ? (
-              <Link href={section.primaryCta.href} className="rounded-full px-6 py-3 text-sm font-semibold text-white" style={{ backgroundColor: brandColor }}>
-                {section.primaryCta.label}
-              </Link>
-            ) : null}
-            {section.secondaryCta ? (
-              <Link href={section.secondaryCta.href} className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm">
-                {section.secondaryCta.label}
-              </Link>
-            ) : null}
-          </div>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-          {section.slides.map((slide) => (
-            <div key={slide.image} className="overflow-hidden rounded-3xl border border-white/10 bg-white/10 backdrop-blur-sm">
-              <img src={slide.image} alt={slide.alt} className="h-40 w-full object-cover lg:h-44" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
+  return <HeroCarouselClient section={section} brandColor={brandColor} />
 }
 
 function StatsStripSection({ section, brandColor }: { section: Extract<WebsiteSection, { kind: 'statsStrip' }>; brandColor: string }) {
