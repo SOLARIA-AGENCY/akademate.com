@@ -400,9 +400,10 @@ export async function WebsiteRenderer({
   page: WebsitePage
   brandColor: string
 }) {
+  const visibleSections = page.sections.filter((section) => section.enabled !== false)
   const sections = await Promise.all(
-    page.sections.map(async (section, index) => (
-      <div key={`${section.kind}-${index}`}>{await renderSection(section, brandColor)}</div>
+    visibleSections.map(async (section, index) => (
+      <div key={section.id || `${section.kind}-${index}`}>{await renderSection(section, brandColor)}</div>
     ))
   )
   return <>{sections}</>

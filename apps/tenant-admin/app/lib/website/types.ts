@@ -10,6 +10,9 @@ export type WebsiteHeroSlide = {
 
 export type WebsiteSection =
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'heroCarousel'
       eyebrow?: string
       title: string
@@ -19,16 +22,25 @@ export type WebsiteSection =
       secondaryCta?: WebsiteLink
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'statsStrip'
       items: Array<{ value: string; label: string }>
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'featureStrip'
       title?: string
       subtitle?: string
       items: Array<{ title: string; description: string; icon?: string }>
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'ctaBanner'
       title: string
       body: string
@@ -36,6 +48,9 @@ export type WebsiteSection =
       theme?: 'brand' | 'dark' | 'light'
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'courseList'
       title: string
       subtitle?: string
@@ -44,6 +59,9 @@ export type WebsiteSection =
       featuredOnly?: boolean
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'cycleList'
       title: string
       subtitle?: string
@@ -51,30 +69,45 @@ export type WebsiteSection =
       featuredOnly?: boolean
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'convocationList'
       title: string
       subtitle?: string
       limit?: number
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'campusList'
       title: string
       subtitle?: string
       limit?: number
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'categoryGrid'
       title: string
       subtitle?: string
       items: Array<{ title: string; image: string; href?: string }>
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'teamGrid'
       title: string
       subtitle?: string
       members: Array<{ name: string; role: string; image: string }>
     }
   | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'leadForm'
       title: string
       subtitle?: string
@@ -85,6 +118,8 @@ export type WebsiteSection =
 export type WebsitePage = {
   title: string
   path: string
+  slug?: string
+  thumbnailUrl?: string
   pageKind:
     | 'home'
     | 'standard'

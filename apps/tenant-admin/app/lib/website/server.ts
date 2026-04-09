@@ -5,6 +5,7 @@ import { headers } from 'next/headers'
 import { queryFirst } from '@/@payload-config/lib/db'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import { CEP_DEFAULT_WEBSITE } from './defaults'
+import { normalizeWebsiteConfig } from './editor'
 import type { WebsiteConfig, WebsitePage } from './types'
 
 const WEBSITE_START = '\n[AKADEMATE_WEBSITE]\n'
@@ -25,8 +26,8 @@ function extractWebsiteFromNotes(notes: string | null | undefined): WebsiteConfi
 }
 
 export function mergeWebsiteConfig(input?: Partial<WebsiteConfig> | null): WebsiteConfig {
-  if (!input) return CEP_DEFAULT_WEBSITE
-  return {
+  if (!input) return normalizeWebsiteConfig(CEP_DEFAULT_WEBSITE)
+  return normalizeWebsiteConfig({
     ...CEP_DEFAULT_WEBSITE,
     ...input,
     visualIdentity: {
@@ -45,7 +46,7 @@ export function mergeWebsiteConfig(input?: Partial<WebsiteConfig> | null): Websi
     },
     redirects: input.redirects ?? CEP_DEFAULT_WEBSITE.redirects,
     pages: input.pages ?? CEP_DEFAULT_WEBSITE.pages,
-  }
+  })
 }
 
 const getTenantWebsiteByIdCached = cache(async (tenantId: string): Promise<WebsiteConfig> => {
@@ -65,7 +66,7 @@ export async function getTenantWebsite(): Promise<WebsiteConfig> {
 
 export async function getPublicPage(pathname: string): Promise<WebsitePage | null> {
   const website = await getTenantWebsite()
-  return website.pages.find((page) => page.path === pathname) ?? null
+  return website.pages.find((page) => page.path === pathname || page.slug === pathname.replace(/^\//, '').replace(/\//g, '--')) ?? null
 }
 
 export async function getRequestPathname(): Promise<string> {
