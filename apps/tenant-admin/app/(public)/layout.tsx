@@ -1,5 +1,6 @@
 import type React from 'react'
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import '../globals.css'
 import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
 
@@ -65,6 +66,26 @@ type TenantData = {
   whatsappContacts: Array<{ label: string; phone: string; shortCode: string; message: string }>
 }
 
+function isCepHost(host: string): boolean {
+  return /(^|\.)cepformacion(\.|$)/i.test(host) || host.includes('cep-formacion')
+}
+
+async function getEmergencyTenantData(): Promise<TenantData> {
+  const headerStore = await Promise.resolve(headers())
+  const hostHeader = headerStore.get('x-forwarded-host') || headerStore.get('host') || ''
+  const normalizedHost = hostHeader.split(',')[0]?.trim().toLowerCase().replace(/:\d+$/, '') || ''
+  const cepFallback = isCepHost(normalizedHost)
+
+  return {
+    name: cepFallback ? 'CEP Formación' : 'Academia',
+    logo: cepFallback ? '/logos/cep-formacion-logo.png' : '/logos/akademate-logo-official.png',
+    primaryColor: cepFallback ? '#cc0000' : '#64748b',
+    metaPixelId: '',
+    ga4MeasurementId: '',
+    whatsappContacts: [],
+  }
+}
+
 function normalizeWhatsAppPhone(raw: string): string | null {
   const digits = raw.replace(/[^\d+]/g, '').replace(/\+/g, '')
   if (!digits) return null
@@ -113,26 +134,7 @@ async function getTenantData(): Promise<TenantData> {
       whatsappContacts,
     }
   } catch {
-    const fallbackTenant = await getTenantHostBranding().catch(() => null)
-    if (fallbackTenant) {
-      return {
-        name: fallbackTenant.academyName,
-        logo: fallbackTenant.logoUrl,
-        primaryColor: fallbackTenant.primaryColor,
-        metaPixelId: fallbackTenant.metaPixelId,
-        ga4MeasurementId: fallbackTenant.ga4MeasurementId,
-        whatsappContacts: [],
-      }
-    }
-
-    return {
-      name: 'Academia',
-      logo: '/logos/akademate-logo-official.png',
-      primaryColor: '#64748b',
-      metaPixelId: '',
-      ga4MeasurementId: '',
-      whatsappContacts: [],
-    }
+    return getEmergencyTenantData()
   }
 }
 

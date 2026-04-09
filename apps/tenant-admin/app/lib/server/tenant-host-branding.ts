@@ -189,7 +189,20 @@ export async function getTenantHostBranding(): Promise<TenantHostBranding> {
 }
 
 export function toAbsoluteAssetUrl(origin: string, assetUrl: string): string {
-  if (!assetUrl) return `${origin}/logos/akademate-logo-official.png`
+  if (!assetUrl) {
+    let fallbackLogo = AKADEMATE_DEFAULTS.logoUrl
+    try {
+      const hostname = new URL(origin).hostname
+      if (hostLooksLikeCep(hostname)) {
+        fallbackLogo = CEP_LOGO
+      }
+    } catch {
+      if (hostLooksLikeCep(origin)) {
+        fallbackLogo = CEP_LOGO
+      }
+    }
+    return fallbackLogo.startsWith('/') ? `${origin}${fallbackLogo}` : fallbackLogo
+  }
   if (/^https?:\/\//i.test(assetUrl)) return assetUrl
   return assetUrl.startsWith('/') ? `${origin}${assetUrl}` : `${origin}/${assetUrl}`
 }
