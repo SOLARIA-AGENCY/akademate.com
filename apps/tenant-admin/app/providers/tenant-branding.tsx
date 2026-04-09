@@ -59,9 +59,9 @@ const CEP_DEFAULT_BRANDING: TenantBranding = {
     favicon: '/logos/cep-formacion-isotipo.svg',
   },
   theme: {
-    primary: '#cc0000',
+    primary: '#f2014b',
     secondary: '#1a1a2e',
-    accent: '#cc0000',
+    accent: '#f2014b',
     success: '#22c55e',
     warning: '#f59e0b',
     danger: '#ef4444',

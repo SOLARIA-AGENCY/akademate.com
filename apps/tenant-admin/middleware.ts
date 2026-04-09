@@ -83,6 +83,8 @@ const ALLOWED_ORIGINS = [
 
 // Routes that don't require authentication
 const publicRoutes = [
+  '/',
+  '/login',
   '/api/health',
   '/api/auth/dev-login',
   '/auth/login',
@@ -105,6 +107,14 @@ const publicRoutes = [
   '/api/media/file', // Serve uploaded media files publicly (images, PDFs)
   // Public web pages (landing pages, catalogs) — no auth required
   '/p/',  // All public web pages under /p/ are accessible without auth
+  '/site/',
+  '/cursos',
+  '/convocatorias',
+  '/ciclos',
+  '/sedes',
+  '/contacto',
+  '/blog',
+  '/faq',
   // Legal pages must be publicly accessible (GDPR requirement)
   '/legal',
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing
@@ -185,10 +195,62 @@ export function middleware(request: NextRequest) {
   const { pathname, protocol, host: _host } = request.nextUrl
   const origin = request.headers.get('origin')
   const host = request.headers.get('host') ?? ''
+  const hasSession = Boolean(request.cookies.get('payload-token')?.value)
 
   // Always allow tenant dev-login endpoint in development/staging workflows.
   if (pathname === '/api/auth/dev-login' || pathname === '/api/auth/dev-login/') {
     return NextResponse.next()
+  }
+
+  const legacyRedirects: Array<[RegExp, string | ((match: RegExpMatchArray) => string)]> = [
+    [/^\/auth\/login\/?$/, '/login'],
+    [/^\/p\/formacion\/?$/, '/'],
+    [/^\/p\/cursos\/?$/, '/cursos'],
+    [/^\/p\/convocatorias\/?$/, '/convocatorias'],
+    [/^\/p\/ciclos\/?$/, '/ciclos'],
+    [/^\/p\/contacto\/?$/, '/contacto'],
+    [/^\/p\/blog\/?$/, '/blog'],
+    [/^\/p\/faq\/?$/, '/faq'],
+    [/^\/p\/legal\/privacidad\/?$/, '/legal/privacidad'],
+    [/^\/p\/legal\/terminos\/?$/, '/legal/terminos'],
+    [/^\/p\/legal\/cookies\/?$/, '/legal/cookies'],
+    [/^\/p\/cursos\/([^/]+)\/?$/, (match) => `/cursos/${match[1]}`],
+    [/^\/p\/convocatorias\/([^/]+)\/?$/, (match) => `/convocatorias/${match[1]}`],
+    [/^\/p\/ciclos\/([^/]+)\/?$/, (match) => `/ciclos/${match[1]}`],
+    [/^\/quienes-somos\/?$/, '/contacto'],
+    [/^\/curso\/([^/]+)\/?$/, (match) => `/cursos/${match[1]}`],
+    [/^\/cursos-ocupados\/?$/, '/convocatorias?audiencia=ocupados'],
+    [/^\/cursos-desempleados\/?$/, '/convocatorias?audiencia=desempleados'],
+  ]
+
+  for (const [pattern, target] of legacyRedirects) {
+    const match = pathname.match(pattern)
+    if (match) {
+      const destination = typeof target === 'function' ? target(match) : target
+      return NextResponse.redirect(new URL(destination, request.url), 301)
+    }
+  }
+
+  if (!hasSession) {
+    const publicRewrites: Array<[RegExp, string | ((match: RegExpMatchArray) => string)]> = [
+      [/^\/cursos\/?$/, '/p/cursos'],
+      [/^\/cursos\/([^/]+)\/?$/, (match) => `/p/cursos/${match[1]}`],
+      [/^\/ciclos\/?$/, '/p/ciclos'],
+      [/^\/ciclos\/([^/]+)\/?$/, (match) => `/p/ciclos/${match[1]}`],
+      [/^\/sedes\/?$/, '/site/sedes'],
+      [/^\/sedes\/([^/]+)\/?$/, (match) => `/site/sedes/${match[1]}`],
+      [/^\/legal\/privacidad\/?$/, '/p/legal/privacidad'],
+      [/^\/legal\/terminos\/?$/, '/p/legal/terminos'],
+      [/^\/legal\/cookies\/?$/, '/p/legal/cookies'],
+    ]
+
+    for (const [pattern, target] of publicRewrites) {
+      const match = pathname.match(pattern)
+      if (match) {
+        const destination = typeof target === 'function' ? target(match) : target
+        return NextResponse.rewrite(new URL(destination, request.url))
+      }
+    }
   }
 
   // =========================================================================
@@ -334,7 +396,7 @@ export function middleware(request: NextRequest) {
     }
 
     // For page routes, redirect to login
-    const loginUrl = new URL('/auth/login', request.url)
+    const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(loginUrl)
   }

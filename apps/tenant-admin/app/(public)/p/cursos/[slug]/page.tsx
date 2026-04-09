@@ -49,26 +49,28 @@ export default async function CursoLandingPage({ params }: Props) {
   const course = result.docs[0] as any
   if (!course) notFound()
 
-  const imageUrl = resolveImageUrl(course.image)
+  const title = course.title ?? course.name
+  const description = course.description ?? course.short_description ?? course.long_description
+  const imageUrl = resolveImageUrl(course.featured_image) || resolveImageUrl(course.image)
 
   return (
     <div>
       {/* HERO */}
       <div className="relative h-72 sm:h-80 bg-gradient-to-br from-indigo-700 to-indigo-900">
-        {imageUrl && <img src={imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />}
+        {imageUrl && <img src={imageUrl} alt={title} className="absolute inset-0 w-full h-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-12 max-w-7xl mx-auto">
-          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2">{course.title}</h1>
+          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2">{title}</h1>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-10">
-            {course.description && (
+            {description && (
               <section>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Sobre este curso</h2>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{course.description}</p>
+                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{description}</p>
               </section>
             )}
           </div>
@@ -77,7 +79,7 @@ export default async function CursoLandingPage({ params }: Props) {
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-2">Pedir informacion</h3>
               <p className="text-sm text-gray-600 mb-4">Dejanos tu email y te informaremos.</p>
-              <LeadForm cycleId={String(course.id)} cycleName={course.title} hasActiveConvocatorias={false} />
+              <LeadForm cycleId={String(course.id)} cycleName={title} hasActiveConvocatorias={false} />
             </div>
           </div>
         </div>

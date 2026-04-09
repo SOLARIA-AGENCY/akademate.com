@@ -2,6 +2,9 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { queryFirst } from '@/@payload-config/lib/db'
+import { CEP_DEFAULT_WEBSITE } from '@/app/lib/website/defaults'
+import { mergeWebsiteConfig, serializeWebsiteNotes } from '@/app/lib/website/server'
+import type { WebsiteConfig } from '@/app/lib/website/types'
 
 const PersonalizacionSchema = z.object({
   primary: z.string().min(4),
@@ -74,6 +77,10 @@ interface TenantBrandingResult {
   branding: TenantBranding
 }
 
+interface TenantWebsiteResult {
+  notes: string | null
+}
+
 interface TenantDomainsResult {
   domains: string[]
 }
@@ -83,6 +90,26 @@ interface ConfigData {
   logos: z.infer<typeof LogosSchema>
   personalizacion: z.infer<typeof PersonalizacionSchema>
   domains?: z.infer<typeof DomainsSchema>
+}
+
+function parseWebsiteConfig(raw: unknown): WebsiteConfig {
+  return mergeWebsiteConfig((raw ?? null) as Partial<WebsiteConfig> | null)
+}
+
+function extractWebsiteFromNotes(notes: string | null | undefined): WebsiteConfig | null {
+  if (!notes) return null
+  const start = notes.indexOf('\n[AKADEMATE_WEBSITE]\n')
+  const end = notes.indexOf('\n[/AKADEMATE_WEBSITE]\n')
+  if (start === -1 || end === -1 || end <= start) return null
+  try {
+    const raw = notes
+      .slice(start + '\n[AKADEMATE_WEBSITE]\n'.length, end)
+      .trim()
+    if (!raw) return null
+    return parseWebsiteConfig(JSON.parse(raw))
+  } catch {
+    return null
+  }
 }
 
 // Default fallback config — Akademate platform defaults.
@@ -348,6 +375,20 @@ async function getTenantDomains(tenantId: string): Promise<TenantDomainsResult |
   }
 }
 
+async function getTenantWebsiteConfig(tenantId: string): Promise<WebsiteConfig> {
+  const isNumeric = /^\d+$/.test(tenantId)
+  if (isNumeric) {
+    const row = await queryFirst<TenantWebsiteResult>(
+      `SELECT notes FROM tenants WHERE id = $1 LIMIT 1`,
+      [parseInt(tenantId, 10)]
+    )
+    return extractWebsiteFromNotes(row?.notes) ?? CEP_DEFAULT_WEBSITE
+  }
+
+  const tenant = await getTenantBranding(tenantId)
+  return parseWebsiteConfig((tenant?.branding?.website ?? null) as unknown)
+}
+
 async function updateTenantBranding(tenantId: string, branding: TenantBranding): Promise<void> {
   const isNumeric = /^\d+$/.test(tenantId)
 
@@ -415,6 +456,30 @@ async function updateTenantDomains(tenantId: string, domains: string[]): Promise
       [tenantId, JSON.stringify(domains)]
     )
   }
+}
+
+async function updateTenantWebsiteConfig(tenantId: string, website: WebsiteConfig): Promise<void> {
+  const isNumeric = /^\d+$/.test(tenantId)
+  if (isNumeric) {
+    const existing = await queryFirst<{ notes: string | null }>(
+      `SELECT notes FROM tenants WHERE id = $1 LIMIT 1`,
+      [parseInt(tenantId, 10)]
+    )
+    const nextNotes = serializeWebsiteNotes(existing?.notes, website)
+    await queryFirst(
+      `UPDATE tenants SET notes = $2, updated_at = NOW() WHERE id = $1`,
+      [parseInt(tenantId, 10), nextNotes]
+    )
+    return
+  }
+
+  const tenant = await getTenantBranding(tenantId)
+  if (!tenant) return
+  const nextBranding: TenantBranding = {
+    ...(tenant.branding ?? {}),
+    website,
+  }
+  await updateTenantBranding(tenantId, nextBranding)
 }
 
 // ============================================================================
@@ -626,6 +691,20 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    if (section === 'website') {
+      if (!tenantId) {
+        return NextResponse.json({ success: true, data: CEP_DEFAULT_WEBSITE })
+      }
+      try {
+        return NextResponse.json({
+          success: true,
+          data: await getTenantWebsiteConfig(tenantId),
+        })
+      } catch {
+        return NextResponse.json({ success: true, data: CEP_DEFAULT_WEBSITE })
+      }
+    }
+
     // Section not found
     return NextResponse.json(
       { success: false, error: 'Section not found' },
@@ -822,6 +901,24 @@ export async function PUT(request: NextRequest) {
         success: true,
         message: 'Integraciones actualizadas correctamente',
         data: parsed.data,
+      })
+    }
+
+    if (section === 'website') {
+      if (!tenantId) {
+        return NextResponse.json(
+          { success: false, error: 'tenantId is required' },
+          { status: 400 }
+        )
+      }
+
+      const parsed = parseWebsiteConfig(data)
+      await updateTenantWebsiteConfig(tenantId, parsed)
+
+      return NextResponse.json({
+        success: true,
+        message: 'Website actualizado correctamente',
+        data: parsed,
       })
     }
 

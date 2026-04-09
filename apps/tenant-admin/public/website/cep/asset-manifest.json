@@ -1,0 +1,37 @@
+{
+  "logos": {
+    "primary": "/website/cep/logos/cep-circle-logo.png",
+    "mark": "/website/cep/logos/cep-circle-icon.svg"
+  },
+  "fonts": {
+    "primary": "Poppins",
+    "files": [
+      "/website/cep/fonts/poppins-v21-latin-300.woff2",
+      "/website/cep/fonts/poppins-v21-latin-regular.woff2",
+      "/website/cep/fonts/poppins-v21-latin-500.woff2",
+      "/website/cep/fonts/poppins-v21-latin-600.woff2",
+      "/website/cep/fonts/poppins-v21-latin-700.woff2"
+    ]
+  },
+  "heroSlides": [
+    "/website/cep/hero/slideshow-1.jpg",
+    "/website/cep/hero/slideshow-2.jpg",
+    "/website/cep/hero/slideshow-3.jpg"
+  ],
+  "categories": [
+    "/website/cep/categories/ciclos-formativos.jpg",
+    "/website/cep/categories/salud-bienestar-y-deporte.jpg",
+    "/website/cep/categories/mundo-animal.jpg",
+    "/website/cep/categories/especializacion-sanitaria.jpg"
+  ],
+  "team": [
+    "/website/cep/team/alexis.jpg",
+    "/website/cep/team/livia.jpg",
+    "/website/cep/team/nuria.jpg",
+    "/website/cep/team/sara.jpg",
+    "/website/cep/team/cecilia.jpg",
+    "/website/cep/team/goreti.jpg",
+    "/website/cep/team/luis.jpg",
+    "/website/cep/team/esther.jpg"
+  ]
+}

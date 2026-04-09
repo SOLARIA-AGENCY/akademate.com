@@ -28,7 +28,7 @@ const CEP_DEFAULTS: BrandingDefaults = {
   academyName: 'CEP Formación',
   logoUrl: CEP_LOGO,
   faviconUrl: CEP_FAVICON,
-  primaryColor: '#cc0000',
+  primaryColor: '#f2014b',
   isCepTenant: true,
 }
 

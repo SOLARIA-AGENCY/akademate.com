@@ -8,6 +8,7 @@ import {
   getClientIP,
   createRateLimitHeaders,
 } from '../../../../lib/rateLimit'
+import { queryRows } from '@/@payload-config/lib/db'
 
 /**
  * Custom Login API Route
@@ -79,6 +80,25 @@ export async function POST(request: Request) {
 
     // Create response with user data
     const user = result.user as { id: string | number; email: string; name?: string; role?: string }
+
+    // Keep access log fields updated for the users dashboard.
+    // We use a direct SQL update to avoid row-lock timeouts seen in collection afterLogin hooks.
+    const userId = Number(user.id)
+    if (Number.isFinite(userId)) {
+      try {
+        await queryRows(
+          `UPDATE users
+           SET last_login_at = NOW(),
+               login_count = COALESCE(login_count, 0) + 1,
+               updated_at = NOW()
+           WHERE id = $1`,
+          [userId]
+        )
+      } catch (statsError) {
+        console.error('Login stats update error:', statsError)
+      }
+    }
+
     const response = NextResponse.json({
       message: 'Auth Passed',
       token: result.token,

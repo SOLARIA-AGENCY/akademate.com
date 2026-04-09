@@ -436,22 +436,9 @@ export const Users: CollectionConfig = {
      * Triggered after successful authentication
      */
     afterLogin: [
-      async ({ req, user }) => {
-        const typedUser = user as unknown as UserDocument;
-        try {
-          // Update login stats
-          await req.payload.update({
-            collection: 'users',
-            id: typedUser.id,
-            data: {
-              last_login_at: new Date().toISOString(),
-              login_count: (typedUser.login_count ?? 0) + 1,
-            },
-          });
-        } catch (error) {
-          // Log error but don't block login
-          console.error('Failed to update login stats:', error);
-        }
+      async () => {
+        // Login stats are updated in the custom /api/users/login route.
+        // Updating the same record here can trigger row-lock timeouts in production.
       },
     ],
 
