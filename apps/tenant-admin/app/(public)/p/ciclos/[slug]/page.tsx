@@ -37,6 +37,13 @@ const MODULE_TYPE_STYLES: Record<string, string> = {
   fct: 'bg-green-100 text-green-800',
 }
 
+const ENROLLMENT_REQUIREMENTS = [
+  'Titulación Adecuada',
+  'Pago de Matrícula',
+  'DNI',
+  'Foto Tipo Carnet',
+] as const
+
 /** Build an aspirational headline from cycle name */
 function buildHeadline(name: string): string {
   const lower = name.toLowerCase()
@@ -55,6 +62,14 @@ function formatConvocatoriaDisplay(conv: any): string {
   const campus = typeof conv.campus === 'object' ? conv.campus : null
   if (campus?.name) parts.push(`Sede ${campus.name}`)
   return parts.join(' · ') || 'Convocatoria abierta'
+}
+
+function formatAccessRequirementText(text: string, level: string): string {
+  const normalized = text.toLowerCase()
+  if (level === 'superior' && normalized.includes('prueba de acceso')) {
+    return 'Requisitos Prueba de Acceso a Grado Superior "Tipo C".'
+  }
+  return text
 }
 
 // ---------------------------------------------------------------------------
@@ -261,17 +276,25 @@ export default async function CicloLandingPage({ params }: Props) {
       {/* ================================================================ */}
       {requirements.length > 0 && (
         <section className="py-16 px-4 sm:px-6 max-w-5xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Requisitos de acceso</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Requisito de acceso</h2>
           <ul className="space-y-3 max-w-2xl">
             {requirements.map((r: any, i: number) => (
               <li key={i} className="flex items-start gap-3">
                 <svg className="h-5 w-5 text-green-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span className="text-gray-700">{r.text}</span>
+                <span className="text-gray-700">{formatAccessRequirementText(r.text, cycle.level)}</span>
               </li>
             ))}
           </ul>
+          <div className="mt-8 max-w-2xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Requisitos de Matriculación</h3>
+            <ul className="space-y-2">
+              {ENROLLMENT_REQUIREMENTS.map((item) => (
+                <li key={item} className="text-gray-700">- {item}</li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 

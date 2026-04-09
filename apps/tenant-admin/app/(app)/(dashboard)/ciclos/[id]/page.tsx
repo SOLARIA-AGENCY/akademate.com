@@ -86,6 +86,14 @@ function resolveImageUrl(image: CycleDetail['image']): string | null {
   return null
 }
 
+function formatSchoolYears(courses?: number, modality?: string): string | null {
+  if (!courses || courses <= 0) return null
+  if (courses === 2 && modality === 'dual') return '2 Cursos Escolares (Dual)'
+  if (courses === 3) return '3 Cursos Escolares'
+  if (courses === 1) return '1 Curso Escolar'
+  return `${courses} Cursos Escolares`
+}
+
 // ---------------------------------------------------------------------------
 // Empty State
 // ---------------------------------------------------------------------------
@@ -191,6 +199,10 @@ export default function CicloDetailPage({ params }: Props) {
   const competencies = Array.isArray(cycle.competencies) ? cycle.competencies : []
   const careerPaths = Array.isArray(cycle.careerPaths) ? cycle.careerPaths : []
   const imageUrl = resolveImageUrl(cycle.image)
+  const schoolYearsLabel = formatSchoolYears(
+    cycle.duration?.courses || cycle.courses,
+    cycle.duration?.modality || cycle.modality,
+  )
 
   return (
     <div className="space-y-6">
@@ -393,7 +405,7 @@ export default function CicloDetailPage({ params }: Props) {
                 <InfoRow label="Duracion">
                   {[
                     (cycle.duration?.totalHours || cycle.totalHours) ? `${cycle.duration?.totalHours || cycle.totalHours}h` : null,
-                    (cycle.duration?.courses || cycle.courses) ? `${cycle.duration?.courses || cycle.courses} curso${(cycle.duration?.courses || cycle.courses || 0) > 1 ? 's' : ''}` : null,
+                    schoolYearsLabel,
                   ].filter(Boolean).join(' / ')}
                 </InfoRow>
               )}
@@ -420,7 +432,7 @@ export default function CicloDetailPage({ params }: Props) {
 
               {/* Counts */}
               <InfoRow label="Modulos">{modules.length} modulos</InfoRow>
-              <InfoRow label="Requisitos">{requirements.length} requisitos</InfoRow>
+              <InfoRow label="Requisito de acceso">{requirements.length}</InfoRow>
               <InfoRow label="Competencias">{competencies.length} competencias</InfoRow>
               <InfoRow label="Salidas">{careerPaths.length} salidas profesionales</InfoRow>
 

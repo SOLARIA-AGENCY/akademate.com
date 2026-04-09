@@ -117,7 +117,7 @@ describe('CampanasPage', () => {
       mockFetch([])
       render(<CampanasPage data-oid="to25-vv" />)
       await waitFor(() => {
-        expect(screen.getByTestId('empty-state-title')).toHaveTextContent('Sin campanas activas')
+        expect(screen.getByTestId('empty-state-title')).toHaveTextContent('Sin campañas activas')
       })
     })
 

@@ -76,6 +76,13 @@ const MODULE_TYPE_COLORS: Record<string, string> = {
   fct: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
 }
 
+const ENROLLMENT_REQUIREMENTS = [
+  'Titulación Adecuada',
+  'Pago de Matrícula',
+  'DNI',
+  'Foto Tipo Carnet',
+] as const
+
 function formatCurrency(v: number | undefined): string {
   if (v == null) return '-'
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(v)
@@ -90,6 +97,34 @@ function resolveImageUrl(image: CycleDetail['image']): string | null {
     if (image.filename) return `/media/${image.filename}`
   }
   return null
+}
+
+function formatSchoolYears(courses?: number, modality?: string): string | null {
+  if (!courses || courses <= 0) return null
+  if (courses === 2 && modality === 'dual') return '2 Cursos Escolares (Dual)'
+  if (courses === 3) return '3 Cursos Escolares'
+  if (courses === 1) return '1 Curso Escolar'
+  return `${courses} Cursos Escolares`
+}
+
+function formatAccessRequirementText(text: string, level: string): string {
+  const normalized = text.toLowerCase()
+  if (level === 'superior' && normalized.includes('prueba de acceso')) {
+    return 'Requisitos Prueba de Acceso a Grado Superior "Tipo C".'
+  }
+  return text
+}
+
+function prioritizeScholarships(
+  scholarships: Array<{ name: string; description?: string; url?: string; type?: string }>,
+) {
+  return [...scholarships].sort((a, b) => {
+    const aIsMec = a.name.toLowerCase().includes('mec')
+    const bIsMec = b.name.toLowerCase().includes('mec')
+    if (aIsMec && !bIsMec) return -1
+    if (!aIsMec && bIsMec) return 1
+    return 0
+  })
 }
 
 // ---------------------------------------------------------------------------
@@ -197,10 +232,12 @@ export default function CicloDetallePage({ params }: Props) {
   const competencies = Array.isArray(cycle.competencies) ? cycle.competencies : []
   const careerPaths = Array.isArray(cycle.careerPaths) ? cycle.careerPaths : []
   const scholarships = Array.isArray(cycle.scholarships) ? cycle.scholarships : []
+  const prioritizedScholarships = prioritizeScholarships(scholarships)
   const furtherStudies = Array.isArray(cycle.furtherStudies) ? cycle.furtherStudies : []
   const documents = Array.isArray(cycle.documents) ? cycle.documents : []
   const features = Array.isArray(cycle.features) ? cycle.features : []
   const imageUrl = resolveImageUrl(cycle.image)
+  const schoolYearsLabel = formatSchoolYears(cycle.duration?.courses, cycle.duration?.modality)
 
   const totalModuleHours = modules.reduce((s, m) => s + (m.hours || 0), 0)
 
@@ -298,9 +335,7 @@ export default function CicloDetallePage({ params }: Props) {
           {cycle.duration?.totalHours && (
             <InfoRow label="Horas totales">{cycle.duration.totalHours}h</InfoRow>
           )}
-          {cycle.duration?.courses && (
-            <InfoRow label="Cursos">{cycle.duration.courses} curso{cycle.duration.courses > 1 ? 's' : ''}</InfoRow>
-          )}
+          {schoolYearsLabel && <InfoRow label="Cursos">{schoolYearsLabel}</InfoRow>}
           {cycle.duration?.classFrequency && (
             <InfoRow label="Frecuencia de clases">{cycle.duration.classFrequency}</InfoRow>
           )}
@@ -391,7 +426,7 @@ export default function CicloDetallePage({ params }: Props) {
       {/* ================================================================
           REQUISITOS
       ================================================================ */}
-      <Section title={`Requisitos (${requirements.length})`} icon={ClipboardCheck} empty={requirements.length === 0}>
+      <Section title="Requisito de acceso" icon={ClipboardCheck} empty={requirements.length === 0}>
         <ul className="space-y-2">
           {requirements.map((r, i) => (
             <li key={i} className="flex items-start gap-2">
@@ -401,10 +436,20 @@ export default function CicloDetallePage({ params }: Props) {
               >
                 {r.type || 'obligatorio'}
               </Badge>
-              <span className="text-sm">{r.text}</span>
+              <span className="text-sm">{formatAccessRequirementText(r.text, cycle.level)}</span>
             </li>
           ))}
         </ul>
+        <div className="mt-4 rounded-lg border p-3">
+          <p className="text-sm font-semibold mb-2">Requisitos de Matriculación</p>
+          <ul className="space-y-1">
+            {ENROLLMENT_REQUIREMENTS.map((item) => (
+              <li key={item} className="text-sm text-muted-foreground">
+                - {item}
+              </li>
+            ))}
+          </ul>
+        </div>
       </Section>
 
       {/* ================================================================
@@ -439,7 +484,7 @@ export default function CicloDetallePage({ params }: Props) {
       <Section
         title="Becas y Subvenciones"
         icon={Heart}
-        empty={scholarships.length === 0 && !cycle.fundaeEligible}
+        empty={prioritizedScholarships.length === 0 && !cycle.fundaeEligible}
       >
         {cycle.fundaeEligible && (
           <div className="mb-4">
@@ -448,9 +493,9 @@ export default function CicloDetallePage({ params }: Props) {
             </Badge>
           </div>
         )}
-        {scholarships.length > 0 && (
+        {prioritizedScholarships.length > 0 && (
           <ul className="space-y-3">
-            {scholarships.map((s, i) => (
+            {prioritizedScholarships.map((s, i) => (
               <li key={i} className="rounded-lg border p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div>

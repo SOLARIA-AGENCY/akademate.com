@@ -296,7 +296,7 @@ export default function CampanasPage() {
       {!isLoading && campaigns.length === 0 ? (
         <EmptyState
           icon={Megaphone}
-          title="Sin campanas activas"
+          title="Sin campañas activas"
           description="Crea tu primera campana para empezar a captar leads. Selecciona una convocatoria activa y elige la plataforma."
         />
       ) : (
