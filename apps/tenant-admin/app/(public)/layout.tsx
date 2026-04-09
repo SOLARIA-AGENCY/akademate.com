@@ -193,7 +193,7 @@ fbq('track', 'PageView');`,
                 <img src={tenant.logo} alt={tenant.name} className="h-8 w-8 object-contain" />
                 <span className="font-bold text-lg text-gray-900">{tenant.name}</span>
               </a>
-              <nav className="hidden sm:flex items-center gap-5">
+              <nav className="hidden lg:flex items-center gap-5">
                 <a href="/p/ciclos" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Ciclos FP</a>
                 <a href="/p/cursos?tipo=privados" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Privados</a>
                 <a href="/p/cursos?tipo=desempleados" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Desempleados</a>
@@ -202,7 +202,7 @@ fbq('track', 'PageView');`,
                 <a href="/p/convocatorias" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Convocatorias</a>
                 <a href="/p/contacto" className="text-sm font-medium brand-btn px-4 py-2 rounded-lg transition-colors" style={{backgroundColor: c, color: '#fff'}}>Contacto</a>
               </nav>
-              <button className="sm:hidden p-2 text-gray-600" aria-label="Menu">
+              <button className="lg:hidden p-2 text-gray-600" aria-label="Menu">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
               </button>
             </div>
