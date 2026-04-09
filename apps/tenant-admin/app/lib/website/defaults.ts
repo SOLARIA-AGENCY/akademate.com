@@ -16,6 +16,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
   navigation: {
     items: [
       { label: 'Inicio', href: '/' },
+      { label: 'Quiénes Somos', href: '/quienes-somos' },
       { label: 'Ciclos', href: '/ciclos' },
       { label: 'Cursos', href: '/cursos' },
       { label: 'Convocatorias', href: '/convocatorias' },
@@ -242,6 +243,16 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
       seo: {
         title: 'Contacto | CEP Formación',
         description: 'Contacta con CEP Formación para solicitar información de cursos y ciclos.',
+      },
+      sections: [],
+    },
+    {
+      title: 'Quiénes Somos',
+      path: '/quienes-somos',
+      pageKind: 'standard',
+      seo: {
+        title: 'Quiénes Somos | CEP Formación',
+        description: 'Historia, misión, visión y valores de CEP Formación en Tenerife.',
       },
       sections: [],
     },

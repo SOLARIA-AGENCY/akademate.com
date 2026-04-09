@@ -113,6 +113,7 @@ const publicRoutes = [
   '/ciclos',
   '/sedes',
   '/contacto',
+  '/quienes-somos',
   '/blog',
   '/faq',
   // Legal pages must be publicly accessible (GDPR requirement)
@@ -221,7 +222,6 @@ export function middleware(request: NextRequest) {
     [/^\/p\/cursos\/([^/]+)\/?$/, (match) => `/cursos/${match[1]}`],
     [/^\/p\/convocatorias\/([^/]+)\/?$/, (match) => `/convocatorias/${match[1]}`],
     [/^\/p\/ciclos\/([^/]+)\/?$/, (match) => `/ciclos/${match[1]}`],
-    [/^\/quienes-somos\/?$/, '/contacto'],
     [/^\/curso\/([^/]+)\/?$/, (match) => `/cursos/${match[1]}`],
     [/^\/cursos-ocupados\/?$/, '/convocatorias?audiencia=ocupados'],
     [/^\/cursos-desempleados\/?$/, '/convocatorias?audiencia=desempleados'],

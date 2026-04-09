@@ -78,7 +78,7 @@ export default async function PublicLayout({ children }: { children: React.React
               <img
                 src={website.visualIdentity.logoPrimary || tenant.logoUrl}
                 alt={tenant.academyName}
-                className="h-14 w-auto object-contain lg:h-16"
+                className="h-24 w-auto object-contain lg:h-28"
               />
             </Link>
             <nav className="hidden items-center gap-6 lg:flex">
@@ -109,7 +109,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 <img
                   src={website.visualIdentity.logoPrimary || tenant.logoUrl}
                   alt={tenant.academyName}
-                  className="h-14 w-auto object-contain lg:h-16"
+                  className="h-24 w-auto object-contain lg:h-28"
                 />
                 <p className="mt-4 text-sm font-medium text-slate-600">© {new Date().getFullYear()} CEP FORMACIÓN S.L.</p>
               </div>
