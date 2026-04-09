@@ -13,9 +13,17 @@ export function HeroCarouselClient({
   section: HeroCarouselSection
   brandColor: string
 }) {
+  const defaultSlides = useMemo(
+    () => [
+      { image: '/website/cep/hero/slideshow-1.jpg', alt: 'Creemos en el poder de la actitud' },
+      { image: '/website/cep/hero/slideshow-2.jpg', alt: 'Creemos en ti' },
+      { image: '/website/cep/hero/slideshow-3.jpg', alt: 'El momento es ahora' },
+    ],
+    []
+  )
   const slides = useMemo(
-    () => (section.slides?.length ? section.slides : [{ image: '/website/cep/hero/slideshow-1.jpg', alt: section.title }]),
-    [section.slides, section.title]
+    () => (section.slides?.length ? section.slides : defaultSlides),
+    [defaultSlides, section.slides]
   )
   const [activeIndex, setActiveIndex] = useState(0)
 

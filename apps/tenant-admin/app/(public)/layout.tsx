@@ -4,6 +4,7 @@ import Link from 'next/link'
 import '../globals.css'
 import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
 import { getTenantWebsite } from '@/app/lib/website/server'
+import { CookieBanner } from './_components/CookieBanner'
 
 function getIconMimeType(url: string): string {
   if (url.endsWith('.svg')) return 'image/svg+xml'
@@ -101,40 +102,71 @@ export default async function PublicLayout({ children }: { children: React.React
 
         <main>{children}</main>
 
-        <footer className="bg-slate-950 text-white">
-          <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_1.9fr] lg:px-8">
-            <div>
-              <img
-                src={website.visualIdentity.logoPrimary || tenant.logoUrl}
-                alt={tenant.academyName}
-                className="h-14 w-auto object-contain brightness-0 invert lg:h-16"
-              />
-              <p className="mt-5 max-w-md text-sm leading-7 text-white/65">{website.footer.description}</p>
-            </div>
-            <div className="grid gap-8 sm:grid-cols-3">
-              {website.footer.columns.map((column) => (
-                <div key={column.title}>
-                  <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/95">{column.title}</h3>
-                  <ul className="mt-4 space-y-3 text-sm text-white/65">
-                    {column.links.map((link) => (
-                      <li key={link.href}>
-                        <Link href={link.href} className="transition hover:text-white">
-                          {link.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+        <footer className="border-t border-slate-200 bg-white text-slate-700">
+          <div className="bg-slate-50 py-12">
+            <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-4 lg:px-8">
+              <div className="flex flex-col items-center lg:items-start">
+                <img
+                  src={website.visualIdentity.logoPrimary || tenant.logoUrl}
+                  alt={tenant.academyName}
+                  className="h-14 w-auto object-contain lg:h-16"
+                />
+                <p className="mt-4 text-sm font-medium text-slate-600">© {new Date().getFullYear()} CEP FORMACIÓN S.L.</p>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-900">Sedes</h3>
+                <div className="mt-4 space-y-4 text-sm text-slate-700">
+                  <p>
+                    <span className="block font-semibold text-slate-900">Santa Cruz</span>
+                    Plaza José Antonio Barrios Olivero, Bajo Estadio Heliodoro, 38005
+                  </p>
+                  <p>
+                    <span className="block font-semibold text-slate-900">Norte</span>
+                    Molinos de Gofio 2, 38312 La Orotava (C.C. El Trompo, última planta)
+                  </p>
                 </div>
-              ))}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-900">Contacto</h3>
+                <ul className="mt-4 space-y-3 text-sm text-slate-700">
+                  <li>Teléfono: 922 21 92 57</li>
+                  <li>Email: info@cursostenerife.es</li>
+                  <li>Horario: L-V 10:00-14:00 y 16:00-20:00</li>
+                </ul>
+              </div>
+              <div className="flex flex-col items-center gap-3 lg:items-end">
+                <img
+                  src="/website/cep/logos/footer/logo-certificaciones.jpg"
+                  alt="Certificaciones de calidad"
+                  className="h-auto w-52 max-w-full object-contain"
+                />
+                <img
+                  src="/website/cep/logos/footer/logo-fondo-europeo.jpg"
+                  alt="Fondo social europeo"
+                  className="h-auto w-52 max-w-full object-contain"
+                />
+                <img
+                  src="/website/cep/logos/footer/logo-sce.jpg"
+                  alt="Servicio Canario de Empleo"
+                  className="h-auto w-52 max-w-full object-contain"
+                />
+              </div>
             </div>
           </div>
-          <div className="border-t border-white/10">
-            <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-white/45 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-              <p>{tenant.academyName} · {new Date().getFullYear()}</p>
-              <p>{website.footer.legalNote ?? 'Plataforma pública multitenant de Akademate.'}</p>
+          <div className="border-t border-slate-200">
+            <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                {website.footer.columns.flatMap((column) => column.links).map((link) => (
+                  <Link key={link.href} href={link.href} className="transition hover:text-slate-900">
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+              <p className="text-xs text-slate-500">{website.footer.legalNote ?? 'Plataforma pública de CEP Formación.'}</p>
             </div>
           </div>
         </footer>
+        <CookieBanner />
       </body>
     </html>
   )
