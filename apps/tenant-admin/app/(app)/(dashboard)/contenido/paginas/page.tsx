@@ -18,6 +18,12 @@ type WebsitePageInventoryItem = {
   sections: Array<{ id?: string; kind: string; enabled?: boolean }>
 }
 
+function getPageSlug(page: WebsitePageInventoryItem): string {
+  if (page.slug && page.slug.trim() !== '') return page.slug
+  if (page.path === '/') return 'home'
+  return page.path.replace(/^\/+|\/+$/g, '').replace(/\//g, '--')
+}
+
 function PlaceholderThumbnail({ title }: { title: string }) {
   return (
     <div className="flex h-[72px] w-[120px] items-center justify-center rounded-md border bg-muted text-center text-[11px] font-medium text-muted-foreground md:h-[90px] md:w-[160px]">
@@ -40,7 +46,38 @@ export default function PaginasPage() {
         throw new Error(`HTTP ${response.status}`)
       }
       const payload = (await response.json()) as { data?: { pages?: WebsitePageInventoryItem[] } }
-      setPages(payload.data?.pages ?? [])
+      const basePages = payload.data?.pages ?? []
+      setPages(basePages)
+
+      const pagesWithoutThumbnail = basePages.filter((page) => !page.thumbnailUrl)
+      if (pagesWithoutThumbnail.length > 0) {
+        const refreshed = await Promise.all(
+          basePages.map(async (page) => {
+            if (page.thumbnailUrl) return page
+            try {
+              const slug = getPageSlug(page)
+              const thumbnailResponse = await fetch(
+                `/api/config/website/pages/${encodeURIComponent(slug)}/thumbnail`,
+                { method: 'POST' }
+              )
+              const thumbnailPayload = (await thumbnailResponse.json()) as {
+                success?: boolean
+                data?: { thumbnailUrl?: string }
+              }
+              if (thumbnailResponse.ok && thumbnailPayload?.success && thumbnailPayload.data?.thumbnailUrl) {
+                return {
+                  ...page,
+                  thumbnailUrl: thumbnailPayload.data.thumbnailUrl,
+                }
+              }
+              return page
+            } catch {
+              return page
+            }
+          })
+        )
+        setPages(refreshed)
+      }
     } catch (err) {
       setPages([])
       setError('No se pudo cargar el inventario de páginas.')
@@ -63,9 +100,7 @@ export default function PaginasPage() {
   }, [pages])
 
   const resolvePageSlug = (page: WebsitePageInventoryItem): string => {
-    if (page.slug && page.slug.trim() !== '') return page.slug
-    if (page.path === '/') return 'home'
-    return page.path.replace(/^\/+|\/+$/g, '').replace(/\//g, '--')
+    return getPageSlug(page)
   }
 
   const countEnabledSections = (page: WebsitePageInventoryItem): number => {
