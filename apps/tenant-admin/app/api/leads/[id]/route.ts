@@ -2,6 +2,7 @@ import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { getAuthenticatedUserContext } from '../_lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,43 +16,11 @@ function toPositiveInt(value: unknown): number | null {
   return null
 }
 
-async function getAuthenticatedTenant(request: NextRequest, payload: any): Promise<number | null> {
-  const token = request.cookies.get('payload-token')?.value
-  if (!token) return null
-
-  try {
-    const authResult = await payload.auth({
-      collection: 'users',
-      headers: new Headers({ cookie: `payload-token=${token}` }),
-    }) as {
-      user?: {
-        id?: string | number
-        tenantId?: string | number
-        tenant?: string | number | { id?: string | number }
-      }
-    } | null
-
-    const userId = toPositiveInt(authResult?.user?.id)
-    if (!userId) return null
-
-    return (
-      toPositiveInt(authResult?.user?.tenantId) ??
-      toPositiveInt(
-        typeof authResult?.user?.tenant === 'object' && authResult?.user?.tenant !== null
-          ? authResult.user.tenant.id
-          : authResult?.user?.tenant,
-      )
-    )
-  } catch {
-    return null
-  }
-}
-
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
     const payload = await getPayloadHMR({ config: configPromise })
-    const tenantId = await getAuthenticatedTenant(request, payload)
+    const tenantId = (await getAuthenticatedUserContext(request, payload))?.tenantId ?? null
     if (tenantId === null) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
     }
@@ -74,7 +43,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const { id } = await context.params
     const body = await request.json()
     const payload = await getPayloadHMR({ config: configPromise })
-    const tenantId = await getAuthenticatedTenant(request, payload)
+    const tenantId = (await getAuthenticatedUserContext(request, payload))?.tenantId ?? null
     if (tenantId === null) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
     }

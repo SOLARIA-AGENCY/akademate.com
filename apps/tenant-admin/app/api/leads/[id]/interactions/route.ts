@@ -2,6 +2,7 @@ import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { getAuthenticatedUserContext } from '../../_lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,43 +26,6 @@ function toPositiveInt(value: unknown): number | null {
   return null
 }
 
-async function getAuthenticatedUser(request: NextRequest, payload: any): Promise<{
-  userId: number
-  tenantId: number | null
-} | null> {
-  const token = request.cookies.get('payload-token')?.value
-  if (!token) return null
-
-  try {
-    const authResult = await payload.auth({
-      collection: 'users',
-      headers: new Headers({ cookie: `payload-token=${token}` }),
-    }) as {
-      user?: {
-        id?: string | number
-        tenantId?: string | number
-        tenant?: string | number | { id?: string | number }
-      }
-    } | null
-
-    const userId = toPositiveInt(authResult?.user?.id)
-    if (!userId) return null
-
-    const tenantCandidate =
-      authResult?.user?.tenantId ??
-      (typeof authResult?.user?.tenant === 'object' && authResult?.user?.tenant !== null
-        ? authResult.user.tenant.id
-        : authResult?.user?.tenant)
-
-    return {
-      userId,
-      tenantId: toPositiveInt(tenantCandidate),
-    }
-  } catch {
-    return null
-  }
-}
-
 // GET /api/leads/[id]/interactions
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
@@ -73,7 +37,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       return NextResponse.json({ interactions: [] })
     }
 
-    const authUser = await getAuthenticatedUser(_request, payload)
+    const authUser = await getAuthenticatedUserContext(_request, payload)
     if (!authUser) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
     }
@@ -128,7 +92,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
     if (!drizzle?.execute) throw new Error('DB not available')
 
-    const authUser = await getAuthenticatedUser(request, payload)
+    const authUser = await getAuthenticatedUserContext(request, payload)
     if (!authUser) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
     }
@@ -153,7 +117,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
       toPositiveInt(lead.tenant_id ?? lead.tenant?.id ?? lead.tenant) ??
       authUser.tenantId ??
       1
-    const userId = authUser.userId
+    const userId = toPositiveInt(authUser.userId)
+    if (!userId) {
+      return NextResponse.json({ error: 'Usuario autenticado invalido' }, { status: 401 })
+    }
     const noteEsc = note ? `'${esc(note)}'` : 'NULL'
 
     // 1. Insert interaction (append-only)
