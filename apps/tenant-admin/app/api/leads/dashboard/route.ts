@@ -2,8 +2,10 @@ import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { jwtVerify } from 'jose'
 
 export const dynamic = 'force-dynamic'
+const SESSION_COOKIE_NAMES = ['akademate_session', 'cep_session'] as const
 
 function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
@@ -11,8 +13,42 @@ function toPositiveInt(value: unknown): number | null {
   return null
 }
 
+function toUserId(value: unknown): string | number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim().length > 0) return value
+  return null
+}
+
+function parseSessionToken(request: NextRequest): string | null {
+  for (const cookieName of SESSION_COOKIE_NAMES) {
+    const rawSession = request.cookies.get(cookieName)?.value
+    if (!rawSession) continue
+
+    const candidates: string[] = [rawSession]
+    try {
+      const decoded = decodeURIComponent(rawSession)
+      if (decoded !== rawSession) candidates.push(decoded)
+    } catch {
+      // Ignore invalid encoding and continue with raw value
+    }
+
+    for (const candidate of candidates) {
+      try {
+        const parsed = JSON.parse(candidate) as { token?: unknown }
+        if (typeof parsed.token === 'string' && parsed.token.trim().length > 0) {
+          return parsed.token
+        }
+      } catch {
+        // Keep trying
+      }
+    }
+  }
+
+  return null
+}
+
 async function getAuthenticatedTenant(request: NextRequest, payload: any): Promise<number | null> {
-  const token = request.cookies.get('payload-token')?.value
+  const token = request.cookies.get('payload-token')?.value ?? parseSessionToken(request)
   if (!token) return null
 
   try {
@@ -27,15 +63,45 @@ async function getAuthenticatedTenant(request: NextRequest, payload: any): Promi
       }
     } | null
 
-    const userId = toPositiveInt(authResult?.user?.id)
+    const userId = toUserId(authResult?.user?.id)
+    if (userId) {
+      return (
+        toPositiveInt(authResult?.user?.tenantId) ??
+        toPositiveInt(
+          typeof authResult?.user?.tenant === 'object' && authResult?.user?.tenant !== null
+            ? authResult.user.tenant.id
+            : authResult?.user?.tenant,
+        )
+      )
+    }
+  } catch {
+    // fallback below
+  }
+
+  try {
+    const secret = process.env.PAYLOAD_SECRET
+    if (!secret) return null
+
+    const verified = await jwtVerify(token, new TextEncoder().encode(secret))
+    const userId = toUserId(verified.payload?.id ?? verified.payload?.sub)
     if (!userId) return null
 
+    const user = await payload.findByID({
+      collection: 'users',
+      id: userId,
+      depth: 0,
+      overrideAccess: true,
+    }) as {
+      tenantId?: string | number
+      tenant?: string | number | { id?: string | number }
+    } | null
+
     return (
-      toPositiveInt(authResult?.user?.tenantId) ??
+      toPositiveInt(user?.tenantId) ??
       toPositiveInt(
-        typeof authResult?.user?.tenant === 'object' && authResult?.user?.tenant !== null
-          ? authResult.user.tenant.id
-          : authResult?.user?.tenant,
+        typeof user?.tenant === 'object' && user?.tenant !== null
+          ? user.tenant.id
+          : user?.tenant,
       )
     )
   } catch {
