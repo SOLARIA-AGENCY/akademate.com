@@ -3,6 +3,30 @@ export type WebsiteLink = {
   href: string
 }
 
+export type WebsiteNavigationSource =
+  | 'manual'
+  | 'study_types'
+  | 'cycles_by_level'
+  | 'campuses'
+
+export type WebsiteNavigationItem = WebsiteLink & {
+  kind?: 'link' | 'dropdown'
+  source?: WebsiteNavigationSource
+  children?: WebsiteLink[]
+}
+
+export type ResolvedWebsiteNavigationGroup = {
+  label: string
+  children: WebsiteLink[]
+}
+
+export type ResolvedWebsiteNavigationItem = WebsiteLink & {
+  kind: 'link' | 'dropdown'
+  source?: WebsiteNavigationSource
+  children?: WebsiteLink[]
+  groups?: ResolvedWebsiteNavigationGroup[]
+}
+
 export type WebsiteHeroSlide = {
   image: string
   alt: string
@@ -158,7 +182,7 @@ export type WebsiteConfig = {
     colorText: string
   }
   navigation: {
-    items: WebsiteLink[]
+    items: WebsiteNavigationItem[]
     cta?: WebsiteLink
   }
   footer: {
