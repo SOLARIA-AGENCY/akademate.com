@@ -71,17 +71,17 @@ const menuItems: MenuItemWithSection[] = [
   {
     title: 'Cursos',
     icon: BookOpen,
-    url: '/cursos',
+    url: '/dashboard/cursos',
   },
   {
     title: 'Ciclos',
     icon: GraduationCap,
-    url: '/ciclos',
+    url: '/dashboard/ciclos',
   },
   {
     title: 'Sedes',
     icon: Building2,
-    url: '/sedes',
+    url: '/dashboard/sedes',
   },
   {
     title: 'Alumnos',

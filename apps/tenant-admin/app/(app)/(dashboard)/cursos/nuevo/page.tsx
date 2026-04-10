@@ -314,7 +314,7 @@ export default function NuevoCursoPage() {
         router.refresh()
         // Pequeño delay para asegurar que refresh se procese
         setTimeout(() => {
-          router.push('/cursos')
+          router.push('/dashboard/cursos')
         }, 100)
       } else {
         alert(`❌ Error al crear curso: ${result.error ?? 'Error desconocido'}`)
@@ -330,10 +330,10 @@ export default function NuevoCursoPage() {
   const handleCancel = () => {
     if (nombre.trim() || descripcion.trim()) {
       if (confirm('¿Descartar cambios y volver a la lista de cursos?')) {
-        router.push('/cursos')
+        router.push('/dashboard/cursos')
       }
     } else {
-      router.push('/cursos')
+      router.push('/dashboard/cursos')
     }
   }
 
@@ -355,7 +355,7 @@ export default function NuevoCursoPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push('/cursos')}
+            onClick={() => router.push('/dashboard/cursos')}
             className="h-10 w-10"
             data-oid="owrnlbz"
           >

@@ -408,7 +408,7 @@ export default function EditarCicloPage() {
         body: JSON.stringify(payload),
       })
       if (res.ok) {
-        router.push(`/ciclos/${cycleId}`)
+        router.push(`/dashboard/ciclos/${cycleId}`)
       }
     } catch (err) {
       console.error('Error updating cycle:', err)
@@ -442,7 +442,7 @@ export default function EditarCicloPage() {
       />
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => router.push(`/ciclos/${cycleId}`)}>
+        <Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/ciclos/${cycleId}`)}>
           <ArrowLeft className="h-4 w-4 mr-1" />
           Volver al detalle
         </Button>
@@ -1340,7 +1340,7 @@ export default function EditarCicloPage() {
                 SUBMIT BAR
             ================================================================ */}
             <div className="flex justify-end gap-3 pt-6">
-              <Button type="button" variant="outline" onClick={() => router.push(`/ciclos/${cycleId}`)}>
+              <Button type="button" variant="outline" onClick={() => router.push(`/dashboard/ciclos/${cycleId}`)}>
                 Cancelar
               </Button>
               <Button type="submit" disabled={saving || !name.trim()}>

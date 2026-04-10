@@ -168,7 +168,7 @@ export default function SedeDetailPage({ params }: Props) {
     return (
       <div className="space-y-6">
         <PageHeader title="Sede" description="Detalle de sede" icon={MapPin}
-          actions={<Button variant="ghost" onClick={() => router.push('/sedes')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
+          actions={<Button variant="ghost" onClick={() => router.push('/dashboard/sedes')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
         <Card><CardContent className="p-8 text-center">
           <p className="font-medium">No se pudo cargar la sede</p>
           <p className="text-sm text-muted-foreground mt-1">{error}</p>
@@ -217,10 +217,10 @@ export default function SedeDetailPage({ params }: Props) {
           </Badge>
         }
         actions={<>
-          <Button variant="ghost" onClick={() => router.push('/sedes')}>
+          <Button variant="ghost" onClick={() => router.push('/dashboard/sedes')}>
             <ArrowLeft className="mr-2 h-4 w-4" />Sedes
           </Button>
-          <Button onClick={() => router.push(`/sedes/${id}/editar`)}>
+          <Button onClick={() => router.push(`/dashboard/sedes/${id}/editar`)}>
             <Edit className="mr-2 h-4 w-4" />Editar
           </Button>
         </>}
@@ -387,7 +387,7 @@ export default function SedeDetailPage({ params }: Props) {
               ) : (
                 <div
                   className="w-full h-40 rounded-lg bg-muted flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-muted/80 transition-colors border-2 border-dashed border-border"
-                  onClick={() => router.push(`/sedes/${id}/editar`)}
+                  onClick={() => router.push(`/dashboard/sedes/${id}/editar`)}
                 >
                   <MapPin className="h-8 w-8 text-muted-foreground/50" />
                   <span className="text-xs text-muted-foreground">Click para subir imagen</span>
@@ -466,7 +466,7 @@ export default function SedeDetailPage({ params }: Props) {
                 <Button
                   variant="outline"
                   className="w-full justify-between"
-                  onClick={() => router.push(`/sedes/${id}/detalle`)}
+                  onClick={() => router.push(`/dashboard/sedes/${id}/detalle`)}
                 >
                   <span className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />

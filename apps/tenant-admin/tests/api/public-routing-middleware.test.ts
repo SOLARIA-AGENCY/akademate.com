@@ -63,14 +63,14 @@ describe('Public website routing middleware', () => {
     )
   })
 
-  it('does not force website rewrite on non-CEP hosts for authenticated users', () => {
+  it('redirects legacy internal catalog URLs to /dashboard/* on non-CEP hosts', () => {
     const request = new NextRequest('https://app.akademate.com/cursos', {
       headers: { cookie: 'payload-token=session-token' },
     })
     const response = middleware(request)
 
-    expect(response.status).toBe(200)
-    expect(getHeader(response, 'x-middleware-rewrite')).toBe('')
+    expect(response.status).toBe(307)
+    expect(getHeader(response, 'location')).toBe('https://app.akademate.com/dashboard/cursos')
   })
 
   it('keeps root as public page without redirecting to login', () => {
@@ -79,5 +79,25 @@ describe('Public website routing middleware', () => {
 
     expect(response.status).toBe(200)
     expect(getHeader(response, 'location')).toBe('')
+  })
+
+  it('rewrites authenticated dashboard-prefixed internal routes to legacy dashboard pages', () => {
+    const request = new NextRequest('https://cepformacion.akademate.com/dashboard/cursos', {
+      headers: { cookie: 'payload-token=session-token' },
+    })
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'x-middleware-rewrite')).toBe(
+      'https://cepformacion.akademate.com/cursos'
+    )
+  })
+
+  it('keeps dashboard-prefixed internal routes protected without auth', () => {
+    const request = new NextRequest('https://cepformacion.akademate.com/dashboard/cursos')
+    const response = middleware(request)
+
+    expect(response.status).toBe(307)
+    expect(getHeader(response, 'location')).toContain('/login?redirect=%2Fdashboard%2Fcursos')
   })
 })

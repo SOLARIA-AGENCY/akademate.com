@@ -115,7 +115,7 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
             </CardDescription>
           </CardHeader>
           <CardContent data-oid="nilr6w.">
-            <Button onClick={() => router.push('/cursos')} data-oid="3l4srf7">
+            <Button onClick={() => router.push('/dashboard/cursos')} data-oid="3l4srf7">
               <ArrowLeft className="mr-2 h-4 w-4" data-oid="x8zj6dk" />
               Volver a Cursos
             </Button>
@@ -149,14 +149,14 @@ export default function ConvocationDetailPage({ params }: ConvocationDetailPageP
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push(`/cursos/${id}`)}
+              onClick={() => router.push(`/dashboard/cursos/${id}`)}
               data-oid=":5jxd_i"
             >
               <ArrowLeft className="h-4 w-4" data-oid="iuzxcoo" />
             </Button>
             <Button
               variant="outline"
-              onClick={() => router.push(`/cursos/${id}/convocatoria/${convocationId}/editar`)}
+              onClick={() => router.push(`/dashboard/cursos/${id}/convocatoria/${convocationId}/editar`)}
               data-oid="33kki1v"
             >
               <Edit className="mr-2 h-4 w-4" data-oid="9aka:-d" />

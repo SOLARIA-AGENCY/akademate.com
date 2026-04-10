@@ -274,7 +274,7 @@ export default function NuevoCicloPage() {
         body: JSON.stringify(payload),
       })
       if (res.ok) {
-        router.push('/ciclos')
+        router.push('/dashboard/ciclos')
       }
     } catch (err) {
       console.error('Error creating cycle:', err)
@@ -296,7 +296,7 @@ export default function NuevoCicloPage() {
       />
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => router.push('/ciclos')}>
+        <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/ciclos')}>
           <ArrowLeft className="h-4 w-4 mr-1" />
           Volver a Ciclos
         </Button>
@@ -1163,7 +1163,7 @@ export default function NuevoCicloPage() {
             SUBMIT BAR
         ================================================================ */}
         <div className="flex justify-end gap-3 pt-6">
-          <Button type="button" variant="outline" onClick={() => router.push('/ciclos')}>
+          <Button type="button" variant="outline" onClick={() => router.push('/dashboard/ciclos')}>
             Cancelar
           </Button>
           <Button type="submit" disabled={saving || !name.trim()}>

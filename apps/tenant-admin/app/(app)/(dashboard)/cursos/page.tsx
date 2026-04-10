@@ -160,11 +160,11 @@ function CursosPageContent() {
       setLimitModal({ open: true, current: cursos.length, limit })
       return
     }
-    router.push('/cursos/nuevo')
+    router.push('/dashboard/cursos/nuevo')
   }
 
   const handleViewCourse = (course: PlantillaCurso) => {
-    router.push(`/cursos/${course.id}`)
+    router.push(`/dashboard/cursos/${course.id}`)
   }
 
   // Filtrado de cursos

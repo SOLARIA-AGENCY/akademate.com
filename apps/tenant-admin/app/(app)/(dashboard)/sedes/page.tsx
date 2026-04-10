@@ -144,7 +144,7 @@ export default function SedesPage() {
   }, [])
 
   const handleViewSede = (sedeId: string) => {
-    router.push(`/sedes/${sedeId}`)
+    router.push(`/dashboard/sedes/${sedeId}`)
   }
 
   const handleAdd = () => {
@@ -153,7 +153,7 @@ export default function SedesPage() {
       setLimitModal({ open: true, current: sedes.length, limit })
       return
     }
-    router.push('/sedes/nueva')
+    router.push('/dashboard/sedes/nueva')
   }
 
   return (

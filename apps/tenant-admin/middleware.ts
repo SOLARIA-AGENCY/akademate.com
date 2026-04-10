@@ -139,6 +139,12 @@ const payloadAdminPaths = [
   '/admin',  // Native Payload CMS admin panel
 ]
 
+function matchesRoute(pathname: string, route: string): boolean {
+  if (route === '/') return pathname === '/'
+  if (route.endsWith('/')) return pathname.startsWith(route)
+  return pathname === route || pathname.startsWith(`${route}/`)
+}
+
 // FIX-16: DEV_AUTH_BYPASS removed. Authentication is always enforced.
 // Use /dev/auto-login (development-only) for convenient local login.
 
@@ -262,6 +268,18 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Backward compatibility for legacy internal dashboard URLs on non-public hosts.
+  // Example: /cursos -> /dashboard/cursos, /ciclos/1 -> /dashboard/ciclos/1
+  if (!isCepPublicHost && hasSession) {
+    const internalLegacyPrefix = ['cursos', 'ciclos', 'sedes']
+    for (const prefix of internalLegacyPrefix) {
+      if (pathname === `/${prefix}` || pathname.startsWith(`/${prefix}/`)) {
+        const destination = `/dashboard${pathname}`
+        return NextResponse.redirect(new URL(destination, request.url), 307)
+      }
+    }
+  }
+
   // =========================================================================
   // HTTPS Enforcement (production only)
   // =========================================================================
@@ -341,7 +359,7 @@ export function middleware(request: NextRequest) {
   // For API routes, add CORS headers to all responses
   if (pathname.startsWith('/api/')) {
     // Skip auth check for public API routes
-    if (publicRoutes.some(route => pathname.startsWith(route))) {
+    if (publicRoutes.some(route => matchesRoute(pathname, route))) {
       const response = NextResponse.next()
       const corsHeaders = getCorsHeaders(origin)
       Object.entries(corsHeaders).forEach(([key, value]) => {
@@ -354,7 +372,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Skip middleware for public routes (non-API)
-  if (publicRoutes.some(route => pathname.startsWith(route))) {
+  if (publicRoutes.some(route => matchesRoute(pathname, route))) {
     return NextResponse.next()
   }
 
@@ -410,8 +428,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // For all other requests, add CORS, security, and rate limit headers
-  const response = NextResponse.next()
+  // Canonical dashboard namespace:
+  // /dashboard/* rewrites internally to existing dashboard routes (/cursos, /ciclos, /sedes, etc).
+  // The auth check has already happened above, so this rewrite remains protected.
+  const dashboardAliasPath =
+    pathname.startsWith('/dashboard/') && pathname.length > '/dashboard/'.length
+      ? pathname.replace(/^\/dashboard/, '')
+      : null
+
+  // For all other requests, add CORS, security, and rate limit headers.
+  const response = dashboardAliasPath
+    ? NextResponse.rewrite(new URL(dashboardAliasPath, request.url))
+    : NextResponse.next()
 
   // Always add security headers
   const securityHeaders = getSecurityHeaders()
