@@ -172,12 +172,25 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         },
         {
           kind: 'featureStrip',
-          title: 'Por qué CEP',
-          subtitle: 'Mismo tono de marca, estructura más mantenible.',
+          title: '¿Por qué elegir CEP Formación?',
+          subtitle:
+            'Más de 25 años formando profesionales en Tenerife. Con nosotros no estudias para aprobar, estudias para trabajar.',
           items: [
-            { title: 'Prácticas reales', description: 'Programas conectados con empresas y entorno profesional.' },
-            { title: 'Oferta mixta', description: 'Ciclos oficiales, cursos privados y formación subvencionada.' },
-            { title: 'Sedes activas', description: 'Presencia física en Tenerife con atención académica continua.' },
+            {
+              title: 'Formación conectada con el sector',
+              description:
+                'Nuestros programas incluyen prácticas en empresas reales del entorno canario. Saldrás preparado para incorporarte desde el primer día.',
+            },
+            {
+              title: 'Toda la formación en un solo centro',
+              description:
+                'Ciclos formativos oficiales (CFGM y CFGS), cursos privados de especialización y formación subvencionada por el Servicio Canario de Empleo.',
+            },
+            {
+              title: 'Presencia física en toda la isla',
+              description:
+                'Contamos con dos sedes en Tenerife —Santa Cruz y La Orotava Norte— con atención académica presencial y equipo docente especializado.',
+            },
           ],
         },
         {
@@ -219,7 +232,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         {
           kind: 'campusList',
           title: 'Nuestras sedes',
-          subtitle: 'Información, localización y detalle de cada centro.',
+          subtitle: 'Dos centros en Tenerife con atención académica personalizada, instalaciones propias y equipo docente especializado.',
           limit: 3,
         },
         {

@@ -12,6 +12,46 @@ function resolveImageUrl(image: any): string | null {
   return null
 }
 
+const CYCLE_LEVEL_META: Record<string, { label: string; bgColor: string; textColor: string }> = {
+  grado_medio: { label: 'Grado Medio · CFGM', bgColor: '#2563EB', textColor: '#FFFFFF' },
+  grado_superior: { label: 'Grado Superior · CFGS', bgColor: '#E3003A', textColor: '#FFFFFF' },
+}
+
+function getCycleLevelMeta(level: string | undefined) {
+  if (!level) return null
+  return CYCLE_LEVEL_META[level] ?? null
+}
+
+function getCycleSubtitle(cycle: any): string | null {
+  const slug = String(cycle?.slug || '')
+  const name = String(cycle?.name || '')
+  if (slug.includes('farmacia') || name.toLowerCase().includes('farmacia')) {
+    return 'Ciclo Formativo de Grado Medio (LOE) · Ref. SANMS · Semipresencial'
+  }
+  if (slug.includes('higiene-bucodental') || name.toLowerCase().includes('higiene')) {
+    return 'Ciclo Formativo de Grado Superior (LOE) · Ref. SANSS · Semipresencial'
+  }
+  return null
+}
+
+function getCycleChips(cycle: any): string[] {
+  const chips = [
+    'Régimen LOE',
+    'Titulación oficial reconocida por el Ministerio de Educación',
+    'Modalidad semipresencial (1 día/semana presencial)',
+  ]
+  const practiceHours = cycle?.duration?.practiceHours
+  chips.push(practiceHours && Number.isFinite(practiceHours) ? `${practiceHours}h de prácticas en empresa` : '500h de prácticas en empresa')
+  const hasFSE = Array.isArray(cycle?.scholarships)
+    && cycle.scholarships.some((s: any) => {
+      const name = String(s?.name || '').toLowerCase()
+      const description = String(s?.description || '').toLowerCase()
+      return name.includes('fondo social europeo') || description.includes('fondo social europeo')
+    })
+  if (hasFSE) chips.push('Cofinanciado por el Fondo Social Europeo')
+  return chips
+}
+
 async function HeroCarouselSection({
   section,
   brandColor,
@@ -95,6 +135,9 @@ async function CourseListSection({ section, brandColor }: { section: Extract<Web
     sort: 'name',
   })
   const docs = result.docs.filter((course: any) => {
+    const courseType = String(course.course_type || '')
+    const isCycleCourse = courseType === 'ciclo_medio' || courseType === 'ciclo_superior'
+    if (!section.courseTypes?.length && isCycleCourse) return false
     if (section.courseTypes?.length && !section.courseTypes.includes(course.course_type)) return false
     if (section.featuredOnly && !course.featured) return false
     return true
@@ -105,25 +148,40 @@ async function CourseListSection({ section, brandColor }: { section: Extract<Web
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-semibold text-slate-900">{section.title}</h2>
         {section.subtitle ? <p className="mt-3 max-w-2xl text-slate-600">{section.subtitle}</p> : null}
-        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {docs.map((course: any) => {
-            const title = course.title ?? course.name
-            const description = course.short_description ?? course.description ?? course.long_description
-            const imageUrl = resolveImageUrl(course.featured_image) || resolveImageUrl(course.image)
-            return (
-              <Link key={course.id} href={`/cursos/${course.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white">
-                <div className="relative h-56 overflow-hidden">
-                  {imageUrl ? <img src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
-                  <h3 className="absolute bottom-5 left-5 right-5 text-xl font-semibold text-white">{title}</h3>
-                </div>
-                <div className="p-6">
-                  <p className="line-clamp-3 text-sm leading-7 text-slate-600">{description || 'Programa especializado con orientación práctica.'}</p>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+        {docs.length === 0 ? (
+          <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-8">
+            <p className="text-base text-slate-700">
+              Próximamente nuevos cursos de especialización. Consulta nuestras convocatorias abiertas.
+            </p>
+            <Link
+              href="/convocatorias"
+              className="mt-5 inline-flex rounded-full px-5 py-2.5 text-sm font-semibold text-white"
+              style={{ backgroundColor: brandColor }}
+            >
+              Ver convocatorias
+            </Link>
+          </div>
+        ) : (
+          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {docs.map((course: any) => {
+              const title = course.title ?? course.name
+              const description = course.short_description ?? course.description ?? course.long_description
+              const imageUrl = resolveImageUrl(course.featured_image) || resolveImageUrl(course.image)
+              return (
+                <Link key={course.id} href={`/cursos/${course.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white">
+                  <div className="relative h-56 overflow-hidden">
+                    {imageUrl ? <img src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
+                    <h3 className="absolute bottom-5 left-5 right-5 text-xl font-semibold text-white">{title}</h3>
+                  </div>
+                  <div className="p-6">
+                    <p className="line-clamp-3 text-sm leading-7 text-slate-600">{description || 'Programa especializado con orientación práctica.'}</p>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
       </div>
     </section>
   )
@@ -147,14 +205,32 @@ async function CycleListSection({ section, brandColor }: { section: Extract<Webs
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {result.docs.map((cycle: any) => {
             const imageUrl = resolveImageUrl(cycle.image)
+            const levelMeta = getCycleLevelMeta(cycle.level)
+            const subtitle = getCycleSubtitle(cycle)
+            const chips = getCycleChips(cycle)
             return (
               <Link key={cycle.id} href={`/ciclos/${cycle.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white">
                 <div className="relative h-56">
                   {imageUrl ? <img src={imageUrl} alt={cycle.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-5 left-5 right-5">
-                    <p className="mb-2 inline-flex rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-slate-900">{cycle.level}</p>
+                    <p
+                      className="mb-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+                      style={levelMeta ? { backgroundColor: levelMeta.bgColor, color: levelMeta.textColor } : undefined}
+                    >
+                      {levelMeta?.label || cycle.level}
+                    </p>
                     <h3 className="text-xl font-semibold text-white">{cycle.name}</h3>
+                  </div>
+                </div>
+                <div className="space-y-4 p-5">
+                  {subtitle ? <p className="text-sm leading-6 text-slate-700">{subtitle}</p> : null}
+                  <div className="flex flex-wrap gap-2">
+                    {chips.map((chip) => (
+                      <span key={`${cycle.id}-${chip}`} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-700">
+                        {chip}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </Link>
@@ -176,13 +252,37 @@ async function ConvocationListSection({ section, brandColor }: { section: Extrac
     sort: '-start_date',
   })
 
+  const grouped = new Map<string, { title: string; city?: string; docs: any[] }>()
+  for (const conv of result.docs) {
+    const campus = typeof conv.campus === 'object' && conv.campus ? conv.campus : null
+    const key = campus?.id ? String(campus.id) : 'online'
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        title: campus?.name || 'Modalidad Online / Sin sede fija',
+        city: campus?.city || undefined,
+        docs: [],
+      })
+    }
+    grouped.get(key)!.docs.push(conv)
+  }
+
   return (
     <section className="bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-semibold">{section.title}</h2>
         {section.subtitle ? <p className="mt-3 max-w-2xl text-white/70">{section.subtitle}</p> : null}
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          {result.docs.map((conv: any) => {
+        <div className="mt-10 space-y-10">
+          {Array.from(grouped.entries()).map(([groupKey, group]) => (
+            <div key={groupKey}>
+              <div className="mb-5 flex items-center gap-2 text-sm font-semibold text-white/90">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-4.35 7-10a7 7 0 1 0-14 0c0 5.65 7 10 7 10Z" />
+                  <circle cx="12" cy="11" r="2.5" />
+                </svg>
+                <span>{group.title}{group.city ? ` — ${group.city}` : ''}</span>
+              </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                {group.docs.map((conv: any) => {
             const course = typeof conv.course === 'object' ? conv.course : null
             const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
             const displayName = cycle?.name || course?.name || course?.title || conv.codigo
@@ -202,7 +302,10 @@ async function ConvocationListSection({ section, brandColor }: { section: Extrac
                 </div>
               </Link>
             )
-          })}
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -211,13 +314,37 @@ async function ConvocationListSection({ section, brandColor }: { section: Extrac
 
 async function CampusListSection({ section }: { section: Extract<WebsiteSection, { kind: 'campusList' }> }) {
   const payload = await getPayload({ config: configPromise })
-  const result = await payload.find({
+  const campusResult = await payload.find({
     collection: 'campuses',
     where: { active: { equals: true } },
     depth: 1,
     limit: section.limit ?? 3,
     sort: 'name',
   })
+  const runsResult = await payload.find({
+    collection: 'course-runs',
+    where: { status: { in: ['published', 'enrollment_open'] } },
+    depth: 2,
+    limit: 120,
+    sort: '-start_date',
+  })
+
+  const offeringsByCampus = new Map<string, Array<{ label: string; href: string }>>()
+  for (const run of runsResult.docs as any[]) {
+    const campus = typeof run.campus === 'object' && run.campus ? run.campus : null
+    if (!campus?.id) continue
+    const key = String(campus.id)
+    const course = typeof run.course === 'object' ? run.course : null
+    const cycle = typeof run.cycle === 'object' ? run.cycle : null
+    const label = cycle?.name || course?.title || course?.name
+    const href = cycle?.slug ? `/ciclos/${cycle.slug}` : course?.slug ? `/cursos/${course.slug}` : ''
+    if (!label || !href) continue
+    const items = offeringsByCampus.get(key) ?? []
+    if (!items.some((item) => item.href === href)) {
+      items.push({ label, href })
+      offeringsByCampus.set(key, items)
+    }
+  }
 
   return (
     <section className="bg-white">
@@ -225,18 +352,34 @@ async function CampusListSection({ section }: { section: Extract<WebsiteSection,
         <h2 className="text-3xl font-semibold text-slate-900">{section.title}</h2>
         {section.subtitle ? <p className="mt-3 max-w-2xl text-slate-600">{section.subtitle}</p> : null}
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {result.docs.map((campus: any) => {
+          {campusResult.docs.map((campus: any) => {
             const imageUrl = resolveImageUrl(campus.image)
+            const campusOfferings = offeringsByCampus.get(String(campus.id)) ?? []
+            const schedule = campus?.schedule?.weekdays || campus?.schedule?.saturday || 'Horario pendiente'
             return (
-              <Link key={campus.id} href={`/sedes/${campus.slug}`} className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50">
+              <article key={campus.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
                 <div className="h-52">
                   {imageUrl ? <img src={imageUrl} alt={campus.name} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-slate-200" />}
                 </div>
-                <div className="p-6">
+                <div className="space-y-3 p-6">
                   <h3 className="text-xl font-semibold text-slate-900">{campus.name}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{campus.city}{campus.address ? ` · ${campus.address}` : ''}</p>
+                  <p className="text-sm text-slate-600">{campus.city}{campus.address ? ` · ${campus.address}` : ''}</p>
+                  {campus.phone ? <p className="text-sm text-slate-700"><span className="font-semibold">Teléfono:</span> {campus.phone}</p> : null}
+                  <p className="text-sm text-slate-700"><span className="font-semibold">Horario:</span> {schedule}</p>
+                  {campusOfferings.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {campusOfferings.slice(0, 6).map((offering) => (
+                        <Link key={`${campus.id}-${offering.href}`} href={offering.href} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-700 transition hover:border-[var(--cep-brand)] hover:text-[var(--cep-brand)]">
+                          {offering.label}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                  <Link href={`/sedes/${campus.slug}`} className="inline-flex text-sm font-semibold text-[var(--cep-brand)]">
+                    Ver sede completa →
+                  </Link>
                 </div>
-              </Link>
+              </article>
             )
           })}
         </div>

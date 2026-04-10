@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Convocatorias Abiertas',
-  description: 'Convocatorias de formacion profesional con inscripcion abierta.',
+  description: 'Convocatorias de formación profesional con inscripción abierta.',
 }
 export const dynamic = 'force-dynamic'
 
@@ -27,24 +27,48 @@ export default async function ConvocatoriasPage() {
   })
 
   const convocatorias = result.docs
+  const grouped = new Map<string, { title: string; city?: string; docs: any[] }>()
+
+  for (const conv of convocatorias as any[]) {
+    const campus = typeof conv.campus === 'object' && conv.campus ? conv.campus : null
+    const key = campus?.id ? String(campus.id) : 'online'
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        title: campus?.name || 'Modalidad Online / Sin sede fija',
+        city: campus?.city || undefined,
+        docs: [],
+      })
+    }
+    grouped.get(key)!.docs.push(conv)
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Convocatorias Abiertas</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Inscribete en nuestras convocatorias activas. Plazas limitadas.
+          Inscríbete en nuestras convocatorias activas. Plazas limitadas.
         </p>
       </div>
 
       {convocatorias.length === 0 ? (
         <div className="text-center py-16 text-gray-500">
           <p className="text-lg">No hay convocatorias abiertas en este momento</p>
-          <p className="text-sm mt-2">Consulta nuestros <a href="/ciclos" className="brand-text hover:underline">ciclos formativos</a> y dejanos tu email para enterarte de nuevas convocatorias.</p>
+          <p className="text-sm mt-2">Consulta nuestros <a href="/ciclos" className="brand-text hover:underline">ciclos formativos</a> y déjanos tu email para enterarte de nuevas convocatorias.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {convocatorias.map((conv: any) => {
+        <div className="space-y-10">
+          {Array.from(grouped.entries()).map(([groupKey, group]) => (
+            <section key={groupKey}>
+              <div className="mb-5 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-4.35 7-10a7 7 0 1 0-14 0c0 5.65 7 10 7 10Z" />
+                  <circle cx="12" cy="11" r="2.5" />
+                </svg>
+                <span>{group.title}{group.city ? ` — ${group.city}` : ''}</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {group.docs.map((conv: any) => {
             const course = typeof conv.course === 'object' ? conv.course : null
             const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
             const campus = typeof conv.campus === 'object' ? conv.campus : null
@@ -62,7 +86,7 @@ export default async function ConvocatoriasPage() {
                     {imageUrl && <img src={imageUrl} alt={course?.title || ''} className="w-full h-full object-cover" />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute top-3 right-3">
-                      <span className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full uppercase">Inscripcion abierta</span>
+                      <span className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full uppercase">Inscripción abierta</span>
                     </div>
                     <div className="absolute bottom-3 left-4 right-4">
                       <h2 className="text-lg font-bold text-white">{course?.title || course?.name || conv.codigo}</h2>
@@ -92,7 +116,10 @@ export default async function ConvocatoriasPage() {
                 </div>
               </Link>
             )
-          })}
+                })}
+              </div>
+            </section>
+          ))}
         </div>
       )}
     </div>

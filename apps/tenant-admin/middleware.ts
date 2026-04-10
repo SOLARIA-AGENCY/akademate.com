@@ -231,9 +231,16 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // IMPORTANT: never rewrite authenticated dashboard requests to public pages.
-  // Public rewrites are only for anonymous visitors.
-  if (!hasSession) {
+  // Canonical public routes on CEP hosts should always resolve to public renderers,
+  // even for authenticated users, to avoid mixing dashboard pages with website pages.
+  const normalizedHost = host.toLowerCase().split(':')[0]
+  const isCepPublicHost =
+    normalizedHost === 'cepformacion.akademate.com' ||
+    normalizedHost === 'www.cepformacion.akademate.com' ||
+    normalizedHost === 'cepformacion.es' ||
+    normalizedHost === 'www.cepformacion.es'
+
+  if (isCepPublicHost) {
     const publicRewrites: Array<[RegExp, string | ((match: RegExpMatchArray) => string)]> = [
       [/^\/cursos\/?$/, '/p/cursos'],
       [/^\/cursos\/([^/]+)\/?$/, (match) => `/p/cursos/${match[1]}`],
