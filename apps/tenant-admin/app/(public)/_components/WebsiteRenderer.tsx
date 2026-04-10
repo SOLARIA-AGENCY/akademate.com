@@ -136,7 +136,17 @@ async function CourseListSection({ section, brandColor }: { section: Extract<Web
   })
   const docs = result.docs.filter((course: any) => {
     const courseType = String(course.course_type || '')
-    const isCycleCourse = courseType === 'ciclo_medio' || courseType === 'ciclo_superior'
+    const courseTitle = String(course.title || course.name || '').toLowerCase()
+    const courseSlug = String(course.slug || '').toLowerCase()
+    const isCycleCourse =
+      courseType === 'ciclo_medio'
+      || courseType === 'ciclo_superior'
+      || courseTitle.includes('cfgm')
+      || courseTitle.includes('cfgs')
+      || courseTitle.includes('grado medio')
+      || courseTitle.includes('grado superior')
+      || courseSlug.startsWith('cfgm-')
+      || courseSlug.startsWith('cfgs-')
     if (!section.courseTypes?.length && isCycleCourse) return false
     if (section.courseTypes?.length && !section.courseTypes.includes(course.course_type)) return false
     if (section.featuredOnly && !course.featured) return false
