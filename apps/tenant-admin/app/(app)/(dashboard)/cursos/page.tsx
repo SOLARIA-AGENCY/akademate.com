@@ -26,7 +26,7 @@ import { CourseTemplateCard } from '@payload-config/components/ui/CourseTemplate
 import { CourseListItem } from '@payload-config/components/ui/CourseListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
-import { COURSE_TYPE_CONFIG, type CourseTypeKey } from '@payload-config/lib/courseTypeConfig'
+import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
 
 // Local type definition to avoid ESLint path resolution issues
 type ViewMode = 'grid' | 'list'
@@ -43,29 +43,25 @@ interface ApiResponse {
   error?: string
 }
 
-type DashboardFilterType = 'all' | CourseTypeKey
+const PRIMARY_COURSE_TYPES = ['privados', 'ocupados', 'desempleados', 'teleformacion'] as const
+type DashboardCourseType = (typeof PRIMARY_COURSE_TYPES)[number]
+type DashboardFilterType = 'all' | DashboardCourseType
 
-const PRIMARY_COURSE_TYPES: CourseTypeKey[] = ['privados', 'ocupados', 'desempleados', 'teleformacion']
-
-const TYPE_DISPLAY_ORDER: CourseTypeKey[] = [
+const TYPE_DISPLAY_ORDER: DashboardCourseType[] = [
   'ocupados',
   'desempleados',
   'privados',
   'teleformacion',
-  'ciclo-medio',
-  'ciclo-superior',
 ]
 
-const TYPE_ICONS: Record<CourseTypeKey, typeof Lock> = {
+const TYPE_ICONS: Record<DashboardCourseType, typeof Lock> = {
   privados: Lock,
   ocupados: Briefcase,
   desempleados: Building2,
   teleformacion: Monitor,
-  'ciclo-medio': Building2,
-  'ciclo-superior': Building2,
 }
 
-function normalizeCourseTypeKey(value: string | null | undefined): CourseTypeKey | null {
+function normalizeDashboardCourseType(value: string | null | undefined): DashboardCourseType | null {
   if (!value) return null
   const normalized = value
     .trim()
@@ -78,10 +74,9 @@ function normalizeCourseTypeKey(value: string | null | undefined): CourseTypeKey
   if (['ocupado', 'ocupados', 'ocu'].includes(normalized)) return 'ocupados'
   if (['desempleado', 'desempleados', 'des'].includes(normalized)) return 'desempleados'
   if (['teleformacion', 'tele_formacion', 'tele'].includes(normalized)) return 'teleformacion'
-  if (['ciclo_medio', 'ciclo-medio', 'grado_medio', 'cfgm'].includes(normalized)) return 'ciclo-medio'
-  if (['ciclo_superior', 'ciclo-superior', 'grado_superior', 'cfgs'].includes(normalized)) {
-    return 'ciclo-superior'
-  }
+  // En esta pantalla de 4 categorías, los ciclos del catálogo legacy se tratan como privados.
+  if (['ciclo_medio', 'ciclo-medio', 'grado_medio', 'cfgm'].includes(normalized)) return 'privados'
+  if (['ciclo_superior', 'ciclo-superior', 'grado_superior', 'cfgs'].includes(normalized)) return 'privados'
 
   return null
 }
@@ -91,7 +86,7 @@ function CursosPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tipo = searchParams.get('tipo')
-  const selectedTypeFromUrl = normalizeCourseTypeKey(tipo)
+  const selectedTypeFromUrl = normalizeDashboardCourseType(tipo)
 
   // View preference (eslint path alias resolution workaround)
 
@@ -220,8 +215,8 @@ function CursosPageContent() {
     router.push('/dashboard/cursos')
   }
 
-  const getCourseType = (course: PlantillaCurso): CourseTypeKey =>
-    normalizeCourseTypeKey((course as PlantillaCurso & { studyType?: string }).studyType ?? course.tipo) ??
+  const getCourseType = (course: PlantillaCurso): DashboardCourseType =>
+    normalizeDashboardCourseType((course as PlantillaCurso & { studyType?: string }).studyType ?? course.tipo) ??
     'privados'
 
   // Filtrado base (sin tipo) para construir cards dinámicas por categoría
@@ -236,15 +231,13 @@ function CursosPageContent() {
     return matchesSearch && matchesArea
   })
 
-  const typeCounts = TYPE_DISPLAY_ORDER.reduce<Record<CourseTypeKey, number>>(
+  const typeCounts = TYPE_DISPLAY_ORDER.reduce<Record<DashboardCourseType, number>>(
     (acc, key) => ({ ...acc, [key]: 0 }),
     {
       privados: 0,
       ocupados: 0,
       desempleados: 0,
       teleformacion: 0,
-      'ciclo-medio': 0,
-      'ciclo-superior': 0,
     }
   )
 
@@ -270,7 +263,7 @@ function CursosPageContent() {
   const isTypeLandingPage = !selectedTypeFromUrl
 
   // Configure header based on filter
-  const tiposConfig: Record<CourseTypeKey, {
+  const tiposConfig: Record<DashboardCourseType, {
     title: string
     description: string
     icon: typeof Lock
@@ -304,20 +297,6 @@ function CursosPageContent() {
       icon: Monitor,
       color: 'text-orange-500',
       bgColor: 'bg-orange-50 dark:bg-orange-950',
-    },
-    'ciclo-medio': {
-      title: 'Ciclos de Grado Medio',
-      description: 'Oferta de ciclos formativos de grado medio',
-      icon: Building2,
-      color: 'text-red-500',
-      bgColor: 'bg-red-50 dark:bg-red-950',
-    },
-    'ciclo-superior': {
-      title: 'Ciclos de Grado Superior',
-      description: 'Oferta de ciclos formativos de grado superior',
-      icon: Building2,
-      color: 'text-red-600',
-      bgColor: 'bg-red-50 dark:bg-red-950',
     },
   }
 
