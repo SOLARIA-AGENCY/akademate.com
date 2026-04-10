@@ -19,6 +19,7 @@
     "typecheck": "tsc --noEmit",
     "audit:hygiene": "node ./scripts/audit-transpiled-artifacts.mjs",
     "sync:cep:website": "tsx scripts/sync-cep-website-foundation.ts",
+    "import:cep:courses": "tsx scripts/import-cep-courses-2026.ts",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "payload": "payload",
