@@ -5,6 +5,7 @@ import '../globals.css'
 import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
 import { getTenantWebsite } from '@/app/lib/website/server'
 import { CookieBanner } from './_components/CookieBanner'
+import { PublicHeaderClient } from './_components/PublicHeaderClient'
 
 function getIconMimeType(url: string): string {
   if (url.endsWith('.svg')) return 'image/svg+xml'
@@ -72,59 +73,13 @@ export default async function PublicLayout({ children }: { children: React.React
           }
         `}</style>
 
-        <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-          <div className="text-white" style={{ backgroundColor: brandColor }}>
-            <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-2 text-xs sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span className="inline-flex items-center gap-1.5 font-semibold uppercase tracking-[0.08em]">
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.78 19.78 0 0 1-8.63-3.07A19.5 19.5 0 0 1 5.15 12.8a19.78 19.78 0 0 1-3.07-8.67A2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.78.59 2.63a2 2 0 0 1-.45 2.11L8 9.99a16 16 0 0 0 6 6l1.53-1.2a2 2 0 0 1 2.11-.45c.85.27 1.73.47 2.63.59A2 2 0 0 1 22 16.92Z" />
-                  </svg>
-                  Teléfono: 922 219 257
-                </span>
-                <span className="inline-flex items-center gap-1.5 font-semibold uppercase tracking-[0.08em]">
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
-                  </svg>
-                  Horario: Lunes a viernes 10 a 14 - 16 a 20
-                </span>
-              </div>
-              <span className="inline-flex items-center gap-1.5 font-semibold uppercase tracking-[0.08em]">
-                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="5" width="18" height="14" rx="2" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m3 7 9 6 9-6" />
-                </svg>
-                Email: info@cursostenerife.es
-              </span>
-            </div>
-          </div>
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
-            <Link href="/" className="inline-flex items-center">
-              <img
-                src={website.visualIdentity.logoPrimary || tenant.logoUrl}
-                alt={tenant.academyName}
-                className="h-28 w-auto max-w-[460px] object-contain lg:h-32"
-              />
-            </Link>
-            <nav className="hidden items-center gap-6 lg:flex">
-              {website.navigation.items.map((item) => (
-                <Link key={item.href} href={item.href} className="text-sm font-medium text-slate-600 transition hover:text-slate-950">
-                  {item.label}
-                </Link>
-              ))}
-              {website.navigation.cta ? (
-                <Link
-                  href={website.navigation.cta.href}
-                  className="rounded-full px-5 py-2.5 text-sm font-semibold text-white"
-                  style={{ backgroundColor: brandColor }}
-                >
-                  {website.navigation.cta.label}
-                </Link>
-              ) : null}
-            </nav>
-          </div>
-        </header>
+        <PublicHeaderClient
+          brandColor={brandColor}
+          logoSrc={website.visualIdentity.logoPrimary || tenant.logoUrl}
+          academyName={tenant.academyName}
+          navigationItems={website.navigation.items}
+          navigationCta={website.navigation.cta}
+        />
 
         <main>{children}</main>
 
