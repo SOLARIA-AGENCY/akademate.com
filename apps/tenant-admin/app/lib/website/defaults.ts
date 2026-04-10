@@ -223,10 +223,12 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
           title: 'Áreas de formación',
           subtitle: 'Bloques visuales editables, conservando la estructura del sitio original.',
           items: [
-            { title: 'Ciclos formativos', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/ciclos' },
-            { title: 'Salud, bienestar y deporte', image: '/website/cep/categories/salud-bienestar-y-deporte.jpg', href: '/cursos' },
-            { title: 'Mundo animal', image: '/website/cep/categories/mundo-animal.jpg', href: '/cursos' },
-            { title: 'Especialización sanitaria', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/cursos' },
+            { title: 'Área Sanitaria y Clínica', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/cursos' },
+            { title: 'Área Veterinaria y Bienestar Animal', image: '/website/cep/categories/mundo-animal.jpg', href: '/cursos' },
+            { title: 'Área Salud, Bienestar y Deporte', image: '/website/cep/categories/salud-bienestar-y-deporte.jpg', href: '/cursos' },
+            { title: 'Área Tecnología, Digital y Diseño', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/cursos' },
+            { title: 'Área Empresa, Administración y Gestión', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/cursos' },
+            { title: 'Área Seguridad, Vigilancia y Protección', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/cursos' },
           ],
         },
         {

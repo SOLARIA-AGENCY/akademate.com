@@ -59,28 +59,40 @@ const COURSE_TYPE_SEEDS: CourseTypeSeed[] = [
 
 const AREA_SEEDS: AreaSeed[] = [
   {
-    nombre: 'Ciclos formativos',
-    codigo: 'CIC',
+    nombre: 'Área Sanitaria y Clínica',
+    codigo: 'SCLN',
     color: '#E3003A',
-    descripcion: 'Ciclos formativos oficiales',
+    descripcion: 'Formación sanitaria, clínica y especialización asistencial.',
   },
   {
-    nombre: 'Salud, bienestar y deporte',
+    nombre: 'Área Veterinaria y Bienestar Animal',
+    codigo: 'VETA',
+    color: '#16A34A',
+    descripcion: 'Programas de veterinaria, ATV y bienestar animal.',
+  },
+  {
+    nombre: 'Área Salud, Bienestar y Deporte',
     codigo: 'SBD',
     color: '#2563EB',
-    descripcion: 'Programas de salud, bienestar y deporte',
+    descripcion: 'Entrenamiento, nutrición, bienestar y actividad física.',
   },
   {
-    nombre: 'Mundo animal',
-    codigo: 'ANI',
-    color: '#16A34A',
-    descripcion: 'Programas del ámbito animal',
+    nombre: 'Área Tecnología, Digital y Diseño',
+    codigo: 'TDD',
+    color: '#0EA5E9',
+    descripcion: 'IA, competencias digitales, diseño y marketing digital.',
   },
   {
-    nombre: 'Especialización sanitaria',
-    codigo: 'ESP',
-    color: '#9333EA',
-    descripcion: 'Especializaciones sanitarias',
+    nombre: 'Área Empresa, Administración y Gestión',
+    codigo: 'EAG',
+    color: '#F59E0B',
+    descripcion: 'Gestión empresarial, administración, RRHH y finanzas.',
+  },
+  {
+    nombre: 'Área Seguridad, Vigilancia y Protección',
+    codigo: 'SVP',
+    color: '#475569',
+    descripcion: 'Formación de seguridad privada, vigilancia y protección.',
   },
 ]
 
