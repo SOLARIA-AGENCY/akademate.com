@@ -26,6 +26,7 @@ import { CourseTemplateCard } from '@payload-config/components/ui/CourseTemplate
 import { CourseListItem } from '@payload-config/components/ui/CourseListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
+import { COURSE_TYPE_CONFIG, type CourseTypeKey } from '@payload-config/lib/courseTypeConfig'
 
 // Local type definition to avoid ESLint path resolution issues
 type ViewMode = 'grid' | 'list'
@@ -42,6 +43,47 @@ interface ApiResponse {
   error?: string
 }
 
+type DashboardFilterType = 'all' | CourseTypeKey
+
+const TYPE_DISPLAY_ORDER: CourseTypeKey[] = [
+  'ocupados',
+  'desempleados',
+  'privados',
+  'teleformacion',
+  'ciclo-medio',
+  'ciclo-superior',
+]
+
+const TYPE_ICONS: Record<CourseTypeKey, typeof Lock> = {
+  privados: Lock,
+  ocupados: Briefcase,
+  desempleados: Building2,
+  teleformacion: Monitor,
+  'ciclo-medio': Building2,
+  'ciclo-superior': Building2,
+}
+
+function normalizeCourseTypeKey(value: string | null | undefined): CourseTypeKey | null {
+  if (!value) return null
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9_\\-]+/g, '_')
+
+  if (['privado', 'privados', 'priv', 'pri'].includes(normalized)) return 'privados'
+  if (['ocupado', 'ocupados', 'ocu'].includes(normalized)) return 'ocupados'
+  if (['desempleado', 'desempleados', 'des'].includes(normalized)) return 'desempleados'
+  if (['teleformacion', 'tele_formacion', 'tele'].includes(normalized)) return 'teleformacion'
+  if (['ciclo_medio', 'ciclo-medio', 'grado_medio', 'cfgm'].includes(normalized)) return 'ciclo-medio'
+  if (['ciclo_superior', 'ciclo-superior', 'grado_superior', 'cfgs'].includes(normalized)) {
+    return 'ciclo-superior'
+  }
+
+  return null
+}
+
 // Main component that uses useSearchParams
 function CursosPageContent() {
   const router = useRouter()
@@ -56,7 +98,9 @@ function CursosPageContent() {
 
   // Filtros
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterType, setFilterType] = useState(tipo ?? 'all')
+  const [filterType, setFilterType] = useState<DashboardFilterType>(
+    normalizeCourseTypeKey(tipo) ?? 'all'
+  )
   const [filterArea, setFilterArea] = useState('all')
 
   // State para cursos y carga
@@ -71,7 +115,7 @@ function CursosPageContent() {
   // Sincronizar filterType con searchParams
   useEffect(() => {
     if (tipo) {
-      setFilterType(tipo)
+      setFilterType(normalizeCourseTypeKey(tipo) ?? 'all')
     }
   }, [tipo])
 
@@ -167,22 +211,61 @@ function CursosPageContent() {
     router.push(`/dashboard/cursos/${course.id}`)
   }
 
-  // Filtrado de cursos
-  const filteredCourses = cursos.filter((course) => {
+  const getCourseType = (course: PlantillaCurso): CourseTypeKey =>
+    normalizeCourseTypeKey((course as PlantillaCurso & { studyType?: string }).studyType ?? course.tipo) ??
+    'privados'
+
+  // Filtrado base (sin tipo) para construir cards dinámicas por categoría
+  const baseFilteredCourses = cursos.filter((course) => {
     const searchLower = searchTerm.toLowerCase()
     const matchesSearch =
       course.nombre.toLowerCase().includes(searchLower) ||
       (course.descripcion?.toLowerCase().includes(searchLower) ?? false) ||
       (course.area?.toLowerCase().includes(searchLower) ?? false)
-
-    const matchesType = filterType === 'all' || course.tipo === filterType
     const matchesArea = filterArea === 'all' || course.area === filterArea
 
-    return matchesSearch && matchesType && matchesArea
+    return matchesSearch && matchesArea
   })
 
+  const typeCounts = TYPE_DISPLAY_ORDER.reduce<Record<CourseTypeKey, number>>(
+    (acc, key) => ({ ...acc, [key]: 0 }),
+    {
+      privados: 0,
+      ocupados: 0,
+      desempleados: 0,
+      teleformacion: 0,
+      'ciclo-medio': 0,
+      'ciclo-superior': 0,
+    }
+  )
+
+  baseFilteredCourses.forEach((course) => {
+    const type = getCourseType(course)
+    typeCounts[type] += 1
+  })
+
+  // Filtrado final (incluye tipo)
+  const filteredCourses = baseFilteredCourses.filter((course) => {
+    if (filterType === 'all') return true
+    return getCourseType(course) === filterType
+  })
+
+  const visibleTypes =
+    filterType === 'all' ? TYPE_DISPLAY_ORDER.filter((type) => typeCounts[type] > 0) : [filterType]
+
+  const groupedCourses = visibleTypes.map((type) => ({
+    type,
+    courses: filteredCourses.filter((course) => getCourseType(course) === type),
+  }))
+
   // Configure header based on filter
-  const tiposConfig = {
+  const tiposConfig: Record<CourseTypeKey, {
+    title: string
+    description: string
+    icon: typeof Lock
+    color: string
+    bgColor: string
+  }> = {
     privados: {
       title: 'Cursos Privados',
       description: 'Cursos de formación privada para empresas y particulares',
@@ -211,9 +294,23 @@ function CursosPageContent() {
       color: 'text-orange-500',
       bgColor: 'bg-orange-50 dark:bg-orange-950',
     },
+    'ciclo-medio': {
+      title: 'Ciclos de Grado Medio',
+      description: 'Oferta de ciclos formativos de grado medio',
+      icon: Building2,
+      color: 'text-red-500',
+      bgColor: 'bg-red-50 dark:bg-red-950',
+    },
+    'ciclo-superior': {
+      title: 'Ciclos de Grado Superior',
+      description: 'Oferta de ciclos formativos de grado superior',
+      icon: Building2,
+      color: 'text-red-600',
+      bgColor: 'bg-red-50 dark:bg-red-950',
+    },
   }
 
-  const config = tipo ? tiposConfig[tipo as keyof typeof tiposConfig] : undefined
+  const config = filterType !== 'all' ? tiposConfig[filterType] : undefined
   const Icon = config?.icon ?? List
 
   return (
@@ -239,6 +336,56 @@ function CursosPageContent() {
       />
 
       <UsageBar resource="cursos" current={cursos.length} limit={getLimit(plan, 'cursos')} />
+
+      {/* Segmentación dinámica por tipo de curso */}
+      {!loading && !error && (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {TYPE_DISPLAY_ORDER.filter((type) => typeCounts[type] > 0).map((type) => {
+            const style = COURSE_TYPE_CONFIG[type]
+            const IconByType = TYPE_ICONS[type]
+            const isActive = filterType === type
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setFilterType(type)}
+                className="text-left"
+              >
+                <Card
+                  className={`border transition-all hover:shadow-sm ${
+                    isActive ? `${style.borderColor} border-2` : 'border-border'
+                  }`}
+                >
+                  <CardContent className="p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold text-white ${style.bgColor}`}>
+                        {style.label}
+                      </span>
+                      <IconByType className={`h-4 w-4 ${style.textColor}`} />
+                    </div>
+                    <p className="text-2xl font-bold">{typeCounts[type]}</p>
+                    <p className="text-xs text-muted-foreground">cursos</p>
+                  </CardContent>
+                </Card>
+              </button>
+            )
+          })}
+          <button type="button" onClick={() => setFilterType('all')} className="text-left">
+            <Card className={`border transition-all hover:shadow-sm ${filterType === 'all' ? 'border-primary border-2' : 'border-border'}`}>
+              <CardContent className="p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="inline-flex rounded-full bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground">
+                    TODOS
+                  </span>
+                  <List className="h-4 w-4 text-primary" />
+                </div>
+                <p className="text-2xl font-bold">{baseFilteredCourses.length}</p>
+                <p className="text-xs text-muted-foreground">cursos</p>
+              </CardContent>
+            </Card>
+          </button>
+        </div>
+      )}
 
       {/* Filtros - Estandarizados para todas las vistas */}
       <Card className="bg-card" data-oid="0gd1z6-">
@@ -352,29 +499,53 @@ function CursosPageContent() {
       )}
 
       {/* Grid o Lista de Cursos */}
-      {!loading && !error && view === 'grid' && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid="3kr--1i">
-          {filteredCourses.map((course) => (
-            <CourseTemplateCard
-              key={course.id}
-              template={course}
-              onClick={() => handleViewCourse(course)}
-              data-oid="jicucw1"
-            />
-          ))}
-        </div>
-      )}
+      {!loading && !error && groupedCourses.length > 0 && (
+        <div className="space-y-8">
+          {groupedCourses.map((group) => {
+            if (group.courses.length === 0) return null
+            const style = COURSE_TYPE_CONFIG[group.type]
+            return (
+              <section key={group.type} className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className={`h-2.5 w-2.5 rounded-full ${style.dotColor}`} />
+                    <h2 className="text-lg font-semibold">{tiposConfig[group.type]?.title ?? style.label}</h2>
+                  </div>
+                  <Badge variant="secondary">{group.courses.length}</Badge>
+                </div>
 
-      {!loading && !error && view === 'list' && (
-        <div className="flex flex-col gap-4" data-oid="9hy8e7h">
-          {filteredCourses.map((course) => (
-            <CourseListItem
-              key={course.id}
-              course={course}
-              onClick={() => handleViewCourse(course)}
-              data-oid="_gjcoji"
-            />
-          ))}
+                {view === 'grid' ? (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid="3kr--1i">
+                    {group.courses.map((course) => (
+                      <CourseTemplateCard
+                        key={course.id}
+                        template={{
+                          ...course,
+                          tipo: getCourseType(course),
+                        }}
+                        onClick={() => handleViewCourse(course)}
+                        data-oid="jicucw1"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4" data-oid="9hy8e7h">
+                    {group.courses.map((course) => (
+                      <CourseListItem
+                        key={course.id}
+                        course={{
+                          ...course,
+                          tipo: getCourseType(course),
+                        }}
+                        onClick={() => handleViewCourse(course)}
+                        data-oid="_gjcoji"
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )
+          })}
         </div>
       )}
 
