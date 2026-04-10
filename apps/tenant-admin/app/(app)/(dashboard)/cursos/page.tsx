@@ -45,6 +45,8 @@ interface ApiResponse {
 
 type DashboardFilterType = 'all' | CourseTypeKey
 
+const PRIMARY_COURSE_TYPES: CourseTypeKey[] = ['privados', 'ocupados', 'desempleados', 'teleformacion']
+
 const TYPE_DISPLAY_ORDER: CourseTypeKey[] = [
   'ocupados',
   'desempleados',
@@ -89,6 +91,7 @@ function CursosPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tipo = searchParams.get('tipo')
+  const selectedTypeFromUrl = normalizeCourseTypeKey(tipo)
 
   // View preference (eslint path alias resolution workaround)
 
@@ -99,7 +102,7 @@ function CursosPageContent() {
   // Filtros
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<DashboardFilterType>(
-    normalizeCourseTypeKey(tipo) ?? 'all'
+    selectedTypeFromUrl ?? 'all'
   )
   const [filterArea, setFilterArea] = useState('all')
 
@@ -114,10 +117,8 @@ function CursosPageContent() {
 
   // Sincronizar filterType con searchParams
   useEffect(() => {
-    if (tipo) {
-      setFilterType(normalizeCourseTypeKey(tipo) ?? 'all')
-    }
-  }, [tipo])
+    setFilterType(selectedTypeFromUrl ?? 'all')
+  }, [selectedTypeFromUrl])
 
   // Cargar cursos desde API con retry logic
   useEffect(() => {
@@ -211,6 +212,14 @@ function CursosPageContent() {
     router.push(`/dashboard/cursos/${course.id}`)
   }
 
+  const goToTypePage = (type: CourseTypeKey) => {
+    router.push(`/dashboard/cursos?tipo=${encodeURIComponent(type)}`)
+  }
+
+  const goToTypeLanding = () => {
+    router.push('/dashboard/cursos')
+  }
+
   const getCourseType = (course: PlantillaCurso): CourseTypeKey =>
     normalizeCourseTypeKey((course as PlantillaCurso & { studyType?: string }).studyType ?? course.tipo) ??
     'privados'
@@ -257,6 +266,8 @@ function CursosPageContent() {
     type,
     courses: filteredCourses.filter((course) => getCourseType(course) === type),
   }))
+
+  const isTypeLandingPage = !selectedTypeFromUrl
 
   // Configure header based on filter
   const tiposConfig: Record<CourseTypeKey, {
@@ -316,46 +327,52 @@ function CursosPageContent() {
   return (
     <div className="space-y-6" data-oid="bkc0c9v">
       <PageHeader
-        title={config?.title ?? 'Catálogo de Cursos'}
-        description={config?.description ?? 'Gestiona y organiza tu oferta formativa.'}
+        title={isTypeLandingPage ? 'Tipos de Cursos' : (config?.title ?? 'Catálogo de Cursos')}
+        description={
+          isTypeLandingPage
+            ? 'Selecciona un tipo para ver su catálogo de cursos.'
+            : (config?.description ?? 'Gestiona y organiza tu oferta formativa.')
+        }
         icon={Icon}
         iconBgColor={config?.bgColor ?? 'bg-primary/10'}
         iconColor={config?.color ?? 'text-primary'}
         badge={
           <Badge variant="secondary" data-oid="m2mems3">
-            {filteredCourses.length} cursos
+            {isTypeLandingPage ? `${PRIMARY_COURSE_TYPES.length} categorías` : `${filteredCourses.length} cursos`}
           </Badge>
         }
         actions={
-          <Button onClick={handleAdd} data-oid="dn:ljue">
-            <Plus className="h-4 w-4" data-oid="mp04.p1" />
-            Nuevo Curso
-          </Button>
+          <div className="flex items-center gap-2">
+            {!isTypeLandingPage && (
+              <Button variant="outline" onClick={goToTypeLanding}>
+                Ver tipos
+              </Button>
+            )}
+            <Button onClick={handleAdd} data-oid="dn:ljue">
+              <Plus className="h-4 w-4" data-oid="mp04.p1" />
+              Nuevo Curso
+            </Button>
+          </div>
         }
         data-oid="-ia7n0u"
       />
 
       <UsageBar resource="cursos" current={cursos.length} limit={getLimit(plan, 'cursos')} />
 
-      {/* Segmentación dinámica por tipo de curso */}
-      {!loading && !error && (
+      {/* Landing de tipos de curso */}
+      {!loading && !error && isTypeLandingPage && (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {TYPE_DISPLAY_ORDER.filter((type) => typeCounts[type] > 0).map((type) => {
+          {PRIMARY_COURSE_TYPES.map((type) => {
             const style = COURSE_TYPE_CONFIG[type]
             const IconByType = TYPE_ICONS[type]
-            const isActive = filterType === type
             return (
               <button
                 key={type}
                 type="button"
-                onClick={() => setFilterType(type)}
+                onClick={() => goToTypePage(type)}
                 className="text-left"
               >
-                <Card
-                  className={`border transition-all hover:shadow-sm ${
-                    isActive ? `${style.borderColor} border-2` : 'border-border'
-                  }`}
-                >
+                <Card className="border transition-all hover:shadow-sm hover:border-primary">
                   <CardContent className="p-4">
                     <div className="mb-2 flex items-center justify-between">
                       <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold text-white ${style.bgColor}`}>
@@ -370,25 +387,11 @@ function CursosPageContent() {
               </button>
             )
           })}
-          <button type="button" onClick={() => setFilterType('all')} className="text-left">
-            <Card className={`border transition-all hover:shadow-sm ${filterType === 'all' ? 'border-primary border-2' : 'border-border'}`}>
-              <CardContent className="p-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="inline-flex rounded-full bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground">
-                    TODOS
-                  </span>
-                  <List className="h-4 w-4 text-primary" />
-                </div>
-                <p className="text-2xl font-bold">{baseFilteredCourses.length}</p>
-                <p className="text-xs text-muted-foreground">cursos</p>
-              </CardContent>
-            </Card>
-          </button>
         </div>
       )}
 
       {/* Filtros - Estandarizados para todas las vistas */}
-      <Card className="bg-card" data-oid="0gd1z6-">
+      {!isTypeLandingPage && <Card className="bg-card" data-oid="0gd1z6-">
         <CardContent className="pt-6" data-oid=".w7czcl">
           <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="ohwi565">
             <div className="min-w-[260px] flex-1" data-oid="gnnziad">
@@ -407,32 +410,6 @@ function CursosPageContent() {
                 />
               </div>
             </div>
-
-            {/* SELECTOR DE TIPO: Solo en vista global */}
-            {(!tipo || tipo === 'all') && (
-              <Select value={filterType} onValueChange={setFilterType} data-oid="hngfo9s">
-                <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="7_zgf3v">
-                  <SelectValue placeholder="Todos los cursos" data-oid="-smqua7" />
-                </SelectTrigger>
-                <SelectContent data-oid="duje1hp">
-                  <SelectItem value="all" data-oid="37_0.zn">
-                    Todos los cursos
-                  </SelectItem>
-                  <SelectItem value="privados" data-oid="vqwrue-">
-                    Privados
-                  </SelectItem>
-                  <SelectItem value="teleformacion" data-oid="_6z43vb">
-                    Teleformación
-                  </SelectItem>
-                  <SelectItem value="ocupados" data-oid="ad6ithf">
-                    Ocupados
-                  </SelectItem>
-                  <SelectItem value="desempleados" data-oid="k5.5pq1">
-                    Desempleados
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            )}
 
             {/* FILTRO POR ÁREA */}
             <Select value={filterArea} onValueChange={setFilterArea} data-oid="i0ek:n_">
@@ -464,7 +441,6 @@ function CursosPageContent() {
                 size="sm"
                 onClick={() => {
                   setSearchTerm('')
-                  setFilterType('all')
                   setFilterArea('all')
                 }}
                 data-oid="fb8q3px"
@@ -474,7 +450,7 @@ function CursosPageContent() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card>}
 
       {/* Loading State */}
       {loading && (
@@ -499,7 +475,7 @@ function CursosPageContent() {
       )}
 
       {/* Grid o Lista de Cursos */}
-      {!loading && !error && groupedCourses.length > 0 && (
+      {!loading && !error && !isTypeLandingPage && groupedCourses.length > 0 && (
         <div className="space-y-8">
           {groupedCourses.map((group) => {
             if (group.courses.length === 0) return null
