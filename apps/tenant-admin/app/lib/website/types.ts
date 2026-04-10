@@ -6,6 +6,8 @@ export type WebsiteLink = {
 export type WebsiteHeroSlide = {
   image: string
   alt: string
+  title?: string
+  subtitle?: string
 }
 
 export type WebsiteSection =

@@ -13,7 +13,7 @@ export function HeroCarouselClient({
   section: HeroCarouselSection
   brandColor: string
 }) {
-  const defaultSlides = useMemo(
+  const defaultSlides = useMemo<HeroCarouselSection['slides']>(
     () => [
       { image: '/website/cep/hero/slideshow-1.jpg', alt: 'Creemos en el poder de la actitud' },
       { image: '/website/cep/hero/slideshow-2.jpg', alt: 'Creemos en ti' },
@@ -36,6 +36,8 @@ export function HeroCarouselClient({
   }, [slides.length])
 
   const activeSlide = slides[activeIndex] || slides[0]
+  const activeTitle = activeSlide?.title?.trim() ? activeSlide.title : section.title
+  const activeSubtitle = activeSlide?.subtitle?.trim() ? activeSlide.subtitle : section.subtitle
 
   return (
     <section className="relative overflow-hidden bg-[#140816] text-white">
@@ -45,18 +47,20 @@ export function HeroCarouselClient({
       </div>
       <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-28">
         <div className="max-w-3xl">
-          {section.eyebrow ? (
-            <span
-              className="mb-6 inline-flex rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em]"
-              style={{ backgroundColor: brandColor }}
-            >
-              {section.eyebrow}
-            </span>
-          ) : null}
-          <h1 className="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
-            {section.title}
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-lg">{section.subtitle}</p>
+          <div key={`hero-copy-${activeIndex}`} className="hero-copy-enter">
+            {section.eyebrow ? (
+              <span
+                className="mb-6 inline-flex rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em]"
+                style={{ backgroundColor: brandColor }}
+              >
+                {section.eyebrow}
+              </span>
+            ) : null}
+            <h1 className="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
+              {activeTitle}
+            </h1>
+            <p className="hero-copy-subtitle mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-lg">{activeSubtitle}</p>
+          </div>
           <div className="mt-8 flex flex-wrap gap-4">
             {section.primaryCta ? (
               <Link
@@ -91,6 +95,26 @@ export function HeroCarouselClient({
           ) : null}
         </div>
       </div>
+      <style jsx>{`
+        @keyframes heroCopyEnter {
+          from {
+            opacity: 0;
+            transform: translateY(14px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .hero-copy-enter {
+          animation: heroCopyEnter 560ms ease both;
+        }
+
+        .hero-copy-subtitle {
+          animation: heroCopyEnter 760ms ease both;
+        }
+      `}</style>
     </section>
   )
 }

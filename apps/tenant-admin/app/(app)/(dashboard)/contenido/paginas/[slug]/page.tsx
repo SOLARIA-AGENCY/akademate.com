@@ -42,6 +42,8 @@ function asSectionWithLimit(
 function SectionGraphicPreview({ section }: { section: WebsiteSection }) {
   if (section.kind === 'heroCarousel') {
     const slide = section.slides?.[0]
+    const previewTitle = slide?.title || section.title
+    const previewSubtitle = slide?.subtitle || section.subtitle
     return (
       <div className="mt-2 overflow-hidden rounded-md border bg-black/80">
         {slide ? (
@@ -49,8 +51,8 @@ function SectionGraphicPreview({ section }: { section: WebsiteSection }) {
             <img src={slide.image} alt={slide.alt} className="h-full w-full object-cover opacity-60" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
             <div className="absolute left-2 top-2 right-2 text-white">
-              <p className="line-clamp-1 text-[11px] font-semibold">{section.title}</p>
-              <p className="line-clamp-1 text-[10px] text-white/75">{section.subtitle}</p>
+              <p className="line-clamp-1 text-[11px] font-semibold">{previewTitle}</p>
+              <p className="line-clamp-1 text-[10px] text-white/75">{previewSubtitle}</p>
             </div>
           </div>
         ) : (
@@ -408,6 +410,8 @@ export default function EditWebsitePage({
                               {
                                 image: '',
                                 alt: `Slide ${(section as Extract<WebsiteSection, { kind: 'heroCarousel' }>).slides.length + 1}`,
+                                title: '',
+                                subtitle: '',
                               },
                             ],
                           }))
@@ -447,6 +451,36 @@ export default function EditWebsitePage({
                               })
                             }
                             placeholder="Descripción breve de la imagen"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Título del slide #{slideIndex + 1}</Label>
+                          <Input
+                            value={slide.title || ''}
+                            onChange={(event) =>
+                              updateSection(selectedSection.id || '', (section) => {
+                                const hero = section as Extract<WebsiteSection, { kind: 'heroCarousel' }>
+                                const nextSlides = [...hero.slides]
+                                nextSlides[slideIndex] = { ...nextSlides[slideIndex], title: event.target.value }
+                                return { ...hero, slides: nextSlides }
+                              })
+                            }
+                            placeholder="Título que aparecerá para esta foto"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Subtítulo del slide #{slideIndex + 1}</Label>
+                          <Textarea
+                            value={slide.subtitle || ''}
+                            onChange={(event) =>
+                              updateSection(selectedSection.id || '', (section) => {
+                                const hero = section as Extract<WebsiteSection, { kind: 'heroCarousel' }>
+                                const nextSlides = [...hero.slides]
+                                nextSlides[slideIndex] = { ...nextSlides[slideIndex], subtitle: event.target.value }
+                                return { ...hero, slides: nextSlides }
+                              })
+                            }
+                            placeholder="Texto secundario para esta foto"
                           />
                         </div>
                         <div className="flex justify-end">
