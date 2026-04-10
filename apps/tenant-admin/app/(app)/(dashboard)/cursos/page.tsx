@@ -207,7 +207,7 @@ function CursosPageContent() {
     router.push(`/dashboard/cursos/${course.id}`)
   }
 
-  const goToTypePage = (type: CourseTypeKey) => {
+  const goToTypePage = (type: DashboardCourseType) => {
     router.push(`/dashboard/cursos?tipo=${encodeURIComponent(type)}`)
   }
 

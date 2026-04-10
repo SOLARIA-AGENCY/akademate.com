@@ -250,20 +250,34 @@ export async function GET() {
   try {
      
     const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const PAGE_SIZE = 100;
+    const courseDocs: CourseDocument[] = [];
+    let page = 1;
+    let totalDocs = 0;
+    let hasNextPage = true;
 
-    const cursos = await payload.find({
-      collection: 'courses',
-      where: {
-        course_type: {
-          not_in: ['ciclo_medio', 'ciclo_superior'],
+    while (hasNextPage) {
+      const cursosPage = await payload.find({
+        collection: 'courses',
+        where: {
+          course_type: {
+            not_in: ['ciclo_medio', 'ciclo_superior'],
+          },
         },
-      },
-      limit: 100,
-      sort: '-createdAt',
-      depth: 2, // Populate relationships (area_formativa)
-    });
+        limit: PAGE_SIZE,
+        page,
+        sort: '-createdAt',
+        depth: 2, // Populate relationships (area_formativa)
+      });
 
-    const courseDocs = cursos.docs as unknown as CourseDocument[];
+      if (page === 1) {
+        totalDocs = cursosPage.totalDocs;
+      }
+
+      courseDocs.push(...(cursosPage.docs as unknown as CourseDocument[]));
+      hasNextPage = Boolean(cursosPage.hasNextPage);
+      page += 1;
+    }
 
     const response = NextResponse.json({
       success: true,
@@ -297,7 +311,7 @@ export async function GET() {
           totalConvocatorias: 0, // TODO: Contar convocatorias activas
         };
       }),
-      total: cursos.totalDocs,
+      total: totalDocs,
     });
 
     // Cache por 10 segundos, revalidar en background
