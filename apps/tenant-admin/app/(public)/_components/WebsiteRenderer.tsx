@@ -2,7 +2,10 @@ import type React from 'react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
+import { normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
 
 function resolveImageUrl(image: any): string | null {
@@ -126,29 +129,35 @@ function CtaBannerSection({
   )
 }
 
-async function CourseListSection({ section, brandColor }: { section: Extract<WebsiteSection, { kind: 'courseList' }>; brandColor: string }) {
+async function CourseListSection({
+  section,
+  brandColor,
+  tenantId,
+}: {
+  section: Extract<WebsiteSection, { kind: 'courseList' }>
+  brandColor: string
+  tenantId: string
+}) {
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'courses',
+    where: withTenantScope({ active: { equals: true } }, tenantId) as any,
     depth: 1,
     limit: section.limit ?? 6,
     sort: 'name',
   })
+  const requestedTypes = (section.courseTypes ?? [])
+    .map((value) => normalizeStudyType(value))
+    .filter((value): value is NonNullable<typeof value> => Boolean(value))
+
   const docs = result.docs.filter((course: any) => {
-    const courseType = String(course.course_type || '')
-    const courseTitle = String(course.title || course.name || '').toLowerCase()
-    const courseSlug = String(course.slug || '').toLowerCase()
-    const isCycleCourse =
-      courseType === 'ciclo_medio'
-      || courseType === 'ciclo_superior'
-      || courseTitle.includes('cfgm')
-      || courseTitle.includes('cfgs')
-      || courseTitle.includes('grado medio')
-      || courseTitle.includes('grado superior')
-      || courseSlug.startsWith('cfgm-')
-      || courseSlug.startsWith('cfgs-')
-    if (!section.courseTypes?.length && isCycleCourse) return false
-    if (section.courseTypes?.length && !section.courseTypes.includes(course.course_type)) return false
+    const normalizedStudyType = normalizeStudyType(String(course.course_type || ''))
+    if (!requestedTypes.length && (normalizedStudyType === 'ciclo_medio' || normalizedStudyType === 'ciclo_superior')) {
+      return false
+    }
+    if (requestedTypes.length && (!normalizedStudyType || !requestedTypes.includes(normalizedStudyType))) {
+      return false
+    }
     if (section.featuredOnly && !course.featured) return false
     return true
   })
@@ -197,11 +206,19 @@ async function CourseListSection({ section, brandColor }: { section: Extract<Web
   )
 }
 
-async function CycleListSection({ section, brandColor }: { section: Extract<WebsiteSection, { kind: 'cycleList' }>; brandColor: string }) {
+async function CycleListSection({
+  section,
+  brandColor,
+  tenantId,
+}: {
+  section: Extract<WebsiteSection, { kind: 'cycleList' }>
+  brandColor: string
+  tenantId: string
+}) {
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'cycles',
-    where: { active: { equals: true } },
+    where: withTenantScope({ active: { equals: true } }, tenantId) as any,
     depth: 1,
     limit: section.limit ?? 6,
     sort: 'name',
@@ -252,11 +269,19 @@ async function CycleListSection({ section, brandColor }: { section: Extract<Webs
   )
 }
 
-async function ConvocationListSection({ section, brandColor }: { section: Extract<WebsiteSection, { kind: 'convocationList' }>; brandColor: string }) {
+async function ConvocationListSection({
+  section,
+  brandColor,
+  tenantId,
+}: {
+  section: Extract<WebsiteSection, { kind: 'convocationList' }>
+  brandColor: string
+  tenantId: string
+}) {
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'course-runs',
-    where: { status: { in: ['published', 'enrollment_open'] } },
+    where: withTenantScope({ status: { in: ['published', 'enrollment_open'] } }, tenantId) as any,
     depth: 2,
     limit: section.limit ?? 4,
     sort: '-start_date',
@@ -322,18 +347,24 @@ async function ConvocationListSection({ section, brandColor }: { section: Extrac
   )
 }
 
-async function CampusListSection({ section }: { section: Extract<WebsiteSection, { kind: 'campusList' }> }) {
+async function CampusListSection({
+  section,
+  tenantId,
+}: {
+  section: Extract<WebsiteSection, { kind: 'campusList' }>
+  tenantId: string
+}) {
   const payload = await getPayload({ config: configPromise })
   const campusResult = await payload.find({
     collection: 'campuses',
-    where: { active: { equals: true } },
+    where: withTenantScope({ active: { equals: true } }, tenantId) as any,
     depth: 1,
     limit: section.limit ?? 3,
     sort: 'name',
   })
   const runsResult = await payload.find({
     collection: 'course-runs',
-    where: { status: { in: ['published', 'enrollment_open'] } },
+    where: withTenantScope({ status: { in: ['published', 'enrollment_open'] } }, tenantId) as any,
     depth: 2,
     limit: 120,
     sort: '-start_date',
@@ -478,7 +509,11 @@ function LeadFormSection({
   )
 }
 
-async function renderSection(section: WebsiteSection, brandColor: string): Promise<React.ReactNode> {
+async function renderSection(
+  section: WebsiteSection,
+  brandColor: string,
+  tenantId: string
+): Promise<React.ReactNode> {
   switch (section.kind) {
     case 'heroCarousel':
       return <HeroCarouselSection section={section} brandColor={brandColor} />
@@ -489,13 +524,13 @@ async function renderSection(section: WebsiteSection, brandColor: string): Promi
     case 'ctaBanner':
       return <CtaBannerSection section={section} brandColor={brandColor} />
     case 'courseList':
-      return <CourseListSection section={section} brandColor={brandColor} />
+      return <CourseListSection section={section} brandColor={brandColor} tenantId={tenantId} />
     case 'cycleList':
-      return <CycleListSection section={section} brandColor={brandColor} />
+      return <CycleListSection section={section} brandColor={brandColor} tenantId={tenantId} />
     case 'convocationList':
-      return <ConvocationListSection section={section} brandColor={brandColor} />
+      return <ConvocationListSection section={section} brandColor={brandColor} tenantId={tenantId} />
     case 'campusList':
-      return <CampusListSection section={section} />
+      return <CampusListSection section={section} tenantId={tenantId} />
     case 'categoryGrid':
       return <CategoryGridSection section={section} />
     case 'teamGrid':
@@ -514,10 +549,13 @@ export async function WebsiteRenderer({
   page: WebsitePage
   brandColor: string
 }) {
+  const tenant = await getTenantHostBranding()
   const visibleSections = page.sections.filter((section) => section.enabled !== false)
   const sections = await Promise.all(
     visibleSections.map(async (section, index) => (
-      <div key={section.id || `${section.kind}-${index}`}>{await renderSection(section, brandColor)}</div>
+      <div key={section.id || `${section.kind}-${index}`}>
+        {await renderSection(section, brandColor, tenant.tenantId)}
+      </div>
     ))
   )
   return <>{sections}</>

@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,17 +14,18 @@ function resolveImageUrl(image: any): string | null {
 }
 
 export default async function PublicSedesPage() {
+  const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
   const campusResult = await payload.find({
     collection: 'campuses',
-    where: { active: { equals: true } },
+    where: withTenantScope({ active: { equals: true } }, tenant.tenantId) as any,
     sort: 'name',
     limit: 20,
     depth: 1,
   })
   const runsResult = await payload.find({
     collection: 'course-runs',
-    where: { status: { in: ['published', 'enrollment_open'] } },
+    where: withTenantScope({ status: { in: ['published', 'enrollment_open'] } }, tenant.tenantId) as any,
     sort: '-start_date',
     limit: 120,
     depth: 2,

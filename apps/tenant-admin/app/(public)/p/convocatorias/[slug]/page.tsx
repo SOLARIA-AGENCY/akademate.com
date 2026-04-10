@@ -3,6 +3,8 @@ import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { PreinscripcionForm } from './PreinscripcionForm'
+import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,10 +55,11 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
+  const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'course-runs',
-    where: { codigo: { equals: slug } },
+    where: withTenantScope({ codigo: { equals: slug } }, tenant.tenantId) as any,
     limit: 1,
     depth: 2,
   })
@@ -154,19 +157,20 @@ function SummaryCard({ icon, label, value }: { icon: React.ReactNode; label: str
 
 export default async function ConvocatoriaLandingPage({ params }: Props) {
   const { slug } = await params
+  const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
 
   // Fetch by codigo first, then by ID
   let result = await payload.find({
     collection: 'course-runs',
-    where: { codigo: { equals: slug } },
+    where: withTenantScope({ codigo: { equals: slug } }, tenant.tenantId) as any,
     limit: 1,
     depth: 2,
   })
   if (result.docs.length === 0) {
     result = await payload.find({
       collection: 'course-runs',
-      where: { id: { equals: slug } },
+      where: withTenantScope({ id: { equals: slug } }, tenant.tenantId) as any,
       limit: 1,
       depth: 2,
     })

@@ -2,6 +2,8 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 
 export const metadata: Metadata = {
   title: 'Convocatorias Abiertas',
@@ -17,10 +19,11 @@ function resolveImageUrl(image: any): string | null {
 }
 
 export default async function ConvocatoriasPage() {
+  const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'course-runs',
-    where: { status: { in: ['enrollment_open', 'published'] } },
+    where: withTenantScope({ status: { in: ['enrollment_open', 'published'] } }, tenant.tenantId) as any,
     limit: 50,
     sort: '-start_date',
     depth: 2,

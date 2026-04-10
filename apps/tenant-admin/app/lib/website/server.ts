@@ -49,80 +49,7 @@ export function mergeWebsiteConfig(input?: Partial<WebsiteConfig> | null): Websi
   })
 }
 
-function applyCepWebsiteContentOverrides(website: WebsiteConfig): WebsiteConfig {
-  const pages = website.pages.map((page) => {
-    if (page.path === '/') {
-      return {
-        ...page,
-        sections: page.sections.map((section) => {
-          if (section.kind !== 'featureStrip') return section
-          return {
-            ...section,
-            title: '¿Por qué elegir CEP Formación?',
-            subtitle:
-              'Más de 25 años formando profesionales en Tenerife. Con nosotros no estudias para aprobar, estudias para trabajar.',
-            items: [
-              {
-                title: 'Formación conectada con el sector',
-                description:
-                  'Nuestros programas incluyen prácticas en empresas reales del entorno canario. Saldrás preparado para incorporarte desde el primer día.',
-              },
-              {
-                title: 'Toda la formación en un solo centro',
-                description:
-                  'Ciclos formativos oficiales (CFGM y CFGS), cursos privados de especialización y formación subvencionada por el Servicio Canario de Empleo.',
-              },
-              {
-                title: 'Presencia física en toda la isla',
-                description:
-                  'Contamos con dos sedes en Tenerife —Santa Cruz y La Orotava Norte— con atención académica presencial y equipo docente especializado.',
-              },
-            ],
-          }
-        }),
-      }
-    }
-
-    if (page.path === '/ciclos') {
-      return {
-        ...page,
-        sections: page.sections.map((section) =>
-          section.kind === 'cycleList'
-            ? {
-                ...section,
-                subtitle:
-                  'Formación Profesional oficial de Grado Medio y Superior. Titulaciones reconocidas por el Ministerio de Educación y con plena validez en todo el territorio nacional.',
-              }
-            : section
-        ),
-      }
-    }
-
-    if (page.path === '/sedes') {
-      return {
-        ...page,
-        sections: page.sections.map((section) =>
-          section.kind === 'campusList'
-            ? {
-                ...section,
-                subtitle:
-                  'Dos centros en Tenerife con atención académica personalizada, instalaciones propias y equipo docente especializado.',
-              }
-            : section
-        ),
-      }
-    }
-
-    return page
-  })
-
-  return {
-    ...website,
-    pages,
-  }
-}
-
-const getTenantWebsiteByIdCached = cache(async (tenantId: string, isCepTenant: boolean): Promise<WebsiteConfig> => {
+const getTenantWebsiteByIdCached = cache(async (tenantId: string): Promise<WebsiteConfig> => {
   if (!/^\d+$/.test(tenantId)) return CEP_DEFAULT_WEBSITE
   const row = await queryFirst<{ notes: string | null }>(
     'SELECT notes FROM tenants WHERE id = $1 LIMIT 1',
@@ -130,12 +57,13 @@ const getTenantWebsiteByIdCached = cache(async (tenantId: string, isCepTenant: b
   )
   const parsed = extractWebsiteFromNotes(row?.notes)
   const merged = mergeWebsiteConfig(parsed)
-  return isCepTenant ? applyCepWebsiteContentOverrides(merged) : merged
+  // Prioridad CMS/dashboard: evitamos sobreescribir contenido editado con overrides hardcoded.
+  return merged
 })
 
 export async function getTenantWebsite(): Promise<WebsiteConfig> {
   const tenant = await getTenantHostBranding()
-  return getTenantWebsiteByIdCached(tenant.tenantId, tenant.isCepTenant)
+  return getTenantWebsiteByIdCached(tenant.tenantId)
 }
 
 export async function getPublicPage(pathname: string): Promise<WebsitePage | null> {

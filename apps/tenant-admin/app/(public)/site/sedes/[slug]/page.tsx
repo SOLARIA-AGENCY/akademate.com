@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import Link from 'next/link'
+import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,21 +16,22 @@ function resolveImageUrl(image: any): string | null {
 
 export default async function PublicSedeDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
   const campusResult = await payload.find({
     collection: 'campuses',
-    where: { slug: { equals: slug } },
+    where: withTenantScope({ slug: { equals: slug } }, tenant.tenantId) as any,
     limit: 1,
     depth: 2,
   })
   const runsResult = await payload.find({
     collection: 'course-runs',
-    where: {
+    where: withTenantScope({
       and: [
         { status: { in: ['published', 'enrollment_open'] } },
         { campus: { exists: true } },
       ],
-    },
+    }, tenant.tenantId) as any,
     depth: 2,
     limit: 150,
     sort: '-start_date',

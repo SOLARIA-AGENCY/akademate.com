@@ -2,6 +2,8 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 
 export const metadata: Metadata = {
   title: 'Ciclos Formativos',
@@ -53,10 +55,11 @@ function getCycleChips(cycle: any): string[] {
 }
 
 export default async function CiclosCatalogPage() {
+  const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'cycles',
-    where: { active: { equals: true } },
+    where: withTenantScope({ active: { equals: true } }, tenant.tenantId) as any,
     limit: 50,
     sort: 'name',
     depth: 1,

@@ -3,6 +3,8 @@ import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { LeadForm } from '../../ciclos/[slug]/LeadForm'
+import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,10 +19,11 @@ interface Props { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
+  const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'courses',
-    where: { slug: { equals: slug } },
+    where: withTenantScope({ slug: { equals: slug } }, tenant.tenantId) as any,
     limit: 1, depth: 0,
   })
   const course = result.docs[0]
@@ -37,11 +40,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CursoLandingPage({ params }: Props) {
   const { slug } = await params
+  const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
 
   const result = await payload.find({
     collection: 'courses',
-    where: { slug: { equals: slug } },
+    where: withTenantScope({ slug: { equals: slug } }, tenant.tenantId) as any,
     limit: 1,
     depth: 1,
   })
