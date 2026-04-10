@@ -192,10 +192,6 @@ function getCorsHeaders(origin: string | null) {
   return headers
 }
 
-function hostLooksLikeCep(host: string): boolean {
-  return /(^|\.)cepformacion(\.|$)/i.test(host) || host.includes('cep-formacion')
-}
-
 export function middleware(request: NextRequest) {
   const { pathname, protocol, host: nextUrlHost } = request.nextUrl
   const origin = request.headers.get('origin')
@@ -235,8 +231,9 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  const isCepHost = hostLooksLikeCep(host.toLowerCase())
-  if (!hasSession || isCepHost) {
+  // IMPORTANT: never rewrite authenticated dashboard requests to public pages.
+  // Public rewrites are only for anonymous visitors.
+  if (!hasSession) {
     const publicRewrites: Array<[RegExp, string | ((match: RegExpMatchArray) => string)]> = [
       [/^\/cursos\/?$/, '/p/cursos'],
       [/^\/cursos\/([^/]+)\/?$/, (match) => `/p/cursos/${match[1]}`],

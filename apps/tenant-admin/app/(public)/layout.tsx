@@ -99,12 +99,12 @@ export default async function PublicLayout({ children }: { children: React.React
               </span>
             </div>
           </div>
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:px-8">
-            <Link href="/" className="flex items-center gap-3">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
+            <Link href="/" className="inline-flex items-center">
               <img
                 src={website.visualIdentity.logoPrimary || tenant.logoUrl}
                 alt={tenant.academyName}
-                className="h-24 w-auto object-contain lg:h-28"
+                className="h-28 w-auto max-w-[460px] object-contain lg:h-32"
               />
             </Link>
             <nav className="hidden items-center gap-6 lg:flex">
@@ -135,7 +135,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 <img
                   src={website.visualIdentity.logoPrimary || tenant.logoUrl}
                   alt={tenant.academyName}
-                  className="h-24 w-auto object-contain lg:h-28"
+                  className="h-28 w-auto max-w-[460px] object-contain lg:h-32"
                 />
                 <p className="mt-4 text-sm font-medium text-slate-600">© {new Date().getFullYear()} CEP FORMACIÓN S.L.</p>
               </div>
