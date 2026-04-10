@@ -17,6 +17,14 @@ interface CourseType {
   active: boolean
 }
 
+function parseCourseTypesResponse(payload: unknown): CourseType[] {
+  if (!payload || typeof payload !== 'object') return []
+  const obj = payload as { docs?: unknown; data?: unknown }
+  if (Array.isArray(obj.docs)) return obj.docs as CourseType[]
+  if (Array.isArray(obj.data)) return obj.data as CourseType[]
+  return []
+}
+
 const PRESETS = [
   { name: 'Desempleados', code: 'DES', color: '#3B82F6', description: 'Cursos para personas en situacion de desempleo' },
   { name: 'Ocupados', code: 'OCU', color: '#22C55E', description: 'Formacion para trabajadores en activo' },
@@ -39,10 +47,14 @@ export default function TiposEstudioPage() {
   const fetchTypes = async () => {
     try {
       const res = await fetch('/api/course-types?limit=100&sort=name')
+      if (!res.ok) {
+        throw new Error(`Error ${res.status} cargando tipos`)
+      }
       const data = await res.json()
-      setTypes(data.docs ?? [])
+      setTypes(parseCourseTypesResponse(data))
     } catch {
       console.error('Error fetching course types')
+      setTypes([])
     } finally {
       setLoading(false)
     }
