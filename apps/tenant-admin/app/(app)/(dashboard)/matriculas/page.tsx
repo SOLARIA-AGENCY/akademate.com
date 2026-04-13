@@ -1,6 +1,6 @@
 'use client'
 
-import { type ComponentType, useEffect, useMemo, useState } from 'react'
+import { type ComponentType, useCallback, useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -49,6 +49,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { BulkEnrollmentDialog } from './components/BulkEnrollmentDialog'
+import { NewEnrollmentDialog } from './components/NewEnrollmentDialog'
 
 interface LeadRow {
   id: string | number
@@ -140,35 +141,40 @@ export default function MatriculasPage() {
   const [sedeFilter, setSedeFilter] = useState('todas')
   const [tipoFilter, setTipoFilter] = useState('todos')
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false)
+  const [newEnrollmentDialogOpen, setNewEnrollmentDialogOpen] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+
+  const loadMatriculas = useCallback(async () => {
+    try {
+      setLoadError(null)
+      const res = await fetch('/api/leads?limit=500', { cache: 'no-store' })
+      if (!res.ok) throw new Error('No se pudieron cargar las matriculas')
+
+      const payload = await res.json()
+      const docs = Array.isArray(payload?.docs) ? payload.docs : []
+      const mapped = docs.map(mapLeadToMatricula).filter(Boolean) as MatriculaRow[]
+
+      setMatriculasData(mapped)
+    } catch (error) {
+      setMatriculasData([])
+      setLoadError(error instanceof Error ? error.message : 'No se pudieron cargar las matriculas')
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
 
-    const loadMatriculas = async () => {
-      try {
-        setLoadError(null)
-        const res = await fetch('/api/leads?limit=500', { cache: 'no-store' })
-        if (!res.ok) throw new Error('No se pudieron cargar las matriculas')
-
-        const payload = await res.json()
-        const docs = Array.isArray(payload?.docs) ? payload.docs : []
-        const mapped = docs.map(mapLeadToMatricula).filter(Boolean) as MatriculaRow[]
-
-        if (!cancelled) setMatriculasData(mapped)
-      } catch (error) {
-        if (!cancelled) {
-          setMatriculasData([])
-          setLoadError(error instanceof Error ? error.message : 'No se pudieron cargar las matriculas')
-        }
-      }
+    const run = async () => {
+      await loadMatriculas()
     }
 
-    void loadMatriculas()
+    if (!cancelled) {
+      void run()
+    }
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [loadMatriculas])
 
   const availableSedes = useMemo(
     () => Array.from(new Set(matriculasData.map((m) => m.sede))).sort(),
@@ -216,7 +222,7 @@ export default function MatriculasPage() {
               <Upload className="mr-2 h-4 w-4" data-oid="p-dgxs_" />
               Importar CSV
             </Button>
-            <Button data-oid="pdb:h9a">
+            <Button onClick={() => setNewEnrollmentDialogOpen(true)} data-oid="pdb:h9a">
               <UserPlus className="mr-2 h-4 w-4" data-oid="tnx7zku" />
               Nueva Matrícula
             </Button>
@@ -594,6 +600,13 @@ export default function MatriculasPage() {
           console.log('Bulk enrollment completed')
         }}
         data-oid="ltoz810"
+      />
+      <NewEnrollmentDialog
+        open={newEnrollmentDialogOpen}
+        onOpenChange={setNewEnrollmentDialogOpen}
+        onCreated={() => {
+          void loadMatriculas()
+        }}
       />
     </div>
   )
