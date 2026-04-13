@@ -202,7 +202,11 @@ export function middleware(request: NextRequest) {
   const { pathname, protocol, host: nextUrlHost } = request.nextUrl
   const origin = request.headers.get('origin')
   const host = request.headers.get('host') ?? nextUrlHost ?? ''
-  const hasSession = Boolean(request.cookies.get('payload-token')?.value)
+  const hasPayloadToken = Boolean(request.cookies.get('payload-token')?.value)
+  const hasLegacySession =
+    Boolean(request.cookies.get('akademate_session')?.value) ||
+    Boolean(request.cookies.get('cep_session')?.value)
+  const hasSession = hasPayloadToken || hasLegacySession
 
   // Always allow tenant dev-login endpoint in development/staging workflows.
   if (pathname === '/api/auth/dev-login' || pathname === '/api/auth/dev-login/') {
@@ -405,11 +409,11 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Check for authentication cookie (Payload CMS sets 'payload-token')
-  const token = request.cookies.get('payload-token')?.value
-
-  // FIX-16: x-dev-bypass header removed. Auth is always enforced.
-  if (!token) {
+  // Check for authentication cookies.
+  // Some flows persist session in akademate_session/cep_session (containing JWT token),
+  // so middleware must allow either payload-token or session cookies.
+  // Route handlers still validate token authenticity.
+  if (!hasSession) {
     // For API routes, return 401 with CORS headers
     if (pathname.startsWith('/api/')) {
       const corsHeaders = getCorsHeaders(origin)
