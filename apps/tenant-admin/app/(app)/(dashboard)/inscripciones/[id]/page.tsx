@@ -112,13 +112,20 @@ export default function LeadDetailPage({ params }: Props) {
   const updateLead = async (updates: Record<string, any>) => {
     setSaving(true)
     try {
-      await fetch(`/api/leads/${id}`, {
+      const res = await fetch(`/api/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({} as Record<string, unknown>))
+        throw new Error(typeof data.error === 'string' ? data.error : 'No se pudo actualizar el lead')
+      }
       await loadLead()
-    } catch {}
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo actualizar el lead'
+      alert(message)
+    }
     finally { setSaving(false) }
   }
 
@@ -129,15 +136,19 @@ export default function LeadDetailPage({ params }: Props) {
     setSaving(true)
     try {
       // 1. Update lead status
-      await fetch(`/api/leads/${id}`, {
+      const statusRes = await fetch(`/api/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       })
+      if (!statusRes.ok) {
+        const data = await statusRes.json().catch(() => ({} as Record<string, unknown>))
+        throw new Error(typeof data.error === 'string' ? data.error : 'No se pudo cambiar el estado')
+      }
       // 2. Register status change as system interaction
       const oldLabel = STATUS_OPTIONS.find(s => s.value === currentStatus)?.label ?? currentStatus
       const newLabel = STATUS_OPTIONS.find(s => s.value === newStatus)?.label ?? newStatus
-      await fetch(`/api/leads/${id}/interactions`, {
+      const interactionRes = await fetch(`/api/leads/${id}/interactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -146,9 +157,17 @@ export default function LeadDetailPage({ params }: Props) {
           note: `Estado cambiado: ${oldLabel} → ${newLabel}`,
         }),
       })
+      if (!interactionRes.ok) {
+        const data = await interactionRes.json().catch(() => ({} as Record<string, unknown>))
+        throw new Error(typeof data.error === 'string' ? data.error : 'No se pudo registrar la interacción')
+      }
       await loadLead()
       await loadInteractions()
-    } catch {}
+    } catch (error) {
+      setLocalStatus(currentStatus)
+      const message = error instanceof Error ? error.message : 'No se pudo cambiar el estado'
+      alert(message)
+    }
     finally { setSaving(false) }
   }
 
@@ -234,7 +253,7 @@ export default function LeadDetailPage({ params }: Props) {
   const statusConfig = STATUS_OPTIONS.find(s => s.value === currentStatus) || STATUS_OPTIONS[0]
   const isInscripcion = lead.lead_type === 'inscripcion'
   const timeSince = lead.createdAt ? Math.round((Date.now() - new Date(lead.createdAt).getTime()) / (1000 * 60 * 60)) : 0
-  const showEnrollButton = currentStatus === 'interested' && !lead.enrollment_id
+  const showEnrollButton = ['interested', 'following_up', 'enrolling'].includes(currentStatus) && !lead.enrollment_id
   const showEnrollLink = !!lead.enrollment_id
 
   // Pre-built messages
