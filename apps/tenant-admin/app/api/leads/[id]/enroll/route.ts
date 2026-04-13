@@ -11,6 +11,7 @@ interface RouteContext {
 }
 
 const ACTIVE_COURSE_RUN_STATUSES = ['enrollment_open', 'published', 'in_progress'] as const
+const BLOCKED_LEAD_STATUSES = new Set(['not_interested', 'unreachable', 'discarded', 'spam', 'rejected'])
 
 function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
@@ -44,10 +45,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
-    const allowedStatuses = ['interested', 'following_up', 'enrolling']
-    if (!allowedStatuses.includes(lead.status)) {
+    const leadStatus = String(lead.status ?? '')
+    if (BLOCKED_LEAD_STATUSES.has(leadStatus)) {
       return NextResponse.json(
-        { error: `Status "${lead.status}" no permite matriculacion. Debe ser: ${allowedStatuses.join(', ')}` },
+        { error: `Status "${lead.status}" no permite matriculacion.` },
         { status: 400 },
       )
     }
