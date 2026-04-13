@@ -199,6 +199,30 @@ function mapLeadToWaitlistRow(lead: LeadRow, index: number): WaitlistRow {
   }
 }
 
+async function fetchAllLeadsForWaitlist(limitPerPage = 200): Promise<LeadRow[]> {
+  const allLeads: LeadRow[] = []
+  let page = 1
+  let hasNextPage = true
+  let guard = 0
+
+  while (hasNextPage && guard < 50) {
+    const res = await fetch(`/api/leads?limit=${limitPerPage}&page=${page}`, { cache: 'no-store' })
+    if (!res.ok) {
+      throw new Error('No se pudo cargar la lista de espera')
+    }
+
+    const payload = await res.json()
+    const docs = Array.isArray(payload?.docs) ? payload.docs : []
+    allLeads.push(...docs)
+
+    hasNextPage = Boolean(payload?.hasNextPage)
+    page += 1
+    guard += 1
+  }
+
+  return allLeads
+}
+
 export default function ListaEsperaPage() {
   const router = useRouter()
   const [listaEsperaData, setListaEsperaData] = useState<WaitlistRow[]>([])
@@ -214,11 +238,7 @@ export default function ListaEsperaPage() {
     const loadWaitlist = async () => {
       try {
         setLoadError(null)
-        const res = await fetch('/api/leads?limit=500', { cache: 'no-store' })
-        if (!res.ok) throw new Error('No se pudo cargar la lista de espera')
-
-        const payload = await res.json()
-        const docs = Array.isArray(payload?.docs) ? payload.docs : []
+        const docs = await fetchAllLeadsForWaitlist(200)
         const waitlistLeads = docs.filter(shouldIncludeLeadInWaitlist)
         const mapped = waitlistLeads.map((lead: LeadRow, index: number) => mapLeadToWaitlistRow(lead, index))
 

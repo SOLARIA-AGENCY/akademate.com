@@ -40,6 +40,22 @@ async function hasColumn(drizzle: any, tableName: string, columnName: string): P
   }
 }
 
+async function hasTable(drizzle: any, tableName: string): Promise<boolean> {
+  try {
+    const result = await drizzle.execute(`
+      SELECT 1
+      FROM information_schema.tables
+      WHERE table_name = '${esc(tableName)}'
+        AND table_schema = 'public'
+      LIMIT 1
+    `)
+    const rows = Array.isArray(result) ? result : (result?.rows ?? [])
+    return rows.length > 0
+  } catch {
+    return false
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -114,29 +130,92 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * limit
 
-    // Simple query for leads
+    // Base query for leads
     const leadsRes = await drizzle.execute(`SELECT * FROM leads l ${whereClause} ORDER BY CASE l.status WHEN 'new' THEN 0 WHEN 'contacted' THEN 1 WHEN 'following_up' THEN 2 WHEN 'interested' THEN 3 WHEN 'on_hold' THEN 4 WHEN 'enrolling' THEN 5 ELSE 6 END, l.created_at DESC LIMIT ${limit} OFFSET ${offset}`)
     const leadsRows = Array.isArray(leadsRes) ? leadsRes : (leadsRes?.rows ?? [])
 
-    // Enrich with interaction data
-    let docs = await Promise.all(leadsRows.map(async (row: any) => {
-      let lastInteractor = null
-      let interactionCount = 0
-      try {
-        const cntRes = await drizzle.execute(`SELECT COUNT(*) as cnt FROM lead_interactions WHERE lead_id = ${row.id}`)
-        const cntRows = Array.isArray(cntRes) ? cntRes : (cntRes?.rows ?? [])
-        interactionCount = parseInt(cntRows[0]?.cnt ?? '0')
+    // Enrich with interaction data in bulk (prevents N+1 queries on large CRM datasets)
+    let docs = leadsRows.map((row: any) => ({ ...row, lastInteractor: null, interactionCount: 0 }))
+    const leadIds = leadsRows.map((row: any) => toPositiveInt(row?.id)).filter((id): id is number => id !== null)
+    const leadInteractionsTableExists = leadIds.length > 0 ? await hasTable(drizzle, 'lead_interactions') : false
 
-        if (interactionCount > 0) {
-          const lastRes = await drizzle.execute(`SELECT li.channel, li.created_at, u.first_name FROM lead_interactions li LEFT JOIN users u ON u.id = li.user_id WHERE li.lead_id = ${row.id} ORDER BY li.created_at DESC LIMIT 1`)
-          const lastRows = Array.isArray(lastRes) ? lastRes : (lastRes?.rows ?? [])
-          if (lastRows[0]) {
-            lastInteractor = { name: lastRows[0].first_name, channel: lastRows[0].channel, at: lastRows[0].created_at }
+    if (leadInteractionsTableExists && leadIds.length > 0) {
+      const leadIdsSql = leadIds.join(',')
+      const interactionsTenantFilter = authSession.tenantId ? ` AND li.tenant_id = ${authSession.tenantId}` : ''
+
+      try {
+        const countRes = await drizzle.execute(
+          `SELECT li.lead_id, COUNT(*) as cnt
+           FROM lead_interactions li
+           WHERE li.lead_id IN (${leadIdsSql})${interactionsTenantFilter}
+           GROUP BY li.lead_id`,
+        )
+        const countRows = Array.isArray(countRes) ? countRes : (countRes?.rows ?? [])
+        const interactionCountMap = new Map<number, number>()
+        for (const row of countRows) {
+          const leadId = toPositiveInt(row?.lead_id)
+          if (leadId !== null) {
+            interactionCountMap.set(leadId, parseInt(row?.cnt ?? '0'))
           }
         }
-      } catch { /* interaction enrichment is optional */ }
-      return { ...row, lastInteractor, interactionCount }
-    }))
+
+        const usersTableExists = await hasTable(drizzle, 'users')
+        const usersFirstNameExists = usersTableExists ? await hasColumn(drizzle, 'users', 'first_name') : false
+
+        const lastInteractionSql = usersFirstNameExists
+          ? `SELECT DISTINCT ON (li.lead_id)
+               li.lead_id,
+               li.channel,
+               li.created_at,
+               u.first_name
+             FROM lead_interactions li
+             LEFT JOIN users u ON u.id = li.user_id
+             WHERE li.lead_id IN (${leadIdsSql})${interactionsTenantFilter}
+             ORDER BY li.lead_id, li.created_at DESC`
+          : `SELECT DISTINCT ON (li.lead_id)
+               li.lead_id,
+               li.channel,
+               li.created_at,
+               NULL::text AS first_name
+             FROM lead_interactions li
+             WHERE li.lead_id IN (${leadIdsSql})${interactionsTenantFilter}
+             ORDER BY li.lead_id, li.created_at DESC`
+
+        const lastRes = await drizzle.execute(lastInteractionSql)
+        const lastRows = Array.isArray(lastRes) ? lastRes : (lastRes?.rows ?? [])
+        const lastInteractionMap = new Map<number, { name: string | null; channel: string | null; at: string | null }>()
+        for (const row of lastRows) {
+          const leadId = toPositiveInt(row?.lead_id)
+          if (leadId !== null) {
+            lastInteractionMap.set(leadId, {
+              name: (typeof row?.first_name === 'string' && row.first_name.trim().length > 0) ? row.first_name : null,
+              channel: typeof row?.channel === 'string' ? row.channel : null,
+              at: typeof row?.created_at === 'string' ? row.created_at : null,
+            })
+          }
+        }
+
+        docs = leadsRows.map((row: any) => {
+          const leadId = toPositiveInt(row?.id)
+          const interactionCount = leadId !== null ? interactionCountMap.get(leadId) ?? 0 : 0
+          const lastInteraction = leadId !== null ? lastInteractionMap.get(leadId) : undefined
+
+          return {
+            ...row,
+            interactionCount,
+            lastInteractor: lastInteraction
+              ? {
+                  name: lastInteraction.name ?? 'Sistema',
+                  channel: lastInteraction.channel ?? 'system',
+                  at: lastInteraction.at ?? row?.updated_at ?? row?.created_at ?? null,
+                }
+              : null,
+          }
+        })
+      } catch {
+        // Keep docs without interaction enrichment if joins fail in partial schemas.
+      }
+    }
 
     if (leadType && !leadTypeColumnExists) {
       docs = docs.filter((doc: any) => String(doc.lead_type ?? '') === leadType)

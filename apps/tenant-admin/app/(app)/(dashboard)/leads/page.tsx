@@ -106,6 +106,30 @@ async function fetchWithTimeout(input: string, timeoutMs = 12000): Promise<Respo
   }
 }
 
+async function fetchAllLeads(limitPerPage = 200): Promise<Lead[]> {
+  const allLeads: Lead[] = []
+  let page = 1
+  let hasNextPage = true
+  let guard = 0
+
+  while (hasNextPage && guard < 50) {
+    const res = await fetchWithTimeout(`/api/leads?limit=${limitPerPage}&page=${page}`)
+    if (!res.ok) {
+      throw new Error('No se pudieron cargar los leads del CRM')
+    }
+
+    const payload = await res.json()
+    const docs = Array.isArray(payload?.docs) ? payload.docs : []
+    allLeads.push(...docs)
+
+    hasNextPage = Boolean(payload?.hasNextPage)
+    page += 1
+    guard += 1
+  }
+
+  return allLeads
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -128,13 +152,12 @@ export default function LeadsPage() {
       try {
         setError(null)
         const [leadsResult, kpisResult] = await Promise.allSettled([
-          fetchWithTimeout('/api/leads?limit=200'),
+          fetchAllLeads(200),
           fetchWithTimeout('/api/leads/dashboard'),
         ])
 
-        if (leadsResult.status === 'fulfilled' && leadsResult.value.ok) {
-          const payload = await leadsResult.value.json()
-          setLeads(Array.isArray(payload?.docs) ? payload.docs : [])
+        if (leadsResult.status === 'fulfilled') {
+          setLeads(leadsResult.value)
         } else {
           throw new Error('No se pudieron cargar los leads del CRM')
         }
