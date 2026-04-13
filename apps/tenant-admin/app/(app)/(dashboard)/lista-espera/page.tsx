@@ -207,6 +207,9 @@ async function fetchAllLeadsForWaitlist(limitPerPage = 200): Promise<LeadRow[]> 
 
   while (hasNextPage && guard < 50) {
     const res = await fetch(`/api/leads?limit=${limitPerPage}&page=${page}`, { cache: 'no-store' })
+    if (res.status === 401) {
+      throw new Error('AUTH_REQUIRED')
+    }
     if (!res.ok) {
       throw new Error('No se pudo cargar la lista de espera')
     }
@@ -245,6 +248,10 @@ export default function ListaEsperaPage() {
         if (!cancelled) setListaEsperaData(mapped)
       } catch (error) {
         if (!cancelled) {
+          if (error instanceof Error && error.message === 'AUTH_REQUIRED') {
+            router.push('/login?redirect=/dashboard/lista-espera')
+            return
+          }
           setListaEsperaData([])
           setLoadError(error instanceof Error ? error.message : 'No se pudo cargar la lista de espera')
         }

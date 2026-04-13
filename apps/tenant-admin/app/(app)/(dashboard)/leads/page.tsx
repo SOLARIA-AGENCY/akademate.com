@@ -114,6 +114,9 @@ async function fetchAllLeads(limitPerPage = 200): Promise<Lead[]> {
 
   while (hasNextPage && guard < 50) {
     const res = await fetchWithTimeout(`/api/leads?limit=${limitPerPage}&page=${page}`)
+    if (res.status === 401) {
+      throw new Error('AUTH_REQUIRED')
+    }
     if (!res.ok) {
       throw new Error('No se pudieron cargar los leads del CRM')
     }
@@ -159,6 +162,13 @@ export default function LeadsPage() {
         if (leadsResult.status === 'fulfilled') {
           setLeads(leadsResult.value)
         } else {
+          if (
+            leadsResult.reason instanceof Error &&
+            leadsResult.reason.message === 'AUTH_REQUIRED'
+          ) {
+            router.push('/login?redirect=/dashboard/leads')
+            return
+          }
           throw new Error('No se pudieron cargar los leads del CRM')
         }
 
