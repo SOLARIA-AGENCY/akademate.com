@@ -61,7 +61,10 @@ export function RealtimeProvider({
 
   // Probe socket server availability to avoid endless client reconnect loops
   useEffect(() => {
-    const canAttemptRealtime = process.env.NEXT_PUBLIC_REALTIME_ENABLED !== 'false'
+    const isProd = process.env.NODE_ENV === 'production'
+    const canAttemptRealtime = isProd
+      ? process.env.NEXT_PUBLIC_REALTIME_ENABLED === 'true'
+      : process.env.NEXT_PUBLIC_REALTIME_ENABLED !== 'false'
     if (!canAttemptRealtime || !authData) {
       setRealtimeAvailable(false)
       setRealtimeReady(true)

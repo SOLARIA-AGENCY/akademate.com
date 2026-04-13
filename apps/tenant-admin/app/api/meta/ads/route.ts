@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
+import { getAuthenticatedUserContext } from '../../leads/_lib/auth'
 import {
   createCampaign,
   createAdSet,
@@ -34,7 +35,6 @@ interface CreateCampaignBody {
 // Meta config defaults (tenant-driven with env fallback)
 // ---------------------------------------------------------------------------
 
-const META_AD_ACCOUNT = process.env.META_AD_ACCOUNT_ID || '730494526974837'
 const META_PAGE_ID = process.env.META_PAGE_ID || '174953792552373'
 const META_PIXEL_ID = process.env.META_PIXEL_ID || '1189071876088388'
 const META_REGION_TENERIFE = '3872'
@@ -61,22 +61,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 1. Get Marketing API token from tenant config
+    // 1. Resolve authenticated tenant + Meta credentials
     const payload = await getPayloadHMR({ config: configPromise })
-    let accessToken = ''
-
-    try {
-      const tenants = await payload.find({ collection: 'tenants', limit: 1 })
-      const tenant = tenants.docs[0] as any
-      const integrations = tenant?.branding?.integrations
-      accessToken = integrations?.metaMarketingApiToken || process.env.META_MARKETING_API_TOKEN || ''
-    } catch {
-      accessToken = process.env.META_MARKETING_API_TOKEN || ''
+    const authSession = await getAuthenticatedUserContext(request, payload)
+    const tenantId = authSession?.tenantId ?? null
+    if (tenantId === null) {
+      return NextResponse.json(
+        { error: 'Authentication required', code: 'AUTH_REQUIRED' },
+        { status: 401 },
+      )
     }
 
-    if (!accessToken) {
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
+    if (!drizzle?.execute) {
+      return NextResponse.json({ error: 'Database unavailable' }, { status: 500 })
+    }
+
+    const tenantRes = await drizzle.execute(`
+      SELECT
+        id,
+        integrations_meta_ad_account_id,
+        integrations_meta_marketing_api_token,
+        integrations_meta_pixel_id
+      FROM tenants
+      WHERE id = ${tenantId}
+      LIMIT 1
+    `)
+    const tenantRows = Array.isArray((tenantRes as any)?.rows) ? (tenantRes as any).rows : []
+    const tenant = tenantRows[0] ?? null
+
+    const metaAdAccountId = String(tenant?.integrations_meta_ad_account_id || '').trim()
+    const accessToken = String(tenant?.integrations_meta_marketing_api_token || '').trim()
+    const metaPixelId =
+      String(tenant?.integrations_meta_pixel_id || '').trim() || META_PIXEL_ID
+
+    if (!metaAdAccountId || !accessToken) {
       return NextResponse.json(
-        { error: 'Meta Marketing API token not configured. Go to Configuracion > Integraciones.' },
+        { error: 'Meta integration not configured. Revisa Configuración > Integraciones.' },
         { status: 400 },
       )
     }
@@ -110,7 +131,7 @@ export async function POST(request: NextRequest) {
       )
 
     const campaignResult = await createCampaign({
-      adAccountId: META_AD_ACCOUNT,
+      adAccountId: metaAdAccountId,
       accessToken,
       name: campaignName,
     })
@@ -126,12 +147,12 @@ export async function POST(request: NextRequest) {
 
     // 4. Create Ad Set
     const adSetResult = await createAdSet({
-      adAccountId: META_AD_ACCOUNT,
+      adAccountId: metaAdAccountId,
       accessToken,
       campaignId: metaCampaignId,
       name: `${courseName} / Tenerife`,
       dailyBudget: body.dailyBudget * 100, // Convert EUR to cents
-      pixelId: META_PIXEL_ID,
+      pixelId: metaPixelId,
       targeting: {
         geoLocations: { regions: [{ key: region }] },
       },
@@ -153,7 +174,7 @@ export async function POST(request: NextRequest) {
         const media = await payload.findByID({ collection: 'media', id: body.imageMediaId })
         if (media && (media as any).url) {
           const imgResult = await uploadAdImage(
-            META_AD_ACCOUNT,
+            metaAdAccountId,
             accessToken,
             `${(process.env.NEXT_PUBLIC_TENANT_URL || request.nextUrl.origin).replace(/\/$/, '')}${(media as any).url}`,
           )
@@ -168,7 +189,7 @@ export async function POST(request: NextRequest) {
 
     // 6. Create Ad Creative
     const creativeResult = await createAdCreative({
-      adAccountId: META_AD_ACCOUNT,
+      adAccountId: metaAdAccountId,
       accessToken,
       name: `Creative - ${courseName}`,
       pageId: META_PAGE_ID,
@@ -193,7 +214,7 @@ export async function POST(request: NextRequest) {
 
     // 7. Create Ad (PAUSED)
     const adResult = await createAd({
-      adAccountId: META_AD_ACCOUNT,
+      adAccountId: metaAdAccountId,
       accessToken,
       adSetId: metaAdSetId,
       name: `AD-01 / ${courseName} / Feed`,
@@ -222,7 +243,7 @@ export async function POST(request: NextRequest) {
         campaignName,
         landingUrl,
         status: 'PAUSED',
-        adsManagerUrl: `https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=${META_AD_ACCOUNT}&campaign_ids=${metaCampaignId}`,
+        adsManagerUrl: `https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=${metaAdAccountId}&campaign_ids=${metaCampaignId}`,
       },
     })
   } catch (error) {

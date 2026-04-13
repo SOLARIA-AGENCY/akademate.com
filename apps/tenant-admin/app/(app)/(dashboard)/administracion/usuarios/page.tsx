@@ -306,7 +306,7 @@ export default function UsuariosPage() {
                         <SelectContent>
                           <SelectItem value="admin">Admin — Control total</SelectItem>
                           <SelectItem value="gestor">Gestor — Contenido y usuarios</SelectItem>
-                          <SelectItem value="marketing">Marketing — Campanas y contenido</SelectItem>
+                          <SelectItem value="marketing">Marketing — Campañas y contenido</SelectItem>
                           <SelectItem value="asesor">Asesor — Lectura + notas clientes</SelectItem>
                           <SelectItem value="lectura">Lectura — Solo consulta</SelectItem>
                         </SelectContent>

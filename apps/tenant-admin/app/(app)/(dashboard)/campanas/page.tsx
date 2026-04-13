@@ -36,6 +36,8 @@ import {
 
 type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived'
 
+const SOLARIA_PREFIX = 'SOLARIA AGENCY'
+
 const STATUS_CONFIG: Record<CampaignStatus, { label: string; color: string; icon: typeof Circle; dotColor: string }> = {
   active: { label: 'Activa', color: 'text-green-600', icon: Circle, dotColor: 'bg-green-500 animate-pulse' },
   paused: { label: 'En pausa', color: 'text-yellow-600', icon: Pause, dotColor: 'bg-yellow-500' },
@@ -45,10 +47,38 @@ const STATUS_CONFIG: Record<CampaignStatus, { label: string; color: string; icon
 }
 
 const PLATFORM_OPTIONS = [
-  { value: 'meta_ads', label: 'Meta Ads', color: 'bg-blue-600' },
-  { value: 'google_ads', label: 'Google Ads', color: 'bg-green-600' },
-  { value: 'tiktok_ads', label: 'TikTok Ads', color: 'bg-black' },
-  { value: 'email', label: 'Email Marketing', color: 'bg-orange-500' },
+  {
+    value: 'meta_ads',
+    label: 'Meta Ads',
+    color: 'bg-blue-600',
+    campaignType: 'paid_ads',
+    utmSource: 'facebook',
+    utmMedium: 'cpc',
+  },
+  {
+    value: 'google_ads',
+    label: 'Google Ads',
+    color: 'bg-green-600',
+    campaignType: 'paid_ads',
+    utmSource: 'google',
+    utmMedium: 'cpc',
+  },
+  {
+    value: 'tiktok_ads',
+    label: 'TikTok Ads',
+    color: 'bg-black',
+    campaignType: 'paid_ads',
+    utmSource: 'tiktok',
+    utmMedium: 'cpc',
+  },
+  {
+    value: 'email',
+    label: 'Email Marketing',
+    color: 'bg-orange-500',
+    campaignType: 'email',
+    utmSource: 'email',
+    utmMedium: 'email',
+  },
 ]
 
 interface Campaign {
@@ -66,8 +96,13 @@ interface CampaignsApiResponse {
   docs?: Campaign[]
 }
 
+interface MetaCampaignsApiResponse {
+  docs?: Campaign[]
+}
+
 interface ConvocatoriaOption {
   id: string
+  courseId: string
   curso: string
   sede: string
   estado: string
@@ -77,11 +112,38 @@ interface ConvocatoriaOption {
 interface ConvocatoriasApiPayload {
   data?: Array<{
     id: string | number
+    cursoId?: string | number
     cursoNombre?: string
     campusNombre?: string
     estado?: string
     fechaInicio?: string
   }>
+}
+
+function slugifyForUtm(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 120)
+}
+
+function getSafeStartDate(dateLike: string): string {
+  const now = new Date()
+  const todayIso = now.toISOString().slice(0, 10)
+  if (!dateLike) return todayIso
+
+  const candidate = new Date(dateLike)
+  if (Number.isNaN(candidate.getTime())) return todayIso
+  return candidate < now ? todayIso : candidate.toISOString().slice(0, 10)
+}
+
+function ensureSolariaPrefix(name: string): string {
+  const trimmed = name.trim()
+  if (trimmed.toUpperCase().startsWith(SOLARIA_PREFIX)) return trimmed
+  return `${SOLARIA_PREFIX} - ${trimmed}`
 }
 
 export default function CampanasPage() {
@@ -106,9 +168,45 @@ export default function CampanasPage() {
           cache: 'no-cache',
         })
 
+        if (response.status === 401) {
+          setCampaigns([])
+          setErrorMessage('Sesión expirada. Inicia sesión de nuevo para ver campañas.')
+          return
+        }
+
         if (response.ok) {
           const payload = (await response.json()) as CampaignsApiResponse
-          setCampaigns(Array.isArray(payload.docs) ? payload.docs : [])
+          const localDocs = Array.isArray(payload.docs) ? payload.docs : []
+          const solariaLocalDocs = localDocs.filter((doc) =>
+            String(doc.name ?? '').toUpperCase().startsWith(SOLARIA_PREFIX),
+          )
+
+          // If local Campaigns collection is empty, fallback to Meta API listing
+          if (solariaLocalDocs.length === 0) {
+            try {
+              const metaRes = await fetch('/api/meta/campaigns', { cache: 'no-cache' })
+              if (metaRes.status === 401) {
+                setCampaigns([])
+                setErrorMessage('Sesión expirada. Inicia sesión de nuevo para ver campañas.')
+                return
+              }
+              if (metaRes.ok) {
+                const metaPayload = (await metaRes.json()) as MetaCampaignsApiResponse
+                const metaDocs = Array.isArray(metaPayload.docs) ? metaPayload.docs : []
+                setCampaigns(
+                  metaDocs.filter((doc) =>
+                    String(doc.name ?? '').toUpperCase().startsWith(SOLARIA_PREFIX),
+                  ),
+                )
+              } else {
+                setCampaigns([])
+              }
+            } catch {
+              setCampaigns([])
+            }
+          } else {
+            setCampaigns(solariaLocalDocs)
+          }
         } else {
           // API not available yet or no campaigns — show empty state, not error
           setCampaigns([])
@@ -161,6 +259,7 @@ export default function CampanasPage() {
             .filter((c) => c.estado === 'enrollment_open' || c.estado === 'in_progress' || c.estado === 'draft')
             .map((c) => ({
               id: String(c.id),
+              courseId: String(c.cursoId ?? ''),
               curso: c.cursoNombre ?? 'Curso',
               sede: c.campusNombre ?? 'Sin sede',
               estado: c.estado ?? 'draft',
@@ -178,38 +277,72 @@ export default function CampanasPage() {
   const handleCreateCampaign = async () => {
     if (!selectedConv || !selectedPlatform || !campaignName.trim()) return
 
+    const selectedConvData = convocatorias.find((conv) => conv.id === selectedConv)
+    const selectedPlatformData = PLATFORM_OPTIONS.find((platform) => platform.value === selectedPlatform)
+    if (!selectedConvData || !selectedPlatformData) return
+
+    const normalizedName = ensureSolariaPrefix(campaignName)
+    const utmCampaign = slugifyForUtm(normalizedName)
+    const startDate = getSafeStartDate(selectedConvData.fechaInicio)
+
+    const createPayload: Record<string, unknown> = {
+      name: normalizedName,
+      campaign_type: selectedPlatformData.campaignType,
+      status: 'draft',
+      start_date: startDate,
+      utm_source: selectedPlatformData.utmSource,
+      utm_medium: selectedPlatformData.utmMedium,
+      utm_campaign: utmCampaign,
+    }
+    if (selectedConvData.courseId) {
+      createPayload.course = /^\d+$/.test(selectedConvData.courseId)
+        ? parseInt(selectedConvData.courseId, 10)
+        : selectedConvData.courseId
+    }
+
     try {
       const res = await fetch('/api/campaigns', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: campaignName,
-          campaign_type: selectedPlatform,
-          convocatoria_id: selectedConv,
-          status: 'draft',
-        }),
+        body: JSON.stringify(createPayload),
       })
 
-      if (res.ok) {
-        const result = await res.json()
-        setShowCreateModal(false)
-        // Refresh campaigns
-        const refreshRes = await fetch('/api/campaigns?limit=50&sort=-createdAt', { cache: 'no-cache' })
-        if (refreshRes.ok) {
-          const payload = (await refreshRes.json()) as CampaignsApiResponse
-          setCampaigns(Array.isArray(payload.docs) ? payload.docs : [])
-        }
-        // Navigate to new campaign
-        if (result.doc?.id) {
-          router.push(`/campanas/${result.doc.id}`)
-        }
+      const result = await res.json().catch(() => null)
+      if (!res.ok) {
+        const message =
+          result?.errors?.[0]?.message ||
+          result?.error ||
+          'No se pudo crear la campaña. Revisa la configuración e inténtalo de nuevo.'
+        setErrorMessage(String(message))
+        return
+      }
+
+      setErrorMessage(null)
+      setShowCreateModal(false)
+
+      // Refresh campaigns
+      const refreshRes = await fetch('/api/campaigns?limit=50&sort=-createdAt', { cache: 'no-cache' })
+      if (refreshRes.ok) {
+        const payload = (await refreshRes.json()) as CampaignsApiResponse
+        const docs = Array.isArray(payload.docs) ? payload.docs : []
+        setCampaigns(
+          docs.filter((doc) => String(doc.name ?? '').toUpperCase().startsWith(SOLARIA_PREFIX)),
+        )
+      }
+
+      // Navigate to new campaign
+      if (result?.doc?.id) {
+        router.push(`/campanas/${result.doc.id}`)
       }
     } catch {
-      // Show error inline
+      setErrorMessage('No se pudo crear la campaña por un error de red.')
     }
   }
 
   const getPlatformBadge = (type?: string) => {
+    if (type === 'paid_ads') {
+      return <Badge className="bg-blue-600 text-white border-0">Paid Ads</Badge>
+    }
     const platform = PLATFORM_OPTIONS.find((p) => p.value === type)
     if (!platform) return <Badge variant="outline">{type ?? 'Sin tipo'}</Badge>
     return (
@@ -223,7 +356,7 @@ export default function CampanasPage() {
     <div className="space-y-6">
       {isLoading && (
         <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-          Cargando campanas...
+          Cargando campañas...
         </div>
       )}
 
@@ -234,13 +367,13 @@ export default function CampanasPage() {
       )}
 
       <PageHeader
-        title="Campanas de Marketing"
-        description="Gestion y seguimiento de campanas publicitarias multicanal"
+        title="Campañas de Marketing"
+        description="Gestión y seguimiento de campañas publicitarias multicanal"
         icon={TrendingUp}
         actions={
           <Button onClick={openCreateModal}>
             <Plus className="mr-2 h-4 w-4" />
-            Nueva Campana
+            Nueva Campaña
           </Button>
         }
       />
@@ -249,7 +382,7 @@ export default function CampanasPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Campanas Activas</CardTitle>
+            <CardTitle className="text-sm font-medium">Campañas Activas</CardTitle>
             <MousePointer className="h-4 w-4 text-primary/70" />
           </CardHeader>
           <CardContent>
@@ -265,7 +398,7 @@ export default function CampanasPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalLeads}</div>
-            <p className="text-xs text-muted-foreground">Captados desde campanas</p>
+            <p className="text-xs text-muted-foreground">Captados desde campañas</p>
           </CardContent>
         </Card>
 
@@ -297,7 +430,7 @@ export default function CampanasPage() {
         <EmptyState
           icon={Megaphone}
           title="Sin campañas activas"
-          description="Crea tu primera campana para empezar a captar leads. Selecciona una convocatoria activa y elige la plataforma."
+          description="Crea tu primera campaña para empezar a captar leads. Selecciona una convocatoria activa y elige la plataforma."
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
@@ -363,7 +496,7 @@ export default function CampanasPage() {
           <Card className="w-full max-w-lg mx-4 shadow-2xl">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Nueva Campana de Marketing</CardTitle>
+                <CardTitle>Nueva Campaña de Marketing</CardTitle>
                 <Button variant="ghost" size="sm" onClick={() => setShowCreateModal(false)}>
                   <X className="h-4 w-4" />
                 </Button>
@@ -387,7 +520,7 @@ export default function CampanasPage() {
                     setSelectedConv(val)
                     const conv = convocatorias.find((c) => c.id === val)
                     if (conv && !campaignName) {
-                      setCampaignName(`Campana - ${conv.curso}`)
+                      setCampaignName(`${SOLARIA_PREFIX} - ${conv.curso}`)
                     }
                   }}>
                     <SelectTrigger>
@@ -434,11 +567,11 @@ export default function CampanasPage() {
 
               {/* Step 3: Name */}
               <div className="space-y-2">
-                <Label>Nombre de la campana</Label>
+                <Label>Nombre de la campaña</Label>
                 <Input
                   value={campaignName}
                   onChange={(e) => setCampaignName(e.target.value)}
-                  placeholder="Ej: Campana Verano 2026 - Ciclo DAM"
+                  placeholder="Ej: Campaña Verano 2026 - Ciclo DAM"
                 />
               </div>
 
@@ -453,7 +586,7 @@ export default function CampanasPage() {
                   onClick={handleCreateCampaign}
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Crear Campana
+                  Crear Campaña
                 </Button>
               </div>
             </CardContent>

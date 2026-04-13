@@ -84,7 +84,7 @@ describe('Lead enroll route', () => {
     const payload = await response.json()
 
     expect(response.status).toBe(422)
-    expect(payload.error).toContain('No hay convocatoria disponible')
+    expect(payload.error).toContain('convocatoria activa seleccionada')
     expect(mockCreate).not.toHaveBeenCalled()
   })
 
@@ -95,6 +95,14 @@ describe('Lead enroll route', () => {
       tenant_id: 2,
       enrollment_id: null,
       course_id: 11,
+    })
+    mockFind.mockResolvedValue({
+      docs: [
+        {
+          id: 501,
+          status: 'enrollment_open',
+        },
+      ],
     })
     mockCreate.mockResolvedValue({ id: 31 })
     mockExecute.mockResolvedValue({ rows: [] })
@@ -116,7 +124,7 @@ describe('Lead enroll route', () => {
         overrideAccess: true,
         data: expect.objectContaining({
           student: 16,
-          course_run: 11,
+          course_run: 501,
           status: 'pending',
           payment_status: 'pending',
           total_amount: 0,
@@ -137,6 +145,14 @@ describe('Lead enroll route', () => {
       tenant_id: 2,
       enrollment_id: null,
       course_id: 11,
+    })
+    mockFind.mockResolvedValue({
+      docs: [
+        {
+          id: 777,
+          status: 'published',
+        },
+      ],
     })
     mockCreate.mockResolvedValue({ id: 88 })
     mockExecute.mockResolvedValue({ rows: [] })

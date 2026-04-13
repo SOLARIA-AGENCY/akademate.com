@@ -25,6 +25,7 @@ import { ThemeToggle } from '@payload-config/components/ui/ThemeToggle'
 import { ChatbotWidget } from '@payload-config/components/ui/ChatbotWidget'
 import { RealtimeProvider } from '@payload-config/components/providers'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
+import { NotificationProvider } from '@/app/providers/notifications'
 
 interface SessionUser {
   id: string | number
@@ -150,7 +151,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <RealtimeProvider tenantId={1} data-oid="xrr6i5x">
+    <NotificationProvider>
+      <RealtimeProvider tenantId={1} data-oid="xrr6i5x">
       <div
         className="dashboard-shell flex h-screen overflow-hidden bg-background text-foreground overscroll-none"
         data-oid="dq:3ws5"
@@ -351,6 +353,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <ChatbotWidget data-oid="2282j28" />
       </div>
-    </RealtimeProvider>
+      </RealtimeProvider>
+    </NotificationProvider>
   )
 }

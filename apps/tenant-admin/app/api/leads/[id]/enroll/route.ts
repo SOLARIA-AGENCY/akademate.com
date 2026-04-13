@@ -10,6 +10,8 @@ interface RouteContext {
   params: Promise<{ id: string }>
 }
 
+const ACTIVE_COURSE_RUN_STATUSES = ['enrollment_open', 'published', 'in_progress'] as const
+
 function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
   if (typeof value === 'string' && /^\d+$/.test(value)) return parseInt(value, 10)
@@ -67,25 +69,65 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Usuario autenticado invalido' }, { status: 401 })
     }
 
-    let courseRunId =
-      toPositiveInt(lead.course_run_id ?? lead.course_id ?? lead.course_run?.id ?? lead.course_run)
+    let courseRunId = toPositiveInt(lead.course_run_id ?? lead.course_run?.id ?? lead.course_run)
+    const leadCourseId = toPositiveInt(lead.course_id ?? lead.course?.id ?? lead.course)
 
-    if (!courseRunId) {
+    if (courseRunId) {
+      const selectedRun = await payload.findByID({
+        collection: 'course-runs',
+        id: courseRunId,
+        depth: 0,
+        overrideAccess: true,
+      }) as any
+
+      if (!selectedRun) {
+        return NextResponse.json(
+          { error: 'La convocatoria seleccionada en el lead no existe o no es accesible' },
+          { status: 422 },
+        )
+      }
+
+      const selectedStatus = String(selectedRun.status ?? '')
+      if (!ACTIVE_COURSE_RUN_STATUSES.includes(selectedStatus as (typeof ACTIVE_COURSE_RUN_STATUSES)[number])) {
+        return NextResponse.json(
+          { error: 'La convocatoria asociada al lead no está activa para matriculación' },
+          { status: 422 },
+        )
+      }
+    } else {
+      if (!leadCourseId) {
+        return NextResponse.json(
+          { error: 'Este lead no tiene una convocatoria activa seleccionada para iniciar la matrícula' },
+          { status: 422 },
+        )
+      }
+
+      const runWhere: any = {
+        and: [
+          { course: { equals: leadCourseId } },
+          { status: { in: [...ACTIVE_COURSE_RUN_STATUSES] } },
+        ],
+      }
+      if (leadTenantId) {
+        runWhere.and.push({ tenant: { equals: leadTenantId } })
+      }
+
       const runs = await payload.find({
         collection: 'course-runs',
         depth: 0,
         limit: 1,
-        sort: '-createdAt',
+        sort: 'start_date',
         overrideAccess: true,
+        where: runWhere,
       })
       courseRunId = toPositiveInt(runs.docs?.[0]?.id)
-    }
 
-    if (!courseRunId) {
-      return NextResponse.json(
-        { error: 'No hay convocatoria disponible para iniciar matriculacion en este lead' },
-        { status: 422 },
-      )
+      if (!courseRunId) {
+        return NextResponse.json(
+          { error: 'No hay convocatoria activa disponible para este lead. Selecciona una convocatoria antes de matricular.' },
+          { status: 422 },
+        )
+      }
     }
 
     // Create enrollment via Payload, then update lead + log via raw SQL

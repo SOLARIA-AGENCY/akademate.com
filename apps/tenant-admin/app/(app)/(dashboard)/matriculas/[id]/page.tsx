@@ -15,6 +15,7 @@ import {
   CalendarDays,
   BookOpen,
   User,
+  AlertTriangle,
 } from 'lucide-react'
 
 interface Props {
@@ -182,6 +183,7 @@ export default function MatriculaDetailPage({ params }: Props) {
   const enrollmentStatus = enrollment.enrollment?.status
   const courseTitle = enrollment.course?.title ?? 'Curso sin título'
   const courseRunTitle = enrollment.courseRun?.title ?? 'Convocatoria sin título'
+  const hasCourseRun = Boolean(enrollment.courseRun?.id || enrollment.courseRun?.title)
   const progress = enrollment.progress?.progressPercent ?? 0
 
   return (
@@ -223,6 +225,14 @@ export default function MatriculaDetailPage({ params }: Props) {
               <span className="text-muted-foreground">Convocatoria</span>
               <span className="font-medium">{courseRunTitle}</span>
             </div>
+            {!hasCourseRun ? (
+              <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-800">
+                <div className="flex items-center gap-2 text-xs font-medium">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Esta matrícula no tiene convocatoria asignada.
+                </div>
+              </div>
+            ) : null}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Estado matrícula</span>
               <Badge variant={statusVariant(enrollmentStatus)}>{statusLabel(enrollmentStatus)}</Badge>
@@ -283,4 +293,3 @@ export default function MatriculaDetailPage({ params }: Props) {
     </div>
   )
 }
-

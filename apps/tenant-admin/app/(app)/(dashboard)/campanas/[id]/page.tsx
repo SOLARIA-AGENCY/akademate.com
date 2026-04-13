@@ -67,10 +67,10 @@ export default function CampaignDetailPage({ params }: Props) {
           setCampaign(data)
         } else {
           // Graceful fallback — show basic info
-          setCampaign({ id, name: `Campana #${id}`, status: 'draft' })
+          setCampaign({ id, name: `Campaña #${id}`, status: 'draft' })
         }
       } catch {
-        setCampaign({ id, name: `Campana #${id}`, status: 'draft' })
+        setCampaign({ id, name: `Campaña #${id}`, status: 'draft' })
       } finally {
         setLoading(false)
       }
@@ -80,7 +80,7 @@ export default function CampaignDetailPage({ params }: Props) {
 
   const handleCreateInMeta = async () => {
     if (!headline.trim() || !primaryText.trim()) {
-      setMetaError('Rellena al menos un titulo y texto principal')
+      setMetaError('Rellena al menos un título y texto principal')
       return
     }
 
@@ -105,10 +105,10 @@ export default function CampaignDetailPage({ params }: Props) {
       if (data.success) {
         setMetaResult(data.data)
       } else {
-        setMetaError(data.error || 'Error al crear campana en Meta')
+        setMetaError(data.error || 'Error al crear campaña en Meta')
       }
     } catch (err) {
-      setMetaError('Error de conexion con la API')
+      setMetaError('Error de conexión con la API')
     } finally {
       setCreating(false)
     }
@@ -133,8 +133,8 @@ export default function CampaignDetailPage({ params }: Props) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={campaign?.name || `Campana #${id}`}
-        description="Detalle y configuracion de campana publicitaria"
+        title={campaign?.name || `Campaña #${id}`}
+        description="Detalle y configuración de campaña publicitaria"
         icon={Megaphone}
         badge={
           <Badge variant={campaign?.status === 'active' ? 'default' : 'secondary'}>
@@ -144,7 +144,7 @@ export default function CampaignDetailPage({ params }: Props) {
         actions={
           <Button variant="ghost" onClick={() => router.push('/campanas')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Campanas
+            Campañas
           </Button>
         }
       />
@@ -159,7 +159,7 @@ export default function CampaignDetailPage({ params }: Props) {
                 <div className="flex items-start gap-3">
                   <Check className="h-5 w-5 text-green-600 mt-0.5" />
                   <div className="space-y-2 flex-1">
-                    <p className="font-medium text-green-800">Campana creada en Meta (PAUSED)</p>
+                    <p className="font-medium text-green-800">Campaña creada en Meta (PAUSED)</p>
                     <div className="grid grid-cols-2 gap-2 text-xs text-green-700">
                       <span>Campaign ID: {metaResult.metaCampaignId}</span>
                       <span>Ad Set ID: {metaResult.metaAdSetId}</span>
@@ -190,11 +190,11 @@ export default function CampaignDetailPage({ params }: Props) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Titulo (Headline)</Label>
+                <Label>Título (Headline)</Label>
                 <Input
                   value={headline}
                   onChange={(e) => setHeadline(e.target.value)}
-                  placeholder="Ej: Matriculate en Farmacia y Parafarmacia"
+                  placeholder="Ej: Matricúlate en Farmacia y Parafarmacia"
                   maxLength={40}
                 />
                 <p className="text-[10px] text-muted-foreground">{headline.length}/40 caracteres</p>
@@ -213,11 +213,11 @@ export default function CampaignDetailPage({ params }: Props) {
               </div>
 
               <div className="space-y-2">
-                <Label>Descripcion del enlace</Label>
+                <Label>Descripción del enlace</Label>
                 <Input
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Ej: Plazas limitadas. Inscripcion abierta."
+                  placeholder="Ej: Plazas limitadas. Inscripción abierta."
                   maxLength={30}
                 />
               </div>
@@ -229,7 +229,7 @@ export default function CampaignDetailPage({ params }: Props) {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-primary" />
-                Presupuesto y Segmentacion
+                Presupuesto y Segmentación
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -253,7 +253,7 @@ export default function CampaignDetailPage({ params }: Props) {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Objetivo: Lead Generation. Pixel: CEP Formacion. Plataforma: Feed + Stories (FB + IG).
+                Objetivo: Lead Generation. Pixel: CEP Formación. Plataforma: Feed + Stories (FB + IG).
               </p>
             </CardContent>
           </Card>
@@ -276,7 +276,7 @@ export default function CampaignDetailPage({ params }: Props) {
             {creating ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Creando campana en Meta...
+                Creando campaña en Meta...
               </>
             ) : (
               <>
@@ -286,7 +286,7 @@ export default function CampaignDetailPage({ params }: Props) {
             )}
           </Button>
           <p className="text-xs text-center text-muted-foreground">
-            La campana se crea en estado PAUSED. Revisala en Ads Manager antes de publicar.
+            La campaña se crea en estado PAUSED. Revísala en Ads Manager antes de publicar.
           </p>
         </div>
 
@@ -304,7 +304,7 @@ export default function CampaignDetailPage({ params }: Props) {
                     <ImageIcon className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold">CEP Formacion</p>
+                    <p className="text-xs font-semibold">CEP Formación</p>
                     <p className="text-[10px] text-muted-foreground">Patrocinado</p>
                   </div>
                 </div>
@@ -318,7 +318,7 @@ export default function CampaignDetailPage({ params }: Props) {
                   <p className="text-[10px] text-muted-foreground">{description || 'Descripcion...'}</p>
                 </div>
                 <div className="border-t pt-2">
-                  <div className="text-center text-xs font-medium text-primary">Mas informacion</div>
+                  <div className="text-center text-xs font-medium text-primary">Más información</div>
                 </div>
               </div>
             </CardContent>
@@ -327,7 +327,7 @@ export default function CampaignDetailPage({ params }: Props) {
           {/* Info */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Configuracion</CardTitle>
+              <CardTitle className="text-sm">Configuración</CardTitle>
             </CardHeader>
             <CardContent className="text-xs space-y-2 text-muted-foreground">
               <div className="flex justify-between">

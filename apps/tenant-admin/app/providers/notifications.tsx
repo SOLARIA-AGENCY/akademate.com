@@ -94,6 +94,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const { branding } = useTenantBranding()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authReady, setAuthReady] = useState(false)
   const [permissionGranted, setPermissionGranted] = useState(false)
   const [toasts, setToasts] = useState<Notification[]>([])
   const seenIds = useRef(new Set<number>())
@@ -113,18 +115,60 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }
   }, [])
 
+  // Resolve auth state once and gate all notifications traffic behind it.
+  useEffect(() => {
+    let cancelled = false
+    const resolveAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+        })
+        if (!response.ok) {
+          if (!cancelled) {
+            setIsAuthenticated(false)
+            setAuthReady(true)
+          }
+          return
+        }
+
+        const data = (await response.json()) as {
+          authenticated?: boolean
+          user?: { email?: string } | null
+        }
+        if (!cancelled) {
+          setIsAuthenticated(Boolean(data.authenticated && data.user?.email))
+          setAuthReady(true)
+        }
+      } catch {
+        if (!cancelled) {
+          setIsAuthenticated(false)
+          setAuthReady(true)
+        }
+      }
+    }
+
+    void resolveAuth()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   // Load initial notifications
   useEffect(() => {
+    if (!authReady || !isAuthenticated) return
     fetch('/api/notifications').then(r => r.json()).then(data => {
       setNotifications(data.notifications || [])
       setUnreadCount(data.unreadCount || 0)
       // Mark all existing as seen
       for (const n of (data.notifications || [])) seenIds.current.add(n.id)
     }).catch(() => {})
-  }, [])
+  }, [authReady, isAuthenticated])
 
   // SSE Connection
   useEffect(() => {
+    if (!authReady || !isAuthenticated) return
     let eventSource: EventSource | null = null
     let reconnectTimer: ReturnType<typeof setTimeout>
 
@@ -192,9 +236,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       eventSource?.close()
       clearTimeout(reconnectTimer)
     }
-  }, [permissionGranted])
+  }, [permissionGranted, authReady, isAuthenticated])
 
   const markAsRead = useCallback((ids: number[]) => {
+    if (!isAuthenticated) return
     fetch('/api/notifications', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -202,9 +247,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }).catch(() => {})
     setNotifications(prev => prev.map(n => ids.includes(n.id) ? { ...n, read: true } : n))
     setUnreadCount(prev => Math.max(0, prev - ids.length))
-  }, [])
+  }, [isAuthenticated])
 
   const markAllRead = useCallback(() => {
+    if (!isAuthenticated) return
     fetch('/api/notifications', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -212,7 +258,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }).catch(() => {})
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
     setUnreadCount(0)
-  }, [])
+  }, [isAuthenticated])
 
   return (
     <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead, markAllRead, requestPermission, permissionGranted }}>

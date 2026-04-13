@@ -74,7 +74,7 @@ interface PayloadModule extends PayloadDocument {
   description?: string;
   order?: number;
   estimatedMinutes?: number;
-  courseRun?: string | PayloadCourseRun;
+  course?: string | PayloadCourse;
   status?: string;
 }
 
@@ -197,17 +197,25 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             }) as unknown as PayloadCourse)
       : null;
 
-    // 4. Get all modules for this course run
-    const modulesResult = await payload.find({
-      collection: 'modules' as PayloadCollectionSlug,
-      where: {
-        courseRun: { equals: courseRunRecord?.id ?? courseRunRef },
-      },
-      sort: 'order',
-      depth: 0,
-      limit: 100,
-    });
-    const modules = modulesResult as unknown as { docs: PayloadModule[]; totalDocs: number };
+    // 4. Get all modules for the base course.
+    // Modules collection links to `course` (not `courseRun`), so querying by
+    // `courseRun` raises: "The following path cannot be queried: courseRun".
+    const courseIdForModules =
+      course && typeof course.id !== 'undefined' && course.id !== null ? String(course.id) : null;
+
+    let modules: { docs: PayloadModule[]; totalDocs: number } = { docs: [], totalDocs: 0 };
+    if (courseIdForModules) {
+      const modulesResult = await payload.find({
+        collection: 'modules' as PayloadCollectionSlug,
+        where: {
+          course: { equals: courseIdForModules },
+        },
+        sort: 'order',
+        depth: 0,
+        limit: 100,
+      });
+      modules = modulesResult as unknown as { docs: PayloadModule[]; totalDocs: number };
+    }
 
     // 5. Get lessons for each module
     const modulesWithLessons: ModuleWithLessons[] = await Promise.all(

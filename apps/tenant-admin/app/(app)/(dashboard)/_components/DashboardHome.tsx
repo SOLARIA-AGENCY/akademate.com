@@ -211,7 +211,10 @@ export default function DashboardPage() {
 
       const payload = (await response.json()) as { data?: LmsEnrollment[] }
       const enrollments = payload.data ?? []
-      const activeEnrollments = enrollments.filter((item) => item.status === 'active').length
+      const activeStatuses = new Set(['active', 'pending', 'confirmed', 'enrolled', 'in_progress'])
+      const activeEnrollments = enrollments.filter((item) =>
+        activeStatuses.has(String(item.status ?? '').toLowerCase())
+      ).length
       const completedCount = enrollments.filter(
         (item) => (item.progress?.percent ?? 0) >= 100 || item.status === 'completed'
       ).length

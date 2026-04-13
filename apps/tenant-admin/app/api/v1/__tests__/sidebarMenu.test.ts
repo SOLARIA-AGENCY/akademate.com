@@ -39,7 +39,7 @@ const menuItems: MenuItem[] = [
     title: 'Marketing',
     sectionBefore: 'GESTION COMERCIAL',
     items: [
-      { title: 'Campanas', url: '/campanas' },
+      { title: 'Campañas', url: '/campanas' },
       { title: 'Creatividades', url: '/marketing/creatividades' },
     ],
   },

@@ -16,10 +16,22 @@ const mockFetchError = () => {
   global.fetch = vi.fn().mockResolvedValueOnce(new Response('{}', { status: 500 }))
 }
 
+const mockFetchSequence = (responses: Array<{ status: number; body: unknown }>) => {
+  global.fetch = vi.fn()
+  for (const response of responses) {
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify(response.body), {
+        status: response.status,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+  }
+}
+
 const SAMPLE_CAMPAIGNS = [
   {
     id: '1',
-    name: 'Campaña Verano',
+    name: 'SOLARIA AGENCY - Campaña Verano',
     status: 'active',
     campaign_type: 'email',
     total_leads: 120,
@@ -29,7 +41,7 @@ const SAMPLE_CAMPAIGNS = [
   },
   {
     id: '2',
-    name: 'Campaña Otoño',
+    name: 'SOLARIA AGENCY - Campaña Otoño',
     status: 'paused',
     campaign_type: 'social',
     total_leads: 80,
@@ -57,7 +69,7 @@ describe('CampanasPage', () => {
       mockFetch(SAMPLE_CAMPAIGNS)
       render(<CampanasPage data-oid="n8or0h_" />)
       await waitFor(() =>
-        expect(screen.getByTestId('page-header-title')).toHaveTextContent('Campanas de Marketing')
+        expect(screen.getByTestId('page-header-title')).toHaveTextContent('Campañas de Marketing')
       )
     })
 
@@ -65,8 +77,29 @@ describe('CampanasPage', () => {
       mockFetch(SAMPLE_CAMPAIGNS)
       render(<CampanasPage data-oid="dow:nav" />)
       await waitFor(() => {
-        expect(screen.getByText('Campaña Verano')).toBeInTheDocument()
-        expect(screen.getByText('Campaña Otoño')).toBeInTheDocument()
+        expect(screen.getByText('SOLARIA AGENCY - Campaña Verano')).toBeInTheDocument()
+        expect(screen.getByText('SOLARIA AGENCY - Campaña Otoño')).toBeInTheDocument()
+      })
+    })
+
+    it('filtra campañas fuera de prefijo SOLARIA en la respuesta local', async () => {
+      mockFetch([
+        ...SAMPLE_CAMPAIGNS,
+        {
+          id: '3',
+          name: 'OTRA AGENCIA - Campaña Externa',
+          status: 'active',
+          campaign_type: 'social',
+          total_leads: 300,
+          total_conversions: 50,
+          budget: 9999,
+        },
+      ])
+      render(<CampanasPage data-oid="2ic1r09" />)
+
+      await waitFor(() => {
+        expect(screen.getByText('SOLARIA AGENCY - Campaña Verano')).toBeInTheDocument()
+        expect(screen.queryByText('OTRA AGENCIA - Campaña Externa')).not.toBeInTheDocument()
       })
     })
 
@@ -81,7 +114,7 @@ describe('CampanasPage', () => {
       render(<CampanasPage data-oid="5k15t2l" />)
       await waitFor(() => {
         // activeCount rendered as the bold number under "Campañas Activas"
-        expect(screen.getByText('Campanas Activas')).toBeInTheDocument()
+        expect(screen.getByText('Campañas Activas')).toBeInTheDocument()
       })
     })
 
@@ -126,7 +159,7 @@ describe('CampanasPage', () => {
       render(<CampanasPage data-oid="95lo21q" />)
       await waitFor(() => {
         expect(screen.getByTestId('empty-state-description')).toHaveTextContent(
-          'Crea tu primera campana para empezar a captar leads.'
+          'Crea tu primera campaña para empezar a captar leads.'
         )
       })
     })
@@ -159,6 +192,39 @@ describe('CampanasPage', () => {
       render(<CampanasPage data-oid="ej2-jty" />)
       await waitFor(() => {
         expect(screen.getByTestId('empty-state')).toBeInTheDocument()
+      })
+    })
+
+    it('muestra error de sesión cuando /api/campaigns responde 401', async () => {
+      mockFetchSequence([{ status: 401, body: {} }])
+      render(<CampanasPage data-oid="ogn1o0h" />)
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Sesión expirada. Inicia sesión de nuevo para ver campañas.')
+        ).toBeInTheDocument()
+      })
+    })
+
+    it('usa fallback de Meta cuando local no tiene campañas SOLARIA', async () => {
+      mockFetchSequence([
+        { status: 200, body: { docs: [{ id: '10', name: 'OTRA AGENCIA - test', status: 'active' }] } },
+        {
+          status: 200,
+          body: {
+            docs: [
+              { id: '20', name: 'SOLARIA AGENCY - Meta Uno', status: 'active', budget: 1000 },
+              { id: '21', name: 'NO SOLARIA - Meta Dos', status: 'active', budget: 500 },
+            ],
+          },
+        },
+      ])
+
+      render(<CampanasPage data-oid="76f6yv6" />)
+
+      await waitFor(() => {
+        expect(screen.getByText('SOLARIA AGENCY - Meta Uno')).toBeInTheDocument()
+        expect(screen.queryByText('NO SOLARIA - Meta Dos')).not.toBeInTheDocument()
       })
     })
   })
