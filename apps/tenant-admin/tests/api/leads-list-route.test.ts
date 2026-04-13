@@ -71,4 +71,46 @@ describe('Leads list route auth', () => {
     const cookieHeader = authCall?.headers?.get('cookie')
     expect(cookieHeader).toContain('payload-token=session-token')
   })
+
+  it('supports filtering by enrollment_id', async () => {
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('information_schema.columns') && sql.includes("column_name = 'enrollment_id'")) {
+        return { rows: [{ '?column?': 1 }] }
+      }
+      if (sql.includes('COUNT(*) as cnt FROM leads l')) {
+        return { rows: [{ cnt: '1' }] }
+      }
+      if (sql.includes('SELECT * FROM leads l')) {
+        return {
+          rows: [{
+            id: 10,
+            enrollment_id: 99,
+            first_name: 'Lead',
+            last_name: 'Demo',
+            email: 'lead@example.com',
+            status: 'enrolled',
+          }],
+        }
+      }
+      return { rows: [] }
+    })
+
+    const request = new NextRequest('http://localhost/api/leads?enrollment_id=99&limit=20', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(Array.isArray(payload.docs)).toBe(true)
+    expect(payload.docs).toHaveLength(1)
+    expect(String(payload.docs[0].enrollment_id)).toBe('99')
+
+    const selectSql = mockExecute.mock.calls
+      .map((call) => String(call[0]))
+      .find((sql) => sql.includes('SELECT * FROM leads l'))
+
+    expect(selectSql).toContain('l.enrollment_id = 99')
+  })
 })

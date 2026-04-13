@@ -68,6 +68,7 @@ export async function GET(request: NextRequest) {
       searchParams.get('lead_type') ??
       searchParams.get('type') ??
       searchParams.get('where[lead_type][equals]')
+    const enrollmentId = searchParams.get('enrollment_id') ?? searchParams.get('where[enrollment_id][equals]')
 
     const payload = await getPayloadHMR({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
@@ -114,6 +115,14 @@ export async function GET(request: NextRequest) {
     if (search) {
       const q = esc(search)
       conditions.push(`(l.first_name ILIKE '%${q}%' OR l.last_name ILIKE '%${q}%' OR l.email ILIKE '%${q}%' OR l.phone ILIKE '%${q}%')`)
+    }
+
+    const enrollmentIdColumnExists = enrollmentId ? await hasColumn(drizzle, 'leads', 'enrollment_id') : false
+    if (enrollmentId && enrollmentIdColumnExists) {
+      const enrollmentIdInt = toPositiveInt(enrollmentId)
+      if (enrollmentIdInt) {
+        conditions.push(`l.enrollment_id = ${enrollmentIdInt}`)
+      }
     }
 
     const leadTypeColumnExists = leadType ? await hasColumn(drizzle, 'leads', 'lead_type') : false

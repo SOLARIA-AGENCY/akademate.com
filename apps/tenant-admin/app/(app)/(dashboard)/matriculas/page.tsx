@@ -1,6 +1,7 @@
 'use client'
 
-import { type ComponentType, useEffect, useMemo, useState } from 'react'
+import { type ComponentType, useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -49,6 +50,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { BulkEnrollmentDialog } from './components/BulkEnrollmentDialog'
+import { NewEnrollmentDialog } from './components/NewEnrollmentDialog'
 
 interface LeadRow {
   id: string | number
@@ -68,6 +70,8 @@ interface LeadRow {
 
 interface MatriculaRow {
   id: string
+  leadId: string
+  enrollmentId: string | null
   alumno: { nombre: string; email: string; telefono: string }
   curso: string
   tipo: string
@@ -116,6 +120,8 @@ function mapLeadToMatricula(lead: LeadRow): MatriculaRow | null {
 
   return {
     id: String(lead.enrollment_id ?? lead.id),
+    leadId: String(lead.id),
+    enrollmentId: hasEnrollment ? String(lead.enrollment_id) : null,
     alumno: {
       nombre,
       email: lead.email ?? 'Sin email',
@@ -134,41 +140,47 @@ function mapLeadToMatricula(lead: LeadRow): MatriculaRow | null {
 }
 
 export default function MatriculasPage() {
+  const router = useRouter()
   const [matriculasData, setMatriculasData] = useState<MatriculaRow[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [estadoFilter, setEstadoFilter] = useState('todos')
   const [sedeFilter, setSedeFilter] = useState('todas')
   const [tipoFilter, setTipoFilter] = useState('todos')
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false)
+  const [newEnrollmentDialogOpen, setNewEnrollmentDialogOpen] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+
+  const loadMatriculas = useCallback(async () => {
+    try {
+      setLoadError(null)
+      const res = await fetch('/api/leads?limit=500', { cache: 'no-store' })
+      if (!res.ok) throw new Error('No se pudieron cargar las matriculas')
+
+      const payload = await res.json()
+      const docs = Array.isArray(payload?.docs) ? payload.docs : []
+      const mapped = docs.map(mapLeadToMatricula).filter(Boolean) as MatriculaRow[]
+
+      setMatriculasData(mapped)
+    } catch (error) {
+      setMatriculasData([])
+      setLoadError(error instanceof Error ? error.message : 'No se pudieron cargar las matriculas')
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
 
-    const loadMatriculas = async () => {
-      try {
-        setLoadError(null)
-        const res = await fetch('/api/leads?limit=500', { cache: 'no-store' })
-        if (!res.ok) throw new Error('No se pudieron cargar las matriculas')
-
-        const payload = await res.json()
-        const docs = Array.isArray(payload?.docs) ? payload.docs : []
-        const mapped = docs.map(mapLeadToMatricula).filter(Boolean) as MatriculaRow[]
-
-        if (!cancelled) setMatriculasData(mapped)
-      } catch (error) {
-        if (!cancelled) {
-          setMatriculasData([])
-          setLoadError(error instanceof Error ? error.message : 'No se pudieron cargar las matriculas')
-        }
-      }
+    const run = async () => {
+      await loadMatriculas()
     }
 
-    void loadMatriculas()
+    if (!cancelled) {
+      void run()
+    }
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [loadMatriculas])
 
   const availableSedes = useMemo(
     () => Array.from(new Set(matriculasData.map((m) => m.sede))).sort(),
@@ -216,7 +228,7 @@ export default function MatriculasPage() {
               <Upload className="mr-2 h-4 w-4" data-oid="p-dgxs_" />
               Importar CSV
             </Button>
-            <Button data-oid="pdb:h9a">
+            <Button onClick={() => setNewEnrollmentDialogOpen(true)} data-oid="pdb:h9a">
               <UserPlus className="mr-2 h-4 w-4" data-oid="tnx7zku" />
               Nueva Matrícula
             </Button>
@@ -410,7 +422,19 @@ export default function MatriculasPage() {
                               <User className="h-5 w-5 text-muted-foreground" data-oid="uqxbk:4" />
                             </div>
                             <div className="flex flex-col" data-oid="xv3ol80">
-                              <span className="font-medium" data-oid=":v4c1y.">{matricula.alumno.nombre}</span>
+                              <button
+                                type="button"
+                                className="w-fit text-left font-medium text-primary hover:underline"
+                                onClick={() => {
+                                  if (matricula.enrollmentId) {
+                                    router.push(`/matriculas/${matricula.enrollmentId}`)
+                                  } else {
+                                    router.push(`/inscripciones/${matricula.leadId}`)
+                                  }
+                                }}
+                              >
+                                {matricula.alumno.nombre}
+                              </button>
                               <span className="text-sm text-muted-foreground flex items-center gap-1" data-oid="hozwx9d">
                                 <Mail className="h-3 w-3" data-oid="wjf29f5" />
                                 {matricula.alumno.email}
@@ -467,13 +491,25 @@ export default function MatriculasPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" data-oid="36cp-ex">
-                              <DropdownMenuItem data-oid="3q2x-ff">
+                              <DropdownMenuItem
+                                data-oid="3q2x-ff"
+                                onClick={() => {
+                                  if (matricula.enrollmentId) {
+                                    router.push(`/matriculas/${matricula.enrollmentId}`)
+                                  } else {
+                                    router.push(`/inscripciones/${matricula.leadId}`)
+                                  }
+                                }}
+                              >
                                 <Eye className="mr-2 h-4 w-4" data-oid="nmiu9dd" />
                                 Ver detalles
                               </DropdownMenuItem>
-                              <DropdownMenuItem data-oid="h5n1kgr">
+                              <DropdownMenuItem
+                                data-oid="h5n1kgr"
+                                onClick={() => router.push(`/inscripciones/${matricula.leadId}`)}
+                              >
                                 <Edit className="mr-2 h-4 w-4" data-oid="52z3miu" />
-                                Editar
+                                Editar lead
                               </DropdownMenuItem>
                               <DropdownMenuSeparator data-oid="kzkznsi" />
                               <DropdownMenuItem className="text-destructive" data-oid="r_cj48z">
@@ -591,9 +627,18 @@ export default function MatriculasPage() {
         open={bulkDialogOpen}
         onOpenChange={setBulkDialogOpen}
         onComplete={() => {
-          console.log('Bulk enrollment completed')
+          void loadMatriculas()
         }}
         data-oid="ltoz810"
+      />
+
+      <NewEnrollmentDialog
+        open={newEnrollmentDialogOpen}
+        onOpenChange={setNewEnrollmentDialogOpen}
+        onCreated={(enrollmentId) => {
+          void loadMatriculas()
+          router.push(`/matriculas/${enrollmentId}`)
+        }}
       />
     </div>
   )
