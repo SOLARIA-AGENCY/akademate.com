@@ -5,6 +5,7 @@ const findByIDMock = vi.fn();
 const findMock = vi.fn();
 const createMock = vi.fn();
 const updateMock = vi.fn();
+const queryFirstMock = vi.fn();
 
 vi.mock('@payloadcms/next/utilities', () => ({
   getPayloadHMR: vi.fn(async () => ({
@@ -19,12 +20,22 @@ vi.mock('@payload-config', () => ({
   default: {},
 }));
 
+vi.mock('@/@payload-config/lib/db', () => ({
+  queryFirst: queryFirstMock,
+}));
+
 describe('LMS progress route resilience', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    queryFirstMock.mockResolvedValue({ exists: true });
   });
 
   it('returns 400 when enrollmentId is missing', async () => {
+    const { resetLessonProgressAvailabilityCache } = await import(
+      '../../app/api/lms/_lib/lessonProgressStorage'
+    );
+    resetLessonProgressAvailabilityCache();
+
     const { GET } = await import('../../app/api/lms/progress/route');
     const request = new NextRequest('http://localhost/api/lms/progress');
 
@@ -36,6 +47,13 @@ describe('LMS progress route resilience', () => {
   });
 
   it('returns empty progress payload when lesson_progress table is missing', async () => {
+    const { resetLessonProgressAvailabilityCache } = await import(
+      '../../app/api/lms/_lib/lessonProgressStorage'
+    );
+    resetLessonProgressAvailabilityCache();
+
+    queryFirstMock.mockResolvedValueOnce({ exists: false });
+
     findByIDMock.mockResolvedValue({
       id: '3',
       user: '2',
@@ -44,12 +62,6 @@ describe('LMS progress route resilience', () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
-
-    const missingRelationError = Object.assign(new Error('relation "lesson_progress" does not exist'), {
-      code: '42P01',
-    });
-
-    findMock.mockRejectedValueOnce(missingRelationError);
 
     const { GET } = await import('../../app/api/lms/progress/route');
     const request = new NextRequest('http://localhost/api/lms/progress?enrollmentId=3');
@@ -62,14 +74,16 @@ describe('LMS progress route resilience', () => {
     expect(json.data.enrollmentId).toBe('3');
     expect(json.data.progressPercent).toBe(0);
     expect(json.data.lessonProgress).toEqual([]);
+    expect(findMock).not.toHaveBeenCalled();
   });
 
   it('returns 503 on POST when lesson_progress storage is unavailable', async () => {
-    const missingRelationError = Object.assign(new Error('relation "lesson_progress" does not exist'), {
-      code: '42P01',
-    });
+    const { resetLessonProgressAvailabilityCache } = await import(
+      '../../app/api/lms/_lib/lessonProgressStorage'
+    );
+    resetLessonProgressAvailabilityCache();
 
-    findMock.mockRejectedValueOnce(missingRelationError);
+    queryFirstMock.mockResolvedValueOnce({ exists: false });
 
     const { POST } = await import('../../app/api/lms/progress/route');
     const request = new NextRequest('http://localhost/api/lms/progress', {

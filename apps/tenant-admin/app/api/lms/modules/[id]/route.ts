@@ -8,6 +8,7 @@ import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { isLessonProgressStorageAvailable } from '../../_lib/lessonProgressStorage';
 
 // ============================================================================
 // TypeScript Interfaces for LMS Data
@@ -127,6 +128,7 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const hasLessonProgressStorage = await isLessonProgressStorageAvailable();
     const { id: moduleId } = await params;
     const { searchParams } = new URL(request.url);
     const enrollmentId = searchParams.get('enrollmentId');
@@ -181,7 +183,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // 4. Get progress if enrollmentId provided
     const progressByLesson: ProgressByLesson = {};
-    if (enrollmentId) {
+    if (enrollmentId && hasLessonProgressStorage) {
       const progressResult = await payload.find({
         collection: 'lesson-progress' as 'users',
         where: {

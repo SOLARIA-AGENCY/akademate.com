@@ -12,6 +12,7 @@ import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { isLessonProgressStorageAvailable } from '../_lib/lessonProgressStorage';
 
 // ============================================================================
 // Type Definitions for LMS Collections (planned but not yet in Payload config)
@@ -109,6 +110,7 @@ function isMissingLessonProgressRelation(error: unknown): boolean {
  */
 export async function GET(request: NextRequest) {
     try {
+        const hasLessonProgressStorage = await isLessonProgressStorageAvailable();
         const { searchParams } = new URL(request.url);
         const enrollmentId = searchParams.get('enrollmentId');
 
@@ -140,17 +142,7 @@ export async function GET(request: NextRequest) {
         // Note: lesson-progress collection is planned but not yet implemented
         const payloadLMS = payload as unknown as PayloadWithLMS;
         let lessonProgress: LessonProgressFindResult;
-        try {
-            lessonProgress = await payloadLMS.find({
-                collection: 'lesson-progress',
-                where: { enrollment: { equals: enrollmentId } },
-                depth: 1,
-                limit: 500,
-            });
-        } catch (progressError) {
-            if (!isMissingLessonProgressRelation(progressError)) {
-                throw progressError;
-            }
+        if (!hasLessonProgressStorage) {
             lessonProgress = {
                 docs: [],
                 totalDocs: 0,
@@ -163,6 +155,31 @@ export async function GET(request: NextRequest) {
                 prevPage: null,
                 nextPage: null,
             };
+        } else {
+            try {
+                lessonProgress = await payloadLMS.find({
+                    collection: 'lesson-progress',
+                    where: { enrollment: { equals: enrollmentId } },
+                    depth: 1,
+                    limit: 500,
+                });
+            } catch (progressError) {
+                if (!isMissingLessonProgressRelation(progressError)) {
+                    throw progressError;
+                }
+                lessonProgress = {
+                    docs: [],
+                    totalDocs: 0,
+                    limit: 500,
+                    totalPages: 1,
+                    page: 1,
+                    pagingCounter: 1,
+                    hasPrevPage: false,
+                    hasNextPage: false,
+                    prevPage: null,
+                    nextPage: null,
+                };
+            }
         }
 
         // Calculate progress summary
@@ -211,6 +228,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
     try {
+        const hasLessonProgressStorage = await isLessonProgressStorageAvailable();
         const body = await request.json() as ProgressUpdateBody;
         const { enrollmentId, lessonId, isCompleted, timeSpent, lastPosition } = body;
 
@@ -224,6 +242,16 @@ export async function POST(request: NextRequest) {
          
         const payload: Payload = await getPayloadHMR({ config: configPromise });
         const payloadLMS = payload as unknown as PayloadWithLMS;
+
+        if (!hasLessonProgressStorage) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: 'LMS progress storage not available yet in this environment',
+                },
+                { status: 503 },
+            );
+        }
 
         // Check if progress record exists
         // Note: lesson-progress collection is planned but not yet implemented
