@@ -147,6 +147,10 @@ const CEP_PUBLIC_PREFIX_REWRITES: Array<{ source: string; target: string }> = [
   { source: '/contacto', target: '/p/contacto' },
 ]
 
+const DASHBOARD_ALIAS_REWRITES: Record<string, string> = {
+  '/dashboard/convocatorias': '/programacion',
+}
+
 function resolveCepPublicRewrite(pathname: string): string | null {
   if (CEP_PUBLIC_REWRITES[pathname]) {
     return CEP_PUBLIC_REWRITES[pathname]
@@ -159,6 +163,20 @@ function resolveCepPublicRewrite(pathname: string): string | null {
   }
 
   return null
+}
+
+function resolveDashboardRouteRewrite(pathname: string): string | null {
+  if (!pathname.startsWith('/dashboard/')) {
+    return null
+  }
+
+  const alias = DASHBOARD_ALIAS_REWRITES[pathname]
+  if (alias) {
+    return alias
+  }
+
+  const strippedPath = pathname.replace(/^\/dashboard/, '')
+  return strippedPath.length > 0 ? strippedPath : null
 }
 
 // FIX-16: DEV_AUTH_BYPASS removed. Authentication is always enforced.
@@ -410,6 +428,18 @@ export function middleware(request: NextRequest) {
     const loginUrl = new URL('/auth/login', request.url)
     loginUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(loginUrl)
+  }
+
+  // Dashboard canonical namespace compatibility:
+  // `/dashboard/*` rewrites to current internal dashboard pages (`/*`),
+  // while preserving `/dashboard` as the dashboard landing route.
+  if (!pathname.startsWith('/api/') && request.method === 'GET') {
+    const dashboardRewriteTarget = resolveDashboardRouteRewrite(pathname)
+    if (dashboardRewriteTarget) {
+      const rewriteUrl = request.nextUrl.clone()
+      rewriteUrl.pathname = dashboardRewriteTarget
+      return NextResponse.rewrite(rewriteUrl)
+    }
   }
 
   // For all other requests, add CORS, security, and rate limit headers
