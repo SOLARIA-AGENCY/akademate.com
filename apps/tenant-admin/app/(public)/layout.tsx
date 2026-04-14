@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import '../globals.css'
 import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
+import { PublicHeaderClient } from './_components/PublicHeaderClient'
 
 function getIconMimeType(url: string): string {
   if (url.endsWith('.svg')) return 'image/svg+xml'
@@ -63,6 +64,9 @@ type TenantData = {
   primaryColor: string
   metaPixelId: string
   ga4MeasurementId: string
+  phone1: string
+  phone2: string
+  isCepTenant: boolean
   whatsappContacts: Array<{ label: string; phone: string; shortCode: string; message: string }>
 }
 
@@ -78,10 +82,15 @@ async function getEmergencyTenantData(): Promise<TenantData> {
 
   return {
     name: cepFallback ? 'CEP Formación' : 'Academia',
-    logo: cepFallback ? '/logos/cep-formacion-logo.png' : '/logos/akademate-logo-official.png',
+    logo: cepFallback
+      ? '/logos/cep-formacion-logo-rectangular.png'
+      : '/logos/akademate-logo-official.png',
     primaryColor: cepFallback ? '#cc0000' : '#64748b',
     metaPixelId: '',
     ga4MeasurementId: '',
+    phone1: '',
+    phone2: '',
+    isCepTenant: cepFallback,
     whatsappContacts: [],
   }
 }
@@ -104,7 +113,9 @@ async function getTenantData(): Promise<TenantData> {
   try {
     const tenant = await getTenantHostBranding()
     const primaryColor = tenant.primaryColor || '#cc0000'
-    const logo = tenant.logoUrl
+    const logo = tenant.isCepTenant
+      ? '/logos/cep-formacion-logo-rectangular.png'
+      : tenant.logoUrl
     const academyName = tenant.academyName
     const phone1 = tenant.contactPhone
     const phone2 = tenant.contactPhoneAlternative
@@ -131,6 +142,9 @@ async function getTenantData(): Promise<TenantData> {
       primaryColor,
       metaPixelId: tenant.metaPixelId,
       ga4MeasurementId: tenant.ga4MeasurementId,
+      phone1,
+      phone2,
+      isCepTenant: tenant.isCepTenant,
       whatsappContacts,
     }
   } catch {
@@ -185,31 +199,16 @@ fbq('track', 'PageView');`,
           .brand-ring:focus { --tw-ring-color: ${c}; }
         `}</style>
 
-        {/* Header */}
-        <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <a href="/" className="flex items-center gap-3">
-                <img src={tenant.logo} alt={tenant.name} className="h-8 w-8 object-contain" />
-                <span className="font-bold text-lg text-gray-900">{tenant.name}</span>
-              </a>
-              <nav className="hidden lg:flex items-center gap-5">
-                <a href="/p/ciclos" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Ciclos FP</a>
-                <a href="/p/cursos?tipo=privados" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Privados</a>
-                <a href="/p/cursos?tipo=desempleados" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Desempleados</a>
-                <a href="/p/cursos?tipo=ocupados" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Ocupados</a>
-                <a href="/p/cursos?tipo=teleformacion" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Teleformacion</a>
-                <a href="/p/convocatorias" className="text-sm font-medium text-gray-600 brand-hover transition-colors">Convocatorias</a>
-                <a href="/p/contacto" className="text-sm font-medium brand-btn px-4 py-2 rounded-lg transition-colors" style={{backgroundColor: c, color: '#fff'}}>Contacto</a>
-              </nav>
-              <button className="lg:hidden p-2 text-gray-600" aria-label="Menu">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-              </button>
-            </div>
-          </div>
-        </header>
+        <PublicHeaderClient
+          brandColor={c}
+          tenantName={tenant.name}
+          logoUrl={tenant.logo}
+          phone1={tenant.phone1}
+          phone2={tenant.phone2}
+          isCepTenant={tenant.isCepTenant}
+        />
 
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pt-12 sm:pt-14 md:pt-[5.5rem]">{children}</main>
 
         {/* Footer — uses brand color */}
         <footer className="brand-bg-dark text-gray-200 mt-16" style={{ backgroundColor: `color-mix(in srgb, ${c} 20%, #111827)` }}>
@@ -217,26 +216,29 @@ fbq('track', 'PageView');`,
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <img src={tenant.logo} alt={tenant.name} className="h-8 w-8 object-contain brightness-200" />
-                  <span className="font-bold text-lg text-white">{tenant.name}</span>
+                  <img
+                    src={tenant.logo}
+                    alt={tenant.name}
+                    className="h-9 w-auto object-contain brightness-200"
+                  />
                 </div>
-                <p className="text-sm text-gray-400">Centro de formacion profesional autorizado. Ciclos formativos oficiales y cursos especializados.</p>
+                <p className="text-sm text-gray-400">Centro de formación profesional autorizado. Ciclos formativos oficiales y cursos especializados.</p>
               </div>
               <div>
-                <h3 className="font-semibold text-white mb-4">Formacion</h3>
+                <h3 className="font-semibold text-white mb-4">Formación</h3>
                 <ul className="space-y-2 text-sm">
+                  <li><a href="/quienes-somos" className="hover:text-white transition-colors">Quiénes somos</a></li>
                   <li><a href="/p/ciclos" className="hover:text-white transition-colors">Ciclos Formativos</a></li>
                   <li><a href="/p/cursos" className="hover:text-white transition-colors">Cursos</a></li>
                   <li><a href="/p/convocatorias" className="hover:text-white transition-colors">Convocatorias Abiertas</a></li>
-                  <li><a href="/p/blog" className="hover:text-white transition-colors">Blog / Noticias</a></li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-semibold text-white mb-4">Legal</h3>
                 <ul className="space-y-2 text-sm">
-                  <li><a href="/p/legal/privacidad" className="hover:text-white transition-colors">Politica de Privacidad</a></li>
-                  <li><a href="/p/legal/terminos" className="hover:text-white transition-colors">Terminos y Condiciones</a></li>
-                  <li><a href="/p/legal/cookies" className="hover:text-white transition-colors">Politica de Cookies</a></li>
+                  <li><a href="/p/legal/privacidad" className="hover:text-white transition-colors">Política de Privacidad</a></li>
+                  <li><a href="/p/legal/terminos" className="hover:text-white transition-colors">Términos y Condiciones</a></li>
+                  <li><a href="/p/legal/cookies" className="hover:text-white transition-colors">Política de Cookies</a></li>
                 </ul>
               </div>
             </div>

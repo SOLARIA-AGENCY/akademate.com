@@ -5,7 +5,7 @@ import { headers } from 'next/headers'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
-const CEP_LOGO = '/logos/cep-formacion-logo.png'
+const CEP_LOGO = '/logos/cep-formacion-logo-rectangular.png'
 const CEP_FAVICON = '/logos/cep-formacion-isotipo.svg'
 
 type BrandingDefaults = {

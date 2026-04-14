@@ -53,9 +53,9 @@ const DEFAULT_BRANDING: TenantBranding = {
 const CEP_DEFAULT_BRANDING: TenantBranding = {
   academyName: 'CEP Formación',
   logos: {
-    principal: '/logos/cep-formacion-logo.png',
-    oscuro: '/logos/cep-formacion-logo.png',
-    claro: '/logos/cep-formacion-logo.png',
+    principal: '/logos/cep-formacion-logo-rectangular.png',
+    oscuro: '/logos/cep-formacion-logo-rectangular.png',
+    claro: '/logos/cep-formacion-logo-rectangular.png',
     favicon: '/logos/cep-formacion-isotipo.svg',
   },
   theme: {

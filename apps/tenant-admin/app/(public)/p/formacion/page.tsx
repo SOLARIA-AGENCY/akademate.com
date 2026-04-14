@@ -53,10 +53,25 @@ const AREAS = [
 ]
 
 const STATS = [
-  { value: '+25', label: 'Anos de experiencia' },
+  { value: '+25', label: 'Años de experiencia' },
   { value: '2', label: 'Sedes en Tenerife' },
   { value: '+50', label: 'Cursos disponibles' },
-  { value: '98%', label: 'Insercion laboral' },
+  { value: '98%', label: 'Inserción laboral' },
+]
+
+const WHY_CEP = [
+  {
+    title: 'Prácticas reales',
+    text: 'Programas conectados con empresas y entorno profesional.',
+  },
+  {
+    title: 'Oferta mixta',
+    text: 'Ciclos oficiales, cursos privados y formación subvencionada.',
+  },
+  {
+    title: 'Sedes activas',
+    text: 'Presencia física en Tenerife con atención académica continua.',
+  },
 ]
 
 const TIPOS = [
@@ -108,7 +123,7 @@ function LeadForm({ source, dark }: { source: string; dark?: boolean }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name.trim() || !form.email.trim()) { setError('Nombre y email obligatorios'); return }
+      if (!form.name.trim() || !form.email.trim()) { setError('Nombre y email obligatorios'); return }
     setSending(true); setError('')
 
     try {
@@ -131,8 +146,8 @@ function LeadForm({ source, dark }: { source: string; dark?: boolean }) {
           if ((window as any).fbq) (window as any).fbq('track', 'Lead', { content_name: source })
           if ((window as any).gtag) (window as any).gtag('event', 'generate_lead', { event_category: source })
         }
-      } else { setError('Error al enviar. Intentalo de nuevo.') }
-    } catch { setError('Error de conexion.') }
+      } else { setError('Error al enviar. Inténtalo de nuevo.') }
+    } catch { setError('Error de conexión.') }
     finally { setSending(false) }
   }
 
@@ -169,10 +184,10 @@ function LeadForm({ source, dark }: { source: string; dark?: boolean }) {
         <option value="ciclos">Ciclos FP (CFGM/CFGS)</option>
       </select>
       <button type="submit" disabled={sending} style={{ width: '100%', padding: 14, background: sending ? '#999' : '#cc0000', color: '#fff', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer' }}>
-        {sending ? 'Enviando...' : 'Solicitar informacion'}
+        {sending ? 'Enviando...' : 'Solicitar información'}
       </button>
       <p style={{ fontSize: 10, color: dark ? 'rgba(255,255,255,0.4)' : '#9ca3af', margin: '8px 0 0', textAlign: 'center' }}>
-        Al enviar aceptas nuestra <a href="/p/legal/privacidad" style={{ color: '#cc0000' }}>politica de privacidad</a>
+        Al enviar aceptas nuestra <a href="/p/legal/privacidad" style={{ color: '#cc0000' }}>política de privacidad</a>
       </p>
     </form>
   )
@@ -197,19 +212,19 @@ export default function FormacionLandingPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexWrap: 'wrap' as const, gap: 40, alignItems: 'center' }}>
           <div style={{ flex: '1 1 440px' }}>
             <div style={{ display: 'inline-block', background: '#cc0000', padding: '4px 12px', borderRadius: 4, fontSize: 12, fontWeight: 700, letterSpacing: 1, marginBottom: 16, textTransform: 'uppercase' as const }}>
-              Matricula abierta 2026
+              Matrícula abierta 2026
             </div>
             <h1 style={{ fontSize: 42, fontWeight: 800, margin: '0 0 16px', lineHeight: 1.15 }}>
               Tu futuro profesional<br />
-              <span style={{ color: '#cc0000' }}>comienza aqui</span>
+              <span style={{ color: '#cc0000' }}>comienza aquí</span>
             </h1>
             <p style={{ fontSize: 18, opacity: 0.85, margin: '0 0 12px', lineHeight: 1.6 }}>
-              Formacion profesional con practicas reales en empresas de Tenerife. Centro homologado por el Ministerio de Educacion desde 1998.
+              Formación profesional con prácticas reales en empresas de Tenerife. Centro homologado por el Ministerio de Educación desde 1998.
             </p>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' as const, margin: '20px 0 0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, opacity: 0.8 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
-                Practicas en empresas
+                Prácticas en empresas
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, opacity: 0.8 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
@@ -222,7 +237,7 @@ export default function FormacionLandingPage() {
             </div>
           </div>
           <div style={{ flex: '1 1 320px', background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 28, backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', textAlign: 'center' }}>Solicita informacion gratis</h3>
+            <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', textAlign: 'center' }}>Solicita información gratis</h3>
             <p style={{ fontSize: 13, opacity: 0.6, margin: '0 0 16px', textAlign: 'center' }}>Sin compromiso. Te llamamos en 24h.</p>
             <LeadForm source="hero-formacion" dark />
           </div>
@@ -238,6 +253,35 @@ export default function FormacionLandingPage() {
               <p style={{ fontSize: 13, opacity: 0.85, margin: 0 }}>{s.label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ============ POR QUÉ CEP ============ */}
+      <section style={{ padding: '60px 20px', background: '#fff' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <h2 style={{ fontSize: 32, fontWeight: 700, margin: '0 0 8px' }}>¿Por qué CEP?</h2>
+            <p style={{ fontSize: 16, color: '#6b7280', margin: 0 }}>
+              Mismo tono de marca, estructura más mantenible.
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+            {WHY_CEP.map((item) => (
+              <article
+                key={item.title}
+                style={{
+                  background: '#f9fafb',
+                  borderRadius: 12,
+                  padding: 24,
+                  border: '1px solid #e5e7eb',
+                  borderTop: '4px solid #cc0000',
+                }}
+              >
+                <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px', color: '#111' }}>{item.title}</h3>
+                <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.6 }}>{item.text}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -128,6 +128,37 @@ const payloadAdminPaths = [
   '/admin',  // Native Payload CMS admin panel
 ]
 
+function isCepHost(hostname: string): boolean {
+  const normalizedHost = hostname.toLowerCase().replace(/:\d+$/, '')
+  return /(^|\.)cepformacion(\.|$)/i.test(normalizedHost) || normalizedHost.includes('cep-formacion')
+}
+
+const CEP_PUBLIC_REWRITES: Record<string, string> = {
+  '/': '/p/formacion',
+  '/quienes-somos': '/p/quienes-somos',
+}
+
+const CEP_PUBLIC_PREFIX_REWRITES: Array<{ source: string; target: string }> = [
+  { source: '/cursos', target: '/p/cursos' },
+  { source: '/ciclos', target: '/p/ciclos' },
+  { source: '/convocatorias', target: '/p/convocatorias' },
+  { source: '/contacto', target: '/p/contacto' },
+]
+
+function resolveCepPublicRewrite(pathname: string): string | null {
+  if (CEP_PUBLIC_REWRITES[pathname]) {
+    return CEP_PUBLIC_REWRITES[pathname]
+  }
+
+  for (const rule of CEP_PUBLIC_PREFIX_REWRITES) {
+    if (pathname === rule.source || pathname.startsWith(`${rule.source}/`)) {
+      return pathname.replace(rule.source, rule.target)
+    }
+  }
+
+  return null
+}
+
 // FIX-16: DEV_AUTH_BYPASS removed. Authentication is always enforced.
 // Use /dev/auto-login (development-only) for convenient local login.
 
@@ -204,6 +235,16 @@ export function middleware(request: NextRequest) {
     const httpsUrl = new URL(request.url)
     httpsUrl.protocol = 'https:'
     return NextResponse.redirect(httpsUrl, 301)
+  }
+
+  // Canonical public routes for CEP host
+  if (!pathname.startsWith('/api/') && request.method === 'GET' && isCepHost(host)) {
+    const rewriteTarget = resolveCepPublicRewrite(pathname)
+    if (rewriteTarget) {
+      const rewriteUrl = request.nextUrl.clone()
+      rewriteUrl.pathname = rewriteTarget
+      return NextResponse.rewrite(rewriteUrl)
+    }
   }
 
   // =========================================================================
