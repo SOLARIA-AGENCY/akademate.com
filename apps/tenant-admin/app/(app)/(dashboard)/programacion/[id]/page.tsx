@@ -207,7 +207,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                 {campus.address && <p className="text-muted-foreground">{campus.address}</p>}
                 {campus.city && <p className="text-muted-foreground">{campus.city}{campus.postal_code ? `, ${campus.postal_code}` : ''}</p>}
                 {campus.phone && <p className="text-muted-foreground">{campus.phone}</p>}
-                <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => router.push(`/sedes/${campus.id}`)}>
+                <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => router.push(`/dashboard/sedes/${campus.id}`)}>
                   Ver sede <ChevronRight className="h-3 w-3 ml-1" />
                 </Button>
               </CardContent>
@@ -245,13 +245,13 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
               </CardHeader>
               <CardContent className="space-y-2">
                 {cycle && (
-                  <Button variant="outline" size="sm" className="w-full justify-between" onClick={() => router.push(`/ciclos/${cycle.id}`)}>
+                  <Button variant="outline" size="sm" className="w-full justify-between" onClick={() => router.push(`/dashboard/ciclos/${cycle.id}`)}>
                     <span className="flex items-center gap-2"><GraduationCap className="h-3 w-3" />{cycle.name}</span>
                     <ChevronRight className="h-3 w-3" />
                   </Button>
                 )}
                 {course && (
-                  <Button variant="outline" size="sm" className="w-full justify-between" onClick={() => router.push(`/cursos/${course.id}`)}>
+                  <Button variant="outline" size="sm" className="w-full justify-between" onClick={() => router.push(`/dashboard/cursos/${course.id}`)}>
                     <span className="flex items-center gap-2"><BookOpen className="h-3 w-3" />{course.name || course.title}</span>
                     <ChevronRight className="h-3 w-3" />
                   </Button>

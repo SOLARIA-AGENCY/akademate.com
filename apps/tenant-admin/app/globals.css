@@ -1,5 +1,45 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Poppins';
+  src: url('/website/cep/fonts/poppins-v21-latin-300.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/website/cep/fonts/poppins-v21-latin-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/website/cep/fonts/poppins-v21-latin-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/website/cep/fonts/poppins-v21-latin-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/website/cep/fonts/poppins-v21-latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /*
  * Tailwind v4 @theme inline — mapea CSS variables a tokens de color de Tailwind.
  * Esto es necesario para que utilities como text-popover-foreground, bg-accent, etc.
@@ -200,6 +240,10 @@ body:not([data-payload-admin]) {
     --brand-accent: 221 83% 63%;
     --brand-accent-foreground: 0 0% 100%;
   }
+}
+
+.public-site {
+  font-family: 'Poppins', var(--font-sans);
 }
 
 /*

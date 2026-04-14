@@ -217,7 +217,7 @@ export default function CicloDetallePage({ params }: Props) {
     return (
       <div className="space-y-6">
         <PageHeader title="Ciclo" description="Detalle de ciclo" icon={GraduationCap}
-          actions={<Button variant="ghost" onClick={() => router.push('/ciclos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
+          actions={<Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
         <Card><CardContent className="p-8 text-center">
           <p className="font-medium">No se pudo cargar el ciclo</p>
           <p className="text-sm text-muted-foreground mt-1">{error}</p>
@@ -278,13 +278,13 @@ export default function CicloDetallePage({ params }: Props) {
           </div>
         }
         actions={<>
-          <Button variant="ghost" onClick={() => router.push('/ciclos')}>
+          <Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}>
             <ArrowLeft className="mr-2 h-4 w-4" />Volver
           </Button>
           <Button variant="outline" onClick={() => window.print()}>
             <Printer className="mr-2 h-4 w-4" />Imprimir
           </Button>
-          <Button onClick={() => router.push(`/ciclos/${id}/editar`)}>
+          <Button onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
             <Edit className="mr-2 h-4 w-4" />Editar Ciclo
           </Button>
         </>}

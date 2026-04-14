@@ -10,6 +10,24 @@ interface RouteContext {
   params: Promise<{ id: string }>
 }
 
+const ALLOWED_LEAD_STATUSES = new Set([
+  'new',
+  'contacted',
+  'following_up',
+  'interested',
+  'on_hold',
+  'enrolling',
+  'enrolled',
+  'not_interested',
+  'unreachable',
+  'discarded',
+  // Legacy statuses (read/update compatibility)
+  'qualified',
+  'converted',
+  'rejected',
+  'spam',
+])
+
 function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
   if (typeof value === 'string' && /^\d+$/.test(value)) return parseInt(value, 10)
@@ -65,6 +83,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       if (body[field] !== undefined) payloadData[field] = body[field]
     }
 
+    if (payloadData.status !== undefined && !ALLOWED_LEAD_STATUSES.has(String(payloadData.status))) {
+      return NextResponse.json(
+        { error: `Estado inválido "${String(payloadData.status)}"` },
+        { status: 400 },
+      )
+    }
+
     if (Object.keys(payloadData).length > 0) {
       await payload.update({ collection: 'leads', id, data: payloadData as any })
     }
@@ -85,13 +110,21 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
       if (sqlSets.length > 0) {
         sqlSets.push('updated_at = NOW()')
-        await drizzle.execute(`UPDATE leads SET ${sqlSets.join(', ')} WHERE id = ${toPositiveInt(id) ?? 0}`).catch(() => {})
+        await drizzle.execute(`UPDATE leads SET ${sqlSets.join(', ')} WHERE id = ${toPositiveInt(id) ?? 0}`)
       }
     }
 
-    return NextResponse.json({ success: true, id })
+    const updatedLead = await payload.findByID({ collection: 'leads', id, depth: 0 })
+    return NextResponse.json({ success: true, id, lead: updatedLead })
   } catch (error) {
     console.error('[API][Leads] PATCH error:', error)
+    const message = error instanceof Error ? error.message : 'Failed to update lead'
+    if (/invalid input value for enum/i.test(message) || /enum_leads_status/i.test(message)) {
+      return NextResponse.json(
+        { error: `No se pudo guardar el estado. Falta migración de estados CRM en base de datos. (${message})` },
+        { status: 400 },
+      )
+    }
     return NextResponse.json({ error: 'Failed to update lead' }, { status: 500 })
   }
 }

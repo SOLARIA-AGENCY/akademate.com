@@ -383,7 +383,7 @@ export default function NuevaSedeRage() {
       }
 
       const result = await res.json()
-      router.push(result.doc?.id ? `/sedes/${result.doc.id}` : '/sedes')
+      router.push(result.doc?.id ? `/dashboard/sedes/${result.doc.id}` : '/dashboard/sedes')
     } catch (err) {
       console.error('Error creating campus:', err)
       setError(err instanceof Error ? err.message : 'Error desconocido')
@@ -404,7 +404,7 @@ export default function NuevaSedeRage() {
       />
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => router.push('/sedes')}>
+        <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/sedes')}>
           <ArrowLeft className="h-4 w-4 mr-1" />
           Volver a Sedes
         </Button>
@@ -1169,7 +1169,7 @@ export default function NuevaSedeRage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push('/sedes')}
+            onClick={() => router.push('/dashboard/sedes')}
             disabled={saving}
           >
             Cancelar

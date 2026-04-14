@@ -102,7 +102,7 @@ export default function TodosLosCiclosPage() {
       setLimitModal({ open: true, current: ciclosData.length, limit })
       return
     }
-    router.push('/ciclos/nuevo')
+    router.push('/dashboard/ciclos/nuevo')
   }
 
   // Calculate stats
@@ -219,7 +219,7 @@ export default function TodosLosCiclosPage() {
   })
 
   const handleViewCiclo = (ciclo: Ciclo) => {
-    router.push(`/ciclos/${ciclo.id}`)
+    router.push(`/dashboard/ciclos/${ciclo.id}`)
   }
 
   return (

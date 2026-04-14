@@ -1512,7 +1512,7 @@ export default function DesignSystemPage() {
                 </a>
               </Button>
               <Button variant="outline" asChild data-oid="l:4csz7">
-                <a href="/cursos" data-oid="7jk.d7v">
+                <a href="/dashboard/cursos" data-oid="7jk.d7v">
                   Módulo Cursos
                 </a>
               </Button>

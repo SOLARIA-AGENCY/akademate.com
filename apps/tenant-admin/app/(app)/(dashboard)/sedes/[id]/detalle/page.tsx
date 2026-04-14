@@ -201,7 +201,7 @@ function DetalleSedePage({ id }: { id: string }) {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
         <PageHeader title="Error" icon={MapPin}
-          actions={<Button variant="outline" onClick={() => router.push('/sedes')}><ArrowLeft className="h-4 w-4 mr-2" />Volver</Button>}
+          actions={<Button variant="outline" onClick={() => router.push('/dashboard/sedes')}><ArrowLeft className="h-4 w-4 mr-2" />Volver</Button>}
         />
         <Card>
           <CardContent className="py-10 text-center text-destructive">
@@ -234,8 +234,8 @@ function DetalleSedePage({ id }: { id: string }) {
         icon={MapPin}
         badge={<Badge variant={sede.active !== false ? 'default' : 'secondary'}>{sede.active !== false ? 'Activa' : 'Inactiva'}</Badge>}
         actions={<>
-          <Button variant="ghost" onClick={() => router.push('/sedes')}><ArrowLeft className="mr-2 h-4 w-4" />Sedes</Button>
-          <Button onClick={() => router.push(`/sedes/${id}/editar`)}><Edit className="mr-2 h-4 w-4" />Editar Sede</Button>
+          <Button variant="ghost" onClick={() => router.push('/dashboard/sedes')}><ArrowLeft className="mr-2 h-4 w-4" />Sedes</Button>
+          <Button onClick={() => router.push(`/dashboard/sedes/${id}/editar`)}><Edit className="mr-2 h-4 w-4" />Editar Sede</Button>
         </>}
       />
 

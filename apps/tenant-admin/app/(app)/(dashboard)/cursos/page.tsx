@@ -26,6 +26,7 @@ import { CourseTemplateCard } from '@payload-config/components/ui/CourseTemplate
 import { CourseListItem } from '@payload-config/components/ui/CourseListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
+import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
 
 // Local type definition to avoid ESLint path resolution issues
 type ViewMode = 'grid' | 'list'
@@ -42,11 +43,50 @@ interface ApiResponse {
   error?: string
 }
 
+const PRIMARY_COURSE_TYPES = ['privados', 'ocupados', 'desempleados', 'teleformacion'] as const
+type DashboardCourseType = (typeof PRIMARY_COURSE_TYPES)[number]
+type DashboardFilterType = 'all' | DashboardCourseType
+
+const TYPE_DISPLAY_ORDER: DashboardCourseType[] = [
+  'ocupados',
+  'desempleados',
+  'privados',
+  'teleformacion',
+]
+
+const TYPE_ICONS: Record<DashboardCourseType, typeof Lock> = {
+  privados: Lock,
+  ocupados: Briefcase,
+  desempleados: Building2,
+  teleformacion: Monitor,
+}
+
+function normalizeDashboardCourseType(value: string | null | undefined): DashboardCourseType | null {
+  if (!value) return null
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9_\\-]+/g, '_')
+
+  if (['privado', 'privados', 'priv', 'pri'].includes(normalized)) return 'privados'
+  if (['ocupado', 'ocupados', 'ocu'].includes(normalized)) return 'ocupados'
+  if (['desempleado', 'desempleados', 'des'].includes(normalized)) return 'desempleados'
+  if (['teleformacion', 'tele_formacion', 'tele'].includes(normalized)) return 'teleformacion'
+  // En esta pantalla de 4 categorías, los ciclos del catálogo legacy se tratan como privados.
+  if (['ciclo_medio', 'ciclo-medio', 'grado_medio', 'cfgm'].includes(normalized)) return 'privados'
+  if (['ciclo_superior', 'ciclo-superior', 'grado_superior', 'cfgs'].includes(normalized)) return 'privados'
+
+  return null
+}
+
 // Main component that uses useSearchParams
 function CursosPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tipo = searchParams.get('tipo')
+  const selectedTypeFromUrl = normalizeDashboardCourseType(tipo)
 
   // View preference (eslint path alias resolution workaround)
 
@@ -56,7 +96,9 @@ function CursosPageContent() {
 
   // Filtros
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterType, setFilterType] = useState(tipo ?? 'all')
+  const [filterType, setFilterType] = useState<DashboardFilterType>(
+    selectedTypeFromUrl ?? 'all'
+  )
   const [filterArea, setFilterArea] = useState('all')
 
   // State para cursos y carga
@@ -70,10 +112,8 @@ function CursosPageContent() {
 
   // Sincronizar filterType con searchParams
   useEffect(() => {
-    if (tipo) {
-      setFilterType(tipo)
-    }
-  }, [tipo])
+    setFilterType(selectedTypeFromUrl ?? 'all')
+  }, [selectedTypeFromUrl])
 
   // Cargar cursos desde API con retry logic
   useEffect(() => {
@@ -160,29 +200,76 @@ function CursosPageContent() {
       setLimitModal({ open: true, current: cursos.length, limit })
       return
     }
-    router.push('/cursos/nuevo')
+    router.push('/dashboard/cursos/nuevo')
   }
 
   const handleViewCourse = (course: PlantillaCurso) => {
-    router.push(`/cursos/${course.id}`)
+    router.push(`/dashboard/cursos/${course.id}`)
   }
 
-  // Filtrado de cursos
-  const filteredCourses = cursos.filter((course) => {
+  const goToTypePage = (type: DashboardCourseType) => {
+    router.push(`/dashboard/cursos?tipo=${encodeURIComponent(type)}`)
+  }
+
+  const goToTypeLanding = () => {
+    router.push('/dashboard/cursos')
+  }
+
+  const getCourseType = (course: PlantillaCurso): DashboardCourseType =>
+    normalizeDashboardCourseType((course as PlantillaCurso & { studyType?: string }).studyType ?? course.tipo) ??
+    'privados'
+
+  // Filtrado base (sin tipo) para construir cards dinámicas por categoría
+  const baseFilteredCourses = cursos.filter((course) => {
     const searchLower = searchTerm.toLowerCase()
     const matchesSearch =
       course.nombre.toLowerCase().includes(searchLower) ||
       (course.descripcion?.toLowerCase().includes(searchLower) ?? false) ||
       (course.area?.toLowerCase().includes(searchLower) ?? false)
-
-    const matchesType = filterType === 'all' || course.tipo === filterType
     const matchesArea = filterArea === 'all' || course.area === filterArea
 
-    return matchesSearch && matchesType && matchesArea
+    return matchesSearch && matchesArea
   })
 
+  const typeCounts = TYPE_DISPLAY_ORDER.reduce<Record<DashboardCourseType, number>>(
+    (acc, key) => ({ ...acc, [key]: 0 }),
+    {
+      privados: 0,
+      ocupados: 0,
+      desempleados: 0,
+      teleformacion: 0,
+    }
+  )
+
+  baseFilteredCourses.forEach((course) => {
+    const type = getCourseType(course)
+    typeCounts[type] += 1
+  })
+
+  // Filtrado final (incluye tipo)
+  const filteredCourses = baseFilteredCourses.filter((course) => {
+    if (filterType === 'all') return true
+    return getCourseType(course) === filterType
+  })
+
+  const visibleTypes =
+    filterType === 'all' ? TYPE_DISPLAY_ORDER.filter((type) => typeCounts[type] > 0) : [filterType]
+
+  const groupedCourses = visibleTypes.map((type) => ({
+    type,
+    courses: filteredCourses.filter((course) => getCourseType(course) === type),
+  }))
+
+  const isTypeLandingPage = !selectedTypeFromUrl
+
   // Configure header based on filter
-  const tiposConfig = {
+  const tiposConfig: Record<DashboardCourseType, {
+    title: string
+    description: string
+    icon: typeof Lock
+    color: string
+    bgColor: string
+  }> = {
     privados: {
       title: 'Cursos Privados',
       description: 'Cursos de formación privada para empresas y particulares',
@@ -213,35 +300,77 @@ function CursosPageContent() {
     },
   }
 
-  const config = tipo ? tiposConfig[tipo as keyof typeof tiposConfig] : undefined
+  const config = filterType !== 'all' ? tiposConfig[filterType] : undefined
   const Icon = config?.icon ?? List
 
   return (
     <div className="space-y-6" data-oid="bkc0c9v">
       <PageHeader
-        title={config?.title ?? 'Catálogo de Cursos'}
-        description={config?.description ?? 'Gestiona y organiza tu oferta formativa.'}
+        title={isTypeLandingPage ? 'Tipos de Cursos' : (config?.title ?? 'Catálogo de Cursos')}
+        description={
+          isTypeLandingPage
+            ? 'Selecciona un tipo para ver su catálogo de cursos.'
+            : (config?.description ?? 'Gestiona y organiza tu oferta formativa.')
+        }
         icon={Icon}
         iconBgColor={config?.bgColor ?? 'bg-primary/10'}
         iconColor={config?.color ?? 'text-primary'}
         badge={
           <Badge variant="secondary" data-oid="m2mems3">
-            {filteredCourses.length} cursos
+            {isTypeLandingPage ? `${PRIMARY_COURSE_TYPES.length} categorías` : `${filteredCourses.length} cursos`}
           </Badge>
         }
         actions={
-          <Button onClick={handleAdd} data-oid="dn:ljue">
-            <Plus className="h-4 w-4" data-oid="mp04.p1" />
-            Nuevo Curso
-          </Button>
+          <div className="flex items-center gap-2">
+            {!isTypeLandingPage && (
+              <Button variant="outline" onClick={goToTypeLanding}>
+                Ver tipos
+              </Button>
+            )}
+            <Button onClick={handleAdd} data-oid="dn:ljue">
+              <Plus className="h-4 w-4" data-oid="mp04.p1" />
+              Nuevo Curso
+            </Button>
+          </div>
         }
         data-oid="-ia7n0u"
       />
 
       <UsageBar resource="cursos" current={cursos.length} limit={getLimit(plan, 'cursos')} />
 
+      {/* Landing de tipos de curso */}
+      {!loading && !error && isTypeLandingPage && (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {PRIMARY_COURSE_TYPES.map((type) => {
+            const style = COURSE_TYPE_CONFIG[type]
+            const IconByType = TYPE_ICONS[type]
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => goToTypePage(type)}
+                className="text-left"
+              >
+                <Card className="border transition-all hover:shadow-sm hover:border-primary">
+                  <CardContent className="p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold text-white ${style.bgColor}`}>
+                        {style.label}
+                      </span>
+                      <IconByType className={`h-4 w-4 ${style.textColor}`} />
+                    </div>
+                    <p className="text-2xl font-bold">{typeCounts[type]}</p>
+                    <p className="text-xs text-muted-foreground">cursos</p>
+                  </CardContent>
+                </Card>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       {/* Filtros - Estandarizados para todas las vistas */}
-      <Card className="bg-card" data-oid="0gd1z6-">
+      {!isTypeLandingPage && <Card className="bg-card" data-oid="0gd1z6-">
         <CardContent className="pt-6" data-oid=".w7czcl">
           <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="ohwi565">
             <div className="min-w-[260px] flex-1" data-oid="gnnziad">
@@ -260,32 +389,6 @@ function CursosPageContent() {
                 />
               </div>
             </div>
-
-            {/* SELECTOR DE TIPO: Solo en vista global */}
-            {(!tipo || tipo === 'all') && (
-              <Select value={filterType} onValueChange={setFilterType} data-oid="hngfo9s">
-                <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="7_zgf3v">
-                  <SelectValue placeholder="Todos los cursos" data-oid="-smqua7" />
-                </SelectTrigger>
-                <SelectContent data-oid="duje1hp">
-                  <SelectItem value="all" data-oid="37_0.zn">
-                    Todos los cursos
-                  </SelectItem>
-                  <SelectItem value="privados" data-oid="vqwrue-">
-                    Privados
-                  </SelectItem>
-                  <SelectItem value="teleformacion" data-oid="_6z43vb">
-                    Teleformación
-                  </SelectItem>
-                  <SelectItem value="ocupados" data-oid="ad6ithf">
-                    Ocupados
-                  </SelectItem>
-                  <SelectItem value="desempleados" data-oid="k5.5pq1">
-                    Desempleados
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            )}
 
             {/* FILTRO POR ÁREA */}
             <Select value={filterArea} onValueChange={setFilterArea} data-oid="i0ek:n_">
@@ -317,7 +420,6 @@ function CursosPageContent() {
                 size="sm"
                 onClick={() => {
                   setSearchTerm('')
-                  setFilterType('all')
                   setFilterArea('all')
                 }}
                 data-oid="fb8q3px"
@@ -327,7 +429,7 @@ function CursosPageContent() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card>}
 
       {/* Loading State */}
       {loading && (
@@ -352,29 +454,53 @@ function CursosPageContent() {
       )}
 
       {/* Grid o Lista de Cursos */}
-      {!loading && !error && view === 'grid' && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid="3kr--1i">
-          {filteredCourses.map((course) => (
-            <CourseTemplateCard
-              key={course.id}
-              template={course}
-              onClick={() => handleViewCourse(course)}
-              data-oid="jicucw1"
-            />
-          ))}
-        </div>
-      )}
+      {!loading && !error && !isTypeLandingPage && groupedCourses.length > 0 && (
+        <div className="space-y-8">
+          {groupedCourses.map((group) => {
+            if (group.courses.length === 0) return null
+            const style = COURSE_TYPE_CONFIG[group.type]
+            return (
+              <section key={group.type} className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className={`h-2.5 w-2.5 rounded-full ${style.dotColor}`} />
+                    <h2 className="text-lg font-semibold">{tiposConfig[group.type]?.title ?? style.label}</h2>
+                  </div>
+                  <Badge variant="secondary">{group.courses.length}</Badge>
+                </div>
 
-      {!loading && !error && view === 'list' && (
-        <div className="flex flex-col gap-4" data-oid="9hy8e7h">
-          {filteredCourses.map((course) => (
-            <CourseListItem
-              key={course.id}
-              course={course}
-              onClick={() => handleViewCourse(course)}
-              data-oid="_gjcoji"
-            />
-          ))}
+                {view === 'grid' ? (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid="3kr--1i">
+                    {group.courses.map((course) => (
+                      <CourseTemplateCard
+                        key={course.id}
+                        template={{
+                          ...course,
+                          tipo: getCourseType(course),
+                        }}
+                        onClick={() => handleViewCourse(course)}
+                        data-oid="jicucw1"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4" data-oid="9hy8e7h">
+                    {group.courses.map((course) => (
+                      <CourseListItem
+                        key={course.id}
+                        course={{
+                          ...course,
+                          tipo: getCourseType(course),
+                        }}
+                        onClick={() => handleViewCourse(course)}
+                        data-oid="_gjcoji"
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )
+          })}
         </div>
       )}
 

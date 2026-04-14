@@ -17,6 +17,14 @@ interface Area {
   activo: boolean
 }
 
+function parseAreasResponse(payload: unknown): Area[] {
+  if (!payload || typeof payload !== 'object') return []
+  const obj = payload as { docs?: unknown; data?: unknown }
+  if (Array.isArray(obj.docs)) return obj.docs as Area[]
+  if (Array.isArray(obj.data)) return obj.data as Area[]
+  return []
+}
+
 export default function AreasEstudioPage() {
   const [areas, setAreas] = useState<Area[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,10 +41,14 @@ export default function AreasEstudioPage() {
   const fetchAreas = async () => {
     try {
       const res = await fetch('/api/areas-formativas?limit=100&sort=nombre')
+      if (!res.ok) {
+        throw new Error(`Error ${res.status} cargando áreas`)
+      }
       const data = await res.json()
-      setAreas(data.docs ?? [])
+      setAreas(parseAreasResponse(data))
     } catch {
       console.error('Error fetching areas')
+      setAreas([])
     } finally {
       setLoading(false)
     }

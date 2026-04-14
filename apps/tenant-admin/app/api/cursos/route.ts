@@ -3,6 +3,7 @@ import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
+import { normalizeStudyType } from '@/app/lib/website/study-types';
 
 /**
  * TypeScript interfaces for type safety
@@ -19,6 +20,7 @@ interface CursoRequestBody {
   nombre: string;
   area_formativa_id: string;
   tipo: string;
+  studyType?: string;
   descripcion?: string;
   duracion_referencia?: string;
   precio_referencia?: string;
@@ -95,6 +97,7 @@ export async function POST(request: NextRequest) {
       nombre,
       area_formativa_id,
       tipo,
+      studyType,
       descripcion,
       duracion_referencia,
       precio_referencia,
@@ -109,9 +112,9 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validaciones básicas
-    if (!nombre || !area_formativa_id || !tipo) {
+    if (!nombre || !area_formativa_id || (!tipo && !studyType)) {
       return NextResponse.json(
-        { success: false, error: 'Campos requeridos: nombre, area_formativa_id, tipo' },
+        { success: false, error: 'Campos requeridos: nombre, area_formativa_id, tipo|studyType' },
         { status: 400 }
       );
     }
@@ -147,7 +150,15 @@ export async function POST(request: NextRequest) {
       teleformacion: 'teleformacion',
     };
 
-    const tipoCode = TIPO_CODES[tipo];
+    const normalizedStudyType = normalizeStudyType(studyType ?? tipo);
+    if (!normalizedStudyType || normalizedStudyType === 'ciclo_medio' || normalizedStudyType === 'ciclo_superior') {
+      return NextResponse.json(
+        { success: false, error: 'Tipo de estudio inválido para cursos (usa: privados, ocupados, desempleados o teleformacion)' },
+        { status: 400 }
+      );
+    }
+
+    const tipoCode = TIPO_CODES[normalizedStudyType];
     if (!tipoCode) {
       return NextResponse.json(
         { success: false, error: 'Tipo de curso inválido' },
@@ -155,7 +166,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const courseType = TIPO_TO_COURSE_TYPE[tipo];
+    const courseType = TIPO_TO_COURSE_TYPE[normalizedStudyType];
 
     const prefix = `${area.codigo}-${tipoCode}-`;
 
@@ -239,20 +250,34 @@ export async function GET() {
   try {
      
     const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const PAGE_SIZE = 100;
+    const courseDocs: CourseDocument[] = [];
+    let page = 1;
+    let totalDocs = 0;
+    let hasNextPage = true;
 
-    const cursos = await payload.find({
-      collection: 'courses',
-      where: {
-        course_type: {
-          not_in: ['ciclo_medio', 'ciclo_superior'],
+    while (hasNextPage) {
+      const cursosPage = await payload.find({
+        collection: 'courses',
+        where: {
+          course_type: {
+            not_in: ['ciclo_medio', 'ciclo_superior'],
+          },
         },
-      },
-      limit: 100,
-      sort: '-createdAt',
-      depth: 2, // Populate relationships (area_formativa)
-    });
+        limit: PAGE_SIZE,
+        page,
+        sort: '-createdAt',
+        depth: 2, // Populate relationships (area_formativa)
+      });
 
-    const courseDocs = cursos.docs as unknown as CourseDocument[];
+      if (page === 1) {
+        totalDocs = cursosPage.totalDocs;
+      }
+
+      courseDocs.push(...(cursosPage.docs as unknown as CourseDocument[]));
+      hasNextPage = Boolean(cursosPage.hasNextPage);
+      page += 1;
+    }
 
     const response = NextResponse.json({
       success: true,
@@ -276,6 +301,7 @@ export async function GET() {
           codigo: curso.codigo,
           nombre: curso.name,
           tipo: curso.course_type,
+          studyType: normalizeStudyType(curso.course_type),
           descripcion: curso.short_description ?? 'Curso de formación profesional',
           area: areaName,
           duracionReferencia: curso.duration_hours ?? 0,
@@ -285,7 +311,7 @@ export async function GET() {
           totalConvocatorias: 0, // TODO: Contar convocatorias activas
         };
       }),
-      total: cursos.totalDocs,
+      total: totalDocs,
     });
 
     // Cache por 10 segundos, revalidar en background

@@ -211,7 +211,10 @@ export default function DashboardPage() {
 
       const payload = (await response.json()) as { data?: LmsEnrollment[] }
       const enrollments = payload.data ?? []
-      const activeEnrollments = enrollments.filter((item) => item.status === 'active').length
+      const activeStatuses = new Set(['active', 'pending', 'confirmed', 'enrolled', 'in_progress'])
+      const activeEnrollments = enrollments.filter((item) =>
+        activeStatuses.has(String(item.status ?? '').toLowerCase())
+      ).length
       const completedCount = enrollments.filter(
         (item) => (item.progress?.percent ?? 0) >= 100 || item.status === 'completed'
       ).length
@@ -292,7 +295,7 @@ export default function DashboardPage() {
       title: 'Cursos',
       value: metrics.total_courses,
       icon: BookOpen,
-      href: '/cursos',
+      href: '/dashboard/cursos',
     },
     {
       title: 'Alumnos',
@@ -320,7 +323,7 @@ export default function DashboardPage() {
       title: 'Sedes',
       value: metrics.total_campuses,
       icon: Building2,
-      href: '/sedes',
+      href: '/dashboard/sedes',
     },
     {
       title: 'Convocatorias',
@@ -441,7 +444,7 @@ export default function DashboardPage() {
         className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full"
         data-oid="cycle-kpis"
       >
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/ciclos')}>
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/dashboard/ciclos')}>
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
           >
@@ -459,7 +462,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/ciclos')}>
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/dashboard/ciclos')}>
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
           >
@@ -496,7 +499,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/ciclos')}>
+        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => router.push('/dashboard/ciclos')}>
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 p-4 pb-2"
             data-oid="kpi-pd-h"

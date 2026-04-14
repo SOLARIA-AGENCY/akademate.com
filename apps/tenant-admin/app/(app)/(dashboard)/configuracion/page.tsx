@@ -1217,7 +1217,7 @@ export default function ConfiguracionUnifiedPage() {
                       {showMarketingToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">Para crear campanas via API. Generar en Business Manager &gt; System Users.</p>
+                  <p className="text-xs text-muted-foreground">Para crear campañas vía API. Generar en Business Manager &gt; System Users.</p>
                 </div>
               </div>
             </CardContent>

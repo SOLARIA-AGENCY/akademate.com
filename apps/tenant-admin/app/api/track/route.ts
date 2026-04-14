@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { type NextRequest, NextResponse } from 'next/server'
 
 /**
@@ -6,7 +7,7 @@ import { type NextRequest, NextResponse } from 'next/server'
  * POST /api/track
  *
  * Body (page view):
- *   { path, slug, referrer, userAgent, timestamp, event_id?, fbc?, fbp? }
+ *   { path, slug, referrer, userAgent, timestamp, event_id?, fbc?, fbp?, utm_source?, utm_medium?, utm_campaign? }
  *
  * Body (lead capture):
  *   { type: 'lead', path, courseRunId, courseName, first_name, last_name, email, phone,
@@ -17,17 +18,133 @@ import { type NextRequest, NextResponse } from 'next/server'
  * When event_id is present, also fires Meta Conversions API events (dual tracking).
  */
 
-async function fireCapiEvent(request: NextRequest, eventName: string, eventId: string, body: any) {
-  const { sendMetaEvent } = await import('@/src/lib/meta-capi')
-  const { getPayloadHMR } = await import('@payloadcms/next/utilities')
-  const configPromise = (await import('@payload-config')).default
-  const payload = await getPayloadHMR({ config: configPromise })
+type TenantIntegrations = {
+  metaPixelId?: string
+  metaConversionsApiToken?: string
+}
 
+interface TenantInfo {
+  id: number
+  integrations: TenantIntegrations
+}
+
+function escapeSql(value: string): string {
+  return value.replace(/'/g, "''")
+}
+
+function sanitizeString(input: unknown, maxLen = 255): string {
+  if (typeof input !== 'string') return ''
+  const trimmed = input.trim()
+  if (!trimmed) return ''
+  return trimmed.slice(0, maxLen)
+}
+
+function hashUserAgent(userAgent: string): string {
+  if (!userAgent) return ''
+  return createHash('sha256').update(userAgent).digest('hex')
+}
+
+async function resolveTenant(payload: any): Promise<TenantInfo | null> {
   const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
   const tenant = tenants.docs[0] as any
-  const pixelId = tenant?.integrations?.metaPixelId
-  const accessToken = tenant?.integrations?.metaConversionsApiToken
+  if (!tenant?.id) return null
 
+  const integrations: TenantIntegrations = {
+    metaPixelId: tenant?.integrations_meta_pixel_id || '',
+    metaConversionsApiToken: tenant?.integrations_meta_conversions_api_token || '',
+  }
+
+  return {
+    id: Number(tenant.id),
+    integrations,
+  }
+}
+
+async function ensureTrafficEventsTable(payload: any) {
+  const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
+  if (!drizzle?.execute) return
+
+  await drizzle.execute(`
+    CREATE TABLE IF NOT EXISTS traffic_events (
+      id BIGSERIAL PRIMARY KEY,
+      tenant_id INTEGER NOT NULL,
+      event_type VARCHAR(32) NOT NULL,
+      event_id VARCHAR(191),
+      path TEXT,
+      referrer TEXT,
+      user_agent_hash VARCHAR(64),
+      utm_source VARCHAR(255),
+      utm_medium VARCHAR(255),
+      utm_campaign VARCHAR(255),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `)
+
+  await drizzle.execute(`
+    CREATE UNIQUE INDEX IF NOT EXISTS traffic_events_tenant_event_unique
+    ON traffic_events (tenant_id, event_id)
+    WHERE event_id IS NOT NULL
+  `)
+
+  await drizzle.execute(`
+    CREATE INDEX IF NOT EXISTS traffic_events_tenant_created_idx
+    ON traffic_events (tenant_id, created_at DESC)
+  `)
+}
+
+async function insertTrafficEvent(payload: any, tenantId: number, body: any, eventType: 'page_view' | 'lead') {
+  const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
+  if (!drizzle?.execute) return
+
+  const eventId = sanitizeString(body.event_id, 191)
+  const path = sanitizeString(body.path, 2048)
+  const referrer = sanitizeString(body.referrer, 2048)
+  const userAgent = sanitizeString(body.userAgent, 1024)
+  const utmSource = sanitizeString(body.utm_source, 255)
+  const utmMedium = sanitizeString(body.utm_medium, 255)
+  const utmCampaign = sanitizeString(body.utm_campaign, 255)
+
+  const q = `
+    INSERT INTO traffic_events (
+      tenant_id,
+      event_type,
+      event_id,
+      path,
+      referrer,
+      user_agent_hash,
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      created_at
+    ) VALUES (
+      ${tenantId},
+      '${escapeSql(eventType)}',
+      ${eventId ? `'${escapeSql(eventId)}'` : 'NULL'},
+      ${path ? `'${escapeSql(path)}'` : 'NULL'},
+      ${referrer ? `'${escapeSql(referrer)}'` : 'NULL'},
+      ${userAgent ? `'${escapeSql(hashUserAgent(userAgent))}'` : 'NULL'},
+      ${utmSource ? `'${escapeSql(utmSource)}'` : 'NULL'},
+      ${utmMedium ? `'${escapeSql(utmMedium)}'` : 'NULL'},
+      ${utmCampaign ? `'${escapeSql(utmCampaign)}'` : 'NULL'},
+      NOW()
+    )
+    ON CONFLICT (tenant_id, event_id) DO NOTHING
+  `
+
+  await drizzle.execute(q)
+}
+
+async function fireCapiEvent(
+  request: NextRequest,
+  tenant: TenantInfo,
+  eventName: string,
+  eventId: string,
+  body: any,
+) {
+  const { sendMetaEvent } = await import('@/src/lib/meta-capi')
+
+  const pixelId = tenant.integrations.metaPixelId || ''
+  const accessToken = tenant.integrations.metaConversionsApiToken || ''
   if (!pixelId || !accessToken) return
 
   await sendMetaEvent({
@@ -35,7 +152,9 @@ async function fireCapiEvent(request: NextRequest, eventName: string, eventId: s
     accessToken,
     eventName,
     eventId,
-    eventSourceUrl: body.path ? `${process.env.NEXT_PUBLIC_TENANT_URL?.trim() || request.nextUrl.origin}${body.path}` : '',
+    eventSourceUrl: body.path
+      ? `${process.env.NEXT_PUBLIC_TENANT_URL?.trim() || request.nextUrl.origin}${body.path}`
+      : '',
     userData: {
       email: body.email,
       phone: body.phone,
@@ -53,13 +172,22 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
+    const { getPayloadHMR } = await import('@payloadcms/next/utilities')
+    const configPromise = (await import('@payload-config')).default
+    const payload = await getPayloadHMR({ config: configPromise })
+    const tenant = await resolveTenant(payload)
+
+    if (!tenant) {
+      return NextResponse.json({ ok: true })
+    }
+
+    await ensureTrafficEventsTable(payload)
+
     if (body.type === 'lead') {
+      await insertTrafficEvent(payload, tenant.id, body, 'lead').catch(() => {})
+
       // Lead capture — try to create a lead in Payload
       try {
-        const { getPayloadHMR } = await import('@payloadcms/next/utilities')
-        const configPromise = (await import('@payload-config')).default
-        const payload = await getPayloadHMR({ config: configPromise })
-
         await payload.create({
           collection: 'leads',
           data: {
@@ -68,6 +196,10 @@ export async function POST(request: NextRequest) {
             email: body.email || '',
             phone: body.phone || '',
             status: 'new',
+            tenant: tenant.id,
+            utm_source: body.utm_source || undefined,
+            utm_medium: body.utm_medium || undefined,
+            utm_campaign: body.utm_campaign || undefined,
           } as any,
         })
 
@@ -79,18 +211,22 @@ export async function POST(request: NextRequest) {
 
       // Fire Meta CAPI Lead event (fire and forget)
       if (body.event_id) {
-        fireCapiEvent(request, 'Lead', body.event_id, body).catch(() => {})
+        fireCapiEvent(request, tenant, 'Lead', body.event_id, body).catch(() => {})
       }
 
       return NextResponse.json({ ok: true })
     }
 
-    // Page view tracking — log only for now
-    console.log(`[track] Page view: ${body.path} | referrer: ${body.referrer || 'direct'} | ${new Date().toISOString()}`)
+    await insertTrafficEvent(payload, tenant.id, body, 'page_view').catch(() => {})
+
+    // Page view tracking — non-blocking logging
+    console.log(
+      `[track] Page view: ${body.path} | referrer: ${body.referrer || 'direct'} | ${new Date().toISOString()}`,
+    )
 
     // Fire Meta CAPI PageView event (fire and forget)
     if (body.event_id) {
-      fireCapiEvent(request, 'PageView', body.event_id, body).catch(() => {})
+      fireCapiEvent(request, tenant, 'PageView', body.event_id, body).catch(() => {})
     }
 
     return NextResponse.json({ ok: true })

@@ -71,7 +71,8 @@ interface UsuarioData {
   activo: boolean
   verificado: boolean
   dosFactor: boolean
-  ultimoAcceso: string
+  ultimoAcceso: string | null
+  totalAccesos: number
   fechaCreacion: string
 }
 
@@ -112,6 +113,18 @@ const ROLE_MAP: Record<string, string> = {
   lectura: 'Lectura',
 }
 
+function formatLastAccess(value: string | null): string {
+  if (!value) return 'Nunca'
+
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return 'Nunca'
+
+  return new Intl.DateTimeFormat('es-ES', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(parsed)
+}
+
 export default function UsuariosPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [rolFilter, setRolFilter] = useState('todos')
@@ -146,7 +159,8 @@ export default function UsuariosPage() {
           activo: (u.is_active as boolean) !== false,
           verificado: true,
           dosFactor: false,
-          ultimoAcceso: (u.last_login_at as string) || '',
+          ultimoAcceso: (u.last_login_at as string) || null,
+          totalAccesos: Number(u.login_count || 0),
           fechaCreacion: (u.createdAt as string) || '',
           status: 'active',
         }))
@@ -160,7 +174,8 @@ export default function UsuariosPage() {
           activo: false,
           verificado: false,
           dosFactor: false,
-          ultimoAcceso: '',
+          ultimoAcceso: null,
+          totalAccesos: 0,
           fechaCreacion: (inv.createdAt as string) || '',
           status: 'pending',
         }))
@@ -291,7 +306,7 @@ export default function UsuariosPage() {
                         <SelectContent>
                           <SelectItem value="admin">Admin — Control total</SelectItem>
                           <SelectItem value="gestor">Gestor — Contenido y usuarios</SelectItem>
-                          <SelectItem value="marketing">Marketing — Campanas y contenido</SelectItem>
+                          <SelectItem value="marketing">Marketing — Campañas y contenido</SelectItem>
                           <SelectItem value="asesor">Asesor — Lectura + notas clientes</SelectItem>
                           <SelectItem value="lectura">Lectura — Solo consulta</SelectItem>
                         </SelectContent>
@@ -590,13 +605,18 @@ export default function UsuariosPage() {
                       )}
                     </TableCell>
                     <TableCell data-oid="2v3q-i_">
-                      <span
-                        className="flex items-center gap-1 text-sm text-muted-foreground"
-                        data-oid="3d3rf2s"
-                      >
-                        <Clock className="h-3 w-3" data-oid="fqii-nn" />
-                        {usuario.ultimoAcceso}
-                      </span>
+                      <div className="flex flex-col" data-oid="3d3rf2s">
+                        <span
+                          className="flex items-center gap-1 text-sm text-muted-foreground"
+                          data-oid="o-g52l6"
+                        >
+                          <Clock className="h-3 w-3" data-oid="fqii-nn" />
+                          {formatLastAccess(usuario.ultimoAcceso)}
+                        </span>
+                        <span className="text-xs text-muted-foreground" data-oid="s0vu45_">
+                          {usuario.totalAccesos} acceso{usuario.totalAccesos === 1 ? '' : 's'}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell className="text-right" data-oid="b:q-.1t">
                       <DropdownMenu data-oid="69y8tc0">

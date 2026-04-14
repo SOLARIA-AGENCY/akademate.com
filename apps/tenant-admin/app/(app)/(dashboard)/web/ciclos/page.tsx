@@ -168,7 +168,7 @@ export default function WebCiclosPage() {
                 Crea ciclos formativos primero desde la seccion de Ciclos.
               </p>
             </div>
-            <Button variant="outline" onClick={() => router.push('/ciclos')}>
+            <Button variant="outline" onClick={() => router.push('/dashboard/ciclos')}>
               Ir a Ciclos
             </Button>
           </CardContent>
@@ -252,7 +252,7 @@ export default function WebCiclosPage() {
                         size="sm"
                         className="h-8 w-8 p-0"
                         title="Editar ciclo"
-                        onClick={() => router.push(`/ciclos/${cycle.id}`)}
+                        onClick={() => router.push(`/dashboard/ciclos/${cycle.id}`)}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>

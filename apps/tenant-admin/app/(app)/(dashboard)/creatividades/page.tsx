@@ -226,7 +226,7 @@ export default function CreatividadesPage() {
     <div className="space-y-6">
       <PageHeader
         title="Creatividades"
-        description="Gestion de assets creativos para campanas publicitarias"
+        description="Gestión de assets creativos para campañas publicitarias"
         icon={Sparkles}
         badge={
           <div className="flex items-center gap-2">

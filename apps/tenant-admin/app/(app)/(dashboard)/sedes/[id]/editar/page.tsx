@@ -507,7 +507,7 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
         throw new Error(result.errors?.[0]?.message ?? 'Error al actualizar la sede')
       }
 
-      router.push(`/sedes/${id}`)
+      router.push(`/dashboard/sedes/${id}`)
     } catch (err) {
       console.error('Error updating campus:', err)
       setError(err instanceof Error ? err.message : 'Error desconocido')
@@ -543,7 +543,7 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
       />
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => router.push(`/sedes/${id}`)}>
+        <Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/sedes/${id}`)}>
           <ArrowLeft className="h-4 w-4 mr-1" />
           Volver a la sede
         </Button>
@@ -1308,7 +1308,7 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push(`/sedes/${id}`)}
+            onClick={() => router.push(`/dashboard/sedes/${id}`)}
             disabled={saving}
           >
             Cancelar

@@ -107,18 +107,25 @@ export default function LeadDetailPage({ params }: Props) {
   // Actions
   // ---------------------------------------------------------------------------
 
-  const getEnrollmentRoute = (enrollmentId: string | number) => `/matriculas?enrollmentId=${enrollmentId}`
+  const getEnrollmentRoute = (enrollmentId: string | number) => `/matriculas/${enrollmentId}`
 
   const updateLead = async (updates: Record<string, any>) => {
     setSaving(true)
     try {
-      await fetch(`/api/leads/${id}`, {
+      const res = await fetch(`/api/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({} as Record<string, unknown>))
+        throw new Error(typeof data.error === 'string' ? data.error : 'No se pudo actualizar el lead')
+      }
       await loadLead()
-    } catch {}
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo actualizar el lead'
+      alert(message)
+    }
     finally { setSaving(false) }
   }
 
@@ -129,15 +136,19 @@ export default function LeadDetailPage({ params }: Props) {
     setSaving(true)
     try {
       // 1. Update lead status
-      await fetch(`/api/leads/${id}`, {
+      const statusRes = await fetch(`/api/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       })
+      if (!statusRes.ok) {
+        const data = await statusRes.json().catch(() => ({} as Record<string, unknown>))
+        throw new Error(typeof data.error === 'string' ? data.error : 'No se pudo cambiar el estado')
+      }
       // 2. Register status change as system interaction
       const oldLabel = STATUS_OPTIONS.find(s => s.value === currentStatus)?.label ?? currentStatus
       const newLabel = STATUS_OPTIONS.find(s => s.value === newStatus)?.label ?? newStatus
-      await fetch(`/api/leads/${id}/interactions`, {
+      const interactionRes = await fetch(`/api/leads/${id}/interactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -146,9 +157,17 @@ export default function LeadDetailPage({ params }: Props) {
           note: `Estado cambiado: ${oldLabel} → ${newLabel}`,
         }),
       })
+      if (!interactionRes.ok) {
+        const data = await interactionRes.json().catch(() => ({} as Record<string, unknown>))
+        throw new Error(typeof data.error === 'string' ? data.error : 'No se pudo registrar la interacción')
+      }
       await loadLead()
       await loadInteractions()
-    } catch {}
+    } catch (error) {
+      setLocalStatus(currentStatus)
+      const message = error instanceof Error ? error.message : 'No se pudo cambiar el estado'
+      alert(message)
+    }
     finally { setSaving(false) }
   }
 
@@ -234,7 +253,7 @@ export default function LeadDetailPage({ params }: Props) {
   const statusConfig = STATUS_OPTIONS.find(s => s.value === currentStatus) || STATUS_OPTIONS[0]
   const isInscripcion = lead.lead_type === 'inscripcion'
   const timeSince = lead.createdAt ? Math.round((Date.now() - new Date(lead.createdAt).getTime()) / (1000 * 60 * 60)) : 0
-  const showEnrollButton = currentStatus === 'interested' && !lead.enrollment_id
+  const showEnrollButton = ['interested', 'following_up', 'enrolling'].includes(currentStatus) && !lead.enrollment_id
   const showEnrollLink = !!lead.enrollment_id
 
   // Pre-built messages
@@ -494,7 +513,7 @@ Equipo CEP Formacion`
               <div className="flex justify-between"><span className="text-muted-foreground">Tipo</span><Badge variant={isInscripcion ? 'default' : 'secondary'} className="text-[10px]">{isInscripcion ? 'Inscripcion' : lead.lead_type || 'Lead'}</Badge></div>
               {lead.source_form && <div className="flex justify-between"><span className="text-muted-foreground">Formulario</span><span className="text-xs">{lead.source_form}</span></div>}
               {lead.createdAt && <div className="flex justify-between"><span className="text-muted-foreground">Fecha</span><span className="text-xs">{new Date(lead.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>}
-              {lead.campaign_code && <div className="flex justify-between"><span className="text-muted-foreground">Campana</span><span className="font-mono text-xs">{lead.campaign_code}</span></div>}
+              {lead.campaign_code && <div className="flex justify-between"><span className="text-muted-foreground">Campaña</span><span className="font-mono text-xs">{lead.campaign_code}</span></div>}
 
               <div className="border-t pt-2 mt-2" />
               <div className="flex justify-between"><span className="text-muted-foreground">Asesor</span><span className="font-medium text-xs">{lead.assigned_to?.first_name || 'Sin asignar'}</span></div>

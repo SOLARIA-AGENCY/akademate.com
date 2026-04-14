@@ -411,10 +411,19 @@ export const Leads: CollectionConfig = {
       options: [
         { label: 'New', value: 'new' },
         { label: 'Contacted', value: 'contacted' },
-        { label: 'Qualified', value: 'qualified' },
-        { label: 'Converted', value: 'converted' },
-        { label: 'Rejected', value: 'rejected' },
-        { label: 'Spam', value: 'spam' },
+        { label: 'Following up', value: 'following_up' },
+        { label: 'Interested', value: 'interested' },
+        { label: 'On hold', value: 'on_hold' },
+        { label: 'Enrolling', value: 'enrolling' },
+        { label: 'Enrolled', value: 'enrolled' },
+        { label: 'Not interested', value: 'not_interested' },
+        { label: 'Unreachable', value: 'unreachable' },
+        { label: 'Discarded', value: 'discarded' },
+        // Legacy statuses kept for backwards compatibility
+        { label: 'Qualified (legacy)', value: 'qualified' },
+        { label: 'Converted (legacy)', value: 'converted' },
+        { label: 'Rejected (legacy)', value: 'rejected' },
+        { label: 'Spam (legacy)', value: 'spam' },
       ],
       admin: {
         position: 'sidebar',

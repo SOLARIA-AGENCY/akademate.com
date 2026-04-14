@@ -186,7 +186,7 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
             </CardDescription>
           </CardHeader>
           <CardContent data-oid="28mivnz">
-            <Button onClick={() => router.push('/cursos')} data-oid="um1plsl">
+            <Button onClick={() => router.push('/dashboard/cursos')} data-oid="um1plsl">
               <ArrowLeft className="mr-2 h-4 w-4" data-oid="vmoskkp" />
               Volver a Cursos
             </Button>
@@ -304,11 +304,11 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
     } catch {
       // Silently proceed to detail page even on error
     }
-    router.push(`/cursos/${id}`)
+    router.push(`/dashboard/cursos/${id}`)
   }
 
   const handleCancel = () => {
-    router.push(`/cursos/${id}`)
+    router.push(`/dashboard/cursos/${id}`)
   }
 
   return (
@@ -322,7 +322,7 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push(`/cursos/${id}`)}
+              onClick={() => router.push(`/dashboard/cursos/${id}`)}
               data-oid="zyi2gvf"
             >
               <ArrowLeft className="h-4 w-4" data-oid="wckxy4w" />

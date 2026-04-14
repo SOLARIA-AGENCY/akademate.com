@@ -140,7 +140,7 @@ export default function CursoDetailPage({ params }: Props) {
     return (
       <div className="space-y-6">
         <PageHeader title="Curso" description="Detalle de curso" icon={BookOpen}
-          actions={<Button variant="ghost" onClick={() => router.push('/cursos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
+          actions={<Button variant="ghost" onClick={() => router.push('/dashboard/cursos')}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>} />
         <Card><CardContent className="p-8 text-center">
           <p className="font-medium">No se pudo cargar el curso</p>
           <p className="text-sm text-muted-foreground mt-1">{error}</p>
@@ -163,10 +163,10 @@ export default function CursoDetailPage({ params }: Props) {
         icon={BookOpen}
         badge={statusInfo && <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>}
         actions={<>
-          <Button variant="ghost" onClick={() => router.push('/cursos')}>
+          <Button variant="ghost" onClick={() => router.push('/dashboard/cursos')}>
             <ArrowLeft className="mr-2 h-4 w-4" />Cursos
           </Button>
-          <Button onClick={() => router.push(`/cursos/${id}/editar`)}>
+          <Button onClick={() => router.push(`/dashboard/cursos/${id}/editar`)}>
             <Edit className="mr-2 h-4 w-4" />Editar
           </Button>
         </>}
@@ -308,7 +308,7 @@ export default function CursoDetailPage({ params }: Props) {
                 <Button
                   variant="outline"
                   className="w-full justify-between"
-                  onClick={() => router.push(`/cursos/${id}/editar`)}
+                  onClick={() => router.push(`/dashboard/cursos/${id}/editar`)}
                 >
                   <span className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />

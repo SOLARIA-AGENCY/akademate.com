@@ -35,6 +35,8 @@ const bulkEndpoints = [
   '/api/bulk/',
 ]
 
+const SESSION_COOKIE_NAMES = ['akademate_session', 'cep_session'] as const
+
 function getClientIP(request: NextRequest): string {
   const xForwardedFor = request.headers.get('x-forwarded-for')
   if (xForwardedFor) return xForwardedFor.split(',')[0].trim()
@@ -212,6 +214,36 @@ function getCorsHeaders(origin: string | null) {
   return headers
 }
 
+function hasSessionCookie(request: NextRequest): boolean {
+  if (Boolean(request.cookies.get('payload-token')?.value)) return true
+
+  for (const cookieName of SESSION_COOKIE_NAMES) {
+    const rawSession = request.cookies.get(cookieName)?.value
+    if (!rawSession) continue
+
+    const candidates: string[] = [rawSession]
+    try {
+      const decoded = decodeURIComponent(rawSession)
+      if (decoded !== rawSession) candidates.push(decoded)
+    } catch {
+      // Ignore malformed encoding.
+    }
+
+    for (const candidate of candidates) {
+      try {
+        const parsed = JSON.parse(candidate) as { token?: unknown }
+        if (typeof parsed.token === 'string' && parsed.token.trim().length > 0) {
+          return true
+        }
+      } catch {
+        // Keep trying candidates/cookies.
+      }
+    }
+  }
+
+  return false
+}
+
 export function middleware(request: NextRequest) {
   const { pathname, protocol, host: _host } = request.nextUrl
   const origin = request.headers.get('origin')
@@ -357,11 +389,11 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Check for authentication cookie (Payload CMS sets 'payload-token')
-  const token = request.cookies.get('payload-token')?.value
+  // Accept both Payload token cookie and session cookies that wrap the token.
+  const isAuthenticatedByCookie = hasSessionCookie(request)
 
   // FIX-16: x-dev-bypass header removed. Auth is always enforced.
-  if (!token) {
+  if (!isAuthenticatedByCookie) {
     // For API routes, return 401 with CORS headers
     if (pathname.startsWith('/api/')) {
       const corsHeaders = getCorsHeaders(origin)

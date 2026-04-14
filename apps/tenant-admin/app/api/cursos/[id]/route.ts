@@ -2,6 +2,7 @@ import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
+import { normalizeStudyType } from '@/app/lib/website/study-types';
 
 interface AreaFormativa {
   id: number;
@@ -86,6 +87,7 @@ export async function GET(
         codigo: curso.codigo,
         nombre: curso.name,
         tipo: curso.course_type,
+        studyType: normalizeStudyType(curso.course_type),
         descripcion: curso.short_description ?? '',
         area: areaName,
         duracionReferencia: curso.duration_hours ?? 0,
