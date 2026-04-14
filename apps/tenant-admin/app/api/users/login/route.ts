@@ -86,14 +86,26 @@ export async function POST(request: Request) {
     const userId = Number(user.id)
     if (Number.isFinite(userId)) {
       try {
-        await queryRows(
-          `UPDATE users
+        const updatedRows = await queryRows<{ id: number }>(
+          `WITH target AS (
+             SELECT id
+             FROM users
+             WHERE id = $1
+             FOR UPDATE SKIP LOCKED
+           )
+           UPDATE users u
            SET last_login_at = NOW(),
-               login_count = COALESCE(login_count, 0) + 1,
+               login_count = COALESCE(u.login_count, 0) + 1,
                updated_at = NOW()
-           WHERE id = $1`,
+           FROM target
+           WHERE u.id = target.id
+           RETURNING u.id`,
           [userId]
         )
+
+        if (updatedRows.length === 0) {
+          console.warn('[Auth] Login stats update skipped due to concurrent lock', { userId })
+        }
       } catch (statsError) {
         console.error('Login stats update error:', statsError)
       }
