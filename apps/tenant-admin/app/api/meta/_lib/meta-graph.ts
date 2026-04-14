@@ -1,6 +1,7 @@
 import { maskSecret, normalizeMetaAdAccountId } from './integrations'
 
-const META_GRAPH_API = 'https://graph.facebook.com/v21.0'
+const META_GRAPH_API_VERSION = process.env.META_GRAPH_API_VERSION || 'v25.0'
+const META_GRAPH_API = `https://graph.facebook.com/${META_GRAPH_API_VERSION}`
 const SOLARIA_FILTER = 'SOLARIA AGENCY'
 const MAX_RETRY_ATTEMPTS = 3
 

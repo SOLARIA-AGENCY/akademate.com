@@ -58,7 +58,7 @@ describe('createCampaign', () => {
 
     // Verify the request
     const [url, options] = mockFetch.mock.calls[0]
-    expect(url).toBe('https://graph.facebook.com/v21.0/act_123456/campaigns')
+    expect(url).toBe('https://graph.facebook.com/v25.0/act_123456/campaigns')
     expect(options.method).toBe('POST')
 
     const body = new URLSearchParams(options.body)
@@ -173,7 +173,7 @@ describe('createAdSet', () => {
     expect(result.data?.id).toBe('adset_123')
 
     const [url, options] = mockFetch.mock.calls[0]
-    expect(url).toBe('https://graph.facebook.com/v21.0/act_123456/adsets')
+    expect(url).toBe('https://graph.facebook.com/v25.0/act_123456/adsets')
 
     const body = new URLSearchParams(options.body)
     expect(body.get('campaign_id')).toBe('camp_123')
@@ -478,7 +478,7 @@ describe('getCampaignInsights', () => {
     expect(result.success).toBe(true)
 
     const url = new URL(mockFetch.mock.calls[0][0])
-    expect(url.pathname).toBe('/v21.0/camp_123/insights')
+    expect(url.pathname).toBe('/v25.0/camp_123/insights')
     expect(url.searchParams.get('fields')).toContain('impressions')
     expect(url.searchParams.get('fields')).toContain('clicks')
     expect(url.searchParams.get('fields')).toContain('spend')
@@ -512,7 +512,7 @@ describe('listCampaigns', () => {
     expect(result.success).toBe(true)
 
     const url = new URL(mockFetch.mock.calls[0][0])
-    expect(url.pathname).toBe('/v21.0/act_123456/campaigns')
+    expect(url.pathname).toBe('/v25.0/act_123456/campaigns')
     expect(url.searchParams.get('limit')).toBe('50')
 
     const filtering = JSON.parse(url.searchParams.get('filtering')!)

@@ -1,14 +1,15 @@
 /**
  * Meta Marketing API Utility
  *
- * Wraps the Meta Graph API v21.0 for programmatic campaign management.
+ * Wraps the Meta Graph API for programmatic campaign management.
  * Used by /api/meta/ads endpoint to create campaigns from Akademate.
  *
  * RULE: All campaigns MUST be prefixed "SOLARIA AGENCY - "
  * RULE: All campaigns are created PAUSED — never auto-publish
  */
 
-const META_GRAPH_API = 'https://graph.facebook.com/v21.0'
+const META_GRAPH_API_VERSION = process.env.META_GRAPH_API_VERSION || 'v25.0'
+const META_GRAPH_API = `https://graph.facebook.com/${META_GRAPH_API_VERSION}`
 
 // ---------------------------------------------------------------------------
 // Types

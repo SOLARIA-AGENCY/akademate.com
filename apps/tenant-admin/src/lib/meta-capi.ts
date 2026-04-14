@@ -44,6 +44,8 @@ interface MetaResult {
   error?: string
 }
 
+const META_GRAPH_API_VERSION = process.env.META_GRAPH_API_VERSION || 'v25.0'
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -102,7 +104,7 @@ export async function sendMetaEvent({
   customData,
   testEventCode,
 }: MetaEventParams): Promise<MetaResult> {
-  const url = `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${accessToken}`
+  const url = `https://graph.facebook.com/${META_GRAPH_API_VERSION}/${pixelId}/events?access_token=${accessToken}`
 
   const payload = {
     data: [
