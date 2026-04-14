@@ -18,24 +18,52 @@ import {
   SelectValue,
 } from '@payload-config/components/ui/select'
 import {
-  Plus,
-  TrendingUp,
-  Users,
-  MousePointer,
-  DollarSign,
-  Megaphone,
-  X,
-  Circle,
-  Pause,
-  Power,
-  CheckCircle2,
-  Archive,
-  GraduationCap,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@payload-config/components/ui/table'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@payload-config/components/ui/sheet'
+import {
   AlertTriangle,
+  Archive,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Circle,
   ExternalLink,
+  Eye,
+  Megaphone,
+  Pause,
+  Plus,
+  Power,
+  RefreshCw,
+  Search,
+  TrendingUp,
 } from 'lucide-react'
+import { CampaignDetailContent } from './_components/CampaignDetailContent'
+import type {
+  CampaignDetailResponse,
+  CampaignListItem,
+  CampaignStatus,
+  CampaignsResponse,
+  MetricNumber,
+} from './_components/types'
 
-type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived'
+const SOLARIA_PREFIX = 'SOLARIA AGENCY'
+
+type SortField = CampaignsResponse['sort']
+type SortOrder = CampaignsResponse['order']
+
+type RangeOption = '7d' | '30d' | '90d'
 
 const STATUS_CONFIG: Record<
   CampaignStatus,
@@ -46,43 +74,6 @@ const STATUS_CONFIG: Record<
   draft: { label: 'Borrador', color: 'text-muted-foreground', icon: Power, dotColor: 'bg-gray-400' },
   completed: { label: 'Completada', color: 'text-blue-600', icon: CheckCircle2, dotColor: 'bg-blue-500' },
   archived: { label: 'Archivada', color: 'text-muted-foreground', icon: Archive, dotColor: 'bg-gray-300' },
-}
-
-const SOLARIA_PREFIX = 'SOLARIA AGENCY'
-
-interface Campaign {
-  id: string
-  meta_campaign_id: string
-  name: string
-  status: CampaignStatus
-  campaign_type?: string
-  total_leads?: number
-  total_conversions?: number
-  budget?: number
-  cost_per_lead?: number | null
-  ads_manager_url?: string
-}
-
-interface SourceHealth {
-  status: 'ok' | 'degraded'
-  token_status: 'valid' | 'missing' | 'expired' | 'invalid'
-  permissions_status: 'ok' | 'missing_ads_read' | 'missing_ads_management' | 'unknown'
-  ad_account_id: string
-  checked_at: string
-  token_expires_at?: string | null
-}
-
-interface SourceError {
-  code: string
-  message: string
-  token_expires_at?: string | null
-}
-
-interface CampaignsApiResponse {
-  docs?: Campaign[]
-  totalDocs?: number
-  source_health?: SourceHealth
-  error?: SourceError
 }
 
 interface ConvocatoriaOption {
@@ -110,54 +101,94 @@ interface MetaCreateResponse {
     adsManagerUrl?: string
   }
   error?: string
-  code?: string
 }
 
-function formatMetaDate(value?: string | null): string {
+function formatDate(value?: string | null): string {
   if (!value) return 'N/D'
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return value
   return parsed.toLocaleString('es-ES')
 }
 
-function buildCampaignsErrorMessage(error?: SourceError, health?: SourceHealth | null): string | null {
-  if (!error) return null
+function formatCurrency(value: number | null): string {
+  if (value === null) return 'N/D'
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 2,
+  }).format(value)
+}
 
-  if (error.code === 'UNAUTHORIZED') {
+function formatNumber(value: number | null, decimals = 0): string {
+  if (value === null) return 'N/D'
+  return new Intl.NumberFormat('es-ES', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(value)
+}
+
+function metricStateBadge(metric: MetricNumber) {
+  if (metric.state === 'loaded') return <Badge variant="outline">OK</Badge>
+  if (metric.state === 'zero_real') return <Badge variant="outline">0 real</Badge>
+  if (metric.state === 'api_error') return <Badge variant="destructive">Error API</Badge>
+  return <Badge variant="secondary">Sin dato</Badge>
+}
+
+function metricValue(metric: MetricNumber, formatter: (value: number | null) => string): string {
+  if (metric.state === 'api_error') return 'Error API'
+  if (metric.state === 'not_available') return 'N/D'
+  return formatter(metric.value)
+}
+
+function buildCampaignsErrorMessage(payload?: CampaignsResponse | null): string | null {
+  if (!payload?.error) return null
+
+  if (payload.error.code === 'UNAUTHORIZED') {
     return 'Sesión expirada. Inicia sesión de nuevo para cargar campañas de Meta.'
   }
 
-  if (error.code === 'TOKEN_EXPIRED') {
-    const expiresAt = error.token_expires_at || health?.token_expires_at
-    return expiresAt
-      ? `Token de Meta caducado (${expiresAt}). Actualízalo en Configuración > Integraciones.`
+  if (payload.error.code === 'TOKEN_EXPIRED') {
+    return payload.error.token_expires_at
+      ? `Token de Meta caducado (${payload.error.token_expires_at}). Actualízalo en Configuración > Integraciones.`
       : 'Token de Meta caducado. Actualízalo en Configuración > Integraciones.'
   }
 
-  if (error.code === 'MISSING_PERMISSIONS') {
+  if (payload.error.code === 'MISSING_PERMISSIONS') {
     return 'Permisos insuficientes en Meta API (requerido: ads_read / ads_management).'
   }
 
-  if (error.code === 'AD_ACCOUNT_ACCESS_DENIED') {
+  if (payload.error.code === 'AD_ACCOUNT_ACCESS_DENIED') {
     return 'Sin acceso a la cuenta publicitaria configurada para este tenant.'
   }
 
-  if (error.code === 'MISCONFIGURED') {
+  if (payload.error.code === 'MISCONFIGURED') {
     return 'Integración Meta incompleta: revisa token y Ad Account ID en Configuración.'
   }
 
-  return error.message || 'No se pudieron recuperar campañas de Meta.'
+  return payload.error.message || 'No se pudieron recuperar campañas de Meta.'
 }
 
 export default function CampanasPage() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [campaigns, setCampaigns] = useState<CampaignListItem[]>([])
+  const [totalDocs, setTotalDocs] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [sourceHealth, setSourceHealth] = useState<SourceHealth | null>(null)
-  const [lastCreatedCampaign, setLastCreatedCampaign] = useState<{
-    id: string
-    adsManagerUrl?: string
-  } | null>(null)
+  const [sourceHealth, setSourceHealth] = useState<CampaignsResponse['source_health'] | null>(null)
+  const [generatedAt, setGeneratedAt] = useState<string | null>(null)
+  const [diagnostics, setDiagnostics] = useState<{ warnings: string[]; errors: string[] } | null>(null)
+  const [isStale, setIsStale] = useState(false)
+
+  const [range, setRange] = useState<RangeOption>('30d')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [query, setQuery] = useState('')
+  const [sort, setSort] = useState<SortField>('updated_time')
+  const [order, setOrder] = useState<SortOrder>('desc')
+
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState<string | null>(null)
+  const [detailData, setDetailData] = useState<CampaignDetailResponse | null>(null)
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [convocatorias, setConvocatorias] = useState<ConvocatoriaOption[]>([])
@@ -170,68 +201,155 @@ export default function CampanasPage() {
   const [description, setDescription] = useState('')
   const [isCreatingCampaign, setIsCreatingCampaign] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
+  const [lastCreatedCampaign, setLastCreatedCampaign] = useState<{
+    id: string
+    adsManagerUrl?: string
+  } | null>(null)
 
-  const fetchCampaigns = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      setErrorMessage(null)
-      setSourceHealth(null)
+  const fetchCampaigns = useCallback(
+    async (options?: { forceRefresh?: boolean }) => {
+      try {
+        setIsLoading(true)
+        setErrorMessage(null)
 
-      const response = await fetch('/api/meta/campaigns', {
-        cache: 'no-cache',
-        credentials: 'include',
-      })
+        const params = new URLSearchParams({
+          range,
+          sort,
+          order,
+          limit: '100',
+        })
 
-      const payload = (await response.json()) as CampaignsApiResponse
+        if (statusFilter !== 'all') params.set('status', statusFilter)
+        if (query.trim()) params.set('q', query.trim())
+        if (options?.forceRefresh) params.set('force_refresh', '1')
 
-      if (response.status === 401) {
+        const response = await fetch(`/api/meta/campaigns?${params.toString()}`, {
+          cache: 'no-cache',
+          credentials: 'include',
+        })
+
+        const payload = (await response.json()) as CampaignsResponse
+
+        if (response.status === 401) {
+          setCampaigns([])
+          setErrorMessage('Sesión expirada. Inicia sesión para visualizar campañas.')
+          return
+        }
+
+        setCampaigns(Array.isArray(payload.docs) ? payload.docs : [])
+        setTotalDocs(payload.totalDocs ?? 0)
+        setSourceHealth(payload.source_health ?? null)
+        setDiagnostics(payload.diagnostics ?? null)
+        setGeneratedAt(payload.generated_at ?? null)
+        setIsStale(Boolean(payload.stale))
+
+        if (!response.ok) {
+          setErrorMessage('No se pudo conectar con Meta API en este momento.')
+          return
+        }
+
+        const operationalMessage = buildCampaignsErrorMessage(payload)
+        if (operationalMessage) {
+          setErrorMessage(operationalMessage)
+        }
+      } catch {
         setCampaigns([])
-        setErrorMessage('Sesión expirada. Inicia sesión para visualizar campañas.')
-        return
+        setErrorMessage('Error de red cargando campañas de Meta.')
+      } finally {
+        setIsLoading(false)
       }
-
-      setCampaigns(Array.isArray(payload.docs) ? payload.docs : [])
-      setSourceHealth(payload.source_health ?? null)
-
-      if (!response.ok) {
-        setErrorMessage('No se pudo conectar con Meta API en este momento.')
-        return
-      }
-
-      const operationalMessage = buildCampaignsErrorMessage(payload.error, payload.source_health ?? null)
-      if (operationalMessage) {
-        setErrorMessage(operationalMessage)
-      }
-    } catch {
-      setCampaigns([])
-      setErrorMessage('Error de red cargando campañas de Meta.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+    },
+    [order, query, range, sort, statusFilter]
+  )
 
   useEffect(() => {
     void fetchCampaigns()
   }, [fetchCampaigns])
 
-  const stats = useMemo(() => {
-    const totalLeads = campaigns.reduce((sum, campaign) => sum + (campaign.total_leads ?? 0), 0)
-    const totalConversions = campaigns.reduce(
-      (sum, campaign) => sum + (campaign.total_conversions ?? 0),
-      0
-    )
-    const totalBudget = campaigns.reduce((sum, campaign) => sum + (campaign.budget ?? 0), 0)
-    const activeCount = campaigns.filter((campaign) => campaign.status === 'active').length
+  const fetchDetail = useCallback(
+    async (campaignId: string) => {
+      try {
+        setDetailLoading(true)
+        setDetailError(null)
 
-    return { totalLeads, totalConversions, totalBudget, activeCount }
+        const params = new URLSearchParams({
+          range,
+        })
+
+        const response = await fetch(`/api/meta/campaigns/${campaignId}?${params.toString()}`, {
+          cache: 'no-cache',
+          credentials: 'include',
+        })
+
+        const payload = (await response.json()) as CampaignDetailResponse
+
+        if (!response.ok || payload.success === false) {
+          setDetailData(null)
+          setDetailError(payload.error?.message || 'No se pudo cargar el detalle de la campaña.')
+          return
+        }
+
+        setDetailData(payload)
+      } catch {
+        setDetailData(null)
+        setDetailError('Error de red cargando el detalle de campaña.')
+      } finally {
+        setDetailLoading(false)
+      }
+    },
+    [range]
+  )
+
+  useEffect(() => {
+    if (!detailOpen || !selectedCampaignId) return
+    void fetchDetail(selectedCampaignId)
+  }, [detailOpen, fetchDetail, selectedCampaignId])
+
+  const stats = useMemo(() => {
+    const activeCount = campaigns.filter((item) => item.campaign.status === 'active').length
+
+    const totalSpend = campaigns.reduce((sum, item) => {
+      const metric = item.insights_summary.spend
+      if (metric.state === 'loaded' || metric.state === 'zero_real') {
+        return sum + (metric.value || 0)
+      }
+      return sum
+    }, 0)
+
+    const totalResults = campaigns.reduce((sum, item) => {
+      const metric = item.insights_summary.results
+      if (metric.state === 'loaded' || metric.state === 'zero_real') {
+        return sum + (metric.value || 0)
+      }
+      return sum
+    }, 0)
+
+    const withErrors = campaigns.filter((item) => item.diagnostics.errors.length > 0).length
+
+    return {
+      activeCount,
+      totalSpend,
+      totalResults,
+      withErrors,
+    }
   }, [campaigns])
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0,
-    }).format(value)
+  const handleSort = (field: SortField) => {
+    if (sort === field) {
+      setOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+      return
+    }
+
+    setSort(field)
+    setOrder('desc')
+  }
+
+  const openDetail = (campaignId: string) => {
+    setSelectedCampaignId(campaignId)
+    setDetailOpen(true)
+    setDetailData(null)
+    setDetailError(null)
+  }
 
   const openCreateModal = async () => {
     setShowCreateModal(true)
@@ -311,7 +429,7 @@ export default function CampanasPage() {
         id: payload.data?.metaCampaignId || 'N/D',
         adsManagerUrl: payload.data?.adsManagerUrl,
       })
-      await fetchCampaigns()
+      await fetchCampaigns({ forceRefresh: true })
     } catch {
       setCreateError('Error de red creando la campaña en Meta.')
     } finally {
@@ -328,9 +446,11 @@ export default function CampanasPage() {
       )}
 
       {errorMessage && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg flex items-start gap-2">
-          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-          <div>{errorMessage}</div>
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div>{errorMessage}</div>
+          </div>
         </div>
       )}
 
@@ -341,11 +461,11 @@ export default function CampanasPage() {
             <Badge variant={sourceHealth.status === 'ok' ? 'default' : 'outline'}>
               Meta API {sourceHealth.status === 'ok' ? 'operativa' : 'degradada'}
             </Badge>
+            {isStale && <Badge variant="secondary">Datos cacheados</Badge>}
             <span className="text-muted-foreground">Ad Account: {sourceHealth.ad_account_id || 'N/D'}</span>
           </div>
-          <div className="text-muted-foreground">
-            Última verificación: {formatMetaDate(sourceHealth.checked_at)}
-          </div>
+          <div className="text-muted-foreground">Última verificación: {formatDate(sourceHealth.checked_at)}</div>
+          {generatedAt && <div className="text-muted-foreground">Generado: {formatDate(generatedAt)}</div>}
         </div>
       )}
 
@@ -370,58 +490,111 @@ export default function CampanasPage() {
         description={`Campañas live de Meta filtradas por "${SOLARIA_PREFIX}"`}
         icon={TrendingUp}
         actions={
-          <Button onClick={openCreateModal}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nueva Campaña
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => void fetchCampaigns({ forceRefresh: true })}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Sincronizar
+            </Button>
+            <Button onClick={openCreateModal}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva Campaña
+            </Button>
+          </div>
         }
       />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Campañas Activas</CardTitle>
-            <MousePointer className="h-4 w-4 text-primary/70" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Activas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeCount}</div>
-            <p className="text-xs text-muted-foreground">En curso actualmente</p>
+            <p className="text-xs text-muted-foreground">Campañas en ejecución</p>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Leads Generados</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary/70" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Gasto (rango)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalLeads}</div>
-            <p className="text-xs text-muted-foreground">Captados desde campañas</p>
+            <div className="text-2xl font-bold">{formatCurrency(stats.totalSpend)}</div>
+            <p className="text-xs text-muted-foreground">Spend Meta consolidado</p>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversiones</CardTitle>
-            <Users className="h-4 w-4 text-primary/70" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Resultados</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalConversions}</div>
-            <p className="text-xs text-muted-foreground">Leads convertidos</p>
+            <div className="text-2xl font-bold">{formatNumber(stats.totalResults)}</div>
+            <p className="text-xs text-muted-foreground">Leads/conversiones Meta</p>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Presupuesto Total</CardTitle>
-            <DollarSign className="h-4 w-4 text-primary/70" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Con incidencias</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.totalBudget)}</div>
-            <p className="text-xs text-muted-foreground">Total asignado</p>
+            <div className="text-2xl font-bold">{stats.withErrors}</div>
+            <p className="text-xs text-muted-foreground">Datos parciales o error API</p>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="md:col-span-2">
+              <Label>Buscar campaña</Label>
+              <div className="relative mt-1">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Nombre o ID Meta"
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div>
+              <Label>Rango</Label>
+              <Select value={range} onValueChange={(value) => setRange(value as RangeOption)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7d">Últimos 7 días</SelectItem>
+                  <SelectItem value="30d">Últimos 30 días</SelectItem>
+                  <SelectItem value="90d">Últimos 90 días</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Estado</Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="active">Activa</SelectItem>
+                  <SelectItem value="paused">Pausada</SelectItem>
+                  <SelectItem value="draft">Borrador</SelectItem>
+                  <SelectItem value="completed">Completada</SelectItem>
+                  <SelectItem value="archived">Archivada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {(diagnostics?.warnings?.length || 0) > 0 && (
+            <div className="mt-4 rounded-md border border-yellow-500/30 bg-yellow-500/10 px-3 py-2 text-xs text-yellow-800">
+              {diagnostics?.warnings.join(' · ')}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {!isLoading && campaigns.length === 0 ? (
         <EmptyState
@@ -430,62 +603,189 @@ export default function CampanasPage() {
           description="No hay campañas de SOLARIA para la Ad Account actual. Crea una nueva campaña en Meta."
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {campaigns.map((campaign) => {
-            const statusConfig = STATUS_CONFIG[campaign.status] || STATUS_CONFIG.draft
-            const canOpenManager = Boolean(campaign.ads_manager_url)
-            return (
-              <Card
-                key={campaign.id}
-                className={`hover:shadow-md transition-shadow ${canOpenManager ? 'cursor-pointer' : ''}`}
-                onClick={() => {
-                  if (!campaign.ads_manager_url) return
-                  window.open(campaign.ads_manager_url, '_blank', 'noopener,noreferrer')
-                }}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1 flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${statusConfig.dotColor}`} />
-                        <CardTitle className="text-lg truncate">{campaign.name}</CardTitle>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="outline" className={statusConfig.color}>
-                          {statusConfig.label}
-                        </Badge>
-                        <Badge className="bg-blue-600 text-white border-0">Meta Ads</Badge>
-                      </div>
+        <>
+          <div className="hidden md:block rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Campaña</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>
+                    <button
+                      className="inline-flex items-center gap-1"
+                      onClick={() => handleSort('updated_time')}
+                      type="button"
+                    >
+                      Updated
+                      {sort === 'updated_time' && (order === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                    </button>
+                  </TableHead>
+                  <TableHead>Start</TableHead>
+                  <TableHead>Stop</TableHead>
+                  <TableHead>Presupuesto</TableHead>
+                  <TableHead>
+                    <button className="inline-flex items-center gap-1" onClick={() => handleSort('spend')} type="button">
+                      Spend
+                      {sort === 'spend' && (order === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                    </button>
+                  </TableHead>
+                  <TableHead>Reach</TableHead>
+                  <TableHead>Clicks</TableHead>
+                  <TableHead>CTR</TableHead>
+                  <TableHead>
+                    <button className="inline-flex items-center gap-1" onClick={() => handleSort('results')} type="button">
+                      Resultados
+                      {sort === 'results' && (order === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                    </button>
+                  </TableHead>
+                  <TableHead>Coste/resultado</TableHead>
+                  <TableHead>Último sync</TableHead>
+                  <TableHead>Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {campaigns.map((item) => {
+                  const statusConfig = STATUS_CONFIG[item.campaign.status] || STATUS_CONFIG.draft
+
+                  return (
+                    <TableRow key={item.campaign.id} className="cursor-pointer" onClick={() => openDetail(item.campaign.id)}>
+                      <TableCell>
+                        <div className="font-medium max-w-[260px] truncate">{item.campaign.name}</div>
+                        <div className="text-xs text-muted-foreground">ID: {item.campaign.id}</div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className={`h-2.5 w-2.5 rounded-full ${statusConfig.dotColor}`} />
+                          <Badge variant="outline" className={statusConfig.color}>
+                            {statusConfig.label}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell>{formatDate(item.campaign.updated_time)}</TableCell>
+                      <TableCell>{formatDate(item.campaign.start_time)}</TableCell>
+                      <TableCell>{formatDate(item.campaign.stop_time)}</TableCell>
+                      <TableCell>{formatCurrency(item.campaign.budget)}</TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div>{metricValue(item.insights_summary.spend, formatCurrency)}</div>
+                          {metricStateBadge(item.insights_summary.spend)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div>{metricValue(item.insights_summary.reach, (value) => formatNumber(value, 0))}</div>
+                          {metricStateBadge(item.insights_summary.reach)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div>{metricValue(item.insights_summary.clicks, (value) => formatNumber(value, 0))}</div>
+                          {metricStateBadge(item.insights_summary.clicks)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div>{metricValue(item.insights_summary.ctr, (value) => (value === null ? 'N/D' : `${formatNumber(value, 2)}%`))}</div>
+                          {metricStateBadge(item.insights_summary.ctr)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div>{metricValue(item.insights_summary.results, (value) => formatNumber(value, 0))}</div>
+                          {metricStateBadge(item.insights_summary.results)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div>
+                            {metricValue(
+                              {
+                                value: item.insights_summary.results.cost_per_result,
+                                state: item.insights_summary.results.cost_per_result_state,
+                              },
+                              formatCurrency
+                            )}
+                          </div>
+                          {metricStateBadge({
+                            value: item.insights_summary.results.cost_per_result,
+                            state: item.insights_summary.results.cost_per_result_state,
+                          })}
+                        </div>
+                      </TableCell>
+                      <TableCell>{formatDate(item.sync_status.last_synced_at)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              openDetail(item.campaign.id)
+                            }}
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              window.open(item.campaign.ads_manager_url, '_blank', 'noopener,noreferrer')
+                            }}
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="grid gap-3 md:hidden">
+            {campaigns.map((item) => {
+              const statusConfig = STATUS_CONFIG[item.campaign.status] || STATUS_CONFIG.draft
+
+              return (
+                <Card key={item.campaign.id} className="cursor-pointer" onClick={() => openDetail(item.campaign.id)}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">{item.campaign.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className={`h-2.5 w-2.5 rounded-full ${statusConfig.dotColor}`} />
+                      <Badge variant="outline" className={statusConfig.color}>
+                        {statusConfig.label}
+                      </Badge>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Leads</p>
-                      <p className="text-2xl font-bold">{campaign.total_leads ?? 0}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Conversiones</p>
-                      <p className="text-2xl font-bold">{campaign.total_conversions ?? 0}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Presupuesto</p>
-                      <p className="text-lg font-semibold">{formatCurrency(campaign.budget ?? 0)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Coste por lead</p>
-                      <p className="text-lg font-semibold">
-                        {campaign.cost_per_lead ? formatCurrency(campaign.cost_per_lead) : '—'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
+                    <div className="text-muted-foreground">Updated: {formatDate(item.campaign.updated_time)}</div>
+                    <div>Spend: {metricValue(item.insights_summary.spend, formatCurrency)}</div>
+                    <div>Resultados: {metricValue(item.insights_summary.results, (value) => formatNumber(value, 0))}</div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+
+          <div className="text-xs text-muted-foreground">Mostrando {campaigns.length} de {totalDocs} campañas.</div>
+        </>
       )}
+
+      <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Detalle de Campaña</SheetTitle>
+            <SheetDescription>
+              Vista operativa Meta Live con métricas reales, creatividades y estructura de anuncios.
+            </SheetDescription>
+          </SheetHeader>
+          <CampaignDetailContent detail={detailData} isLoading={detailLoading} error={detailError} />
+        </SheetContent>
+      </Sheet>
 
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -494,16 +794,13 @@ export default function CampanasPage() {
               <div className="flex items-center justify-between">
                 <CardTitle>Nueva Campaña en Meta</CardTitle>
                 <Button variant="ghost" size="sm" onClick={() => setShowCreateModal(false)}>
-                  <X className="h-4 w-4" />
+                  ×
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <GraduationCap className="h-4 w-4 text-primary" />
-                  Convocatoria a promocionar
-                </Label>
+                <Label>Convocatoria a promocionar</Label>
                 {loadingConvs ? (
                   <div className="text-sm text-muted-foreground py-2">Cargando convocatorias activas...</div>
                 ) : convocatorias.length === 0 ? (
@@ -596,7 +893,6 @@ export default function CampanasPage() {
                   Cancelar
                 </Button>
                 <Button className="flex-1" disabled={isCreatingCampaign} onClick={handleCreateCampaign}>
-                  <Plus className="mr-2 h-4 w-4" />
                   {isCreatingCampaign ? 'Creando...' : 'Crear Campaña'}
                 </Button>
               </div>
