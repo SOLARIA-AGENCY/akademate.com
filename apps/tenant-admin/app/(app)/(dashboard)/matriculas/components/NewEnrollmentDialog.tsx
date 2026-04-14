@@ -42,12 +42,13 @@ interface NewEnrollmentDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onCreated?: (enrollmentId: string) => void
+  initialLeadId?: string | null
 }
 
 const NON_ENROLLABLE_LEAD_STATUSES = new Set(['not_interested', 'unreachable', 'discarded', 'spam', 'rejected'])
 const ENROLLABLE_COURSE_RUN_STATUSES = new Set(['enrollment_open'])
 
-export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnrollmentDialogProps) {
+export function NewEnrollmentDialog({ open, onOpenChange, onCreated, initialLeadId }: NewEnrollmentDialogProps) {
   const [source, setSource] = useState<EnrollmentSource>('lead')
   const [loadingLeads, setLoadingLeads] = useState(false)
   const [loadingCourseRuns, setLoadingCourseRuns] = useState(false)
@@ -57,6 +58,7 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
   const [courseRunLoadError, setCourseRunLoadError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [selectedLeadId, setSelectedLeadId] = useState<string>('')
+  const [selectedLeadCourseRunId, setSelectedLeadCourseRunId] = useState<string>('')
   const [courseRuns, setCourseRuns] = useState<CourseRunOption[]>([])
   const [leads, setLeads] = useState<EligibleLead[]>([])
   const [directForm, setDirectForm] = useState({
@@ -72,6 +74,7 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
       setSource('lead')
       setSearch('')
       setSelectedLeadId('')
+      setSelectedLeadCourseRunId('')
       setError(null)
       setLeadLoadError(null)
       setCourseRunLoadError(null)
@@ -100,7 +103,7 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
         const eligible = docs
           .filter((lead: any) => {
             const leadStatus = String(lead?.status ?? '')
-            return !NON_ENROLLABLE_LEAD_STATUSES.has(leadStatus) && !lead?.enrollment_id
+            return !NON_ENROLLABLE_LEAD_STATUSES.has(leadStatus)
           })
           .map((lead: any) => ({
             id: String(lead.id),
@@ -115,7 +118,12 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
         if (!cancelled) {
           setLeads(eligible)
           if (eligible.length > 0) {
-            setSelectedLeadId((current) => (current ? current : eligible[0].id))
+            if (initialLeadId && eligible.some((lead: EligibleLead) => lead.id === initialLeadId)) {
+              setSelectedLeadId(initialLeadId)
+              setSource('lead')
+            } else {
+              setSelectedLeadId((current) => (current ? current : eligible[0].id))
+            }
           }
         }
       } catch (e) {
@@ -158,6 +166,7 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
         if (!cancelled) {
           setCourseRuns(options)
           if (options.length > 0) {
+            setSelectedLeadCourseRunId((current) => current || options[0].id)
             setDirectForm((current) => ({
               ...current,
               courseRunId: current.courseRunId || options[0].id,
@@ -181,7 +190,15 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
     return () => {
       cancelled = true
     }
-  }, [open])
+  }, [open, initialLeadId])
+
+  useEffect(() => {
+    if (!open || !initialLeadId) return
+    if (leads.some((lead) => lead.id === initialLeadId)) {
+      setSelectedLeadId(initialLeadId)
+      setSource('lead')
+    }
+  }, [open, initialLeadId, leads])
 
   const filteredLeads = useMemo(() => {
     if (!search.trim()) return leads
@@ -198,7 +215,12 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
 
   const selectedLead = leads.find((lead) => lead.id === selectedLeadId) ?? null
 
-  const canSubmitLead = !loadingLeads && Boolean(selectedLeadId) && Boolean(selectedLead)
+  const canSubmitLead =
+    !loadingLeads &&
+    !loadingCourseRuns &&
+    Boolean(selectedLeadId) &&
+    Boolean(selectedLead) &&
+    selectedLeadCourseRunId.trim().length > 0
   const canSubmitDirect =
     !loadingCourseRuns &&
     directForm.firstName.trim().length > 0 &&
@@ -219,7 +241,7 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
           ? await fetch(`/api/leads/${selectedLeadId}/enroll`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({}),
+              body: JSON.stringify({ courseRunId: selectedLeadCourseRunId }),
             })
           : await fetch('/api/enrollments/direct', {
               method: 'POST',
@@ -312,7 +334,7 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
                 </div>
               ) : filteredLeads.length === 0 ? (
                 <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-                  No hay leads disponibles sin matrícula creada.
+                  No hay leads disponibles para matriculación.
                 </div>
               ) : (
                 <>
@@ -331,6 +353,34 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated }: NewEnroll
                       })}
                     </SelectContent>
                   </Select>
+
+                  {loadingCourseRuns ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Cargando convocatorias...
+                    </div>
+                  ) : courseRunLoadError ? (
+                    <div className="rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+                      {courseRunLoadError}
+                    </div>
+                  ) : courseRuns.length === 0 ? (
+                    <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+                      No hay convocatorias abiertas para matrícula.
+                    </div>
+                  ) : (
+                    <Select value={selectedLeadCourseRunId} onValueChange={setSelectedLeadCourseRunId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona la convocatoria a matricular" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {courseRuns.map((courseRun) => (
+                          <SelectItem key={courseRun.id} value={courseRun.id}>
+                            {courseRun.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
 
                   {selectedLead && (
                     <div className="rounded-md bg-muted/50 p-3 text-sm">

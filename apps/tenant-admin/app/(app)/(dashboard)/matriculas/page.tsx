@@ -1,6 +1,7 @@
 'use client'
 
 import { type ComponentType, useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -51,24 +52,9 @@ import {
 import { BulkEnrollmentDialog } from './components/BulkEnrollmentDialog'
 import { NewEnrollmentDialog } from './components/NewEnrollmentDialog'
 
-interface LeadRow {
-  id: string | number
-  first_name?: string | null
-  last_name?: string | null
-  email?: string | null
-  phone?: string | null
-  lead_type?: string | null
-  source_form?: string | null
-  source_page?: string | null
-  status?: string | null
-  campaign_code?: string | null
-  enrollment_id?: string | number | null
-  created_at?: string | null
-  createdAt?: string | null
-}
-
 interface MatriculaRow {
   id: string
+  leadId: string
   alumno: { nombre: string; email: string; telefono: string }
   curso: string
   tipo: string
@@ -79,6 +65,31 @@ interface MatriculaRow {
   metodoPago: 'FUNDAE' | 'Privado' | 'Financiación'
   importe: number
   documentacionCompleta: boolean
+}
+
+interface MatriculaApiDoc {
+  id: string | number
+  status?: string
+  payment_status?: string
+  total_amount?: number
+  amount_paid?: number
+  created_at?: string
+  lead?: {
+    id?: string | number
+    first_name?: string | null
+    last_name?: string | null
+    email?: string | null
+    phone?: string | null
+  }
+  course?: {
+    name?: string | null
+  }
+  course_run?: {
+    code?: string | null
+  }
+  campus?: {
+    name?: string | null
+  }
 }
 
 const estadoConfig: Record<
@@ -101,40 +112,45 @@ const pagoConfig: Record<MatriculaRow['metodoPago'], { label: string; variant: '
 }
 
 function resolveEstado(status?: string | null): MatriculaRow['estado'] {
-  if (status === 'enrolled') return 'aceptada'
-  if (status === 'discarded' || status === 'not_interested' || status === 'unreachable') return 'rechazada'
+  if (status === 'confirmed' || status === 'completed') return 'aceptada'
+  if (status === 'cancelled' || status === 'withdrawn') return 'rechazada'
   return 'pendiente'
 }
 
-function mapLeadToMatricula(lead: LeadRow): MatriculaRow | null {
-  const hasEnrollment = Boolean(lead.enrollment_id)
-  const status = lead.status ?? ''
-  if (!hasEnrollment && status !== 'enrolling' && status !== 'enrolled') return null
-
-  const nombre = [lead.first_name, lead.last_name].filter(Boolean).join(' ').trim() || lead.email || `Lead #${lead.id}`
-  const estado = resolveEstado(status)
-  const createdAt = lead.created_at ?? lead.createdAt ?? new Date().toISOString()
-
+function mapApiDocToMatricula(doc: MatriculaApiDoc): MatriculaRow {
+  const lead = doc.lead ?? {}
+  const nombre =
+    [lead.first_name, lead.last_name].filter(Boolean).join(' ').trim() ||
+    lead.email ||
+    `Lead #${lead.id ?? 's/n'}`
+  const estado = resolveEstado(doc.status)
+  const createdAt = doc.created_at ?? new Date().toISOString()
+  const totalAmount = typeof doc.total_amount === 'number' ? doc.total_amount : 0
+  const paidAmount = typeof doc.amount_paid === 'number' ? doc.amount_paid : 0
+  const leadId = lead.id !== undefined && lead.id !== null ? String(lead.id) : ''
   return {
-    id: String(lead.enrollment_id ?? lead.id),
+    id: String(doc.id),
+    leadId,
     alumno: {
       nombre,
       email: lead.email ?? 'Sin email',
-      telefono: lead.phone ?? 'Sin telefono',
+      telefono: lead.phone ?? 'Sin teléfono',
     },
-    curso: lead.source_form || lead.campaign_code || 'Curso sin especificar',
-    tipo: lead.lead_type === 'inscripcion' ? 'Ciclo Superior' : 'Curso',
-    convocatoria: lead.campaign_code || 'Sin convocatoria',
-    sede: lead.source_page || 'Campus principal',
+    curso: doc.course?.name || 'Curso sin especificar',
+    tipo: 'Curso',
+    convocatoria: doc.course_run?.code || 'Sin convocatoria',
+    sede: doc.campus?.name || 'Sin sede',
     estado,
     fechaSolicitud: createdAt,
     metodoPago: 'Privado',
-    importe: 0,
-    documentacionCompleta: estado === 'aceptada',
+    importe: totalAmount,
+    documentacionCompleta: estado === 'aceptada' || (totalAmount > 0 && paidAmount >= totalAmount),
   }
 }
 
 export default function MatriculasPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [matriculasData, setMatriculasData] = useState<MatriculaRow[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [estadoFilter, setEstadoFilter] = useState('todos')
@@ -143,16 +159,17 @@ export default function MatriculasPage() {
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false)
   const [newEnrollmentDialogOpen, setNewEnrollmentDialogOpen] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [initialLeadId, setInitialLeadId] = useState<string | null>(null)
 
   const loadMatriculas = useCallback(async () => {
     try {
       setLoadError(null)
-      const res = await fetch('/api/leads?limit=500', { cache: 'no-store' })
+      const res = await fetch('/api/matriculas?limit=500', { cache: 'no-store' })
       if (!res.ok) throw new Error('No se pudieron cargar las matriculas')
 
       const payload = await res.json()
       const docs = Array.isArray(payload?.docs) ? payload.docs : []
-      const mapped = docs.map(mapLeadToMatricula).filter(Boolean) as MatriculaRow[]
+      const mapped = docs.map((doc: MatriculaApiDoc) => mapApiDocToMatricula(doc))
 
       setMatriculasData(mapped)
     } catch (error) {
@@ -175,6 +192,15 @@ export default function MatriculasPage() {
       cancelled = true
     }
   }, [loadMatriculas])
+
+  useEffect(() => {
+    const shouldOpen = searchParams.get('nueva')
+    const leadId = searchParams.get('leadId')
+    if (shouldOpen === '1') {
+      setInitialLeadId(leadId || null)
+      setNewEnrollmentDialogOpen(true)
+    }
+  }, [searchParams])
 
   const availableSedes = useMemo(
     () => Array.from(new Set(matriculasData.map((m) => m.sede))).sort(),
@@ -474,12 +500,24 @@ export default function MatriculasPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" data-oid="36cp-ex">
                               <DropdownMenuItem data-oid="3q2x-ff">
-                                <Eye className="mr-2 h-4 w-4" data-oid="nmiu9dd" />
-                                Ver detalles
+                                <button
+                                  type="button"
+                                  className="flex w-full items-center"
+                                  onClick={() => router.push(`/matriculas/${matricula.id}`)}
+                                >
+                                  <Eye className="mr-2 h-4 w-4" data-oid="nmiu9dd" />
+                                  Ver detalles
+                                </button>
                               </DropdownMenuItem>
                               <DropdownMenuItem data-oid="h5n1kgr">
-                                <Edit className="mr-2 h-4 w-4" data-oid="52z3miu" />
-                                Editar
+                                <button
+                                  type="button"
+                                  className="flex w-full items-center"
+                                  onClick={() => router.push(`/matriculas/${matricula.id}/editar`)}
+                                >
+                                  <Edit className="mr-2 h-4 w-4" data-oid="52z3miu" />
+                                  Editar
+                                </button>
                               </DropdownMenuItem>
                               <DropdownMenuSeparator data-oid="kzkznsi" />
                               <DropdownMenuItem className="text-destructive" data-oid="r_cj48z">
@@ -603,7 +641,16 @@ export default function MatriculasPage() {
       />
       <NewEnrollmentDialog
         open={newEnrollmentDialogOpen}
-        onOpenChange={setNewEnrollmentDialogOpen}
+        onOpenChange={(open) => {
+          setNewEnrollmentDialogOpen(open)
+          if (!open) {
+            setInitialLeadId(null)
+            if (searchParams.get('nueva') === '1') {
+              router.replace('/matriculas')
+            }
+          }
+        }}
+        initialLeadId={initialLeadId}
         onCreated={() => {
           void loadMatriculas()
         }}

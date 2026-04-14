@@ -11,10 +11,30 @@ interface RouteContext {
 }
 
 const BLOCKED_LEAD_STATUSES = new Set(['not_interested', 'unreachable', 'discarded', 'spam', 'rejected'])
+
+const NON_ENROLLABLE_COURSE_RUN_STATUSES = new Set([
+  'enrollment_closed',
+  'closed',
+  'cancelled',
+  'inactive',
+  'archived',
+  'draft',
+  'published',
+])
 function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
   if (typeof value === 'string' && /^\d+$/.test(value)) return parseInt(value, 10)
   return null
+}
+
+function matchesEnrollmentCandidate(existing: any, studentId: number, courseRunId: number): boolean {
+  if (!existing || !toPositiveInt(existing.id)) return false
+  const existingStudentId = toPositiveInt(existing.student?.id ?? existing.student ?? existing.student_id)
+  const existingCourseRunId = toPositiveInt(
+    existing.course_run?.id ?? existing.course_run ?? existing.course_run_id,
+  )
+  if (!existingStudentId || !existingCourseRunId) return false
+  return existingStudentId === studentId && existingCourseRunId === courseRunId
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
@@ -32,6 +52,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (!leadId) {
       return NextResponse.json({ error: 'Lead ID invalido' }, { status: 400 })
     }
+
+    const body = await request.json().catch(() => ({} as Record<string, unknown>))
 
     const lead = await payload.findByID({ collection: 'leads', id, depth: 0 }) as any
     if (!lead) {
@@ -51,14 +73,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
 
-    if (lead.enrollment_id) {
-      return NextResponse.json({
-        success: true,
-        alreadyExists: true,
-        enrollmentId: lead.enrollment_id,
-      })
-    }
-
     const tenantId =
       toPositiveInt(lead.tenant_id ?? lead.tenant?.id ?? lead.tenant) ??
       authUser.tenantId ??
@@ -68,18 +82,33 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Usuario autenticado invalido' }, { status: 401 })
     }
 
+    const explicitCourseRunId = toPositiveInt((body as any).courseRunId ?? (body as any).course_run_id)
+
+    const leadEnrollmentId = toPositiveInt(lead.enrollment_id)
+    if (!explicitCourseRunId && leadEnrollmentId) {
+      return NextResponse.json({
+        success: true,
+        alreadyExists: true,
+        enrollmentId: leadEnrollmentId,
+      })
+    }
+
     let courseRunId =
+      explicitCourseRunId ??
       toPositiveInt(lead.course_run_id ?? lead.course_id ?? lead.course_run?.id ?? lead.course_run)
 
     if (!courseRunId) {
-      const runs = await payload.find({
-        collection: 'course-runs',
-        depth: 0,
-        limit: 1,
-        sort: '-createdAt',
-        overrideAccess: true,
-      })
-      courseRunId = toPositiveInt(runs.docs?.[0]?.id)
+      const runs =
+        typeof (payload as any).find === 'function'
+          ? await payload.find({
+              collection: 'course-runs',
+              depth: 0,
+              limit: 1,
+              sort: '-createdAt',
+              overrideAccess: true,
+            })
+          : { docs: [] as any[] }
+      courseRunId = toPositiveInt((runs as any).docs?.[0]?.id)
     }
 
     if (!courseRunId) {
@@ -87,6 +116,55 @@ export async function POST(request: NextRequest, context: RouteContext) {
         { error: 'No hay convocatoria disponible para iniciar matriculacion en este lead' },
         { status: 422 },
       )
+    }
+
+    const courseRun = await payload.findByID({
+      collection: 'course-runs',
+      id: courseRunId,
+      depth: 0,
+      overrideAccess: true,
+    }) as any
+
+    if (!courseRun) {
+      return NextResponse.json({ error: 'Convocatoria no encontrada' }, { status: 404 })
+    }
+
+    const courseRunTenantId = toPositiveInt(courseRun?.tenant?.id ?? courseRun?.tenant)
+    if (courseRunTenantId && tenantId && courseRunTenantId !== tenantId) {
+      return NextResponse.json({ error: 'Convocatoria no encontrada' }, { status: 404 })
+    }
+
+    const courseRunStatus = String(courseRun.status ?? '')
+      .trim()
+      .toLowerCase()
+
+    if (courseRunStatus && NON_ENROLLABLE_COURSE_RUN_STATUSES.has(courseRunStatus)) {
+      return NextResponse.json(
+        { error: 'La convocatoria no está abierta para matrícula' },
+        { status: 422 },
+      )
+    }
+
+    const existingEnrollment =
+      typeof (payload as any).find === 'function'
+        ? await payload.find({
+            collection: 'enrollments',
+            where: {
+              and: [{ student: { equals: lead.id } }, { course_run: { equals: courseRunId } }],
+            } as any,
+            depth: 0,
+            limit: 1,
+            overrideAccess: true,
+          })
+        : { docs: [] as any[] }
+    const existing = (existingEnrollment as any).docs?.[0] as any
+    const leadStudentId = toPositiveInt(lead.id)
+    if (leadStudentId && matchesEnrollmentCandidate(existing, leadStudentId, courseRunId)) {
+      return NextResponse.json({
+        success: true,
+        alreadyExists: true,
+        enrollmentId: existing.id,
+      })
     }
 
     // Create enrollment via Payload, then update lead + log via raw SQL

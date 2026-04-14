@@ -17,6 +17,16 @@ interface DirectEnrollmentBody {
   course_run_id?: string | number
 }
 
+const NON_ENROLLABLE_COURSE_RUN_STATUSES = new Set([
+  'enrollment_closed',
+  'closed',
+  'cancelled',
+  'inactive',
+  'archived',
+  'draft',
+  'published',
+])
+
 function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
   if (typeof value === 'string' && /^\d+$/.test(value)) return parseInt(value, 10)
@@ -110,7 +120,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Convocatoria no encontrada' }, { status: 404 })
     }
 
-    if (String(courseRun.status ?? '') !== 'enrollment_open') {
+    const courseRunStatus = String(courseRun.status ?? '')
+      .trim()
+      .toLowerCase()
+
+    if (courseRunStatus && NON_ENROLLABLE_COURSE_RUN_STATUSES.has(courseRunStatus)) {
       return NextResponse.json(
         { error: 'La convocatoria no está abierta para matrícula' },
         { status: 422 },
@@ -125,25 +139,77 @@ export async function POST(request: NextRequest) {
     const tenantId = courseRunTenantId ?? authUser.tenantId ?? 1
     const courseId = toPositiveInt(courseRun.course?.id ?? courseRun.course)
 
-    const leadData: Record<string, unknown> = {
-      first_name: firstName,
-      last_name: lastName,
-      email,
-      phone,
-      status: 'enrolling',
-      priority: 'high',
-      gdpr_consent: true,
-      privacy_policy_accepted: true,
-      consent_timestamp: new Date().toISOString(),
-      tenant: tenantId,
-      ...(courseId ? { course: courseId } : {}),
+    const existingLeadQuery =
+      typeof (payload as any).find === 'function'
+        ? await payload.find({
+            collection: 'leads',
+            where: {
+              and: [{ email: { equals: email } }, { tenant: { equals: tenantId } }],
+            } as any,
+            depth: 0,
+            limit: 1,
+            overrideAccess: true,
+          })
+        : { docs: [] as any[] }
+
+    let lead = existingLeadQuery.docs?.[0] as any
+    if (!lead) {
+      const leadData: Record<string, unknown> = {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        phone,
+        status: 'enrolling',
+        priority: 'high',
+        gdpr_consent: true,
+        privacy_policy_accepted: true,
+        consent_timestamp: new Date().toISOString(),
+        tenant: tenantId,
+        ...(courseId ? { course: courseId } : {}),
+      }
+
+      lead = await payload.create({
+        collection: 'leads',
+        overrideAccess: true,
+        data: leadData as any,
+      })
+    } else {
+      const leadId = toPositiveInt(lead.id)
+      if (leadId && drizzle?.execute) {
+        await drizzle.execute(`
+          UPDATE leads
+          SET first_name = '${firstName.replace(/'/g, "''")}',
+              last_name = '${lastName.replace(/'/g, "''")}',
+              phone = '${phone.replace(/'/g, "''")}',
+              status = 'enrolling',
+              updated_at = NOW()
+          WHERE id = ${leadId}
+        `).catch(() => {})
+      }
     }
 
-    const lead = await payload.create({
-      collection: 'leads',
-      overrideAccess: true,
-      data: leadData as any,
-    })
+    const existingEnrollment =
+      typeof (payload as any).find === 'function'
+        ? await payload.find({
+            collection: 'enrollments',
+            where: {
+              and: [{ student: { equals: lead.id } }, { course_run: { equals: courseRunId } }],
+            } as any,
+            depth: 0,
+            limit: 1,
+            overrideAccess: true,
+          })
+        : { docs: [] as any[] }
+    const existing = existingEnrollment.docs?.[0] as any
+    if (existing?.id) {
+      return NextResponse.json({
+        success: true,
+        alreadyExists: true,
+        mode: 'direct',
+        leadId: lead.id,
+        enrollmentId: existing.id,
+      })
+    }
 
     const enrollment = await payload.create({
       collection: 'enrollments',
