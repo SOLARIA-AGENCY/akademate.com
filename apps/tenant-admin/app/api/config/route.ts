@@ -2,6 +2,12 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { queryFirst } from '@/@payload-config/lib/db'
+import {
+  EMPTY_INTEGRATIONS,
+  getTenantIntegrations,
+  updateTenantIntegrations,
+  type TenantIntegrations,
+} from '@/app/api/meta/_lib/integrations'
 
 const PersonalizacionSchema = z.object({
   primary: z.string().min(4),
@@ -430,9 +436,9 @@ export async function GET(request: NextRequest) {
     const cepHost = hostLooksLikeCep(requestHost)
     const hostDefaultLogos = cepHost
       ? {
-          principal: '/logos/cep-formacion-logo.png',
-          oscuro: '/logos/cep-formacion-logo.png',
-          claro: '/logos/cep-formacion-logo.png',
+          principal: '/logos/cep-formacion-logo-rectangular.png',
+          oscuro: '/logos/cep-formacion-logo-rectangular.png',
+          claro: '/logos/cep-formacion-logo-rectangular.png',
           favicon: '/logos/cep-formacion-isotipo.svg',
         }
       : mockConfig.logos
@@ -608,12 +614,12 @@ export async function GET(request: NextRequest) {
     if (section === 'integrations') {
       if (tenantId) {
         try {
-          const tenant = await getTenantBranding(tenantId)
-          if (tenant) {
-            const fromBranding = IntegrationsSchema.safeParse(tenant.branding?.integrations ?? {})
+          const integrations = await getTenantIntegrations(tenantId)
+          if (integrations) {
+            const fromTenant = IntegrationsSchema.safeParse(integrations)
             return NextResponse.json({
               success: true,
-              data: fromBranding.success ? fromBranding.data : IntegrationsSchema.parse({}),
+              data: fromTenant.success ? fromTenant.data : IntegrationsSchema.parse(EMPTY_INTEGRATIONS),
             })
           }
         } catch {
@@ -622,7 +628,7 @@ export async function GET(request: NextRequest) {
       }
       return NextResponse.json({
         success: true,
-        data: IntegrationsSchema.parse({}),
+        data: IntegrationsSchema.parse(EMPTY_INTEGRATIONS),
       })
     }
 
@@ -803,20 +809,15 @@ export async function PUT(request: NextRequest) {
         )
       }
 
-      const tenant = await getTenantBranding(tenantId)
-      if (!tenant) {
+      const existing = await getTenantIntegrations(tenantId)
+      if (!existing) {
         return NextResponse.json(
           { success: false, error: 'Tenant not found' },
           { status: 404 }
         )
       }
 
-      const nextBranding: TenantBranding = {
-        ...(tenant.branding ?? {}),
-        integrations: parsed.data,
-      }
-
-      await updateTenantBranding(tenantId, nextBranding)
+      await updateTenantIntegrations(tenantId, parsed.data as TenantIntegrations)
 
       return NextResponse.json({
         success: true,

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
+import { resolveMetaRequestContext } from '../_lib/integrations'
+import { checkMetaHealth } from '../_lib/meta-graph'
 import {
   createCampaign,
   createAdSet,
@@ -34,7 +36,6 @@ interface CreateCampaignBody {
 // Meta config defaults (tenant-driven with env fallback)
 // ---------------------------------------------------------------------------
 
-const META_AD_ACCOUNT = process.env.META_AD_ACCOUNT_ID || '730494526974837'
 const META_PAGE_ID = process.env.META_PAGE_ID || '174953792552373'
 const META_PIXEL_ID = process.env.META_PIXEL_ID || '1189071876088388'
 const META_REGION_TENERIFE = '3872'
@@ -46,6 +47,22 @@ const META_REGION_TENERIFE = '3872'
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as CreateCampaignBody
+    const { searchParams } = new URL(request.url)
+    const metaContext = await resolveMetaRequestContext(request, searchParams.get('tenantId'))
+
+    if (!metaContext.authenticated) {
+      return NextResponse.json(
+        { error: 'Sesion no autenticada', code: 'UNAUTHORIZED' },
+        { status: 401 },
+      )
+    }
+
+    if (!metaContext.tenantId) {
+      return NextResponse.json(
+        { error: 'No se pudo resolver el tenant actual', code: 'MISCONFIGURED' },
+        { status: 400 },
+      )
+    }
 
     if (!body.convocatoriaId || !body.dailyBudget) {
       return NextResponse.json(
@@ -61,25 +78,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 1. Get Marketing API token from tenant config
-    const payload = await getPayloadHMR({ config: configPromise })
-    let accessToken = ''
+    const health = await checkMetaHealth({
+      adAccountId: metaContext.meta.adAccountIdNormalized,
+      accessToken: metaContext.meta.marketingApiToken,
+      requireAdsManagement: true,
+    })
 
-    try {
-      const tenants = await payload.find({ collection: 'tenants', limit: 1 })
-      const tenant = tenants.docs[0] as any
-      const integrations = tenant?.branding?.integrations
-      accessToken = integrations?.metaMarketingApiToken || process.env.META_MARKETING_API_TOKEN || ''
-    } catch {
-      accessToken = process.env.META_MARKETING_API_TOKEN || ''
-    }
-
-    if (!accessToken) {
+    if (health.status !== 'ok') {
+      const httpStatus = health.error?.code === 'MISSING_PERMISSIONS' ? 403 : 400
       return NextResponse.json(
-        { error: 'Meta Marketing API token not configured. Go to Configuracion > Integraciones.' },
-        { status: 400 },
+        {
+          error:
+            health.error?.message ||
+            'No se pudo validar la integracion Meta para crear la campaña.',
+          code: health.error?.code || 'META_API_ERROR',
+          source_health: health,
+        },
+        { status: httpStatus },
       )
     }
+
+    const payload = await getPayloadHMR({ config: configPromise })
+    const accessToken = metaContext.meta.marketingApiToken
+    const metaAdAccountId = metaContext.meta.adAccountIdNormalized
+    const metaPixelId = metaContext.meta.pixelId || META_PIXEL_ID
 
     // 2. Get convocatoria data
     const convocatoria = await payload.findByID({
@@ -110,7 +132,7 @@ export async function POST(request: NextRequest) {
       )
 
     const campaignResult = await createCampaign({
-      adAccountId: META_AD_ACCOUNT,
+      adAccountId: metaAdAccountId,
       accessToken,
       name: campaignName,
     })
@@ -126,12 +148,12 @@ export async function POST(request: NextRequest) {
 
     // 4. Create Ad Set
     const adSetResult = await createAdSet({
-      adAccountId: META_AD_ACCOUNT,
+      adAccountId: metaAdAccountId,
       accessToken,
       campaignId: metaCampaignId,
       name: `${courseName} / Tenerife`,
       dailyBudget: body.dailyBudget * 100, // Convert EUR to cents
-      pixelId: META_PIXEL_ID,
+      pixelId: metaPixelId,
       targeting: {
         geoLocations: { regions: [{ key: region }] },
       },
@@ -153,7 +175,7 @@ export async function POST(request: NextRequest) {
         const media = await payload.findByID({ collection: 'media', id: body.imageMediaId })
         if (media && (media as any).url) {
           const imgResult = await uploadAdImage(
-            META_AD_ACCOUNT,
+            metaAdAccountId,
             accessToken,
             `${(process.env.NEXT_PUBLIC_TENANT_URL || request.nextUrl.origin).replace(/\/$/, '')}${(media as any).url}`,
           )
@@ -168,7 +190,7 @@ export async function POST(request: NextRequest) {
 
     // 6. Create Ad Creative
     const creativeResult = await createAdCreative({
-      adAccountId: META_AD_ACCOUNT,
+      adAccountId: metaAdAccountId,
       accessToken,
       name: `Creative - ${courseName}`,
       pageId: META_PAGE_ID,
@@ -193,7 +215,7 @@ export async function POST(request: NextRequest) {
 
     // 7. Create Ad (PAUSED)
     const adResult = await createAd({
-      adAccountId: META_AD_ACCOUNT,
+      adAccountId: metaAdAccountId,
       accessToken,
       adSetId: metaAdSetId,
       name: `AD-01 / ${courseName} / Feed`,
@@ -222,8 +244,9 @@ export async function POST(request: NextRequest) {
         campaignName,
         landingUrl,
         status: 'PAUSED',
-        adsManagerUrl: `https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=${META_AD_ACCOUNT}&campaign_ids=${metaCampaignId}`,
+        adsManagerUrl: `https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=${metaAdAccountId}&campaign_ids=${metaCampaignId}`,
       },
+      source_health: health,
     })
   } catch (error) {
     console.error('[meta-ads] POST error:', error)

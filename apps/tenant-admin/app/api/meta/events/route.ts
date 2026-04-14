@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendMetaEvent } from '@/src/lib/meta-capi'
+import { resolveMetaRequestContext } from '../_lib/integrations'
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,14 +14,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Read Meta config from tenant
-    const { getPayloadHMR } = await import('@payloadcms/next/utilities')
-    const configPromise = (await import('@payload-config')).default
-    const payload = await getPayloadHMR({ config: configPromise })
-    const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
-    const tenant = tenants.docs[0] as any
-    const pixelId = tenant?.integrations?.metaPixelId
-    const accessToken = tenant?.integrations?.metaConversionsApiToken
+    const { searchParams } = new URL(req.url)
+    const metaContext = await resolveMetaRequestContext(req, searchParams.get('tenantId'))
+    const pixelId = metaContext.meta.pixelId
+    const accessToken = metaContext.meta.conversionsApiToken
 
     if (!pixelId || !accessToken) {
       return NextResponse.json({ ok: true, skipped: true })

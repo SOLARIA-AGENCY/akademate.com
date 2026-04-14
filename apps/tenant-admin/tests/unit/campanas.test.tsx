@@ -48,7 +48,7 @@ describe('CampanasPage', () => {
     it('muestra mensaje de carga mientras fetch está pendiente', () => {
       global.fetch = vi.fn().mockReturnValue(new Promise(() => {})) // never resolves
       render(<CampanasPage data-oid="xl6hsd8" />)
-      expect(screen.getByText(/Cargando campa(?:ñ|n)as/i)).toBeInTheDocument()
+      expect(screen.getByText(/Cargando campañas/i)).toBeInTheDocument()
     })
   })
 
@@ -57,7 +57,7 @@ describe('CampanasPage', () => {
       mockFetch(SAMPLE_CAMPAIGNS)
       render(<CampanasPage data-oid="n8or0h_" />)
       await waitFor(() =>
-        expect(screen.getByTestId('page-header-title')).toHaveTextContent('Campanas de Marketing')
+        expect(screen.getByTestId('page-header-title')).toHaveTextContent('Campañas de Marketing')
       )
     })
 
@@ -81,7 +81,7 @@ describe('CampanasPage', () => {
       render(<CampanasPage data-oid="5k15t2l" />)
       await waitFor(() => {
         // activeCount rendered as the bold number under "Campañas Activas"
-        expect(screen.getByText('Campanas Activas')).toBeInTheDocument()
+        expect(screen.getByText('Campañas Activas')).toBeInTheDocument()
       })
     })
 
@@ -117,7 +117,7 @@ describe('CampanasPage', () => {
       mockFetch([])
       render(<CampanasPage data-oid="to25-vv" />)
       await waitFor(() => {
-        expect(screen.getByTestId('empty-state-title')).toHaveTextContent('Sin campañas activas')
+        expect(screen.getByTestId('empty-state-title')).toHaveTextContent('Sin campañas SOLARIA AGENCY')
       })
     })
 
@@ -126,7 +126,7 @@ describe('CampanasPage', () => {
       render(<CampanasPage data-oid="95lo21q" />)
       await waitFor(() => {
         expect(screen.getByTestId('empty-state-description')).toHaveTextContent(
-          'Crea tu primera campana para empezar a captar leads.'
+          'No hay campañas de SOLARIA para la Ad Account actual.'
         )
       })
     })
