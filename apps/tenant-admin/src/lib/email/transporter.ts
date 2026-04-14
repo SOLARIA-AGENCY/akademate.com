@@ -42,22 +42,45 @@ function getDkimKey(): string | null {
 // In production, send directly to MX with DKIM
 // In development, use Mailpit
 const isProduction = process.env.NODE_ENV === 'production'
+const hasExplicitSMTP = Boolean(process.env.SMTP_HOST?.trim())
+const smtpAuth =
+  process.env.SMTP_USER?.trim() && process.env.SMTP_PASS?.trim()
+    ? {
+        user: process.env.SMTP_USER.trim(),
+        pass: process.env.SMTP_PASS.trim(),
+      }
+    : undefined
+const smtpSecure = process.env.SMTP_SECURE === 'true'
+const smtpPort = parseInt(
+  process.env.SMTP_PORT ||
+    (hasExplicitSMTP ? (smtpSecure ? '465' : '587') : isProduction ? '1025' : '1025'),
+  10,
+)
 
-const transportConfig = isProduction
+const transportConfig = hasExplicitSMTP
   ? {
-      host: process.env.SMTP_HOST || 'akademate-mail',
-      port: parseInt(process.env.SMTP_PORT || '1025', 10),
-      secure: false,
+      host: process.env.SMTP_HOST,
+      port: smtpPort,
+      secure: smtpSecure,
       tls: { rejectUnauthorized: false },
-      // Force IPv4 to avoid Gmail IPv6 PTR issues
-      family: 4 as const,
+      ...(smtpAuth ? { auth: smtpAuth } : {}),
+      ...(isProduction ? { family: 4 as const } : {}),
     }
-  : {
-      host: 'localhost',
-      port: 1025,
-      secure: false,
-      tls: { rejectUnauthorized: false },
-    }
+  : isProduction
+    ? {
+        host: 'akademate-mail',
+        port: 1025,
+        secure: false,
+        tls: { rejectUnauthorized: false },
+        // Force IPv4 to avoid Gmail IPv6 PTR issues
+        family: 4 as const,
+      }
+    : {
+        host: 'localhost',
+        port: 1025,
+        secure: false,
+        tls: { rejectUnauthorized: false },
+      }
 
 const dkimKey = getDkimKey()
 const dkimConfig = dkimKey
