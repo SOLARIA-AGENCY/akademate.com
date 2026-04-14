@@ -1,59 +1,93 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
 import { ChatbotWidget } from '@payload-config/components/ui/ChatbotWidget'
 
 describe('ChatbotWidget Component', () => {
+  beforeEach(() => {
+    ;(global.fetch as Mock) = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ success: true, feedbackId: 'fbk-test-123' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    ) as unknown as Mock
+  })
+
   it('renders chatbot button', () => {
-    render(<ChatbotWidget data-oid="0z_gf0i" />)
+    render(<ChatbotWidget />)
 
     // Should show the floating button
     const buttons = screen.getAllByRole('button')
     expect(buttons.length).toBeGreaterThan(0)
   })
 
-  it('opens chat window when button clicked', () => {
-    render(<ChatbotWidget data-oid="tec6:vq" />)
+  it('opens feedback window when button clicked', () => {
+    render(<ChatbotWidget />)
 
     const buttons = screen.getAllByRole('button')
     fireEvent.click(buttons[0])
 
-    // Should show welcome message
-    expect(screen.getByText(/hola.*asistente virtual/i)).toBeInTheDocument()
+    expect(screen.getByText(/canal de feedback/i)).toBeInTheDocument()
+    expect(screen.getByText(/reporta un problema o sugerencia/i)).toBeInTheDocument()
   })
 
-  it('allows sending messages', () => {
-    render(<ChatbotWidget data-oid="5yt_25u" />)
+  it('allows writing feedback details', () => {
+    render(<ChatbotWidget />)
 
-    // Open widget
     const buttons = screen.getAllByRole('button')
     fireEvent.click(buttons[0])
 
-    // Find input and send button
-    const input = screen.getByPlaceholderText(/escribe tu consulta/i)
-    expect(input).toBeInTheDocument()
+    const locationInput = screen.getByPlaceholderText('/dashboard/...')
+    const promptInput = screen.getByPlaceholderText(
+      /describe el problema, pasos para reproducirlo y resultado esperado/i,
+    )
 
-    fireEvent.change(input, { target: { value: 'Hola' } })
-    expect(input).toHaveValue('Hola')
+    expect(locationInput).toBeInTheDocument()
+    expect(promptInput).toBeInTheDocument()
+
+    fireEvent.change(locationInput, { target: { value: '/dashboard/cursos' } })
+    fireEvent.change(promptInput, {
+      target: { value: 'Al guardar un curso aparece un error 500 en el modal de edición.' },
+    })
+
+    expect(locationInput).toHaveValue('/dashboard/cursos')
+    expect(promptInput).toHaveValue(
+      'Al guardar un curso aparece un error 500 en el modal de edición.',
+    )
   })
 
-  it('shows AI responses', () => {
-    render(<ChatbotWidget data-oid="ll8m5y9" />)
+  it('sends feedback to API and shows confirmation', async () => {
+    render(<ChatbotWidget />)
 
-    // Open widget
     const buttons = screen.getAllByRole('button')
     fireEvent.click(buttons[0])
 
-    // Should have initial assistant message
-    expect(screen.getByText(/asistente virtual/i)).toBeInTheDocument()
+    const promptInput = screen.getByPlaceholderText(
+      /describe el problema, pasos para reproducirlo y resultado esperado/i,
+    )
+    fireEvent.change(promptInput, {
+      target: { value: 'No puedo cambiar el estado de un lead desde la lista principal.' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /enviar feedback/i }))
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/feedback/chatbot',
+        expect.objectContaining({ method: 'POST' }),
+      )
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText(/feedback enviado correctamente/i)).toBeInTheDocument()
+    })
   })
 
   it('can be closed', () => {
-    render(<ChatbotWidget data-oid="quq-3t6" />)
+    render(<ChatbotWidget />)
 
-    // Open widget
     const openButtons = screen.getAllByRole('button')
     fireEvent.click(openButtons[0])
 
-    // Find close button (X icon)
     const closeButton = screen.getAllByRole('button').find((btn) => btn.querySelector('svg'))
     if (closeButton) {
       fireEvent.click(closeButton)
