@@ -21,6 +21,10 @@ import { z } from 'zod';
  * - Enum validation: modality values
  * - Relationship validation: UUIDs for cycle and campuses
  */
+const RelationshipIdSchema = z.union([z.string(), z.number()]);
+
+const RichTextLikeSchema = z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]);
+
 export const CourseSchema = z.object({
   // Required: Unique URL-friendly identifier
   slug: z
@@ -35,17 +39,17 @@ export const CourseSchema = z.object({
     .min(1, 'Course name is required')
     .max(500, 'Course name must be 500 characters or less'),
 
-  // Required: Reference to educational cycle
-  cycle: z.string({ error: 'Cycle is required' }),
+  // Optional: Reference to educational cycle
+  cycle: RelationshipIdSchema.optional().nullable(),
 
   // Optional: Multiple campus references (array of IDs)
-  campuses: z.array(z.string()).optional().default([]),
+  campuses: z.array(RelationshipIdSchema).optional().default([]),
 
   // Optional: Brief summary for listings
-  short_description: z.string().optional(),
+  short_description: z.string().optional().nullable(),
 
-  // Optional: Detailed course information
-  long_description: z.string().optional(),
+  // Optional: Detailed course information (Payload richText can be object/array/string)
+  long_description: RichTextLikeSchema.optional().nullable(),
 
   // Required: Delivery method (presencial, online, hibrido)
   modality: z.enum(['presencial', 'online', 'hibrido'], {
@@ -57,14 +61,16 @@ export const CourseSchema = z.object({
     .number()
     .int('Duration must be an integer')
     .positive('Duration must be positive')
-    .optional(),
+    .optional()
+    .nullable(),
 
   // Optional: Base price in euros (non-negative, 2 decimal places)
   base_price: z
     .number()
     .nonnegative('Price cannot be negative')
     .multipleOf(0.01, 'Price must have at most 2 decimal places')
-    .optional(),
+    .optional()
+    .nullable(),
 
   // Optional: Financial aid availability flag
   financial_aid_available: z.boolean().optional().default(true),
@@ -76,16 +82,17 @@ export const CourseSchema = z.object({
   featured: z.boolean().optional().default(false),
 
   // Optional: SEO meta title (max 300 chars)
-  meta_title: z.string().max(300, 'Meta title must be 300 characters or less').optional(),
+  meta_title: z.string().max(300, 'Meta title must be 300 characters or less').optional().nullable(),
 
   // Optional: SEO meta description (max 500 chars)
   meta_description: z
     .string()
     .max(500, 'Meta description must be 500 characters or less')
-    .optional(),
+    .optional()
+    .nullable(),
 
   // Optional: User who created the course (relationship)
-  created_by: z.string().optional(),
+  created_by: RelationshipIdSchema.optional().nullable(),
 });
 
 /**

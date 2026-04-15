@@ -280,7 +280,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: convocations.docs.map((conv: PopulatedCourseRun) => {
+      data: (convocations.docs as PopulatedCourseRun[]).map((conv) => {
         // Extract course image URL
         let cursoImagen: string | null = null;
         if (typeof conv.course === 'object' && conv.course !== null) {
