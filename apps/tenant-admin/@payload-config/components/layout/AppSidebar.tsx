@@ -338,7 +338,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
     (url: string | undefined): boolean => {
       if (!url) return false
       const [base, query] = url.split('?')
-      if (pathname !== base) return false
+      if (pathname !== base && !pathname.startsWith(`${base}/`)) return false
       if (!query) return true
       const currentParams = new URLSearchParams(currentSearch)
       const targetParams = new URLSearchParams(query)
@@ -417,7 +417,9 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
         <ul className="space-y-1.5" data-oid=":9jwylk">
           {dynamicMenuItems.map((item) => {
             const Icon = item.icon
-            const isActive = pathname === item.url
+            const isActive =
+              typeof item.url === 'string' &&
+              (pathname === item.url || pathname.startsWith(`${item.url}/`))
             const hasSubItems = item.items && item.items.length > 0
             const isOpen = openSections.includes(item.title)
 
