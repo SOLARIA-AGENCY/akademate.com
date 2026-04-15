@@ -18,7 +18,7 @@ export function normalizeStudyType(value: string | null | undefined): Normalized
   if (['privado', 'privados', 'priv', 'pri'].includes(normalized)) return 'privados'
   if (['ocupado', 'ocupados', 'ocu', 'trabajadores_ocupados'].includes(normalized)) return 'ocupados'
   if (['desempleado', 'desempleados', 'des', 'trabajadores_desempleados'].includes(normalized)) return 'desempleados'
-  if (['teleformacion', 'tele_formacion', 'tele', 'online'].includes(normalized)) return 'teleformacion'
+  if (['teleformacion', 'tele_formacion', 'tele', 'tel', 'online'].includes(normalized)) return 'teleformacion'
   if (['ciclo_medio', 'grado_medio', 'cfgm'].includes(normalized)) return 'ciclo_medio'
   if (['ciclo_superior', 'grado_superior', 'cfgs'].includes(normalized)) return 'ciclo_superior'
 

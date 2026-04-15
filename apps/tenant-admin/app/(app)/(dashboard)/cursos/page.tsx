@@ -129,7 +129,7 @@ function CursosPageContent() {
         }, 15000)
 
         const startTime = Date.now()
-        const response = await fetch('/api/cursos', {
+        const response = await fetch('/api/cursos?includeInactive=1', {
           signal: controller.signal,
           cache: 'no-cache', // Forzar fresh data en primera carga
         })

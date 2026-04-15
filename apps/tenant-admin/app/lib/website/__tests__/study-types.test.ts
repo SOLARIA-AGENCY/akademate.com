@@ -8,6 +8,7 @@ describe('normalizeStudyType', () => {
     expect(normalizeStudyType('ocupados')).toBe('ocupados')
     expect(normalizeStudyType('desempleados')).toBe('desempleados')
     expect(normalizeStudyType('teleformación')).toBe('teleformacion')
+    expect(normalizeStudyType('TEL')).toBe('teleformacion')
   })
 
   it('normalizes cycle levels', () => {

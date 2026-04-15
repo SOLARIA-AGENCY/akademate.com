@@ -3,6 +3,7 @@ import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
+import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses';
 import { normalizeStudyType } from '@/app/lib/website/study-types';
 
 /**
@@ -31,33 +32,6 @@ interface CursoRequestBody {
   subvencionado?: boolean;
   subvenciones?: string[];
   porcentaje_subvencion?: string;
-}
-
-interface AreaFormativa {
-  id: number;
-  codigo: string;
-  nombre: string;
-}
-
-interface FeaturedImage {
-  id: number;
-  filename: string;
-  url?: string;
-}
-
-interface CourseDocument {
-  id: number;
-  codigo: string;
-  name: string;
-  course_type: CourseType;
-  short_description?: string;
-  duration_hours?: number;
-  base_price?: number;
-  subsidy_percentage?: number;
-  area_formativa?: AreaFormativa | number;
-  featured_image?: FeaturedImage | number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface CourseCreateData {
@@ -246,87 +220,46 @@ export async function POST(request: NextRequest) {
  * Lista cursos (opcional, para debugging)
  * OPTIMIZADO: Cache de 10 segundos para reducir hits a Payload
  */
-export async function GET() {
+export async function GET(request?: NextRequest) {
   try {
-     
     const payload: Payload = await getPayloadHMR({ config: configPromise });
-    const PAGE_SIZE = 100;
-    const courseDocs: CourseDocument[] = [];
-    let page = 1;
-    let totalDocs = 0;
-    let hasNextPage = true;
+    const url = new URL(request?.url ?? 'http://localhost/api/cursos');
+    const includeInactiveParam = url.searchParams.get('includeInactive');
+    const includeInactive = includeInactiveParam === '1' || includeInactiveParam === 'true';
+    const requestedStudyType = url.searchParams.get('tipo') ?? url.searchParams.get('studyType');
+    const limitParam = Number(url.searchParams.get('limit') || '');
+    const limit = Number.isFinite(limitParam) && limitParam > 0 ? limitParam : 1000;
 
-    while (hasNextPage) {
-      const cursosPage = await payload.find({
-        collection: 'courses',
-        where: {
-          course_type: {
-            not_in: ['ciclo_medio', 'ciclo_superior'],
-          },
-        },
-        limit: PAGE_SIZE,
-        page,
-        sort: '-createdAt',
-        depth: 2, // Populate relationships (area_formativa)
-      });
-
-      if (page === 1) {
-        totalDocs = cursosPage.totalDocs;
-      }
-
-      courseDocs.push(...(cursosPage.docs as unknown as CourseDocument[]));
-      hasNextPage = Boolean(cursosPage.hasNextPage);
-      page += 1;
-    }
+    const courses = await getPublishedCourses({
+      payload,
+      includeInactive,
+      includeCycles: false,
+      studyType: requestedStudyType,
+      limit,
+      sort: '-createdAt',
+    });
+    const studyTypeMeta = await getStudyTypeVisualMap(payload);
 
     const response = NextResponse.json({
       success: true,
-      data: courseDocs.map((curso: CourseDocument) => {
-        // Extract area name (can be object or ID)
-        const areaFormativa = curso.area_formativa;
-        let areaName = 'Sin área';
-        if (typeof areaFormativa === 'object' && areaFormativa !== null) {
-          areaName = areaFormativa.nombre ?? 'Sin área';
-        }
-
-        // Extract featured image URL (build from filename to avoid Payload transformation)
-        const featuredImage = curso.featured_image;
-        let imagenPortada = '/placeholder-course.svg';
-        if (typeof featuredImage === 'object' && featuredImage !== null) {
-          imagenPortada = `/media/${featuredImage.filename}`;
-        }
-
-        return {
-          id: curso.id,
-          codigo: curso.codigo,
-          nombre: curso.name,
-          tipo: curso.course_type,
-          studyType: normalizeStudyType(curso.course_type),
-          descripcion: curso.short_description ?? 'Curso de formación profesional',
-          area: areaName,
-          duracionReferencia: curso.duration_hours ?? 0,
-          precioReferencia: curso.base_price ?? 0,
-          porcentajeSubvencion: curso.subsidy_percentage ?? 100, // Porcentaje de subvención (default 100%)
-          imagenPortada,
-          totalConvocatorias: 0, // TODO: Contar convocatorias activas
-        };
-      }),
-      total: totalDocs,
+      data: courses,
+      total: courses.length,
+      studyTypeMeta,
     });
 
     // Cache por 10 segundos, revalidar en background
     response.headers.set('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
 
     return response;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching courses:', error);
-    // Fallback defensivo para entornos con schema parcial/migraciones pendientes.
-    // Evita romper el dashboard de cursos cuando faltan tablas auxiliares *_rels.
-    return NextResponse.json({
-      success: true,
-      data: [],
-      total: 0,
-      warning: 'Cursos no disponibles temporalmente: esquema de base de datos incompleto.',
-    });
+    const errorMessage = error instanceof Error ? error.message : 'Error al obtener cursos';
+    return NextResponse.json(
+      {
+        success: false,
+        error: errorMessage,
+      },
+      { status: 500 }
+    );
   }
 }
