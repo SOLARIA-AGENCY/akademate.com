@@ -73,10 +73,10 @@ export const DEFAULT_STUDY_TYPE_VISUALS: Record<PublicStudyType, StudyTypeVisual
 }
 
 const STUDY_TYPE_TO_COURSE_TYPE_VALUES: Record<PublicStudyType, string[]> = {
-  privados: ['privado', 'privados'],
-  desempleados: ['desempleados', 'desempleado'],
-  ocupados: ['ocupados', 'ocupado'],
-  teleformacion: ['teleformacion', 'tele_formacion', 'tele'],
+  privados: ['privado'],
+  desempleados: ['desempleados'],
+  ocupados: ['ocupados'],
+  teleformacion: ['teleformacion'],
 }
 
 type GetPublishedCoursesOptions = {
