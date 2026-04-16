@@ -53,6 +53,10 @@ const RANGE_OPTIONS: Array<{ value: RangeOption; label: string }> = [
   { value: 'custom', label: 'Rango personalizado' },
 ]
 
+const DEFAULT_CAMPAIGNS_YEAR = '2026'
+const DEFAULT_CAMPAIGNS_SINCE = `${DEFAULT_CAMPAIGNS_YEAR}-01-01`
+const DEFAULT_CAMPAIGNS_UNTIL = `${DEFAULT_CAMPAIGNS_YEAR}-12-31`
+
 function formatDate(value?: string | null): string {
   if (!value) return 'N/D'
   const parsed = new Date(value)
@@ -121,10 +125,10 @@ export default function CampanasPage() {
     { id: 'all', name: 'Todas las cuentas' },
   ])
   const [selectedAccount, setSelectedAccount] = useState('all')
-  const [range, setRange] = useState<RangeOption>('30d')
-  const [customSince, setCustomSince] = useState('')
-  const [customUntil, setCustomUntil] = useState('')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [range, setRange] = useState<RangeOption>('custom')
+  const [customSince, setCustomSince] = useState(DEFAULT_CAMPAIGNS_SINCE)
+  const [customUntil, setCustomUntil] = useState(DEFAULT_CAMPAIGNS_UNTIL)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('paused')
   const [query, setQuery] = useState('')
   const [statusOverrides, setStatusOverrides] = useState<Record<string, UiStatus>>({})
 
@@ -265,7 +269,11 @@ export default function CampanasPage() {
 
       <PageHeader
         title="Campañas de Marketing"
-        description={selectedAccount === 'all' ? 'Todas las campañas' : `Campañas de ${selectedAccountName}`}
+        description={
+          selectedAccount === 'all'
+            ? `Campañas pausadas ${DEFAULT_CAMPAIGNS_YEAR} listas para lanzamiento`
+            : `Campañas pausadas ${DEFAULT_CAMPAIGNS_YEAR} de ${selectedAccountName}`
+        }
         icon={Megaphone}
         actions={
           <Button variant="outline" onClick={() => void fetchCampaigns()}>
