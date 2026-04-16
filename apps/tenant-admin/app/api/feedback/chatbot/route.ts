@@ -5,7 +5,18 @@ import { sendMail } from '../../../../src/lib/email'
 
 export const dynamic = 'force-dynamic'
 
-const FEEDBACK_INBOX = process.env.CEP_FEEDBACK_INBOX || 'agency.solaria@gmail.com'
+const PRIMARY_FEEDBACK_INBOX = 'agency.solaria@gmail.com'
+const FEEDBACK_INBOX = [
+  PRIMARY_FEEDBACK_INBOX,
+  ...(process.env.CEP_FEEDBACK_INBOX
+    ? process.env.CEP_FEEDBACK_INBOX
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : []),
+]
+  .filter((value, index, self) => self.indexOf(value) === index)
+  .join(', ')
 const SESSION_COOKIE_NAMES = ['akademate_session', 'cep_session'] as const
 
 const FeedbackPayloadSchema = z.object({
@@ -72,6 +83,31 @@ function parseSessionUser(request: NextRequest): SessionUser | null {
   return null
 }
 
+function parsePayloadTokenUser(request: NextRequest): SessionUser | null {
+  const token = request.cookies.get('payload-token')?.value
+  if (!token) return null
+  const payloadSegment = token.split('.')[1]
+  if (!payloadSegment) return null
+
+  try {
+    const normalized = payloadSegment.replace(/-/g, '+').replace(/_/g, '/')
+    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=')
+    const decoded = Buffer.from(padded, 'base64').toString('utf8')
+    const payload = JSON.parse(decoded) as Record<string, unknown>
+
+    return {
+      id: (payload.id as string | number | undefined) ?? (payload.sub as string | number | undefined),
+      name: payload.name as string | undefined,
+      email: payload.email as string | undefined,
+      role: payload.role as string | undefined,
+      tenantId: payload.tenantId as string | number | undefined,
+      tenant: payload.tenant as string | number | { id?: string | number } | undefined,
+    }
+  } catch {
+    return null
+  }
+}
+
 function resolveTenantLabel(user: SessionUser | null): string {
   if (!user) return 'desconocido'
   if (typeof user.tenantId === 'number' || typeof user.tenantId === 'string') {
@@ -99,7 +135,7 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = parsed.data
-    const sessionUser = parseSessionUser(request)
+    const sessionUser = parseSessionUser(request) ?? parsePayloadTokenUser(request)
     const userAgent = request.headers.get('user-agent') || 'desconocido'
     const referer = request.headers.get('referer') || 'desconocido'
     const host = request.headers.get('host') || request.nextUrl.host || 'desconocido'

@@ -71,6 +71,24 @@ type TenantData = {
   whatsappContacts: Array<{ label: string; phone: string; shortCode: string; message: string }>
 }
 
+const CEP_WHATSAPP_CONTACTS: Array<{ label: string; phone: string; message: string }> = [
+  {
+    label: 'CEP FORMACION NORTE',
+    phone: '+34 622 41 60 20',
+    message: 'Hola, quiero información de CEP Formación Norte.',
+  },
+  {
+    label: 'CEP DESEMPLEADOS',
+    phone: '+34 622 73 61 01',
+    message: 'Hola, necesito información sobre cursos para desempleados.',
+  },
+  {
+    label: 'CEP SANTA CRUZ',
+    phone: '+34 618 98 96 48',
+    message: 'Hola, quiero información de la sede CEP Santa Cruz.',
+  },
+]
+
 function isCepHost(host: string): boolean {
   return /(^|\.)cepformacion(\.|$)/i.test(host) || host.includes('cep-formacion')
 }
@@ -92,7 +110,7 @@ async function getEmergencyTenantData(): Promise<TenantData> {
     phone1: '',
     phone2: '',
     isCepTenant: cepFallback,
-    whatsappContacts: [],
+    whatsappContacts: cepFallback ? buildWhatsAppContacts(CEP_WHATSAPP_CONTACTS) : [],
   }
 }
 
@@ -110,6 +128,23 @@ function shortCodeFromLabel(label: string): string {
   return `${words[0]![0] ?? ''}${words[1]![0] ?? ''}`.toUpperCase()
 }
 
+function buildWhatsAppContacts(
+  entries: Array<{ label: string; phone: string; message: string }>
+): Array<{ label: string; phone: string; shortCode: string; message: string }> {
+  return entries
+    .map((entry) => ({
+      ...entry,
+      normalizedPhone: normalizeWhatsAppPhone(entry.phone),
+    }))
+    .filter((entry) => Boolean(entry.normalizedPhone))
+    .map((entry) => ({
+      label: entry.label,
+      phone: entry.phone,
+      shortCode: shortCodeFromLabel(entry.label),
+      message: entry.message,
+    }))
+}
+
 async function getTenantData(): Promise<TenantData> {
   try {
     const tenant = await getTenantHostBranding()
@@ -121,21 +156,12 @@ async function getTenantData(): Promise<TenantData> {
     const phone1 = tenant.contactPhone
     const phone2 = tenant.contactPhoneAlternative
 
-    const whatsappContacts = [
-      { label: 'Contacto', phone: phone1, message: 'Hola, me gustaria recibir informacion sobre la oferta formativa.' },
-      { label: 'Admision', phone: phone2, message: 'Hola, necesito informacion sobre admision y matricula.' },
-    ]
-      .map((entry) => ({
-        ...entry,
-        normalizedPhone: normalizeWhatsAppPhone(entry.phone),
-      }))
-      .filter((entry) => Boolean(entry.normalizedPhone))
-      .map((entry) => ({
-        label: entry.label,
-        phone: entry.phone,
-        shortCode: shortCodeFromLabel(entry.label),
-        message: entry.message,
-      }))
+    const whatsappContacts = tenant.isCepTenant
+      ? buildWhatsAppContacts(CEP_WHATSAPP_CONTACTS)
+      : buildWhatsAppContacts([
+          { label: 'Contacto', phone: phone1, message: 'Hola, me gustaria recibir informacion sobre la oferta formativa.' },
+          { label: 'Admision', phone: phone2, message: 'Hola, necesito informacion sobre admision y matricula.' },
+        ])
 
     return {
       name: academyName,

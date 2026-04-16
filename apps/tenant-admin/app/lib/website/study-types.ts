@@ -16,10 +16,10 @@ export const PUBLIC_STUDY_TYPE_CODES: Record<PublicStudyType, string> = {
 }
 
 export const PUBLIC_STUDY_TYPE_COURSE_TYPE_VALUES: Record<PublicStudyType, string[]> = {
-  privados: ['privado', 'privados'],
-  desempleados: ['desempleado', 'desempleados'],
-  ocupados: ['ocupado', 'ocupados'],
-  teleformacion: ['teleformacion', 'tele_formacion'],
+  privados: ['privado'],
+  desempleados: ['desempleados'],
+  ocupados: ['ocupados'],
+  teleformacion: ['teleformacion'],
 }
 
 export function normalizeStudyType(value: string | null | undefined): NormalizedStudyType | null {
