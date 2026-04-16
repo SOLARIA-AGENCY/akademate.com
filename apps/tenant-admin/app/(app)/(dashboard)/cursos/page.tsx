@@ -28,7 +28,11 @@ import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
 import { fetchCoursesCatalog } from '@/app/lib/client/courses-catalog'
-import { normalizePublicStudyType, toDashboardStudyType } from '@/app/lib/website/study-types'
+import {
+  getPublicStudyTypeFallbackImage,
+  normalizePublicStudyType,
+  toDashboardStudyType,
+} from '@/app/lib/website/study-types'
 
 // Local type definition to avoid ESLint path resolution issues
 type ViewMode = 'grid' | 'list'
@@ -274,27 +278,34 @@ function CursosPageContent() {
 
       {/* Landing de tipos de curso */}
       {!loading && !error && isTypeLandingPage && (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2">
           {PRIMARY_COURSE_TYPES.map((type) => {
             const style = COURSE_TYPE_CONFIG[type]
             const IconByType = TYPE_ICONS[type]
+            const typeImage = getPublicStudyTypeFallbackImage(type)
             return (
               <button
                 key={type}
                 type="button"
                 onClick={() => goToTypePage(type)}
-                className="text-left"
+                className="text-left h-full"
               >
-                <Card className="border transition-all hover:shadow-sm hover:border-primary">
-                  <CardContent className="p-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold text-white ${style.bgColor}`}>
+                <Card className="h-full overflow-hidden border transition-all hover:shadow-md hover:border-primary">
+                  <div className="relative h-44">
+                    <img src={typeImage} alt={style.label} className="h-full w-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute left-4 top-4 flex items-center gap-2">
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold text-white ${style.bgColor}`}>
                         {style.label}
                       </span>
+                    </div>
+                    <div className="absolute right-4 top-4 rounded-full bg-white/90 p-2">
                       <IconByType className={`h-4 w-4 ${style.textColor}`} />
                     </div>
-                    <p className="text-2xl font-bold">{typeCounts[type]}</p>
-                    <p className="text-xs text-muted-foreground">cursos</p>
+                  </div>
+                  <CardContent className="p-5">
+                    <p className="text-3xl font-bold">{typeCounts[type]}</p>
+                    <p className="text-sm text-muted-foreground">cursos disponibles</p>
                   </CardContent>
                 </Card>
               </button>
