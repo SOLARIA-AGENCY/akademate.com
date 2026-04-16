@@ -8,7 +8,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, BookOpen, Clock, Edit, Loader2,
-  Calendar, Users, ChevronRight, Plus, UserPlus,
+  Calendar, ChevronRight, Plus,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -173,12 +173,10 @@ export default function CursoDetailPage({ params }: Props) {
       />
 
       {/* KPI Cards */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-2">
         {[
           { label: 'Horas', value: course.duration_hours || 0, icon: Clock },
           { label: 'Convocatorias', value: 0, icon: Calendar },
-          { label: 'Alumnos', value: 0, icon: Users },
-          { label: 'Plazas', value: 0, icon: BookOpen },
         ].map(({ label, value, icon: Icon }) => (
           <Card key={label}>
             <CardContent className="p-4">
@@ -213,38 +211,6 @@ export default function CursoDetailPage({ params }: Props) {
                 message="No hay convocatorias de este curso"
                 hint="Las convocatorias se crean desde Programacion"
               />
-            </CardContent>
-          </Card>
-
-          {/* Profesores */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <UserPlus className="h-4 w-4 text-primary" />
-                Profesores
-              </CardTitle>
-              <Button size="sm" variant="outline">
-                <Plus className="mr-1.5 h-3.5 w-3.5" />Asignar profesor
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <EmptyState message="No hay profesores asignados a este curso" />
-            </CardContent>
-          </Card>
-
-          {/* Alumnos */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Users className="h-4 w-4 text-primary" />
-                Alumnos matriculados
-              </CardTitle>
-              <Button size="sm" variant="outline">
-                <Plus className="mr-1.5 h-3.5 w-3.5" />Matricular alumno
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <EmptyState message="No hay alumnos matriculados en este curso" />
             </CardContent>
           </Card>
         </div>
