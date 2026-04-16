@@ -3,9 +3,14 @@ import 'server-only'
 import { getPayload, type Payload } from 'payload'
 import configPromise from '@payload-config'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
-import { normalizeStudyType, type NormalizedStudyType } from '@/app/lib/website/study-types'
-
-type PublicStudyType = Exclude<NormalizedStudyType, 'ciclo_medio' | 'ciclo_superior'>
+import {
+  isPublicStudyType,
+  normalizePublicStudyType,
+  normalizeStudyType,
+  PUBLIC_STUDY_TYPE_CODES,
+  PUBLIC_STUDY_TYPE_COURSE_TYPE_VALUES,
+  type PublicStudyType,
+} from '@/app/lib/website/study-types'
 
 type CourseDoc = {
   id: number | string
@@ -66,17 +71,10 @@ export type PublishedCourse = {
 }
 
 export const DEFAULT_STUDY_TYPE_VISUALS: Record<PublicStudyType, StudyTypeVisualMeta> = {
-  privados: { code: 'PRIV', label: 'Privados', color: '#E3003A' },
-  desempleados: { code: 'DES', label: 'Desempleados', color: '#2563EB' },
-  ocupados: { code: 'OCU', label: 'Ocupados', color: '#22C55E' },
-  teleformacion: { code: 'TEL', label: 'Teleformación', color: '#F97316' },
-}
-
-const STUDY_TYPE_TO_COURSE_TYPE_VALUES: Record<PublicStudyType, string[]> = {
-  privados: ['privado'],
-  desempleados: ['desempleados'],
-  ocupados: ['ocupados'],
-  teleformacion: ['teleformacion'],
+  privados: { code: PUBLIC_STUDY_TYPE_CODES.privados, label: 'Privados', color: '#E3003A' },
+  desempleados: { code: PUBLIC_STUDY_TYPE_CODES.desempleados, label: 'Desempleados', color: '#2563EB' },
+  ocupados: { code: PUBLIC_STUDY_TYPE_CODES.ocupados, label: 'Ocupados', color: '#22C55E' },
+  teleformacion: { code: PUBLIC_STUDY_TYPE_CODES.teleformacion, label: 'Teleformación', color: '#F97316' },
 }
 
 type GetPublishedCoursesOptions = {
@@ -87,15 +85,6 @@ type GetPublishedCoursesOptions = {
   includeCycles?: boolean
   limit?: number
   sort?: string
-}
-
-function isPublicStudyType(value: NormalizedStudyType | null): value is PublicStudyType {
-  return Boolean(
-    value &&
-      value !== 'ciclo_medio' &&
-      value !== 'ciclo_superior' &&
-      value in DEFAULT_STUDY_TYPE_VISUALS
-  )
 }
 
 function isValidHexColor(color: string | null | undefined): color is string {
@@ -115,17 +104,15 @@ function toAreaName(area: CourseDoc['area_formativa']): string {
   return 'Sin área'
 }
 
-function toPublicWhere({
-  tenantId,
+function buildPublicFilters({
   includeInactive,
   includeCycles,
   studyType,
 }: {
-  tenantId?: string | number | null
   includeInactive: boolean
   includeCycles: boolean
   studyType?: string | null
-}) {
+}): Record<string, unknown>[] {
   const filters: Record<string, unknown>[] = []
 
   if (!includeInactive) {
@@ -140,17 +127,80 @@ function toPublicWhere({
     })
   }
 
-  const normalizedStudyType = normalizeStudyType(studyType)
-  if (isPublicStudyType(normalizedStudyType)) {
+  const normalizedStudyType = normalizePublicStudyType(studyType)
+  if (normalizedStudyType) {
     filters.push({
       course_type: {
-        in: STUDY_TYPE_TO_COURSE_TYPE_VALUES[normalizedStudyType],
+        in: PUBLIC_STUDY_TYPE_COURSE_TYPE_VALUES[normalizedStudyType],
       },
     })
   }
 
+  return filters
+}
+
+function toPublicWhere({
+  tenantId,
+  includeInactive,
+  includeCycles,
+  studyType,
+}: {
+  tenantId?: string | number | null
+  includeInactive: boolean
+  includeCycles: boolean
+  studyType?: string | null
+}) {
+  const filters = buildPublicFilters({
+    includeInactive,
+    includeCycles,
+    studyType,
+  })
   const where = filters.length > 0 ? { and: filters } : {}
   return withTenantScope(where as Record<string, unknown>, tenantId)
+}
+
+function mapCourseDocToPublishedCourse(
+  course: CourseDoc,
+  studyTypeMap: Record<PublicStudyType, StudyTypeVisualMeta>
+): PublishedCourse {
+  const normalizedStudyType = normalizePublicStudyType(String(course.course_type || ''))
+  const visual = normalizedStudyType ? studyTypeMap[normalizedStudyType] : null
+  const imageUrl =
+    resolveImageUrl(course.featured_image) ||
+    resolveImageUrl(course.image) ||
+    '/placeholder-course.svg'
+
+  return {
+    id: String(course.id),
+    codigo: String(course.codigo || ''),
+    slug: String(course.slug || ''),
+    nombre: String(course.name || course.title || 'Curso sin nombre'),
+    tipo: String(course.course_type || ''),
+    studyType: normalizedStudyType,
+    studyTypeLabel: visual?.label || 'Sin tipo',
+    studyTypeColor: visual?.color || '#64748B',
+    descripcion:
+      String(course.short_description || course.description || '').trim() ||
+      'Curso de formación profesional',
+    area: toAreaName(course.area_formativa),
+    duracionReferencia: Number(course.duration_hours || 0),
+    precioReferencia: Number(course.base_price || 0),
+    porcentajeSubvencion: Number(course.subsidy_percentage || 100),
+    imagenPortada: imageUrl,
+    totalConvocatorias: 0,
+    active: Boolean(course.active),
+    featured: Boolean(course.featured),
+    created_at: course.createdAt ?? null,
+    updated_at: course.updatedAt ?? null,
+  }
+}
+
+export function getStudyTypeColor(
+  studyType: PublicStudyType | null | undefined,
+  visualMap: Record<PublicStudyType, StudyTypeVisualMeta> = DEFAULT_STUDY_TYPE_VISUALS
+): string {
+  if (!studyType) return '#64748B'
+  return visualMap[studyType]?.color || '#64748B'
 }
 
 export async function getStudyTypeVisualMap(payloadClient?: Payload): Promise<Record<PublicStudyType, StudyTypeVisualMeta>> {
@@ -223,38 +273,48 @@ export async function getPublishedCourses(options: GetPublishedCoursesOptions = 
   }
 
   const studyTypeMap = await getStudyTypeVisualMap(payload)
+  return docs.map((course) => mapCourseDocToPublishedCourse(course, studyTypeMap))
+}
 
-  return docs.map((course) => {
-    const normalizedStudyType = normalizeStudyType(String(course.course_type || ''))
-    const publicStudyType = isPublicStudyType(normalizedStudyType) ? normalizedStudyType : null
-    const visual = publicStudyType ? studyTypeMap[publicStudyType] : null
-    const imageUrl =
-      resolveImageUrl(course.featured_image) ||
-      resolveImageUrl(course.image) ||
-      '/placeholder-course.svg'
+type GetPublishedCourseBySlugOptions = {
+  slug: string
+  payload?: Payload
+  tenantId?: string | number | null
+  includeInactive?: boolean
+  includeCycles?: boolean
+}
 
-    return {
-      id: String(course.id),
-      codigo: String(course.codigo || ''),
-      slug: String(course.slug || ''),
-      nombre: String(course.name || course.title || 'Curso sin nombre'),
-      tipo: String(course.course_type || ''),
-      studyType: publicStudyType,
-      studyTypeLabel: visual?.label || 'Sin tipo',
-      studyTypeColor: visual?.color || '#64748B',
-      descripcion:
-        String(course.short_description || course.description || '').trim() ||
-        'Curso de formación profesional',
-      area: toAreaName(course.area_formativa),
-      duracionReferencia: Number(course.duration_hours || 0),
-      precioReferencia: Number(course.base_price || 0),
-      porcentajeSubvencion: Number(course.subsidy_percentage || 100),
-      imagenPortada: imageUrl,
-      totalConvocatorias: 0,
-      active: Boolean(course.active),
-      featured: Boolean(course.featured),
-      created_at: course.createdAt ?? null,
-      updated_at: course.updatedAt ?? null,
-    }
+export async function getPublishedCourseBySlug(
+  options: GetPublishedCourseBySlugOptions
+): Promise<PublishedCourse | null> {
+  const slug = String(options.slug || '').trim()
+  if (!slug) return null
+
+  const payload = options.payload ?? (await getPayload({ config: configPromise }))
+  const includeInactive = options.includeInactive ?? false
+  const includeCycles = options.includeCycles ?? false
+  const filters = buildPublicFilters({
+    includeInactive,
+    includeCycles,
   })
+  filters.push({ slug: { equals: slug } })
+
+  const where = withTenantScope(
+    { and: filters } as Record<string, unknown>,
+    options.tenantId
+  )
+
+  const result = await payload.find({
+    collection: 'courses',
+    where: where as any,
+    limit: 1,
+    depth: 1,
+    sort: '-createdAt',
+  })
+
+  const course = (result.docs?.[0] ?? null) as CourseDoc | null
+  if (!course) return null
+
+  const studyTypeMap = await getStudyTypeVisualMap(payload)
+  return mapCourseDocToPublishedCourse(course, studyTypeMap)
 }

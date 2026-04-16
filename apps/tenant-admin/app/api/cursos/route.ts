@@ -4,7 +4,8 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
 import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses';
-import { normalizeStudyType } from '@/app/lib/website/study-types';
+import { normalizePublicStudyType } from '@/app/lib/website/study-types';
+import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth';
 
 /**
  * TypeScript interfaces for type safety
@@ -124,8 +125,8 @@ export async function POST(request: NextRequest) {
       teleformacion: 'teleformacion',
     };
 
-    const normalizedStudyType = normalizeStudyType(studyType ?? tipo);
-    if (!normalizedStudyType || normalizedStudyType === 'ciclo_medio' || normalizedStudyType === 'ciclo_superior') {
+    const normalizedStudyType = normalizePublicStudyType(studyType ?? tipo);
+    if (!normalizedStudyType) {
       return NextResponse.json(
         { success: false, error: 'Tipo de estudio inválido para cursos (usa: privados, ocupados, desempleados o teleformacion)' },
         { status: 400 }
@@ -223,6 +224,17 @@ export async function POST(request: NextRequest) {
 export async function GET(request?: NextRequest) {
   try {
     const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const authContext = request ? await getAuthenticatedUserContext(request, payload as any) : null;
+    if (request && !authContext) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Authentication required',
+        },
+        { status: 401 }
+      );
+    }
+
     const url = new URL(request?.url ?? 'http://localhost/api/cursos');
     const includeInactiveParam = url.searchParams.get('includeInactive');
     const includeInactive = includeInactiveParam === '1' || includeInactiveParam === 'true';
@@ -232,6 +244,7 @@ export async function GET(request?: NextRequest) {
 
     const courses = await getPublishedCourses({
       payload,
+      tenantId: authContext?.tenantId ?? null,
       includeInactive,
       includeCycles: false,
       studyType: requestedStudyType,

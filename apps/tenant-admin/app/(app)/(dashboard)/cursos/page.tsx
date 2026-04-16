@@ -27,6 +27,8 @@ import { CourseListItem } from '@payload-config/components/ui/CourseListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
+import { fetchCoursesCatalog } from '@/app/lib/client/courses-catalog'
+import { normalizePublicStudyType, toDashboardStudyType } from '@/app/lib/website/study-types'
 
 // Local type definition to avoid ESLint path resolution issues
 type ViewMode = 'grid' | 'list'
@@ -34,14 +36,6 @@ type ViewMode = 'grid' | 'list'
 // import { plantillasCursosData, plantillasStats } from '@payload-config/data/mockCourseTemplatesData'
 
 import type { PlantillaCurso } from '../../../../types'
-
-// TypeScript interfaces
-interface ApiResponse {
-  success: boolean
-  data: PlantillaCurso[]
-  total?: number
-  error?: string
-}
 
 const PRIMARY_COURSE_TYPES = ['privados', 'ocupados', 'desempleados', 'teleformacion'] as const
 type DashboardCourseType = (typeof PRIMARY_COURSE_TYPES)[number]
@@ -61,32 +55,12 @@ const TYPE_ICONS: Record<DashboardCourseType, typeof Lock> = {
   teleformacion: Monitor,
 }
 
-function normalizeDashboardCourseType(value: string | null | undefined): DashboardCourseType | null {
-  if (!value) return null
-  const normalized = value
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .replace(/[^a-z0-9_\\-]+/g, '_')
-
-  if (['privado', 'privados', 'priv', 'pri'].includes(normalized)) return 'privados'
-  if (['ocupado', 'ocupados', 'ocu'].includes(normalized)) return 'ocupados'
-  if (['desempleado', 'desempleados', 'des'].includes(normalized)) return 'desempleados'
-  if (['teleformacion', 'tele_formacion', 'tele'].includes(normalized)) return 'teleformacion'
-  // En esta pantalla de 4 categorías, los ciclos del catálogo legacy se tratan como privados.
-  if (['ciclo_medio', 'ciclo-medio', 'grado_medio', 'cfgm'].includes(normalized)) return 'privados'
-  if (['ciclo_superior', 'ciclo-superior', 'grado_superior', 'cfgs'].includes(normalized)) return 'privados'
-
-  return null
-}
-
 // Main component that uses useSearchParams
 function CursosPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tipo = searchParams.get('tipo')
-  const selectedTypeFromUrl = normalizeDashboardCourseType(tipo)
+  const selectedTypeFromUrl = normalizePublicStudyType(tipo)
 
   // View preference (eslint path alias resolution workaround)
 
@@ -117,64 +91,25 @@ function CursosPageContent() {
 
   // Cargar cursos desde API con retry logic
   useEffect(() => {
-    const fetchCursosWithRetry = async (retries = 2) => {
-      console.log(`[CURSOS] Iniciando fetch de cursos (intentos restantes: ${retries})`)
+    const fetchCursos = async () => {
       try {
         setLoading(true)
-
-        // Timeout de 15 segundos
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => {
-          controller.abort(new Error('Timeout de 15 segundos alcanzado'))
-        }, 15000)
-
-        const startTime = Date.now()
-        const response = await fetch('/api/cursos?includeInactive=1', {
-          signal: controller.signal,
-          cache: 'no-cache', // Forzar fresh data en primera carga
+        const result = await fetchCoursesCatalog<PlantillaCurso>({
+          includeInactive: true,
+          timeoutMs: 15000,
+          retries: 2,
         })
-        clearTimeout(timeoutId)
-        const elapsed = Date.now() - startTime
-        console.log(`[CURSOS] Respuesta recibida en ${elapsed}ms`)
-
-        const result = (await response.json()) as ApiResponse
-        console.log(`[CURSOS] Datos recibidos:`, {
-          success: result.success,
-          total: result.total,
-          count: result.data?.length,
-        })
-
-        if (result.success) {
-          // La API ya retorna los datos en el formato correcto
-          setCursos(result.data)
-          setError(null)
-          console.log(`[CURSOS] ✅ ${result.data.length} cursos cargados exitosamente`)
-        } else {
-          console.error('[CURSOS] ❌ Error en respuesta:', result.error)
-          setError(result.error ?? 'Error al cargar cursos')
-        }
+        setCursos(result.courses)
+        setError(null)
       } catch (err: unknown) {
         const error = err instanceof Error ? err : new Error('Unknown error')
-        console.error('[CURSOS] ❌ Error fetching courses:', error)
-
-        // Retry en caso de timeout o error de red
-        if (retries > 0 && (error.name === 'AbortError' || error.message.includes('fetch'))) {
-          console.log(`[CURSOS] 🔄 Reintentando... (${retries} intentos restantes)`)
-          setTimeout(() => fetchCursosWithRetry(retries - 1), 1000)
-          return
-        }
-
-        setError(
-          error.name === 'AbortError'
-            ? 'Tiempo de espera agotado. El servidor está tardando demasiado.'
-            : 'Error de conexión al cargar cursos'
-        )
+        setError(error.message || 'Error de conexión al cargar cursos')
       } finally {
         setLoading(false)
       }
     }
 
-    void fetchCursosWithRetry()
+    void fetchCursos()
   }, [])
 
   // Cargar áreas formativas desde API
@@ -216,8 +151,7 @@ function CursosPageContent() {
   }
 
   const getCourseType = (course: PlantillaCurso): DashboardCourseType =>
-    normalizeDashboardCourseType((course as PlantillaCurso & { studyType?: string }).studyType ?? course.tipo) ??
-    'privados'
+    toDashboardStudyType((course as PlantillaCurso & { studyType?: string }).studyType ?? course.tipo)
 
   // Filtrado base (sin tipo) para construir cards dinámicas por categoría
   const baseFilteredCourses = cursos.filter((course) => {

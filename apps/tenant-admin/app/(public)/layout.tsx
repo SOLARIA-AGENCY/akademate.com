@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import '../globals.css'
 import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
+import { getTenantWebsite } from '@/app/lib/website/server'
 import { PublicHeaderClient } from './_components/PublicHeaderClient'
 
 function getIconMimeType(url: string): string {
@@ -152,8 +153,14 @@ async function getTenantData(): Promise<TenantData> {
   }
 }
 
+function toPublicFooterHref(href: string): string {
+  if (href.startsWith('/legal/')) return `/p${href}`
+  return href
+}
+
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const tenant = await getTenantData()
+  const website = await getTenantWebsite()
   const c = tenant.primaryColor
 
   return (
@@ -210,41 +217,71 @@ fbq('track', 'PageView');`,
 
         <main className="flex-1 pt-12 sm:pt-14 md:pt-[5.5rem]">{children}</main>
 
-        {/* Footer — uses brand color */}
-        <footer className="brand-bg-dark text-gray-200 mt-16" style={{ backgroundColor: `color-mix(in srgb, ${c} 20%, #111827)` }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <footer className="mt-16 border-t border-slate-200 bg-white text-slate-700">
+          <div className="bg-slate-50 py-12">
+            <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-4 lg:px-8">
+              <div className="flex flex-col items-center lg:items-start">
+                <img
+                  src={website.visualIdentity.logoPrimary || tenant.logo}
+                  alt={tenant.name}
+                  className="h-14 w-auto object-contain lg:h-16"
+                />
+                <p className="mt-4 text-sm font-medium text-slate-600">
+                  &copy; {new Date().getFullYear()} {tenant.name}
+                </p>
+              </div>
               <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src={tenant.logo}
-                    alt={tenant.name}
-                    className="h-9 w-auto object-contain brightness-200"
-                  />
+                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-900">Sedes</h3>
+                <div className="mt-4 space-y-4 text-sm text-slate-700">
+                  <p>
+                    <span className="block font-semibold text-slate-900">Santa Cruz</span>
+                    Plaza José Antonio Barrios Olivero, Bajo Estadio Heliodoro, 38005
+                  </p>
+                  <p>
+                    <span className="block font-semibold text-slate-900">Norte</span>
+                    Molinos de Gofio 2, 38312 La Orotava (C.C. El Trompo, última planta)
+                  </p>
                 </div>
-                <p className="text-sm text-gray-400">Centro de formación profesional autorizado. Ciclos formativos oficiales y cursos especializados.</p>
               </div>
               <div>
-                <h3 className="font-semibold text-white mb-4">Formación</h3>
-                <ul className="space-y-2 text-sm">
-                  <li><a href="/quienes-somos" className="hover:text-white transition-colors">Quiénes somos</a></li>
-                  <li><a href="/p/ciclos" className="hover:text-white transition-colors">Ciclos Formativos</a></li>
-                  <li><a href="/p/cursos" className="hover:text-white transition-colors">Cursos</a></li>
-                  <li><a href="/p/convocatorias" className="hover:text-white transition-colors">Convocatorias Abiertas</a></li>
+                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-900">Contacto</h3>
+                <ul className="mt-4 space-y-3 text-sm text-slate-700">
+                  <li>Teléfono: 922 21 92 57</li>
+                  <li>Email: info@cursostenerife.es</li>
+                  <li>Horario: L-V 10:00-14:00 y 16:00-20:00</li>
                 </ul>
               </div>
-              <div>
-                <h3 className="font-semibold text-white mb-4">Legal</h3>
-                <ul className="space-y-2 text-sm">
-                  <li><a href="/p/legal/privacidad" className="hover:text-white transition-colors">Política de Privacidad</a></li>
-                  <li><a href="/p/legal/terminos" className="hover:text-white transition-colors">Términos y Condiciones</a></li>
-                  <li><a href="/p/legal/cookies" className="hover:text-white transition-colors">Política de Cookies</a></li>
-                </ul>
+              <div className="flex flex-col items-center gap-3 lg:items-end">
+                <img
+                  src="/website/cep/logos/footer/logo-certificaciones.jpg"
+                  alt="Certificaciones de calidad"
+                  className="h-auto w-52 max-w-full object-contain"
+                />
+                <img
+                  src="/website/cep/logos/footer/logo-fondo-europeo.jpg"
+                  alt="Fondo social europeo"
+                  className="h-auto w-52 max-w-full object-contain"
+                />
+                <img
+                  src="/website/cep/logos/footer/logo-sce.jpg"
+                  alt="Servicio Canario de Empleo"
+                  className="h-auto w-52 max-w-full object-contain"
+                />
               </div>
             </div>
-            <div className="border-t border-white/10 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-xs text-gray-400">&copy; {new Date().getFullYear()} {tenant.name}. Todos los derechos reservados.</p>
-              <p className="text-xs text-gray-400">Plataforma de gestión académica</p>
+          </div>
+          <div className="border-t border-slate-200">
+            <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                {website.footer.columns.flatMap((column) => column.links).map((link) => (
+                  <a key={link.href} href={toPublicFooterHref(link.href)} className="transition hover:text-slate-900">
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+              <p className="text-xs text-slate-500">
+                {website.footer.legalNote ?? 'Plataforma pública de CEP Formación.'}
+              </p>
             </div>
           </div>
         </footer>

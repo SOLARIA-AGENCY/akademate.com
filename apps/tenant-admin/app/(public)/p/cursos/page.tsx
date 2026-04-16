@@ -4,9 +4,10 @@ import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import {
   DEFAULT_STUDY_TYPE_VISUALS,
   getPublishedCourses,
+  getStudyTypeColor,
   getStudyTypeVisualMap,
 } from '@/app/lib/server/published-courses'
-import { normalizeStudyType } from '@/app/lib/website/study-types'
+import { normalizePublicStudyType } from '@/app/lib/website/study-types'
 
 export const metadata: Metadata = {
   title: 'Cursos | Formación Profesional',
@@ -16,7 +17,7 @@ export const dynamic = 'force-dynamic'
 
 function getReadableTypeLabel(type: string | null | undefined): string {
   if (!type) return 'Catálogo de cursos'
-  const normalized = normalizeStudyType(type)
+  const normalized = normalizePublicStudyType(type)
   if (!normalized || !(normalized in DEFAULT_STUDY_TYPE_VISUALS)) return 'Catálogo de cursos'
   return DEFAULT_STUDY_TYPE_VISUALS[normalized as keyof typeof DEFAULT_STUDY_TYPE_VISUALS].label
 }
@@ -32,13 +33,10 @@ export default async function CursosCatalogPage({
 }) {
   const tenant = await getTenantHostBranding()
   const rawTipo = Array.isArray(searchParams?.tipo) ? searchParams?.tipo[0] : searchParams?.tipo
-  const selectedStudyType = normalizeStudyType(rawTipo)
+  const selectedStudyType = normalizePublicStudyType(rawTipo)
   const studyTypeVisualMap = await getStudyTypeVisualMap()
   const selectedStudyTypeMeta =
-    selectedStudyType &&
-    selectedStudyType in studyTypeVisualMap &&
-    selectedStudyType !== 'ciclo_medio' &&
-    selectedStudyType !== 'ciclo_superior'
+    selectedStudyType && selectedStudyType in studyTypeVisualMap
       ? studyTypeVisualMap[selectedStudyType]
       : null
 
@@ -85,8 +83,7 @@ export default async function CursosCatalogPage({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map((course) => {
             const imageUrl = course.imagenPortada !== '/placeholder-course.svg' ? course.imagenPortada : null
-            const fallbackColor =
-              (course.studyType && studyTypeVisualMap[course.studyType]?.color) || heroColor
+            const fallbackColor = getStudyTypeColor(course.studyType, studyTypeVisualMap) || heroColor
             return (
               <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group">
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
@@ -123,4 +120,3 @@ export default async function CursosCatalogPage({
     </div>
   )
 }
-

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeStudyType } from '../study-types'
+import {
+  normalizePublicStudyType,
+  normalizeStudyType,
+  toDashboardStudyType,
+} from '../study-types'
 
 describe('normalizeStudyType', () => {
   it('normalizes main CEP study types', () => {
@@ -22,5 +26,18 @@ describe('normalizeStudyType', () => {
     expect(normalizeStudyType('')).toBeNull()
     expect(normalizeStudyType('random')).toBeNull()
     expect(normalizeStudyType(null)).toBeNull()
+  })
+
+  it('normalizes only public study types for public filters', () => {
+    expect(normalizePublicStudyType('PRIV')).toBe('privados')
+    expect(normalizePublicStudyType('DES')).toBe('desempleados')
+    expect(normalizePublicStudyType('ocu')).toBe('ocupados')
+    expect(normalizePublicStudyType('tel')).toBe('teleformacion')
+    expect(normalizePublicStudyType('cfgm')).toBeNull()
+  })
+
+  it('maps cycle levels to privados for dashboard grouping', () => {
+    expect(toDashboardStudyType('ciclo_medio')).toBe('privados')
+    expect(toDashboardStudyType('ciclo_superior')).toBe('privados')
   })
 })

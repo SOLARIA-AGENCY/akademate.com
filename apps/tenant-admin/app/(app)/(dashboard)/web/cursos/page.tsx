@@ -7,6 +7,7 @@ import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Switch } from '@payload-config/components/ui/switch'
+import { Skeleton } from '@payload-config/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -15,13 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from '@payload-config/components/ui/table'
-import { Globe, ExternalLink, Loader2, Pencil } from 'lucide-react'
-
-type StudyTypeMeta = {
-  label: string
-  code: string
-  color: string
-}
+import { Globe, ExternalLink, Pencil } from 'lucide-react'
+import { fetchCoursesCatalog, type StudyTypeMeta } from '@/app/lib/client/courses-catalog'
 
 type CourseItem = {
   id: string
@@ -35,14 +31,6 @@ type CourseItem = {
   codigo: string
 }
 
-type CoursesApiResponse = {
-  success: boolean
-  data?: CourseItem[]
-  total?: number
-  error?: string
-  studyTypeMeta?: Record<string, StudyTypeMeta>
-}
-
 export default function WebCursosPage() {
   const [courses, setCourses] = React.useState<CourseItem[]>([])
   const [studyTypeMeta, setStudyTypeMeta] = React.useState<Record<string, StudyTypeMeta>>({})
@@ -52,15 +40,16 @@ export default function WebCursosPage() {
 
   const fetchCourses = React.useCallback(async () => {
     try {
+      setIsLoading(true)
       setErrorMessage(null)
-      const response = await fetch('/api/cursos?includeInactive=1&limit=1000', { cache: 'no-cache' })
-      const payload = (await response.json()) as CoursesApiResponse
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.error || 'No se pudieron cargar los cursos')
-      }
-
-      setCourses(Array.isArray(payload.data) ? payload.data : [])
-      setStudyTypeMeta(payload.studyTypeMeta ?? {})
+      const result = await fetchCoursesCatalog<CourseItem>({
+        includeInactive: true,
+        limit: 1000,
+        timeoutMs: 15000,
+        retries: 2,
+      })
+      setCourses(result.courses)
+      setStudyTypeMeta(result.studyTypeMeta)
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Error al cargar cursos')
       setCourses([])
@@ -120,9 +109,11 @@ export default function WebCursosPage() {
 
       {isLoading && (
         <Card>
-          <CardContent className="flex items-center gap-2 py-12 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Cargando cursos...
+          <CardContent className="space-y-3 py-6">
+            <Skeleton className="h-5 w-44" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
           </CardContent>
         </Card>
       )}
@@ -229,4 +220,3 @@ export default function WebCursosPage() {
     </div>
   )
 }
-

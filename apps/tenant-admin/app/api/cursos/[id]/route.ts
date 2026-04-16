@@ -1,8 +1,11 @@
 import { getPayloadHMR } from '@payloadcms/next/utilities';
 import configPromise from '@payload-config';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
 import { normalizeStudyType } from '@/app/lib/website/study-types';
+import { withTenantScope } from '@/app/lib/server/tenant-scope';
+import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth';
 
 interface AreaFormativa {
   id: number;
@@ -27,6 +30,7 @@ interface CourseDocument {
   subsidy_percentage?: number;
   area_formativa?: AreaFormativa | number;
   featured_image?: FeaturedImage | number;
+  active?: boolean | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,7 +41,7 @@ interface CourseDocument {
  * Retorna un curso por su ID numérico de Payload
  */
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -52,12 +56,21 @@ export async function GET(
     }
 
     const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const authContext = await getAuthenticatedUserContext(request, payload as any);
+    if (!authContext) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
 
-    const curso = await payload.findByID({
+    const result = await payload.find({
       collection: 'courses',
-      id: numericId,
+      where: withTenantScope({ id: { equals: numericId } }, authContext.tenantId) as any,
+      limit: 1,
       depth: 2,
-    }) as unknown as CourseDocument;
+    });
+    const curso = (result.docs[0] ?? null) as unknown as CourseDocument | null;
 
     if (!curso) {
       return NextResponse.json(
@@ -77,7 +90,7 @@ export async function GET(
     const featuredImage = curso.featured_image;
     let imagenPortada = '/placeholder-course.svg';
     if (typeof featuredImage === 'object' && featuredImage !== null) {
-      imagenPortada = `/media/${featuredImage.filename}`;
+      imagenPortada = featuredImage.url || `/media/${featuredImage.filename}`;
     }
 
     return NextResponse.json({
@@ -95,7 +108,7 @@ export async function GET(
         porcentajeSubvencion: curso.subsidy_percentage ?? 100,
         imagenPortada,
         totalConvocatorias: 0,
-        active: true,
+        active: Boolean(curso.active),
         objetivos: [],
         contenidos: [],
         created_at: curso.createdAt,
@@ -118,7 +131,7 @@ export async function GET(
  * Actualiza un curso por su ID
  */
 export async function PATCH(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -134,6 +147,27 @@ export async function PATCH(
 
     const body = await request.json() as Record<string, unknown>;
     const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const authContext = await getAuthenticatedUserContext(request, payload as any);
+    if (!authContext) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const existing = await payload.find({
+      collection: 'courses',
+      where: withTenantScope({ id: { equals: numericId } }, authContext.tenantId) as any,
+      limit: 1,
+      depth: 0,
+    });
+
+    if (!existing.docs[0]) {
+      return NextResponse.json(
+        { success: false, error: 'Curso no encontrado' },
+        { status: 404 }
+      );
+    }
 
     const updated = await payload.update({
       collection: 'courses',

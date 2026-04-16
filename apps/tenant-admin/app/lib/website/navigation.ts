@@ -7,7 +7,7 @@ import type {
   WebsiteLink,
   WebsiteNavigationItem,
 } from './types'
-import { normalizeStudyType } from './study-types'
+import { normalizePublicStudyType } from './study-types'
 
 type CourseTypeDoc = {
   id: string | number
@@ -31,16 +31,6 @@ type CampusDoc = {
   active?: boolean | null
 }
 
-function toSearchParamSegment(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
-
 function normalizeNavigationItem(item: WebsiteNavigationItem): ResolvedWebsiteNavigationItem {
   return {
     label: item.label,
@@ -62,7 +52,8 @@ function resolveStudyTypeChildren(courseTypes: CourseTypeDoc[]): WebsiteLink[] {
       const label = (type.name || '').trim()
       if (!label) return null
       const rawValue = (type.code || label).toString()
-      const tipo = normalizeStudyType(rawValue) || normalizeStudyType(label) || toSearchParamSegment(rawValue)
+      const tipo = normalizePublicStudyType(rawValue) || normalizePublicStudyType(label)
+      if (!tipo) return null
       return toLink(label, `/cursos?tipo=${encodeURIComponent(tipo)}`)
     })
     .filter((link): link is WebsiteLink => Boolean(link))

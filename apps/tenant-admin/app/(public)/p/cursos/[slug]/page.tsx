@@ -1,37 +1,30 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { LeadForm } from '../../ciclos/[slug]/LeadForm'
-import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import {
+  getPublishedCourseBySlug,
+  getStudyTypeColor,
+  getStudyTypeVisualMap,
+} from '@/app/lib/server/published-courses'
 
 export const dynamic = 'force-dynamic'
-
-function resolveImageUrl(image: any): string | null {
-  if (!image) return null
-  if (typeof image === 'object' && image.url) return image.url
-  if (typeof image === 'object' && image.filename) return `/media/${image.filename}`
-  return null
-}
 
 interface Props { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const tenant = await getTenantHostBranding()
-  const payload = await getPayload({ config: configPromise })
-  const result = await payload.find({
-    collection: 'courses',
-    where: withTenantScope({ slug: { equals: slug } }, tenant.tenantId) as any,
-    limit: 1, depth: 0,
+  const tenantId = tenant.tenantId === 'default' ? null : tenant.tenantId
+  const course = await getPublishedCourseBySlug({
+    slug,
+    tenantId,
+    includeInactive: false,
+    includeCycles: false,
   })
-  const course = result.docs[0]
   if (!course) return { title: 'Curso no encontrado' }
-  const title = (course as { title?: string; name?: string }).title ?? (course as { name?: string }).name ?? 'Curso'
-  const description =
-    (course as { description?: string }).description ??
-    `Curso: ${title}`
+  const title = course.nombre
+  const description = course.descripcion || `Curso: ${title}`
   return {
     title: `${title} | Curso`,
     description: description.substring(0, 160),
@@ -41,29 +34,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CursoLandingPage({ params }: Props) {
   const { slug } = await params
   const tenant = await getTenantHostBranding()
-  const payload = await getPayload({ config: configPromise })
-
-  const result = await payload.find({
-    collection: 'courses',
-    where: withTenantScope({ slug: { equals: slug } }, tenant.tenantId) as any,
-    limit: 1,
-    depth: 1,
+  const tenantId = tenant.tenantId === 'default' ? null : tenant.tenantId
+  const studyTypeVisualMap = await getStudyTypeVisualMap()
+  const course = await getPublishedCourseBySlug({
+    slug,
+    tenantId,
+    includeInactive: false,
+    includeCycles: false,
   })
 
-  const course = result.docs[0] as any
   if (!course) notFound()
 
-  const title = course.title ?? course.name
-  const description = course.description ?? course.short_description ?? course.long_description
-  const imageUrl = resolveImageUrl(course.featured_image) || resolveImageUrl(course.image)
+  const title = course.nombre
+  const description = course.descripcion
+  const imageUrl = course.imagenPortada !== '/placeholder-course.svg' ? course.imagenPortada : null
+  const heroColor = getStudyTypeColor(course.studyType, studyTypeVisualMap) || tenant.primaryColor || '#0F172A'
 
   return (
     <div>
       {/* HERO */}
-      <div className="relative h-72 sm:h-80 bg-gradient-to-br from-indigo-700 to-indigo-900">
+      <div
+        className="relative h-72 sm:h-80"
+        style={{ background: `linear-gradient(135deg, ${heroColor} 0%, #0f172a 100%)` }}
+      >
         {imageUrl && <img src={imageUrl} alt={title} className="absolute inset-0 w-full h-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-12 max-w-7xl mx-auto">
+          <span
+            className="mb-3 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
+            style={{ backgroundColor: heroColor }}
+          >
+            {course.studyTypeLabel}
+          </span>
           <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2">{title}</h1>
         </div>
       </div>
@@ -83,7 +85,7 @@ export default async function CursoLandingPage({ params }: Props) {
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-2">Pedir informacion</h3>
               <p className="text-sm text-gray-600 mb-4">Dejanos tu email y te informaremos.</p>
-              <LeadForm cycleId={String(course.id)} cycleName={title} hasActiveConvocatorias={false} />
+              <LeadForm cycleId={course.id} cycleName={title} hasActiveConvocatorias={false} />
             </div>
           </div>
         </div>
