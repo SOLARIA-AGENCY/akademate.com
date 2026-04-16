@@ -130,9 +130,34 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
       success: true,
       data: {
         data: [
-          { id: '111', name: 'SOLARIA AGENCY - Linked', status: 'ACTIVE', daily_budget: '3000' },
-          { id: '333', name: 'SOLARIA AGENCY - New', status: 'PAUSED', daily_budget: '2000' },
-          { id: '222', name: 'X SOLARIA AGENCY - should-not-appear', status: 'ACTIVE', daily_budget: '1000' },
+          {
+            id: '111',
+            name: 'SOLARIA AGENCY - Linked',
+            status: 'ACTIVE',
+            daily_budget: '3000',
+            created_time: '2026-03-01T00:00:00-0700',
+          },
+          {
+            id: '333',
+            name: 'SOLARIA AGENCY - New',
+            status: 'PAUSED',
+            daily_budget: '2000',
+            created_time: '2026-04-01T00:00:00-0700',
+          },
+          {
+            id: '444',
+            name: 'SOLARIA AGENCY - Legacy 2025',
+            status: 'ACTIVE',
+            daily_budget: '1500',
+            created_time: '2025-12-15T00:00:00-0700',
+          },
+          {
+            id: '222',
+            name: 'X SOLARIA AGENCY - should-not-appear',
+            status: 'ACTIVE',
+            daily_budget: '1000',
+            created_time: '2026-03-01T00:00:00-0700',
+          },
         ],
       },
     })
@@ -165,6 +190,7 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
     expect(payload.facebook.campaigns.every((c: any) => c.name.startsWith('SOLARIA AGENCY'))).toBe(
       true
     )
+    expect(payload.facebook.campaigns.every((c: any) => !String(c.name).includes('2025'))).toBe(true)
     expect(payload.campaigns).toMatchObject({
       linked: 1,
       detected: 2,
@@ -213,4 +239,3 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
     expect(mockListCampaigns).not.toHaveBeenCalled()
   })
 })
-

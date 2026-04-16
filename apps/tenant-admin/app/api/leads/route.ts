@@ -7,6 +7,8 @@ import { getAuthenticatedUserContext } from './_lib/auth'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
+const RESERVED_TENANT_SLUGS = new Set(['www', 'admin', 'app'])
+
 function esc(s: string): string {
   return s.replace(/'/g, "''")
 }
@@ -22,6 +24,71 @@ function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
   if (typeof value === 'string' && /^\d+$/.test(value)) return parseInt(value, 10)
   return null
+}
+
+function normalizeHost(rawHost: string | null | undefined): string {
+  const firstHost = (rawHost ?? '').split(',')[0]?.trim().toLowerCase() ?? ''
+  return firstHost.replace(/:\d+$/, '')
+}
+
+function hostLooksLikeCep(host: string): boolean {
+  return /(^|\.)cepformacion(\.|$)/i.test(host) || host.includes('cep-formacion')
+}
+
+function toAbsoluteUrl(baseUrl: string, maybeRelative: string): string {
+  if (!maybeRelative) return ''
+  if (/^https?:\/\//i.test(maybeRelative)) return maybeRelative
+  const base = baseUrl.replace(/\/$/, '')
+  const path = maybeRelative.startsWith('/') ? maybeRelative : `/${maybeRelative}`
+  return `${base}${path}`
+}
+
+async function resolveTenantForPublicLead(payload: any, request: NextRequest): Promise<Record<string, unknown> | null> {
+  const requestHost = normalizeHost(
+    request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.host
+  )
+
+  if (requestHost && requestHost !== 'localhost' && requestHost !== '127.0.0.1') {
+    try {
+      const byDomain = await payload.find({
+        collection: 'tenants',
+        where: { domain: { equals: requestHost } },
+        limit: 1,
+        depth: 0,
+      })
+      if (Array.isArray(byDomain?.docs) && byDomain.docs[0]) {
+        return byDomain.docs[0] as Record<string, unknown>
+      }
+    } catch {
+      // Continue to slug fallback.
+    }
+
+    const hostParts = requestHost.split('.')
+    const subdomain = hostParts.length >= 3 ? hostParts[0] : ''
+    if (subdomain && !RESERVED_TENANT_SLUGS.has(subdomain)) {
+      try {
+        const bySlug = await payload.find({
+          collection: 'tenants',
+          where: { slug: { equals: subdomain } },
+          limit: 1,
+          depth: 0,
+        })
+        if (Array.isArray(bySlug?.docs) && bySlug.docs[0]) {
+          return bySlug.docs[0] as Record<string, unknown>
+        }
+      } catch {
+        // Continue to global fallback.
+      }
+    }
+  }
+
+  const fallback = await payload.find({
+    collection: 'tenants',
+    limit: 1,
+    depth: 0,
+  })
+
+  return (fallback?.docs?.[0] as Record<string, unknown> | undefined) ?? null
 }
 
 async function hasColumn(drizzle: any, tableName: string, columnName: string): Promise<boolean> {
@@ -262,33 +329,45 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = await getPayloadHMR({ config: configPromise })
-    const tenantQuery = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
-    const tenant = tenantQuery.docs[0] as unknown as Record<string, unknown> | undefined
+    const tenant = await resolveTenantForPublicLead(payload, request)
     const tenantIdRaw = tenant?.id
+    const host = normalizeHost(
+      request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.host
+    )
+    const isCepTenant =
+      hostLooksLikeCep(host) ||
+      hostLooksLikeCep(String(tenant?.domain || '')) ||
+      String(tenant?.slug || '').toLowerCase().includes('cep')
     const tenantIdNumeric =
       typeof tenantIdRaw === 'number'
         ? tenantIdRaw
         : typeof tenantIdRaw === 'string' && /^\d+$/.test(tenantIdRaw)
         ? parseInt(tenantIdRaw, 10)
         : 1
-    const academyName =
-      (typeof tenant?.name === 'string' && tenant.name.trim()) ||
-      process.env.NEXT_PUBLIC_TENANT_NAME ||
-      'Akademate'
-    const tenantPrimaryColor =
-      (typeof tenant?.branding_primary_color === 'string' && tenant.branding_primary_color.trim()) ||
-      process.env.NEXT_PUBLIC_TENANT_PRIMARY_COLOR ||
-      '#0066CC'
-    const tenantLogoUrl =
-      (typeof tenant?.branding_logo_url === 'string' && tenant.branding_logo_url.trim()) ||
-      `${process.env.NEXT_PUBLIC_TENANT_URL?.trim() || request.nextUrl.origin}/logos/akademate-logo-official.png`
     const tenantDomain =
       (typeof tenant?.domain === 'string' && tenant.domain.trim()) || null
     const tenantBaseUrl =
       process.env.NEXT_PUBLIC_TENANT_URL?.trim() ||
       (tenantDomain ? `https://${tenantDomain}` : request.nextUrl.origin)
+    const logoFallback = isCepTenant
+      ? '/logos/cep-formacion-logo-rectangular.png'
+      : '/logos/akademate-logo-official.png'
+    const rawTenantLogoUrl =
+      (typeof tenant?.branding_logo_url === 'string' && tenant.branding_logo_url.trim()) || logoFallback
+    const academyName =
+      (typeof tenant?.name === 'string' && tenant.name.trim()) ||
+      (isCepTenant ? 'CEP Formación' : '') ||
+      process.env.NEXT_PUBLIC_TENANT_NAME ||
+      'Akademate'
+    const tenantPrimaryColor =
+      (typeof tenant?.branding_primary_color === 'string' && tenant.branding_primary_color.trim()) ||
+      (isCepTenant ? '#f2014b' : '') ||
+      process.env.NEXT_PUBLIC_TENANT_PRIMARY_COLOR ||
+      '#0066CC'
+    const tenantLogoUrl = toAbsoluteUrl(tenantBaseUrl, rawTenantLogoUrl)
     const contactEmail =
       (typeof tenant?.contact_email === 'string' && tenant.contact_email.trim()) ||
+      (isCepTenant ? 'info@cepformacion.com' : '') ||
       process.env.SMTP_REPLY_TO ||
       'soporte@akademate.com'
     const contactPhone =
@@ -320,6 +399,7 @@ export async function POST(request: NextRequest) {
       first_name: firstName,
       last_name: lastName,
       phone,
+      message: body.message || undefined,
       gdpr_consent: body.gdpr_consent ?? true,
       consent_timestamp: body.consent_timestamp || new Date().toISOString(),
       privacy_policy_accepted: true,
@@ -364,22 +444,67 @@ export async function POST(request: NextRequest) {
       }
     } catch (notifErr) { console.error('[leads] Notification insert failed:', notifErr) }
 
-    // Store extra tracking data directly in DB (fields that Payload collection doesn't know about)
+    // Store extra tracking data in optional DB columns when present.
     try {
-      const { db } = payload
-      const extraFields: Record<string, string | null> = {}
-      if (body.source_form) extraFields.source_form = body.source_form
-      if (body.source_page) extraFields.source_page = body.source_page
-      if (body.lead_type) extraFields.lead_type = body.lead_type
-      if (body.message) extraFields.message = String(body.message)
-      if (body.notes) extraFields.callback_notes = body.notes
-      if (body.campaign_code) extraFields.campaign_code = body.campaign_code
+      const drizzle = (payload.db as any).drizzle || (payload.db as any).pool
+      if (drizzle?.execute) {
+        const optionalColumns = [
+          'source_form',
+          'source_page',
+          'lead_type',
+          'callback_notes',
+          'campaign_code',
+          'convocatoria_id',
+          'cycle_id',
+        ]
+        const columnRowsRes = await drizzle.execute(`
+          SELECT column_name
+          FROM information_schema.columns
+          WHERE table_name = 'leads'
+            AND column_name IN (${optionalColumns.map((column) => `'${column}'`).join(', ')})
+        `)
+        const columnRows = Array.isArray(columnRowsRes) ? columnRowsRes : (columnRowsRes?.rows ?? [])
+        const existingColumns = new Set(
+          columnRows
+            .map((row: any) => String(row?.column_name || '').trim())
+            .filter((column: string) => column.length > 0),
+        )
 
-      if (Object.keys(extraFields).length > 0) {
-        const sets = Object.entries(extraFields).map(([k, v]) => `${k} = '${(v || '').replace(/'/g, "''")}'`).join(', ')
-        await (db as any).execute({ raw: `UPDATE leads SET ${sets} WHERE id = ${created.id}` }).catch(() => {})
+        const updates: string[] = []
+
+        if (body.source_form && existingColumns.has('source_form')) {
+          updates.push(`source_form = '${String(body.source_form).replace(/'/g, "''")}'`)
+        }
+        if (body.source_page && existingColumns.has('source_page')) {
+          updates.push(`source_page = '${String(body.source_page).replace(/'/g, "''")}'`)
+        }
+        if (body.lead_type && existingColumns.has('lead_type')) {
+          updates.push(`lead_type = '${String(body.lead_type).replace(/'/g, "''")}'`)
+        }
+        if (body.notes && existingColumns.has('callback_notes')) {
+          updates.push(`callback_notes = '${String(body.notes).replace(/'/g, "''")}'`)
+        }
+        if (body.campaign_code && existingColumns.has('campaign_code')) {
+          updates.push(`campaign_code = '${String(body.campaign_code).replace(/'/g, "''")}'`)
+        }
+
+        const convocatoriaId = toPositiveInt(body.convocatoria_id)
+        if (convocatoriaId !== null && existingColumns.has('convocatoria_id')) {
+          updates.push(`convocatoria_id = ${convocatoriaId}`)
+        }
+
+        const cycleId = toPositiveInt(body.cycle_id)
+        if (cycleId !== null && existingColumns.has('cycle_id')) {
+          updates.push(`cycle_id = ${cycleId}`)
+        }
+
+        if (updates.length > 0) {
+          await drizzle.execute(`UPDATE leads SET ${updates.join(', ')} WHERE id = ${created.id}`)
+        }
       }
-    } catch { /* extra fields are optional */ }
+    } catch {
+      // Optional tracking fields must never block lead creation.
+    }
 
     // Send confirmation email to the lead (non-blocking, via Brevo)
     try {

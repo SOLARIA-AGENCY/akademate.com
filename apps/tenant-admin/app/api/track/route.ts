@@ -28,6 +28,8 @@ interface TenantInfo {
   integrations: TenantIntegrations
 }
 
+const RESERVED_TENANT_SLUGS = new Set(['www', 'admin', 'app'])
+
 function escapeSql(value: string): string {
   return value.replace(/'/g, "''")
 }
@@ -44,9 +46,47 @@ function hashUserAgent(userAgent: string): string {
   return createHash('sha256').update(userAgent).digest('hex')
 }
 
-async function resolveTenant(payload: any): Promise<TenantInfo | null> {
-  const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
-  const tenant = tenants.docs[0] as any
+function normalizeHost(rawHost: string | null | undefined): string {
+  const firstHost = (rawHost ?? '').split(',')[0]?.trim().toLowerCase() ?? ''
+  return firstHost.replace(/:\d+$/, '')
+}
+
+async function resolveTenant(payload: any, request: NextRequest): Promise<TenantInfo | null> {
+  const requestHost = normalizeHost(
+    request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.host,
+  )
+
+  let tenant: any = null
+
+  if (requestHost && requestHost !== 'localhost' && requestHost !== '127.0.0.1') {
+    const byDomain = await payload.find({
+      collection: 'tenants',
+      where: { domain: { equals: requestHost } },
+      limit: 1,
+      depth: 0,
+    })
+    tenant = byDomain.docs?.[0] ?? null
+
+    if (!tenant) {
+      const hostParts = requestHost.split('.')
+      const subdomain = hostParts.length >= 3 ? hostParts[0] : ''
+      if (subdomain && !RESERVED_TENANT_SLUGS.has(subdomain)) {
+        const bySlug = await payload.find({
+          collection: 'tenants',
+          where: { slug: { equals: subdomain } },
+          limit: 1,
+          depth: 0,
+        })
+        tenant = bySlug.docs?.[0] ?? null
+      }
+    }
+  }
+
+  if (!tenant) {
+    const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
+    tenant = tenants.docs?.[0] ?? null
+  }
+
   if (!tenant?.id) return null
 
   const integrations: TenantIntegrations = {
@@ -175,7 +215,7 @@ export async function POST(request: NextRequest) {
     const { getPayloadHMR } = await import('@payloadcms/next/utilities')
     const configPromise = (await import('@payload-config')).default
     const payload = await getPayloadHMR({ config: configPromise })
-    const tenant = await resolveTenant(payload)
+    const tenant = await resolveTenant(payload, request)
 
     if (!tenant) {
       return NextResponse.json({ ok: true })

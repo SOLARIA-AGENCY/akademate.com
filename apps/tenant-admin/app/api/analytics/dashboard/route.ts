@@ -17,6 +17,7 @@ const RANGE_DAYS: Record<RangeKey, number> = {
 }
 
 const SOLARIA_PREFIX = 'SOLARIA AGENCY'
+const MIN_CAMPAIGN_YEAR = 2026
 
 interface TrafficData {
   source: 'ga4' | 'internal'
@@ -285,6 +286,18 @@ function parseConversionsFromInsights(insightsRow: any): number {
   return total
 }
 
+function parseCampaignYear(campaign: any): number | null {
+  const candidateDates = [campaign?.start_time, campaign?.created_time, campaign?.updated_time]
+  for (const value of candidateDates) {
+    if (!value) continue
+    const parsed = new Date(String(value))
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.getUTCFullYear()
+    }
+  }
+  return null
+}
+
 export async function GET(request: NextRequest) {
   try {
     const payload = await getPayloadHMR({ config: configPromise })
@@ -378,9 +391,12 @@ export async function GET(request: NextRequest) {
       const list = await listCampaigns(adAccountId, accessToken)
       if (list.success) {
         const rows = Array.isArray((list.data as any)?.data) ? (list.data as any).data : []
-        detectedCampaigns = rows.filter((item: any) =>
-          String(item?.name || '').toUpperCase().startsWith(SOLARIA_PREFIX),
-        )
+        detectedCampaigns = rows.filter((item: any) => {
+          const hasPrefix = String(item?.name || '').toUpperCase().startsWith(SOLARIA_PREFIX)
+          if (!hasPrefix) return false
+          const campaignYear = parseCampaignYear(item)
+          return campaignYear !== null && campaignYear >= MIN_CAMPAIGN_YEAR
+        })
         facebookSource = 'meta_api'
       }
     }

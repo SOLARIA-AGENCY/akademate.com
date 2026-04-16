@@ -10,7 +10,7 @@ import { Textarea } from '@payload-config/components/ui/textarea'
 import {
   ArrowLeft, UserPlus, Phone, Mail, MessageSquare,
   Loader2, CheckCircle2, XCircle, Clock, Copy, Check, AlertCircle, PhoneOff,
-  GraduationCap,
+  GraduationCap, Trash2,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -226,6 +226,31 @@ export default function LeadDetailPage({ params }: Props) {
     finally { setSaving(false) }
   }
 
+  const handleDeleteLead = async () => {
+    const confirmed = confirm(
+      '¿Eliminar este lead definitivamente?\n\nEsta acción elimina la ficha y no se puede deshacer.',
+    )
+    if (!confirmed) return
+
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/leads/${id}`, {
+        method: 'DELETE',
+      })
+      const payload = await res.json().catch(() => ({} as Record<string, unknown>))
+      if (!res.ok) {
+        const message = typeof payload.error === 'string' ? payload.error : 'No se pudo eliminar el lead'
+        throw new Error(message)
+      }
+      router.push('/inscripciones')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo eliminar el lead'
+      alert(message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
     setCopied(label)
@@ -305,6 +330,14 @@ Equipo CEP Formacion`
         badge={<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>{statusConfig.label}</span>}
         actions={
           <div className="flex gap-2">
+            <Button
+              variant="destructive"
+              disabled={saving}
+              onClick={() => void handleDeleteLead()}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Eliminar lead
+            </Button>
             {showEnrollButton && (
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={saving} onClick={handleEnroll}>
                 <GraduationCap className="mr-2 h-4 w-4" />Iniciar Matriculacion

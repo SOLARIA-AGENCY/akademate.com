@@ -260,7 +260,7 @@ export async function listCampaigns(
   accessToken: string,
 ): Promise<MetaApiResult> {
   return metaGet(`/act_${adAccountId}/campaigns`, {
-    fields: 'id,name,status,objective,daily_budget,lifetime_budget,created_time',
+    fields: 'id,name,status,objective,daily_budget,lifetime_budget,created_time,start_time,updated_time',
     limit: '50',
     filtering: JSON.stringify([{ field: 'name', operator: 'CONTAIN', value: 'SOLARIA AGENCY' }]),
   }, accessToken)
