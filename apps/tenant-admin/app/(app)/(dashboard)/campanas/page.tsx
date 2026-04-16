@@ -90,6 +90,34 @@ function normalizeCampaignStatus(status: CampaignStatus): UiStatus {
   return status
 }
 
+function parseCampaignYear(...values: Array<string | null | undefined>): number | null {
+  for (const value of values) {
+    if (!value) continue
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.getTime())) continue
+    return parsed.getUTCFullYear()
+  }
+  return null
+}
+
+function isPausedCampaign(item: CampaignListItem, uiStatus: UiStatus): boolean {
+  if (uiStatus === 'paused') return true
+  const metaStatus = String(item.campaign.meta_status || '').toUpperCase()
+  const effectiveStatus = String(item.campaign.effective_status || '').toUpperCase()
+  return metaStatus.includes('PAUSED') || effectiveStatus.includes('PAUSED')
+}
+
+function isLaunchReadyCampaign2026(item: CampaignListItem, uiStatus: UiStatus): boolean {
+  const campaignYear = parseCampaignYear(
+    item.campaign.start_time,
+    item.campaign.created_time,
+    item.campaign.updated_time,
+    item.campaign.stop_time
+  )
+
+  return campaignYear === Number(DEFAULT_CAMPAIGNS_YEAR) && isPausedCampaign(item, uiStatus)
+}
+
 function toIsoDate(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
@@ -128,7 +156,7 @@ export default function CampanasPage() {
   const [range, setRange] = useState<RangeOption>('custom')
   const [customSince, setCustomSince] = useState(DEFAULT_CAMPAIGNS_SINCE)
   const [customUntil, setCustomUntil] = useState(DEFAULT_CAMPAIGNS_UNTIL)
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('paused')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [query, setQuery] = useState('')
   const [statusOverrides, setStatusOverrides] = useState<Record<string, UiStatus>>({})
 
@@ -166,7 +194,6 @@ export default function CampanasPage() {
         if (value) params.set(key, value)
       })
 
-      if (statusFilter !== 'all') params.set('status', statusFilter)
       if (query.trim()) params.set('q', query.trim())
 
       const response = await fetch(`/api/meta/campaigns?${params.toString()}`, {
@@ -226,15 +253,19 @@ export default function CampanasPage() {
     })
   }, [campaignsScoped, statusOverrides])
 
+  const launchReadyCampaigns = useMemo(() => {
+    return withUiStatus.filter((item) => isLaunchReadyCampaign2026(item, item.uiStatus))
+  }, [withUiStatus])
+
   const stats = useMemo(() => {
-    const activeCount = withUiStatus.filter((item) => item.uiStatus === 'active').length
-    const spend = withUiStatus.reduce((acc, item) => {
+    const activeCount = launchReadyCampaigns.filter((item) => item.uiStatus === 'active').length
+    const spend = launchReadyCampaigns.reduce((acc, item) => {
       if (item.insights_summary.spend.state === 'loaded' || item.insights_summary.spend.state === 'zero_real') {
         return acc + (item.insights_summary.spend.value || 0)
       }
       return acc
     }, 0)
-    const leads = withUiStatus.reduce((acc, item) => {
+    const leads = launchReadyCampaigns.reduce((acc, item) => {
       if (item.insights_summary.results.state === 'loaded' || item.insights_summary.results.state === 'zero_real') {
         return acc + (item.insights_summary.results.value || 0)
       }
@@ -242,7 +273,7 @@ export default function CampanasPage() {
     }, 0)
 
     return { activeCount, spend, leads }
-  }, [withUiStatus])
+  }, [launchReadyCampaigns])
 
   const goToDetail = (campaignId: string) => {
     const qs = buildFilterQueryString()
@@ -286,10 +317,10 @@ export default function CampanasPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Campañas activas</CardTitle>
+            <CardTitle className="text-sm font-medium">Campañas pausadas 2026</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.activeCount}</div>
+            <div className="text-2xl font-bold">{launchReadyCampaigns.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -390,11 +421,11 @@ export default function CampanasPage() {
         </CardContent>
       </Card>
 
-      {!isLoading && withUiStatus.length === 0 ? (
+      {!isLoading && launchReadyCampaigns.length === 0 ? (
         <EmptyState
           icon={CalendarClock}
           title="Sin campañas"
-          description="No hay campañas para los filtros seleccionados."
+          description="No hay campañas pausadas del año 2026 listas para lanzamiento."
         />
       ) : (
         <Card>
@@ -412,7 +443,7 @@ export default function CampanasPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {withUiStatus.map((item) => {
+                  {launchReadyCampaigns.map((item) => {
                     const statusMeta = STATUS_BADGES[item.uiStatus]
                     return (
                       <TableRow
@@ -466,7 +497,7 @@ export default function CampanasPage() {
               </Table>
             </div>
             <div className="mt-3 text-xs text-muted-foreground">
-              Mostrando {withUiStatus.length} de {totalDocs} campañas.
+              Mostrando {launchReadyCampaigns.length} de {totalDocs} campañas (filtro forzado: pausadas 2026).
             </div>
           </CardContent>
         </Card>

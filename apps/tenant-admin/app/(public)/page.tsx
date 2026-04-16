@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { WebsiteRenderer } from './_components/WebsiteRenderer'
 import { getPublicPage, getTenantWebsite } from '@/app/lib/website/server'
+import { applyCepHomeOverrides } from '@/app/lib/website/cep-home-overrides'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,5 +11,6 @@ export default async function PublicHomePage() {
 
   if (!page) notFound()
 
-  return <WebsiteRenderer page={page} brandColor={website.visualIdentity.colorPrimary} />
+  const normalizedPage = applyCepHomeOverrides(page)
+  return <WebsiteRenderer page={normalizedPage} brandColor={website.visualIdentity.colorPrimary} />
 }
