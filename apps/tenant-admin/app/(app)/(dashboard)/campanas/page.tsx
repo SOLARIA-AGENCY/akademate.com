@@ -56,6 +56,7 @@ const RANGE_OPTIONS: Array<{ value: RangeOption; label: string }> = [
 const DEFAULT_CAMPAIGNS_YEAR = '2026'
 const DEFAULT_CAMPAIGNS_SINCE = `${DEFAULT_CAMPAIGNS_YEAR}-01-01`
 const DEFAULT_CAMPAIGNS_UNTIL = `${DEFAULT_CAMPAIGNS_YEAR}-12-31`
+const SOLARIA_CAMPAIGN_PREFIX = 'SOLARIA'
 
 function formatDate(value?: string | null): string {
   if (!value) return 'N/D'
@@ -100,22 +101,26 @@ function parseCampaignYear(...values: Array<string | null | undefined>): number 
   return null
 }
 
-function isPausedCampaign(item: CampaignListItem, uiStatus: UiStatus): boolean {
-  if (uiStatus === 'paused') return true
-  const metaStatus = String(item.campaign.meta_status || '').toUpperCase()
-  const effectiveStatus = String(item.campaign.effective_status || '').toUpperCase()
-  return metaStatus.includes('PAUSED') || effectiveStatus.includes('PAUSED')
+function hasSolariaPrefix(name?: string | null): boolean {
+  return String(name || '')
+    .trim()
+    .toUpperCase()
+    .startsWith(SOLARIA_CAMPAIGN_PREFIX)
 }
 
-function isLaunchReadyCampaign2026(item: CampaignListItem, uiStatus: UiStatus): boolean {
+function matchesStatusFilter(uiStatus: UiStatus, statusFilter: StatusFilter): boolean {
+  if (statusFilter === 'all') return true
+  return uiStatus === statusFilter
+}
+
+function isSolariaCampaign2026(item: CampaignListItem): boolean {
   const campaignYear = parseCampaignYear(
     item.campaign.start_time,
     item.campaign.created_time,
     item.campaign.updated_time,
     item.campaign.stop_time
   )
-
-  return campaignYear === Number(DEFAULT_CAMPAIGNS_YEAR) && isPausedCampaign(item, uiStatus)
+  return campaignYear === Number(DEFAULT_CAMPAIGNS_YEAR) && hasSolariaPrefix(item.campaign.name)
 }
 
 function toIsoDate(date: Date): string {
@@ -156,7 +161,7 @@ export default function CampanasPage() {
   const [range, setRange] = useState<RangeOption>('custom')
   const [customSince, setCustomSince] = useState(DEFAULT_CAMPAIGNS_SINCE)
   const [customUntil, setCustomUntil] = useState(DEFAULT_CAMPAIGNS_UNTIL)
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [query, setQuery] = useState('')
   const [statusOverrides, setStatusOverrides] = useState<Record<string, UiStatus>>({})
 
@@ -253,19 +258,21 @@ export default function CampanasPage() {
     })
   }, [campaignsScoped, statusOverrides])
 
-  const launchReadyCampaigns = useMemo(() => {
-    return withUiStatus.filter((item) => isLaunchReadyCampaign2026(item, item.uiStatus))
-  }, [withUiStatus])
+  const visibleCampaigns = useMemo(() => {
+    return withUiStatus.filter(
+      (item) => isSolariaCampaign2026(item) && matchesStatusFilter(item.uiStatus, statusFilter)
+    )
+  }, [withUiStatus, statusFilter])
 
   const stats = useMemo(() => {
-    const activeCount = launchReadyCampaigns.filter((item) => item.uiStatus === 'active').length
-    const spend = launchReadyCampaigns.reduce((acc, item) => {
+    const activeCount = visibleCampaigns.filter((item) => item.uiStatus === 'active').length
+    const spend = visibleCampaigns.reduce((acc, item) => {
       if (item.insights_summary.spend.state === 'loaded' || item.insights_summary.spend.state === 'zero_real') {
         return acc + (item.insights_summary.spend.value || 0)
       }
       return acc
     }, 0)
-    const leads = launchReadyCampaigns.reduce((acc, item) => {
+    const leads = visibleCampaigns.reduce((acc, item) => {
       if (item.insights_summary.results.state === 'loaded' || item.insights_summary.results.state === 'zero_real') {
         return acc + (item.insights_summary.results.value || 0)
       }
@@ -273,7 +280,7 @@ export default function CampanasPage() {
     }, 0)
 
     return { activeCount, spend, leads }
-  }, [launchReadyCampaigns])
+  }, [visibleCampaigns])
 
   const goToDetail = (campaignId: string) => {
     const qs = buildFilterQueryString()
@@ -302,8 +309,8 @@ export default function CampanasPage() {
         title="Campañas de Marketing"
         description={
           selectedAccount === 'all'
-            ? `Campañas pausadas ${DEFAULT_CAMPAIGNS_YEAR} listas para lanzamiento`
-            : `Campañas pausadas ${DEFAULT_CAMPAIGNS_YEAR} de ${selectedAccountName}`
+            ? `Campañas SOLARIA ${DEFAULT_CAMPAIGNS_YEAR} con filtro por estado`
+            : `Campañas SOLARIA ${DEFAULT_CAMPAIGNS_YEAR} de ${selectedAccountName}`
         }
         icon={Megaphone}
         actions={
@@ -315,14 +322,14 @@ export default function CampanasPage() {
       />
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Campañas pausadas 2026</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{launchReadyCampaigns.length}</div>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Campañas visibles</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{visibleCampaigns.length}</div>
+            </CardContent>
+          </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Gasto total</CardTitle>
@@ -421,11 +428,11 @@ export default function CampanasPage() {
         </CardContent>
       </Card>
 
-      {!isLoading && launchReadyCampaigns.length === 0 ? (
+      {!isLoading && visibleCampaigns.length === 0 ? (
         <EmptyState
           icon={CalendarClock}
           title="Sin campañas"
-          description="No hay campañas pausadas del año 2026 listas para lanzamiento."
+          description="No hay campañas SOLARIA del año 2026 para el estado seleccionado."
         />
       ) : (
         <Card>
@@ -443,7 +450,7 @@ export default function CampanasPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {launchReadyCampaigns.map((item) => {
+                  {visibleCampaigns.map((item) => {
                     const statusMeta = STATUS_BADGES[item.uiStatus]
                     return (
                       <TableRow
@@ -497,7 +504,7 @@ export default function CampanasPage() {
               </Table>
             </div>
             <div className="mt-3 text-xs text-muted-foreground">
-              Mostrando {launchReadyCampaigns.length} de {totalDocs} campañas (filtro forzado: pausadas 2026).
+              Mostrando {visibleCampaigns.length} de {totalDocs} campañas (filtro forzado: SOLARIA + 2026).
             </div>
           </CardContent>
         </Card>

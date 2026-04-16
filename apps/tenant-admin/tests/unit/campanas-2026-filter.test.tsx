@@ -69,7 +69,7 @@ function buildCampaign(id: string, name: string, status: 'active' | 'paused' | '
   }
 }
 
-describe('CampanasPage 2026 paused defaults', () => {
+describe('CampanasPage SOLARIA 2026 defaults', () => {
   it('requests full year 2026 range by default', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify(emptyPayload()), {
@@ -91,12 +91,24 @@ describe('CampanasPage 2026 paused defaults', () => {
     expect(requestUrl).not.toContain('status=paused')
   })
 
-  it('renders only paused campaigns from 2026', async () => {
+  it('renders only SOLARIA active campaigns from 2026 by default', async () => {
     const payload = emptyPayload()
     payload.docs = [
-      buildCampaign('1', 'Campaña 2026 Pausada', 'paused', '2026-02-01T00:00:00.000Z'),
-      buildCampaign('2', 'Campaña 2026 Activa', 'active', '2026-03-01T00:00:00.000Z'),
-      buildCampaign('3', 'Campaña 2025 Pausada', 'paused', '2025-11-01T00:00:00.000Z'),
+      buildCampaign(
+        '1',
+        'SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-FAR-2628-CIC-CAP26',
+        'active',
+        '2026-02-01T00:00:00.000Z'
+      ),
+      buildCampaign(
+        '2',
+        'SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-HIG-2628-CIC-CAP26',
+        'active',
+        '2026-03-01T00:00:00.000Z'
+      ),
+      buildCampaign('3', 'CD - 2026 / B4', 'active', '2026-03-01T00:00:00.000Z'),
+      buildCampaign('4', 'SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - PAUSED', 'paused', '2026-03-01T00:00:00.000Z'),
+      buildCampaign('5', 'SOLARIA AGENCY - CICLOS FP - CAPTACION 2025', 'active', '2025-11-01T00:00:00.000Z'),
     ]
     payload.totalDocs = payload.docs.length
 
@@ -112,10 +124,16 @@ describe('CampanasPage 2026 paused defaults', () => {
     render(<CampanasPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Campaña 2026 Pausada')).toBeInTheDocument()
+      expect(
+        screen.getByText('SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-FAR-2628-CIC-CAP26')
+      ).toBeInTheDocument()
     })
 
-    expect(screen.queryByText('Campaña 2026 Activa')).not.toBeInTheDocument()
-    expect(screen.queryByText('Campaña 2025 Pausada')).not.toBeInTheDocument()
+    expect(
+      screen.getByText('SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - SA-SC-SAN-HIG-2628-CIC-CAP26')
+    ).toBeInTheDocument()
+    expect(screen.queryByText('CD - 2026 / B4')).not.toBeInTheDocument()
+    expect(screen.queryByText('SOLARIA AGENCY - CICLOS FP - CAPTACION 2026 - PAUSED')).not.toBeInTheDocument()
+    expect(screen.queryByText('SOLARIA AGENCY - CICLOS FP - CAPTACION 2025')).not.toBeInTheDocument()
   })
 })
