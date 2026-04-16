@@ -30,7 +30,6 @@ import {
   Plus,
   Trash2,
   FileText,
-  Image as ImageIcon,
 } from 'lucide-react'
 // TODO: Fetch from Payload API
 // import { plantillasCursosData } from '@payload-config/data/mockCourseTemplatesData'
@@ -39,6 +38,7 @@ import { SubvencionItem } from '@payload-config/components/ui/SubvencionItem'
 import { EntidadSelector } from '@payload-config/components/ui/EntidadSelector'
 import { Switch } from '@payload-config/components/ui/switch'
 import { DangerZone } from '@payload-config/components/ui/DangerZone'
+import { getPublicStudyTypeFallbackImage } from '@/app/lib/website/study-types'
 
 // Local type definitions to avoid ESLint type resolution issues with @/types and @payload-config
 type CourseType =
@@ -119,15 +119,11 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
   const [precioReferencia, setPrecioReferencia] = React.useState('0')
   const [objetivos, setObjetivos] = React.useState<string[]>([''])
   const [contenidos, setContenidos] = React.useState<string[]>([''])
-  const [imagenPortada, setImagenPortada] = React.useState('')
   const [pdfFiles, setPdfFiles] = React.useState<string[]>([])
 
   // Subvenciones y becas
   const [subvencionado, setSubvencionado] = React.useState(false)
   const [subvenciones, setSubvenciones] = React.useState<Subvencion[]>([])
-
-  // Image upload preview
-  const [imagePreview, setImagePreview] = React.useState<string | null>(null)
 
   // Fetch course data on mount
   React.useEffect(() => {
@@ -150,8 +146,6 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
           setTipo(course.tipo ?? 'privados')
           setDuracionReferencia(course.duracionReferencia?.toString() ?? '')
           setPrecioReferencia(course.precioReferencia?.toString() ?? '0')
-          setImagenPortada(course.imagenPortada ?? '')
-          setImagePreview(course.imagenPortada ?? null)
         } else {
           setFetchError(result.error ?? 'Curso no encontrado')
         }
@@ -197,20 +191,9 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
   }
 
   const typeConfig = getTypeConfig(tipo ?? 'privados')
+  const fallbackImage = getPublicStudyTypeFallbackImage(tipo)
 
   // Handlers
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-        setImagenPortada(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
   const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files) {
@@ -667,42 +650,21 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
               <CardTitle className="text-base" data-oid="jkts5md">
                 Imagen de Portada
               </CardTitle>
-              <CardDescription data-oid="p_s54dz">Foto principal del curso</CardDescription>
+              <CardDescription data-oid="p_s54dz">
+                Imagen fallback automática por tipo de curso
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4" data-oid=":m4_25e">
-              {imagePreview && (
-                <div
-                  className="relative aspect-video overflow-hidden rounded-lg border"
-                  data-oid="n8ku8e0"
-                >
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                    data-oid="stawn0n"
-                  />
-                </div>
-              )}
-              <div data-oid="je6.l2d">
-                <Label htmlFor="image-upload" className="cursor-pointer" data-oid="gut6ldi">
-                  <div
-                    className="flex items-center justify-center gap-2 rounded-md border border-dashed border-input p-4 hover:bg-accent transition-colors"
-                    data-oid="m7r0ld5"
-                  >
-                    <ImageIcon className="h-5 w-5 text-muted-foreground" data-oid="6h3:j_p" />
-                    <span className="text-sm font-medium" data-oid="t0bia7y">
-                      {imagePreview ? 'Cambiar Imagen' : 'Subir Imagen'}
-                    </span>
-                  </div>
-                  <Input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    data-oid="pc24p78"
-                  />
-                </Label>
+              <div className="relative aspect-video overflow-hidden rounded-lg border" data-oid="n8ku8e0">
+                <img
+                  src={fallbackImage}
+                  alt="Imagen fallback por tipo"
+                  className="w-full h-full object-cover"
+                  data-oid="stawn0n"
+                />
+              </div>
+              <div className="rounded-md border border-dashed p-3 text-xs text-muted-foreground" data-oid="je6.l2d">
+                La portada se asigna automáticamente según el tipo del curso.
               </div>
             </CardContent>
           </Card>

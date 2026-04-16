@@ -93,13 +93,6 @@ function isValidHexColor(color: string | null | undefined): color is string {
   return /^#[0-9A-Fa-f]{6}$/.test(color)
 }
 
-function resolveImageUrl(image: CourseDoc['featured_image'] | CourseDoc['image']): string | null {
-  if (!image || typeof image === 'number') return null
-  if (typeof image === 'object' && image.url) return image.url
-  if (typeof image === 'object' && image.filename) return `/media/${image.filename}`
-  return null
-}
-
 function toAreaName(area: CourseDoc['area_formativa']): string {
   if (typeof area === 'object' && area && area.nombre) return area.nombre
   return 'Sin área'
@@ -166,10 +159,7 @@ function mapCourseDocToPublishedCourse(
 ): PublishedCourse {
   const normalizedStudyType = normalizePublicStudyType(String(course.course_type || ''))
   const visual = normalizedStudyType ? studyTypeMap[normalizedStudyType] : null
-  const imageUrl =
-    resolveImageUrl(course.featured_image) ||
-    resolveImageUrl(course.image) ||
-    getPublicStudyTypeFallbackImage(course.course_type)
+  const imageUrl = getPublicStudyTypeFallbackImage(course.course_type)
 
   return {
     id: String(course.id),

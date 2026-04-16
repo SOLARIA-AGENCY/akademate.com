@@ -3,7 +3,7 @@ import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
-import { normalizeStudyType } from '@/app/lib/website/study-types';
+import { getPublicStudyTypeFallbackImage, normalizeStudyType } from '@/app/lib/website/study-types';
 import { withTenantScope } from '@/app/lib/server/tenant-scope';
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth';
 
@@ -86,12 +86,7 @@ export async function GET(
       areaName = areaFormativa.nombre ?? 'Sin área';
     }
 
-    // Extraer URL de imagen de portada
-    const featuredImage = curso.featured_image;
-    let imagenPortada = '/placeholder-course.svg';
-    if (typeof featuredImage === 'object' && featuredImage !== null) {
-      imagenPortada = featuredImage.url || `/media/${featuredImage.filename}`;
-    }
+    const imagenPortada = getPublicStudyTypeFallbackImage(curso.course_type);
 
     return NextResponse.json({
       success: true,
