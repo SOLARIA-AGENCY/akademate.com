@@ -105,7 +105,7 @@ describe('GET /api/cursos', () => {
       expect(course.area).toBe('Marketing Digital')
       expect(course.duracionReferencia).toBe(120)
       expect(course.precioReferencia).toBe(1200)
-      expect(course.imagenPortada).toBe('/placeholder-course.svg')
+      expect(course.imagenPortada).toBe('/website/cep/courses/fallback-privados.png')
       expect(course.totalConvocatorias).toBe(0)
     })
 
@@ -317,7 +317,7 @@ describe('GET /api/cursos', () => {
       expect(data.data[0].precioReferencia).toBe(0)
     })
 
-    it('should use placeholder SVG for all courses', async () => {
+    it('should use study type fallback images when course image is missing', async () => {
       const mockPayload = {
         find: jest.fn().resolves({
           docs: [
@@ -345,8 +345,8 @@ describe('GET /api/cursos', () => {
       const response = await GET()
       const data = await response.json()
 
-      expect(data.data[0].imagenPortada).toBe('/placeholder-course.svg')
-      expect(data.data[1].imagenPortada).toBe('/placeholder-course.svg')
+      expect(data.data[0].imagenPortada).toBe('/website/cep/courses/fallback-privados.png')
+      expect(data.data[1].imagenPortada).toBe('/website/cep/courses/fallback-ocupados.png')
     })
   })
 

@@ -404,7 +404,7 @@ function CursosPageContent() {
                 </div>
 
                 {view === 'grid' ? (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid="3kr--1i">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2" data-oid="3kr--1i">
                     {group.courses.map((course) => (
                       <CourseTemplateCard
                         key={course.id}

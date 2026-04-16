@@ -7,7 +7,7 @@ import {
   getStudyTypeColor,
   getStudyTypeVisualMap,
 } from '@/app/lib/server/published-courses'
-import { normalizePublicStudyType } from '@/app/lib/website/study-types'
+import { getPublicStudyTypeFallbackImage, normalizePublicStudyType } from '@/app/lib/website/study-types'
 
 export const metadata: Metadata = {
   title: 'Cursos | Formación Profesional',
@@ -50,20 +50,31 @@ export default async function CursosCatalogPage({
   })
 
   const heroColor = selectedStudyTypeMeta?.color || tenant.primaryColor || '#0F172A'
+  const heroImageUrl = selectedStudyType ? getPublicStudyTypeFallbackImage(selectedStudyType) : null
   const pageLabel = getReadableTypeLabel(rawTipo)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div
-        className="mb-12 rounded-3xl px-6 py-10 text-white shadow-sm sm:px-10"
-        style={buildHeroStyle(heroColor)}
+        className="relative mb-12 overflow-hidden rounded-3xl px-6 py-10 text-white shadow-sm sm:px-10"
+        style={!heroImageUrl ? buildHeroStyle(heroColor) : undefined}
       >
-        <h1 className="text-4xl font-bold mb-3">Cursos</h1>
-        <p className="text-lg text-white/85 max-w-3xl">
-          {selectedStudyTypeMeta
-            ? `${pageLabel}. Programas orientados a empleabilidad real y formación aplicada en Canarias.`
-            : 'Cursos especializados de formación profesional y desarrollo de competencias.'}
-        </p>
+        {heroImageUrl ? (
+          <img
+            src={heroImageUrl}
+            alt={selectedStudyTypeMeta?.label || 'Cursos'}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold mb-3">Cursos</h1>
+          <p className="text-lg text-white/85 max-w-3xl">
+            {selectedStudyTypeMeta
+              ? `${pageLabel}. Programas orientados a empleabilidad real y formación aplicada en Canarias.`
+              : 'Cursos especializados de formación profesional y desarrollo de competencias.'}
+          </p>
+        </div>
       </div>
 
       {courses.length === 0 ? (
@@ -82,15 +93,13 @@ export default async function CursosCatalogPage({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map((course) => {
-            const imageUrl = course.imagenPortada !== '/placeholder-course.svg' ? course.imagenPortada : null
+            const imageUrl = course.imagenPortada || getPublicStudyTypeFallbackImage(course.studyType)
             const fallbackColor = getStudyTypeColor(course.studyType, studyTypeVisualMap) || heroColor
             return (
               <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group">
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
-                  <div className="relative h-48" style={!imageUrl ? buildHeroStyle(fallbackColor) : undefined}>
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={course.nombre} className="w-full h-full object-cover" />
-                    ) : null}
+                  <div className="relative h-48">
+                    <img src={imageUrl} alt={course.nombre} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute top-4 left-4">
                       <span

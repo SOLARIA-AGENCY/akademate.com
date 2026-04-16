@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  getPublicStudyTypeFallbackImage,
   normalizePublicStudyType,
   normalizeStudyType,
   toDashboardStudyType,
@@ -39,5 +40,13 @@ describe('normalizeStudyType', () => {
   it('maps cycle levels to privados for dashboard grouping', () => {
     expect(toDashboardStudyType('ciclo_medio')).toBe('privados')
     expect(toDashboardStudyType('ciclo_superior')).toBe('privados')
+  })
+
+  it('returns fallback images by study type', () => {
+    expect(getPublicStudyTypeFallbackImage('privado')).toBe('/website/cep/courses/fallback-privados.png')
+    expect(getPublicStudyTypeFallbackImage('desempleados')).toBe('/website/cep/courses/fallback-desempleados.png')
+    expect(getPublicStudyTypeFallbackImage('ocupados')).toBe('/website/cep/courses/fallback-ocupados.png')
+    expect(getPublicStudyTypeFallbackImage('teleformacion')).toBe('/website/cep/courses/fallback-teleformacion.png')
+    expect(getPublicStudyTypeFallbackImage('ciclo-superior')).toBe('/website/cep/courses/fallback-privados.png')
   })
 })

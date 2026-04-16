@@ -7,6 +7,7 @@ import {
   getStudyTypeColor,
   getStudyTypeVisualMap,
 } from '@/app/lib/server/published-courses'
+import { getPublicStudyTypeFallbackImage } from '@/app/lib/website/study-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,7 +48,7 @@ export default async function CursoLandingPage({ params }: Props) {
 
   const title = course.nombre
   const description = course.descripcion
-  const imageUrl = course.imagenPortada !== '/placeholder-course.svg' ? course.imagenPortada : null
+  const imageUrl = course.imagenPortada || getPublicStudyTypeFallbackImage(course.studyType)
   const heroColor = getStudyTypeColor(course.studyType, studyTypeVisualMap) || tenant.primaryColor || '#0F172A'
 
   return (
@@ -57,7 +58,7 @@ export default async function CursoLandingPage({ params }: Props) {
         className="relative h-72 sm:h-80"
         style={{ background: `linear-gradient(135deg, ${heroColor} 0%, #0f172a 100%)` }}
       >
-        {imageUrl && <img src={imageUrl} alt={title} className="absolute inset-0 w-full h-full object-cover" />}
+        <img src={imageUrl} alt={title} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-12 max-w-7xl mx-auto">
           <span

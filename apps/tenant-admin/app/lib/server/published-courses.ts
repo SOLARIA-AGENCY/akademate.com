@@ -4,6 +4,7 @@ import { getPayload, type Payload } from 'payload'
 import configPromise from '@payload-config'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import {
+  getPublicStudyTypeFallbackImage,
   isPublicStudyType,
   normalizePublicStudyType,
   normalizeStudyType,
@@ -168,7 +169,7 @@ function mapCourseDocToPublishedCourse(
   const imageUrl =
     resolveImageUrl(course.featured_image) ||
     resolveImageUrl(course.image) ||
-    '/placeholder-course.svg'
+    getPublicStudyTypeFallbackImage(course.course_type)
 
   return {
     id: String(course.id),

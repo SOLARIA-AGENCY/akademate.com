@@ -6,6 +6,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { MapPin, BookOpen } from 'lucide-react'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
+import { getPublicStudyTypeFallbackImage, toDashboardStudyType } from '@/app/lib/website/study-types'
 import type { PlantillaCurso } from '@/types'
 
 interface CourseTemplateCardProps {
@@ -17,6 +18,7 @@ interface CourseTemplateCardProps {
 
 export function CourseTemplateCard({ template, onClick, className }: CourseTemplateCardProps) {
   const typeConfig = COURSE_TYPE_CONFIG[template.tipo] || COURSE_TYPE_CONFIG.privados
+  const fallbackImage = getPublicStudyTypeFallbackImage(toDashboardStudyType(template.tipo))
   const [imgError, setImgError] = useState(false)
 
   return (
@@ -26,10 +28,10 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
       data-oid="w4mfu4l"
     >
       {/* Course Image */}
-      <div className="relative h-40 overflow-hidden bg-muted" data-oid="0:ln.eo">
-        {template.imagenPortada && !imgError ? (
+      <div className="relative h-56 overflow-hidden bg-muted" data-oid="0:ln.eo">
+        {!imgError ? (
           <img
-            src={template.imagenPortada}
+            src={template.imagenPortada || fallbackImage}
             alt={template.nombre}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             onError={() => setImgError(true)}

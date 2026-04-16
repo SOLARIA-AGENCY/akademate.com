@@ -5,6 +5,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { BookOpen, MapPin } from 'lucide-react'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
+import { getPublicStudyTypeFallbackImage, toDashboardStudyType } from '@/app/lib/website/study-types'
 import type { PlantillaCurso } from '@/types'
 
 interface CourseListItemProps {
@@ -15,6 +16,7 @@ interface CourseListItemProps {
 
 export function CourseListItem({ course, onClick, className }: CourseListItemProps) {
   const typeConfig = COURSE_TYPE_CONFIG[course.tipo] || COURSE_TYPE_CONFIG.privados
+  const fallbackImage = getPublicStudyTypeFallbackImage(toDashboardStudyType(course.tipo))
   const [imgError, setImgError] = useState(false)
 
   return (
@@ -24,9 +26,9 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
       data-oid="bfba_ve"
     >
       <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded bg-muted" data-oid="__da7mf">
-        {course.imagenPortada && !imgError ? (
+        {!imgError ? (
           <img
-            src={course.imagenPortada}
+            src={course.imagenPortada || fallbackImage}
             alt={course.nombre}
             className="h-full w-full object-cover"
             onError={() => setImgError(true)}
