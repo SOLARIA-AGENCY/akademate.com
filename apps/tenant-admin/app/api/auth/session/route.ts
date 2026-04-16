@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
 
 export const dynamic = 'force-dynamic'
 const SESSION_COOKIE = 'akademate_session'
@@ -50,6 +51,9 @@ export async function POST(request: Request) {
     }
 
     const cookieStore = await cookies()
+    const cookieDomain = resolveSharedCookieDomain(
+      request.headers.get('x-forwarded-host') || request.headers.get('host')
+    )
     const sessionValue = JSON.stringify({
       user: body.user,
       token: body.token ?? '',
@@ -60,6 +64,7 @@ export async function POST(request: Request) {
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 12,
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
     } as const
 
     cookieStore.set(SESSION_COOKIE, sessionValue, cookieOptions)
@@ -73,11 +78,15 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   try {
     const cookieStore = await cookies()
-    cookieStore.delete(SESSION_COOKIE)
-    cookieStore.delete(LEGACY_SESSION_COOKIE)
+    const cookieDomain = resolveSharedCookieDomain(
+      request.headers.get('x-forwarded-host') || request.headers.get('host')
+    )
+    const clearOptions = { path: '/', ...(cookieDomain ? { domain: cookieDomain } : {}) }
+    cookieStore.delete({ name: SESSION_COOKIE, ...clearOptions })
+    cookieStore.delete({ name: LEGACY_SESSION_COOKIE, ...clearOptions })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[/api/auth/session][DELETE] Error:', error)

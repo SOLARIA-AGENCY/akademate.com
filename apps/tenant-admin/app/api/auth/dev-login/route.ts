@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload, type Payload } from 'payload'
 import config from '@payload-config'
+import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
 
 export const dynamic = 'force-dynamic'
 
@@ -95,12 +96,16 @@ async function handleDevLogin(request: NextRequest) {
       location: getSafePath(redirectPath),
     },
   })
+  const cookieDomain = resolveSharedCookieDomain(
+    request.headers.get('x-forwarded-host') || request.headers.get('host')
+  )
   response.cookies.set('payload-token', loginResult.token, {
     httpOnly: true,
     secure: false,
     sameSite: 'lax',
     path: '/',
     maxAge: 60 * 60 * 12,
+    ...(cookieDomain ? { domain: cookieDomain } : {}),
   })
 
   response.cookies.set(
@@ -121,6 +126,7 @@ async function handleDevLogin(request: NextRequest) {
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 12,
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
     },
   )
 
@@ -142,6 +148,7 @@ async function handleDevLogin(request: NextRequest) {
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 12,
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
     },
   )
 

@@ -9,6 +9,7 @@ import {
   createRateLimitHeaders,
 } from '../../../../lib/rateLimit'
 import { queryRows } from '@/@payload-config/lib/db'
+import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
 
 /**
  * Custom Login API Route
@@ -125,12 +126,16 @@ export async function POST(request: Request) {
 
     // Set auth cookie — only Secure when HTTPS is explicitly enforced
     const isSecure = process.env.ENFORCE_HTTPS === 'true'
+    const cookieDomain = resolveSharedCookieDomain(
+      request.headers.get('x-forwarded-host') || request.headers.get('host')
+    )
     response.cookies.set('payload-token', result.token, {
       httpOnly: true,
       secure: isSecure,
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
     })
 
     return response

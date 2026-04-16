@@ -1,19 +1,24 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
 
 export const dynamic = 'force-dynamic'
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     // Clear any server-side cookies if present
     const cookieStore = await cookies()
+    const cookieDomain = resolveSharedCookieDomain(
+      request.headers.get('x-forwarded-host') || request.headers.get('host')
+    )
+    const clearOptions = { path: '/', ...(cookieDomain ? { domain: cookieDomain } : {}) }
 
     // Clear payload-token cookie if it exists
-    cookieStore.delete('payload-token')
+    cookieStore.delete({ name: 'payload-token', ...clearOptions })
 
     // Clear any session cookies
-    cookieStore.delete('akademate_session')
-    cookieStore.delete('cep_session')
+    cookieStore.delete({ name: 'akademate_session', ...clearOptions })
+    cookieStore.delete({ name: 'cep_session', ...clearOptions })
 
     return NextResponse.json(
       { success: true, message: 'Logged out successfully' },

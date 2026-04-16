@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { checkRateLimit, getClientIP, createRateLimitHeaders } from '../../../../lib/rateLimit'
+import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
 
 /**
  * POST /api/auth/register
@@ -81,12 +82,16 @@ export async function POST(request: Request) {
     })
 
     const isSecure = process.env.ENFORCE_HTTPS === 'true'
+    const cookieDomain = resolveSharedCookieDomain(
+      request.headers.get('x-forwarded-host') || request.headers.get('host')
+    )
     response.cookies.set('payload-token', loginResult.token, {
       httpOnly: true,
       secure: isSecure,
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7,
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
     })
 
     return response

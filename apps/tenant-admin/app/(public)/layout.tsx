@@ -98,6 +98,8 @@ async function getEmergencyTenantData(): Promise<TenantData> {
   const hostHeader = headerStore.get('x-forwarded-host') || headerStore.get('host') || ''
   const normalizedHost = hostHeader.split(',')[0]?.trim().toLowerCase().replace(/:\d+$/, '') || ''
   const cepFallback = isCepHost(normalizedHost)
+  const cepPrimaryPhone = CEP_WHATSAPP_CONTACTS[0]?.phone ?? ''
+  const cepSecondaryPhone = CEP_WHATSAPP_CONTACTS[2]?.phone ?? ''
 
   return {
     name: cepFallback ? 'CEP Formación' : 'Academia',
@@ -107,8 +109,8 @@ async function getEmergencyTenantData(): Promise<TenantData> {
     primaryColor: cepFallback ? '#cc0000' : '#64748b',
     metaPixelId: '',
     ga4MeasurementId: '',
-    phone1: '',
-    phone2: '',
+    phone1: cepFallback ? cepPrimaryPhone : '',
+    phone2: cepFallback ? cepSecondaryPhone : '',
     isCepTenant: cepFallback,
     whatsappContacts: cepFallback ? buildWhatsAppContacts(CEP_WHATSAPP_CONTACTS) : [],
   }
@@ -153,8 +155,8 @@ async function getTenantData(): Promise<TenantData> {
       ? '/logos/cep-formacion-logo-rectangular.png'
       : tenant.logoUrl
     const academyName = tenant.academyName
-    const phone1 = tenant.contactPhone
-    const phone2 = tenant.contactPhoneAlternative
+    const phone1 = tenant.contactPhone || (tenant.isCepTenant ? CEP_WHATSAPP_CONTACTS[0]?.phone ?? '' : '')
+    const phone2 = tenant.contactPhoneAlternative || (tenant.isCepTenant ? CEP_WHATSAPP_CONTACTS[2]?.phone ?? '' : '')
 
     const whatsappContacts = tenant.isCepTenant
       ? buildWhatsAppContacts(CEP_WHATSAPP_CONTACTS)
