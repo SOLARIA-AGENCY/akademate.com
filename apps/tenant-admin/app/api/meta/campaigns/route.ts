@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { resolveMetaRequestContext } from '../_lib/integrations'
+import { normalizeMetaAdAccountId, resolveMetaRequestContext } from '../_lib/integrations'
 import {
   buildAdsManagerUrl,
   buildInsightsSummary,
@@ -265,8 +265,38 @@ export async function GET(request: NextRequest) {
     )
   }
 
+  if (context.source === 'env') {
+    return NextResponse.json(
+      {
+        docs: [],
+        totalDocs: 0,
+        error: {
+          code: 'MISCONFIGURED',
+          message: 'La integración Meta debe configurarse por tenant; no se permite fallback global.',
+        },
+      },
+      { status: 400 },
+    )
+  }
+
+  const requestedAdAccount = normalizeMetaAdAccountId(searchParams.get('adAccount') || '')
+  const effectiveAdAccountId = requestedAdAccount || context.meta.adAccountIdNormalized
+  if (!effectiveAdAccountId) {
+    return NextResponse.json(
+      {
+        docs: [],
+        totalDocs: 0,
+        error: {
+          code: 'MISCONFIGURED',
+          message: 'No hay cuenta publicitaria Meta configurada para este tenant.',
+        },
+      },
+      { status: 400 },
+    )
+  }
+
   const health = await checkMetaHealth({
-    adAccountId: context.meta.adAccountIdNormalized,
+    adAccountId: effectiveAdAccountId,
     accessToken: context.meta.marketingApiToken,
     requireAdsManagement: false,
   })
@@ -303,7 +333,7 @@ export async function GET(request: NextRequest) {
 
   const cacheKey = buildCacheKey({
     tenantId: context.tenantId,
-    adAccountId: context.meta.adAccountIdNormalized,
+    adAccountId: effectiveAdAccountId,
     rangeKey: range.key,
     sort,
     order,
@@ -322,7 +352,7 @@ export async function GET(request: NextRequest) {
   }
 
   const campaignsResult = await fetchSolariaCampaigns({
-    adAccountId: context.meta.adAccountIdNormalized,
+    adAccountId: effectiveAdAccountId,
     accessToken: context.meta.marketingApiToken,
     requestId,
   })
@@ -382,7 +412,7 @@ export async function GET(request: NextRequest) {
 
       const insightsResult = await fetchCampaignInsights({
         campaignId: campaign.id,
-        adAccountId: context.meta.adAccountIdNormalized,
+        adAccountId: effectiveAdAccountId,
         accessToken: context.meta.marketingApiToken,
         range,
         requestId,
@@ -390,7 +420,7 @@ export async function GET(request: NextRequest) {
 
       const adsPreviewResult = await fetchCampaignAds({
         campaignId: campaign.id,
-        adAccountId: context.meta.adAccountIdNormalized,
+        adAccountId: effectiveAdAccountId,
         accessToken: context.meta.marketingApiToken,
         limit: 1,
         requestId,
@@ -429,7 +459,7 @@ export async function GET(request: NextRequest) {
           updated_time: campaign.updated_time ?? null,
           start_time: campaign.start_time ?? null,
           stop_time: campaign.stop_time ?? null,
-          ads_manager_url: buildAdsManagerUrl(context.meta.adAccountIdNormalized, campaign.id),
+          ads_manager_url: buildAdsManagerUrl(effectiveAdAccountId, campaign.id),
         },
         insights_summary: insightsSummary,
         preview,

@@ -38,6 +38,16 @@ interface AccountOption {
   name: string
 }
 
+interface AdAccountsResponse {
+  docs?: Array<{
+    id?: string
+    account_id?: string
+    name?: string
+    active?: boolean
+    account_status?: number | null
+  }>
+}
+
 const STATUS_BADGES: Record<UiStatus, { label: string; className: string }> = {
   active: { label: 'Activa', className: 'text-green-700 border-green-200 bg-green-50' },
   paused: { label: 'Pausada', className: 'text-amber-700 border-amber-200 bg-amber-50' },
@@ -200,11 +210,18 @@ export default function CampanasPage() {
       })
 
       if (query.trim()) params.set('q', query.trim())
+      if (selectedAccount !== 'all') params.set('adAccount', selectedAccount)
 
-      const response = await fetch(`/api/meta/campaigns?${params.toString()}`, {
-        cache: 'no-store',
-        credentials: 'include',
-      })
+      const [response, adAccountsResponse] = await Promise.all([
+        fetch(`/api/meta/campaigns?${params.toString()}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        }),
+        fetch('/api/meta/ad-accounts', {
+          cache: 'no-store',
+          credentials: 'include',
+        }),
+      ])
 
       const payload = (await response.json()) as CampaignsResponse
 
@@ -219,13 +236,20 @@ export default function CampanasPage() {
       setTotalDocs(payload.totalDocs ?? 0)
 
       const nextAccountOptions: AccountOption[] = [{ id: 'all', name: 'Todas las cuentas' }]
-      if (payload.source_health?.ad_account_id) {
+      const adAccountsPayload = (await adAccountsResponse.json()) as AdAccountsResponse
+      const adAccounts = Array.isArray(adAccountsPayload.docs) ? adAccountsPayload.docs : []
+      for (const adAccount of adAccounts) {
+        const accountId = String(adAccount.account_id || adAccount.id || '').trim()
+        if (!accountId) continue
         nextAccountOptions.push({
-          id: payload.source_health.ad_account_id,
-          name: `Ad Account ${payload.source_health.ad_account_id}`,
+          id: accountId,
+          name: adAccount.name || `Ad Account ${accountId}`,
         })
       }
       setAccountOptions(nextAccountOptions)
+      if (!nextAccountOptions.some((option) => option.id === selectedAccount)) {
+        setSelectedAccount('all')
+      }
 
       if (!response.ok) {
         setErrorMessage(payload.error?.message || 'No se pudieron recuperar campañas de Meta.')
@@ -236,7 +260,7 @@ export default function CampanasPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [range, customSince, customUntil, statusFilter, query])
+  }, [range, customSince, customUntil, statusFilter, query, selectedAccount])
 
   useEffect(() => {
     void fetchCampaigns()
@@ -244,6 +268,7 @@ export default function CampanasPage() {
 
   const campaignsScoped = useMemo(() => {
     if (selectedAccount === 'all') return campaigns
+    if (campaigns.length > 0) return campaigns
     return campaigns
   }, [campaigns, selectedAccount])
 

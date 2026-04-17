@@ -39,6 +39,9 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
       const utmSource = urlParams.get('utm_source') || ''
       const utmMedium = urlParams.get('utm_medium') || ''
       const utmCampaign = urlParams.get('utm_campaign') || ''
+      const utmTerm = urlParams.get('utm_term') || ''
+      const utmContent = urlParams.get('utm_content') || ''
+      const fbclid = urlParams.get('fbclid') || ''
 
       // Fire browser Pixel Lead event
       if ((window as any).fbq) {
@@ -65,13 +68,16 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
           gdpr_consent: true,
           consent_timestamp: new Date().toISOString(),
           event_id: eventId,
-          fbc,
-          fbp,
-          utm_source: utmSource || undefined,
-          utm_medium: utmMedium || undefined,
-          utm_campaign: utmCampaign || undefined,
-        }),
-      })
+            fbc,
+            fbp,
+            fbclid: fbclid || undefined,
+            utm_source: utmSource || undefined,
+            utm_medium: utmMedium || undefined,
+            utm_campaign: utmCampaign || undefined,
+            utm_term: utmTerm || undefined,
+            utm_content: utmContent || undefined,
+          }),
+        })
       if (res.ok) {
         setSubmitted(true)
       } else {

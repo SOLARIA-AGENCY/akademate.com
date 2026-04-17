@@ -27,6 +27,7 @@ const {
 
 vi.mock('@/app/api/meta/_lib/integrations', () => ({
   resolveMetaRequestContext: mockResolveMetaRequestContext,
+  normalizeMetaAdAccountId: (value: string) => value.replace(/^act_/i, ''),
 }))
 
 vi.mock('@/app/api/meta/_lib/meta-graph', () => ({
@@ -214,5 +215,50 @@ describe('GET /api/meta/campaigns', () => {
     expect(payload.docs[0].campaign.ads_manager_url).toContain('campaign_ids=12001')
     expect(payload.sort).toBe('updated_time')
     expect(payload.order).toBe('desc')
+  })
+
+  it('bloquea fallback global cuando el contexto viene de env', async () => {
+    mockResolveMetaRequestContext.mockResolvedValueOnce({
+      authenticated: true,
+      tenantId: '2',
+      source: 'env',
+      meta: { adAccountIdNormalized: '730494526974837', marketingApiToken: 'token' },
+    })
+
+    const request = new NextRequest('https://cepformacion.akademate.com/api/meta/campaigns')
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(payload.error.code).toBe('MISCONFIGURED')
+  })
+
+  it('usa adAccount del query string para healthcheck y fetch de campañas', async () => {
+    mockResolveMetaRequestContext.mockResolvedValueOnce({
+      authenticated: true,
+      tenantId: '2',
+      source: 'session',
+      meta: { adAccountIdNormalized: '730494526974837', marketingApiToken: 'token' },
+    })
+    mockCheckMetaHealth.mockResolvedValueOnce(HEALTH_OK)
+    mockFetchSolariaCampaigns.mockResolvedValueOnce({
+      ok: true,
+      data: { data: [] },
+    })
+
+    const request = new NextRequest(
+      'https://cepformacion.akademate.com/api/meta/campaigns?adAccount=1234567890&range=30d'
+    )
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.docs).toEqual([])
+    expect(mockCheckMetaHealth).toHaveBeenCalledWith(
+      expect.objectContaining({ adAccountId: '1234567890' }),
+    )
+    expect(mockFetchSolariaCampaigns).toHaveBeenCalledWith(
+      expect.objectContaining({ adAccountId: '1234567890' }),
+    )
   })
 })

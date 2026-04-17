@@ -46,7 +46,7 @@ interface Props {
   params: Promise<{ id: string }>
 }
 
-type RangeOption = '7d' | '30d' | '90d'
+type RangeOption = '7d' | '30d' | '90d' | 'custom'
 type LeadItem = {
   id: number | string
   first_name?: string | null
@@ -124,6 +124,9 @@ export default function CampaignDetailPage({ params }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { id } = React.use(params)
+  const selectedAccount = searchParams.get('adAccount') || 'all'
+  const customSince = searchParams.get('since') || ''
+  const customUntil = searchParams.get('until') || ''
 
   const [range, setRange] = React.useState<RangeOption>(
     ((searchParams.get('range') as RangeOption) || '30d')
@@ -141,6 +144,13 @@ export default function CampaignDetailPage({ params }: Props) {
       setError(null)
 
       const query = new URLSearchParams({ range })
+      if (range === 'custom') {
+        if (customSince) query.set('since', customSince)
+        if (customUntil) query.set('until', customUntil)
+      }
+      if (selectedAccount !== 'all') {
+        query.set('adAccount', selectedAccount)
+      }
       const response = await fetch(`/api/meta/campaigns/${id}?${query.toString()}`, {
         cache: 'no-store',
         credentials: 'include',
@@ -160,7 +170,7 @@ export default function CampaignDetailPage({ params }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [id, range])
+  }, [id, range, customSince, customUntil, selectedAccount])
 
   const fetchLeads = React.useCallback(async () => {
     try {
@@ -285,8 +295,14 @@ export default function CampaignDetailPage({ params }: Props) {
                 <SelectItem value="7d">Últimos 7 días</SelectItem>
                 <SelectItem value="30d">Últimos 30 días</SelectItem>
                 <SelectItem value="90d">Últimos 90 días</SelectItem>
+                <SelectItem value="custom">Rango personalizado</SelectItem>
               </SelectContent>
             </Select>
+            {range === 'custom' && (customSince || customUntil) ? (
+              <Badge variant="outline" className="text-xs">
+                {customSince || 'N/D'} → {customUntil || 'N/D'}
+              </Badge>
+            ) : null}
             <Button variant="outline">
               Editar
             </Button>

@@ -49,6 +49,13 @@ describe('@akademate/jobs', () => {
       })
     })
 
+    it('creates meta analytics sync job', () => {
+      const job = buildTenantJob('tenant-3', 'meta-analytics-sync', { ranges: ['30d'] })
+
+      expect(job.name).toBe('meta-analytics-sync')
+      expect(job.payload).toEqual({ ranges: ['30d'] })
+    })
+
     it('preserves generic type for payload', () => {
       interface EmailPayload {
         to: string
@@ -94,12 +101,13 @@ describe('@akademate/jobs', () => {
 
   describe('JobName type', () => {
     it('contains expected job types', () => {
-      const jobNames: JobName[] = ['send-email', 'sync-search', 'webhook']
+      const jobNames: JobName[] = ['send-email', 'sync-search', 'webhook', 'meta-analytics-sync']
 
-      expect(jobNames).toHaveLength(3)
+      expect(jobNames).toHaveLength(4)
       expect(jobNames).toContain('send-email')
       expect(jobNames).toContain('sync-search')
       expect(jobNames).toContain('webhook')
+      expect(jobNames).toContain('meta-analytics-sync')
     })
   })
 })

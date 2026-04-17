@@ -196,12 +196,115 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
       detected: 2,
       not_linked: 1,
     })
+    expect(payload.source_health.facebook_data_source).toBe('meta_api_live')
     expect(payload.traffic.series[0]).toMatchObject({
       Total: 12,
       'Facebook Ads': 5,
       'Google Ads': 2,
       Organico: 5,
     })
+  })
+
+  it('uses fresh snapshot before calling Meta API and returns source metadata', async () => {
+    mockGetAuthenticatedUserContext.mockResolvedValue({ userId: 1, tenantId: 2 })
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM meta_analytics_snapshots')) {
+        return {
+          rows: [
+            {
+              snapshot_at: new Date().toISOString(),
+              campaigns_json: [
+                {
+                  id: '111',
+                  name: 'SOLARIA AGENCY - Snapshot',
+                  status: 'active',
+                  budget: 10,
+                  impressions: 100,
+                  clicks: 20,
+                  cpc: 0.5,
+                  conversions: 4,
+                  roas: 2.1,
+                },
+              ],
+            },
+          ],
+        }
+      }
+      return mockTrafficSql(sql)
+    })
+
+    mockFind.mockResolvedValue({
+      docs: [{ id: 1, name: 'SOLARIA AGENCY - Linked', meta_campaign_id: '111' }],
+    })
+
+    const request = new NextRequest('http://localhost/api/analytics/dashboard?range=30d')
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.source_health.facebook).toBe('meta_api')
+    expect(payload.source_health.facebook_data_source).toBe('snapshot')
+    expect(payload.facebook.campaigns).toHaveLength(1)
+    expect(payload.facebook.campaigns[0]).toMatchObject({ id: '111', linked: true })
+    expect(mockListCampaigns).not.toHaveBeenCalled()
+  })
+
+  it('falls back to live Meta API when snapshot is stale', async () => {
+    mockGetAuthenticatedUserContext.mockResolvedValue({ userId: 1, tenantId: 2 })
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM meta_analytics_snapshots')) {
+        return {
+          rows: [
+            {
+              snapshot_at: '2026-01-01T00:00:00.000Z',
+              campaigns_json: [],
+            },
+          ],
+        }
+      }
+      return mockTrafficSql(sql)
+    })
+
+    mockFind.mockResolvedValue({
+      docs: [{ id: 1, name: 'SOLARIA AGENCY - Linked', meta_campaign_id: '111' }],
+    })
+
+    mockListCampaigns.mockResolvedValue({
+      success: true,
+      data: {
+        data: [
+          {
+            id: '111',
+            name: 'SOLARIA AGENCY - Linked',
+            status: 'ACTIVE',
+            daily_budget: '3000',
+            created_time: '2026-03-01T00:00:00-0700',
+          },
+        ],
+      },
+    })
+
+    mockGetCampaignInsights.mockResolvedValue({
+      data: {
+        data: [
+          {
+            impressions: '1000',
+            clicks: '100',
+            spend: '50',
+            actions: [{ action_type: 'lead', value: '4' }],
+            purchase_roas: [{ value: '2.5' }],
+          },
+        ],
+      },
+    })
+
+    const request = new NextRequest('http://localhost/api/analytics/dashboard?range=30d')
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.source_health.facebook_data_source).toBe('meta_api_live')
+    expect(mockListCampaigns).toHaveBeenCalledTimes(1)
   })
 
   it('marks facebook source as unavailable when tenant has no Meta credentials', async () => {

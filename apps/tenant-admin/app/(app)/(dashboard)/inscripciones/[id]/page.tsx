@@ -50,6 +50,58 @@ const RESULT_LABELS: Record<string, string> = {
   status_changed: 'Cambio de estado',
 }
 
+const MODALITY_LABELS: Record<string, string> = {
+  presencial: 'Presencial',
+  semipresencial: 'Semipresencial',
+  hibrido: 'Semipresencial',
+  online: 'Online',
+}
+
+const DECISION_STATE_GUIDE: Record<string, string> = {
+  new: 'Lead recien entrado. Primera llamada y calificacion inicial.',
+  contacted: 'Contacto realizado. Registrar resultado y siguiente paso.',
+  following_up: 'Solicita seguimiento. Agendar fecha y hora concreta.',
+  interested: 'Interes claro. Presentar propuesta completa y resolver objeciones.',
+  enrolling: 'Inicio de matriculacion. Confirmar documentacion y reserva.',
+  enrolled: 'Matricula cerrada. Mantener comunicacion de bienvenida.',
+  on_hold: 'Decision pausada por el lead. Programar reactivacion.',
+  not_interested: 'No desea continuar. Cierre cordial y registro de motivo.',
+  unreachable: 'No localizable. Reintentos por canal alternativo.',
+  discarded: 'Lead invalidado o fuera de alcance comercial.',
+}
+
+function toFiniteNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  return null
+}
+
+function formatEuro(value: unknown): string {
+  const amount = toFiniteNumber(value)
+  if (amount === null) return 'Precio a confirmar'
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0,
+  }).format(amount)
+}
+
+function normalizeModality(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const normalized = value.trim().toLowerCase()
+  return MODALITY_LABELS[normalized] || (normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : null)
+}
+
+function extractProgramNameFromNotes(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const match = value.match(/preinscripcion:\s*([^\n(]+)/i)
+  const program = match?.[1]?.trim()
+  return program && program.length > 0 ? program : null
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -280,18 +332,61 @@ export default function LeadDetailPage({ params }: Props) {
   const timeSince = lead.createdAt ? Math.round((Date.now() - new Date(lead.createdAt).getTime()) / (1000 * 60 * 60)) : 0
   const showEnrollButton = ['interested', 'following_up', 'enrolling'].includes(currentStatus) && !lead.enrollment_id
   const showEnrollLink = !!lead.enrollment_id
+  const leadNameForOperator = (name || lead.email || 'LEAD').toUpperCase()
+  const leadProgram = lead.lead_program && typeof lead.lead_program === 'object' ? lead.lead_program : null
+  const fallbackProgramName =
+    extractProgramNameFromNotes(lead.callback_notes) ||
+    extractProgramNameFromNotes(lead.notes)
+  const programName =
+    (typeof leadProgram?.name === 'string' && leadProgram.name.trim()) ||
+    (typeof leadProgram?.course_name === 'string' && leadProgram.course_name.trim()) ||
+    fallbackProgramName ||
+    'el ciclo formativo solicitado'
+  const programModality = normalizeModality(leadProgram?.modality) || 'Semipresencial'
+  const totalHours = toFiniteNumber(leadProgram?.total_hours)
+  const practiceHours = toFiniteNumber(leadProgram?.practice_hours)
+  const scheduleText =
+    (typeof leadProgram?.schedule === 'string' && leadProgram.schedule.trim()) ||
+    '1 dia presencial por semana'
+  const programPrice = formatEuro(leadProgram?.price)
+  const financingText = leadProgram?.financial_aid_available
+    ? 'Disponemos de financiacion flexible para facilitar su matriculacion.'
+    : 'Le explico opciones de pago y posibles ayudas al cerrar la matriculacion.'
+  const programSummaryParts = [
+    `${programModality}`,
+    totalHours ? `${totalHours} horas` : null,
+    practiceHours ? `${practiceHours} horas de practicas en empresa` : null,
+  ].filter(Boolean)
+  const programSummary = programSummaryParts.join(', ') || 'Plan formativo a confirmar'
 
   // Pre-built messages
-  const phoneScript = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. Es buen momento para hablar?
+  const openingLine = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. Es buen momento para hablar?`
+  const interestedLine = `Perfecto${lead.first_name ? `, ${lead.first_name}` : ''}. Le detallo su programa: ${programName}. Modalidad: ${programModality}. Horario: ${scheduleText}. Duracion: ${programSummary}. Precio orientativo: ${programPrice}. ${financingText} Si le parece bien, avanzamos ahora mismo con la apertura de matriculacion y le envio confirmacion por WhatsApp o email.`
+  const callbackLine = 'Entiendo perfectamente. Que dia y franja horaria le viene mejor para llamarle de nuevo? Lo dejo agendado ahora mismo.'
+  const notInterestedLine = 'De acuerdo, sin problema. Si en algun momento necesita informacion, puede contactarnos. Gracias por su tiempo.'
+  const phoneScript = `OPERADOR - APERTURA
+${openingLine}
 
-Si responde SI:
-"Perfecto. Le cuento brevemente: el ciclo es en modalidad semipresencial, con solo 1 dia de clase presencial a la semana, 500 horas de practicas en empresa, y disponemos de financiacion flexible. Le gustaria que le enviemos toda la informacion detallada por email o WhatsApp?"
+OPERADOR - SI INTERESADO
+${interestedLine}
 
-Si responde NO / NO ES BUEN MOMENTO:
-"Entiendo perfectamente. Cuando le vendria bien que le llame? Puedo llamarle en otro horario que le convenga mejor."
+OPERADOR - SI NO ES BUEN MOMENTO
+${callbackLine}
 
-Si responde NO INTERESADO:
-"De acuerdo, sin problema. Si en algun momento necesita informacion, puede contactarnos. Que tenga buen dia."`
+OPERADOR - SI NO INTERESADO
+${notInterestedLine}
+
+ARBOL DE DECISION
+1) NUEVO -> primer contacto y clasificacion inicial
+2) CONTACTADO -> se hablo con el lead
+3) EN SEGUIMIENTO -> callback agendado
+4) INTERESADO -> propuesta aceptada para avanzar
+5) EN MATRICULACION -> iniciar matricula
+6) MATRICULADO -> cierre de venta
+7) EN ESPERA -> pausa temporal
+8) NO INTERESADO -> cierre comercial
+9) NO CONTACTABLE -> reintentar por otros canales
+10) DESCARTADO -> lead invalido`
 
   const whatsappMessage = `Hola${lead.first_name ? ` ${lead.first_name}` : ''}!
 
@@ -330,14 +425,6 @@ Equipo CEP Formacion`
         badge={<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>{statusConfig.label}</span>}
         actions={
           <div className="flex gap-2">
-            <Button
-              variant="destructive"
-              disabled={saving}
-              onClick={() => void handleDeleteLead()}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Eliminar lead
-            </Button>
             {showEnrollButton && (
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={saving} onClick={handleEnroll}>
                 <GraduationCap className="mr-2 h-4 w-4" />Iniciar Matriculacion
@@ -486,7 +573,62 @@ Equipo CEP Formacion`
               </div>
             </CardHeader>
             <CardContent>
-              <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans leading-relaxed bg-muted/50 rounded-lg p-4">{phoneScript}</pre>
+                <div className="space-y-3">
+                  <div className="rounded-lg border border-slate-300 bg-white p-4">
+                    <p className="text-xs font-bold uppercase tracking-wide text-slate-600">Lead objetivo</p>
+                    <p className="mt-1 text-lg font-black uppercase tracking-wide text-slate-900">{leadNameForOperator}</p>
+                    <p className="mt-1 text-xs text-slate-600">Usa este nombre durante toda la llamada para mantener foco comercial.</p>
+                  </div>
+
+                <div className="rounded-lg border border-sky-200 bg-sky-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-sky-700">OPERADOR - APERTURA</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">{openingLine}</p>
+                </div>
+
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">OPERADOR - SI INTERESADO</p>
+                  <ul className="mt-2 space-y-1 text-xs font-semibold text-emerald-900">
+                    <li><span className="font-black uppercase">Programa:</span> {programName}</li>
+                    <li><span className="font-black uppercase">Modalidad:</span> {programModality}</li>
+                    <li><span className="font-black uppercase">Horario:</span> {scheduleText}</li>
+                    <li><span className="font-black uppercase">Duracion:</span> {programSummary}</li>
+                    <li><span className="font-black uppercase">Precio:</span> {programPrice}</li>
+                  </ul>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">{interestedLine}</p>
+                </div>
+
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-amber-700">OPERADOR - SI NO ES BUEN MOMENTO</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">{callbackLine}</p>
+                </div>
+
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-700">OPERADOR - SI NO INTERESADO</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">{notInterestedLine}</p>
+                </div>
+
+                <div className="rounded-lg border border-violet-200 bg-violet-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-violet-700">ARBOL DE DECISION - APERTURA DE MATRICULA</p>
+                  <div className="mt-2 space-y-2">
+                    {STATUS_OPTIONS.map(opt => (
+                      <div key={opt.value} className="rounded-lg border border-violet-200/80 bg-white/70 p-2.5 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-xs font-black uppercase tracking-wide text-violet-800">{opt.label}</p>
+                          <p className="text-xs text-slate-700">{DECISION_STATE_GUIDE[opt.value] || 'Registrar accion y siguiente paso.'}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant={currentStatus === opt.value ? 'default' : 'outline'}
+                          disabled={saving}
+                          onClick={() => void changeStatus(opt.value)}
+                        >
+                          {currentStatus === opt.value ? 'Estado actual' : 'Marcar'}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -578,6 +720,23 @@ Equipo CEP Formacion`
           </Card>
         </div>
       </div>
+
+      <Card className="border-red-200 bg-red-50/30">
+        <CardContent className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-red-700">Zona sensible</p>
+            <p className="text-xs text-red-700/90">Eliminacion permanente de lead. Usar solo para registros invalidados.</p>
+          </div>
+          <Button
+            variant="destructive"
+            disabled={saving}
+            onClick={() => void handleDeleteLead()}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Eliminar lead
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Contact Result Modal */}
       {showContactModal && (

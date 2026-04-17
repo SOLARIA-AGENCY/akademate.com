@@ -17,6 +17,21 @@ function emptyPayload() {
   }
 }
 
+function adAccountsPayload() {
+  return {
+    docs: [
+      {
+        id: '730494526974837',
+        account_id: '730494526974837',
+        name: 'Ad Account 730494526974837',
+        active: true,
+        account_status: 1,
+      },
+    ],
+    totalDocs: 1,
+  }
+}
+
 function buildCampaign(id: string, name: string, status: 'active' | 'paused' | 'draft', start: string) {
   return {
     campaign: {
@@ -71,12 +86,19 @@ function buildCampaign(id: string, name: string, status: 'active' | 'paused' | '
 
 describe('CampanasPage SOLARIA 2026 defaults', () => {
   it('requests full year 2026 range by default', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify(emptyPayload()), {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/api/meta/ad-accounts')) {
+        return new Response(JSON.stringify(adAccountsPayload()), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      return new Response(JSON.stringify(emptyPayload()), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
-    )
+    })
 
     global.fetch = fetchMock
 
@@ -84,7 +106,9 @@ describe('CampanasPage SOLARIA 2026 defaults', () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled())
 
-    const requestUrl = String(fetchMock.mock.calls[0]?.[0] ?? '')
+    const requestUrl = String(
+      fetchMock.mock.calls.find((call) => String(call[0]).includes('/api/meta/campaigns?'))?.[0] ?? ''
+    )
     expect(requestUrl).toContain('range=custom')
     expect(requestUrl).toContain('since=2026-01-01')
     expect(requestUrl).toContain('until=2026-12-31')
@@ -112,12 +136,19 @@ describe('CampanasPage SOLARIA 2026 defaults', () => {
     ]
     payload.totalDocs = payload.docs.length
 
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify(payload), {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/api/meta/ad-accounts')) {
+        return new Response(JSON.stringify(adAccountsPayload()), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      return new Response(JSON.stringify(payload), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
-    )
+    })
 
     global.fetch = fetchMock
 

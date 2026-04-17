@@ -3,27 +3,20 @@ import { NextResponse } from 'next/server'
 import { resolveMetaRequestContext } from '../_lib/integrations'
 import { checkMetaHealth } from '../_lib/meta-graph'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const context = await resolveMetaRequestContext(request, searchParams.get('tenantId'))
+  const context = await resolveMetaRequestContext(request, request.nextUrl.searchParams.get('tenantId'))
 
   if (!context.authenticated) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Sesión no autenticada' },
-      },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Sesión no autenticada' } }, { status: 401 })
   }
 
   if (!context.tenantId) {
     return NextResponse.json(
-      {
-        success: false,
-        error: { code: 'MISCONFIGURED', message: 'No se pudo resolver el tenant actual.' },
-      },
-      { status: 400 }
+      { error: { code: 'MISCONFIGURED', message: 'No se pudo resolver el tenant actual.' } },
+      { status: 400 },
     )
   }
 
@@ -34,7 +27,9 @@ export async function GET(request: NextRequest) {
   })
 
   return NextResponse.json({
-    success: health.status === 'ok',
-    data: health,
+    tenant_id: context.tenantId,
+    source: context.source,
+    health,
+    generated_at: new Date().toISOString(),
   })
 }

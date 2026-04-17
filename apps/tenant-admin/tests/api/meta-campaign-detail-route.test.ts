@@ -27,6 +27,7 @@ const {
 
 vi.mock('@/app/api/meta/_lib/integrations', () => ({
   resolveMetaRequestContext: mockResolveMetaRequestContext,
+  normalizeMetaAdAccountId: (value: string) => value.replace(/^act_/i, ''),
 }))
 
 vi.mock('@/app/api/meta/_lib/meta-graph', () => ({
@@ -219,5 +220,58 @@ describe('GET /api/meta/campaigns/[campaignId]', () => {
       id: 'creative_1',
       preview_state: 'loaded',
     })
+  })
+
+  it('bloquea fallback global cuando el contexto viene de env', async () => {
+    mockResolveMetaRequestContext.mockResolvedValueOnce({
+      authenticated: true,
+      tenantId: '2',
+      source: 'env',
+      meta: { adAccountIdNormalized: '730494526974837', marketingApiToken: 'token' },
+    })
+
+    const request = new NextRequest('https://cepformacion.akademate.com/api/meta/campaigns/12001')
+    const response = await GET(request, { params: Promise.resolve({ campaignId: '12001' }) })
+    const payload = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(payload.error.code).toBe('MISCONFIGURED')
+  })
+
+  it('usa adAccount del query en healthcheck y fetch del detalle', async () => {
+    mockResolveMetaRequestContext.mockResolvedValueOnce({
+      authenticated: true,
+      tenantId: '2',
+      source: 'session',
+      meta: { adAccountIdNormalized: '730494526974837', marketingApiToken: 'token' },
+    })
+    mockCheckMetaHealth.mockResolvedValueOnce(HEALTH_OK)
+    mockFetchCampaignById.mockResolvedValueOnce({
+      ok: true,
+      data: {
+        id: '12001',
+        name: 'SOLARIA AGENCY - CEP - Farmacia',
+        status: 'ACTIVE',
+        effective_status: 'ACTIVE',
+        objective: 'OUTCOME_LEADS',
+        daily_budget: '2500',
+      },
+    })
+    mockFetchCampaignInsights.mockResolvedValueOnce({ ok: true, data: { data: [{}] } })
+    mockFetchCampaignAdSets.mockResolvedValueOnce({ ok: true, data: { data: [] } })
+    mockFetchCampaignAds.mockResolvedValueOnce({ ok: true, data: { data: [] } })
+
+    const request = new NextRequest(
+      'https://cepformacion.akademate.com/api/meta/campaigns/12001?adAccount=111222333&range=30d'
+    )
+    const response = await GET(request, { params: Promise.resolve({ campaignId: '12001' }) })
+    expect(response.status).toBe(200)
+
+    expect(mockCheckMetaHealth).toHaveBeenCalledWith(
+      expect.objectContaining({ adAccountId: '111222333' }),
+    )
+    expect(mockFetchCampaignById).toHaveBeenCalledWith(
+      expect.objectContaining({ adAccountId: '111222333' }),
+    )
   })
 })

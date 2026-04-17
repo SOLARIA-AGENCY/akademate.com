@@ -40,6 +40,23 @@ function esc(value: string): string {
   return value.replace(/'/g, "''")
 }
 
+async function hasColumn(drizzle: any, tableName: string, columnName: string): Promise<boolean> {
+  try {
+    const result = await drizzle.execute(`
+      SELECT 1
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = '${esc(tableName)}'
+        AND column_name = '${esc(columnName)}'
+      LIMIT 1
+    `)
+    const rows = Array.isArray(result) ? result : (result?.rows ?? [])
+    return rows.length > 0
+  } catch {
+    return false
+  }
+}
+
 function extractClientIp(request: NextRequest): string {
   const forwardedFor = request.headers.get('x-forwarded-for')
   if (forwardedFor) return forwardedFor.split(',')[0]?.trim() || '127.0.0.1'
@@ -56,6 +73,102 @@ function buildLeadSnapshot(lead: any) {
     assigned_to: lead?.assigned_to ?? null,
     callback_notes: lead?.callback_notes ?? null,
     enrollment_id: lead?.enrollment_id ?? null,
+  }
+}
+
+function toNumberOrNull(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  return null
+}
+
+function readNestedString(record: any, path: string[]): string | null {
+  let current: any = record
+  for (const key of path) {
+    if (!current || typeof current !== 'object') return null
+    current = current[key]
+  }
+  return typeof current === 'string' && current.trim().length > 0 ? current.trim() : null
+}
+
+async function resolveLeadProgramContext(payload: any, lead: any): Promise<Record<string, unknown> | null> {
+  const convocatoriaId = toPositiveInt(lead?.convocatoria_id)
+  const sourcePage = typeof lead?.source_page === 'string' ? lead.source_page : ''
+  const convocatoriaCodeMatch = sourcePage.match(/\/p\/convocatorias\/([^/?#]+)/i)
+  const convocatoriaCode = convocatoriaCodeMatch?.[1] || null
+
+  let courseRun: any = null
+
+  if (convocatoriaId) {
+    try {
+      courseRun = await payload.findByID({
+        collection: 'course-runs',
+        id: convocatoriaId,
+        depth: 2,
+        overrideAccess: true,
+      })
+    } catch {
+      courseRun = null
+    }
+  }
+
+  if (!courseRun && convocatoriaCode) {
+    try {
+      const found = await payload.find({
+        collection: 'course-runs',
+        where: { codigo: { equals: convocatoriaCode } },
+        limit: 1,
+        depth: 2,
+        overrideAccess: true,
+      })
+      courseRun = Array.isArray(found?.docs) ? found.docs[0] : null
+    } catch {
+      courseRun = null
+    }
+  }
+
+  if (!courseRun) return null
+
+  const course = typeof courseRun?.course === 'object' && courseRun.course !== null ? courseRun.course : null
+  const cycleFromRun = typeof courseRun?.cycle === 'object' && courseRun.cycle !== null ? courseRun.cycle : null
+  const cycleFromCourse = typeof course?.cycle === 'object' && course?.cycle !== null ? course.cycle : null
+  const cycle = cycleFromRun || cycleFromCourse
+  const campus = typeof courseRun?.campus === 'object' && courseRun.campus !== null ? courseRun.campus : null
+
+  const priceOverride = toNumberOrNull(courseRun?.price_override)
+  const basePrice = toNumberOrNull(course?.base_price)
+  const resolvedPrice = priceOverride ?? basePrice
+
+  return {
+    source: convocatoriaId ? 'convocatoria_id' : 'source_page_codigo',
+    convocatoria_id: convocatoriaId ?? null,
+    convocatoria_codigo: (typeof courseRun?.codigo === 'string' && courseRun.codigo.trim()) || convocatoriaCode,
+    name:
+      readNestedString(cycle, ['name']) ||
+      readNestedString(course, ['title']) ||
+      readNestedString(course, ['name']) ||
+      null,
+    course_name: readNestedString(course, ['name']) || readNestedString(course, ['title']),
+    cycle_name: readNestedString(cycle, ['name']),
+    campus_name: readNestedString(campus, ['name']),
+    modality:
+      readNestedString(cycle, ['duration', 'modality']) ||
+      readNestedString(course, ['modality']) ||
+      null,
+    schedule: readNestedString(cycle, ['duration', 'schedule']) || null,
+    class_frequency: readNestedString(cycle, ['duration', 'classFrequency']) || null,
+    total_hours:
+      toNumberOrNull((cycle as any)?.duration?.totalHours) ??
+      toNumberOrNull(course?.duration_hours),
+    practice_hours: toNumberOrNull((cycle as any)?.duration?.practiceHours),
+    start_date: readNestedString(courseRun, ['start_date']),
+    price: resolvedPrice,
+    financial_aid_available: Boolean(
+      courseRun?.financial_aid_available ?? course?.financial_aid_available ?? false,
+    ),
   }
 }
 
@@ -117,7 +230,10 @@ async function createLeadAuditLog(args: {
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
+    const { searchParams } = new URL(request.url)
+    const includeTests = ['1', 'true', 'yes'].includes((searchParams.get('include_tests') || '').toLowerCase())
     const payload = await getPayloadHMR({ config: configPromise })
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
     const tenantId = (await getAuthenticatedUserContext(request, payload))?.tenantId ?? null
     if (tenantId === null) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
@@ -130,7 +246,29 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
-    return NextResponse.json(lead)
+    if (!includeTests && drizzle?.execute) {
+      const leadId = toPositiveInt(id)
+      if (leadId) {
+        const isTestColumnExists = await hasColumn(drizzle, 'leads', 'is_test')
+        if (isTestColumnExists) {
+          const checkRes = await drizzle.execute(
+            `SELECT COALESCE(is_test, false) AS is_test FROM leads WHERE id = ${leadId} AND tenant_id = ${tenantId} LIMIT 1`,
+          )
+          const checkRows = Array.isArray(checkRes) ? checkRes : (checkRes?.rows ?? [])
+          const isTestLead = checkRows[0]?.is_test === true
+          if (isTestLead) {
+            return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+          }
+        }
+      }
+    }
+
+    const leadProgram = await resolveLeadProgramContext(payload, lead).catch(() => null)
+
+    return NextResponse.json({
+      ...lead,
+      lead_program: leadProgram,
+    })
   } catch (error) {
     return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
   }

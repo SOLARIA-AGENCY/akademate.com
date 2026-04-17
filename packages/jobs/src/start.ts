@@ -3,10 +3,12 @@ import {
   createEmailWorker,
   createWebhookWorker,
   createSearchSyncWorker,
+  createMetaAnalyticsSyncWorker,
 } from './workers'
 import { processEmail } from './processors/email'
 import { processWebhook } from './processors/webhook'
 import { processSearchSync } from './processors/searchSync'
+import { processMetaAnalyticsSync } from './processors/metaAnalyticsSync'
 
 const redisHost = process.env['REDIS_HOST'] ?? 'localhost'
 const redisPort = Number(process.env['REDIS_PORT'] ?? '6379')
@@ -24,6 +26,7 @@ const workers = [
   createEmailWorker(processEmail, workerOptions),
   createWebhookWorker(processWebhook, workerOptions),
   createSearchSyncWorker(processSearchSync, workerOptions),
+  createMetaAnalyticsSyncWorker(processMetaAnalyticsSync, workerOptions),
 ]
 
 console.log(`[jobs] Started ${String(workers.length)} workers`)

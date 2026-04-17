@@ -43,6 +43,57 @@ function toAbsoluteUrl(baseUrl: string, maybeRelative: string): string {
   return `${base}${path}`
 }
 
+function extractQueryParamFromUrl(rawUrl: unknown, param: string): string | null {
+  if (typeof rawUrl !== 'string' || !rawUrl.trim()) return null
+  try {
+    const parsed = new URL(rawUrl)
+    const value = parsed.searchParams.get(param)
+    return value && value.trim() ? value.trim() : null
+  } catch {
+    return null
+  }
+}
+
+function normalizeOptionalTrackingValue(value: unknown, maxLength = 255): string | null {
+  if (typeof value !== 'string') return null
+  const normalized = value.trim()
+  if (!normalized) return null
+  return normalized.slice(0, maxLength)
+}
+
+function parseBooleanLike(value: unknown): boolean | null {
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'number') return value === 1 ? true : value === 0 ? false : null
+  if (typeof value !== 'string') return null
+  const normalized = value.trim().toLowerCase()
+  if (['1', 'true', 'yes', 'on', 'si', 'sí'].includes(normalized)) return true
+  if (['0', 'false', 'no', 'off'].includes(normalized)) return false
+  return null
+}
+
+function inferIsTestLead(body: Record<string, unknown>): boolean {
+  const explicit = parseBooleanLike(body.is_test)
+  if (explicit !== null) return explicit
+
+  const testEventCode = normalizeOptionalTrackingValue(body.test_event_code, 128)
+  if (testEventCode) return true
+
+  const email = String(body.email || '').toLowerCase()
+  const firstName = String(body.first_name || body.name || '').toLowerCase()
+  const lastName = String(body.last_name || '').toLowerCase()
+
+  const emailLooksTest =
+    email.includes('@tests.') ||
+    email.includes('@test.') ||
+    email.includes('+test@') ||
+    /(^|[^a-z])(test|prueba|dummy)([^a-z]|$)/i.test(email)
+
+  const nameLooksTest =
+    /(test|tests|prueba|dummy|qa)/i.test(firstName) || /(test|tests|prueba|dummy|qa)/i.test(lastName)
+
+  return emailLooksTest || nameLooksTest
+}
+
 async function resolveTenantForPublicLead(payload: any, request: NextRequest): Promise<Record<string, unknown> | null> {
   const requestHost = normalizeHost(
     request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.host
@@ -136,6 +187,7 @@ export async function GET(request: NextRequest) {
       searchParams.get('type') ??
       searchParams.get('where[lead_type][equals]')
     const enrollmentId = searchParams.get('enrollment_id') ?? searchParams.get('where[enrollment_id][equals]')
+    const includeTests = ['1', 'true', 'yes'].includes((searchParams.get('include_tests') || '').toLowerCase())
 
     const payload = await getPayloadHMR({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
@@ -195,6 +247,11 @@ export async function GET(request: NextRequest) {
     const leadTypeColumnExists = leadType ? await hasColumn(drizzle, 'leads', 'lead_type') : false
     if (leadType && leadTypeColumnExists) {
       conditions.push(`l.lead_type = '${esc(leadType)}'`)
+    }
+
+    const isTestColumnExists = await hasColumn(drizzle, 'leads', 'is_test')
+    if (isTestColumnExists && !includeTests) {
+      conditions.push(`COALESCE(l.is_test, false) = false`)
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
@@ -319,7 +376,7 @@ export async function GET(request: NextRequest) {
 // POST /api/leads — Create a new lead from public forms
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body: Record<string, any> = await request.json()
 
     if (!body.email) {
       return NextResponse.json(
@@ -376,6 +433,19 @@ export async function POST(request: NextRequest) {
       (typeof tenant?.contact_website === 'string' && tenant.contact_website.trim()) ||
       tenantBaseUrl
     const whatsappPhone = normalizeWhatsAppPhone(contactPhone)
+    const sourcePage = normalizeOptionalTrackingValue(body.source_page, 2000)
+    const metaCampaignId =
+      normalizeOptionalTrackingValue(body.meta_campaign_id, 64) ||
+      normalizeOptionalTrackingValue(body.campaign_id, 64) ||
+      null
+    const adId = normalizeOptionalTrackingValue(body.ad_id, 64)
+    const adsetId = normalizeOptionalTrackingValue(body.adset_id, 64)
+    const fbc = normalizeOptionalTrackingValue(body.fbc, 255)
+    const fbp = normalizeOptionalTrackingValue(body.fbp, 255)
+    const fbclid =
+      normalizeOptionalTrackingValue(body.fbclid, 255) ||
+      extractQueryParamFromUrl(sourcePage, 'fbclid')
+    const isTestLead = inferIsTestLead(body)
 
     // Parse name into first/last
     const fullName = body.first_name || body.name || ''
@@ -408,6 +478,8 @@ export async function POST(request: NextRequest) {
       utm_source: body.utm_source || undefined,
       utm_medium: body.utm_medium || undefined,
       utm_campaign: body.utm_campaign || undefined,
+      utm_term: body.utm_term || undefined,
+      utm_content: body.utm_content || undefined,
       priority: ['low','medium','high','urgent'].includes(body.priority) ? body.priority : (body.lead_type === 'inscripcion' ? 'high' : 'medium'),
       tenant: tenantIdNumeric,
     }
@@ -456,6 +528,14 @@ export async function POST(request: NextRequest) {
           'campaign_code',
           'convocatoria_id',
           'cycle_id',
+          'meta_campaign_id',
+          'ad_id',
+          'adset_id',
+          'fbclid',
+          'fbc',
+          'fbp',
+          'is_test',
+          'source_details',
         ]
         const columnRowsRes = await drizzle.execute(`
           SELECT column_name
@@ -476,7 +556,7 @@ export async function POST(request: NextRequest) {
           updates.push(`source_form = '${String(body.source_form).replace(/'/g, "''")}'`)
         }
         if (body.source_page && existingColumns.has('source_page')) {
-          updates.push(`source_page = '${String(body.source_page).replace(/'/g, "''")}'`)
+          updates.push(`source_page = '${String(sourcePage || '').replace(/'/g, "''")}'`)
         }
         if (body.lead_type && existingColumns.has('lead_type')) {
           updates.push(`lead_type = '${String(body.lead_type).replace(/'/g, "''")}'`)
@@ -486,6 +566,46 @@ export async function POST(request: NextRequest) {
         }
         if (body.campaign_code && existingColumns.has('campaign_code')) {
           updates.push(`campaign_code = '${String(body.campaign_code).replace(/'/g, "''")}'`)
+        }
+        if (metaCampaignId && existingColumns.has('meta_campaign_id')) {
+          updates.push(`meta_campaign_id = '${metaCampaignId.replace(/'/g, "''")}'`)
+        }
+        if (adId && existingColumns.has('ad_id')) {
+          updates.push(`ad_id = '${adId.replace(/'/g, "''")}'`)
+        }
+        if (adsetId && existingColumns.has('adset_id')) {
+          updates.push(`adset_id = '${adsetId.replace(/'/g, "''")}'`)
+        }
+        if (fbclid && existingColumns.has('fbclid')) {
+          updates.push(`fbclid = '${fbclid.replace(/'/g, "''")}'`)
+        }
+        if (fbc && existingColumns.has('fbc')) {
+          updates.push(`fbc = '${fbc.replace(/'/g, "''")}'`)
+        }
+        if (fbp && existingColumns.has('fbp')) {
+          updates.push(`fbp = '${fbp.replace(/'/g, "''")}'`)
+        }
+        if (existingColumns.has('is_test')) {
+          updates.push(`is_test = ${isTestLead ? 'true' : 'false'}`)
+        }
+
+        if (existingColumns.has('source_details')) {
+          const sourceDetailsPayload = {
+            source_form: normalizeOptionalTrackingValue(body.source_form, 120),
+            source_page: sourcePage,
+            utm_source: normalizeOptionalTrackingValue(body.utm_source, 255),
+            utm_medium: normalizeOptionalTrackingValue(body.utm_medium, 255),
+            utm_campaign: normalizeOptionalTrackingValue(body.utm_campaign, 255),
+            utm_term: normalizeOptionalTrackingValue(body.utm_term, 255),
+            utm_content: normalizeOptionalTrackingValue(body.utm_content, 255),
+            fbclid,
+            fbc,
+            fbp,
+            meta_campaign_id: metaCampaignId,
+            ad_id: adId,
+            adset_id: adsetId,
+          }
+          updates.push(`source_details = '${JSON.stringify(sourceDetailsPayload).replace(/'/g, "''")}'::jsonb`)
         }
 
         const convocatoriaId = toPositiveInt(body.convocatoria_id)

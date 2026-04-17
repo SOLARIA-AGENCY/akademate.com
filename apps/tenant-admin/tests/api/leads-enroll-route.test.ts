@@ -215,6 +215,27 @@ describe('Lead enroll route', () => {
     expect(payload.error).toContain('no permite matriculacion')
     expect(mockCreate).not.toHaveBeenCalled()
   })
+
+  it('rejects enrollment for test leads', async () => {
+    mockFindByID.mockResolvedValue({
+      id: 16,
+      status: 'interested',
+      tenant_id: 2,
+      is_test: true,
+      enrollment_id: null,
+      course_id: 11,
+    })
+
+    const request = new NextRequest('http://localhost/api/leads/16/enroll', {
+      method: 'POST',
+      headers: { cookie: 'payload-token=ok' },
+    })
+
+    const response = await POST(request, buildContext())
+    expect(response.status).toBe(404)
+    expect(mockCreate).not.toHaveBeenCalled()
+  })
+
   it('returns existing enrollment as idempotent success when lead is already enrolled', async () => {
     mockFindByID.mockResolvedValue({
       id: 16,

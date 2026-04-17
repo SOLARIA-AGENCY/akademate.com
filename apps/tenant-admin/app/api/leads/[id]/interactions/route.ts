@@ -47,6 +47,20 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Lead ID invalido' }, { status: 400 })
     }
 
+    const lead = await payload.findByID({ collection: 'leads', id, depth: 0 }) as any
+    if (!lead) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+    }
+
+    const leadTenantId = toPositiveInt(lead.tenant_id ?? lead.tenant?.id ?? lead.tenant)
+    if (leadTenantId && authUser.tenantId && leadTenantId !== authUser.tenantId) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+    }
+
+    if (lead?.is_test === true) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+    }
+
     const tenantFilter = authUser.tenantId ? ` AND li.tenant_id = ${authUser.tenantId}` : ''
     const result = await drizzle.execute(`
       SELECT li.*, u.first_name, u.last_name, u.email
@@ -110,6 +124,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const leadTenantId = toPositiveInt(lead.tenant_id ?? lead.tenant?.id ?? lead.tenant)
     if (leadTenantId && authUser.tenantId && leadTenantId !== authUser.tenantId) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+    }
+
+    if (lead?.is_test === true) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 

@@ -105,5 +105,43 @@ describe('Leads create route tenant resolution', () => {
       }),
     )
   })
-})
 
+  it('extracts fbclid from source_page and marks test leads when test_event_code is present', async () => {
+    mockFind.mockResolvedValue({ docs: [{ id: 7, name: 'CEP FORMACION', domain: 'cepformacion.akademate.com' }] })
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('information_schema.columns')) {
+        return {
+          rows: [
+            { column_name: 'source_page' },
+            { column_name: 'fbclid' },
+            { column_name: 'is_test' },
+            { column_name: 'source_details' },
+          ],
+        }
+      }
+      return { rows: [] }
+    })
+
+    const request = new NextRequest('https://cepformacion.akademate.com/api/leads', {
+      method: 'POST',
+      headers: { host: 'cepformacion.akademate.com' },
+      body: JSON.stringify({
+        email: 'lead+test@real.com',
+        first_name: 'Lead Test',
+        gdpr_consent: true,
+        source_page: 'https://cepformacion.akademate.com/p/convocatorias/SC-2026-002?fbclid=FBCLID123',
+        test_event_code: 'TEST123',
+      }),
+    })
+
+    const response = await POST(request)
+    expect(response.status).toBe(201)
+
+    const updateSql = mockExecute.mock.calls
+      .map((call) => String(call[0]))
+      .find((sql) => sql.includes('UPDATE leads SET'))
+
+    expect(updateSql).toContain("fbclid = 'FBCLID123'")
+    expect(updateSql).toContain('is_test = true')
+  })
+})

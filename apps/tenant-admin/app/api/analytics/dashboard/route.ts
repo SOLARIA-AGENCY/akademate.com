@@ -18,6 +18,9 @@ const RANGE_DAYS: Record<RangeKey, number> = {
 
 const SOLARIA_PREFIX = 'SOLARIA AGENCY'
 const MIN_CAMPAIGN_YEAR = 2026
+const SNAPSHOT_STALE_MINUTES = 180
+
+type FacebookDataSource = 'snapshot' | 'meta_api_live' | 'unavailable'
 
 interface TrafficData {
   source: 'ga4' | 'internal'
@@ -32,6 +35,19 @@ interface TrafficData {
   }>
   topPages: Array<{ path: string; views: number; avgTime: string }>
   sourceMedium: Array<{ source: string; sessions: number; users: number; bounceRate: number }>
+}
+
+interface FacebookCampaignMetrics {
+  id: string
+  name: string
+  status: 'active' | 'paused'
+  budget: number
+  impressions: number
+  clicks: number
+  cpc: number
+  conversions: number
+  roas: number
+  linked: boolean
 }
 
 function pickRange(value: string | null): RangeKey {
@@ -298,6 +314,32 @@ function parseCampaignYear(campaign: any): number | null {
   return null
 }
 
+function parseSnapshotCampaigns(raw: unknown): FacebookCampaignMetrics[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((campaign) => {
+      const item = campaign as Record<string, unknown>
+      const status = String(item.status || 'paused').toLowerCase() === 'active' ? 'active' : 'paused'
+      const id = String(item.id || '').trim()
+      const name = String(item.name || 'Campaña Meta')
+      if (!id) return null
+      const normalized: FacebookCampaignMetrics = {
+        id,
+        name,
+        status,
+        budget: toNumber(item.budget),
+        impressions: toNumber(item.impressions),
+        clicks: toNumber(item.clicks),
+        cpc: toNumber(item.cpc),
+        conversions: toNumber(item.conversions),
+        roas: toNumber(item.roas),
+        linked: false,
+      }
+      return normalized
+    })
+    .filter((value): value is FacebookCampaignMetrics => Boolean(value))
+}
+
 export async function GET(request: NextRequest) {
   try {
     const payload = await getPayloadHMR({ config: configPromise })
@@ -330,6 +372,23 @@ export async function GET(request: NextRequest) {
         utm_campaign VARCHAR(255),
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
+    `)
+
+    await drizzle.execute(`
+      CREATE TABLE IF NOT EXISTS meta_analytics_snapshots (
+        id BIGSERIAL PRIMARY KEY,
+        tenant_id INTEGER NOT NULL,
+        range_key VARCHAR(8) NOT NULL,
+        source VARCHAR(32) NOT NULL DEFAULT 'meta_api_live',
+        campaigns_json JSONB NOT NULL,
+        snapshot_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `)
+
+    await drizzle.execute(`
+      CREATE INDEX IF NOT EXISTS idx_meta_analytics_snapshots_lookup
+      ON meta_analytics_snapshots (tenant_id, range_key, snapshot_at DESC)
     `)
 
     const tenantRes = await drizzle.execute(`
@@ -384,10 +443,39 @@ export async function GET(request: NextRequest) {
     const adAccountId = String(tenant.integrations_meta_ad_account_id || '').trim()
     const accessToken = String(tenant.integrations_meta_marketing_api_token || '').trim()
 
-    let detectedCampaigns: any[] = []
-    let facebookSource: 'meta_api' | 'unavailable' = 'unavailable'
+    const snapshotRows = asRows(
+      await drizzle.execute(`
+        SELECT snapshot_at, campaigns_json
+        FROM meta_analytics_snapshots
+        WHERE tenant_id = ${tenantId}
+          AND range_key = '${range}'
+        ORDER BY snapshot_at DESC
+        LIMIT 1
+      `),
+    )
 
-    if (adAccountId && accessToken) {
+    const snapshotRow = snapshotRows[0] ?? null
+    const snapshotCampaigns = parseSnapshotCampaigns(snapshotRow?.campaigns_json)
+    const snapshotAt = snapshotRow?.snapshot_at ? new Date(String(snapshotRow.snapshot_at)) : null
+    const isSnapshotFresh =
+      snapshotAt !== null &&
+      !Number.isNaN(snapshotAt.getTime()) &&
+      Date.now() - snapshotAt.getTime() <= SNAPSHOT_STALE_MINUTES * 60 * 1000
+
+    let detectedCampaigns: Array<{ id: string }> = []
+    let facebookCampaigns: FacebookCampaignMetrics[] = []
+    let facebookSource: 'meta_api' | 'unavailable' = 'unavailable'
+    let facebookDataSource: FacebookDataSource = 'unavailable'
+
+    if (snapshotCampaigns.length > 0 && isSnapshotFresh) {
+      facebookCampaigns = snapshotCampaigns.map((campaign) => ({
+        ...campaign,
+        linked: linkedMetaIds.has(campaign.id),
+      }))
+      detectedCampaigns = facebookCampaigns.map((campaign) => ({ id: campaign.id }))
+      facebookSource = 'meta_api'
+      facebookDataSource = 'snapshot'
+    } else if (adAccountId && accessToken) {
       const list = await listCampaigns(adAccountId, accessToken)
       if (list.success) {
         const rows = Array.isArray((list.data as any)?.data) ? (list.data as any).data : []
@@ -398,51 +486,83 @@ export async function GET(request: NextRequest) {
           return campaignYear !== null && campaignYear >= MIN_CAMPAIGN_YEAR
         })
         facebookSource = 'meta_api'
+        facebookDataSource = 'meta_api_live'
+
+        facebookCampaigns = await Promise.all(
+          detectedCampaigns.slice(0, 25).map(async (campaign: any) => {
+            const campaignId = String(campaign?.id || '')
+            let impressions = 0
+            let clicks = 0
+            let spend = 0
+            let conversions = 0
+            let roas = 0
+
+            try {
+              const insights = await getCampaignInsights(adAccountId, accessToken, campaignId)
+              const insightRow = Array.isArray((insights.data as any)?.data)
+                ? (insights.data as any).data[0]
+                : null
+              if (insightRow) {
+                impressions = toNumber(insightRow.impressions)
+                clicks = toNumber(insightRow.clicks)
+                spend = toNumber(insightRow.spend)
+                conversions = parseConversionsFromInsights(insightRow)
+                roas = toNumber(insightRow?.purchase_roas?.[0]?.value)
+              }
+            } catch {
+              // Keep zeroes when insights call fails.
+            }
+
+            const dailyBudget = toNumber(campaign?.daily_budget) / 100
+            return {
+              id: campaignId,
+              name: String(campaign?.name || 'Campaña Meta'),
+              status: String(campaign?.status || 'PAUSED').toLowerCase() === 'active' ? 'active' : 'paused',
+              budget: dailyBudget,
+              impressions,
+              clicks,
+              cpc: clicks > 0 ? spend / clicks : 0,
+              conversions,
+              roas,
+              linked: linkedMetaIds.has(campaignId),
+            }
+          }),
+        )
+
+        try {
+          const snapshotPayload = facebookCampaigns.map((campaign) => ({
+            id: campaign.id,
+            name: campaign.name,
+            status: campaign.status,
+            budget: campaign.budget,
+            impressions: campaign.impressions,
+            clicks: campaign.clicks,
+            cpc: campaign.cpc,
+            conversions: campaign.conversions,
+            roas: campaign.roas,
+          }))
+          const snapshotJson = JSON.stringify(snapshotPayload).replace(/'/g, "''")
+
+          await drizzle.execute(`
+            INSERT INTO meta_analytics_snapshots (tenant_id, range_key, source, campaigns_json, snapshot_at)
+            VALUES (${tenantId}, '${range}', 'meta_api_live', '${snapshotJson}'::jsonb, NOW())
+          `)
+        } catch {
+          // Snapshot persistence is best-effort.
+        }
       }
     }
 
+    if (facebookCampaigns.length === 0 && snapshotCampaigns.length > 0) {
+      facebookCampaigns = snapshotCampaigns.map((campaign) => ({
+        ...campaign,
+        linked: linkedMetaIds.has(campaign.id),
+      }))
+      detectedCampaigns = facebookCampaigns.map((campaign) => ({ id: campaign.id }))
+      facebookDataSource = 'snapshot'
+    }
+
     const detectedIds = new Set(detectedCampaigns.map((c: any) => String(c?.id || '')))
-
-    const facebookCampaigns = await Promise.all(
-      detectedCampaigns.slice(0, 25).map(async (campaign: any) => {
-        const campaignId = String(campaign?.id || '')
-        let impressions = 0
-        let clicks = 0
-        let spend = 0
-        let conversions = 0
-        let roas = 0
-
-        try {
-          const insights = await getCampaignInsights(adAccountId, accessToken, campaignId)
-          const insightRow = Array.isArray((insights.data as any)?.data)
-            ? (insights.data as any).data[0]
-            : null
-          if (insightRow) {
-            impressions = toNumber(insightRow.impressions)
-            clicks = toNumber(insightRow.clicks)
-            spend = toNumber(insightRow.spend)
-            conversions = parseConversionsFromInsights(insightRow)
-            roas = toNumber(insightRow?.purchase_roas?.[0]?.value)
-          }
-        } catch {
-          // Keep zeroes when insights call fails.
-        }
-
-        const dailyBudget = toNumber(campaign?.daily_budget) / 100
-        return {
-          id: campaignId,
-          name: String(campaign?.name || 'Campaña Meta'),
-          status: String(campaign?.status || 'PAUSED').toLowerCase() === 'active' ? 'active' : 'paused',
-          budget: dailyBudget,
-          impressions,
-          clicks,
-          cpc: clicks > 0 ? spend / clicks : 0,
-          conversions,
-          roas,
-          linked: linkedMetaIds.has(campaignId),
-        }
-      }),
-    )
 
     const totalFacebookSpend = facebookCampaigns.reduce((sum, item) => sum + item.budget, 0)
     const totalFacebookImpressions = facebookCampaigns.reduce((sum, item) => sum + item.impressions, 0)
@@ -459,6 +579,7 @@ export async function GET(request: NextRequest) {
       source_health: {
         traffic: traffic.source,
         facebook: facebookSource,
+        facebook_data_source: facebookDataSource,
       },
       overview: {
         total_sessions: traffic.totalSessions,

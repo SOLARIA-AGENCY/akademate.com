@@ -65,6 +65,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
+    if (lead?.is_test === true) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+    }
+
     const leadStatus = String(lead.status ?? '')
     if (BLOCKED_LEAD_STATUSES.has(leadStatus)) {
       return NextResponse.json(

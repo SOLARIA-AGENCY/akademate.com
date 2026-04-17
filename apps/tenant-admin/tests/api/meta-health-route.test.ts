@@ -61,8 +61,8 @@ describe('GET /api/meta/health', () => {
     const payload = await response.json()
 
     expect(response.status).toBe(200)
-    expect(payload.success).toBe(true)
-    expect(payload.data.status).toBe('ok')
-    expect(payload.data.permissions_status).toBe('ok')
+    expect(payload.tenant_id).toBe('2')
+    expect(payload.health.status).toBe('ok')
+    expect(payload.health.permissions_status).toBe('ok')
   })
 })

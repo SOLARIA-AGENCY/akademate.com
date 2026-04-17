@@ -247,6 +247,23 @@ export async function GET(request: NextRequest) {
       return asRows(res);
     };
 
+    let nonTestLeadFilter = '';
+    try {
+      const isTestColumn = await queryOne(`
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'leads'
+          AND column_name = 'is_test'
+        LIMIT 1
+      `);
+      if (isTestColumn) {
+        nonTestLeadFilter = ' AND COALESCE(is_test, false) = false';
+      }
+    } catch {
+      nonTestLeadFilter = '';
+    }
+
     let totalLeads = 0;
     let leadsThisMonth = 0;
     let studentsWithEnrollment = 0;
@@ -265,7 +282,7 @@ export async function GET(request: NextRequest) {
 
     if (drizzle?.execute) {
       totalLeads = toNumber(
-        (await queryOne(`SELECT COUNT(*)::int AS cnt FROM leads WHERE tenant_id = ${tenantId}`)).cnt,
+        (await queryOne(`SELECT COUNT(*)::int AS cnt FROM leads WHERE tenant_id = ${tenantId}${nonTestLeadFilter}`)).cnt,
       );
 
       leadsThisMonth = toNumber(
@@ -274,6 +291,7 @@ export async function GET(request: NextRequest) {
             SELECT COUNT(*)::int AS cnt
             FROM leads
             WHERE tenant_id = ${tenantId}
+              ${nonTestLeadFilter}
               AND created_at >= date_trunc('month', CURRENT_DATE)
           `)
         ).cnt,
@@ -286,6 +304,7 @@ export async function GET(request: NextRequest) {
               SELECT COUNT(*)::int AS cnt
               FROM leads
               WHERE tenant_id = ${tenantId}
+                ${nonTestLeadFilter}
                 AND enrollment_id IS NOT NULL
             `)
           ).cnt,
@@ -297,6 +316,7 @@ export async function GET(request: NextRequest) {
               SELECT COUNT(*)::int AS cnt
               FROM leads
               WHERE tenant_id = ${tenantId}
+                ${nonTestLeadFilter}
                 AND status IN ('enrolling', 'enrolled')
             `)
           ).cnt,
@@ -308,6 +328,7 @@ export async function GET(request: NextRequest) {
           SELECT date_trunc('week', created_at)::date AS week, COUNT(*)::int AS cnt
           FROM leads
           WHERE tenant_id = ${tenantId}
+            ${nonTestLeadFilter}
             AND created_at >= date_trunc('week', CURRENT_DATE) - INTERVAL '21 days'
           GROUP BY 1
           ORDER BY 1
@@ -327,6 +348,7 @@ export async function GET(request: NextRequest) {
           SELECT date_trunc('week', updated_at)::date AS week, COUNT(*)::int AS cnt
           FROM leads
           WHERE tenant_id = ${tenantId}
+            ${nonTestLeadFilter}
             AND enrollment_id IS NOT NULL
             AND updated_at >= date_trunc('week', CURRENT_DATE) - INTERVAL '21 days'
           GROUP BY 1
@@ -366,6 +388,7 @@ export async function GET(request: NextRequest) {
           SELECT first_name, last_name, email, created_at
           FROM leads
           WHERE tenant_id = ${tenantId}
+            ${nonTestLeadFilter}
           ORDER BY created_at DESC
           LIMIT 3
         `);

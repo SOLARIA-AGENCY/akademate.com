@@ -424,7 +424,12 @@ function toMetricValue(value: number | null): MetaMetricNumber {
   return { value, state: 'loaded' }
 }
 
-const RESULT_PRIORITY = ['lead', 'omni_lead', 'offsite_conversion.fb_pixel_lead'] as const
+const RESULT_PRIORITY = [
+  'lead',
+  'onsite_conversion.lead_grouped',
+  'omni_lead',
+  'offsite_conversion.fb_pixel_lead',
+] as const
 
 function resolveResultMetric(
   actions?: Array<{ action_type?: string; value?: string }>,
@@ -456,14 +461,6 @@ function resolveResultMetric(
   const pickAction = (): string | null => {
     for (const candidate of RESULT_PRIORITY) {
       if (actionsMap.has(candidate)) return candidate
-    }
-
-    for (const [key, value] of actionsMap.entries()) {
-      if (value > 0) return key
-    }
-
-    if (actionsMap.size > 0) {
-      return actionsMap.keys().next().value ?? null
     }
 
     return null

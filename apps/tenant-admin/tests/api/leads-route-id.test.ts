@@ -52,11 +52,106 @@ vi.mock('@payload-config', () => ({
   default: {},
 }))
 
-import { DELETE, PATCH } from '@/app/api/leads/[id]/route'
+import { DELETE, GET, PATCH } from '@/app/api/leads/[id]/route'
 
 function buildContext(id = '16') {
   return { params: Promise.resolve({ id }) }
 }
+
+describe('Leads [id] route - GET', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockGetPayloadHMR.mockResolvedValue(mockPayload)
+    mockAuth.mockResolvedValue({ user: { id: 4, tenant: 2 } })
+    mockFindByID.mockResolvedValue({
+      id: 16,
+      tenant: 2,
+      status: 'new',
+      is_test: true,
+    })
+    mockExecute.mockResolvedValue({ rows: [] })
+  })
+
+  it('returns 404 for test leads by default', async () => {
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('information_schema.columns') && sql.includes("column_name = 'is_test'")) {
+        return { rows: [{ '?column?': 1 }] }
+      }
+      if (sql.includes('SELECT COALESCE(is_test, false) AS is_test FROM leads')) {
+        return { rows: [{ is_test: true }] }
+      }
+      return { rows: [] }
+    })
+
+    const request = new NextRequest('http://localhost/api/leads/16', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+    const response = await GET(request, buildContext())
+
+    expect(response.status).toBe(404)
+  })
+
+  it('allows reading test leads with include_tests=true', async () => {
+    const request = new NextRequest('http://localhost/api/leads/16?include_tests=true', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+    const response = await GET(request, buildContext())
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.id).toBe(16)
+  })
+
+  it('enriches lead with program context when convocatoria_id exists', async () => {
+    mockFindByID
+      .mockResolvedValueOnce({
+        id: 16,
+        tenant: 2,
+        status: 'new',
+        convocatoria_id: 55,
+      })
+      .mockResolvedValueOnce({
+        id: 55,
+        codigo: 'SC-2026-002',
+        course: {
+          name: 'Farmacia y Parafarmacia',
+          base_price: 2890,
+          duration_hours: 2000,
+        },
+        cycle: {
+          name: 'Farmacia y Parafarmacia',
+          duration: {
+            modality: 'semipresencial',
+            totalHours: 2000,
+            practiceHours: 500,
+            schedule: '1 dia presencial por semana',
+          },
+        },
+        campus: { name: 'Santa Cruz' },
+        financial_aid_available: true,
+      })
+
+    const request = new NextRequest('http://localhost/api/leads/16', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+    const response = await GET(request, buildContext())
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.lead_program).toEqual(
+      expect.objectContaining({
+        convocatoria_id: 55,
+        convocatoria_codigo: 'SC-2026-002',
+        name: 'Farmacia y Parafarmacia',
+        modality: 'semipresencial',
+        total_hours: 2000,
+        practice_hours: 500,
+        price: 2890,
+        financial_aid_available: true,
+      }),
+    )
+  })
+})
 
 describe('Leads [id] route - PATCH', () => {
   beforeEach(() => {

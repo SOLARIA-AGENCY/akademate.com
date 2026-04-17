@@ -1,6 +1,6 @@
 import type { TenantId } from '@akademate/types'
 
-export type JobName = 'send-email' | 'sync-search' | 'webhook'
+export type JobName = 'send-email' | 'sync-search' | 'webhook' | 'meta-analytics-sync'
 
 export interface TenantJob<TPayload = unknown> {
   tenantId: TenantId
@@ -23,6 +23,7 @@ export {
   createEmailWorker,
   createWebhookWorker,
   createSearchSyncWorker,
+  createMetaAnalyticsSyncWorker,
 } from './workers'
 
 export {
@@ -44,4 +45,7 @@ export {
   processSearchSync,
   type SearchSyncPayload,
   type SearchSyncAction,
+  processMetaAnalyticsSync,
+  type MetaAnalyticsSyncPayload,
+  type MetaAnalyticsRange,
 } from './processors/index'

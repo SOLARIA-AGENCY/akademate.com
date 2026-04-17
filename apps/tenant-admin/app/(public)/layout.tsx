@@ -218,6 +218,19 @@ fbq('track', 'PageView');`,
             </noscript>
           </>
         )}
+        {tenant.ga4MeasurementId && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${tenant.ga4MeasurementId}`} />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
+              }}
+            />
+          </>
+        )}
       </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
         {/* Inject brand color as CSS variable */}

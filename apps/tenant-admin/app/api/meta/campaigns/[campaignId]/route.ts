@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { resolveMetaRequestContext } from '../../_lib/integrations'
+import { normalizeMetaAdAccountId, resolveMetaRequestContext } from '../../_lib/integrations'
 import {
   buildAdsManagerUrl,
   buildInsightsSummary,
@@ -88,8 +88,33 @@ export async function GET(
     )
   }
 
+  if (tenantContext.source === 'env') {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'MISCONFIGURED',
+          message: 'La integración Meta debe configurarse por tenant; no se permite fallback global.',
+        },
+      },
+      { status: 400 },
+    )
+  }
+
+  const requestedAdAccount = normalizeMetaAdAccountId(searchParams.get('adAccount') || '')
+  const effectiveAdAccountId = requestedAdAccount || tenantContext.meta.adAccountIdNormalized
+  if (!effectiveAdAccountId) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: 'MISCONFIGURED', message: 'No hay cuenta publicitaria Meta configurada para este tenant.' },
+      },
+      { status: 400 },
+    )
+  }
+
   const health = await checkMetaHealth({
-    adAccountId: tenantContext.meta.adAccountIdNormalized,
+    adAccountId: effectiveAdAccountId,
     accessToken: tenantContext.meta.marketingApiToken,
     requireAdsManagement: false,
   })
@@ -111,7 +136,7 @@ export async function GET(
 
   const campaignResult = await fetchCampaignById({
     campaignId,
-    adAccountId: tenantContext.meta.adAccountIdNormalized,
+    adAccountId: effectiveAdAccountId,
     accessToken: tenantContext.meta.marketingApiToken,
     requestId,
   })
@@ -159,20 +184,20 @@ export async function GET(
   const [insightsResult, adSetsResult, adsResult] = await Promise.all([
     fetchCampaignInsights({
       campaignId,
-      adAccountId: tenantContext.meta.adAccountIdNormalized,
+      adAccountId: effectiveAdAccountId,
       accessToken: tenantContext.meta.marketingApiToken,
       range,
       requestId,
     }),
     fetchCampaignAdSets({
       campaignId,
-      adAccountId: tenantContext.meta.adAccountIdNormalized,
+      adAccountId: effectiveAdAccountId,
       accessToken: tenantContext.meta.marketingApiToken,
       requestId,
     }),
     fetchCampaignAds({
       campaignId,
-      adAccountId: tenantContext.meta.adAccountIdNormalized,
+      adAccountId: effectiveAdAccountId,
       accessToken: tenantContext.meta.marketingApiToken,
       requestId,
     }),
@@ -261,7 +286,7 @@ export async function GET(
       updated_time: campaign.updated_time ?? null,
       start_time: campaign.start_time ?? null,
       stop_time: campaign.stop_time ?? null,
-      ads_manager_url: buildAdsManagerUrl(tenantContext.meta.adAccountIdNormalized, campaign.id),
+      ads_manager_url: buildAdsManagerUrl(effectiveAdAccountId, campaign.id),
     },
     insights_summary: insightsSummary,
     adsets,

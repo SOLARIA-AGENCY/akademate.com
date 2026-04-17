@@ -113,4 +113,52 @@ describe('Leads list route auth', () => {
 
     expect(selectSql).toContain('l.enrollment_id = 99')
   })
+
+  it('excludes test leads by default when is_test column exists', async () => {
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('information_schema.columns') && sql.includes("column_name = 'is_test'")) {
+        return { rows: [{ '?column?': 1 }] }
+      }
+      if (sql.includes('COUNT(*) as cnt FROM leads l')) return { rows: [{ cnt: '0' }] }
+      if (sql.includes('SELECT * FROM leads l')) return { rows: [] }
+      return { rows: [] }
+    })
+
+    const request = new NextRequest('http://localhost/api/leads?limit=20', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+
+    const response = await GET(request)
+    expect(response.status).toBe(200)
+
+    const selectSql = mockExecute.mock.calls
+      .map((call) => String(call[0]))
+      .find((sql) => sql.includes('SELECT * FROM leads l'))
+
+    expect(selectSql).toContain('COALESCE(l.is_test, false) = false')
+  })
+
+  it('allows including test leads when include_tests=true', async () => {
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('information_schema.columns') && sql.includes("column_name = 'is_test'")) {
+        return { rows: [{ '?column?': 1 }] }
+      }
+      if (sql.includes('COUNT(*) as cnt FROM leads l')) return { rows: [{ cnt: '0' }] }
+      if (sql.includes('SELECT * FROM leads l')) return { rows: [] }
+      return { rows: [] }
+    })
+
+    const request = new NextRequest('http://localhost/api/leads?limit=20&include_tests=true', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+
+    const response = await GET(request)
+    expect(response.status).toBe(200)
+
+    const selectSql = mockExecute.mock.calls
+      .map((call) => String(call[0]))
+      .find((sql) => sql.includes('SELECT * FROM leads l'))
+
+    expect(selectSql).not.toContain('COALESCE(l.is_test, false) = false')
+  })
 })

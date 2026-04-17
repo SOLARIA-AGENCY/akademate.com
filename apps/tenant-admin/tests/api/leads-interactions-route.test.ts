@@ -39,7 +39,7 @@ describe('Leads interactions route', () => {
     vi.clearAllMocks()
     mockGetPayloadHMR.mockResolvedValue(mockPayload)
     mockAuth.mockResolvedValue({ user: { id: 7, tenantId: 2 } })
-    mockFindByID.mockResolvedValue({ id: 16, tenant_id: 2, status: 'contacted' })
+    mockFindByID.mockResolvedValue({ id: 16, tenant_id: 2, status: 'contacted', is_test: false })
   })
 
   it('GET returns 401 when payload-token is missing', async () => {
@@ -77,5 +77,35 @@ describe('Leads interactions route', () => {
     expect(mockExecute).toHaveBeenCalledTimes(2)
     expect(mockExecute.mock.calls[0][0]).toContain('VALUES (16, 7,')
     expect(mockExecute.mock.calls[0][0]).not.toContain('9999')
+  })
+
+  it('GET hides interactions for test leads', async () => {
+    mockFindByID.mockResolvedValueOnce({ id: 16, tenant_id: 2, is_test: true })
+
+    const request = new NextRequest('http://localhost/api/leads/16/interactions', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+
+    const response = await GET(request, buildContext())
+    expect(response.status).toBe(404)
+  })
+
+  it('POST rejects interactions for test leads', async () => {
+    mockFindByID.mockResolvedValueOnce({ id: 16, tenant_id: 2, is_test: true })
+
+    const request = new NextRequest('http://localhost/api/leads/16/interactions', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        cookie: 'payload-token=test-token',
+      },
+      body: JSON.stringify({
+        channel: 'phone',
+        result: 'no_answer',
+      }),
+    })
+
+    const response = await POST(request, buildContext())
+    expect(response.status).toBe(404)
   })
 })

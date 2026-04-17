@@ -34,6 +34,9 @@ describe('Leads dashboard route auth', () => {
     mockGetPayloadHMR.mockResolvedValue(mockPayload)
     mockAuth.mockResolvedValue({ user: { id: 'user-1', tenantId: 2 } })
     mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('information_schema.columns') && sql.includes("column_name = 'is_test'")) {
+        return { rows: [{ '?column?': 1 }] }
+      }
       if (sql.includes('GROUP BY status')) {
         return { rows: [{ status: 'contacted', cnt: '1' }] }
       }
@@ -82,5 +85,30 @@ describe('Leads dashboard route auth', () => {
     const authCall = mockAuth.mock.calls[0]?.[0]
     const cookieHeader = authCall?.headers?.get('cookie')
     expect(cookieHeader).toContain('payload-token=legacy-session-token')
+  })
+
+  it('excludes test leads by default when is_test column exists', async () => {
+    const request = new NextRequest('http://localhost/api/leads/dashboard', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+    const response = await GET(request)
+    expect(response.status).toBe(200)
+
+    const executedSql = mockExecute.mock.calls.map((call) => String(call[0])).join('\n')
+    expect(executedSql).toContain('COALESCE(is_test, false) = false')
+  })
+
+  it('allows including test leads when include_tests=true', async () => {
+    const request = new NextRequest('http://localhost/api/leads/dashboard?include_tests=true', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+    const response = await GET(request)
+    expect(response.status).toBe(200)
+
+    const countSql = mockExecute.mock.calls
+      .map((call) => String(call[0]))
+      .filter((sql) => sql.includes('FROM leads'))
+      .join('\n')
+    expect(countSql).not.toContain('COALESCE(is_test, false) = false')
   })
 })

@@ -50,3 +50,8 @@ export const createSearchSyncWorker = <TPayload>(
   handler: TenantJobHandler<TPayload>,
   options: TenantWorkerOptions
 ) => createTenantWorker('sync-search', handler, options)
+
+export const createMetaAnalyticsSyncWorker = <TPayload>(
+  handler: TenantJobHandler<TPayload>,
+  options: TenantWorkerOptions
+) => createTenantWorker('meta-analytics-sync', handler, options)
