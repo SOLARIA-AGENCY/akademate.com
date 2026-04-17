@@ -94,11 +94,161 @@ function readNestedString(record: any, path: string[]): string | null {
   return typeof current === 'string' && current.trim().length > 0 ? current.trim() : null
 }
 
-async function resolveLeadProgramContext(payload: any, lead: any): Promise<Record<string, unknown> | null> {
-  const convocatoriaId = toPositiveInt(lead?.convocatoria_id)
-  const sourcePage = typeof lead?.source_page === 'string' ? lead.source_page : ''
-  const convocatoriaCodeMatch = sourcePage.match(/\/p\/convocatorias\/([^/?#]+)/i)
-  const convocatoriaCode = convocatoriaCodeMatch?.[1] || null
+function parseJsonObject(value: unknown): Record<string, unknown> | null {
+  if (!value) return null
+  if (typeof value === 'object' && !Array.isArray(value)) return value as Record<string, unknown>
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed as Record<string, unknown>
+      }
+    } catch {
+      return null
+    }
+  }
+  return null
+}
+
+function readFirstString(values: unknown[]): string | null {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim().length > 0) return value.trim()
+  }
+  return null
+}
+
+function inferSourceForm(pathLike: string): string {
+  const path = pathLike.toLowerCase()
+  if (path.includes('/convocatorias')) return 'preinscripcion_convocatoria'
+  if (path.includes('/ciclos')) return 'preinscripcion_ciclo'
+  if (path.includes('/landing/')) return 'landing_contact_form'
+  if (path.includes('/contacto')) return 'contacto'
+  return 'web_form'
+}
+
+function inferLeadType(pathLike: string): string {
+  const path = pathLike.toLowerCase()
+  if (path.includes('/convocatorias') || path.includes('/ciclos')) return 'inscripcion'
+  return 'lead'
+}
+
+function extractConvocatoriaCode(pathLike: string): string | null {
+  const match = pathLike.match(/\/(?:p\/)?convocatorias\/([^/?#]+)/i)
+  return match?.[1] || null
+}
+
+function normalizeLeadOrigin(
+  lead: any,
+  originRow?: Record<string, unknown> | null,
+): Record<string, unknown> {
+  const sourceDetails =
+    parseJsonObject(originRow?.source_details) ||
+    parseJsonObject(lead?.source_details) ||
+    {}
+
+  const sourcePage = readFirstString([
+    originRow?.source_page,
+    lead?.source_page,
+    sourceDetails.source_page,
+    sourceDetails.path,
+  ])
+
+  const sourceForm =
+    readFirstString([
+      originRow?.source_form,
+      lead?.source_form,
+      sourceDetails.source_form,
+    ]) || (sourcePage ? inferSourceForm(sourcePage) : null)
+
+  const leadType =
+    readFirstString([
+      originRow?.lead_type,
+      lead?.lead_type,
+      sourceDetails.lead_type,
+    ]) || (sourcePage ? inferLeadType(sourcePage) : null)
+
+  const campaignCode = readFirstString([
+    originRow?.campaign_code,
+    lead?.campaign_code,
+    sourceDetails.campaign_code,
+    sourceDetails.utm_campaign,
+    lead?.utm_campaign,
+    lead?.meta_campaign_id,
+  ])
+
+  return {
+    source_form: sourceForm,
+    source_page: sourcePage,
+    lead_type: leadType,
+    campaign_code: campaignCode,
+    convocatoria_id: toPositiveInt(originRow?.convocatoria_id ?? lead?.convocatoria_id ?? sourceDetails.convocatoria_id),
+    cycle_id: toPositiveInt(originRow?.cycle_id ?? lead?.cycle_id ?? sourceDetails.cycle_id),
+    meta_campaign_id: readFirstString([
+      originRow?.meta_campaign_id,
+      lead?.meta_campaign_id,
+      sourceDetails.meta_campaign_id,
+    ]),
+    utm_source: readFirstString([sourceDetails.utm_source, lead?.utm_source]),
+    utm_medium: readFirstString([sourceDetails.utm_medium, lead?.utm_medium]),
+    utm_campaign: readFirstString([sourceDetails.utm_campaign, lead?.utm_campaign]),
+    utm_term: readFirstString([sourceDetails.utm_term, lead?.utm_term]),
+    utm_content: readFirstString([sourceDetails.utm_content, lead?.utm_content]),
+    fbc: readFirstString([sourceDetails.fbc, lead?.fbc]),
+    fbp: readFirstString([sourceDetails.fbp, lead?.fbp]),
+    fbclid: readFirstString([sourceDetails.fbclid, lead?.fbclid]),
+    source_details: sourceDetails,
+  }
+}
+
+async function readLeadOriginFromDB(
+  drizzle: any,
+  leadId: number,
+  tenantId: number | null,
+): Promise<Record<string, unknown> | null> {
+  if (!drizzle?.execute) return null
+  const tenantFilter = tenantId ? ` AND l.tenant_id = ${tenantId}` : ''
+  const result = await drizzle.execute(`
+    SELECT
+      to_jsonb(l)->>'source_form' AS source_form,
+      to_jsonb(l)->>'source_page' AS source_page,
+      to_jsonb(l)->>'lead_type' AS lead_type,
+      to_jsonb(l)->>'campaign_code' AS campaign_code,
+      to_jsonb(l)->>'convocatoria_id' AS convocatoria_id,
+      to_jsonb(l)->>'cycle_id' AS cycle_id,
+      to_jsonb(l)->>'meta_campaign_id' AS meta_campaign_id,
+      to_jsonb(l)->'source_details' AS source_details
+    FROM leads l
+    WHERE l.id = ${leadId}${tenantFilter}
+    LIMIT 1
+  `)
+  const rows = Array.isArray(result) ? result : (result?.rows ?? [])
+  return rows[0] ?? null
+}
+
+function extractFallbackProgramName(lead: any, origin: Record<string, unknown>): string | null {
+  const sourceDetails = parseJsonObject(origin?.source_details) || {}
+  return readFirstString([
+    sourceDetails.course_name,
+    sourceDetails.program_name,
+    lead?.course_name,
+    lead?.message,
+    lead?.callback_notes,
+    typeof lead?.notes === 'string' ? lead.notes : null,
+  ])
+}
+
+async function resolveLeadProgramContext(
+  payload: any,
+  lead: any,
+  origin: Record<string, unknown>,
+): Promise<Record<string, unknown> | null> {
+  const sourceDetails = parseJsonObject(origin?.source_details) || {}
+  const convocatoriaId =
+    toPositiveInt(lead?.convocatoria_id) ||
+    toPositiveInt(origin?.convocatoria_id) ||
+    toPositiveInt(sourceDetails.convocatoria_id)
+  const sourcePage = readFirstString([origin?.source_page, lead?.source_page, sourceDetails.source_page, sourceDetails.path]) || ''
+  const convocatoriaCode = extractConvocatoriaCode(sourcePage)
 
   let courseRun: any = null
 
@@ -130,7 +280,28 @@ async function resolveLeadProgramContext(payload: any, lead: any): Promise<Recor
     }
   }
 
-  if (!courseRun) return null
+  if (!courseRun) {
+    const fallbackProgramName = extractFallbackProgramName(lead, origin)
+    if (!fallbackProgramName) return null
+
+    return {
+      source: convocatoriaId ? 'convocatoria_id' : convocatoriaCode ? 'source_page_codigo' : 'source_details',
+      convocatoria_id: convocatoriaId ?? null,
+      convocatoria_codigo: convocatoriaCode,
+      name: fallbackProgramName,
+      course_name: fallbackProgramName,
+      cycle_name: readFirstString([sourceDetails.cycle_name]),
+      campus_name: readFirstString([sourceDetails.campus_name]),
+      modality: readFirstString([sourceDetails.modality]),
+      schedule: readFirstString([sourceDetails.schedule]),
+      class_frequency: readFirstString([sourceDetails.class_frequency]),
+      total_hours: toNumberOrNull(sourceDetails.total_hours),
+      practice_hours: toNumberOrNull(sourceDetails.practice_hours),
+      start_date: readFirstString([sourceDetails.start_date]),
+      price: toNumberOrNull(sourceDetails.price),
+      financial_aid_available: Boolean(sourceDetails.financial_aid_available ?? false),
+    }
+  }
 
   const course = typeof courseRun?.course === 'object' && courseRun.course !== null ? courseRun.course : null
   const cycleFromRun = typeof courseRun?.cycle === 'object' && courseRun.cycle !== null ? courseRun.cycle : null
@@ -263,10 +434,26 @@ export async function GET(request: NextRequest, context: RouteContext) {
       }
     }
 
-    const leadProgram = await resolveLeadProgramContext(payload, lead).catch(() => null)
+    const leadId = toPositiveInt(id)
+    const originRow = leadId ? await readLeadOriginFromDB(drizzle, leadId, tenantId).catch(() => null) : null
+    const leadOrigin = normalizeLeadOrigin(lead, originRow)
+    const leadProgram = await resolveLeadProgramContext(payload, lead, leadOrigin).catch(() => null)
+
+    const normalizedLead = {
+      ...lead,
+      source_form: (lead as any)?.source_form ?? leadOrigin.source_form,
+      source_page: (lead as any)?.source_page ?? leadOrigin.source_page,
+      lead_type: (lead as any)?.lead_type ?? leadOrigin.lead_type,
+      campaign_code: (lead as any)?.campaign_code ?? leadOrigin.campaign_code,
+      convocatoria_id: (lead as any)?.convocatoria_id ?? leadOrigin.convocatoria_id,
+      cycle_id: (lead as any)?.cycle_id ?? leadOrigin.cycle_id,
+      meta_campaign_id: (lead as any)?.meta_campaign_id ?? leadOrigin.meta_campaign_id,
+      source_details: (lead as any)?.source_details ?? leadOrigin.source_details,
+    }
 
     return NextResponse.json({
-      ...lead,
+      ...normalizedLead,
+      lead_origin: leadOrigin,
       lead_program: leadProgram,
     })
   } catch (error) {

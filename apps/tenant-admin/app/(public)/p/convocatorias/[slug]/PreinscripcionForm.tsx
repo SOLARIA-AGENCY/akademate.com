@@ -22,7 +22,7 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !name || !privacy) return
+    if (!email || !name || !phone || !privacy) return
     setSubmitting(true)
     setError('')
 
@@ -76,7 +76,7 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
         body: JSON.stringify({
           email,
           first_name: name,
-          phone: phone || undefined,
+          phone,
           message: message || undefined,
           source_form: 'preinscripcion_convocatoria',
           source_page: typeof window !== 'undefined' ? window.location.href : '',
@@ -110,7 +110,8 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
         }).catch(() => {})
         setSubmitted(true)
       } else {
-        setError('No se pudo enviar. Intentalo de nuevo.')
+        const payload = await res.json().catch(() => ({} as { error?: string }))
+        setError(payload.error || 'No se pudo enviar. Intentalo de nuevo.')
       }
     } catch {
       setError('Error de conexion.')
@@ -137,7 +138,7 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent" />
       <input type="email" required placeholder="Email *" value={email} onChange={(e) => setEmail(e.target.value)}
         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent" />
-      <input type="tel" placeholder="Telefono (recomendado)" value={phone} onChange={(e) => setPhone(e.target.value)}
+      <input type="tel" required placeholder="Telefono *" value={phone} onChange={(e) => setPhone(e.target.value)}
         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent" />
       <textarea placeholder="Mensaje o consulta (opcional)" value={message} onChange={(e) => setMessage(e.target.value)} rows={3}
         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent resize-none" />
@@ -149,7 +150,7 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
 
       {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <button type="submit" disabled={submitting || !email || !name || !privacy}
+      <button type="submit" disabled={submitting || !email || !name || !phone || !privacy}
         className="w-full px-4 py-3 brand-btn text-white rounded-lg text-base font-bold  disabled:opacity-50 transition-colors uppercase tracking-wide">
         {submitting ? 'Enviando...' : 'Reserva tu plaza'}
       </button>

@@ -5,6 +5,7 @@ const {
   mockPayload,
   mockGetPayloadHMR,
   mockAuth,
+  mockFind,
   mockFindByID,
   mockUpdate,
   mockCreate,
@@ -12,6 +13,7 @@ const {
   mockExecute,
 } = vi.hoisted(() => {
   const mockAuth = vi.fn()
+  const mockFind = vi.fn()
   const mockFindByID = vi.fn()
   const mockUpdate = vi.fn()
   const mockCreate = vi.fn()
@@ -21,6 +23,7 @@ const {
 
   const mockPayload = {
     auth: mockAuth,
+    find: mockFind,
     findByID: mockFindByID,
     update: mockUpdate,
     create: mockCreate,
@@ -36,6 +39,7 @@ const {
     mockPayload,
     mockGetPayloadHMR,
     mockAuth,
+    mockFind,
     mockFindByID,
     mockUpdate,
     mockCreate,
@@ -63,6 +67,7 @@ describe('Leads [id] route - GET', () => {
     vi.clearAllMocks()
     mockGetPayloadHMR.mockResolvedValue(mockPayload)
     mockAuth.mockResolvedValue({ user: { id: 4, tenant: 2 } })
+    mockFind.mockResolvedValue({ docs: [] })
     mockFindByID.mockResolvedValue({
       id: 16,
       tenant: 2,
@@ -148,6 +153,52 @@ describe('Leads [id] route - GET', () => {
         practice_hours: 500,
         price: 2890,
         financial_aid_available: true,
+      }),
+    )
+  })
+
+  it('resolves convocatoria context from canonical /convocatorias/{codigo} source_page', async () => {
+    mockFindByID.mockResolvedValueOnce({
+      id: 16,
+      tenant: 2,
+      status: 'new',
+      source_page: 'https://cepformacion.akademate.com/convocatorias/SC-2026-002',
+    })
+    mockFind.mockResolvedValueOnce({
+      docs: [
+        {
+          id: 55,
+          codigo: 'SC-2026-002',
+          course: {
+            name: 'Higiene Bucodental',
+            duration_hours: 2000,
+          },
+          cycle: {
+            name: 'Higiene Bucodental',
+            duration: { modality: 'semipresencial', totalHours: 2000 },
+          },
+          campus: { name: 'Santa Cruz' },
+        },
+      ],
+    })
+
+    const request = new NextRequest('http://localhost/api/leads/16', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+    const response = await GET(request, buildContext())
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.lead_program).toEqual(
+      expect.objectContaining({
+        convocatoria_codigo: 'SC-2026-002',
+        name: 'Higiene Bucodental',
+      }),
+    )
+    expect(payload.lead_origin).toEqual(
+      expect.objectContaining({
+        source_form: 'preinscripcion_convocatoria',
+        source_page: 'https://cepformacion.akademate.com/convocatorias/SC-2026-002',
       }),
     )
   })

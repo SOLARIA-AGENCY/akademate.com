@@ -48,6 +48,69 @@ function sanitizeString(input: unknown, maxLen = 255): string {
   return trimmed.slice(0, maxLen)
 }
 
+function normalizeOptional(input: unknown, maxLen = 255): string | null {
+  const normalized = sanitizeString(input, maxLen)
+  return normalized || null
+}
+
+function inferSourceForm(pathLike: string): string {
+  const path = pathLike.toLowerCase()
+  if (path.includes('/convocatorias')) return 'preinscripcion_convocatoria'
+  if (path.includes('/ciclos')) return 'preinscripcion_ciclo'
+  if (path.includes('/landing/')) return 'landing_contact_form'
+  if (path.includes('/contacto')) return 'contacto'
+  return 'web_form'
+}
+
+function inferLeadType(pathLike: string): string {
+  const path = pathLike.toLowerCase()
+  if (path.includes('/convocatorias') || path.includes('/ciclos')) return 'inscripcion'
+  return 'lead'
+}
+
+function inferCampaignCode(body: any): string | null {
+  const explicit =
+    normalizeOptional(body.campaign_code, 64) ||
+    normalizeOptional(body.utm_campaign, 64) ||
+    normalizeOptional(body.meta_campaign_id, 64)
+  if (explicit) return explicit
+
+  const slug = normalizeOptional(body.slug, 120)
+  if (slug) return `slug:${slug}`.slice(0, 64)
+  return null
+}
+
+function normalizeLeadName(body: any): { firstName: string; lastName: string } {
+  const providedFirst = sanitizeString(body.first_name, 100)
+  const providedLast = sanitizeString(body.last_name, 100)
+  if (providedFirst) return { firstName: providedFirst, lastName: providedLast || '-' }
+
+  const fromName = sanitizeString(body.name, 200)
+  if (fromName) {
+    const parts = fromName.split(/\s+/).filter(Boolean)
+    const firstName = parts[0] || 'Lead'
+    const lastName = parts.slice(1).join(' ') || '-'
+    return { firstName, lastName }
+  }
+
+  const email = sanitizeString(body.email, 255)
+  const firstName = email.includes('@') ? email.split('@')[0] : 'Lead'
+  return { firstName: firstName || 'Lead', lastName: '-' }
+}
+
+function normalizeSpanishPhone(raw: unknown): string {
+  const input = sanitizeString(raw, 32)
+  const digits = input.replace(/[^\d]/g, '')
+  let normalized = digits
+  if (normalized.startsWith('0034')) normalized = normalized.slice(4)
+  if (normalized.startsWith('34')) normalized = normalized.slice(2)
+  if (normalized.length >= 9) {
+    const local = normalized.slice(0, 9)
+    return `+34 ${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6, 9)}`
+  }
+  return '+34 000 000 000'
+}
+
 function hashUserAgent(userAgent: string): string {
   if (!userAgent) return ''
   return createHash('sha256').update(userAgent).digest('hex')
@@ -281,21 +344,108 @@ export async function POST(request: NextRequest) {
 
       // Lead capture — try to create a lead in Payload
       try {
-        await payload.create({
+        const sourcePage = normalizeOptional(body.source_page, 2000) || normalizeOptional(body.path, 2000) || '/'
+        const sourceForm = normalizeOptional(body.source_form, 120) || inferSourceForm(sourcePage)
+        const leadType = normalizeOptional(body.lead_type, 32) || inferLeadType(sourcePage)
+        const campaignCode = inferCampaignCode(body)
+        const courseName = normalizeOptional(body.courseName, 255)
+        const metaCampaignId =
+          normalizeOptional(body.meta_campaign_id, 64) || normalizeOptional(body.campaign_id, 64) || null
+        const adId = normalizeOptional(body.ad_id, 64)
+        const adsetId = normalizeOptional(body.adset_id, 64)
+        const fbc = normalizeOptional(body.fbc, 255)
+        const fbp = normalizeOptional(body.fbp, 255)
+        const fbclid = normalizeOptional(body.fbclid, 255)
+        const sourceDetails = {
+          source_form: sourceForm,
+          source_page: sourcePage,
+          path: normalizeOptional(body.path, 1024),
+          slug: normalizeOptional(body.slug, 255),
+          course_name: courseName,
+          course_run_id: normalizeOptional(body.courseRunId, 64),
+          utm_source: normalizeOptional(body.utm_source, 255),
+          utm_medium: normalizeOptional(body.utm_medium, 255),
+          utm_campaign: normalizeOptional(body.utm_campaign, 255),
+          meta_campaign_id: metaCampaignId,
+          ad_id: adId,
+          adset_id: adsetId,
+          fbc,
+          fbp,
+          fbclid,
+          tracker: 'api_track_v2',
+        }
+
+        const names = normalizeLeadName(body)
+        const created = await payload.create({
           collection: 'leads',
           overrideAccess: true,
           data: {
-            first_name: body.first_name || '',
-            last_name: body.last_name || '',
+            first_name: names.firstName,
+            last_name: names.lastName,
             email: body.email || '',
-            phone: body.phone || '',
+            phone: normalizeSpanishPhone(body.phone),
             status: 'new',
             tenant: tenant.id,
             utm_source: body.utm_source || undefined,
             utm_medium: body.utm_medium || undefined,
             utm_campaign: body.utm_campaign || undefined,
+            message: courseName ? `Interes: ${courseName}` : undefined,
+            gdpr_consent: true,
+            privacy_policy_accepted: true,
+            consent_timestamp: new Date().toISOString(),
           } as any,
         })
+
+        // Persist optional attribution fields without hard-depending on schema shape.
+        try {
+          const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
+          if (drizzle?.execute) {
+            const optionalColumns = [
+              'source_form',
+              'source_page',
+              'lead_type',
+              'campaign_code',
+              'meta_campaign_id',
+              'ad_id',
+              'adset_id',
+              'fbc',
+              'fbp',
+              'fbclid',
+              'source_details',
+              'callback_notes',
+            ]
+            const columnsRes = await drizzle.execute(`
+              SELECT column_name
+              FROM information_schema.columns
+              WHERE table_name = 'leads'
+                AND column_name IN (${optionalColumns.map((column) => `'${escapeSql(column)}'`).join(', ')})
+            `)
+            const rows = Array.isArray(columnsRes) ? columnsRes : (columnsRes?.rows ?? [])
+            const existing = new Set(rows.map((row: any) => String(row?.column_name || '').trim()).filter(Boolean))
+
+            const updates: string[] = []
+            if (existing.has('source_form')) updates.push(`source_form = '${escapeSql(sourceForm)}'`)
+            if (existing.has('source_page')) updates.push(`source_page = '${escapeSql(sourcePage)}'`)
+            if (existing.has('lead_type')) updates.push(`lead_type = '${escapeSql(leadType)}'`)
+            if (campaignCode && existing.has('campaign_code')) updates.push(`campaign_code = '${escapeSql(campaignCode)}'`)
+            if (metaCampaignId && existing.has('meta_campaign_id')) updates.push(`meta_campaign_id = '${escapeSql(metaCampaignId)}'`)
+            if (adId && existing.has('ad_id')) updates.push(`ad_id = '${escapeSql(adId)}'`)
+            if (adsetId && existing.has('adset_id')) updates.push(`adset_id = '${escapeSql(adsetId)}'`)
+            if (fbc && existing.has('fbc')) updates.push(`fbc = '${escapeSql(fbc)}'`)
+            if (fbp && existing.has('fbp')) updates.push(`fbp = '${escapeSql(fbp)}'`)
+            if (fbclid && existing.has('fbclid')) updates.push(`fbclid = '${escapeSql(fbclid)}'`)
+            if (courseName && existing.has('callback_notes')) updates.push(`callback_notes = 'Interes: ${escapeSql(courseName)}'`)
+            if (existing.has('source_details')) {
+              updates.push(`source_details = '${escapeSql(JSON.stringify(sourceDetails))}'::jsonb`)
+            }
+
+            if (updates.length > 0) {
+              await drizzle.execute(`UPDATE leads SET ${updates.join(', ')} WHERE id = ${Number(created.id)}`)
+            }
+          }
+        } catch (trackingError) {
+          console.error('[track] Failed to persist lead attribution fields:', trackingError)
+        }
 
         console.log(`[track] Lead captured: ${body.email} for ${body.courseName}`)
       } catch (err) {

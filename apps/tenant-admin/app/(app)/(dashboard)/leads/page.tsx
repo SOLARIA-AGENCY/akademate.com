@@ -43,6 +43,12 @@ interface Lead {
   created_at?: string | null
   lastInteractor?: { name: string; channel: string; at: string } | null
   interactionCount?: number
+  source_form?: string | null
+  source_page?: string | null
+  campaign_code?: string | null
+  utm_campaign?: string | null
+  callback_notes?: string | null
+  source_details?: Record<string, unknown> | null
 }
 
 interface DashboardKPIs {
@@ -94,6 +100,31 @@ function timeAgo(date: string): string {
 
 function fullName(lead: Lead): string {
   return [lead.first_name, lead.last_name].filter(Boolean).join(' ') || 'Sin nombre'
+}
+
+function resolveLeadOrigin(lead: Lead): string {
+  const sourceForm = (lead.source_form || '').trim()
+  if (sourceForm) return sourceForm
+  const sourceDetails = lead.source_details && typeof lead.source_details === 'object' ? lead.source_details : null
+  const sourceDetailsForm = sourceDetails && typeof sourceDetails.source_form === 'string' ? sourceDetails.source_form.trim() : ''
+  if (sourceDetailsForm) return sourceDetailsForm
+  const sourcePage = (lead.source_page || '').trim()
+  if (sourcePage.includes('/convocatorias')) return 'preinscripcion_convocatoria'
+  if (sourcePage.includes('/ciclos')) return 'preinscripcion_ciclo'
+  if (sourcePage.includes('/landing/')) return 'landing_contact_form'
+  if (sourcePage.includes('/contacto')) return 'contacto'
+  return 'origen_no_identificado'
+}
+
+function resolveLeadProgramLabel(lead: Lead): string {
+  const fromCallback = (lead.callback_notes || '').replace(/^Interes:\s*/i, '').trim()
+  if (fromCallback) return fromCallback
+  const sourceDetails = lead.source_details && typeof lead.source_details === 'object' ? lead.source_details : null
+  const fromSourceDetails = sourceDetails && typeof sourceDetails.course_name === 'string' ? sourceDetails.course_name.trim() : ''
+  if (fromSourceDetails) return fromSourceDetails
+  const campaign = (lead.campaign_code || lead.utm_campaign || '').trim()
+  if (campaign) return campaign
+  return 'Programa no identificado'
 }
 
 async function fetchWithTimeout(input: string, timeoutMs = 12000): Promise<Response> {
@@ -408,6 +439,12 @@ export default function LeadsPage() {
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground mt-0.5 pl-[18px]">
                       {lead.email && <span className="truncate max-w-full sm:max-w-[220px]">{lead.email}</span>}
                       {lead.phone && <span>{lead.phone}</span>}
+                      <span className="text-xs font-medium text-foreground/80">
+                        Origen: {resolveLeadOrigin(lead)}
+                      </span>
+                      <span className="text-xs truncate max-w-full sm:max-w-[260px]">
+                        {resolveLeadProgramLabel(lead)}
+                      </span>
                     </div>
                   </div>
 

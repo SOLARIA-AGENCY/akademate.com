@@ -98,6 +98,33 @@ function extractProgramNameFromNotes(value: unknown): string | null {
   return program && program.length > 0 ? program : null
 }
 
+function parseJsonRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === 'object' && !Array.isArray(value)) return value as Record<string, unknown>
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed as Record<string, unknown>
+    } catch {
+      return {}
+    }
+  }
+  return {}
+}
+
+function pickFirstString(...values: unknown[]): string | null {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim().length > 0) return value.trim()
+  }
+  return null
+}
+
+function isActionableSpanishPhone(value: unknown): boolean {
+  if (typeof value !== 'string') return false
+  const digits = value.replace(/[^\d]/g, '')
+  if (digits === '34000000000' || digits === '000000000') return false
+  return /^[+]34\s[6-9]\d{2}\s\d{3}\s\d{3}$/.test(value.trim())
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -330,14 +357,40 @@ export default function LeadDetailPage({ params }: Props) {
   const showEnrollLink = !!lead.enrollment_id
   const leadNameForOperator = (name || lead.email || 'LEAD').toUpperCase()
   const leadProgram = lead.lead_program && typeof lead.lead_program === 'object' ? lead.lead_program : null
+  const leadOrigin = lead.lead_origin && typeof lead.lead_origin === 'object' ? lead.lead_origin : null
+  const sourceDetails = parseJsonRecord(leadOrigin?.source_details ?? lead.source_details)
+  const sourceForm = pickFirstString(leadOrigin?.source_form, lead.source_form, sourceDetails.source_form)
+  const sourcePage = pickFirstString(leadOrigin?.source_page, lead.source_page, sourceDetails.source_page, sourceDetails.path)
+  const originCampaign = pickFirstString(
+    leadOrigin?.campaign_code,
+    lead.campaign_code,
+    sourceDetails.campaign_code,
+    sourceDetails.utm_campaign,
+    lead.utm_campaign,
+  )
+  const originLeadType = pickFirstString(leadOrigin?.lead_type, lead.lead_type, sourceDetails.lead_type)
+  const originUtmSource = pickFirstString(leadOrigin?.utm_source, sourceDetails.utm_source, lead.utm_source)
+  const originUtmMedium = pickFirstString(leadOrigin?.utm_medium, sourceDetails.utm_medium, lead.utm_medium)
+  const originUtmCampaign = pickFirstString(leadOrigin?.utm_campaign, sourceDetails.utm_campaign, lead.utm_campaign)
+  const originMetaCampaignId = pickFirstString(
+    leadOrigin?.meta_campaign_id,
+    lead.meta_campaign_id,
+    sourceDetails.meta_campaign_id,
+  )
   const fallbackProgramName =
+    pickFirstString(sourceDetails.course_name, sourceDetails.program_name) ||
     extractProgramNameFromNotes(lead.callback_notes) ||
     extractProgramNameFromNotes(lead.notes)
+  const hasResolvedProgram = Boolean(
+    (typeof leadProgram?.name === 'string' && leadProgram.name.trim()) ||
+    (typeof leadProgram?.course_name === 'string' && leadProgram.course_name.trim()) ||
+    fallbackProgramName,
+  )
   const programName =
     (typeof leadProgram?.name === 'string' && leadProgram.name.trim()) ||
     (typeof leadProgram?.course_name === 'string' && leadProgram.course_name.trim()) ||
     fallbackProgramName ||
-    'el ciclo formativo solicitado'
+    'programa no identificado'
   const programModality = normalizeModality(leadProgram?.modality) || 'Semipresencial'
   const totalHours = toFiniteNumber(leadProgram?.total_hours)
   const practiceHours = toFiniteNumber(leadProgram?.practice_hours)
@@ -354,6 +407,8 @@ export default function LeadDetailPage({ params }: Props) {
     practiceHours ? `${practiceHours} horas de practicas en empresa` : null,
   ].filter(Boolean)
   const programSummary = programSummaryParts.join(', ') || 'Plan formativo a confirmar'
+  const hasActionablePhone = isActionableSpanishPhone(lead.phone)
+  const hasPhonePlaceholder = Boolean(lead.phone) && !hasActionablePhone
 
   // Pre-built messages
   const openingLine = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. Es buen momento para hablar?`
@@ -457,12 +512,21 @@ Equipo CEP Formacion`
                       <span className="font-medium">Llamar: {lead.phone}</span>
                     </div>
                     <div className="flex gap-2">
-                      <a href={`tel:${lead.phone}`} className="inline-flex items-center px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-medium">Llamar</a>
+                      {hasActionablePhone ? (
+                        <a href={`tel:${lead.phone}`} className="inline-flex items-center px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-medium">Llamar</a>
+                      ) : (
+                        <Button size="sm" disabled>Llamar</Button>
+                      )}
                       <Button size="sm" variant="outline" onClick={() => setShowContactModal({ channel: 'phone' })}>
                         Registrar resultado
                       </Button>
                     </div>
                   </div>
+                  {hasPhonePlaceholder && (
+                    <p className="text-xs text-amber-700">
+                      Telefono no valido para llamada. Actualiza el numero real del lead.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -475,11 +539,15 @@ Equipo CEP Formacion`
                       <span className="font-medium">WhatsApp</span>
                     </div>
                     <div className="flex gap-2">
-                      <a href={`https://wa.me/${lead.phone.replace(/\s+/g, '')}?text=${encodeURIComponent(whatsappMessage)}`}
-                        target="_blank" rel="noopener"
-                        className="inline-flex items-center px-3 py-1.5 rounded-md bg-green-600 text-white text-sm font-medium">
-                        Abrir WhatsApp
-                      </a>
+                      {hasActionablePhone ? (
+                        <a href={`https://wa.me/${lead.phone.replace(/\s+/g, '')}?text=${encodeURIComponent(whatsappMessage)}`}
+                          target="_blank" rel="noopener"
+                          className="inline-flex items-center px-3 py-1.5 rounded-md bg-green-600 text-white text-sm font-medium">
+                          Abrir WhatsApp
+                        </a>
+                      ) : (
+                        <Button size="sm" disabled>Abrir WhatsApp</Button>
+                      )}
                       <Button size="sm" variant="outline" onClick={() => setShowContactModal({ channel: 'whatsapp' })}>
                         Registrar resultado
                       </Button>
@@ -510,6 +578,16 @@ Equipo CEP Formacion`
               )}
             </CardContent>
           </Card>
+
+          {isInscripcion && !hasResolvedProgram && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-4">
+              <p className="text-sm font-semibold text-amber-900">Contexto de programa incompleto</p>
+              <p className="mt-1 text-xs text-amber-800">
+                No se pudo resolver automaticamente el programa desde convocatoria, URL o source details.
+                Revisa los metadatos de origen del lead antes de continuar.
+              </p>
+            </div>
+          )}
 
           {/* Interaction History */}
           <Card>
@@ -699,6 +777,37 @@ Equipo CEP Formacion`
                   {lead.next_action_note && <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">{lead.next_action_note}</div>}
                 </>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Origen de captacion</CardTitle></CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Formulario</span>
+                <span className="text-xs font-medium">{sourceForm || 'No disponible'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Tipo lead</span>
+                <span className="text-xs font-medium">{originLeadType || 'No disponible'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Campaña</span>
+                <span className="text-xs font-medium">{originCampaign || 'No disponible'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Meta campaign</span>
+                <span className="text-xs font-medium">{originMetaCampaignId || 'No disponible'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">UTM</span>
+                <span className="text-xs font-medium">{[originUtmSource, originUtmMedium, originUtmCampaign].filter(Boolean).join(' / ') || 'No disponible'}</span>
+              </div>
+              <div className="border-t pt-2 mt-2" />
+              <div>
+                <p className="text-muted-foreground text-xs mb-1">URL origen</p>
+                <p className="text-xs break-all font-medium">{sourcePage || 'No disponible'}</p>
+              </div>
             </CardContent>
           </Card>
 

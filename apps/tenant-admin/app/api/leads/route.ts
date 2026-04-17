@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 const RESERVED_TENANT_SLUGS = new Set(['www', 'admin', 'app'])
+const PLACEHOLDER_PHONE = '+34 000 000 000'
 
 function esc(s: string): string {
   return s.replace(/'/g, "''")
@@ -172,6 +173,62 @@ async function hasTable(drizzle: any, tableName: string): Promise<boolean> {
   } catch {
     return false
   }
+}
+
+function inferSourceForm(pathLike: string): string {
+  const path = pathLike.toLowerCase()
+  if (path.includes('/convocatorias')) return 'preinscripcion_convocatoria'
+  if (path.includes('/ciclos')) return 'preinscripcion_ciclo'
+  if (path.includes('/landing/')) return 'landing_contact_form'
+  if (path.includes('/contacto')) return 'contacto'
+  return 'web_form'
+}
+
+function inferLeadType(pathLike: string): string {
+  const path = pathLike.toLowerCase()
+  if (path.includes('/convocatorias') || path.includes('/ciclos')) return 'inscripcion'
+  return 'lead'
+}
+
+function inferCampaignCode(body: Record<string, unknown>): string | null {
+  return (
+    normalizeOptionalTrackingValue(body.campaign_code, 64) ||
+    normalizeOptionalTrackingValue(body.utm_campaign, 64) ||
+    normalizeOptionalTrackingValue(body.meta_campaign_id, 64) ||
+    normalizeOptionalTrackingValue(body.campaign_id, 64)
+  )
+}
+
+function buildRequestBaseUrl(request: NextRequest): string {
+  const host = normalizeHost(
+    request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.host
+  )
+  if (host) return `https://${host}`
+  return request.nextUrl.origin
+}
+
+function normalizePublicUrl(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  if (trimmed.startsWith('//')) return `https:${trimmed}`
+  if (trimmed.startsWith('/')) return trimmed
+  return `https://${trimmed}`
+}
+
+function normalizeSpanishPhone(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null
+  const input = raw.trim()
+  if (!input) return null
+
+  let digits = input.replace(/[^\d]/g, '')
+  if (digits.startsWith('0034')) digits = digits.slice(4)
+  if (digits.startsWith('34')) digits = digits.slice(2)
+
+  if (!/^[6-9]\d{8}$/.test(digits)) return null
+
+  return `+34 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)}`
 }
 
 export async function GET(request: NextRequest) {
@@ -403,9 +460,12 @@ export async function POST(request: NextRequest) {
         : 1
     const tenantDomain =
       (typeof tenant?.domain === 'string' && tenant.domain.trim()) || null
+    const requestBaseUrl = buildRequestBaseUrl(request)
     const tenantBaseUrl =
+      requestBaseUrl ||
+      (tenantDomain ? `https://${tenantDomain}` : null) ||
       process.env.NEXT_PUBLIC_TENANT_URL?.trim() ||
-      (tenantDomain ? `https://${tenantDomain}` : request.nextUrl.origin)
+      request.nextUrl.origin
     const logoFallback = isCepTenant
       ? '/logos/cep-formacion-logo-rectangular.png'
       : '/logos/akademate-logo-official.png'
@@ -429,11 +489,31 @@ export async function POST(request: NextRequest) {
       'soporte@akademate.com'
     const contactPhone =
       (typeof tenant?.contact_phone === 'string' && tenant.contact_phone.trim()) || ''
+    const tenantContactWebsite = normalizePublicUrl(
+      typeof tenant?.contact_website === 'string' ? tenant.contact_website : ''
+    )
     const websiteUrl =
-      (typeof tenant?.contact_website === 'string' && tenant.contact_website.trim()) ||
-      tenantBaseUrl
+      (tenantContactWebsite
+        ? /^https?:\/\//i.test(tenantContactWebsite)
+          ? tenantContactWebsite
+          : toAbsoluteUrl(tenantBaseUrl, tenantContactWebsite)
+        : null) ||
+      requestBaseUrl ||
+      (tenantDomain ? `https://${tenantDomain}` : null) ||
+      process.env.NEXT_PUBLIC_TENANT_URL?.trim() ||
+      request.nextUrl.origin
     const whatsappPhone = normalizeWhatsAppPhone(contactPhone)
-    const sourcePage = normalizeOptionalTrackingValue(body.source_page, 2000)
+    const sourcePage =
+      normalizeOptionalTrackingValue(body.source_page, 2000) ||
+      normalizeOptionalTrackingValue(body.path, 2000) ||
+      '/'
+    const sourceForm =
+      normalizeOptionalTrackingValue(body.source_form, 120) ||
+      inferSourceForm(sourcePage)
+    const normalizedLeadType =
+      normalizeOptionalTrackingValue(body.lead_type, 32) ||
+      inferLeadType(sourcePage)
+    const campaignCode = inferCampaignCode(body)
     const metaCampaignId =
       normalizeOptionalTrackingValue(body.meta_campaign_id, 64) ||
       normalizeOptionalTrackingValue(body.campaign_id, 64) ||
@@ -453,15 +533,38 @@ export async function POST(request: NextRequest) {
     const firstName = nameParts[0] || body.email.split('@')[0]
     const lastName = nameParts.slice(1).join(' ') || '-'
 
-    // Normalize phone to Spanish format: +34 XXX XXX XXX
-    let phone = (body.phone || '').replace(/\s+/g, '').replace(/^0+/, '')
-    if (phone && !phone.startsWith('+34')) phone = phone.startsWith('34') ? `+${phone}` : `+34${phone}`
-    // Format with spaces: +34 XXX XXX XXX
-    if (phone.startsWith('+34') && phone.length >= 12) {
-      const digits = phone.replace('+34', '')
-      phone = `+34 ${digits.slice(0,3)} ${digits.slice(3,6)} ${digits.slice(6,9)}`
+    const normalizedPhone = normalizeSpanishPhone(body.phone)
+    if (normalizedLeadType === 'inscripcion' && !normalizedPhone) {
+      return NextResponse.json(
+        { error: 'Telefono obligatorio y valido (+34 XXX XXX XXX) para inscripciones' },
+        { status: 422 }
+      )
     }
-    if (!phone || phone.length < 10) phone = '+34 000 000 000'
+    const phone = normalizedPhone || PLACEHOLDER_PHONE
+
+    const convocatoriaId = toPositiveInt(body.convocatoria_id)
+    const cycleId = toPositiveInt(body.cycle_id)
+    const sourceDetailsPayload = {
+      source_form: sourceForm,
+      source_page: sourcePage,
+      path: normalizeOptionalTrackingValue(body.path, 1024),
+      referrer: normalizeOptionalTrackingValue(body.referrer, 1024),
+      utm_source: normalizeOptionalTrackingValue(body.utm_source, 255),
+      utm_medium: normalizeOptionalTrackingValue(body.utm_medium, 255),
+      utm_campaign: normalizeOptionalTrackingValue(body.utm_campaign, 255),
+      utm_term: normalizeOptionalTrackingValue(body.utm_term, 255),
+      utm_content: normalizeOptionalTrackingValue(body.utm_content, 255),
+      lead_type: normalizedLeadType,
+      campaign_code: campaignCode,
+      fbclid,
+      fbc,
+      fbp,
+      convocatoria_id: convocatoriaId,
+      cycle_id: cycleId,
+      meta_campaign_id: metaCampaignId,
+      ad_id: adId,
+      adset_id: adsetId,
+    }
 
     // Build lead data — ONLY include fields that exist in the Leads collection
     const leadData: Record<string, unknown> = {
@@ -475,12 +578,28 @@ export async function POST(request: NextRequest) {
       privacy_policy_accepted: true,
       status: 'new',
       lead_score: 0,
+      source_form: sourceForm,
+      source_page: sourcePage,
+      lead_type: normalizedLeadType,
+      campaign_code: campaignCode || undefined,
+      convocatoria_id: convocatoriaId ?? undefined,
+      cycle_id: cycleId ?? undefined,
+      meta_campaign_id: metaCampaignId || undefined,
+      ad_id: adId || undefined,
+      adset_id: adsetId || undefined,
+      fbclid: fbclid || undefined,
+      fbc: fbc || undefined,
+      fbp: fbp || undefined,
+      is_test: isTestLead,
+      source_details: sourceDetailsPayload,
       utm_source: body.utm_source || undefined,
       utm_medium: body.utm_medium || undefined,
       utm_campaign: body.utm_campaign || undefined,
       utm_term: body.utm_term || undefined,
       utm_content: body.utm_content || undefined,
-      priority: ['low','medium','high','urgent'].includes(body.priority) ? body.priority : (body.lead_type === 'inscripcion' ? 'high' : 'medium'),
+      priority: ['low','medium','high','urgent'].includes(body.priority)
+        ? body.priority
+        : (normalizedLeadType === 'inscripcion' ? 'high' : 'medium'),
       tenant: tenantIdNumeric,
     }
 
@@ -497,7 +616,7 @@ export async function POST(request: NextRequest) {
     // Create real-time notification for the dashboard
     try {
       const leadName = `${firstName} ${lastName !== '-' ? lastName : ''}`.trim()
-      const notifTitle = body.lead_type === 'inscripcion'
+      const notifTitle = normalizedLeadType === 'inscripcion'
         ? `Nueva preinscripcion: ${leadName}`
         : `Nuevo lead: ${leadName}`
       const notifBody = body.notes
@@ -552,20 +671,20 @@ export async function POST(request: NextRequest) {
 
         const updates: string[] = []
 
-        if (body.source_form && existingColumns.has('source_form')) {
-          updates.push(`source_form = '${String(body.source_form).replace(/'/g, "''")}'`)
+        if (sourceForm && existingColumns.has('source_form')) {
+          updates.push(`source_form = '${sourceForm.replace(/'/g, "''")}'`)
         }
-        if (body.source_page && existingColumns.has('source_page')) {
+        if (sourcePage && existingColumns.has('source_page')) {
           updates.push(`source_page = '${String(sourcePage || '').replace(/'/g, "''")}'`)
         }
-        if (body.lead_type && existingColumns.has('lead_type')) {
-          updates.push(`lead_type = '${String(body.lead_type).replace(/'/g, "''")}'`)
+        if (normalizedLeadType && existingColumns.has('lead_type')) {
+          updates.push(`lead_type = '${normalizedLeadType.replace(/'/g, "''")}'`)
         }
         if (body.notes && existingColumns.has('callback_notes')) {
           updates.push(`callback_notes = '${String(body.notes).replace(/'/g, "''")}'`)
         }
-        if (body.campaign_code && existingColumns.has('campaign_code')) {
-          updates.push(`campaign_code = '${String(body.campaign_code).replace(/'/g, "''")}'`)
+        if (campaignCode && existingColumns.has('campaign_code')) {
+          updates.push(`campaign_code = '${campaignCode.replace(/'/g, "''")}'`)
         }
         if (metaCampaignId && existingColumns.has('meta_campaign_id')) {
           updates.push(`meta_campaign_id = '${metaCampaignId.replace(/'/g, "''")}'`)
@@ -590,30 +709,11 @@ export async function POST(request: NextRequest) {
         }
 
         if (existingColumns.has('source_details')) {
-          const sourceDetailsPayload = {
-            source_form: normalizeOptionalTrackingValue(body.source_form, 120),
-            source_page: sourcePage,
-            utm_source: normalizeOptionalTrackingValue(body.utm_source, 255),
-            utm_medium: normalizeOptionalTrackingValue(body.utm_medium, 255),
-            utm_campaign: normalizeOptionalTrackingValue(body.utm_campaign, 255),
-            utm_term: normalizeOptionalTrackingValue(body.utm_term, 255),
-            utm_content: normalizeOptionalTrackingValue(body.utm_content, 255),
-            fbclid,
-            fbc,
-            fbp,
-            meta_campaign_id: metaCampaignId,
-            ad_id: adId,
-            adset_id: adsetId,
-          }
           updates.push(`source_details = '${JSON.stringify(sourceDetailsPayload).replace(/'/g, "''")}'::jsonb`)
         }
-
-        const convocatoriaId = toPositiveInt(body.convocatoria_id)
         if (convocatoriaId !== null && existingColumns.has('convocatoria_id')) {
           updates.push(`convocatoria_id = ${convocatoriaId}`)
         }
-
-        const cycleId = toPositiveInt(body.cycle_id)
         if (cycleId !== null && existingColumns.has('cycle_id')) {
           updates.push(`cycle_id = ${cycleId}`)
         }
@@ -626,9 +726,49 @@ export async function POST(request: NextRequest) {
       // Optional tracking fields must never block lead creation.
     }
 
+    // Register initial system interaction with capture origin for CRM traceability.
+    try {
+      const drizzle = (payload.db as any).drizzle || (payload.db as any).pool
+      const leadId = toPositiveInt(created?.id)
+      if (drizzle?.execute && leadId && await hasTable(drizzle, 'lead_interactions')) {
+        let systemUserId: number | null = null
+        const usersHasTenantId = await hasColumn(drizzle, 'users', 'tenant_id')
+        if (usersHasTenantId) {
+          const tenantUserRes = await drizzle.execute(
+            `SELECT id FROM users WHERE tenant_id = ${tenantIdNumeric} ORDER BY id ASC LIMIT 1`
+          )
+          const tenantUserRows = Array.isArray(tenantUserRes) ? tenantUserRes : (tenantUserRes?.rows ?? [])
+          systemUserId = toPositiveInt(tenantUserRows[0]?.id)
+        }
+
+        if (!systemUserId) {
+          const fallbackUserRes = await drizzle.execute(`SELECT id FROM users ORDER BY id ASC LIMIT 1`)
+          const fallbackUserRows = Array.isArray(fallbackUserRes) ? fallbackUserRes : (fallbackUserRes?.rows ?? [])
+          systemUserId = toPositiveInt(fallbackUserRows[0]?.id)
+        }
+
+        if (systemUserId) {
+          const originNote = `Origen captado: formulario=${sourceForm || 'desconocido'} | pagina=${sourcePage || 'N/D'} | campana=${campaignCode || 'N/D'}`
+          await drizzle.execute(`
+            INSERT INTO lead_interactions (lead_id, user_id, channel, result, note, tenant_id)
+            SELECT ${leadId}, ${systemUserId}, 'system', 'status_changed', '${esc(originNote)}', ${tenantIdNumeric}
+            WHERE NOT EXISTS (
+              SELECT 1
+              FROM lead_interactions
+              WHERE lead_id = ${leadId}
+                AND channel = 'system'
+                AND note = '${esc(originNote)}'
+            )
+          `)
+        }
+      }
+    } catch {
+      // Lead interaction traceability is best-effort and must never block lead creation.
+    }
+
     // Send confirmation email to the lead (non-blocking, via Brevo)
     try {
-      const leadType = body.lead_type || 'informacion'
+      const leadType = normalizedLeadType || 'informacion'
       const heroImages: Record<string, string> = {
         inscripcion: 'https://i.imgur.com/3URhTS6.png',   // Creemos en ti
         informacion: 'https://i.imgur.com/1ueas0V.png',   // El momento es ahora
@@ -663,10 +803,8 @@ export async function POST(request: NextRequest) {
 <table width="600" style="max-width:600px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
 <tr><td style="background:${tenantPrimaryColor};padding:28px;text-align:center;">
 <table cellspacing="0" cellpadding="0" border="0" align="center"><tr><td align="center">
-<table cellspacing="0" cellpadding="0" border="0"><tr>
-<td width="80" height="80" align="center" valign="middle" style="background:#ffffff;border-radius:50%;width:80px;height:80px;">
-<img src="${tenantLogoUrl}" alt="${academyName}" width="56" height="56" style="display:block;margin:0 auto;">
-</td></tr></table></td></tr></table>
+<img src="${tenantLogoUrl}" alt="${academyName}" style="display:block;max-width:240px;width:100%;height:auto;margin:0 auto;">
+</td></tr></table>
 <p style="color:#fff;font-size:20px;font-weight:700;margin:14px 0 0;letter-spacing:1px;">${academyName}</p>
 </td></tr>
 <tr><td style="padding:0;"><img src="${heroImage}" alt="${academyName}" width="600" style="display:block;width:100%;height:auto;"></td></tr>
@@ -699,16 +837,15 @@ ${whatsappCta}
 </td></tr>
 </table></td></tr></table></body></html>`
 
-      // Send via Brevo SMTP (non-blocking)
-      fetch(`${tenantBaseUrl}/api/email/send-welcome`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: firstName, email: body.email, password: '', role: '' }),
-      }).catch(() => {})
-
       // Direct SMTP send for the custom lead confirmation (more reliable)
-      const nodemailer = require('nodemailer')
-      const transport = nodemailer.createTransport({
+      const nodemailerModule = await import('nodemailer')
+      const createTransport =
+        (nodemailerModule as any).createTransport ||
+        (nodemailerModule as any).default?.createTransport
+      if (typeof createTransport !== 'function') {
+        throw new Error('nodemailer.createTransport is not available')
+      }
+      const transport = createTransport({
         host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
         port: parseInt(process.env.SMTP_PORT || '587'),
         secure: false,

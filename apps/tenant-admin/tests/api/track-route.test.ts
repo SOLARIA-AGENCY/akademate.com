@@ -92,6 +92,20 @@ describe('Track route - POST /api/track', () => {
 
   it('stores lead event and creates lead with tenant + UTM attribution', async () => {
     const { POST } = await import('@/app/api/track/route')
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('information_schema.columns')) {
+        return {
+          rows: [
+            { column_name: 'source_form' },
+            { column_name: 'source_page' },
+            { column_name: 'lead_type' },
+            { column_name: 'campaign_code' },
+            { column_name: 'source_details' },
+          ],
+        }
+      }
+      return { rows: [] }
+    })
 
     const request = new NextRequest('http://localhost/api/track', {
       method: 'POST',
@@ -121,7 +135,10 @@ describe('Track route - POST /api/track', () => {
         data: expect.objectContaining({
           first_name: 'Carmen',
           last_name: 'Test',
+          phone: '+34 111 111 111',
           tenant: 2,
+          gdpr_consent: true,
+          privacy_policy_accepted: true,
           utm_source: 'facebook',
           utm_medium: 'cpc',
           utm_campaign: 'solaria-leads',
@@ -131,6 +148,9 @@ describe('Track route - POST /api/track', () => {
 
     const executedSql = mockExecute.mock.calls.map(([sql]: [string]) => sql)
     expect(executedSql.some((sql: string) => sql.includes("'lead'"))).toBe(true)
+    const updateLeadSql = executedSql.find((sql: string) => sql.includes('UPDATE leads SET'))
+    expect(updateLeadSql).toContain("source_form = 'web_form'")
+    expect(updateLeadSql).toContain("campaign_code = 'solaria-leads'")
   })
 
   it('stores custom form events for funnel analytics', async () => {

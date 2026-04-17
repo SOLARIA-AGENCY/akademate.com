@@ -458,6 +458,145 @@ export const Leads: CollectionConfig = {
     },
 
     // ============================================================================
+    // CAPTURE ORIGIN (CRM TRACEABILITY)
+    // ============================================================================
+
+    {
+      name: 'source_form',
+      type: 'text',
+      maxLength: 120,
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Formulario origen (ej: preinscripcion_convocatoria)',
+      },
+    },
+    {
+      name: 'source_page',
+      type: 'text',
+      maxLength: 2000,
+      admin: {
+        position: 'sidebar',
+        description: 'URL/pagina origen de la captacion',
+      },
+    },
+    {
+      name: 'lead_type',
+      type: 'select',
+      index: true,
+      options: [
+        { label: 'Inscripcion', value: 'inscripcion' },
+        { label: 'Lead', value: 'lead' },
+        { label: 'Informacion', value: 'informacion' },
+        { label: 'Contacto', value: 'contacto' },
+      ],
+      defaultValue: 'lead',
+      admin: {
+        position: 'sidebar',
+        description: 'Tipo operativo del lead para CRM',
+      },
+    },
+    {
+      name: 'campaign_code',
+      type: 'text',
+      maxLength: 64,
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Codigo de campaña de captacion',
+      },
+    },
+    {
+      name: 'convocatoria_id',
+      type: 'number',
+      admin: {
+        position: 'sidebar',
+        description: 'ID de convocatoria asociada (si aplica)',
+      },
+    },
+    {
+      name: 'cycle_id',
+      type: 'number',
+      admin: {
+        position: 'sidebar',
+        description: 'ID de ciclo asociado (si aplica)',
+      },
+    },
+    {
+      name: 'meta_campaign_id',
+      type: 'text',
+      maxLength: 64,
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Campaign ID de Meta Ads',
+      },
+    },
+    {
+      name: 'ad_id',
+      type: 'text',
+      maxLength: 64,
+      admin: {
+        position: 'sidebar',
+        description: 'Ad ID de Meta Ads',
+      },
+    },
+    {
+      name: 'adset_id',
+      type: 'text',
+      maxLength: 64,
+      admin: {
+        position: 'sidebar',
+        description: 'Ad Set ID de Meta Ads',
+      },
+    },
+    {
+      name: 'fbclid',
+      type: 'text',
+      maxLength: 255,
+      admin: {
+        position: 'sidebar',
+        description: 'Facebook Click ID',
+      },
+    },
+    {
+      name: 'fbc',
+      type: 'text',
+      maxLength: 255,
+      admin: {
+        position: 'sidebar',
+        description: 'Facebook browser click identifier',
+      },
+    },
+    {
+      name: 'fbp',
+      type: 'text',
+      maxLength: 255,
+      admin: {
+        position: 'sidebar',
+        description: 'Facebook browser identifier',
+      },
+    },
+    {
+      name: 'is_test',
+      type: 'checkbox',
+      defaultValue: false,
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Marca de lead de test',
+      },
+    },
+    {
+      name: 'source_details',
+      type: 'json',
+      admin: {
+        position: 'sidebar',
+        description: 'Metadatos de origen normalizados (UTM, URL, campaña, tracking)',
+      },
+    },
+
+    // ============================================================================
     // UTM TRACKING (Marketing Attribution)
     // ============================================================================
 
