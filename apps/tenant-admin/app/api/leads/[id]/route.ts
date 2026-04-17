@@ -40,6 +40,13 @@ function esc(value: string): string {
   return value.replace(/'/g, "''")
 }
 
+function sqlStringOrNull(value: unknown): string {
+  if (value === null || value === undefined) return 'NULL'
+  const text = String(value).trim()
+  if (!text) return 'NULL'
+  return `'${esc(text)}'`
+}
+
 async function hasColumn(drizzle: any, tableName: string, columnName: string): Promise<boolean> {
   try {
     const result = await drizzle.execute(`
@@ -483,7 +490,16 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     // Fields updatable via Payload
-    const payloadFields = ['status', 'priority', 'assigned_to', 'last_contacted_at', 'converted_at']
+    const payloadFields = [
+      'status',
+      'priority',
+      'assigned_to',
+      'last_contacted_at',
+      'converted_at',
+      'preferred_contact_method',
+      'preferred_contact_time',
+      'source_details',
+    ]
     const payloadData: Record<string, unknown> = {}
     for (const field of payloadFields) {
       if (body[field] !== undefined) payloadData[field] = body[field]
@@ -504,14 +520,24 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
     if (drizzle?.execute) {
       const sqlSets: string[] = []
+      const hasNextCallbackDateColumn =
+        body.next_callback_date !== undefined ? await hasColumn(drizzle, 'leads', 'next_callback_date') : false
+      const hasLastContactResultColumn =
+        body.last_contact_result !== undefined ? await hasColumn(drizzle, 'leads', 'last_contact_result') : false
 
-      if (body.next_action_date !== undefined) sqlSets.push(`next_action_date = '${esc(String(body.next_action_date))}'`)
-      if (body.next_action_note !== undefined) sqlSets.push(`next_action_note = '${esc(String(body.next_action_note))}'`)
+      if (body.next_action_date !== undefined) sqlSets.push(`next_action_date = ${sqlStringOrNull(body.next_action_date)}`)
+      if (body.next_action_note !== undefined) sqlSets.push(`next_action_note = ${sqlStringOrNull(body.next_action_note)}`)
+      if (body.next_callback_date !== undefined && hasNextCallbackDateColumn) {
+        sqlSets.push(`next_callback_date = ${sqlStringOrNull(body.next_callback_date)}`)
+      }
+      if (body.last_contact_result !== undefined && hasLastContactResultColumn) {
+        sqlSets.push(`last_contact_result = ${sqlStringOrNull(body.last_contact_result)}`)
+      }
       if (body.enrollment_id !== undefined) {
         const enrollmentId = toPositiveInt(body.enrollment_id)
         if (enrollmentId) sqlSets.push(`enrollment_id = ${enrollmentId}`)
       }
-      if (body.callback_notes !== undefined) sqlSets.push(`callback_notes = '${esc(String(body.callback_notes))}'`)
+      if (body.callback_notes !== undefined) sqlSets.push(`callback_notes = ${sqlStringOrNull(body.callback_notes)}`)
 
       if (sqlSets.length > 0) {
         sqlSets.push('updated_at = NOW()')
@@ -524,8 +550,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (drizzle?.execute && authUser?.userId) {
       const changedFieldNames = Object.keys(body).filter((fieldName) => body[fieldName] !== undefined)
       if (changedFieldNames.length > 0) {
+        const customStatusNote = typeof body.status_change_note === 'string' ? body.status_change_note.trim() : ''
         const note = body.status !== undefined
-          ? `Estado actualizado: ${String(lead?.status ?? 'sin_estado')} -> ${String(body.status)}`
+          ? (customStatusNote.length > 0
+            ? customStatusNote
+            : `Estado actualizado: ${String(lead?.status ?? 'sin_estado')} -> ${String(body.status)}`)
           : `Ficha actualizada: ${changedFieldNames.join(', ')}`
         const leadId = toPositiveInt(id)
         const userId = toPositiveInt(authUser.userId)

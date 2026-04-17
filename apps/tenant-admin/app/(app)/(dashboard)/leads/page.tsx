@@ -49,6 +49,9 @@ interface Lead {
   utm_campaign?: string | null
   callback_notes?: string | null
   source_details?: Record<string, unknown> | null
+  next_action_date?: string | null
+  enrollment_id?: number | null
+  gdpr_consent?: boolean | null
 }
 
 interface DashboardKPIs {
@@ -179,6 +182,7 @@ export default function LeadsPage() {
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const [queueFilter, setQueueFilter] = useState<string | null>(null)
 
   // Fetch leads and KPIs in parallel with isolated fallbacks.
   useEffect(() => {
@@ -221,6 +225,10 @@ export default function LeadsPage() {
   // Client-side filtering
   const filtered = useMemo(() => {
     let result = leads
+    const now = Date.now()
+    const today = new Date()
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
 
     if (search) {
       const q = search.toLowerCase()
@@ -240,8 +248,34 @@ export default function LeadsPage() {
       result = result.filter((l) => (l.status ?? 'new') === statusFilter)
     }
 
+    if (queueFilter === 'overdue_followups') {
+      result = result.filter((lead) => {
+        if ((lead.status ?? '') !== 'following_up') return false
+        if (!lead.next_action_date) return false
+        const nextActionTs = new Date(lead.next_action_date).getTime()
+        return Number.isFinite(nextActionTs) && nextActionTs < now
+      })
+    }
+
+    if (queueFilter === 'reactivate_today') {
+      result = result.filter((lead) => {
+        if ((lead.status ?? '') !== 'on_hold') return false
+        if (!lead.next_action_date) return false
+        const nextActionTs = new Date(lead.next_action_date).getTime()
+        return Number.isFinite(nextActionTs) && nextActionTs >= startOfDay.getTime() && nextActionTs < endOfDay.getTime()
+      })
+    }
+
+    if (queueFilter === 'moved_to_enrollment') {
+      result = result.filter((lead) => ['enrolling', 'enrolled'].includes(lead.status ?? '') || Boolean(lead.enrollment_id))
+    }
+
+    if (queueFilter === 'recoverable_not_interested') {
+      result = result.filter((lead) => (lead.status ?? '') === 'not_interested' && lead.gdpr_consent !== false)
+    }
+
     return result
-  }, [leads, search, typeFilter, statusFilter])
+  }, [leads, search, typeFilter, statusFilter, queueFilter])
 
   // Follow-up total for KPI
   const followUpTotal = kpis
@@ -382,6 +416,42 @@ export default function LeadsPage() {
               </Button>
             )
           })}
+        </div>
+
+        {/* Workflow queues */}
+        <div className="flex flex-wrap gap-2">
+          <span className="text-sm text-muted-foreground self-center mr-1">Vistas operativas:</span>
+          <Button size="sm" variant={queueFilter === null ? 'default' : 'outline'} onClick={() => setQueueFilter(null)}>
+            Todas
+          </Button>
+          <Button
+            size="sm"
+            variant={queueFilter === 'overdue_followups' ? 'default' : 'outline'}
+            onClick={() => setQueueFilter(queueFilter === 'overdue_followups' ? null : 'overdue_followups')}
+          >
+            Seguimientos vencidos
+          </Button>
+          <Button
+            size="sm"
+            variant={queueFilter === 'reactivate_today' ? 'default' : 'outline'}
+            onClick={() => setQueueFilter(queueFilter === 'reactivate_today' ? null : 'reactivate_today')}
+          >
+            En espera a reactivar hoy
+          </Button>
+          <Button
+            size="sm"
+            variant={queueFilter === 'moved_to_enrollment' ? 'default' : 'outline'}
+            onClick={() => setQueueFilter(queueFilter === 'moved_to_enrollment' ? null : 'moved_to_enrollment')}
+          >
+            Pasados a matriculacion
+          </Button>
+          <Button
+            size="sm"
+            variant={queueFilter === 'recoverable_not_interested' ? 'default' : 'outline'}
+            onClick={() => setQueueFilter(queueFilter === 'recoverable_not_interested' ? null : 'recoverable_not_interested')}
+          >
+            No interesados recuperables
+          </Button>
         </div>
       </div>
 

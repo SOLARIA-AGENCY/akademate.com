@@ -18,16 +18,16 @@ import {
 // ---------------------------------------------------------------------------
 
 const STATUS_OPTIONS = [
-  { value: 'new', label: 'Nuevo', color: 'bg-red-100 text-red-800 border border-red-300', dot: 'bg-red-500' },
-  { value: 'contacted', label: 'Contactado', color: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500' },
-  { value: 'following_up', label: 'En seguimiento', color: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500' },
-  { value: 'interested', label: 'Interesado', color: 'bg-green-100 text-green-800', dot: 'bg-green-500' },
-  { value: 'enrolling', label: 'En matriculacion', color: 'bg-blue-100 text-blue-800', dot: 'bg-blue-500' },
-  { value: 'enrolled', label: 'Matriculado', color: 'bg-emerald-100 text-emerald-800 border border-emerald-300', dot: 'bg-emerald-500' },
-  { value: 'on_hold', label: 'En espera', color: 'bg-gray-100 text-gray-600', dot: 'bg-amber-500' },
-  { value: 'not_interested', label: 'No interesado', color: 'bg-gray-100 text-gray-700 border border-gray-300', dot: 'bg-gray-500' },
-  { value: 'unreachable', label: 'No contactable', color: 'bg-gray-100 text-gray-700 border border-gray-300', dot: 'bg-gray-500' },
-  { value: 'discarded', label: 'Descartado', color: 'bg-gray-100 text-gray-700 border border-gray-300', dot: 'bg-gray-500' },
+  { value: 'new', label: 'Nuevo', color: 'bg-red-700 text-white border border-red-800', dot: 'bg-red-600' },
+  { value: 'contacted', label: 'Contactado', color: 'bg-amber-700 text-white border border-amber-800', dot: 'bg-amber-500' },
+  { value: 'following_up', label: 'En seguimiento', color: 'bg-amber-700 text-white border border-amber-800', dot: 'bg-amber-500' },
+  { value: 'interested', label: 'Interesado', color: 'bg-emerald-700 text-white border border-emerald-800', dot: 'bg-emerald-500' },
+  { value: 'enrolling', label: 'En matriculacion', color: 'bg-blue-700 text-white border border-blue-800', dot: 'bg-blue-500' },
+  { value: 'enrolled', label: 'Matriculado', color: 'bg-green-800 text-white border border-green-900', dot: 'bg-emerald-500' },
+  { value: 'on_hold', label: 'En espera', color: 'bg-slate-700 text-white border border-slate-800', dot: 'bg-slate-500' },
+  { value: 'not_interested', label: 'No interesado', color: 'bg-zinc-700 text-white border border-zinc-800', dot: 'bg-zinc-500' },
+  { value: 'unreachable', label: 'No contactable', color: 'bg-zinc-700 text-white border border-zinc-800', dot: 'bg-zinc-500' },
+  { value: 'discarded', label: 'Descartado', color: 'bg-zinc-800 text-white border border-zinc-900', dot: 'bg-zinc-500' },
 ]
 
 const CONTACT_RESULTS = [
@@ -64,7 +64,111 @@ const DECISION_STATE_GUIDE: Record<string, string> = {
   not_interested: 'No desea continuar. Cierre cordial y registro de motivo.',
 }
 
-const LIVE_DECISION_STATUS_VALUES = ['following_up', 'enrolling', 'on_hold', 'not_interested'] as const
+const DECISION_ACTIONS = [
+  {
+    value: 'follow_up',
+    label: 'Programar seguimiento',
+    targetStatus: 'following_up',
+    helper: DECISION_STATE_GUIDE.following_up,
+  },
+  {
+    value: 'enroll',
+    label: 'Matricular',
+    targetStatus: 'enrolling',
+    helper: DECISION_STATE_GUIDE.enrolling,
+  },
+  {
+    value: 'on_hold',
+    label: 'Poner en espera',
+    targetStatus: 'on_hold',
+    helper: DECISION_STATE_GUIDE.on_hold,
+  },
+  {
+    value: 'not_interested',
+    label: 'Marcar como no interesado',
+    targetStatus: 'not_interested',
+    helper: DECISION_STATE_GUIDE.not_interested,
+  },
+] as const
+
+const FOLLOW_UP_REASONS = [
+  'Confirmar interés y resolver dudas',
+  'Pendiente de documentación',
+  'Pendiente de decisión económica',
+  'Pendiente de validación de requisitos',
+  'Recontacto solicitado por el lead',
+] as const
+
+const PAUSE_REASONS = [
+  'Esperando decisión',
+  'Esperando financiación/beca',
+  'Esperando documentación',
+  'Esperando respuesta familiar/laboral',
+  'Comparando centros',
+  'Otro',
+] as const
+
+const DISINTEREST_REASONS = [
+  'Precio',
+  'Horario',
+  'Ubicación',
+  'Ya se matriculó en otro centro',
+  'No responde más',
+  'Solo pidió información',
+  'Otro',
+] as const
+
+const INTERACTION_RESULT_OPTIONS = [
+  { value: 'positive', label: 'Interacción positiva' },
+  { value: 'callback', label: 'Solicita callback' },
+  { value: 'no_answer', label: 'Sin respuesta' },
+  { value: 'negative', label: 'Responde negativo' },
+] as const
+
+const CHANNEL_OPTIONS = [
+  { value: 'phone', label: 'Llamada' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'email', label: 'Email' },
+] as const
+
+const CONTACT_TIME_OPTIONS = [
+  { value: 'morning', label: 'Mañana' },
+  { value: 'afternoon', label: 'Tarde' },
+  { value: 'evening', label: 'Noche' },
+  { value: 'anytime', label: 'Cualquier franja' },
+] as const
+
+type DecisionAction = (typeof DECISION_ACTIONS)[number]['value']
+
+type DecisionFormState = {
+  interactionResult: string
+  followUpReason: string
+  nextContactAt: string
+  timeSlot: string
+  channel: string
+  note: string
+  pauseReason: string
+  reactivationAt: string
+  pauseNote: string
+  disinterestReason: string
+  disinterestNote: string
+  excludeManualFollowUp: boolean
+}
+
+const DECISION_FORM_DEFAULTS: DecisionFormState = {
+  interactionResult: 'positive',
+  followUpReason: '',
+  nextContactAt: '',
+  timeSlot: 'anytime',
+  channel: 'phone',
+  note: '',
+  pauseReason: '',
+  reactivationAt: '',
+  pauseNote: '',
+  disinterestReason: '',
+  disinterestNote: '',
+  excludeManualFollowUp: false,
+}
 
 function toFiniteNumber(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value
@@ -145,6 +249,19 @@ function formatElapsedTimeLabel(dateIso: string | null): string {
   return `hace ${days}d`
 }
 
+function toDateTimeLocalValue(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim()) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const pad = (num: number) => String(num).padStart(2, '0')
+  const year = date.getFullYear()
+  const month = pad(date.getMonth() + 1)
+  const day = pad(date.getDate())
+  const hours = pad(date.getHours())
+  const minutes = pad(date.getMinutes())
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -171,6 +288,9 @@ export default function LeadDetailPage({ params }: Props) {
   const [contactResult, setContactResult] = React.useState('')
   const [contactNote, setContactNote] = React.useState('')
   const [, setLiveClockTick] = React.useState<number>(() => Date.now())
+  const [decisionAction, setDecisionAction] = React.useState<DecisionAction | null>(null)
+  const [decisionForm, setDecisionForm] = React.useState({ ...DECISION_FORM_DEFAULTS })
+  const [decisionError, setDecisionError] = React.useState<string | null>(null)
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -233,37 +353,63 @@ export default function LeadDetailPage({ params }: Props) {
     finally { setSaving(false) }
   }
 
+  const resetDecision = React.useCallback(() => {
+    setDecisionAction(null)
+    setDecisionError(null)
+    setDecisionForm({ ...DECISION_FORM_DEFAULTS })
+  }, [])
+
+  const openDecision = React.useCallback((action: DecisionAction) => {
+    setDecisionAction(action)
+    setDecisionError(null)
+    setDecisionForm((current) => ({
+      ...DECISION_FORM_DEFAULTS,
+      interactionResult: current.interactionResult || DECISION_FORM_DEFAULTS.interactionResult,
+      nextContactAt: toDateTimeLocalValue(lead?.next_action_date),
+      channel: current.channel || DECISION_FORM_DEFAULTS.channel,
+      timeSlot: current.timeSlot || DECISION_FORM_DEFAULTS.timeSlot,
+    }))
+  }, [lead?.next_action_date])
+
+  const getStatusLabel = React.useCallback((status: string | null | undefined) => {
+    if (!status) return 'sin estado'
+    return STATUS_OPTIONS.find((option) => option.value === status)?.label || status
+  }, [])
+
   const changeStatus = async (newStatus: string) => {
+    if (newStatus === 'following_up') {
+      openDecision('follow_up')
+      return
+    }
+    if (newStatus === 'on_hold') {
+      openDecision('on_hold')
+      return
+    }
+    if (newStatus === 'not_interested') {
+      openDecision('not_interested')
+      return
+    }
+    if (newStatus === 'enrolling') {
+      openDecision('enroll')
+      return
+    }
+
     const currentStatus = localStatus ?? lead.status
     if (newStatus === currentStatus) return
-    setLocalStatus(newStatus) // Immediate UI feedback
+    setLocalStatus(newStatus)
     setSaving(true)
     try {
-      // 1. Update lead status
       const statusRes = await fetch(`/api/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({
+          status: newStatus,
+          status_change_note: `Estado actualizado: ${currentStatus ?? 'sin estado'} -> ${newStatus}`,
+        }),
       })
       if (!statusRes.ok) {
         const data = await statusRes.json().catch(() => ({} as Record<string, unknown>))
         throw new Error(typeof data.error === 'string' ? data.error : 'No se pudo cambiar el estado')
-      }
-      // 2. Register status change as system interaction
-      const oldLabel = STATUS_OPTIONS.find(s => s.value === currentStatus)?.label ?? currentStatus
-      const newLabel = STATUS_OPTIONS.find(s => s.value === newStatus)?.label ?? newStatus
-      const interactionRes = await fetch(`/api/leads/${id}/interactions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          channel: 'system',
-          result: 'status_changed',
-          note: `Estado cambiado: ${oldLabel} → ${newLabel}`,
-        }),
-      })
-      if (!interactionRes.ok) {
-        const data = await interactionRes.json().catch(() => ({} as Record<string, unknown>))
-        throw new Error(typeof data.error === 'string' ? data.error : 'No se pudo registrar la interacción')
       }
       await loadLead()
       await loadInteractions()
@@ -297,8 +443,8 @@ export default function LeadDetailPage({ params }: Props) {
     finally { setSaving(false) }
   }
 
-  const handleEnroll = async () => {
-    if (!confirm('Iniciar proceso de matriculacion para este lead?')) return
+  const handleEnroll = async (options?: { skipConfirm?: boolean }) => {
+    if (!options?.skipConfirm && !confirm('Iniciar proceso de matriculacion para este lead?')) return false
     setSaving(true)
     try {
       const res = await fetch(`/api/leads/${id}/enroll`, {
@@ -316,7 +462,7 @@ export default function LeadDetailPage({ params }: Props) {
       const enrollmentId = data?.enrollmentId ?? data?.enrollment_id ?? data?.id ?? data?.enrollment?.id
       if (enrollmentId) {
         router.push(getEnrollmentRoute(enrollmentId))
-        return
+        return true
       }
 
       if (!res.ok) {
@@ -326,8 +472,173 @@ export default function LeadDetailPage({ params }: Props) {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo iniciar la matriculacion'
       alert(message)
+      return false
     }
     finally { setSaving(false) }
+  }
+
+  const submitDecisionAction = async () => {
+    if (!decisionAction) return
+    const action = DECISION_ACTIONS.find((entry) => entry.value === decisionAction)
+    if (!action) return
+
+    const previousStatus = localStatus ?? lead?.status ?? 'new'
+    const nextStatus = action.targetStatus
+    const currentSourceDetails = parseJsonRecord(lead?.source_details)
+    const sourceDetailsPayload: Record<string, unknown> = {
+      ...currentSourceDetails,
+      crm_decision: {
+        action: decisionAction,
+        from_status: previousStatus,
+        to_status: nextStatus,
+        executed_at: new Date().toISOString(),
+      },
+    }
+
+    const baseStatusNote = `Arbol CRM: ${action.label}. Estado: ${getStatusLabel(previousStatus)} -> ${getStatusLabel(nextStatus)}.`
+    const patchPayload: Record<string, unknown> = {
+      status: nextStatus,
+      source_details: sourceDetailsPayload,
+    }
+
+    if (decisionAction === 'follow_up') {
+      if (!decisionForm.interactionResult) {
+        setDecisionError('Debes indicar el resultado de la interaccion.')
+        return
+      }
+      if (!decisionForm.followUpReason.trim()) {
+        setDecisionError('Debes seleccionar el motivo del seguimiento.')
+        return
+      }
+      if (!decisionForm.nextContactAt) {
+        setDecisionError('Debes indicar la proxima fecha de contacto.')
+        return
+      }
+      if (!decisionForm.note.trim()) {
+        setDecisionError('Debes registrar una nota del asesor para continuar.')
+        return
+      }
+
+      const nextContactDate = new Date(decisionForm.nextContactAt)
+      if (Number.isNaN(nextContactDate.getTime())) {
+        setDecisionError('La fecha de proximo contacto no es valida.')
+        return
+      }
+
+      const nextActionNote = [
+        `Seguimiento programado: ${decisionForm.followUpReason}.`,
+        `Canal: ${CHANNEL_OPTIONS.find((option) => option.value === decisionForm.channel)?.label || decisionForm.channel}.`,
+        `Franja: ${CONTACT_TIME_OPTIONS.find((option) => option.value === decisionForm.timeSlot)?.label || decisionForm.timeSlot}.`,
+        `Nota asesor: ${decisionForm.note.trim()}.`,
+      ].join(' ')
+
+      patchPayload.next_action_date = nextContactDate.toISOString()
+      patchPayload.next_action_note = nextActionNote
+      patchPayload.next_callback_date = nextContactDate.toISOString()
+      patchPayload.last_contact_result = decisionForm.interactionResult
+      patchPayload.preferred_contact_method = decisionForm.channel
+      patchPayload.preferred_contact_time = decisionForm.timeSlot
+      patchPayload.status_change_note = `${baseStatusNote} Motivo seguimiento: ${decisionForm.followUpReason}. Proximo contacto: ${nextContactDate.toLocaleString('es-ES')} (${decisionForm.timeSlot}).`
+      sourceDetailsPayload.follow_up_reason = decisionForm.followUpReason
+      sourceDetailsPayload.follow_up_channel = decisionForm.channel
+      sourceDetailsPayload.follow_up_time_slot = decisionForm.timeSlot
+      sourceDetailsPayload.next_contact_at = nextContactDate.toISOString()
+      sourceDetailsPayload.follow_up_note = decisionForm.note.trim()
+    }
+
+    if (decisionAction === 'on_hold') {
+      if (!decisionForm.pauseReason.trim()) {
+        setDecisionError('Debes indicar la causa de espera.')
+        return
+      }
+
+      let reactivationDateIso: string | null = null
+      if (decisionForm.reactivationAt) {
+        const reactivationDate = new Date(decisionForm.reactivationAt)
+        if (Number.isNaN(reactivationDate.getTime())) {
+          setDecisionError('La fecha de reactivacion no es valida.')
+          return
+        }
+        reactivationDateIso = reactivationDate.toISOString()
+      }
+
+      patchPayload.next_action_date = reactivationDateIso
+      patchPayload.next_action_note = `Lead en espera. Motivo: ${decisionForm.pauseReason}.${decisionForm.pauseNote.trim() ? ` Nota: ${decisionForm.pauseNote.trim()}.` : ''}`
+      patchPayload.status_change_note = `${baseStatusNote} Causa de espera: ${decisionForm.pauseReason}.${reactivationDateIso ? ` Reactivacion prevista: ${new Date(reactivationDateIso).toLocaleString('es-ES')}.` : ''}`
+      sourceDetailsPayload.pause_reason = decisionForm.pauseReason
+      sourceDetailsPayload.pause_note = decisionForm.pauseNote.trim() || null
+      sourceDetailsPayload.reactivation_at = reactivationDateIso
+    }
+
+    if (decisionAction === 'not_interested') {
+      if (!decisionForm.disinterestReason.trim()) {
+        setDecisionError('Debes indicar el motivo de no interes.')
+        return
+      }
+
+      patchPayload.next_action_date = null
+      patchPayload.next_action_note = `Cierre comercial: ${decisionForm.disinterestReason}.${decisionForm.disinterestNote.trim() ? ` Nota: ${decisionForm.disinterestNote.trim()}.` : ''}`
+      patchPayload.status_change_note = `${baseStatusNote} Motivo de cierre: ${decisionForm.disinterestReason}. Conservado para segmentacion comercial segun RGPD.`
+      sourceDetailsPayload.disinterest_reason = decisionForm.disinterestReason
+      sourceDetailsPayload.disinterest_note = decisionForm.disinterestNote.trim() || null
+      sourceDetailsPayload.exclude_manual_follow_up = decisionForm.excludeManualFollowUp
+    }
+
+    if (decisionAction === 'enroll') {
+      const leadProgramData = lead?.lead_program && typeof lead.lead_program === 'object' ? lead.lead_program : null
+      const missingChecklist: string[] = []
+      if (!lead?.email) missingChecklist.push('Email del lead')
+      if (!isActionableSpanishPhone(lead?.phone)) missingChecklist.push('Telefono valido (+34 XXX XXX XXX)')
+      if (
+        !leadProgramData ||
+        !(
+          (typeof leadProgramData?.name === 'string' && leadProgramData.name.trim().length > 0) ||
+          (typeof leadProgramData?.course_name === 'string' && leadProgramData.course_name.trim().length > 0)
+        )
+      ) {
+        missingChecklist.push('Curso/ciclo de origen resuelto')
+      }
+
+      if (missingChecklist.length > 0) {
+        setDecisionError(`Faltan datos para matricular: ${missingChecklist.join(', ')}.`)
+        return
+      }
+
+      patchPayload.next_action_date = null
+      patchPayload.next_action_note = 'Lead movido a matriculacion desde arbol de decision CRM.'
+      patchPayload.status_change_note = `${baseStatusNote} Operacion: Matricular con traspaso al flujo de matricula.`
+      sourceDetailsPayload.converted_to_enrollment_at = new Date().toISOString()
+    }
+
+    setSaving(true)
+    setDecisionError(null)
+    try {
+      const patchRes = await fetch(`/api/leads/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patchPayload),
+      })
+      if (!patchRes.ok) {
+        const payload = await patchRes.json().catch(() => ({} as Record<string, unknown>))
+        throw new Error(typeof payload.error === 'string' ? payload.error : 'No se pudo registrar la accion')
+      }
+
+      if (decisionAction === 'enroll') {
+        const enrollmentStarted = await handleEnroll({ skipConfirm: true })
+        if (!enrollmentStarted) {
+          throw new Error('No se pudo abrir la matriculacion')
+        }
+      }
+
+      await loadLead()
+      await loadInteractions()
+      resetDecision()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo ejecutar la accion'
+      setDecisionError(message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleDeleteLead = async () => {
@@ -452,6 +763,21 @@ export default function LeadDetailPage({ params }: Props) {
       : programName
   const sourcePageHref = sourcePage && sourcePage.trim().length > 0 ? sourcePage : null
   const sourcePageIsExternal = sourcePageHref ? /^https?:\/\//i.test(sourcePageHref) : false
+  const latestInteraction = interactions.length > 0 ? interactions[0] : null
+  const latestInteractionActor =
+    latestInteraction
+      ? [latestInteraction.user_first_name, latestInteraction.user_last_name].filter(Boolean).join(' ').trim() ||
+        latestInteraction.user_email ||
+        'Sistema'
+      : 'Sin gestion'
+  const responsibleName =
+    [lead.assigned_to?.first_name, lead.assigned_to?.last_name].filter(Boolean).join(' ').trim() || 'Sin asignar'
+  const nextActionDate = lead.next_action_date ? new Date(lead.next_action_date) : null
+  const nextActionDateLabel = nextActionDate && !Number.isNaN(nextActionDate.getTime())
+    ? nextActionDate.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    : null
+  const nextActionChannelLabel = CHANNEL_OPTIONS.find((option) => option.value === lead.preferred_contact_method)?.label || null
+  const nextActionTimeSlotLabel = CONTACT_TIME_OPTIONS.find((option) => option.value === lead.preferred_contact_time)?.label || null
 
   // Pre-built messages
   const openingLine = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. Es buen momento para hablar?`
@@ -514,8 +840,8 @@ Equipo CEP Formacion`
         actions={
           <div className="flex gap-2">
             {showEnrollButton && (
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={saving} onClick={handleEnroll}>
-                <GraduationCap className="mr-2 h-4 w-4" />Iniciar Matriculacion
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={saving} onClick={() => openDecision('enroll')}>
+                <GraduationCap className="mr-2 h-4 w-4" />Matricular
               </Button>
             )}
             {showEnrollLink && (
@@ -530,20 +856,20 @@ Equipo CEP Formacion`
 
       {/* Urgency alert */}
       {isInscripcion && timeSince < 48 && currentStatus === 'new' && (
-        <div className="rounded-lg border border-red-300 bg-red-50 p-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="rounded-lg border border-red-900 bg-red-700 p-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-700 shrink-0 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-white shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-red-800">
+              <p className="font-semibold text-white">
                 Preinscripcion sin atender — {timeSinceLabel}
                 {createdAtExact ? ` — registrado a las ${createdAtExact}` : ''}
               </p>
-              <p className="text-sm text-red-700">Esta persona ha solicitado reservar plaza. Contactar en menos de 24h.</p>
+              <p className="text-sm text-red-50">Esta persona ha solicitado reservar plaza. Contactar en menos de 24h.</p>
             </div>
           </div>
           <Button
             size="sm"
-            className="bg-red-700 hover:bg-red-800 text-white"
+            className="bg-white hover:bg-red-100 text-red-800"
             disabled={saving}
             onClick={() => void changeStatus('contacted')}
           >
@@ -572,6 +898,15 @@ Equipo CEP Formacion`
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Acciones de contacto</CardTitle></CardHeader>
             <CardContent className="space-y-4">
+              <div className="rounded-lg border bg-muted/30 p-3 text-sm">
+                <p className="font-medium text-foreground">Proximo contacto</p>
+                <p className="text-muted-foreground mt-1">
+                  {nextActionDateLabel
+                    ? `${nextActionDateLabel}${nextActionChannelLabel ? ` · ${nextActionChannelLabel}` : ''}${nextActionTimeSlotLabel ? ` · ${nextActionTimeSlotLabel}` : ''}`
+                    : 'Sin accion programada. Usa el arbol de decision para crear la siguiente tarea.'}
+                </p>
+              </div>
+
               {/* Phone */}
               {lead.phone && (
                 <div className="rounded-lg border p-4 space-y-3">
@@ -747,26 +1082,22 @@ Equipo CEP Formacion`
                 <div className="rounded-lg border border-violet-200 bg-violet-50 p-4">
                   <p className="text-xs font-bold uppercase tracking-wide text-violet-700">ARBOL DE DECISION - APERTURA DE MATRICULA</p>
                   <div className="mt-2 space-y-2">
-                    {LIVE_DECISION_STATUS_VALUES.map((value) => {
-                      const opt = STATUS_OPTIONS.find((statusOption) => statusOption.value === value)
-                      if (!opt) return null
-                      return (
-                      <div key={opt.value} className="rounded-lg border border-violet-200/80 bg-white/70 p-2.5 flex items-center justify-between gap-3">
+                    {DECISION_ACTIONS.map((action) => (
+                      <div key={action.value} className="rounded-lg border border-violet-200/80 bg-white/70 p-2.5 flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="text-xs font-black uppercase tracking-wide text-violet-800">{opt.label}</p>
-                          <p className="text-xs text-slate-700">{DECISION_STATE_GUIDE[opt.value] || 'Registrar accion y siguiente paso.'}</p>
+                          <p className="text-xs font-black uppercase tracking-wide text-violet-800">{action.label}</p>
+                          <p className="text-xs text-slate-700">{action.helper}</p>
                         </div>
                         <Button
                           size="sm"
-                          variant={currentStatus === opt.value ? 'default' : 'outline'}
+                          variant={currentStatus === action.targetStatus ? 'default' : 'outline'}
                           disabled={saving}
-                          onClick={() => void changeStatus(opt.value)}
+                          onClick={() => openDecision(action.value)}
                         >
-                          {currentStatus === opt.value ? 'Estado actual' : 'Marcar'}
+                          {currentStatus === action.targetStatus ? 'Estado actual' : 'Ejecutar'}
                         </Button>
                       </div>
-                      )
-                    })}
+                    ))}
                   </div>
                 </div>
               </div>
@@ -802,6 +1133,40 @@ Equipo CEP Formacion`
 
         {/* SIDEBAR */}
         <div className="space-y-6">
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Gestion comercial</CardTitle></CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex justify-between gap-3">
+                <span className="text-muted-foreground">Ultima gestion</span>
+                <span className="text-xs text-right">
+                  {latestInteraction
+                    ? `${latestInteractionActor} · ${new Date(latestInteraction.created_at).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`
+                    : 'Sin interacciones'}
+                </span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-muted-foreground">Proxima accion</span>
+                <span className="text-xs text-right">{lead.next_action_note || 'Sin accion planificada'}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-muted-foreground">Fecha proximo contacto</span>
+                <span className="text-xs text-right">{nextActionDateLabel || 'No definida'}</span>
+              </div>
+              {(nextActionChannelLabel || nextActionTimeSlotLabel) && (
+                <div className="flex justify-between gap-3">
+                  <span className="text-muted-foreground">Canal recomendado</span>
+                  <span className="text-xs text-right">
+                    {[nextActionChannelLabel, nextActionTimeSlotLabel].filter(Boolean).join(' · ')}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between gap-3">
+                <span className="text-muted-foreground">Responsable</span>
+                <span className="text-xs text-right">{responsibleName}</span>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Status */}
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Estado</CardTitle></CardHeader>
@@ -943,6 +1308,229 @@ Equipo CEP Formacion`
           </Button>
         </CardContent>
       </Card>
+
+      {/* Decision Action Modal */}
+      {decisionAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={resetDecision}>
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-auto" onClick={(event) => event.stopPropagation()}>
+            <CardHeader>
+              <CardTitle className="text-base">
+                {DECISION_ACTIONS.find((action) => action.value === decisionAction)?.label || 'Accion CRM'}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {DECISION_ACTIONS.find((action) => action.value === decisionAction)?.helper}
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {decisionError && (
+                <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+                  {decisionError}
+                </div>
+              )}
+
+              {decisionAction === 'follow_up' && (
+                <div className="space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="space-y-1 text-sm">
+                      <span className="font-medium">Resultado de la interaccion *</span>
+                      <select
+                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                        value={decisionForm.interactionResult}
+                        onChange={(event) => setDecisionForm((current) => ({ ...current, interactionResult: event.target.value }))}
+                      >
+                        {INTERACTION_RESULT_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="space-y-1 text-sm">
+                      <span className="font-medium">Motivo de seguimiento *</span>
+                      <select
+                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                        value={decisionForm.followUpReason}
+                        onChange={(event) => setDecisionForm((current) => ({ ...current, followUpReason: event.target.value }))}
+                      >
+                        <option value="">Selecciona un motivo</option>
+                        {FOLLOW_UP_REASONS.map((reason) => (
+                          <option key={reason} value={reason}>
+                            {reason}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <label className="space-y-1 text-sm">
+                      <span className="font-medium">Proxima fecha de contacto *</span>
+                      <input
+                        type="datetime-local"
+                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                        value={decisionForm.nextContactAt}
+                        onChange={(event) => setDecisionForm((current) => ({ ...current, nextContactAt: event.target.value }))}
+                      />
+                    </label>
+
+                    <label className="space-y-1 text-sm">
+                      <span className="font-medium">Franja recomendada *</span>
+                      <select
+                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                        value={decisionForm.timeSlot}
+                        onChange={(event) => setDecisionForm((current) => ({ ...current, timeSlot: event.target.value }))}
+                      >
+                        {CONTACT_TIME_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="space-y-1 text-sm">
+                      <span className="font-medium">Canal preferido *</span>
+                      <select
+                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                        value={decisionForm.channel}
+                        onChange={(event) => setDecisionForm((current) => ({ ...current, channel: event.target.value }))}
+                      >
+                        {CHANNEL_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <label className="space-y-1 text-sm block">
+                    <span className="font-medium">Nota del asesor *</span>
+                    <Textarea
+                      placeholder="Contexto de la gestion, objeciones detectadas y siguiente argumento comercial..."
+                      value={decisionForm.note}
+                      onChange={(event) => setDecisionForm((current) => ({ ...current, note: event.target.value }))}
+                      rows={4}
+                    />
+                  </label>
+                </div>
+              )}
+
+              {decisionAction === 'on_hold' && (
+                <div className="space-y-4">
+                  <label className="space-y-1 text-sm block">
+                    <span className="font-medium">Causa de espera *</span>
+                    <select
+                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      value={decisionForm.pauseReason}
+                      onChange={(event) => setDecisionForm((current) => ({ ...current, pauseReason: event.target.value }))}
+                    >
+                      <option value="">Selecciona la causa</option>
+                      {PAUSE_REASONS.map((reason) => (
+                        <option key={reason} value={reason}>
+                          {reason}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="space-y-1 text-sm block">
+                    <span className="font-medium">Fecha de reactivacion (opcional)</span>
+                    <input
+                      type="datetime-local"
+                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      value={decisionForm.reactivationAt}
+                      onChange={(event) => setDecisionForm((current) => ({ ...current, reactivationAt: event.target.value }))}
+                    />
+                  </label>
+
+                  <label className="space-y-1 text-sm block">
+                    <span className="font-medium">Nota de espera</span>
+                    <Textarea
+                      placeholder="Detalla el contexto para reactivar el lead con mensaje correcto..."
+                      value={decisionForm.pauseNote}
+                      onChange={(event) => setDecisionForm((current) => ({ ...current, pauseNote: event.target.value }))}
+                      rows={3}
+                    />
+                  </label>
+                </div>
+              )}
+
+              {decisionAction === 'not_interested' && (
+                <div className="space-y-4">
+                  <label className="space-y-1 text-sm block">
+                    <span className="font-medium">Motivo de no interes *</span>
+                    <select
+                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      value={decisionForm.disinterestReason}
+                      onChange={(event) => setDecisionForm((current) => ({ ...current, disinterestReason: event.target.value }))}
+                    >
+                      <option value="">Selecciona el motivo</option>
+                      {DISINTEREST_REASONS.map((reason) => (
+                        <option key={reason} value={reason}>
+                          {reason}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="space-y-1 text-sm block">
+                    <span className="font-medium">Nota de cierre</span>
+                    <Textarea
+                      placeholder="Especifica objecion principal y condiciones para recuperarlo en futuras campañas..."
+                      value={decisionForm.disinterestNote}
+                      onChange={(event) => setDecisionForm((current) => ({ ...current, disinterestNote: event.target.value }))}
+                      rows={3}
+                    />
+                  </label>
+
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={decisionForm.excludeManualFollowUp}
+                      onChange={(event) => setDecisionForm((current) => ({ ...current, excludeManualFollowUp: event.target.checked }))}
+                    />
+                    Excluir de seguimiento comercial manual (mantener para segmentacion automatica)
+                  </label>
+                </div>
+              )}
+
+              {decisionAction === 'enroll' && (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Se cambiara el estado a <strong>En matriculacion</strong> y se abrira la ficha de matricula con datos precargados.
+                  </p>
+                  <div className="rounded-md border p-3 space-y-2">
+                    <p className="text-sm font-medium">Checklist previo</p>
+                    <ul className="space-y-1 text-sm">
+                      <li className={lead?.email ? 'text-emerald-700' : 'text-red-700'}>
+                        {lead?.email ? '✓' : '✗'} Email disponible
+                      </li>
+                      <li className={hasActionablePhone ? 'text-emerald-700' : 'text-red-700'}>
+                        {hasActionablePhone ? '✓' : '✗'} Telefono valido para contacto
+                      </li>
+                      <li className={hasResolvedProgram ? 'text-emerald-700' : 'text-red-700'}>
+                        {hasResolvedProgram ? '✓' : '✗'} Curso/ciclo de origen resuelto
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="ghost" onClick={resetDecision} disabled={saving}>
+                  Cancelar
+                </Button>
+                <Button onClick={() => void submitDecisionAction()} disabled={saving}>
+                  {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Confirmar accion
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Contact Result Modal */}
       {showContactModal && (
