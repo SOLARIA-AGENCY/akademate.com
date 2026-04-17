@@ -18,11 +18,6 @@ function resolveImageUrl(image: any): string | null {
   return null
 }
 
-function formatCurrency(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(Number(value))) return 'Precio a consultar'
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(Number(value))
-}
-
 export default async function ConvocatoriasPage() {
   const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
@@ -85,11 +80,6 @@ export default async function ConvocatoriasPage() {
               || (cycle ? resolveImageUrl(cycle.image) : null)
               || (course ? resolveImageUrl(course.image) : null)
             const detailHref = `/convocatorias/${conv.codigo || conv.id}`
-            const effectivePrice =
-              (typeof conv.price_override === 'number' ? conv.price_override : null) ??
-              (typeof cycle?.pricing?.totalPrice === 'number' ? cycle.pricing.totalPrice : null) ??
-              (typeof cycle?.pricing?.monthlyFee === 'number' ? cycle.pricing.monthlyFee : null) ??
-              (typeof course?.base_price === 'number' ? course.base_price : null)
             const startDateText = conv.start_date
               ? new Date(conv.start_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
               : 'Fecha por confirmar'
@@ -112,22 +102,21 @@ export default async function ConvocatoriasPage() {
                     </div>
                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm">
                       <p><span className="font-semibold text-gray-900">INICIO DE CURSO:</span> {startDateText}</p>
-                      <p className="mt-1"><span className="font-semibold text-gray-900">Precio:</span> {formatCurrency(effectivePrice)}</p>
                     </div>
-                    <div className="flex items-center justify-between pt-2">
-                      <span className="text-xs text-gray-400 font-mono">{conv.codigo}</span>
-                      <div className="flex gap-2">
+                    <div className="pt-2">
+                      <span className="mb-3 block text-xs text-gray-400 font-mono">{conv.codigo}</span>
+                      <div className="grid grid-cols-2 gap-2">
                         <Link
                           href={detailHref}
-                          className="inline-flex items-center rounded-md bg-red-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-700"
+                          className="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-3 py-3 text-sm font-extrabold uppercase tracking-wide text-white hover:bg-red-700"
                         >
-                          Ver convocatoria
+                          VER CONVOCATORIA
                         </Link>
                         <Link
                           href={detailHref}
-                          className="inline-flex items-center rounded-md bg-green-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-green-700"
+                          className="inline-flex w-full items-center justify-center rounded-md bg-green-600 px-3 py-3 text-sm font-extrabold uppercase tracking-wide text-white hover:bg-green-700"
                         >
-                          Reservar plaza
+                          RESERVAR PLAZA
                         </Link>
                       </div>
                     </div>
