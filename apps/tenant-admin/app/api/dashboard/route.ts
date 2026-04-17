@@ -250,14 +250,13 @@ export async function GET(request: NextRequest) {
     let nonTestLeadFilter = '';
     try {
       const isTestColumn = await queryOne(`
-        SELECT 1
+        SELECT COUNT(*)::int AS cnt
         FROM information_schema.columns
         WHERE table_schema = 'public'
           AND table_name = 'leads'
           AND column_name = 'is_test'
-        LIMIT 1
       `);
-      if (isTestColumn) {
+      if (toNumber(isTestColumn.cnt) > 0) {
         nonTestLeadFilter = ' AND COALESCE(is_test, false) = false';
       }
     } catch {
