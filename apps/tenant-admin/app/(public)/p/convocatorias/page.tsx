@@ -18,6 +18,11 @@ function resolveImageUrl(image: any): string | null {
   return null
 }
 
+function formatCurrency(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return 'Precio a consultar'
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(Number(value))
+}
+
 export default async function ConvocatoriasPage() {
   const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
@@ -50,7 +55,7 @@ export default async function ConvocatoriasPage() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Convocatorias Abiertas</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Inscríbete en nuestras convocatorias activas. Plazas limitadas.
+          Inscríbete en nuestras convocatorias activas.
         </p>
       </div>
 
@@ -79,12 +84,18 @@ export default async function ConvocatoriasPage() {
             const imageUrl = (course ? resolveImageUrl(course.featured_image) : null)
               || (cycle ? resolveImageUrl(cycle.image) : null)
               || (course ? resolveImageUrl(course.image) : null)
-            const plazasDisponibles = (conv.max_students || 0) - (conv.current_enrollments || 0)
-            const porcentajeOcupado = conv.max_students ? Math.round(((conv.current_enrollments || 0) / conv.max_students) * 100) : 0
+            const detailHref = `/convocatorias/${conv.codigo || conv.id}`
+            const effectivePrice =
+              (typeof conv.price_override === 'number' ? conv.price_override : null) ??
+              (typeof cycle?.pricing?.totalPrice === 'number' ? cycle.pricing.totalPrice : null) ??
+              (typeof cycle?.pricing?.monthlyFee === 'number' ? cycle.pricing.monthlyFee : null) ??
+              (typeof course?.base_price === 'number' ? course.base_price : null)
+            const startDateText = conv.start_date
+              ? new Date(conv.start_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+              : 'Fecha por confirmar'
 
             return (
-              <Link key={conv.id} href={`/convocatorias/${conv.codigo || conv.id}`} className="group">
-                <div className="bg-white rounded-xl border-2 border-green-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-green-400">
+              <div key={conv.id} className="bg-white rounded-xl border-2 border-green-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:border-green-400">
                   <div className="relative h-40 bg-gradient-to-br from-green-600 to-green-800">
                     {imageUrl && <img src={imageUrl} alt={course?.title || ''} className="w-full h-full object-cover" />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -98,26 +109,30 @@ export default async function ConvocatoriasPage() {
                   <div className="p-5 space-y-3">
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                       {campus && <span className="flex items-center gap-1"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>{campus.name}</span>}
-                      {conv.start_date && <span className="flex items-center gap-1"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>{new Date(conv.start_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</span>}
                     </div>
-                    {conv.max_students && (
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-600">Plazas</span>
-                          <span className="font-semibold text-gray-900">{plazasDisponibles} disponibles de {conv.max_students}</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div className="bg-green-500 h-2 rounded-full transition-all" style={{ width: `${Math.min(porcentajeOcupado, 100)}%` }} />
-                        </div>
-                      </div>
-                    )}
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm">
+                      <p><span className="font-semibold text-gray-900">INICIO DE CURSO:</span> {startDateText}</p>
+                      <p className="mt-1"><span className="font-semibold text-gray-900">Precio:</span> {formatCurrency(effectivePrice)}</p>
+                    </div>
                     <div className="flex items-center justify-between pt-2">
                       <span className="text-xs text-gray-400 font-mono">{conv.codigo}</span>
-                      <span className="text-green-600 font-medium text-sm group-hover:text-green-700">Reservar plaza &rarr;</span>
+                      <div className="flex gap-2">
+                        <Link
+                          href={detailHref}
+                          className="inline-flex items-center rounded-md bg-red-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-700"
+                        >
+                          Ver convocatoria
+                        </Link>
+                        <Link
+                          href={detailHref}
+                          className="inline-flex items-center rounded-md bg-green-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-green-700"
+                        >
+                          Reservar plaza
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </Link>
             )
                 })}
               </div>

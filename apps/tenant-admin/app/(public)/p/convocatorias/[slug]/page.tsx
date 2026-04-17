@@ -45,6 +45,15 @@ function levelLabel(level: string | undefined): string {
   return level ? map[level] || level : ''
 }
 
+function formatCurrency(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return 'A consultar'
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0,
+  }).format(Number(value))
+}
+
 /* -------------------------------------------------------------------------- */
 /*  SEO Metadata                                                               */
 /* -------------------------------------------------------------------------- */
@@ -204,6 +213,29 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   const requirements = Array.isArray(cycle?.requirements) ? cycle.requirements : []
   const cycleLevel = cycle?.level
   const officialTitle = cycle?.officialTitle
+  const pricing = cycle?.pricing ?? {}
+  const effectivePrice =
+    (typeof conv.price_override === 'number' ? conv.price_override : null) ??
+    (typeof pricing.totalPrice === 'number' ? pricing.totalPrice : null) ??
+    (typeof pricing.monthlyFee === 'number' ? pricing.monthlyFee : null) ??
+    (typeof course?.base_price === 'number' ? course.base_price : null)
+  const enrollmentFee = typeof pricing.enrollmentFee === 'number' ? pricing.enrollmentFee : null
+  const monthlyFee = typeof pricing.monthlyFee === 'number' ? pricing.monthlyFee : null
+  const paymentOptions = Array.isArray(pricing.paymentOptions)
+    ? pricing.paymentOptions
+      .map((item: any) => (typeof item?.option === 'string' ? item.option.trim() : ''))
+      .filter((item: string) => item.length > 0)
+    : []
+  const scholarships = Array.isArray(cycle?.scholarships) ? cycle.scholarships : []
+  const financingTypes = new Set<string>()
+  if (conv.financial_aid_available) financingTypes.add('Financiación interna CEP')
+  if (cycle?.fundaeEligible) financingTypes.add('Bonificación FUNDAE')
+  scholarships.forEach((sch: any) => {
+    if (sch?.type === 'beca') financingTypes.add('Becas')
+    if (sch?.type === 'subvencion') financingTypes.add('Subvenciones')
+    if (sch?.type === 'financiacion') financingTypes.add('Pago financiado')
+  })
+  const financingTypesList = Array.from(financingTypes)
 
   // Start month
   const startMonth = conv.start_date ? formatMonth(conv.start_date) : null
@@ -224,6 +256,9 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   }
   if (modality) {
     summaryCards.push({ icon: <IconClock />, label: 'Modalidad', value: modalityLabel(modality) })
+  }
+  if (effectivePrice !== null) {
+    summaryCards.push({ icon: <IconCurrencyEuro />, label: 'Precio', value: formatCurrency(effectivePrice) })
   }
   if (conv.financial_aid_available) {
     summaryCards.push({ icon: <IconCurrencyEuro />, label: 'Financiacion', value: 'Disponible' })
@@ -438,7 +473,75 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
         )}
 
         {/* ================================================================ */}
-        {/* 5. REQUISITOS DE ACCESO                                           */}
+        {/* 5. PRECIO, FINANCIACION Y PAGOS                                   */}
+        {/* ================================================================ */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-5">Precio, financiacion y pagos</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="rounded-xl border border-gray-200 bg-white p-5">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="brand-text"><IconCurrencyEuro /></span>
+                <h3 className="font-semibold text-gray-900">Precio del ciclo</h3>
+              </div>
+              <ul className="space-y-1.5 text-sm text-gray-700">
+                <li><span className="font-medium">Precio orientativo:</span> {formatCurrency(effectivePrice)}</li>
+                {enrollmentFee !== null && (
+                  <li><span className="font-medium">Matricula:</span> {formatCurrency(enrollmentFee)}</li>
+                )}
+                {monthlyFee !== null && (
+                  <li><span className="font-medium">Mensualidad:</span> {formatCurrency(monthlyFee)}</li>
+                )}
+                {pricing?.priceNotes && (
+                  <li className="pt-1 text-xs text-gray-500">{pricing.priceNotes}</li>
+                )}
+              </ul>
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-white p-5">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="brand-text"><IconCheck /></span>
+                <h3 className="font-semibold text-gray-900">Financiacion disponible</h3>
+              </div>
+              <ul className="space-y-1.5 text-sm text-gray-700">
+                {financingTypesList.length > 0 ? (
+                  financingTypesList.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))
+                ) : (
+                  <li>• Financiacion a consultar con asesor academico.</li>
+                )}
+                {scholarships.slice(0, 3).map((sch: any, i: number) => (
+                  <li key={`${sch?.name || 'scholarship'}-${i}`} className="text-xs text-gray-600">
+                    {sch?.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-white p-5">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="brand-text"><IconClock /></span>
+                <h3 className="font-semibold text-gray-900">Tipos de pago aceptados</h3>
+              </div>
+              <ul className="space-y-1.5 text-sm text-gray-700">
+                {paymentOptions.length > 0 ? (
+                  paymentOptions.map((option: string) => (
+                    <li key={option}>• {option}</li>
+                  ))
+                ) : (
+                  <>
+                    <li>• Transferencia bancaria</li>
+                    <li>• Tarjeta</li>
+                    <li>• Pago fraccionado (segun estudio)</li>
+                  </>
+                )}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================ */}
+        {/* 6. REQUISITOS DE ACCESO                                           */}
         {/* ================================================================ */}
         {requirements.length > 0 && (
           <section>
@@ -471,7 +574,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
         )}
 
         {/* ================================================================ */}
-        {/* 6. FORMULARIO CENTRADO (the star)                                  */}
+        {/* 7. FORMULARIO CENTRADO (the star)                                  */}
         {/* ================================================================ */}
         <section id="formulario" className="scroll-mt-24">
           <div className="mx-auto max-w-xl rounded-2xl brand-bg-light border-2 brand-border p-6 sm:p-8">
@@ -493,7 +596,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
         </section>
 
         {/* ================================================================ */}
-        {/* 7. CONFIANZA / FAQ                                                */}
+        {/* 8. CONFIANZA / FAQ                                                */}
         {/* ================================================================ */}
         <section>
           {/* Trust badges */}
