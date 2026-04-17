@@ -42,6 +42,14 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
       const utmTerm = urlParams.get('utm_term') || ''
       const utmContent = urlParams.get('utm_content') || ''
       const fbclid = urlParams.get('fbclid') || ''
+      const trackingPayload = {
+        path: typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '',
+        referrer: typeof document !== 'undefined' ? document.referrer || null : null,
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+        utm_source: utmSource || undefined,
+        utm_medium: utmMedium || undefined,
+        utm_campaign: utmCampaign || undefined,
+      }
 
       // Fire browser Pixel Lead event
       if ((window as any).fbq) {
@@ -50,6 +58,17 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
           content_category: 'convocatoria',
         }, { eventID: eventId })
       }
+
+      void fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'event',
+          event_type: 'form_click',
+          event_id: `${eventId}-click`,
+          ...trackingPayload,
+        }),
+      }).catch(() => {})
 
       const res = await fetch('/api/leads', {
         method: 'POST',
@@ -77,8 +96,18 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
             utm_term: utmTerm || undefined,
             utm_content: utmContent || undefined,
           }),
-        })
+      })
       if (res.ok) {
+        void fetch('/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'event',
+            event_type: 'form_submit',
+            event_id: `${eventId}-submit`,
+            ...trackingPayload,
+          }),
+        }).catch(() => {})
         setSubmitted(true)
       } else {
         setError('No se pudo enviar. Intentalo de nuevo.')

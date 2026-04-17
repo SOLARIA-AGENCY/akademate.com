@@ -11,6 +11,7 @@ const DATE_RANGES = ['7d', '30d', '90d'] as const
 
 type DateRange = (typeof DATE_RANGES)[number]
 type Tab = 'overview' | 'organic' | 'facebook' | 'google'
+type TrafficGranularity = 'day' | 'week' | 'month'
 
 type SourceHealth = {
   traffic: 'ga4' | 'internal'
@@ -52,6 +53,13 @@ type FacebookCampaign = {
   linked: boolean
 }
 
+type FacebookTrafficCampaign = {
+  campaign: string
+  page_views: number
+  form_clicks: number
+  form_submits: number
+}
+
 type AnalyticsPayload = {
   generated_at: string
   range: DateRange
@@ -64,6 +72,7 @@ type AnalyticsPayload = {
   }
   traffic: {
     series: TrafficPoint[]
+    series_by_granularity: Record<TrafficGranularity, TrafficPoint[]>
     top_pages: TopPage[]
     source_medium: TrafficSourceMedium[]
   }
@@ -75,6 +84,12 @@ type AnalyticsPayload = {
     conversions: number
     roas: number
     campaigns: FacebookCampaign[]
+    traffic_funnel: {
+      page_views: number
+      form_clicks: number
+      form_submits: number
+      by_campaign: FacebookTrafficCampaign[]
+    }
     coverage: {
       linked: number
       detected: number
@@ -97,6 +112,12 @@ const DATE_LABELS: Record<DateRange, string> = {
   '90d': 'Últimos 90 días',
 }
 
+const TRAFFIC_GRANULARITY_LABELS: Record<TrafficGranularity, string> = {
+  day: 'Día',
+  week: 'Semana',
+  month: 'Mes',
+}
+
 const TABS: Array<{ id: Tab; label: string; icon: typeof BarChart3 }> = [
   { id: 'overview', label: 'Visión General', icon: BarChart3 },
   { id: 'organic', label: 'Orgánico', icon: Globe },
@@ -107,6 +128,32 @@ const TABS: Array<{ id: Tab; label: string; icon: typeof BarChart3 }> = [
 const fmtNum = (n: number) => new Intl.NumberFormat('es-ES').format(n)
 const fmtCur = (n: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n)
 const fmtPct = (n: number) => `${n.toFixed(2)}%`
+
+function TrafficBars({ points }: { points: TrafficPoint[] }) {
+  if (points.length === 0) {
+    return <p className="text-sm text-muted-foreground">Sin datos de tráfico para este rango.</p>
+  }
+
+  const maxTotal = points.reduce((max, point) => Math.max(max, point.Total), 0)
+  const denominator = maxTotal > 0 ? maxTotal : 1
+
+  return (
+    <div className="space-y-2">
+      {points.map((point) => (
+        <div key={point.isoDate} className="grid grid-cols-[120px_1fr_80px] items-center gap-3 text-xs">
+          <span className="text-muted-foreground">{point.date}</span>
+          <div className="h-2.5 w-full rounded bg-muted overflow-hidden">
+            <div
+              className="h-full rounded bg-primary/80"
+              style={{ width: `${Math.max((point.Total / denominator) * 100, 2)}%` }}
+            />
+          </div>
+          <span className="text-right font-semibold">{fmtNum(point.Total)}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function sourceLabel(health: SourceHealth) {
   const traffic = health.traffic === 'ga4' ? 'GA4' : 'Fallback interno'
@@ -136,6 +183,7 @@ function KpiCard({ title, value, icon: Icon }: { title: string; value: string; i
 export default function AnaliticasPage() {
   const [activeTab, setActiveTab] = useState<Tab>('overview')
   const [dateRange, setDateRange] = useState<DateRange>('30d')
+  const [trafficGranularity, setTrafficGranularity] = useState<TrafficGranularity>('day')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<AnalyticsPayload | null>(null)
@@ -182,9 +230,12 @@ export default function AnaliticasPage() {
   }, [dateRange])
 
   const trafficSeries = data?.traffic.series ?? []
+  const trafficSeriesByGranularity = data?.traffic.series_by_granularity ?? { day: trafficSeries, week: [], month: [] }
+  const selectedTrafficSeries = trafficSeriesByGranularity[trafficGranularity] ?? trafficSeries
   const topPages = data?.traffic.top_pages ?? []
   const sourceMedium = data?.traffic.source_medium ?? []
   const fbCampaigns = data?.facebook.campaigns ?? []
+  const fbTrafficFunnel = data?.facebook.traffic_funnel ?? { page_views: 0, form_clicks: 0, form_submits: 0, by_campaign: [] }
 
   return (
     <div className="space-y-6">
@@ -212,6 +263,21 @@ export default function AnaliticasPage() {
                   }`}
                 >
                   {r}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center rounded-lg border border-border bg-card overflow-hidden">
+              {(Object.keys(TRAFFIC_GRANULARITY_LABELS) as TrafficGranularity[]).map((granularity) => (
+                <button
+                  key={granularity}
+                  onClick={() => setTrafficGranularity(granularity)}
+                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                    trafficGranularity === granularity
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {TRAFFIC_GRANULARITY_LABELS[granularity]}
                 </button>
               ))}
             </div>
@@ -280,9 +346,12 @@ export default function AnaliticasPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Tráfico diario (resumen)</CardTitle>
+              <CardTitle className="text-base">Tráfico ({TRAFFIC_GRANULARITY_LABELS[trafficGranularity]})</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="mb-5">
+                <TrafficBars points={selectedTrafficSeries.slice(-12)} />
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[680px] text-sm">
                   <thead className="border-b">
@@ -295,7 +364,7 @@ export default function AnaliticasPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {trafficSeries.slice(-14).map((item) => (
+                    {selectedTrafficSeries.slice(-14).map((item) => (
                       <tr key={item.isoDate} className="border-b border-border/40">
                         <td className="py-2">{item.date}</td>
                         <td className="py-2 text-right">{fmtNum(item.Organico)}</td>
@@ -314,6 +383,22 @@ export default function AnaliticasPage() {
 
       {!loading && !error && data && activeTab === 'organic' && (
         <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Visitas orgánicas ({TRAFFIC_GRANULARITY_LABELS[trafficGranularity]})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TrafficBars
+                points={selectedTrafficSeries.map((point) => ({
+                  ...point,
+                  Total: point.Organico,
+                  'Facebook Ads': 0,
+                  'Google Ads': 0,
+                }))}
+              />
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Top páginas públicas</CardTitle>
@@ -384,6 +469,42 @@ export default function AnaliticasPage() {
             <KpiCard title="Conversiones" value={fmtNum(data.facebook.conversions)} icon={Users} />
             <KpiCard title="ROAS" value={`${data.facebook.roas.toFixed(2)}x`} icon={TrendingUp} />
           </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <KpiCard title="Visitas landing (Meta)" value={fmtNum(fbTrafficFunnel.page_views)} icon={Globe} />
+            <KpiCard title="Clicks en formulario" value={fmtNum(fbTrafficFunnel.form_clicks)} icon={Target} />
+            <KpiCard title="Formularios enviados" value={fmtNum(fbTrafficFunnel.form_submits)} icon={Users} />
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Funnel por campaña (utm_campaign)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[760px] text-sm">
+                  <thead className="border-b">
+                    <tr>
+                      <th className="py-2 text-left">Campaña (UTM)</th>
+                      <th className="py-2 text-right">Visitas landing</th>
+                      <th className="py-2 text-right">Clicks formulario</th>
+                      <th className="py-2 text-right">Formularios enviados</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fbTrafficFunnel.by_campaign.map((row) => (
+                      <tr key={row.campaign} className="border-b border-border/40">
+                        <td className="py-2">{row.campaign}</td>
+                        <td className="py-2 text-right">{fmtNum(row.page_views)}</td>
+                        <td className="py-2 text-right">{fmtNum(row.form_clicks)}</td>
+                        <td className="py-2 text-right">{fmtNum(row.form_submits)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>

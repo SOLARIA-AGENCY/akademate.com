@@ -133,6 +133,32 @@ describe('Track route - POST /api/track', () => {
     expect(executedSql.some((sql: string) => sql.includes("'lead'"))).toBe(true)
   })
 
+  it('stores custom form events for funnel analytics', async () => {
+    const { POST } = await import('@/app/api/track/route')
+
+    const request = new NextRequest('http://localhost/api/track', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        type: 'event',
+        event_type: 'form_click',
+        event_id: 'evt-form-click-1',
+        path: '/p/convocatorias/SC-2026-002',
+        utm_source: 'facebook',
+        utm_medium: 'cpc',
+        utm_campaign: 'solaria-higiene',
+      }),
+    })
+
+    const response = await POST(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload).toEqual({ ok: true })
+    const executedSql = mockExecute.mock.calls.map(([sql]: [string]) => sql)
+    expect(executedSql.some((sql: string) => sql.includes("'form_click'"))).toBe(true)
+  })
+
   it('short-circuits gracefully when tenant is not available', async () => {
     const { POST } = await import('@/app/api/track/route')
     mockFind.mockResolvedValueOnce({ docs: [] })
@@ -152,4 +178,3 @@ describe('Track route - POST /api/track', () => {
     expect(mockCreate).not.toHaveBeenCalled()
   })
 })
-

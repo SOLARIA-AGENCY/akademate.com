@@ -203,6 +203,15 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
       'Google Ads': 2,
       Organico: 5,
     })
+    expect(payload.traffic.series_by_granularity).toBeDefined()
+    expect(Array.isArray(payload.traffic.series_by_granularity.day)).toBe(true)
+    expect(Array.isArray(payload.traffic.series_by_granularity.week)).toBe(true)
+    expect(Array.isArray(payload.traffic.series_by_granularity.month)).toBe(true)
+    expect(payload.facebook.traffic_funnel).toMatchObject({
+      page_views: expect.any(Number),
+      form_clicks: expect.any(Number),
+      form_submits: expect.any(Number),
+    })
   })
 
   it('uses fresh snapshot before calling Meta API and returns source metadata', async () => {
@@ -334,6 +343,11 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
     expect(response.status).toBe(200)
     expect(payload.source_health.facebook).toBe('unavailable')
     expect(payload.facebook.campaigns).toEqual([])
+    expect(payload.facebook.traffic_funnel).toMatchObject({
+      page_views: 0,
+      form_clicks: 0,
+      form_submits: 0,
+    })
     expect(payload.campaigns).toMatchObject({
       linked: 0,
       detected: 0,

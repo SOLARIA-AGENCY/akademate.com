@@ -25,16 +25,23 @@ type FacebookDataSource = 'snapshot' | 'meta_api_live' | 'unavailable'
 interface TrafficData {
   source: 'ga4' | 'internal'
   totalSessions: number
-  series: Array<{
-    date: string
-    isoDate: string
-    Organico: number
-    'Facebook Ads': number
-    'Google Ads': number
-    Total: number
-  }>
+  series: TrafficSeriesPoint[]
+  seriesByGranularity: {
+    day: TrafficSeriesPoint[]
+    week: TrafficSeriesPoint[]
+    month: TrafficSeriesPoint[]
+  }
   topPages: Array<{ path: string; views: number; avgTime: string }>
   sourceMedium: Array<{ source: string; sessions: number; users: number; bounceRate: number }>
+}
+
+interface TrafficSeriesPoint {
+  date: string
+  isoDate: string
+  Organico: number
+  'Facebook Ads': number
+  'Google Ads': number
+  Total: number
 }
 
 interface FacebookCampaignMetrics {
@@ -82,6 +89,71 @@ function parseGa4Date(raw: string): string {
   const m = raw.slice(4, 6)
   const d = raw.slice(6, 8)
   return `${y}-${m}-${d}`
+}
+
+function getWeekStartIso(isoDate: string): string {
+  const date = new Date(`${isoDate}T00:00:00.000Z`)
+  if (Number.isNaN(date.getTime())) return isoDate
+  const day = date.getUTCDay()
+  const diffToMonday = day === 0 ? 6 : day - 1
+  date.setUTCDate(date.getUTCDate() - diffToMonday)
+  return date.toISOString().slice(0, 10)
+}
+
+function monthKeyFromIso(isoDate: string): string {
+  const date = new Date(`${isoDate}T00:00:00.000Z`)
+  if (Number.isNaN(date.getTime())) return isoDate.slice(0, 7)
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`
+}
+
+function formatWeekLabel(weekStartIso: string): string {
+  const weekStart = new Date(`${weekStartIso}T00:00:00.000Z`)
+  if (Number.isNaN(weekStart.getTime())) return weekStartIso
+  const weekEnd = new Date(weekStart)
+  weekEnd.setUTCDate(weekStart.getUTCDate() + 6)
+  const startLabel = weekStart.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+  const endLabel = weekEnd.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+  return `${startLabel} – ${endLabel}`
+}
+
+function formatMonthLabel(monthKey: string): string {
+  const parsed = new Date(`${monthKey}-01T00:00:00.000Z`)
+  if (Number.isNaN(parsed.getTime())) return monthKey
+  return parsed.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })
+}
+
+function aggregateTrafficSeries(
+  series: TrafficSeriesPoint[],
+  granularity: 'day' | 'week' | 'month',
+): TrafficSeriesPoint[] {
+  if (granularity === 'day') {
+    return [...series].sort((a, b) => a.isoDate.localeCompare(b.isoDate))
+  }
+
+  const grouped = new Map<string, TrafficSeriesPoint>()
+
+  for (const point of series) {
+    const key = granularity === 'week' ? getWeekStartIso(point.isoDate) : monthKeyFromIso(point.isoDate)
+    const existing = grouped.get(key)
+    if (existing) {
+      existing.Organico += point.Organico
+      existing['Facebook Ads'] += point['Facebook Ads']
+      existing['Google Ads'] += point['Google Ads']
+      existing.Total += point.Total
+      continue
+    }
+
+    grouped.set(key, {
+      date: granularity === 'week' ? formatWeekLabel(key) : formatMonthLabel(key),
+      isoDate: key,
+      Organico: point.Organico,
+      'Facebook Ads': point['Facebook Ads'],
+      'Google Ads': point['Google Ads'],
+      Total: point.Total,
+    })
+  }
+
+  return Array.from(grouped.values()).sort((a, b) => a.isoDate.localeCompare(b.isoDate))
 }
 
 async function getTrafficFromInternal(
@@ -152,6 +224,11 @@ async function getTrafficFromInternal(
     source: 'internal' as const,
     totalSessions,
     series,
+    seriesByGranularity: {
+      day: aggregateTrafficSeries(series, 'day'),
+      week: aggregateTrafficSeries(series, 'week'),
+      month: aggregateTrafficSeries(series, 'month'),
+    },
     topPages: topPageRows.map((row) => ({
       path: String(row.path ?? '/'),
       views: toNumber(row.views),
@@ -268,6 +345,11 @@ async function getTrafficFromGa4(
     source: 'ga4' as const,
     totalSessions,
     series,
+    seriesByGranularity: {
+      day: aggregateTrafficSeries(series, 'day'),
+      week: aggregateTrafficSeries(series, 'week'),
+      month: aggregateTrafficSeries(series, 'month'),
+    },
     topPages: (pagesPayload?.rows ?? []).map((row: any) => ({
       path: String(row?.dimensionValues?.[0]?.value || '/'),
       views: toNumber(row?.metricValues?.[0]?.value),
@@ -573,6 +655,45 @@ export async function GET(request: NextRequest) {
 
     const linkedDetected = Array.from(linkedMetaIds).filter((id) => detectedIds.has(id)).length
 
+    const facebookTrafficRows = asRows(
+      await drizzle.execute(`
+        SELECT
+          COALESCE(NULLIF(utm_campaign, ''), '(sin utm_campaign)') AS utm_campaign,
+          SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END)::int AS page_views,
+          SUM(CASE WHEN event_type = 'form_click' THEN 1 ELSE 0 END)::int AS form_clicks,
+          SUM(CASE WHEN event_type IN ('form_submit', 'lead') THEN 1 ELSE 0 END)::int AS form_submits
+        FROM traffic_events
+        WHERE tenant_id = ${tenantId}
+          AND created_at >= NOW() - INTERVAL '${rangeDays} days'
+          AND (
+            LOWER(COALESCE(utm_source, '')) LIKE 'facebook%'
+            OR LOWER(COALESCE(utm_source, '')) LIKE 'instagram%'
+            OR LOWER(COALESCE(utm_medium, '')) LIKE '%meta%'
+            OR LOWER(COALESCE(utm_medium, '')) LIKE '%facebook%'
+          )
+        GROUP BY 1
+        ORDER BY page_views DESC
+        LIMIT 30
+      `),
+    )
+
+    const facebookTrafficByCampaign = facebookTrafficRows.map((row) => ({
+      campaign: String(row.utm_campaign || '(sin utm_campaign)'),
+      page_views: toNumber(row.page_views),
+      form_clicks: toNumber(row.form_clicks),
+      form_submits: toNumber(row.form_submits),
+    }))
+
+    const facebookTrafficTotals = facebookTrafficByCampaign.reduce(
+      (acc, row) => {
+        acc.page_views += row.page_views
+        acc.form_clicks += row.form_clicks
+        acc.form_submits += row.form_submits
+        return acc
+      },
+      { page_views: 0, form_clicks: 0, form_submits: 0 },
+    )
+
     return NextResponse.json({
       generated_at: new Date().toISOString(),
       range,
@@ -589,6 +710,7 @@ export async function GET(request: NextRequest) {
       },
       traffic: {
         series: traffic.series,
+        series_by_granularity: traffic.seriesByGranularity,
         top_pages: traffic.topPages,
         source_medium: traffic.sourceMedium,
       },
@@ -600,6 +722,12 @@ export async function GET(request: NextRequest) {
         conversions: totalFacebookConversions,
         roas: avgRoas,
         campaigns: facebookCampaigns,
+        traffic_funnel: {
+          page_views: facebookTrafficTotals.page_views,
+          form_clicks: facebookTrafficTotals.form_clicks,
+          form_submits: facebookTrafficTotals.form_submits,
+          by_campaign: facebookTrafficByCampaign,
+        },
         coverage: {
           linked: linkedDetected,
           detected: detectedCampaigns.length,

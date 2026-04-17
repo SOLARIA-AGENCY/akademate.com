@@ -13,6 +13,10 @@ import { type NextRequest, NextResponse } from 'next/server'
  *   { type: 'lead', path, courseRunId, courseName, first_name, last_name, email, phone,
  *     event_id?, fbc?, fbp?, utm_source?, utm_medium?, utm_campaign? }
  *
+ * Body (custom tracked event):
+ *   { type: 'event', event_type: 'form_click' | 'form_submit', path, event_id?,
+ *     referrer?, userAgent?, utm_source?, utm_medium?, utm_campaign? }
+ *
  * This endpoint is intentionally public (no auth required).
  * It logs tracking data and optionally creates leads in Payload.
  * When event_id is present, also fires Meta Conversions API events (dual tracking).
@@ -28,7 +32,10 @@ interface TenantInfo {
   integrations: TenantIntegrations
 }
 
+type TrackEventType = 'page_view' | 'lead' | 'form_click' | 'form_submit'
+
 const RESERVED_TENANT_SLUGS = new Set(['www', 'admin', 'app'])
+const ALLOWED_CUSTOM_EVENT_TYPES = new Set<TrackEventType>(['form_click', 'form_submit'])
 
 function escapeSql(value: string): string {
   return value.replace(/'/g, "''")
@@ -132,7 +139,14 @@ async function ensureTrafficEventsTable(payload: any) {
   `)
 }
 
-async function insertTrafficEvent(payload: any, tenantId: number, body: any, eventType: 'page_view' | 'lead') {
+function parseCustomEventType(value: unknown): TrackEventType | null {
+  if (typeof value !== 'string') return null
+  const normalized = value.trim().toLowerCase()
+  if (!ALLOWED_CUSTOM_EVENT_TYPES.has(normalized as TrackEventType)) return null
+  return normalized as TrackEventType
+}
+
+async function insertTrafficEvent(payload: any, tenantId: number, body: any, eventType: TrackEventType) {
   const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
   if (!drizzle?.execute) return
 
@@ -254,6 +268,13 @@ export async function POST(request: NextRequest) {
         fireCapiEvent(request, tenant, 'Lead', body.event_id, body).catch(() => {})
       }
 
+      return NextResponse.json({ ok: true })
+    }
+
+    if (body.type === 'event') {
+      const eventType = parseCustomEventType(body.event_type)
+      if (!eventType) return NextResponse.json({ ok: true })
+      await insertTrafficEvent(payload, tenant.id, body, eventType).catch(() => {})
       return NextResponse.json({ ok: true })
     }
 

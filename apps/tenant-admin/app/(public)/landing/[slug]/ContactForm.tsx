@@ -24,14 +24,43 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
     setErrorMsg('')
 
     try {
+      const eventId =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `lead-${Date.now()}-${Math.random().toString(36).slice(2)}`
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+      const trackingPayload = {
+        path: `/landing/${slug}${typeof window !== 'undefined' ? window.location.search : ''}`,
+        referrer: typeof document !== 'undefined' ? document.referrer || null : null,
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+        utm_source: urlParams?.get('utm_source') || undefined,
+        utm_medium: urlParams?.get('utm_medium') || undefined,
+        utm_campaign: urlParams?.get('utm_campaign') || undefined,
+      }
+
+      void fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'event',
+          event_type: 'form_click',
+          event_id: `${eventId}-click`,
+          ...trackingPayload,
+        }),
+      }).catch(() => {})
+
       const res = await fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'lead',
+          event_id: `${eventId}-lead`,
           path: `/landing/${slug}`,
           courseRunId,
           courseName,
+          utm_source: trackingPayload.utm_source,
+          utm_medium: trackingPayload.utm_medium,
+          utm_campaign: trackingPayload.utm_campaign,
           ...formData,
         }),
       })
@@ -39,6 +68,17 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
       if (!res.ok) {
         throw new Error('Error al enviar')
       }
+
+      void fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'event',
+          event_type: 'form_submit',
+          event_id: `${eventId}-submit`,
+          ...trackingPayload,
+        }),
+      }).catch(() => {})
 
       setStatus('success')
       setFormData({ first_name: '', last_name: '', email: '', phone: '' })
