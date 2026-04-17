@@ -58,17 +58,13 @@ const MODALITY_LABELS: Record<string, string> = {
 }
 
 const DECISION_STATE_GUIDE: Record<string, string> = {
-  new: 'Lead recien entrado. Primera llamada y calificacion inicial.',
-  contacted: 'Contacto realizado. Registrar resultado y siguiente paso.',
   following_up: 'Solicita seguimiento. Agendar fecha y hora concreta.',
-  interested: 'Interes claro. Presentar propuesta completa y resolver objeciones.',
   enrolling: 'Inicio de matriculacion. Confirmar documentacion y reserva.',
-  enrolled: 'Matricula cerrada. Mantener comunicacion de bienvenida.',
   on_hold: 'Decision pausada por el lead. Programar reactivacion.',
   not_interested: 'No desea continuar. Cierre cordial y registro de motivo.',
-  unreachable: 'No localizable. Reintentos por canal alternativo.',
-  discarded: 'Lead invalidado o fuera de alcance comercial.',
 }
+
+const LIVE_DECISION_STATUS_VALUES = ['following_up', 'enrolling', 'on_hold', 'not_interested'] as const
 
 function toFiniteNumber(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value
@@ -377,16 +373,10 @@ OPERADOR - SI NO INTERESADO
 ${notInterestedLine}
 
 ARBOL DE DECISION
-1) NUEVO -> primer contacto y clasificacion inicial
-2) CONTACTADO -> se hablo con el lead
-3) EN SEGUIMIENTO -> callback agendado
-4) INTERESADO -> propuesta aceptada para avanzar
-5) EN MATRICULACION -> iniciar matricula
-6) MATRICULADO -> cierre de venta
-7) EN ESPERA -> pausa temporal
-8) NO INTERESADO -> cierre comercial
-9) NO CONTACTABLE -> reintentar por otros canales
-10) DESCARTADO -> lead invalido`
+1) EN SEGUIMIENTO -> callback agendado
+2) EN MATRICULACION -> iniciar matricula
+3) EN ESPERA -> decision pausada temporalmente
+4) NO INTERESADO -> cierre comercial`
 
   const whatsappMessage = `Hola${lead.first_name ? ` ${lead.first_name}` : ''}!
 
@@ -610,7 +600,10 @@ Equipo CEP Formacion`
                 <div className="rounded-lg border border-violet-200 bg-violet-50 p-4">
                   <p className="text-xs font-bold uppercase tracking-wide text-violet-700">ARBOL DE DECISION - APERTURA DE MATRICULA</p>
                   <div className="mt-2 space-y-2">
-                    {STATUS_OPTIONS.map(opt => (
+                    {LIVE_DECISION_STATUS_VALUES.map((value) => {
+                      const opt = STATUS_OPTIONS.find((statusOption) => statusOption.value === value)
+                      if (!opt) return null
+                      return (
                       <div key={opt.value} className="rounded-lg border border-violet-200/80 bg-white/70 p-2.5 flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <p className="text-xs font-black uppercase tracking-wide text-violet-800">{opt.label}</p>
@@ -625,7 +618,8 @@ Equipo CEP Formacion`
                           {currentStatus === opt.value ? 'Estado actual' : 'Marcar'}
                         </Button>
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               </div>
