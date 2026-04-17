@@ -104,6 +104,7 @@ const publicRoutes = [
   '/api/internal/invitations/accept', // Accept invitation (public — token-based auth)
   '/api/v1/openapi', // OpenAPI spec is public (no auth needed)
   '/api/leads', // Lead capture from public landing pages
+  '/api/track', // Public tracking endpoint for page views/forms
   '/api/media/file', // Serve uploaded media files publicly (images, PDFs)
   // Public web pages (landing pages, catalogs) — no auth required
   '/p/',  // All public web pages under /p/ are accessible without auth
