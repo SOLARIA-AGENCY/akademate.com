@@ -25,9 +25,9 @@ const STATUS_OPTIONS = [
   { value: 'enrolling', label: 'En matriculacion', color: 'bg-blue-100 text-blue-800', dot: 'bg-blue-500' },
   { value: 'enrolled', label: 'Matriculado', color: 'bg-emerald-100 text-emerald-800 border border-emerald-300', dot: 'bg-emerald-500' },
   { value: 'on_hold', label: 'En espera', color: 'bg-gray-100 text-gray-600', dot: 'bg-amber-500' },
-  { value: 'not_interested', label: 'No interesado', color: 'bg-gray-100 text-gray-500', dot: 'bg-gray-400' },
-  { value: 'unreachable', label: 'No contactable', color: 'bg-gray-100 text-gray-500', dot: 'bg-gray-400' },
-  { value: 'discarded', label: 'Descartado', color: 'bg-gray-50 text-gray-400', dot: 'bg-gray-400' },
+  { value: 'not_interested', label: 'No interesado', color: 'bg-gray-100 text-gray-700 border border-gray-300', dot: 'bg-gray-500' },
+  { value: 'unreachable', label: 'No contactable', color: 'bg-gray-100 text-gray-700 border border-gray-300', dot: 'bg-gray-500' },
+  { value: 'discarded', label: 'Descartado', color: 'bg-gray-100 text-gray-700 border border-gray-300', dot: 'bg-gray-500' },
 ]
 
 const CONTACT_RESULTS = [
@@ -125,6 +125,26 @@ function isActionableSpanishPhone(value: unknown): boolean {
   return /^[+]34\s[6-9]\d{2}\s\d{3}\s\d{3}$/.test(value.trim())
 }
 
+function extractConvocatoriaCodeFromPath(pathLike: string): string | null {
+  const match = pathLike.match(/\/(?:p\/)?convocatorias\/([^/?#]+)/i)
+  return match?.[1] || null
+}
+
+function formatElapsedTimeLabel(dateIso: string | null): string {
+  if (!dateIso) return 'hace unos minutos'
+  const diffMs = Date.now() - new Date(dateIso).getTime()
+  if (!Number.isFinite(diffMs) || diffMs < 0) return 'hace unos minutos'
+
+  const totalMinutes = Math.max(0, Math.floor(diffMs / 60000))
+  if (totalMinutes < 60) return `hace ${totalMinutes}m`
+
+  const totalHours = Math.floor(totalMinutes / 60)
+  if (totalHours < 24) return `hace ${totalHours}h`
+
+  const days = Math.floor(totalHours / 24)
+  return `hace ${days}d`
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -150,6 +170,7 @@ export default function LeadDetailPage({ params }: Props) {
   const [showContactModal, setShowContactModal] = React.useState<{ channel: 'phone' | 'whatsapp' | 'email' } | null>(null)
   const [contactResult, setContactResult] = React.useState('')
   const [contactNote, setContactNote] = React.useState('')
+  const [, setLiveClockTick] = React.useState<number>(() => Date.now())
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -177,6 +198,14 @@ export default function LeadDetailPage({ params }: Props) {
     void loadLead()
     void loadInteractions()
   }, [loadLead, loadInteractions])
+
+  React.useEffect(() => {
+    const timer = window.setInterval(() => {
+      setLiveClockTick(Date.now())
+    }, 60_000)
+
+    return () => window.clearInterval(timer)
+  }, [])
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -352,7 +381,12 @@ export default function LeadDetailPage({ params }: Props) {
   const name = lead.first_name || lead.last_name ? `${lead.first_name || ''} ${lead.last_name || ''}`.trim() : lead.email
   const statusConfig = STATUS_OPTIONS.find(s => s.value === currentStatus) || STATUS_OPTIONS[0]
   const isInscripcion = lead.lead_type === 'inscripcion'
-  const timeSince = lead.createdAt ? Math.round((Date.now() - new Date(lead.createdAt).getTime()) / (1000 * 60 * 60)) : 0
+  const createdAtDate = lead.createdAt ? new Date(lead.createdAt) : null
+  const timeSince = createdAtDate ? Math.round((Date.now() - createdAtDate.getTime()) / (1000 * 60 * 60)) : 0
+  const timeSinceLabel = formatElapsedTimeLabel(lead.createdAt || null)
+  const createdAtExact = createdAtDate
+    ? createdAtDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    : null
   const showEnrollButton = ['interested', 'following_up', 'enrolling'].includes(currentStatus) && !lead.enrollment_id
   const showEnrollLink = !!lead.enrollment_id
   const leadNameForOperator = (name || lead.email || 'LEAD').toUpperCase()
@@ -409,6 +443,15 @@ export default function LeadDetailPage({ params }: Props) {
   const programSummary = programSummaryParts.join(', ') || 'Plan formativo a confirmar'
   const hasActionablePhone = isActionableSpanishPhone(lead.phone)
   const hasPhonePlaceholder = Boolean(lead.phone) && !hasActionablePhone
+  const sourceConvocatoriaCode =
+    (typeof leadProgram?.convocatoria_codigo === 'string' && leadProgram.convocatoria_codigo.trim()) ||
+    (sourcePage ? extractConvocatoriaCodeFromPath(sourcePage) : null)
+  const programContextLabel =
+    sourceConvocatoriaCode
+      ? `${programName} - Convocatoria ${sourceConvocatoriaCode}`
+      : programName
+  const sourcePageHref = sourcePage && sourcePage.trim().length > 0 ? sourcePage : null
+  const sourcePageIsExternal = sourcePageHref ? /^https?:\/\//i.test(sourcePageHref) : false
 
   // Pre-built messages
   const openingLine = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. Es buen momento para hablar?`
@@ -487,18 +530,44 @@ Equipo CEP Formacion`
 
       {/* Urgency alert */}
       {isInscripcion && timeSince < 48 && currentStatus === 'new' && (
-        <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 p-4 flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
-          <div>
-            <p className="font-semibold text-red-800 dark:text-red-200">Preinscripcion sin atender — hace {timeSince}h</p>
-            <p className="text-sm text-red-700 dark:text-red-300">Esta persona ha solicitado reservar plaza. Contactar en menos de 24h.</p>
+        <div className="rounded-lg border border-red-300 bg-red-50 p-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-700 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-red-800">
+                Preinscripcion sin atender — {timeSinceLabel}
+                {createdAtExact ? ` — registrado a las ${createdAtExact}` : ''}
+              </p>
+              <p className="text-sm text-red-700">Esta persona ha solicitado reservar plaza. Contactar en menos de 24h.</p>
+            </div>
           </div>
+          <Button
+            size="sm"
+            className="bg-red-700 hover:bg-red-800 text-white"
+            disabled={saving}
+            onClick={() => void changeStatus('contacted')}
+          >
+            Marcar como atendido
+          </Button>
         </div>
       )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* MAIN (2/3) */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Program context */}
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Curso/Ciclo de origen</CardTitle></CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-sm font-semibold text-foreground">{programContextLabel}</p>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                {sourceForm && <Badge variant="outline">{sourceForm}</Badge>}
+                {sourceConvocatoriaCode && <Badge variant="outline">Codigo: {sourceConvocatoriaCode}</Badge>}
+                {originCampaign && <Badge variant="outline">Campaña: {originCampaign}</Badge>}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Quick actions — call/whatsapp/email */}
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Acciones de contacto</CardTitle></CardHeader>
@@ -756,11 +825,15 @@ Equipo CEP Formacion`
               {lead.first_name && <div className="flex justify-between"><span className="text-muted-foreground">Nombre</span><span className="font-medium">{lead.first_name} {lead.last_name}</span></div>}
               {lead.email && <div className="flex justify-between"><span className="text-muted-foreground">Email</span><span className="font-medium truncate max-w-[60%]">{lead.email}</span></div>}
               {lead.phone && <div className="flex justify-between"><span className="text-muted-foreground">Telefono</span><span className="font-medium">{lead.phone}</span></div>}
+              <div className="flex justify-between gap-3">
+                <span className="text-muted-foreground">Curso/Ciclo</span>
+                <span className="text-xs font-medium text-right">{programContextLabel}</span>
+              </div>
               <div className="border-t pt-2 mt-2" />
               <div className="flex justify-between"><span className="text-muted-foreground">Tipo</span><Badge variant={isInscripcion ? 'default' : 'secondary'} className="text-[10px]">{isInscripcion ? 'Inscripcion' : lead.lead_type || 'Lead'}</Badge></div>
-              {lead.source_form && <div className="flex justify-between"><span className="text-muted-foreground">Formulario</span><span className="text-xs">{lead.source_form}</span></div>}
+              {sourceForm && <div className="flex justify-between"><span className="text-muted-foreground">Formulario</span><span className="text-xs">{sourceForm}</span></div>}
               {lead.createdAt && <div className="flex justify-between"><span className="text-muted-foreground">Fecha</span><span className="text-xs">{new Date(lead.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>}
-              {lead.campaign_code && <div className="flex justify-between"><span className="text-muted-foreground">Campaña</span><span className="font-mono text-xs">{lead.campaign_code}</span></div>}
+              {originCampaign && <div className="flex justify-between"><span className="text-muted-foreground">Campaña</span><span className="font-mono text-xs">{originCampaign}</span></div>}
 
               <div className="border-t pt-2 mt-2" />
               <div className="flex justify-between"><span className="text-muted-foreground">Asesor</span><span className="font-medium text-xs">{lead.assigned_to?.first_name || 'Sin asignar'}</span></div>
@@ -795,18 +868,48 @@ Equipo CEP Formacion`
                 <span className="text-muted-foreground">Campaña</span>
                 <span className="text-xs font-medium">{originCampaign || 'No disponible'}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Meta campaign</span>
-                <span className="text-xs font-medium">{originMetaCampaignId || 'No disponible'}</span>
-              </div>
+              {originMetaCampaignId && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Meta campaign</span>
+                  <span className="text-xs font-medium">{originMetaCampaignId}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-muted-foreground">UTM</span>
                 <span className="text-xs font-medium">{[originUtmSource, originUtmMedium, originUtmCampaign].filter(Boolean).join(' / ') || 'No disponible'}</span>
               </div>
+              {(sourceConvocatoriaCode || hasResolvedProgram) && (
+                <div className="border-t pt-2 mt-2 space-y-1">
+                  <p className="text-muted-foreground text-xs">Convocatoria resuelta</p>
+                  {sourcePageHref ? (
+                    <a
+                      href={sourcePageHref}
+                      target={sourcePageIsExternal ? '_blank' : undefined}
+                      rel={sourcePageIsExternal ? 'noopener noreferrer' : undefined}
+                      className="text-xs font-medium text-blue-700 hover:underline break-words"
+                    >
+                      {programContextLabel}
+                    </a>
+                  ) : (
+                    <p className="text-xs font-medium break-words">{programContextLabel}</p>
+                  )}
+                </div>
+              )}
               <div className="border-t pt-2 mt-2" />
               <div>
                 <p className="text-muted-foreground text-xs mb-1">URL origen</p>
-                <p className="text-xs break-all font-medium">{sourcePage || 'No disponible'}</p>
+                {sourcePageHref ? (
+                  <a
+                    href={sourcePageHref}
+                    target={sourcePageIsExternal ? '_blank' : undefined}
+                    rel={sourcePageIsExternal ? 'noopener noreferrer' : undefined}
+                    className="text-xs break-all font-medium text-blue-700 hover:underline"
+                  >
+                    {sourcePageHref}
+                  </a>
+                ) : (
+                  <p className="text-xs break-all font-medium">No disponible</p>
+                )}
               </div>
             </CardContent>
           </Card>
