@@ -93,6 +93,34 @@ export interface CampaignDetailResponse {
   success: boolean
   campaign?: CampaignListItem['campaign']
   insights_summary?: InsightsSummary
+  funnel?: {
+    series: Array<{
+      date: string
+      label: string
+      form_page_views: number
+      form_submissions: number
+      crm_leads: number
+    }>
+    totals: {
+      form_page_views: number
+      form_submissions: number
+      crm_leads: number
+    }
+    conversion: {
+      view_to_submit_pct: number
+      view_to_lead_pct: number
+    }
+    cpl: {
+      using: 'crm_leads' | 'form_submissions'
+      value: number | null
+    }
+    source_map: {
+      spend: string
+      form_page_views: string
+      form_submissions: string
+      crm_leads: string
+    }
+  }
   adsets?: Array<{
     id: string
     name: string

@@ -12,6 +12,8 @@ const {
   mockBuildInsightsSummary,
   mockParseBudget,
   mockBuildAdsManagerUrl,
+  mockGetPayloadHMR,
+  mockDbExecute,
 } = vi.hoisted(() => ({
   mockResolveMetaRequestContext: vi.fn(),
   mockCheckMetaHealth: vi.fn(),
@@ -23,6 +25,8 @@ const {
   mockBuildInsightsSummary: vi.fn(),
   mockParseBudget: vi.fn(),
   mockBuildAdsManagerUrl: vi.fn(),
+  mockGetPayloadHMR: vi.fn(),
+  mockDbExecute: vi.fn(),
 }))
 
 vi.mock('@/app/api/meta/_lib/integrations', () => ({
@@ -40,6 +44,14 @@ vi.mock('@/app/api/meta/_lib/meta-graph', () => ({
   buildInsightsSummary: mockBuildInsightsSummary,
   parseBudget: mockParseBudget,
   buildAdsManagerUrl: mockBuildAdsManagerUrl,
+}))
+
+vi.mock('@payloadcms/next/utilities', () => ({
+  getPayloadHMR: mockGetPayloadHMR,
+}))
+
+vi.mock('@payload-config', () => ({
+  default: {},
 }))
 
 import { GET } from '@/app/api/meta/campaigns/[campaignId]/route'
@@ -100,6 +112,14 @@ describe('GET /api/meta/campaigns/[campaignId]', () => {
       (adAccountId: string, campaignId: string) =>
         `https://adsmanager.facebook.com/?act=${adAccountId}&campaign_ids=${campaignId}`
     )
+    mockDbExecute.mockResolvedValue({ rows: [] })
+    mockGetPayloadHMR.mockResolvedValue({
+      db: {
+        drizzle: {
+          execute: mockDbExecute,
+        },
+      },
+    })
   })
 
   it('devuelve 401 cuando no hay sesion', async () => {

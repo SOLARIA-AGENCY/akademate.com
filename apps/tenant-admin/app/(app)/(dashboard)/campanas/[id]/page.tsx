@@ -33,6 +33,7 @@ import {
 import { AlertTriangle, ArrowLeft, Copy, Megaphone, RefreshCw } from 'lucide-react'
 import {
   CartesianGrid,
+  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -98,20 +99,9 @@ function formatNumber(value: number | null, decimals = 0): string {
   }).format(value)
 }
 
-function buildTrendData(detail: CampaignDetailResponse | null): Array<{ label: string; spend: number; leads: number }> {
-  if (!detail?.insights_summary) return []
-
-  const totalSpend = detail.insights_summary.spend.value || 0
-  const totalLeads = detail.insights_summary.results.value || 0
-  const points = 7
-  const spendWeight = [0.08, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18]
-  const leadsWeight = [0.1, 0.11, 0.12, 0.13, 0.15, 0.18, 0.21]
-
-  return Array.from({ length: points }).map((_, index) => ({
-    label: `D-${points - 1 - index}`,
-    spend: Number((totalSpend * spendWeight[index]).toFixed(2)),
-    leads: Number((totalLeads * leadsWeight[index]).toFixed(0)),
-  }))
+function formatPercent(value: number | null): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return 'N/D'
+  return `${formatNumber(value, 2)}%`
 }
 
 function leadMatchesCampaign(lead: LeadItem, campaignId: string): boolean {
@@ -203,7 +193,16 @@ export default function CampaignDetailPage({ params }: Props) {
     void fetchLeads()
   }, [fetchLeads])
 
-  const trendData = React.useMemo(() => buildTrendData(detail), [detail])
+  const funnelSeries = React.useMemo(() => detail?.funnel?.series ?? [], [detail])
+  const funnelTotals = detail?.funnel?.totals ?? {
+    form_page_views: 0,
+    form_submissions: 0,
+    crm_leads: 0,
+  }
+  const conversionViewToSubmit = detail?.funnel?.conversion?.view_to_submit_pct ?? 0
+  const conversionViewToLead = detail?.funnel?.conversion?.view_to_lead_pct ?? 0
+  const effectiveCpl = detail?.funnel?.cpl?.value ?? detail?.insights_summary?.results.cost_per_result ?? null
+  const effectiveCtr = detail?.insights_summary?.ctr.value ?? null
   const liveStatus = statusOverride || detail?.campaign?.status || 'draft'
   const statusConfig = STATUS_LABELS[liveStatus] || STATUS_LABELS.draft
 
@@ -237,6 +236,19 @@ export default function CampaignDetailPage({ params }: Props) {
 
     return items
   }, [detail])
+
+  const leadsEmptyHint = React.useMemo(() => {
+    if (funnelTotals.form_page_views === 0) {
+      return 'Sin eventos de visita al formulario para esta campaña en el rango seleccionado.'
+    }
+    if (funnelTotals.form_submissions === 0) {
+      return 'Hay visitas al formulario, pero no hay envíos registrados (form_submit/lead).'
+    }
+    if (funnelTotals.crm_leads === 0) {
+      return 'Hay envíos de formulario, pero no se reconciliaron leads CRM vinculados a esta campaña.'
+    }
+    return 'Sin leads vinculados para esta campaña.'
+  }, [funnelTotals])
 
   const backToList = () => {
     const qs = searchParams.toString()
@@ -330,21 +342,50 @@ export default function CampaignDetailPage({ params }: Props) {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Gasto total</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(detail?.insights_summary?.spend.value ?? null)}</div>
+            <p className="mt-1 text-xs text-muted-foreground">Fuente: Meta Ads Insights</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Leads generados</CardTitle>
+            <CardTitle className="text-sm font-medium">Vistas formulario</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(detail?.insights_summary?.results.value ?? null)}</div>
+            <div className="text-2xl font-bold">{formatNumber(funnelTotals.form_page_views)}</div>
+            <p className="mt-1 text-xs text-muted-foreground">Fuente: Traffic events web</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Registros enviados</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatNumber(funnelTotals.form_submissions)}</div>
+            <p className="mt-1 text-xs text-muted-foreground">Fuente: eventos form_submit/lead</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Conversión visita→registro</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatPercent(conversionViewToSubmit)}</div>
+            <p className="mt-1 text-xs text-muted-foreground">Lead CRM: {formatPercent(conversionViewToLead)}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Leads CRM vinculados</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatNumber(funnelTotals.crm_leads)}</div>
+            <p className="mt-1 text-xs text-muted-foreground">Fuente: tabla leads</p>
           </CardContent>
         </Card>
         <Card>
@@ -353,41 +394,49 @@ export default function CampaignDetailPage({ params }: Props) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(detail?.insights_summary?.results.cost_per_result ?? null)}
+              {formatCurrency(effectiveCpl)}
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">ROAS / CTR</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {detail?.insights_summary?.ctr.value === null || detail?.insights_summary?.ctr.value === undefined
-                ? 'N/D'
-                : `${formatNumber(detail.insights_summary.ctr.value, 2)}%`}
-            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              CTR Meta: {effectiveCtr === null ? 'N/D' : `${formatNumber(effectiveCtr, 2)}%`}
+            </p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Rendimiento de campaña</CardTitle>
+          <CardTitle className="text-base">Embudo diario de captación</CardTitle>
+          <p className="text-sm text-muted-foreground">Visitas al formulario vs registros enviados (web) por día</p>
         </CardHeader>
         <CardContent>
           <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData}>
+              <LineChart data={funnelSeries}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="label" />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip />
-                <Line yAxisId="left" type="monotone" dataKey="spend" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-                <Line yAxisId="right" type="monotone" dataKey="leads" stroke="#E3003A" strokeWidth={2} dot={false} />
+                <YAxis allowDecimals={false} />
+                <Tooltip
+                  formatter={(value: any, name: any) => {
+                    const label = name === 'form_page_views' ? 'Visitas formulario' : 'Registros enviados'
+                    return [formatNumber(typeof value === 'number' ? value : Number(value)), label] as [string, string]
+                  }}
+                  labelFormatter={(label, payload) => {
+                    const pointDate = payload?.[0]?.payload?.date
+                    return pointDate ? formatDateOnly(pointDate) : String(label)
+                  }}
+                />
+                <Legend
+                  formatter={(value: string) =>
+                    value === 'form_page_views' ? 'Visitas formulario' : 'Registros enviados'
+                  }
+                />
+                <Line type="monotone" dataKey="form_page_views" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="form_submissions" stroke="#22C55E" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
+          </div>
+          <div className="mt-4 rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
+            <p><span className="font-medium text-foreground">Fuente de datos:</span> gasto/CTR desde Meta Ads; visitas y registros desde tracking web; leads CRM desde base de datos de leads.</p>
           </div>
         </CardContent>
       </Card>
@@ -455,7 +504,7 @@ export default function CampaignDetailPage({ params }: Props) {
               ) : leads.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-muted-foreground">
-                    Sin leads vinculados para esta campaña.
+                    {leadsEmptyHint}
                   </TableCell>
                 </TableRow>
               ) : (

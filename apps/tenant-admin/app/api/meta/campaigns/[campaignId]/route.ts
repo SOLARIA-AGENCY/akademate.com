@@ -1,5 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { getPayloadHMR } from '@payloadcms/next/utilities'
+import configPromise from '@payload-config'
 import { normalizeMetaAdAccountId, resolveMetaRequestContext } from '../../_lib/integrations'
 import {
   buildAdsManagerUrl,
@@ -44,6 +46,216 @@ function normalizeStatus(statusRaw: string): UiCampaignStatus {
 
 function sanitizeCampaignId(raw: string): string {
   return decodeURIComponent(raw || '').trim()
+}
+
+function escapeSql(value: string): string {
+  return value.replace(/'/g, "''")
+}
+
+function escapeSqlLike(value: string): string {
+  return escapeSql(value).replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_')
+}
+
+function enumerateDateRange(since: string, until: string): string[] {
+  const start = new Date(`${since}T00:00:00.000Z`)
+  const end = new Date(`${until}T00:00:00.000Z`)
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) return []
+
+  const days: string[] = []
+  const cursor = new Date(start)
+  while (cursor <= end) {
+    days.push(cursor.toISOString().slice(0, 10))
+    cursor.setUTCDate(cursor.getUTCDate() + 1)
+  }
+  return days
+}
+
+function toNumber(value: unknown): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : 0
+  }
+  return 0
+}
+
+function asRows(result: unknown): Array<Record<string, unknown>> {
+  if (Array.isArray(result)) return result as Array<Record<string, unknown>>
+  const typed = result as { rows?: Array<Record<string, unknown>> }
+  return Array.isArray(typed?.rows) ? typed.rows : []
+}
+
+async function buildCampaignFunnel(input: {
+  payload: any
+  tenantId: string
+  campaignId: string
+  campaignName: string
+  since: string
+  until: string
+  totalSpend: number
+}) {
+  const warnings: string[] = []
+  const days = enumerateDateRange(input.since, input.until)
+  const series = days.map((day) => ({
+    date: day,
+    label: day,
+    form_page_views: 0,
+    form_submissions: 0,
+    crm_leads: 0,
+  }))
+  const byDay = new Map(series.map((point) => [point.date, point]))
+
+  const fallback = {
+    series,
+    totals: {
+      form_page_views: 0,
+      form_submissions: 0,
+      crm_leads: 0,
+    },
+    conversion: {
+      view_to_submit_pct: 0,
+      view_to_lead_pct: 0,
+    },
+    cpl: {
+      using: 'crm_leads' as const,
+      value: null as number | null,
+    },
+    source_map: {
+      spend: 'meta_insights',
+      form_page_views: 'traffic_events',
+      form_submissions: 'traffic_events',
+      crm_leads: 'leads',
+    },
+  }
+
+  const drizzle = (input.payload as any).db?.drizzle || (input.payload as any).db?.pool
+  if (!drizzle?.execute || days.length === 0) {
+    warnings.push('No se pudo calcular el embudo: fuente de base de datos no disponible.')
+    return { funnel: fallback, warnings }
+  }
+
+  const campaignIdToken = escapeSqlLike(input.campaignId.toLowerCase())
+  const campaignNameToken = escapeSqlLike((input.campaignName || '').toLowerCase())
+
+  const utmCampaignMatchers = [`LOWER(COALESCE(utm_campaign, '')) LIKE '%${campaignIdToken}%' ESCAPE '\\'`]
+  if (campaignNameToken) {
+    utmCampaignMatchers.push(`LOWER(COALESCE(utm_campaign, '')) LIKE '%${campaignNameToken}%' ESCAPE '\\'`)
+  }
+  const utmCampaignSql = utmCampaignMatchers.join(' OR ')
+  const tenantIdSql = escapeSql(input.tenantId)
+
+  try {
+    const trafficRows = asRows(
+      await drizzle.execute(`
+        SELECT
+          DATE(created_at) AS day,
+          SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END)::int AS form_page_views,
+          SUM(CASE WHEN event_type IN ('form_submit', 'lead') THEN 1 ELSE 0 END)::int AS form_submissions
+        FROM traffic_events
+        WHERE tenant_id::text = '${tenantIdSql}'
+          AND created_at >= '${input.since}'::date
+          AND created_at < ('${input.until}'::date + INTERVAL '1 day')
+          AND (${utmCampaignSql})
+        GROUP BY 1
+        ORDER BY 1
+      `),
+    )
+
+    for (const row of trafficRows) {
+      const day = String(row.day || '').slice(0, 10)
+      const current = byDay.get(day)
+      if (!current) continue
+      current.form_page_views = toNumber(row.form_page_views)
+      current.form_submissions = toNumber(row.form_submissions)
+    }
+  } catch {
+    warnings.push('No hay eventos web suficientes para calcular vistas/envíos del formulario.')
+  }
+
+  try {
+    const leadColumns = new Set(
+      asRows(
+        await drizzle.execute(`
+          SELECT column_name
+          FROM information_schema.columns
+          WHERE table_schema = 'public'
+            AND table_name = 'leads'
+            AND column_name IN ('meta_campaign_id', 'utm_campaign', 'source_details', 'is_test')
+        `),
+      ).map((row) => String(row.column_name || '')),
+    )
+
+    const leadMatchers: string[] = []
+    if (leadColumns.has('meta_campaign_id')) {
+      leadMatchers.push(`COALESCE(meta_campaign_id, '') = '${escapeSql(input.campaignId)}'`)
+    }
+    if (leadColumns.has('utm_campaign')) {
+      leadMatchers.push(`LOWER(COALESCE(utm_campaign, '')) LIKE '%${campaignIdToken}%' ESCAPE '\\'`)
+      if (campaignNameToken) {
+        leadMatchers.push(`LOWER(COALESCE(utm_campaign, '')) LIKE '%${campaignNameToken}%' ESCAPE '\\'`)
+      }
+    }
+    if (leadColumns.has('source_details')) {
+      leadMatchers.push(`LOWER(COALESCE(source_details::text, '')) LIKE '%${campaignIdToken}%' ESCAPE '\\'`)
+    }
+
+    if (leadMatchers.length > 0) {
+      const nonTestFilter = leadColumns.has('is_test') ? `AND COALESCE(is_test, false) = false` : ''
+      const leadRows = asRows(
+        await drizzle.execute(`
+          SELECT DATE(created_at) AS day, COUNT(*)::int AS crm_leads
+          FROM leads
+          WHERE tenant_id::text = '${tenantIdSql}'
+            AND created_at >= '${input.since}'::date
+            AND created_at < ('${input.until}'::date + INTERVAL '1 day')
+            ${nonTestFilter}
+            AND (${leadMatchers.join(' OR ')})
+          GROUP BY 1
+          ORDER BY 1
+        `),
+      )
+
+      for (const row of leadRows) {
+        const day = String(row.day || '').slice(0, 10)
+        const current = byDay.get(day)
+        if (!current) continue
+        current.crm_leads = toNumber(row.crm_leads)
+      }
+    }
+  } catch {
+    warnings.push('No se pudieron reconciliar leads CRM para esta campaña.')
+  }
+
+  const totals = series.reduce(
+    (acc, item) => {
+      acc.form_page_views += item.form_page_views
+      acc.form_submissions += item.form_submissions
+      acc.crm_leads += item.crm_leads
+      return acc
+    },
+    { form_page_views: 0, form_submissions: 0, crm_leads: 0 },
+  )
+
+  const viewToSubmit = totals.form_page_views > 0 ? (totals.form_submissions / totals.form_page_views) * 100 : 0
+  const viewToLead = totals.form_page_views > 0 ? (totals.crm_leads / totals.form_page_views) * 100 : 0
+  const cplBase = totals.crm_leads > 0 ? totals.crm_leads : totals.form_submissions > 0 ? totals.form_submissions : 0
+
+  return {
+    funnel: {
+      ...fallback,
+      series,
+      totals,
+      conversion: {
+        view_to_submit_pct: Number(viewToSubmit.toFixed(2)),
+        view_to_lead_pct: Number(viewToLead.toFixed(2)),
+      },
+      cpl: {
+        using: totals.crm_leads > 0 ? 'crm_leads' : totals.form_submissions > 0 ? 'form_submissions' : 'crm_leads',
+        value: cplBase > 0 ? Number((input.totalSpend / cplBase).toFixed(2)) : null,
+      },
+    },
+    warnings,
+  }
 }
 
 export async function GET(
@@ -268,6 +480,17 @@ export async function GET(
     insightsResult.ok ? null : insightsResult.error
   )
 
+  const payload = await getPayloadHMR({ config: configPromise })
+  const { funnel, warnings: funnelWarnings } = await buildCampaignFunnel({
+    payload,
+    tenantId: tenantContext.tenantId,
+    campaignId,
+    campaignName: campaign.name || '',
+    since: range.since,
+    until: range.until,
+    totalSpend: insightsSummary.spend.value ?? 0,
+  })
+
   const hasPartialErrors = diagnosticsErrors.length > 0
 
   return NextResponse.json({
@@ -289,6 +512,7 @@ export async function GET(
       ads_manager_url: buildAdsManagerUrl(effectiveAdAccountId, campaign.id),
     },
     insights_summary: insightsSummary,
+    funnel,
     adsets,
     ads,
     creatives,
@@ -304,7 +528,7 @@ export async function GET(
       source: 'meta_live',
     },
     diagnostics: {
-      warnings: rangeWarnings,
+      warnings: [...rangeWarnings, ...funnelWarnings],
       errors: diagnosticsErrors,
       request_id: requestId,
     },
