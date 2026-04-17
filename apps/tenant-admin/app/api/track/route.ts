@@ -71,6 +71,7 @@ async function resolveTenant(payload: any, request: NextRequest): Promise<Tenant
       where: { domain: { equals: requestHost } },
       limit: 1,
       depth: 0,
+      overrideAccess: true,
     })
     tenant = byDomain.docs?.[0] ?? null
 
@@ -83,6 +84,7 @@ async function resolveTenant(payload: any, request: NextRequest): Promise<Tenant
           where: { slug: { equals: subdomain } },
           limit: 1,
           depth: 0,
+          overrideAccess: true,
         })
         tenant = bySlug.docs?.[0] ?? null
       }
@@ -90,7 +92,7 @@ async function resolveTenant(payload: any, request: NextRequest): Promise<Tenant
   }
 
   if (!tenant) {
-    const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
+    const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0, overrideAccess: true })
     tenant = tenants.docs?.[0] ?? null
   }
 
@@ -244,6 +246,7 @@ export async function POST(request: NextRequest) {
       try {
         await payload.create({
           collection: 'leads',
+          overrideAccess: true,
           data: {
             first_name: body.first_name || '',
             last_name: body.last_name || '',
