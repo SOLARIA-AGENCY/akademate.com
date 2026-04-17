@@ -64,36 +64,73 @@ async function resolveTenant(payload: any, request: NextRequest): Promise<Tenant
   )
 
   let tenant: any = null
+  const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
   if (requestHost && requestHost !== 'localhost' && requestHost !== '127.0.0.1') {
-    const byDomain = await payload.find({
-      collection: 'tenants',
-      where: { domain: { equals: requestHost } },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    })
-    tenant = byDomain.docs?.[0] ?? null
+    try {
+      const byDomain = await payload.find({
+        collection: 'tenants',
+        where: { domain: { equals: requestHost } },
+        limit: 1,
+        depth: 0,
+        overrideAccess: true,
+      })
+      tenant = byDomain.docs?.[0] ?? null
 
-    if (!tenant) {
-      const hostParts = requestHost.split('.')
-      const subdomain = hostParts.length >= 3 ? hostParts[0] : ''
-      if (subdomain && !RESERVED_TENANT_SLUGS.has(subdomain)) {
-        const bySlug = await payload.find({
-          collection: 'tenants',
-          where: { slug: { equals: subdomain } },
-          limit: 1,
-          depth: 0,
-          overrideAccess: true,
-        })
-        tenant = bySlug.docs?.[0] ?? null
+      if (!tenant) {
+        const hostParts = requestHost.split('.')
+        const subdomain = hostParts.length >= 3 ? hostParts[0] : ''
+        if (subdomain && !RESERVED_TENANT_SLUGS.has(subdomain)) {
+          const bySlug = await payload.find({
+            collection: 'tenants',
+            where: { slug: { equals: subdomain } },
+            limit: 1,
+            depth: 0,
+            overrideAccess: true,
+          })
+          tenant = bySlug.docs?.[0] ?? null
+        }
       }
+    } catch {
+      tenant = null
+    }
+  }
+
+  if (!tenant && drizzle?.execute) {
+    try {
+      if (requestHost && requestHost !== 'localhost' && requestHost !== '127.0.0.1') {
+        const byDomainRows = await drizzle.execute(`
+          SELECT id, integrations_meta_pixel_id, integrations_meta_conversions_api_token
+          FROM tenants
+          WHERE LOWER(domain) = LOWER('${escapeSql(requestHost)}')
+          LIMIT 1
+        `)
+        const byDomain = Array.isArray((byDomainRows as any)?.rows) ? (byDomainRows as any).rows[0] : null
+        if (byDomain?.id) tenant = byDomain
+      }
+
+      if (!tenant) {
+        const firstRows = await drizzle.execute(`
+          SELECT id, integrations_meta_pixel_id, integrations_meta_conversions_api_token
+          FROM tenants
+          ORDER BY id ASC
+          LIMIT 1
+        `)
+        const firstTenant = Array.isArray((firstRows as any)?.rows) ? (firstRows as any).rows[0] : null
+        if (firstTenant?.id) tenant = firstTenant
+      }
+    } catch {
+      tenant = null
     }
   }
 
   if (!tenant) {
-    const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0, overrideAccess: true })
-    tenant = tenants.docs?.[0] ?? null
+    try {
+      const tenants = await payload.find({ collection: 'tenants', limit: 1, depth: 0, overrideAccess: true })
+      tenant = tenants.docs?.[0] ?? null
+    } catch {
+      tenant = null
+    }
   }
 
   if (!tenant?.id) return null

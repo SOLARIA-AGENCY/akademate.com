@@ -161,7 +161,8 @@ describe('Track route - POST /api/track', () => {
 
   it('short-circuits gracefully when tenant is not available', async () => {
     const { POST } = await import('@/app/api/track/route')
-    mockFind.mockResolvedValueOnce({ docs: [] })
+    mockFind.mockResolvedValue({ docs: [] })
+    mockExecute.mockResolvedValue({ rows: [] })
 
     const request = new NextRequest('http://localhost/api/track', {
       method: 'POST',
@@ -171,10 +172,11 @@ describe('Track route - POST /api/track', () => {
 
     const response = await POST(request)
     const payload = await response.json()
+    const executedSql = mockExecute.mock.calls.map(([sql]: [string]) => sql)
 
     expect(response.status).toBe(200)
     expect(payload).toEqual({ ok: true })
-    expect(mockExecute).not.toHaveBeenCalled()
+    expect(executedSql.some((sql: string) => sql.includes('INSERT INTO traffic_events'))).toBe(false)
     expect(mockCreate).not.toHaveBeenCalled()
   })
 })
