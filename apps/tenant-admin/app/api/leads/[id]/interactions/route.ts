@@ -26,6 +26,22 @@ function toPositiveInt(value: unknown): number | null {
   return null
 }
 
+async function hasColumn(drizzle: any, tableName: string, columnName: string): Promise<boolean> {
+  try {
+    const result = await drizzle.execute(`
+      SELECT 1
+      FROM information_schema.columns
+      WHERE table_name = '${esc(tableName)}'
+        AND column_name = '${esc(columnName)}'
+      LIMIT 1
+    `)
+    const rows = Array.isArray(result) ? result : (result?.rows ?? [])
+    return rows.length > 0
+  } catch {
+    return false
+  }
+}
+
 // GET /api/leads/[id]/interactions
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
@@ -61,9 +77,17 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
+    const usersFirstNameExists = await hasColumn(drizzle, 'users', 'first_name')
+    const usersLastNameExists = await hasColumn(drizzle, 'users', 'last_name')
+    const usersEmailExists = await hasColumn(drizzle, 'users', 'email')
+
+    const firstNameSelect = usersFirstNameExists ? 'u.first_name' : 'NULL::text AS first_name'
+    const lastNameSelect = usersLastNameExists ? 'u.last_name' : 'NULL::text AS last_name'
+    const emailSelect = usersEmailExists ? 'u.email' : 'NULL::text AS email'
+
     const tenantFilter = authUser.tenantId ? ` AND li.tenant_id = ${authUser.tenantId}` : ''
     const result = await drizzle.execute(`
-      SELECT li.*, u.first_name, u.last_name, u.email
+      SELECT li.*, ${firstNameSelect}, ${lastNameSelect}, ${emailSelect}
       FROM lead_interactions li
       LEFT JOIN users u ON u.id = li.user_id
       WHERE li.lead_id = ${leadId}${tenantFilter}
