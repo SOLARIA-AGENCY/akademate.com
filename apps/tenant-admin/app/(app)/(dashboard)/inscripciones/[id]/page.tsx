@@ -32,16 +32,16 @@ const STATUS_OPTIONS = [
 
 const CONTACT_RESULTS = [
   { value: 'no_answer', label: 'Sin respuesta', icon: PhoneOff },
-  { value: 'positive', label: 'Respondio positivo', icon: CheckCircle2 },
-  { value: 'negative', label: 'Respondio negativo', icon: XCircle },
+  { value: 'positive', label: 'Respondió positivo', icon: CheckCircle2 },
+  { value: 'negative', label: 'Respondió negativo', icon: XCircle },
   { value: 'callback', label: 'Pide callback', icon: Clock },
   { value: 'wrong_number', label: 'Número incorrecto', icon: AlertCircle },
 ]
 
 const RESULT_LABELS: Record<string, string> = {
   no_answer: 'Sin respuesta',
-  positive: 'Respondio positivo',
-  negative: 'Respondio negativo',
+  positive: 'Respondió positivo',
+  negative: 'Respondió negativo',
   callback: 'Pide callback',
   wrong_number: 'Número incorrecto',
   message_sent: 'Mensaje enviado',
@@ -780,7 +780,7 @@ export default function LeadDetailPage({ params }: Props) {
   const programSummaryParts = [
     `${programModality}`,
     totalHours ? `${totalHours} horas` : null,
-    practiceHours ? `${practiceHours} horas de practicas en empresa` : null,
+    practiceHours ? `${practiceHours} horas de prácticas en empresa` : null,
   ].filter(Boolean)
   const programSummary = programSummaryParts.join(', ') || 'Plan formativo a confirmar'
   const hasActionablePhone = isActionableSpanishPhone(lead.phone)
@@ -800,7 +800,7 @@ export default function LeadDetailPage({ params }: Props) {
       ? [latestInteraction.user_first_name, latestInteraction.user_last_name].filter(Boolean).join(' ').trim() ||
         latestInteraction.user_email ||
         'Sistema'
-      : 'Sin gestion'
+      : 'Sin gestión'
   const advisorNotes = interactions.filter((interaction) => isInternalAdvisorNote(interaction))
   const responsibleName =
     [lead.assigned_to?.first_name, lead.assigned_to?.last_name].filter(Boolean).join(' ').trim() || 'Sin asignar'
@@ -830,8 +830,8 @@ ${notInterestedLine}
 
 ACCIONES CRM
 1) PROGRAMAR SEGUIMIENTO -> callback agendado
-2) MATRICULAR -> iniciar matricula
-3) PONER EN ESPERA -> decision pausada temporalmente
+2) MATRICULAR -> iniciar matrícula
+3) PONER EN ESPERA -> decisión pausada temporalmente
 4) MARCAR COMO NO INTERESADO -> cierre comercial`
 
   const whatsappMessage = `Hola${lead.first_name ? ` ${lead.first_name}` : ''}!
@@ -841,7 +841,7 @@ Soy del equipo de CEP Formación. Hemos recibido tu ${isInscripcion ? 'solicitud
 Te escribo para resolver cualquier duda que tengas sobre:
 - El programa y los modulos
 - Las fechas de inicio y horarios
-- Opciones de financiacion y matricula
+- Opciones de financiación y matrícula
 - Las prácticas en empresa
 
 ¿Te viene bien que hablemos o prefieres que te enviemos la información por aquí?`
@@ -853,7 +853,7 @@ Gracias por tu interés en CEP Formación. Hemos recibido tu ${isInscripcion ? '
 
 Quedamos a tu disposición para resolver cualquier duda sobre el programa, los horarios, las opciones de financiación o el proceso de matrícula.
 
-Puedes contactarnos por telefono, WhatsApp o respondiendo a este email.
+Puedes contactarnos por teléfono, WhatsApp o respondiendo a este email.
 
 Un saludo,
 Equipo CEP Formación`
@@ -866,7 +866,7 @@ Equipo CEP Formación`
     <div className="space-y-6">
       <PageHeader
         title={name}
-        description={`${isInscripcion ? 'Preinscripcion' : 'Lead'} · ${lead.email || ''}`}
+        description={`${isInscripcion ? 'Preinscripción' : 'Lead'} · ${lead.email || ''}`}
         icon={UserPlus}
         badge={<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>{statusConfig.label}</span>}
         actions={
@@ -878,7 +878,7 @@ Equipo CEP Formación`
             )}
             {showEnrollLink && (
               <Button variant="outline" onClick={() => router.push(getEnrollmentRoute(lead.enrollment_id))}>
-                <GraduationCap className="mr-2 h-4 w-4" />Ver ficha matricula
+                <GraduationCap className="mr-2 h-4 w-4" />Ver ficha matrícula
               </Button>
             )}
             <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
@@ -920,7 +920,7 @@ Equipo CEP Formación`
               <p className="text-sm font-semibold text-foreground">{programContextLabel}</p>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 {sourceForm && <Badge variant="outline">{sourceForm}</Badge>}
-                {sourceConvocatoriaCode && <Badge variant="outline">Codigo: {sourceConvocatoriaCode}</Badge>}
+                {sourceConvocatoriaCode && <Badge variant="outline">Código: {sourceConvocatoriaCode}</Badge>}
                 {originCampaign && <Badge variant="outline">Campaña: {originCampaign}</Badge>}
               </div>
             </CardContent>
@@ -932,7 +932,7 @@ Equipo CEP Formación`
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-md border bg-muted/20 p-3">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Ultima gestion</p>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Última gestión</p>
                 <p className="mt-1 text-sm font-medium text-foreground">
                   {latestInteraction
                     ? `${latestInteractionActor} · ${formatInteractionTimestamp(latestInteraction.created_at)}`
@@ -1096,7 +1096,7 @@ Equipo CEP Formación`
                     <li><span className="font-black uppercase">Programa:</span> {programName}</li>
                     <li><span className="font-black uppercase">Modalidad:</span> {programModality}</li>
                     <li><span className="font-black uppercase">Horario:</span> {scheduleText}</li>
-                    <li><span className="font-black uppercase">Duracion:</span> {programSummary}</li>
+                    <li><span className="font-black uppercase">Duración:</span> {programSummary}</li>
                     <li><span className="font-black uppercase">Precio:</span> {programPrice}</li>
                   </ul>
                   <p className="mt-2 text-sm font-semibold text-slate-900">{interestedLine}</p>
@@ -1171,7 +1171,7 @@ Equipo CEP Formación`
               )}
 
               <Textarea
-                placeholder="Escribe la nota interna de esta gestion comercial..."
+                placeholder="Escribe la nota interna de esta gestión comercial..."
                 value={noteText}
                 onChange={e => setNoteText(e.target.value)}
                 rows={3}
@@ -1346,8 +1346,8 @@ Equipo CEP Formación`
             <CardContent className="space-y-1 text-xs text-muted-foreground">
               <p>Consentimiento: {lead.gdpr_consent ? 'Si' : 'No'}</p>
               {lead.consent_timestamp && <p>Fecha: {new Date(lead.consent_timestamp).toLocaleDateString('es-ES')}</p>}
-              {lead.gdpr_retention_until && <p>Retencion hasta: {new Date(lead.gdpr_retention_until).toLocaleDateString('es-ES')}</p>}
-              {lead.source_page && <p className="break-all">Pagina: {lead.source_page}</p>}
+              {lead.gdpr_retention_until && <p>Retención hasta: {new Date(lead.gdpr_retention_until).toLocaleDateString('es-ES')}</p>}
+              {lead.source_page && <p className="break-all">Página: {lead.source_page}</p>}
             </CardContent>
           </Card>
         </div>
@@ -1423,7 +1423,7 @@ Equipo CEP Formación`
           <Card className="w-full max-w-2xl max-h-[90vh] overflow-auto" onClick={(event) => event.stopPropagation()}>
             <CardHeader>
               <CardTitle className="text-base">
-                {DECISION_ACTIONS.find((action) => action.value === decisionAction)?.label || 'Accion CRM'}
+                {DECISION_ACTIONS.find((action) => action.value === decisionAction)?.label || 'Acción CRM'}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 {DECISION_ACTIONS.find((action) => action.value === decisionAction)?.helper}
@@ -1516,7 +1516,7 @@ Equipo CEP Formación`
                   <label className="space-y-1 text-sm block">
                     <span className="font-medium">Nota del asesor *</span>
                     <Textarea
-                      placeholder="Contexto de la gestion, objeciones detectadas y siguiente argumento comercial..."
+                      placeholder="Contexto de la gestión, objeciones detectadas y siguiente argumento comercial..."
                       value={decisionForm.note}
                       onChange={(event) => setDecisionForm((current) => ({ ...current, note: event.target.value }))}
                       rows={4}
