@@ -488,6 +488,12 @@ export async function POST(request: NextRequest) {
     const tenant = await resolveTenant(payload, request)
 
     if (!tenant) {
+      console.error('[track] Could not resolve tenant via Payload context. Using SQL fallback.')
+      try {
+        await persistTrafficEventFallback(request, body)
+      } catch (fallbackError) {
+        console.error('[track] Fallback tracking pipeline failed after tenant resolution miss:', fallbackError)
+      }
       return NextResponse.json({ ok: true })
     }
 
