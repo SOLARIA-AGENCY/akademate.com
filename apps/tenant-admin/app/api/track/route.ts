@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { type NextRequest, NextResponse } from 'next/server'
+import { Pool } from 'pg'
 
 /**
  * Public tracking endpoint for landing page views and lead captures.
@@ -36,6 +37,7 @@ type TrackEventType = 'page_view' | 'lead' | 'form_click' | 'form_submit'
 
 const RESERVED_TENANT_SLUGS = new Set(['www', 'admin', 'app'])
 const ALLOWED_CUSTOM_EVENT_TYPES = new Set<TrackEventType>(['form_click', 'form_submit'])
+let trafficFallbackPool: Pool | null = null
 
 function escapeSql(value: string): string {
   return value.replace(/'/g, "''")
@@ -122,6 +124,136 @@ function normalizeSpanishPhone(raw: unknown): string {
 function hashUserAgent(userAgent: string): string {
   if (!userAgent) return ''
   return createHash('sha256').update(userAgent).digest('hex')
+}
+
+function getTrafficFallbackPool(): Pool | null {
+  const connectionString = process.env.DATABASE_URL?.trim() || ''
+  if (!connectionString) return null
+  if (!trafficFallbackPool) {
+    trafficFallbackPool = new Pool({
+      connectionString,
+      max: 2,
+      idleTimeoutMillis: 10_000,
+      connectionTimeoutMillis: 5_000,
+    })
+  }
+  return trafficFallbackPool
+}
+
+async function resolveTenantIdFallback(pool: Pool, requestHost: string): Promise<number | null> {
+  if (requestHost && requestHost !== 'localhost' && requestHost !== '127.0.0.1') {
+    const byDomain = await pool.query(
+      `
+        SELECT id
+        FROM tenants
+        WHERE LOWER(domain) = LOWER($1)
+        LIMIT 1
+      `,
+      [requestHost],
+    )
+    if (byDomain.rows[0]?.id) return Number(byDomain.rows[0].id)
+  }
+
+  const firstTenant = await pool.query(
+    `
+      SELECT id
+      FROM tenants
+      ORDER BY id ASC
+      LIMIT 1
+    `,
+  )
+  if (firstTenant.rows[0]?.id) return Number(firstTenant.rows[0].id)
+  return null
+}
+
+async function ensureTrafficEventsTableFallback(pool: Pool): Promise<void> {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS traffic_events (
+      id BIGSERIAL PRIMARY KEY,
+      tenant_id INTEGER NOT NULL,
+      event_type VARCHAR(32) NOT NULL,
+      event_id VARCHAR(191),
+      path TEXT,
+      referrer TEXT,
+      user_agent_hash VARCHAR(64),
+      utm_source VARCHAR(255),
+      utm_medium VARCHAR(255),
+      utm_campaign VARCHAR(255),
+      meta_campaign_id VARCHAR(64),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `)
+
+  await pool.query(`
+    ALTER TABLE traffic_events
+    ADD COLUMN IF NOT EXISTS meta_campaign_id VARCHAR(64)
+  `)
+
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS traffic_events_tenant_event_unique
+    ON traffic_events (tenant_id, event_id)
+    WHERE event_id IS NOT NULL
+  `)
+}
+
+async function insertTrafficEventFallback(
+  pool: Pool,
+  tenantId: number,
+  body: any,
+  eventType: TrackEventType,
+): Promise<void> {
+  const eventId = sanitizeString(body?.event_id, 191) || null
+  const path = sanitizeString(body?.path, 2048) || null
+  const referrer = sanitizeString(body?.referrer, 2048) || null
+  const userAgent = sanitizeString(body?.userAgent, 1024)
+  const userAgentHash = userAgent ? hashUserAgent(userAgent) : null
+  const utmSource = sanitizeString(body?.utm_source, 255) || null
+  const utmMedium = sanitizeString(body?.utm_medium, 255) || null
+  const utmCampaign = sanitizeString(body?.utm_campaign, 255) || null
+  const metaCampaignId = sanitizeString(inferMetaCampaignId(body), 64) || null
+
+  await pool.query(
+    `
+      INSERT INTO traffic_events (
+        tenant_id,
+        event_type,
+        event_id,
+        path,
+        referrer,
+        user_agent_hash,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        meta_campaign_id,
+        created_at
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
+      ON CONFLICT (tenant_id, event_id) DO NOTHING
+    `,
+    [tenantId, eventType, eventId, path, referrer, userAgentHash, utmSource, utmMedium, utmCampaign, metaCampaignId],
+  )
+}
+
+async function persistTrafficEventFallback(request: NextRequest, body: any): Promise<void> {
+  const eventType =
+    body?.type === 'lead'
+      ? 'lead'
+      : body?.type === 'event'
+      ? parseCustomEventType(body?.event_type)
+      : ('page_view' as const)
+
+  if (!eventType) return
+
+  const pool = getTrafficFallbackPool()
+  if (!pool) return
+
+  const requestHost = normalizeHost(
+    request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.host,
+  )
+  const tenantId = await resolveTenantIdFallback(pool, requestHost)
+  if (!tenantId) return
+
+  await ensureTrafficEventsTableFallback(pool)
+  await insertTrafficEventFallback(pool, tenantId, body, eventType)
 }
 
 function normalizeHost(rawHost: string | null | undefined): string {
@@ -342,9 +474,14 @@ async function fireCapiEvent(
 }
 
 export async function POST(request: NextRequest) {
+  let body: any = {}
   try {
-    const body = await request.json()
+    body = await request.json()
+  } catch {
+    body = {}
+  }
 
+  try {
     const { getPayloadHMR } = await import('@payloadcms/next/utilities')
     const configPromise = (await import('@payload-config')).default
     const payload = await getPayloadHMR({ config: configPromise })
@@ -481,11 +618,11 @@ export async function POST(request: NextRequest) {
     if (body.type === 'event') {
       const eventType = parseCustomEventType(body.event_type)
       if (!eventType) return NextResponse.json({ ok: true })
-      await insertTrafficEvent(payload, tenant.id, body, eventType).catch(() => {})
+      await insertTrafficEvent(payload, tenant.id, body, eventType)
       return NextResponse.json({ ok: true })
     }
 
-    await insertTrafficEvent(payload, tenant.id, body, 'page_view').catch(() => {})
+    await insertTrafficEvent(payload, tenant.id, body, 'page_view')
 
     // Page view tracking — non-blocking logging
     console.log(
@@ -498,8 +635,13 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ ok: true })
-  } catch {
-    // Silently accept malformed requests to avoid breaking tracking pixels
+  } catch (error) {
+    console.error('[track] Primary tracking pipeline failed:', error)
+    try {
+      await persistTrafficEventFallback(request, body)
+    } catch (fallbackError) {
+      console.error('[track] Fallback tracking pipeline failed:', fallbackError)
+    }
     return NextResponse.json({ ok: true })
   }
 }
