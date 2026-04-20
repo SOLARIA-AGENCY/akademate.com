@@ -190,9 +190,12 @@ async function ensureTrafficEventsTableFallback(pool: Pool): Promise<void> {
   `)
 
   await pool.query(`
+    DROP INDEX IF EXISTS traffic_events_tenant_event_unique
+  `)
+
+  await pool.query(`
     CREATE UNIQUE INDEX IF NOT EXISTS traffic_events_tenant_event_unique
     ON traffic_events (tenant_id, event_id)
-    WHERE event_id IS NOT NULL
   `)
 }
 
@@ -376,9 +379,12 @@ async function ensureTrafficEventsTable(payload: any) {
   `)
 
   await drizzle.execute(`
+    DROP INDEX IF EXISTS traffic_events_tenant_event_unique
+  `)
+
+  await drizzle.execute(`
     CREATE UNIQUE INDEX IF NOT EXISTS traffic_events_tenant_event_unique
     ON traffic_events (tenant_id, event_id)
-    WHERE event_id IS NOT NULL
   `)
 
   await drizzle.execute(`
