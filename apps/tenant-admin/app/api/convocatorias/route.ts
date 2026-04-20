@@ -292,6 +292,7 @@ export async function GET(request: NextRequest) {
 
         return {
           id: conv.id,
+          codigo: conv.codigo,
           cursoId: typeof conv.course === 'object' ? conv.course.id : conv.course,
           cursoNombre: typeof conv.course === 'object' ? conv.course.name : 'Curso',
           cursoTipo: typeof conv.course === 'object' ? conv.course.course_type : undefined,

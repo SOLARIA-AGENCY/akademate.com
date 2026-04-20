@@ -34,6 +34,7 @@ import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 
 interface ConvocatoriaApiItem {
   id: string | number
+  codigo?: string
   cursoNombre?: string
   cursoTipo?: string
   campusNombre?: string
@@ -56,8 +57,41 @@ interface ConvocatoriasApiPayload {
   data?: ConvocatoriaApiItem[]
 }
 
+type CampaignStatus = 'active' | 'paused' | 'draft' | 'completed' | 'archived' | 'none'
+
+interface MetaCampaignDoc {
+  campaign?: {
+    id?: string
+    name?: string
+    status?: string
+    destination_url?: string | null
+  }
+}
+
+interface MetaCampaignsApiPayload {
+  docs?: MetaCampaignDoc[]
+}
+
+interface CampaignCandidate {
+  id: string
+  name: string
+  status: CampaignStatus
+  destinationUrl: string | null
+}
+
+interface ConvocatoriaCampaignSummary {
+  status: CampaignStatus
+  primaryCampaignId: string | null
+  primaryCampaignName: string | null
+  totalCount: number
+  activeCount: number
+  pausedCount: number
+  detail: string | null
+}
+
 interface Convocatoria {
   id: string
+  codigo: string
   cursoNombre: string
   sedeName: string
   profesorName: string
@@ -67,6 +101,7 @@ interface Convocatoria {
   plazasOcupadas: number
   estado: string
   isPublishable: boolean
+  campaign: ConvocatoriaCampaignSummary
 }
 
 // ---------------------------------------------------------------------------
@@ -113,6 +148,133 @@ function formatDateShort(dateStr: string | undefined): string {
   })
 }
 
+const COURSE_TOKEN_STOPWORDS = new Set([
+  'curso',
+  'ciclo',
+  'formativo',
+  'formacion',
+  'profesional',
+  'grado',
+  'medio',
+  'superior',
+  'de',
+  'del',
+  'la',
+  'el',
+  'y',
+  'en',
+  'para',
+  'con',
+])
+
+const EMPTY_CAMPAIGN_SUMMARY: ConvocatoriaCampaignSummary = {
+  status: 'none',
+  primaryCampaignId: null,
+  primaryCampaignName: null,
+  totalCount: 0,
+  activeCount: 0,
+  pausedCount: 0,
+  detail: null,
+}
+
+function normalizeText(value: string | undefined | null): string {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+}
+
+function normalizeCampaignStatus(value: string | undefined | null): CampaignStatus {
+  const raw = normalizeText(value).replace(/\s+/g, '_')
+  if (raw === 'active' || raw === 'in_process' || raw === 'with_issues' || raw === 'pending_review') return 'active'
+  if (raw === 'paused' || raw === 'campaign_paused') return 'paused'
+  if (raw === 'completed') return 'completed'
+  if (raw === 'archived' || raw === 'deleted') return 'archived'
+  if (raw === 'draft') return 'draft'
+  return 'none'
+}
+
+function parsePathname(rawUrl: string | null): string {
+  if (!rawUrl) return ''
+  try {
+    return new URL(rawUrl).pathname.toLowerCase()
+  } catch {
+    const raw = rawUrl.split('?')[0]?.trim().toLowerCase() || ''
+    return raw.startsWith('/') ? raw : `/${raw.replace(/^\/+/, '')}`
+  }
+}
+
+function toMeaningfulTokens(value: string): string[] {
+  return normalizeText(value)
+    .split(/[^a-z0-9]+/g)
+    .filter((token) => token.length >= 4 && !COURSE_TOKEN_STOPWORDS.has(token) && !/^\d+$/.test(token))
+}
+
+function campaignMatchesConvocatoria(
+  campaign: CampaignCandidate,
+  convocatoria: Pick<Convocatoria, 'codigo' | 'cursoNombre'>,
+): boolean {
+  const code = normalizeText(convocatoria.codigo)
+  const campaignNameNormalized = normalizeText(campaign.name)
+  const destinationPath = parsePathname(campaign.destinationUrl)
+
+  if (code) {
+    const convRoute = `/convocatorias/${code}`
+    const publicRoute = `/p/convocatorias/${code}`
+    if (destinationPath.includes(convRoute) || destinationPath.includes(publicRoute)) return true
+    if (campaignNameNormalized.includes(code)) return true
+  }
+
+  const courseTokens = toMeaningfulTokens(convocatoria.cursoNombre)
+  if (courseTokens.length === 0) return false
+  const overlap = courseTokens.filter((token) => campaignNameNormalized.includes(token)).length
+  if (overlap >= Math.min(2, courseTokens.length)) return true
+
+  if (destinationPath.includes('/convocatorias/')) {
+    return courseTokens.some((token) => destinationPath.includes(token))
+  }
+
+  return false
+}
+
+function buildCampaignSummary(
+  convocatoria: Pick<Convocatoria, 'codigo' | 'cursoNombre'>,
+  campaigns: CampaignCandidate[],
+): ConvocatoriaCampaignSummary {
+  const matched = campaigns.filter((campaign) => campaignMatchesConvocatoria(campaign, convocatoria))
+  if (matched.length === 0) return EMPTY_CAMPAIGN_SUMMARY
+
+  const active = matched.filter((item) => item.status === 'active')
+  const paused = matched.filter((item) => item.status === 'paused')
+  const fallback = active[0] || paused[0] || matched[0]
+
+  const activeCount = active.length
+  const pausedCount = paused.length
+  const totalCount = matched.length
+
+  let detail: string | null = null
+  if (activeCount > 1) {
+    detail = `${activeCount} campañas activas`
+  } else if (activeCount === 1 && totalCount > 1) {
+    detail = `+${totalCount - 1} adicionales`
+  } else if (activeCount === 0 && pausedCount > 0) {
+    detail = pausedCount === 1 ? 'Campaña pausada' : `${pausedCount} campañas pausadas`
+  } else if (activeCount === 0 && totalCount > 1) {
+    detail = `${totalCount} campañas históricas`
+  }
+
+  return {
+    status: activeCount > 0 ? 'active' : fallback.status,
+    primaryCampaignId: fallback.id || null,
+    primaryCampaignName: fallback.name || null,
+    totalCount,
+    activeCount,
+    pausedCount,
+    detail,
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Page Component
 // ---------------------------------------------------------------------------
@@ -133,11 +295,42 @@ export default function WebConvocatoriasPage() {
         const payload = (await response.json()) as ConvocatoriasApiPayload
         const data: ConvocatoriaApiItem[] = Array.isArray(payload.data) ? payload.data : []
 
+        let campaigns: CampaignCandidate[] = []
+        try {
+          const campaignsResponse = await fetch('/api/meta/campaigns?limit=100&sort=updated_time&order=desc', {
+            cache: 'no-cache',
+          })
+          if (campaignsResponse.ok) {
+            const campaignsPayload = (await campaignsResponse.json()) as MetaCampaignsApiPayload
+            const docs = Array.isArray(campaignsPayload.docs) ? campaignsPayload.docs : []
+            campaigns = docs
+              .map((item) => {
+                const campaign = item.campaign
+                const id = String(campaign?.id || '').trim()
+                if (!id) return null
+                return {
+                  id,
+                  name: String(campaign?.name || `Campaña ${id}`),
+                  status: normalizeCampaignStatus(campaign?.status),
+                  destinationUrl:
+                    typeof campaign?.destination_url === 'string' && campaign.destination_url.trim().length > 0
+                      ? campaign.destination_url
+                      : null,
+                } satisfies CampaignCandidate
+              })
+              .filter((item): item is CampaignCandidate => Boolean(item))
+          }
+        } catch {
+          campaigns = []
+        }
+
         const mapped: Convocatoria[] = data.map((item) => {
           const estado = item.estado ?? 'draft'
           const publishableStatuses = ['published', 'enrollment_open', 'enrollment_closed', 'in_progress']
+          const codigo = String(item.codigo || item.id || '').trim()
           return {
             id: String(item.id),
+            codigo,
             cursoNombre: item.cursoNombre ?? 'Curso',
             sedeName: item.campusNombre ?? 'Sin sede',
             profesorName: formatProfesorName(item.profesor),
@@ -147,6 +340,13 @@ export default function WebConvocatoriasPage() {
             plazasOcupadas: item.plazasOcupadas ?? 0,
             estado,
             isPublishable: publishableStatuses.includes(estado),
+            campaign: buildCampaignSummary(
+              {
+                codigo,
+                cursoNombre: item.cursoNombre ?? 'Curso',
+              },
+              campaigns,
+            ),
           }
         })
 
@@ -286,7 +486,22 @@ export default function WebConvocatoriasPage() {
                   </div>
 
                   {/* Campaign badge */}
-                  <CampaignBadge status="none" />
+                  <div className="flex flex-col gap-1">
+                    <CampaignBadge
+                      status={conv.campaign.status}
+                      campaignId={conv.campaign.primaryCampaignId}
+                    />
+                    {conv.campaign.primaryCampaignName && (
+                      <span className="text-[11px] text-muted-foreground truncate">
+                        {conv.campaign.primaryCampaignName}
+                      </span>
+                    )}
+                    {conv.campaign.detail && (
+                      <span className="text-[11px] text-muted-foreground">
+                        {conv.campaign.detail}
+                      </span>
+                    )}
+                  </div>
 
                   {/* Plazas bar */}
                   <div className="space-y-1">
@@ -372,7 +587,22 @@ export default function WebConvocatoriasPage() {
                     </TableCell>
                     {/* Campaign status */}
                     <TableCell className="text-center">
-                      <CampaignBadge status="none" />
+                      <div className="flex flex-col items-center gap-1">
+                        <CampaignBadge
+                          status={conv.campaign.status}
+                          campaignId={conv.campaign.primaryCampaignId}
+                        />
+                        {conv.campaign.primaryCampaignName && (
+                          <span className="max-w-[220px] truncate text-[11px] text-muted-foreground">
+                            {conv.campaign.primaryCampaignName}
+                          </span>
+                        )}
+                        {conv.campaign.detail && (
+                          <span className="text-[11px] text-muted-foreground">
+                            {conv.campaign.detail}
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-center">
                       <Switch

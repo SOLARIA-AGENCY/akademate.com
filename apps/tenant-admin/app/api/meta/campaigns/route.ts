@@ -27,6 +27,7 @@ interface CampaignListItem {
     id: string
     meta_campaign_id: string
     name: string
+    destination_url: string | null
     status: UiCampaignStatus
     meta_status: string
     effective_status: string
@@ -234,6 +235,51 @@ function writeCache(cacheKey: string, payload: CampaignsApiResponse): void {
     payload,
     expiresAt: Date.now() + CACHE_TTL_MS,
   })
+}
+
+function readNestedString(
+  source: Record<string, unknown> | null | undefined,
+  path: string[],
+): string | null {
+  let current: unknown = source
+  for (const key of path) {
+    if (!current || typeof current !== 'object') return null
+    current = (current as Record<string, unknown>)[key]
+  }
+  if (typeof current !== 'string') return null
+  const trimmed = current.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
+function extractDestinationUrlFromAds(ads: unknown): string | null {
+  if (!Array.isArray(ads)) return null
+  for (const ad of ads) {
+    if (!ad || typeof ad !== 'object') continue
+    const creative = (ad as Record<string, unknown>).creative
+    if (!creative || typeof creative !== 'object') continue
+    const spec = (creative as Record<string, unknown>).object_story_spec
+    if (!spec || typeof spec !== 'object') continue
+    const objectStorySpec = spec as Record<string, unknown>
+
+    const linkCandidates = [
+      readNestedString(objectStorySpec, ['link_data', 'link']),
+      readNestedString(objectStorySpec, ['video_data', 'call_to_action', 'value', 'link']),
+      readNestedString(objectStorySpec, ['template_data', 'link']),
+      readNestedString(objectStorySpec, ['reels_data', 'link']),
+      readNestedString(objectStorySpec, ['photo_data', 'link']),
+    ]
+
+    for (const candidate of linkCandidates) {
+      if (!candidate) continue
+      try {
+        const normalized = new URL(candidate)
+        return normalized.toString()
+      } catch {
+        continue
+      }
+    }
+  }
+  return null
 }
 
 export async function GET(request: NextRequest) {
@@ -444,11 +490,16 @@ export async function GET(request: NextRequest) {
             preview_state: 'not_available' as const,
           }
 
+      const destinationUrl = adsPreviewResult.ok
+        ? extractDestinationUrlFromAds(adsPreviewResult.data?.data)
+        : null
+
       return {
         campaign: {
           id: campaign.id,
           meta_campaign_id: campaign.id,
           name: campaign.name || `Campaña ${campaign.id}`,
+          destination_url: destinationUrl,
           status: normalizedStatus,
           meta_status: metaStatus,
           effective_status: effectiveStatus,

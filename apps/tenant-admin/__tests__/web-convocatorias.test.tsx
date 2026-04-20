@@ -16,6 +16,7 @@ const sampleConvocatorias = {
   data: [
     {
       id: '1',
+      codigo: 'SC-2026-002',
       cursoNombre: 'Desarrollo Web',
       cursoTipo: 'ciclo',
       campusNombre: 'Sede Central',
@@ -29,6 +30,7 @@ const sampleConvocatorias = {
     },
     {
       id: '2',
+      codigo: 'SC-2026-003',
       cursoNombre: 'Marketing Digital',
       cursoTipo: 'curso',
       campusNombre: 'Sede Norte',
@@ -39,6 +41,19 @@ const sampleConvocatorias = {
       plazasOcupadas: 0,
       estado: 'draft',
       modalidad: 'online',
+    },
+  ],
+}
+
+const sampleMetaCampaigns = {
+  docs: [
+    {
+      campaign: {
+        id: '6966251962240',
+        name: 'SOLARIA AGENCY - Desarrollo Web - SC-2026-002',
+        status: 'active',
+        destination_url: 'https://cepformacion.akademate.com/convocatorias/SC-2026-002',
+      },
     },
   ],
 }
@@ -139,5 +154,20 @@ describe('WebConvocatoriasPage', () => {
       expect(screen.getByText('2 total')).toBeInTheDocument()
     })
     expect(screen.getByText('1 publicadas')).toBeInTheDocument()
+  })
+
+  it('resolves active campaign badge from destination_url linkage', async () => {
+    mockFetchResponse(sampleConvocatorias)
+    mockFetchResponse(sampleMetaCampaigns)
+    render(<WebConvocatoriasPage />)
+
+    await waitFor(() => {
+      expect(
+        screen
+          .getAllByTestId('campaign-badge')
+          .some((badge) => badge.textContent?.includes('active#6966251962240')),
+      ).toBe(true)
+    })
+    expect(screen.getAllByText('SOLARIA AGENCY - Desarrollo Web - SC-2026-002').length).toBeGreaterThan(0)
   })
 })
