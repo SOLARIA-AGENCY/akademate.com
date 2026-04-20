@@ -7,7 +7,7 @@ import { type NextRequest, NextResponse } from 'next/server'
  * POST /api/track
  *
  * Body (page view):
- *   { path, slug, referrer, userAgent, timestamp, event_id?, fbc?, fbp?, utm_source?, utm_medium?, utm_campaign? }
+ *   { path, slug, referrer, userAgent, timestamp, event_id?, fbc?, fbp?, utm_source?, utm_medium?, utm_campaign?, meta_campaign_id?, campaign_id?, utm_id? }
  *
  * Body (lead capture):
  *   { type: 'lead', path, courseRunId, courseName, first_name, last_name, email, phone,
@@ -15,7 +15,7 @@ import { type NextRequest, NextResponse } from 'next/server'
  *
  * Body (custom tracked event):
  *   { type: 'event', event_type: 'form_click' | 'form_submit', path, event_id?,
- *     referrer?, userAgent?, utm_source?, utm_medium?, utm_campaign? }
+ *     referrer?, userAgent?, utm_source?, utm_medium?, utm_campaign?, meta_campaign_id?, campaign_id?, utm_id? }
  *
  * This endpoint is intentionally public (no auth required).
  * It logs tracking data and optionally creates leads in Payload.
@@ -78,6 +78,14 @@ function inferCampaignCode(body: any): string | null {
   const slug = normalizeOptional(body.slug, 120)
   if (slug) return `slug:${slug}`.slice(0, 64)
   return null
+}
+
+function inferMetaCampaignId(body: any): string | null {
+  return (
+    normalizeOptional(body.meta_campaign_id, 64) ||
+    normalizeOptional(body.campaign_id, 64) ||
+    normalizeOptional(body.utm_id, 64)
+  )
 }
 
 function normalizeLeadName(body: any): { firstName: string; lastName: string } {
@@ -225,8 +233,14 @@ async function ensureTrafficEventsTable(payload: any) {
       utm_source VARCHAR(255),
       utm_medium VARCHAR(255),
       utm_campaign VARCHAR(255),
+      meta_campaign_id VARCHAR(64),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+  `)
+
+  await drizzle.execute(`
+    ALTER TABLE traffic_events
+    ADD COLUMN IF NOT EXISTS meta_campaign_id VARCHAR(64)
   `)
 
   await drizzle.execute(`
@@ -259,6 +273,7 @@ async function insertTrafficEvent(payload: any, tenantId: number, body: any, eve
   const utmSource = sanitizeString(body.utm_source, 255)
   const utmMedium = sanitizeString(body.utm_medium, 255)
   const utmCampaign = sanitizeString(body.utm_campaign, 255)
+  const metaCampaignId = sanitizeString(inferMetaCampaignId(body), 64)
 
   const q = `
     INSERT INTO traffic_events (
@@ -271,6 +286,7 @@ async function insertTrafficEvent(payload: any, tenantId: number, body: any, eve
       utm_source,
       utm_medium,
       utm_campaign,
+      meta_campaign_id,
       created_at
     ) VALUES (
       ${tenantId},
@@ -282,6 +298,7 @@ async function insertTrafficEvent(payload: any, tenantId: number, body: any, eve
       ${utmSource ? `'${escapeSql(utmSource)}'` : 'NULL'},
       ${utmMedium ? `'${escapeSql(utmMedium)}'` : 'NULL'},
       ${utmCampaign ? `'${escapeSql(utmCampaign)}'` : 'NULL'},
+      ${metaCampaignId ? `'${escapeSql(metaCampaignId)}'` : 'NULL'},
       NOW()
     )
     ON CONFLICT (tenant_id, event_id) DO NOTHING

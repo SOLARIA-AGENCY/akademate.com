@@ -48,6 +48,7 @@ interface FacebookCampaignMetrics {
   id: string
   name: string
   status: 'active' | 'paused'
+  spend: number
   budget: number
   impressions: number
   clicks: number
@@ -55,6 +56,13 @@ interface FacebookCampaignMetrics {
   conversions: number
   roas: number
   linked: boolean
+}
+
+function extractMetaCampaignIdTokens(raw: unknown): string[] {
+  if (typeof raw !== 'string') return []
+  const matches = raw.match(/\b\d{8,20}\b/g)
+  if (!matches) return []
+  return Array.from(new Set(matches.map((token) => token.trim()).filter(Boolean)))
 }
 
 function pickRange(value: string | null): RangeKey {
@@ -409,6 +417,7 @@ function parseSnapshotCampaigns(raw: unknown): FacebookCampaignMetrics[] {
         id,
         name,
         status,
+        spend: toNumber(item.spend),
         budget: toNumber(item.budget),
         impressions: toNumber(item.impressions),
         clicks: toNumber(item.clicks),
@@ -420,6 +429,48 @@ function parseSnapshotCampaigns(raw: unknown): FacebookCampaignMetrics[] {
       return normalized
     })
     .filter((value): value is FacebookCampaignMetrics => Boolean(value))
+}
+
+async function resolveLinkedMetaCampaignIdsFromLeads(
+  drizzle: any,
+  tenantId: number,
+  campaignIds: string[],
+): Promise<Set<string>> {
+  const linked = new Set<string>()
+  if (!drizzle?.execute || campaignIds.length === 0) return linked
+
+  const normalizedIds = Array.from(
+    new Set(campaignIds.map((id) => String(id || '').trim()).filter(Boolean)),
+  )
+  if (normalizedIds.length === 0) return linked
+
+  const rows = asRows(
+    await drizzle.execute(`
+      SELECT
+        to_jsonb(l)->>'meta_campaign_id' AS meta_campaign_id,
+        to_jsonb(l)->>'source_page' AS source_page,
+        to_jsonb(l)->'source_details' AS source_details
+      FROM leads l
+      WHERE l.tenant_id = ${tenantId}
+    `),
+  )
+
+  for (const row of rows) {
+    const explicitMetaId = String(row.meta_campaign_id || '').trim()
+    if (explicitMetaId) linked.add(explicitMetaId)
+
+    const sourcePage = String(row.source_page || '').toLowerCase()
+    const sourceDetails = JSON.stringify(row.source_details || {}).toLowerCase()
+
+    for (const campaignId of normalizedIds) {
+      const token = campaignId.toLowerCase()
+      if (sourcePage.includes(token) || sourceDetails.includes(token)) {
+        linked.add(campaignId)
+      }
+    }
+  }
+
+  return linked
 }
 
 export async function GET(request: NextRequest) {
@@ -452,8 +503,14 @@ export async function GET(request: NextRequest) {
         utm_source VARCHAR(255),
         utm_medium VARCHAR(255),
         utm_campaign VARCHAR(255),
+        meta_campaign_id VARCHAR(64),
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
+    `)
+
+    await drizzle.execute(`
+      ALTER TABLE traffic_events
+      ADD COLUMN IF NOT EXISTS meta_campaign_id VARCHAR(64)
     `)
 
     await drizzle.execute(`
@@ -490,6 +547,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Tenant no encontrado' }, { status: 404 })
     }
 
+    const trafficEventsCount = toNumber(
+      asRows(
+        await drizzle.execute(`
+          SELECT COUNT(*)::int AS count
+          FROM traffic_events
+          WHERE tenant_id = ${tenantId}
+            AND created_at >= NOW() - INTERVAL '${rangeDays} days'
+        `),
+      )[0]?.count,
+    )
+
     const ga4PropertyId = process.env.GA4_PROPERTY_ID || ''
     const ga4BearerToken = process.env.GA4_API_BEARER_TOKEN || ''
 
@@ -516,11 +584,21 @@ export async function GET(request: NextRequest) {
       String(c?.name || '').toUpperCase().startsWith(SOLARIA_PREFIX),
     )
 
-    const linkedMetaIds = new Set(
+    const linkedMetaIds = new Set<string>(
       localCampaigns
         .map((c) => String(c?.meta_campaign_id || '').trim())
         .filter((id) => id.length > 0),
     )
+
+    for (const campaign of localCampaigns) {
+      const localTokens = [
+        ...extractMetaCampaignIdTokens(campaign?.utm_campaign),
+        ...extractMetaCampaignIdTokens(campaign?.destination_url),
+      ]
+      for (const token of localTokens) {
+        linkedMetaIds.add(token)
+      }
+    }
 
     const adAccountId = String(tenant.integrations_meta_ad_account_id || '').trim()
     const accessToken = String(tenant.integrations_meta_marketing_api_token || '').trim()
@@ -600,6 +678,7 @@ export async function GET(request: NextRequest) {
               id: campaignId,
               name: String(campaign?.name || 'Campaña Meta'),
               status: String(campaign?.status || 'PAUSED').toLowerCase() === 'active' ? 'active' : 'paused',
+              spend,
               budget: dailyBudget,
               impressions,
               clicks,
@@ -616,6 +695,7 @@ export async function GET(request: NextRequest) {
             id: campaign.id,
             name: campaign.name,
             status: campaign.status,
+            spend: campaign.spend,
             budget: campaign.budget,
             impressions: campaign.impressions,
             clicks: campaign.clicks,
@@ -644,13 +724,25 @@ export async function GET(request: NextRequest) {
       facebookDataSource = 'snapshot'
     }
 
-    const detectedIds = new Set(detectedCampaigns.map((c: any) => String(c?.id || '')))
+    const detectedCampaignIds = facebookCampaigns.map((campaign) => campaign.id)
+    const linkedFromLeads = await resolveLinkedMetaCampaignIdsFromLeads(drizzle, tenantId, detectedCampaignIds)
+    for (const campaignId of linkedFromLeads) {
+      linkedMetaIds.add(campaignId)
+    }
 
-    const totalFacebookSpend = facebookCampaigns.reduce((sum, item) => sum + item.budget, 0)
-    const totalFacebookImpressions = facebookCampaigns.reduce((sum, item) => sum + item.impressions, 0)
-    const totalFacebookClicks = facebookCampaigns.reduce((sum, item) => sum + item.clicks, 0)
-    const totalFacebookConversions = facebookCampaigns.reduce((sum, item) => sum + item.conversions, 0)
-    const totalRoasWeight = facebookCampaigns.reduce((sum, item) => sum + item.roas * (item.budget || 0), 0)
+    facebookCampaigns = facebookCampaigns.map((campaign) => ({
+      ...campaign,
+      linked: linkedMetaIds.has(campaign.id),
+    }))
+
+    const detectedIds = new Set(detectedCampaigns.map((c: any) => String(c?.id || '')))
+    const activeFacebookCampaigns = facebookCampaigns.filter((campaign) => campaign.status === 'active')
+
+    const totalFacebookSpend = activeFacebookCampaigns.reduce((sum, item) => sum + item.spend, 0)
+    const totalFacebookImpressions = activeFacebookCampaigns.reduce((sum, item) => sum + item.impressions, 0)
+    const totalFacebookClicks = activeFacebookCampaigns.reduce((sum, item) => sum + item.clicks, 0)
+    const totalFacebookConversions = activeFacebookCampaigns.reduce((sum, item) => sum + item.conversions, 0)
+    const totalRoasWeight = activeFacebookCampaigns.reduce((sum, item) => sum + item.roas * (item.spend || 0), 0)
     const avgRoas = totalFacebookSpend > 0 ? totalRoasWeight / totalFacebookSpend : 0
 
     const linkedDetected = Array.from(linkedMetaIds).filter((id) => detectedIds.has(id)).length
@@ -658,7 +750,7 @@ export async function GET(request: NextRequest) {
     const facebookTrafficRows = asRows(
       await drizzle.execute(`
         SELECT
-          COALESCE(NULLIF(utm_campaign, ''), '(sin utm_campaign)') AS utm_campaign,
+          COALESCE(NULLIF(meta_campaign_id, ''), NULLIF(utm_campaign, ''), '(sin utm_campaign)') AS utm_campaign,
           SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END)::int AS page_views,
           SUM(CASE WHEN event_type = 'form_click' THEN 1 ELSE 0 END)::int AS form_clicks,
           SUM(CASE WHEN event_type IN ('form_submit', 'lead') THEN 1 ELSE 0 END)::int AS form_submits
@@ -666,6 +758,8 @@ export async function GET(request: NextRequest) {
         WHERE tenant_id = ${tenantId}
           AND created_at >= NOW() - INTERVAL '${rangeDays} days'
           AND (
+            COALESCE(meta_campaign_id, '') <> ''
+            OR
             LOWER(COALESCE(utm_source, '')) LIKE 'facebook%'
             OR LOWER(COALESCE(utm_source, '')) LIKE 'instagram%'
             OR LOWER(COALESCE(utm_medium, '')) LIKE '%meta%'
@@ -699,6 +793,7 @@ export async function GET(request: NextRequest) {
       range,
       source_health: {
         traffic: traffic.source,
+        traffic_events_count: trafficEventsCount,
         facebook: facebookSource,
         facebook_data_source: facebookDataSource,
       },
@@ -713,6 +808,10 @@ export async function GET(request: NextRequest) {
         series_by_granularity: traffic.seriesByGranularity,
         top_pages: traffic.topPages,
         source_medium: traffic.sourceMedium,
+        empty_reason:
+          traffic.totalSessions === 0
+            ? 'No se detectaron eventos de tráfico web para el tenant y rango seleccionados.'
+            : null,
       },
       facebook: {
         spend: totalFacebookSpend,
@@ -722,6 +821,7 @@ export async function GET(request: NextRequest) {
         conversions: totalFacebookConversions,
         roas: avgRoas,
         campaigns: facebookCampaigns,
+        active_campaigns: activeFacebookCampaigns.length,
         traffic_funnel: {
           page_views: facebookTrafficTotals.page_views,
           form_clicks: facebookTrafficTotals.form_clicks,

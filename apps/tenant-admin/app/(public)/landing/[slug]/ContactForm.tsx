@@ -36,6 +36,11 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
         utm_source: urlParams?.get('utm_source') || undefined,
         utm_medium: urlParams?.get('utm_medium') || undefined,
         utm_campaign: urlParams?.get('utm_campaign') || undefined,
+        meta_campaign_id:
+          urlParams?.get('meta_campaign_id') ||
+          urlParams?.get('campaign_id') ||
+          urlParams?.get('utm_id') ||
+          undefined,
       }
 
       void fetch('/api/track', {
@@ -61,6 +66,7 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
           utm_source: trackingPayload.utm_source,
           utm_medium: trackingPayload.utm_medium,
           utm_campaign: trackingPayload.utm_campaign,
+          meta_campaign_id: trackingPayload.meta_campaign_id,
           ...formData,
         }),
       })

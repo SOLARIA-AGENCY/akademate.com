@@ -8,6 +8,14 @@ function readParam(searchParams: URLSearchParams | null, key: string): string | 
   return value.trim().length > 0 ? value : undefined
 }
 
+function readMetaCampaignId(searchParams: URLSearchParams | null): string | undefined {
+  return (
+    readParam(searchParams, 'meta_campaign_id') ||
+    readParam(searchParams, 'campaign_id') ||
+    readParam(searchParams, 'utm_id')
+  )
+}
+
 export function PublicPageViewTracker() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -33,6 +41,7 @@ export function PublicPageViewTracker() {
         utm_source: readParam(searchParams, 'utm_source'),
         utm_medium: readParam(searchParams, 'utm_medium'),
         utm_campaign: readParam(searchParams, 'utm_campaign'),
+        meta_campaign_id: readMetaCampaignId(searchParams),
       }),
     }).catch(() => {})
   }, [pathname, searchParams, searchQuery])

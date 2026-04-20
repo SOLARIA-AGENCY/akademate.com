@@ -196,6 +196,12 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
       detected: 2,
       not_linked: 1,
     })
+    expect(payload.facebook.active_campaigns).toBe(1)
+    expect(payload.overview.total_conversions).toBe(4)
+    expect(payload.facebook.campaigns.find((c: any) => c.id === '111')).toMatchObject({
+      linked: true,
+      spend: 50,
+    })
     expect(payload.source_health.facebook_data_source).toBe('meta_api_live')
     expect(payload.traffic.series[0]).toMatchObject({
       Total: 12,
@@ -256,6 +262,75 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
     expect(payload.facebook.campaigns).toHaveLength(1)
     expect(payload.facebook.campaigns[0]).toMatchObject({ id: '111', linked: true })
     expect(mockListCampaigns).not.toHaveBeenCalled()
+  })
+
+  it('marks campaign as linked when CRM leads include campaign id in source fields', async () => {
+    mockGetAuthenticatedUserContext.mockResolvedValue({ userId: 1, tenantId: 2 })
+    mockExecute.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM leads l')) {
+        return {
+          rows: [
+            {
+              meta_campaign_id: '',
+              source_page: 'https://cepformacion.akademate.com/convocatorias/SC-2026-002?utm_id=333',
+              source_details: {
+                source_form: 'preinscripcion_convocatoria',
+                utm_campaign: 'spring-2026',
+              },
+            },
+          ],
+        }
+      }
+      return mockTrafficSql(sql)
+    })
+
+    mockFind.mockResolvedValue({
+      docs: [{ id: 1, name: 'SOLARIA AGENCY - Local Campaign without Meta ID' }],
+    })
+
+    mockListCampaigns.mockResolvedValue({
+      success: true,
+      data: {
+        data: [
+          {
+            id: '333',
+            name: 'SOLARIA AGENCY - CRM Linked',
+            status: 'ACTIVE',
+            daily_budget: '2000',
+            created_time: '2026-04-01T00:00:00-0700',
+          },
+        ],
+      },
+    })
+
+    mockGetCampaignInsights.mockResolvedValue({
+      data: {
+        data: [
+          {
+            impressions: '800',
+            clicks: '40',
+            spend: '32',
+            actions: [{ action_type: 'lead', value: '2' }],
+            purchase_roas: [{ value: '1.6' }],
+          },
+        ],
+      },
+    })
+
+    const request = new NextRequest('http://localhost/api/analytics/dashboard?range=30d')
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.campaigns).toMatchObject({
+      linked: 1,
+      detected: 1,
+      not_linked: 0,
+    })
+    expect(payload.facebook.campaigns[0]).toMatchObject({
+      id: '333',
+      linked: true,
+    })
   })
 
   it('falls back to live Meta API when snapshot is stale', async () => {

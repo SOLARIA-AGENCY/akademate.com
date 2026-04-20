@@ -137,36 +137,72 @@ async function buildCampaignFunnel(input: {
   const campaignIdToken = escapeSqlLike(input.campaignId.toLowerCase())
   const campaignNameToken = escapeSqlLike((input.campaignName || '').toLowerCase())
 
-  const utmCampaignMatchers = [`LOWER(COALESCE(utm_campaign, '')) LIKE '%${campaignIdToken}%' ESCAPE '\\'`]
-  if (campaignNameToken) {
-    utmCampaignMatchers.push(`LOWER(COALESCE(utm_campaign, '')) LIKE '%${campaignNameToken}%' ESCAPE '\\'`)
+  const trafficColumnSet = new Set<string>()
+  try {
+    const trafficColumnRows = asRows(
+      await drizzle.execute(`
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'traffic_events'
+          AND column_name IN ('meta_campaign_id', 'utm_campaign', 'path', 'referrer')
+      `),
+    )
+    for (const row of trafficColumnRows) {
+      const columnName = String(row.column_name || '')
+      if (columnName) trafficColumnSet.add(columnName)
+    }
+  } catch {
+    warnings.push('No se pudo validar el esquema de tracking web para la campaña.')
   }
-  const utmCampaignSql = utmCampaignMatchers.join(' OR ')
+
+  const trafficMatchers: string[] = []
+  if (trafficColumnSet.has('meta_campaign_id')) {
+    trafficMatchers.push(`COALESCE(meta_campaign_id, '') = '${escapeSql(input.campaignId)}'`)
+  }
+  if (trafficColumnSet.has('utm_campaign')) {
+    trafficMatchers.push(`LOWER(COALESCE(utm_campaign, '')) LIKE '%${campaignIdToken}%' ESCAPE '\\'`)
+    if (campaignNameToken) {
+      trafficMatchers.push(`LOWER(COALESCE(utm_campaign, '')) LIKE '%${campaignNameToken}%' ESCAPE '\\'`)
+    }
+  }
+  if (trafficColumnSet.has('path')) {
+    trafficMatchers.push(`LOWER(COALESCE(path, '')) LIKE '%${campaignIdToken}%' ESCAPE '\\'`)
+  }
+  if (trafficColumnSet.has('referrer')) {
+    trafficMatchers.push(`LOWER(COALESCE(referrer, '')) LIKE '%${campaignIdToken}%' ESCAPE '\\'`)
+  }
+
+  const trafficMatchSql = trafficMatchers.join(' OR ')
   const tenantIdSql = escapeSql(input.tenantId)
 
   try {
-    const trafficRows = asRows(
-      await drizzle.execute(`
-        SELECT
-          DATE(created_at) AS day,
-          SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END)::int AS form_page_views,
-          SUM(CASE WHEN event_type IN ('form_submit', 'lead') THEN 1 ELSE 0 END)::int AS form_submissions
-        FROM traffic_events
-        WHERE tenant_id::text = '${tenantIdSql}'
-          AND created_at >= '${input.since}'::date
-          AND created_at < ('${input.until}'::date + INTERVAL '1 day')
-          AND (${utmCampaignSql})
-        GROUP BY 1
-        ORDER BY 1
-      `),
-    )
+    if (trafficMatchers.length === 0) {
+      warnings.push('No hay columnas de atribución disponibles en traffic_events para esta campaña.')
+    } else {
+      const trafficRows = asRows(
+        await drizzle.execute(`
+          SELECT
+            DATE(created_at) AS day,
+            SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END)::int AS form_page_views,
+            SUM(CASE WHEN event_type IN ('form_submit', 'lead') THEN 1 ELSE 0 END)::int AS form_submissions
+          FROM traffic_events
+          WHERE tenant_id::text = '${tenantIdSql}'
+            AND created_at >= '${input.since}'::date
+            AND created_at < ('${input.until}'::date + INTERVAL '1 day')
+            AND (${trafficMatchSql})
+          GROUP BY 1
+          ORDER BY 1
+        `),
+      )
 
-    for (const row of trafficRows) {
-      const day = String(row.day || '').slice(0, 10)
-      const current = byDay.get(day)
-      if (!current) continue
-      current.form_page_views = toNumber(row.form_page_views)
-      current.form_submissions = toNumber(row.form_submissions)
+      for (const row of trafficRows) {
+        const day = String(row.day || '').slice(0, 10)
+        const current = byDay.get(day)
+        if (!current) continue
+        current.form_page_views = toNumber(row.form_page_views)
+        current.form_submissions = toNumber(row.form_submissions)
+      }
     }
   } catch {
     warnings.push('No hay eventos web suficientes para calcular vistas/envíos del formulario.')
