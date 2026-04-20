@@ -22,7 +22,7 @@ const STATUS_OPTIONS = [
   { value: 'contacted', label: 'Contactado', color: 'bg-amber-700 text-white border border-amber-800', dot: 'bg-amber-500' },
   { value: 'following_up', label: 'En seguimiento', color: 'bg-amber-700 text-white border border-amber-800', dot: 'bg-amber-500' },
   { value: 'interested', label: 'Interesado', color: 'bg-emerald-700 text-white border border-emerald-800', dot: 'bg-emerald-500' },
-  { value: 'enrolling', label: 'En matriculacion', color: 'bg-blue-700 text-white border border-blue-800', dot: 'bg-blue-500' },
+  { value: 'enrolling', label: 'En matriculación', color: 'bg-blue-700 text-white border border-blue-800', dot: 'bg-blue-500' },
   { value: 'enrolled', label: 'Matriculado', color: 'bg-green-800 text-white border border-green-900', dot: 'bg-emerald-500' },
   { value: 'on_hold', label: 'En espera', color: 'bg-slate-700 text-white border border-slate-800', dot: 'bg-slate-500' },
   { value: 'not_interested', label: 'No interesado', color: 'bg-zinc-700 text-white border border-zinc-800', dot: 'bg-zinc-500' },
@@ -35,7 +35,7 @@ const CONTACT_RESULTS = [
   { value: 'positive', label: 'Respondio positivo', icon: CheckCircle2 },
   { value: 'negative', label: 'Respondio negativo', icon: XCircle },
   { value: 'callback', label: 'Pide callback', icon: Clock },
-  { value: 'wrong_number', label: 'Numero incorrecto', icon: AlertCircle },
+  { value: 'wrong_number', label: 'Número incorrecto', icon: AlertCircle },
 ]
 
 const RESULT_LABELS: Record<string, string> = {
@@ -43,11 +43,12 @@ const RESULT_LABELS: Record<string, string> = {
   positive: 'Respondio positivo',
   negative: 'Respondio negativo',
   callback: 'Pide callback',
-  wrong_number: 'Numero incorrecto',
+  wrong_number: 'Número incorrecto',
   message_sent: 'Mensaje enviado',
   email_sent: 'Email enviado',
-  enrollment_started: 'Matriculacion iniciada',
+  enrollment_started: 'Matriculación iniciada',
   status_changed: 'Cambio de estado',
+  note_added: 'Nota interna',
 }
 
 const MODALITY_LABELS: Record<string, string> = {
@@ -59,8 +60,8 @@ const MODALITY_LABELS: Record<string, string> = {
 
 const DECISION_STATE_GUIDE: Record<string, string> = {
   following_up: 'Solicita seguimiento. Agendar fecha y hora concreta.',
-  enrolling: 'Inicio de matriculacion. Confirmar documentacion y reserva.',
-  on_hold: 'Decision pausada por el lead. Programar reactivacion.',
+  enrolling: 'Inicio de matriculación. Confirmar documentación y reserva.',
+  on_hold: 'Decisión pausada por el lead. Programar reactivación.',
   not_interested: 'No desea continuar. Cierre cordial y registro de motivo.',
 }
 
@@ -262,6 +263,27 @@ function toDateTimeLocalValue(value: unknown): string {
   return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 
+function formatInteractionTimestamp(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim()) return 'Fecha no disponible'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Fecha no disponible'
+  return date.toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function isInternalAdvisorNote(interaction: any): boolean {
+  if (!interaction || typeof interaction !== 'object') return false
+  if (interaction.result === 'note_added') return true
+  const note = typeof interaction.note === 'string' ? interaction.note.trim() : ''
+  if (!note) return false
+  return interaction.channel !== 'system'
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -332,26 +354,6 @@ export default function LeadDetailPage({ params }: Props) {
   // ---------------------------------------------------------------------------
 
   const getEnrollmentRoute = (enrollmentId: string | number) => `/matriculas/${enrollmentId}`
-
-  const updateLead = async (updates: Record<string, any>) => {
-    setSaving(true)
-    try {
-      const res = await fetch(`/api/leads/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({} as Record<string, unknown>))
-        throw new Error(typeof data.error === 'string' ? data.error : 'No se pudo actualizar el lead')
-      }
-      await loadLead()
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'No se pudo actualizar el lead'
-      alert(message)
-    }
-    finally { setSaving(false) }
-  }
 
   const resetDecision = React.useCallback(() => {
     setDecisionAction(null)
@@ -443,8 +445,37 @@ export default function LeadDetailPage({ params }: Props) {
     finally { setSaving(false) }
   }
 
+  const registerAdvisorNote = async () => {
+    const cleanNote = noteText.trim()
+    if (!cleanNote) return
+
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/leads/${id}/interactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel: 'system',
+          result: 'note_added',
+          note: cleanNote,
+        }),
+      })
+      if (!res.ok) {
+        throw new Error('No se pudo guardar la nota del asesor')
+      }
+      setNoteText('')
+      await loadLead()
+      await loadInteractions()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo guardar la nota del asesor'
+      alert(message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const handleEnroll = async (options?: { skipConfirm?: boolean }) => {
-    if (!options?.skipConfirm && !confirm('Iniciar proceso de matriculacion para este lead?')) return false
+  if (!options?.skipConfirm && !confirm('¿Iniciar proceso de matriculación para este lead?')) return false
     setSaving(true)
     try {
       const res = await fetch(`/api/leads/${id}/enroll`, {
@@ -466,11 +497,11 @@ export default function LeadDetailPage({ params }: Props) {
       }
 
       if (!res.ok) {
-        throw new Error(data?.error || 'No se pudo iniciar la matriculacion')
+        throw new Error(data?.error || 'No se pudo iniciar la matriculación')
       }
-      throw new Error('No se pudo obtener la ficha de matricula')
+      throw new Error('No se pudo obtener la ficha de matrícula')
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'No se pudo iniciar la matriculacion'
+      const message = error instanceof Error ? error.message : 'No se pudo iniciar la matriculación'
       alert(message)
       return false
     }
@@ -495,7 +526,7 @@ export default function LeadDetailPage({ params }: Props) {
       },
     }
 
-    const baseStatusNote = `Arbol CRM: ${action.label}. Estado: ${getStatusLabel(previousStatus)} -> ${getStatusLabel(nextStatus)}.`
+    const baseStatusNote = `Árbol CRM: ${action.label}. Estado: ${getStatusLabel(previousStatus)} -> ${getStatusLabel(nextStatus)}.`
     const patchPayload: Record<string, unknown> = {
       status: nextStatus,
       source_details: sourceDetailsPayload,
@@ -503,7 +534,7 @@ export default function LeadDetailPage({ params }: Props) {
 
     if (decisionAction === 'follow_up') {
       if (!decisionForm.interactionResult) {
-        setDecisionError('Debes indicar el resultado de la interaccion.')
+        setDecisionError('Debes indicar el resultado de la interacción.')
         return
       }
       if (!decisionForm.followUpReason.trim()) {
@@ -511,7 +542,7 @@ export default function LeadDetailPage({ params }: Props) {
         return
       }
       if (!decisionForm.nextContactAt) {
-        setDecisionError('Debes indicar la proxima fecha de contacto.')
+        setDecisionError('Debes indicar la próxima fecha de contacto.')
         return
       }
       if (!decisionForm.note.trim()) {
@@ -521,7 +552,7 @@ export default function LeadDetailPage({ params }: Props) {
 
       const nextContactDate = new Date(decisionForm.nextContactAt)
       if (Number.isNaN(nextContactDate.getTime())) {
-        setDecisionError('La fecha de proximo contacto no es valida.')
+        setDecisionError('La fecha de próximo contacto no es válida.')
         return
       }
 
@@ -538,7 +569,7 @@ export default function LeadDetailPage({ params }: Props) {
       patchPayload.last_contact_result = decisionForm.interactionResult
       patchPayload.preferred_contact_method = decisionForm.channel
       patchPayload.preferred_contact_time = decisionForm.timeSlot
-      patchPayload.status_change_note = `${baseStatusNote} Motivo seguimiento: ${decisionForm.followUpReason}. Proximo contacto: ${nextContactDate.toLocaleString('es-ES')} (${decisionForm.timeSlot}).`
+      patchPayload.status_change_note = `${baseStatusNote} Motivo seguimiento: ${decisionForm.followUpReason}. Próximo contacto: ${nextContactDate.toLocaleString('es-ES')} (${decisionForm.timeSlot}).`
       sourceDetailsPayload.follow_up_reason = decisionForm.followUpReason
       sourceDetailsPayload.follow_up_channel = decisionForm.channel
       sourceDetailsPayload.follow_up_time_slot = decisionForm.timeSlot
@@ -556,7 +587,7 @@ export default function LeadDetailPage({ params }: Props) {
       if (decisionForm.reactivationAt) {
         const reactivationDate = new Date(decisionForm.reactivationAt)
         if (Number.isNaN(reactivationDate.getTime())) {
-          setDecisionError('La fecha de reactivacion no es valida.')
+          setDecisionError('La fecha de reactivación no es válida.')
           return
         }
         reactivationDateIso = reactivationDate.toISOString()
@@ -564,7 +595,7 @@ export default function LeadDetailPage({ params }: Props) {
 
       patchPayload.next_action_date = reactivationDateIso
       patchPayload.next_action_note = `Lead en espera. Motivo: ${decisionForm.pauseReason}.${decisionForm.pauseNote.trim() ? ` Nota: ${decisionForm.pauseNote.trim()}.` : ''}`
-      patchPayload.status_change_note = `${baseStatusNote} Causa de espera: ${decisionForm.pauseReason}.${reactivationDateIso ? ` Reactivacion prevista: ${new Date(reactivationDateIso).toLocaleString('es-ES')}.` : ''}`
+      patchPayload.status_change_note = `${baseStatusNote} Causa de espera: ${decisionForm.pauseReason}.${reactivationDateIso ? ` Reactivación prevista: ${new Date(reactivationDateIso).toLocaleString('es-ES')}.` : ''}`
       sourceDetailsPayload.pause_reason = decisionForm.pauseReason
       sourceDetailsPayload.pause_note = decisionForm.pauseNote.trim() || null
       sourceDetailsPayload.reactivation_at = reactivationDateIso
@@ -572,13 +603,13 @@ export default function LeadDetailPage({ params }: Props) {
 
     if (decisionAction === 'not_interested') {
       if (!decisionForm.disinterestReason.trim()) {
-        setDecisionError('Debes indicar el motivo de no interes.')
+        setDecisionError('Debes indicar el motivo de no interés.')
         return
       }
 
       patchPayload.next_action_date = null
       patchPayload.next_action_note = `Cierre comercial: ${decisionForm.disinterestReason}.${decisionForm.disinterestNote.trim() ? ` Nota: ${decisionForm.disinterestNote.trim()}.` : ''}`
-      patchPayload.status_change_note = `${baseStatusNote} Motivo de cierre: ${decisionForm.disinterestReason}. Conservado para segmentacion comercial segun RGPD.`
+      patchPayload.status_change_note = `${baseStatusNote} Motivo de cierre: ${decisionForm.disinterestReason}. Conservado para segmentación comercial según RGPD.`
       sourceDetailsPayload.disinterest_reason = decisionForm.disinterestReason
       sourceDetailsPayload.disinterest_note = decisionForm.disinterestNote.trim() || null
       sourceDetailsPayload.exclude_manual_follow_up = decisionForm.excludeManualFollowUp
@@ -588,7 +619,7 @@ export default function LeadDetailPage({ params }: Props) {
       const leadProgramData = lead?.lead_program && typeof lead.lead_program === 'object' ? lead.lead_program : null
       const missingChecklist: string[] = []
       if (!lead?.email) missingChecklist.push('Email del lead')
-      if (!isActionableSpanishPhone(lead?.phone)) missingChecklist.push('Telefono valido (+34 XXX XXX XXX)')
+      if (!isActionableSpanishPhone(lead?.phone)) missingChecklist.push('Teléfono válido (+34 XXX XXX XXX)')
       if (
         !leadProgramData ||
         !(
@@ -605,8 +636,8 @@ export default function LeadDetailPage({ params }: Props) {
       }
 
       patchPayload.next_action_date = null
-      patchPayload.next_action_note = 'Lead movido a matriculacion desde arbol de decision CRM.'
-      patchPayload.status_change_note = `${baseStatusNote} Operacion: Matricular con traspaso al flujo de matricula.`
+      patchPayload.next_action_note = 'Lead movido a matriculación desde árbol de decisión CRM.'
+      patchPayload.status_change_note = `${baseStatusNote} Operación: Matricular con traspaso al flujo de matrícula.`
       sourceDetailsPayload.converted_to_enrollment_at = new Date().toISOString()
     }
 
@@ -620,13 +651,13 @@ export default function LeadDetailPage({ params }: Props) {
       })
       if (!patchRes.ok) {
         const payload = await patchRes.json().catch(() => ({} as Record<string, unknown>))
-        throw new Error(typeof payload.error === 'string' ? payload.error : 'No se pudo registrar la accion')
+        throw new Error(typeof payload.error === 'string' ? payload.error : 'No se pudo registrar la acción')
       }
 
       if (decisionAction === 'enroll') {
         const enrollmentStarted = await handleEnroll({ skipConfirm: true })
         if (!enrollmentStarted) {
-          throw new Error('No se pudo abrir la matriculacion')
+          throw new Error('No se pudo abrir la matriculación')
         }
       }
 
@@ -634,7 +665,7 @@ export default function LeadDetailPage({ params }: Props) {
       await loadInteractions()
       resetDecision()
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'No se pudo ejecutar la accion'
+      const message = error instanceof Error ? error.message : 'No se pudo ejecutar la acción'
       setDecisionError(message)
     } finally {
       setSaving(false)
@@ -741,11 +772,11 @@ export default function LeadDetailPage({ params }: Props) {
   const practiceHours = toFiniteNumber(leadProgram?.practice_hours)
   const scheduleText =
     (typeof leadProgram?.schedule === 'string' && leadProgram.schedule.trim()) ||
-    '1 dia presencial por semana'
+    '1 día presencial por semana'
   const programPrice = formatEuro(leadProgram?.price)
   const financingText = leadProgram?.financial_aid_available
-    ? 'Disponemos de financiacion flexible para facilitar su matriculacion.'
-    : 'Le explico opciones de pago y posibles ayudas al cerrar la matriculacion.'
+    ? 'Disponemos de financiación flexible para facilitar su matriculación.'
+    : 'Le explico opciones de pago y posibles ayudas al cerrar la matriculación.'
   const programSummaryParts = [
     `${programModality}`,
     totalHours ? `${totalHours} horas` : null,
@@ -770,6 +801,7 @@ export default function LeadDetailPage({ params }: Props) {
         latestInteraction.user_email ||
         'Sistema'
       : 'Sin gestion'
+  const advisorNotes = interactions.filter((interaction) => isInternalAdvisorNote(interaction))
   const responsibleName =
     [lead.assigned_to?.first_name, lead.assigned_to?.last_name].filter(Boolean).join(' ').trim() || 'Sin asignar'
   const nextActionDate = lead.next_action_date ? new Date(lead.next_action_date) : null
@@ -780,51 +812,51 @@ export default function LeadDetailPage({ params }: Props) {
   const nextActionTimeSlotLabel = CONTACT_TIME_OPTIONS.find((option) => option.value === lead.preferred_contact_time)?.label || null
 
   // Pre-built messages
-  const openingLine = `Buenos dias${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formacion. Hemos recibido su solicitud de informacion${isInscripcion ? ' y preinscripcion' : ''} sobre nuestro ciclo formativo. Es buen momento para hablar?`
-  const interestedLine = `Perfecto${lead.first_name ? `, ${lead.first_name}` : ''}. Le detallo su programa: ${programName}. Modalidad: ${programModality}. Horario: ${scheduleText}. Duracion: ${programSummary}. Precio orientativo: ${programPrice}. ${financingText} Si le parece bien, avanzamos ahora mismo con la apertura de matriculacion y le envio confirmacion por WhatsApp o email.`
-  const callbackLine = 'Entiendo perfectamente. Que dia y franja horaria le viene mejor para llamarle de nuevo? Lo dejo agendado ahora mismo.'
-  const notInterestedLine = 'De acuerdo, sin problema. Si en algun momento necesita informacion, puede contactarnos. Gracias por su tiempo.'
+  const openingLine = `Buenos días${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formación. Hemos recibido su solicitud de información${isInscripcion ? ' y preinscripción' : ''} sobre nuestro ciclo formativo. ¿Es buen momento para hablar?`
+  const interestedLine = `Perfecto${lead.first_name ? `, ${lead.first_name}` : ''}. Le detallo su programa: ${programName}. Modalidad: ${programModality}. Horario: ${scheduleText}. Duración: ${programSummary}. Precio orientativo: ${programPrice}. ${financingText} Si le parece bien, avanzamos ahora mismo con la apertura de matriculación y le envío confirmación por WhatsApp o email.`
+  const callbackLine = 'Entiendo perfectamente. ¿Qué día y franja horaria le viene mejor para llamarle de nuevo? Lo dejo agendado ahora mismo.'
+  const notInterestedLine = 'De acuerdo, sin problema. Si en algún momento necesita información, puede contactarnos. Gracias por su tiempo.'
   const phoneScript = `OPERADOR - APERTURA
 ${openingLine}
 
-OPERADOR - SI INTERESADO
+1) SI INTERESADO
 ${interestedLine}
 
-OPERADOR - SI NO ES BUEN MOMENTO
+2) SI NO ES BUEN MOMENTO
 ${callbackLine}
 
-OPERADOR - SI NO INTERESADO
+3) SI NO INTERESADO
 ${notInterestedLine}
 
-ARBOL DE DECISION
-1) EN SEGUIMIENTO -> callback agendado
-2) EN MATRICULACION -> iniciar matricula
-3) EN ESPERA -> decision pausada temporalmente
-4) NO INTERESADO -> cierre comercial`
+ACCIONES CRM
+1) PROGRAMAR SEGUIMIENTO -> callback agendado
+2) MATRICULAR -> iniciar matricula
+3) PONER EN ESPERA -> decision pausada temporalmente
+4) MARCAR COMO NO INTERESADO -> cierre comercial`
 
   const whatsappMessage = `Hola${lead.first_name ? ` ${lead.first_name}` : ''}!
 
-Soy del equipo de CEP Formacion. Hemos recibido tu ${isInscripcion ? 'solicitud de preinscripcion' : 'interes'} en nuestro ciclo formativo.
+Soy del equipo de CEP Formación. Hemos recibido tu ${isInscripcion ? 'solicitud de preinscripción' : 'interés'} en nuestro ciclo formativo.
 
 Te escribo para resolver cualquier duda que tengas sobre:
 - El programa y los modulos
 - Las fechas de inicio y horarios
 - Opciones de financiacion y matricula
-- Las practicas en empresa
+- Las prácticas en empresa
 
-Te viene bien que hablemos o prefieres que te enviemos la informacion por aqui?`
+¿Te viene bien que hablemos o prefieres que te enviemos la información por aquí?`
 
-  const emailSubject = `Informacion sobre tu ${isInscripcion ? 'preinscripcion' : 'solicitud'} en CEP Formacion`
-  const emailBody = `Hola${lead.first_name ? ` ${lead.first_name}` : ''},
+const emailSubject = `Información sobre tu ${isInscripcion ? 'preinscripción' : 'solicitud'} en CEP Formación`
+const emailBody = `Hola${lead.first_name ? ` ${lead.first_name}` : ''},
 
-Gracias por tu interes en CEP Formacion. Hemos recibido tu ${isInscripcion ? 'solicitud de preinscripcion' : 'solicitud de informacion'}.
+Gracias por tu interés en CEP Formación. Hemos recibido tu ${isInscripcion ? 'solicitud de preinscripción' : 'solicitud de información'}.
 
-Quedamos a tu disposicion para resolver cualquier duda sobre el programa, los horarios, las opciones de financiacion o el proceso de matricula.
+Quedamos a tu disposición para resolver cualquier duda sobre el programa, los horarios, las opciones de financiación o el proceso de matrícula.
 
 Puedes contactarnos por telefono, WhatsApp o respondiendo a este email.
 
 Un saludo,
-Equipo CEP Formacion`
+Equipo CEP Formación`
 
   // ---------------------------------------------------------------------------
   // JSX
@@ -861,7 +893,7 @@ Equipo CEP Formacion`
             <AlertCircle className="h-5 w-5 text-white shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-white">
-                Preinscripcion sin atender — {timeSinceLabel}
+                Preinscripción sin atender — {timeSinceLabel}
                 {createdAtExact ? ` — registrado a las ${createdAtExact}` : ''}
               </p>
               <p className="text-sm text-red-50">Esta persona ha solicitado reservar plaza. Contactar en menos de 24h.</p>
@@ -894,6 +926,47 @@ Equipo CEP Formacion`
             </CardContent>
           </Card>
 
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Resumen operativo</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-md border bg-muted/20 p-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Ultima gestion</p>
+                <p className="mt-1 text-sm font-medium text-foreground">
+                  {latestInteraction
+                    ? `${latestInteractionActor} · ${formatInteractionTimestamp(latestInteraction.created_at)}`
+                    : 'Sin interacciones registradas'}
+                </p>
+              </div>
+              <div className="rounded-md border bg-muted/20 p-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Próxima acción</p>
+                <p className="mt-1 text-sm font-medium text-foreground">
+                  {nextActionDateLabel
+                    ? `${nextActionDateLabel}${nextActionChannelLabel ? ` · ${nextActionChannelLabel}` : ''}`
+                    : 'Sin acción programada'}
+                </p>
+              </div>
+              <div className="rounded-md border bg-muted/20 p-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Responsable</p>
+                <p className="mt-1 text-sm font-medium text-foreground">{responsibleName}</p>
+              </div>
+              <div className="rounded-md border bg-muted/20 p-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Curso / Convocatoria</p>
+                <p className="mt-1 text-sm font-medium text-foreground">{programContextLabel}</p>
+              </div>
+              <div className="sm:col-span-2 flex justify-end">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => document.getElementById('historial-contacto')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                >
+                  Ver historial completo
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Quick actions — call/whatsapp/email */}
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Acciones de contacto</CardTitle></CardHeader>
@@ -903,7 +976,7 @@ Equipo CEP Formacion`
                 <p className="text-muted-foreground mt-1">
                   {nextActionDateLabel
                     ? `${nextActionDateLabel}${nextActionChannelLabel ? ` · ${nextActionChannelLabel}` : ''}${nextActionTimeSlotLabel ? ` · ${nextActionTimeSlotLabel}` : ''}`
-                    : 'Sin accion programada. Usa el arbol de decision para crear la siguiente tarea.'}
+                    : 'Sin acción programada. Usa el árbol de decisión para crear la siguiente tarea.'}
                 </p>
               </div>
 
@@ -928,7 +1001,7 @@ Equipo CEP Formacion`
                   </div>
                   {hasPhonePlaceholder && (
                     <p className="text-xs text-amber-700">
-                      Telefono no valido para llamada. Actualiza el numero real del lead.
+                      Teléfono no válido para llamada. Actualiza el número real del lead.
                     </p>
                   )}
                 </div>
@@ -993,51 +1066,11 @@ Equipo CEP Formacion`
             </div>
           )}
 
-          {/* Interaction History */}
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Historial de contacto</CardTitle></CardHeader>
-            <CardContent>
-              {interactions.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Sin interacciones registradas</p>
-              ) : (
-                <div className="space-y-3">
-                  {interactions.map((i: any) => {
-                    const actorName =
-                      [i.user_first_name, i.user_last_name].filter(Boolean).join(' ').trim() ||
-                      i.user_email ||
-                      'Sistema'
-
-                    return (
-                    <div key={i.id} className="flex items-start gap-3 text-sm border-l-2 border-muted pl-3">
-                      <div className="shrink-0 mt-0.5">
-                        {i.channel === 'phone' && <Phone className="h-4 w-4 text-primary" />}
-                        {i.channel === 'whatsapp' && <MessageSquare className="h-4 w-4 text-green-600" />}
-                        {i.channel === 'email' && <Mail className="h-4 w-4 text-blue-600" />}
-                        {i.channel === 'system' && <CheckCircle2 className="h-4 w-4 text-muted-foreground" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium">{actorName}</span>
-                          <Badge variant="outline" className="text-[10px]">{RESULT_LABELS[i.result] ?? i.result}</Badge>
-                        </div>
-                        {i.note && <p className="text-muted-foreground mt-0.5">{i.note}</p>}
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(i.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
-                    </div>
-                    )
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
           {/* Phone script */}
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2"><Phone className="h-4 w-4" />Guion de llamada</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2"><Phone className="h-4 w-4" />Playbook comercial (Guion + árbol de decisión)</CardTitle>
                 <Button size="sm" variant="outline" onClick={() => copyToClipboard(phoneScript, 'script')}>
                   {copied === 'script' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
                   {copied === 'script' ? 'Copiado' : 'Copiar guion'}
@@ -1057,8 +1090,8 @@ Equipo CEP Formacion`
                   <p className="mt-2 text-sm font-semibold text-slate-900">{openingLine}</p>
                 </div>
 
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">OPERADOR - SI INTERESADO</p>
+                <div className="ml-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">1. SI INTERESADO</p>
                   <ul className="mt-2 space-y-1 text-xs font-semibold text-emerald-900">
                     <li><span className="font-black uppercase">Programa:</span> {programName}</li>
                     <li><span className="font-black uppercase">Modalidad:</span> {programModality}</li>
@@ -1069,23 +1102,23 @@ Equipo CEP Formacion`
                   <p className="mt-2 text-sm font-semibold text-slate-900">{interestedLine}</p>
                 </div>
 
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-amber-700">OPERADOR - SI NO ES BUEN MOMENTO</p>
+                <div className="ml-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-amber-700">2. SI NO ES BUEN MOMENTO</p>
                   <p className="mt-2 text-sm font-semibold text-slate-900">{callbackLine}</p>
                 </div>
 
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-slate-700">OPERADOR - SI NO INTERESADO</p>
+                <div className="ml-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-700">3. SI NO INTERESADO</p>
                   <p className="mt-2 text-sm font-semibold text-slate-900">{notInterestedLine}</p>
                 </div>
 
                 <div className="rounded-lg border border-violet-200 bg-violet-50 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-violet-700">ARBOL DE DECISION - APERTURA DE MATRICULA</p>
+                  <p className="text-xs font-bold uppercase tracking-wide text-violet-700">ÁRBOL DE DECISIÓN - ACCIONES CRM</p>
                   <div className="mt-2 space-y-2">
-                    {DECISION_ACTIONS.map((action) => (
+                    {DECISION_ACTIONS.map((action, index) => (
                       <div key={action.value} className="rounded-lg border border-violet-200/80 bg-white/70 p-2.5 flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="text-xs font-black uppercase tracking-wide text-violet-800">{action.label}</p>
+                          <p className="text-xs font-black uppercase tracking-wide text-violet-800">{index + 1}. {action.label}</p>
                           <p className="text-xs text-slate-700">{action.helper}</p>
                         </div>
                         <Button
@@ -1106,25 +1139,45 @@ Equipo CEP Formacion`
 
           {/* Notes */}
           <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Notas del asesor</CardTitle></CardHeader>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Notas del asesor</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-3">
-              {lead.callback_notes && (
-                <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
-                  <p className="font-medium text-foreground mb-1">Notas anteriores:</p>
-                  {lead.callback_notes}
+              <div className="flex items-center justify-between rounded-lg border bg-muted/20 px-3 py-2 text-xs">
+                <span className="font-medium text-muted-foreground">Bitacora comercial</span>
+                <Badge variant="outline">{advisorNotes.length} nota{advisorNotes.length === 1 ? '' : 's'}</Badge>
+              </div>
+
+              {advisorNotes.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Todavía no hay notas internas registradas.</p>
+              ) : (
+                <div className="space-y-2">
+                  {advisorNotes.map((noteEvent: any) => {
+                    const noteAuthor =
+                      [noteEvent.user_first_name, noteEvent.user_last_name].filter(Boolean).join(' ').trim() ||
+                      noteEvent.user_email ||
+                      'Sistema'
+                    return (
+                      <div key={`note-${noteEvent.id}`} className="rounded-lg border p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-semibold text-foreground">{noteAuthor}</span>
+                          <span className="text-xs text-muted-foreground">{formatInteractionTimestamp(noteEvent.created_at)}</span>
+                        </div>
+                        <p className="mt-1 text-sm text-foreground">{noteEvent.note}</p>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
+
               <Textarea
-                placeholder="Escribir nota sobre esta interaccion..."
+                placeholder="Escribe la nota interna de esta gestion comercial..."
                 value={noteText}
                 onChange={e => setNoteText(e.target.value)}
                 rows={3}
               />
               <Button size="sm" disabled={saving || !noteText.trim()}
-                onClick={() => {
-                  void updateLead({ callback_notes: `${lead.callback_notes ? lead.callback_notes + '\n---\n' : ''}[${new Date().toLocaleDateString('es-ES')}] ${noteText}` })
-                  setNoteText('')
-                }}>
+                onClick={() => { void registerAdvisorNote() }}>
                 Guardar nota
               </Button>
             </CardContent>
@@ -1134,10 +1187,10 @@ Equipo CEP Formacion`
         {/* SIDEBAR */}
         <div className="space-y-6">
           <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Gestion comercial</CardTitle></CardHeader>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Gestión comercial</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between gap-3">
-                <span className="text-muted-foreground">Ultima gestion</span>
+                <span className="text-muted-foreground">Última gestión</span>
                 <span className="text-xs text-right">
                   {latestInteraction
                     ? `${latestInteractionActor} · ${new Date(latestInteraction.created_at).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`
@@ -1145,11 +1198,11 @@ Equipo CEP Formacion`
                 </span>
               </div>
               <div className="flex justify-between gap-3">
-                <span className="text-muted-foreground">Proxima accion</span>
-                <span className="text-xs text-right">{lead.next_action_note || 'Sin accion planificada'}</span>
+                <span className="text-muted-foreground">Próxima acción</span>
+                <span className="text-xs text-right">{lead.next_action_note || 'Sin acción planificada'}</span>
               </div>
               <div className="flex justify-between gap-3">
-                <span className="text-muted-foreground">Fecha proximo contacto</span>
+                <span className="text-muted-foreground">Fecha próximo contacto</span>
                 <span className="text-xs text-right">{nextActionDateLabel || 'No definida'}</span>
               </div>
               {(nextActionChannelLabel || nextActionTimeSlotLabel) && (
@@ -1185,33 +1238,33 @@ Equipo CEP Formacion`
 
           {/* Lead info */}
           <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Informacion</CardTitle></CardHeader>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Información</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-sm">
               {lead.first_name && <div className="flex justify-between"><span className="text-muted-foreground">Nombre</span><span className="font-medium">{lead.first_name} {lead.last_name}</span></div>}
               {lead.email && <div className="flex justify-between"><span className="text-muted-foreground">Email</span><span className="font-medium truncate max-w-[60%]">{lead.email}</span></div>}
-              {lead.phone && <div className="flex justify-between"><span className="text-muted-foreground">Telefono</span><span className="font-medium">{lead.phone}</span></div>}
+              {lead.phone && <div className="flex justify-between"><span className="text-muted-foreground">Teléfono</span><span className="font-medium">{lead.phone}</span></div>}
               <div className="flex justify-between gap-3">
                 <span className="text-muted-foreground">Curso/Ciclo</span>
                 <span className="text-xs font-medium text-right">{programContextLabel}</span>
               </div>
               <div className="border-t pt-2 mt-2" />
-              <div className="flex justify-between"><span className="text-muted-foreground">Tipo</span><Badge variant={isInscripcion ? 'default' : 'secondary'} className="text-[10px]">{isInscripcion ? 'Inscripcion' : lead.lead_type || 'Lead'}</Badge></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Tipo</span><Badge variant={isInscripcion ? 'default' : 'secondary'} className="text-[10px]">{isInscripcion ? 'Inscripción' : lead.lead_type || 'Lead'}</Badge></div>
               {sourceForm && <div className="flex justify-between"><span className="text-muted-foreground">Formulario</span><span className="text-xs">{sourceForm}</span></div>}
               {lead.createdAt && <div className="flex justify-between"><span className="text-muted-foreground">Fecha</span><span className="text-xs">{new Date(lead.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>}
               {originCampaign && <div className="flex justify-between"><span className="text-muted-foreground">Campaña</span><span className="font-mono text-xs">{originCampaign}</span></div>}
 
               <div className="border-t pt-2 mt-2" />
-              <div className="flex justify-between"><span className="text-muted-foreground">Asesor</span><span className="font-medium text-xs">{lead.assigned_to?.first_name || 'Sin asignar'}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Asesor</span><span className="font-medium text-xs">{responsibleName}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Interacciones</span><span className="font-medium">{interactions.length}</span></div>
               {interactions.length > 0 && (
-                <div className="flex justify-between"><span className="text-muted-foreground">Ultimo contacto</span><span className="text-xs">{new Date(interactions[0].created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Último contacto</span><span className="text-xs">{new Date(interactions[0].created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span></div>
               )}
 
               {/* Next action */}
               {lead.next_action_date && (
                 <>
                   <div className="border-t pt-2 mt-2" />
-                  <div className="flex justify-between"><span className="text-muted-foreground">Proxima accion</span><span className="text-xs">{new Date(lead.next_action_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Próxima acción</span><span className="text-xs">{new Date(lead.next_action_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span></div>
                   {lead.next_action_note && <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">{lead.next_action_note}</div>}
                 </>
               )}
@@ -1219,30 +1272,38 @@ Equipo CEP Formacion`
           </Card>
 
           <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Origen de captacion</CardTitle></CardHeader>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Origen de captación</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Formulario</span>
-                <span className="text-xs font-medium">{sourceForm || 'No disponible'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Tipo lead</span>
-                <span className="text-xs font-medium">{originLeadType || 'No disponible'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Campaña</span>
-                <span className="text-xs font-medium">{originCampaign || 'No disponible'}</span>
-              </div>
+              {sourceForm && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Formulario</span>
+                  <span className="text-xs font-medium">{sourceForm}</span>
+                </div>
+              )}
+              {originLeadType && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tipo lead</span>
+                  <span className="text-xs font-medium">{originLeadType}</span>
+                </div>
+              )}
+              {originCampaign && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Campaña</span>
+                  <span className="text-xs font-medium">{originCampaign}</span>
+                </div>
+              )}
               {originMetaCampaignId && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Meta campaign</span>
                   <span className="text-xs font-medium">{originMetaCampaignId}</span>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">UTM</span>
-                <span className="text-xs font-medium">{[originUtmSource, originUtmMedium, originUtmCampaign].filter(Boolean).join(' / ') || 'No disponible'}</span>
-              </div>
+              {[originUtmSource, originUtmMedium, originUtmCampaign].filter(Boolean).length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">UTM</span>
+                  <span className="text-xs font-medium">{[originUtmSource, originUtmMedium, originUtmCampaign].filter(Boolean).join(' / ')}</span>
+                </div>
+              )}
               {(sourceConvocatoriaCode || hasResolvedProgram) && (
                 <div className="border-t pt-2 mt-2 space-y-1">
                   <p className="text-muted-foreground text-xs">Convocatoria resuelta</p>
@@ -1296,7 +1357,7 @@ Equipo CEP Formacion`
         <CardContent className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold text-red-700">Zona sensible</p>
-            <p className="text-xs text-red-700/90">Eliminacion permanente de lead. Usar solo para registros invalidados.</p>
+            <p className="text-xs text-red-700/90">Eliminación permanente de lead. Usar solo para registros invalidados.</p>
           </div>
           <Button
             variant="destructive"
@@ -1306,6 +1367,53 @@ Equipo CEP Formacion`
             <Trash2 className="mr-2 h-4 w-4" />
             Eliminar lead
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card id="historial-contacto">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Historial de contacto y auditoría</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {interactions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Sin interacciones registradas.</p>
+          ) : (
+            <div className="space-y-3">
+              {interactions.map((interaction: any) => {
+                const actorName =
+                  [interaction.user_first_name, interaction.user_last_name].filter(Boolean).join(' ').trim() ||
+                  interaction.user_email ||
+                  'Sistema'
+
+                const eventLabel = RESULT_LABELS[interaction.result] ?? interaction.result
+                const eventTone =
+                  interaction.result === 'note_added'
+                    ? 'border-l-blue-400'
+                    : interaction.channel === 'phone'
+                      ? 'border-l-amber-500'
+                      : interaction.channel === 'whatsapp'
+                        ? 'border-l-green-500'
+                        : interaction.channel === 'email'
+                          ? 'border-l-sky-500'
+                          : 'border-l-slate-400'
+
+                return (
+                  <div key={interaction.id} className={`rounded-md border border-l-4 p-3 ${eventTone}`}>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">{actorName}</span>
+                        <Badge variant="outline" className="text-[10px]">{eventLabel}</Badge>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{formatInteractionTimestamp(interaction.created_at)}</span>
+                    </div>
+                    {interaction.note && (
+                      <p className="mt-1 text-sm text-muted-foreground">{interaction.note}</p>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -1332,7 +1440,7 @@ Equipo CEP Formacion`
                 <div className="space-y-4">
                   <div className="grid gap-3 sm:grid-cols-2">
                     <label className="space-y-1 text-sm">
-                      <span className="font-medium">Resultado de la interaccion *</span>
+                      <span className="font-medium">Resultado de la interacción *</span>
                       <select
                         className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                         value={decisionForm.interactionResult}
@@ -1365,7 +1473,7 @@ Equipo CEP Formacion`
 
                   <div className="grid gap-3 sm:grid-cols-3">
                     <label className="space-y-1 text-sm">
-                      <span className="font-medium">Proxima fecha de contacto *</span>
+                      <span className="font-medium">Próxima fecha de contacto *</span>
                       <input
                         type="datetime-local"
                         className="w-full rounded-md border bg-background px-3 py-2 text-sm"
@@ -1460,7 +1568,7 @@ Equipo CEP Formacion`
               {decisionAction === 'not_interested' && (
                 <div className="space-y-4">
                   <label className="space-y-1 text-sm block">
-                    <span className="font-medium">Motivo de no interes *</span>
+                    <span className="font-medium">Motivo de no interés *</span>
                     <select
                       className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                       value={decisionForm.disinterestReason}
@@ -1499,7 +1607,7 @@ Equipo CEP Formacion`
               {decisionAction === 'enroll' && (
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    Se cambiara el estado a <strong>En matriculacion</strong> y se abrira la ficha de matricula con datos precargados.
+                    Se cambiará el estado a <strong>En matriculación</strong> y se abrirá la ficha de matrícula con datos precargados.
                   </p>
                   <div className="rounded-md border p-3 space-y-2">
                     <p className="text-sm font-medium">Checklist previo</p>
@@ -1508,7 +1616,7 @@ Equipo CEP Formacion`
                         {lead?.email ? '✓' : '✗'} Email disponible
                       </li>
                       <li className={hasActionablePhone ? 'text-emerald-700' : 'text-red-700'}>
-                        {hasActionablePhone ? '✓' : '✗'} Telefono valido para contacto
+                        {hasActionablePhone ? '✓' : '✗'} Teléfono válido para contacto
                       </li>
                       <li className={hasResolvedProgram ? 'text-emerald-700' : 'text-red-700'}>
                         {hasResolvedProgram ? '✓' : '✗'} Curso/ciclo de origen resuelto
@@ -1524,7 +1632,7 @@ Equipo CEP Formacion`
                 </Button>
                 <Button onClick={() => void submitDecisionAction()} disabled={saving}>
                   {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  Confirmar accion
+                  Confirmar acción
                 </Button>
               </div>
             </CardContent>

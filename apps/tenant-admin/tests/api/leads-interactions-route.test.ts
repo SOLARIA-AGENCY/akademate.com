@@ -164,4 +164,32 @@ describe('Leads interactions route', () => {
     const response = await POST(request, buildContext())
     expect(response.status).toBe(404)
   })
+
+  it('POST note_added does not trigger automatic status transitions', async () => {
+    mockExecute.mockResolvedValue({ rows: [] })
+
+    const request = new NextRequest('http://localhost/api/leads/16/interactions', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        cookie: 'payload-token=test-token',
+      },
+      body: JSON.stringify({
+        channel: 'system',
+        result: 'note_added',
+        note: 'Nota interna',
+      }),
+    })
+
+    const response = await POST(request, buildContext())
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.success).toBe(true)
+    expect(mockExecute).toHaveBeenCalledTimes(2)
+    const executedSql = mockExecute.mock.calls.map(([sql]) => String(sql)).join('\n')
+    expect(executedSql).toContain("result, note, tenant_id) VALUES (16, 7, 'system', 'note_added'")
+    expect(executedSql).not.toContain('SELECT COUNT(*) as cnt FROM lead_interactions')
+    expect(executedSql).not.toContain('status = \'contacted\'')
+  })
 })

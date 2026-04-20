@@ -13,7 +13,7 @@ interface RouteContext {
 const VALID_CHANNELS = ['phone', 'whatsapp', 'email', 'system'] as const
 const VALID_RESULTS = [
   'no_answer', 'positive', 'negative', 'callback', 'wrong_number',
-  'message_sent', 'email_sent', 'enrollment_started', 'status_changed',
+  'message_sent', 'email_sent', 'enrollment_started', 'status_changed', 'note_added',
 ] as const
 
 function esc(s: string): string {
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     await drizzle.execute(`UPDATE leads SET last_contacted_at = NOW(), updated_at = NOW() WHERE id = ${leadId}`)
 
     // 3-4. Auto status transitions (skip for manual status changes and system events)
-    const skipAutoTransition = ['status_changed', 'enrollment_started'].includes(result)
+    const skipAutoTransition = ['status_changed', 'enrollment_started', 'note_added'].includes(result)
 
     if (!skipAutoTransition) {
       // If first contact interaction, auto-change to 'contacted'
