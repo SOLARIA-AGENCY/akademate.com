@@ -1,10 +1,9 @@
 {
   "presets": ["next/babel"],
   "compact": true,
-  "overrides": [
-    {
-      "exclude": ["**/node_modules/**", "node_modules"],
+  "env": {
+    "development": {
       "plugins": ["@onlook/babel-plugin-react"]
     }
-  ]
+  }
 }

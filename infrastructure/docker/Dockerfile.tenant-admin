@@ -36,6 +36,8 @@ COPY tsconfig.json tsconfig.base.json postcss.config.cjs tailwind.config.js ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app/apps/tenant-admin
+# Ensure deterministic production build even when host context contains stale .next artifacts
+RUN rm -rf .next
 # Remove .babelrc to enable SWC compiler (Onlook plugin is dev-only, not needed in production)
 RUN rm -f .babelrc
 RUN pnpm build

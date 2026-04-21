@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 
 import config from '@payload-config'
 import { NotFoundPage, generatePageMetadata } from '@payloadcms/next/views'
+import { importMap } from '../importMap'
 
 interface Args {
   params: Promise<{
@@ -16,4 +17,7 @@ export const generateMetadata = async ({ params, searchParams }: Args): Promise<
   return generatePageMetadata({ config, params, searchParams })
 }
 
-export default NotFoundPage
+const NotFound = ({ params, searchParams }: Args) =>
+  NotFoundPage({ config, importMap, params, searchParams })
+
+export default NotFound
