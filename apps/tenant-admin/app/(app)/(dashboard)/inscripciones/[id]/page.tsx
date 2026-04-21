@@ -139,6 +139,8 @@ const CONTACT_TIME_OPTIONS = [
   { value: 'anytime', label: 'Cualquier franja' },
 ] as const
 
+const DELETE_CONFIRM_PHRASE = 'ELIMINAR LEAD'
+
 type DecisionAction = (typeof DECISION_ACTIONS)[number]['value']
 
 type DecisionFormState = {
@@ -281,7 +283,22 @@ function isInternalAdvisorNote(interaction: any): boolean {
   if (interaction.result === 'note_added') return true
   const note = typeof interaction.note === 'string' ? interaction.note.trim() : ''
   if (!note) return false
-  return interaction.channel !== 'system'
+  if (interaction.channel === 'system') {
+    if (interaction.result === 'status_changed') {
+      const normalized = note.toLowerCase()
+      const isStatusLog =
+        normalized.startsWith('estado actualizado:') ||
+        normalized.startsWith('árbol crm:') ||
+        normalized.startsWith('arbol crm:')
+      const isEnrollmentLog = normalized.includes('ficha de matricula creada')
+      return !isStatusLog && !isEnrollmentLog
+    }
+    if (interaction.result === 'message_sent' || interaction.result === 'email_sent') {
+      return true
+    }
+    return false
+  }
+  return true
 }
 
 // ---------------------------------------------------------------------------
@@ -313,6 +330,10 @@ export default function LeadDetailPage({ params }: Props) {
   const [decisionAction, setDecisionAction] = React.useState<DecisionAction | null>(null)
   const [decisionForm, setDecisionForm] = React.useState({ ...DECISION_FORM_DEFAULTS })
   const [decisionError, setDecisionError] = React.useState<string | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = React.useState(false)
+  const [deleteConfirmPermanent, setDeleteConfirmPermanent] = React.useState(false)
+  const [deleteConfirmInvalidRecord, setDeleteConfirmInvalidRecord] = React.useState(false)
+  const [deleteVerificationText, setDeleteVerificationText] = React.useState('')
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -461,7 +482,16 @@ export default function LeadDetailPage({ params }: Props) {
         }),
       })
       if (!res.ok) {
-        throw new Error('No se pudo guardar la nota del asesor')
+        let message = 'No se pudo guardar la nota del asesor'
+        try {
+          const payload = await res.json()
+          if (payload?.error && typeof payload.error === 'string') {
+            message = payload.error
+          }
+        } catch {
+          // noop
+        }
+        throw new Error(message)
       }
       setNoteText('')
       await loadLead()
@@ -673,11 +703,6 @@ export default function LeadDetailPage({ params }: Props) {
   }
 
   const handleDeleteLead = async () => {
-    const confirmed = confirm(
-      '¿Eliminar este lead definitivamente?\n\nEsta acción elimina la ficha y no se puede deshacer.',
-    )
-    if (!confirmed) return
-
     setSaving(true)
     try {
       const res = await fetch(`/api/leads/${id}`, {
@@ -688,6 +713,7 @@ export default function LeadDetailPage({ params }: Props) {
         const message = typeof payload.error === 'string' ? payload.error : 'No se pudo eliminar el lead'
         throw new Error(message)
       }
+      resetDeleteModal()
       router.push('/inscripciones')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo eliminar el lead'
@@ -702,6 +728,13 @@ export default function LeadDetailPage({ params }: Props) {
     setCopied(label)
     setTimeout(() => setCopied(null), 2000)
   }
+
+  const resetDeleteModal = React.useCallback(() => {
+    setShowDeleteModal(false)
+    setDeleteConfirmPermanent(false)
+    setDeleteConfirmInvalidRecord(false)
+    setDeleteVerificationText('')
+  }, [])
 
   // ---------------------------------------------------------------------------
   // Render guards
@@ -810,6 +843,11 @@ export default function LeadDetailPage({ params }: Props) {
     : null
   const nextActionChannelLabel = CHANNEL_OPTIONS.find((option) => option.value === lead.preferred_contact_method)?.label || null
   const nextActionTimeSlotLabel = CONTACT_TIME_OPTIONS.find((option) => option.value === lead.preferred_contact_time)?.label || null
+  const normalizedDeleteVerification = deleteVerificationText.trim().toUpperCase()
+  const canDeleteLead =
+    deleteConfirmPermanent &&
+    deleteConfirmInvalidRecord &&
+    normalizedDeleteVerification === DELETE_CONFIRM_PHRASE
 
   // Pre-built messages
   const openingLine = `Buenos días${lead.first_name ? `, ${lead.first_name}` : ''}. Le llamo de CEP Formación. Hemos recibido su solicitud de información${isInscripcion ? ' y preinscripción' : ''} sobre nuestro ciclo formativo. ¿Es buen momento para hablar?`
@@ -1353,23 +1391,6 @@ Equipo CEP Formación`
         </div>
       </div>
 
-      <Card className="border-red-200 bg-red-50/30">
-        <CardContent className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-red-700">Zona sensible</p>
-            <p className="text-xs text-red-700/90">Eliminación permanente de lead. Usar solo para registros invalidados.</p>
-          </div>
-          <Button
-            variant="destructive"
-            disabled={saving}
-            onClick={() => void handleDeleteLead()}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Eliminar lead
-          </Button>
-        </CardContent>
-      </Card>
-
       <Card id="historial-contacto">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Historial de contacto y auditoría</CardTitle>
@@ -1414,6 +1435,25 @@ Equipo CEP Formación`
               })}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="border-red-200 bg-red-50/30">
+        <CardContent className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-red-700">Zona sensible</p>
+            <p className="text-xs text-red-700/90">
+              Eliminación permanente de lead. Usar solo para registros invalidados.
+            </p>
+          </div>
+          <Button
+            variant="destructive"
+            disabled={saving}
+            onClick={() => setShowDeleteModal(true)}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Eliminar lead (doble check)
+          </Button>
         </CardContent>
       </Card>
 
@@ -1675,6 +1715,67 @@ Equipo CEP Formación`
                 <Button disabled={!contactResult || saving} onClick={() => void registerInteraction()}>
                   {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                   Guardar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" onClick={resetDeleteModal}>
+          <Card className="w-full max-w-lg" onClick={(event) => event.stopPropagation()}>
+            <CardHeader>
+              <CardTitle className="text-base text-red-700">Confirmar eliminación permanente</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Esta acción elimina el lead de forma irreversible. Requiere doble validación y confirmación manual.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4"
+                  checked={deleteConfirmPermanent}
+                  onChange={(event) => setDeleteConfirmPermanent(event.target.checked)}
+                />
+                <span>Confirmo que esta eliminación es permanente y no se puede deshacer.</span>
+              </label>
+
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4"
+                  checked={deleteConfirmInvalidRecord}
+                  onChange={(event) => setDeleteConfirmInvalidRecord(event.target.checked)}
+                />
+                <span>Confirmo que este registro está invalidado y no debe seguir en CRM.</span>
+              </label>
+
+              <label className="space-y-1 text-sm block">
+                <span className="font-medium">
+                  Escribe <code>{DELETE_CONFIRM_PHRASE}</code> para validar:
+                </span>
+                <input
+                  type="text"
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  placeholder={DELETE_CONFIRM_PHRASE}
+                  value={deleteVerificationText}
+                  onChange={(event) => setDeleteVerificationText(event.target.value)}
+                />
+              </label>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={resetDeleteModal} disabled={saving}>
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={saving || !canDeleteLead}
+                  onClick={() => void handleDeleteLead()}
+                >
+                  {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                  Eliminar lead definitivamente
                 </Button>
               </div>
             </CardContent>

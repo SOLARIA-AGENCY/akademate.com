@@ -42,7 +42,14 @@ export function HeroCarouselClient({
   return (
     <section className="relative overflow-hidden bg-[#140816] text-white">
       <div className="absolute inset-0">
-        <img src={activeSlide.image} alt={activeSlide.alt} className="h-full w-full object-cover transition-opacity duration-700" />
+        <img
+          src={activeSlide.image}
+          alt={activeSlide.alt}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          className="h-full w-full object-cover transition-opacity duration-700"
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/35" />
       </div>
       <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-28">

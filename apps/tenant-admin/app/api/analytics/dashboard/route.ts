@@ -21,9 +21,35 @@ const MIN_CAMPAIGN_YEAR = 2026
 const SNAPSHOT_STALE_MINUTES = 180
 
 type FacebookDataSource = 'snapshot' | 'meta_api_live' | 'unavailable'
+type TrafficSource = 'ga4' | 'internal'
+type Ga4FallbackReasonCode =
+  | 'ga4_connected'
+  | 'ga4_missing_measurement_id'
+  | 'ga4_missing_property_id'
+  | 'ga4_invalid_property_id'
+  | 'ga4_missing_bearer_token'
+  | 'ga4_http_400'
+  | 'ga4_http_401'
+  | 'ga4_http_403'
+  | 'ga4_http_404'
+  | 'ga4_http_429'
+  | 'ga4_http_500'
+  | 'ga4_http_503'
+  | 'ga4_http_error'
+  | 'ga4_runtime_error'
+
+interface Ga4Health {
+  provider: TrafficSource
+  status: 'connected' | 'fallback'
+  reason_code: Ga4FallbackReasonCode
+  reason: string | null
+  property_id: string | null
+  measurement_id: string | null
+  checked_at: string
+}
 
 interface TrafficData {
-  source: 'ga4' | 'internal'
+  source: TrafficSource
   totalSessions: number
   series: TrafficSeriesPoint[]
   seriesByGranularity: {
@@ -97,6 +123,68 @@ function parseGa4Date(raw: string): string {
   const m = raw.slice(4, 6)
   const d = raw.slice(6, 8)
   return `${y}-${m}-${d}`
+}
+
+function normalizeGa4PropertyId(rawPropertyId: string): string | null {
+  const trimmed = rawPropertyId.trim()
+  if (!trimmed) return null
+  const withoutPrefix = trimmed.replace(/^properties\//i, '')
+  return /^\d+$/.test(withoutPrefix) ? withoutPrefix : null
+}
+
+class Ga4ApiError extends Error {
+  status: number
+  detail: string
+
+  constructor(status: number, message: string, detail?: string) {
+    super(message)
+    this.name = 'Ga4ApiError'
+    this.status = status
+    this.detail = detail ?? ''
+  }
+}
+
+async function runGa4Report(endpoint: string, bearerToken: string, body: object): Promise<any> {
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${bearerToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+    cache: 'no-store',
+  })
+
+  if (!response.ok) {
+    const responseText = await response.text().catch(() => '')
+    const compactDetail = responseText.length > 400 ? `${responseText.slice(0, 397)}...` : responseText
+    const message = compactDetail || `GA4 Data API responded with status ${response.status}`
+    throw new Ga4ApiError(response.status, message, compactDetail)
+  }
+
+  return response.json()
+}
+
+function mapGa4FallbackReason(error: unknown): { code: Ga4FallbackReasonCode; reason: string } {
+  if (error instanceof Ga4ApiError) {
+    if (error.status === 400) return { code: 'ga4_http_400', reason: error.message }
+    if (error.status === 401) return { code: 'ga4_http_401', reason: error.message }
+    if (error.status === 403) return { code: 'ga4_http_403', reason: error.message }
+    if (error.status === 404) return { code: 'ga4_http_404', reason: error.message }
+    if (error.status === 429) return { code: 'ga4_http_429', reason: error.message }
+    if (error.status === 500) return { code: 'ga4_http_500', reason: error.message }
+    if (error.status === 503) return { code: 'ga4_http_503', reason: error.message }
+    return {
+      code: 'ga4_http_error',
+      reason: `GA4 Data API error ${error.status}${error.detail ? `: ${error.detail}` : ''}`,
+    }
+  }
+
+  if (error instanceof Error && error.message.trim()) {
+    return { code: 'ga4_runtime_error', reason: error.message }
+  }
+
+  return { code: 'ga4_runtime_error', reason: 'Error desconocido al consultar Google Analytics 4.' }
 }
 
 function getWeekStartIso(isoDate: string): string {
@@ -282,44 +370,10 @@ async function getTrafficFromGa4(
     limit: 10,
   }
 
-  const [seriesRes, pagesRes, sourceRes] = await Promise.all([
-    fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${bearerToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(bodySeries),
-      cache: 'no-store',
-    }),
-    fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${bearerToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(bodyPages),
-      cache: 'no-store',
-    }),
-    fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${bearerToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(bodySource),
-      cache: 'no-store',
-    }),
-  ])
-
-  if (!seriesRes.ok || !pagesRes.ok || !sourceRes.ok) {
-    throw new Error('GA4 API unavailable')
-  }
-
   const [seriesPayload, pagesPayload, sourcePayload] = await Promise.all([
-    seriesRes.json() as Promise<any>,
-    pagesRes.json() as Promise<any>,
-    sourceRes.json() as Promise<any>,
+    runGa4Report(endpoint, bearerToken, bodySeries),
+    runGa4Report(endpoint, bearerToken, bodyPages),
+    runGa4Report(endpoint, bearerToken, bodySource),
   ])
 
   const byDate = new Map<string, { facebook: number; google: number; total: number }>()
@@ -558,16 +612,81 @@ export async function GET(request: NextRequest) {
       )[0]?.count,
     )
 
-    const ga4PropertyId = process.env.GA4_PROPERTY_ID || ''
-    const ga4BearerToken = process.env.GA4_API_BEARER_TOKEN || ''
+    const ga4MeasurementId = String(tenant.integrations_ga4_measurement_id || '').trim()
+    const ga4PropertyIdRaw = String(process.env.GA4_PROPERTY_ID || '').trim()
+    const ga4PropertyId = normalizeGa4PropertyId(ga4PropertyIdRaw)
+    const ga4BearerToken = String(process.env.GA4_API_BEARER_TOKEN || '').trim()
+    let ga4Health: Ga4Health = {
+      provider: 'internal',
+      status: 'fallback',
+      reason_code: 'ga4_missing_measurement_id',
+      reason: 'El tenant no tiene configurado GA4 Measurement ID.',
+      property_id: ga4PropertyId,
+      measurement_id: ga4MeasurementId || null,
+      checked_at: new Date().toISOString(),
+    }
 
     let traffic: TrafficData = await getTrafficFromInternal(drizzle, tenantId, rangeDays)
-    if (ga4PropertyId && ga4BearerToken && tenant.integrations_ga4_measurement_id) {
+
+    if (!ga4MeasurementId) {
+      ga4Health = {
+        ...ga4Health,
+        reason_code: 'ga4_missing_measurement_id',
+        reason: 'El tenant no tiene configurado GA4 Measurement ID.',
+      }
+    } else if (!ga4PropertyIdRaw) {
+      ga4Health = {
+        ...ga4Health,
+        reason_code: 'ga4_missing_property_id',
+        reason:
+          'Falta GA4_PROPERTY_ID en entorno. Define el Property ID numérico de Google Analytics 4.',
+      }
+    } else if (!ga4PropertyId) {
+      ga4Health = {
+        ...ga4Health,
+        reason_code: 'ga4_invalid_property_id',
+        reason:
+          'GA4_PROPERTY_ID no tiene formato válido. Usa un ID numérico o properties/{ID_NUMERICO}.',
+      }
+    } else if (!ga4BearerToken) {
+      ga4Health = {
+        ...ga4Health,
+        reason_code: 'ga4_missing_bearer_token',
+        reason: 'Falta GA4_API_BEARER_TOKEN en entorno para consultar GA4 Data API.',
+      }
+    } else {
       try {
         traffic = await getTrafficFromGa4(ga4PropertyId, ga4BearerToken, rangeDays)
-      } catch {
-        // Keep internal fallback.
+        ga4Health = {
+          provider: 'ga4',
+          status: 'connected',
+          reason_code: 'ga4_connected',
+          reason: null,
+          property_id: ga4PropertyId,
+          measurement_id: ga4MeasurementId,
+          checked_at: new Date().toISOString(),
+        }
+      } catch (error) {
+        const mapped = mapGa4FallbackReason(error)
+        ga4Health = {
+          provider: 'internal',
+          status: 'fallback',
+          reason_code: mapped.code,
+          reason: mapped.reason,
+          property_id: ga4PropertyId,
+          measurement_id: ga4MeasurementId,
+          checked_at: new Date().toISOString(),
+        }
       }
+    }
+
+    if (ga4Health.status === 'fallback') {
+      console.error('[analytics/dashboard] GA4 fallback activado. Motivo:', {
+        reason_code: ga4Health.reason_code,
+        reason: ga4Health.reason,
+        tenant_id: tenantId,
+        property_id: ga4Health.property_id,
+      })
     }
 
     const campaignsResult = await payload.find({
@@ -793,6 +912,10 @@ export async function GET(request: NextRequest) {
       range,
       source_health: {
         traffic: traffic.source,
+        traffic_provider: ga4Health.provider === 'ga4' ? 'google_analytics_4' : 'internal_fallback',
+        traffic_reason_code: ga4Health.reason_code,
+        traffic_reason: ga4Health.reason,
+        ga4: ga4Health,
         traffic_events_count: trafficEventsCount,
         facebook: facebookSource,
         facebook_data_source: facebookDataSource,
@@ -810,7 +933,9 @@ export async function GET(request: NextRequest) {
         source_medium: traffic.sourceMedium,
         empty_reason:
           traffic.totalSessions === 0
-            ? 'No se detectaron eventos de tráfico web para el tenant y rango seleccionados.'
+            ? ga4Health.status === 'fallback' && ga4Health.reason
+              ? `GA4 no disponible (${ga4Health.reason}). No se detectaron eventos internos para el rango seleccionado.`
+              : 'No se detectaron eventos de tráfico web para el tenant y rango seleccionados.'
             : null,
       },
       facebook: {
@@ -841,6 +966,22 @@ export async function GET(request: NextRequest) {
       },
       google: {
         status: 'pending_connection',
+      },
+      integrations_status: {
+        ga4: {
+          status: ga4Health.status === 'connected' ? 'connected' : 'error',
+          provider: ga4Health.provider === 'ga4' ? 'google_analytics_4' : 'internal_fallback',
+          reason_code: ga4Health.reason_code,
+          reason: ga4Health.reason,
+          checked_at: ga4Health.checked_at,
+        },
+        meta_ads: {
+          status: facebookSource === 'meta_api' ? 'connected' : 'error',
+          provider: facebookDataSource,
+        },
+        google_ads: {
+          status: 'pending_connection',
+        },
       },
     })
   } catch (error) {

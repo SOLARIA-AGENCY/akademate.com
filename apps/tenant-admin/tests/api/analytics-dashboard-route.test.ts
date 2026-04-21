@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
 const {
@@ -102,6 +102,10 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
     mockGetPayloadHMR.mockResolvedValue(mockPayload)
     delete process.env.GA4_PROPERTY_ID
     delete process.env.GA4_API_BEARER_TOKEN
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
   it('returns 401 when user is unauthenticated', async () => {
@@ -429,5 +433,136 @@ describe('Analytics dashboard route - GET /api/analytics/dashboard', () => {
       not_linked: 0,
     })
     expect(mockListCampaigns).not.toHaveBeenCalled()
+  })
+
+  it('returns explicit GA4 fallback reason when property id format is invalid', async () => {
+    process.env.GA4_PROPERTY_ID = 'properties/not-a-number'
+    process.env.GA4_API_BEARER_TOKEN = 'token-ga4'
+
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    mockGetAuthenticatedUserContext.mockResolvedValue({ userId: 1, tenantId: 2 })
+    mockExecute.mockImplementation(async (sql: string) => mockTrafficSql(sql))
+    mockFind.mockResolvedValue({ docs: [] })
+
+    const request = new NextRequest('http://localhost/api/analytics/dashboard?range=30d')
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.source_health).toMatchObject({
+      traffic: 'internal',
+      traffic_reason_code: 'ga4_invalid_property_id',
+      traffic_provider: 'internal_fallback',
+    })
+    expect(payload.source_health.ga4).toMatchObject({
+      status: 'fallback',
+      reason_code: 'ga4_invalid_property_id',
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('returns explicit GA4 fallback reason when GA4 API responds 401', async () => {
+    process.env.GA4_PROPERTY_ID = 'properties/123456789'
+    process.env.GA4_API_BEARER_TOKEN = 'token-ga4'
+
+    const fetchMock = vi.fn(async () => {
+      return new Response(JSON.stringify({ error: { message: 'Request had invalid authentication credentials.' } }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    mockGetAuthenticatedUserContext.mockResolvedValue({ userId: 1, tenantId: 2 })
+    mockExecute.mockImplementation(async (sql: string) => mockTrafficSql(sql))
+    mockFind.mockResolvedValue({ docs: [] })
+
+    const request = new NextRequest('http://localhost/api/analytics/dashboard?range=30d')
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.source_health).toMatchObject({
+      traffic: 'internal',
+      traffic_reason_code: 'ga4_http_401',
+      traffic_provider: 'internal_fallback',
+    })
+    expect(payload.source_health.ga4).toMatchObject({
+      status: 'fallback',
+      reason_code: 'ga4_http_401',
+      property_id: '123456789',
+    })
+    expect(String(payload.source_health.traffic_reason || '')).toContain('invalid authentication credentials')
+    expect(fetchMock).toHaveBeenCalled()
+  })
+
+  it('uses GA4 data when property and token are valid (supports properties/{id} format)', async () => {
+    process.env.GA4_PROPERTY_ID = 'properties/123456789'
+    process.env.GA4_API_BEARER_TOKEN = 'token-ga4'
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            rows: [
+              {
+                dimensionValues: [{ value: '20260410' }, { value: 'google' }],
+                metricValues: [{ value: '10' }],
+              },
+              {
+                dimensionValues: [{ value: '20260410' }, { value: 'facebook' }],
+                metricValues: [{ value: '5' }],
+              },
+            ],
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            rows: [{ dimensionValues: [{ value: '/convocatorias/SC-2026-002' }], metricValues: [{ value: '8' }] }],
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            rows: [{ dimensionValues: [{ value: 'google / organic' }], metricValues: [{ value: '10' }] }],
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      )
+    vi.stubGlobal('fetch', fetchMock)
+
+    mockGetAuthenticatedUserContext.mockResolvedValue({ userId: 1, tenantId: 2 })
+    mockExecute.mockImplementation(async (sql: string) => mockTrafficSql(sql))
+    mockFind.mockResolvedValue({ docs: [] })
+
+    const request = new NextRequest('http://localhost/api/analytics/dashboard?range=30d')
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.source_health).toMatchObject({
+      traffic: 'ga4',
+      traffic_reason_code: 'ga4_connected',
+      traffic_provider: 'google_analytics_4',
+    })
+    expect(payload.source_health.ga4).toMatchObject({
+      status: 'connected',
+      property_id: '123456789',
+      reason: null,
+    })
+    expect(payload.overview.total_sessions).toBe(15)
+    expect(payload.traffic.top_pages[0]).toMatchObject({
+      path: '/convocatorias/SC-2026-002',
+      views: 8,
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(3)
   })
 })

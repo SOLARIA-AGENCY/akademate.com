@@ -66,6 +66,7 @@ type TenantData = {
   primaryColor: string
   metaPixelId: string
   ga4MeasurementId: string
+  gtmContainerId: string
   phone1: string
   phone2: string
   isCepTenant: boolean
@@ -110,6 +111,7 @@ async function getEmergencyTenantData(): Promise<TenantData> {
     primaryColor: cepFallback ? '#cc0000' : '#64748b',
     metaPixelId: '',
     ga4MeasurementId: '',
+    gtmContainerId: '',
     phone1: cepFallback ? cepPrimaryPhone : '',
     phone2: cepFallback ? cepSecondaryPhone : '',
     isCepTenant: cepFallback,
@@ -172,6 +174,7 @@ async function getTenantData(): Promise<TenantData> {
       primaryColor,
       metaPixelId: tenant.metaPixelId,
       ga4MeasurementId: tenant.ga4MeasurementId,
+      gtmContainerId: tenant.gtmContainerId,
       phone1,
       phone2,
       isCepTenant: tenant.isCepTenant,
@@ -195,6 +198,17 @@ export default async function PublicLayout({ children }: { children: React.React
   return (
     <html lang="es">
       <head>
+        {tenant.gtmContainerId && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${tenant.gtmContainerId}');`,
+            }}
+          />
+        )}
         {tenant.metaPixelId && (
           <>
             <script
@@ -234,6 +248,16 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
         )}
       </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
+        {tenant.gtmContainerId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${tenant.gtmContainerId}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
         <PublicPageViewTracker />
         {/* Inject brand color as CSS variable */}
         <style>{`
@@ -267,6 +291,8 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
                 <img
                   src={website.visualIdentity.logoPrimary || tenant.logo}
                   alt={tenant.name}
+                  loading="lazy"
+                  decoding="async"
                   className="h-14 w-auto object-contain lg:h-16"
                 />
                 <p className="mt-4 text-sm font-medium text-slate-600">
@@ -298,16 +324,22 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
                 <img
                   src="/website/cep/logos/footer/logo-certificaciones.jpg"
                   alt="Certificaciones de calidad"
+                  loading="lazy"
+                  decoding="async"
                   className="h-auto w-52 max-w-full object-contain"
                 />
                 <img
                   src="/website/cep/logos/footer/logo-fondo-europeo.jpg"
                   alt="Fondo social europeo"
+                  loading="lazy"
+                  decoding="async"
                   className="h-auto w-52 max-w-full object-contain"
                 />
                 <img
                   src="/website/cep/logos/footer/logo-sce.jpg"
                   alt="Servicio Canario de Empleo"
+                  loading="lazy"
+                  decoding="async"
                   className="h-auto w-52 max-w-full object-contain"
                 />
               </div>

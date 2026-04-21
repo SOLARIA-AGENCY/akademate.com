@@ -189,7 +189,7 @@ async function CourseListSection({
               return (
                 <Link key={course.id} href={`/cursos/${course.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white">
                   <div className="relative h-56 overflow-hidden">
-                    {imageUrl ? <img src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
+                    {imageUrl ? <img src={imageUrl} alt={title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
                     <h3 className="absolute bottom-5 left-5 right-5 text-xl font-semibold text-white">{title}</h3>
                   </div>
@@ -238,7 +238,7 @@ async function CycleListSection({
             return (
               <Link key={cycle.id} href={`/ciclos/${cycle.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white">
                 <div className="relative h-56">
-                  {imageUrl ? <img src={imageUrl} alt={cycle.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
+                  {imageUrl ? <img src={imageUrl} alt={cycle.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-5 left-5 right-5">
                     <p
@@ -326,7 +326,7 @@ async function ConvocationListSection({
             return (
               <Link key={conv.id} href={`/convocatorias/${conv.codigo || conv.id}`} className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
                 <div className="relative h-52">
-                  {imageUrl ? <img src={imageUrl} alt={displayName} className="h-full w-full object-cover" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
+                  {imageUrl ? <img src={imageUrl} alt={displayName} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="absolute bottom-5 left-5 right-5">
                     <span className="mb-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase text-white" style={{ backgroundColor: brandColor }}>
@@ -400,7 +400,7 @@ async function CampusListSection({
             return (
               <article key={campus.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
                 <div className="h-52">
-                  {imageUrl ? <img src={imageUrl} alt={campus.name} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-slate-200" />}
+                  {imageUrl ? <img src={imageUrl} alt={campus.name} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : <div className="h-full w-full bg-slate-200" />}
                 </div>
                 <div className="space-y-3 p-6">
                   <h3 className="text-xl font-semibold text-slate-900">{campus.name}</h3>
@@ -439,7 +439,7 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
           {section.items.map((item) => {
             const content = (
               <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
-                <img src={item.image} alt={item.title} className="h-60 w-full object-cover" />
+                <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="h-60 w-full object-cover" />
                 <div className="p-5">
                   <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
                 </div>
@@ -468,7 +468,7 @@ function TeamGridSection({ section }: { section: Extract<WebsiteSection, { kind:
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {section.members.map((member) => (
             <article key={member.name} className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50">
-              <img src={member.image} alt={member.name} className="h-72 w-full object-cover" />
+              <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-72 w-full object-cover" />
               <div className="p-5">
                 <h3 className="text-lg font-semibold text-slate-900">{member.name}</h3>
                 <p className="mt-1 text-sm text-slate-600">{member.role}</p>

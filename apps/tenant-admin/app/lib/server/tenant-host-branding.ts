@@ -42,6 +42,7 @@ export type TenantHostBranding = {
   primaryColor: string
   metaPixelId: string
   ga4MeasurementId: string
+  gtmContainerId: string
   contactPhone: string
   contactPhoneAlternative: string
   isCepTenant: boolean
@@ -57,9 +58,11 @@ type TenantDoc = {
   branding_favicon?: { url?: string | null } | number | null
   integrations_meta_pixel_id?: string | null
   integrations_ga4_measurement_id?: string | null
+  integrations_gtm_container_id?: string | null
   integrations?: {
     metaPixelId?: string | null
     ga4MeasurementId?: string | null
+    gtmContainerId?: string | null
   } | null
   contact_phone?: string | null
   contact_phone_alternative?: string | null
@@ -129,6 +132,10 @@ function toTenantResponse(
     ga4MeasurementId:
       tenant?.integrations_ga4_measurement_id?.trim() ||
       tenant?.integrations?.ga4MeasurementId?.trim() ||
+      '',
+    gtmContainerId:
+      tenant?.integrations_gtm_container_id?.trim() ||
+      tenant?.integrations?.gtmContainerId?.trim() ||
       '',
     contactPhone: tenant?.contact_phone?.trim() || '',
     contactPhoneAlternative: tenant?.contact_phone_alternative?.trim() || '',

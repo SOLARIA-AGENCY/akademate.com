@@ -1,7 +1,20 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { BarChart3, RefreshCw, TrendingUp, Users, DollarSign, Eye, Target, Zap, Search, Globe } from 'lucide-react'
+import {
+  BarChart3,
+  RefreshCw,
+  TrendingUp,
+  Users,
+  DollarSign,
+  Eye,
+  Target,
+  Zap,
+  Search,
+  Globe,
+  AlertTriangle,
+  CheckCircle2,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
@@ -12,10 +25,53 @@ const DATE_RANGES = ['7d', '30d', '90d'] as const
 type DateRange = (typeof DATE_RANGES)[number]
 type Tab = 'overview' | 'organic' | 'facebook' | 'google'
 type TrafficGranularity = 'day' | 'week' | 'month'
+type Ga4FallbackReasonCode =
+  | 'ga4_connected'
+  | 'ga4_missing_measurement_id'
+  | 'ga4_missing_property_id'
+  | 'ga4_invalid_property_id'
+  | 'ga4_missing_bearer_token'
+  | 'ga4_http_400'
+  | 'ga4_http_401'
+  | 'ga4_http_403'
+  | 'ga4_http_404'
+  | 'ga4_http_429'
+  | 'ga4_http_500'
+  | 'ga4_http_503'
+  | 'ga4_http_error'
+  | 'ga4_runtime_error'
 
 type SourceHealth = {
   traffic: 'ga4' | 'internal'
+  traffic_provider?: 'google_analytics_4' | 'internal_fallback'
+  traffic_reason_code?: Ga4FallbackReasonCode
+  traffic_reason?: string | null
+  traffic_events_count?: number
+  ga4?: {
+    provider: 'ga4' | 'internal'
+    status: 'connected' | 'fallback'
+    reason_code: Ga4FallbackReasonCode
+    reason: string | null
+    property_id: string | null
+    measurement_id: string | null
+    checked_at: string
+  }
   facebook: 'meta_api' | 'unavailable'
+  facebook_data_source?: 'snapshot' | 'meta_api_live' | 'unavailable'
+}
+
+type IntegrationStatus = {
+  status: 'connected' | 'error' | 'pending_connection'
+  provider?: string
+  reason_code?: string | null
+  reason?: string | null
+  checked_at?: string
+}
+
+type IntegrationsStatus = {
+  ga4?: IntegrationStatus
+  meta_ads?: IntegrationStatus
+  google_ads?: IntegrationStatus
 }
 
 type TrafficPoint = {
@@ -25,6 +81,17 @@ type TrafficPoint = {
   'Facebook Ads': number
   'Google Ads': number
   Total: number
+}
+
+type TrafficComparisonPoint = TrafficPoint & {
+  Paid: number
+}
+
+type DataQualityAlert = {
+  id: string
+  severity: 'critical' | 'warning' | 'info'
+  title: string
+  detail: string
 }
 
 type TrafficSourceMedium = {
@@ -75,6 +142,7 @@ type AnalyticsPayload = {
     series_by_granularity: Record<TrafficGranularity, TrafficPoint[]>
     top_pages: TopPage[]
     source_medium: TrafficSourceMedium[]
+    empty_reason?: string | null
   }
   facebook: {
     spend: number
@@ -104,6 +172,7 @@ type AnalyticsPayload = {
   google: {
     status: string
   }
+  integrations_status?: IntegrationsStatus
 }
 
 const DATE_LABELS: Record<DateRange, string> = {
@@ -128,6 +197,22 @@ const TABS: Array<{ id: Tab; label: string; icon: typeof BarChart3 }> = [
 const fmtNum = (n: number) => new Intl.NumberFormat('es-ES').format(n)
 const fmtCur = (n: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n)
 const fmtPct = (n: number) => `${n.toFixed(2)}%`
+const TRAFFIC_REASON_MESSAGES: Record<Ga4FallbackReasonCode, string> = {
+  ga4_connected: 'Google Analytics 4 conectado.',
+  ga4_missing_measurement_id: 'Falta GA4 Measurement ID en configuración del tenant.',
+  ga4_missing_property_id: 'Falta GA4_PROPERTY_ID en entorno.',
+  ga4_invalid_property_id: 'GA4_PROPERTY_ID inválido (usa ID numérico o properties/{ID}).',
+  ga4_missing_bearer_token: 'Falta GA4_API_BEARER_TOKEN en entorno.',
+  ga4_http_400: 'GA4 rechazó la consulta (400).',
+  ga4_http_401: 'GA4 devolvió 401 (token inválido o expirado).',
+  ga4_http_403: 'GA4 devolvió 403 (permisos insuficientes en la propiedad).',
+  ga4_http_404: 'GA4 devolvió 404 (propiedad no encontrada o mal configurada).',
+  ga4_http_429: 'GA4 devolvió 429 (rate limit).',
+  ga4_http_500: 'GA4 devolvió 500 (error temporal de servicio).',
+  ga4_http_503: 'GA4 devolvió 503 (servicio no disponible).',
+  ga4_http_error: 'GA4 devolvió un error HTTP no esperado.',
+  ga4_runtime_error: 'Error interno al consultar GA4.',
+}
 
 function TrafficBars({ points }: { points: TrafficPoint[] }) {
   if (points.length === 0) {
@@ -155,10 +240,130 @@ function TrafficBars({ points }: { points: TrafficPoint[] }) {
   )
 }
 
+function buildTrafficComparison(points: TrafficPoint[]): TrafficComparisonPoint[] {
+  return points.map((point) => ({
+    ...point,
+    Paid: point['Facebook Ads'] + point['Google Ads'],
+  }))
+}
+
+function OrganicVsPaidBars({ points }: { points: TrafficPoint[] }) {
+  const items = buildTrafficComparison(points)
+  if (items.length === 0) {
+    return <p className="text-sm text-muted-foreground">Sin datos de tráfico para este rango.</p>
+  }
+
+  const maxTotal = items.reduce((max, point) => Math.max(max, point.Total), 0)
+  const denominator = maxTotal > 0 ? maxTotal : 1
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-3 text-xs">
+        <span className="inline-flex items-center gap-1 text-muted-foreground">
+          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          Orgánico
+        </span>
+        <span className="inline-flex items-center gap-1 text-muted-foreground">
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+          Pago (Facebook + Google)
+        </span>
+      </div>
+      {items.map((point) => {
+        const totalPct = Math.max((point.Total / denominator) * 100, point.Total > 0 ? 4 : 1)
+        const organicPct = point.Total > 0 ? (point.Organico / point.Total) * 100 : 0
+        const paidPct = point.Total > 0 ? (point.Paid / point.Total) * 100 : 0
+
+        return (
+          <div key={point.isoDate} className="grid grid-cols-[92px_1fr_170px] items-center gap-3 text-xs">
+            <span className="text-muted-foreground">{point.date}</span>
+            <div className="h-3 rounded bg-muted overflow-hidden">
+              <div className="h-full flex" style={{ width: `${totalPct}%` }}>
+                <div className="h-full bg-emerald-500" style={{ width: `${organicPct}%` }} />
+                <div className="h-full bg-blue-500" style={{ width: `${paidPct}%` }} />
+              </div>
+            </div>
+            <span className="text-right text-muted-foreground">
+              <strong className="text-foreground">{fmtNum(point.Total)}</strong> total
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function PaidChannelBars({ points }: { points: TrafficPoint[] }) {
+  if (points.length === 0) {
+    return <p className="text-sm text-muted-foreground">Sin desglose de pago para este rango.</p>
+  }
+
+  const maxPaid = points.reduce((max, point) => Math.max(max, point['Facebook Ads'] + point['Google Ads']), 0)
+  if (maxPaid === 0) {
+    return <p className="text-sm text-muted-foreground">Sin tráfico de pago detectado en este rango.</p>
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-3 text-xs">
+        <span className="inline-flex items-center gap-1 text-muted-foreground">
+          <span className="h-2.5 w-2.5 rounded-full bg-sky-500" />
+          Facebook Ads
+        </span>
+        <span className="inline-flex items-center gap-1 text-muted-foreground">
+          <span className="h-2.5 w-2.5 rounded-full bg-violet-500" />
+          Google Ads
+        </span>
+      </div>
+      {points.map((point) => {
+        const paid = point['Facebook Ads'] + point['Google Ads']
+        const paidPct = Math.max((paid / maxPaid) * 100, paid > 0 ? 4 : 1)
+        const facebookSplit = paid > 0 ? (point['Facebook Ads'] / paid) * 100 : 0
+        const googleSplit = paid > 0 ? (point['Google Ads'] / paid) * 100 : 0
+
+        return (
+          <div key={point.isoDate} className="grid grid-cols-[92px_1fr_170px] items-center gap-3 text-xs">
+            <span className="text-muted-foreground">{point.date}</span>
+            <div className="h-3 rounded bg-muted overflow-hidden">
+              <div className="h-full flex" style={{ width: `${paidPct}%` }}>
+                <div className="h-full bg-sky-500" style={{ width: `${facebookSplit}%` }} />
+                <div className="h-full bg-violet-500" style={{ width: `${googleSplit}%` }} />
+              </div>
+            </div>
+            <span className="text-right text-muted-foreground">
+              <strong className="text-foreground">{fmtNum(paid)}</strong> pago
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function alertBadgeClass(severity: DataQualityAlert['severity']): string {
+  if (severity === 'critical') return 'bg-red-600 text-white'
+  if (severity === 'warning') return 'bg-amber-500 text-black'
+  return 'bg-blue-600 text-white'
+}
+
+function alertLabel(severity: DataQualityAlert['severity']): string {
+  if (severity === 'critical') return 'P0 crítico'
+  if (severity === 'warning') return 'P1 alto'
+  return 'P2 informativo'
+}
+
 function sourceLabel(health: SourceHealth) {
-  const traffic = health.traffic === 'ga4' ? 'GA4' : 'Fallback interno'
+  const traffic =
+    health.traffic === 'ga4'
+      ? 'Google Analytics 4'
+      : `Fallback interno${
+          health.traffic_reason_code ? ` · ${health.traffic_reason_code.replace('ga4_', '')}` : ''
+        }`
   const facebook = health.facebook === 'meta_api' ? 'Meta API' : 'Meta no disponible'
-  return { traffic, facebook }
+  const trafficReason =
+    health.traffic_reason ||
+    (health.traffic_reason_code ? TRAFFIC_REASON_MESSAGES[health.traffic_reason_code] : null) ||
+    null
+  return { traffic, facebook, trafficReason }
 }
 
 function StatusBadge({ status }: { status: 'active' | 'paused' }) {
@@ -236,6 +441,93 @@ export default function AnaliticasPage() {
   const sourceMedium = data?.traffic.source_medium ?? []
   const fbCampaigns = data?.facebook.campaigns ?? []
   const fbTrafficFunnel = data?.facebook.traffic_funnel ?? { page_views: 0, form_clicks: 0, form_submits: 0, by_campaign: [] }
+  const integrationsStatus = data?.integrations_status
+  const trafficFallbackReason = data?.source_health.traffic === 'internal' ? labels?.trafficReason ?? null : null
+  const acquisitionSeries = useMemo(() => selectedTrafficSeries.slice(-14), [selectedTrafficSeries])
+  const acquisitionTotals = useMemo(
+    () =>
+      acquisitionSeries.reduce(
+        (acc, point) => {
+          acc.organic += point.Organico
+          acc.facebook += point['Facebook Ads']
+          acc.google += point['Google Ads']
+          acc.paid += point['Facebook Ads'] + point['Google Ads']
+          acc.total += point.Total
+          return acc
+        },
+        { organic: 0, paid: 0, facebook: 0, google: 0, total: 0 },
+      ),
+    [acquisitionSeries],
+  )
+  const paidShare = acquisitionTotals.total > 0 ? (acquisitionTotals.paid / acquisitionTotals.total) * 100 : 0
+  const organicShare = acquisitionTotals.total > 0 ? (acquisitionTotals.organic / acquisitionTotals.total) * 100 : 0
+  const avgSessionsPerPoint = acquisitionSeries.length > 0 ? acquisitionTotals.total / acquisitionSeries.length : 0
+  const cpl =
+    data && data.overview.total_conversions > 0
+      ? data.overview.total_ad_spend / data.overview.total_conversions
+      : null
+  const sessionToConversionRate =
+    data && data.overview.total_sessions > 0
+      ? (data.overview.total_conversions / data.overview.total_sessions) * 100
+      : 0
+  const formSubmitRate =
+    data && data.overview.total_sessions > 0
+      ? (fbTrafficFunnel.form_submits / data.overview.total_sessions) * 100
+      : 0
+  const dataQualityAlerts = useMemo<DataQualityAlert[]>(() => {
+    if (!data) return []
+
+    const alerts: DataQualityAlert[] = []
+
+    if (data.source_health.traffic === 'internal') {
+      alerts.push({
+        id: 'ga4-fallback',
+        severity: 'warning',
+        title: 'Tráfico en fallback interno',
+        detail: 'GA4 no está siendo la fuente principal para sesiones. Revisar integración de Analytics.',
+      })
+    }
+
+    if (data.campaigns.not_linked > 0) {
+      alerts.push({
+        id: 'campaign-coverage',
+        severity: 'warning',
+        title: 'Campañas detectadas sin vincular',
+        detail: `${data.campaigns.not_linked} campañas Meta detectadas sin relación directa con campañas de plataforma.`,
+      })
+    }
+
+    if (data.overview.total_ad_spend > 0 && data.overview.global_roas === 0) {
+      alerts.push({
+        id: 'roas-attribution',
+        severity: 'critical',
+        title: 'ROAS en cero con gasto activo',
+        detail:
+          'Hay gasto de Ads sin ingresos atribuidos. Falta mapeo económico de conversiones o señal de revenue.',
+      })
+    }
+
+    if (data.google.status === 'pending_connection') {
+      alerts.push({
+        id: 'google-ads-pending',
+        severity: 'info',
+        title: 'Google Ads pendiente de conexión',
+        detail: 'El canal de pago de Google no está conectado; las comparativas de pago están parcialmente incompletas.',
+      })
+    }
+
+    if (acquisitionTotals.total > 0 && acquisitionTotals.paid > acquisitionTotals.organic) {
+      alerts.push({
+        id: 'paid-dependency',
+        severity: 'info',
+        title: 'Dependencia de tráfico de pago',
+        detail:
+          'En el rango visible domina el tráfico de Ads sobre orgánico. Recomendable reforzar contenido SEO y captación directa.',
+      })
+    }
+
+    return alerts
+  }, [acquisitionTotals.organic, acquisitionTotals.paid, acquisitionTotals.total, data])
 
   return (
     <div className="space-y-6">
@@ -247,8 +539,12 @@ export default function AnaliticasPage() {
           <div className="flex items-center gap-2 flex-wrap">
             {labels && (
               <>
-                <Badge variant="outline">Tráfico: {labels.traffic}</Badge>
-                <Badge variant="outline">Facebook: {labels.facebook}</Badge>
+                <Badge variant={data?.source_health.traffic === 'ga4' ? 'success' : 'warning'}>
+                  Tráfico: {labels.traffic}
+                </Badge>
+                <Badge variant={data?.source_health.facebook === 'meta_api' ? 'success' : 'warning'}>
+                  Facebook: {labels.facebook}
+                </Badge>
               </>
             )}
             <div className="flex items-center rounded-lg border border-border bg-card overflow-hidden">
@@ -291,6 +587,51 @@ export default function AnaliticasPage() {
 
       <p className="text-xs text-muted-foreground">{DATE_LABELS[dateRange]}</p>
 
+      {!loading && !error && data && trafficFallbackReason && (
+        <div className="rounded-lg border border-amber-400/50 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="font-semibold">GA4 en fallback interno</p>
+          <p>{trafficFallbackReason}</p>
+        </div>
+      )}
+
+      {!loading && !error && data && integrationsStatus && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Estado de integraciones</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">Google Analytics 4</p>
+              <p className="mt-1 text-sm font-semibold">
+                {integrationsStatus.ga4?.status === 'connected' ? 'Conectado' : 'Error / Fallback'}
+              </p>
+              {integrationsStatus.ga4?.reason && (
+                <p className="mt-1 text-xs text-muted-foreground">{integrationsStatus.ga4.reason}</p>
+              )}
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">Meta Ads</p>
+              <p className="mt-1 text-sm font-semibold">
+                {integrationsStatus.meta_ads?.status === 'connected' ? 'Conectado' : 'No disponible'}
+              </p>
+              {integrationsStatus.meta_ads?.provider && (
+                <p className="mt-1 text-xs text-muted-foreground">Fuente: {integrationsStatus.meta_ads.provider}</p>
+              )}
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">Google Ads</p>
+              <p className="mt-1 text-sm font-semibold">
+                {integrationsStatus.google_ads?.status === 'pending_connection'
+                  ? 'Pendiente de conexión'
+                  : integrationsStatus.google_ads?.status === 'connected'
+                    ? 'Conectado'
+                    : 'No disponible'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex items-center gap-1 border-b border-border overflow-x-auto pb-px">
         {TABS.map((tab) => {
           const Icon = tab.icon
@@ -317,11 +658,13 @@ export default function AnaliticasPage() {
 
       {!loading && !error && data && activeTab === 'overview' && (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
             <KpiCard title="Sesiones Totales" value={fmtNum(data.overview.total_sessions)} icon={Eye} />
             <KpiCard title="Gasto Ads" value={fmtCur(data.overview.total_ad_spend)} icon={DollarSign} />
             <KpiCard title="Conversiones" value={fmtNum(data.overview.total_conversions)} icon={Target} />
             <KpiCard title="ROAS Global" value={`${data.overview.global_roas.toFixed(2)}x`} icon={TrendingUp} />
+            <KpiCard title="CPL (estimado)" value={cpl !== null ? fmtCur(cpl) : '—'} icon={DollarSign} />
+            <KpiCard title="CVR sesión→conv." value={fmtPct(sessionToConversionRate)} icon={TrendingUp} />
           </div>
 
           <Card>
@@ -346,38 +689,159 @@ export default function AnaliticasPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Tráfico ({TRAFFIC_GRANULARITY_LABELS[trafficGranularity]})</CardTitle>
+              <CardTitle className="text-base">Adquisición diaria: Orgánico vs Pago ({TRAFFIC_GRANULARITY_LABELS[trafficGranularity]})</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="mb-5">
-                <TrafficBars points={selectedTrafficSeries.slice(-12)} />
+            <CardContent className="space-y-6">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-lg border border-border/60 p-3">
+                  <p className="text-xs text-muted-foreground">Orgánico (rango visible)</p>
+                  <p className="mt-1 text-xl font-semibold">{fmtNum(acquisitionTotals.organic)}</p>
+                  <p className="text-xs text-muted-foreground">{fmtPct(organicShare)} del total</p>
+                </div>
+                <div className="rounded-lg border border-border/60 p-3">
+                  <p className="text-xs text-muted-foreground">Pago (Facebook + Google)</p>
+                  <p className="mt-1 text-xl font-semibold">{fmtNum(acquisitionTotals.paid)}</p>
+                  <p className="text-xs text-muted-foreground">{fmtPct(paidShare)} del total</p>
+                </div>
+                <div className="rounded-lg border border-border/60 p-3">
+                  <p className="text-xs text-muted-foreground">Facebook Ads</p>
+                  <p className="mt-1 text-xl font-semibold">{fmtNum(acquisitionTotals.facebook)}</p>
+                </div>
+                <div className="rounded-lg border border-border/60 p-3">
+                  <p className="text-xs text-muted-foreground">Google Ads</p>
+                  <p className="mt-1 text-xl font-semibold">{fmtNum(acquisitionTotals.google)}</p>
+                </div>
               </div>
+
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold">Comparativa diaria orgánico vs pago</p>
+                  <OrganicVsPaidBars points={acquisitionSeries} />
+                </div>
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold">Mix diario del tráfico de pago</p>
+                  <PaidChannelBars points={acquisitionSeries} />
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[680px] text-sm">
                   <thead className="border-b">
                     <tr>
                       <th className="py-2 text-left">Fecha</th>
                       <th className="py-2 text-right">Orgánico</th>
+                      <th className="py-2 text-right">Pago</th>
                       <th className="py-2 text-right">Facebook Ads</th>
                       <th className="py-2 text-right">Google Ads</th>
                       <th className="py-2 text-right">Total</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedTrafficSeries.slice(-14).map((item) => (
-                      <tr key={item.isoDate} className="border-b border-border/40">
-                        <td className="py-2">{item.date}</td>
-                        <td className="py-2 text-right">{fmtNum(item.Organico)}</td>
-                        <td className="py-2 text-right">{fmtNum(item['Facebook Ads'])}</td>
-                        <td className="py-2 text-right">{fmtNum(item['Google Ads'])}</td>
-                        <td className="py-2 text-right font-semibold">{fmtNum(item.Total)}</td>
+                    {acquisitionSeries.length === 0 ? (
+                      <tr>
+                        <td className="py-4 text-sm text-muted-foreground" colSpan={6}>
+                          {data.traffic.empty_reason || 'Sin datos de tráfico para este rango.'}
+                        </td>
                       </tr>
-                    ))}
+                    ) : (
+                      buildTrafficComparison(acquisitionSeries).map((item) => (
+                        <tr key={item.isoDate} className="border-b border-border/40">
+                          <td className="py-2">{item.date}</td>
+                          <td className="py-2 text-right">{fmtNum(item.Organico)}</td>
+                          <td className="py-2 text-right">{fmtNum(item.Paid)}</td>
+                          <td className="py-2 text-right">{fmtNum(item['Facebook Ads'])}</td>
+                          <td className="py-2 text-right">{fmtNum(item['Google Ads'])}</td>
+                          <td className="py-2 text-right font-semibold">{fmtNum(item.Total)}</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
             </CardContent>
           </Card>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Conversión y eficiencia</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-lg border border-border/60 p-3">
+                    <p className="text-xs text-muted-foreground">Sesiones / periodo</p>
+                    <p className="mt-1 text-lg font-semibold">{avgSessionsPerPoint > 0 ? fmtNum(Math.round(avgSessionsPerPoint)) : '0'}</p>
+                  </div>
+                  <div className="rounded-lg border border-border/60 p-3">
+                    <p className="text-xs text-muted-foreground">Form submit rate</p>
+                    <p className="mt-1 text-lg font-semibold">{fmtPct(formSubmitRate)}</p>
+                  </div>
+                  <div className="rounded-lg border border-border/60 p-3">
+                    <p className="text-xs text-muted-foreground">Sesión → Conversión</p>
+                    <p className="mt-1 text-lg font-semibold">{fmtPct(sessionToConversionRate)}</p>
+                  </div>
+                  <div className="rounded-lg border border-border/60 p-3">
+                    <p className="text-xs text-muted-foreground">ROAS</p>
+                    <p className="mt-1 text-lg font-semibold">{data.overview.global_roas.toFixed(2)}x</p>
+                  </div>
+                </div>
+
+                {(() => {
+                  const stages = [
+                    { label: 'Sesiones totales', value: data.overview.total_sessions },
+                    { label: 'Visitas landing Meta', value: fbTrafficFunnel.page_views },
+                    { label: 'Formularios enviados', value: fbTrafficFunnel.form_submits },
+                    { label: 'Conversiones', value: data.overview.total_conversions },
+                  ]
+                  const maxStage = stages.reduce((max, stage) => Math.max(max, stage.value), 0) || 1
+
+                  return (
+                    <div className="space-y-2">
+                      {stages.map((stage) => (
+                        <div key={stage.label} className="grid grid-cols-[150px_1fr_90px] items-center gap-3 text-xs">
+                          <span className="text-muted-foreground">{stage.label}</span>
+                          <div className="h-2.5 rounded bg-muted overflow-hidden">
+                            <div
+                              className="h-full rounded bg-primary/80"
+                              style={{ width: `${Math.max((stage.value / maxStage) * 100, stage.value > 0 ? 4 : 1)}%` }}
+                            />
+                          </div>
+                          <span className="text-right font-semibold">{fmtNum(stage.value)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Calidad del dato y alertas</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {dataQualityAlerts.length === 0 ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <span>Sin alertas relevantes en el rango actual.</span>
+                  </div>
+                ) : (
+                  dataQualityAlerts.map((alert) => (
+                    <div key={alert.id} className="rounded-lg border border-border/60 p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold">{alert.title}</p>
+                        <Badge className={alertBadgeClass(alert.severity)}>{alertLabel(alert.severity)}</Badge>
+                      </div>
+                      <div className="mt-1 flex items-start gap-2 text-xs text-muted-foreground">
+                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <p>{alert.detail}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       )}
 
@@ -414,13 +878,21 @@ export default function AnaliticasPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {topPages.map((page, idx) => (
-                      <tr key={`${page.path}-${idx}`} className="border-b border-border/40">
-                        <td className="py-2"><code className="text-xs">{page.path}</code></td>
-                        <td className="py-2 text-right">{fmtNum(page.views)}</td>
-                        <td className="py-2 text-right">{page.avgTime}</td>
+                    {topPages.length === 0 ? (
+                      <tr>
+                        <td className="py-4 text-sm text-muted-foreground" colSpan={3}>
+                          {data.traffic.empty_reason || 'Sin páginas con tráfico en este rango.'}
+                        </td>
                       </tr>
-                    ))}
+                    ) : (
+                      topPages.map((page, idx) => (
+                        <tr key={`${page.path}-${idx}`} className="border-b border-border/40">
+                          <td className="py-2"><code className="text-xs">{page.path}</code></td>
+                          <td className="py-2 text-right">{fmtNum(page.views)}</td>
+                          <td className="py-2 text-right">{page.avgTime}</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -443,14 +915,22 @@ export default function AnaliticasPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sourceMedium.map((row, idx) => (
-                      <tr key={`${row.source}-${idx}`} className="border-b border-border/40">
-                        <td className="py-2">{row.source}</td>
-                        <td className="py-2 text-right">{fmtNum(row.sessions)}</td>
-                        <td className="py-2 text-right">{fmtNum(row.users)}</td>
-                        <td className="py-2 text-right">{row.bounceRate > 0 ? fmtPct(row.bounceRate) : '—'}</td>
+                    {sourceMedium.length === 0 ? (
+                      <tr>
+                        <td className="py-4 text-sm text-muted-foreground" colSpan={4}>
+                          {data.traffic.empty_reason || 'Sin fuentes/medios en este rango.'}
+                        </td>
                       </tr>
-                    ))}
+                    ) : (
+                      sourceMedium.map((row, idx) => (
+                        <tr key={`${row.source}-${idx}`} className="border-b border-border/40">
+                          <td className="py-2">{row.source}</td>
+                          <td className="py-2 text-right">{fmtNum(row.sessions)}</td>
+                          <td className="py-2 text-right">{fmtNum(row.users)}</td>
+                          <td className="py-2 text-right">{row.bounceRate > 0 ? fmtPct(row.bounceRate) : '—'}</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

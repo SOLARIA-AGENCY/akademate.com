@@ -26,6 +26,20 @@ function toPositiveInt(value: unknown): number | null {
   return null
 }
 
+function isResultConstraintError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message.toLowerCase() : ''
+  return (
+    message.includes('check constraint') &&
+    message.includes('result')
+  )
+}
+
+function buildInsertResultAttempts(result: string): string[] {
+  if (result === 'note_added') return ['note_added', 'status_changed', 'message_sent', 'email_sent']
+  if (result === 'status_changed') return ['status_changed', 'message_sent', 'email_sent']
+  return [result]
+}
+
 async function hasColumn(drizzle: any, tableName: string, columnName: string): Promise<boolean> {
   try {
     const result = await drizzle.execute(`
@@ -166,15 +180,37 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const noteEsc = note ? `'${esc(note)}'` : 'NULL'
 
     // 1. Insert interaction (append-only)
-    await drizzle.execute(
-      `INSERT INTO lead_interactions (lead_id, user_id, channel, result, note, tenant_id) VALUES (${leadId}, ${userId}, '${esc(channel)}', '${esc(result)}', ${noteEsc}, ${tenantId})`,
-    )
+    // Backward-compatible retry when old DB constraints don't support newer result values.
+    const resultAttempts = buildInsertResultAttempts(result)
+    let persistedResult: string | null = null
+    let lastInsertError: unknown = null
+
+    for (const candidateResult of resultAttempts) {
+      try {
+        await drizzle.execute(
+          `INSERT INTO lead_interactions (lead_id, user_id, channel, result, note, tenant_id) VALUES (${leadId}, ${userId}, '${esc(channel)}', '${esc(candidateResult)}', ${noteEsc}, ${tenantId})`,
+        )
+        persistedResult = candidateResult
+        break
+      } catch (error) {
+        lastInsertError = error
+        if (!isResultConstraintError(error)) {
+          throw error
+        }
+      }
+    }
+
+    if (!persistedResult) {
+      throw lastInsertError instanceof Error
+        ? lastInsertError
+        : new Error('No se pudo registrar la interacción')
+    }
 
     // 2. Update lead.last_contacted_at
     await drizzle.execute(`UPDATE leads SET last_contacted_at = NOW(), updated_at = NOW() WHERE id = ${leadId}`)
 
     // 3-4. Auto status transitions (skip for manual status changes and system events)
-    const skipAutoTransition = ['status_changed', 'enrollment_started', 'note_added'].includes(result)
+    const skipAutoTransition = ['status_changed', 'enrollment_started', 'note_added'].includes(persistedResult)
 
     if (!skipAutoTransition) {
       // If first contact interaction, auto-change to 'contacted'
@@ -187,21 +223,22 @@ export async function POST(request: NextRequest, context: RouteContext) {
       }
 
       // Auto transitions based on contact result
-      if (result === 'positive') {
+      if (persistedResult === 'positive') {
         await drizzle.execute(`UPDATE leads SET status = 'interested' WHERE id = ${leadId} AND status IN ('new', 'contacted', 'following_up')`)
-      } else if (result === 'wrong_number') {
+      } else if (persistedResult === 'wrong_number') {
         await drizzle.execute(`UPDATE leads SET status = 'unreachable' WHERE id = ${leadId}`)
-      } else if (result === 'callback') {
+      } else if (persistedResult === 'callback') {
         await drizzle.execute(`UPDATE leads SET status = 'on_hold' WHERE id = ${leadId}`)
-      } else if (result === 'negative') {
+      } else if (persistedResult === 'negative') {
         await drizzle.execute(`UPDATE leads SET status = 'not_interested' WHERE id = ${leadId} AND status IN ('new', 'contacted', 'following_up', 'interested')`)
       }
     }
 
     const updatedLead = await payload.findByID({ collection: 'leads', id, depth: 0 })
-    return NextResponse.json({ success: true, lead: updatedLead })
+    return NextResponse.json({ success: true, lead: updatedLead, result: persistedResult })
   } catch (error) {
     console.error('[API][LeadInteractions] POST error:', error)
-    return NextResponse.json({ error: 'Failed to create interaction' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Failed to create interaction'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

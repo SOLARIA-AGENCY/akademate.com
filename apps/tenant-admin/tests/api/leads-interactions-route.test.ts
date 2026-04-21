@@ -192,4 +192,39 @@ describe('Leads interactions route', () => {
     expect(executedSql).not.toContain('SELECT COUNT(*) as cnt FROM lead_interactions')
     expect(executedSql).not.toContain('status = \'contacted\'')
   })
+
+  it('POST note_added retries with backward-compatible result when DB check constraint rejects it', async () => {
+    const checkConstraintError = new Error(
+      'new row for relation "lead_interactions" violates check constraint "lead_interactions_result_check" (result)'
+    )
+    mockExecute
+      .mockRejectedValueOnce(checkConstraintError) // first insert with note_added
+      .mockResolvedValueOnce({ rows: [] }) // fallback insert with status_changed
+      .mockResolvedValueOnce({ rows: [] }) // update last_contacted_at
+
+    const request = new NextRequest('http://localhost/api/leads/16/interactions', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        cookie: 'payload-token=test-token',
+      },
+      body: JSON.stringify({
+        channel: 'system',
+        result: 'note_added',
+        note: 'Nota interna',
+      }),
+    })
+
+    const response = await POST(request, buildContext())
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.success).toBe(true)
+    expect(payload.result).toBe('status_changed')
+
+    const executedSql = mockExecute.mock.calls.map(([sql]) => String(sql)).join('\n')
+    expect(executedSql).toContain("result, note, tenant_id) VALUES (16, 7, 'system', 'note_added'")
+    expect(executedSql).toContain("result, note, tenant_id) VALUES (16, 7, 'system', 'status_changed'")
+    expect(executedSql).not.toContain('SELECT COUNT(*) as cnt FROM lead_interactions')
+  })
 })
