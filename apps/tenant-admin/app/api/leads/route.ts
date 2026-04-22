@@ -27,6 +27,23 @@ function toPositiveInt(value: unknown): number | null {
   return null
 }
 
+function resolveUserDisplayName(user: {
+  name?: unknown
+  first_name?: unknown
+  last_name?: unknown
+  email?: unknown
+}): string | null {
+  const name = typeof user.name === 'string' ? user.name.trim() : ''
+  if (name.length > 0) return name
+
+  const firstName = typeof user.first_name === 'string' ? user.first_name.trim() : ''
+  const lastName = typeof user.last_name === 'string' ? user.last_name.trim() : ''
+  const fullName = [firstName, lastName].filter(Boolean).join(' ').trim()
+  if (fullName.length > 0) return fullName
+  const email = typeof user.email === 'string' ? user.email.trim() : ''
+  return email.length > 0 ? email : null
+}
+
 function normalizeHost(rawHost: string | null | undefined): string {
   const firstHost = (rawHost ?? '').split(',')[0]?.trim().toLowerCase() ?? ''
   return firstHost.replace(/:\d+$/, '')
@@ -231,6 +248,18 @@ function normalizeSpanishPhone(raw: unknown): string | null {
   return `+34 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)}`
 }
 
+function toTimestamp(value: unknown): number | null {
+  if (value instanceof Date) {
+    const ts = value.getTime()
+    return Number.isFinite(ts) ? ts : null
+  }
+  if (typeof value === 'string') {
+    const ts = new Date(value).getTime()
+    return Number.isFinite(ts) ? ts : null
+  }
+  return null
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -324,10 +353,71 @@ export async function GET(request: NextRequest) {
     const leadsRes = await drizzle.execute(`SELECT * FROM leads l ${whereClause} ORDER BY CASE l.status WHEN 'new' THEN 0 WHEN 'contacted' THEN 1 WHEN 'following_up' THEN 2 WHEN 'interested' THEN 3 WHEN 'on_hold' THEN 4 WHEN 'enrolling' THEN 5 ELSE 6 END, l.created_at DESC LIMIT ${limit} OFFSET ${offset}`)
     const leadsRows = Array.isArray(leadsRes) ? leadsRes : (leadsRes?.rows ?? [])
 
-    // Enrich with interaction data in bulk (prevents N+1 queries on large CRM datasets)
-    let docs = leadsRows.map((row: any) => ({ ...row, lastInteractor: null, interactionCount: 0 }))
+    // Enrich with assignment + interaction data in bulk (prevents N+1 queries on large CRM datasets)
+    let docs = leadsRows.map((row: any) => ({
+      ...row,
+      lastInteractor: null,
+      interactionCount: 0,
+      assignedTo: null,
+    }))
     const leadIds = leadsRows.map((row: any) => toPositiveInt(row?.id)).filter((id): id is number => id !== null)
     const leadInteractionsTableExists = leadIds.length > 0 ? await hasTable(drizzle, 'lead_interactions') : false
+
+    const usersTableExists = await hasTable(drizzle, 'users')
+    const usersNameExists = usersTableExists ? await hasColumn(drizzle, 'users', 'name') : false
+    const usersFirstNameExists = usersTableExists ? await hasColumn(drizzle, 'users', 'first_name') : false
+    const usersLastNameExists = usersTableExists ? await hasColumn(drizzle, 'users', 'last_name') : false
+    const usersEmailExists = usersTableExists ? await hasColumn(drizzle, 'users', 'email') : false
+    const usersTenantIdExists = usersTableExists ? await hasColumn(drizzle, 'users', 'tenant_id') : false
+    const hasAssignedToIdColumn = await hasColumn(drizzle, 'leads', 'assigned_to_id')
+    const hasAssignedToLegacyColumn = await hasColumn(drizzle, 'leads', 'assigned_to')
+
+    const readAssignedUserId = (row: any): number | null => {
+      if (hasAssignedToIdColumn) {
+        return toPositiveInt(row?.assigned_to_id)
+      }
+      if (hasAssignedToLegacyColumn) {
+        return toPositiveInt(row?.assigned_to)
+      }
+      return null
+    }
+
+    const assignedUserIds = Array.from(
+      new Set(
+        leadsRows
+          .map((row: any) => readAssignedUserId(row))
+          .filter((id): id is number => id !== null),
+      ),
+    )
+    const assignedUserMap = new Map<number, { name: string | null; email: string | null }>()
+
+    if (usersTableExists && assignedUserIds.length > 0) {
+      try {
+        const nameSql = usersNameExists ? 'u.name' : 'NULL::text AS name'
+        const firstNameSql = usersFirstNameExists ? 'u.first_name' : 'NULL::text AS first_name'
+        const lastNameSql = usersLastNameExists ? 'u.last_name' : 'NULL::text AS last_name'
+        const emailSql = usersEmailExists ? 'u.email' : 'NULL::text AS email'
+        const tenantSql =
+          authSession.tenantId && usersTenantIdExists ? ` AND u.tenant_id = ${authSession.tenantId}` : ''
+        const assignedRes = await drizzle.execute(
+          `SELECT u.id, ${nameSql}, ${firstNameSql}, ${lastNameSql}, ${emailSql}
+           FROM users u
+           WHERE u.id IN (${assignedUserIds.join(',')})${tenantSql}`,
+        )
+        const assignedRows = Array.isArray(assignedRes) ? assignedRes : (assignedRes?.rows ?? [])
+        for (const row of assignedRows) {
+          const userId = toPositiveInt(row?.id)
+          if (userId !== null) {
+            assignedUserMap.set(userId, {
+              name: resolveUserDisplayName(row),
+              email: typeof row?.email === 'string' ? row.email.trim() : null,
+            })
+          }
+        }
+      } catch {
+        // Keep assignment unresolved if optional joins fail.
+      }
+    }
 
     if (leadInteractionsTableExists && leadIds.length > 0) {
       const leadIdsSql = leadIds.join(',')
@@ -349,15 +439,19 @@ export async function GET(request: NextRequest) {
           }
         }
 
-        const usersTableExists = await hasTable(drizzle, 'users')
-        const usersFirstNameExists = usersTableExists ? await hasColumn(drizzle, 'users', 'first_name') : false
-
-        const lastInteractionSql = usersFirstNameExists
+        const nameSql = usersNameExists ? 'u.name' : 'NULL::text AS name'
+        const firstNameSql = usersFirstNameExists ? 'u.first_name' : 'NULL::text AS first_name'
+        const lastNameSql = usersLastNameExists ? 'u.last_name' : 'NULL::text AS last_name'
+        const emailSql = usersEmailExists ? 'u.email' : 'NULL::text AS email'
+        const lastInteractionSql = usersTableExists
           ? `SELECT DISTINCT ON (li.lead_id)
                li.lead_id,
                li.channel,
                li.created_at,
-               u.first_name
+               ${nameSql},
+               ${firstNameSql},
+               ${lastNameSql},
+               ${emailSql}
              FROM lead_interactions li
              LEFT JOIN users u ON u.id = li.user_id
              WHERE li.lead_id IN (${leadIdsSql})${interactionsTenantFilter}
@@ -366,7 +460,10 @@ export async function GET(request: NextRequest) {
                li.lead_id,
                li.channel,
                li.created_at,
-               NULL::text AS first_name
+               NULL::text AS name,
+               NULL::text AS first_name,
+               NULL::text AS last_name,
+               NULL::text AS email
              FROM lead_interactions li
              WHERE li.lead_id IN (${leadIdsSql})${interactionsTenantFilter}
              ORDER BY li.lead_id, li.created_at DESC`
@@ -378,7 +475,7 @@ export async function GET(request: NextRequest) {
           const leadId = toPositiveInt(row?.lead_id)
           if (leadId !== null) {
             lastInteractionMap.set(leadId, {
-              name: (typeof row?.first_name === 'string' && row.first_name.trim().length > 0) ? row.first_name : null,
+              name: resolveUserDisplayName(row),
               channel: typeof row?.channel === 'string' ? row.channel : null,
               at: typeof row?.created_at === 'string' ? row.created_at : null,
             })
@@ -389,22 +486,50 @@ export async function GET(request: NextRequest) {
           const leadId = toPositiveInt(row?.id)
           const interactionCount = leadId !== null ? interactionCountMap.get(leadId) ?? 0 : 0
           const lastInteraction = leadId !== null ? lastInteractionMap.get(leadId) : undefined
+          const assignedUserId = readAssignedUserId(row)
+          const assignedUser = assignedUserId !== null ? assignedUserMap.get(assignedUserId) : undefined
 
           return {
             ...row,
             interactionCount,
-            lastInteractor: lastInteraction
+            assignedTo: assignedUserId !== null
               ? {
-                  name: lastInteraction.name ?? 'Sistema',
-                  channel: lastInteraction.channel ?? 'system',
-                  at: lastInteraction.at ?? row?.updated_at ?? row?.created_at ?? null,
+                  id: assignedUserId,
+                  name: assignedUser?.name ?? null,
+                  email: assignedUser?.email ?? null,
                 }
               : null,
+            lastInteractor:
+              lastInteraction && lastInteraction.name
+                ? {
+                    name: lastInteraction.name,
+                    channel: lastInteraction.channel ?? 'system',
+                    at: lastInteraction.at ?? row?.updated_at ?? row?.created_at ?? null,
+                  }
+                : null,
           }
         })
       } catch {
         // Keep docs without interaction enrichment if joins fail in partial schemas.
       }
+    } else {
+      docs = leadsRows.map((row: any) => {
+        const assignedUserId = readAssignedUserId(row)
+        const assignedUser = assignedUserId !== null ? assignedUserMap.get(assignedUserId) : undefined
+
+        return {
+          ...row,
+          lastInteractor: null,
+          interactionCount: 0,
+          assignedTo: assignedUserId !== null
+            ? {
+                id: assignedUserId,
+                name: assignedUser?.name ?? null,
+                email: assignedUser?.email ?? null,
+              }
+            : null,
+        }
+      })
     }
 
     if (leadType && !leadTypeColumnExists) {
@@ -534,6 +659,25 @@ export async function POST(request: NextRequest) {
     const lastName = nameParts.slice(1).join(' ') || '-'
 
     const normalizedPhone = normalizeSpanishPhone(body.phone)
+    const requiresQualifiedCycleData =
+      sourceForm === 'preinscripcion_ciclo' &&
+      normalizedLeadType !== 'waiting_list'
+
+    if (requiresQualifiedCycleData) {
+      if (!fullName.trim()) {
+        return NextResponse.json(
+          { error: 'Nombre obligatorio para solicitudes de ciclos con convocatorias activas' },
+          { status: 422 }
+        )
+      }
+      if (!normalizedPhone) {
+        return NextResponse.json(
+          { error: 'Telefono obligatorio y valido (+34 XXX XXX XXX) para solicitudes de ciclos con convocatorias activas' },
+          { status: 422 }
+        )
+      }
+    }
+
     if (normalizedLeadType === 'inscripcion' && !normalizedPhone) {
       return NextResponse.json(
         { error: 'Telefono obligatorio y valido (+34 XXX XXX XXX) para inscripciones' },
@@ -541,6 +685,78 @@ export async function POST(request: NextRequest) {
       )
     }
     const phone = normalizedPhone || PLACEHOLDER_PHONE
+
+    // Guardrail: avoid creating degraded duplicate leads from cycle quick-capture forms.
+    // If a sparse cycle form capture (email only) arrives and we already have a recent,
+    // richer lead for the same tenant+email, reuse that lead instead of creating a new one.
+    const sparseCycleCapture =
+      sourceForm === 'preinscripcion_ciclo' &&
+      normalizedLeadType !== 'waiting_list' &&
+      fullName.trim().length === 0 &&
+      normalizedPhone === null
+
+    if (sparseCycleCapture) {
+      try {
+        const existingLeadQuery = await payload.find({
+          collection: 'leads',
+          where: {
+            and: [
+              { email: { equals: body.email } },
+              { tenant: { equals: tenantIdNumeric } },
+            ],
+          },
+          sort: '-createdAt',
+          limit: 5,
+          depth: 0,
+        })
+
+        const recentLead = (existingLeadQuery.docs || []).find((candidate: any) => {
+          if (!candidate || candidate.is_test === true) return false
+
+          const candidateCreatedAt =
+            toTimestamp(candidate.createdAt) ??
+            toTimestamp(candidate.created_at)
+          if (!candidateCreatedAt) return false
+
+          // 48h window to prevent stale re-linking.
+          const ageMs = Date.now() - candidateCreatedAt
+          if (ageMs < 0 || ageMs > 48 * 60 * 60 * 1000) return false
+
+          const candidatePhone = normalizeSpanishPhone(candidate.phone)
+          const candidateFirstName =
+            typeof candidate.first_name === 'string' ? candidate.first_name.trim() : ''
+          const candidateLastName =
+            typeof candidate.last_name === 'string' ? candidate.last_name.trim() : ''
+          const emailAlias = String(body.email || '')
+            .split('@')[0]
+            ?.trim()
+            .toLowerCase()
+
+          const hasRealPhone = candidatePhone !== null
+          const hasHumanName =
+            candidateFirstName.length > 0 &&
+            candidateLastName.length > 0 &&
+            candidateLastName !== '-' &&
+            candidateFirstName.toLowerCase() !== emailAlias
+
+          return hasRealPhone || hasHumanName
+        })
+
+        if (recentLead?.id) {
+          return NextResponse.json(
+            {
+              success: true,
+              id: recentLead.id,
+              deduplicated: true,
+              reason: 'reused_recent_enriched_lead',
+            },
+            { status: 200 },
+          )
+        }
+      } catch {
+        // Continue with normal creation if dedupe lookup fails.
+      }
+    }
 
     const convocatoriaId = toPositiveInt(body.convocatoria_id)
     const cycleId = toPositiveInt(body.cycle_id)

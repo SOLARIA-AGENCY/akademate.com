@@ -9,17 +9,22 @@ interface LeadFormProps {
 }
 
 export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFormProps) {
+  const requiresQualifiedData = hasActiveConvocatorias
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [showFull, setShowFull] = useState(false)
+  const [showFull, setShowFull] = useState(requiresQualifiedData)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
+    if (requiresQualifiedData && (!name.trim() || !phone.trim())) {
+      setError('Nombre y teléfono son obligatorios para solicitar información de ciclos activos.')
+      return
+    }
     setSubmitting(true)
     setError('')
 
@@ -89,14 +94,16 @@ export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFor
         <>
           <input
             type="text"
-            placeholder="Tu nombre (opcional)"
+            required={requiresQualifiedData}
+            placeholder={requiresQualifiedData ? 'Tu nombre *' : 'Tu nombre (opcional)'}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
           />
           <input
             type="tel"
-            placeholder="Tu telefono (opcional)"
+            required={requiresQualifiedData}
+            placeholder={requiresQualifiedData ? 'Tu telefono *' : 'Tu telefono (opcional)'}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
@@ -108,7 +115,7 @@ export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFor
 
       <button
         type="submit"
-        disabled={submitting || !email}
+        disabled={submitting || !email || (requiresQualifiedData && (!name.trim() || !phone.trim()))}
         className="w-full px-4 py-2.5 brand-bg text-white rounded-lg text-sm font-medium hover:brand-bg disabled:opacity-50 transition-colors"
       >
         {submitting ? 'Enviando...' : hasActiveConvocatorias ? 'Solicitar informacion' : 'Avisame de proximas convocatorias'}
