@@ -1,6 +1,14 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import {
+  Component,
+  type ErrorInfo,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
+import { useRouter } from 'next/navigation'
 import {
   BarChart3,
   RefreshCw,
@@ -19,12 +27,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { EmptyState } from '@payload-config/components/ui/EmptyState'
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
 const DATE_RANGES = ['7d', '30d', '90d'] as const
 
 type DateRange = (typeof DATE_RANGES)[number]
 type Tab = 'overview' | 'organic' | 'facebook' | 'google'
-type TrafficGranularity = 'day' | 'week' | 'month'
+type TrafficGranularity = 'hour' | 'day' | 'week' | 'month'
 type Ga4FallbackReasonCode =
   | 'ga4_connected'
   | 'ga4_missing_measurement_id'
@@ -139,7 +159,7 @@ type AnalyticsPayload = {
   }
   traffic: {
     series: TrafficPoint[]
-    series_by_granularity: Record<TrafficGranularity, TrafficPoint[]>
+    series_by_granularity: Partial<Record<TrafficGranularity, TrafficPoint[]>>
     top_pages: TopPage[]
     source_medium: TrafficSourceMedium[]
     empty_reason?: string | null
@@ -182,6 +202,7 @@ const DATE_LABELS: Record<DateRange, string> = {
 }
 
 const TRAFFIC_GRANULARITY_LABELS: Record<TrafficGranularity, string> = {
+  hour: 'Hora',
   day: 'Día',
   week: 'Semana',
   month: 'Mes',
@@ -214,32 +235,6 @@ const TRAFFIC_REASON_MESSAGES: Record<Ga4FallbackReasonCode, string> = {
   ga4_runtime_error: 'Error interno al consultar GA4.',
 }
 
-function TrafficBars({ points }: { points: TrafficPoint[] }) {
-  if (points.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sin datos de tráfico para este rango.</p>
-  }
-
-  const maxTotal = points.reduce((max, point) => Math.max(max, point.Total), 0)
-  const denominator = maxTotal > 0 ? maxTotal : 1
-
-  return (
-    <div className="space-y-2">
-      {points.map((point) => (
-        <div key={point.isoDate} className="grid grid-cols-[120px_1fr_80px] items-center gap-3 text-xs">
-          <span className="text-muted-foreground">{point.date}</span>
-          <div className="h-2.5 w-full rounded bg-muted overflow-hidden">
-            <div
-              className="h-full rounded bg-primary/80"
-              style={{ width: `${Math.max((point.Total / denominator) * 100, 2)}%` }}
-            />
-          </div>
-          <span className="text-right font-semibold">{fmtNum(point.Total)}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
 function buildTrafficComparison(points: TrafficPoint[]): TrafficComparisonPoint[] {
   return points.map((point) => ({
     ...point,
@@ -247,95 +242,425 @@ function buildTrafficComparison(points: TrafficPoint[]): TrafficComparisonPoint[
   }))
 }
 
-function OrganicVsPaidBars({ points }: { points: TrafficPoint[] }) {
-  const items = buildTrafficComparison(points)
-  if (items.length === 0) {
+const CHART_COLORS = {
+  organic: '#16a34a',
+  facebook: '#2563eb',
+  google: '#f97316',
+  total: '#0f766e',
+  spend: '#d97706',
+} as const
+
+type ChartVisibility = {
+  organic: boolean
+  facebook: boolean
+  google: boolean
+  total: boolean
+}
+
+function movingAverage(values: number[], windowSize = 3): Array<number | null> {
+  if (windowSize <= 1) return values
+  return values.map((_, index) => {
+    const start = index - (windowSize - 1)
+    if (start < 0) return null
+    const slice = values.slice(start, index + 1)
+    const sum = slice.reduce((acc, current) => acc + current, 0)
+    return sum / slice.length
+  })
+}
+
+function formatTooltipValue(value: unknown): number {
+  if (typeof value === 'number') return value
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value)
+    return Number.isFinite(parsed) ? parsed : 0
+  }
+  return 0
+}
+
+function parseHourFromPoint(point: TrafficPoint): number | null {
+  const isoMatch = point.isoDate.match(/T(\d{2})/)
+  if (isoMatch) {
+    const hour = Number.parseInt(isoMatch[1], 10)
+    return Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : null
+  }
+
+  const dateMatch = point.date.match(/\b(\d{1,2})\s*(?:h|:00)\b/i)
+  if (dateMatch) {
+    const hour = Number.parseInt(dateMatch[1], 10)
+    return Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : null
+  }
+
+  return null
+}
+
+function buildHourlyDistribution(points: TrafficPoint[]): Array<{ hourLabel: string; sessions: number }> {
+  if (points.length === 0) return []
+
+  const bucket = new Map<number, { sum: number; count: number }>()
+  for (const point of points) {
+    const hour = parseHourFromPoint(point)
+    if (hour === null) continue
+    const current = bucket.get(hour) ?? { sum: 0, count: 0 }
+    current.sum += point.Total
+    current.count += 1
+    bucket.set(hour, current)
+  }
+
+  if (bucket.size === 0) return []
+
+  return Array.from({ length: 24 }, (_, hour) => {
+    const current = bucket.get(hour)
+    const sessions = current && current.count > 0 ? Math.round(current.sum / current.count) : 0
+    return { hourLabel: `${hour}h`, sessions }
+  })
+}
+
+class ChartErrorBoundary extends Component<
+  { children: ReactNode; title: string },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode; title: string }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true }
+  }
+
+  override componentDidCatch(error: Error, info: ErrorInfo): void {
+    console.error('[analiticas/charts] render error:', { error, info })
+  }
+
+  override render(): ReactNode {
+    if (this.state.hasError) {
+      return (
+        <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          {this.props.title}
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+type GraficaVisitantesTiempoProps = {
+  data: TrafficPoint[]
+  granularidad: TrafficGranularity
+  showFallbackBanner: boolean
+  mode?: 'all' | 'total' | 'organic'
+}
+
+function GraficaVisitantesTiempo({
+  data,
+  granularidad,
+  showFallbackBanner,
+  mode = 'all',
+}: GraficaVisitantesTiempoProps) {
+  const [visible, setVisible] = useState<ChartVisibility>({
+    organic: true,
+    facebook: true,
+    google: true,
+    total: mode !== 'organic',
+  })
+
+  const allGoogleZero = data.every((point) => point['Google Ads'] === 0)
+  const organicTrend = useMemo(
+    () => movingAverage(data.map((point) => point.Organico)),
+    [data],
+  )
+
+  if (data.length === 0) {
     return <p className="text-sm text-muted-foreground">Sin datos de tráfico para este rango.</p>
   }
 
-  const maxTotal = items.reduce((max, point) => Math.max(max, point.Total), 0)
-  const denominator = maxTotal > 0 ? maxTotal : 1
+  const chartRows = data.map((point, index) => ({
+    ...point,
+    organicTrend: organicTrend[index],
+  }))
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3 text-xs">
-        <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-          Orgánico
-        </span>
-        <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-          Pago (Facebook + Google)
-        </span>
-      </div>
-      {items.map((point) => {
-        const totalPct = Math.max((point.Total / denominator) * 100, point.Total > 0 ? 4 : 1)
-        const organicPct = point.Total > 0 ? (point.Organico / point.Total) * 100 : 0
-        const paidPct = point.Total > 0 ? (point.Paid / point.Total) * 100 : 0
+    <ChartErrorBoundary title="No se pudo renderizar la gráfica de adquisición.">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          {(mode === 'all' || mode === 'organic') && (
+            <button
+              type="button"
+              onClick={() => setVisible((prev) => ({ ...prev, organic: !prev.organic }))}
+              className={`inline-flex items-center gap-1 rounded border px-2 py-1 ${
+                visible.organic ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-border text-muted-foreground'
+              }`}
+            >
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS.organic }} />
+              Orgánico
+            </button>
+          )}
+          {mode === 'all' && (
+            <>
+              <button
+                type="button"
+                onClick={() => setVisible((prev) => ({ ...prev, facebook: !prev.facebook }))}
+                className={`inline-flex items-center gap-1 rounded border px-2 py-1 ${
+                  visible.facebook ? 'border-blue-300 bg-blue-50 text-blue-800' : 'border-border text-muted-foreground'
+                }`}
+              >
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS.facebook }} />
+                Facebook Ads
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisible((prev) => ({ ...prev, google: !prev.google }))}
+                className={`inline-flex items-center gap-1 rounded border px-2 py-1 ${
+                  visible.google ? 'border-orange-300 bg-orange-50 text-orange-800' : 'border-border text-muted-foreground'
+                }`}
+              >
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS.google }} />
+                Google Ads
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisible((prev) => ({ ...prev, total: !prev.total }))}
+                className={`inline-flex items-center gap-1 rounded border px-2 py-1 ${
+                  visible.total ? 'border-teal-300 bg-teal-50 text-teal-800' : 'border-border text-muted-foreground'
+                }`}
+              >
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS.total }} />
+                Total
+              </button>
+            </>
+          )}
+        </div>
 
-        return (
-          <div key={point.isoDate} className="grid grid-cols-[92px_1fr_170px] items-center gap-3 text-xs">
-            <span className="text-muted-foreground">{point.date}</span>
-            <div className="h-3 rounded bg-muted overflow-hidden">
-              <div className="h-full flex" style={{ width: `${totalPct}%` }}>
-                <div className="h-full bg-emerald-500" style={{ width: `${organicPct}%` }} />
-                <div className="h-full bg-blue-500" style={{ width: `${paidPct}%` }} />
-              </div>
+        <div className="rounded-lg border border-border/60 bg-card p-3">
+          {showFallbackBanner && (
+            <div className="mb-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              ⚠ Datos de sesiones basados en Meta API + estimación interna. Conecta GA4 para datos precisos.
             </div>
-            <span className="text-right text-muted-foreground">
-              <strong className="text-foreground">{fmtNum(point.Total)}</strong> total
-            </span>
+          )}
+
+          <div className="h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={chartRows} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="date" />
+                <YAxis allowDecimals={false} />
+                <Tooltip
+                  formatter={(value: unknown, name: string | number) => {
+                    const numericValue = formatTooltipValue(value)
+                    const normalizedName = String(name)
+                    if (normalizedName === 'Google Ads' && allGoogleZero) {
+                      return [`${fmtNum(numericValue)} (sin datos de integración)`, normalizedName]
+                    }
+                    return [fmtNum(numericValue), normalizedName]
+                  }}
+                  labelFormatter={(label) => `${label} · ${TRAFFIC_GRANULARITY_LABELS[granularidad]}`}
+                />
+                <Legend />
+
+                {(mode === 'all' || mode === 'organic') && (
+                  <Line
+                    type="monotone"
+                    dataKey="Organico"
+                    name="Orgánico"
+                    stroke={CHART_COLORS.organic}
+                    strokeWidth={2.2}
+                    dot={false}
+                    hide={!visible.organic}
+                  />
+                )}
+                {mode === 'organic' && (
+                  <Line
+                    type="monotone"
+                    dataKey="organicTrend"
+                    name="Tendencia MA(3)"
+                    stroke="#14532d"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    dot={false}
+                    connectNulls
+                    hide={!visible.organic}
+                  />
+                )}
+
+                {mode === 'all' && (
+                  <>
+                    <Line
+                      type="monotone"
+                      dataKey="Facebook Ads"
+                      name="Facebook Ads"
+                      stroke={CHART_COLORS.facebook}
+                      strokeWidth={2}
+                      dot={false}
+                      hide={!visible.facebook}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="Google Ads"
+                      name="Google Ads"
+                      stroke={CHART_COLORS.google}
+                      strokeDasharray={allGoogleZero ? '6 4' : undefined}
+                      strokeWidth={2}
+                      dot={false}
+                      hide={!visible.google}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="Total"
+                      name="Total"
+                      stroke={CHART_COLORS.total}
+                      strokeWidth={3}
+                      dot={false}
+                      hide={!visible.total}
+                    />
+                  </>
+                )}
+
+                {mode === 'total' && (
+                  <Line
+                    type="monotone"
+                    dataKey="Total"
+                    name="Total"
+                    stroke={CHART_COLORS.total}
+                    strokeWidth={3}
+                    dot={false}
+                  />
+                )}
+              </ComposedChart>
+            </ResponsiveContainer>
           </div>
-        )
-      })}
-    </div>
+        </div>
+      </div>
+    </ChartErrorBoundary>
   )
 }
 
-function PaidChannelBars({ points }: { points: TrafficPoint[] }) {
+function PaidChannelStackedChart({ points }: { points: TrafficPoint[] }) {
   if (points.length === 0) {
     return <p className="text-sm text-muted-foreground">Sin desglose de pago para este rango.</p>
   }
 
-  const maxPaid = points.reduce((max, point) => Math.max(max, point['Facebook Ads'] + point['Google Ads']), 0)
-  if (maxPaid === 0) {
-    return <p className="text-sm text-muted-foreground">Sin tráfico de pago detectado en este rango.</p>
+  return (
+    <ChartErrorBoundary title="No se pudo renderizar el mix diario de pago.">
+      <div className="h-[240px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={points} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis dataKey="date" />
+            <YAxis allowDecimals={false} />
+            <Tooltip
+              formatter={(value: unknown, name: string | number) => [
+                fmtNum(formatTooltipValue(value)),
+                String(name),
+              ]}
+            />
+            <Legend />
+            <Bar dataKey="Facebook Ads" stackId="paid" fill={CHART_COLORS.facebook} name="Facebook Ads" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Google Ads" stackId="paid" fill={CHART_COLORS.google} name="Google Ads" />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+    </ChartErrorBoundary>
+  )
+}
+
+function FacebookSessionsSpendChart({
+  points,
+  totalSpend,
+}: {
+  points: TrafficPoint[]
+  totalSpend: number
+}) {
+  if (points.length === 0) {
+    return <p className="text-sm text-muted-foreground">Sin datos de Facebook Ads para este rango.</p>
   }
 
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3 text-xs">
-        <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <span className="h-2.5 w-2.5 rounded-full bg-sky-500" />
-          Facebook Ads
-        </span>
-        <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <span className="h-2.5 w-2.5 rounded-full bg-violet-500" />
-          Google Ads
-        </span>
-      </div>
-      {points.map((point) => {
-        const paid = point['Facebook Ads'] + point['Google Ads']
-        const paidPct = Math.max((paid / maxPaid) * 100, paid > 0 ? 4 : 1)
-        const facebookSplit = paid > 0 ? (point['Facebook Ads'] / paid) * 100 : 0
-        const googleSplit = paid > 0 ? (point['Google Ads'] / paid) * 100 : 0
+  const totalFacebookSessions = points.reduce((acc, point) => acc + point['Facebook Ads'], 0)
+  const rows = points.map((point) => {
+    const estimatedSpend =
+      totalFacebookSessions > 0
+        ? (point['Facebook Ads'] / totalFacebookSessions) * totalSpend
+        : 0
+    return {
+      date: point.date,
+      sessions: point['Facebook Ads'],
+      estimatedSpend,
+    }
+  })
 
-        return (
-          <div key={point.isoDate} className="grid grid-cols-[92px_1fr_170px] items-center gap-3 text-xs">
-            <span className="text-muted-foreground">{point.date}</span>
-            <div className="h-3 rounded bg-muted overflow-hidden">
-              <div className="h-full flex" style={{ width: `${paidPct}%` }}>
-                <div className="h-full bg-sky-500" style={{ width: `${facebookSplit}%` }} />
-                <div className="h-full bg-violet-500" style={{ width: `${googleSplit}%` }} />
-              </div>
-            </div>
-            <span className="text-right text-muted-foreground">
-              <strong className="text-foreground">{fmtNum(paid)}</strong> pago
-            </span>
-          </div>
-        )
-      })}
-    </div>
+  return (
+    <ChartErrorBoundary title="No se pudo renderizar la gráfica de Facebook Ads.">
+      <div className="space-y-2">
+        <p className="text-xs text-muted-foreground">
+          El gasto diario se muestra como estimación proporcional al tráfico por día (no hay serie de spend diario en la fuente actual).
+        </p>
+        <div className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={rows} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="date" />
+              <YAxis yAxisId="left" allowDecimals={false} />
+              <YAxis yAxisId="right" orientation="right" allowDecimals={false} />
+              <Tooltip
+                formatter={(value: unknown, name: string | number) => {
+                  const numericValue = formatTooltipValue(value)
+                  const normalizedName = String(name)
+                  if (normalizedName === 'Gasto estimado (€)') return [fmtCur(numericValue), normalizedName]
+                  return [fmtNum(numericValue), normalizedName]
+                }}
+              />
+              <Legend />
+              <Bar
+                yAxisId="right"
+                dataKey="estimatedSpend"
+                name="Gasto estimado (€)"
+                fill={CHART_COLORS.spend}
+                radius={[4, 4, 0, 0]}
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="sessions"
+                name="Sesiones Facebook Ads"
+                stroke={CHART_COLORS.facebook}
+                strokeWidth={2.5}
+                dot={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </ChartErrorBoundary>
+  )
+}
+
+function HourlyDistributionChart({ points }: { points: Array<{ hourLabel: string; sessions: number }> }) {
+  if (points.length === 0) return null
+
+  return (
+    <ChartErrorBoundary title="No se pudo renderizar la distribución horaria.">
+      <div className="h-[240px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={points} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis dataKey="hourLabel" interval={1} tick={{ fontSize: 10 }} />
+            <YAxis allowDecimals={false} />
+            <Tooltip
+              formatter={(value: unknown) => [
+                fmtNum(formatTooltipValue(value)),
+                'Sesiones promedio',
+              ]}
+            />
+            <Bar dataKey="sessions" name="Sesiones promedio" fill="url(#hourGradient)" radius={[4, 4, 0, 0]} />
+            <defs>
+              <linearGradient id="hourGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0f766e" stopOpacity={0.95} />
+                <stop offset="100%" stopColor="#99f6e4" stopOpacity={0.95} />
+              </linearGradient>
+            </defs>
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+    </ChartErrorBoundary>
   )
 }
 
@@ -386,6 +711,7 @@ function KpiCard({ title, value, icon: Icon }: { title: string; value: string; i
 }
 
 export default function AnaliticasPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<Tab>('overview')
   const [dateRange, setDateRange] = useState<DateRange>('30d')
   const [trafficGranularity, setTrafficGranularity] = useState<TrafficGranularity>('day')
@@ -435,8 +761,18 @@ export default function AnaliticasPage() {
   }, [dateRange])
 
   const trafficSeries = data?.traffic.series ?? []
-  const trafficSeriesByGranularity = data?.traffic.series_by_granularity ?? { day: trafficSeries, week: [], month: [] }
-  const selectedTrafficSeries = trafficSeriesByGranularity[trafficGranularity] ?? trafficSeries
+  const trafficSeriesByGranularity = data?.traffic.series_by_granularity ?? {
+    hour: [],
+    day: trafficSeries,
+    week: [],
+    month: [],
+  }
+  const hasHourlyData = (trafficSeriesByGranularity.hour?.length ?? 0) > 0
+  const canUseHourGranularity = dateRange === '7d' && hasHourlyData
+  const effectiveTrafficGranularity: TrafficGranularity =
+    trafficGranularity === 'hour' && !canUseHourGranularity ? 'day' : trafficGranularity
+  const selectedTrafficSeries =
+    trafficSeriesByGranularity[effectiveTrafficGranularity] ?? trafficSeries
   const topPages = data?.traffic.top_pages ?? []
   const sourceMedium = data?.traffic.source_medium ?? []
   const fbCampaigns = data?.facebook.campaigns ?? []
@@ -444,6 +780,10 @@ export default function AnaliticasPage() {
   const integrationsStatus = data?.integrations_status
   const trafficFallbackReason = data?.source_health.traffic === 'internal' ? labels?.trafficReason ?? null : null
   const acquisitionSeries = useMemo(() => selectedTrafficSeries.slice(-14), [selectedTrafficSeries])
+  const hourlyDistribution = useMemo(
+    () => buildHourlyDistribution(trafficSeriesByGranularity.hour ?? []),
+    [trafficSeriesByGranularity.hour],
+  )
   const acquisitionTotals = useMemo(
     () =>
       acquisitionSeries.reduce(
@@ -474,6 +814,13 @@ export default function AnaliticasPage() {
     data && data.overview.total_sessions > 0
       ? (fbTrafficFunnel.form_submits / data.overview.total_sessions) * 100
       : 0
+
+  useEffect(() => {
+    if (trafficGranularity === 'hour' && !canUseHourGranularity) {
+      setTrafficGranularity('day')
+    }
+  }, [canUseHourGranularity, trafficGranularity])
+
   const dataQualityAlerts = useMemo<DataQualityAlert[]>(() => {
     if (!data) return []
 
@@ -563,19 +910,38 @@ export default function AnaliticasPage() {
               ))}
             </div>
             <div className="flex items-center rounded-lg border border-border bg-card overflow-hidden">
-              {(Object.keys(TRAFFIC_GRANULARITY_LABELS) as TrafficGranularity[]).map((granularity) => (
-                <button
-                  key={granularity}
-                  onClick={() => setTrafficGranularity(granularity)}
-                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                    trafficGranularity === granularity
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {TRAFFIC_GRANULARITY_LABELS[granularity]}
-                </button>
-              ))}
+              {(Object.keys(TRAFFIC_GRANULARITY_LABELS) as TrafficGranularity[]).map((granularity) => {
+                  const isHourOption = granularity === 'hour'
+                  const isDisabled = isHourOption && !canUseHourGranularity
+                  const isSelected =
+                    effectiveTrafficGranularity === granularity &&
+                    (trafficGranularity !== 'hour' || canUseHourGranularity)
+
+                  return (
+                    <button
+                      key={granularity}
+                      type="button"
+                      disabled={isDisabled}
+                      title={
+                        isDisabled
+                          ? hasHourlyData
+                            ? 'La granularidad por hora solo está disponible en rango 7d.'
+                            : 'Datos horarios no disponibles con la fuente actual.'
+                          : undefined
+                      }
+                      onClick={() => {
+                        if (!isDisabled) setTrafficGranularity(granularity)
+                      }}
+                      className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                        isSelected
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:text-foreground'
+                      } ${isDisabled ? 'cursor-not-allowed opacity-60 hover:text-muted-foreground' : ''}`}
+                    >
+                      {TRAFFIC_GRANULARITY_LABELS[granularity]}
+                    </button>
+                  )
+                })}
             </div>
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => void loadData()}>
               <RefreshCw className="h-3.5 w-3.5" />
@@ -585,7 +951,13 @@ export default function AnaliticasPage() {
         }
       />
 
-      <p className="text-xs text-muted-foreground">{DATE_LABELS[dateRange]}</p>
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground">{DATE_LABELS[dateRange]}</p>
+        <p className="text-xs text-muted-foreground">
+          Granularidad activa: {TRAFFIC_GRANULARITY_LABELS[effectiveTrafficGranularity]}
+          {!canUseHourGranularity && ' · Hora disponible solo en 7d con datos horarios.'}
+        </p>
+      </div>
 
       {!loading && !error && data && trafficFallbackReason && (
         <div className="rounded-lg border border-amber-400/50 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -689,7 +1061,25 @@ export default function AnaliticasPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Adquisición diaria: Orgánico vs Pago ({TRAFFIC_GRANULARITY_LABELS[trafficGranularity]})</CardTitle>
+              <CardTitle className="text-base">
+                Visión general: sesiones totales vs tiempo ({TRAFFIC_GRANULARITY_LABELS[effectiveTrafficGranularity]})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <GraficaVisitantesTiempo
+                data={selectedTrafficSeries}
+                granularidad={effectiveTrafficGranularity}
+                showFallbackBanner={Boolean(trafficFallbackReason)}
+                mode="total"
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">
+                Adquisición diaria: Orgánico vs Pago ({TRAFFIC_GRANULARITY_LABELS[effectiveTrafficGranularity]})
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -715,14 +1105,26 @@ export default function AnaliticasPage() {
 
               <div className="grid gap-6 lg:grid-cols-2">
                 <div className="space-y-3">
-                  <p className="text-sm font-semibold">Comparativa diaria orgánico vs pago</p>
-                  <OrganicVsPaidBars points={acquisitionSeries} />
+                  <p className="text-sm font-semibold">Visitantes vs tiempo</p>
+                  <GraficaVisitantesTiempo
+                    data={acquisitionSeries}
+                    granularidad={effectiveTrafficGranularity}
+                    showFallbackBanner={Boolean(trafficFallbackReason)}
+                    mode="all"
+                  />
                 </div>
                 <div className="space-y-3">
                   <p className="text-sm font-semibold">Mix diario del tráfico de pago</p>
-                  <PaidChannelBars points={acquisitionSeries} />
+                  <PaidChannelStackedChart points={acquisitionSeries} />
                 </div>
               </div>
+
+              {effectiveTrafficGranularity === 'day' && hourlyDistribution.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold">Distribución de visitas por hora del día</p>
+                  <HourlyDistributionChart points={hourlyDistribution} />
+                </div>
+              )}
 
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[680px] text-sm">
@@ -849,16 +1251,16 @@ export default function AnaliticasPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Visitas orgánicas ({TRAFFIC_GRANULARITY_LABELS[trafficGranularity]})</CardTitle>
+              <CardTitle className="text-base">
+                Visitas orgánicas vs tiempo ({TRAFFIC_GRANULARITY_LABELS[effectiveTrafficGranularity]})
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <TrafficBars
-                points={selectedTrafficSeries.map((point) => ({
-                  ...point,
-                  Total: point.Organico,
-                  'Facebook Ads': 0,
-                  'Google Ads': 0,
-                }))}
+              <GraficaVisitantesTiempo
+                data={selectedTrafficSeries}
+                granularidad={effectiveTrafficGranularity}
+                showFallbackBanner={Boolean(trafficFallbackReason)}
+                mode="organic"
               />
             </CardContent>
           </Card>
@@ -958,6 +1360,20 @@ export default function AnaliticasPage() {
 
           <Card>
             <CardHeader>
+              <CardTitle className="text-base">
+                Sesiones Facebook Ads y gasto estimado ({TRAFFIC_GRANULARITY_LABELS[effectiveTrafficGranularity]})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FacebookSessionsSpendChart
+                points={selectedTrafficSeries}
+                totalSpend={data.facebook.spend}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-base">Funnel por campaña (utm_campaign)</CardTitle>
             </CardHeader>
             <CardContent>
@@ -1039,9 +1455,12 @@ export default function AnaliticasPage() {
             <CardTitle className="text-base">Google Ads</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-muted-foreground">
-              Integración pendiente. Esta pestaña se activará cuando se configure la conexión de Google Ads API.
-            </div>
+            <EmptyState
+              icon={Search}
+              title="Google Ads no está conectado"
+              description="Conecta tu cuenta de Google Ads para visualizar tráfico, gasto y conversiones atribuidas."
+              action={{ label: 'Conectar Google Ads', onClick: () => router.push('/configuracion') }}
+            />
           </CardContent>
         </Card>
       )}
