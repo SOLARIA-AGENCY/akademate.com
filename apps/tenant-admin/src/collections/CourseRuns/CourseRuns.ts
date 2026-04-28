@@ -12,6 +12,8 @@ import {
   validateEnrollmentCapacity,
   generateCourseRunCode,
   captureCompletionSnapshot,
+  applyCourseRunPriceSnapshot,
+  detectPlanningConflicts,
 } from './hooks';
 import { VALID_WEEKDAYS, VALID_STATUSES } from './CourseRuns.validation';
 import { tenantField } from '../../access/tenantAccess';
@@ -192,6 +194,15 @@ export const CourseRuns: CollectionConfig = {
         description: 'Sede donde se realiza la convocatoria',
       },
     },
+    {
+      name: 'classroom',
+      type: 'relationship',
+      relationTo: 'classrooms',
+      index: true,
+      admin: {
+        description: 'Aula o espacio físico donde se imparte la convocatoria',
+      },
+    },
 
     // ============================================================================
     // UNIQUE CODE - Auto-generated
@@ -318,6 +329,20 @@ export const CourseRuns: CollectionConfig = {
         return true;
       },
     },
+    {
+      name: 'shift',
+      type: 'select',
+      defaultValue: 'morning',
+      index: true,
+      options: [
+        { label: 'Mañana', value: 'morning' },
+        { label: 'Tarde', value: 'afternoon' },
+        { label: 'Tercer turno excepcional', value: 'evening_extra' },
+      ],
+      admin: {
+        description: 'Turno operativo usado para capacidad y planner',
+      },
+    },
 
     // ============================================================================
     // CAPACITY MANAGEMENT
@@ -395,6 +420,42 @@ export const CourseRuns: CollectionConfig = {
         description: 'Current status of the course run',
       },
     },
+    {
+      name: 'training_type',
+      type: 'select',
+      required: true,
+      defaultValue: 'private',
+      index: true,
+      options: [
+        { label: 'Privado', value: 'private' },
+        { label: 'FPED', value: 'fped' },
+        { label: 'Ciclo formativo', value: 'cycle' },
+        { label: 'Otro', value: 'other' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Tipo operativo de formación para reglas de aulas y planificación',
+      },
+    },
+    {
+      name: 'planning_status',
+      type: 'select',
+      required: true,
+      defaultValue: 'draft',
+      index: true,
+      options: [
+        { label: 'Borrador', value: 'draft' },
+        { label: 'Pendiente de validación', value: 'pending_validation' },
+        { label: 'Validada', value: 'validated' },
+        { label: 'Publicada', value: 'published' },
+        { label: 'Cancelada', value: 'cancelled' },
+        { label: 'Completada', value: 'completed' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Estado interno de planificación',
+      },
+    },
 
     // ============================================================================
     // PRICING
@@ -411,6 +472,56 @@ export const CourseRuns: CollectionConfig = {
         if (val === undefined || val === null) return true; // Optional field
         if (val < 0) return 'Price override cannot be negative';
         return true;
+      },
+    },
+    {
+      name: 'price_snapshot',
+      type: 'number',
+      min: 0,
+      admin: {
+        description: 'Precio congelado de la convocatoria. Se copia del curso al crear si no hay override.',
+        step: 0.01,
+      },
+    },
+    {
+      name: 'enrollment_fee_snapshot',
+      type: 'number',
+      min: 0,
+      admin: {
+        description: 'Matrícula congelada de la convocatoria',
+        step: 0.01,
+      },
+    },
+    {
+      name: 'installment_amount_snapshot',
+      type: 'number',
+      min: 0,
+      admin: {
+        description: 'Importe de cuota congelado para esta convocatoria',
+        step: 0.01,
+      },
+    },
+    {
+      name: 'installment_count_snapshot',
+      type: 'number',
+      min: 0,
+      admin: {
+        description: 'Número de cuotas congelado para esta convocatoria',
+        step: 1,
+      },
+    },
+    {
+      name: 'price_source',
+      type: 'select',
+      defaultValue: 'course_default',
+      options: [
+        { label: 'Precio base del curso', value: 'course_default' },
+        { label: 'Override de convocatoria', value: 'run_override' },
+        { label: 'Importación manual', value: 'manual_import' },
+        { label: 'Desconocido', value: 'unknown' },
+      ],
+      admin: {
+        description: 'Fuente del precio usado en esta convocatoria',
       },
     },
 
@@ -442,6 +553,32 @@ export const CourseRuns: CollectionConfig = {
           is_active: { equals: true },
         };
       },
+    },
+    {
+      name: 'instructors',
+      type: 'relationship',
+      relationTo: 'staff',
+      hasMany: true,
+      admin: {
+        description: 'Docentes asignados. Permite varios docentes por convocatoria.',
+      },
+      filterOptions: () => ({
+        staff_type: { in: ['profesor', 'academico'] },
+        is_active: { equals: true },
+      }),
+    },
+    {
+      name: 'administrative_owner',
+      type: 'relationship',
+      relationTo: 'staff',
+      index: true,
+      admin: {
+        description: 'Responsable administrativo de la convocatoria',
+      },
+      filterOptions: () => ({
+        staff_type: { in: ['administrativo', 'jefatura_administracion', 'academico'] },
+        is_active: { equals: true },
+      }),
     },
 
     // ============================================================================
@@ -539,9 +676,6 @@ export const CourseRuns: CollectionConfig = {
       },
     },
 
-    // NOTE: Classroom field removed — classrooms table not yet migrated.
-    // Will be re-added when the Classrooms feature is implemented.
-
     /**
      * Tenant - Multi-tenant support
      * Associates course run with a specific academy/organization
@@ -561,6 +695,7 @@ export const CourseRuns: CollectionConfig = {
       validateCourseRunDates, // 1. Validate date and time logic
       validateCourseRunRelationships, // 2. Validate foreign keys exist
       validateEnrollmentCapacity, // 3. Validate capacity constraints
+      detectPlanningConflicts, // 4. Block publish/validation when P1 conflicts exist
     ],
 
     /**
@@ -569,6 +704,7 @@ export const CourseRuns: CollectionConfig = {
     beforeChange: [
       generateCourseRunCode, // 4. Auto-generate unique convocation code
       trackCourseRunCreator, // 5. Auto-populate and protect created_by field
+      applyCourseRunPriceSnapshot, // 6. Copy course pricing into convocatoria snapshot
     ],
 
     /**

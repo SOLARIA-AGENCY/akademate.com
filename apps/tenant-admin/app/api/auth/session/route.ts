@@ -78,15 +78,20 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request?: Request) {
   try {
     const cookieStore = await cookies()
     const cookieDomain = resolveSharedCookieDomain(
-      request.headers.get('x-forwarded-host') || request.headers.get('host')
+      request?.headers.get('x-forwarded-host') || request?.headers.get('host') || null
     )
     const clearOptions = { path: '/', ...(cookieDomain ? { domain: cookieDomain } : {}) }
-    cookieStore.delete({ name: SESSION_COOKIE, ...clearOptions })
-    cookieStore.delete({ name: LEGACY_SESSION_COOKIE, ...clearOptions })
+    if (cookieDomain) {
+      cookieStore.delete({ name: SESSION_COOKIE, ...clearOptions })
+      cookieStore.delete({ name: LEGACY_SESSION_COOKIE, ...clearOptions })
+    } else {
+      cookieStore.delete(SESSION_COOKIE)
+      cookieStore.delete(LEGACY_SESSION_COOKIE)
+    }
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[/api/auth/session][DELETE] Error:', error)

@@ -1,4 +1,5 @@
 import type { Access } from 'payload';
+import { getUserTenantId, isSuperAdmin } from '../../../access/tenantAccess';
 
 /**
  * Access Control: canDeleteStudent
@@ -59,11 +60,22 @@ export const canDeleteStudent: Access = ({ req: { user } }) => {
     return false; // Public cannot delete students
   }
 
+  if (isSuperAdmin(user)) {
+    return true;
+  }
+
   // Only Gestor and Admin can delete (GDPR right to be forgotten)
   const allowedRoles = ['gestor', 'admin'];
 
   if (allowedRoles.includes(user.role)) {
-    return true; // Authorized to delete students
+    const tenantId = getUserTenantId(user);
+    if (!tenantId) return false;
+
+    return {
+      tenant: {
+        equals: tenantId,
+      },
+    };
   }
 
   // All other roles: denied (including Asesor and Marketing)

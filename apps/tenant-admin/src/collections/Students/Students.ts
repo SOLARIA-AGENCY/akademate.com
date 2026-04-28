@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { tenantField } from '../../access/tenantAccess';
 import {
   canCreateStudent,
   canReadStudents,
@@ -687,6 +688,8 @@ export const Students: CollectionConfig = {
     // ============================================================================
     // AUDIT TRAIL (IMMUTABLE)
     // ============================================================================
+
+    tenantField,
 
     {
       name: 'created_by',

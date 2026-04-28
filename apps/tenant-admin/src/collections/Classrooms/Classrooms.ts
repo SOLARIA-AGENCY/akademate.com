@@ -119,6 +119,51 @@ export const Classrooms: CollectionConfig = {
       },
     },
     {
+      name: 'usage_policy',
+      type: 'select',
+      required: true,
+      defaultValue: 'mixed',
+      index: true,
+      options: [
+        { label: 'Solo privados', value: 'private_only' },
+        { label: 'Solo FPED', value: 'fped_only' },
+        { label: 'Solo ciclos', value: 'cycle_only' },
+        { label: 'Mixto', value: 'mixed' },
+        { label: 'Restringido', value: 'restricted' },
+      ],
+      admin: {
+        description: 'Regla operativa para asignar convocatorias a esta aula',
+      },
+    },
+    {
+      name: 'enabled_shifts',
+      type: 'select',
+      hasMany: true,
+      defaultValue: ['morning', 'afternoon'],
+      options: [
+        { label: 'Mañana', value: 'morning' },
+        { label: 'Tarde', value: 'afternoon' },
+        { label: 'Tercer turno excepcional', value: 'evening_extra' },
+      ],
+      admin: {
+        description: 'Turnos habilitados. El tercer turno se considera excepcional.',
+      },
+    },
+    {
+      name: 'data_quality_status',
+      type: 'select',
+      required: true,
+      defaultValue: 'complete',
+      index: true,
+      options: [
+        { label: 'Completo', value: 'complete' },
+        { label: 'Pendiente de validación', value: 'pending_validation' },
+      ],
+      admin: {
+        description: 'Estado de calidad del dato importado o mantenido',
+      },
+    },
+    {
       name: 'is_active',
       type: 'checkbox',
       defaultValue: true,
@@ -132,6 +177,14 @@ export const Classrooms: CollectionConfig = {
       type: 'textarea',
       admin: {
         description: 'Notas adicionales sobre el aula',
+        rows: 3,
+      },
+    },
+    {
+      name: 'operational_notes',
+      type: 'textarea',
+      admin: {
+        description: 'Notas internas de planificación/capacidad',
         rows: 3,
       },
     },

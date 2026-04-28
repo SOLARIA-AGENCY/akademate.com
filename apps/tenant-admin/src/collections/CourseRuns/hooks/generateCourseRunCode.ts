@@ -5,8 +5,8 @@ import type { CollectionBeforeChangeHook } from 'payload';
  * Maps campus slugs to short codes for convocation codes
  */
 const CAMPUS_CODES: Record<string, string> = {
-  'cep-norte': 'NOR',
-  'cep-santa-cruz': 'SC',
+  'sede-norte': 'NOR',
+  'sede-santa-cruz': 'SC',
   'cep-sur': 'SUR',
 };
 

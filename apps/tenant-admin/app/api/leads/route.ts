@@ -2,6 +2,12 @@ import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import {
+  buildCommercialClassificationContext,
+  classifyLeadCommercialBucket,
+  matchesCommercialBucketFilter,
+  parseCommercialBucketFilter,
+} from '@/lib/leads/commercialBuckets'
 import { getAuthenticatedUserContext } from './_lib/auth'
 
 export const dynamic = 'force-dynamic'
@@ -192,6 +198,122 @@ async function hasTable(drizzle: any, tableName: string): Promise<boolean> {
   }
 }
 
+async function loadActiveCampaignSignals(payload: any, tenantId: number | null): Promise<Array<{
+  id: number | string | null
+  name: string | null
+  status: string | null
+  utmCampaign: string | null
+  utmSource: string | null
+  campaignType: string | null
+  metaCampaignId: string | null
+}>> {
+  const signals: Array<{
+    id: number | string | null
+    name: string | null
+    status: string | null
+    utmCampaign: string | null
+    utmSource: string | null
+    campaignType: string | null
+    metaCampaignId: string | null
+  }> = []
+
+  try {
+    const where = tenantId
+      ? {
+          and: [
+            { status: { equals: 'active' } },
+            { tenant: { equals: tenantId } },
+          ],
+        }
+      : {
+          status: { equals: 'active' },
+        }
+
+    const campaignsResult = await payload.find({
+      collection: 'campaigns',
+      where,
+      depth: 0,
+      limit: 500,
+      sort: '-updatedAt',
+    })
+
+    const docs = Array.isArray(campaignsResult?.docs) ? campaignsResult.docs : []
+    for (const campaign of docs) {
+      signals.push({
+        id: campaign?.id ?? null,
+        name: typeof campaign?.name === 'string' ? campaign.name : null,
+        status: typeof campaign?.status === 'string' ? campaign.status : null,
+        utmCampaign: typeof campaign?.utm_campaign === 'string' ? campaign.utm_campaign : null,
+        utmSource: typeof campaign?.utm_source === 'string' ? campaign.utm_source : null,
+        campaignType: typeof campaign?.campaign_type === 'string' ? campaign.campaign_type : null,
+        metaCampaignId:
+          typeof campaign?.meta_campaign_id === 'string' ? campaign.meta_campaign_id : null,
+      })
+    }
+  } catch {
+    // Keep going with snapshot fallback.
+  }
+
+  const drizzle = (payload as any)?.db?.drizzle || (payload as any)?.db?.pool
+  if (drizzle?.execute) {
+    try {
+      const hasSnapshots = await hasTable(drizzle, 'meta_analytics_snapshots')
+      if (hasSnapshots) {
+        const tenantFilter = tenantId ? `WHERE tenant_id = ${tenantId}` : ''
+        const snapshotRes = await drizzle.execute(
+          `SELECT campaigns_json
+           FROM meta_analytics_snapshots
+           ${tenantFilter}
+           ORDER BY snapshot_at DESC
+           LIMIT 1`,
+        )
+        const snapshotRows = Array.isArray(snapshotRes) ? snapshotRes : (snapshotRes?.rows ?? [])
+        const rawSnapshot = snapshotRows[0]?.campaigns_json
+        const parsedSnapshot =
+          typeof rawSnapshot === 'string'
+            ? JSON.parse(rawSnapshot)
+            : rawSnapshot
+        const campaigns = Array.isArray(parsedSnapshot) ? parsedSnapshot : []
+
+        for (const campaign of campaigns) {
+          const campaignName =
+            typeof campaign?.name === 'string' ? campaign.name : null
+          const extractedUtmCampaign =
+            typeof campaignName === 'string' && campaignName.includes(' - ')
+              ? campaignName.split(' - ').pop()?.trim() || null
+              : null
+
+          signals.push({
+            id: null,
+            name: campaignName,
+            status: typeof campaign?.status === 'string' ? campaign.status : null,
+            utmCampaign: extractedUtmCampaign,
+            utmSource: 'facebook',
+            campaignType: 'paid_ads',
+            metaCampaignId:
+              typeof campaign?.id === 'string' || typeof campaign?.id === 'number'
+                ? String(campaign.id)
+                : null,
+          })
+        }
+      }
+    } catch {
+      // Snapshot fallback is best-effort.
+    }
+  }
+
+  const deduped = new Map<string, (typeof signals)[number]>()
+  for (const signal of signals) {
+    const key =
+      String(signal.metaCampaignId || '').trim().toLowerCase() ||
+      String(signal.id || '').trim().toLowerCase() ||
+      `${String(signal.utmCampaign || '').trim().toLowerCase()}::${String(signal.name || '').trim().toLowerCase()}`
+    if (!key) continue
+    if (!deduped.has(key)) deduped.set(key, signal)
+  }
+  return Array.from(deduped.values())
+}
+
 function inferSourceForm(pathLike: string): string {
   const path = pathLike.toLowerCase()
   if (path.includes('/convocatorias')) return 'preinscripcion_convocatoria'
@@ -207,10 +329,15 @@ function inferLeadType(pathLike: string): string {
   return 'lead'
 }
 
-function inferCampaignCode(body: Record<string, unknown>): string | null {
+function inferCampaignCode(body: Record<string, unknown>, sourcePage?: string): string | null {
+  const fromPageUtmCampaign = normalizeOptionalTrackingValue(
+    extractQueryParamFromUrl(sourcePage, 'utm_campaign'),
+    64,
+  )
   return (
     normalizeOptionalTrackingValue(body.campaign_code, 64) ||
     normalizeOptionalTrackingValue(body.utm_campaign, 64) ||
+    fromPageUtmCampaign ||
     normalizeOptionalTrackingValue(body.meta_campaign_id, 64) ||
     normalizeOptionalTrackingValue(body.campaign_id, 64)
   )
@@ -272,6 +399,9 @@ export async function GET(request: NextRequest) {
       searchParams.get('lead_type') ??
       searchParams.get('type') ??
       searchParams.get('where[lead_type][equals]')
+    const commercialBucketFilter = parseCommercialBucketFilter(
+      searchParams.get('bucket') ?? searchParams.get('commercial_bucket'),
+    )
     const enrollmentId = searchParams.get('enrollment_id') ?? searchParams.get('where[enrollment_id][equals]')
     const includeTests = ['1', 'true', 'yes'].includes((searchParams.get('include_tests') || '').toLowerCase())
 
@@ -297,17 +427,67 @@ export async function GET(request: NextRequest) {
         depth: 1,
         where: Object.keys(where).length > 0 ? where : undefined,
       })
-      if (!leadType) {
-        return NextResponse.json(leads)
+
+      const activeCampaignSignals = await loadActiveCampaignSignals(payload, authSession.tenantId)
+      const commercialContext = buildCommercialClassificationContext(activeCampaignSignals)
+
+      let docs = Array.isArray(leads?.docs) ? leads.docs : []
+      if (leadType) {
+        docs = docs.filter((doc: any) => String(doc?.lead_type ?? '') === leadType)
       }
 
-      const filteredDocs = leads.docs.filter((doc: any) => String(doc?.lead_type ?? '') === leadType)
+      const classifiedDocs = docs.map((doc: any) => {
+        const classification = classifyLeadCommercialBucket(
+          doc as Record<string, unknown>,
+          commercialContext,
+        )
+        return {
+          ...doc,
+          commercial_bucket: classification.bucket,
+          commercial_origin_label: classification.originLabel,
+          commercial_source_label: classification.sourceLabel,
+          commercial_campaign_label: classification.campaignLabel,
+          commercial_unresolved: classification.unresolved,
+          commercial_ads_active: classification.adsActive,
+          commercial_reason: classification.reason,
+        }
+      })
+
+      const bucketedDocs = commercialBucketFilter
+        ? classifiedDocs.filter((doc: any) =>
+            matchesCommercialBucketFilter(
+              {
+                bucket: doc.commercial_bucket,
+                unresolved: Boolean(doc.commercial_unresolved),
+                adsActive: Boolean(doc.commercial_ads_active),
+                campaignLabel:
+                  typeof doc.commercial_campaign_label === 'string'
+                    ? doc.commercial_campaign_label
+                    : null,
+                originLabel: String(doc.commercial_origin_label || ''),
+                sourceLabel: String(doc.commercial_source_label || ''),
+                reason:
+                  doc.commercial_reason === 'active_meta_campaign' ||
+                  doc.commercial_reason === 'meta_source_without_active_campaign'
+                    ? doc.commercial_reason
+                    : 'organic_or_non_meta_campaign',
+              },
+              commercialBucketFilter,
+            ),
+          )
+        : classifiedDocs
+
+      const totalDocs = bucketedDocs.length
+      const offset = (page - 1) * limit
+      const paginatedDocs = bucketedDocs.slice(offset, offset + limit)
+
       return NextResponse.json({
         ...leads,
-        docs: filteredDocs,
-        totalDocs: filteredDocs.length,
-        totalPages: Math.ceil(filteredDocs.length / limit),
-        hasNextPage: page * limit < filteredDocs.length,
+        docs: paginatedDocs,
+        totalDocs,
+        totalPages: Math.ceil(totalDocs / limit),
+        hasNextPage: page * limit < totalDocs,
+        hasPrevPage: page > 1,
       })
     }
 
@@ -348,9 +528,14 @@ export async function GET(request: NextRequest) {
     const totalDocs = parseInt(countRows[0]?.cnt ?? '0')
 
     const offset = (page - 1) * limit
+    const shouldClassifyBeforePagination = commercialBucketFilter !== null
+    const orderBySql = `ORDER BY CASE l.status WHEN 'new' THEN 0 WHEN 'contacted' THEN 1 WHEN 'following_up' THEN 2 WHEN 'interested' THEN 3 WHEN 'on_hold' THEN 4 WHEN 'enrolling' THEN 5 ELSE 6 END, l.created_at DESC`
+    const paginationSql = shouldClassifyBeforePagination ? '' : `LIMIT ${limit} OFFSET ${offset}`
 
     // Base query for leads
-    const leadsRes = await drizzle.execute(`SELECT * FROM leads l ${whereClause} ORDER BY CASE l.status WHEN 'new' THEN 0 WHEN 'contacted' THEN 1 WHEN 'following_up' THEN 2 WHEN 'interested' THEN 3 WHEN 'on_hold' THEN 4 WHEN 'enrolling' THEN 5 ELSE 6 END, l.created_at DESC LIMIT ${limit} OFFSET ${offset}`)
+    const leadsRes = await drizzle.execute(
+      `SELECT * FROM leads l ${whereClause} ${orderBySql} ${paginationSql}`.trim(),
+    )
     const leadsRows = Array.isArray(leadsRes) ? leadsRes : (leadsRes?.rows ?? [])
 
     // Enrich with assignment + interaction data in bulk (prevents N+1 queries on large CRM datasets)
@@ -427,7 +612,8 @@ export async function GET(request: NextRequest) {
         const countRes = await drizzle.execute(
           `SELECT li.lead_id, COUNT(*) as cnt
            FROM lead_interactions li
-           WHERE li.lead_id IN (${leadIdsSql})${interactionsTenantFilter}
+           WHERE li.lead_id IN (${leadIdsSql})
+             AND li.channel IN ('phone', 'whatsapp', 'email')${interactionsTenantFilter}
            GROUP BY li.lead_id`,
         )
         const countRows = Array.isArray(countRes) ? countRes : (countRes?.rows ?? [])
@@ -454,7 +640,8 @@ export async function GET(request: NextRequest) {
                ${emailSql}
              FROM lead_interactions li
              LEFT JOIN users u ON u.id = li.user_id
-             WHERE li.lead_id IN (${leadIdsSql})${interactionsTenantFilter}
+             WHERE li.lead_id IN (${leadIdsSql})
+               AND li.channel IN ('phone', 'whatsapp', 'email')${interactionsTenantFilter}
              ORDER BY li.lead_id, li.created_at DESC`
           : `SELECT DISTINCT ON (li.lead_id)
                li.lead_id,
@@ -465,7 +652,8 @@ export async function GET(request: NextRequest) {
                NULL::text AS last_name,
                NULL::text AS email
              FROM lead_interactions li
-             WHERE li.lead_id IN (${leadIdsSql})${interactionsTenantFilter}
+             WHERE li.lead_id IN (${leadIdsSql})
+               AND li.channel IN ('phone', 'whatsapp', 'email')${interactionsTenantFilter}
              ORDER BY li.lead_id, li.created_at DESC`
 
         const lastRes = await drizzle.execute(lastInteractionSql)
@@ -482,23 +670,87 @@ export async function GET(request: NextRequest) {
           }
         }
 
+        const firstInteractionSql = usersTableExists
+          ? `SELECT DISTINCT ON (li.lead_id)
+               li.lead_id,
+               li.user_id,
+               li.channel,
+               li.created_at,
+               ${nameSql},
+               ${firstNameSql},
+               ${lastNameSql},
+               ${emailSql}
+             FROM lead_interactions li
+             LEFT JOIN users u ON u.id = li.user_id
+             WHERE li.lead_id IN (${leadIdsSql})
+               AND li.channel IN ('phone', 'whatsapp', 'email')${interactionsTenantFilter}
+             ORDER BY li.lead_id, li.created_at ASC`
+          : `SELECT DISTINCT ON (li.lead_id)
+               li.lead_id,
+               li.user_id,
+               li.channel,
+               li.created_at,
+               NULL::text AS name,
+               NULL::text AS first_name,
+               NULL::text AS last_name,
+               NULL::text AS email
+             FROM lead_interactions li
+             WHERE li.lead_id IN (${leadIdsSql})
+               AND li.channel IN ('phone', 'whatsapp', 'email')${interactionsTenantFilter}
+             ORDER BY li.lead_id, li.created_at ASC`
+
+        const firstRes = await drizzle.execute(firstInteractionSql)
+        const firstRows = Array.isArray(firstRes) ? firstRes : (firstRes?.rows ?? [])
+        const firstInteractionMap = new Map<
+          number,
+          { userId: number | null; name: string | null; email: string | null; channel: string | null; at: string | null }
+        >()
+        for (const row of firstRows) {
+          const leadId = toPositiveInt(row?.lead_id)
+          if (leadId !== null) {
+            firstInteractionMap.set(leadId, {
+              userId: toPositiveInt(row?.user_id),
+              name: resolveUserDisplayName(row),
+              email: typeof row?.email === 'string' ? row.email.trim() : null,
+              channel: typeof row?.channel === 'string' ? row.channel : null,
+              at: typeof row?.created_at === 'string' ? row.created_at : null,
+            })
+          }
+        }
+
         docs = leadsRows.map((row: any) => {
           const leadId = toPositiveInt(row?.id)
           const interactionCount = leadId !== null ? interactionCountMap.get(leadId) ?? 0 : 0
           const lastInteraction = leadId !== null ? lastInteractionMap.get(leadId) : undefined
+          const firstInteraction = leadId !== null ? firstInteractionMap.get(leadId) : undefined
           const assignedUserId = readAssignedUserId(row)
           const assignedUser = assignedUserId !== null ? assignedUserMap.get(assignedUserId) : undefined
 
           return {
             ...row,
             interactionCount,
-            assignedTo: assignedUserId !== null
-              ? {
-                  id: assignedUserId,
-                  name: assignedUser?.name ?? null,
-                  email: assignedUser?.email ?? null,
-                }
-              : null,
+            assignedTo:
+              assignedUserId !== null
+                ? {
+                    id: assignedUserId,
+                    name: assignedUser?.name ?? null,
+                    email: assignedUser?.email ?? null,
+                  }
+                : firstInteraction?.name
+                  ? {
+                      id: firstInteraction.userId,
+                      name: firstInteraction.name,
+                      email: firstInteraction.email ?? null,
+                    }
+                  : null,
+            firstInteractor:
+              firstInteraction && firstInteraction.name
+                ? {
+                    name: firstInteraction.name,
+                    channel: firstInteraction.channel ?? 'system',
+                    at: firstInteraction.at ?? row?.created_at ?? row?.updated_at ?? null,
+                  }
+                : null,
             lastInteractor:
               lastInteraction && lastInteraction.name
                 ? {
@@ -520,6 +772,7 @@ export async function GET(request: NextRequest) {
         return {
           ...row,
           lastInteractor: null,
+          firstInteractor: null,
           interactionCount: 0,
           assignedTo: assignedUserId !== null
             ? {
@@ -536,13 +789,67 @@ export async function GET(request: NextRequest) {
       docs = docs.filter((doc: any) => String(doc.lead_type ?? '') === leadType)
     }
 
+    const activeCampaignSignals = await loadActiveCampaignSignals(payload, authSession.tenantId)
+    const commercialContext = buildCommercialClassificationContext(activeCampaignSignals)
+    const classifiedDocs = docs.map((doc: any) => {
+      const classification = classifyLeadCommercialBucket(
+        doc as Record<string, unknown>,
+        commercialContext,
+      )
+      return {
+        ...doc,
+        commercial_bucket: classification.bucket,
+        commercial_origin_label: classification.originLabel,
+        commercial_source_label: classification.sourceLabel,
+        commercial_campaign_label: classification.campaignLabel,
+        commercial_unresolved: classification.unresolved,
+        commercial_ads_active: classification.adsActive,
+        commercial_reason: classification.reason,
+      }
+    })
+
+    if (commercialBucketFilter) {
+      const bucketDocs = classifiedDocs.filter((doc: any) =>
+        matchesCommercialBucketFilter(
+          {
+            bucket: doc.commercial_bucket,
+            unresolved: Boolean(doc.commercial_unresolved),
+            adsActive: Boolean(doc.commercial_ads_active),
+            campaignLabel:
+              typeof doc.commercial_campaign_label === 'string' ? doc.commercial_campaign_label : null,
+            originLabel: String(doc.commercial_origin_label || ''),
+            sourceLabel: String(doc.commercial_source_label || ''),
+            reason:
+              doc.commercial_reason === 'active_meta_campaign' ||
+              doc.commercial_reason === 'meta_source_without_active_campaign'
+                ? doc.commercial_reason
+                : 'organic_or_non_meta_campaign',
+          },
+          commercialBucketFilter,
+        ),
+      )
+
+      const bucketTotalDocs = bucketDocs.length
+      const paginatedDocs = bucketDocs.slice(offset, offset + limit)
+      return NextResponse.json({
+        docs: paginatedDocs,
+        totalDocs: bucketTotalDocs,
+        limit,
+        page,
+        totalPages: Math.ceil(bucketTotalDocs / limit),
+        hasNextPage: page * limit < bucketTotalDocs,
+        hasPrevPage: page > 1,
+      })
+    }
+
+    const totalForResponse = leadType && !leadTypeColumnExists ? classifiedDocs.length : totalDocs
     return NextResponse.json({
-      docs,
-      totalDocs: leadType && !leadTypeColumnExists ? docs.length : totalDocs,
+      docs: classifiedDocs,
+      totalDocs: totalForResponse,
       limit,
       page,
-      totalPages: Math.ceil((leadType && !leadTypeColumnExists ? docs.length : totalDocs) / limit),
-      hasNextPage: page * limit < (leadType && !leadTypeColumnExists ? docs.length : totalDocs),
+      totalPages: Math.ceil(totalForResponse / limit),
+      hasNextPage: page * limit < totalForResponse,
       hasPrevPage: page > 1,
     })
   } catch (error) {
@@ -638,10 +945,12 @@ export async function POST(request: NextRequest) {
     const normalizedLeadType =
       normalizeOptionalTrackingValue(body.lead_type, 32) ||
       inferLeadType(sourcePage)
-    const campaignCode = inferCampaignCode(body)
+    const campaignCode = inferCampaignCode(body, sourcePage)
     const metaCampaignId =
       normalizeOptionalTrackingValue(body.meta_campaign_id, 64) ||
       normalizeOptionalTrackingValue(body.campaign_id, 64) ||
+      normalizeOptionalTrackingValue(extractQueryParamFromUrl(sourcePage, 'utm_id'), 64) ||
+      normalizeOptionalTrackingValue(extractQueryParamFromUrl(sourcePage, 'campaign_id'), 64) ||
       null
     const adId = normalizeOptionalTrackingValue(body.ad_id, 64)
     const adsetId = normalizeOptionalTrackingValue(body.adset_id, 64)

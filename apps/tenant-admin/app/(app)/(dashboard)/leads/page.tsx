@@ -29,7 +29,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@payload-config/components/ui/sheet'
-import { Avatar, AvatarFallback } from '@payload-config/components/ui/avatar'
 import {
   Users,
   Search,
@@ -40,11 +39,15 @@ import {
   Clock,
   MessageSquare,
   UserSearch,
-  ArrowUpRight,
   Filter,
   NotebookPen,
   UserCheck,
 } from 'lucide-react'
+import { CommercialIntakeCard } from '../_components/CommercialIntakeCard'
+import {
+  resolveFullLeadName,
+  resolveLeadProgramLabel as resolveProgramLabel,
+} from '@/lib/leads/commercialBuckets'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -62,7 +65,9 @@ interface Lead {
   source?: string | null
   createdAt?: string | null
   created_at?: string | null
+  firstInteractor?: { name: string; channel: string; at: string } | null
   lastInteractor?: { name: string; channel: string; at: string } | null
+  assignedTo?: { id?: string | number | null; name?: string | null; email?: string | null } | null
   interactionCount?: number
   source_form?: string | null
   source_page?: string | null
@@ -74,6 +79,13 @@ interface Lead {
   enrollment_id?: number | null
   gdpr_consent?: boolean | null
   is_test?: boolean | null
+  commercial_bucket?: 'leads' | 'inscripciones' | 'unresolved' | null
+  commercial_origin_label?: string | null
+  commercial_source_label?: string | null
+  commercial_campaign_label?: string | null
+  commercial_unresolved?: boolean | null
+  commercial_ads_active?: boolean | null
+  commercial_reason?: string | null
 }
 
 interface DashboardKPIs {
@@ -205,16 +217,40 @@ function timeAgo(date: string): string {
   return days === 1 ? 'hace 1 dia' : `hace ${days} dias`
 }
 
-function fullName(lead: Lead): string {
-  return [lead.first_name, lead.last_name].filter(Boolean).join(' ') || 'Sin nombre'
+function isSystemIdentity(value: unknown): boolean {
+  if (typeof value !== 'string') return false
+  const normalized = value.trim().toLowerCase()
+  return normalized === 'sistema' || normalized === 'system' || normalized === 'auto' || normalized === 'bot'
 }
 
-function extractInitials(lead: Lead): string {
-  const parts = fullName(lead).split(' ').filter(Boolean)
-  if (parts.length === 0) return 'SN'
-  const first = parts[0]?.[0] ?? ''
-  const second = parts.length > 1 ? parts[1]?.[0] ?? '' : ''
-  return `${first}${second}`.toUpperCase()
+function resolveLeadResponsible(lead: Lead): string {
+  const firstInteractorName =
+    typeof lead.firstInteractor?.name === 'string' ? lead.firstInteractor.name.trim() : ''
+  if (firstInteractorName && !isSystemIdentity(firstInteractorName)) {
+    return firstInteractorName
+  }
+
+  const lastInteractorName =
+    typeof lead.lastInteractor?.name === 'string' ? lead.lastInteractor.name.trim() : ''
+  if (lastInteractorName && !isSystemIdentity(lastInteractorName)) {
+    return lastInteractorName
+  }
+
+  if ((lead.interactionCount ?? 0) > 0) {
+    const assignedIdentity = [
+      typeof lead.assignedTo?.name === 'string' ? lead.assignedTo.name.trim() : '',
+      typeof lead.assignedTo?.email === 'string' ? lead.assignedTo.email.trim() : '',
+    ].find((value) => value.length > 0)
+    if (assignedIdentity && !isSystemIdentity(assignedIdentity)) {
+      return assignedIdentity
+    }
+  }
+
+  return 'Sin asignar'
+}
+
+function fullName(lead: Lead): string {
+  return resolveFullLeadName(lead as unknown as Record<string, unknown>)
 }
 
 function normalizePhoneForDial(raw?: string | null): string | null {
@@ -230,44 +266,8 @@ function normalizePhoneForWhatsApp(raw?: string | null): string | null {
   return digits.startsWith('34') ? digits : `34${digits}`
 }
 
-function resolveLeadOrigin(lead: Lead): string {
-  const sourceForm = (lead.source_form || '').trim()
-  if (sourceForm) return sourceForm
-  const sourceDetails =
-    lead.source_details && typeof lead.source_details === 'object' ? lead.source_details : null
-  const sourceDetailsForm =
-    sourceDetails && typeof sourceDetails.source_form === 'string'
-      ? sourceDetails.source_form.trim()
-      : ''
-  if (sourceDetailsForm) return sourceDetailsForm
-  const sourcePage = (lead.source_page || '').trim()
-  if (sourcePage.includes('/convocatorias')) return 'preinscripcion_convocatoria'
-  if (sourcePage.includes('/ciclos')) return 'preinscripcion_ciclo'
-  if (sourcePage.includes('/landing/')) return 'landing_contact_form'
-  if (sourcePage.includes('/contacto')) return 'contacto'
-  return 'origen_no_identificado'
-}
-
 function resolveLeadProgramLabel(lead: Lead): string {
-  const callback = (lead.callback_notes || '').trim()
-  const preinscripcionMatch = callback.match(/preinscripci[oó]n\s*:\s*(.+)$/i)
-  if (preinscripcionMatch?.[1]) return preinscripcionMatch[1].trim()
-
-  const interesMatch = callback.match(/^interes\s*:\s*(.+)$/i)
-  if (interesMatch?.[1]) return interesMatch[1].trim()
-
-  const sourceDetails =
-    lead.source_details && typeof lead.source_details === 'object' ? lead.source_details : null
-  const fromSourceDetails =
-    sourceDetails && typeof sourceDetails.course_name === 'string'
-      ? sourceDetails.course_name.trim()
-      : ''
-  if (fromSourceDetails) return fromSourceDetails
-
-  const campaign = (lead.campaign_code || lead.utm_campaign || '').trim()
-  if (campaign) return campaign
-
-  return 'Programa no identificado'
+  return resolveProgramLabel(lead as unknown as Record<string, unknown>)
 }
 
 function resolveLastNoteSnippet(lead: Lead): string {
@@ -348,14 +348,24 @@ async function fetchWithTimeout(input: string, timeoutMs = 12000): Promise<Respo
   }
 }
 
-async function fetchAllLeads(limitPerPage = 200): Promise<Lead[]> {
+type LeadsFetchMode = 'bucket_leads' | 'all_leads_fallback'
+
+async function fetchLeadPages(
+  params: URLSearchParams,
+  limitPerPage = 200,
+): Promise<Lead[]> {
   const allLeads: Lead[] = []
   let page = 1
   let hasNextPage = true
   let guard = 0
 
   while (hasNextPage && guard < 50) {
-    const res = await fetchWithTimeout(`/api/leads?limit=${limitPerPage}&page=${page}`)
+    const query = new URLSearchParams(params)
+    query.set('limit', String(limitPerPage))
+    query.set('page', String(page))
+    const res = await fetchWithTimeout(
+      `/api/leads?${query.toString()}`,
+    )
     if (res.status === 401) {
       throw new Error('AUTH_REQUIRED')
     }
@@ -373,6 +383,21 @@ async function fetchAllLeads(limitPerPage = 200): Promise<Lead[]> {
   }
 
   return allLeads
+}
+
+async function fetchAllLeads(
+  limitPerPage = 200,
+): Promise<{ leads: Lead[]; mode: LeadsFetchMode }> {
+  const bucketParams = new URLSearchParams()
+  bucketParams.set('bucket', 'leads')
+  const bucketLeads = await fetchLeadPages(bucketParams, limitPerPage)
+
+  if (bucketLeads.length > 0) {
+    return { leads: bucketLeads, mode: 'bucket_leads' }
+  }
+
+  const allLeads = await fetchLeadPages(new URLSearchParams(), limitPerPage)
+  return { leads: allLeads, mode: 'all_leads_fallback' }
 }
 
 async function parseApiError(response: Response): Promise<string> {
@@ -394,6 +419,7 @@ async function parseApiError(response: Response): Promise<string> {
 export default function LeadsPage() {
   const router = useRouter()
   const [leads, setLeads] = useState<Lead[]>([])
+  const [fetchMode, setFetchMode] = useState<LeadsFetchMode>('bucket_leads')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null)
@@ -403,7 +429,6 @@ export default function LeadsPage() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const [queueFilter, setQueueFilter] = useState<QueueFilter>('all')
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false)
-  const [showExtendedKpis, setShowExtendedKpis] = useState(false)
 
   const [inlineError, setInlineError] = useState<string | null>(null)
   const [noteEditorLeadId, setNoteEditorLeadId] = useState<string | null>(null)
@@ -421,7 +446,8 @@ export default function LeadsPage() {
         ])
 
         if (leadsResult.status === 'fulfilled') {
-          setLeads(leadsResult.value)
+          setLeads(leadsResult.value.leads)
+          setFetchMode(leadsResult.value.mode)
         } else {
           if (
             leadsResult.reason instanceof Error &&
@@ -441,6 +467,7 @@ export default function LeadsPage() {
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al cargar leads')
         setLeads([])
+        setFetchMode('bucket_leads')
       } finally {
         setIsLoading(false)
       }
@@ -492,16 +519,6 @@ export default function LeadsPage() {
   const filtered = useMemo(() => {
     return baseFiltered.filter((lead) => matchesQueue(lead, queueFilter, nowTs, dayStartTs, dayEndTs))
   }, [baseFiltered, queueFilter, nowTs, dayStartTs, dayEndTs])
-
-  const followUpTotal = useMemo(() => {
-    if (kpis) {
-      return Object.values(kpis.followUpBreakdown).reduce((a, b) => a + b, 0)
-    }
-
-    return leads.filter((lead) =>
-      ['contacted', 'following_up', 'interested', 'on_hold'].includes(lead.status ?? ''),
-    ).length
-  }, [kpis, leads])
 
   const overdueTodayTotal = useMemo(() => {
     return leads.filter((lead) => {
@@ -581,11 +598,7 @@ export default function LeadsPage() {
             ? {
                 ...current,
                 callback_notes: note,
-                lastInteractor: {
-                  name: 'Sistema',
-                  channel: 'system',
-                  at: new Date().toISOString(),
-                },
+                lastInteractor: current.lastInteractor,
                 interactionCount: (current.interactionCount ?? 0) + 1,
               }
             : current,
@@ -673,38 +686,6 @@ export default function LeadsPage() {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardContent className="p-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-sm text-muted-foreground">Metricas extendidas</span>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setShowExtendedKpis((prev) => !prev)}
-            >
-              {showExtendedKpis ? 'Ocultar' : 'Ver detalle'}
-            </Button>
-          </div>
-
-          {showExtendedKpis && (
-            <div className="mt-3 grid gap-2 text-sm text-muted-foreground md:grid-cols-3">
-              <div className="rounded-md border p-2">
-                <p className="font-medium text-foreground">En seguimiento</p>
-                <p>{followUpTotal}</p>
-              </div>
-              <div className="rounded-md border p-2">
-                <p className="font-medium text-foreground">Fichas abiertas</p>
-                <p>{kpis?.openEnrollments ?? 0}</p>
-              </div>
-              <div className="rounded-md border p-2">
-                <p className="font-medium text-foreground">Tasa conversion</p>
-                <p>{kpis?.conversionRate ?? 0}%</p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Barra de trabajo */}
       <Card>
@@ -817,6 +798,13 @@ export default function LeadsPage() {
         </div>
       )}
 
+      {!isLoading && !error && fetchMode === 'all_leads_fallback' && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Modo amplio activo: mostrando todos los leads mientras se termina de confirmar la
+          atribución de campañas.
+        </div>
+      )}
+
       {isLoading && (
         <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -867,125 +855,83 @@ export default function LeadsPage() {
               )
                 ? status
                 : 'new'
+              const classification = {
+                bucket:
+                  lead.commercial_bucket === 'leads' ||
+                  lead.commercial_bucket === 'inscripciones' ||
+                  lead.commercial_bucket === 'unresolved'
+                    ? lead.commercial_bucket
+                    : 'inscripciones',
+                unresolved: Boolean(lead.commercial_unresolved),
+                adsActive: Boolean(lead.commercial_ads_active),
+                campaignLabel: lead.commercial_campaign_label ?? null,
+                originLabel: lead.commercial_origin_label ?? '',
+                sourceLabel: lead.commercial_source_label ?? '',
+                reason:
+                  lead.commercial_reason === 'active_meta_campaign' ||
+                  lead.commercial_reason === 'meta_source_without_active_campaign'
+                    ? lead.commercial_reason
+                    : 'organic_or_non_meta_campaign',
+              } as const
+              const normalizedOriginLabel =
+                classification.originLabel.trim().toLowerCase() === 'origen no resuelto'
+                  ? ''
+                  : classification.originLabel
+              const sourceBadgeLabel = classification.sourceLabel || normalizedOriginLabel
+
+              const cardBadges: Array<{ label: string; className?: string }> = []
+              if (isTest) {
+                cardBadges.push({ label: 'Test', className: 'bg-fuchsia-100 text-fuchsia-800' })
+              }
+              if (isOverdue) {
+                cardBadges.push({ label: 'Vencido', className: 'bg-amber-100 text-amber-800' })
+              }
+              if (classification.bucket === 'leads') {
+                cardBadges.push({
+                  label: 'Ads activo',
+                  className: 'bg-emerald-100 text-emerald-800',
+                })
+              }
+              if (sourceBadgeLabel) {
+                cardBadges.push({
+                  label: sourceBadgeLabel,
+                  className: 'bg-slate-100 text-slate-800',
+                })
+              }
+              if (classification.campaignLabel) {
+                cardBadges.push({ label: `Campaña: ${classification.campaignLabel}` })
+              }
+              cardBadges.push({ label: typeConfig.label, className: typeConfig.color })
+              if (interactionCount > 0) {
+                cardBadges.push({ label: `Contactos: ${interactionCount}` })
+              }
+              const advisorName = resolveLeadResponsible(lead)
+              if (advisorName !== 'Sin asignar') {
+                cardBadges.push({
+                  label: `Asesor: ${advisorName}`,
+                  className: 'bg-indigo-100 text-indigo-800',
+                })
+              }
 
               return (
-                <Card key={lead.id} className={isOverdue ? 'border-amber-300 bg-amber-50/30' : ''}>
-                  <CardContent className="space-y-4 p-4">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                      <div className="flex min-w-0 flex-1 items-start gap-3">
-                        <Avatar className="h-10 w-10 border">
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {extractInitials(lead)}
-                          </AvatarFallback>
-                        </Avatar>
-
-                        <div className="min-w-0 space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="truncate text-base font-semibold text-foreground">
-                              {fullName(lead)}
-                            </h3>
-                            {isTest && (
-                              <Badge variant="outline" className="bg-fuchsia-100 text-fuchsia-800">
-                                Test
-                              </Badge>
-                            )}
-                            {isOverdue && (
-                              <Badge variant="outline" className="bg-amber-100 text-amber-800">
-                                Vencido
-                              </Badge>
-                            )}
-                          </div>
-
-                          <p className="truncate text-sm text-muted-foreground">
-                            {resolveLeadProgramLabel(lead)}
-                          </p>
-                        </div>
-                      </div>
-
+                <div key={lead.id} className="space-y-2">
+                  <CommercialIntakeCard
+                    className={isOverdue ? 'border-amber-300 bg-amber-50/30' : ''}
+                    fullName={fullName(lead)}
+                    statusLabel={statusConfig.label}
+                    statusClassName={statusConfig.badge}
+                    programLabel={resolveLeadProgramLabel(lead)}
+                    email={lead.email}
+                    phone={lead.phone}
+                    provenanceLabel={
+                      classification.sourceLabel ||
+                      normalizedOriginLabel ||
+                      'Procedencia por confirmar'
+                    }
+                    timeLabel={created ? timeAgo(created) : undefined}
+                    badges={cardBadges}
+                    footerLeft={
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="outline" className={`text-xs ${statusConfig.badge}`}>
-                          {statusConfig.label}
-                        </Badge>
-                        <Badge variant="outline" className={`text-xs ${typeConfig.color}`}>
-                          {typeConfig.label}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="grid gap-2 text-sm md:grid-cols-[1fr_1fr_auto] md:items-center">
-                        <div className="flex items-center gap-1.5">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          <span className="truncate">{lead.email || 'Sin email'}</span>
-                        </div>
-
-                        <div className="flex items-center gap-1.5">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span>{lead.phone || 'Sin telefono'}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2 md:justify-end">
-                          <span className="text-xs text-muted-foreground">Origen:</span>
-                          <Badge variant="outline" className="text-xs">
-                            {resolveLeadOrigin(lead)}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-2 text-sm md:flex-row md:items-start md:justify-between">
-                        <p className="text-muted-foreground">
-                          <span className="font-medium text-foreground">Ultima nota/accion:</span>{' '}
-                          <span className="break-words">"{resolveLastNoteSnippet(lead)}"</span>
-                        </p>
-
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground md:justify-end">
-                          {/* TODO: clarificar si interactionCount representa intentos o interacciones efectivas. */}
-                          {interactionCount > 0 && <span>Contactos: {interactionCount}</span>}
-                          {lead.lastInteractor?.name && (
-                            <span className="truncate">Responsable: {lead.lastInteractor.name}</span>
-                          )}
-                          {created && <span>{timeAgo(created)}</span>}
-                        </div>
-                      </div>
-                    </div>
-
-                    {isNoteEditorOpen && (
-                      <div className="space-y-2 rounded-lg border bg-muted/20 p-3">
-                        <Label htmlFor={`quick-note-${lead.id}`}>Nota rapida</Label>
-                        <Textarea
-                          id={`quick-note-${lead.id}`}
-                          placeholder="Anade una nota interna de seguimiento"
-                          value={noteDraft}
-                          onChange={(event) =>
-                            setNoteDraftByLead((prev) => ({
-                              ...prev,
-                              [lead.id]: event.target.value,
-                            }))
-                          }
-                          rows={3}
-                        />
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setNoteEditorLeadId(null)}
-                          >
-                            Cancelar
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => void handleQuickNoteSave(lead)}
-                            disabled={!noteDraft.trim() || isSavingNote}
-                          >
-                            {isSavingNote ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                            Guardar nota
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                      <div className="flex flex-wrap gap-2">
                         {dialPhone ? (
                           <Button asChild size="sm" variant="outline">
                             <a href={`tel:${dialPhone}`}>
@@ -1050,15 +996,13 @@ export default function LeadsPage() {
                           <NotebookPen className="h-4 w-4" />
                           Nota
                         </Button>
-                      </div>
 
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
                         <Select
                           value={statusSelectValue}
                           onValueChange={(nextStatus) => void handleQuickStatusChange(lead, nextStatus)}
                           disabled={isSavingStatus}
                         >
-                          <SelectTrigger className="w-full sm:w-[230px]" size="sm">
+                          <SelectTrigger className="w-[220px]" size="sm">
                             <SelectValue placeholder="Cambiar estado" />
                           </SelectTrigger>
                           <SelectContent>
@@ -1069,19 +1013,50 @@ export default function LeadsPage() {
                             ))}
                           </SelectContent>
                         </Select>
+                      </div>
+                    }
+                    viewHref={`/leads/${lead.id}`}
+                  />
 
+                  <p className="px-1 text-xs text-muted-foreground">
+                    Última nota/acción: "{resolveLastNoteSnippet(lead)}" · Responsable: {resolveLeadResponsible(lead)}
+                  </p>
+
+                  {isNoteEditorOpen && (
+                    <div className="space-y-2 rounded-lg border bg-muted/20 p-3">
+                      <Label htmlFor={`quick-note-${lead.id}`}>Nota rápida</Label>
+                      <Textarea
+                        id={`quick-note-${lead.id}`}
+                        placeholder="Añade una nota interna de seguimiento"
+                        value={noteDraft}
+                        onChange={(event) =>
+                          setNoteDraftByLead((prev) => ({
+                            ...prev,
+                            [lead.id]: event.target.value,
+                          }))
+                        }
+                        rows={3}
+                      />
+                      <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
-                          onClick={() => router.push(`/leads/${lead.id}`)}
-                          className="whitespace-nowrap"
+                          variant="outline"
+                          onClick={() => setNoteEditorLeadId(null)}
                         >
-                          Abrir ficha
-                          <ArrowUpRight className="h-4 w-4" />
+                          Cancelar
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => void handleQuickNoteSave(lead)}
+                          disabled={!noteDraft.trim() || isSavingNote}
+                        >
+                          {isSavingNote ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                          Guardar nota
                         </Button>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  )}
+                </div>
               )
             })}
           </div>

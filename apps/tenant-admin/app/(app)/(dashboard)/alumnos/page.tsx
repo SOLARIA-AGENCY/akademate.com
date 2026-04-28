@@ -123,7 +123,7 @@ export default function AlumnosPage() {
   }, [])
 
   const handleViewStudent = (studentId: string) => {
-    router.push(`/alumnos/${studentId}`)
+    router.push(`/dashboard/alumnos/${studentId}`)
   }
 
   // Extraer valores únicos para filtros
@@ -665,7 +665,7 @@ export default function AlumnosPage() {
                       variant="default"
                       size="sm"
                       className="w-full"
-                      onClick={() => router.push(`/alumnos/${selectedStudent.id}/editar`)}
+                      onClick={() => router.push(`/dashboard/alumnos/${selectedStudent.id}/editar`)}
                       data-oid="u7lf.71"
                     >
                       <Edit className="mr-2 h-4 w-4" data-oid="gpux11j" />
@@ -786,7 +786,7 @@ export default function AlumnosPage() {
                     className="w-full"
                     onClick={(e: MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation()
-                      router.push(`/alumnos/${student.id}/editar`)
+                      router.push(`/dashboard/alumnos/${student.id}/editar`)
                     }}
                     data-oid="bgitn2z"
                   >

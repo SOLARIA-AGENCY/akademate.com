@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, Save, Loader2, User } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, Upload, User } from 'lucide-react'
 
 interface Campus {
   id: number
@@ -45,8 +45,11 @@ export default function NewProfesorPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [loadingCampuses, setLoadingCampuses] = useState(true)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [campuses, setCampuses] = useState<Campus[]>([])
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [photoId, setPhotoId] = useState('')
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -103,6 +106,7 @@ export default function NewProfesorPage() {
           hireDate: formData.hireDate,
           bio: formData.bio,
           assignedCampuses: formData.assignedCampuses,
+          photoId: photoId || undefined,
         }),
       })
 
@@ -117,7 +121,7 @@ export default function NewProfesorPage() {
       }
 
       // Redirect to detail page
-      router.push(`/profesores/${result.data.id}`)
+      router.push(`/dashboard/profesores/${result.data.id}`)
     } catch (err) {
       console.error('Error creating professor:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -141,6 +145,30 @@ export default function NewProfesorPage() {
         ? prev.assignedCampuses.filter((id) => id !== campusId)
         : [...prev.assignedCampuses, campusId],
     }))
+  }
+
+  const handlePhotoUpload = async (file: File) => {
+    setUploadingPhoto(true)
+    setError(null)
+    try {
+      setPhotoPreview(URL.createObjectURL(file))
+      const body = new FormData()
+      body.append('file', file)
+      body.append('alt', `${formData.firstName || 'Profesor'} ${formData.lastName || ''}`.trim())
+      const response = await fetch('/api/media', { method: 'POST', body })
+      const result = await response.json().catch(() => ({}))
+
+      if (!response.ok || !result?.doc?.id) {
+        throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo subir la foto')
+      }
+
+      setPhotoId(String(result.doc.id))
+      setPhotoPreview(result.doc.url || `/media/${String(result.doc.filename)}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo subir la foto')
+    } finally {
+      setUploadingPhoto(false)
+    }
   }
 
   return (
@@ -178,6 +206,39 @@ export default function NewProfesorPage() {
                 <p data-oid="wv07zng">{error}</p>
               </div>
             )}
+
+            <div className="space-y-3">
+              <Label htmlFor="photo-upload">Foto del profesor</Label>
+              <div className="flex items-center gap-4">
+                {photoPreview ? (
+                  <img
+                    src={photoPreview}
+                    alt="Foto del profesor"
+                    className="h-20 w-20 rounded-full object-cover border"
+                  />
+                ) : (
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full border bg-muted text-muted-foreground">
+                    <User className="h-8 w-8" />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingPhoto || loading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) void handlePhotoUpload(file)
+                    }}
+                  />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {uploadingPhoto ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                    <span>{uploadingPhoto ? 'Subiendo foto...' : 'La imagen se vinculará a la ficha del profesor.'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Personal Info */}
             <div className="grid gap-4 md:grid-cols-2" data-oid="lchd9n8">
@@ -418,7 +479,7 @@ export default function NewProfesorPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={loading || formData.assignedCampuses.length === 0}
+                disabled={loading || uploadingPhoto || formData.assignedCampuses.length === 0}
                 data-oid="_78ql89"
               >
                 {loading ? (

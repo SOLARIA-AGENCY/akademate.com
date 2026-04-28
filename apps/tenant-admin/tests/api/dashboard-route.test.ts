@@ -54,6 +54,12 @@ describe('Dashboard route - GET /api/dashboard', () => {
       if (sql.includes('information_schema.columns') && sql.includes("column_name = 'is_test'")) {
         return { rows: [{ cnt: hasIsTestColumn ? '1' : '0' }] }
       }
+      if (sql.includes('FROM staff') && sql.includes("staff_type = 'profesor'")) {
+        return { rows: [{ cnt: '3' }] }
+      }
+      if (sql.includes('FROM staff')) {
+        return { rows: [{ cnt: '5' }] }
+      }
       if (sql.includes('COUNT(*)::int AS cnt') && sql.includes('FROM leads')) {
         return { rows: [{ cnt: '0' }] }
       }
@@ -94,5 +100,22 @@ describe('Dashboard route - GET /api/dashboard', () => {
       .filter((sql) => sql.includes('FROM leads'))
       .join('\n')
     expect(leadSql).toContain('COALESCE(is_test, false) = false')
+  })
+
+  it('uses staff table for teacher metrics and keeps students at zero without enrollments', async () => {
+    const request = new NextRequest('http://localhost/api/dashboard?tenantId=2')
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.success).toBe(true)
+    expect(payload.data.metrics.total_staff).toBe(5)
+    expect(payload.data.metrics.total_teachers).toBe(3)
+    expect(payload.data.metrics.active_students).toBe(0)
+    expect(payload.data.metrics.total_students).toBe(0)
+
+    const executedSql = mockExecute.mock.calls.map((call) => String(call[0])).join('\n')
+    expect(executedSql).toContain('FROM staff')
+    expect(executedSql).toContain("staff_type = 'profesor'")
   })
 })

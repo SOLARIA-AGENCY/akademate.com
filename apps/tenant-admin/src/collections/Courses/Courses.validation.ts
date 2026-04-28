@@ -72,6 +72,13 @@ export const CourseSchema = z.object({
     .optional()
     .nullable(),
 
+  enrollment_fee: z.number().nonnegative('Enrollment fee cannot be negative').optional().nullable(),
+  installment_amount: z.number().nonnegative('Installment amount cannot be negative').optional().nullable(),
+  installment_count: z.number().int('Installment count must be an integer').min(0).optional().nullable(),
+  price_notes: z.string().optional().nullable(),
+  price_source: z.enum(['course_default', 'manual_import', 'unknown']).optional().default('unknown'),
+  operational_status: z.enum(['active', 'inactive', 'pending_validation']).optional().default('active'),
+
   // Optional: Financial aid availability flag
   financial_aid_available: z.boolean().optional().default(true),
 

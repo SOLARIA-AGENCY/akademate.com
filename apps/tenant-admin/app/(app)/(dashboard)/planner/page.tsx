@@ -17,8 +17,8 @@ import {
   Users,
   Clock,
   GripVertical,
-  GraduationCap,
   Loader2,
+  AlertTriangle,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 
@@ -35,9 +35,28 @@ interface KanbanCard {
   fechaInicio: string
   fechaFin: string
   horario: string
+  aula: string
+  aulaId: string
+  aulaCapacidad: number
+  turno: string
+  planningStatus: string
   plazas: number
   inscritos: number
   estado: string
+}
+
+interface Aula {
+  id: string
+  name: string
+  campusId: string
+  capacity: number
+  usagePolicy?: string
+}
+
+const SHIFT_LABELS: Record<string, string> = {
+  morning: 'Mañana',
+  afternoon: 'Tarde',
+  evening_extra: 'Tercer turno',
 }
 
 interface KanbanColumn {
@@ -185,6 +204,75 @@ function KanbanColumnView({ column, onDragStart, onDrop, onDragOver, onClick, on
   )
 }
 
+function OccupancyMatrix({ aulas, cards, sedeFilter }: { aulas: Aula[]; cards: KanbanCard[]; sedeFilter: string }) {
+  const visibleAulas = sedeFilter === 'todas' ? aulas : aulas.filter((aula) => aula.campusId === sedeFilter)
+  const visibleCards = sedeFilter === 'todas' ? cards : cards.filter((card) => card.sedeId === sedeFilter)
+
+  if (visibleAulas.length === 0) return null
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between gap-3">
+          <CardTitle className="text-sm">Matriz de ocupación por aula y turno</CardTitle>
+          <Badge variant="outline">{visibleCards.length} convocatorias</Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <div className="min-w-[760px] rounded-md border">
+            <div className="grid grid-cols-[180px_repeat(3,minmax(150px,1fr))] border-b bg-muted/40 text-xs font-medium">
+              <div className="p-2">Aula</div>
+              {Object.entries(SHIFT_LABELS).map(([key, label]) => (
+                <div key={key} className="border-l p-2">{label}</div>
+              ))}
+            </div>
+            {visibleAulas.map((aula) => {
+              const aulaCards = visibleCards.filter((card) => card.aulaId === aula.id)
+              return (
+                <div key={aula.id} className="grid grid-cols-[180px_repeat(3,minmax(150px,1fr))] border-b last:border-b-0 text-xs">
+                  <div className="p-2">
+                    <div className="font-medium">{aula.name}</div>
+                    <div className="mt-1 text-muted-foreground">{aula.capacity} plazas</div>
+                  </div>
+                  {Object.keys(SHIFT_LABELS).map((shift) => {
+                    const shiftCards = aulaCards.filter((card) => card.turno === shift)
+                    const occupied = shiftCards.reduce((sum, card) => sum + Math.min(card.plazas || 0, aula.capacity || card.plazas || 0), 0)
+                    const ratio = aula.capacity > 0 ? Math.min(100, Math.round((occupied / aula.capacity) * 100)) : 0
+                    return (
+                      <div key={shift} className="min-h-[84px] border-l p-2">
+                        {shiftCards.length === 0 ? (
+                          <span className="text-muted-foreground">Libre</span>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="h-1.5 rounded-full bg-muted">
+                              <div className={ratio >= 100 ? 'h-1.5 rounded-full bg-red-500' : 'h-1.5 rounded-full bg-green-500'} style={{ width: `${ratio}%` }} />
+                            </div>
+                            {shiftCards.map((card) => (
+                              <button
+                                key={card.id}
+                                className="block w-full rounded border bg-background p-1.5 text-left hover:bg-muted"
+                                onClick={() => window.location.assign(`/programacion/${card.id}`)}
+                              >
+                                <div className="truncate font-medium">{card.curso}</div>
+                                <div className="mt-0.5 truncate text-muted-foreground">{card.horario}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
@@ -196,15 +284,20 @@ export default function PlannerPage() {
   const [draggedCardId, setDraggedCardId] = useState<string | null>(null)
   const [sedeFilter, setSedeFilter] = useState('todas')
   const [campuses, setCampuses] = useState<{ id: string; name: string }[]>([])
+  const [aulas, setAulas] = useState<Aula[]>([])
+  const [allCards, setAllCards] = useState<KanbanCard[]>([])
+  const [openConflictCount, setOpenConflictCount] = useState(0)
   const [updating, setUpdating] = useState(false)
 
   // Fetch data
   useEffect(() => {
     const load = async () => {
       try {
-        const [convsRes, campusRes] = await Promise.all([
+        const [convsRes, campusRes, aulasRes, conflictsRes] = await Promise.all([
           fetch('/api/convocatorias', { cache: 'no-cache' }),
           fetch('/api/campuses?limit=50', { cache: 'no-cache' }),
+          fetch('/api/aulas', { cache: 'no-cache' }),
+          fetch('/api/planning-conflicts?where[status][equals]=open&limit=100', { cache: 'no-cache' }),
         ])
 
         let cards: KanbanCard[] = []
@@ -220,6 +313,11 @@ export default function PlannerPage() {
             fechaInicio: (c.fechaInicio as string) || '',
             fechaFin: (c.fechaFin as string) || '',
             horario: (c.horario as string) || '',
+            aula: (c.aulaNombre as string) || 'Sin aula',
+            aulaId: String(c.aulaId || ''),
+            aulaCapacidad: (c.aulaCapacidad as number) || 0,
+            turno: (c.turno as string) || 'morning',
+            planningStatus: (c.planningStatus as string) || 'draft',
             plazas: (c.plazasTotales as number) || 0,
             inscritos: (c.plazasOcupadas as number) || 0,
             estado: (c.estado as string) || 'draft',
@@ -233,7 +331,25 @@ export default function PlannerPage() {
           })))
         }
 
+        if (aulasRes.ok) {
+          const aulasData = await aulasRes.json()
+          const aulaItems = Array.isArray(aulasData.data) ? aulasData.data : []
+          setAulas(aulaItems.map((a: Record<string, unknown>) => ({
+            id: String(a.id),
+            name: (a.name as string) || (a.code as string) || 'Aula',
+            campusId: String(a.campusId || ''),
+            capacity: (a.capacity as number) || 0,
+            usagePolicy: (a.usage_policy as string) || undefined,
+          })))
+        }
+
+        if (conflictsRes.ok) {
+          const conflictData = await conflictsRes.json()
+          setOpenConflictCount(Number(conflictData.totalDocs ?? conflictData.total ?? 0))
+        }
+
         // Group into columns
+        setAllCards(cards)
         setColumns(COLUMNS_CONFIG.map((col) => ({
           ...col,
           cards: cards.filter((c) => c.estado === col.key),
@@ -329,8 +445,14 @@ export default function PlannerPage() {
         icon={LayoutGrid}
         badge={
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">{totalCards} convocatorias</Badge>
-            {updating && <Badge variant="outline" className="animate-pulse">Guardando...</Badge>}
+	            <Badge variant="secondary">{totalCards} convocatorias</Badge>
+	            {openConflictCount > 0 && (
+	              <Badge variant="destructive" className="gap-1">
+	                <AlertTriangle className="h-3 w-3" />
+	                {openConflictCount} conflictos
+	              </Badge>
+	            )}
+	            {updating && <Badge variant="outline" className="animate-pulse">Guardando...</Badge>}
           </div>
         }
         actions={
@@ -366,6 +488,8 @@ export default function PlannerPage() {
           ))}
         </div>
       </Card>
+
+      <OccupancyMatrix aulas={aulas} cards={allCards} sedeFilter={sedeFilter} />
 
       {/* Loading */}
       {isLoading && (

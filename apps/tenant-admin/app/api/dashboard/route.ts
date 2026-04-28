@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    const [coursesData, convocationsData, campusesData, staffData, teachersData, campaignsData] =
+    const [coursesData, convocationsData, campusesData, campaignsData] =
       await Promise.all([
         safeFind({
           collection: 'courses',
@@ -186,18 +186,6 @@ export async function GET(request: NextRequest) {
           collection: 'campuses',
           where: tenantWhere,
           limit: 200,
-        }),
-        safeFind({
-          collection: 'staff',
-          where: tenantWhere,
-          limit: 1,
-        }),
-        safeFind({
-          collection: 'staff',
-          where: {
-            and: [tenantWhere, { staff_type: { equals: 'profesor' } }],
-          },
-          limit: 1,
         }),
         safeFind({
           collection: 'campaigns',
@@ -222,8 +210,8 @@ export async function GET(request: NextRequest) {
     ).length;
 
     const totalCampuses = toNumber(campusesData.totalDocs);
-    const totalStaff = toNumber(staffData.totalDocs);
-    const totalTeachers = toNumber(teachersData.totalDocs);
+    let totalStaff = 0;
+    let totalTeachers = 0;
 
     const totalEnrolledByRuns = convocations.reduce(
       (sum, cr) => sum + toNumber(cr.current_enrollments ?? cr.enrolled),
@@ -280,6 +268,35 @@ export async function GET(request: NextRequest) {
     const recentActivities: RecentActivity[] = [];
 
     if (drizzle?.execute) {
+      try {
+        totalStaff = toNumber(
+          (
+            await queryOne(`
+              SELECT COUNT(*)::int AS cnt
+              FROM staff
+              WHERE is_active = true
+            `)
+          ).cnt,
+        );
+      } catch {
+        totalStaff = 0;
+      }
+
+      try {
+        totalTeachers = toNumber(
+          (
+            await queryOne(`
+              SELECT COUNT(*)::int AS cnt
+              FROM staff
+              WHERE is_active = true
+                AND staff_type = 'profesor'
+            `)
+          ).cnt,
+        );
+      } catch {
+        totalTeachers = 0;
+      }
+
       totalLeads = toNumber(
         (await queryOne(`SELECT COUNT(*)::int AS cnt FROM leads WHERE tenant_id = ${tenantId}${nonTestLeadFilter}`)).cnt,
       );
@@ -296,31 +313,7 @@ export async function GET(request: NextRequest) {
         ).cnt,
       );
 
-      try {
-        studentsWithEnrollment = toNumber(
-          (
-            await queryOne(`
-              SELECT COUNT(*)::int AS cnt
-              FROM leads
-              WHERE tenant_id = ${tenantId}
-                ${nonTestLeadFilter}
-                AND enrollment_id IS NOT NULL
-            `)
-          ).cnt,
-        );
-      } catch {
-        studentsWithEnrollment = toNumber(
-          (
-            await queryOne(`
-              SELECT COUNT(*)::int AS cnt
-              FROM leads
-              WHERE tenant_id = ${tenantId}
-                ${nonTestLeadFilter}
-                AND status IN ('enrolling', 'enrolled')
-            `)
-          ).cnt,
-        );
-      }
+      studentsWithEnrollment = 0;
 
       try {
         const leadWeekRows = await queryAll(`
@@ -408,7 +401,7 @@ export async function GET(request: NextRequest) {
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
 
-      const [totalLeadsRes, leadsThisMonthRes, enrolledLeadsRes] = await Promise.all([
+      const [totalLeadsRes, leadsThisMonthRes] = await Promise.all([
         safeFind({
           collection: 'leads',
           where: tenantWhere,
@@ -421,18 +414,11 @@ export async function GET(request: NextRequest) {
           },
           limit: 1,
         }),
-        safeFind({
-          collection: 'leads',
-          where: {
-            and: [tenantWhere, { status: { in: ['enrolling', 'enrolled'] } }],
-          },
-          limit: 1,
-        }),
       ]);
 
       totalLeads = toNumber(totalLeadsRes.totalDocs);
       leadsThisMonth = toNumber(leadsThisMonthRes.totalDocs);
-      studentsWithEnrollment = toNumber(enrolledLeadsRes.totalDocs);
+      studentsWithEnrollment = 0;
     }
 
     const upcomingConvocations: UpcomingConvocation[] = convocations
@@ -586,7 +572,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const activeStudents = Math.max(studentsWithEnrollment, totalEnrolledByRuns);
+    const activeStudents = studentsWithEnrollment;
     const conversionRate =
       totalLeads > 0 ? Math.round((studentsWithEnrollment / totalLeads) * 1000) / 10 : 0;
 

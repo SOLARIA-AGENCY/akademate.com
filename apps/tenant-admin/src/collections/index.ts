@@ -29,6 +29,7 @@ export { Cycles } from './Cycles';
 export { Campuses } from './Campuses';
 export { Courses } from './Courses';
 export { CourseRuns } from './CourseRuns/CourseRuns';
+export { PlanningConflicts } from './PlanningConflicts/PlanningConflicts';
 export { Leads } from './Leads';
 export { Enrollments } from './Enrollments/Enrollments';
 export { Students } from './Students/Students';

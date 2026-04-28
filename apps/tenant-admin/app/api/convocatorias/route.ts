@@ -29,8 +29,16 @@ interface CreateConvocationRequest {
   plazasTotales: number;
   precio: number;
   profesorId: string;
+  profesorIds?: string[];
   sedeId: string;
   aulaId: string;
+  trainingType?: 'private' | 'fped' | 'cycle' | 'other';
+  planningStatus?: 'draft' | 'pending_validation' | 'validated' | 'published' | 'cancelled' | 'completed';
+  turno?: 'morning' | 'afternoon' | 'evening_extra';
+  responsableId?: string;
+  matricula?: number;
+  cuotaImporte?: number;
+  cuotaCantidad?: number;
 }
 
 /** Where clause for course-runs query */
@@ -39,11 +47,33 @@ interface CourseRunWhereClause {
   campus?: { equals: number };
 }
 
-/** CourseRun with populated course relation */
-interface PopulatedCourseRun extends Omit<CourseRun, 'course' | 'campus'> {
+/** CourseRun with populated relations from depth=2 */
+interface PopulatedCourseRun {
+  id: number | string;
+  codigo?: string | null;
   course: number | (Course & { id: number; name: string; course_type?: string | null });
   campus?: number | null | (Campus & { id: number; name: string });
+  classroom?: number | null | { id: number; name?: string | null; code?: string | null; capacity?: number | null };
+  administrative_owner?: number | null | StaffLike;
+  instructor?: number | null | StaffLike;
   modality?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  schedule_days?: string[] | null;
+  schedule_time_start?: string | null;
+  schedule_time_end?: string | null;
+  status?: string | null;
+  max_students?: number | null;
+  current_enrollments?: number | null;
+  price_override?: number | null;
+  planning_status?: string | null;
+  training_type?: string | null;
+  shift?: 'morning' | 'afternoon' | 'evening_extra' | null;
+  price_snapshot?: number | null;
+  enrollment_fee_snapshot?: number | null;
+  installment_amount_snapshot?: number | null;
+  installment_count_snapshot?: number | null;
+  price_source?: 'unknown' | 'course_default' | 'run_override' | 'manual_import' | null;
 }
 
 interface StaffLike {
@@ -67,7 +97,17 @@ interface CourseRunCreateData {
   max_students: number;
   current_enrollments: number;
   price_override: number | undefined;
-  instructor_name: string | undefined;
+  price_snapshot: number | undefined;
+  enrollment_fee_snapshot: number | undefined;
+  installment_amount_snapshot: number | undefined;
+  installment_count_snapshot: number | undefined;
+  price_source: string;
+  instructor: number | undefined;
+  instructors: number[] | undefined;
+  administrative_owner: number | undefined;
+  training_type: string;
+  planning_status: string;
+  shift: string;
   notes: string;
 }
 
@@ -140,8 +180,16 @@ export async function POST(request: NextRequest) {
       plazasTotales,
       precio,
       profesorId,
+      profesorIds,
       sedeId,
       aulaId,
+      trainingType,
+      planningStatus,
+      turno,
+      responsableId,
+      matricula,
+      cuotaImporte,
+      cuotaCantidad,
     } = body;
 
     // Validaciones basicas
@@ -197,6 +245,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const primaryInstructorId = profesorId && !isNaN(parseInt(profesorId, 10)) ? parseInt(profesorId, 10) : undefined;
+    const instructorIds = Array.from(
+      new Set(
+        [primaryInstructorId, ...(profesorIds ?? []).map((id) => parseInt(id, 10))]
+          .filter((id): id is number => typeof id === 'number' && !isNaN(id))
+      )
+    );
+    const administrativeOwnerId =
+      responsableId && !isNaN(parseInt(responsableId, 10)) ? parseInt(responsableId, 10) : undefined;
+
     // Prepare data for course-run creation
     const courseRunData: CourseRunCreateData = {
       course: parseInt(courseId),
@@ -212,7 +270,17 @@ export async function POST(request: NextRequest) {
       max_students: plazasTotales,
       current_enrollments: 0,
       price_override: precio > 0 ? precio : undefined,
-      instructor_name: profesorId !== '' ? profesorId : undefined,
+      price_snapshot: precio > 0 ? precio : undefined,
+      enrollment_fee_snapshot: typeof matricula === 'number' && matricula >= 0 ? matricula : undefined,
+      installment_amount_snapshot: typeof cuotaImporte === 'number' && cuotaImporte >= 0 ? cuotaImporte : undefined,
+      installment_count_snapshot: typeof cuotaCantidad === 'number' && cuotaCantidad >= 0 ? cuotaCantidad : undefined,
+      price_source: precio > 0 ? 'run_override' : 'course_default',
+      instructor: primaryInstructorId,
+      instructors: instructorIds.length > 0 ? instructorIds : undefined,
+      administrative_owner: administrativeOwnerId,
+      training_type: trainingType ?? 'private',
+      planning_status: planningStatus ?? (estado === 'abierta' ? 'published' : 'draft'),
+      shift: turno ?? 'morning',
       notes: '',
     };
 
@@ -299,14 +367,25 @@ export async function GET(request: NextRequest) {
           cursoImagen,
           campusId: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.id : conv.campus,
           campusNombre: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.name : 'Sin sede',
+          aulaId: typeof conv.classroom === 'object' && conv.classroom !== null ? conv.classroom.id : conv.classroom,
+          aulaNombre: typeof conv.classroom === 'object' && conv.classroom !== null ? (conv.classroom.name ?? conv.classroom.code ?? 'Aula') : 'Sin aula',
+          aulaCapacidad: typeof conv.classroom === 'object' && conv.classroom !== null ? conv.classroom.capacity : undefined,
           fechaInicio: conv.start_date,
           fechaFin: conv.end_date,
           horario: `${conv.schedule_days?.join(', ') ?? ''} ${conv.schedule_time_start ?? ''}-${conv.schedule_time_end ?? ''}`,
           estado: conv.status,
+          planningStatus: conv.planning_status,
+          trainingType: conv.training_type,
+          turno: conv.shift,
           plazasTotales: conv.max_students,
           plazasOcupadas: conv.current_enrollments,
-          precio: conv.price_override ?? 0,
+          precio: conv.price_override ?? conv.price_snapshot ?? 0,
+          matricula: conv.enrollment_fee_snapshot,
+          cuotaImporte: conv.installment_amount_snapshot,
+          cuotaCantidad: conv.installment_count_snapshot,
+          priceSource: conv.price_source,
           profesor: normalizeInstructorName(conv.instructor),
+          responsable: normalizeInstructorName(conv.administrative_owner),
           modalidad: conv.modality ?? 'presencial',
         };
       }),

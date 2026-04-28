@@ -64,9 +64,9 @@ export default function NewAlumnoPage() {
       const result = (await response.json()) as StudentApiResponse
 
       if (result.doc?.id) {
-        router.push(`/alumnos/${result.doc.id}`)
+        router.push(`/dashboard/alumnos/${result.doc.id}`)
       } else {
-        router.push('/alumnos')
+        router.push('/dashboard/alumnos')
       }
     } catch (err) {
       console.error('Error creating student:', err)

@@ -281,14 +281,6 @@ export default function DashboardPage() {
     void refreshCycleStats()
   }, [])
 
-  // Format current date in Spanish
-  const formattedDate = new Intl.DateTimeFormat('es-ES', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(new Date())
-
   // Primera línea de KPIs
   const primaryKpis: KpiItem[] = [
     {
@@ -301,7 +293,7 @@ export default function DashboardPage() {
       title: 'Alumnos',
       value: metrics.active_students,
       icon: GraduationCap,
-      href: '/alumnos',
+      href: '/dashboard/alumnos',
     },
     {
       title: 'Leads este Mes',
@@ -317,7 +309,7 @@ export default function DashboardPage() {
       title: 'Profesores',
       value: metrics.total_teachers,
       icon: Users,
-      href: '/personal/profesores',
+      href: '/dashboard/profesores',
     },
     {
       title: 'Sedes',

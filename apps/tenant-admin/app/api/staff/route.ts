@@ -48,17 +48,21 @@ interface CourseRunData {
 /** Raw staff row returned from SQL query */
 interface StaffQueryRow {
   id: number;
-  staff_type: 'profesor' | 'administrativo';
+  staff_type: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico';
   first_name: string;
   last_name: string;
   full_name: string | null;
-  email: string;
+  email: string | null;
   phone: string | null;
   position: string;
   contract_type: 'full_time' | 'part_time' | 'freelance';
   employment_status: 'active' | 'temporary_leave' | 'inactive';
-  hire_date: string;
+  hire_date: string | null;
   bio: string | null;
+  data_quality_status: 'complete' | 'pending_validation';
+  source: string | null;
+  alias_names: string | null;
+  detected_courses: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -69,7 +73,7 @@ interface StaffQueryRow {
 
 /** Request body for creating a staff member */
 interface CreateStaffBody {
-  staffType: 'profesor' | 'administrativo';
+  staffType: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico';
   firstName: string;
   lastName: string;
   email: string;
@@ -80,6 +84,8 @@ interface CreateStaffBody {
   hireDate: string;
   bio?: string;
   specialties?: Staff['specialties'];
+  aliasNames?: string;
+  detectedCourses?: string;
   certifications?: {
     title: string;
     institution: string;
@@ -103,6 +109,8 @@ interface UpdateStaffBody {
   bio?: string | null;
   photoId?: string | number | null;
   specialties?: Staff['specialties'];
+  aliasNames?: string | null;
+  detectedCourses?: string | null;
   certifications?: {
     title: string;
     institution: string;
@@ -126,6 +134,8 @@ interface StaffUpdateData {
   bio?: string | null;
   photo?: number | null;
   specialties?: Staff['specialties'];
+  alias_names?: string | null;
+  detected_courses?: string | null;
   certifications?: {
     title: string;
     institution: string;
@@ -199,6 +209,10 @@ export async function GET(request: NextRequest) {
         s.employment_status,
         s.hire_date,
         s.bio,
+        s.data_quality_status,
+        s.source,
+        s.alias_names,
+        s.detected_courses,
         s.is_active,
         s.created_at,
         s.updated_at,
@@ -229,7 +243,8 @@ export async function GET(request: NextRequest) {
       LEFT JOIN media m ON s.photo_id = m.id
       LEFT JOIN staff_rels sr ON sr.parent_id = s.id AND sr.path = 'assigned_campuses'
       LEFT JOIN campuses c ON c.id = sr.campuses_id
-      LEFT JOIN course_runs cr ON cr.instructor_id = s.id
+      LEFT JOIN course_runs_rels crr ON crr.staff_id = s.id AND crr.path = 'instructors'
+      LEFT JOIN course_runs cr ON cr.instructor_id = s.id OR cr.id = crr.parent_id
       LEFT JOIN courses course ON course.id = cr.course_id
       LEFT JOIN campuses camp ON camp.id = cr.campus_id
       ${whereClause}
@@ -255,6 +270,10 @@ export async function GET(request: NextRequest) {
         contractType: member.contract_type,
         employmentStatus: member.employment_status,
         hireDate: member.hire_date,
+        dataQualityStatus: member.data_quality_status,
+        source: member.source,
+        aliasNames: member.alias_names,
+        detectedCourses: member.detected_courses,
         photo: member.photo_filename ? `/media/${member.photo_filename}` : '/placeholder-avatar.svg',
         bio: member.bio,
         assignedCampuses: member.campuses || [],
@@ -302,25 +321,20 @@ export async function POST(request: NextRequest) {
       hireDate,
       bio,
       specialties,
+      aliasNames,
+      detectedCourses,
       certifications,
       assignedCampuses,
       photoId,
     } = body;
 
     // Validaciones básicas
-    if (!staffType || !firstName || !lastName || !email || !position || !hireDate) {
+    if (!staffType || !firstName || !lastName || !position) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Campos requeridos: staffType, firstName, lastName, email, position, hireDate',
+          error: 'Campos requeridos: staffType, firstName, lastName, position',
         },
-        { status: 400 }
-      );
-    }
-
-    if (!assignedCampuses || assignedCampuses.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Debe asignar al menos una sede' },
         { status: 400 }
       );
     }
@@ -328,24 +342,28 @@ export async function POST(request: NextRequest) {
     const payload = await initPayload();
 
     // Crear miembro del personal
-    const staffMember = await payload.create({
+    const createStaff = payload.create as unknown as (args: Record<string, unknown>) => Promise<unknown>;
+    const staffMember = await createStaff({
       collection: 'staff',
       data: {
         staff_type: staffType,
         first_name: firstName,
         last_name: lastName,
-        email,
+        email: email || undefined,
         phone: phone ?? undefined,
         position,
         contract_type: contractType ?? 'full_time',
         employment_status: employmentStatus ?? 'active',
-        hire_date: hireDate,
+        hire_date: hireDate || undefined,
         bio: bio ?? undefined,
         photo: photoId ? parseInt(String(photoId)) : undefined,
         specialties: (specialties ?? []) as Staff['specialties'],
+        alias_names: aliasNames ?? undefined,
+        detected_courses: detectedCourses ?? undefined,
         certifications: certifications ?? [],
-        assigned_campuses: assignedCampuses.map((id) => typeof id === 'string' ? parseInt(id) : id),
+        assigned_campuses: (assignedCampuses ?? []).map((id) => typeof id === 'string' ? parseInt(id) : id),
         is_active: true,
+        data_quality_status: (!email || !hireDate || !assignedCampuses || assignedCampuses.length === 0) ? 'pending_validation' : 'complete',
       },
     }) as unknown as Staff;
 
@@ -407,6 +425,8 @@ export async function PUT(request: NextRequest) {
     if (body.bio !== undefined) updateData.bio = body.bio;
     if (body.photoId !== undefined) updateData.photo = body.photoId ? parseInt(String(body.photoId)) : null;
     if (body.specialties) updateData.specialties = body.specialties as Staff['specialties'];
+    if (body.aliasNames !== undefined) updateData.alias_names = body.aliasNames;
+    if (body.detectedCourses !== undefined) updateData.detected_courses = body.detectedCourses;
     if (body.certifications) updateData.certifications = body.certifications;
     if (body.assignedCampuses)
       updateData.assigned_campuses = body.assignedCampuses.map((cid) => typeof cid === 'string' ? parseInt(cid) : cid);

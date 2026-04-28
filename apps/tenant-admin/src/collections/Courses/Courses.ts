@@ -335,6 +335,70 @@ export const Courses: CollectionConfig = {
         return true;
       },
     },
+    {
+      name: 'enrollment_fee',
+      type: 'number',
+      min: 0,
+      admin: {
+        description: 'Matrícula o reserva base del curso en euros',
+        step: 0.01,
+      },
+    },
+    {
+      name: 'installment_amount',
+      type: 'number',
+      min: 0,
+      admin: {
+        description: 'Importe de cuota base en euros',
+        step: 0.01,
+      },
+    },
+    {
+      name: 'installment_count',
+      type: 'number',
+      min: 0,
+      admin: {
+        description: 'Número de cuotas base',
+        step: 1,
+      },
+    },
+    {
+      name: 'price_notes',
+      type: 'textarea',
+      admin: {
+        description: 'Notas comerciales sobre precio, cuotas o financiación',
+        rows: 2,
+      },
+    },
+    {
+      name: 'price_source',
+      type: 'select',
+      defaultValue: 'unknown',
+      options: [
+        { label: 'Curso base', value: 'course_default' },
+        { label: 'Importación manual', value: 'manual_import' },
+        { label: 'Desconocido', value: 'unknown' },
+      ],
+      admin: {
+        description: 'Fuente del precio base',
+      },
+    },
+    {
+      name: 'operational_status',
+      type: 'select',
+      required: true,
+      defaultValue: 'active',
+      index: true,
+      options: [
+        { label: 'Activo operativo', value: 'active' },
+        { label: 'Inactivo operativo', value: 'inactive' },
+        { label: 'Pendiente de validación', value: 'pending_validation' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Estado de oferta operativa. No controla por sí solo la visibilidad pública.',
+      },
+    },
 
     /**
      * Subsidy Percentage - Percentage of subsidy for this course

@@ -20,12 +20,12 @@ interface KpiLink {
 
 const primaryKpis: KpiLink[] = [
   { title: 'Cursos', href: '/cursos' },
-  { title: 'Alumnos', href: '/alumnos' },
+  { title: 'Alumnos', href: '/dashboard/alumnos' },
   { title: 'Leads este Mes', href: '/leads' },
 ]
 
 const secondaryKpis: KpiLink[] = [
-  { title: 'Profesores', href: '/personal/profesores' },
+  { title: 'Profesores', href: '/dashboard/profesores' },
   { title: 'Sedes', href: '/sedes' },
   { title: 'Convocatorias', href: '/programacion' },
 ]
@@ -47,10 +47,10 @@ describe('Dashboard: Primary KPI links', () => {
     expect(kpi!.href).toBe('/cursos')
   })
 
-  it('Alumnos links to /alumnos', () => {
+  it('Alumnos links to /dashboard/alumnos', () => {
     const kpi = primaryKpis.find((k) => k.title === 'Alumnos')
     expect(kpi).toBeDefined()
-    expect(kpi!.href).toBe('/alumnos')
+    expect(kpi!.href).toBe('/dashboard/alumnos')
   })
 
   it('Leads este Mes links to /leads', () => {
@@ -69,10 +69,10 @@ describe('Dashboard: Secondary KPI links', () => {
     expect(secondaryKpis).toHaveLength(3)
   })
 
-  it('Profesores links to /personal/profesores', () => {
+  it('Profesores links to /dashboard/profesores', () => {
     const kpi = secondaryKpis.find((k) => k.title === 'Profesores')
     expect(kpi).toBeDefined()
-    expect(kpi!.href).toBe('/personal/profesores')
+    expect(kpi!.href).toBe('/dashboard/profesores')
   })
 
   it('Sedes links to /sedes', () => {
@@ -130,9 +130,9 @@ describe('Dashboard: All KPI links', () => {
   it('KPI link mapping is correct', () => {
     const expectedMap: Record<string, string> = {
       'Cursos': '/cursos',
-      'Alumnos': '/alumnos',
+      'Alumnos': '/dashboard/alumnos',
       'Leads este Mes': '/leads',
-      'Profesores': '/personal/profesores',
+      'Profesores': '/dashboard/profesores',
       'Sedes': '/sedes',
       'Convocatorias': '/programacion',
     }

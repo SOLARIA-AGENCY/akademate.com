@@ -128,11 +128,11 @@ export default function ProfesoresPage() {
   }
 
   const handleAdd = () => {
-    router.push('/profesores/nuevo')
+    router.push('/dashboard/profesores/nuevo')
   }
 
   const handleViewTeacher = (teacherId: number) => {
-    router.push(`/profesores/${teacherId}`)
+    router.push(`/dashboard/profesores/${teacherId}`)
   }
 
   // Get unique departments
@@ -406,7 +406,7 @@ export default function ProfesoresPage() {
                     className="w-full"
                     onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation()
-                      router.push(`/profesores/${teacher.id}/editar`)
+                      router.push(`/dashboard/profesores/${teacher.id}/editar`)
                     }}
                     data-oid="xbr3ff8"
                   >

@@ -116,7 +116,7 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
             <p className="text-sm text-muted-foreground mb-4" data-oid="kks0xwy">
               {error ?? `El alumno con ID ${id} no existe`}
             </p>
-            <Button onClick={() => router.push('/alumnos')} data-oid=":zx8gh6">
+            <Button onClick={() => router.push('/dashboard/alumnos')} data-oid=":zx8gh6">
               <ArrowLeft className="mr-2 h-4 w-4" data-oid="n5bbe9m" />
               Volver a Alumnos
             </Button>
@@ -139,14 +139,14 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push('/alumnos')}
+              onClick={() => router.push('/dashboard/alumnos')}
               data-oid=":icfnk8"
             >
               <ArrowLeft className="h-4 w-4" data-oid="zqj93uq" />
             </Button>
             <Button
               variant="outline"
-              onClick={() => router.push(`/alumnos/${id}/editar`)}
+              onClick={() => router.push(`/dashboard/alumnos/${id}/editar`)}
               data-oid="lv9:k4l"
             >
               <Edit className="mr-2 h-4 w-4" data-oid="bv22-7e" />

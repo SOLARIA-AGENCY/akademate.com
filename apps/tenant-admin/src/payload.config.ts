@@ -22,6 +22,7 @@ import { AreasFormativas } from './collections/AreasFormativas/AreasFormativas';
 import { EntidadesFinanciadoras } from './collections/EntidadesFinanciadoras/EntidadesFinanciadoras';
 import { Courses } from './collections/Courses/Courses';
 import { CourseRuns } from './collections/CourseRuns/CourseRuns';
+import { PlanningConflicts } from './collections/PlanningConflicts/PlanningConflicts';
 import { Classrooms } from './collections/Classrooms/Classrooms';
 import { Enrollments } from './collections/Enrollments/Enrollments';
 import { Students } from './collections/Students/Students';
@@ -87,6 +88,7 @@ export const getPayloadConfig = () => buildConfig({
     // Courses
     Courses,
     CourseRuns, // ✅ Scheduled course instances
+    PlanningConflicts, // ✅ Operational planning conflict tracking
     Students, // ✅ Learner profiles with PII protection
     Enrollments, // ✅ Student registrations in course runs
 

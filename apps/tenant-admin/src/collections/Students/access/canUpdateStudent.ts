@@ -1,4 +1,5 @@
 import type { Access } from 'payload';
+import { getUserTenantId, isSuperAdmin } from '../../../access/tenantAccess';
 
 /**
  * Access Control: canUpdateStudent
@@ -57,11 +58,22 @@ export const canUpdateStudent: Access = ({ req: { user } }) => {
     return false; // Public cannot update students
   }
 
+  if (isSuperAdmin(user)) {
+    return true;
+  }
+
   // Role-based access control
   const allowedRoles = ['asesor', 'marketing', 'gestor', 'admin'];
 
   if (allowedRoles.includes(user.role)) {
-    return true; // Collection-level update granted, field-level access applies per role
+    const tenantId = getUserTenantId(user);
+    if (!tenantId) return false;
+
+    return {
+      tenant: {
+        equals: tenantId,
+      },
+    };
   }
 
   // Lectura and unknown roles: denied

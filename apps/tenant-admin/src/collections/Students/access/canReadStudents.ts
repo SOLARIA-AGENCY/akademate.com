@@ -1,4 +1,5 @@
 import type { Access } from 'payload';
+import { getUserTenantId, isSuperAdmin } from '../../../access/tenantAccess';
 
 /**
  * Access Control: canReadStudents
@@ -52,11 +53,22 @@ export const canReadStudents: Access = ({ req: { user } }) => {
     return false; // Public NEVER has access to student PII
   }
 
+  if (isSuperAdmin(user)) {
+    return true;
+  }
+
   // All authenticated users can read students (field-level access applies)
   const allowedRoles = ['lectura', 'asesor', 'marketing', 'gestor', 'admin'];
 
   if (allowedRoles.includes(user.role)) {
-    return true; // Collection-level access granted, field-level access applies per role
+    const tenantId = getUserTenantId(user);
+    if (!tenantId) return false;
+
+    return {
+      tenant: {
+        equals: tenantId,
+      },
+    };
   }
 
   // Unknown roles: denied

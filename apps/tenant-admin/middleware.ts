@@ -5,14 +5,6 @@ import type { NextRequest } from 'next/server'
 // Rate Limiting Configuration (Edge-compatible)
 // ============================================================================
 
-interface RateLimitEntry {
-  count: number
-  resetTime: number
-}
-
-// In-memory store (single instance)
-const rateLimitStore = new Map<string, RateLimitEntry>()
-
 // Rate limit presets (requests per minute)
 const RATE_LIMITS = {
   auth: { windowMs: 60_000, maxRequests: 10 },      // Login, password reset
@@ -138,16 +130,16 @@ function isCepHost(hostname: string): boolean {
 }
 
 const CEP_PUBLIC_REWRITES: Record<string, string> = {
-  '/': '/p/formacion',
   '/quienes-somos': '/p/quienes-somos',
 }
 
 const CEP_PUBLIC_PREFIX_REWRITES: Array<{ source: string; target: string }> = [
   { source: '/cursos', target: '/p/cursos' },
   { source: '/ciclos', target: '/p/ciclos' },
-  { source: '/convocatorias', target: '/p/convocatorias' },
   { source: '/contacto', target: '/p/contacto' },
 ]
+
+const INTERNAL_CATALOG_ROUTES = ['/cursos', '/ciclos', '/programacion', '/convocatorias', '/personal', '/sedes'] as const
 
 const DASHBOARD_ALIAS_REWRITES: Record<string, string> = {
   '/dashboard/convocatorias': '/programacion',
@@ -235,7 +227,7 @@ function getCorsHeaders(origin: string | null) {
 }
 
 function hasSessionCookie(request: NextRequest): boolean {
-  if (Boolean(request.cookies.get('payload-token')?.value)) return true
+  if (request.cookies.get('payload-token')?.value) return true
 
   for (const cookieName of SESSION_COOKIE_NAMES) {
     const rawSession = request.cookies.get(cookieName)?.value
@@ -421,6 +413,18 @@ export function middleware(request: NextRequest) {
 
   // Accept both Payload token cookie and session cookies that wrap the token.
   const isAuthenticatedByCookie = hasSessionCookie(request)
+
+  if (
+    !pathname.startsWith('/api/') &&
+    request.method === 'GET' &&
+    !isCepHost(host) &&
+    isAuthenticatedByCookie &&
+    INTERNAL_CATALOG_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))
+  ) {
+    const dashboardUrl = request.nextUrl.clone()
+    dashboardUrl.pathname = `/dashboard${pathname}`
+    return NextResponse.redirect(dashboardUrl)
+  }
 
   // FIX-16: x-dev-bypass header removed. Auth is always enforced.
   if (!isAuthenticatedByCookie) {

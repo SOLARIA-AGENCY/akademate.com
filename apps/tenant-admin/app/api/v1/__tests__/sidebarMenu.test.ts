@@ -27,12 +27,12 @@ const menuItems: MenuItem[] = [
   { title: 'Cursos', url: '/cursos' },
   { title: 'Ciclos', url: '/ciclos' },
   { title: 'Sedes', url: '/sedes' },
-  { title: 'Alumnos', url: '/alumnos' },
+  { title: 'Alumnos', url: '/dashboard/alumnos' },
   {
     title: 'Personal',
     items: [
-      { title: 'Profesores', url: '/personal/profesores' },
-      { title: 'Administrativos', url: '/personal/administrativos' },
+      { title: 'Profesores', url: '/dashboard/profesores' },
+      { title: 'Administrativos', url: '/dashboard/personal/administrativos' },
     ],
   },
   {
@@ -161,9 +161,9 @@ describe('Sidebar: Personal', () => {
     expect(sub).toBeDefined()
   })
 
-  it('Profesores url is /personal/profesores', () => {
+  it('Profesores url is /dashboard/profesores', () => {
     const sub = findSubItem('Personal', 'Profesores')
-    expect(sub!.url).toBe('/personal/profesores')
+    expect(sub!.url).toBe('/dashboard/profesores')
   })
 
   it('Personal has Administrativos sub-item', () => {
@@ -171,9 +171,9 @@ describe('Sidebar: Personal', () => {
     expect(sub).toBeDefined()
   })
 
-  it('Administrativos url is /personal/administrativos', () => {
+  it('Administrativos url is /dashboard/personal/administrativos', () => {
     const sub = findSubItem('Personal', 'Administrativos')
-    expect(sub!.url).toBe('/personal/administrativos')
+    expect(sub!.url).toBe('/dashboard/personal/administrativos')
   })
 })
 

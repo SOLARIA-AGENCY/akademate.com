@@ -5,6 +5,16 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@payload-config/components/ui/alert-dialog'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import {
@@ -29,6 +39,11 @@ const STATUS_OPTIONS = [
   { value: 'unreachable', label: 'No contactable', color: 'bg-zinc-700 text-white border border-zinc-800', dot: 'bg-zinc-500' },
   { value: 'discarded', label: 'Descartado', color: 'bg-zinc-800 text-white border border-zinc-900', dot: 'bg-zinc-500' },
 ]
+
+const STATUS_LABELS: Record<string, string> = STATUS_OPTIONS.reduce((acc, status) => {
+  acc[status.value] = status.label
+  return acc
+}, {} as Record<string, string>)
 
 const CONTACT_RESULTS = [
   { value: 'no_answer', label: 'Sin respuesta', icon: PhoneOff },
@@ -278,27 +293,81 @@ function formatInteractionTimestamp(value: unknown): string {
   })
 }
 
-function isInternalAdvisorNote(interaction: any): boolean {
+function resolveInteractionActor(interaction: any): string {
+  if (typeof interaction?.user_name === 'string' && interaction.user_name.trim().length > 0) {
+    return interaction.user_name.trim()
+  }
+
+  const fullName = [interaction?.user_first_name, interaction?.user_last_name]
+    .filter((segment) => typeof segment === 'string' && segment.trim().length > 0)
+    .join(' ')
+    .trim()
+  if (fullName.length > 0) return fullName
+  if (typeof interaction?.user_email === 'string' && interaction.user_email.trim().length > 0) {
+    return interaction.user_email.trim()
+  }
+  return 'Sistema'
+}
+
+function isSystemActorName(name: string): boolean {
+  const normalized = name.trim().toLowerCase()
+  return normalized === 'sistema' || normalized === 'system' || normalized === 'auto' || normalized === 'bot'
+}
+
+function isAdvisorContactInteraction(interaction: any): boolean {
   if (!interaction || typeof interaction !== 'object') return false
-  if (interaction.result === 'note_added') return true
+  const channel = typeof interaction.channel === 'string' ? interaction.channel.trim().toLowerCase() : ''
+  if (!['phone', 'whatsapp', 'email'].includes(channel)) return false
+  const actor = resolveInteractionActor(interaction)
+  return !isSystemActorName(actor)
+}
+
+function resolveFirstContactAdvisor(interactions: any[]): string {
+  const ordered = [...interactions]
+    .filter((interaction) => isAdvisorContactInteraction(interaction))
+    .sort((left, right) => {
+      const leftTs = new Date(String(left?.created_at || '')).getTime()
+      const rightTs = new Date(String(right?.created_at || '')).getTime()
+      const safeLeft = Number.isFinite(leftTs) ? leftTs : Number.MAX_SAFE_INTEGER
+      const safeRight = Number.isFinite(rightTs) ? rightTs : Number.MAX_SAFE_INTEGER
+      return safeLeft - safeRight
+    })
+
+  const first = ordered[0]
+  if (!first) return 'Sin asignar'
+  const actor = resolveInteractionActor(first)
+  return isSystemActorName(actor) ? 'Sin asignar' : actor
+}
+
+function isManualAdvisorNote(interaction: any): boolean {
+  if (!interaction || typeof interaction !== 'object') return false
+  if (interaction.result !== 'note_added') return false
   const note = typeof interaction.note === 'string' ? interaction.note.trim() : ''
   if (!note) return false
-  if (interaction.channel === 'system') {
-    if (interaction.result === 'status_changed') {
-      const normalized = note.toLowerCase()
-      const isStatusLog =
-        normalized.startsWith('estado actualizado:') ||
-        normalized.startsWith('árbol crm:') ||
-        normalized.startsWith('arbol crm:')
-      const isEnrollmentLog = normalized.includes('ficha de matricula creada')
-      return !isStatusLog && !isEnrollmentLog
+  const actor = resolveInteractionActor(interaction)
+  return !isSystemActorName(actor)
+}
+
+function toReadableStatus(value: string): string {
+  const normalized = value.trim().toLowerCase().replace(/\s+/g, '_')
+  if (normalized === 'sin_estado' || normalized === 'sin estado') return 'Sin estado'
+  return STATUS_LABELS[normalized] ?? value.trim()
+}
+
+function normalizeInteractionNote(interaction: any): string | null {
+  const note = typeof interaction?.note === 'string' ? interaction.note.trim() : ''
+  if (!note) return null
+
+  if (interaction?.result === 'status_changed') {
+    const statusTransitionMatch = note.match(/(?:estado actualizado|estado)\s*:\s*([a-z_ ]+)\s*->\s*([a-z_ ]+)/i)
+    if (statusTransitionMatch) {
+      const from = toReadableStatus(statusTransitionMatch[1] ?? '')
+      const to = toReadableStatus(statusTransitionMatch[2] ?? '')
+      return `Estado cambiado: ${from} -> ${to}`
     }
-    if (interaction.result === 'message_sent' || interaction.result === 'email_sent') {
-      return true
-    }
-    return false
   }
-  return true
+
+  return note
 }
 
 // ---------------------------------------------------------------------------
@@ -315,6 +384,9 @@ export default function LeadDetailPage({ params }: Props) {
   const [saving, setSaving] = React.useState(false)
   const [copied, setCopied] = React.useState<string | null>(null)
   const [noteText, setNoteText] = React.useState('')
+  const [savingAdvisorNote, setSavingAdvisorNote] = React.useState(false)
+  const [deletingAdvisorNoteId, setDeletingAdvisorNoteId] = React.useState<number | null>(null)
+  const [pendingDeleteNote, setPendingDeleteNote] = React.useState<any | null>(null)
 
   // Local status for immediate UI feedback
   const [localStatus, setLocalStatus] = React.useState<string | null>(null)
@@ -334,6 +406,25 @@ export default function LeadDetailPage({ params }: Props) {
   const [deleteConfirmPermanent, setDeleteConfirmPermanent] = React.useState(false)
   const [deleteConfirmInvalidRecord, setDeleteConfirmInvalidRecord] = React.useState(false)
   const [deleteVerificationText, setDeleteVerificationText] = React.useState('')
+  const loginRedirectPath = React.useMemo(
+    () => `/login?redirect=${encodeURIComponent(`/inscripciones/${id}`)}`,
+    [id],
+  )
+
+  const fetchLeadApi = React.useCallback(
+    async (input: string, init?: RequestInit) => {
+      const response = await fetch(input, {
+        cache: 'no-store',
+        credentials: 'include',
+        ...init,
+      })
+      if (response.status === 401) {
+        throw new Error('No autenticado')
+      }
+      return response
+    },
+    [],
+  )
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -341,21 +432,29 @@ export default function LeadDetailPage({ params }: Props) {
 
   const loadLead = React.useCallback(async () => {
     try {
-      const res = await fetch(`/api/leads/${id}?depth=1`, { cache: 'no-store' })
+      const res = await fetchLeadApi(`/api/leads/${id}?depth=1`)
       if (res.ok) setLead(await res.json())
-    } catch {}
+    } catch (error) {
+      if (error instanceof Error && error.message === 'No autenticado') {
+        router.push(loginRedirectPath)
+      }
+    }
     finally { setLoading(false) }
-  }, [id])
+  }, [fetchLeadApi, id, loginRedirectPath, router])
 
   const loadInteractions = React.useCallback(async () => {
     try {
-      const res = await fetch(`/api/leads/${id}/interactions`)
+      const res = await fetchLeadApi(`/api/leads/${id}/interactions`)
       if (res.ok) {
         const data = await res.json()
         setInteractions(data.interactions ?? [])
       }
-    } catch {}
-  }, [id])
+    } catch (error) {
+      if (error instanceof Error && error.message === 'No autenticado') {
+        router.push(loginRedirectPath)
+      }
+    }
+  }, [fetchLeadApi, id, loginRedirectPath, router])
 
   React.useEffect(() => {
     void loadLead()
@@ -422,7 +521,7 @@ export default function LeadDetailPage({ params }: Props) {
     setLocalStatus(newStatus)
     setSaving(true)
     try {
-      const statusRes = await fetch(`/api/leads/${id}`, {
+      const statusRes = await fetchLeadApi(`/api/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -438,6 +537,10 @@ export default function LeadDetailPage({ params }: Props) {
       await loadInteractions()
     } catch (error) {
       setLocalStatus(currentStatus)
+      if (error instanceof Error && error.message === 'No autenticado') {
+        router.push(loginRedirectPath)
+        return
+      }
       const message = error instanceof Error ? error.message : 'No se pudo cambiar el estado'
       alert(message)
     }
@@ -448,7 +551,7 @@ export default function LeadDetailPage({ params }: Props) {
     if (!showContactModal || !contactResult) return
     setSaving(true)
     try {
-      await fetch(`/api/leads/${id}/interactions`, {
+      const interactionRes = await fetchLeadApi(`/api/leads/${id}/interactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -457,12 +560,21 @@ export default function LeadDetailPage({ params }: Props) {
           note: contactNote || undefined,
         }),
       })
+      if (!interactionRes.ok) {
+        const payload = await interactionRes.json().catch(() => ({} as Record<string, unknown>))
+        throw new Error(typeof payload.error === 'string' ? payload.error : 'No se pudo registrar la interacción')
+      }
       await loadLead()
       await loadInteractions()
       setShowContactModal(null)
       setContactResult('')
       setContactNote('')
-    } catch {}
+    } catch (error) {
+      if (error instanceof Error && error.message === 'No autenticado') {
+        setDecisionError('Sesión expirada. Vuelve a iniciar sesión para confirmar la acción.')
+        router.push(loginRedirectPath)
+      }
+    }
     finally { setSaving(false) }
   }
 
@@ -470,9 +582,9 @@ export default function LeadDetailPage({ params }: Props) {
     const cleanNote = noteText.trim()
     if (!cleanNote) return
 
-    setSaving(true)
+    setSavingAdvisorNote(true)
     try {
-      const res = await fetch(`/api/leads/${id}/interactions`, {
+      const res = await fetchLeadApi(`/api/leads/${id}/interactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -493,22 +605,72 @@ export default function LeadDetailPage({ params }: Props) {
         }
         throw new Error(message)
       }
+
+      const payload = await res.json().catch(() => ({} as Record<string, any>))
+      const createdInteraction = payload?.interaction
+      if (createdInteraction && typeof createdInteraction === 'object') {
+        setInteractions((prev) => [createdInteraction, ...prev])
+      } else {
+        await loadInteractions()
+      }
       setNoteText('')
-      await loadLead()
-      await loadInteractions()
     } catch (error) {
+      if (error instanceof Error && error.message === 'No autenticado') {
+        router.push(loginRedirectPath)
+        return
+      }
       const message = error instanceof Error ? error.message : 'No se pudo guardar la nota del asesor'
       alert(message)
     } finally {
-      setSaving(false)
+      setSavingAdvisorNote(false)
     }
   }
+
+  const deleteAdvisorNote = React.useCallback(async (noteEvent: any) => {
+    const interactionId =
+      typeof noteEvent?.id === 'number' ? noteEvent.id : Number.parseInt(String(noteEvent?.id ?? ''), 10)
+    if (!Number.isFinite(interactionId) || interactionId <= 0) {
+      alert('No se pudo identificar la nota a eliminar')
+      return
+    }
+
+    setDeletingAdvisorNoteId(interactionId)
+    try {
+      const res = await fetchLeadApi(`/api/leads/${id}/interactions`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interactionId }),
+      })
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({} as Record<string, any>))
+        const message =
+          typeof payload?.error === 'string' && payload.error.trim().length > 0
+            ? payload.error.trim()
+            : 'No se pudo eliminar la nota'
+        throw new Error(message)
+      }
+
+      setInteractions((prev) =>
+        prev.filter((interaction) => String(interaction.id) !== String(interactionId)),
+      )
+      setPendingDeleteNote(null)
+    } catch (error) {
+      if (error instanceof Error && error.message === 'No autenticado') {
+        router.push(loginRedirectPath)
+        return
+      }
+      const message = error instanceof Error ? error.message : 'No se pudo eliminar la nota'
+      alert(message)
+    } finally {
+      setDeletingAdvisorNoteId(null)
+    }
+  }, [fetchLeadApi, id, loginRedirectPath, router])
 
   const handleEnroll = async (options?: { skipConfirm?: boolean }) => {
   if (!options?.skipConfirm && !confirm('¿Iniciar proceso de matriculación para este lead?')) return false
     setSaving(true)
     try {
-      const res = await fetch(`/api/leads/${id}/enroll`, {
+      const res = await fetchLeadApi(`/api/leads/${id}/enroll`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -531,6 +693,10 @@ export default function LeadDetailPage({ params }: Props) {
       }
       throw new Error('No se pudo obtener la ficha de matrícula')
     } catch (error) {
+      if (error instanceof Error && error.message === 'No autenticado') {
+        router.push(loginRedirectPath)
+        return false
+      }
       const message = error instanceof Error ? error.message : 'No se pudo iniciar la matriculación'
       alert(message)
       return false
@@ -674,7 +840,7 @@ export default function LeadDetailPage({ params }: Props) {
     setSaving(true)
     setDecisionError(null)
     try {
-      const patchRes = await fetch(`/api/leads/${id}`, {
+      const patchRes = await fetchLeadApi(`/api/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patchPayload),
@@ -695,6 +861,11 @@ export default function LeadDetailPage({ params }: Props) {
       await loadInteractions()
       resetDecision()
     } catch (error) {
+      if (error instanceof Error && error.message === 'No autenticado') {
+        setDecisionError('Sesión expirada. Vuelve a iniciar sesión para confirmar la acción.')
+        router.push(loginRedirectPath)
+        return
+      }
       const message = error instanceof Error ? error.message : 'No se pudo ejecutar la acción'
       setDecisionError(message)
     } finally {
@@ -705,7 +876,7 @@ export default function LeadDetailPage({ params }: Props) {
   const handleDeleteLead = async () => {
     setSaving(true)
     try {
-      const res = await fetch(`/api/leads/${id}`, {
+      const res = await fetchLeadApi(`/api/leads/${id}`, {
         method: 'DELETE',
       })
       const payload = await res.json().catch(() => ({} as Record<string, unknown>))
@@ -716,6 +887,10 @@ export default function LeadDetailPage({ params }: Props) {
       resetDeleteModal()
       router.push('/inscripciones')
     } catch (error) {
+      if (error instanceof Error && error.message === 'No autenticado') {
+        router.push(loginRedirectPath)
+        return
+      }
       const message = error instanceof Error ? error.message : 'No se pudo eliminar el lead'
       alert(message)
     } finally {
@@ -827,16 +1002,11 @@ export default function LeadDetailPage({ params }: Props) {
       : programName
   const sourcePageHref = sourcePage && sourcePage.trim().length > 0 ? sourcePage : null
   const sourcePageIsExternal = sourcePageHref ? /^https?:\/\//i.test(sourcePageHref) : false
-  const latestInteraction = interactions.length > 0 ? interactions[0] : null
-  const latestInteractionActor =
-    latestInteraction
-      ? [latestInteraction.user_first_name, latestInteraction.user_last_name].filter(Boolean).join(' ').trim() ||
-        latestInteraction.user_email ||
-        'Sistema'
-      : 'Sin gestión'
-  const advisorNotes = interactions.filter((interaction) => isInternalAdvisorNote(interaction))
-  const responsibleName =
-    [lead.assigned_to?.first_name, lead.assigned_to?.last_name].filter(Boolean).join(' ').trim() || 'Sin asignar'
+  const advisorNotes = interactions.filter((interaction) => isManualAdvisorNote(interaction))
+  const interactionTimeline = interactions.filter((interaction) => !isManualAdvisorNote(interaction))
+  const latestInteraction = interactionTimeline.length > 0 ? interactionTimeline[0] : interactions[0] ?? null
+  const latestInteractionActor = latestInteraction ? resolveInteractionActor(latestInteraction) : 'Sin gestión'
+  const responsibleName = resolveFirstContactAdvisor(interactions)
   const nextActionDate = lead.next_action_date ? new Date(lead.next_action_date) : null
   const nextActionDateLabel = nextActionDate && !Number.isNaN(nextActionDate.getTime())
     ? nextActionDate.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -1182,7 +1352,7 @@ Equipo CEP Formación`
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between rounded-lg border bg-muted/20 px-3 py-2 text-xs">
-                <span className="font-medium text-muted-foreground">Bitacora comercial</span>
+                <span className="font-medium text-muted-foreground">Notas manuales de asesoría</span>
                 <Badge variant="outline">{advisorNotes.length} nota{advisorNotes.length === 1 ? '' : 's'}</Badge>
               </div>
 
@@ -1191,17 +1361,36 @@ Equipo CEP Formación`
               ) : (
                 <div className="space-y-2">
                   {advisorNotes.map((noteEvent: any) => {
-                    const noteAuthor =
-                      [noteEvent.user_first_name, noteEvent.user_last_name].filter(Boolean).join(' ').trim() ||
-                      noteEvent.user_email ||
-                      'Sistema'
+                    const noteAuthor = resolveInteractionActor(noteEvent)
+                    const noteBody = normalizeInteractionNote(noteEvent)
+                    const canDelete = noteEvent?.can_delete === true
+                    const noteId =
+                      typeof noteEvent?.id === 'number'
+                        ? noteEvent.id
+                        : Number.parseInt(String(noteEvent?.id ?? ''), 10)
+                    const isDeleting = deletingAdvisorNoteId !== null && deletingAdvisorNoteId === noteId
                     return (
                       <div key={`note-${noteEvent.id}`} className="rounded-lg border p-3">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-xs font-semibold text-foreground">{noteAuthor}</span>
-                          <span className="text-xs text-muted-foreground">{formatInteractionTimestamp(noteEvent.created_at)}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">{formatInteractionTimestamp(noteEvent.created_at)}</span>
+                            {canDelete && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-red-600"
+                                disabled={isDeleting}
+                                onClick={() => setPendingDeleteNote(noteEvent)}
+                                aria-label="Eliminar nota"
+                              >
+                                {isDeleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                        <p className="mt-1 text-sm text-foreground">{noteEvent.note}</p>
+                        {noteBody && <p className="mt-1 text-sm text-foreground">{noteBody}</p>}
                       </div>
                     )
                   })}
@@ -1209,13 +1398,14 @@ Equipo CEP Formación`
               )}
 
               <Textarea
-                placeholder="Escribe la nota interna de esta gestión comercial..."
+                placeholder="Escribe una nota sobre este lead..."
                 value={noteText}
                 onChange={e => setNoteText(e.target.value)}
                 rows={3}
               />
-              <Button size="sm" disabled={saving || !noteText.trim()}
+              <Button size="sm" disabled={savingAdvisorNote || !noteText.trim()}
                 onClick={() => { void registerAdvisorNote() }}>
+                {savingAdvisorNote ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Guardar nota
               </Button>
             </CardContent>
@@ -1396,17 +1586,14 @@ Equipo CEP Formación`
           <CardTitle className="text-base">Historial de contacto y auditoría</CardTitle>
         </CardHeader>
         <CardContent>
-          {interactions.length === 0 ? (
+          {interactionTimeline.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sin interacciones registradas.</p>
           ) : (
             <div className="space-y-3">
-              {interactions.map((interaction: any) => {
-                const actorName =
-                  [interaction.user_first_name, interaction.user_last_name].filter(Boolean).join(' ').trim() ||
-                  interaction.user_email ||
-                  'Sistema'
-
+              {interactionTimeline.map((interaction: any) => {
+                const actorName = resolveInteractionActor(interaction)
                 const eventLabel = RESULT_LABELS[interaction.result] ?? interaction.result
+                const interactionNote = normalizeInteractionNote(interaction)
                 const eventTone =
                   interaction.result === 'note_added'
                     ? 'border-l-blue-400'
@@ -1427,8 +1614,8 @@ Equipo CEP Formación`
                       </div>
                       <span className="text-xs text-muted-foreground">{formatInteractionTimestamp(interaction.created_at)}</span>
                     </div>
-                    {interaction.note && (
-                      <p className="mt-1 text-sm text-muted-foreground">{interaction.note}</p>
+                    {interactionNote && (
+                      <p className="mt-1 text-sm text-muted-foreground">{interactionNote}</p>
                     )}
                   </div>
                 )
@@ -1437,6 +1624,39 @@ Equipo CEP Formación`
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog
+        open={pendingDeleteNote !== null}
+        onOpenChange={(open) => {
+          if (!open && deletingAdvisorNoteId === null) {
+            setPendingDeleteNote(null)
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar esta nota?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingAdvisorNoteId !== null}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={pendingDeleteNote === null || deletingAdvisorNoteId !== null}
+              onClick={(event) => {
+                event.preventDefault()
+                if (pendingDeleteNote) {
+                  void deleteAdvisorNote(pendingDeleteNote)
+                }
+              }}
+            >
+              {deletingAdvisorNoteId !== null ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Eliminar nota
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Card className="border-red-200 bg-red-50/30">
         <CardContent className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -11,6 +11,10 @@ interface ClassroomDocument {
   capacity: number;
   floor?: number | null;
   resources?: string[] | null;
+  usage_policy?: string | null;
+  enabled_shifts?: string[] | null;
+  data_quality_status?: string | null;
+  operational_notes?: string | null;
   campus: number | { id: number; name: string; city?: string } | null;
   is_active?: boolean;
   notes?: string | null;
@@ -65,10 +69,17 @@ export async function GET(request: NextRequest) {
       data: classrooms.map((c) => ({
         id: c.id,
         code: c.code,
+        name: c.name,
         nombre: c.name,
+        capacity: c.capacity,
         capacidad: c.capacity,
         planta: c.floor ?? null,
         recursos: c.resources ?? [],
+        usage_policy: c.usage_policy ?? 'mixed',
+        enabled_shifts: c.enabled_shifts ?? ['morning', 'afternoon'],
+        data_quality_status: c.data_quality_status ?? 'complete',
+        operational_notes: c.operational_notes ?? '',
+        campusId: typeof c.campus === 'object' && c.campus !== null ? c.campus.id : c.campus,
         sedeId: typeof c.campus === 'object' && c.campus !== null ? c.campus.id : c.campus,
         sedeNombre: typeof c.campus === 'object' && c.campus !== null ? c.campus.name : null,
         activa: c.is_active ?? true,
@@ -105,7 +116,8 @@ export async function POST(request: NextRequest) {
 
     const payload: Payload = await getPayloadHMR({ config: configPromise });
 
-    const aula = await payload.create({
+    const createClassroom = payload.create as unknown as (args: Record<string, unknown>) => Promise<unknown>;
+    const aula = await createClassroom({
       collection: 'classrooms',
       data: {
         code: body.code.trim().toUpperCase(),

@@ -167,7 +167,7 @@ export default function ProfesorDetailPage() {
               <ArrowLeft className="h-5 w-5" data-oid="1snqjt0" />
             </Button>
             <Button
-              onClick={() => router.push(`/profesores/${professorId}/editar`)}
+              onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}
               data-oid="lojmz0i"
             >
               <Edit className="mr-2 h-4 w-4" data-oid="m-r0wcw" />
@@ -522,7 +522,10 @@ export default function ProfesorDetailPage() {
         <Button variant="outline" onClick={() => router.back()} data-oid="0e8m5ik">
           Volver
         </Button>
-        <Button onClick={() => router.push(`/profesores/${professorId}/editar`)} data-oid="awna7rh">
+        <Button
+          onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}
+          data-oid="awna7rh"
+        >
           <Edit className="mr-2 h-4 w-4" data-oid="ljm_bgg" />
           Editar Profesor
         </Button>

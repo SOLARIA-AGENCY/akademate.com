@@ -1,4 +1,5 @@
 import type { Access } from 'payload';
+import { getUserTenantId, isSuperAdmin } from '../../../access/tenantAccess';
 
 /**
  * Access Control: canCreateStudent
@@ -40,11 +41,15 @@ export const canCreateStudent: Access = ({ req: { user } }) => {
     return false; // Public cannot create students
   }
 
+  if (isSuperAdmin(user)) {
+    return true;
+  }
+
   // Role-based access control
   const allowedRoles = ['asesor', 'marketing', 'gestor', 'admin'];
 
   if (allowedRoles.includes(user.role)) {
-    return true; // Authorized role
+    return !!getUserTenantId(user);
   }
 
   // Lectura and any other roles: denied

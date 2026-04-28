@@ -30,3 +30,5 @@ export { trackCourseRunCreator } from './trackCourseRunCreator';
 export { validateEnrollmentCapacity } from './validateEnrollmentCapacity';
 export { generateCourseRunCode } from './generateCourseRunCode';
 export { captureCompletionSnapshot } from './captureCompletionSnapshot';
+export { applyCourseRunPriceSnapshot } from './applyCourseRunPriceSnapshot';
+export { detectPlanningConflicts } from './detectPlanningConflicts';

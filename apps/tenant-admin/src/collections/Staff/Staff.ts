@@ -24,7 +24,7 @@ function hasRole(user: unknown): user is UserWithRole {
 }
 
 /** Staff type options */
-type StaffType = 'profesor' | 'administrativo';
+type StaffType = 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico';
 
 /** Data structure for admin condition functions */
 interface StaffData {
@@ -41,6 +41,8 @@ interface StaffData {
   employment_status?: string;
   hire_date?: string;
   specialties?: string[];
+  alias_names?: string;
+  detected_courses?: string;
   certifications?: {
     title?: string;
     institution?: string;
@@ -203,6 +205,8 @@ export const Staff: CollectionConfig = {
       options: [
         { label: 'Profesor', value: 'profesor' },
         { label: 'Administrativo', value: 'administrativo' },
+        { label: 'Jefatura de Administración', value: 'jefatura_administracion' },
+        { label: 'Académico', value: 'academico' },
       ],
       defaultValue: 'profesor',
       admin: {
@@ -271,14 +275,14 @@ export const Staff: CollectionConfig = {
     {
       name: 'email',
       type: 'email',
-      required: true,
+      required: false,
       unique: true,
       index: true,
       admin: {
         description: 'Email address (must be unique)',
       },
       validate: (val: unknown): true | string => {
-        if (!val) return 'Email is required';
+        if (!val) return true;
         return true;
       },
       // PII Protection: Hide from public API
@@ -383,7 +387,7 @@ export const Staff: CollectionConfig = {
     {
       name: 'hire_date',
       type: 'date',
-      required: true,
+      required: false,
       index: true,
       admin: {
         description: 'Date of hire / Start date',
@@ -392,7 +396,7 @@ export const Staff: CollectionConfig = {
         },
       },
       validate: (val: unknown): true | string => {
-        if (!val) return 'Hire date is required';
+        if (!val) return true;
         if (typeof val !== 'string' && !(val instanceof Date)) return 'Hire date must be a valid date';
         const hireDate = new Date(val);
         const today = new Date();
@@ -422,6 +426,23 @@ export const Staff: CollectionConfig = {
         { label: 'E-commerce', value: 'ecommerce' },
         { label: 'Fotografía', value: 'fotografia' },
         { label: 'Video', value: 'video' },
+        { label: 'Quiromasaje', value: 'quiromasaje' },
+        { label: 'Entrenamiento personal', value: 'entrenamiento-personal' },
+        { label: 'Auxiliar clínico veterinario', value: 'auxiliar-clinico-veterinario' },
+        { label: 'Ayudante técnico veterinario', value: 'ayudante-tecnico-veterinario' },
+        { label: 'Agente funerario', value: 'agente-funerario' },
+        { label: 'Auxiliar de enfermería', value: 'auxiliar-enfermeria' },
+        { label: 'Auxiliar de farmacia', value: 'auxiliar-farmacia' },
+        { label: 'Parafarmacia', value: 'parafarmacia' },
+        { label: 'Dermocosmética', value: 'dermocosmetica' },
+        { label: 'Clínicas estéticas', value: 'clinicas-esteticas' },
+        { label: 'Nutricosmética', value: 'nutricosmetica' },
+        { label: 'Auxiliar de odontología', value: 'auxiliar-odontologia' },
+        { label: 'Peluquería canina y felina', value: 'peluqueria-canina-felina' },
+        { label: 'Adiestramiento canino', value: 'adiestramiento-canino' },
+        { label: 'Pilates', value: 'pilates' },
+        { label: 'Urgencias Laboratorio y Rehabilitación', value: 'urgencias-laboratorio-rehabilitacion' },
+        { label: 'SPD', value: 'spd' },
       ],
       admin: {
         description: 'Specialties (for professors only)',
@@ -495,16 +516,53 @@ export const Staff: CollectionConfig = {
       type: 'relationship',
       relationTo: 'campuses',
       hasMany: true,
-      required: true,
+      required: false,
       index: true,
       admin: {
         description: 'Campuses where this staff member can work (select at least one)',
       },
-      validate: (val: unknown): true | string => {
-        if (!val || (Array.isArray(val) && val.length === 0)) {
-          return 'At least one campus must be assigned';
-        }
+      validate: (): true | string => {
         return true;
+      },
+    },
+    {
+      name: 'data_quality_status',
+      type: 'select',
+      required: true,
+      defaultValue: 'complete',
+      index: true,
+      options: [
+        { label: 'Completo', value: 'complete' },
+        { label: 'Pendiente de validación', value: 'pending_validation' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Estado de calidad del dato operativo',
+      },
+    },
+    {
+      name: 'source',
+      type: 'text',
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Fuente de importación o mantenimiento del registro',
+      },
+    },
+    {
+      name: 'alias_names',
+      type: 'textarea',
+      admin: {
+        description: 'Alias o nombres abreviados detectados en cursos/convocatorias. Un alias siempre debe apuntar a una ficha staff maestra.',
+        rows: 2,
+      },
+    },
+    {
+      name: 'detected_courses',
+      type: 'textarea',
+      admin: {
+        description: 'Cursos donde se detectó este docente durante la consolidación CEP.',
+        rows: 2,
       },
     },
 

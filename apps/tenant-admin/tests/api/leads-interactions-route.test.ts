@@ -74,9 +74,10 @@ describe('Leads interactions route', () => {
 
     expect(response.status).toBe(200)
     expect(payload.success).toBe(true)
-    expect(mockExecute).toHaveBeenCalledTimes(2)
-    expect(mockExecute.mock.calls[0][0]).toContain('VALUES (16, 7,')
-    expect(mockExecute.mock.calls[0][0]).not.toContain('9999')
+    const executedSql = mockExecute.mock.calls.map(([sql]) => String(sql)).join('\n')
+    expect(executedSql).toContain('VALUES (16, 7,')
+    expect(executedSql).not.toContain('9999')
+    expect(executedSql).toContain('UPDATE leads SET last_contacted_at = NOW()')
   })
 
   it('GET hides interactions for test leads', async () => {
@@ -186,9 +187,9 @@ describe('Leads interactions route', () => {
 
     expect(response.status).toBe(200)
     expect(payload.success).toBe(true)
-    expect(mockExecute).toHaveBeenCalledTimes(2)
     const executedSql = mockExecute.mock.calls.map(([sql]) => String(sql)).join('\n')
-    expect(executedSql).toContain("result, note, tenant_id) VALUES (16, 7, 'system', 'note_added'")
+    expect(executedSql).toContain('result, note, tenant_id')
+    expect(executedSql).toContain("VALUES (16, 7, 'system', 'note_added'")
     expect(executedSql).not.toContain('SELECT COUNT(*) as cnt FROM lead_interactions')
     expect(executedSql).not.toContain('status = \'contacted\'')
   })
@@ -223,8 +224,8 @@ describe('Leads interactions route', () => {
     expect(payload.result).toBe('status_changed')
 
     const executedSql = mockExecute.mock.calls.map(([sql]) => String(sql)).join('\n')
-    expect(executedSql).toContain("result, note, tenant_id) VALUES (16, 7, 'system', 'note_added'")
-    expect(executedSql).toContain("result, note, tenant_id) VALUES (16, 7, 'system', 'status_changed'")
+    expect(executedSql).toContain("VALUES (16, 7, 'system', 'note_added'")
+    expect(executedSql).toContain("VALUES (16, 7, 'system', 'status_changed'")
     expect(executedSql).not.toContain('SELECT COUNT(*) as cnt FROM lead_interactions')
   })
 })

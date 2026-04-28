@@ -39,6 +39,21 @@ export const classroomSchema = z.object({
     .optional()
     .describe('Recursos disponibles en el aula'),
 
+  usage_policy: z
+    .enum(['private_only', 'fped_only', 'cycle_only', 'mixed', 'restricted'])
+    .default('mixed')
+    .describe('Regla operativa para uso del aula'),
+
+  enabled_shifts: z
+    .array(z.enum(['morning', 'afternoon', 'evening_extra']))
+    .optional()
+    .describe('Turnos habilitados para el aula'),
+
+  data_quality_status: z
+    .enum(['complete', 'pending_validation'])
+    .default('complete')
+    .describe('Estado de calidad del dato'),
+
   is_active: z
     .boolean()
     .default(true)
@@ -50,6 +65,13 @@ export const classroomSchema = z.object({
     .optional()
     .nullable()
     .describe('Notas adicionales'),
+
+  operational_notes: z
+    .string()
+    .max(1000, 'Las notas operativas deben tener menos de 1000 caracteres')
+    .optional()
+    .nullable()
+    .describe('Notas operativas de planificación'),
 });
 
 export const classroomCreateSchema = classroomSchema;

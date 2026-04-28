@@ -86,14 +86,14 @@ const menuItems: MenuItemWithSection[] = [
   {
     title: 'Alumnos',
     icon: School,
-    url: '/alumnos',
+    url: '/dashboard/alumnos',
   },
   {
     title: 'Personal',
     icon: Users,
     items: [
-      { title: 'Profesores', icon: GraduationCap, url: '/personal/profesores' },
-      { title: 'Administrativos', icon: Briefcase, url: '/personal/administrativos' },
+      { title: 'Profesores', icon: GraduationCap, url: '/dashboard/profesores' },
+      { title: 'Administrativos', icon: Briefcase, url: '/dashboard/personal/administrativos' },
     ],
   },
   {

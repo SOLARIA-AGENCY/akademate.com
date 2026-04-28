@@ -30,9 +30,17 @@ function parseSessionToken(request: NextRequest): string | null {
 
     for (const candidate of candidates) {
       try {
-        const parsed = JSON.parse(candidate) as { token?: unknown }
-        if (typeof parsed.token === 'string' && parsed.token.trim().length > 0) {
-          return parsed.token
+        const parsed = JSON.parse(candidate) as {
+          token?: unknown
+          socketToken?: unknown
+          payloadToken?: unknown
+          jwt?: unknown
+        }
+        const tokenCandidate = [parsed.token, parsed.socketToken, parsed.payloadToken, parsed.jwt].find(
+          (value) => typeof value === 'string' && value.trim().length > 0,
+        )
+        if (typeof tokenCandidate === 'string' && tokenCandidate.trim().length > 0) {
+          return tokenCandidate
         }
       } catch {
         // Keep trying
@@ -103,9 +111,15 @@ async function authViaPayload(payload: any, token: string): Promise<{
       const userId = toUserId(authResult?.user?.id)
       if (!userId) continue
 
+      let tenantId = resolveTenantId(authResult?.user)
+      if (tenantId === null) {
+        const tenantFromDb = await findTenantIdByUserId(payload, userId)
+        if (tenantFromDb !== null) tenantId = tenantFromDb
+      }
+
       return {
         userId,
-        tenantId: resolveTenantId(authResult?.user),
+        tenantId,
       }
     } catch {
       // Continue with next strategy
@@ -159,7 +173,9 @@ export async function getAuthenticatedUserContext(
   if (!token) return null
 
   const payloadAuth = await authViaPayload(payload, token)
-  if (payloadAuth) return payloadAuth
+  if (payloadAuth?.tenantId !== null) return payloadAuth
 
-  return authViaJWT(payload, token)
+  const jwtAuth = await authViaJWT(payload, token)
+  if (jwtAuth) return jwtAuth
+  return payloadAuth
 }
