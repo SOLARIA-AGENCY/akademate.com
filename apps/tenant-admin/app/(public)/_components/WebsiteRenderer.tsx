@@ -10,7 +10,9 @@ import { HeroCarouselClient } from './HeroCarouselClient'
 
 function resolveImageUrl(image: any): string | null {
   if (!image) return null
-  if (typeof image === 'object' && image.url) return image.url
+  if (typeof image === 'object' && image.url) {
+    return String(image.url).replace(/^\/api\/media\/file\//, '/media/').replace(/^\/media\/file\//, '/media/')
+  }
   if (typeof image === 'object' && image.filename) return `/media/${image.filename}`
   return null
 }

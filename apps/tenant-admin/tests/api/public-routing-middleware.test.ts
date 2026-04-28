@@ -15,12 +15,12 @@ describe('Public website routing middleware', () => {
     expect(getHeader(response, 'location')).toBe('https://cepformacion.akademate.com/')
   })
 
-  it('redirects auth login path to canonical /login', () => {
+  it('serves auth login path directly on CEP host', () => {
     const request = new NextRequest('https://cepformacion.akademate.com/auth/login')
     const response = middleware(request)
 
-    expect(response.status).toBe(301)
-    expect(getHeader(response, 'location')).toBe('https://cepformacion.akademate.com/login')
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
   })
 
   it('rewrites anonymous canonical /cursos to legacy public source /p/cursos', () => {
@@ -75,6 +75,24 @@ describe('Public website routing middleware', () => {
 
   it('keeps root as public page without redirecting to login', () => {
     const request = new NextRequest('https://cepformacion.akademate.com/')
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
+  })
+
+  it('keeps CEP static website assets public', () => {
+    const request = new NextRequest('https://cepformacion.akademate.com/website/cep/hero/cepformacion-hero-01.png')
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
+  })
+
+  it('keeps CEP root public for HEAD checks', () => {
+    const request = new NextRequest('https://cepformacion.akademate.com/', {
+      method: 'HEAD',
+    })
     const response = middleware(request)
 
     expect(response.status).toBe(200)

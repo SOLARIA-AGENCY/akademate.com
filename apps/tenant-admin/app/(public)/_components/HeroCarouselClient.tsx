@@ -6,6 +6,10 @@ import type { WebsiteSection } from '@/app/lib/website/types'
 
 type HeroCarouselSection = Extract<WebsiteSection, { kind: 'heroCarousel' }>
 
+function normalizeMediaUrl(url: string): string {
+  return url.replace(/^\/api\/media\/file\//, '/media/').replace(/^\/media\/file\//, '/media/')
+}
+
 export function HeroCarouselClient({
   section,
   brandColor,
@@ -43,7 +47,7 @@ export function HeroCarouselClient({
     <section className="relative overflow-hidden bg-[#140816] text-white">
       <div className="absolute inset-0">
         <img
-          src={activeSlide.image}
+          src={normalizeMediaUrl(activeSlide.image)}
           alt={activeSlide.alt}
           loading="eager"
           fetchPriority="high"

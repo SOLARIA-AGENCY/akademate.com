@@ -123,6 +123,7 @@ const staticPaths = [
   '/api/media/file', // Serve uploaded media files without auth
   '/placeholder-course.svg',
   '/media',
+  '/website',
   '/og-image',
 ]
 
@@ -266,7 +267,7 @@ function hasSessionCookie(request: NextRequest): boolean {
 export function middleware(request: NextRequest) {
   const { pathname, protocol, host: _host } = request.nextUrl
   const origin = request.headers.get('origin')
-  const host = request.headers.get('host') ?? ''
+  const host = request.headers.get('host') ?? request.nextUrl.host
 
   // Always allow tenant dev-login endpoint in development/staging workflows.
   if (pathname === '/api/auth/dev-login' || pathname === '/api/auth/dev-login/') {
@@ -289,7 +290,17 @@ export function middleware(request: NextRequest) {
   }
 
   // Canonical public routes for CEP host
-  if (!pathname.startsWith('/api/') && request.method === 'GET' && isCepHost(host)) {
+  if (!pathname.startsWith('/api/') && ['GET', 'HEAD'].includes(request.method) && isCepHost(host)) {
+    if (pathname === '/' || pathname === '/convocatorias') {
+      return NextResponse.next()
+    }
+
+    if (pathname === '/p/formacion') {
+      const canonicalUrl = request.nextUrl.clone()
+      canonicalUrl.pathname = '/'
+      return NextResponse.redirect(canonicalUrl, 301)
+    }
+
     const rewriteTarget = resolveCepPublicRewrite(pathname)
     if (rewriteTarget) {
       const rewriteUrl = request.nextUrl.clone()
