@@ -173,7 +173,10 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const staffType = searchParams.get('type'); // 'profesor' | 'administrativo'
+    const rawStaffType =
+      searchParams.get('type') ??
+      searchParams.get('staffType') ??
+      searchParams.get('where[staff_type][equals]');
     const campusId = searchParams.get('campus');
     const employmentStatus = searchParams.get('status'); // 'active' | 'temporary_leave' | 'inactive'
     const limit = parseInt(searchParams.get('limit') ?? '50');
@@ -182,9 +185,21 @@ export async function GET(request: NextRequest) {
     const conditions = ['s.is_active = true'];
     const params: string[] = [];
 
-    if (staffType) {
-      params.push(staffType);
-      conditions.push(`s.staff_type = $${params.length}`);
+    if (rawStaffType) {
+      const normalizedStaffType = rawStaffType.trim().toLowerCase();
+      if (normalizedStaffType === 'profesor' || normalizedStaffType === 'profesores' || normalizedStaffType === 'docente' || normalizedStaffType === 'docentes') {
+        conditions.push(`s.staff_type IN ('profesor', 'academico')`);
+      } else if (normalizedStaffType === 'administrativo' || normalizedStaffType === 'administrativos' || normalizedStaffType === 'admin') {
+        conditions.push(`s.staff_type IN ('administrativo', 'jefatura_administracion')`);
+      } else if (['jefatura_administracion', 'academico'].includes(normalizedStaffType)) {
+        params.push(normalizedStaffType);
+        conditions.push(`s.staff_type = $${params.length}`);
+      } else {
+        return NextResponse.json(
+          { success: false, error: 'Tipo de personal no válido' },
+          { status: 400 }
+        );
+      }
     }
 
     if (employmentStatus) {

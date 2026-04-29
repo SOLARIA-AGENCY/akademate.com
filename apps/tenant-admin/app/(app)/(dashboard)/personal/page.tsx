@@ -45,7 +45,7 @@ import { EmptyState } from '@payload-config/components/ui/EmptyState'
 interface StaffMember {
   id: number
   fullName: string
-  staffType: 'profesor' | 'administrativo'
+  staffType: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico'
   position: string
   contractType: string
   employmentStatus: string
@@ -107,7 +107,11 @@ function PersonalPageContent() {
         const result = (await response.json()) as StaffApiResponse
 
         if (result.success) {
-          setStaff(result.data ?? [])
+          const allowedTypes =
+            activeTab === 'profesores'
+              ? new Set(['profesor', 'academico'])
+              : new Set(['administrativo', 'jefatura_administracion'])
+          setStaff((result.data ?? []).filter((member) => allowedTypes.has(member.staffType)))
         } else {
           console.error('Error fetching staff:', result.error)
         }
@@ -124,15 +128,23 @@ function PersonalPageContent() {
   const filteredStaff = staff.filter(
     (s) =>
       s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.email.toLowerCase().includes(searchTerm.toLowerCase())
+      (s.email ?? '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const handleViewDetail = (id: number) => {
-    router.push(`/personal/${id}`)
+    if (activeTab === 'profesores') {
+      router.push(`/profesores/${id}`)
+      return
+    }
+    router.push(`/administrativo/${id}`)
   }
 
   const handleEdit = (id: number) => {
-    router.push(`/personal/${id}/editar`)
+    if (activeTab === 'profesores') {
+      router.push(`/profesores/${id}/editar`)
+      return
+    }
+    router.push(`/administrativo/${id}/editar`)
   }
 
   const handleDelete = async (id: number, name: string) => {
@@ -180,7 +192,12 @@ function PersonalPageContent() {
             </Badge>
           }
           actions={
-            <Button onClick={() => router.push('/personal/nuevo')} data-oid="o1k9qim">
+            <Button
+              onClick={() =>
+                router.push(activeTab === 'profesores' ? '/profesores/nuevo' : '/administrativo/nuevo')
+              }
+              data-oid="o1k9qim"
+            >
               <Plus className="mr-2 h-4 w-4" data-oid="ve7zz:n" />
               {activeTab === 'profesores' ? 'Añadir Profesor' : 'Añadir Administrativo'}
             </Button>
@@ -256,7 +273,7 @@ function PersonalPageContent() {
                   description="Añade tu primer profesor para gestionar el equipo docente."
                   action={{
                     label: '+ Añadir Profesor',
-                    onClick: () => router.push('/personal/nuevo'),
+                    onClick: () => router.push('/profesores/nuevo'),
                   }}
                 />
               ) : filteredStaff.length === 0 ? (
@@ -427,7 +444,7 @@ function PersonalPageContent() {
                   description="Añade tu primer miembro del equipo administrativo."
                   action={{
                     label: '+ Añadir Administrativo',
-                    onClick: () => router.push('/personal/nuevo'),
+                    onClick: () => router.push('/administrativo/nuevo'),
                   }}
                 />
               ) : filteredStaff.length === 0 ? (

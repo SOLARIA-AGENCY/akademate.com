@@ -54,6 +54,15 @@ describe('Dashboard route - GET /api/dashboard', () => {
       if (sql.includes('information_schema.columns') && sql.includes("column_name = 'is_test'")) {
         return { rows: [{ cnt: hasIsTestColumn ? '1' : '0' }] }
       }
+      if (sql.includes('FROM tenants') && sql.includes("LOWER(domain) = LOWER('cepformacion.akademate.com')")) {
+        return { rows: [{ id: '1' }] }
+      }
+      if (sql.includes('information_schema.columns') && sql.includes("table_name = 'students'")) {
+        return { rows: [{ cnt: '1' }] }
+      }
+      if (sql.includes('FROM students')) {
+        return { rows: [{ cnt: '0' }] }
+      }
       if (sql.includes('FROM staff') && sql.includes("staff_type = 'profesor'")) {
         return { rows: [{ cnt: '3' }] }
       }
@@ -117,5 +126,22 @@ describe('Dashboard route - GET /api/dashboard', () => {
     const executedSql = mockExecute.mock.calls.map((call) => String(call[0])).join('\n')
     expect(executedSql).toContain('FROM staff')
     expect(executedSql).toContain("staff_type = 'profesor'")
+  })
+
+  it('resolves CEP tenant by host when query tenantId is absent', async () => {
+    const request = new NextRequest('https://cepformacion.akademate.com/api/dashboard', {
+      headers: {
+        host: 'cepformacion.akademate.com',
+      },
+    })
+    const response = await GET(request)
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.success).toBe(true)
+
+    const executedSql = mockExecute.mock.calls.map((call) => String(call[0])).join('\n')
+    expect(executedSql).toContain("LOWER(domain) = LOWER('cepformacion.akademate.com')")
+    expect(executedSql).toContain('WHERE tenant_id = 1')
   })
 })

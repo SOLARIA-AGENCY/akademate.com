@@ -156,11 +156,9 @@ export default function DashboardPage() {
   // Type assertion required as TypeScript cannot resolve types through path alias
   const router = useRouter()
   const { branding } = useTenantBranding()
-  const tenantId =
-    parseInt(branding.tenantId, 10) ||
-    parseInt(process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2', 10)
+  const tenantId = parseInt(branding.tenantId, 10)
   const hookResult: UseDashboardMetricsResult = useDashboardMetrics({
-    tenantId,
+    tenantId: Number.isFinite(tenantId) && tenantId > 0 ? tenantId : undefined,
     enableRealtime: true,
   }) as UseDashboardMetricsResult
   const { data, loading, error, isConnected } = hookResult

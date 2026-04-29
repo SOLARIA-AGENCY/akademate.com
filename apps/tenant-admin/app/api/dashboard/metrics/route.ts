@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
       method: 'GET',
       headers: {
         cookie: request.headers.get('cookie') ?? '',
+        host: request.headers.get('host') ?? '',
+        'x-forwarded-host': request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '',
       },
       cache: 'no-store',
     })

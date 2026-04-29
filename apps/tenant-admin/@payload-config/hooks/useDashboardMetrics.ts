@@ -141,8 +141,7 @@ function normalizeDashboardData(raw: RawDashboardResponse): DashboardData {
 export function useDashboardMetrics(
   options: UseDashboardMetricsOptions = {}
 ): UseDashboardMetricsResult {
-  const defaultTenantId = parseInt(process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2', 10)
-  const { tenantId = defaultTenantId, enableRealtime = false, refreshInterval = 30000 } = options;
+  const { tenantId, enableRealtime = false, refreshInterval = 30000 } = options;
 
   const [data, setData] = useState<DashboardData>(defaultMetrics);
   const [loading, setLoading] = useState(true);
@@ -153,7 +152,11 @@ export function useDashboardMetrics(
   const fetchMetrics = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/dashboard/metrics?tenantId=${tenantId}`);
+      const params = new URLSearchParams();
+      if (typeof tenantId === 'number' && Number.isFinite(tenantId) && tenantId > 0) {
+        params.set('tenantId', String(tenantId));
+      }
+      const response = await fetch(`/api/dashboard/metrics${params.size ? `?${params}` : ''}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch dashboard metrics');
@@ -187,7 +190,11 @@ export function useDashboardMetrics(
     let eventSource: EventSource | null = null;
 
     try {
-      eventSource = new EventSource(`/api/dashboard/stream?tenantId=${tenantId}`);
+      const params = new URLSearchParams();
+      if (typeof tenantId === 'number' && Number.isFinite(tenantId) && tenantId > 0) {
+        params.set('tenantId', String(tenantId));
+      }
+      eventSource = new EventSource(`/api/dashboard/stream${params.size ? `?${params}` : ''}`);
 
       eventSource.onopen = () => {
         setIsConnected(true);

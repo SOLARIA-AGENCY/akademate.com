@@ -99,6 +99,47 @@ function toNumber(value: unknown): number {
   return 0;
 }
 
+function hostLooksLikeCep(hostHeader?: string | null): boolean {
+  const host = (hostHeader ?? '').split(',')[0]?.trim().toLowerCase() ?? '';
+  const normalizedHost = host.replace(/:\d+$/, '');
+  return /(^|\.)cepformacion(\.|$)/i.test(normalizedHost) || normalizedHost.includes('cep-formacion');
+}
+
+async function resolveTenantIdFromRequest(
+  request: NextRequest,
+  queryOne: (sql: string) => Promise<Record<string, unknown>>,
+): Promise<number> {
+  const rawTenantId = request.nextUrl.searchParams.get('tenantId');
+  const explicitTenantId = Number.parseInt(rawTenantId ?? '', 10);
+  if (Number.isInteger(explicitTenantId) && explicitTenantId > 0) return explicitTenantId;
+
+  const hostHeader = request.headers.get('x-forwarded-host') || request.headers.get('host');
+  const host = (hostHeader ?? '').split(',')[0]?.trim().toLowerCase().replace(/:\d+$/, '') ?? '';
+
+  if (host) {
+    try {
+      const row = await queryOne(`
+        SELECT id
+        FROM tenants
+        WHERE LOWER(domain) = LOWER('${host.replace(/'/g, "''")}')
+        LIMIT 1
+      `);
+      const hostTenantId = toNumber(row.id);
+      if (hostTenantId > 0) return hostTenantId;
+    } catch {
+      // Continue with deterministic CEP/env fallback.
+    }
+  }
+
+  if (hostLooksLikeCep(hostHeader)) return 1;
+
+  const envTenantId = Number.parseInt(
+    process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? process.env.DEFAULT_TENANT_ID ?? '',
+    10,
+  );
+  return Number.isInteger(envTenantId) && envTenantId > 0 ? envTenantId : 1;
+}
+
 function toDateKey(value: unknown): string | null {
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
     return value.toISOString().slice(0, 10);
@@ -156,9 +197,18 @@ export async function GET(request: NextRequest) {
   try {
     const payload = await getPayloadHMR({ config: configPromise });
 
-    const rawTenantId = request.nextUrl.searchParams.get('tenantId');
-    const envTenantId = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID ?? '2';
-    const tenantId = parseInt(rawTenantId ?? envTenantId, 10) || 2;
+    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool;
+    const queryOne = async (sql: string): Promise<Record<string, unknown>> => {
+      const res = await drizzle.execute(sql);
+      const rows = asRows(res);
+      return rows[0] ?? {};
+    };
+    const queryAll = async (sql: string): Promise<Record<string, unknown>[]> => {
+      const res = await drizzle.execute(sql);
+      return asRows(res);
+    };
+
+    const tenantId = await resolveTenantIdFromRequest(request, queryOne);
     const tenantWhere = { tenant: { equals: tenantId } };
 
     const safeFind = async (args: Record<string, unknown>) => {
@@ -223,17 +273,6 @@ export async function GET(request: NextRequest) {
     );
     const classroomUtilization =
       totalCapacity > 0 ? Math.round((totalEnrolledByRuns / totalCapacity) * 100) : 0;
-
-    const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool;
-    const queryOne = async (sql: string): Promise<Record<string, unknown>> => {
-      const res = await drizzle.execute(sql);
-      const rows = asRows(res);
-      return rows[0] ?? {};
-    };
-    const queryAll = async (sql: string): Promise<Record<string, unknown>[]> => {
-      const res = await drizzle.execute(sql);
-      return asRows(res);
-    };
 
     let nonTestLeadFilter = '';
     try {
@@ -313,7 +352,34 @@ export async function GET(request: NextRequest) {
         ).cnt,
       );
 
-      studentsWithEnrollment = 0;
+      try {
+        const hasStudentsTenant = toNumber(
+          (
+            await queryOne(`
+              SELECT COUNT(*)::int AS cnt
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+                AND table_name = 'students'
+                AND column_name = 'tenant_id'
+            `)
+          ).cnt,
+        ) > 0;
+
+        studentsWithEnrollment = hasStudentsTenant
+          ? toNumber(
+              (
+                await queryOne(`
+                  SELECT COUNT(*)::int AS cnt
+                  FROM students
+                  WHERE tenant_id = ${tenantId}
+                    AND status = 'active'
+                `)
+              ).cnt,
+            )
+          : 0;
+      } catch {
+        studentsWithEnrollment = 0;
+      }
 
       try {
         const leadWeekRows = await queryAll(`
