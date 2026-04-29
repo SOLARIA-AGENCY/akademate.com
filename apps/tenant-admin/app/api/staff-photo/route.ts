@@ -12,7 +12,7 @@ const LEGACY_SESSION_COOKIE = 'cep_session'
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024
 const MAX_OPTIMIZED_DIMENSION = 1200
 const WEBP_QUALITY = 82
-const ALLOWED_ROLES = new Set(['admin', 'gestor', 'marketing', 'asesor'])
+const ALLOWED_ROLES = new Set(['superadmin', 'admin', 'gestor', 'marketing', 'asesor', 'lectura'])
 
 interface SessionUser {
   id: string | number

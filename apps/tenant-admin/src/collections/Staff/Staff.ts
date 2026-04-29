@@ -1,5 +1,5 @@
 import type { CollectionConfig, FieldAccess } from 'payload';
-import { canManageStaff } from './access';
+import { canEditStaff, canManageStaff } from './access';
 import { trackStaffCreator } from './hooks';
 
 /**
@@ -83,21 +83,21 @@ const notesReadAccess: FieldAccess = ({ req: { user } }) => {
  * - DELETE: NO ❌
  *
  * Lectura Role:
- * - CREATE: NO ❌
+ * - CREATE: YES ✅
  * - READ: All staff (basic info only) ✅
- * - UPDATE: NO ❌
+ * - UPDATE: YES ✅
  * - DELETE: NO ❌
  *
  * Asesor Role:
- * - CREATE: NO ❌
+ * - CREATE: YES ✅
  * - READ: All staff ✅
- * - UPDATE: NO ❌
+ * - UPDATE: YES ✅
  * - DELETE: NO ❌
  *
  * Marketing Role:
- * - CREATE: NO ❌
+ * - CREATE: YES ✅
  * - READ: All staff ✅
- * - UPDATE: NO ❌
+ * - UPDATE: YES ✅
  * - DELETE: NO ❌
  *
  * Gestor Role:
@@ -175,7 +175,7 @@ export const Staff: CollectionConfig = {
    * Collection-level access control
    */
   access: {
-    create: canManageStaff, // Gestor, Admin
+    create: canEditStaff, // All authenticated users
     read: ({ req: { user } }) => {
       // Public: Only active professors (basic info)
       if (!user) {
@@ -188,7 +188,7 @@ export const Staff: CollectionConfig = {
       // All authenticated users: read all staff
       return true;
     },
-    update: canManageStaff, // Gestor, Admin
+    update: canEditStaff, // All authenticated users
     delete: canManageStaff, // Gestor, Admin
   },
 
