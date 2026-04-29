@@ -44,6 +44,16 @@ interface CampusApiResponse {
   docs?: Campus[]
 }
 
+interface StaffPhotoUploadResponse {
+  success?: boolean
+  doc?: {
+    id?: string | number
+    filename?: string | null
+    url?: string | null
+  }
+  error?: string
+}
+
 const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
 
@@ -169,15 +179,15 @@ export default function EditProfesorPage() {
       const body = new FormData()
       body.append('file', file)
       body.append('alt', `${formData.firstName || 'Profesor'} ${formData.lastName || ''}`.trim())
-      const response = await fetch('/api/media', { method: 'POST', body })
-      const result = await response.json().catch(() => ({}))
+      const response = await fetch('/api/staff-photo', { method: 'POST', body })
+      const result = (await response.json().catch(() => ({}))) as StaffPhotoUploadResponse
 
-      if (!response.ok || !result?.doc?.id) {
+      if (!response.ok || !result.success || !result.doc?.id) {
         throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo subir la foto')
       }
 
       setPhotoId(String(result.doc.id))
-      setPhotoPreview(result.doc.url || `/media/${String(result.doc.filename)}`)
+      setPhotoPreview(result.doc.url || (result.doc.filename ? `/media/${result.doc.filename}` : null))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo subir la foto')
     } finally {

@@ -14,7 +14,6 @@ import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Checkbox } from '@payload-config/components/ui/checkbox'
 import {
   Select,
   SelectContent,
@@ -22,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, GraduationCap, Save, Loader2, Upload, User } from 'lucide-react'
+import { ArrowLeft, GraduationCap, Save, Loader2, MapPin, Upload, User } from 'lucide-react'
 
 interface Campus {
   id: number
@@ -31,8 +30,19 @@ interface Campus {
 }
 
 interface CampusApiResponse {
-  success: boolean
-  data: Campus[]
+  success?: boolean
+  data?: Campus[]
+  docs?: Campus[]
+}
+
+interface StaffPhotoUploadResponse {
+  success?: boolean
+  doc?: {
+    id?: string | number
+    filename?: string | null
+    url?: string | null
+  }
+  error?: string
 }
 
 function TeacherPhotoFallback() {
@@ -85,9 +95,7 @@ export default function NewProfesorPage() {
         if (!response.ok) throw new Error('Failed to load campuses')
 
         const result = (await response.json()) as CampusApiResponse
-        if (result.success) {
-          setCampuses(result.data)
-        }
+        setCampuses(result.data ?? result.docs ?? [])
       } catch (err) {
         console.error('Error loading campuses:', err)
       } finally {
@@ -152,12 +160,12 @@ export default function NewProfesorPage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const toggleCampus = (campusId: number) => {
+  const handleBaseCampusChange = (value: string) => {
+    const campusId = Number(value)
+    if (Number.isNaN(campusId)) return
     setFormData((prev) => ({
       ...prev,
-      assignedCampuses: prev.assignedCampuses.includes(campusId)
-        ? prev.assignedCampuses.filter((id) => id !== campusId)
-        : [...prev.assignedCampuses, campusId],
+      assignedCampuses: [campusId],
     }))
   }
 
@@ -169,15 +177,15 @@ export default function NewProfesorPage() {
       const body = new FormData()
       body.append('file', file)
       body.append('alt', `${formData.firstName || 'Profesor'} ${formData.lastName || ''}`.trim())
-      const response = await fetch('/api/media', { method: 'POST', body })
-      const result = await response.json().catch(() => ({}))
+      const response = await fetch('/api/staff-photo', { method: 'POST', body })
+      const result = (await response.json().catch(() => ({}))) as StaffPhotoUploadResponse
 
-      if (!response.ok || !result?.doc?.id) {
+      if (!response.ok || !result.success || !result.doc?.id) {
         throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo subir la foto')
       }
 
       setPhotoId(String(result.doc.id))
-      setPhotoPreview(result.doc.url || `/media/${String(result.doc.filename)}`)
+      setPhotoPreview(result.doc.url || (result.doc.filename ? `/media/${result.doc.filename}` : null))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo subir la foto')
     } finally {
@@ -229,6 +237,7 @@ export default function NewProfesorPage() {
                     src={photoPreview}
                     alt="Foto del profesor"
                     className="h-20 w-20 rounded-full object-cover border"
+                    onError={() => setPhotoPreview(null)}
                   />
                 ) : (
                   <TeacherPhotoFallback />
@@ -414,10 +423,10 @@ export default function NewProfesorPage() {
               </div>
             </div>
 
-            {/* Assigned Campuses */}
+            {/* Assigned Campus */}
             <div className="space-y-2" data-oid="mru1ua6">
-              <Label data-oid="y6ceg6d">
-                Campus / Sedes Asignadas{' '}
+              <Label htmlFor="baseCampus" data-oid="y6ceg6d">
+                Sede base asignada{' '}
                 <span className="text-destructive" data-oid="4anwf0v">
                   *
                 </span>
@@ -430,31 +439,31 @@ export default function NewProfesorPage() {
                   <Loader2 className="h-4 w-4 animate-spin" data-oid="akxt0cs" />
                   Cargando sedes...
                 </div>
-              ) : campuses.length > 0 ? (
-                <div className="grid gap-3 md:grid-cols-2 p-4 border rounded-lg" data-oid="8ed4v20">
-                  {campuses.map((campus) => (
-                    <div key={campus.id} className="flex items-center space-x-2" data-oid="-a2utye">
-                      <Checkbox
-                        id={`campus-${campus.id}`}
-                        checked={formData.assignedCampuses.includes(campus.id)}
-                        onCheckedChange={() => toggleCampus(campus.id)}
-                        data-oid="o4ojv.l"
-                      />
-
-                      <label
-                        htmlFor={`campus-${campus.id}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        data-oid="sodo9x1"
-                      >
-                        {campus.name} - {campus.city}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              ) : (
+              ) : campuses.length === 0 ? (
                 <p className="text-sm text-muted-foreground" data-oid="l.qq7gv">
                   No hay sedes disponibles
                 </p>
+              ) : (
+                <Select
+                  value={formData.assignedCampuses[0] ? String(formData.assignedCampuses[0]) : undefined}
+                  onValueChange={handleBaseCampusChange}
+                  data-oid="8ed4v20"
+                >
+                  <SelectTrigger id="baseCampus" aria-label="Sede base asignada">
+                    <SelectValue placeholder="Selecciona una sede base" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {campuses.map((campus) => (
+                      <SelectItem key={campus.id} value={String(campus.id)}>
+                        <span className="inline-flex items-center gap-2">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {campus.name}
+                          {campus.city ? ` - ${campus.city}` : ''}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
               {formData.assignedCampuses.length === 0 && (
                 <p className="text-sm text-destructive" data-oid="l08yfnq">
