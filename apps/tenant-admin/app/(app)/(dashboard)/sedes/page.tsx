@@ -215,109 +215,94 @@ export default function SedesPage() {
       ) : null}
 
       {view === 'grid' ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid="sgmd.g2">
+        <div className="grid gap-6 lg:grid-cols-2" data-oid="sgmd.g2">
           {sedes.map((sede) => (
             <Card
               key={sede.id}
-              className="cursor-pointer transition-shadow hover:shadow-md"
+              className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
               onClick={() => handleViewSede(sede.id)}
               data-oid="x43z8n_"
             >
-              <CardContent className="space-y-4 p-5" data-oid="rke.tyb">
-                <div className="flex items-center gap-3" data-oid="mjlo9s9">
-                  {sede.imagen ? (
-                    <img
-                      src={sede.imagen}
-                      alt={sede.nombre}
-                      className="h-12 w-12 rounded-md object-cover"
-                    />
-                  ) : (
-                    <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-                      <MapPin className="h-6 w-6 text-primary" />
-                    </div>
-                  )}
-
-                  <div className="min-w-0" data-oid="x6kzf:k">
-                    <h3 className="truncate text-base font-semibold" data-oid="ccek8r3">
-                      {sede.nombre}
-                    </h3>
-                    <p className="truncate text-sm text-muted-foreground" data-oid="1li66s3">
-                      {sede.direccion}
-                    </p>
+              <div className="relative h-56 w-full bg-primary/10 sm:h-64" data-oid="sede-image">
+                {sede.imagen ? (
+                  <img
+                    src={sede.imagen}
+                    alt={sede.nombre}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <MapPin className="h-12 w-12 text-primary" />
                   </div>
+                )}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/35 to-transparent p-5">
+                  <h3 className="text-xl font-semibold leading-tight text-white" data-oid="ccek8r3">
+                    {sede.nombre}
+                  </h3>
+                  <p className="mt-1 line-clamp-2 text-sm text-white/85" data-oid="1li66s3">
+                    {sede.direccion}
+                  </p>
                 </div>
+              </div>
 
-                <div className="space-y-1 text-sm text-muted-foreground" data-oid="jks8htn">
-                  <div className="flex items-center gap-2" data-oid="qpi.:t:">
-                    <Phone className="h-4 w-4" data-oid="4stws:y" />
+              <CardContent className="space-y-5 p-6" data-oid="rke.tyb">
+                <div className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-2" data-oid="jks8htn">
+                  <div className="flex min-w-0 items-center gap-2" data-oid="qpi.:t:">
+                    <Phone className="h-4 w-4 flex-shrink-0" data-oid="4stws:y" />
                     <span className="truncate" data-oid="r3x6t9d">
                       {sede.telefono}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2" data-oid="m0sxcka">
-                    <Mail className="h-4 w-4" data-oid="9ucksis" />
+                  <div className="flex min-w-0 items-center gap-2" data-oid="m0sxcka">
+                    <Mail className="h-4 w-4 flex-shrink-0" data-oid="9ucksis" />
                     <span className="truncate" data-oid="05pc1xv">
                       {sede.email}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 border-t pt-3" data-oid="ukx44fj">
-                  {sede.aulas === 0 ? (
-                    <span
-                      className="flex items-center gap-1 text-xs text-muted-foreground"
-                      data-oid="5b::092"
-                    >
+                <div className="grid grid-cols-3 gap-3 border-t pt-4" data-oid="ukx44fj">
+                  <div className="rounded-md border bg-muted/20 p-3" data-oid="sede-aulas">
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <DoorOpen className="h-3.5 w-3.5" data-oid="calvmou" />
-                      Sin configurar
-                    </span>
-                  ) : (
-                    <Badge variant="outline" className="gap-1" data-oid="btqx3p6">
-                      <DoorOpen className="h-3.5 w-3.5" data-oid="12kx8xg" />
-                      {sede.aulas} aulas
-                    </Badge>
-                  )}
-                  {sede.capacidad === 0 ? (
-                    <span
-                      className="flex items-center gap-1 text-xs text-muted-foreground"
-                      data-oid="xymzd2i"
-                    >
+                      Aulas
+                    </div>
+                    <p className="mt-1 text-xl font-semibold">{sede.aulas || '—'}</p>
+                  </div>
+                  <div className="rounded-md border bg-muted/20 p-3" data-oid="sede-capacidad">
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <Users className="h-3.5 w-3.5" data-oid="2umu.g." />
-                      Sin configurar
-                    </span>
-                  ) : (
-                    <Badge variant="outline" className="gap-1" data-oid="4els9ku">
-                      <Users className="h-3.5 w-3.5" data-oid="v.xcemg" />
-                      {sede.capacidad} capacidad
-                    </Badge>
-                  )}
-                  {sede.cursosActivos === 0 ? (
-                    <span
-                      className="flex items-center gap-1 text-xs text-muted-foreground"
-                      data-oid="oii.nec"
-                    >
+                      Plazas
+                    </div>
+                    <p className="mt-1 text-xl font-semibold">{sede.capacidad || '—'}</p>
+                  </div>
+                  <div className="rounded-md border bg-muted/20 p-3" data-oid="sede-cursos">
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <BookOpen className="h-3.5 w-3.5" data-oid="08kaha8" />
-                      Sin configurar
-                    </span>
-                  ) : (
-                    <Badge variant="outline" className="gap-1" data-oid="i03248n">
-                      <BookOpen className="h-3.5 w-3.5" data-oid="u_6bt35" />
-                      {sede.cursosActivos} cursos
-                    </Badge>
-                  )}
+                      Cursos
+                    </div>
+                    <p className="mt-1 text-xl font-semibold">{sede.cursosActivos || '—'}</p>
+                  </div>
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                    e.stopPropagation()
-                    handleViewSede(sede.id)
-                  }}
-                  data-oid="ljzu3kn"
-                >
-                  Ver sede
-                </Button>
+                <div className="flex items-center justify-between gap-3 border-t pt-4" data-oid="sede-footer">
+                  <div className="min-w-0" data-oid="x6kzf:k">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Centro
+                    </p>
+                    <p className="truncate text-sm font-medium">{sede.nombre}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation()
+                      handleViewSede(sede.id)
+                    }}
+                    data-oid="ljzu3kn"
+                  >
+                    Ver sede
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
