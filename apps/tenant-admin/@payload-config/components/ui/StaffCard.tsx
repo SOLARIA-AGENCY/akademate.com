@@ -4,7 +4,6 @@ import * as React from 'react'
 import { Card, CardContent, CardFooter } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,6 +55,41 @@ const isPlaceholderPhoto = (photo?: string | null) =>
 const isTeachingStaff = (staffType?: string) =>
   staffType === 'profesor' || staffType === 'academico'
 
+function StaffPhoto({
+  fullName,
+  photo,
+  staffType,
+}: {
+  fullName: string
+  photo: string
+  staffType?: string
+}) {
+  const teaching = isTeachingStaff(staffType)
+  const BadgeIcon = teaching ? GraduationCap : Briefcase
+
+  return (
+    <div className="relative h-16 w-16 overflow-visible">
+      {!isPlaceholderPhoto(photo) ? (
+        <img
+          src={photo}
+          alt={fullName}
+          className="h-16 w-16 rounded-full border-2 border-background object-cover shadow-md ring-2 ring-muted ring-offset-2"
+        />
+      ) : (
+        <div
+          aria-label={teaching ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
+          className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-background bg-primary/10 text-primary shadow-md ring-2 ring-muted ring-offset-2"
+        >
+          <User className="h-7 w-7" aria-hidden="true" />
+        </div>
+      )}
+      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
+        <BadgeIcon className="h-3.5 w-3.5" aria-hidden="true" />
+      </span>
+    </div>
+  )
+}
+
 export function StaffCard({
   id,
   fullName,
@@ -81,25 +115,7 @@ export function StaffCard({
         <CardContent className="p-6" data-oid="24ngeia">
           {/* Header with Avatar and Menu */}
           <div className="flex items-start justify-between mb-4" data-oid="hdjhmzo">
-            <Avatar
-              className="h-16 w-16 border-2 border-background shadow-md ring-2 ring-offset-2 ring-muted"
-              data-oid="b3jc_lc"
-            >
-              {!isPlaceholderPhoto(photo) ? (
-                <AvatarImage src={photo} alt={fullName} data-oid="1ywu7yr" />
-              ) : null}
-              <AvatarFallback className="relative bg-primary/10 text-primary" data-oid="-ltb5aw">
-                <User className="h-7 w-7" aria-hidden="true" />
-                {isTeachingStaff(staffType) ? (
-                  <GraduationCap className="absolute -right-0.5 -top-0.5 h-4 w-4 rounded-full bg-background" aria-hidden="true" />
-                ) : (
-                  <Briefcase className="absolute -right-0.5 -top-0.5 h-4 w-4 rounded-full bg-background" aria-hidden="true" />
-                )}
-                <span className="sr-only">
-                  {isTeachingStaff(staffType) ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
-                </span>
-              </AvatarFallback>
-            </Avatar>
+            <StaffPhoto fullName={fullName} photo={photo} staffType={staffType} />
 
             <DropdownMenu data-oid="msf0ls9">
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()} data-oid="hxa2euo">

@@ -38,7 +38,9 @@ function AdminPhotoFallback() {
       className="relative flex h-16 w-16 items-center justify-center rounded-full border bg-primary/10 text-primary shadow-md"
     >
       <User className="h-7 w-7" aria-hidden="true" />
-      <Briefcase className="absolute right-0 top-0 h-4 w-4 rounded-full bg-background" aria-hidden="true" />
+      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
+        <Briefcase className="h-3.5 w-3.5" aria-hidden="true" />
+      </span>
     </div>
   )
 }

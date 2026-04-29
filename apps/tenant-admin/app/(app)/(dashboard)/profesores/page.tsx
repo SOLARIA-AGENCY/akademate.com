@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Edit, Loader2, GraduationCap } from 'lucide-react'
+import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Edit, Loader2, GraduationCap, MapPin } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
@@ -57,9 +57,17 @@ function TeacherPhotoFallback({ className = 'h-16 w-16' }: { className?: string 
       className={`relative flex ${className} items-center justify-center rounded-full border bg-primary/10 text-primary`}
     >
       <User className="h-7 w-7" aria-hidden="true" />
-      <GraduationCap className="absolute right-0 top-0 h-4 w-4 rounded-full bg-background" aria-hidden="true" />
+      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
+        <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
+      </span>
     </div>
   )
+}
+
+function getDefaultCampusLabel(assignedCampuses: StaffMember['assignedCampuses']) {
+  if (!assignedCampuses.length) return 'Sin sede asignada'
+  const [campus] = assignedCampuses
+  return campus.city ? `${campus.name} · ${campus.city}` : campus.name
 }
 
 interface TeacherExpanded extends StaffMember {
@@ -363,6 +371,10 @@ export default function ProfesoresPage() {
                     </h3>
                     <p className="text-sm text-muted-foreground truncate" data-oid="j9cy:nh">
                       {teacher.department}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground" data-oid="teacher-campus">
+                      <MapPin className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                      <span className="truncate">{getDefaultCampusLabel(teacher.assignedCampuses)}</span>
                     </p>
                     <Badge
                       variant={teacher.active ? 'default' : 'secondary'}
