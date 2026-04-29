@@ -185,7 +185,7 @@ export default function NewProfesorPage() {
       }
 
       setPhotoId(String(result.doc.id))
-      setPhotoPreview(result.doc.url || (result.doc.filename ? `/media/${result.doc.filename}` : null))
+      setPhotoPreview(result.doc.url || (result.doc.filename ? `/api/media/file/${result.doc.filename}` : null))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo subir la foto')
     } finally {

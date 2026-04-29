@@ -25,7 +25,7 @@ interface CreatedMediaDoc {
 
 function getMediaUrl(doc: { url?: string | null; filename?: string | null }) {
   if (doc.url) return doc.url
-  if (doc.filename) return `/media/${doc.filename}`
+  if (doc.filename) return `/api/media/file/${doc.filename}`
   return null
 }
 

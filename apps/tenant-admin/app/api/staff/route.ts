@@ -66,7 +66,9 @@ interface StaffQueryRow {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  photo_id: number | null;
   photo_filename: string | null;
+  photo_url: string | null;
   campuses: CampusData[];
   course_runs: CourseRunData[];
 }
@@ -154,6 +156,12 @@ function getErrorMessage(error: unknown): string {
   return String(error);
 }
 
+function resolveMediaUrl(filename?: string | null, url?: string | null): string {
+  if (url && url.trim().length > 0) return url;
+  if (filename && filename.trim().length > 0) return `/api/media/file/${filename}`;
+  return '/placeholder-avatar.svg';
+}
+
 // ============================================================================
 // API Route Handlers
 // ============================================================================
@@ -231,7 +239,9 @@ export async function GET(request: NextRequest) {
         s.is_active,
         s.created_at,
         s.updated_at,
+        s.photo_id,
         m.filename as photo_filename,
+        m.url as photo_url,
         COALESCE(
           json_agg(
             DISTINCT jsonb_build_object('id', c.id, 'name', c.name, 'city', c.city)
@@ -264,7 +274,7 @@ export async function GET(request: NextRequest) {
       LEFT JOIN campuses camp ON camp.id = cr.campus_id
       ${whereClause}
       ${campusId ? `AND EXISTS (SELECT 1 FROM staff_rels sr2 WHERE sr2.parent_id = s.id AND sr2.campuses_id = ${parseInt(campusId)})` : ''}
-      GROUP BY s.id, m.filename
+      GROUP BY s.id, m.filename, m.url
       ORDER BY s.created_at DESC
       LIMIT ${limit}
     `;
@@ -289,7 +299,8 @@ export async function GET(request: NextRequest) {
         source: member.source,
         aliasNames: member.alias_names,
         detectedCourses: member.detected_courses,
-        photo: member.photo_filename ? `/media/${member.photo_filename}` : '/placeholder-avatar.svg',
+        photoId: member.photo_id,
+        photo: resolveMediaUrl(member.photo_filename, member.photo_url),
         bio: member.bio,
         assignedCampuses: member.campuses || [],
         courseRuns: member.course_runs || [],

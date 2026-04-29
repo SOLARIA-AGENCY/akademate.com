@@ -19,6 +19,7 @@ import {
   Loader2,
   Building2,
   GraduationCap,
+  Trash2,
 } from 'lucide-react'
 
 interface CourseRun {
@@ -44,6 +45,7 @@ interface StaffMember {
   position: string
   contractType: string
   employmentStatus: string
+  photoId?: number | null
   photo: string
   bio?: string
   assignedCampuses: {
@@ -87,6 +89,7 @@ export default function ProfesorDetailPage() {
 
   const [professor, setProfessor] = useState<StaffMember | null>(null)
   const [loading, setLoading] = useState(true)
+  const [removingPhoto, setRemovingPhoto] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -177,6 +180,35 @@ export default function ProfesorDetailPage() {
     inactive: 'Inactivo',
   }
 
+  const handleRemovePhoto = async () => {
+    if (!professor || removingPhoto) return
+
+    setRemovingPhoto(true)
+    setError(null)
+    try {
+      const response = await fetch(`/api/staff?id=${professorId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoId: null }),
+      })
+      const result = await response.json().catch(() => ({}))
+
+      if (!response.ok || result?.success === false) {
+        throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo eliminar la foto')
+      }
+
+      setProfessor((current) =>
+        current ? { ...current, photoId: null, photo: '/placeholder-avatar.svg' } : current,
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo eliminar la foto')
+    } finally {
+      setRemovingPhoto(false)
+    }
+  }
+
+  const hasCustomPhoto = !isPlaceholderPhoto(professor.photo)
+
   return (
     <div className="space-y-6" data-oid=".5h6m09">
       <PageHeader
@@ -211,11 +243,44 @@ export default function ProfesorDetailPage() {
                   src={professor.photo}
                   alt={professor.fullName}
                   className="h-48 w-48 rounded-full object-cover border-4 border-background shadow-lg"
+                  onError={() =>
+                    setProfessor((current) =>
+                      current ? { ...current, photo: '/placeholder-avatar.svg' } : current,
+                    )
+                  }
                   data-oid="-ttwq2p"
                 />
               ) : (
                 <TeacherPhotoFallback />
               )}
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}
+                >
+                  <Edit className="mr-2 h-3.5 w-3.5" />
+                  Cambiar foto
+                </Button>
+                {hasCustomPhoto ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive hover:text-destructive"
+                    disabled={removingPhoto}
+                    onClick={handleRemovePhoto}
+                  >
+                    {removingPhoto ? (
+                      <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="mr-2 h-3.5 w-3.5" />
+                    )}
+                    Eliminar foto
+                  </Button>
+                ) : null}
+              </div>
               <div className="mt-4 text-center" data-oid="xlofrur">
                 <h2 className="text-xl font-bold" data-oid="s.pjw6y">
                   {professor.fullName}

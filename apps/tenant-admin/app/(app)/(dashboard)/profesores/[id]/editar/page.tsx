@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, GraduationCap, Loader2, MapPin, Save, Upload, User } from 'lucide-react'
+import { ArrowLeft, GraduationCap, Loader2, MapPin, Save, Trash2, Upload, User } from 'lucide-react'
 
 interface Campus {
   id: number
@@ -84,6 +84,7 @@ export default function EditProfesorPage() {
   const [campuses, setCampuses] = useState<Campus[]>([])
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [photoId, setPhotoId] = useState('')
+  const [photoRemoved, setPhotoRemoved] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -187,12 +188,20 @@ export default function EditProfesorPage() {
       }
 
       setPhotoId(String(result.doc.id))
-      setPhotoPreview(result.doc.url || (result.doc.filename ? `/media/${result.doc.filename}` : null))
+      setPhotoPreview(result.doc.url || (result.doc.filename ? `/api/media/file/${result.doc.filename}` : null))
+      setPhotoRemoved(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo subir la foto')
     } finally {
       setUploadingPhoto(false)
     }
+  }
+
+  const handleRemovePhoto = () => {
+    setPhotoId('')
+    setPhotoPreview(null)
+    setPhotoRemoved(true)
+    setError(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -215,7 +224,7 @@ export default function EditProfesorPage() {
           hireDate: formData.hireDate,
           bio: formData.bio || null,
           assignedCampuses: formData.assignedCampuses,
-          ...(photoId ? { photoId } : {}),
+          ...(photoRemoved ? { photoId: null } : photoId ? { photoId } : {}),
         }),
       })
 
@@ -300,6 +309,19 @@ export default function EditProfesorPage() {
                     )}
                     <span>{uploadingPhoto ? 'Subiendo foto...' : 'Puedes reemplazar la foto actual desde aquí.'}</span>
                   </div>
+                  {photoPreview ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="text-destructive hover:text-destructive"
+                      disabled={uploadingPhoto || saving}
+                      onClick={handleRemovePhoto}
+                    >
+                      <Trash2 className="mr-2 h-3.5 w-3.5" />
+                      Eliminar foto
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             </div>

@@ -23,10 +23,22 @@ interface StaffDocument {
   hire_date: string;
   bio?: string;
   is_active: boolean;
-  photo?: { id: number; filename: string } | number;
+  photo?: { id: number; filename?: string; url?: string | null } | number;
   assigned_campuses?: (CampusRel | number)[];
   createdAt: string;
   updatedAt: string;
+}
+
+function resolveMediaUrl(photo?: StaffDocument['photo']): { id: number | null; url: string } {
+  if (typeof photo === 'object' && photo !== null) {
+    const filename = photo.filename?.trim()
+    return {
+      id: photo.id,
+      url: photo.url || (filename ? `/api/media/file/${filename}` : '/placeholder-avatar.svg'),
+    }
+  }
+
+  return { id: typeof photo === 'number' ? photo : null, url: '/placeholder-avatar.svg' }
 }
 
 /**
@@ -65,11 +77,7 @@ export async function GET(
     }
 
     // Extraer foto
-    const photo = staffMember.photo;
-    let photoUrl = '/placeholder-avatar.svg';
-    if (typeof photo === 'object' && photo !== null) {
-      photoUrl = `/media/${photo.filename}`;
-    }
+    const photo = resolveMediaUrl(staffMember.photo);
 
     // Extraer campuses asignados
     const campuses = (staffMember.assigned_campuses ?? [])
@@ -91,7 +99,8 @@ export async function GET(
         employmentStatus: staffMember.employment_status,
         hireDate: staffMember.hire_date,
         bio: staffMember.bio ?? null,
-        photo: photoUrl,
+        photoId: photo.id,
+        photo: photo.url,
         assignedCampuses: campuses,
         isActive: staffMember.is_active,
         createdAt: staffMember.createdAt,
