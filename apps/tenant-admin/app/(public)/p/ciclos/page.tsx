@@ -19,6 +19,13 @@ function resolveImageUrl(image: any): string | null {
   return null
 }
 
+function getRelationId(relation: unknown): string | null {
+  if (!relation) return null
+  if (typeof relation === 'object' && 'id' in relation && relation.id) return String(relation.id)
+  if (typeof relation === 'number' || typeof relation === 'string') return String(relation)
+  return null
+}
+
 const LEVEL_META: Record<string, { label: string; bgColor: string; textColor: string }> = {
   grado_medio: { label: 'Grado Medio · CFGM', bgColor: '#2563EB', textColor: '#FFFFFF' },
   grado_superior: { label: 'Grado Superior · CFGS', bgColor: '#E3003A', textColor: '#FFFFFF' },
@@ -66,6 +73,30 @@ export default async function CiclosCatalogPage() {
   })
 
   const cycles = result.docs
+  const cycleIds = cycles.map((cycle: any) => String(cycle.id))
+  const courseImagesByCycleId = new Map<string, any>()
+
+  if (cycleIds.length > 0) {
+    const coursesResult = await payload.find({
+      collection: 'courses',
+      where: withTenantScope(
+        {
+          active: { equals: true },
+          course_type: { in: ['ciclo_medio', 'ciclo_superior'] },
+        },
+        tenant.tenantId,
+      ) as any,
+      limit: 100,
+      depth: 1,
+    })
+
+    for (const course of coursesResult.docs as any[]) {
+      const cycleId = getRelationId(course.cycle)
+      if (cycleId && cycleIds.includes(cycleId) && course.featured_image && !courseImagesByCycleId.has(cycleId)) {
+        courseImagesByCycleId.set(cycleId, course.featured_image)
+      }
+    }
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -83,7 +114,7 @@ export default async function CiclosCatalogPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {cycles.map((cycle: any) => {
-            const imageUrl = resolveImageUrl(cycle.image)
+            const imageUrl = resolveImageUrl(courseImagesByCycleId.get(String(cycle.id))) || resolveImageUrl(cycle.image)
             const levelMeta = LEVEL_META[cycle.level] ?? null
             const subtitle = getCycleSubtitle(cycle)
             const chips = getCycleChips(cycle)

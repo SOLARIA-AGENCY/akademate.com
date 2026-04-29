@@ -19,6 +19,13 @@ function resolveImageUrl(image: any): string | null {
   return null
 }
 
+function getRelationId(relation: unknown): string | null {
+  if (!relation) return null
+  if (typeof relation === 'object' && 'id' in relation && relation.id) return String(relation.id)
+  if (typeof relation === 'number' || typeof relation === 'string') return String(relation)
+  return null
+}
+
 const LEVEL_LABELS: Record<string, string> = {
   basico: 'FP Basica',
   medio: 'Grado Medio',
@@ -129,7 +136,20 @@ export default async function CicloLandingPage({ params }: Props) {
   if (!cycle) notFound()
 
   // Data extraction
-  const imageUrl = resolveImageUrl(cycle.image)
+  const linkedCoursesResult = await payload.find({
+    collection: 'courses',
+    where: withTenantScope(
+      {
+        active: { equals: true },
+        course_type: { in: ['ciclo_medio', 'ciclo_superior'] },
+      },
+      tenant.tenantId,
+    ) as any,
+    limit: 100,
+    depth: 1,
+  })
+  const linkedCourse = (linkedCoursesResult.docs as any[]).find((course) => getRelationId(course.cycle) === String(cycle.id))
+  const imageUrl = resolveImageUrl(linkedCourse?.featured_image) || resolveImageUrl(cycle.image)
   const modules = cycle.modules || []
   const requirements = cycle.requirements || []
   const careerPaths = cycle.careerPaths || []
