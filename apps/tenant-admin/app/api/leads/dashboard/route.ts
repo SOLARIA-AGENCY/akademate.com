@@ -70,10 +70,15 @@ export async function GET(request: NextRequest) {
       (await query(`
         SELECT COUNT(*) as cnt FROM leads l
         WHERE l.status = 'new'
-          AND l.created_at < NOW() - INTERVAL '24 hours'
+          AND l.last_contacted_at IS NULL
           AND l.tenant_id = ${tenantId}
           ${leadFilterAliased}
-          AND NOT EXISTS (SELECT 1 FROM lead_interactions li WHERE li.lead_id = l.id)
+          AND NOT EXISTS (
+            SELECT 1
+            FROM lead_interactions li
+            WHERE li.lead_id = l.id
+              AND COALESCE(li.channel, '') <> 'system'
+          )
       `)).cnt ?? '0',
     )
 

@@ -5,7 +5,6 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
-import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
@@ -649,7 +648,7 @@ export default function LeadsPage() {
                 <p className={`text-2xl font-bold ${(kpis?.unattended ?? 0) > 0 ? 'text-red-600' : ''}`}>
                   {isLoading ? '-' : kpis?.unattended ?? 0}
                 </p>
-                <p className="text-[10px] text-muted-foreground">nuevos &gt;24h</p>
+                <p className="text-[10px] text-muted-foreground">nuevos sin contacto</p>
               </div>
               <AlertCircle
                 className={`h-8 w-8 ${(kpis?.unattended ?? 0) > 0 ? 'text-red-400' : 'text-red-400/40'}`}

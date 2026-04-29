@@ -111,4 +111,18 @@ describe('Leads dashboard route auth', () => {
       .join('\n')
     expect(countSql).not.toContain('COALESCE(is_test, false) = false')
   })
+
+  it('counts new leads with only system interactions as unattended', async () => {
+    const request = new NextRequest('http://localhost/api/leads/dashboard', {
+      headers: { cookie: 'payload-token=test-token' },
+    })
+    const response = await GET(request)
+    expect(response.status).toBe(200)
+
+    const executedSql = mockExecute.mock.calls.map((call) => String(call[0])).join('\n')
+    expect(executedSql).toContain("l.status = 'new'")
+    expect(executedSql).toContain('l.last_contacted_at IS NULL')
+    expect(executedSql).toContain("COALESCE(li.channel, '') <> 'system'")
+    expect(executedSql).not.toContain("l.created_at < NOW() - INTERVAL '24 hours'")
+  })
 })
