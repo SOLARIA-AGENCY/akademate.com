@@ -98,6 +98,13 @@ function toAreaName(area: CourseDoc['area_formativa']): string {
   return 'Sin área'
 }
 
+function resolveMediaImageUrl(image: CourseDoc['featured_image'] | CourseDoc['image']): string | null {
+  if (!image || typeof image !== 'object') return null
+  if (image.url) return image.url
+  if (image.filename) return `/media/${image.filename}`
+  return null
+}
+
 function buildPublicFilters({
   includeInactive,
   includeCycles,
@@ -159,7 +166,10 @@ function mapCourseDocToPublishedCourse(
 ): PublishedCourse {
   const normalizedStudyType = normalizePublicStudyType(String(course.course_type || ''))
   const visual = normalizedStudyType ? studyTypeMap[normalizedStudyType] : null
-  const imageUrl = getPublicStudyTypeFallbackImage(course.course_type)
+  const imageUrl =
+    resolveMediaImageUrl(course.featured_image) ??
+    resolveMediaImageUrl(course.image) ??
+    getPublicStudyTypeFallbackImage(course.course_type)
 
   return {
     id: String(course.id),
