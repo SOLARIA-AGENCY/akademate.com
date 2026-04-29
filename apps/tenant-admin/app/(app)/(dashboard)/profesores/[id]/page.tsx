@@ -18,6 +18,7 @@ import {
   User,
   Loader2,
   Building2,
+  GraduationCap,
 } from 'lucide-react'
 
 interface CourseRun {
@@ -56,6 +57,27 @@ interface StaffMember {
   hireDate?: string
   createdAt: string
   updatedAt: string
+}
+
+const isPlaceholderPhoto = (photo?: string | null) =>
+  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
+
+function TeacherPhotoFallback({ size = 'large' }: { size?: 'large' | 'small' }) {
+  const isLarge = size === 'large'
+  return (
+    <div
+      aria-label="Imagen genérica de docente"
+      className={[
+        'relative flex items-center justify-center rounded-full border bg-primary/10 text-primary shadow-lg',
+        isLarge ? 'h-48 w-48' : 'h-16 w-16',
+      ].join(' ')}
+    >
+      <User className={isLarge ? 'h-20 w-20' : 'h-7 w-7'} />
+      <div className="absolute right-2 top-2 rounded-full border bg-background p-2 shadow-sm">
+        <GraduationCap className={isLarge ? 'h-7 w-7' : 'h-4 w-4'} />
+      </div>
+    </div>
+  )
 }
 
 export default function ProfesorDetailPage() {
@@ -146,7 +168,7 @@ export default function ProfesorDetailPage() {
   const contractTypeLabels: Record<string, string> = {
     full_time: 'Tiempo Completo',
     part_time: 'Medio Tiempo',
-    freelance: 'Freelance',
+    freelance: 'Autónomo',
   }
 
   const statusLabels: Record<string, string> = {
@@ -184,7 +206,7 @@ export default function ProfesorDetailPage() {
           <CardContent className="pt-6 space-y-6" data-oid="bzau5u3">
             {/* Photo */}
             <div className="flex flex-col items-center" data-oid="8ush656">
-              {professor.photo ? (
+              {!isPlaceholderPhoto(professor.photo) ? (
                 <img
                   src={professor.photo}
                   alt={professor.fullName}
@@ -192,15 +214,7 @@ export default function ProfesorDetailPage() {
                   data-oid="-ttwq2p"
                 />
               ) : (
-                <div
-                  className="flex h-48 w-48 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                  data-oid="zdxw6p2"
-                >
-                  <span className="text-6xl font-bold" data-oid="badncwd">
-                    {professor.firstName[0]}
-                    {professor.lastName[0]}
-                  </span>
-                </div>
+                <TeacherPhotoFallback />
               )}
               <div className="mt-4 text-center" data-oid="xlofrur">
                 <h2 className="text-xl font-bold" data-oid="s.pjw6y">

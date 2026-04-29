@@ -13,11 +13,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@payload-config/components/ui/dropdown-menu'
-import { Eye, Edit, Trash2, MoreHorizontal, MapPin, Mail, Phone, Briefcase } from 'lucide-react'
+import { Eye, Edit, Trash2, MoreHorizontal, MapPin, Mail, Phone, Briefcase, GraduationCap, User } from 'lucide-react'
 
 interface StaffCardProps {
   id: number
   fullName: string
+  staffType?: string
   position: string
   contractType: string
   employmentStatus: string
@@ -34,7 +35,7 @@ interface StaffCardProps {
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
   full_time: 'Tiempo Completo',
   part_time: 'Medio Tiempo',
-  freelance: 'Freelance',
+  freelance: 'Autónomo',
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -49,9 +50,16 @@ const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive'> =
   inactive: 'destructive',
 }
 
+const isPlaceholderPhoto = (photo?: string | null) =>
+  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
+
+const isTeachingStaff = (staffType?: string) =>
+  staffType === 'profesor' || staffType === 'academico'
+
 export function StaffCard({
   id,
   fullName,
+  staffType,
   position,
   contractType,
   employmentStatus,
@@ -64,15 +72,6 @@ export function StaffCard({
   onEdit,
   onDelete,
 }: StaffCardProps) {
-  const getInitials = (name: string) => {
-    const parts = name.split(' ')
-    return parts
-      .slice(0, 2)
-      .map((p) => p[0])
-      .join('')
-      .toUpperCase()
-  }
-
   return (
     <Card
       className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
@@ -86,9 +85,19 @@ export function StaffCard({
               className="h-16 w-16 border-2 border-background shadow-md ring-2 ring-offset-2 ring-muted"
               data-oid="b3jc_lc"
             >
-              <AvatarImage src={photo} alt={fullName} data-oid="1ywu7yr" />
-              <AvatarFallback className="text-lg font-semibold" data-oid="-ltb5aw">
-                {getInitials(fullName)}
+              {!isPlaceholderPhoto(photo) ? (
+                <AvatarImage src={photo} alt={fullName} data-oid="1ywu7yr" />
+              ) : null}
+              <AvatarFallback className="relative bg-primary/10 text-primary" data-oid="-ltb5aw">
+                <User className="h-7 w-7" aria-hidden="true" />
+                {isTeachingStaff(staffType) ? (
+                  <GraduationCap className="absolute -right-0.5 -top-0.5 h-4 w-4 rounded-full bg-background" aria-hidden="true" />
+                ) : (
+                  <Briefcase className="absolute -right-0.5 -top-0.5 h-4 w-4 rounded-full bg-background" aria-hidden="true" />
+                )}
+                <span className="sr-only">
+                  {isTeachingStaff(staffType) ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
+                </span>
               </AvatarFallback>
             </Avatar>
 

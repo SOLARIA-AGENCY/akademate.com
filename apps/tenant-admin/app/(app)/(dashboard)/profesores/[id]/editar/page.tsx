@@ -7,7 +7,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
-import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   Select,
@@ -16,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, Loader2, Save, Upload, User } from 'lucide-react'
+import { ArrowLeft, GraduationCap, Loader2, MapPin, Save, Upload, User } from 'lucide-react'
 
 interface Campus {
   id: number
@@ -37,6 +36,29 @@ interface StaffRecord {
   bio?: string
   assignedCampuses: Campus[]
   photo?: string
+}
+
+interface CampusApiResponse {
+  success?: boolean
+  data?: Campus[]
+  docs?: Campus[]
+}
+
+const isPlaceholderPhoto = (photo?: string | null) =>
+  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
+
+function TeacherPhotoFallback() {
+  return (
+    <div
+      aria-label="Imagen genérica de docente"
+      className="relative flex h-20 w-20 items-center justify-center rounded-full border bg-primary/10 text-primary"
+    >
+      <User className="h-9 w-9" />
+      <div className="absolute -right-1 -top-1 rounded-full border bg-background p-1 shadow-sm">
+        <GraduationCap className="h-5 w-5" />
+      </div>
+    </div>
+  )
 }
 
 export default function EditProfesorPage() {
@@ -82,13 +104,13 @@ export default function EditProfesorPage() {
         if (!campusRes.ok) throw new Error('No se pudieron cargar las sedes')
 
         const staffJson = (await staffRes.json()) as { success?: boolean; data?: StaffRecord[] }
-        const campusJson = (await campusRes.json()) as { success?: boolean; data?: Campus[] }
+        const campusJson = (await campusRes.json()) as CampusApiResponse
         const professor = staffJson.data?.find((item) => String(item.id) === professorId)
 
         if (!professor) throw new Error('Profesor no encontrado')
         if (cancelled) return
 
-        setCampuses(campusJson.data ?? [])
+        setCampuses(campusJson.data ?? campusJson.docs ?? [])
         setFormData({
           firstName: professor.firstName ?? '',
           lastName: professor.lastName ?? '',
@@ -101,7 +123,7 @@ export default function EditProfesorPage() {
           hireDate: professor.hireDate ? String(professor.hireDate).slice(0, 10) : '',
           assignedCampuses: (professor.assignedCampuses ?? []).map((campus) => Number(campus.id)),
         })
-        setPhotoPreview(professor.photo ?? null)
+        setPhotoPreview(isPlaceholderPhoto(professor.photo) ? null : professor.photo ?? null)
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'No se pudo cargar la ficha')
@@ -130,12 +152,12 @@ export default function EditProfesorPage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const toggleCampus = (campusId: number) => {
+  const handleBaseCampusChange = (value: string) => {
+    const campusId = Number(value)
+    if (Number.isNaN(campusId)) return
     setFormData((prev) => ({
       ...prev,
-      assignedCampuses: prev.assignedCampuses.includes(campusId)
-        ? prev.assignedCampuses.filter((id) => id !== campusId)
-        : [...prev.assignedCampuses, campusId],
+      assignedCampuses: [campusId],
     }))
   }
 
@@ -244,11 +266,10 @@ export default function EditProfesorPage() {
                     src={photoPreview}
                     alt="Foto del profesor"
                     className="h-20 w-20 rounded-full object-cover border"
+                    onError={() => setPhotoPreview(null)}
                   />
                 ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full border bg-muted text-muted-foreground">
-                    <User className="h-8 w-8" />
-                  </div>
+                  <TeacherPhotoFallback />
                 )}
                 <div className="space-y-2">
                   <Input
@@ -310,7 +331,7 @@ export default function EditProfesorPage() {
                   <SelectContent>
                     <SelectItem value="full_time">Tiempo Completo</SelectItem>
                     <SelectItem value="part_time">Medio Tiempo</SelectItem>
-                    <SelectItem value="freelance">Freelance</SelectItem>
+                    <SelectItem value="freelance">Autónomo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -334,27 +355,36 @@ export default function EditProfesorPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Sedes Asignadas</Label>
+              <Label htmlFor="baseCampus">Sede base asignada</Label>
               {loadingCampuses ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Cargando sedes...
                 </div>
-              ) : (
-                <div className="grid gap-3 rounded-lg border p-4 md:grid-cols-2">
-                  {campuses.map((campus) => (
-                    <div key={campus.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`campus-${campus.id}`}
-                        checked={formData.assignedCampuses.includes(campus.id)}
-                        onCheckedChange={() => toggleCampus(campus.id)}
-                      />
-                      <label htmlFor={`campus-${campus.id}`} className="cursor-pointer text-sm font-medium">
-                        {campus.name} - {campus.city}
-                      </label>
-                    </div>
-                  ))}
+              ) : campuses.length === 0 ? (
+                <div className="rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+                  No hay sedes disponibles para asignar.
                 </div>
+              ) : (
+                <Select
+                  value={formData.assignedCampuses[0] ? String(formData.assignedCampuses[0]) : undefined}
+                  onValueChange={handleBaseCampusChange}
+                >
+                  <SelectTrigger id="baseCampus" aria-label="Sede base asignada">
+                    <SelectValue placeholder="Selecciona una sede base" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {campuses.map((campus) => (
+                      <SelectItem key={campus.id} value={String(campus.id)}>
+                        <span className="inline-flex items-center gap-2">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {campus.name}
+                          {campus.city ? ` - ${campus.city}` : ''}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             </div>
 

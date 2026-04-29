@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, Save, Loader2, Upload, User } from 'lucide-react'
+import { ArrowLeft, GraduationCap, Save, Loader2, Upload, User } from 'lucide-react'
 
 interface Campus {
   id: number
@@ -33,6 +33,20 @@ interface Campus {
 interface CampusApiResponse {
   success: boolean
   data: Campus[]
+}
+
+function TeacherPhotoFallback() {
+  return (
+    <div
+      aria-label="Imagen genérica de docente"
+      className="relative flex h-20 w-20 items-center justify-center rounded-full border bg-primary/10 text-primary"
+    >
+      <User className="h-9 w-9" aria-hidden="true" />
+      <div className="absolute -right-1 -top-1 rounded-full border bg-background p-1 shadow-sm">
+        <GraduationCap className="h-5 w-5" aria-hidden="true" />
+      </div>
+    </div>
+  )
 }
 
 interface StaffApiResponse {
@@ -217,9 +231,7 @@ export default function NewProfesorPage() {
                     className="h-20 w-20 rounded-full object-cover border"
                   />
                 ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full border bg-muted text-muted-foreground">
-                    <User className="h-8 w-8" />
-                  </div>
+                  <TeacherPhotoFallback />
                 )}
                 <div className="space-y-2">
                   <Input
@@ -352,7 +364,7 @@ export default function NewProfesorPage() {
                       Medio Tiempo
                     </SelectItem>
                     <SelectItem value="freelance" data-oid="96g9elm">
-                      Freelance
+                      Autónomo
                     </SelectItem>
                   </SelectContent>
                 </Select>

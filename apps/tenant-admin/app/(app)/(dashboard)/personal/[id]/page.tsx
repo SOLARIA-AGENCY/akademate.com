@@ -26,6 +26,7 @@ import {
   FileText,
   Users,
   User,
+  GraduationCap,
 } from 'lucide-react'
 
 interface StaffDetailPageProps {
@@ -55,7 +56,7 @@ interface StaffMember {
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
   full_time: 'Tiempo Completo',
   part_time: 'Medio Tiempo',
-  freelance: 'Freelance',
+  freelance: 'Autónomo',
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -68,6 +69,28 @@ const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive'> =
   active: 'default',
   temporary_leave: 'secondary',
   inactive: 'destructive',
+}
+
+const isPlaceholderPhoto = (photo?: string | null) =>
+  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
+
+const isTeachingStaff = (staffType: StaffMember['staffType']) => staffType === 'profesor'
+
+function StaffFallbackIcon({ staffType }: { staffType: StaffMember['staffType'] }) {
+  const teaching = isTeachingStaff(staffType)
+  return (
+    <div
+      aria-label={teaching ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
+      className="relative flex h-full w-full items-center justify-center bg-primary/10 text-primary"
+    >
+      <User className="h-14 w-14" aria-hidden="true" />
+      {teaching ? (
+        <GraduationCap className="absolute right-3 top-3 h-8 w-8 rounded-full bg-background" aria-hidden="true" />
+      ) : (
+        <Briefcase className="absolute right-3 top-3 h-8 w-8 rounded-full bg-background" aria-hidden="true" />
+      )}
+    </div>
+  )
 }
 
 export default function StaffDetailPage({ params }: StaffDetailPageProps) {
@@ -140,15 +163,6 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
     )
   }
 
-  const getInitials = (name: string) => {
-    const parts = name.split(' ')
-    return parts
-      .slice(0, 2)
-      .map((p) => p[0])
-      .join('')
-      .toUpperCase()
-  }
-
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -195,9 +209,11 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
                   className="h-32 w-32 border-4 border-background shadow-lg"
                   data-oid="7yjq_n-"
                 >
-                  <AvatarImage src={staff.photo} alt={staff.fullName} data-oid="mhbq-ha" />
+                  {!isPlaceholderPhoto(staff.photo) ? (
+                    <AvatarImage src={staff.photo} alt={staff.fullName} data-oid="mhbq-ha" />
+                  ) : null}
                   <AvatarFallback className="text-2xl" data-oid="t6actrp">
-                    {getInitials(staff.fullName)}
+                    <StaffFallbackIcon staffType={staff.staffType} />
                   </AvatarFallback>
                 </Avatar>
 

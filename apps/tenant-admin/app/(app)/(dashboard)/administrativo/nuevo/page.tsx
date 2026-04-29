@@ -296,7 +296,7 @@ export default function NewAdministrativoPage() {
                       Medio Tiempo
                     </SelectItem>
                     <SelectItem value="freelance" data-oid="8n7:cgx">
-                      Freelance
+                      Autónomo
                     </SelectItem>
                   </SelectContent>
                 </Select>

@@ -44,6 +44,23 @@ interface StaffMember {
   updatedAt: string
 }
 
+const isPlaceholderPhoto = (photo?: string | null) =>
+  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
+
+function AdminPhotoFallback() {
+  return (
+    <div
+      aria-label="Imagen genérica de administrativo"
+      className="relative flex h-48 w-48 items-center justify-center rounded-full border bg-primary/10 text-primary shadow-lg"
+    >
+      <User className="h-20 w-20" aria-hidden="true" />
+      <div className="absolute right-2 top-2 rounded-full border bg-background p-2 shadow-sm">
+        <Briefcase className="h-7 w-7" aria-hidden="true" />
+      </div>
+    </div>
+  )
+}
+
 export default function AdministrativoDetailPage() {
   const router = useRouter()
   const params = useParams()
@@ -132,7 +149,7 @@ export default function AdministrativoDetailPage() {
   const contractTypeLabels: Record<string, string> = {
     full_time: 'Tiempo Completo',
     part_time: 'Medio Tiempo',
-    freelance: 'Freelance',
+    freelance: 'Autónomo',
   }
 
   const statusLabels: Record<string, string> = {
@@ -170,7 +187,7 @@ export default function AdministrativoDetailPage() {
           <CardContent className="pt-6 space-y-6" data-oid="zzitn_q">
             {/* Photo */}
             <div className="flex flex-col items-center" data-oid="xo.xxd9">
-              {admin.photo ? (
+              {!isPlaceholderPhoto(admin.photo) ? (
                 <img
                   src={admin.photo}
                   alt={admin.fullName}
@@ -178,15 +195,7 @@ export default function AdministrativoDetailPage() {
                   data-oid="1qxhdve"
                 />
               ) : (
-                <div
-                  className="flex h-48 w-48 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                  data-oid="pz0sx2u"
-                >
-                  <span className="text-6xl font-bold" data-oid="0twj06n">
-                    {admin.firstName[0]}
-                    {admin.lastName[0]}
-                  </span>
-                </div>
+                <AdminPhotoFallback />
               )}
               <div className="mt-4 text-center" data-oid="0d3p_ko">
                 <h2 className="text-xl font-bold" data-oid="knocmsm">

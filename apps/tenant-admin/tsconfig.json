@@ -60,6 +60,7 @@
   "include": [
     "src/**/*",
     "app/**/*",
+    "components/**/*",
     "@payload-config/**/*",
     "types/**/*",
     "next-env.d.ts",

@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Edit, Loader2 } from 'lucide-react'
+import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Edit, Loader2, GraduationCap } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
@@ -45,6 +45,21 @@ interface StaffMember {
   }[]
   courseRunsCount?: number
   isActive: boolean
+}
+
+const isPlaceholderPhoto = (photo?: string | null) =>
+  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
+
+function TeacherPhotoFallback({ className = 'h-16 w-16' }: { className?: string }) {
+  return (
+    <div
+      aria-label="Imagen genérica de docente"
+      className={`relative flex ${className} items-center justify-center rounded-full border bg-primary/10 text-primary`}
+    >
+      <User className="h-7 w-7" aria-hidden="true" />
+      <GraduationCap className="absolute right-0 top-0 h-4 w-4 rounded-full bg-background" aria-hidden="true" />
+    </div>
+  )
 }
 
 interface TeacherExpanded extends StaffMember {
@@ -325,7 +340,7 @@ export default function ProfesoresPage() {
               <CardContent className="p-6 space-y-4" data-oid="..9i8:7">
                 <div className="flex items-start gap-4" data-oid="uisstqq">
                   <div className="relative" data-oid="0gj2jev">
-                    {teacher.photo ? (
+                    {!isPlaceholderPhoto(teacher.photo) ? (
                       <img
                         src={teacher.photo}
                         alt={`${teacher.firstName} ${teacher.lastName}`}
@@ -333,14 +348,7 @@ export default function ProfesoresPage() {
                         data-oid="fvzsjyv"
                       />
                     ) : (
-                      <div
-                        className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                        data-oid="yjwqxtk"
-                      >
-                        <span className="text-xl font-bold" data-oid="otocawt">
-                          {teacher.initials}
-                        </span>
-                      </div>
+                      <TeacherPhotoFallback />
                     )}
                     {teacher.active && (
                       <div

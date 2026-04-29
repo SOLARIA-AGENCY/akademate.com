@@ -32,10 +32,12 @@ import {
   Trash2,
   Users,
   Briefcase,
+  GraduationCap,
   MapPin,
   LayoutGrid,
   List,
   Search,
+  User,
 } from 'lucide-react'
 import { Input } from '@payload-config/components/ui/input'
 import { StaffCard } from '@payload-config/components/ui/StaffCard'
@@ -66,7 +68,7 @@ interface StaffApiResponse {
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
   full_time: 'Tiempo Completo',
   part_time: 'Medio Tiempo',
-  freelance: 'Freelance',
+  freelance: 'Autónomo',
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -79,6 +81,29 @@ const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive'> =
   active: 'default',
   temporary_leave: 'secondary',
   inactive: 'destructive',
+}
+
+const isPlaceholderPhoto = (photo?: string | null) =>
+  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
+
+const isTeachingStaff = (staffType: StaffMember['staffType']) =>
+  staffType === 'profesor' || staffType === 'academico'
+
+function StaffFallbackIcon({ staffType }: { staffType: StaffMember['staffType'] }) {
+  const teaching = isTeachingStaff(staffType)
+  return (
+    <div
+      aria-label={teaching ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
+      className="relative flex h-full w-full items-center justify-center bg-primary/10 text-primary"
+    >
+      <User className="h-5 w-5" aria-hidden="true" />
+      {teaching ? (
+        <GraduationCap className="absolute right-0 top-0 h-3.5 w-3.5 rounded-full bg-background" aria-hidden="true" />
+      ) : (
+        <Briefcase className="absolute right-0 top-0 h-3.5 w-3.5 rounded-full bg-background" aria-hidden="true" />
+      )}
+    </div>
+  )
 }
 
 function PersonalPageContent() {
@@ -168,15 +193,6 @@ function PersonalPageContent() {
       console.error('Error deleting staff:', error)
       alert('Error de conexión al eliminar personal')
     }
-  }
-
-  const getInitials = (name: string) => {
-    const parts = name.split(' ')
-    return parts
-      .slice(0, 2)
-      .map((p) => p[0])
-      .join('')
-      .toUpperCase()
   }
 
   return (
@@ -290,6 +306,7 @@ function PersonalPageContent() {
                       key={member.id}
                       id={member.id}
                       fullName={member.fullName}
+                      staffType={member.staffType}
                       position={member.position}
                       contractType={member.contractType}
                       employmentStatus={member.employmentStatus}
@@ -328,13 +345,15 @@ function PersonalPageContent() {
                       >
                         <TableCell data-oid="q68ixpu">
                           <Avatar className="h-10 w-10" data-oid="s2q1s34">
-                            <AvatarImage
-                              src={member.photo}
-                              alt={member.fullName}
-                              data-oid="u8y4jco"
-                            />
+                            {!isPlaceholderPhoto(member.photo) ? (
+                              <AvatarImage
+                                src={member.photo}
+                                alt={member.fullName}
+                                data-oid="u8y4jco"
+                              />
+                            ) : null}
                             <AvatarFallback data-oid="98svq64">
-                              {getInitials(member.fullName)}
+                              <StaffFallbackIcon staffType={member.staffType} />
                             </AvatarFallback>
                           </Avatar>
                         </TableCell>
@@ -461,6 +480,7 @@ function PersonalPageContent() {
                       key={member.id}
                       id={member.id}
                       fullName={member.fullName}
+                      staffType={member.staffType}
                       position={member.position}
                       contractType={member.contractType}
                       employmentStatus={member.employmentStatus}
@@ -499,13 +519,15 @@ function PersonalPageContent() {
                       >
                         <TableCell data-oid="68u9li3">
                           <Avatar className="h-10 w-10" data-oid="dy9umrj">
-                            <AvatarImage
-                              src={member.photo}
-                              alt={member.fullName}
-                              data-oid="i.h5jmh"
-                            />
+                            {!isPlaceholderPhoto(member.photo) ? (
+                              <AvatarImage
+                                src={member.photo}
+                                alt={member.fullName}
+                                data-oid="i.h5jmh"
+                              />
+                            ) : null}
                             <AvatarFallback data-oid=":jj-ga5">
-                              {getInitials(member.fullName)}
+                              <StaffFallbackIcon staffType={member.staffType} />
                             </AvatarFallback>
                           </Avatar>
                         </TableCell>

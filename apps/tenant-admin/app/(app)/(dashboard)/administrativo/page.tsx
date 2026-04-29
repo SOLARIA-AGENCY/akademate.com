@@ -28,6 +28,21 @@ interface AdminStaff {
   photo?: string
 }
 
+const isPlaceholderPhoto = (photo?: string | null) =>
+  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
+
+function AdminPhotoFallback() {
+  return (
+    <div
+      aria-label="Imagen genérica de administrativo"
+      className="relative flex h-16 w-16 items-center justify-center rounded-full border bg-primary/10 text-primary shadow-md"
+    >
+      <User className="h-7 w-7" aria-hidden="true" />
+      <Briefcase className="absolute right-0 top-0 h-4 w-4 rounded-full bg-background" aria-hidden="true" />
+    </div>
+  )
+}
+
 interface ApiStaffData {
   id: string | number
   firstName: string
@@ -285,7 +300,7 @@ export default function AdministrativosPage() {
             <CardContent className="p-6 space-y-4" data-oid="c-731r_">
               <div className="flex items-start gap-4" data-oid="z3h91.f">
                 <div className="relative" data-oid="5_myoha">
-                  {admin.photo ? (
+                  {!isPlaceholderPhoto(admin.photo) ? (
                     <img
                       src={admin.photo}
                       alt={`${admin.first_name} ${admin.last_name}`}
@@ -293,15 +308,7 @@ export default function AdministrativosPage() {
                       data-oid="9kjjih1"
                     />
                   ) : (
-                    <div
-                      className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                      data-oid="jqqihaa"
-                    >
-                      <span className="text-xl font-bold" data-oid="gfsogm_">
-                        {admin.first_name[0]}
-                        {admin.last_name[0]}
-                      </span>
-                    </div>
+                    <AdminPhotoFallback />
                   )}
                   {admin.active && (
                     <div
