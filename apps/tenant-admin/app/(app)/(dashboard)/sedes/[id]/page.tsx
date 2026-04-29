@@ -17,20 +17,41 @@ import {
 
 interface StaffMember {
   id: number
+  staffType?: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico'
+  firstName?: string
+  lastName?: string
+  fullName?: string
+  employmentStatus?: string
+  isActive?: boolean
+  photo?: string
   full_name?: string
   first_name?: string
   last_name?: string
-  staff_type?: 'profesor' | 'administrativo'
+  staff_type?: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico'
   email?: string
   phone?: string
   position?: string
   is_active?: boolean
-  photo?: { url?: string } | number | null
 }
 
 interface Convocatoria {
   id: number
   codigo?: string
+  cursoNombre?: string
+  cursoTipo?: string
+  campusNombre?: string
+  aulaNombre?: string
+  aulaCapacidad?: number
+  fechaInicio?: string
+  fechaFin?: string
+  estado?: string
+  planningStatus?: string
+  trainingType?: string
+  turno?: string
+  plazasTotales?: number
+  plazasOcupadas?: number
+  profesor?: string
+  responsable?: string
   status?: string
   start_date?: string
   end_date?: string
@@ -41,11 +62,21 @@ interface Convocatoria {
 }
 
 interface Classroom {
+  id?: number
+  code?: string
   name: string
+  nombre?: string
   capacity?: number
+  capacidad?: number
   floor?: string
+  planta?: string | number | null
   equipment?: string[]
+  recursos?: string[]
+  usage_policy?: string
+  enabled_shifts?: string[]
+  operational_notes?: string
   active?: boolean
+  activa?: boolean
 }
 
 interface CampusFull {
@@ -71,6 +102,21 @@ interface CampusFull {
   coordinator?: StaffMember | number | null
   staff_members?: (StaffMember | number)[]
   notes?: string
+}
+
+interface AulasApiResponse {
+  success: boolean
+  data?: Classroom[]
+}
+
+interface StaffApiResponse {
+  success: boolean
+  data?: StaffMember[]
+}
+
+interface ConvocatoriasApiResponse {
+  success: boolean
+  data?: Convocatoria[]
 }
 
 // ---------------------------------------------------------------------------
@@ -123,6 +169,9 @@ export default function SedeDetailPage({ params }: Props) {
   const { id } = React.use(params)
 
   const [sede, setSede] = React.useState<CampusFull | null>(null)
+  const [classrooms, setClassrooms] = React.useState<Classroom[]>([])
+  const [profesores, setProfesores] = React.useState<StaffMember[]>([])
+  const [administrativos, setAdministrativos] = React.useState<StaffMember[]>([])
   const [convocatorias, setConvocatorias] = React.useState<Convocatoria[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -131,18 +180,36 @@ export default function SedeDetailPage({ params }: Props) {
     let mounted = true
     const load = async () => {
       try {
-        const [sedeRes, convsRes] = await Promise.all([
+        const [sedeRes, aulasRes, profesoresRes, administrativosRes, convsRes] = await Promise.all([
           fetch(`/api/campuses/${id}?depth=1`, { cache: 'no-store' }),
-          fetch(`/api/course-runs?where[campus][equals]=${id}&depth=1&limit=50&sort=-start_date`, { cache: 'no-store' }),
+          fetch(`/api/aulas?campus_id=${id}&active=true`, { cache: 'no-store' }),
+          fetch(`/api/staff?type=profesor&campus=${id}&limit=200`, { cache: 'no-store' }),
+          fetch(`/api/staff?type=administrativo&campus=${id}&limit=200`, { cache: 'no-store' }),
+          fetch(`/api/convocatorias?campusId=${id}`, { cache: 'no-store' }),
         ])
 
         if (!sedeRes.ok) throw new Error('No se pudo cargar la sede')
         const sedeData = await sedeRes.json()
         if (mounted) setSede(sedeData)
 
+        if (aulasRes.ok) {
+          const aulasData = (await aulasRes.json()) as AulasApiResponse
+          if (mounted) setClassrooms(aulasData.data ?? [])
+        }
+
+        if (profesoresRes.ok) {
+          const staffData = (await profesoresRes.json()) as StaffApiResponse
+          if (mounted) setProfesores(staffData.data ?? [])
+        }
+
+        if (administrativosRes.ok) {
+          const staffData = (await administrativosRes.json()) as StaffApiResponse
+          if (mounted) setAdministrativos(staffData.data ?? [])
+        }
+
         if (convsRes.ok) {
-          const convsData = await convsRes.json()
-          if (mounted) setConvocatorias(convsData.docs || [])
+          const convsData = (await convsRes.json()) as ConvocatoriasApiResponse
+          if (mounted) setConvocatorias(convsData.data ?? [])
         }
       } catch (err) {
         if (mounted) setError(err instanceof Error ? err.message : 'Error')
@@ -178,15 +245,8 @@ export default function SedeDetailPage({ params }: Props) {
   }
 
   // Derived data
-  const staffList: StaffMember[] = Array.isArray(sede.staff_members)
-    ? sede.staff_members.filter((s): s is StaffMember => typeof s === 'object' && s !== null)
-    : []
-  const profesores = staffList.filter(s => s.staff_type === 'profesor')
-  const administrativos = staffList.filter(s => s.staff_type === 'administrativo')
-
-  const classrooms = Array.isArray(sede.classrooms) ? sede.classrooms : []
-  const activeClassrooms = classrooms.filter(c => c.active !== false)
-  const totalCapacity = sede.capacity || activeClassrooms.reduce((sum, c) => sum + (c.capacity || 0), 0)
+  const activeClassrooms = classrooms.filter(c => c.active !== false && c.activa !== false)
+  const totalCapacity = sede.capacity || activeClassrooms.reduce((sum, c) => sum + (c.capacity || c.capacidad || 0), 0)
 
   const services = Array.isArray(sede.services) ? sede.services : []
   const coordinator = typeof sede.coordinator === 'object' && sede.coordinator !== null ? sede.coordinator : null
@@ -194,7 +254,7 @@ export default function SedeDetailPage({ params }: Props) {
   const fullAddress = [sede.address, sede.postal_code, sede.city].filter(Boolean).join(', ')
 
   function staffName(p: StaffMember): string {
-    return p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Sin nombre'
+    return p.fullName || p.full_name || `${p.firstName || p.first_name || ''} ${p.lastName || p.last_name || ''}`.trim() || 'Sin nombre'
   }
 
   function staffInitials(p: StaffMember): string {
@@ -202,6 +262,37 @@ export default function SedeDetailPage({ params }: Props) {
     const parts = name.split(' ').filter(Boolean)
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
     return (parts[0]?.[0] || '?').toUpperCase()
+  }
+
+  function isStaffActive(p: StaffMember): boolean {
+    return p.isActive ?? p.is_active ?? p.employmentStatus !== 'inactive'
+  }
+
+  function classroomName(c: Classroom): string {
+    return c.nombre || c.name || c.code || 'Aula'
+  }
+
+  function classroomCapacity(c: Classroom): number {
+    return c.capacidad || c.capacity || 0
+  }
+
+  function formatDate(date?: string): string | null {
+    if (!date) return null
+    return new Date(date).toLocaleDateString('es-ES')
+  }
+
+  function trainingTypeLabel(type?: string) {
+    if (type === 'cycle') return 'Ciclo'
+    if (type === 'fped') return 'FPED'
+    if (type === 'private') return 'Privado'
+    return type || 'Sin tipo'
+  }
+
+  function shiftLabel(shift?: string) {
+    if (shift === 'morning') return 'Mañana'
+    if (shift === 'afternoon') return 'Tarde'
+    if (shift === 'evening_extra') return 'Tercer turno'
+    return shift || 'Turno pendiente'
   }
 
   return (
@@ -251,6 +342,61 @@ export default function SedeDetailPage({ params }: Props) {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* MAIN (2/3) */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Aulas */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <DoorOpen className="h-4 w-4 text-primary" />
+                Aulas
+                <Badge variant="outline">{activeClassrooms.length}</Badge>
+              </CardTitle>
+              <Button size="sm" variant="outline" onClick={() => router.push(`/dashboard/sedes/${id}/editar`)}>
+                <Plus className="mr-1.5 h-3.5 w-3.5" />Gestionar aulas
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {activeClassrooms.length === 0 ? (
+                <EmptyState
+                  message="No hay aulas configuradas en esta sede"
+                  hint="Las aulas se gestionan desde la ficha de sede"
+                />
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {activeClassrooms.map((classroom) => (
+                    <div key={classroom.id ?? classroomName(classroom)} className="rounded-lg border p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold">{classroomName(classroom)}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {classroom.code ? `${classroom.code} · ` : ''}
+                            {classroomCapacity(classroom) || '—'} plazas
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="shrink-0 text-[10px]">
+                          {classroom.usage_policy ?? 'mixed'}
+                        </Badge>
+                      </div>
+                      {classroom.enabled_shifts && classroom.enabled_shifts.length > 0 ? (
+                        <div className="mt-3 flex flex-wrap gap-1">
+                          {classroom.enabled_shifts.map((shift) => (
+                            <Badge key={shift} variant="outline" className="text-[10px]">
+                              {shiftLabel(shift)}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : null}
+                      {classroom.operational_notes ? (
+                        <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">
+                          {classroom.operational_notes}
+                        </p>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Convocatorias */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -272,22 +418,34 @@ export default function SedeDetailPage({ params }: Props) {
               ) : (
                 <div className="space-y-2">
                   {convocatorias.map((conv) => {
-                    const courseName = typeof conv.course === 'object' && conv.course !== null
+                    const courseName = conv.cursoNombre || (typeof conv.course === 'object' && conv.course !== null
                       ? (conv.course.title || conv.course.name || `Curso #${conv.course.id}`)
-                      : `Curso #${conv.course}`
-                    const status = STATUS_LABELS[conv.status || 'draft'] || STATUS_LABELS.draft
+                      : `Curso #${conv.course}`)
+                    const statusKey = conv.estado || conv.status || conv.planningStatus || 'draft'
+                    const status = STATUS_LABELS[statusKey] || STATUS_LABELS.draft
+                    const startDate = formatDate(conv.fechaInicio || conv.start_date)
+                    const endDate = formatDate(conv.fechaFin || conv.end_date)
+                    const maxStudents = conv.plazasTotales ?? conv.max_students
+                    const currentStudents = conv.plazasOcupadas ?? conv.current_enrollments ?? 0
                     return (
                       <div key={conv.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border p-3">
                         <div className="min-w-0">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium text-sm truncate">{courseName}</span>
                             <Badge variant={status.variant} className="text-[10px] shrink-0">{status.label}</Badge>
+                            <Badge variant="outline" className="text-[10px] shrink-0">
+                              {trainingTypeLabel(conv.trainingType)}
+                            </Badge>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {conv.codigo && <span className="font-mono">{conv.codigo} · </span>}
-                            {conv.start_date && new Date(conv.start_date).toLocaleDateString('es-ES')}
-                            {conv.end_date && ` — ${new Date(conv.end_date).toLocaleDateString('es-ES')}`}
-                            {conv.max_students && ` · ${conv.current_enrollments || 0}/${conv.max_students} plazas`}
+                            {startDate}
+                            {endDate && ` — ${endDate}`}
+                            {maxStudents && ` · ${currentStudents}/${maxStudents} plazas`}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {conv.aulaNombre || 'Sin aula'} · {shiftLabel(conv.turno)}
+                            {conv.profesor && ` · ${conv.profesor}`}
                           </p>
                         </div>
                         <Button size="sm" variant="ghost" className="shrink-0" onClick={() => router.push('/programacion')}>
@@ -327,8 +485,8 @@ export default function SedeDetailPage({ params }: Props) {
                         {p.position && <p className="text-xs text-muted-foreground truncate">{p.position}</p>}
                         {p.email && <p className="text-xs text-muted-foreground truncate">{p.email}</p>}
                       </div>
-                      <Badge variant={p.is_active !== false ? 'default' : 'secondary'} className="text-[10px] shrink-0">
-                        {p.is_active !== false ? 'Activo' : 'Inactivo'}
+                      <Badge variant={isStaffActive(p) ? 'default' : 'secondary'} className="text-[10px] shrink-0">
+                        {isStaffActive(p) ? 'Activo' : 'Inactivo'}
                       </Badge>
                     </div>
                   ))}
@@ -363,8 +521,8 @@ export default function SedeDetailPage({ params }: Props) {
                         {p.position && <p className="text-xs text-muted-foreground truncate">{p.position}</p>}
                         {p.email && <p className="text-xs text-muted-foreground truncate">{p.email}</p>}
                       </div>
-                      <Badge variant={p.is_active !== false ? 'default' : 'secondary'} className="text-[10px] shrink-0">
-                        {p.is_active !== false ? 'Activo' : 'Inactivo'}
+                      <Badge variant={isStaffActive(p) ? 'default' : 'secondary'} className="text-[10px] shrink-0">
+                        {isStaffActive(p) ? 'Activo' : 'Inactivo'}
                       </Badge>
                     </div>
                   ))}
