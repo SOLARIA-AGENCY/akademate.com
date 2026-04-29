@@ -36,12 +36,24 @@ async function getSessionUser(): Promise<SessionUser | null> {
 
   if (!serializedSession) return null
 
+  const candidates = [serializedSession]
   try {
-    const session = JSON.parse(serializedSession) as { user?: SessionUser }
-    return session.user ?? null
+    const decoded = decodeURIComponent(serializedSession)
+    if (decoded !== serializedSession) candidates.push(decoded)
   } catch {
-    return null
+    // Keep the raw value if the cookie is not URL-encoded.
   }
+
+  for (const candidate of candidates) {
+    try {
+      const session = JSON.parse(candidate) as { user?: SessionUser }
+      if (session.user) return session.user
+    } catch {
+      // Try the next representation.
+    }
+  }
+
+  return null
 }
 
 export async function POST(request: Request) {
