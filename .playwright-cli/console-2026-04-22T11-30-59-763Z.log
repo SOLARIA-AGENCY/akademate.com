@@ -1,0 +1,47 @@
+[    5128ms] [LOG] 
+%c¡Detente! font-family:helvetica; font-size:20px; font-size:50px; font-weight:bold; color:red; -webkit-text-stroke:1px black; @ https://static.xx.fbcdn.net/rsrc.php/v4iZ3e4/ys/l/es_ES~es_LA-j/Whb-a8FOCw4.js:4
+[    5129ms] [LOG] 
+%cEsta función del navegador está pensada para desarrolladores. Si alguna persona te ha indicado que copiaras y pegaras algo aquí para habilitar una función de Facebook o para "hackear" la cuenta de alguien, se trata de un fraude. Si lo haces, esta persona podrá acceder a tu cuenta. font-family:helvetica; font-size:20px;  @ https://static.xx.fbcdn.net/rsrc.php/v4iZ3e4/ys/l/es_ES~es_LA-j/Whb-a8FOCw4.js:4
+[    5129ms] [LOG] 
+%cPara obtener más información, consulta https://www.facebook.com/selfxss. font-family:helvetica; font-size:20px;  @ https://static.xx.fbcdn.net/rsrc.php/v4iZ3e4/ys/l/es_ES~es_LA-j/Whb-a8FOCw4.js:4
+[    5129ms] [LOG] 
+%c  @ https://static.xx.fbcdn.net/rsrc.php/v4iZ3e4/ys/l/es_ES~es_LA-j/Whb-a8FOCw4.js:4
+[   51113ms] [ERROR] ErrorUtils caught an error:
+
+Expected GraphQL object type "AdCampaign", got "Adgroup when loading id 6966257948440"
+
+Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. {column: 17870, clientTime: 1776857510, extra: Object, guardList: Array(1), hash: rmdjlk} @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:78
+[   52416ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   52423ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   52431ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   52461ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   52477ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   52606ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   52620ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   52625ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   52679ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   52679ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   52680ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   52793ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   52795ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   52948ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   52948ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   53119ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   53136ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   53525ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[   53540ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209052ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209052ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209053ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209053ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209053ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209062ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209062ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209062ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209062ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209170ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209170ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209183ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209211ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209212ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277
+[  209269ms] [ERROR] Broken trigger flowlet chain! @ https://static.xx.fbcdn.net/rsrc.php/v4/yD/r/mHd4K9Ckr4g.js:277

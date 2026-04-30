@@ -1,0 +1,31 @@
+# CEP private course covers checklist
+
+- [x] adiestramiento-canino-i-priv
+- [x] adiestramiento-canino-ii-priv
+- [x] agente-funerario-tanatopraxia-y-tanatoestetica-priv
+- [x] auxiliar-clinico-veterinario-priv
+- [x] auxiliar-de-clinicas-esteticas-priv
+- [x] auxiliar-de-enfermeria-priv
+- [x] auxiliar-de-odontologia-e-higiene-priv
+- [x] auxiliar-de-odontologia-e-higiene-online-priv
+- [x] auxiliar-de-optica-priv
+- [x] auxiliar-de-optica-online-priv
+- [x] ayudante-tecnico-veterinario-atv-priv
+- [x] dermocosmetica-priv
+- [x] desarrollo-de-videojuegos-priv
+- [x] dietetica-y-nutricion-priv
+- [x] direccion-y-gestion-de-clinicas-dentales-priv
+- [x] entrenamiento-personal-priv
+- [x] especialista-en-cetaceos-y-animales-marinos-priv
+- [x] especializacion-clinica-avanzada-para-acv-priv
+- [x] farmacia-y-dermocosmetica-priv
+- [x] iluminacion-en-espectaculos-priv
+- [x] instructora-de-pilates-priv
+- [x] instructora-de-yoga-priv
+- [x] oratoria-publica-y-locucion-audiovisual-priv
+- [x] peluqueria-canina-y-felina-priv
+- [x] proteccion-bienestar-animal-y-marco-legal-priv
+- [x] proteccion-bienestar-animal-y-marco-legal-actual-priv
+- [x] quiromasaje-priv
+- [x] quiromasaje-11-meses-priv
+- [x] tecnico-veterinario-en-felinos-priv

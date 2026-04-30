@@ -1,0 +1,37 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - progressbar [ref=e6]
+    - main [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e17]:
+          - img [ref=e19]
+          - generic [ref=e24]: Iniciar sesión con Google
+        - generic [ref=e25]:
+          - 'heading "Acceso bloqueado: la solicitud de esta aplicación no es válida" [level=1] [ref=e26]'
+          - generic [ref=e33]: agency.solaria@gmail.com
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - text: No puedes iniciar sesión porque esta aplicación ha enviado una solicitud no válida. Puedes volver a intentarlo más tarde o ponerte en contacto con el desarrollador para solucionar este problema.
+          - link "Más información sobre este error" [ref=e43] [cursor=pointer]:
+            - /url: https://developers.google.com/identity/protocols/oauth2/web-server#authorization-errors-redirect-uri-mismatch
+        - generic [ref=e44]:
+          - text: Si eres desarrollador de esta app, consulta los
+          - button "detalles del error" [ref=e45] [cursor=pointer]
+          - text: .
+        - generic [ref=e46]: "Error 400: redirect_uri_mismatch"
+  - contentinfo [ref=e51]:
+    - combobox "Cómo cambiar de idioma Español (España)" [ref=e55] [cursor=pointer]:
+      - generic:
+        - generic: Español (España)
+      - generic:
+        - img
+    - list [ref=e57]:
+      - listitem [ref=e58]:
+        - link "Ayuda" [ref=e59] [cursor=pointer]:
+          - /url: https://support.google.com/accounts?hl=es&p=account_iph
+      - listitem [ref=e60]:
+        - link "Privacidad" [ref=e61] [cursor=pointer]:
+          - /url: https://accounts.google.com/TOS?loc=ES&hl=es&privacy=true
+      - listitem [ref=e62]:
+        - link "Términos" [ref=e63] [cursor=pointer]:
+          - /url: https://accounts.google.com/TOS?loc=ES&hl=es
