@@ -149,7 +149,7 @@ export const getPayloadConfig = () => buildConfig({
       // Enable statement caching for repeated queries
       statement_timeout: 30000,   // 30s max query time
     },
-    push: false, // DISABLED: Schema already created
+    push: process.env.PAYLOAD_DB_PUSH === 'true',
     migrationDir: path.resolve(__dirname, '../migrations'),
   }),
   plugins: [

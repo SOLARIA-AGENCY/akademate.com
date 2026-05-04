@@ -357,17 +357,6 @@ const PRIVATE_PROMPT_SEEDS: Array<[PromptSeed, string]> = [
   ],
   [
     {
-      courseId: 27,
-      slug: 'proteccion-bienestar-animal-y-marco-legal-actual-priv',
-      name: 'Proteccion, Bienestar animal y Marco Legal actual',
-      courseType: 'privado',
-      delivery: 'presencial',
-      domainStyle: 'legal',
-    },
-    'Curso de Proteccion, Bienestar animal y Marco Legal actual: escena contemporanea con dos profesionales trabajando sobre normativa animal, portatil, expedientes y entorno profesional neutro, enfoque actualizado y especializado.',
-  ],
-  [
-    {
       courseId: 185,
       slug: 'quiromasaje-priv',
       name: 'Quiromasaje',
@@ -423,4 +412,3 @@ export function getCourseImagePromptsByType(courseType: CourseAccent | 'teleform
 export function isHealthcareDomain(domainStyle: CourseDomainStyle): boolean {
   return domainStyle === 'healthcare'
 }
-

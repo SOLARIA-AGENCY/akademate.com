@@ -38,6 +38,8 @@ describe('cep-planning-v1 canonical seeds', () => {
     expect(canonicalTeacherName('Javier')).toBe('Javier Seoane Cruz');
     expect(canonicalTeacherName('Dra. Beatriz')).toBe('Dra. Beatriz Marín');
     expect(canonicalTeacherName('Sheila')).toBe('Sheila Méndez');
+    expect(canonicalTeacherName('Nerea')).toBe('Nerea Illescas');
+    expect(canonicalTeacherName('Nerea Illesca')).toBe('Nerea Illescas');
     expect(canonicalTeacherName('Johana')).toBe('Yohhana Benítez');
     expect(canonicalTeacherName('Daniel')).toBe('Daniel Kay');
     expect(canonicalTeacherName('Romina')).toBe('Romina — pendiente apellidos');

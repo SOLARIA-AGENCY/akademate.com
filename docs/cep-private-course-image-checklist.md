@@ -25,7 +25,6 @@
 - [x] oratoria-publica-y-locucion-audiovisual-priv
 - [x] peluqueria-canina-y-felina-priv
 - [x] proteccion-bienestar-animal-y-marco-legal-priv
-- [x] proteccion-bienestar-animal-y-marco-legal-actual-priv
 - [x] quiromasaje-priv
 - [x] quiromasaje-11-meses-priv
 - [x] tecnico-veterinario-en-felinos-priv
