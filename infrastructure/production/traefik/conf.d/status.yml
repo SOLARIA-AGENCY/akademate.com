@@ -8,7 +8,7 @@ http:
       middlewares:
         - kuma-headers
       tls:
-        certResolver: letsencrypt
+        certresolver: letsencrypt
 
     uptime-kuma-cep:
       rule: "Host(`status.cepformacion.akademate.com`)"
@@ -18,7 +18,7 @@ http:
       middlewares:
         - kuma-headers
       tls:
-        certResolver: letsencrypt
+        certresolver: letsencrypt
 
   middlewares:
     kuma-headers:
