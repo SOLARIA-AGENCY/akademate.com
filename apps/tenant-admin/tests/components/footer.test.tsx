@@ -63,7 +63,9 @@ describe('Dashboard Footer', () => {
       render(<DashboardFooter data-oid="gwjq2lf" />)
       const statusLink = screen.getByRole('link', { name: /estado del sistema/i })
       expect(statusLink).toBeInTheDocument()
-      expect(statusLink).toHaveAttribute('href', '/estado')
+      expect(statusLink).toHaveAttribute('href', 'https://status.cepformacion.akademate.com')
+      expect(statusLink).toHaveAttribute('target', '_blank')
+      expect(statusLink).toHaveAttribute('rel', 'noopener noreferrer')
     })
 
     it('includes Activity icon for system status', () => {

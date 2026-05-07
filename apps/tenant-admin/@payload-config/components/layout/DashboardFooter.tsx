@@ -60,7 +60,9 @@ export function DashboardFooter() {
               •
             </span>
             <Link
-              href="/estado"
+              href="https://status.cepformacion.akademate.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
               data-oid="86j8232"
             >
