@@ -5,10 +5,10 @@ import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
   ArrowLeft,
+  ChevronRight,
   Edit,
   Mail,
   Phone,
@@ -19,7 +19,8 @@ import {
   Loader2,
   Building2,
   GraduationCap,
-  Trash2,
+  BookOpen,
+  Plus,
 } from 'lucide-react'
 
 interface CourseRun {
@@ -30,8 +31,34 @@ interface CourseRun {
   endDate: string
   courseName: string
   courseSlug: string
+  courseImage?: string | null
   campusName: string
   campusCity: string
+}
+
+interface AssignableCourseRun {
+  id: number
+  codigo?: string
+  cursoNombre?: string
+  campusNombre?: string
+  aulaNombre?: string
+  fechaInicio?: string
+  fechaFin?: string
+  turno?: string
+  estado?: string
+  planningStatus?: string
+}
+
+interface ConvocatoriasApiResponse {
+  success?: boolean
+  data?: AssignableCourseRun[]
+}
+
+interface Certification {
+  id: string
+  title?: string | null
+  institution?: string | null
+  year?: number | null
 }
 
 interface StaffMember {
@@ -48,6 +75,7 @@ interface StaffMember {
   photoId?: number | null
   photo: string
   bio?: string
+  certifications?: Certification[]
   assignedCampuses: {
     id: number
     name: string
@@ -82,21 +110,48 @@ function TeacherPhotoFallback({ size = 'large' }: { size?: 'large' | 'small' }) 
   )
 }
 
+function CourseRunImage({ src, name }: { src?: string | null; name: string }) {
+  const [failed, setFailed] = useState(false)
+
+  if (!src || failed) {
+    return (
+      <div className="flex h-28 w-full items-center justify-center bg-muted text-muted-foreground sm:h-auto sm:w-40">
+        <BookOpen className="h-9 w-9" />
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      className="h-28 w-full object-cover sm:h-auto sm:w-40"
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
 export default function ProfesorDetailPage() {
   const router = useRouter()
   const params = useParams()
   const professorId = params.id as string
 
   const [professor, setProfessor] = useState<StaffMember | null>(null)
+  const [availableCourseRuns, setAvailableCourseRuns] = useState<AssignableCourseRun[]>([])
+  const [selectedCourseRunId, setSelectedCourseRunId] = useState('')
+  const [assigningCourseRun, setAssigningCourseRun] = useState(false)
+  const [assignError, setAssignError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [removingPhoto, setRemovingPhoto] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadProfessor() {
       try {
         setLoading(true)
-        const response = await fetch('/api/staff?type=profesor&limit=100')
+        const [response, courseRunsResponse] = await Promise.all([
+          fetch('/api/staff?type=profesor&limit=100'),
+          fetch('/api/convocatorias'),
+        ])
 
         if (!response.ok) {
           throw new Error('Failed to load professor data')
@@ -116,6 +171,17 @@ export default function ProfesorDetailPage() {
         }
 
         setProfessor(foundProfessor)
+        const assignedCourseRunIds = new Set(
+          (foundProfessor.courseRuns ?? []).map((courseRun: CourseRun) => String(courseRun.id)),
+        )
+        if (courseRunsResponse.ok) {
+          const courseRunsResult = (await courseRunsResponse.json()) as ConvocatoriasApiResponse
+          setAvailableCourseRuns(
+            (courseRunsResult.data ?? []).filter(
+              (courseRun) => !assignedCourseRunIds.has(String(courseRun.id)),
+            ),
+          )
+        }
         setError(null)
       } catch (err) {
         console.error('Error loading professor:', err)
@@ -180,57 +246,54 @@ export default function ProfesorDetailPage() {
     inactive: 'Inactivo',
   }
 
-  const handleRemovePhoto = async () => {
-    if (!professor || removingPhoto) return
+  async function handleAssignCourseRun() {
+    if (!selectedCourseRunId || !professor) return
 
-    setRemovingPhoto(true)
-    setError(null)
     try {
-      const response = await fetch(`/api/staff?id=${professorId}`, {
-        method: 'PUT',
+      setAssigningCourseRun(true)
+      setAssignError(null)
+      const response = await fetch('/api/convocatorias', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ photoId: null }),
+        body: JSON.stringify({
+          convocatoriaId: selectedCourseRunId,
+          profesorId: professor.id,
+        }),
       })
-      const result = await response.json().catch(() => ({}))
 
-      if (!response.ok || result?.success === false) {
-        throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo eliminar la foto')
+      const result = await response.json()
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'No se pudo asignar la convocatoria')
       }
 
-      setProfessor((current) =>
-        current ? { ...current, photoId: null, photo: '/placeholder-avatar.svg' } : current,
-      )
+      window.location.reload()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo eliminar la foto')
+      setAssignError(err instanceof Error ? err.message : 'Error al asignar convocatoria')
     } finally {
-      setRemovingPhoto(false)
+      setAssigningCourseRun(false)
     }
   }
 
-  const hasCustomPhoto = !isPlaceholderPhoto(professor.photo)
-
   return (
     <div className="space-y-6" data-oid=".5h6m09">
-      <PageHeader
-        title={professor.fullName}
-        description={professor.position}
-        icon={User}
-        actions={
-          <>
-            <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="q3z:.qx">
-              <ArrowLeft className="h-5 w-5" data-oid="1snqjt0" />
-            </Button>
-            <Button
-              onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}
-              data-oid="lojmz0i"
-            >
-              <Edit className="mr-2 h-4 w-4" data-oid="m-r0wcw" />
-              Editar Profesor
-            </Button>
-          </>
-        }
-        data-oid="i_9n5k8"
-      />
+      <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-end md:justify-between">
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
+          <button
+            type="button"
+            onClick={() => router.push('/dashboard/profesores')}
+            className="inline-flex items-center gap-1 hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Profesores
+          </button>
+          <ChevronRight className="h-4 w-4" />
+          <span>Ficha docente</span>
+        </nav>
+        <div className="text-left md:text-right">
+          <h1 className="text-3xl font-bold tracking-tight">{professor.fullName}</h1>
+          <p className="text-muted-foreground">{professor.position}</p>
+        </div>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-3" data-oid="gcoo2ph">
         {/* Left Column - Photo and Basic Info */}
@@ -253,34 +316,6 @@ export default function ProfesorDetailPage() {
               ) : (
                 <TeacherPhotoFallback />
               )}
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}
-                >
-                  <Edit className="mr-2 h-3.5 w-3.5" />
-                  Cambiar foto
-                </Button>
-                {hasCustomPhoto ? (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="text-destructive hover:text-destructive"
-                    disabled={removingPhoto}
-                    onClick={handleRemovePhoto}
-                  >
-                    {removingPhoto ? (
-                      <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Trash2 className="mr-2 h-3.5 w-3.5" />
-                    )}
-                    Eliminar foto
-                  </Button>
-                ) : null}
-              </div>
               <div className="mt-4 text-center" data-oid="xlofrur">
                 <h2 className="text-xl font-bold" data-oid="s.pjw6y">
                   {professor.fullName}
@@ -372,6 +407,30 @@ export default function ProfesorDetailPage() {
                 </div>
               </>
             )}
+
+            <Separator />
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold uppercase text-muted-foreground">
+                Titulaciones y certificaciones
+              </h3>
+              {professor.certifications && professor.certifications.length > 0 ? (
+                <div className="space-y-2">
+                  {professor.certifications.map((cert) => (
+                    <div key={cert.id} className="rounded-lg border bg-muted/20 p-3 text-sm">
+                      <p className="font-medium">{cert.title || 'Titulación sin nombre'}</p>
+                      {(cert.institution || cert.year) && (
+                        <p className="text-muted-foreground">
+                          {[cert.institution, cert.year].filter(Boolean).join(' · ')}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Sin titulaciones registradas</p>
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -433,7 +492,7 @@ export default function ProfesorDetailPage() {
 
           {/* Course Runs (Convocatorias) */}
           <Card data-oid="ftaknd_">
-            <CardHeader data-oid="o2xkexi">
+            <CardHeader className="flex flex-row items-center justify-between gap-4" data-oid="o2xkexi">
               <CardTitle className="flex items-center gap-2" data-oid="nvdpxly">
                 <Briefcase className="h-5 w-5" data-oid="8n83o8d" />
                 Convocatorias Asignadas
@@ -443,16 +502,50 @@ export default function ProfesorDetailPage() {
                   </Badge>
                 ) : null}
               </CardTitle>
+              <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+                <select
+                  aria-label="Seleccionar convocatoria existente"
+                  className="h-9 min-w-0 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-72"
+                  value={selectedCourseRunId}
+                  onChange={(event) => setSelectedCourseRunId(event.target.value)}
+                >
+                  <option value="">Seleccionar convocatoria</option>
+                  {availableCourseRuns.map((courseRun) => (
+                    <option key={courseRun.id} value={String(courseRun.id)}>
+                      {courseRun.codigo ? `${courseRun.codigo} · ` : ''}
+                      {courseRun.cursoNombre || `Convocatoria #${courseRun.id}`}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!selectedCourseRunId || assigningCourseRun}
+                  onClick={handleAssignCourseRun}
+                >
+                  {assigningCourseRun ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Plus className="mr-2 h-4 w-4" />
+                  )}
+                  Asignar
+                </Button>
+              </div>
             </CardHeader>
             <CardContent data-oid="7m5v27-">
+              {assignError ? (
+                <p className="mb-3 text-sm text-destructive">{assignError}</p>
+              ) : null}
               {professor.courseRuns && professor.courseRuns.length > 0 ? (
                 <div className="space-y-4" data-oid="i-2.5.3">
                   {professor.courseRuns.map((courseRun) => (
                     <div
                       key={courseRun.id}
-                      className="flex flex-col gap-3 p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
+                      className="flex flex-col overflow-hidden rounded-lg border bg-card hover:shadow-md transition-shadow sm:flex-row"
                       data-oid="m6.q:dp"
                     >
+                      <CourseRunImage src={courseRun.courseImage} name={courseRun.courseName} />
+                      <div className="flex flex-1 flex-col gap-3 p-4">
                       <div className="flex items-start justify-between" data-oid="81:0z2k">
                         <div className="flex-1" data-oid="pck94z.">
                           <div className="flex items-center gap-2 mb-1" data-oid="tbajzug">
@@ -507,6 +600,7 @@ export default function ProfesorDetailPage() {
                             {courseRun.campusName} - {courseRun.campusCity}
                           </span>
                         </div>
+                      </div>
                       </div>
                     </div>
                   ))}
@@ -569,7 +663,7 @@ export default function ProfesorDetailPage() {
           <Card data-oid="muug_5s">
             <CardHeader data-oid="blwr0zn">
               <CardTitle className="text-sm" data-oid="lgwcq9p">
-                Metadatos
+                Fechas de registro
               </CardTitle>
             </CardHeader>
             <CardContent data-oid="3iv8lc9">

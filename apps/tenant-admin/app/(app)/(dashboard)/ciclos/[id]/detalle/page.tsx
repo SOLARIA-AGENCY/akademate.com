@@ -7,11 +7,10 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
-  ArrowLeft, GraduationCap, Edit, Loader2, BookOpen, Clock, Layers,
+  ArrowLeft, GraduationCap, Edit, Loader2, BookOpen, Layers,
   Briefcase, Award, DollarSign, Heart, FileText, Star, ClipboardCheck,
-  ExternalLink, Download, Printer,
+  ExternalLink, Download, Printer, Phone, Mail, Globe2,
 } from 'lucide-react'
-import { useTenantBranding } from '@/app/providers/tenant-branding'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,6 +49,7 @@ interface CycleDetail {
   furtherStudies?: Array<{ title: string; description?: string }>
   documents?: Array<{ title: string; type?: string; file?: { url?: string; filename?: string } | number }>
   features?: Array<{ title: string; description?: string }>
+  slug?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ const ENROLLMENT_REQUIREMENTS = [
 ] as const
 
 function formatCurrency(v: number | undefined): string {
-  if (v == null) return '-'
+  if (v == null || v <= 0) return 'Consultar'
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(v)
 }
 
@@ -94,7 +94,7 @@ function resolveImageUrl(image: CycleDetail['image']): string | null {
   if (typeof image === 'string') return image
   if (typeof image === 'object') {
     if (image.url) return image.url
-    if (image.filename) return `/media/${image.filename}`
+    if (image.filename) return `/api/media/file/${image.filename}`
   }
   return null
 }
@@ -126,6 +126,11 @@ function prioritizeScholarships(
     return 0
   })
 }
+
+const PUBLIC_BASE_URL = 'https://cepformacion.akademate.com'
+const CONTACT_PHONE = '+34 922 533 533'
+const CONTACT_EMAIL = 'info@cepformacion.com'
+const CEP_LOGO_URL = '/logos/cep-formacion-logo.png'
 
 // ---------------------------------------------------------------------------
 // Section wrapper
@@ -179,7 +184,6 @@ interface Props { params: Promise<{ id: string }> }
 export default function CicloDetallePage({ params }: Props) {
   const router = useRouter()
   const { id } = React.use(params)
-  const { branding } = useTenantBranding()
 
   const [cycle, setCycle] = React.useState<CycleDetail | null>(null)
   const [loading, setLoading] = React.useState(true)
@@ -240,64 +244,89 @@ export default function CicloDetallePage({ params }: Props) {
   const schoolYearsLabel = formatSchoolYears(cycle.duration?.courses, cycle.duration?.modality)
 
   const totalModuleHours = modules.reduce((s, m) => s + (m.hours || 0), 0)
+  const publicCycleUrl = `${PUBLIC_BASE_URL}/p/ciclos/${cycle.slug ?? cycle.id}`
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(publicCycleUrl)}`
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full max-w-none">
       {/* Print styles */}
-      <style>{`
-        @media print {
-          nav, header, footer, aside, button, .no-print,
-          [data-slot="sidebar"], [role="banner"], [role="contentinfo"] { display: none !important; }
-          .print-header { display: flex !important; }
-          body { background: white !important; color: black !important; }
-          * { border-color: #e5e7eb !important; }
+      <style jsx global>{`
+        @page {
+          size: A4;
+          margin: 10mm;
         }
-        .print-header { display: none; }
-      `}</style>
 
-      {/* Print header — only visible when printing */}
-      <div className="print-header items-center gap-4 pb-4 mb-4 border-b-2 border-primary">
-        <img src={branding.logos.principal} alt={branding.academyName} className="h-12 w-12 object-contain" />
-        <div>
-          <p className="text-lg font-bold">{branding.academyName}</p>
-          <p className="text-sm text-muted-foreground">Ficha informativa de ciclo formativo</p>
-        </div>
-      </div>
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+
+          #cycle-print-sheet,
+          #cycle-print-sheet * {
+            visibility: visible;
+          }
+
+          #cycle-print-sheet {
+            display: block !important;
+            position: absolute;
+            inset: 0 auto auto 0;
+            width: 100%;
+            background: white;
+            color: #111827;
+          }
+
+          .cycle-screen-only {
+            display: none !important;
+          }
+
+          .cycle-print-page {
+            min-height: 277mm;
+            page-break-after: always;
+          }
+
+          .cycle-print-page:last-child {
+            page-break-after: auto;
+          }
+        }
+      `}</style>
 
       {/* ================================================================
           HEADER
       ================================================================ */}
-      <PageHeader
-        title={cycle.name}
-        description={cycle.code ? `Codigo: ${cycle.code}` : ''}
-        icon={GraduationCap}
-        badge={
-          <div className="flex items-center gap-2">
-            <Badge variant="default">{LEVEL_LABELS[cycle.level] ?? cycle.level}</Badge>
-            {cycle.active === false && <Badge variant="secondary">Inactivo</Badge>}
-          </div>
-        }
-        actions={<>
-          <Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />Volver
-          </Button>
-          <Button variant="outline" onClick={() => window.print()}>
-            <Printer className="mr-2 h-4 w-4" />Imprimir
-          </Button>
-          <Button onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
-            <Edit className="mr-2 h-4 w-4" />Editar Ciclo
-          </Button>
-        </>}
-      />
+      <div className="cycle-screen-only">
+        <PageHeader
+          title={cycle.name}
+          description={cycle.code ? `Codigo: ${cycle.code}` : ''}
+          icon={GraduationCap}
+          badge={
+            <div className="flex items-center gap-2">
+              <Badge variant="default">{LEVEL_LABELS[cycle.level] ?? cycle.level}</Badge>
+              {cycle.active === false && <Badge variant="secondary">Inactivo</Badge>}
+            </div>
+          }
+          actions={<>
+            <Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />Volver
+            </Button>
+            <Button variant="outline" onClick={() => window.print()}>
+              <Printer className="mr-2 h-4 w-4" />Imprimir ficha
+            </Button>
+            <Button onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
+              <Edit className="mr-2 h-4 w-4" />Editar Ciclo
+            </Button>
+          </>}
+        />
+      </div>
 
       {/* ================================================================
           IMAGE + DESCRIPTION
       ================================================================ */}
+      <div className="cycle-screen-only">
       {(imageUrl || cycle.description) && (
         <Card>
           <CardContent className="p-0 overflow-hidden">
             {imageUrl && (
-              <div className="w-full h-48 sm:h-64 bg-muted">
+              <div className="w-full h-56 sm:h-72 xl:h-80 bg-muted">
                 <img
                   src={imageUrl}
                   alt={cycle.name}
@@ -315,6 +344,7 @@ export default function CicloDetallePage({ params }: Props) {
           </CardContent>
         </Card>
       )}
+      </div>
 
       {/* ================================================================
           INFORMACION GENERAL
@@ -586,6 +616,197 @@ export default function CicloDetallePage({ params }: Props) {
           ))}
         </div>
       </Section>
+
+      <section id="cycle-print-sheet" className="hidden p-6 text-[12px]">
+        <div className="cycle-print-page">
+          <div className="flex items-center justify-between border-b-4 border-red-600 pb-4">
+            <img src={CEP_LOGO_URL} alt="CEP Formacion" className="h-14 w-auto object-contain" />
+            <div className="text-right">
+              <p className="text-xl font-bold uppercase tracking-wide">Ficha informativa de ciclo</p>
+              <p className="text-sm text-gray-600">{cycle.code ?? `Ciclo ${cycle.id}`}</p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-[1.45fr_0.95fr] gap-5">
+            <div>
+              <p className="text-xs font-semibold uppercase text-red-700">{LEVEL_LABELS[cycle.level] ?? cycle.level}</p>
+              <h1 className="mt-1 text-3xl font-bold leading-tight">{cycle.name}</h1>
+              {cycle.officialTitle && (
+                <p className="mt-2 text-sm font-semibold text-gray-700">{cycle.officialTitle}</p>
+              )}
+              <p className="mt-3 text-sm leading-relaxed text-gray-700">
+                {cycle.description || 'Informacion detallada pendiente de validacion por CEP Formacion.'}
+              </p>
+            </div>
+            {imageUrl ? (
+              <img src={imageUrl} alt={cycle.name} className="h-48 w-full rounded-lg object-cover" />
+            ) : (
+              <div className="flex h-48 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+                Imagen de portada pendiente
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 grid grid-cols-4 gap-3">
+            <div className="rounded-lg border p-3">
+              <p className="text-[10px] uppercase text-gray-500">Nivel</p>
+              <p className="mt-1 font-semibold">{LEVEL_LABELS[cycle.level] ?? cycle.level}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-[10px] uppercase text-gray-500">Duracion</p>
+              <p className="mt-1 font-semibold">{schoolYearsLabel ?? 'Por definir'}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-[10px] uppercase text-gray-500">Horas</p>
+              <p className="mt-1 font-semibold">{cycle.duration?.totalHours ? `${cycle.duration.totalHours} horas` : 'Por definir'}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-[10px] uppercase text-gray-500">Modalidad</p>
+              <p className="mt-1 font-semibold">
+                {cycle.duration?.modality ? (MODALITY_LABELS[cycle.duration.modality] ?? cycle.duration.modality) : 'Por definir'}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-[1fr_0.9fr] gap-5">
+            <div>
+              <h2 className="text-lg font-bold">Modulos profesionales</h2>
+              {modules.length === 0 ? (
+                <div className="mt-2 rounded-lg border p-4 text-gray-600">Modulos pendientes de validacion.</div>
+              ) : (
+                <div className="mt-2 overflow-hidden rounded-lg border">
+                  <table className="w-full border-collapse text-left">
+                    <thead className="bg-gray-100 text-[10px] uppercase text-gray-600">
+                      <tr>
+                        <th className="p-2">Modulo</th>
+                        <th className="p-2">Curso</th>
+                        <th className="p-2 text-right">Horas</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {modules.slice(0, 9).map((module, index) => (
+                        <tr key={`${module.name}-${index}`} className="border-t">
+                          <td className="p-2 font-semibold">{module.name}</td>
+                          <td className="p-2">{module.courseYear || '-'}</td>
+                          <td className="p-2 text-right">{module.hours || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h2 className="text-lg font-bold">Condiciones</h2>
+              <div className="mt-2 space-y-2">
+                <div className="rounded-lg border p-3">
+                  <p className="text-[10px] uppercase text-gray-500">Matricula</p>
+                  <p className="mt-1 font-semibold">{formatCurrency(cycle.pricing?.enrollmentFee)}</p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <p className="text-[10px] uppercase text-gray-500">Cuota mensual</p>
+                  <p className="mt-1 font-semibold">{formatCurrency(cycle.pricing?.monthlyFee)}</p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <p className="text-[10px] uppercase text-gray-500">Precio total</p>
+                  <p className="mt-1 font-semibold">{formatCurrency(cycle.pricing?.totalPrice)}</p>
+                </div>
+                {cycle.duration?.schedule && (
+                  <div className="rounded-lg border p-3">
+                    <p className="text-[10px] uppercase text-gray-500">Horario</p>
+                    <p className="mt-1 font-semibold">{cycle.duration.schedule}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="cycle-print-page pt-2">
+          <div className="flex items-center justify-between border-b-4 border-red-600 pb-4">
+            <img src={CEP_LOGO_URL} alt="CEP Formacion" className="h-12 w-auto object-contain" />
+            <div className="text-right">
+              <p className="text-lg font-bold uppercase tracking-wide">Informacion complementaria</p>
+              <p className="text-sm text-gray-600">{cycle.name}</p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-5">
+            <div>
+              <h2 className="text-lg font-bold">Requisitos de acceso</h2>
+              {requirements.length === 0 ? (
+                <div className="mt-2 rounded-lg border p-4 text-gray-600">Requisitos pendientes de validacion.</div>
+              ) : (
+                <ul className="mt-2 space-y-2">
+                  {requirements.slice(0, 8).map((requirement, index) => (
+                    <li key={`${requirement.text}-${index}`} className="rounded-lg border p-3">
+                      <p className="font-semibold">{formatAccessRequirementText(requirement.text, cycle.level)}</p>
+                      <p className="mt-1 text-[10px] uppercase text-gray-500">{requirement.type || 'obligatorio'}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div>
+              <h2 className="text-lg font-bold">Salidas profesionales</h2>
+              {careerPaths.length === 0 ? (
+                <div className="mt-2 rounded-lg border p-4 text-gray-600">Salidas profesionales pendientes de validacion.</div>
+              ) : (
+                <ul className="mt-2 grid gap-2">
+                  {careerPaths.slice(0, 10).map((path, index) => (
+                    <li key={`${path.title}-${index}`} className="rounded-lg border p-3">
+                      <p className="font-semibold">{path.title}</p>
+                      {path.sector && <p className="mt-1 text-gray-600">Sector: {path.sector}</p>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-5">
+            <div>
+              <h2 className="text-lg font-bold">Becas y continuidad</h2>
+              <div className="mt-2 rounded-lg border p-3">
+                {cycle.fundaeEligible && <p className="font-semibold text-emerald-700">Formacion bonificable FUNDAE</p>}
+                {prioritizedScholarships.length > 0 ? (
+                  <ul className="mt-2 space-y-1">
+                    {prioritizedScholarships.slice(0, 4).map((scholarship, index) => (
+                      <li key={`${scholarship.name}-${index}`}>- {scholarship.name}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-600">Consultar becas y ayudas disponibles.</p>
+                )}
+                {furtherStudies.length > 0 && (
+                  <p className="mt-3 text-gray-700">Continuidad: {furtherStudies.slice(0, 3).map((study) => study.title).join(', ')}</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-lg font-bold">Contacto</h2>
+              <div className="mt-2 rounded-lg border p-3">
+                <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-red-700" />{CONTACT_PHONE}</p>
+                <p className="mt-2 flex items-center gap-2"><Mail className="h-4 w-4 text-red-700" />{CONTACT_EMAIL}</p>
+                <p className="mt-2 flex items-center gap-2"><Globe2 className="h-4 w-4 text-red-700" />cepformacion.akademate.com</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-[1fr_auto] gap-5 border-t pt-4">
+            <p className="text-[10px] leading-relaxed text-gray-500">
+              Documento informativo. Las fechas, precios, plazas, requisitos y condiciones pueden estar sujetos a cambios hasta la formalizacion de la matricula. Consulte siempre la informacion actualizada con CEP Formacion.
+            </p>
+            <div className="text-center">
+              <img src={qrUrl} alt="QR web del ciclo" className="h-28 w-28" />
+              <p className="mt-1 text-[10px] text-gray-500">Ver ciclo en la web</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

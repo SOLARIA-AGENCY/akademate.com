@@ -99,6 +99,7 @@ interface CourseApiData {
   duracionReferencia: number
   precioReferencia: number
   imagenPortada: string
+  imagenPortadaTipo?: 'curso' | 'fallback'
 }
 
 export default function CourseEditPage({ params }: CourseEditPageProps) {
@@ -192,6 +193,8 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
 
   const typeConfig = getTypeConfig(tipo ?? 'privados')
   const fallbackImage = getPublicStudyTypeFallbackImage(tipo)
+  const coverImage = originalCourse.imagenPortada || fallbackImage
+  const isFallbackCover = originalCourse.imagenPortadaTipo === 'fallback'
 
   // Handlers
   const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -651,20 +654,24 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
                 Imagen de Portada
               </CardTitle>
               <CardDescription data-oid="p_s54dz">
-                Imagen fallback automática por tipo de curso
+                {isFallbackCover
+                  ? 'Imagen fallback automática por tipo de curso'
+                  : 'Imagen asignada al curso'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4" data-oid=":m4_25e">
               <div className="relative aspect-video overflow-hidden rounded-lg border" data-oid="n8ku8e0">
                 <img
-                  src={fallbackImage}
-                  alt="Imagen fallback por tipo"
+                  src={coverImage}
+                  alt={isFallbackCover ? 'Imagen fallback por tipo' : `Imagen de portada de ${nombre}`}
                   className="w-full h-full object-cover"
                   data-oid="stawn0n"
                 />
               </div>
               <div className="rounded-md border border-dashed p-3 text-xs text-muted-foreground" data-oid="je6.l2d">
-                La portada se asigna automáticamente según el tipo del curso.
+                {isFallbackCover
+                  ? 'La portada se asigna automáticamente según el tipo del curso.'
+                  : 'Esta es la portada real que se muestra en la web pública y convocatorias.'}
               </div>
             </CardContent>
           </Card>

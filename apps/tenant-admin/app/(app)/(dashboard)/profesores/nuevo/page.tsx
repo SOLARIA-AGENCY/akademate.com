@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, GraduationCap, Save, Loader2, MapPin, Upload, User } from 'lucide-react'
+import { ArrowLeft, GraduationCap, Save, Loader2, MapPin, Plus, Trash2, Upload, User } from 'lucide-react'
 
 interface Campus {
   id: number
@@ -65,6 +65,12 @@ interface StaffApiResponse {
   error?: string
 }
 
+interface Certification {
+  title: string
+  institution: string
+  year: number | ''
+}
+
 export default function NewProfesorPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -86,6 +92,7 @@ export default function NewProfesorPage() {
     bio: '',
     hireDate: new Date().toISOString().split('T')[0],
     assignedCampuses: [] as number[],
+    certifications: [] as Certification[],
   })
 
   useEffect(() => {
@@ -127,6 +134,13 @@ export default function NewProfesorPage() {
           employmentStatus: formData.employmentStatus,
           hireDate: formData.hireDate,
           bio: formData.bio,
+          certifications: formData.certifications
+            .filter((cert) => cert.title.trim())
+            .map((cert) => ({
+              title: cert.title.trim(),
+              institution: cert.institution.trim(),
+              year: cert.year ? Number(cert.year) : new Date().getFullYear(),
+            })),
           assignedCampuses: formData.assignedCampuses,
           photoId: photoId || undefined,
         }),
@@ -191,6 +205,35 @@ export default function NewProfesorPage() {
     } finally {
       setUploadingPhoto(false)
     }
+  }
+
+  const addCertification = () => {
+    setFormData((prev) => ({
+      ...prev,
+      certifications: [...prev.certifications, { title: '', institution: '', year: '' }],
+    }))
+  }
+
+  const updateCertification = (
+    index: number,
+    field: keyof Certification,
+    value: string,
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      certifications: prev.certifications.map((cert, certIndex) =>
+        certIndex === index
+          ? { ...cert, [field]: field === 'year' ? (value ? Number(value) : '') : value }
+          : cert,
+      ),
+    }))
+  }
+
+  const removeCertification = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      certifications: prev.certifications.filter((_, certIndex) => certIndex !== index),
+    }))
   }
 
   return (
@@ -485,6 +528,47 @@ export default function NewProfesorPage() {
                 placeholder="Experiencia profesional, formación académica, especialidades..."
                 data-oid="u0u6zn3"
               />
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <Label>Titulaciones y certificaciones</Label>
+                <Button type="button" size="sm" variant="outline" onClick={addCertification}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Añadir
+                </Button>
+              </div>
+              {formData.certifications.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Añade titulaciones para mostrarlas en la ficha pública del docente.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {formData.certifications.map((cert, index) => (
+                    <div key={index} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[1fr_1fr_120px_auto]">
+                      <Input
+                        value={cert.title}
+                        onChange={(event) => updateCertification(index, 'title', event.target.value)}
+                        placeholder="Título o certificación"
+                      />
+                      <Input
+                        value={cert.institution}
+                        onChange={(event) => updateCertification(index, 'institution', event.target.value)}
+                        placeholder="Institución"
+                      />
+                      <Input
+                        type="number"
+                        value={cert.year}
+                        onChange={(event) => updateCertification(index, 'year', event.target.value)}
+                        placeholder="Año"
+                      />
+                      <Button type="button" size="icon" variant="ghost" onClick={() => removeCertification(index)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}

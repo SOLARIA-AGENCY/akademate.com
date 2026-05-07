@@ -207,20 +207,24 @@ export default function CicloDetailPage({ params }: Props) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <PageHeader
-        title={cycle.name}
-        description={cycle.code ?? ''}
-        icon={GraduationCap}
-        badge={<Badge variant="default">{LEVEL_LABELS[cycle.level] ?? cycle.level}</Badge>}
-        actions={<>
-          <Button variant="ghost" onClick={() => router.push('/dashboard/ciclos')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />Ciclos
-          </Button>
-          <Button onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
-            <Edit className="mr-2 h-4 w-4" />Editar
-          </Button>
-        </>}
-      />
+      <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-end md:justify-between">
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
+          <button
+            type="button"
+            onClick={() => router.push('/dashboard/ciclos')}
+            className="inline-flex items-center gap-1 hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Ciclos
+          </button>
+          <ChevronRight className="h-4 w-4" />
+          <span>Ficha de ciclo</span>
+        </nav>
+        <div className="text-left md:text-right">
+          <h1 className="text-3xl font-bold tracking-tight">{cycle.name}</h1>
+          <p className="text-muted-foreground">{LEVEL_LABELS[cycle.level] ?? cycle.level}</p>
+        </div>
+      </div>
 
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
@@ -286,11 +290,11 @@ export default function CicloDetailPage({ params }: Props) {
                         className={`rounded-lg border border-l-4 ${statusColors[conv.status] || 'border-l-gray-300'} hover:shadow-md transition-all cursor-pointer overflow-hidden`}
                         onClick={() => router.push(`/programacion/${conv.id}`)}
                       >
-                        <div className="flex">
+                        <div className="flex items-stretch">
                           {/* Foto heredada del ciclo */}
                           {imageUrl && (
-                            <div className="hidden sm:block w-28 h-full shrink-0">
-                              <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+                            <div className="hidden w-44 shrink-0 bg-muted sm:block">
+                              <img src={imageUrl} alt="" className="h-full min-h-36 w-full object-cover" />
                             </div>
                           )}
                           <div className="flex-1 p-3">
@@ -321,7 +325,9 @@ export default function CicloDetailPage({ params }: Props) {
                             )}
                             {/* Marketing campaign badge */}
                             <div className="mt-2">
-                              <CampaignBadge status="none" />
+                              <CampaignBadge
+                                status={conv.campaign_code ? 'active' : 'none'}
+                              />
                             </div>
                           </div>
                         </div>
@@ -477,6 +483,15 @@ export default function CicloDetailPage({ params }: Props) {
             </CardContent>
           </Card>
         </div>
+      </div>
+      <div className="flex justify-end gap-4">
+        <Button variant="outline" onClick={() => router.push('/dashboard/ciclos')}>
+          Volver
+        </Button>
+        <Button onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
+          <Edit className="mr-2 h-4 w-4" />
+          Editar ciclo
+        </Button>
       </div>
     </div>
   )

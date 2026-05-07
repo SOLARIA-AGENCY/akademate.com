@@ -79,7 +79,21 @@ interface CycleApiResponse {
   docs?: CycleApiItem[]
 }
 
+interface CourseRunApiItem {
+  cycle?: { id?: string | number } | string | number | null
+  start_date?: string | null
+}
+
 const mockCiclosData: Ciclo[] = []
+
+function formatCycleStartDate(value?: string): string {
+  if (!value) return 'Sin fecha'
+  return new Date(value).toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
 
 export default function TodosLosCiclosPage() {
   const router = useRouter()
@@ -90,6 +104,7 @@ export default function TodosLosCiclosPage() {
   const [modalidadFilter, setModalidadFilter] = React.useState<string>('todas')
   const [ciclosData, setCiclosData] = React.useState<Ciclo[]>(mockCiclosData)
   const [convocatoriasCountMap, setConvocatoriasCountMap] = React.useState<Record<string, number>>({})
+  const [startDateMap, setStartDateMap] = React.useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = React.useState(true)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const [limitModal, setLimitModal] = React.useState<{ open: boolean; current: number; limit: number } | null>(null)
@@ -177,15 +192,21 @@ export default function TodosLosCiclosPage() {
           const crRes = await fetch('/api/course-runs?depth=0&limit=500', { cache: 'no-cache' })
           if (crRes.ok) {
             const crPayload = await crRes.json()
-            const crDocs: any[] = Array.isArray(crPayload.docs) ? crPayload.docs : []
+            const crDocs: CourseRunApiItem[] = Array.isArray(crPayload.docs) ? crPayload.docs : []
             const countMap: Record<string, number> = {}
+            const nextStartDateMap: Record<string, string> = {}
             for (const cr of crDocs) {
               const cycleId = typeof cr.cycle === 'object' && cr.cycle ? cr.cycle.id : cr.cycle
               if (cycleId) {
-                countMap[String(cycleId)] = (countMap[String(cycleId)] || 0) + 1
+                const key = String(cycleId)
+                countMap[key] = (countMap[key] || 0) + 1
+                if (cr.start_date && (!nextStartDateMap[key] || new Date(cr.start_date) < new Date(nextStartDateMap[key]))) {
+                  nextStartDateMap[key] = cr.start_date
+                }
               }
             }
             setConvocatoriasCountMap(countMap)
+            setStartDateMap(nextStartDateMap)
           }
         } catch { /* convocatorias count is optional */ }
       } catch (error) {
@@ -392,14 +413,6 @@ export default function TodosLosCiclosPage() {
 
                 <div className="space-y-4 p-5" data-oid="h8hjlvu">
                   <div data-oid="_y4z4k5">
-                    <div className="flex items-center gap-2 mb-2" data-oid="gnpou1n">
-                      <Badge variant="outline" className="text-xs" data-oid="7g8h7r4">
-                        {ciclo.codigo}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs" data-oid="o6vh94q">
-                        {ciclo.familia}
-                      </Badge>
-                    </div>
                     <h3 className="line-clamp-2 text-base font-semibold" data-oid="5d1ydem">
                       {ciclo.nombre}
                     </h3>
@@ -415,7 +428,7 @@ export default function TodosLosCiclosPage() {
                     <div className="flex items-center gap-2" data-oid="d.zcful">
                       <Calendar className="h-4 w-4 text-muted-foreground" data-oid="emzpq8s" />
                       <span className="text-muted-foreground" data-oid="ezbruhl">
-                        {ciclo.modalidad}
+                        {formatCycleStartDate(startDateMap[ciclo.id])}
                       </span>
                     </div>
                     <div className="flex items-center gap-2" data-oid="sbi.hss">

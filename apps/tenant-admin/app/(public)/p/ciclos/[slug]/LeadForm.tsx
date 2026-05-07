@@ -16,7 +16,6 @@ export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFor
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [showFull, setShowFull] = useState(requiresQualifiedData)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -76,6 +75,14 @@ export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFor
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <input
+        type="text"
+        required={requiresQualifiedData}
+        placeholder={requiresQualifiedData ? 'Nombre y apellidos *' : 'Nombre y apellidos'}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
+      />
+      <input
         type="email"
         required
         placeholder="Tu email"
@@ -83,40 +90,21 @@ export function LeadForm({ cycleId, cycleName, hasActiveConvocatorias }: LeadFor
         onChange={(e) => setEmail(e.target.value)}
         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
       />
-
-      {!showFull && (
-        <button type="button" onClick={() => setShowFull(true)} className="text-xs brand-text hover:underline">
-          + Agregar nombre y telefono
-        </button>
-      )}
-
-      {showFull && (
-        <>
-          <input
-            type="text"
-            required={requiresQualifiedData}
-            placeholder={requiresQualifiedData ? 'Tu nombre *' : 'Tu nombre (opcional)'}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
-          />
-          <input
-            type="tel"
-            required={requiresQualifiedData}
-            placeholder={requiresQualifiedData ? 'Tu telefono *' : 'Tu telefono (opcional)'}
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
-          />
-        </>
-      )}
+      <input
+        type="tel"
+        required={requiresQualifiedData}
+        placeholder={requiresQualifiedData ? 'Teléfono *' : 'Teléfono'}
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent"
+      />
 
       {error && <p className="text-xs text-red-600">{error}</p>}
 
       <button
         type="submit"
-        disabled={submitting || !email || (requiresQualifiedData && (!name.trim() || !phone.trim()))}
-        className="w-full px-4 py-2.5 brand-bg text-white rounded-lg text-sm font-medium hover:brand-bg disabled:opacity-50 transition-colors"
+        disabled={submitting}
+        className="w-full px-4 py-2.5 brand-bg text-white rounded-lg text-sm font-medium hover:brand-bg disabled:opacity-70 transition-colors"
       >
         {submitting ? 'Enviando...' : hasActiveConvocatorias ? 'Solicitar informacion' : 'Avisame de proximas convocatorias'}
       </button>

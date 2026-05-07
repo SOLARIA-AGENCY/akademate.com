@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from '@payload-config/components/ui/card'
 import { Input } from '@payload-config/components/ui/input'
 import { Button } from '@payload-config/components/ui/button'
@@ -20,8 +20,6 @@ import {
   Calendar,
   MapPin,
   User,
-  BookOpen,
-  GraduationCap,
   Plus,
   ArrowLeft,
   Loader2,
@@ -47,8 +45,11 @@ interface Course {
 
 interface StaffMember {
   id: string
-  first_name: string
-  last_name: string
+  first_name?: string
+  last_name?: string
+  firstName?: string
+  lastName?: string
+  fullName?: string
   email?: string
 }
 
@@ -327,6 +328,8 @@ function InlineProfesorForm({
 
 export default function NuevaConvocatoriaPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const preselectedProfessorId = searchParams.get('profesor')
 
   // Data from API
   const [cycles, setCycles] = useState<Cycle[]>([])
@@ -383,7 +386,7 @@ export default function NuevaConvocatoriaPage() {
 
         setCycles(cyclesRes.docs ?? [])
         setCourses(coursesRes.docs ?? [])
-        setStaff(staffRes.docs ?? [])
+        setStaff(staffRes.docs ?? staffRes.data ?? [])
         setCampuses(campusesRes.docs ?? [])
       } catch (err) {
         console.error('Error fetching data:', err)
@@ -396,6 +399,11 @@ export default function NuevaConvocatoriaPage() {
     fetchData()
   }, [])
 
+  useEffect(() => {
+    if (!preselectedProfessorId) return
+    setForm((prev) => (prev.instructor ? prev : { ...prev, instructor: preselectedProfessorId }))
+  }, [preselectedProfessorId])
+
   // -------------------------------------------------------------------------
   // Helpers
   // -------------------------------------------------------------------------
@@ -405,7 +413,10 @@ export default function NuevaConvocatoriaPage() {
   }
 
   const staffDisplayName = (s: StaffMember) =>
-    [s.first_name, s.last_name].filter(Boolean).join(' ') || s.email || s.id
+    s.fullName ||
+    [s.first_name ?? s.firstName, s.last_name ?? s.lastName].filter(Boolean).join(' ') ||
+    s.email ||
+    s.id
 
   // Inline creation callbacks
   const handleSedeCreated = useCallback((newCampus: Campus) => {

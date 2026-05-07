@@ -6,7 +6,7 @@ import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@payload-config/components/ui/tabs'
+import { Tabs, TabsContent } from '@payload-config/components/ui/tabs'
 import {
   Table,
   TableBody,
@@ -90,18 +90,42 @@ const isTeachingStaff = (staffType: StaffMember['staffType']) =>
   staffType === 'profesor' || staffType === 'academico'
 
 function StaffFallbackIcon({ staffType }: { staffType: StaffMember['staffType'] }) {
-  const teaching = isTeachingStaff(staffType)
   return (
     <div
-      aria-label={teaching ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
-      className="relative flex h-full w-full items-center justify-center bg-primary/10 text-primary"
+      aria-label={isTeachingStaff(staffType) ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
+      className="flex h-full w-full items-center justify-center bg-primary/10 text-primary"
     >
       <User className="h-5 w-5" aria-hidden="true" />
-      {teaching ? (
-        <GraduationCap className="absolute right-0 top-0 h-3.5 w-3.5 rounded-full bg-background" aria-hidden="true" />
-      ) : (
-        <Briefcase className="absolute right-0 top-0 h-3.5 w-3.5 rounded-full bg-background" aria-hidden="true" />
-      )}
+    </div>
+  )
+}
+
+function StaffTypeBadge({ staffType }: { staffType: StaffMember['staffType'] }) {
+  const teaching = isTeachingStaff(staffType)
+  const Icon = teaching ? GraduationCap : Briefcase
+  return (
+    <span className="absolute -right-1 -top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
+      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+    </span>
+  )
+}
+
+function StaffTableAvatar({ member }: { member: StaffMember }) {
+  return (
+    <div className="relative h-10 w-10 overflow-visible">
+      <Avatar className="h-10 w-10">
+        {!isPlaceholderPhoto(member.photo) ? (
+          <AvatarImage
+            src={member.photo}
+            alt={member.fullName}
+            data-oid="u8y4jco"
+          />
+        ) : null}
+        <AvatarFallback data-oid="98svq64">
+          <StaffFallbackIcon staffType={member.staffType} />
+        </AvatarFallback>
+      </Avatar>
+      <StaffTypeBadge staffType={member.staffType} />
     </div>
   )
 }
@@ -200,7 +224,6 @@ function PersonalPageContent() {
       <Tabs value={activeTab} onValueChange={setActiveTab} data-oid="54ch-hn">
         <PageHeader
           title="Personal"
-          description="Gestión de profesorado y equipo administrativo."
           icon={Users}
           badge={
             <Badge variant="secondary" data-oid="qavqrr-">
@@ -240,17 +263,6 @@ function PersonalPageContent() {
                   />
                 </div>
               )}
-              <TabsList data-oid="gm79umr">
-                <TabsTrigger value="profesores" data-oid="vjkz_n2">
-                  <Users className="mr-2 h-4 w-4" data-oid="vn:4jyh" />
-                  Profesores
-                </TabsTrigger>
-                <TabsTrigger value="administrativos" data-oid=":z:8bq3">
-                  <Briefcase className="mr-2 h-4 w-4" data-oid="5wxsguk" />
-                  Administrativos
-                </TabsTrigger>
-              </TabsList>
-
               {staff.length > 0 && (
                 <ToggleGroup
                   type="single"
@@ -318,6 +330,7 @@ function PersonalPageContent() {
                       onView={handleViewDetail}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
+                      detailLabel="Ver ficha docente"
                       data-oid="sa54-rh"
                     />
                   ))}
@@ -344,18 +357,7 @@ function PersonalPageContent() {
                         data-oid="rj0.rty"
                       >
                         <TableCell data-oid="q68ixpu">
-                          <Avatar className="h-10 w-10" data-oid="s2q1s34">
-                            {!isPlaceholderPhoto(member.photo) ? (
-                              <AvatarImage
-                                src={member.photo}
-                                alt={member.fullName}
-                                data-oid="u8y4jco"
-                              />
-                            ) : null}
-                            <AvatarFallback data-oid="98svq64">
-                              <StaffFallbackIcon staffType={member.staffType} />
-                            </AvatarFallback>
-                          </Avatar>
+                          <StaffTableAvatar member={member} />
                         </TableCell>
                         <TableCell data-oid="ex45.m4">
                           <div data-oid="lpz.7.e">
@@ -492,6 +494,7 @@ function PersonalPageContent() {
                       onView={handleViewDetail}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
+                      detailLabel="Ver ficha administrativo"
                       data-oid="11523jp"
                     />
                   ))}
@@ -518,18 +521,7 @@ function PersonalPageContent() {
                         data-oid=":jxu3pk"
                       >
                         <TableCell data-oid="68u9li3">
-                          <Avatar className="h-10 w-10" data-oid="dy9umrj">
-                            {!isPlaceholderPhoto(member.photo) ? (
-                              <AvatarImage
-                                src={member.photo}
-                                alt={member.fullName}
-                                data-oid="i.h5jmh"
-                              />
-                            ) : null}
-                            <AvatarFallback data-oid=":jj-ga5">
-                              <StaffFallbackIcon staffType={member.staffType} />
-                            </AvatarFallback>
-                          </Avatar>
+                          <StaffTableAvatar member={member} />
                         </TableCell>
                         <TableCell data-oid="93_frps">
                           <div data-oid="oto6mnv">

@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Edit, Loader2, GraduationCap, MapPin } from 'lucide-react'
+import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Loader2, GraduationCap, MapPin } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
@@ -179,17 +179,6 @@ export default function ProfesoresPage() {
     return matchesSearch && matchesDepartment && matchesStatus
   })
 
-  // Stats
-  const stats = {
-    total: teachersExpanded.length,
-    active: teachersExpanded.filter((t) => t.active).length,
-    inactive: teachersExpanded.filter((t) => !t.active).length,
-    totalCourseRuns: teachersExpanded.reduce((sum, t) => sum + t.courseRunsCount, 0),
-    avgCourseRunsPerTeacher: (
-      teachersExpanded.reduce((sum, t) => sum + t.courseRunsCount, 0) / teachersExpanded.length
-    ).toFixed(1),
-  }
-
   // Show loading state
   if (loading) {
     return (
@@ -229,7 +218,6 @@ export default function ProfesoresPage() {
     <div className="space-y-6" data-oid="e2l0769">
       <PageHeader
         title="Profesores"
-        description="Gestión compacta de profesorado y carga docente."
         icon={User}
         badge={
           <Badge variant="secondary" data-oid="rkjy8pp">
@@ -241,25 +229,6 @@ export default function ProfesoresPage() {
             <Plus className="h-4 w-4" data-oid="f-mq7s4" />
             Nuevo Profesor
           </Button>
-        }
-        filters={
-          <div className="flex w-full flex-wrap items-center gap-2 text-sm" data-oid="ea1g:_:">
-            <Badge variant="outline" data-oid="chb7i7f">
-              {stats.total} profesores
-            </Badge>
-            <Badge variant="outline" data-oid="uxtod72">
-              {stats.active} activos
-            </Badge>
-            <Badge variant="outline" data-oid="bri44fx">
-              {stats.inactive} inactivos
-            </Badge>
-            <Badge variant="outline" data-oid="307lf5s">
-              {stats.totalCourseRuns} convocatorias
-            </Badge>
-            <Badge variant="outline" data-oid="hmh2ihq">
-              {stats.avgCourseRunsPerTeacher} promedio
-            </Badge>
-          </div>
         }
         data-oid="i_jz_am"
       />
@@ -406,7 +375,7 @@ export default function ProfesoresPage() {
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-3 border-t" data-oid="c.v05ji">
+                <div className="pt-3 border-t" data-oid="c.v05ji">
                   <Button
                     variant="outline"
                     size="sm"
@@ -418,20 +387,7 @@ export default function ProfesoresPage() {
                     data-oid="..tsp8r"
                   >
                     <Eye className="mr-2 h-4 w-4" data-oid="2z3k-sj" />
-                    Ver Detalles
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="w-full"
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      router.push(`/dashboard/profesores/${teacher.id}/editar`)
-                    }}
-                    data-oid="xbr3ff8"
-                  >
-                    <Edit className="mr-2 h-4 w-4" data-oid="wb23uwy" />
-                    Editar
+                    Ver ficha docente
                   </Button>
                 </div>
               </CardContent>

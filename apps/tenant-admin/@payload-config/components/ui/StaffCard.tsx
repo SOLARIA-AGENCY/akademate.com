@@ -29,6 +29,7 @@ interface StaffCardProps {
   onView: (id: number) => void
   onEdit: (id: number) => void
   onDelete: (id: number, name: string) => void
+  detailLabel?: string
 }
 
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
@@ -105,6 +106,7 @@ export function StaffCard({
   onView,
   onEdit,
   onDelete,
+  detailLabel = 'Ver Ficha Completa',
 }: StaffCardProps) {
   return (
     <Card
@@ -243,7 +245,7 @@ export function StaffCard({
           data-oid="hs3__v2"
         >
           <Eye className="mr-2 h-4 w-4" data-oid="qq_tri7" />
-          Ver Ficha Completa
+          {detailLabel}
         </Button>
       </CardFooter>
     </Card>

@@ -19,6 +19,19 @@ function resolveImageUrl(image: any): string | null {
   return null
 }
 
+function resolveInstructorName(instructor: any): string {
+  if (!instructor || typeof instructor !== 'object') return ''
+  const fullName = typeof instructor.full_name === 'string' ? instructor.full_name.trim() : ''
+  if (fullName) return fullName
+  return [instructor.first_name, instructor.last_name].filter(Boolean).join(' ').trim()
+}
+
+function resolvePrimaryInstructor(conv: any): any {
+  if (typeof conv.instructor === 'object' && conv.instructor !== null) return conv.instructor
+  const instructors = Array.isArray(conv.instructors) ? conv.instructors : []
+  return instructors.find((item: unknown) => typeof item === 'object' && item !== null) ?? null
+}
+
 function formatMonth(date: string): string {
   const d = new Date(date)
   const month = d.toLocaleDateString('es-ES', { month: 'long' })
@@ -192,6 +205,12 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   const course = typeof conv.course === 'object' ? conv.course : null
   const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
   const campus = typeof conv.campus === 'object' ? conv.campus : null
+  const instructor = resolvePrimaryInstructor(conv)
+  const instructorName = resolveInstructorName(instructor)
+  const instructorPhoto = resolveImageUrl(instructor?.photo)
+  const instructorCertifications = Array.isArray(instructor?.certifications)
+    ? instructor.certifications.filter((cert: any) => typeof cert?.title === 'string' && cert.title.trim())
+    : []
 
   // Image: cycle first, then course
   const cycleImage = cycle ? resolveImageUrl(cycle.image) : null
@@ -467,6 +486,40 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                     </li>
                   )}
                 </ul>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {instructorName && (
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">Docente asignado</h2>
+            <div className="flex flex-col gap-5 rounded-xl border border-gray-200 bg-white p-5 sm:flex-row sm:items-center">
+              {instructorPhoto ? (
+                <img
+                  src={instructorPhoto}
+                  alt={instructorName}
+                  className="h-24 w-24 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-red-50 text-red-600">
+                  <IconAcademicCap />
+                </div>
+              )}
+              <div>
+                <p className="text-sm font-medium uppercase tracking-wide text-gray-500">Docente</p>
+                <h3 className="text-lg font-bold text-gray-900">{instructorName}</h3>
+                {instructorCertifications.length > 0 && (
+                  <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                    {instructorCertifications.slice(0, 3).map((cert: any, index: number) => (
+                      <li key={`${cert.title}-${index}`}>
+                        {cert.title}
+                        {cert.institution ? ` · ${cert.institution}` : ''}
+                        {cert.year ? ` · ${cert.year}` : ''}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           </section>

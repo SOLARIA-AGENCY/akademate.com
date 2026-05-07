@@ -59,6 +59,7 @@ export type PublishedCourse = {
   studyTypeLabel: string
   studyTypeColor: string
   descripcion: string
+  descripcionDetallada: string[]
   area: string
   duracionReferencia: number
   precioReferencia: number
@@ -103,6 +104,54 @@ function resolveMediaImageUrl(image: CourseDoc['featured_image'] | CourseDoc['im
   if (image.url) return image.url
   if (image.filename) return `/media/${image.filename}`
   return null
+}
+
+function extractTextFromRichText(value: unknown): string[] {
+  const lines: string[] = []
+
+  function visit(node: unknown) {
+    if (!node) return
+    if (typeof node === 'string') {
+      const text = node.trim()
+      if (text) lines.push(text)
+      return
+    }
+    if (Array.isArray(node)) {
+      for (const child of node) visit(child)
+      return
+    }
+    if (typeof node !== 'object') return
+
+    const record = node as Record<string, unknown>
+    if (typeof record.text === 'string') {
+      const text = record.text.trim()
+      if (text) lines.push(text)
+    }
+
+    if (Array.isArray(record.children)) {
+      const textChildren = record.children
+        .map((child) => {
+          if (child && typeof child === 'object' && typeof (child as { text?: unknown }).text === 'string') {
+            return String((child as { text: string }).text)
+          }
+          return ''
+        })
+        .join('')
+        .trim()
+
+      if (textChildren) {
+        lines.push(textChildren)
+        return
+      }
+
+      visit(record.children)
+    }
+
+    if (record.root) visit(record.root)
+  }
+
+  visit(value)
+  return Array.from(new Set(lines.map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean)))
 }
 
 function buildPublicFilters({
@@ -183,6 +232,7 @@ function mapCourseDocToPublishedCourse(
     descripcion:
       String(course.short_description || course.description || '').trim() ||
       'Curso de formación profesional',
+    descripcionDetallada: extractTextFromRichText(course.long_description),
     area: toAreaName(course.area_formativa),
     duracionReferencia: Number(course.duration_hours || 0),
     precioReferencia: Number(course.base_price || 0),

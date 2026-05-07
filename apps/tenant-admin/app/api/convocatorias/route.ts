@@ -113,6 +113,13 @@ interface CourseRunCreateData {
 
 interface LoosePayloadClient {
   create: (args: { collection: string; data: Record<string, unknown> }) => Promise<{ id: string | number }>;
+  findByID: (args: { collection: string; id: string | number; depth?: number }) => Promise<Record<string, unknown>>;
+  update: (args: {
+    collection: string;
+    id: string | number;
+    data: Record<string, unknown>;
+    overrideAccess?: boolean;
+  }) => Promise<Record<string, unknown>>;
 }
 
 // ============================================================================
@@ -310,6 +317,76 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * PATCH /api/convocatorias
+ *
+ * Asigna una convocatoria existente a un profesor.
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = (await request.json()) as {
+      convocatoriaId?: string | number
+      profesorId?: string | number
+    }
+
+    const convocatoriaId = body.convocatoriaId
+    const profesorId = body.profesorId
+
+    if (!convocatoriaId || !profesorId) {
+      return NextResponse.json(
+        { success: false, error: 'convocatoriaId y profesorId son obligatorios' },
+        { status: 400 },
+      )
+    }
+
+    const payload = await getPayloadHMR({ config: configPromise })
+    const payloadLoose = payload as unknown as LoosePayloadClient
+
+    const current = await payloadLoose.findByID({
+      collection: 'course-runs',
+      id: convocatoriaId,
+      depth: 0,
+    })
+
+    const existingInstructors = Array.isArray(current.instructors)
+      ? current.instructors
+          .map((value) => {
+            if (typeof value === 'string' || typeof value === 'number') return String(value)
+            if (typeof value === 'object' && value !== null && 'id' in value) {
+              return String((value as { id: string | number }).id)
+            }
+            return null
+          })
+          .filter((value): value is string => Boolean(value))
+      : []
+
+    const professorIdString = String(profesorId)
+    const instructorIds = Array.from(new Set([professorIdString, ...existingInstructors]))
+
+    const updated = await payloadLoose.update({
+      collection: 'course-runs',
+      id: convocatoriaId,
+      overrideAccess: true,
+      data: {
+        instructor: Number.isNaN(Number(profesorId)) ? profesorId : Number(profesorId),
+        instructors: instructorIds.map((id) => (Number.isNaN(Number(id)) ? id : Number(id))),
+      },
+    })
+
+    return NextResponse.json({
+      success: true,
+      data: { id: updated.id },
+      message: 'Convocatoria asignada correctamente',
+    })
+  } catch (error: unknown) {
+    console.error('Error assigning convocation instructor:', error)
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'Error al asignar convocatoria' },
+      { status: 500 },
+    )
   }
 }
 

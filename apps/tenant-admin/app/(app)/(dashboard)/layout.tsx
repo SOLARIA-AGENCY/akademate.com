@@ -9,7 +9,6 @@ import { Menu, Search } from 'lucide-react'
 import { NotificationBell } from '@payload-config/components/ui/NotificationBell'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
-import { Badge } from '@payload-config/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,7 +61,7 @@ const shortcuts: ShortcutItem[] = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
-  const { branding } = useTenantBranding()
+  useTenantBranding()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -286,13 +285,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     >
                       {currentUser.name}
                     </span>
-                    <Badge
-                      variant="secondary"
-                      className="hidden xl:inline-flex text-[10px]"
-                      data-oid="bprzsty"
-                    >
-                      Admin
-                    </Badge>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56" data-oid="7_b7obl">

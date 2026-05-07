@@ -23,7 +23,6 @@ import {
   Wrench,
   StickyNote,
   UserCheck,
-  Image as ImageIcon,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -44,11 +43,24 @@ interface StaffMember {
 }
 
 interface Classroom {
+  id?: number
+  code?: string
   name: string
+  nombre?: string
   capacity?: number
+  capacidad?: number
   floor?: string
+  planta?: string | number | null
   equipment?: string[]
+  recursos?: string[]
   active?: boolean
+  activa?: boolean
+}
+
+interface ClassroomsApiResponse {
+  success?: boolean
+  data?: Classroom[]
+  docs?: Classroom[]
 }
 
 interface CampusFull {
@@ -170,16 +182,24 @@ export default function DetalleSedePageWrapper(props: DetalleSedePageProps) {
 function DetalleSedePage({ id }: { id: string }) {
   const router = useRouter()
   const [sede, setSede] = React.useState<CampusFull | null>(null)
+  const [classroomsFromApi, setClassroomsFromApi] = React.useState<Classroom[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/api/campuses/${id}?depth=1`, { cache: 'no-cache' })
+        const [res, classroomsRes] = await Promise.all([
+          fetch(`/api/campuses/${id}?depth=1`, { cache: 'no-cache' }),
+          fetch(`/api/aulas?campus_id=${id}&active=true`, { cache: 'no-cache' }),
+        ])
         if (!res.ok) throw new Error('No se pudo cargar la sede')
         const data = await res.json()
         setSede(data)
+        if (classroomsRes.ok) {
+          const classroomsData = (await classroomsRes.json()) as ClassroomsApiResponse
+          setClassroomsFromApi(classroomsData.data ?? classroomsData.docs ?? [])
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error desconocido')
       } finally {
@@ -215,7 +235,7 @@ function DetalleSedePage({ id }: { id: string }) {
   const imageUrl =
     sede.image && typeof sede.image === 'object' && sede.image.url ? sede.image.url : null
 
-  const classrooms = sede.classrooms ?? []
+  const classrooms = classroomsFromApi.length > 0 ? classroomsFromApi : (sede.classrooms ?? [])
   const services = sede.services ?? []
   const staffMembers = (sede.staff_members ?? []).filter(isStaffObject)
   const profesores = staffMembers.filter((s) => s.staff_type === 'profesor')
@@ -332,32 +352,43 @@ function DetalleSedePage({ id }: { id: string }) {
           <EmptyNote text="No hay aulas registradas." />
         ) : (
           <div className="space-y-3">
-            {classrooms.map((c, i) => (
+            {classrooms.map((c, i) => {
+              const classroomName = c.nombre || c.name || `Aula ${i + 1}`
+              const capacity = c.capacidad ?? c.capacity
+              const floor = c.planta ?? c.floor
+              const equipment = c.recursos ?? c.equipment ?? []
+
+              return (
               <div
-                key={i}
-                className="rounded-md border p-3 flex flex-col gap-1.5"
+                key={c.id ?? classroomName}
+                className="rounded-md border p-3 flex gap-3"
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">{c.name}</span>
-                  <Badge variant={c.active !== false ? 'default' : 'secondary'} className="text-xs">
-                    {c.active !== false ? 'Activa' : 'Inactiva'}
-                  </Badge>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <DoorOpen className="h-5 w-5" />
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                  {c.capacity != null && <span>Capacidad: {c.capacity}</span>}
-                  {c.floor && <span>Planta: {c.floor}</span>}
-                </div>
-                {c.equipment && c.equipment.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {c.equipment.map((eq) => (
-                      <Badge key={eq} variant="outline" className="text-xs">
-                        {EQUIPMENT_LABELS[eq] ?? eq}
-                      </Badge>
-                    ))}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-medium text-sm">{classroomName}</span>
+                    <Badge variant={(c.active !== false && c.activa !== false) ? 'default' : 'secondary'} className="text-xs">
+                      {(c.active !== false && c.activa !== false) ? 'Activa' : 'Inactiva'}
+                    </Badge>
                   </div>
-                )}
+                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    {capacity != null && <span>Capacidad: {capacity} plazas</span>}
+                    {floor && <span>Planta: {floor}</span>}
+                  </div>
+                  {equipment.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {equipment.map((eq) => (
+                        <Badge key={eq} variant="outline" className="text-xs">
+                          {EQUIPMENT_LABELS[eq] ?? eq}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </SectionCard>

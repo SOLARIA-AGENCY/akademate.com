@@ -12,8 +12,6 @@ const LEGACY_SESSION_COOKIE = 'cep_session'
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024
 const MAX_OPTIMIZED_DIMENSION = 1200
 const WEBP_QUALITY = 82
-const ALLOWED_ROLES = new Set(['superadmin', 'admin', 'gestor', 'marketing', 'asesor', 'lectura'])
-
 interface SessionUser {
   id: string | number
   email?: string
@@ -108,7 +106,7 @@ async function getSessionUser(): Promise<SessionUser | null> {
 export async function POST(request: Request) {
   try {
     const user = await getSessionUser()
-    if (!user?.id || !user.role || !ALLOWED_ROLES.has(user.role)) {
+    if (!user?.id) {
       return NextResponse.json(
         { success: false, error: 'No autorizado para subir fotografías' },
         { status: 401 },
@@ -164,10 +162,11 @@ export async function POST(request: Request) {
         name: optimizedImage.filename,
         size: optimizedImage.optimizedSize,
       },
+      overrideAccess: true,
       user: {
         id: user.id,
         email: user.email,
-        role: user.role,
+        role: user.role ?? 'lectura',
       },
     })) as CreatedMediaDoc
 

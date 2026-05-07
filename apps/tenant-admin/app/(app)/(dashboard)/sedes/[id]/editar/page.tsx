@@ -20,11 +20,11 @@ import {
   Trash2,
   Building2,
   Car,
-  Clock,
   Image as ImageIcon,
   Users,
   Upload,
   X,
+  UserPlus,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -53,6 +53,9 @@ interface StaffOption {
   firstName?: string
   lastName?: string
   fullName?: string
+  staffType?: string
+  staff_type?: string
+  position?: string
 }
 
 interface CycleOption {
@@ -118,6 +121,11 @@ function getStaffDisplayName(s: StaffOption): string {
   if (s.fullName) return s.fullName
   if (s.firstName || s.lastName) return `${s.firstName ?? ''} ${s.lastName ?? ''}`.trim()
   return s.name ?? `Staff #${s.id}`
+}
+
+function isAdministrativeStaff(s: StaffOption): boolean {
+  const type = s.staffType ?? s.staff_type
+  return type === 'administrativo' || type === 'jefatura_administracion'
 }
 
 function resolveMediaUrl(media: unknown): string | null {
@@ -206,9 +214,9 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
 
   // Fetch options
   useEffect(() => {
-    fetch('/api/staff?limit=100')
+    fetch('/api/staff?limit=200')
       .then((r) => r.json())
-      .then((d) => setStaffOptions(d.docs || []))
+      .then((d) => setStaffOptions(d.data || d.docs || []))
       .catch(() => {})
     fetch('/api/cycles?limit=100&depth=0')
       .then((r) => r.json())
@@ -533,6 +541,14 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
+
+  const administrativeOptions = staffOptions.filter(isAdministrativeStaff)
+  const selectedAdministrativeMembers = staffMembers
+    .map((staffId) => administrativeOptions.find((staff) => String(staff.id) === staffId))
+    .filter((staff): staff is StaffOption => Boolean(staff))
+  const unassignedAdministrativeOptions = administrativeOptions.filter(
+    (staff) => !staffMembers.includes(String(staff.id)),
+  )
 
   return (
     <div className="space-y-6">
@@ -1190,7 +1206,7 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <option value="">Sin asignar</option>
-                    {staffOptions.map((s) => (
+                    {administrativeOptions.map((s) => (
                       <option key={s.id} value={String(s.id)}>
                         {getStaffDisplayName(s)}
                       </option>
@@ -1205,29 +1221,73 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
                 <CardTitle>Personal asignado</CardTitle>
               </CardHeader>
               <CardContent>
-                {staffOptions.length === 0 ? (
+                {administrativeOptions.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    No hay personal disponible. Crea registros de personal primero.
+                    No hay administrativos disponibles. Crea o valida fichas administrativas primero.
                   </p>
                 ) : (
-                  <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                    {staffOptions.map((s) => (
-                      <div key={s.id} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`staff-${s.id}`}
-                          checked={staffMembers.includes(String(s.id))}
-                          onCheckedChange={() =>
-                            toggleArrayValue(setStaffMembers, String(s.id))
+                  <div className="space-y-4">
+                    <div className="flex max-w-xl flex-col gap-2 sm:flex-row">
+                      <select
+                        aria-label="Asignar administrativo"
+                        className="flex h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        value=""
+                        onChange={(event) => {
+                          const value = event.target.value
+                          if (value) {
+                            setStaffMembers((current) =>
+                              current.includes(value) ? current : [...current, value],
+                            )
                           }
-                        />
-                        <Label
-                          htmlFor={`staff-${s.id}`}
-                          className="text-sm cursor-pointer font-normal"
-                        >
-                          {getStaffDisplayName(s)}
-                        </Label>
+                        }}
+                      >
+                        <option value="">Seleccionar administrativo</option>
+                        {unassignedAdministrativeOptions.map((s) => (
+                          <option key={s.id} value={String(s.id)}>
+                            {getStaffDisplayName(s)}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="inline-flex h-10 items-center gap-2 rounded-md border px-3 text-sm text-muted-foreground">
+                        <UserPlus className="h-4 w-4" />
+                        {selectedAdministrativeMembers.length} asignados
                       </div>
-                    ))}
+                    </div>
+
+                    {selectedAdministrativeMembers.length > 0 ? (
+                      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                        {selectedAdministrativeMembers.map((s) => (
+                          <div
+                            key={s.id}
+                            className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm"
+                          >
+                            <div className="min-w-0">
+                              <p className="truncate font-medium">{getStaffDisplayName(s)}</p>
+                              {s.position ? (
+                                <p className="truncate text-xs text-muted-foreground">{s.position}</p>
+                              ) : null}
+                            </div>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              onClick={() =>
+                                setStaffMembers((current) =>
+                                  current.filter((staffId) => staffId !== String(s.id)),
+                                )
+                              }
+                            >
+                              <X className="h-4 w-4" />
+                              <span className="sr-only">Quitar administrativo</span>
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No hay administrativos asignados a esta sede.
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>

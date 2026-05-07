@@ -41,8 +41,16 @@ interface CourseRunData {
   endDate: string;
   courseName: string;
   courseSlug: string;
+  courseImage: string | null;
   campusName: string;
   campusCity: string;
+}
+
+interface CertificationData {
+  id: string;
+  title: string | null;
+  institution: string | null;
+  year: number | null;
 }
 
 /** Raw staff row returned from SQL query */
@@ -71,6 +79,7 @@ interface StaffQueryRow {
   photo_url: string | null;
   campuses: CampusData[];
   course_runs: CourseRunData[];
+  certifications: CertificationData[];
 }
 
 /** Request body for creating a staff member */
@@ -258,12 +267,28 @@ export async function GET(request: NextRequest) {
               'endDate', cr.end_date,
               'courseName', course.name,
               'courseSlug', course.slug,
+              'courseImage', CASE
+                WHEN course_media.url IS NOT NULL AND course_media.url <> '' THEN course_media.url
+                WHEN course_media.filename IS NOT NULL AND course_media.filename <> '' THEN '/api/media/file/' || course_media.filename
+                ELSE NULL
+              END,
               'campusName', camp.name,
               'campusCity', camp.city
             )
           ) FILTER (WHERE cr.id IS NOT NULL),
           '[]'::json
-        ) as course_runs
+        ) as course_runs,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', cert.id,
+              'title', cert.title,
+              'institution', cert.institution,
+              'year', cert.year
+            )
+          ) FILTER (WHERE cert.id IS NOT NULL),
+          '[]'::json
+        ) as certifications
       FROM staff s
       LEFT JOIN media m ON s.photo_id = m.id
       LEFT JOIN staff_rels sr ON sr.parent_id = s.id AND sr.path = 'assigned_campuses'
@@ -271,7 +296,9 @@ export async function GET(request: NextRequest) {
       LEFT JOIN course_runs_rels crr ON crr.staff_id = s.id AND crr.path = 'instructors'
       LEFT JOIN course_runs cr ON cr.instructor_id = s.id OR cr.id = crr.parent_id
       LEFT JOIN courses course ON course.id = cr.course_id
+      LEFT JOIN media course_media ON course_media.id = course.featured_image_id
       LEFT JOIN campuses camp ON camp.id = cr.campus_id
+      LEFT JOIN staff_certifications cert ON cert._parent_id = s.id
       ${whereClause}
       ${campusId ? `AND EXISTS (SELECT 1 FROM staff_rels sr2 WHERE sr2.parent_id = s.id AND sr2.campuses_id = ${parseInt(campusId)})` : ''}
       GROUP BY s.id, m.filename, m.url
@@ -302,6 +329,7 @@ export async function GET(request: NextRequest) {
         photoId: member.photo_id,
         photo: resolveMediaUrl(member.photo_filename, member.photo_url),
         bio: member.bio,
+        certifications: member.certifications || [],
         assignedCampuses: member.campuses || [],
         courseRuns: member.course_runs || [],
         courseRunsCount: Array.isArray(member.course_runs) ? member.course_runs.length : 0,
@@ -371,6 +399,7 @@ export async function POST(request: NextRequest) {
     const createStaff = payload.create as unknown as (args: Record<string, unknown>) => Promise<unknown>;
     const staffMember = await createStaff({
       collection: 'staff',
+      overrideAccess: true,
       data: {
         staff_type: staffType,
         first_name: firstName,
@@ -461,6 +490,7 @@ export async function PUT(request: NextRequest) {
     const staffMember = await payload.update({
       collection: 'staff',
       id: parseInt(id),
+      overrideAccess: true,
       data: updateData as unknown as Record<string, unknown>,
     }) as unknown as Staff;
 

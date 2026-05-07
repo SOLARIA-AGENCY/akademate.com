@@ -51,6 +51,12 @@ interface StaffData {
   full_name?: string | null
   first_name?: string | null
   last_name?: string | null
+  photo?: MediaObject | number | null
+  certifications?: Array<{
+    title?: string | null
+    institution?: string | null
+    year?: number | null
+  }>
 }
 
 // ---------------------------------------------------------------------------
@@ -98,6 +104,15 @@ function resolveInstructorName(instructor: StaffData | number | null | undefined
   if (full) return full
   const combined = `${instructor.first_name?.trim() ?? ''} ${instructor.last_name?.trim() ?? ''}`.trim()
   return combined || ''
+}
+
+function resolvePrimaryInstructor(courseRun: any): StaffData | null {
+  if (typeof courseRun.instructor === 'object' && courseRun.instructor !== null) {
+    return courseRun.instructor as StaffData
+  }
+  const instructors = Array.isArray(courseRun.instructors) ? courseRun.instructors : []
+  const firstInstructor = instructors.find((item: unknown) => typeof item === 'object' && item !== null)
+  return firstInstructor ? (firstInstructor as StaffData) : null
 }
 
 function formatSchedule(days?: string[] | null, startTime?: string | null, endTime?: string | null): string {
@@ -259,7 +274,7 @@ export default async function LandingPage({
   // Resolve nested data
   const course = typeof courseRun.course === 'object' ? (courseRun.course as CourseData) : null
   const campus = typeof courseRun.campus === 'object' && courseRun.campus !== null ? (courseRun.campus as CampusData) : null
-  const instructor = typeof courseRun.instructor === 'object' && courseRun.instructor !== null ? (courseRun.instructor as StaffData) : null
+  const instructor = resolvePrimaryInstructor(courseRun)
   const cycle = course && typeof course.cycle === 'object' && course.cycle !== null ? (course.cycle as CycleData) : null
 
   const courseName = course?.name ?? cycle?.name ?? 'Formacion Profesional'
@@ -272,6 +287,8 @@ export default async function LandingPage({
   const campusName = campus?.name ?? null
   const campusCity = campus?.city ?? null
   const instructorName = resolveInstructorName(instructor)
+  const instructorPhoto = resolveImageUrl(instructor?.photo)
+  const instructorCertifications = instructor?.certifications?.filter((cert) => cert.title?.trim()) ?? []
   const currentEnrollments = courseRun.current_enrollments ?? 0
   const maxStudents = courseRun.max_students ?? 0
   const spotsLeft = maxStudents - currentEnrollments
@@ -498,6 +515,42 @@ export default async function LandingPage({
                       Email: <a href={`mailto:${campus.email}`} className="text-blue-600 hover:underline">{campus.email}</a>
                     </p>
                   )}
+                </div>
+              </section>
+            )}
+
+            {instructorName && (
+              <section>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Docente asignado</h2>
+                <div className="flex flex-col gap-5 rounded-xl border border-gray-200 bg-white p-5 sm:flex-row sm:items-center">
+                  {instructorPhoto ? (
+                    <img
+                      src={instructorPhoto}
+                      alt={instructorName}
+                      className="h-24 w-24 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-24 w-24 items-center justify-center rounded-full bg-red-50 text-red-600">
+                      <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0" />
+                      </svg>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium uppercase tracking-wide text-gray-500">Docente</p>
+                    <h3 className="text-lg font-bold text-gray-900">{instructorName}</h3>
+                    {instructorCertifications.length > 0 && (
+                      <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                        {instructorCertifications.slice(0, 3).map((cert, index) => (
+                          <li key={`${cert.title}-${index}`}>
+                            {cert.title}
+                            {cert.institution ? ` · ${cert.institution}` : ''}
+                            {cert.year ? ` · ${cert.year}` : ''}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
               </section>
             )}

@@ -1,0 +1,506 @@
+[
+    {
+        "id": 62,
+        "name": "Actividades B\u00e1sicas de Atenci\u00f3n al Cliente",
+        "slug": "actividades-basicas-de-atencion-al-cliente-des",
+        "filename": "actividades-basicas-de-atencion-al-cliente-des__catalog.webp"
+    },
+    {
+        "id": 63,
+        "name": "Actividades B\u00e1sicas de Log\u00edstica de Almac\u00e9n",
+        "slug": "actividades-basicas-de-logistica-de-almacen-des",
+        "filename": "actividades-basicas-de-logistica-de-almacen-des__catalog.webp"
+    },
+    {
+        "id": 64,
+        "name": "Administraci\u00f3n y gesti\u00f3n de plataformas LMS Moodle",
+        "slug": "administracion-y-gestion-de-plataformas-lms-moodle-des",
+        "filename": "administracion-y-gestion-de-plataformas-lms-moodle-des__catalog.webp"
+    },
+    {
+        "id": 65,
+        "name": "Alem\u00e1n A1",
+        "slug": "aleman-a1-des",
+        "filename": "aleman-a1-des__urgent__optimized.webp"
+    },
+    {
+        "id": 66,
+        "name": "Alem\u00e1n A2",
+        "slug": "aleman-a2-des",
+        "filename": "aleman-a2-des__urgent__optimized.webp"
+    },
+    {
+        "id": 67,
+        "name": "Alem\u00e1n B1",
+        "slug": "aleman-b1-des",
+        "filename": "aleman-b1-des__optimized.webp"
+    },
+    {
+        "id": 68,
+        "name": "Asistencia en la gesti\u00f3n de procedimientos tributarios",
+        "slug": "asistencia-en-la-gestion-de-procedimientos-tributarios-des",
+        "filename": "asistencia-en-la-gestion-de-procedimientos-tributarios-des__catalog.webp"
+    },
+    {
+        "id": 69,
+        "name": "Comunicaci\u00f3n e Interacci\u00f3n Social en Entornos TIC",
+        "slug": "comunicacion-e-interaccion-social-en-entornos-tic-des",
+        "filename": "comunicacion-e-interaccion-social-en-entornos-tic-des__catalog.webp"
+    },
+    {
+        "id": 70,
+        "name": "Competencias Digitales Avanzadas",
+        "slug": "competencias-digitales-avanzadas-des",
+        "filename": "competencias-digitales-avanzadas-des__optimized.webp"
+    },
+    {
+        "id": 71,
+        "name": "Competencias Digitales B\u00e1sicas",
+        "slug": "competencias-digitales-basicas-des",
+        "filename": "competencias-digitales-basicas-des__optimized.webp"
+    },
+    {
+        "id": 72,
+        "name": "Contabilidad Avanzada",
+        "slug": "contabilidad-avanzada-des",
+        "filename": "contabilidad-avanzada-des__urgent__optimized.webp"
+    },
+    {
+        "id": 73,
+        "name": "Contabilidad B\u00e1sica",
+        "slug": "contabilidad-basica-des",
+        "filename": "contabilidad-basica-des__catalog.webp"
+    },
+    {
+        "id": 74,
+        "name": "Contabilidad General Digitalizada y Fiscalidad",
+        "slug": "contabilidad-general-digitalizada-y-fiscalidad-des",
+        "filename": "contabilidad-general-digitalizada-y-fiscalidad-des__catalog.webp"
+    },
+    {
+        "id": 75,
+        "name": "Contabilidad Informatizada",
+        "slug": "contabilidad-informatizada-des",
+        "filename": "contabilidad-informatizada-des__urgent__optimized.webp"
+    },
+    {
+        "id": 76,
+        "name": "Coordinaci\u00f3n y apoyo a la direcci\u00f3n de recursos y servicios dirigidos a las personas mayores",
+        "slug": "coordinacion-y-apoyo-a-la-direccion-de-recursos-y-servicios-dirigidos-a-las-personas-mayores-des",
+        "filename": "coordinacion-y-apoyo-a-la-direccion-de-recursos-y-servicios-dirigidos-a-las-personas-mayores-des__catalog.webp"
+    },
+    {
+        "id": 77,
+        "name": "Digitalizaci\u00f3n de N\u00f3minas en la Empresa",
+        "slug": "digitalizacion-de-nominas-en-la-empresa-des",
+        "filename": "digitalizacion-de-nominas-en-la-empresa-des__catalog.webp"
+    },
+    {
+        "id": 78,
+        "name": "Digitalizaci\u00f3n y RR.SS. como Estrategia Corporativa",
+        "slug": "digitalizacion-y-rrss-como-estrategia-corporativa-des",
+        "filename": "digitalizacion-y-rrss-como-estrategia-corporativa-des__catalog.webp"
+    },
+    {
+        "id": 79,
+        "name": "Dise\u00f1o de P\u00e1ginas Web para Hosteler\u00eda",
+        "slug": "diseno-de-paginas-web-para-hosteleria-des",
+        "filename": "diseno-de-paginas-web-para-hosteleria-des__optimized.webp"
+    },
+    {
+        "id": 80,
+        "name": "Elaboraci\u00f3n de un Plan de Acogida",
+        "slug": "elaboracion-de-un-plan-de-acogida-des",
+        "filename": "elaboracion-de-un-plan-de-acogida-des__catalog.webp"
+    },
+    {
+        "id": 81,
+        "name": "Especialista en Inteligencia Artificial",
+        "slug": "especialista-en-inteligencia-artificial-des",
+        "filename": "especialista-en-inteligencia-artificial-des__optimized.webp"
+    },
+    {
+        "id": 82,
+        "name": "Excel Avanzado",
+        "slug": "excel-avanzado-des",
+        "filename": "excel-avanzado-des__urgent__optimized.webp"
+    },
+    {
+        "id": 83,
+        "name": "FacturaPlus, Facturaci\u00f3n en la Empresa",
+        "slug": "facturaplus-facturacion-en-la-empresa-des",
+        "filename": "facturaplus-facturacion-en-la-empresa-des__urgent__optimized.webp"
+    },
+    {
+        "id": 84,
+        "name": "Financiaci\u00f3n y planificaci\u00f3n financiera, nuevas herramientas de financiaci\u00f3n",
+        "slug": "financiacion-y-planificacion-financiera-nuevas-herramientas-de-financiacion-des",
+        "filename": "financiacion-y-planificacion-financiera-nuevas-herramientas-de-financiacion-des__catalog.webp"
+    },
+    {
+        "id": 85,
+        "name": "Financiaci\u00f3n y Planificaci\u00f3n Financiera",
+        "slug": "financiacion-y-planificacion-financiera-des",
+        "filename": "financiacion-y-planificacion-financiera-des__catalog.webp"
+    },
+    {
+        "id": 86,
+        "name": "Fiscalidad en las PYMES y uso de programa de gesti\u00f3n fiscal integrado",
+        "slug": "fiscalidad-en-las-pymes-y-uso-de-programa-de-gestion-fiscal-integrado-des",
+        "filename": "fiscalidad-en-las-pymes-y-uso-de-programa-de-gestion-fiscal-integrado-des__catalog.webp"
+    },
+    {
+        "id": 87,
+        "name": "Formaci\u00f3n de formadores en e-learning",
+        "slug": "formacion-de-formadores-en-e-learning-des",
+        "filename": "formacion-de-formadores-en-e-learning-des__catalog.webp"
+    },
+    {
+        "id": 88,
+        "name": "Franc\u00e9s A1",
+        "slug": "frances-a1-des",
+        "filename": "frances-a1-des__urgent__optimized.webp"
+    },
+    {
+        "id": 89,
+        "name": "Franc\u00e9s A2",
+        "slug": "frances-a2-des",
+        "filename": "frances-a2-des__optimized.webp"
+    },
+    {
+        "id": 90,
+        "name": "Gesti\u00f3n Ambiental",
+        "slug": "gestion-ambiental-des",
+        "filename": "gestion-ambiental-des__optimized.webp"
+    },
+    {
+        "id": 91,
+        "name": "Gesti\u00f3n Contable, Fiscal y Laboral",
+        "slug": "gestion-contable-fiscal-y-laboral-des",
+        "filename": "gestion-contable-fiscal-y-laboral-des__catalog.webp"
+    },
+    {
+        "id": 92,
+        "name": "Gesti\u00f3n de Proyectos de Financiaci\u00f3n P\u00fablica",
+        "slug": "gestion-de-proyectos-de-financiacion-publica-des",
+        "filename": "gestion-de-proyectos-de-financiacion-publica-des__catalog.webp"
+    },
+    {
+        "id": 93,
+        "name": "Gesti\u00f3n de Recursos Humanos",
+        "slug": "gestion-de-recursos-humanos-des",
+        "filename": "gestion-de-recursos-humanos-des__urgent__optimized.webp"
+    },
+    {
+        "id": 94,
+        "name": "Gesti\u00f3n de recursos humanos, optimizaci\u00f3n y organizaci\u00f3n",
+        "slug": "gestion-de-recursos-humanos-optimizacion-y-organizacion-des",
+        "filename": "gestion-de-recursos-humanos-optimizacion-y-organizacion-des__optimized.webp"
+    },
+    {
+        "id": 95,
+        "name": "Gesti\u00f3n de servicios para el control de organismos nocivos",
+        "slug": "gestion-de-servicios-para-el-control-de-organismos-nocivos-des",
+        "filename": "gestion-de-servicios-para-el-control-de-organismos-nocivos-des__catalog.webp"
+    },
+    {
+        "id": 96,
+        "name": "Gesti\u00f3n del tiempo para facilitar la conciliaci\u00f3n de la vida laboral y familiar",
+        "slug": "gestion-del-tiempo-para-facilitar-la-conciliacion-de-la-vida-laboral-y-familiar-des",
+        "filename": "gestion-del-tiempo-para-facilitar-la-conciliacion-de-la-vida-laboral-y-familiar-des__catalog.webp"
+    },
+    {
+        "id": 97,
+        "name": "Gesti\u00f3n Informatizada de Ventas con programa de gesti\u00f3n integrado",
+        "slug": "gestion-informatizada-de-ventas-con-programa-de-gestion-integrado-des",
+        "filename": "gestion-informatizada-de-ventas-con-programa-de-gestion-integrado-des__catalog.webp"
+    },
+    {
+        "id": 98,
+        "name": "Gesti\u00f3n Integrada de Recursos Humanos",
+        "slug": "gestion-integrada-de-recursos-humanos-des",
+        "filename": "gestion-integrada-de-recursos-humanos-des__catalog.webp"
+    },
+    {
+        "id": 99,
+        "name": "Gesti\u00f3n Log\u00edstica",
+        "slug": "gestion-logistica-des",
+        "filename": "gestion-logistica-des__optimized.webp"
+    },
+    {
+        "id": 100,
+        "name": "Herramientas Web 2.0",
+        "slug": "herramientas-web-20-des",
+        "filename": "herramientas-web-20-des__catalog.webp"
+    },
+    {
+        "id": 101,
+        "name": "Huella de Carbono de producto y organizaci\u00f3n",
+        "slug": "huella-de-carbono-de-producto-y-organizacion-des",
+        "filename": "huella-de-carbono-de-producto-y-organizacion-des__optimized.webp"
+    },
+    {
+        "id": 102,
+        "name": "Impuestos y Obligaciones Fiscales de la persona trabajadora aut\u00f3noma",
+        "slug": "impuestos-y-obligaciones-fiscales-de-la-persona-trabajadora-autonoma-des",
+        "filename": "impuestos-y-obligaciones-fiscales-de-la-persona-trabajadora-autonoma-des__catalog.webp"
+    },
+    {
+        "id": 103,
+        "name": "Ingl\u00e9s A1",
+        "slug": "ingles-a1-des",
+        "filename": "ingles-a1-des__optimized.webp"
+    },
+    {
+        "id": 104,
+        "name": "Ingl\u00e9s B1",
+        "slug": "ingles-b1-des",
+        "filename": "ingles-b1-des__urgent__optimized.webp"
+    },
+    {
+        "id": 105,
+        "name": "Ingl\u00e9s B2",
+        "slug": "ingles-b2-des",
+        "filename": "ingles-b2-des__optimized.webp"
+    },
+    {
+        "id": 106,
+        "name": "Ingl\u00e9s C1",
+        "slug": "ingles-c1-des",
+        "filename": "ingles-c1-des__optimized.webp"
+    },
+    {
+        "id": 107,
+        "name": "Inserci\u00f3n laboral de personas con discapacidad",
+        "slug": "insercion-laboral-de-personas-con-discapacidad-des",
+        "filename": "insercion-laboral-de-personas-con-discapacidad-des__catalog.webp"
+    },
+    {
+        "id": 108,
+        "name": "Inteligencia Artificial Aplicada a la Empresa",
+        "slug": "inteligencia-artificial-aplicada-a-la-empresa-des",
+        "filename": "inteligencia-artificial-aplicada-a-la-empresa-des__optimized.webp"
+    },
+    {
+        "id": 109,
+        "name": "Introducci\u00f3n a la Inteligencia Artificial",
+        "slug": "introduccion-a-la-inteligencia-artificial-des",
+        "filename": "introduccion-a-la-inteligencia-artificial-des__optimized.webp"
+    },
+    {
+        "id": 110,
+        "name": "La igualdad entre hombres y mujeres en la negociaci\u00f3n colectiva",
+        "slug": "la-igualdad-entre-hombres-y-mujeres-en-la-negociacion-colectiva-des",
+        "filename": "la-igualdad-entre-hombres-y-mujeres-en-la-negociacion-colectiva-des__catalog.webp"
+    },
+    {
+        "id": 111,
+        "name": "Liderazgo Estrat\u00e9gico",
+        "slug": "liderazgo-estrategico-des",
+        "filename": "liderazgo-estrategico-des__catalog.webp"
+    },
+    {
+        "id": 112,
+        "name": "Liderazgo y Direcci\u00f3n de Organizaciones",
+        "slug": "liderazgo-y-direccion-de-organizaciones-des",
+        "filename": "liderazgo-y-direccion-de-organizaciones-des__catalog.webp"
+    },
+    {
+        "id": 113,
+        "name": "Mejora tu productividad con Inteligencia Artificial",
+        "slug": "mejora-tu-productividad-con-inteligencia-artificial-des",
+        "filename": "mejora-tu-productividad-con-inteligencia-artificial-des__optimized.webp"
+    },
+    {
+        "id": 114,
+        "name": "Modelos de negocio en la Econom\u00eda Circular",
+        "slug": "modelos-de-negocio-en-la-economia-circular-des",
+        "filename": "modelos-de-negocio-en-la-economia-circular-des__catalog.webp"
+    },
+    {
+        "id": 115,
+        "name": "Neuroliderazgo",
+        "slug": "neuroliderazgo-des",
+        "filename": "neuroliderazgo-des__urgent__optimized.webp"
+    },
+    {
+        "id": 116,
+        "name": "N\u00f3minas",
+        "slug": "nominas-des",
+        "filename": "nominas-des__optimized.webp"
+    },
+    {
+        "id": 117,
+        "name": "Ofim\u00e1tica",
+        "slug": "ofimatica-des",
+        "filename": "ofimatica-des__optimized.webp"
+    },
+    {
+        "id": 118,
+        "name": "Operaciones auxiliares para personas con discapacidad intelectual",
+        "slug": "operaciones-auxiliares-para-personas-con-discapacidad-intelectual-des",
+        "filename": "operaciones-auxiliares-para-personas-con-discapacidad-intelectual-des__catalog.webp"
+    },
+    {
+        "id": 119,
+        "name": "Organizaci\u00f3n del transporte y distribuci\u00f3n",
+        "slug": "organizacion-del-transporte-y-distribucion-des",
+        "filename": "organizacion-del-transporte-y-distribucion-des__catalog.webp"
+    },
+    {
+        "id": 120,
+        "name": "Organizaci\u00f3n y Gesti\u00f3n de Almacenes",
+        "slug": "organizacion-y-gestion-de-almacenes-des",
+        "filename": "organizacion-y-gestion-de-almacenes-des__catalog.webp"
+    },
+    {
+        "id": 121,
+        "name": "Plan de igualdad, desarrollo, implantaci\u00f3n, seguimiento y evaluaci\u00f3n",
+        "slug": "plan-de-igualdad-desarrollo-implantacion-seguimiento-y-evaluacion-des",
+        "filename": "plan-de-igualdad-desarrollo-implantacion-seguimiento-y-evaluacion-des__catalog.webp"
+    },
+    {
+        "id": 122,
+        "name": "Planificaci\u00f3n de Proyectos",
+        "slug": "planificacion-de-proyectos-des",
+        "filename": "planificacion-de-proyectos-des__catalog.webp"
+    },
+    {
+        "id": 123,
+        "name": "Posicionamiento web y Marketing digital en buscadores",
+        "slug": "posicionamiento-web-y-marketing-digital-en-buscadores-des",
+        "filename": "posicionamiento-web-y-marketing-digital-en-buscadores-des__catalog.webp"
+    },
+    {
+        "id": 124,
+        "name": "Procedimientos B\u00e1sicos en Impresi\u00f3n y Dise\u00f1o 3D",
+        "slug": "procedimientos-basicos-en-impresion-y-diseno-3d-des",
+        "filename": "procedimientos-basicos-en-impresion-y-diseno-3d-des__optimized.webp"
+    },
+    {
+        "id": 125,
+        "name": "Procedimientos b\u00e1sicos en el Marketing Digital y Redes Sociales",
+        "slug": "procedimientos-basicos-en-el-marketing-digital-y-redes-sociales-des",
+        "filename": "procedimientos-basicos-en-el-marketing-digital-y-redes-sociales-des__catalog.webp"
+    },
+    {
+        "id": 126,
+        "name": "T\u00e9cnico en Software Ofim\u00e1tico",
+        "slug": "tecnico-en-software-ofimatico-des",
+        "filename": "tecnico-en-software-ofimatico-des__catalog.webp"
+    },
+    {
+        "id": 127,
+        "name": "Trabaja en la Nube Ecloud",
+        "slug": "trabaja-en-la-nube-ecloud-des",
+        "filename": "trabaja-en-la-nube-ecloud-des__urgent__optimized.webp"
+    },
+    {
+        "id": 128,
+        "name": "Trabajo en Equipo",
+        "slug": "trabajo-en-equipo-des",
+        "filename": "trabajo-en-equipo-des__optimized.webp"
+    },
+    {
+        "id": 129,
+        "name": "Tr\u00e1fico de Mercanc\u00edas por Carretera",
+        "slug": "trafico-de-mercancias-por-carretera-des",
+        "filename": "cep-cover-trafico-mercancias-carretera__optimized.webp"
+    },
+    {
+        "id": 130,
+        "name": "Transformaci\u00f3n Digital",
+        "slug": "transformacion-digital-des",
+        "filename": "transformacion-digital-des__optimized.webp"
+    },
+    {
+        "id": 131,
+        "name": "Transformaci\u00f3n Digital en la Empresa",
+        "slug": "transformacion-digital-en-la-empresa-des",
+        "filename": "transformacion-digital-en-la-empresa-des__catalog.webp"
+    },
+    {
+        "id": 132,
+        "name": "Tratamiento de Im\u00e1genes para Web y M\u00f3vil",
+        "slug": "tratamiento-de-imagenes-para-web-y-movil-des",
+        "filename": "tratamiento-de-imagenes-para-web-y-movil-des__optimized.webp"
+    },
+    {
+        "id": 133,
+        "name": "Vigilancia, Seguridad privada y Protecci\u00f3n de personas",
+        "slug": "vigilancia-seguridad-privada-y-proteccion-de-personas-des",
+        "filename": "vigilancia-seguridad-privada-y-proteccion-de-personas-des__catalog.webp"
+    },
+    {
+        "id": 134,
+        "name": "Gesti\u00f3n del Tiempo para Conciliaci\u00f3n",
+        "slug": "gestion-del-tiempo-para-conciliacion-des",
+        "filename": "gestion-del-tiempo-para-conciliacion-des__catalog.webp"
+    },
+    {
+        "id": 135,
+        "name": "Gesti\u00f3n Informatizada de Ventas",
+        "slug": "gestion-informatizada-de-ventas-des",
+        "filename": "gestion-informatizada-de-ventas-des__catalog.webp"
+    },
+    {
+        "id": 136,
+        "name": "Impuestos y Obligaciones Fiscales del Aut\u00f3nomo",
+        "slug": "impuestos-y-obligaciones-fiscales-del-autonomo-des",
+        "filename": "impuestos-y-obligaciones-fiscales-del-autonomo-des__catalog.webp"
+    },
+    {
+        "id": 139,
+        "name": "Mejora tu Productividad con IA",
+        "slug": "mejora-tu-productividad-con-ia-des",
+        "filename": "mejora-tu-productividad-con-ia-des__catalog.webp"
+    },
+    {
+        "id": 141,
+        "name": "Operaciones Auxiliares (Discapacidad Intelectual)",
+        "slug": "operaciones-auxiliares-discapacidad-intelectual-des",
+        "filename": "operaciones-auxiliares-discapacidad-intelectual-des__catalog.webp"
+    },
+    {
+        "id": 142,
+        "name": "Posicionamiento Web y Marketing Digital",
+        "slug": "posicionamiento-web-y-marketing-digital-des",
+        "filename": "posicionamiento-web-y-marketing-digital-des__catalog.webp"
+    },
+    {
+        "id": 143,
+        "name": "Direcci\u00f3n de Equipos y Coaching",
+        "slug": "direccion-de-equipos-y-coaching-des",
+        "filename": "direccion-de-equipos-y-coaching-des__catalog.webp"
+    },
+    {
+        "id": 144,
+        "name": "Direcci\u00f3n de Personas y Desarrollo del Talento",
+        "slug": "direccion-de-personas-y-desarrollo-del-talento-des",
+        "filename": "direccion-de-personas-y-desarrollo-del-talento-des__catalog.webp"
+    },
+    {
+        "id": 145,
+        "name": "Fiscalidad en las PYMES",
+        "slug": "fiscalidad-en-las-pymes-des",
+        "filename": "fiscalidad-en-las-pymes-des__catalog.webp"
+    },
+    {
+        "id": 146,
+        "name": "Gesti\u00f3n de RRHH, Optimizaci\u00f3n y Organizaci\u00f3n",
+        "slug": "gestion-de-rrhh-optimizacion-y-organizacion-des",
+        "filename": "gestion-de-rrhh-optimizacion-y-organizacion-des__optimized.webp"
+    },
+    {
+        "id": 147,
+        "name": "Organizaci\u00f3n del Transporte y la Distribuci\u00f3n",
+        "slug": "organizacion-del-transporte-y-la-distribucion-des",
+        "filename": "organizacion-del-transporte-y-la-distribucion-des__catalog.webp"
+    },
+    {
+        "id": 148,
+        "name": "Plan de Igualdad",
+        "slug": "plan-de-igualdad-des",
+        "filename": "plan-de-igualdad-des__catalog.webp"
+    }
+]

@@ -5,10 +5,10 @@ import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
   ArrowLeft,
+  ChevronRight,
   Edit,
   Mail,
   Phone,
@@ -160,26 +160,24 @@ export default function AdministrativoDetailPage() {
 
   return (
     <div className="space-y-6" data-oid="9gk3trs">
-      <PageHeader
-        title={admin.fullName}
-        description={admin.position}
-        icon={Briefcase}
-        actions={
-          <>
-            <Button variant="ghost" size="icon" onClick={() => router.back()} data-oid="fntph:p">
-              <ArrowLeft className="h-5 w-5" data-oid="p9jc.pi" />
-            </Button>
-            <Button
-              onClick={() => router.push(`/administrativo/${adminId}/editar`)}
-              data-oid="odyltnd"
-            >
-              <Edit className="mr-2 h-4 w-4" data-oid="srqw0p." />
-              Editar Personal
-            </Button>
-          </>
-        }
-        data-oid="rz_pitb"
-      />
+      <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-end md:justify-between">
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
+          <button
+            type="button"
+            onClick={() => router.push('/dashboard/administrativo')}
+            className="inline-flex items-center gap-1 hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Administrativos
+          </button>
+          <ChevronRight className="h-4 w-4" />
+          <span>Ficha administrativo</span>
+        </nav>
+        <div className="text-left md:text-right">
+          <h1 className="text-3xl font-bold tracking-tight">{admin.fullName}</h1>
+          <p className="text-muted-foreground">{admin.position}</p>
+        </div>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-3" data-oid=".6k2ein">
         {/* Left Column - Photo and Basic Info */}
@@ -389,7 +387,7 @@ export default function AdministrativoDetailPage() {
           <Card data-oid="ywa60t0">
             <CardHeader data-oid="cv.21:q">
               <CardTitle className="text-sm" data-oid="bb1wya3">
-                Metadatos
+                Fechas de registro
               </CardTitle>
             </CardHeader>
             <CardContent data-oid="xu4d:cp">

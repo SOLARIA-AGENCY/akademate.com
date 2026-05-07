@@ -35,6 +35,13 @@ interface CourseDocument {
   updatedAt: string;
 }
 
+function resolveFeaturedImageUrl(image: CourseDocument['featured_image']): string | null {
+  if (!image || typeof image === 'number') return null;
+  if (image.url) return image.url;
+  if (image.filename) return `/api/media/file/${image.filename}`;
+  return null;
+}
+
 /**
  * GET /api/cursos/[id]
  *
@@ -86,7 +93,8 @@ export async function GET(
       areaName = areaFormativa.nombre ?? 'Sin área';
     }
 
-    const imagenPortada = getPublicStudyTypeFallbackImage(curso.course_type);
+    const imagenPortada =
+      resolveFeaturedImageUrl(curso.featured_image) ?? getPublicStudyTypeFallbackImage(curso.course_type);
 
     return NextResponse.json({
       success: true,
@@ -102,6 +110,7 @@ export async function GET(
         precioReferencia: curso.base_price ?? 0,
         porcentajeSubvencion: curso.subsidy_percentage ?? 100,
         imagenPortada,
+        imagenPortadaTipo: resolveFeaturedImageUrl(curso.featured_image) ? 'curso' : 'fallback',
         totalConvocatorias: 0,
         active: Boolean(curso.active),
         objetivos: [],

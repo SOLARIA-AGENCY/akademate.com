@@ -1,8 +1,9 @@
 'use client'
 
+import * as React from 'react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
-import { Mail, Phone, BookOpen, Award } from 'lucide-react'
+import { Mail, Phone, BookOpen, User, GraduationCap } from 'lucide-react'
 
 interface TeacherExpanded {
   id: number
@@ -30,41 +31,47 @@ interface PersonalListItemProps {
   className?: string
 }
 
-export function PersonalListItem({ teacher, onClick, className }: PersonalListItemProps) {
-  // Department-based border color
-  const departmentColors: Record<string, string> = {
-    'Marketing Digital': 'border-l-red-600',
-    'Desarrollo Web': 'border-l-blue-600',
-    'Diseño Gráfico': 'border-l-purple-600',
-    Audiovisual: 'border-l-orange-600',
-    Administración: 'border-l-green-600',
-  }
+const isPlaceholderPhoto = (photo?: string | null) =>
+  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
 
-  const borderColor = departmentColors[teacher.department] || 'border-l-gray-600'
+function TeacherListFallback() {
+  return (
+    <div
+      aria-label="Imagen genérica de docente"
+      className="relative flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary"
+    >
+      <User className="h-7 w-7" aria-hidden="true" />
+      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
+        <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
+      </span>
+    </div>
+  )
+}
+
+export function PersonalListItem({ teacher, onClick, className }: PersonalListItemProps) {
+  const [photoError, setPhotoError] = React.useState(false)
 
   return (
     <div
-      className={`flex items-center h-20 pr-4 bg-card border-y border-r rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-150 cursor-pointer ${className || ''}`}
+      className={`flex min-h-24 items-center rounded-lg border bg-card py-3 pl-5 pr-4 transition-shadow duration-150 hover:shadow-md cursor-pointer ${className || ''}`}
       onClick={onClick}
       data-oid="afb5w:u"
     >
-      {/* Borde de color como div separado */}
       <div
-        className={`h-full w-1 flex-shrink-0 ${borderColor.replace('border-l-', 'bg-')}`}
-        data-oid="iw0mc_b"
-      />
-
-      {/* Photo (circular) - Con padding para respirar */}
-      <div
-        className="flex-shrink-0 w-20 h-20 overflow-hidden rounded-full bg-muted ml-4"
+        className="h-20 w-20 flex-shrink-0 overflow-visible rounded-full bg-muted"
         data-oid="jbwoqz1"
       >
-        <img
-          src={teacher.photo}
-          alt={`${teacher.firstName} ${teacher.lastName}`}
-          className="w-full h-full object-cover"
-          data-oid="28ijt7d"
-        />
+        {!isPlaceholderPhoto(teacher.photo) && !photoError ? (
+          <img
+            src={teacher.photo}
+            alt={`${teacher.firstName} ${teacher.lastName}`}
+            className="h-full w-full rounded-full object-cover"
+            onError={() => setPhotoError(true)}
+            data-oid="28ijt7d"
+          />
+        ) : (
+          <TeacherListFallback />
+        )}
       </div>
 
       {/* Contenido con padding interno */}

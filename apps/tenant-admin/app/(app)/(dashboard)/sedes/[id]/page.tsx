@@ -363,18 +363,22 @@ export default function SedeDetailPage({ params }: Props) {
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {activeClassrooms.map((classroom) => (
-                    <div key={classroom.id ?? classroomName(classroom)} className="rounded-lg border p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
+                    <button
+                      key={classroom.id ?? classroomName(classroom)}
+                      type="button"
+                      onClick={() => router.push(`/dashboard/sedes/${id}/aulas/${classroom.id}`)}
+                      className="rounded-lg border p-4 text-left transition hover:border-primary/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          <DoorOpen className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold">{classroomName(classroom)}</p>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {classroom.code ? `${classroom.code} · ` : ''}
                             {classroomCapacity(classroom) || '—'} plazas
                           </p>
                         </div>
-                        <Badge variant="secondary" className="shrink-0 text-[10px]">
-                          {classroom.usage_policy ?? 'mixed'}
-                        </Badge>
                       </div>
                       {classroom.enabled_shifts && classroom.enabled_shifts.length > 0 ? (
                         <div className="mt-3 flex flex-wrap gap-1">
@@ -390,7 +394,7 @@ export default function SedeDetailPage({ params }: Props) {
                           {classroom.operational_notes}
                         </p>
                       ) : null}
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -405,9 +409,6 @@ export default function SedeDetailPage({ params }: Props) {
                 Convocatorias
                 <Badge variant="outline">{convocatorias.length}</Badge>
               </CardTitle>
-              <Button size="sm" onClick={() => router.push(`/programacion/nueva?sede=${id}`)}>
-                <Plus className="mr-1.5 h-3.5 w-3.5" />Crear convocatoria
-              </Button>
             </CardHeader>
             <CardContent>
               {convocatorias.length === 0 ? (

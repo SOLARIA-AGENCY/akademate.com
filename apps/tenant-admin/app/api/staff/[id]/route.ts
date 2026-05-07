@@ -67,6 +67,7 @@ export async function GET(
       collection: 'staff',
       id: numericId,
       depth: 2,
+      overrideAccess: true,
     }) as unknown as StaffDocument;
 
     if (!staffMember) {

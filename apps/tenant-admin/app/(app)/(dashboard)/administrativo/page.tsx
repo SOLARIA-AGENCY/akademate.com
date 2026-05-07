@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, Briefcase, Eye, Edit, Loader2 } from 'lucide-react'
+import { Plus, Search, User, Mail, Phone, Briefcase, Eye, Loader2 } from 'lucide-react'
 
 interface AdminStaff {
   id: string
@@ -130,12 +130,6 @@ export default function AdministrativosPage() {
     return matchesSearch && matchesDepartment
   })
 
-  const stats = {
-    total: administrativosData.length,
-    active: administrativosData.filter((a) => a.active).length,
-    departments: departments.length,
-  }
-
   // Show loading state
   if (loading) {
     return (
@@ -175,7 +169,6 @@ export default function AdministrativosPage() {
     <div className="space-y-6" data-oid="p5r5ky.">
       <PageHeader
         title="Personal Administrativo"
-        description={`${filteredAdmins.length} administrativos de ${administrativosData.length} totales`}
         icon={Briefcase}
         actions={
           <Button onClick={handleAdd} data-oid="7xp380:">
@@ -185,59 +178,6 @@ export default function AdministrativosPage() {
         }
         data-oid="a_ioxi."
       />
-
-      <div className="grid gap-4 md:grid-cols-3" data-oid="qtr.0f0">
-        <Card data-oid="zs8mvvp">
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 pb-2"
-            data-oid="iym_nfp"
-          >
-            <CardTitle className="text-sm font-medium" data-oid="bc-f-s.">
-              Total Personal
-            </CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" data-oid="7gcw1g2" />
-          </CardHeader>
-          <CardContent data-oid="3dag2fh">
-            <div className="text-2xl font-bold" data-oid=":i_gyth">
-              {stats.total}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card data-oid="lk6fr-y">
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 pb-2"
-            data-oid="pvcf.:c"
-          >
-            <CardTitle className="text-sm font-medium" data-oid="6zuns-4">
-              Activos
-            </CardTitle>
-            <User className="h-4 w-4 text-green-600" data-oid="sqmza:o" />
-          </CardHeader>
-          <CardContent data-oid="arq5i-s">
-            <div className="text-2xl font-bold text-green-600" data-oid="w6ci87u">
-              {stats.active}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card data-oid="u0gnvlu">
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 pb-2"
-            data-oid="hr:e0kr"
-          >
-            <CardTitle className="text-sm font-medium" data-oid="_9bnwq.">
-              Departamentos
-            </CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" data-oid="vb3pxxy" />
-          </CardHeader>
-          <CardContent data-oid="3j:0-gd">
-            <div className="text-2xl font-bold" data-oid="0c_akd9">
-              {stats.departments}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       <Card data-oid="pz5ian6">
         <CardContent className="pt-6" data-oid="ei37n:m">
@@ -349,7 +289,7 @@ export default function AdministrativosPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-2 pt-3 border-t" data-oid="-4fclxf">
+              <div className="pt-3 border-t" data-oid="-4fclxf">
                 <Button
                   variant="outline"
                   size="sm"
@@ -361,20 +301,7 @@ export default function AdministrativosPage() {
                   data-oid="_0w5mks"
                 >
                   <Eye className="mr-2 h-4 w-4" data-oid="4pw.ske" />
-                  Ver Detalles
-                </Button>
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="w-full"
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation()
-                    router.push(`/administrativo/${admin.id}/editar`)
-                  }}
-                  data-oid="xuuc_91"
-                >
-                  <Edit className="mr-2 h-4 w-4" data-oid="u3a2ln1" />
-                  Editar
+                  Ver ficha administrativo
                 </Button>
               </div>
             </CardContent>
