@@ -24,6 +24,16 @@ import { z } from 'zod';
 const RelationshipIdSchema = z.union([z.string(), z.number()]);
 
 const RichTextLikeSchema = z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]);
+const LandingTextItemSchema = z.object({ text: z.string().min(1) });
+const LandingProgramBlockSchema = z.object({
+  title: z.string().min(1),
+  body: z.string().optional().nullable(),
+  items: z.array(LandingTextItemSchema).optional().default([]),
+});
+const LandingFaqSchema = z.object({
+  question: z.string().min(1),
+  answer: z.string().min(1),
+});
 
 export const CourseSchema = z.object({
   // Required: Unique URL-friendly identifier
@@ -50,6 +60,15 @@ export const CourseSchema = z.object({
 
   // Optional: Detailed course information (Payload richText can be object/array/string)
   long_description: RichTextLikeSchema.optional().nullable(),
+
+  landing_enabled: z.boolean().optional().default(false),
+  dossier_pdf: RelationshipIdSchema.optional().nullable(),
+  landing_target_audience: z.string().optional().nullable(),
+  landing_access_requirements: z.string().optional().nullable(),
+  landing_outcomes: z.string().optional().nullable(),
+  landing_objectives: z.array(LandingTextItemSchema).optional().default([]),
+  landing_program_blocks: z.array(LandingProgramBlockSchema).optional().default([]),
+  landing_faqs: z.array(LandingFaqSchema).optional().default([]),
 
   // Required: Delivery method (presencial, online, hibrido)
   modality: z.enum(['presencial', 'online', 'hibrido'], {

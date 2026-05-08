@@ -88,6 +88,7 @@ function buildOrigin(host: string): string {
 }
 
 function resolveDefaults(host: string): BrandingDefaults {
+  if (isLocalHost(host)) return CEP_DEFAULTS
   return hostLooksLikeCep(host) ? CEP_DEFAULTS : AKADEMATE_DEFAULTS
 }
 
@@ -152,7 +153,12 @@ const resolveByHost = cache(async (host: string): Promise<TenantHostBranding> =>
   }
 
   try {
-    const payload = await getPayload({ config: configPromise })
+    let payload;
+    try {
+      payload = await getPayload({ config: configPromise })
+    } catch(e) {
+      return toTenantResponse(normalizedHost, null, defaults)
+    }
 
     const byDomain = await payload.find({
       collection: 'tenants',

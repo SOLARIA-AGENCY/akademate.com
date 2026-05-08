@@ -8,7 +8,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   MapPin, ArrowLeft, Edit, DoorOpen, Users,
-  Loader2, Calendar, GraduationCap, Briefcase, ChevronRight, Plus, BookOpen, Clock,
+  Loader2, Calendar, GraduationCap, Briefcase, ChevronRight, Plus, BookOpen, Clock, ExternalLink,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -17,6 +17,7 @@ import {
 
 interface StaffMember {
   id: number
+  slug?: string
   staffType?: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico'
   firstName?: string
   lastName?: string
@@ -81,6 +82,7 @@ interface Classroom {
 
 interface CampusFull {
   id: number
+  slug?: string
   name?: string
   description?: string
   active?: boolean
@@ -252,6 +254,8 @@ export default function SedeDetailPage({ params }: Props) {
   const coordinator = typeof sede.coordinator === 'object' && sede.coordinator !== null ? sede.coordinator : null
   const imageUrl = typeof sede.image === 'object' && sede.image !== null ? sede.image.url : null
   const fullAddress = [sede.address, sede.postal_code, sede.city].filter(Boolean).join(', ')
+  const publicSedePath = `/p/sedes/${sede.slug ?? sede.id}`
+  const publicSedeAvailable = Boolean(sede.slug || sede.id) && sede.active !== false
 
   function staffName(p: StaffMember): string {
     return p.fullName || p.full_name || `${p.firstName || p.first_name || ''} ${p.lastName || p.last_name || ''}`.trim() || 'Sin nombre'
@@ -310,6 +314,14 @@ export default function SedeDetailPage({ params }: Props) {
         actions={<>
           <Button variant="ghost" onClick={() => router.push('/dashboard/sedes')}>
             <ArrowLeft className="mr-2 h-4 w-4" />Sedes
+          </Button>
+          <Button
+            variant="outline"
+            disabled={!publicSedeAvailable}
+            onClick={() => window.open(publicSedePath, '_blank', 'noopener,noreferrer')}
+            title={publicSedeAvailable ? 'Abrir página pública de la sede' : 'Página pública no disponible'}
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
           </Button>
           <Button onClick={() => router.push(`/dashboard/sedes/${id}/editar`)}>
             <Edit className="mr-2 h-4 w-4" />Editar
@@ -625,11 +637,12 @@ export default function SedeDetailPage({ params }: Props) {
                 <Button
                   variant="outline"
                   className="w-full justify-between"
-                  onClick={() => router.push(`/dashboard/sedes/${id}/detalle`)}
+                  onClick={() => window.open(publicSedePath, '_blank', 'noopener,noreferrer')}
+                  disabled={!publicSedeAvailable}
                 >
                   <span className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" />
-                    Ver Sede
+                    <ExternalLink className="h-4 w-4" />
+                    Ver página pública
                   </span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>

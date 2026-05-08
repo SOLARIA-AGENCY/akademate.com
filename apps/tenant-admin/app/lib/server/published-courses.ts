@@ -26,13 +26,40 @@ type CourseDoc = {
   duration_hours?: number | null
   base_price?: number | null
   subsidy_percentage?: number | null
+  modality?: string | null
+  landing_enabled?: boolean | null
+  landing_target_audience?: string | null
+  landing_access_requirements?: string | null
+  landing_outcomes?: string | null
+  landing_objectives?: { text?: string | null }[] | null
+  landing_program_blocks?: {
+    title?: string | null
+    body?: string | null
+    items?: { text?: string | null }[] | null
+  }[] | null
+  landing_faqs?: { question?: string | null; answer?: string | null }[] | null
   active?: boolean | null
   featured?: boolean | null
   area_formativa?: { nombre?: string | null } | number | null
   featured_image?: { url?: string | null; filename?: string | null } | number | null
   image?: { url?: string | null; filename?: string | null } | number | null
+  dossier_pdf?: { url?: string | null; filename?: string | null } | number | null
   createdAt?: string
   updatedAt?: string
+}
+
+type CourseRunDoc = {
+  id: number | string
+  status?: string | null
+  start_date?: string | null
+  end_date?: string | null
+  enrollment_deadline?: string | null
+  schedule_days?: string[] | null
+  schedule_time_start?: string | null
+  schedule_time_end?: string | null
+  max_students?: number | null
+  current_enrollments?: number | null
+  campus?: { name?: string | null; city?: string | null } | number | null
 }
 
 type CourseTypeDoc = {
@@ -61,10 +88,37 @@ export type PublishedCourse = {
   descripcion: string
   descripcionDetallada: string[]
   area: string
+  modality: string
   duracionReferencia: number
   precioReferencia: number
   porcentajeSubvencion: number
   imagenPortada: string
+  dossierUrl: string | null
+  landingEnabled: boolean
+  landingTargetAudience: string
+  landingAccessRequirements: string
+  landingOutcomes: string
+  landingObjectives: string[]
+  landingProgramBlocks: {
+    title: string
+    body: string
+    items: string[]
+  }[]
+  landingFaqs: {
+    question: string
+    answer: string
+  }[]
+  enrollmentStatus: 'open' | 'published' | 'none'
+  enrollmentLabel: string
+  nextRun: {
+    id: string
+    status: string
+    startDate: string | null
+    endDate: string | null
+    scheduleLabel: string
+    campusLabel: string
+    availableSeats: number | null
+  } | null
   totalConvocatorias: number
   active: boolean
   featured: boolean
@@ -99,11 +153,89 @@ function toAreaName(area: CourseDoc['area_formativa']): string {
   return 'Sin área'
 }
 
-function resolveMediaImageUrl(image: CourseDoc['featured_image'] | CourseDoc['image']): string | null {
+function resolveMediaImageUrl(
+  image: CourseDoc['featured_image'] | CourseDoc['image'] | CourseDoc['dossier_pdf']
+): string | null {
   if (!image || typeof image !== 'object') return null
   if (image.url) return image.url
   if (image.filename) return `/media/${image.filename}`
   return null
+}
+
+function toTextArray(items: { text?: string | null }[] | null | undefined): string[] {
+  return (items ?? [])
+    .map((item) => String(item?.text ?? '').trim())
+    .filter(Boolean)
+}
+
+function toProgramBlocks(course: CourseDoc): PublishedCourse['landingProgramBlocks'] {
+  return (course.landing_program_blocks ?? [])
+    .map((block) => ({
+      title: String(block?.title ?? '').trim(),
+      body: String(block?.body ?? '').trim(),
+      items: toTextArray(block?.items),
+    }))
+    .filter((block) => block.title || block.body || block.items.length > 0)
+}
+
+function toFaqs(course: CourseDoc): PublishedCourse['landingFaqs'] {
+  return (course.landing_faqs ?? [])
+    .map((faq) => ({
+      question: String(faq?.question ?? '').trim(),
+      answer: String(faq?.answer ?? '').trim(),
+    }))
+    .filter((faq) => faq.question && faq.answer)
+}
+
+function toScheduleLabel(run: CourseRunDoc | null): string {
+  if (!run) return ''
+  const days = (run.schedule_days ?? []).join(', ')
+  const start = String(run.schedule_time_start ?? '').replace(/:00$/, '')
+  const end = String(run.schedule_time_end ?? '').replace(/:00$/, '')
+  if (days && start && end) return `${days} · ${start}-${end}`
+  if (start && end) return `${start}-${end}`
+  return days
+}
+
+function toCampusLabel(campus: CourseRunDoc['campus']): string {
+  if (!campus || typeof campus !== 'object') return ''
+  return [campus.name, campus.city].filter(Boolean).join(' · ')
+}
+
+function toEnrollmentStatus(runs: CourseRunDoc[]): Pick<
+  PublishedCourse,
+  'enrollmentStatus' | 'enrollmentLabel' | 'nextRun' | 'totalConvocatorias'
+> {
+  const visibleRuns = runs.filter((run) => ['enrollment_open', 'published'].includes(String(run.status ?? '')))
+  const openRun = visibleRuns.find((run) => run.status === 'enrollment_open') ?? null
+  const nextRun = openRun ?? visibleRuns[0] ?? null
+  const enrollmentStatus = openRun ? 'open' : nextRun ? 'published' : 'none'
+  const availableSeats =
+    nextRun && typeof nextRun.max_students === 'number'
+      ? Math.max(0, nextRun.max_students - Number(nextRun.current_enrollments ?? 0))
+      : null
+
+  return {
+    enrollmentStatus,
+    enrollmentLabel:
+      enrollmentStatus === 'open'
+        ? 'Matrícula abierta'
+        : enrollmentStatus === 'published'
+          ? 'Próximas fechas'
+          : 'Avisarme de próximas fechas',
+    nextRun: nextRun
+      ? {
+          id: String(nextRun.id),
+          status: String(nextRun.status ?? ''),
+          startDate: nextRun.start_date ?? null,
+          endDate: nextRun.end_date ?? null,
+          scheduleLabel: toScheduleLabel(nextRun),
+          campusLabel: toCampusLabel(nextRun.campus),
+          availableSeats,
+        }
+      : null,
+    totalConvocatorias: visibleRuns.length,
+  }
 }
 
 function extractTextFromRichText(value: unknown): string[] {
@@ -211,7 +343,8 @@ function toPublicWhere({
 
 function mapCourseDocToPublishedCourse(
   course: CourseDoc,
-  studyTypeMap: Record<PublicStudyType, StudyTypeVisualMeta>
+  studyTypeMap: Record<PublicStudyType, StudyTypeVisualMeta>,
+  runs: CourseRunDoc[] = []
 ): PublishedCourse {
   const normalizedStudyType = normalizePublicStudyType(String(course.course_type || ''))
   const visual = normalizedStudyType ? studyTypeMap[normalizedStudyType] : null
@@ -219,6 +352,7 @@ function mapCourseDocToPublishedCourse(
     resolveMediaImageUrl(course.featured_image) ??
     resolveMediaImageUrl(course.image) ??
     getPublicStudyTypeFallbackImage(course.course_type)
+  const runMeta = toEnrollmentStatus(runs)
 
   return {
     id: String(course.id),
@@ -234,11 +368,20 @@ function mapCourseDocToPublishedCourse(
       'Curso de formación profesional',
     descripcionDetallada: extractTextFromRichText(course.long_description),
     area: toAreaName(course.area_formativa),
+    modality: String(course.modality || 'presencial'),
     duracionReferencia: Number(course.duration_hours || 0),
     precioReferencia: Number(course.base_price || 0),
     porcentajeSubvencion: Number(course.subsidy_percentage || 100),
     imagenPortada: imageUrl,
-    totalConvocatorias: 0,
+    dossierUrl: resolveMediaImageUrl(course.dossier_pdf),
+    landingEnabled: Boolean(course.landing_enabled),
+    landingTargetAudience: String(course.landing_target_audience || '').trim(),
+    landingAccessRequirements: String(course.landing_access_requirements || '').trim(),
+    landingOutcomes: String(course.landing_outcomes || '').trim(),
+    landingObjectives: toTextArray(course.landing_objectives),
+    landingProgramBlocks: toProgramBlocks(course),
+    landingFaqs: toFaqs(course),
+    ...runMeta,
     active: Boolean(course.active),
     featured: Boolean(course.featured),
     created_at: course.createdAt ?? null,
@@ -255,8 +398,13 @@ export function getStudyTypeColor(
 }
 
 export async function getStudyTypeVisualMap(payloadClient?: Payload): Promise<Record<PublicStudyType, StudyTypeVisualMeta>> {
-  const payload = payloadClient ?? (await getPayload({ config: configPromise }))
-  const payloadAny = payload as any
+  let payloadAny: any;
+  try {
+    const payload = payloadClient ?? (await getPayload({ config: configPromise }))
+    payloadAny = payload as any
+  } catch(e) {
+    return { ...DEFAULT_STUDY_TYPE_VISUALS }
+  }
 
   let docs: CourseTypeDoc[] = []
   try {
@@ -291,40 +439,45 @@ export async function getStudyTypeVisualMap(payloadClient?: Payload): Promise<Re
 }
 
 export async function getPublishedCourses(options: GetPublishedCoursesOptions = {}): Promise<PublishedCourse[]> {
-  const payload = options.payload ?? (await getPayload({ config: configPromise }))
-  const includeInactive = options.includeInactive ?? false
-  const includeCycles = options.includeCycles ?? false
-  const maxRecords = Math.max(1, options.limit ?? 1000)
-  const sort = options.sort ?? '-createdAt'
-  const where = toPublicWhere({
-    tenantId: options.tenantId,
-    includeInactive,
-    includeCycles,
-    studyType: options.studyType,
-  })
-
-  const docs: CourseDoc[] = []
-  let hasNextPage = true
-  let page = 1
-  const pageSize = 100
-
-  while (hasNextPage && docs.length < maxRecords && page < 50) {
-    const result = await payload.find({
-      collection: 'courses',
-      where: where as any,
-      page,
-      limit: Math.min(pageSize, maxRecords - docs.length),
-      depth: 1,
-      sort,
+  try {
+    const payload = options.payload ?? (await getPayload({ config: configPromise }))
+    const includeInactive = options.includeInactive ?? false
+    const includeCycles = options.includeCycles ?? false
+    const maxRecords = Math.max(1, options.limit ?? 1000)
+    const sort = options.sort ?? '-createdAt'
+    const where = toPublicWhere({
+      tenantId: options.tenantId,
+      includeInactive,
+      includeCycles,
+      studyType: options.studyType,
     })
 
-    docs.push(...((result.docs ?? []) as CourseDoc[]))
-    hasNextPage = Boolean(result.hasNextPage)
-    page += 1
-  }
+    const docs: CourseDoc[] = []
+    let hasNextPage = true
+    let page = 1
+    const pageSize = 100
 
-  const studyTypeMap = await getStudyTypeVisualMap(payload)
-  return docs.map((course) => mapCourseDocToPublishedCourse(course, studyTypeMap))
+    while (hasNextPage && docs.length < maxRecords && page < 50) {
+      const result = await payload.find({
+        collection: 'courses',
+        where: where as any,
+        page,
+        limit: Math.min(pageSize, maxRecords - docs.length),
+        depth: 1,
+        sort,
+      })
+
+      docs.push(...((result.docs ?? []) as CourseDoc[]))
+      hasNextPage = Boolean(result.hasNextPage)
+      page += 1
+    }
+
+    const studyTypeMap = await getStudyTypeVisualMap(payload)
+    return docs.map((course) => mapCourseDocToPublishedCourse(course, studyTypeMap))
+  } catch (e) {
+    console.error('Error fetching published courses:', e)
+    return []
+  }
 }
 
 type GetPublishedCourseBySlugOptions = {
@@ -341,31 +494,59 @@ export async function getPublishedCourseBySlug(
   const slug = String(options.slug || '').trim()
   if (!slug) return null
 
-  const payload = options.payload ?? (await getPayload({ config: configPromise }))
-  const includeInactive = options.includeInactive ?? false
-  const includeCycles = options.includeCycles ?? false
-  const filters = buildPublicFilters({
-    includeInactive,
-    includeCycles,
-  })
-  filters.push({ slug: { equals: slug } })
+  try {
+    const payload = options.payload ?? (await getPayload({ config: configPromise }))
+    const includeInactive = options.includeInactive ?? false
+    const includeCycles = options.includeCycles ?? false
+    const filters = buildPublicFilters({
+      includeInactive,
+      includeCycles,
+    })
+    filters.push({ slug: { equals: slug } })
 
-  const where = withTenantScope(
-    { and: filters } as Record<string, unknown>,
-    options.tenantId
-  )
+    const where = withTenantScope(
+      { and: filters } as Record<string, unknown>,
+      options.tenantId
+    )
 
-  const result = await payload.find({
-    collection: 'courses',
-    where: where as any,
-    limit: 1,
-    depth: 1,
-    sort: '-createdAt',
-  })
+    const result = await payload.find({
+      collection: 'courses',
+      where: where as any,
+      limit: 1,
+      depth: 1,
+      sort: '-createdAt',
+    })
 
-  const course = (result.docs?.[0] ?? null) as CourseDoc | null
-  if (!course) return null
+    const docs = (result.docs ?? []) as CourseDoc[]
+    if (docs.length === 0) return null
 
-  const studyTypeMap = await getStudyTypeVisualMap(payload)
-  return mapCourseDocToPublishedCourse(course, studyTypeMap)
+    const course = docs[0]
+    let runs: CourseRunDoc[] = []
+    try {
+      const runResult = await payload.find({
+        collection: 'course-runs',
+        where: withTenantScope(
+          {
+            and: [
+              { course: { equals: course.id } },
+              { status: { in: ['enrollment_open', 'published'] } },
+            ],
+          } as Record<string, unknown>,
+          options.tenantId
+        ) as any,
+        limit: 10,
+        depth: 1,
+        sort: 'start_date',
+      })
+      runs = (runResult.docs ?? []) as CourseRunDoc[]
+    } catch {
+      runs = []
+    }
+
+    const studyTypeMap = await getStudyTypeVisualMap(payload)
+    return mapCourseDocToPublishedCourse(course, studyTypeMap, runs)
+  } catch (e) {
+    console.error('Error fetching course by slug:', e)
+    return null
+  }
 }

@@ -196,7 +196,7 @@ export default async function PublicLayout({ children }: { children: React.React
   const c = tenant.primaryColor
 
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <head>
         {tenant.gtmContainerId && (
           <script

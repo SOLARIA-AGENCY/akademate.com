@@ -166,6 +166,124 @@ export const Courses: CollectionConfig = {
     },
 
     /**
+     * Public landing controls
+     * Optional structured content used by /p/cursos/[slug] for non-cycle courses.
+     */
+    {
+      name: 'landing_enabled',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Activa el nuevo diseño público de landing para este curso',
+      },
+    },
+    {
+      name: 'dossier_pdf',
+      type: 'upload',
+      relationTo: 'media',
+      required: false,
+      admin: {
+        description: 'PDF del dossier que se adjunta al solicitar información del curso',
+      },
+    },
+    {
+      name: 'landing_target_audience',
+      type: 'textarea',
+      admin: {
+        description: 'Perfil de alumno al que va dirigido el curso',
+        rows: 3,
+      },
+    },
+    {
+      name: 'landing_access_requirements',
+      type: 'textarea',
+      admin: {
+        description: 'Requisitos de acceso visibles en la landing',
+        rows: 2,
+      },
+    },
+    {
+      name: 'landing_outcomes',
+      type: 'textarea',
+      admin: {
+        description: 'Salidas profesionales o continuidad formativa',
+        rows: 3,
+      },
+    },
+    {
+      name: 'landing_objectives',
+      type: 'array',
+      admin: {
+        description: 'Objetivos y beneficios destacados de la landing',
+      },
+      fields: [
+        {
+          name: 'text',
+          type: 'textarea',
+          required: true,
+          admin: {
+            rows: 2,
+          },
+        },
+      ],
+    },
+    {
+      name: 'landing_program_blocks',
+      type: 'array',
+      admin: {
+        description: 'Bloques y módulos del programa público',
+      },
+      fields: [
+        {
+          name: 'title',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'body',
+          type: 'textarea',
+          admin: {
+            rows: 2,
+          },
+        },
+        {
+          name: 'items',
+          type: 'array',
+          fields: [
+            {
+              name: 'text',
+              type: 'text',
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'landing_faqs',
+      type: 'array',
+      admin: {
+        description: 'Preguntas frecuentes específicas del curso',
+      },
+      fields: [
+        {
+          name: 'question',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'answer',
+          type: 'textarea',
+          required: true,
+          admin: {
+            rows: 3,
+          },
+        },
+      ],
+    },
+
+    /**
      * Cycle - Educational cycle relationship (optional)
      * Many-to-One relationship
      */

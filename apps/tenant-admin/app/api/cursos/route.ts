@@ -26,8 +26,16 @@ interface CursoRequestBody {
   descripcion?: string;
   duracion_referencia?: string;
   precio_referencia?: string;
-  objetivos?: string;
-  contenidos?: string;
+  objetivos?: string | string[];
+  contenidos?: string | string[];
+  landing_enabled?: boolean;
+  landing_target_audience?: string;
+  landing_access_requirements?: string;
+  landing_outcomes?: string;
+  landing_objectives?: string[];
+  landing_program_blocks?: Array<{ title: string; body?: string; items?: string[] }>;
+  landing_faqs?: Array<{ question: string; answer: string }>;
+  dossier_pdf?: number | string;
   imagen_portada?: string;
   pdf_files?: string[];
   subvencionado?: boolean;
@@ -47,6 +55,66 @@ interface CourseCreateData {
   modality: string;
   active: boolean;
   featured: boolean;
+  landing_enabled?: boolean;
+  landing_target_audience?: string;
+  landing_access_requirements?: string;
+  landing_outcomes?: string;
+  landing_objectives?: Array<{ text: string }>;
+  landing_program_blocks?: Array<{ title: string; body?: string; items?: Array<{ text: string }> }>;
+  landing_faqs?: Array<{ question: string; answer: string }>;
+  dossier_pdf?: number | string;
+}
+
+function toTextItems(values: unknown): Array<{ text: string }> {
+  if (!Array.isArray(values)) return [];
+  return values
+    .map((value) =>
+      typeof value === 'string'
+        ? value
+        : value && typeof value === 'object' && 'text' in value
+          ? String((value as { text?: unknown }).text ?? '')
+          : ''
+    )
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .map((text) => ({ text }));
+}
+
+function toProgramBlocks(values: unknown): CourseCreateData['landing_program_blocks'] {
+  if (!Array.isArray(values)) return [];
+  return values
+    .map((value, index) => {
+      if (typeof value === 'string') {
+        const text = value.trim();
+        if (!text) return null;
+        return { title: `Bloque ${index + 1}`, body: text, items: [] };
+      }
+      if (!value || typeof value !== 'object') return null;
+      const record = value as { title?: unknown; body?: unknown; items?: unknown };
+      const title = String(record.title ?? `Bloque ${index + 1}`).trim();
+      const body = String(record.body ?? '').trim();
+      return {
+        title,
+        body,
+        items: toTextItems(record.items),
+      };
+    })
+    .filter(Boolean)
+    .filter((block) => Boolean(block.title || block.body || block.items?.length));
+}
+
+function toFaqs(values: unknown): CourseCreateData['landing_faqs'] {
+  if (!Array.isArray(values)) return [];
+  return values
+    .map((value) => {
+      if (!value || typeof value !== 'object') return null;
+      const record = value as { question?: unknown; answer?: unknown };
+      const question = String(record.question ?? '').trim();
+      const answer = String(record.answer ?? '').trim();
+      if (!question || !answer) return null;
+      return { question, answer };
+    })
+    .filter((faq): faq is NonNullable<CourseCreateData['landing_faqs']>[number] => Boolean(faq));
 }
 
 interface PayloadCourseDoc {
@@ -76,9 +144,17 @@ export async function POST(request: NextRequest) {
       descripcion,
       duracion_referencia,
       precio_referencia,
+      objetivos,
+      contenidos,
+      landing_enabled,
+      landing_target_audience,
+      landing_access_requirements,
+      landing_outcomes,
+      landing_objectives,
+      landing_program_blocks,
+      landing_faqs,
+      dossier_pdf,
       // Reserved for future implementation
-      objetivos: _objetivos,
-      contenidos: _contenidos,
       imagen_portada: _imagen_portada,
       pdf_files: _pdf_files,
       subvencionado: _subvencionado,
@@ -184,7 +260,14 @@ export async function POST(request: NextRequest) {
       modality: 'presencial', // Default
       active: true,
       featured: false,
-      // TODO: Agregar objetivos, contenidos, PDFs cuando se implementen
+      landing_enabled: Boolean(landing_enabled),
+      landing_target_audience,
+      landing_access_requirements,
+      landing_outcomes,
+      landing_objectives: toTextItems(landing_objectives ?? (objetivos ? [objetivos] : [])),
+      landing_program_blocks: toProgramBlocks(landing_program_blocks ?? (contenidos ? [contenidos] : [])),
+      landing_faqs: toFaqs(landing_faqs),
+      dossier_pdf,
     };
 
     const payloadLoose = payload as unknown as LoosePayloadClient;

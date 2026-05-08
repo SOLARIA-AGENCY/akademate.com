@@ -5,6 +5,8 @@ import { ClientLayout } from '../ClientLayout'
 import type { TenantBranding } from '@/app/providers/tenant-branding'
 import { getTenantHostBranding, toAbsoluteAssetUrl } from '@/app/lib/server/tenant-host-branding'
 
+export const dynamic = 'force-dynamic'
+
 function getIconMimeType(url: string): string {
   if (url.endsWith('.svg')) return 'image/svg+xml'
   if (url.endsWith('.png')) return 'image/png'

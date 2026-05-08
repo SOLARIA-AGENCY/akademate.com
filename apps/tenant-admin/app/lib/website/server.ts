@@ -51,14 +51,19 @@ export function mergeWebsiteConfig(input?: Partial<WebsiteConfig> | null): Websi
 
 const getTenantWebsiteByIdCached = cache(async (tenantId: string): Promise<WebsiteConfig> => {
   if (!/^\d+$/.test(tenantId)) return CEP_DEFAULT_WEBSITE
-  const row = await queryFirst<{ notes: string | null }>(
-    'SELECT notes FROM tenants WHERE id = $1 LIMIT 1',
-    [Number.parseInt(tenantId, 10)]
-  )
-  const parsed = extractWebsiteFromNotes(row?.notes)
-  const merged = mergeWebsiteConfig(parsed)
-  // Prioridad CMS/dashboard: evitamos sobreescribir contenido editado con overrides hardcoded.
-  return merged
+  try {
+    const row = await queryFirst<{ notes: string | null }>(
+      'SELECT notes FROM tenants WHERE id = $1 LIMIT 1',
+      [Number.parseInt(tenantId, 10)]
+    )
+    const parsed = extractWebsiteFromNotes(row?.notes)
+    const merged = mergeWebsiteConfig(parsed)
+    // Prioridad CMS/dashboard: evitamos sobreescribir contenido editado con overrides hardcoded.
+    return merged
+  } catch (e) {
+    console.error('DB Error in getTenantWebsiteByIdCached, using fallback:', e)
+    return mergeWebsiteConfig(null)
+  }
 })
 
 export async function getTenantWebsite(): Promise<WebsiteConfig> {

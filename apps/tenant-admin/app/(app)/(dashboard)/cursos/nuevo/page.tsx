@@ -289,9 +289,15 @@ export default function NuevoCursoPage() {
         descripcion: descripcion || undefined,
         duracion_referencia: duracionReferencia ? duracionReferencia : undefined,
         precio_referencia: precioReferencia ? precioReferencia : undefined,
-        // TODO Phase 2: Agregar objetivos, contenidos, PDFs cuando se implementen
-        // objetivos: objetivos.filter((o) => o.trim() !== ''),
-        // contenidos: contenidos.filter((c) => c.trim() !== ''),
+        landing_enabled: false,
+        landing_objectives: objetivos.filter((o) => o.trim() !== ''),
+        landing_program_blocks: contenidos
+          .filter((c) => c.trim() !== '')
+          .map((content, index) => ({
+            title: `Bloque ${index + 1}`,
+            body: content.trim(),
+            items: [],
+          })),
         // imagenPortada,
         // pdfFiles,
         // subvencionado,

@@ -100,6 +100,13 @@ interface CourseApiData {
   precioReferencia: number
   imagenPortada: string
   imagenPortadaTipo?: 'curso' | 'fallback'
+  landingEnabled?: boolean
+  landingTargetAudience?: string
+  landingAccessRequirements?: string
+  landingOutcomes?: string
+  objetivos?: string[]
+  contenidos?: Array<{ title?: string; body?: string; items?: string[] }>
+  faqs?: Array<{ question: string; answer: string }>
 }
 
 export default function CourseEditPage({ params }: CourseEditPageProps) {
@@ -147,6 +154,14 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
           setTipo(course.tipo ?? 'privados')
           setDuracionReferencia(course.duracionReferencia?.toString() ?? '')
           setPrecioReferencia(course.precioReferencia?.toString() ?? '0')
+          setObjetivos(course.objetivos?.length ? course.objetivos : [''])
+          setContenidos(
+            course.contenidos?.length
+              ? course.contenidos.map((block) =>
+                  [block.title, block.body, ...(block.items ?? [])].filter(Boolean).join('\n')
+                )
+              : ['']
+          )
         } else {
           setFetchError(result.error ?? 'Curso no encontrado')
         }
@@ -285,6 +300,17 @@ export default function CourseEditPage({ params }: CourseEditPageProps) {
           duration_hours: parseInt(duracionReferencia) || undefined,
           base_price: parseFloat(precioReferencia) || undefined,
           subsidy_percentage: porcentajeSubvencion,
+          landing_objectives: objetivos.filter((objetivo) => objetivo.trim()).map((text) => ({ text })),
+          landing_program_blocks: contenidos
+            .filter((contenido) => contenido.trim())
+            .map((contenido, index) => {
+              const [titleLine, ...rest] = contenido.split('\n').map((line) => line.trim()).filter(Boolean)
+              return {
+                title: titleLine || `Bloque ${index + 1}`,
+                body: rest.length > 0 ? '' : titleLine,
+                items: rest.map((text) => ({ text })),
+              }
+            }),
         }),
       })
     } catch {

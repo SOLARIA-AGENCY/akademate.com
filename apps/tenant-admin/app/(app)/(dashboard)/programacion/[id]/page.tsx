@@ -8,7 +8,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, Calendar, MapPin, Users, GraduationCap, DollarSign,
-  Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
+  ExternalLink, Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
 } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
@@ -75,6 +75,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const heroImage = cycleImage || courseImage
 
   const title = cycle?.name || course?.name || course?.title || conv.codigo
+  const publicRunPath = `/p/convocatorias/${conv.codigo ?? conv.id}`
 
   return (
     <div className="space-y-6">
@@ -86,7 +87,9 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
         badge={<Badge variant={status.variant}>{status.label}</Badge>}
         actions={<>
           <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
-          <Button variant="outline" onClick={() => window.open(`/p/convocatorias/${conv.codigo}`, '_blank')}><BookOpen className="mr-2 h-4 w-4" />Ver web publica</Button>
+          <Button variant="outline" onClick={() => window.open(publicRunPath, '_blank', 'noopener,noreferrer')}>
+            <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
+          </Button>
         </>}
       />
 

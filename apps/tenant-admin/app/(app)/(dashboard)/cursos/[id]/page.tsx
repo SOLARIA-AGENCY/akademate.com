@@ -8,7 +8,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, BookOpen, Clock, Edit, Loader2,
-  Calendar, Euro, Globe2, Mail, Phone, Plus, Printer,
+  Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Plus, Printer,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -228,6 +228,8 @@ export default function CursoDetailPage({ params }: Props) {
   const areaName = resolveAreaName(course.area_formativa)
   const statusInfo = STATUS_LABELS[course.active === false ? 'archived' : (course.status ?? 'draft')]
   const publicCourseUrl = `${PUBLIC_BASE_URL}/p/cursos/${course.slug ?? course.id}`
+  const publicCoursePath = `/p/cursos/${course.slug ?? course.id}`
+  const publicCourseAvailable = Boolean(course.slug || course.id) && course.active !== false
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(publicCourseUrl)}`
   const activeRuns = convocatorias.filter((conv) => !['cancelled', 'archived', 'completed'].includes(conv.estado ?? ''))
 
@@ -274,6 +276,14 @@ export default function CursoDetailPage({ params }: Props) {
         actions={<>
           <Button variant="ghost" onClick={() => router.push('/dashboard/cursos')}>
             <ArrowLeft className="mr-2 h-4 w-4" />Cursos
+          </Button>
+          <Button
+            variant="outline"
+            disabled={!publicCourseAvailable}
+            onClick={() => window.open(publicCoursePath, '_blank', 'noopener,noreferrer')}
+            title={publicCourseAvailable ? 'Abrir página pública del curso' : 'Página pública no disponible'}
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
           </Button>
           <Button onClick={() => router.push(`/dashboard/cursos/${id}/editar`)}>
             <Edit className="mr-2 h-4 w-4" />Editar
@@ -350,7 +360,9 @@ export default function CursoDetailPage({ params }: Props) {
                 />
               ) : (
                 <div className="space-y-3">
-                  {convocatorias.map((conv) => (
+                  {convocatorias.map((conv) => {
+                    const publicRunPath = `/p/convocatorias/${conv.codigo ?? conv.id}`
+                    return (
                     <div key={conv.id} className="rounded-lg border p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -359,7 +371,18 @@ export default function CursoDetailPage({ params }: Props) {
                             {conv.campusNombre ?? 'Sede por definir'} · {conv.aulaNombre ?? 'Aula por definir'}
                           </p>
                         </div>
-                        <Badge variant="outline">{RUN_STATUS_LABELS[conv.estado ?? ''] ?? conv.estado ?? 'Sin estado'}</Badge>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <Badge variant="outline">{RUN_STATUS_LABELS[conv.estado ?? ''] ?? conv.estado ?? 'Sin estado'}</Badge>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 px-2"
+                            onClick={() => window.open(publicRunPath, '_blank', 'noopener,noreferrer')}
+                            title="Ver página pública de la convocatoria"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
                         <span>{formatDateRange(conv.fechaInicio, conv.fechaFin)}</span>
@@ -367,7 +390,7 @@ export default function CursoDetailPage({ params }: Props) {
                         <span>{conv.plazasOcupadas ?? 0}/{conv.plazasTotales ?? 0} plazas</span>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </CardContent>

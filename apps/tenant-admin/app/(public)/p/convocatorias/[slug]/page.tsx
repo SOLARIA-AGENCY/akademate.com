@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { PreinscripcionForm } from './PreinscripcionForm'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
@@ -30,6 +31,16 @@ function resolvePrimaryInstructor(conv: any): any {
   if (typeof conv.instructor === 'object' && conv.instructor !== null) return conv.instructor
   const instructors = Array.isArray(conv.instructors) ? conv.instructors : []
   return instructors.find((item: unknown) => typeof item === 'object' && item !== null) ?? null
+}
+
+function resolveCampusHref(campus: any): string | null {
+  if (!campus || typeof campus !== 'object') return null
+  return `/p/sedes/${campus.slug || campus.id}`
+}
+
+function resolveInstructorHref(instructor: any): string | null {
+  if (!instructor || typeof instructor !== 'object' || !instructor.id) return null
+  return `/p/profesores/${instructor.id}`
 }
 
 function formatMonth(date: string): string {
@@ -208,6 +219,8 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   const instructor = resolvePrimaryInstructor(conv)
   const instructorName = resolveInstructorName(instructor)
   const instructorPhoto = resolveImageUrl(instructor?.photo)
+  const instructorHref = resolveInstructorHref(instructor)
+  const campusHref = resolveCampusHref(campus)
   const instructorCertifications = Array.isArray(instructor?.certifications)
     ? instructor.certifications.filter((cert: any) => typeof cert?.title === 'string' && cert.title.trim())
     : []
@@ -425,7 +438,11 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
             <h2 className="text-2xl font-bold text-gray-900 mb-5">Sede y modalidad</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {campus && (
-                <div className="rounded-xl border border-gray-200 bg-white p-5">
+                <Link
+                  href={campusHref ?? '#'}
+                  className="rounded-xl border border-gray-200 bg-white p-5 transition hover:border-red-200 hover:shadow-md"
+                  aria-disabled={!campusHref}
+                >
                   <div className="flex items-center gap-2 mb-3">
                     <span className="brand-text"><IconMapPin /></span>
                     <h3 className="font-semibold text-gray-900">Sede</h3>
@@ -434,17 +451,10 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                   {campus.address && <p className="text-sm text-gray-600 mt-1">{campus.address}</p>}
                   {campus.city && <p className="text-sm text-gray-600">{campus.city}</p>}
                   {campus.phone && <p className="text-sm text-gray-600 mt-1">Tel: {campus.phone}</p>}
-                  {campus.maps_url && (
-                    <a
-                      href={campus.maps_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-flex items-center text-sm font-medium brand-text hover:underline"
-                    >
-                      Ver en mapa
-                    </a>
-                  )}
-                </div>
+                  <span className="mt-3 inline-flex items-center text-sm font-medium brand-text">
+                    Ver ficha de la sede
+                  </span>
+                </Link>
               )}
 
               <div className="rounded-xl border border-gray-200 bg-white p-5">
@@ -494,7 +504,11 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
         {instructorName && (
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-5">Docente asignado</h2>
-            <div className="flex flex-col gap-5 rounded-xl border border-gray-200 bg-white p-5 sm:flex-row sm:items-center">
+            <Link
+              href={instructorHref ?? '#'}
+              className="flex flex-col gap-5 rounded-xl border border-gray-200 bg-white p-5 transition hover:border-red-200 hover:shadow-md sm:flex-row sm:items-center"
+              aria-disabled={!instructorHref}
+            >
               {instructorPhoto ? (
                 <img
                   src={instructorPhoto}
@@ -521,7 +535,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                   </ul>
                 )}
               </div>
-            </div>
+            </Link>
           </section>
         )}
 

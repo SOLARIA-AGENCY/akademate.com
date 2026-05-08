@@ -8,7 +8,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, GraduationCap, Clock, Layers, Edit, Loader2,
-  Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin, FileText,
+  Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin, FileText, ExternalLink,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 
@@ -18,6 +18,7 @@ import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 
 interface CycleDetail {
   id: string
+  slug?: string
   name: string
   code?: string
   level: string
@@ -199,6 +200,8 @@ export default function CicloDetailPage({ params }: Props) {
   const competencies = Array.isArray(cycle.competencies) ? cycle.competencies : []
   const careerPaths = Array.isArray(cycle.careerPaths) ? cycle.careerPaths : []
   const imageUrl = resolveImageUrl(cycle.image)
+  const publicCyclePath = `/p/ciclos/${cycle.slug ?? cycle.id}`
+  const publicCycleAvailable = Boolean(cycle.slug || cycle.id) && cycle.active !== false
   const schoolYearsLabel = formatSchoolYears(
     cycle.duration?.courses || cycle.courses,
     cycle.duration?.modality || cycle.modality,
@@ -223,6 +226,20 @@ export default function CicloDetailPage({ params }: Props) {
         <div className="text-left md:text-right">
           <h1 className="text-3xl font-bold tracking-tight">{cycle.name}</h1>
           <p className="text-muted-foreground">{LEVEL_LABELS[cycle.level] ?? cycle.level}</p>
+          <div className="mt-3 flex flex-wrap gap-2 md:justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!publicCycleAvailable}
+              onClick={() => window.open(publicCyclePath, '_blank', 'noopener,noreferrer')}
+              title={publicCycleAvailable ? 'Abrir página pública del ciclo' : 'Página pública no disponible'}
+            >
+              <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
+            </Button>
+            <Button size="sm" onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
+              <Edit className="mr-2 h-4 w-4" />Editar
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -288,7 +305,7 @@ export default function CicloDetailPage({ params }: Props) {
                       <div
                         key={conv.id}
                         className={`rounded-lg border border-l-4 ${statusColors[conv.status] || 'border-l-gray-300'} hover:shadow-md transition-all cursor-pointer overflow-hidden`}
-                        onClick={() => router.push(`/programacion/${conv.id}`)}
+                        onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}
                       >
                         <div className="flex items-stretch">
                           {/* Foto heredada del ciclo */}
@@ -447,11 +464,12 @@ export default function CicloDetailPage({ params }: Props) {
                 <Button
                   variant="outline"
                   className="w-full justify-between"
-                  onClick={() => router.push(`/dashboard/ciclos/${id}/detalle`)}
+                  onClick={() => window.open(publicCyclePath, '_blank', 'noopener,noreferrer')}
+                  disabled={!publicCycleAvailable}
                 >
                   <span className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" />
-                    Ver Ciclo
+                    <ExternalLink className="h-4 w-4" />
+                    Ver página pública
                   </span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>

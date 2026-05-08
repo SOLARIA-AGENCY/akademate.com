@@ -4,6 +4,7 @@ import * as migration_20260417_160200 from './20260417_160200';
 import * as migration_20260421_121517 from './20260421_121517';
 import * as migration_20260427_cep_planning_v1 from './20260427_cep_planning_v1';
 import * as migration_20260428_students_tenant from './20260428_students_tenant';
+import * as migration_20260507_course_landing_design from './20260507_course_landing_design';
 
 export const migrations = [
   {
@@ -35,5 +36,10 @@ export const migrations = [
     up: migration_20260428_students_tenant.up,
     down: migration_20260428_students_tenant.down,
     name: '20260428_students_tenant'
+  },
+  {
+    up: migration_20260507_course_landing_design.up,
+    down: migration_20260507_course_landing_design.down,
+    name: '20260507_course_landing_design'
   },
 ];

@@ -21,6 +21,7 @@ import {
   GraduationCap,
   BookOpen,
   Plus,
+  ExternalLink,
 } from 'lucide-react'
 
 interface CourseRun {
@@ -245,6 +246,8 @@ export default function ProfesorDetailPage() {
     temporary_leave: 'Baja Temporal',
     inactive: 'Inactivo',
   }
+  const publicProfessorPath = `/p/profesores/${professor.id}`
+  const publicProfessorAvailable = professor.isActive !== false && professor.employmentStatus !== 'inactive'
 
   async function handleAssignCourseRun() {
     if (!selectedCourseRunId || !professor) return
@@ -292,6 +295,20 @@ export default function ProfesorDetailPage() {
         <div className="text-left md:text-right">
           <h1 className="text-3xl font-bold tracking-tight">{professor.fullName}</h1>
           <p className="text-muted-foreground">{professor.position}</p>
+          <div className="mt-3 flex flex-wrap gap-2 md:justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!publicProfessorAvailable}
+              onClick={() => window.open(publicProfessorPath, '_blank', 'noopener,noreferrer')}
+              title={publicProfessorAvailable ? 'Abrir página pública del docente' : 'Página pública no disponible'}
+            >
+              <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
+            </Button>
+            <Button size="sm" onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}>
+              <Edit className="mr-2 h-4 w-4" />Editar
+            </Button>
+          </div>
         </div>
       </div>
 

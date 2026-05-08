@@ -22,6 +22,14 @@ export function PublicPageViewTracker() {
   const searchQuery = searchParams?.toString() || ''
 
   useEffect(() => {
+    if (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname === '::1'
+    ) {
+      return
+    }
+
     const eventId =
       typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
         ? crypto.randomUUID()

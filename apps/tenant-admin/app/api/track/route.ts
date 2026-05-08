@@ -39,6 +39,16 @@ const RESERVED_TENANT_SLUGS = new Set(['www', 'admin', 'app'])
 const ALLOWED_CUSTOM_EVENT_TYPES = new Set<TrackEventType>(['form_click', 'form_submit'])
 let trafficFallbackPool: Pool | null = null
 
+function isDatabaseConnectionError(error: unknown): boolean {
+  const anyError = error as any
+  if (anyError?.code === 'ECONNREFUSED') return true
+  if (anyError?.payloadInitError === true) return true
+  if (Array.isArray(anyError?.errors) && anyError.errors.some(isDatabaseConnectionError)) return true
+  if (Array.isArray(anyError?.aggregateErrors) && anyError.aggregateErrors.some(isDatabaseConnectionError)) return true
+  const message = error instanceof Error ? error.message : String(error ?? '')
+  return message.includes('cannot connect to Postgres') || message.includes('ECONNREFUSED')
+}
+
 function escapeSql(value: string): string {
   return value.replace(/'/g, "''")
 }
@@ -648,11 +658,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error('[track] Primary tracking pipeline failed:', error)
+    if (!isDatabaseConnectionError(error)) {
+      console.error('[track] Primary tracking pipeline failed:', error)
+    }
     try {
       await persistTrafficEventFallback(request, body)
     } catch (fallbackError) {
-      console.error('[track] Fallback tracking pipeline failed:', fallbackError)
+      if (!isDatabaseConnectionError(fallbackError)) {
+        console.error('[track] Fallback tracking pipeline failed:', fallbackError)
+      }
     }
     return NextResponse.json({ ok: true })
   }

@@ -30,6 +30,18 @@ interface CourseDocument {
   subsidy_percentage?: number;
   area_formativa?: AreaFormativa | number;
   featured_image?: FeaturedImage | number;
+  dossier_pdf?: FeaturedImage | number;
+  landing_enabled?: boolean | null;
+  landing_target_audience?: string | null;
+  landing_access_requirements?: string | null;
+  landing_outcomes?: string | null;
+  landing_objectives?: Array<{ text?: string | null }> | null;
+  landing_program_blocks?: Array<{
+    title?: string | null;
+    body?: string | null;
+    items?: Array<{ text?: string | null }> | null;
+  }> | null;
+  landing_faqs?: Array<{ question?: string | null; answer?: string | null }> | null;
   active?: boolean | null;
   createdAt: string;
   updatedAt: string;
@@ -40,6 +52,10 @@ function resolveFeaturedImageUrl(image: CourseDocument['featured_image']): strin
   if (image.url) return image.url;
   if (image.filename) return `/api/media/file/${image.filename}`;
   return null;
+}
+
+function toTextArray(items: CourseDocument['landing_objectives']): string[] {
+  return (items ?? []).map((item) => String(item?.text ?? '').trim()).filter(Boolean);
 }
 
 /**
@@ -113,8 +129,21 @@ export async function GET(
         imagenPortadaTipo: resolveFeaturedImageUrl(curso.featured_image) ? 'curso' : 'fallback',
         totalConvocatorias: 0,
         active: Boolean(curso.active),
-        objetivos: [],
-        contenidos: [],
+        landingEnabled: Boolean(curso.landing_enabled),
+        landingTargetAudience: curso.landing_target_audience ?? '',
+        landingAccessRequirements: curso.landing_access_requirements ?? '',
+        landingOutcomes: curso.landing_outcomes ?? '',
+        dossierUrl: resolveFeaturedImageUrl(curso.dossier_pdf),
+        objetivos: toTextArray(curso.landing_objectives),
+        contenidos: (curso.landing_program_blocks ?? []).map((block) => ({
+          title: block.title ?? '',
+          body: block.body ?? '',
+          items: toTextArray(block.items ?? []),
+        })),
+        faqs: (curso.landing_faqs ?? []).map((faq) => ({
+          question: faq.question ?? '',
+          answer: faq.answer ?? '',
+        })),
         created_at: curso.createdAt,
         updated_at: curso.updatedAt,
       },

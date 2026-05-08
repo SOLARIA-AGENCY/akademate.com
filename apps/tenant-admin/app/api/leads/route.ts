@@ -2,6 +2,7 @@ import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import path from 'node:path'
 import {
   buildCommercialClassificationContext,
   classifyLeadCommercialBucket,
@@ -1307,6 +1308,17 @@ export async function POST(request: NextRequest) {
       const heroImage = heroImages[leadType] || heroImages.informacion
       const title = titles[leadType] || titles.informacion
       const courseName = body.notes?.replace('Preinscripcion: ', '').replace('Interes: ', '') || ''
+      const requestedDossierUrl = normalizeOptionalTrackingValue(body.dossier_url, 500)
+      const requestedDossierName =
+        normalizeOptionalTrackingValue(body.dossier_name, 180) ||
+        (courseName ? `${courseName}.pdf` : 'dossier-curso.pdf')
+      const dossierAttachments =
+        body.dossier_requested && requestedDossierUrl?.startsWith('/uploads/cep-course-programs/')
+          ? [{
+              filename: requestedDossierName,
+              path: path.join(process.cwd(), 'uploads', 'cep-course-programs', path.basename(requestedDossierUrl)),
+            }]
+          : undefined
       const whatsappUrl = whatsappPhone
         ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hola, me gustaria recibir informacion sobre la oferta formativa.')}`
         : ''
@@ -1333,14 +1345,15 @@ export async function POST(request: NextRequest) {
 <p style="color:#fff;font-size:20px;font-weight:700;margin:14px 0 0;letter-spacing:1px;">${academyName}</p>
 </td></tr>
 <tr><td style="padding:0;"><img src="${heroImage}" alt="${academyName}" width="600" style="display:block;width:100%;height:auto;"></td></tr>
-<tr><td style="padding:32px;">
-<h1 style="font-size:22px;color:#111;margin:0 0 16px;">${title}</h1>
-<p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 20px;">
-Hola <strong>${firstName}</strong>, gracias por tu interes en <strong>${academyName}</strong>${courseName ? ` y en <strong>${courseName}</strong>` : ''}.
-</p>
-<p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 20px;">
-Nuestro equipo revisara tu solicitud y te contactara en las proximas <strong>24-48 horas</strong> para darte toda la informacion que necesitas.
-</p>
+	<tr><td style="padding:32px;">
+	<h1 style="font-size:22px;color:#111;margin:0 0 16px;">${title}</h1>
+	<p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 20px;">
+	Hola <strong>${firstName}</strong>, gracias por tu interes en <strong>${academyName}</strong>${courseName ? ` y en <strong>${courseName}</strong>` : ''}.
+	</p>
+	${dossierAttachments ? `<p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 20px;">Te adjuntamos el dossier PDF del curso para que puedas revisar objetivos, duracion, modalidad y contenidos.</p>` : ''}
+	<p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 20px;">
+	Nuestro equipo revisara tu solicitud y te contactara en las proximas <strong>24-48 horas</strong> para darte toda la informacion que necesitas.
+	</p>
 <table width="100%" style="background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;margin:0 0 20px;">
 <tr><td style="padding:16px;">
 <p style="font-size:14px;color:#166534;margin:0;font-weight:600;">Mientras tanto, puedes:</p>
@@ -1379,11 +1392,12 @@ ${whatsappCta}
       })
       transport.sendMail({
         from: process.env.SMTP_FROM || 'Akademate <noreply@akademate.com>',
-        to: body.email,
-        subject: `${academyName} — ${title}`,
-        html: emailHtml,
-        replyTo: contactEmail,
-      }).catch((err: Error) => console.error('[leads] Email failed:', err.message))
+	        to: body.email,
+	        subject: `${academyName} — ${title}`,
+	        html: emailHtml,
+	        replyTo: contactEmail,
+	        attachments: dossierAttachments,
+	      }).catch((err: Error) => console.error('[leads] Email failed:', err.message))
     } catch { /* email is best-effort, don't block lead creation */ }
 
     return NextResponse.json(
