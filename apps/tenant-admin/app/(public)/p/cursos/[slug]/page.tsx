@@ -850,13 +850,36 @@ export default async function CursoLandingPage({ params }: Props) {
                     <a 
                       key={related.id}
                       href={`/p/cursos/${related.slug}`}
-                      className="group p-8 rounded-3xl border border-gray-200 hover:border-brand-500 hover:bg-brand-50 transition-all duration-500 shadow-sm hover:shadow-2xl"
+                      className="group grid min-h-[180px] grid-cols-[132px_1fr] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:border-brand-500 hover:shadow-xl sm:grid-cols-[160px_1fr]"
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-[10px] font-bold text-brand-600 uppercase tracking-widest px-3 py-1 rounded-full bg-brand-100/50">Área {related.area || 'Formación'}</span>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-brand-600 group-hover:translate-x-1 transition-all" />
+                      <div className="relative min-h-full overflow-hidden bg-gray-100">
+                        <img
+                          src={related.imagenPortada}
+                          alt={related.nombre}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
                       </div>
-                      <h4 className="font-extrabold text-gray-900 group-hover:text-brand-900 text-lg leading-tight">{related.nombre}</h4>
+                      <div className="flex min-w-0 flex-col justify-between p-5">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="max-w-[220px] truncate rounded-full bg-brand-100/50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-600">
+                              {related.area || 'Formación'}
+                            </span>
+                            <ChevronRight className="h-5 w-5 shrink-0 text-gray-300 transition-all group-hover:translate-x-1 group-hover:text-brand-600" />
+                          </div>
+                          <h4 className="line-clamp-2 text-lg font-extrabold uppercase leading-tight tracking-wide text-gray-900 group-hover:text-brand-900">
+                            {related.nombre}
+                          </h4>
+                        </div>
+                        <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold text-gray-600">
+                          <span className="rounded-full bg-gray-100 px-3 py-1">
+                            {related.duracionReferencia ? `${related.duracionReferencia} h` : 'Duración pendiente'}
+                          </span>
+                          <span className="rounded-full bg-gray-100 px-3 py-1">
+                            {related.modality === 'online' ? 'Online' : 'Presencial'}
+                          </span>
+                        </div>
+                      </div>
                     </a>
                   ))}
                 </div>

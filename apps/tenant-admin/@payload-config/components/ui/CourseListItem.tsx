@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
-import { BookOpen, MapPin } from 'lucide-react'
+import { CalendarDays, Clock } from 'lucide-react'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
 import { getPublicStudyTypeFallbackImage, toDashboardStudyType } from '@/app/lib/website/study-types'
 import type { PlantillaCurso } from '@/types'
@@ -49,7 +49,7 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
       <div className="flex min-w-0 flex-1 items-center gap-4" data-oid="ku49jm4">
         <div className="min-w-0 flex-1" data-oid="2.vkthd">
           <h3
-            className="mb-1 truncate text-sm font-semibold leading-tight"
+            className="mb-1 truncate text-sm font-extrabold uppercase tracking-wide leading-tight"
             title={course.nombre}
             data-oid=".22tcmh"
           >
@@ -70,15 +70,15 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
 
         <div className="hidden md:flex items-center gap-5 text-sm" data-oid="g.oqgk7">
           <div className="flex items-center gap-1.5" data-oid="3w1ar4y">
-            <BookOpen className="h-4 w-4 text-muted-foreground" data-oid=".z32xno" />
+            <Clock className="h-4 w-4 text-muted-foreground" data-oid=".z32xno" />
             <span className="font-medium" data-oid="t7.uut_">
-              {course.duracionReferencia} h
+              {course.duracionReferencia ? `${course.duracionReferencia} h` : 'Pendiente'}
             </span>
           </div>
           <div className="flex items-center gap-1.5" data-oid="sa8jbtd">
-            <MapPin className="h-4 w-4 text-muted-foreground" data-oid="97xktqx" />
+            <CalendarDays className="h-4 w-4 text-muted-foreground" data-oid="97xktqx" />
             <span className="font-medium" data-oid="4w4-k36">
-              {course.totalConvocatorias} {course.totalConvocatorias === 1 ? 'sede' : 'sedes'}
+              {course.totalConvocatorias} {course.totalConvocatorias === 1 ? 'convocatoria' : 'convocatorias'}
             </span>
           </div>
         </div>

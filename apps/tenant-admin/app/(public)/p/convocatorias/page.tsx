@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { CalendarDays, Clock, Euro, MapPin, Users } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Convocatorias Abiertas',
@@ -16,6 +17,21 @@ function resolveImageUrl(image: any): string | null {
   if (typeof image === 'object' && image.url) return image.url
   if (typeof image === 'object' && image.filename) return `/media/${image.filename}`
   return null
+}
+
+function formatRunSchedule(conv: any): string {
+  const days = Array.isArray(conv.schedule_days) ? conv.schedule_days.join(', ') : ''
+  const start = typeof conv.schedule_time_start === 'string' ? conv.schedule_time_start.replace(/:00$/, '') : ''
+  const end = typeof conv.schedule_time_end === 'string' ? conv.schedule_time_end.replace(/:00$/, '') : ''
+  if (days && start && end) return `${days} · ${start}-${end}`
+  if (start && end) return `${start}-${end}`
+  return days || 'Horario por confirmar'
+}
+
+function formatPrice(value: unknown): string {
+  const price = Number(value)
+  if (!Number.isFinite(price) || price <= 0) return 'Consultar'
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price)
 }
 
 export default async function ConvocatoriasPage() {
@@ -70,42 +86,73 @@ export default async function ConvocatoriasPage() {
                 </svg>
                 <span>{group.title}{group.city ? ` — ${group.city}` : ''}</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 gap-6">
                 {group.docs.map((conv: any) => {
             const course = typeof conv.course === 'object' ? conv.course : null
             const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
             const campus = typeof conv.campus === 'object' ? conv.campus : null
+            const classroom = typeof conv.classroom === 'object' ? conv.classroom : null
             // Image priority: course.featured_image → cycle.image → null
             const imageUrl = (course ? resolveImageUrl(course.featured_image) : null)
               || (cycle ? resolveImageUrl(cycle.image) : null)
               || (course ? resolveImageUrl(course.image) : null)
             const detailHref = `/convocatorias/${conv.codigo || conv.id}`
+            const courseName = course?.title || course?.name || cycle?.title || cycle?.name || conv.codigo
             const startDateText = conv.start_date
               ? new Date(conv.start_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
               : 'Fecha por confirmar'
+            const endDateText = conv.end_date
+              ? new Date(conv.end_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+              : null
+            const maxStudents = Number(conv.max_students ?? 0)
+            const currentEnrollments = Number(conv.current_enrollments ?? 0)
+            const isOpen = conv.status === 'enrollment_open'
 
             return (
-              <div key={conv.id} className="bg-white rounded-xl border-2 border-green-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:border-green-400">
-                  <div className="relative h-40 bg-gradient-to-br from-green-600 to-green-800">
-                    {imageUrl && <img src={imageUrl} alt={course?.title || ''} className="w-full h-full object-cover" />}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute top-3 right-3">
-                      <span className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full uppercase">Inscripción abierta</span>
-                    </div>
-                    <div className="absolute bottom-3 left-4 right-4">
-                      <h2 className="text-lg font-bold text-white">{course?.title || course?.name || conv.codigo}</h2>
-                    </div>
+              <article
+                key={conv.id}
+                className="group grid overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:border-red-300 hover:shadow-lg md:grid-cols-[240px_1fr]"
+              >
+                  <div className="relative min-h-[210px] bg-gradient-to-br from-gray-200 to-gray-100">
+                    {imageUrl && <img src={imageUrl} alt={courseName} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
                   </div>
-                  <div className="p-5 space-y-3">
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                      {campus && <span className="flex items-center gap-1"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>{campus.name}</span>}
+                  <div className="min-w-0 p-6">
+                    <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h2 className="line-clamp-2 text-xl font-extrabold uppercase leading-tight tracking-wide text-gray-950">
+                          {courseName}
+                        </h2>
+                        <p className="mt-1 font-mono text-sm text-gray-500">{conv.codigo}</p>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-white ${isOpen ? 'bg-green-600' : 'bg-red-600'}`}>
+                        {isOpen ? 'Inscripción abierta' : 'Próximas fechas'}
+                      </span>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm">
-                      <p><span className="font-semibold text-gray-900">INICIO DE CURSO:</span> {startDateText}</p>
+
+                    <div className="grid gap-3 text-sm text-gray-700 sm:grid-cols-2">
+                      <span className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-red-600" />
+                        {campus?.name || 'Sede por confirmar'}{classroom?.name ? ` · ${classroom.name}` : ''}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <CalendarDays className="h-4 w-4 text-red-600" />
+                        {startDateText}{endDateText ? ` - ${endDateText}` : ''}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-red-600" />
+                        {formatRunSchedule(conv)}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-red-600" />
+                        {currentEnrollments}/{maxStudents || '-'} plazas
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <Euro className="h-4 w-4 text-red-600" />
+                        {formatPrice(conv.price ?? course?.base_price)}
+                      </span>
                     </div>
-                    <div className="pt-2">
-                      <span className="mb-3 block text-xs text-gray-400 font-mono">{conv.codigo}</span>
-                      <div className="grid grid-cols-2 gap-2">
+
+                    <div className="mt-5 grid gap-2 sm:grid-cols-2">
                         <Link
                           href={detailHref}
                           className="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-3 py-3 text-sm font-extrabold uppercase tracking-wide text-white hover:bg-red-700"
@@ -114,14 +161,13 @@ export default async function ConvocatoriasPage() {
                         </Link>
                         <Link
                           href={detailHref}
-                          className="inline-flex w-full items-center justify-center rounded-md bg-green-600 px-3 py-3 text-sm font-extrabold uppercase tracking-wide text-white hover:bg-green-700"
+                          className="inline-flex w-full items-center justify-center rounded-md border border-red-200 bg-white px-3 py-3 text-sm font-extrabold uppercase tracking-wide text-red-700 hover:bg-red-50"
                         >
                           RESERVAR PLAZA
                         </Link>
-                      </div>
                     </div>
                   </div>
-                </div>
+                </article>
             )
                 })}
               </div>

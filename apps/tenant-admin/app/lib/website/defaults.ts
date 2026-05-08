@@ -236,7 +236,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         {
           kind: 'teamGrid',
           title: 'Equipo docente',
-          subtitle: 'Presentación editorial del equipo mientras llega la colección dedicada.',
+          subtitle: 'Conoce a nuestro equipo docente y su experiencia profesional por áreas.',
           members: [
             { name: 'Alexis Galán', role: 'Farmacia', image: '/website/cep/team/alexis.jpg' },
             { name: 'Livia Bernardi', role: 'Adiestramiento Canino', image: '/website/cep/team/livia.jpg' },
@@ -251,7 +251,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         {
           kind: 'leadForm',
           title: 'Solicita información',
-          subtitle: 'Formulario conectado con el flujo actual de leads.',
+          subtitle: 'Cuéntanos qué formación te interesa y te llamamos para orientarte sobre horarios, sedes y matrícula.',
           source: 'website-home',
         },
       ],
