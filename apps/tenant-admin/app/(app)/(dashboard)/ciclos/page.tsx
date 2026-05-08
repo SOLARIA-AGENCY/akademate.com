@@ -95,6 +95,10 @@ function formatCycleStartDate(value?: string): string {
   })
 }
 
+function formatCycleLevelLabel(value: string): string {
+  return value.toUpperCase()
+}
+
 export default function TodosLosCiclosPage() {
   const router = useRouter()
   const [view, setView] = useViewPreference('ciclos')
@@ -398,15 +402,10 @@ export default function TodosLosCiclosPage() {
                   />
                   <div className="absolute left-4 top-4" data-oid="k5si0ro">
                     <Badge
-                      variant={ciclo.nivel === 'Grado Superior' ? 'default' : 'secondary'}
-                      className={`text-xs font-semibold backdrop-blur-sm border ${
-                        ciclo.nivel === 'Grado Superior'
-                          ? 'bg-primary/90 text-primary-foreground border-primary/50'
-                          : 'bg-black/70 text-white border-white/20'
-                      }`}
+                      className="border-[#f2014b]/50 bg-[#f2014b] text-xs font-semibold text-white shadow-sm hover:bg-[#d80143]"
                       data-oid="t:ogjxr"
                     >
-                      {ciclo.nivel}
+                      {formatCycleLevelLabel(ciclo.nivel)}
                     </Badge>
                   </div>
                 </div>

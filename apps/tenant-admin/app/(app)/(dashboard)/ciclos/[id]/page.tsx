@@ -11,6 +11,7 @@ import {
   Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin, FileText, ExternalLink,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
+import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -62,6 +63,10 @@ const LEVEL_LABELS: Record<string, string> = {
   basico: 'Formacion Profesional Basica',
   medio: 'Grado Medio',
   superior: 'Grado Superior',
+  grado_medio: 'Grado Medio',
+  grado_superior: 'Grado Superior',
+  fp_basica: 'Formacion Profesional Basica',
+  certificado_profesionalidad: 'Certificado de Profesionalidad',
 }
 
 const MODALITY_LABELS: Record<string, string> = {
@@ -93,6 +98,16 @@ function formatSchoolYears(courses?: number, modality?: string): string | null {
   if (courses === 3) return '3 Cursos Escolares'
   if (courses === 1) return '1 Curso Escolar'
   return `${courses} Cursos Escolares`
+}
+
+function levelLabel(value?: string): string {
+  return value ? (LEVEL_LABELS[value] ?? value.replace(/_/g, ' ')).toUpperCase() : 'NIVEL'
+}
+
+function normalizeCampaignStatus(value?: string): CampaignState {
+  return value && ['active', 'paused', 'draft', 'completed', 'archived'].includes(value)
+    ? value as CampaignState
+    : 'none'
 }
 
 // ---------------------------------------------------------------------------
@@ -225,7 +240,7 @@ export default function CicloDetailPage({ params }: Props) {
         </nav>
         <div className="text-left md:text-right">
           <h1 className="text-3xl font-bold tracking-tight">{cycle.name}</h1>
-          <p className="text-muted-foreground">{LEVEL_LABELS[cycle.level] ?? cycle.level}</p>
+          <p className="text-muted-foreground">{levelLabel(cycle.level)}</p>
           <div className="mt-3 flex flex-wrap gap-2 md:justify-end">
             <Button
               variant="outline"
@@ -302,9 +317,10 @@ export default function CicloDetailPage({ params }: Props) {
                     const inscritos = conv.current_enrollments || 0
                     const porcentaje = plazas > 0 ? Math.round((inscritos / plazas) * 100) : 0
                     return (
-                      <div
+                      <button
                         key={conv.id}
-                        className={`rounded-lg border border-l-4 ${statusColors[conv.status] || 'border-l-gray-300'} hover:shadow-md transition-all cursor-pointer overflow-hidden`}
+                        type="button"
+                        className={`block w-full rounded-lg border border-l-4 text-left ${statusColors[conv.status] || 'border-l-gray-300'} overflow-hidden transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
                         onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}
                       >
                         <div className="flex items-stretch">
@@ -315,14 +331,14 @@ export default function CicloDetailPage({ params }: Props) {
                             </div>
                           )}
                           <div className="flex-1 p-3">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono text-xs text-muted-foreground">{conv.codigo}</span>
-                                <Badge variant={conv.status === 'enrollment_open' ? 'default' : 'secondary'} className="text-[10px]">
-                                  {statusLabels[conv.status] || conv.status}
-                                </Badge>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="line-clamp-2 text-sm font-bold uppercase leading-tight">{cycle.name}</p>
+                                <p className="mt-1 font-mono text-xs text-muted-foreground">{conv.codigo}</p>
                               </div>
-                              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                              <Badge variant={conv.status === 'enrollment_open' ? 'default' : 'secondary'} className="shrink-0 text-[10px]">
+                                {statusLabels[conv.status] || conv.status}
+                              </Badge>
                             </div>
                             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
                               {campusName && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{campusName}</span>}
@@ -343,12 +359,13 @@ export default function CicloDetailPage({ params }: Props) {
                             {/* Marketing campaign badge */}
                             <div className="mt-2">
                               <CampaignBadge
-                                status={conv.campaign_code ? 'active' : 'none'}
+                                status={normalizeCampaignStatus(conv.campaignStatus ?? (conv.campaign_code ? 'active' : undefined))}
+                                campaignId={conv.campaignId ?? null}
                               />
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     )
                   })}
                 </div>
@@ -408,7 +425,7 @@ export default function CicloDetailPage({ params }: Props) {
               {/* Level */}
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Nivel</span>
-                <Badge variant="default">{LEVEL_LABELS[cycle.level] ?? cycle.level}</Badge>
+                <Badge className="bg-[#f2014b] text-white hover:bg-[#d80143]">{levelLabel(cycle.level)}</Badge>
               </div>
 
               {/* Family */}

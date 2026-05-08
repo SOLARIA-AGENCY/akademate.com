@@ -8,8 +8,10 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, BookOpen, Clock, Edit, Loader2,
-  Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Plus, Printer,
+  Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Plus, Printer, MapPin, Users,
 } from 'lucide-react'
+import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
+import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -38,6 +40,9 @@ interface CourseDetail {
 interface ConvocatoriaSummary {
   id: string | number
   codigo?: string
+  cursoNombre?: string
+  cursoImagen?: string | null
+  cursoTipo?: string
   campusNombre?: string
   aulaNombre?: string
   fechaInicio?: string
@@ -50,6 +55,8 @@ interface ConvocatoriaSummary {
   precio?: number
   matricula?: number
   modalidad?: string
+  campaignId?: string | null
+  campaignStatus?: CampaignState
 }
 
 // ---------------------------------------------------------------------------
@@ -134,6 +141,12 @@ function formatDateRange(start?: string, end?: string): string {
 function normalizeCourseType(value?: string): string {
   if (!value) return 'Sin tipo'
   return COURSE_TYPE_LABELS[value] ?? value
+}
+
+function normalizeCampaignStatus(value?: string): CampaignState {
+  return value && ['active', 'paused', 'draft', 'completed', 'archived'].includes(value)
+    ? value as CampaignState
+    : 'none'
 }
 
 // ---------------------------------------------------------------------------
@@ -361,35 +374,72 @@ export default function CursoDetailPage({ params }: Props) {
               ) : (
                 <div className="space-y-3">
                   {convocatorias.map((conv) => {
-                    const publicRunPath = `/p/convocatorias/${conv.codigo ?? conv.id}`
+                    const ocupadas = conv.plazasOcupadas ?? 0
+                    const total = conv.plazasTotales ?? 0
+                    const ocupacion = total > 0 ? Math.round((ocupadas / total) * 100) : 0
+                    const runImage = conv.cursoImagen || imageUrl
+                    const statusLabel = RUN_STATUS_LABELS[conv.estado ?? ''] ?? conv.estado ?? 'Sin estado'
                     return (
-                    <div key={conv.id} className="rounded-lg border p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-medium">{conv.codigo ?? `Convocatoria ${conv.id}`}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {conv.campusNombre ?? 'Sede por definir'} · {conv.aulaNombre ?? 'Aula por definir'}
-                          </p>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          <Badge variant="outline">{RUN_STATUS_LABELS[conv.estado ?? ''] ?? conv.estado ?? 'Sin estado'}</Badge>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 px-2"
-                            onClick={() => window.open(publicRunPath, '_blank', 'noopener,noreferrer')}
-                            title="Ver página pública de la convocatoria"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
+                    <button
+                      key={conv.id}
+                      type="button"
+                      className="block w-full overflow-hidden rounded-lg border text-left transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}
+                    >
+                      <div className="flex items-stretch">
+                        {runImage ? (
+                          <img src={runImage} alt="" className="hidden min-h-40 w-44 shrink-0 object-cover sm:block" />
+                        ) : (
+                          <div className="hidden min-h-40 w-44 shrink-0 items-center justify-center bg-muted sm:flex">
+                            <BookOpen className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex min-w-0 flex-1 flex-col p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="line-clamp-2 text-sm font-bold uppercase leading-tight">
+                                {conv.cursoNombre || course.name || 'Curso'}
+                              </p>
+                              <p className="mt-1 font-mono text-xs text-muted-foreground">
+                                {conv.codigo ?? `Convocatoria ${conv.id}`}
+                              </p>
+                            </div>
+                            <Badge variant={conv.estado === 'enrollment_open' ? 'default' : 'secondary'} className="shrink-0">
+                              {statusLabel}
+                            </Badge>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5" />
+                              {conv.campusNombre ?? 'Sede por definir'} · {conv.aulaNombre ?? 'Aula por definir'}
+                            </span>
+                            <span className="inline-flex items-center gap-1">
+                              <Calendar className="h-3.5 w-3.5" />
+                              {formatDateRange(conv.fechaInicio, conv.fechaFin)}
+                            </span>
+                            <span className="font-medium">{formatCurrency(conv.precio)}</span>
+                          </div>
+                          <div className="mt-3">
+                            <div className="mb-1 flex items-center justify-between text-xs">
+                              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                <Users className="h-3.5 w-3.5" />
+                                Plazas
+                              </span>
+                              <span className="font-medium">{ocupadas}/{total} ({ocupacion}%)</span>
+                            </div>
+                            <div className="h-1.5 rounded-full bg-muted">
+                              <div className="h-1.5 rounded-full bg-primary" style={{ width: `${Math.min(ocupacion, 100)}%` }} />
+                            </div>
+                          </div>
+                          <div className="mt-3">
+                            <CampaignBadge
+                              status={normalizeCampaignStatus(conv.campaignStatus)}
+                              campaignId={conv.campaignId}
+                            />
+                          </div>
                         </div>
                       </div>
-                      <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
-                        <span>{formatDateRange(conv.fechaInicio, conv.fechaFin)}</span>
-                        <span>{conv.horario?.trim() || conv.turno || 'Horario por definir'}</span>
-                        <span>{conv.plazasOcupadas ?? 0}/{conv.plazasTotales ?? 0} plazas</span>
-                      </div>
-                    </div>
+                    </button>
                   )})}
                 </div>
               )}

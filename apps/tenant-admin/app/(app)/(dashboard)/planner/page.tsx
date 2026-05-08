@@ -16,11 +16,13 @@ import {
   Calendar,
   Users,
   Clock,
+  BookOpen,
   GripVertical,
   Loader2,
   AlertTriangle,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
+import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -30,11 +32,15 @@ interface KanbanCard {
   id: string
   curso: string
   tipo: string
+  cursoImagen?: string | null
   sede: string
   sedeId: string
   fechaInicio: string
   fechaFin: string
   horario: string
+  dias: string[]
+  horaInicio: string
+  horaFin: string
   aula: string
   aulaId: string
   aulaCapacidad: number
@@ -43,6 +49,8 @@ interface KanbanCard {
   plazas: number
   inscritos: number
   estado: string
+  campaignId?: string | null
+  campaignStatus: CampaignState
 }
 
 interface Aula {
@@ -78,6 +86,51 @@ const COLUMNS_CONFIG: { key: string; label: string; color: string; bgColor: stri
   { key: 'completed', label: 'Completada', color: 'border-gray-300', bgColor: 'bg-gray-50/50 dark:bg-gray-900/10' },
   { key: 'cancelled', label: 'Cancelada', color: 'border-red-400', bgColor: 'bg-red-50/50 dark:bg-red-900/10' },
 ]
+
+const DAY_LABELS: Record<string, string> = {
+  monday: 'LUN',
+  tuesday: 'MAR',
+  wednesday: 'MIE',
+  thursday: 'JUE',
+  friday: 'VIE',
+  saturday: 'SAB',
+  sunday: 'DOM',
+}
+
+const COURSE_TYPE_STYLES: Record<string, { bar: string; bg: string; text: string; border: string }> = {
+  privados: { bar: 'bg-[#f2014b]', bg: 'bg-rose-50', text: 'text-rose-950', border: 'border-rose-200' },
+  privado: { bar: 'bg-[#f2014b]', bg: 'bg-rose-50', text: 'text-rose-950', border: 'border-rose-200' },
+  private: { bar: 'bg-[#f2014b]', bg: 'bg-rose-50', text: 'text-rose-950', border: 'border-rose-200' },
+  desempleados: { bar: 'bg-blue-600', bg: 'bg-blue-50', text: 'text-blue-950', border: 'border-blue-200' },
+  fped: { bar: 'bg-blue-600', bg: 'bg-blue-50', text: 'text-blue-950', border: 'border-blue-200' },
+  ocupados: { bar: 'bg-emerald-600', bg: 'bg-emerald-50', text: 'text-emerald-950', border: 'border-emerald-200' },
+  teleformacion: { bar: 'bg-orange-500', bg: 'bg-orange-50', text: 'text-orange-950', border: 'border-orange-200' },
+  online: { bar: 'bg-orange-500', bg: 'bg-orange-50', text: 'text-orange-950', border: 'border-orange-200' },
+  cycle: { bar: 'bg-violet-600', bg: 'bg-violet-50', text: 'text-violet-950', border: 'border-violet-200' },
+}
+
+function normalizeCampaignStatus(value: unknown): CampaignState {
+  return typeof value === 'string' && ['active', 'paused', 'draft', 'completed', 'archived'].includes(value)
+    ? value as CampaignState
+    : 'none'
+}
+
+function formatSchedule(card: Pick<KanbanCard, 'dias' | 'horaInicio' | 'horaFin' | 'horario'>): string {
+  const days = card.dias.map((day) => DAY_LABELS[day] ?? day.toUpperCase()).join(', ')
+  const start = card.horaInicio?.slice(0, 5) ?? ''
+  const end = card.horaFin?.slice(0, 5) ?? ''
+  const time = start && end ? `${start}-${end}` : start || end
+  return [days, time].filter(Boolean).join(' · ') || card.horario
+}
+
+function courseTypeStyle(type?: string) {
+  return COURSE_TYPE_STYLES[(type ?? '').toLowerCase()] ?? {
+    bar: 'bg-slate-500',
+    bg: 'bg-slate-50',
+    text: 'text-slate-950',
+    border: 'border-slate-200',
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Kanban Card Component
@@ -147,7 +200,7 @@ function KanbanCardItem({ card, onDragStart, onClick }: {
 
           {/* Campaign badge */}
           <div className="mt-2">
-            <CampaignBadge status="none" />
+            <CampaignBadge status={card.campaignStatus} campaignId={card.campaignId} />
           </div>
         </div>
       </div>
@@ -204,9 +257,19 @@ function KanbanColumnView({ column, onDragStart, onDrop, onDragOver, onClick, on
   )
 }
 
-function OccupancyMatrix({ aulas, cards, sedeFilter }: { aulas: Aula[]; cards: KanbanCard[]; sedeFilter: string }) {
-  const visibleAulas = sedeFilter === 'todas' ? aulas : aulas.filter((aula) => aula.campusId === sedeFilter)
-  const visibleCards = sedeFilter === 'todas' ? cards : cards.filter((card) => card.sedeId === sedeFilter)
+function OccupancyMatrix({
+  aulas,
+  cards,
+  sedeFilter,
+  sedeName,
+}: {
+  aulas: Aula[]
+  cards: KanbanCard[]
+  sedeFilter: string
+  sedeName?: string
+}) {
+  const visibleAulas = aulas.filter((aula) => aula.campusId === sedeFilter)
+  const visibleCards = cards.filter((card) => card.sedeId === sedeFilter)
 
   if (visibleAulas.length === 0) return null
 
@@ -214,7 +277,7 @@ function OccupancyMatrix({ aulas, cards, sedeFilter }: { aulas: Aula[]; cards: K
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-3">
-          <CardTitle className="text-sm">Matriz de ocupación por aula y turno</CardTitle>
+          <CardTitle className="text-sm">Matriz de ocupación por aula y turno · {sedeName ?? 'Sede seleccionada'}</CardTitle>
           <Badge variant="outline">{visibleCards.length} convocatorias</Badge>
         </div>
       </CardHeader>
@@ -248,16 +311,32 @@ function OccupancyMatrix({ aulas, cards, sedeFilter }: { aulas: Aula[]; cards: K
                             <div className="h-1.5 rounded-full bg-muted">
                               <div className={ratio >= 100 ? 'h-1.5 rounded-full bg-red-500' : 'h-1.5 rounded-full bg-green-500'} style={{ width: `${ratio}%` }} />
                             </div>
-                            {shiftCards.map((card) => (
+                            {shiftCards.map((card) => {
+                              const style = courseTypeStyle(card.tipo)
+                              return (
                               <button
                                 key={card.id}
-                                className="block w-full rounded border bg-background p-1.5 text-left hover:bg-muted"
-                                onClick={() => window.location.assign(`/programacion/${card.id}`)}
+                                className={`flex min-h-16 w-full overflow-hidden rounded-md border text-left shadow-sm transition hover:shadow-md ${style.bg} ${style.border}`}
+                                onClick={() => window.location.assign(`/dashboard/programacion/${card.id}`)}
                               >
-                                <div className="truncate font-medium">{card.curso}</div>
-                                <div className="mt-0.5 truncate text-muted-foreground">{card.horario}</div>
+                                <div className={`w-1.5 shrink-0 ${style.bar}`} />
+                                {card.cursoImagen ? (
+                                  <img src={card.cursoImagen} alt="" className="h-auto w-16 shrink-0 object-cover" />
+                                ) : (
+                                  <div className="flex w-16 shrink-0 items-center justify-center bg-white/65">
+                                    <BookOpen className="h-5 w-5 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <div className="min-w-0 flex-1 p-2">
+                                  <div className={`line-clamp-2 text-[11px] font-bold uppercase leading-tight ${style.text}`}>
+                                    {card.curso}
+                                  </div>
+                                  <div className="mt-1 text-[11px] font-medium text-muted-foreground">
+                                    {formatSchedule(card)}
+                                  </div>
+                                </div>
                               </button>
-                            ))}
+                            )})}
                           </div>
                         )}
                       </div>
@@ -307,12 +386,16 @@ export default function PlannerPage() {
           cards = items.map((c: Record<string, unknown>) => ({
             id: String(c.id),
             curso: (c.cursoNombre as string) || 'Curso',
-            tipo: (c.cursoTipo as string) || '',
+            tipo: (c.cursoTipo as string) || (c.trainingType as string) || '',
+            cursoImagen: (c.cursoImagen as string) || null,
             sede: (c.campusNombre as string) || 'Sin sede',
             sedeId: String(c.campusId || ''),
             fechaInicio: (c.fechaInicio as string) || '',
             fechaFin: (c.fechaFin as string) || '',
             horario: (c.horario as string) || '',
+            dias: Array.isArray(c.dias) ? c.dias.map(String) : [],
+            horaInicio: (c.horaInicio as string) || '',
+            horaFin: (c.horaFin as string) || '',
             aula: (c.aulaNombre as string) || 'Sin aula',
             aulaId: String(c.aulaId || ''),
             aulaCapacidad: (c.aulaCapacidad as number) || 0,
@@ -321,14 +404,21 @@ export default function PlannerPage() {
             plazas: (c.plazasTotales as number) || 0,
             inscritos: (c.plazasOcupadas as number) || 0,
             estado: (c.estado as string) || 'draft',
+            campaignId: (c.campaignId as string) || null,
+            campaignStatus: normalizeCampaignStatus(c.campaignStatus),
           }))
         }
 
+        let nextCampuses: { id: string; name: string }[] = []
         if (campusRes.ok) {
           const campusData = await campusRes.json()
-          setCampuses((Array.isArray(campusData.docs) ? campusData.docs : []).map((c: Record<string, unknown>) => ({
+          nextCampuses = (Array.isArray(campusData.docs) ? campusData.docs : []).map((c: Record<string, unknown>) => ({
             id: String(c.id), name: (c.name as string) || 'Sede',
-          })))
+          }))
+          setCampuses(nextCampuses)
+          if (nextCampuses.length > 0) {
+            setSedeFilter((current) => current === 'todas' ? nextCampuses[0]!.id : current)
+          }
         }
 
         if (aulasRes.ok) {
@@ -423,19 +513,18 @@ export default function PlannerPage() {
   }, [columns, draggedCardId])
 
   const handleCardClick = useCallback((id: string) => {
-    router.push(`/programacion/${id}`)
+    router.push(`/dashboard/programacion/${id}`)
   }, [router])
 
   const handleAdd = useCallback((columnKey: string) => {
-    router.push(`/programacion/nueva`)
+    router.push(`/dashboard/programacion/nueva`)
   }, [router])
 
   // Filtered columns
-  const filteredColumns = sedeFilter === 'todas'
-    ? columns
-    : columns.map((col) => ({ ...col, cards: col.cards.filter((c) => c.sedeId === sedeFilter) }))
+  const filteredColumns = columns.map((col) => ({ ...col, cards: col.cards.filter((c) => c.sedeId === sedeFilter) }))
 
   const totalCards = columns.reduce((s, c) => s + c.cards.length, 0)
+  const selectedCampus = campuses.find((campus) => campus.id === sedeFilter)
 
   return (
     <div className="space-y-4">
@@ -456,7 +545,7 @@ export default function PlannerPage() {
           </div>
         }
         actions={
-          <Button onClick={() => router.push('/programacion/nueva')}>
+          <Button onClick={() => router.push('/dashboard/programacion/nueva')}>
             <Plus className="mr-2 h-4 w-4" />
             Nueva Convocatoria
           </Button>
@@ -467,14 +556,6 @@ export default function PlannerPage() {
       <Card className="p-3">
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground font-medium">Filtrar por sede:</span>
-          <button
-            onClick={() => setSedeFilter('todas')}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-              sedeFilter === 'todas' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-            }`}
-          >
-            Todas
-          </button>
           {campuses.map((c) => (
             <button
               key={c.id}
@@ -489,7 +570,7 @@ export default function PlannerPage() {
         </div>
       </Card>
 
-      <OccupancyMatrix aulas={aulas} cards={allCards} sedeFilter={sedeFilter} />
+      <OccupancyMatrix aulas={aulas} cards={allCards} sedeFilter={sedeFilter} sedeName={selectedCampus?.name} />
 
       {/* Loading */}
       {isLoading && (
