@@ -21,6 +21,15 @@ function staffName(staff: any): string {
   return staff.full_name || [staff.first_name, staff.last_name].filter(Boolean).join(' ').trim() || 'Docente CEP'
 }
 
+function slugify(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 async function getProfessor(slug: string) {
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
@@ -36,7 +45,21 @@ async function getProfessor(slug: string) {
     depth: 2,
   })
 
-  return result.docs[0] as any
+  if (result.docs[0]) return result.docs[0] as any
+
+  const professors = await payload.find({
+    collection: 'staff',
+    where: {
+      and: [
+        { staff_type: { equals: 'profesor' } },
+        { is_active: { equals: true } },
+      ],
+    } as any,
+    limit: 100,
+    depth: 2,
+  })
+
+  return professors.docs.find((staff: any) => slugify(staffName(staff)) === slug) as any
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -19,6 +19,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
       { kind: 'link', label: 'Quiénes Somos', href: '/quienes-somos' },
       { kind: 'dropdown', source: 'cycles_by_level', label: 'Ciclos', href: '/ciclos' },
       { kind: 'dropdown', source: 'study_types', label: 'Cursos', href: '/cursos' },
+      { kind: 'link', label: 'Nuevas formaciones', href: '/#nuevas-formaciones' },
       { kind: 'link', label: 'Convocatorias', href: '/convocatorias' },
       { kind: 'dropdown', source: 'campuses', label: 'Sedes', href: '/sedes' },
       { kind: 'link', label: 'Blog', href: '/blog' },
@@ -172,20 +173,20 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         },
         {
           kind: 'featureStrip',
-          title: 'Por qué CEP',
-          subtitle: 'Mismo tono de marca, estructura más mantenible.',
+          title: 'Por qué elegir CEP',
+          subtitle: 'Formación pensada para avanzar: orientación real, docentes en activo y acompañamiento hasta la matrícula.',
           items: [
             {
-              title: 'Prácticas reales',
-              description: 'Programas conectados con empresas y entorno profesional.',
+              title: 'Aprende con profesionales en activo',
+              description: 'Clases prácticas con docentes que conocen lo que se exige fuera del aula.',
             },
             {
-              title: 'Oferta mixta',
-              description: 'Ciclos oficiales, cursos privados y formación subvencionada.',
+              title: 'Elige el camino que encaja contigo',
+              description: 'Ciclos oficiales, cursos privados y formación subvencionada con asesoramiento antes de matricularte.',
             },
             {
-              title: 'Sedes activas',
-              description: 'Presencia física en Tenerife con atención académica continua.',
+              title: 'Estudia cerca, con seguimiento real',
+              description: 'Sedes en Tenerife, grupos reducidos y atención académica para resolver dudas desde el primer día.',
             },
           ],
         },
@@ -203,6 +204,13 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
           limit: 6,
         },
         {
+          id: 'nuevas-formaciones',
+          kind: 'courseList',
+          title: 'Nuevas formaciones',
+          subtitle: 'Programas que estamos preparando para ampliar la oferta formativa de CEP.',
+          limit: 3,
+        },
+        {
           kind: 'courseList',
           title: 'Cursos destacados',
           subtitle: 'Especialización orientada a profesiones con demanda.',
@@ -217,14 +225,14 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         {
           kind: 'categoryGrid',
           title: 'Áreas de formación',
-          subtitle: 'Bloques visuales editables, conservando la estructura del sitio original.',
+          subtitle: 'Encuentra tu próxima formación por especialidad profesional.',
           items: [
-            { title: 'Área Sanitaria y Clínica', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/cursos' },
-            { title: 'Área Veterinaria y Bienestar Animal', image: '/website/cep/categories/mundo-animal.jpg', href: '/cursos' },
-            { title: 'Área Salud, Bienestar y Deporte', image: '/website/cep/categories/salud-bienestar-y-deporte.jpg', href: '/cursos' },
-            { title: 'Área Tecnología, Digital y Diseño', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/cursos' },
-            { title: 'Área Empresa, Administración y Gestión', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/cursos' },
-            { title: 'Área Seguridad, Vigilancia y Protección', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/cursos' },
+            { title: 'Área Sanitaria y Clínica', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/p/areas/area-sanitaria-y-clinica' },
+            { title: 'Área Veterinaria y Bienestar Animal', image: '/website/cep/categories/mundo-animal.jpg', href: '/p/areas/area-veterinaria-y-bienestar-animal' },
+            { title: 'Área Salud, Bienestar y Deporte', image: '/website/cep/categories/salud-bienestar-y-deporte.jpg', href: '/p/areas/area-salud-bienestar-y-deporte' },
+            { title: 'Área Tecnología, Digital y Diseño', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/p/areas/area-tecnologia-digital-y-diseno' },
+            { title: 'Área Empresa, Administración y Gestión', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/p/areas/area-empresa-administracion-y-gestion' },
+            { title: 'Área Seguridad, Vigilancia y Protección', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/p/areas/area-seguridad-vigilancia-y-proteccion' },
           ],
         },
         {

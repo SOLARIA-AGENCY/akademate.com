@@ -128,7 +128,7 @@ export type WebsiteSection =
       kind: 'teamGrid'
       title: string
       subtitle?: string
-      members: Array<{ name: string; role: string; image: string }>
+      members: Array<{ name: string; role: string; image: string; href?: string; id?: string | number }>
     }
   | {
       id?: string

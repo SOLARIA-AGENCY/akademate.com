@@ -146,6 +146,9 @@ export function PublicHeaderClient({
             >
               Teleformación
             </a>
+            <a href="/#nuevas-formaciones" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+              Nuevas formaciones
+            </a>
             <a href="/p/convocatorias" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Convocatorias
             </a>

@@ -8,6 +8,8 @@ import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
 import { normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
 
+const BRAND_RED = '#f2014b'
+
 function resolveImageUrl(image: any): string | null {
   if (!image) return null
   if (typeof image === 'object' && image.url) {
@@ -15,6 +17,79 @@ function resolveImageUrl(image: any): string | null {
   }
   if (typeof image === 'object' && image.filename) return `/media/${image.filename}`
   return null
+}
+
+function slugify(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function formatDate(value: string | null | undefined): string {
+  if (!value) return 'Próximamente'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Próximamente'
+  return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }).format(date)
+}
+
+function getCourseArea(course: any): string {
+  const area = course?.area_formativa
+  if (typeof area === 'object' && area?.nombre) return String(area.nombre)
+  if (typeof area === 'string') return area
+  return 'Área por definir'
+}
+
+function getCourseTypeLabel(courseType: string | null | undefined): string {
+  const normalized = normalizeStudyType(String(courseType || ''))
+  const labels: Record<string, string> = {
+    privados: 'Privado',
+    desempleados: 'Desempleados',
+    ocupados: 'Ocupados',
+    teleformacion: 'Teleformación',
+  }
+  return normalized ? labels[normalized] || normalized : 'Curso'
+}
+
+function getCourseTypeColor(courseType: string | null | undefined): string {
+  const normalized = normalizeStudyType(String(courseType || ''))
+  const colors: Record<string, string> = {
+    privados: '#f2014b',
+    desempleados: '#2563eb',
+    ocupados: '#16a34a',
+    teleformacion: '#f97316',
+  }
+  return normalized ? colors[normalized] || BRAND_RED : BRAND_RED
+}
+
+function getCourseTitle(course: any): string {
+  return String(course?.title || course?.name || 'Curso CEP')
+}
+
+function getCourseDescription(course: any): string {
+  const value = course?.short_description || course?.description
+  if (typeof value === 'string' && value.trim()) return value
+  return 'Programa especializado con orientación práctica.'
+}
+
+function getRunCourseId(run: any): string | null {
+  const course = run?.course
+  if (typeof course === 'object' && course?.id) return String(course.id)
+  if (course) return String(course)
+  return null
+}
+
+function getTeacherHref(member: { name: string; href?: string; id?: string | number }): string {
+  if (member.href) return member.href
+  if (member.id) return `/p/profesores/${member.id}`
+  return `/p/profesores/${slugify(member.name)}`
+}
+
+function getCategoryHref(item: { title: string; href?: string }): string {
+  if (item.href && !['/cursos', '/p/cursos'].includes(item.href)) return item.href
+  return `/p/areas/${slugify(item.title)}`
 }
 
 const CYCLE_LEVEL_META: Record<string, { label: string; bgColor: string; textColor: string }> = {
@@ -83,16 +158,45 @@ function StatsStripSection({ section, brandColor }: { section: Extract<WebsiteSe
 }
 
 function FeatureStripSection({ section }: { section: Extract<WebsiteSection, { kind: 'featureStrip' }> }) {
+  const title = section.title === 'Por qué CEP' ? 'Por qué elegir CEP' : section.title
+  const subtitle = section.subtitle?.includes('Mismo tono de marca')
+    ? 'Formación pensada para avanzar: orientación real, docentes en activo y acompañamiento hasta la matrícula.'
+    : section.subtitle
+  const items = section.items.map((item) => {
+    if (item.title === 'Prácticas reales') {
+      return {
+        title: 'Aprende con profesionales en activo',
+        description: 'Clases prácticas con docentes que conocen lo que se exige fuera del aula.',
+      }
+    }
+    if (item.title === 'Oferta mixta') {
+      return {
+        title: 'Elige el camino que encaja contigo',
+        description: 'Ciclos oficiales, cursos privados y formación subvencionada con asesoramiento antes de matricularte.',
+      }
+    }
+    if (item.title === 'Sedes activas') {
+      return {
+        title: 'Estudia cerca, con seguimiento real',
+        description: 'Sedes en Tenerife, grupos reducidos y atención académica para resolver dudas desde el primer día.',
+      }
+    }
+    return item
+  })
+
   return (
-    <section className="bg-white">
+    <section className="bg-white" id={title === 'Por qué elegir CEP' ? 'por-que-cep' : undefined}>
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        {section.title ? <h2 className="text-3xl font-semibold text-slate-900">{section.title}</h2> : null}
-        {section.subtitle ? <p className="mt-3 max-w-2xl text-slate-600">{section.subtitle}</p> : null}
+        {title ? <h2 className="text-3xl font-semibold text-slate-900">{title}</h2> : null}
+        {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {section.items.map((item) => (
-            <article key={item.title} className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
-              <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p>
+          {items.map((item, index) => (
+            <article key={item.title} className="rounded-3xl border border-slate-200 bg-slate-50 p-7 shadow-sm">
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-50 text-sm font-black text-[var(--cep-brand)]">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <h3 className="mt-6 text-xl font-semibold text-slate-900">{item.title}</h3>
+              <p className="mt-3 text-base leading-7 text-slate-600">{item.description}</p>
             </article>
           ))}
         </div>
@@ -146,8 +250,21 @@ async function CourseListSection({
     where: withTenantScope({ active: { equals: true } }, tenantId) as any,
     depth: 1,
     limit: section.limit ?? 6,
-    sort: 'name',
+    sort: section.title?.toLowerCase().includes('nuevas') ? '-createdAt' : 'name',
   })
+  const runsResult = await payload.find({
+    collection: 'course-runs',
+    where: withTenantScope({ status: { in: ['published', 'enrollment_open'] } }, tenantId) as any,
+    depth: 2,
+    limit: 200,
+    sort: 'start_date',
+  })
+  const nextRunByCourse = new Map<string, any>()
+  for (const run of runsResult.docs as any[]) {
+    const courseId = getRunCourseId(run)
+    if (!courseId || nextRunByCourse.has(courseId)) continue
+    nextRunByCourse.set(courseId, run)
+  }
   const requestedTypes = (section.courseTypes ?? [])
     .map((value) => normalizeStudyType(value))
     .filter((value): value is NonNullable<typeof value> => Boolean(value))
@@ -165,10 +282,10 @@ async function CourseListSection({
   })
 
   return (
-    <section className="bg-[#fff7fa]">
+    <section id={section.title?.toLowerCase().includes('nuevas') ? 'nuevas-formaciones' : undefined} className="bg-[#fff7fa]">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-semibold text-slate-900">{section.title}</h2>
-        {section.subtitle ? <p className="mt-3 max-w-2xl text-slate-600">{section.subtitle}</p> : null}
+        {section.subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{section.subtitle}</p> : null}
         {docs.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-8">
             <p className="text-base text-slate-700">
@@ -185,18 +302,36 @@ async function CourseListSection({
         ) : (
           <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {docs.map((course: any) => {
-              const title = course.title ?? course.name
-              const description = course.short_description ?? course.description ?? course.long_description
+              const title = getCourseTitle(course)
+              const description = getCourseDescription(course)
               const imageUrl = resolveImageUrl(course.featured_image) || resolveImageUrl(course.image)
+              const nextRun = nextRunByCourse.get(String(course.id))
+              const campus = typeof nextRun?.campus === 'object' && nextRun.campus ? nextRun.campus : null
+              const typeColor = getCourseTypeColor(course.course_type)
               return (
-                <Link key={course.id} href={`/cursos/${course.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white">
+                <Link key={course.id} href={`/cursos/${course.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                   <div className="relative h-56 overflow-hidden">
                     {imageUrl ? <img src={imageUrl} alt={title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
                     <h3 className="absolute bottom-5 left-5 right-5 text-xl font-semibold text-white">{title}</h3>
                   </div>
-                  <div className="p-6">
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="mb-4 flex flex-wrap gap-2">
+                      <span className="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white" style={{ backgroundColor: typeColor }}>
+                        {getCourseTypeLabel(course.course_type)}
+                      </span>
+                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-600">
+                        {getCourseArea(course)}
+                      </span>
+                    </div>
                     <p className="line-clamp-3 text-sm leading-7 text-slate-600">{description || 'Programa especializado con orientación práctica.'}</p>
+                    <div className="mt-5 grid gap-2 text-sm text-slate-700">
+                      <p><span className="font-semibold text-slate-950">Fecha:</span> {formatDate(nextRun?.start_date)}</p>
+                      <p><span className="font-semibold text-slate-950">Sede:</span> {campus?.name || 'Por confirmar'}</p>
+                    </div>
+                    <span className="mt-6 inline-flex w-fit items-center rounded-full bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[var(--cep-brand)]">
+                      Ver curso
+                    </span>
                   </div>
                 </Link>
               )
@@ -231,15 +366,15 @@ async function CycleListSection({
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-semibold text-slate-900">{section.title}</h2>
         {section.subtitle ? <p className="mt-3 max-w-2xl text-slate-600">{section.subtitle}</p> : null}
-        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-10 grid gap-8 lg:grid-cols-2">
           {result.docs.map((cycle: any) => {
             const imageUrl = resolveImageUrl(cycle.image)
             const levelMeta = getCycleLevelMeta(cycle.level)
             const subtitle = getCycleSubtitle(cycle)
             const chips = getCycleChips(cycle)
             return (
-              <Link key={cycle.id} href={`/ciclos/${cycle.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white">
-                <div className="relative h-56">
+              <Link key={cycle.id} href={`/ciclos/${cycle.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                <div className="relative h-64">
                   {imageUrl ? <img src={imageUrl} alt={cycle.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-5 left-5 right-5">
@@ -252,7 +387,7 @@ async function CycleListSection({
                     <h3 className="text-xl font-semibold text-white">{cycle.name}</h3>
                   </div>
                 </div>
-                <div className="space-y-4 p-5">
+                <div className="flex flex-1 flex-col space-y-4 p-6">
                   {subtitle ? <p className="text-sm leading-6 text-slate-700">{subtitle}</p> : null}
                   <div className="flex flex-wrap gap-2">
                     {chips.map((chip) => (
@@ -261,6 +396,9 @@ async function CycleListSection({
                       </span>
                     ))}
                   </div>
+                  <span className="mt-auto inline-flex w-fit rounded-full bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[var(--cep-brand)]">
+                    Ver ciclo
+                  </span>
                 </div>
               </Link>
             )
@@ -432,27 +570,36 @@ async function CampusListSection({
 }
 
 function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { kind: 'categoryGrid' }> }) {
+  const subtitle = section.subtitle?.includes('Bloques visuales')
+    ? 'Encuentra tu próxima formación por especialidad profesional.'
+    : section.subtitle
   return (
     <section className="bg-[#fff7fa]">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-semibold text-slate-900">{section.title}</h2>
-        {section.subtitle ? <p className="mt-3 max-w-2xl text-slate-600">{section.subtitle}</p> : null}
-        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {section.items.map((item) => {
             const content = (
-              <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
-                <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="h-60 w-full object-cover" />
-                <div className="p-5">
-                  <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+              <article className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                <div className="relative h-56 overflow-hidden">
+                  <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 to-transparent" />
+                </div>
+                <div className="p-6">
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--cep-brand)]">Área</p>
+                  <h3 className="mt-2 text-xl font-black uppercase leading-tight text-slate-950">{item.title.replace(/^Área\s+/i, '')}</h3>
                 </div>
               </article>
             )
             return item.href ? (
-              <Link key={item.title} href={item.href}>
+              <Link key={item.title} href={getCategoryHref(item)} aria-label={`Ver cursos de ${item.title}`}>
                 {content}
               </Link>
             ) : (
-              <div key={item.title}>{content}</div>
+              <Link key={item.title} href={getCategoryHref(item)} aria-label={`Ver cursos de ${item.title}`}>
+                {content}
+              </Link>
             )
           })}
         </div>
@@ -462,20 +609,32 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
 }
 
 function TeamGridSection({ section }: { section: Extract<WebsiteSection, { kind: 'teamGrid' }> }) {
+  const subtitle = section.subtitle?.includes('Presentación editorial')
+    ? 'Conoce a nuestro equipo docente y su experiencia profesional por áreas.'
+    : section.subtitle
   return (
     <section className="bg-white">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-semibold text-slate-900">{section.title}</h2>
-        {section.subtitle ? <p className="mt-3 max-w-2xl text-slate-600">{section.subtitle}</p> : null}
+        {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {section.members.map((member) => (
-            <article key={member.name} className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50">
-              <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-72 w-full object-cover" />
+            <Link
+              key={member.name}
+              href={getTeacherHref(member)}
+              className="group overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+            >
+              <div className="flex justify-center bg-white p-6">
+                <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-48 w-48 rounded-full object-cover transition duration-500 group-hover:scale-105" />
+              </div>
               <div className="p-5">
-                <h3 className="text-lg font-semibold text-slate-900">{member.name}</h3>
+                <span className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--cep-brand)]">
+                  Docente
+                </span>
+                <h3 className="mt-4 text-lg font-semibold text-slate-900">{member.name}</h3>
                 <p className="mt-1 text-sm text-slate-600">{member.role}</p>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </div>
@@ -544,6 +703,31 @@ async function renderSection(
   }
 }
 
+function normalizeHomeSections(sections: WebsiteSection[]): WebsiteSection[] {
+  const visible = sections.filter((section) => section.enabled !== false)
+  const hasNewFormations = visible.some((section) => {
+    const title = 'title' in section ? section.title : ''
+    return section.id === 'nuevas-formaciones' || title?.toLowerCase().includes('nuevas formaciones')
+  })
+  if (hasNewFormations) return visible
+
+  const newFormationsSection: WebsiteSection = {
+    id: 'nuevas-formaciones',
+    kind: 'courseList',
+    title: 'Nuevas formaciones',
+    subtitle: 'Programas que estamos preparando para ampliar la oferta formativa de CEP.',
+    limit: 3,
+  }
+
+  const cycleIndex = visible.findIndex((section) => section.kind === 'cycleList')
+  if (cycleIndex === -1) return [...visible, newFormationsSection]
+  return [
+    ...visible.slice(0, cycleIndex + 1),
+    newFormationsSection,
+    ...visible.slice(cycleIndex + 1),
+  ]
+}
+
 export async function WebsiteRenderer({
   page,
   brandColor,
@@ -552,7 +736,9 @@ export async function WebsiteRenderer({
   brandColor: string
 }) {
   const tenant = await getTenantHostBranding()
-  const visibleSections = page.sections.filter((section) => section.enabled !== false)
+  const visibleSections = page.pageKind === 'home'
+    ? normalizeHomeSections(page.sections)
+    : page.sections.filter((section) => section.enabled !== false)
   const sections = await Promise.all(
     visibleSections.map(async (section, index) => (
       <div key={section.id || `${section.kind}-${index}`}>
