@@ -10,7 +10,7 @@
  * This is documented technical debt, not a code smell.
  */
 
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         }
 
          
-        const payload: Payload = await getPayloadHMR({ config: configPromise });
+        const payload: Payload = await getPayload({ config: configPromise });
 
         // Verify user exists
         const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null) as UserRecord | null;

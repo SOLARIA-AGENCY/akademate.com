@@ -498,9 +498,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { getPayloadHMR } = await import('@payloadcms/next/utilities')
+    const { getPayload } = await import('payload')
     const configPromise = (await import('@payload-config')).default
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const tenant = await resolveTenant(payload, request)
 
     if (!tenant) {

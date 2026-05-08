@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { queryFirst, queryRows } from '@/@payload-config/lib/db'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
@@ -365,7 +365,7 @@ export async function resolveTenantContext(
   let tenantFromSession: string | null = null
 
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const authContext = await getAuthenticatedUserContext(request, payload)
     if (authContext) {
       authenticated = true

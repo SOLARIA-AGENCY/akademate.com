@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import type { Payload } from 'payload';
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
      
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
 
     // 1. Obtener código del área
     const area = await payload.findByID({

@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
@@ -406,7 +406,7 @@ export async function GET(request: NextRequest) {
     const enrollmentId = searchParams.get('enrollment_id') ?? searchParams.get('where[enrollment_id][equals]')
     const includeTests = ['1', 'true', 'yes'].includes((searchParams.get('include_tests') || '').toLowerCase())
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
     const authSession = await getAuthenticatedUserContext(request, payload)
@@ -875,7 +875,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const tenant = await resolveTenantForPublicLead(payload, request)
     const tenantIdRaw = tenant?.id
     const host = normalizeHost(

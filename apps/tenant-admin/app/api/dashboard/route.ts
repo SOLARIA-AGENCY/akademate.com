@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import { listCampaigns } from '../../../src/lib/meta-marketing';
 
@@ -195,7 +195,7 @@ function getLast4WeekKeys(now: Date = new Date()): string[] {
  */
 export async function GET(request: NextRequest) {
   try {
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await getPayload({ config: configPromise });
 
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool;
     const queryOne = async (sql: string): Promise<Record<string, unknown>> => {

@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { Payload } from 'payload'
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') ?? '-createdAt'
     const status = searchParams.get('status')
 
-    const payload: Payload = await getPayloadHMR({ config: configPromise })
+    const payload: Payload = await getPayload({ config: configPromise })
     const tenantId = await resolveTenantId(request, payload)
 
     if (!tenantId) {
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as Record<string, unknown>
-    const payload: Payload = await getPayloadHMR({ config: configPromise })
+    const payload: Payload = await getPayload({ config: configPromise })
     const tenantId = await resolveTenantId(request, payload)
 
     if (!tenantId) {

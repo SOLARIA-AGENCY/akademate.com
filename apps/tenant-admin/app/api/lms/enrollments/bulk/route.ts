@@ -9,7 +9,7 @@
  */
 
 import type { Payload } from 'payload';
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
 
     // Payload's HMR utility returns an error-typed value; explicit Payload type is intentional
      
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
     const payloadLoose = payload as unknown as LoosePayloadClient;
 
     const result: BulkResult = {

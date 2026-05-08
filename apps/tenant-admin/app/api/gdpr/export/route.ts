@@ -10,7 +10,7 @@
  * This is documented technical debt, not a code smell.
  */
 
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
         }
 
          
-        const payload = await getPayloadHMR({ config: configPromise });
+        const payload = await getPayload({ config: configPromise });
         const warnings: Array<{ collection: string; error: string }> = [];
 
         // Query user first

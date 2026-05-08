@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
@@ -264,7 +264,7 @@ export async function POST(request: NextRequest) {
     }
 
      
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await getPayload({ config: configPromise });
 
     // Verificar que el curso existe
     const course = await payload.findByID({
@@ -398,7 +398,7 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const payloadLoose = payload as unknown as LoosePayloadClient
 
     const current = await payloadLoose.findByID({
@@ -458,7 +458,7 @@ export async function GET(request: NextRequest) {
     const campusId = searchParams.get('campusId');
 
      
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await getPayload({ config: configPromise });
 
     // Build dynamic where clause
     const whereClause: CourseRunWhereClause = {};

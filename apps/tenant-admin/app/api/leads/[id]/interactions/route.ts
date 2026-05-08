@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
@@ -73,7 +73,7 @@ async function hasColumn(drizzle: any, tableName: string, columnName: string): P
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
     if (!drizzle?.execute) {
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: `Invalid result: ${result}` }, { status: 400 })
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
     if (!drizzle?.execute) throw new Error('DB not available')
 
@@ -336,7 +336,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
     if (!drizzle?.execute) throw new Error('DB not available')
 

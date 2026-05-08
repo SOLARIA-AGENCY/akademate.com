@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import sharp from 'sharp'
 
@@ -145,7 +145,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const optimizedImage = await optimizeStaffPhoto(file)
     const alt = formData.get('alt')?.toString().trim() || 'Foto de profesor'
     const mediaData = {

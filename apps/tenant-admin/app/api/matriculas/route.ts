@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
@@ -13,7 +13,7 @@ function toNumber(value: unknown, fallback = 0): number {
 
 export async function GET(request: NextRequest) {
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
     if (!drizzle?.execute) {
       return NextResponse.json({ error: 'Motor SQL no disponible' }, { status: 500 })

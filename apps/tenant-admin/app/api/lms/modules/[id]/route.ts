@@ -4,7 +4,7 @@
  * GET /api/lms/modules/:id - Get module with lessons
  */
 
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
      
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await getPayload({ config: configPromise });
 
     // 1. Get module details
     const moduleResult = await payload.findByID({

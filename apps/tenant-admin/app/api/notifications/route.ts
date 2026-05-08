@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
 export const dynamic = 'force-dynamic'
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
     let notifications: any[] = []
@@ -51,7 +51,7 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json()
     const { ids, markAllRead } = body
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
     if (drizzle?.execute) {

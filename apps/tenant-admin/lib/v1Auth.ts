@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { validateBearerToken } from './apiKeyAuth'
 import type { ApiScope, ValidatedApiKey } from './apiKeyAuth'
@@ -54,7 +54,7 @@ export async function requireV1Auth(
   }
 
   const validated = await validateBearerToken(headerToken, () =>
-    getPayloadHMR({ config: configPromise }),
+    getPayload({ config: configPromise }),
   )
 
   if (!validated) {

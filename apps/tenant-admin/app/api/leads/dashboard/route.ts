@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
@@ -30,7 +30,7 @@ async function hasColumn(drizzle: any, tableName: string, columnName: string): P
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
     const authSession = await getAuthenticatedUserContext(request, payload)

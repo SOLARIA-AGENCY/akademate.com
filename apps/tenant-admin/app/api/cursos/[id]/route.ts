@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -78,7 +78,7 @@ export async function GET(
       );
     }
 
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
     const authContext = await getAuthenticatedUserContext(request, payload as any);
     if (!authContext) {
       return NextResponse.json(
@@ -179,7 +179,7 @@ export async function PATCH(
     }
 
     const body = await request.json() as Record<string, unknown>;
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
     const authContext = await getAuthenticatedUserContext(request, payload as any);
     if (!authContext) {
       return NextResponse.json(

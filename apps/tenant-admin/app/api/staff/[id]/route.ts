@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { Payload } from 'payload';
 
@@ -61,7 +61,7 @@ export async function GET(
       );
     }
 
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
 
     const staffMember = await payload.findByID({
       collection: 'staff',

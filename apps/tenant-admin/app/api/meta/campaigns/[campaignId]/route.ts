@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { normalizeMetaAdAccountId, resolveMetaRequestContext } from '../../_lib/integrations'
 import {
@@ -516,7 +516,7 @@ export async function GET(
     insightsResult.ok ? null : insightsResult.error
   )
 
-  const payload = await getPayloadHMR({ config: configPromise })
+  const payload = await getPayload({ config: configPromise })
   const { funnel, warnings: funnelWarnings } = await buildCampaignFunnel({
     payload,
     tenantId: tenantContext.tenantId,

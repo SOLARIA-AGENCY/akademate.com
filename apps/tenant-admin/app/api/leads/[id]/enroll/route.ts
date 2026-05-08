@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
@@ -40,7 +40,7 @@ function matchesEnrollmentCandidate(existing: any, studentId: number, courseRunI
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
 
     const authUser = await getAuthenticatedUserContext(request, payload)

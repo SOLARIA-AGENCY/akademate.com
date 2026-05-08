@@ -9,7 +9,7 @@
  * This is documented technical debt, not a code smell.
  */
 
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -156,7 +156,7 @@ interface GamificationPayload {
 async function getGamificationPayload(): Promise<GamificationPayload> {
     // Payload's HMR utility returns an error-typed value; cast through unknown is intentional
      
-    const payload: unknown = await getPayloadHMR({ config: configPromise });
+    const payload: unknown = await getPayload({ config: configPromise });
     return payload as GamificationPayload;
 }
 

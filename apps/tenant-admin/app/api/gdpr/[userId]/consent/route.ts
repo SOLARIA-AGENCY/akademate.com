@@ -4,7 +4,7 @@
  * Article 7 - Conditions for Consent
  */
 
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
@@ -87,7 +87,7 @@ export async function GET(
     }
 
      
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await getPayload({ config: configPromise });
 
     const logs = await payload.find({
       collection: 'audit-logs',
@@ -154,7 +154,7 @@ export async function POST(
     }
 
      
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await getPayload({ config: configPromise });
     const updatedAt = new Date().toISOString();
 
     const auditLogData: AuditLogCreateData = {

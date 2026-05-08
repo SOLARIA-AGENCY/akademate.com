@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     const campusId = searchParams.get('campus_id');
     const activeOnly = searchParams.get('active') !== 'false'; // default: only active
 
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
 
     // Build where clause
     const where: Record<string, unknown> = {};
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
 
     const createClassroom = payload.create as unknown as (args: Record<string, unknown>) => Promise<unknown>;
     const aula = await createClassroom({

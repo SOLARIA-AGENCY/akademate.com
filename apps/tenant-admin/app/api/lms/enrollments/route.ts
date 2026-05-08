@@ -5,7 +5,7 @@
  * POST /api/lms/enrollments - Create new enrollment (admin only)
  */
 
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') ?? '1', 10);
 
      
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await getPayload({ config: configPromise });
     const payloadLoose = payload as unknown as LoosePayloadClient;
 
     // Build where clause

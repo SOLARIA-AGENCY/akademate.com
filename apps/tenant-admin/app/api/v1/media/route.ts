@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { requireV1Auth } from '@/lib/v1Auth'
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const payload = (await getPayloadHMR({ config: configPromise })) as any
+    const payload = (await getPayload({ config: configPromise })) as any
 
     // Convert File to Buffer for Payload
     const arrayBuffer = await file.arrayBuffer()

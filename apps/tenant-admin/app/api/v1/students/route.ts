@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { requireV1Auth } from '@/lib/v1Auth'
 
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const offset = Math.max(Number(url.searchParams.get('offset') ?? '0'), 0)
     const page = Math.floor(offset / limit) + 1
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
     const result = await payload.find({
       collection: 'students',
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
     const created = await payload.create({
       collection: 'students',

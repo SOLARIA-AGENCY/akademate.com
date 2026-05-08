@@ -4,7 +4,7 @@
  * Exposes content delivery functionality from @akademate/lms
  */
 
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import type { Payload } from 'payload';
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
         const moduleId = searchParams.get('moduleId');
 
          
-        const payload: Payload = await getPayloadHMR({ config: configPromise });
+        const payload: Payload = await getPayload({ config: configPromise });
 
         if (courseId) {
             // Get modules for a course

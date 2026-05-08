@@ -11,7 +11,7 @@
  */
 
 import type { Payload } from 'payload';
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -151,7 +151,7 @@ export async function POST(
     }
 
      
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
 
     // Verify user exists
     const user = await payload.findByID({ collection: 'users', id: userId }).catch((error: unknown) => {

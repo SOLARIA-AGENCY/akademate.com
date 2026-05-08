@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import crypto from 'crypto'
 import { sendMail } from '../../../../src/lib/email/transporter'
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nombre y email son obligatorios' }, { status: 400 })
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const db = (payload as any).db
     const tenantQuery = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
     const tenant = tenantQuery.docs[0] as unknown as Record<string, unknown> | undefined
@@ -175,7 +175,7 @@ export async function DELETE(request: NextRequest) {
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const db = (payload as any).db
     await db.execute({ raw: `UPDATE user_invitations SET status = 'revoked' WHERE id = ${parseInt(id, 10)}` })
 

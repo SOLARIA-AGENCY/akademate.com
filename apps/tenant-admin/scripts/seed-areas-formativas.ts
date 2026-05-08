@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 
 const AREAS_INICIALES = [
@@ -43,7 +43,7 @@ async function seed() {
   console.log('🌱 Iniciando seed de Áreas Formativas...');
 
   try {
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await getPayload({ config: configPromise });
 
     for (const area of AREAS_INICIALES) {
       // Check if already exists

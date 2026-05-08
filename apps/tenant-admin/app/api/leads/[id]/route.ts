@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
@@ -410,7 +410,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const { id } = await context.params
     const { searchParams } = new URL(request.url)
     const includeTests = ['1', 'true', 'yes'].includes((searchParams.get('include_tests') || '').toLowerCase())
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const drizzle = (payload as any).db?.drizzle || (payload as any).db?.pool
     const tenantId = (await getAuthenticatedUserContext(request, payload))?.tenantId ?? null
     if (tenantId === null) {
@@ -472,7 +472,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
     const body = await request.json()
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const authUser = await getAuthenticatedUserContext(request, payload)
     const tenantId = authUser?.tenantId ?? null
     if (tenantId === null) {
@@ -598,7 +598,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const authUser = await getAuthenticatedUserContext(request, payload)
     const tenantId = authUser?.tenantId ?? null
     if (tenantId === null || !authUser?.userId) {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { requireV1Auth } from '@/lib/v1Auth'
 
@@ -16,7 +16,7 @@ export async function GET(request: Request, context: RouteContext) {
 
   try {
     const { id } = await context.params
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
     const doc = await payload.findByID({ collection: 'staff', id, depth: 1 })
 
@@ -42,7 +42,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ error: 'Request body must be a JSON object', code: 'INVALID_BODY' }, { status: 400 })
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const updated = await payload.update({ collection: 'staff', id, data: body })
     return NextResponse.json({ data: updated })
   } catch (err) {
@@ -57,7 +57,7 @@ export async function DELETE(request: Request, context: RouteContext) {
 
   try {
     const { id } = await context.params
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     await payload.delete({ collection: 'staff', id })
     return NextResponse.json({ data: { id, deleted: true } })
   } catch (err) {

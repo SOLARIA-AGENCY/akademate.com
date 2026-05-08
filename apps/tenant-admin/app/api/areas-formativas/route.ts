@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
@@ -20,7 +20,7 @@ interface AreaFormativaDocument {
  */
 export async function GET() {
   try {
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
 
     const result = await payload.find({
       collection: 'areas-formativas',
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
 
     const area = await payload.create({
       collection: 'areas-formativas',

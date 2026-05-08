@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { getAuthenticatedUserContext } from '../../leads/_lib/auth'
 import { getCampaignInsights, listCampaigns } from '../../../../src/lib/meta-marketing'
@@ -529,7 +529,7 @@ async function resolveLinkedMetaCampaignIdsFromLeads(
 
 export async function GET(request: NextRequest) {
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
     const authSession = await getAuthenticatedUserContext(request, payload)
     const tenantId = authSession?.tenantId ?? null

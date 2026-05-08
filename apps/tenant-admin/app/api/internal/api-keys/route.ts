@@ -10,7 +10,7 @@
 
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { generateApiKey, hashApiKey } from '@/lib/apiKeyAuth'
 import type { ApiScope } from '@/lib/apiKeyAuth'
@@ -61,7 +61,7 @@ async function getAuthenticatedTenantId(request: Request): Promise<{
 
     if (!token) return null
 
-    const payload = (await getPayloadHMR({ config: configPromise })) as any
+    const payload = (await getPayload({ config: configPromise })) as any
 
     // Use Payload's built-in token verification
     const result = await payload.auth({
@@ -110,7 +110,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const payload = (await getPayloadHMR({ config: configPromise })) as any
+    const payload = (await getPayload({ config: configPromise })) as any
 
     const result = await payload.find({
       collection: 'api-keys',
@@ -219,7 +219,7 @@ export async function POST(request: Request) {
     const plainKey = generateApiKey()
     const keyHash = hashApiKey(plainKey)
 
-    const payload = (await getPayloadHMR({ config: configPromise })) as any
+    const payload = (await getPayload({ config: configPromise })) as any
 
     const created = await payload.create({
       collection: 'api-keys',

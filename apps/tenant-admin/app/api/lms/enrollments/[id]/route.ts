@@ -6,7 +6,7 @@
  * Used by Campus Virtual to load student's enrolled course data
  */
 
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -155,7 +155,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
      
-    const payload = await getPayloadHMR({ config: configPromise });
+    const payload = await getPayload({ config: configPromise });
 
     // 1. Get enrollment with student and course run
     const enrollment = await payload.findByID({

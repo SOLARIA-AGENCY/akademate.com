@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { requireV1Auth } from '@/lib/v1Auth'
 
@@ -22,7 +22,7 @@ export async function GET(request: Request, context: RouteContext) {
 
   try {
     const { id } = await context.params
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
     const campus = await payload.findByID({
       collection: 'campuses',
@@ -84,7 +84,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       )
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
     const existing = await payload.findByID({
       collection: 'campuses',
@@ -145,7 +145,7 @@ export async function DELETE(request: Request, context: RouteContext) {
 
   try {
     const { id } = await context.params
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
     const existing = await payload.findByID({
       collection: 'campuses',

@@ -1,4 +1,4 @@
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Meta Marketing API token no configurado para el tenant' }, { status: 400 })
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const body = (await request.json()) as MetaLeadgenPayload
     const changes = body.entry?.flatMap((entry) => entry.changes ?? []) ?? []
     const leadChanges = changes.filter((change) => String(change.field || '').toLowerCase() === 'leadgen')

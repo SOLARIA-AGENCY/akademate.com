@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { PageViewTracker } from './PageViewTracker'
 import { ContactForm } from './ContactForm'
@@ -127,7 +127,7 @@ function formatSchedule(days?: string[] | null, startTime?: string | null, endTi
 // ---------------------------------------------------------------------------
 
 async function getCourseRunBySlug(slug: string) {
-  const payload = await getPayloadHMR({ config: configPromise })
+  const payload = await getPayload({ config: configPromise })
 
   // Try finding by codigo first (e.g., "NOR-2025-001")
   const byCode = await payload.find({

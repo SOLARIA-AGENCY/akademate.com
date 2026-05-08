@@ -10,7 +10,7 @@
  * This is documented technical debt, not a code smell.
  */
 
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -110,7 +110,7 @@ export async function GET(
     }
 
      
-    const payload: Payload = await getPayloadHMR({ config: configPromise });
+    const payload: Payload = await getPayload({ config: configPromise });
 
     // Cast to extended payload for accessing planned LMS collections
     const extendedPayload = payload as unknown as ExtendedPayload;

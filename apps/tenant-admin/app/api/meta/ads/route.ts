@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { resolveMetaRequestContext } from '../_lib/integrations'
 import { checkMetaHealth } from '../_lib/meta-graph'
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const accessToken = metaContext.meta.marketingApiToken
     const metaAdAccountId = metaContext.meta.adAccountIdNormalized
     const metaPixelId = metaContext.meta.pixelId || META_PIXEL_ID

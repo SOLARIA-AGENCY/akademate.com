@@ -8,7 +8,7 @@
  */
 
 import type { Payload } from 'payload';
-import { getPayloadHMR } from '@payloadcms/next/utilities';
+import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
         }
 
          
-        const payload: Payload = await getPayloadHMR({ config: configPromise });
+        const payload: Payload = await getPayload({ config: configPromise });
 
         // Get enrollment details
         const enrollment = await payload.findByID({
@@ -240,7 +240,7 @@ export async function POST(request: NextRequest) {
         }
 
          
-        const payload: Payload = await getPayloadHMR({ config: configPromise });
+        const payload: Payload = await getPayload({ config: configPromise });
         const payloadLMS = payload as unknown as PayloadWithLMS;
 
         if (!hasLessonProgressStorage) {

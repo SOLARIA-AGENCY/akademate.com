@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { requireV1Auth } from '@/lib/v1Auth'
 import { generateApiKey, hashApiKey } from '@/lib/apiKeyAuth'
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   if (!auth.ok) return auth.response
 
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await (payload as any).find({
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     const plainKey = generateApiKey()
     const keyHash = hashApiKey(plainKey)
 
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const created = await (payload as any).create({

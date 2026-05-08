@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { requireV1Auth } from '@/lib/v1Auth'
 
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   if (!auth.ok) return auth.response
 
   try {
-    const payload = await getPayloadHMR({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
     const tenantFilter = { tenant: { equals: Number(auth.auth.tenantId) } }
 
     // Collections WITH tenant: courses, cycles, campuses, course_runs, leads
