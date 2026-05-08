@@ -40,7 +40,9 @@ interface Convocatoria {
   codigo?: string
   cursoNombre?: string
   cursoTipo?: string
+  cursoImagen?: string | null
   campusNombre?: string
+  aulaId?: string | number
   aulaNombre?: string
   aulaCapacidad?: number
   fechaInicio?: string
@@ -59,7 +61,7 @@ interface Convocatoria {
   max_students?: number
   current_enrollments?: number
   campus?: { id: number } | number
-  course?: { id: number; title?: string; name?: string } | number
+  course?: { id: number; title?: string; name?: string; featured_image?: unknown } | number
 }
 
 interface Classroom {
@@ -132,6 +134,19 @@ const STATUS_LABELS: Record<string, { label: string; variant: 'default' | 'secon
   in_progress: { label: 'En curso', variant: 'default' },
   completed: { label: 'Finalizada', variant: 'secondary' },
   cancelled: { label: 'Cancelada', variant: 'destructive' },
+}
+
+const SHIFT_ORDER = ['morning', 'afternoon', 'evening_extra']
+
+function resolveMediaUrl(image: unknown): string | null {
+  if (!image) return null
+  if (typeof image === 'string') return image
+  if (typeof image === 'object') {
+    const record = image as Record<string, unknown>
+    if (typeof record.url === 'string') return record.url
+    if (typeof record.filename === 'string') return `/media/${record.filename}`
+  }
+  return null
 }
 
 // ---------------------------------------------------------------------------
@@ -299,6 +314,28 @@ export default function SedeDetailPage({ params }: Props) {
     return shift || 'Turno pendiente'
   }
 
+  function classroomShifts(classroom: Classroom): string[] {
+    const configured = Array.isArray(classroom.enabled_shifts) && classroom.enabled_shifts.length > 0
+      ? classroom.enabled_shifts
+      : SHIFT_ORDER
+    return configured.slice().sort((a, b) => SHIFT_ORDER.indexOf(a) - SHIFT_ORDER.indexOf(b))
+  }
+
+  function classroomShiftStats(classroom: Classroom, shift: string) {
+    const classroomId = classroom.id == null ? null : String(classroom.id)
+    const name = classroomName(classroom)
+    const items = convocatorias.filter((conv) => {
+      const sameRoom = classroomId
+        ? String(conv.aulaId ?? '') === classroomId
+        : (conv.aulaNombre ?? '') === name
+      return sameRoom && (conv.turno ?? '') === shift
+    })
+    const occupied = items.reduce((sum, conv) => sum + (conv.plazasOcupadas ?? conv.current_enrollments ?? 0), 0)
+    const total = items.reduce((sum, conv) => sum + (conv.plazasTotales ?? conv.max_students ?? 0), 0)
+    const percent = total > 0 ? Math.round((occupied / total) * 100) : 0
+    return { items, occupied, total, percent }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -392,15 +429,27 @@ export default function SedeDetailPage({ params }: Props) {
                           </p>
                         </div>
                       </div>
-                      {classroom.enabled_shifts && classroom.enabled_shifts.length > 0 ? (
-                        <div className="mt-3 flex flex-wrap gap-1">
-                          {classroom.enabled_shifts.map((shift) => (
-                            <Badge key={shift} variant="outline" className="text-[10px]">
-                              {shiftLabel(shift)}
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : null}
+                      <div className="mt-3 space-y-2">
+                        {classroomShifts(classroom).map((shift) => {
+                          const stats = classroomShiftStats(classroom, shift)
+                          return (
+                            <div key={shift} className="rounded-md border bg-background/70 px-2 py-1.5">
+                              <div className="flex items-center justify-between gap-2 text-[11px]">
+                                <span className="font-medium">{shiftLabel(shift)}</span>
+                                <span className="text-muted-foreground">
+                                  {stats.items.length === 0 ? 'Libre' : `${stats.occupied}/${stats.total || classroomCapacity(classroom)} plazas`}
+                                </span>
+                              </div>
+                              <div className="mt-1 h-1 rounded-full bg-muted">
+                                <div
+                                  className={`h-1 rounded-full ${stats.percent >= 90 ? 'bg-red-500' : stats.percent > 0 ? 'bg-primary' : 'bg-muted-foreground/20'}`}
+                                  style={{ width: `${Math.min(stats.percent, 100)}%` }}
+                                />
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
                       {classroom.operational_notes ? (
                         <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">
                           {classroom.operational_notes}
@@ -440,9 +489,20 @@ export default function SedeDetailPage({ params }: Props) {
                     const endDate = formatDate(conv.fechaFin || conv.end_date)
                     const maxStudents = conv.plazasTotales ?? conv.max_students
                     const currentStudents = conv.plazasOcupadas ?? conv.current_enrollments ?? 0
+                    const courseImage = conv.cursoImagen || (typeof conv.course === 'object' && conv.course !== null
+                      ? resolveMediaUrl(conv.course.featured_image)
+                      : null)
                     return (
-                      <div key={conv.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border p-3">
-                        <div className="min-w-0">
+                      <div key={conv.id} className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 items-center gap-3">
+                          {courseImage ? (
+                            <img src={courseImage} alt="" className="h-16 w-20 shrink-0 rounded-md object-cover" />
+                          ) : (
+                            <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                              <BookOpen className="h-5 w-5" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium text-sm truncate">{courseName}</span>
                             <Badge variant={status.variant} className="text-[10px] shrink-0">{status.label}</Badge>
@@ -460,8 +520,9 @@ export default function SedeDetailPage({ params }: Props) {
                             {conv.aulaNombre || 'Sin aula'} · {shiftLabel(conv.turno)}
                             {conv.profesor && ` · ${conv.profesor}`}
                           </p>
+                          </div>
                         </div>
-                        <Button size="sm" variant="ghost" className="shrink-0" onClick={() => router.push('/programacion')}>
+                        <Button size="sm" variant="ghost" className="shrink-0" onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}>
                           <ChevronRight className="h-4 w-4" />
                         </Button>
                       </div>

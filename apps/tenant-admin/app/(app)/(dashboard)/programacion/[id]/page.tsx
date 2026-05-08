@@ -9,6 +9,7 @@ import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, Calendar, MapPin, Users, GraduationCap, DollarSign,
   ExternalLink, Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
+  Download, FileText,
 } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
@@ -29,7 +30,39 @@ function resolveImageUrl(image: any): string | null {
   if (!image) return null
   if (typeof image === 'object' && image.url) return image.url
   if (typeof image === 'object' && image.filename) return `/api/media/file/${image.filename}`
+  if (typeof image === 'string') return image
   return null
+}
+
+function getInstructorName(instructor: any): string {
+  return instructor?.full_name || `${instructor?.first_name || ''} ${instructor?.last_name || ''}`.trim() || 'Docente asignado'
+}
+
+function formatDayLabel(day: string): string {
+  const labels: Record<string, string> = {
+    monday: 'LUN',
+    tuesday: 'MAR',
+    wednesday: 'MIE',
+    thursday: 'JUE',
+    friday: 'VIE',
+    saturday: 'SAB',
+    sunday: 'DOM',
+  }
+  return labels[day] ?? day.toUpperCase()
+}
+
+function formatRunSchedule(conv: any): string {
+  const days = Array.isArray(conv.schedule_days) ? conv.schedule_days.map(formatDayLabel).join(', ') : ''
+  const start = typeof conv.schedule_time_start === 'string' ? conv.schedule_time_start.slice(0, 5) : ''
+  const end = typeof conv.schedule_time_end === 'string' ? conv.schedule_time_end.slice(0, 5) : ''
+  const time = start && end ? `${start}-${end}` : start || end
+  return [days, time].filter(Boolean).join(' · ') || 'Horario por definir'
+}
+
+function getFirstCertification(instructor: any): string | null {
+  if (!Array.isArray(instructor?.certifications)) return null
+  const first = instructor.certifications[0]
+  return typeof first?.title === 'string' && first.title.trim() ? first.title : null
 }
 
 interface Props { params: Promise<{ id: string }> }
@@ -73,6 +106,11 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const cycleImage = cycle ? resolveImageUrl(cycle.image) : null
   const courseImage = course ? resolveImageUrl(course.featured_image) : null
   const heroImage = cycleImage || courseImage
+  const instructorImage = instructor ? resolveImageUrl(instructor.photo) : null
+  const instructorName = instructor ? getInstructorName(instructor) : ''
+  const instructorTitle = instructor?.position || getFirstCertification(instructor) || 'Docente'
+  const runSchedule = formatRunSchedule(conv)
+  const dossierPdf = course ? resolveImageUrl(course.dossier_pdf) : null
 
   const title = cycle?.name || course?.name || course?.title || conv.codigo
   const publicRunPath = `/p/convocatorias/${conv.codigo ?? conv.id}`
@@ -167,13 +205,41 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
             </CardHeader>
             <CardContent>
               {instructor ? (
-                <div className="flex items-center gap-3 rounded-lg border p-3">
-                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                    <GraduationCap className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{instructor.full_name || `${instructor.first_name || ''} ${instructor.last_name || ''}`.trim()}</p>
-                    {instructor.email && <p className="text-xs text-muted-foreground">{instructor.email}</p>}
+                <div className="rounded-lg border p-4">
+                  <div className="flex items-start gap-4">
+                    {instructorImage ? (
+                      <img
+                        src={instructorImage}
+                        alt={instructorName}
+                        className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-primary/15"
+                      />
+                    ) : (
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-2 ring-primary/15">
+                        <GraduationCap className="h-7 w-7 text-primary" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-base font-semibold">{instructorName}</p>
+                          <p className="text-sm text-muted-foreground">{instructorTitle}</p>
+                        </div>
+                        <Badge variant="outline" className="shrink-0">Docente</Badge>
+                      </div>
+                      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5 text-primary" />
+                          {runSchedule}
+                        </span>
+                        {conv.shift && (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5 text-primary" />
+                            Turno: {conv.shift === 'morning' ? 'Mañana' : conv.shift === 'afternoon' ? 'Tarde' : 'Tercer turno'}
+                          </span>
+                        )}
+                      </div>
+                      {instructor.email && <p className="mt-2 text-xs text-muted-foreground">{instructor.email}</p>}
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -254,10 +320,30 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                   </Button>
                 )}
                 {course && (
-                  <Button variant="outline" size="sm" className="w-full justify-between" onClick={() => router.push(`/dashboard/cursos/${course.id}`)}>
-                    <span className="flex items-center gap-2"><BookOpen className="h-3 w-3" />{course.name || course.title}</span>
-                    <ChevronRight className="h-3 w-3" />
+                  <Button variant="outline" size="sm" className="h-auto w-full justify-between gap-2 py-2" onClick={() => router.push(`/dashboard/cursos/${course.id}`)}>
+                    <span className="flex min-w-0 items-center gap-2">
+                      <BookOpen className="h-3 w-3 shrink-0" />
+                      <span className="truncate text-left">{course.name || course.title}</span>
+                    </span>
+                    <ChevronRight className="h-3 w-3 shrink-0" />
                   </Button>
+                )}
+                {dossierPdf && (
+                  <a
+                    href={dossierPdf}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 flex items-center gap-3 rounded-lg border border-red-100 bg-red-50 p-3 text-sm font-medium text-red-700 transition hover:bg-red-100"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white text-red-600 shadow-sm">
+                      <FileText className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate">Descargar programa en PDF</span>
+                      <span className="block text-xs font-normal text-red-600/75">Dossier informativo del curso</span>
+                    </span>
+                    <Download className="h-4 w-4 shrink-0" />
+                  </a>
                 )}
               </CardContent>
             </Card>
