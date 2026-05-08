@@ -21,6 +21,65 @@ function staffName(staff: any): string {
   return staff.full_name || [staff.first_name, staff.last_name].filter(Boolean).join(' ').trim() || 'Docente CEP'
 }
 
+const DEFAULT_PUBLIC_PROFESSORS = [
+  {
+    full_name: 'Alexis Galán',
+    position: 'Docente de Farmacia',
+    bio: 'Profesor especializado en el área sanitaria y farmacéutica de CEP Formación.',
+    specialties: ['Farmacia', 'Área sanitaria'],
+    photo: { url: '/website/cep/team/alexis.jpg' },
+  },
+  {
+    full_name: 'Livia Bernardi',
+    position: 'Docente de Adiestramiento Canino',
+    bio: 'Profesora especializada en comportamiento, adiestramiento y bienestar animal.',
+    specialties: ['Adiestramiento Canino', 'Bienestar animal'],
+    photo: { url: '/website/cep/team/livia.jpg' },
+  },
+  {
+    full_name: 'Nuria E. Ángel',
+    position: 'Docente de Odontología',
+    bio: 'Profesora especializada en odontología e higiene bucodental.',
+    specialties: ['Odontología', 'Higiene bucodental'],
+    photo: { url: '/website/cep/team/nuria.jpg' },
+  },
+  {
+    full_name: 'Sara Jaquete',
+    position: 'Docente de Veterinaria',
+    bio: 'Profesora especializada en el área veterinaria y bienestar animal.',
+    specialties: ['Veterinaria', 'Bienestar animal'],
+    photo: { url: '/website/cep/team/sara.jpg' },
+  },
+  {
+    full_name: 'Lali Hernández',
+    position: 'Docente de Inglés',
+    bio: 'Profesora especializada en formación de idiomas.',
+    specialties: ['Inglés', 'Competencias lingüísticas'],
+    photo: { url: '/website/cep/team/cecilia.jpg' },
+  },
+  {
+    full_name: 'Goretti Valdés',
+    position: 'Docente de Farmacia',
+    bio: 'Profesora especializada en formación sanitaria y farmacia.',
+    specialties: ['Farmacia', 'Área sanitaria'],
+    photo: { url: '/website/cep/team/goreti.jpg' },
+  },
+  {
+    full_name: 'Luis J. González',
+    position: 'Docente de Medicina estética',
+    bio: 'Profesor especializado en medicina estética y bienestar.',
+    specialties: ['Medicina estética', 'Bienestar'],
+    photo: { url: '/website/cep/team/luis.jpg' },
+  },
+  {
+    full_name: 'Esther González',
+    position: 'Docente de Medicina estética',
+    bio: 'Profesora especializada en medicina estética y bienestar.',
+    specialties: ['Medicina estética', 'Bienestar'],
+    photo: { url: '/website/cep/team/esther.jpg' },
+  },
+]
+
 function slugify(value: string): string {
   return value
     .normalize('NFD')
@@ -59,7 +118,10 @@ async function getProfessor(slug: string) {
     depth: 2,
   })
 
-  return professors.docs.find((staff: any) => slugify(staffName(staff)) === slug) as any
+  const professor = professors.docs.find((staff: any) => slugify(staffName(staff)) === slug) as any
+  if (professor) return professor
+
+  return DEFAULT_PUBLIC_PROFESSORS.find((staff) => slugify(staffName(staff)) === slug) as any
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
