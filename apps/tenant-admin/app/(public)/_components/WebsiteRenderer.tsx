@@ -197,21 +197,58 @@ function CtaBannerSection({
   const isDark = section.theme === 'dark'
   const className = isDark ? 'bg-slate-950 text-white' : section.theme === 'brand' ? 'text-white' : 'bg-white text-slate-950'
   return (
-    <section className={className} style={section.theme === 'brand' ? { backgroundColor: brandColor } : undefined}>
-      <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-14 sm:px-6 lg:flex-row lg:items-center lg:px-8">
+    <section
+      className={`${className} relative overflow-hidden`}
+      style={section.theme === 'brand' ? { backgroundColor: brandColor } : undefined}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background: isDark
+            ? 'radial-gradient(circle at 50% 0%, rgba(242,1,75,0.24), transparent 34%), linear-gradient(135deg, rgba(255,255,255,0.08), transparent 38%)'
+            : undefined,
+        }}
+      />
+      <div className="relative mx-auto flex max-w-5xl flex-col items-center px-4 py-16 text-center sm:px-6 lg:px-8">
+        <span
+          className={`mb-5 inline-flex rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] ${
+            isDark ? 'bg-white/10 text-white/80 ring-1 ring-white/15' : 'bg-slate-100 text-slate-600'
+          }`}
+        >
+          Convocatorias CEP
+        </span>
         <div>
-          <h2 className="text-3xl font-semibold">{section.title}</h2>
-          <p className={`mt-3 max-w-2xl ${isDark ? 'text-white/75' : 'text-slate-600'}`}>{section.body}</p>
+          <h2 className="mx-auto max-w-4xl text-balance text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
+            {section.title}
+          </h2>
+          <p className={`mx-auto mt-5 max-w-3xl text-lg leading-relaxed ${isDark ? 'text-white/78' : 'text-slate-600'}`}>
+            {section.body}
+          </p>
         </div>
         {section.cta ? (
           <Link
             href={section.cta.href}
-            className={`rounded-full px-6 py-3 text-sm font-semibold ${isDark ? 'bg-white text-slate-950' : 'text-white'}`}
+            className={`mt-8 inline-flex min-h-14 items-center justify-center rounded-full px-9 text-base font-black shadow-xl transition hover:-translate-y-0.5 hover:shadow-2xl ${
+              isDark ? 'bg-white text-slate-950 shadow-black/25' : 'text-white'
+            }`}
             style={!isDark ? { backgroundColor: brandColor } : undefined}
           >
             {section.cta.label}
           </Link>
         ) : null}
+        <div className="mt-8 grid w-full max-w-3xl grid-cols-1 gap-3 text-left sm:grid-cols-3">
+          {['Matrícula abierta', 'Asesoramiento personalizado', 'Plazas limitadas'].map((item) => (
+            <div
+              key={item}
+              className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+                isDark ? 'bg-white/8 text-white/82 ring-1 ring-white/12' : 'bg-slate-50 text-slate-700 ring-1 ring-slate-200'
+              }`}
+            >
+              <span className="mr-2 inline-block size-2 rounded-full" style={{ backgroundColor: brandColor }} />
+              {item}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )

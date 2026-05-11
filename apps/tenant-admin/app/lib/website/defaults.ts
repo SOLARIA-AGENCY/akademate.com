@@ -192,9 +192,9 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         },
         {
           kind: 'ctaBanner',
-          title: '¿Buscas formación subvencionada o cambio profesional?',
-          body: 'Explora convocatorias abiertas y encuentra la modalidad que encaja contigo.',
-          cta: { label: 'Explorar convocatorias', href: '/convocatorias' },
+          title: 'Encuentra tu próxima oportunidad formativa',
+          body: 'Consulta las convocatorias abiertas, compara modalidades y solicita información para elegir el curso que mejor encaja con tu objetivo profesional.',
+          cta: { label: 'Ver convocatorias abiertas', href: '/convocatorias' },
           theme: 'dark',
         },
         {
