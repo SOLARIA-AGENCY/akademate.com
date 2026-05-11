@@ -18,9 +18,9 @@ const services = [
 ]
 
 const roadmap = [
-  'Ficha interna de candidato conectada al dashboard CEP.',
-  'Seguimiento de estado de inscripción y derivaciones.',
-  'Sincronización de ofertas, cursos y perfiles recomendados.',
+  'Orientación personalizada según tu perfil profesional.',
+  'Acceso a procesos de selección vinculados a empresas colaboradoras.',
+  'Acompañamiento para mejorar tu candidatura y preparar entrevistas.',
 ]
 
 export default function AgenciaColocacionPage() {
@@ -81,9 +81,9 @@ export default function AgenciaColocacionPage() {
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
           <div>
-            <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Integración interna planificada</h2>
+            <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Regístrate y empieza a moverte</h2>
             <p className="mt-4 text-lg leading-8 text-slate-600">
-              En esta fase mantenemos el registro en la plataforma oficial. La siguiente evolución será integrar la experiencia dentro del ecosistema CEP para centralizar candidatos, ofertas y seguimiento.
+              El alta se realiza en el portal oficial de candidatos. Desde allí podrás completar tu perfil para que el equipo de orientación laboral pueda valorar oportunidades ajustadas a tu formación.
             </p>
           </div>
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-7">

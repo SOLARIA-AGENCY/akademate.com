@@ -13,9 +13,9 @@ const BRAND_RED = '#f2014b'
 function resolveImageUrl(image: any): string | null {
   if (!image) return null
   if (typeof image === 'object' && image.url) {
-    return String(image.url).replace(/^\/api\/media\/file\//, '/media/').replace(/^\/media\/file\//, '/media/')
+    return String(image.url).replace(/^\/media\/file\//, '/api/media/file/')
   }
-  if (typeof image === 'object' && image.filename) return `/media/${image.filename}`
+  if (typeof image === 'object' && image.filename) return `/api/media/file/${image.filename}`
   return null
 }
 
@@ -69,9 +69,28 @@ function getCourseTitle(course: any): string {
 }
 
 function getCourseDescription(course: any): string {
-  const value = course?.short_description || course?.description
-  if (typeof value === 'string' && value.trim()) return value
-  return 'Programa especializado con orientación práctica.'
+  const value = course?.short_description || course?.landing_target_audience || course?.landing_outcomes || course?.description
+  const normalizedStudyType = normalizeStudyType(String(course?.course_type || ''))
+  if (typeof value === 'string' && value.trim()) {
+    const trimmed = value.trim()
+    if (trimmed !== 'Programa especializado con orientación práctica.') return trimmed
+  }
+  return normalizedStudyType === 'teleformacion'
+    ? 'Formación online con matrícula abierta para avanzar a tu ritmo.'
+    : 'Consulta el programa, modalidad y próximas fechas disponibles.'
+}
+
+function cleanPublicCopy(value: string | null | undefined, fallback?: string): string | null {
+  if (!value) return fallback ?? null
+  const cleaned = value.trim()
+  if (!cleaned) return fallback ?? null
+  if (cleaned === 'Las plazas con inscripción activa se actualizan desde la base de datos.') {
+    return fallback ?? 'Elige tu próxima fecha de inicio y reserva plaza en las formaciones disponibles.'
+  }
+  if (cleaned === 'Formulario conectado con el flujo actual de leads.') {
+    return fallback ?? 'Déjanos tus datos y un asesor de CEP te orientará sobre cursos, ciclos, convocatorias, horarios y opciones de matrícula.'
+  }
+  return cleaned
 }
 
 function getStaffName(staff: any): string {
@@ -110,8 +129,8 @@ function getCategoryHref(item: { title: string; href?: string }): string {
 }
 
 const CYCLE_LEVEL_META: Record<string, { label: string; bgColor: string; textColor: string }> = {
-  grado_medio: { label: 'Grado Medio · CFGM', bgColor: '#2563EB', textColor: '#FFFFFF' },
-  grado_superior: { label: 'Grado Superior · CFGS', bgColor: '#E3003A', textColor: '#FFFFFF' },
+  grado_medio: { label: 'GRADO MEDIO', bgColor: '#E3003A', textColor: '#FFFFFF' },
+  grado_superior: { label: 'GRADO SUPERIOR', bgColor: '#E3003A', textColor: '#FFFFFF' },
 }
 
 function getCycleLevelMeta(level: string | undefined) {
@@ -188,7 +207,7 @@ function FeatureStripSection({ section }: { section: Extract<WebsiteSection, { k
           {title ? <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{title}</h2> : null}
           {subtitle ? <p className="mt-4 text-lg leading-8 text-slate-600">{subtitle}</p> : null}
         </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item, index) => (
             <article key={item.title} className="group rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-red-100 hover:shadow-xl">
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50 text-sm font-black text-[var(--cep-brand)] transition group-hover:bg-[var(--cep-brand)] group-hover:text-white">
@@ -335,7 +354,7 @@ function JobPlacementSection({
                   ) : null}
                 </div>
                 <p className="mt-5 text-xs leading-6 text-white/45">
-                  Actualmente el registro se realiza en la plataforma oficial de la agencia. La integración interna queda prevista para una fase posterior.
+                  El registro se realiza en el portal oficial de candidatos de la agencia de colocación.
                 </p>
               </div>
             </div>
@@ -422,7 +441,7 @@ async function CourseListSection({
               const isTeleformacion = normalizedStudyType === 'teleformacion'
               const typeColor = getCourseTypeColor(course.course_type)
               return (
-                <Link key={course.id} href={`/cursos/${course.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl">
+                <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl">
                   <div className="relative h-64 overflow-hidden">
                     {imageUrl ? <img src={imageUrl} alt={title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
@@ -435,15 +454,14 @@ async function CourseListSection({
                   </div>
                   <div className="flex flex-1 flex-col p-6">
                     <p className="mb-4 text-xs font-black uppercase tracking-[0.16em] text-[var(--cep-brand)]">{getCourseArea(course)}</p>
-                    <p className="line-clamp-3 text-sm leading-7 text-slate-600">
-                      {description || (isTeleformacion ? 'Formación online para avanzar a tu ritmo, con matrícula abierta permanente.' : 'Programa especializado con orientación práctica.')}
-                    </p>
+                    <p className="line-clamp-3 text-sm leading-7 text-slate-600">{description}</p>
                     <div className="mt-5 grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
-                      <p><span className="font-semibold text-slate-950">Fecha:</span> {isTeleformacion ? 'Inicio inmediato' : formatDate(nextRun?.start_date)}</p>
-                      <p><span className="font-semibold text-slate-950">Sede:</span> {isTeleformacion ? '100% online · desde casa' : (campus?.name || 'Por confirmar')}</p>
+                      <p><span className="font-semibold text-slate-950">Modalidad:</span> {isTeleformacion ? 'Online' : String(course.modality || 'Consultar')}</p>
+                      <p><span className="font-semibold text-slate-950">Inicio:</span> {isTeleformacion ? 'Empieza cuando quieras' : formatDate(nextRun?.start_date)}</p>
+                      <p><span className="font-semibold text-slate-950">Sede:</span> {isTeleformacion ? 'Online' : (campus?.name || 'Por confirmar')}</p>
                     </div>
                     <span className="mt-6 inline-flex w-fit items-center rounded-full bg-slate-950 px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[var(--cep-brand)]">
-                      {isTeleformacion ? 'Empezar ahora' : 'Ver curso'}
+                      Ver curso
                       <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
                       </svg>
@@ -513,7 +531,7 @@ async function CycleListSection({
                     ))}
                   </div>
                   <span className="mt-auto inline-flex w-fit items-center rounded-full bg-slate-950 px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[var(--cep-brand)]">
-                    Visitar ciclo
+                    Ver ciclo
                     <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
                     </svg>
@@ -538,6 +556,10 @@ async function ConvocationListSection({
   tenantId: string
 }) {
   const payload = await getPayload({ config: configPromise })
+  const subtitle = cleanPublicCopy(
+    section.subtitle,
+    'Elige tu próxima fecha de inicio y reserva plaza en las formaciones disponibles.'
+  )
   const result = await payload.find({
     collection: 'course-runs',
     where: withTenantScope({ status: { in: ['published', 'enrollment_open'] } }, tenantId) as any,
@@ -569,7 +591,7 @@ async function ConvocationListSection({
               Plazas disponibles
             </span>
             <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">{section.title}</h2>
-            {section.subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-white/72">{section.subtitle}</p> : null}
+            {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-white/72">{subtitle}</p> : null}
           </div>
           <Link href="/convocatorias" className="inline-flex w-fit rounded-full bg-white px-6 py-3 text-sm font-black text-slate-950 transition hover:-translate-y-0.5 hover:shadow-xl">
             Ver todas
@@ -605,12 +627,14 @@ async function ConvocationListSection({
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-4 p-5">
-                  <div className="text-sm text-white/70">
-                    <p>{formatDate(conv.start_date)}</p>
-                    <p>{group.title}</p>
+                  <div className="grid gap-1 text-sm text-white/70">
+                    <p><span className="font-semibold text-white">Fecha:</span> {formatDate(conv.start_date)}</p>
+                    <p><span className="font-semibold text-white">Sede:</span> {group.title}</p>
+                    <p><span className="font-semibold text-white">Estado:</span> Plazas disponibles</p>
+                    {typeof conv.price_snapshot === 'number' ? <p><span className="font-semibold text-white">Precio:</span> {conv.price_snapshot.toLocaleString('es-ES')} €</p> : null}
                   </div>
                   <span className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-black text-slate-950 transition group-hover:bg-[var(--cep-brand)] group-hover:text-white">
-                    Visitar
+                    Ver convocatoria
                   </span>
                 </div>
               </Link>
@@ -653,7 +677,7 @@ async function CampusListSection({
         <div className="mt-10 grid gap-8 md:grid-cols-2">
           {campusResult.docs.map((campus: any) => {
             const imageUrl = resolveImageUrl(campus.image)
-            const schedule = campus?.schedule?.weekdays || campus?.schedule?.saturday || 'Horario pendiente'
+            const schedule = campus?.schedule?.weekdays || campus?.schedule?.saturday || 'Consultar horario'
             return (
               <Link key={campus.id} href={`/sedes/${campus.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative h-72 overflow-hidden">
@@ -662,8 +686,9 @@ async function CampusListSection({
                 </div>
                 <div className="space-y-4 p-7">
                   <h3 className="text-2xl font-black text-slate-950">{campus.name}</h3>
-                  <p className="text-base leading-7 text-slate-600">{campus.city}{campus.address ? ` · ${campus.address}` : ''}</p>
+                  <p className="text-base leading-7 text-slate-600">{campus.city || 'Tenerife'}</p>
                   <div className="grid gap-2 border-t border-slate-100 pt-4 text-sm text-slate-700">
+                    <p><span className="font-bold text-slate-950">Dirección:</span> {campus.address || 'Consultar dirección'}</p>
                     {campus.phone ? <p><span className="font-bold text-slate-950">Teléfono:</span> {campus.phone}</p> : null}
                     <p><span className="font-bold text-slate-950">Horario:</span> {schedule}</p>
                   </div>
@@ -732,18 +757,16 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
 
 async function TeamGridSection({
   section,
-  tenantId,
 }: {
   section: Extract<WebsiteSection, { kind: 'teamGrid' }>
-  tenantId: string
 }) {
   const payload = await getPayload({ config: configPromise })
   const staffResult = await payload.find({
     collection: 'staff',
-    where: withTenantScope({
+    where: {
       staff_type: { equals: 'profesor' },
       employment_status: { equals: 'active' },
-    }, tenantId) as any,
+    } as any,
     depth: 1,
     limit: 8,
     sort: 'full_name',
@@ -757,7 +780,7 @@ async function TeamGridSection({
       id: staff.id,
       name,
       role: getStaffSpecialtyLabel(staff),
-      image: resolveImageUrl(staff.photo) || '/website/cep/team/alexis.jpg',
+      image: resolveImageUrl(staff.photo),
       href: staff.slug ? `/p/profesores/${staff.slug}` : `/p/profesores/${staff.id}`,
     }
   })
@@ -776,7 +799,13 @@ async function TeamGridSection({
               className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl"
             >
               <div className="flex justify-center bg-slate-50 p-7">
-                <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-48 w-48 rounded-full object-cover ring-4 ring-white transition duration-500 group-hover:scale-105" />
+                {member.image ? (
+                  <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-48 w-48 rounded-full object-cover ring-4 ring-white transition duration-500 group-hover:scale-105" />
+                ) : (
+                  <div className="flex h-48 w-48 items-center justify-center rounded-full bg-white text-5xl font-black text-slate-950 ring-4 ring-white transition duration-500 group-hover:scale-105">
+                    {member.name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}
+                  </div>
+                )}
               </div>
               <div className="p-5">
                 <span className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--cep-brand)]">
@@ -806,6 +835,10 @@ function LeadFormSection({
   section: Extract<WebsiteSection, { kind: 'leadForm' }>
   brandColor: string
 }) {
+  const subtitle = cleanPublicCopy(
+    section.subtitle,
+    'Déjanos tus datos y un asesor de CEP te orientará sobre cursos, ciclos, convocatorias, horarios y opciones de matrícula.'
+  )
   return (
     <section className="bg-slate-950 text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
@@ -815,7 +848,7 @@ function LeadFormSection({
               Atención personalizada
             </span>
             <h2 className="mt-5 max-w-xl text-balance text-3xl font-black leading-tight sm:text-4xl">{section.title}</h2>
-            {section.subtitle ? <p className="mt-4 max-w-xl text-lg leading-8 text-white/72">{section.subtitle}</p> : null}
+            {subtitle ? <p className="mt-4 max-w-xl text-lg leading-8 text-white/72">{subtitle}</p> : null}
           </div>
 
           <div className="grid gap-3 text-sm text-white/75 sm:grid-cols-2">
@@ -885,7 +918,7 @@ async function renderSection(
     case 'categoryGrid':
       return <CategoryGridSection section={section} />
     case 'teamGrid':
-      return <TeamGridSection section={section} tenantId={tenantId} />
+      return <TeamGridSection section={section} />
     case 'leadForm':
       return <LeadFormSection section={section} brandColor={brandColor} />
     default:

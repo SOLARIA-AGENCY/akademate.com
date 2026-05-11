@@ -175,26 +175,38 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         {
           kind: 'featureStrip',
           title: 'Por qué elegir CEP',
-          subtitle: 'Formación pensada para avanzar: orientación real, docentes en activo y acompañamiento hasta la matrícula.',
+          subtitle: 'Formación cercana, práctica y orientada a que avances con seguridad desde el primer contacto hasta el aula.',
           items: [
             {
-              title: 'Aprende con profesionales en activo',
-              description: 'Clases prácticas con docentes que conocen lo que se exige fuera del aula.',
+              title: 'Formación pensada para trabajar',
+              description: 'Programas conectados con sectores reales y competencias útiles para tu próximo paso profesional.',
             },
             {
-              title: 'Elige el camino que encaja contigo',
-              description: 'Ciclos oficiales, cursos privados y formación subvencionada con asesoramiento antes de matricularte.',
+              title: 'Docentes en activo',
+              description: 'Aprende con profesionales que conocen el día a día del sector y trasladan esa experiencia al aula.',
             },
             {
-              title: 'Estudia cerca, con seguimiento real',
-              description: 'Sedes en Tenerife, grupos reducidos y atención académica para resolver dudas desde el primer día.',
+              title: 'Sedes reales en Tenerife',
+              description: 'Centros de atención y formación donde puedes resolver dudas, visitar instalaciones y recibir orientación.',
+            },
+            {
+              title: 'Bolsa de empleo y orientación',
+              description: 'Acompañamiento para enfocar tu búsqueda laboral y acceder a nuestra agencia de colocación autorizada.',
+            },
+            {
+              title: 'Grupos reducidos',
+              description: 'Un entorno de aprendizaje más cercano para seguir tu progreso y trabajar con más atención docente.',
+            },
+            {
+              title: 'Acompañamiento desde la matrícula',
+              description: 'Te guiamos en requisitos, documentación, horarios y opciones para elegir con claridad.',
             },
           ],
         },
         {
           kind: 'ctaBanner',
-          title: 'Encuentra tu próxima oportunidad formativa',
-          body: 'Consulta las convocatorias abiertas, compara modalidades y solicita información para elegir el curso que mejor encaja con tu objetivo profesional.',
+          title: '¿Buscas una formación subvencionada o quieres cambiar de rumbo profesional?',
+          body: 'Consulta las convocatorias abiertas y reserva tu plaza con el equipo de CEP Formación.',
           cta: { label: 'Ver convocatorias abiertas', href: '/convocatorias' },
           theme: 'dark',
         },
@@ -238,18 +250,18 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
           title: 'Áreas de formación',
           subtitle: 'Encuentra tu próxima formación por especialidad profesional.',
           items: [
-            { title: 'Área Sanitaria y Clínica', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/p/areas/area-sanitaria-y-clinica' },
+            { title: 'Área Sanitaria y Clínica', image: '/media/farmacia-hero.png', href: '/p/areas/area-sanitaria-y-clinica' },
             { title: 'Área Veterinaria y Bienestar Animal', image: '/website/cep/categories/mundo-animal.jpg', href: '/p/areas/area-veterinaria-y-bienestar-animal' },
             { title: 'Área Salud, Bienestar y Deporte', image: '/website/cep/categories/salud-bienestar-y-deporte.jpg', href: '/p/areas/area-salud-bienestar-y-deporte' },
-            { title: 'Área Tecnología, Digital y Diseño', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/p/areas/area-tecnologia-digital-y-diseno' },
-            { title: 'Área Empresa, Administración y Gestión', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/p/areas/area-empresa-administracion-y-gestion' },
-            { title: 'Área Seguridad, Vigilancia y Protección', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/p/areas/area-seguridad-vigilancia-y-proteccion' },
+            { title: 'Área Tecnología, Digital y Diseño', image: '/media/dev-priv-0001.jpg', href: '/p/areas/area-tecnologia-digital-y-diseno' },
+            { title: 'Área Empresa, Administración y Gestión', image: '/media/mkt-ocup-0001.jpg', href: '/p/areas/area-empresa-administracion-y-gestion' },
+            { title: 'Área Seguridad, Vigilancia y Protección', image: '/media/dev-dese-0001.jpg', href: '/p/areas/area-seguridad-vigilancia-y-proteccion' },
           ],
         },
         {
           kind: 'campusList',
           title: 'Nuestras sedes',
-          subtitle: 'Dos centros en Tenerife con atención académica personalizada, instalaciones propias y equipo docente especializado.',
+          subtitle: 'Conoce nuestras sedes en Tenerife y ven a visitarnos. Te orientamos sobre el curso que mejor encaja contigo.',
           limit: 3,
         },
         {

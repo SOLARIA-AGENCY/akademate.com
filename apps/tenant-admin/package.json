@@ -26,6 +26,7 @@
     "sync:nerea-illescas": "tsx scripts/sync-nerea-illescas.ts",
     "sync:lucia-corominas": "tsx scripts/sync-lucia-corominas.ts",
     "sync:abraham-portocarrero": "tsx scripts/sync-abraham-portocarrero.ts",
+    "sync:tatuaje-profesional-online": "tsx scripts/sync-tatuaje-profesional-online.ts",
     "validate:cep:planning": "tsx scripts/validate-cep-planning-v1.ts",
     "apply:cep:planning": "tsx scripts/apply-cep-planning-v1.ts",
     "generate:course:images": "tsx scripts/generate-course-images.ts",

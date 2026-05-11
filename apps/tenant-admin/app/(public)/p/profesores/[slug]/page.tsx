@@ -21,65 +21,6 @@ function staffName(staff: any): string {
   return staff.full_name || [staff.first_name, staff.last_name].filter(Boolean).join(' ').trim() || 'Docente CEP'
 }
 
-const DEFAULT_PUBLIC_PROFESSORS = [
-  {
-    full_name: 'Alexis Galán',
-    position: 'Docente de Farmacia',
-    bio: 'Profesor especializado en el área sanitaria y farmacéutica de CEP Formación.',
-    specialties: ['Farmacia', 'Área sanitaria'],
-    photo: { url: '/website/cep/team/alexis.jpg' },
-  },
-  {
-    full_name: 'Livia Bernardi',
-    position: 'Docente de Adiestramiento Canino',
-    bio: 'Profesora especializada en comportamiento, adiestramiento y bienestar animal.',
-    specialties: ['Adiestramiento Canino', 'Bienestar animal'],
-    photo: { url: '/website/cep/team/livia.jpg' },
-  },
-  {
-    full_name: 'Nuria E. Ángel',
-    position: 'Docente de Odontología',
-    bio: 'Profesora especializada en odontología e higiene bucodental.',
-    specialties: ['Odontología', 'Higiene bucodental'],
-    photo: { url: '/website/cep/team/nuria.jpg' },
-  },
-  {
-    full_name: 'Sara Jaquete',
-    position: 'Docente de Veterinaria',
-    bio: 'Profesora especializada en el área veterinaria y bienestar animal.',
-    specialties: ['Veterinaria', 'Bienestar animal'],
-    photo: { url: '/website/cep/team/sara.jpg' },
-  },
-  {
-    full_name: 'Lali Hernández',
-    position: 'Docente de Inglés',
-    bio: 'Profesora especializada en formación de idiomas.',
-    specialties: ['Inglés', 'Competencias lingüísticas'],
-    photo: { url: '/website/cep/team/cecilia.jpg' },
-  },
-  {
-    full_name: 'Goretti Valdés',
-    position: 'Docente de Farmacia',
-    bio: 'Profesora especializada en formación sanitaria y farmacia.',
-    specialties: ['Farmacia', 'Área sanitaria'],
-    photo: { url: '/website/cep/team/goreti.jpg' },
-  },
-  {
-    full_name: 'Luis J. González',
-    position: 'Docente de Medicina estética',
-    bio: 'Profesor especializado en medicina estética y bienestar.',
-    specialties: ['Medicina estética', 'Bienestar'],
-    photo: { url: '/website/cep/team/luis.jpg' },
-  },
-  {
-    full_name: 'Esther González',
-    position: 'Docente de Medicina estética',
-    bio: 'Profesora especializada en medicina estética y bienestar.',
-    specialties: ['Medicina estética', 'Bienestar'],
-    photo: { url: '/website/cep/team/esther.jpg' },
-  },
-]
-
 function slugify(value: string): string {
   return value
     .normalize('NFD')
@@ -121,7 +62,7 @@ async function getProfessor(slug: string) {
   const professor = professors.docs.find((staff: any) => slugify(staffName(staff)) === slug) as any
   if (professor) return professor
 
-  return DEFAULT_PUBLIC_PROFESSORS.find((staff) => slugify(staffName(staff)) === slug) as any
+  return null
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -146,6 +87,23 @@ export default async function ProfesorPublicPage({ params }: Props) {
     ? professor.assigned_campuses.filter((campus: any) => typeof campus === 'object')
     : []
   const specialties = Array.isArray(professor.specialties) ? professor.specialties : []
+  const payload = await getPayload({ config: configPromise })
+  const courseRuns = await payload.find({
+    collection: 'course-runs',
+    where: {
+      status: { in: ['published', 'enrollment_open'] },
+    } as any,
+    limit: 100,
+    depth: 2,
+    sort: 'start_date',
+  })
+  const assignedCourseRuns = courseRuns.docs.filter((run: any) => {
+    const instructorId = typeof run.instructor === 'object' ? run.instructor?.id : run.instructor
+    const instructorIds = Array.isArray(run.instructors)
+      ? run.instructors.map((item: any) => (typeof item === 'object' ? item?.id : item)).filter(Boolean)
+      : []
+    return String(instructorId) === String(professor.id) || instructorIds.some((id: unknown) => String(id) === String(professor.id))
+  }).slice(0, 12)
 
   return (
     <main className="min-h-screen bg-white">
@@ -183,7 +141,29 @@ export default async function ProfesorPublicPage({ params }: Props) {
                 ))}
               </div>
             ) : (
-              <p className="mt-4 text-slate-600">Titulaciones pendientes de publicar.</p>
+              <p className="mt-4 text-slate-600">Consulta con CEP Formación para ampliar información sobre esta especialidad docente.</p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="text-2xl font-bold text-slate-950">Cursos y convocatorias asignadas</h2>
+            {assignedCourseRuns.length > 0 ? (
+              <div className="mt-5 grid gap-3">
+                {assignedCourseRuns.map((run: any) => {
+                  const course = typeof run.course === 'object' ? run.course : null
+                  const cycle = typeof run.cycle === 'object' ? run.cycle : null
+                  const title = cycle?.name || course?.name || run.codigo
+                  const href = course?.slug ? `/p/cursos/${course.slug}` : cycle?.slug ? `/p/ciclos/${cycle.slug}` : `/p/convocatorias/${run.codigo || run.id}`
+                  return (
+                    <Link key={run.id} href={href} className="block rounded-xl border border-slate-200 bg-slate-50 p-4 transition hover:border-red-200 hover:bg-white hover:shadow-sm">
+                      <p className="font-semibold text-slate-950">{title}</p>
+                      <p className="mt-1 text-sm text-slate-600">{run.codigo ? `Convocatoria ${run.codigo}` : 'Convocatoria publicada'}</p>
+                    </Link>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="mt-4 text-slate-600">Actualmente no hay convocatorias públicas asignadas a esta ficha docente.</p>
             )}
           </div>
 

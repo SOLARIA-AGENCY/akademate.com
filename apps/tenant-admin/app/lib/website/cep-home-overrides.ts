@@ -6,20 +6,28 @@ const CEP_FEATURE_STRIP_OVERRIDE: Extract<WebsiteSection, { kind: 'featureStrip'
   subtitle: 'Formación cercana, práctica y orientada a que avances con seguridad desde el primer contacto hasta el aula.',
   items: [
     {
-      title: 'Asesoramiento antes de matricularte',
-      description: 'Te ayudamos a elegir curso, modalidad y convocatoria según tu objetivo profesional y tu disponibilidad real.',
+      title: 'Formación pensada para trabajar',
+      description: 'Programas conectados con sectores reales y competencias útiles para tu próximo paso profesional.',
     },
     {
-      title: 'Aprendizaje aplicado',
-      description: 'Programas pensados para trabajar con casos prácticos, grupos controlados y contenidos conectados con el sector.',
+      title: 'Docentes en activo',
+      description: 'Aprende con profesionales que conocen el día a día del sector y trasladan esa experiencia al aula.',
     },
     {
-      title: 'Oferta para cada etapa',
-      description: 'Ciclos oficiales, cursos privados, formación subvencionada y teleformación para avanzar sin perder el foco.',
+      title: 'Sedes reales en Tenerife',
+      description: 'Centros de atención y formación donde puedes resolver dudas, visitar instalaciones y recibir orientación.',
     },
     {
-      title: 'Seguimiento durante la formación',
-      description: 'Atención académica y coordinación de centro para que tengas claro horarios, requisitos, documentación y próximos pasos.',
+      title: 'Bolsa de empleo y orientación',
+      description: 'Acompañamiento para enfocar tu búsqueda laboral y acceder a nuestra agencia de colocación autorizada.',
+    },
+    {
+      title: 'Grupos reducidos',
+      description: 'Un entorno de aprendizaje más cercano para seguir tu progreso y trabajar con más atención docente.',
+    },
+    {
+      title: 'Acompañamiento desde la matrícula',
+      description: 'Te guiamos en requisitos, documentación, horarios y opciones para elegir con claridad.',
     },
   ],
 }
@@ -36,6 +44,14 @@ const CEP_CATEGORY_GRID_OVERRIDE: Extract<WebsiteSection, { kind: 'categoryGrid'
     { title: 'Área Empresa, Administración y Gestión', image: '/media/mkt-ocup-0001.jpg', href: '/p/areas/area-empresa-administracion-y-gestion' },
     { title: 'Área Seguridad, Vigilancia y Protección', image: '/media/dev-dese-0001.jpg', href: '/p/areas/area-seguridad-vigilancia-y-proteccion' },
   ],
+}
+
+const CEP_CTA_BANNER_OVERRIDE: Extract<WebsiteSection, { kind: 'ctaBanner' }> = {
+  kind: 'ctaBanner',
+  title: '¿Buscas una formación subvencionada o quieres cambiar de rumbo profesional?',
+  body: 'Consulta las convocatorias abiertas y reserva tu plaza con el equipo de CEP Formación.',
+  cta: { label: 'Ver convocatorias abiertas', href: '/convocatorias' },
+  theme: 'dark',
 }
 
 function upsertSection<TKind extends WebsiteSection['kind']>(
@@ -68,6 +84,7 @@ export function applyCepHomeOverrides(page: WebsitePage): WebsitePage {
   const sections = Array.isArray(page.sections) ? [...page.sections] : []
 
   upsertSection(sections, 'featureStrip', CEP_FEATURE_STRIP_OVERRIDE, 2)
+  upsertSection(sections, 'ctaBanner', CEP_CTA_BANNER_OVERRIDE, 3)
   upsertSection(sections, 'categoryGrid', CEP_CATEGORY_GRID_OVERRIDE)
 
   return {
