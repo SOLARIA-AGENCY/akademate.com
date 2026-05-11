@@ -213,13 +213,13 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         {
           kind: 'courseList',
           title: 'Cursos destacados',
-          subtitle: 'Especialización orientada a profesiones con demanda.',
+          subtitle: 'Formaciones prácticas para especializarte, cambiar de sector o mejorar tu perfil profesional.',
           limit: 6,
         },
         {
           kind: 'convocationList',
           title: 'Convocatorias abiertas',
-          subtitle: 'Las plazas con inscripción activa se actualizan desde la base de datos.',
+          subtitle: 'Elige tu próxima fecha de inicio y reserva plaza en las formaciones disponibles.',
           limit: 4,
         },
         {
@@ -244,7 +244,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         {
           kind: 'teamGrid',
           title: 'Equipo docente',
-          subtitle: 'Conoce a nuestro equipo docente y su experiencia profesional por áreas.',
+          subtitle: 'Aprende con profesionales especializados que combinan experiencia docente y práctica real en su sector.',
           members: [
             { name: 'Alexis Galán', role: 'Farmacia', image: '/website/cep/team/alexis.jpg' },
             { name: 'Livia Bernardi', role: 'Adiestramiento Canino', image: '/website/cep/team/livia.jpg' },
