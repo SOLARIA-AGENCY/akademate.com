@@ -8,7 +8,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, BookOpen, Clock, Edit, Loader2,
-  Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Plus, Printer, MapPin, Users,
+  Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Monitor, Plus, Printer, MapPin, Users,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
@@ -245,6 +245,7 @@ export default function CursoDetailPage({ params }: Props) {
   const publicCourseAvailable = Boolean(course.slug || course.id) && course.active !== false
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(publicCourseUrl)}`
   const activeRuns = convocatorias.filter((conv) => !['cancelled', 'archived', 'completed'].includes(conv.estado ?? ''))
+  const isTeleformacion = course.course_type === 'teleformacion' || course.modality === 'teleformacion'
 
   return (
     <div className="space-y-6">
@@ -350,6 +351,17 @@ export default function CursoDetailPage({ params }: Props) {
                 <InfoRow label="Area">{areaName ?? course.area ?? 'Por definir'}</InfoRow>
                 <InfoRow label="Precio">{formatCurrency(course.base_price)}</InfoRow>
               </div>
+              {isTeleformacion && (
+                <div className="flex gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4 text-sm text-orange-950">
+                  <Monitor className="mt-0.5 h-4 w-4 shrink-0 text-orange-600" />
+                  <div>
+                    <p className="font-semibold">Teleformación con inicio flexible</p>
+                    <p className="mt-1 text-orange-900/80">
+                      Comunicación pública: 100% online, desde casa, matrícula abierta permanente y avance a ritmo del alumno.
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 

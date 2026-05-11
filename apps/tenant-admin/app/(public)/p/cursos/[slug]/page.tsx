@@ -76,7 +76,11 @@ function splitProgramLine(line: string): ProgramSection {
 function buildCourseFeatures(course: NonNullable<Awaited<ReturnType<typeof getPublishedCourseBySlug>>>) {
   const isTeleformacion = course.studyType === 'teleformacion'
   const durationLabel =
-    course.duracionReferencia === 48
+    isTeleformacion
+      ? course.duracionReferencia
+        ? `${course.duracionReferencia} h online`
+        : 'Formación online'
+      : course.duracionReferencia === 48
       ? '48 h / 12 sesiones'
       : (course.duracionReferencia ?? 0) > 0
         ? `${course.duracionReferencia} h de formación`
@@ -85,25 +89,25 @@ function buildCourseFeatures(course: NonNullable<Awaited<ReturnType<typeof getPu
     {
       label: durationLabel,
       icon: Clock,
-      description: 'Carga lectiva completa certificada.',
+      description: isTeleformacion ? 'Avanza desde casa con acceso flexible.' : 'Carga lectiva completa certificada.',
       color: 'text-blue-500'
     },
     {
-      label: 'Agencia de colocación oficial',
+      label: isTeleformacion ? 'Matrícula permanente' : 'Agencia de colocación oficial',
       icon: Briefcase,
-      description: 'Acceso exclusivo a ofertas de empleo.',
+      description: isTeleformacion ? 'Puedes empezar cuando lo necesites.' : 'Acceso exclusivo a ofertas de empleo.',
       color: 'text-emerald-500'
     },
     {
-      label: isTeleformacion ? 'Modalidad Online' : 'Clases Presenciales',
+      label: isTeleformacion ? '100% Online' : 'Clases Presenciales',
       icon: Users,
-      description: isTeleformacion ? 'Estudia a tu ritmo desde cualquier lugar.' : 'Aprendizaje en aula con expertos.',
+      description: isTeleformacion ? 'Formación completa sin desplazamientos.' : 'Aprendizaje en aula con expertos.',
       color: 'text-indigo-500'
     },
     {
       label: isTeleformacion ? 'Aprendizaje Flexible' : 'Grupos Reducidos',
       icon: Target,
-      description: isTeleformacion ? 'Tutorización personalizada.' : 'Máximo aprovechamiento garantizado.',
+      description: isTeleformacion ? 'Estudia a tu ritmo con acompañamiento tutorial.' : 'Máximo aprovechamiento garantizado.',
       color: 'text-orange-500'
     },
     {
@@ -385,6 +389,7 @@ export default async function CursoLandingPage({ params }: Props) {
 
   const title = course.nombre
   const description = course.descripcion
+  const isTeleformacion = course.studyType === 'teleformacion'
   const detailedDescription = course.descripcionDetallada
   const imageUrl = course.imagenPortada || getPublicStudyTypeFallbackImage(course.studyType)
   const heroColor =
@@ -439,6 +444,20 @@ export default async function CursoLandingPage({ params }: Props) {
     : groupSyllabus(sectionsData.syllabus.length > 0 ? sectionsData.syllabus : detailedDescriptionArray)
 
   const courseFeatures = buildCourseFeatures(course)
+  const heroPrimaryCta = isTeleformacion ? 'Empezar ahora' : 'Solicitar Dossier'
+  const sidebarTitle = isTeleformacion ? 'Empieza tu curso online' : 'Solicita información del curso'
+  const sidebarCopy = isTeleformacion
+    ? 'Déjanos tus datos y te explicamos acceso, matrícula y funcionamiento del curso online.'
+    : 'Te llamamos para resolver horarios, requisitos, modalidad y matrícula.'
+  const sidebarSubmitLabel = isTeleformacion
+    ? 'Quiero empezar ahora'
+    : course.enrollmentStatus === 'open'
+      ? 'Solicitar información gratuita'
+      : (course.enrollmentLabel || 'Avisarme de próximas fechas')
+  const formatLabel = isTeleformacion ? 'Formato online' : 'Formato presencial'
+  const formatValue = isTeleformacion
+    ? 'Inicio inmediato'
+    : course.nextRun?.scheduleLabel || (course.duracionReferencia ? `${course.duracionReferencia} h` : 'Próximas fechas')
   
   const eligibleRelatedCourses = allRelatedCourses.filter((relatedCourse) => relatedCourse.slug !== course.slug)
   const preferredHealthContinuityCourses = eligibleRelatedCourses
@@ -457,7 +476,34 @@ export default async function CursoLandingPage({ params }: Props) {
     ...eligibleRelatedCourses.slice(0, 20)
   ]).slice(0, 4)
 
-  const fallbackFaqs = [
+  const teleformacionFallbackFaqs = [
+    {
+      q: '¿Cuándo puedo empezar?',
+      a: 'Puedes empezar cuando quieras una vez formalizada la matrícula. La matrícula está abierta de forma permanente.'
+    },
+    {
+      q: '¿La formación es presencial?',
+      a: 'No. La formación se realiza 100% online, desde casa y sin desplazamientos.'
+    },
+    {
+      q: '¿Tengo horarios obligatorios?',
+      a: 'No hay horario fijo de aula. Puedes avanzar a tu ritmo dentro de las condiciones del curso.'
+    },
+    {
+      q: '¿Tendré acompañamiento durante el curso?',
+      a: 'Sí. Cuentas con acompañamiento tutorial online para resolver dudas y avanzar con seguridad.'
+    },
+    {
+      q: '¿Cómo accedo al curso?',
+      a: 'Tras completar la matrícula, el equipo de CEP te indica los pasos de acceso y funcionamiento del curso online.'
+    },
+    {
+      q: '¿Recibo certificado?',
+      a: 'Sí. Al finalizar la formación según los requisitos del programa, recibirás la certificación correspondiente.'
+    },
+  ]
+
+  const fallbackFaqs = isTeleformacion ? teleformacionFallbackFaqs : [
     {
       q: '¿Qué aprenderé en este curso?',
       a: 'Aprenderás a recomendar nutricosmética y complementos alimenticios con criterios claros, seguros y basados en evidencia, relacionando nutrición, piel, estética, bienestar y rendimiento físico.'
@@ -498,13 +544,13 @@ export default async function CursoLandingPage({ params }: Props) {
       sameAs: 'https://cepformacion.es'
     },
     courseCode: course.id,
-    courseMode: course.studyTypeLabel,
+    courseMode: isTeleformacion ? 'Online' : course.studyTypeLabel,
     hasCourseInstance: {
       '@type': 'CourseInstance',
-      courseMode: course.studyTypeLabel,
+      courseMode: isTeleformacion ? 'Online' : course.studyTypeLabel,
       instructor: {
-        '@type': 'Person',
-        name: 'Equipo Docente CEP'
+        '@type': 'Organization',
+        name: isTeleformacion ? 'Equipo tutorial CEP' : 'Equipo Docente CEP'
       }
     }
   }
@@ -558,6 +604,30 @@ export default async function CursoLandingPage({ params }: Props) {
                   courseId={course.id}
                   courseName={title}
                   dossierUrl={course.dossierUrl || (isNutricosmeticaPreview ? NUTRICOSMETICA_DOSSIER_URL : '')}
+                  triggerLabel={heroPrimaryCta}
+                  title={isTeleformacion ? 'Empieza tu curso online' : 'Recibe el dossier del curso'}
+                  description={
+                    isTeleformacion
+                      ? `Déjanos tus datos y te explicamos cómo empezar ${title} online, a tu ritmo y desde casa.`
+                      : `Deja tus datos y te enviaremos la ficha PDF de ${title}. El lead quedará registrado para seguimiento comercial.`
+                  }
+                  submitLabel={isTeleformacion ? 'Quiero empezar ahora' : 'Enviar y recibir dossier'}
+                  sourceForm={isTeleformacion ? 'teleformacion_inicio_inmediato' : 'dossier_curso'}
+                  leadType={isTeleformacion ? 'lead' : 'waiting_list'}
+                  notes={
+                    isTeleformacion
+                      ? `Teleformación - inicio inmediato: ${title}`
+                      : `Solicitud de dossier: ${title}`
+                  }
+                  leadMetadata={
+                    isTeleformacion
+                      ? {
+                          lead_intent: 'teleformacion_inicio_inmediato',
+                          course_delivery: 'online_async',
+                          enrollment_mode: 'permanent_open',
+                        }
+                      : undefined
+                  }
                 />
                 <div className="flex items-center gap-4 text-white/90 bg-white/5 backdrop-blur-sm px-6 py-3 rounded-full border border-white/10">
                   <div className="flex -space-x-3">
@@ -614,11 +684,11 @@ export default async function CursoLandingPage({ params }: Props) {
                   <div className="mt-7 pt-6 border-t border-gray-900/10 relative z-10">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] mb-2 font-bold">Formato presencial</p>
+                        <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] mb-2 font-bold">{formatLabel}</p>
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-green-500" />
                           <p className="text-gray-900 font-bold text-xl tracking-tight">
-                            {course.nextRun?.scheduleLabel || (course.duracionReferencia ? `${course.duracionReferencia} h` : 'Próximas fechas')}
+                            {formatValue}
                           </p>
                         </div>
                       </div>
@@ -663,12 +733,12 @@ export default async function CursoLandingPage({ params }: Props) {
             </nav>
           </div>
           <div className="flex items-center gap-6">
-            <div className="hidden xl:flex items-center gap-2 text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse" />
-              {course.enrollmentLabel || 'Avisarme de próximas fechas'}
-            </div>
+              <div className="hidden xl:flex items-center gap-2 text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse" />
+                {course.enrollmentLabel || 'Avisarme de próximas fechas'}
+              </div>
             <a href="#registro" className="brand-btn px-6 py-2 rounded-full text-sm font-bold transition-all">
-              Inscríbete ahora
+              {isTeleformacion ? 'Empezar ahora' : 'Inscríbete ahora'}
             </a>
           </div>
         </div>
@@ -688,7 +758,7 @@ export default async function CursoLandingPage({ params }: Props) {
                 Presentación del curso
               </div>
               <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
-                Impulsa tu futuro profesional con CEP Formación
+                {isTeleformacion ? 'Estudia online desde casa y avanza a tu ritmo' : 'Impulsa tu futuro profesional con CEP Formación'}
               </h2>
               <div className="prose prose-lg prose-brand max-w-none text-gray-600">
                 <p className="text-xl leading-relaxed whitespace-pre-line">
@@ -721,7 +791,11 @@ export default async function CursoLandingPage({ params }: Props) {
                 <h2 className="text-3xl font-bold text-gray-900 mb-4 tracking-tight">
                   ¿Por qué estudiar con nosotros?
                 </h2>
-                <p className="text-gray-500">Beneficios diseñados para tu crecimiento profesional y personal.</p>
+                <p className="text-gray-500">
+                  {isTeleformacion
+                    ? 'Una formación flexible para empezar cuando quieras, sin desplazamientos y con acompañamiento online.'
+                    : 'Beneficios diseñados para tu crecimiento profesional y personal.'}
+                </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {courseFeatures.map((feature, i) => (
@@ -744,7 +818,7 @@ export default async function CursoLandingPage({ params }: Props) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-gray-900 rounded-[40px] p-8 lg:p-16 text-white overflow-hidden relative">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-brand-600/30 rounded-full blur-3xl -mr-32 -mt-32" />
                   <div className="relative z-10">
-                    <h2 className="text-3xl font-bold mb-6 tracking-tight">¿Para quién es este curso?</h2>
+                  <h2 className="text-3xl font-bold mb-6 tracking-tight">¿Para quién es este curso?</h2>
                     <div className="space-y-4">
                       {targetAudienceText.replace(/¿A quien va dirigido\?|Perfil/i, '').split(/[·.]/).filter((p: string) => p.trim().length > 5).map((point: string, i: number) => (
                         <div key={i} className="flex gap-3">
@@ -756,8 +830,12 @@ export default async function CursoLandingPage({ params }: Props) {
                   </div>
                   <div className="relative z-10 flex flex-col items-center justify-center text-center p-8 rounded-[32px] bg-white/5 backdrop-blur-xl border border-white/10">
                     <Users className="w-12 h-12 text-brand-accent mb-4" />
-                    <p className="text-2xl font-bold mb-2">Perfil Profesional</p>
-                    <p className="text-sm text-gray-400">Dirigido a personas que buscan excelencia y actualización constante en su sector.</p>
+                    <p className="text-2xl font-bold mb-2">{isTeleformacion ? 'Perfil Online' : 'Perfil Profesional'}</p>
+                    <p className="text-sm text-gray-400">
+                      {isTeleformacion
+                        ? 'Pensado para personas que necesitan flexibilidad, autonomía y acompañamiento online.'
+                        : 'Dirigido a personas que buscan excelencia y actualización constante en su sector.'}
+                    </p>
                   </div>
                 </div>
               </section>
@@ -895,20 +973,28 @@ export default async function CursoLandingPage({ params }: Props) {
                   <div className="w-14 h-14 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-5 brand-text shadow-sm border border-red-100">
                     <GraduationCap className="w-8 h-8" />
                   </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tight">Solicita información del curso</h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">Te llamamos para resolver horarios, requisitos, modalidad y matrícula.</p>
+                  <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tight">{sidebarTitle}</h3>
+                  <p className="text-gray-700 text-sm leading-relaxed">{sidebarCopy}</p>
                 </div>
                 
                 <LeadForm 
                   variant="card" 
                   cycleId={course.id} 
                   cycleName={title} 
-                  hasActiveConvocatorias={course.enrollmentStatus === 'open'} 
+                  hasActiveConvocatorias={isTeleformacion || course.enrollmentStatus === 'open'}
                   labelClassName="text-gray-800"
                   inputClassName="rounded-lg border-gray-300 bg-white focus:border-transparent focus:ring-2 focus:ring-[var(--brand)]"
                   buttonClassName="rounded-lg !bg-[#f2014b] hover:!bg-[#c9003f] !text-white shadow-none uppercase tracking-wide py-4 disabled:opacity-100 disabled:!bg-[#f2014b] disabled:!text-white"
                   linkClassName="brand-text"
-                  submitLabel={course.enrollmentStatus === 'open' ? 'Solicitar información gratuita' : (course.enrollmentLabel || 'Avisarme de próximas fechas')}
+                  submitLabel={sidebarSubmitLabel}
+                  sourceForm={isTeleformacion ? 'teleformacion_inicio_inmediato' : 'curso_publico_sidebar'}
+                  leadType={isTeleformacion ? 'lead' : undefined}
+                  notes={isTeleformacion ? `Teleformación - inicio inmediato: ${title}` : `Solicitud de información: ${title}`}
+                  leadMetadata={isTeleformacion ? {
+                    lead_intent: 'teleformacion_inicio_inmediato',
+                    course_delivery: 'online_async',
+                    enrollment_mode: 'permanent_open',
+                  } : undefined}
                 />
 
                 <div className="mt-7 pt-7 border-t border-gray-100 space-y-3">
@@ -916,13 +1002,17 @@ export default async function CursoLandingPage({ params }: Props) {
                     <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600 shrink-0">
                       <CheckCircle2 className="w-5 h-5" />
                     </div>
-                    <span>{course.duracionReferencia ? `${course.duracionReferencia} h` : 'Formación'} {course.modality === 'online' ? 'online' : 'presencial'} en grupos reducidos</span>
+                    <span>
+                      {isTeleformacion
+                        ? (course.duracionReferencia ? `${course.duracionReferencia} h online a tu ritmo` : 'Formación online a tu ritmo')
+                        : `${course.duracionReferencia ? `${course.duracionReferencia} h` : 'Formación'} ${course.modality === 'online' ? 'online' : 'presencial'} en grupos reducidos`}
+                    </span>
                   </div>
                   <div className="flex items-center gap-4 text-sm font-bold text-gray-800 p-4 rounded-xl bg-gray-50 border border-gray-100">
                     <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center brand-text shrink-0">
                       <Calendar className="w-5 h-5" />
                     </div>
-                    <span>{course.nextRun?.scheduleLabel || course.landingAccessRequirements || 'Horarios adaptados según convocatoria'}</span>
+                    <span>{isTeleformacion ? 'Inicio inmediato · matrícula permanente' : (course.nextRun?.scheduleLabel || course.landingAccessRequirements || 'Horarios adaptados según convocatoria')}</span>
                   </div>
                 </div>
 
@@ -944,9 +1034,9 @@ export default async function CursoLandingPage({ params }: Props) {
             href="#registro"
             className="flex items-center justify-between bg-gray-900 text-white p-2 pl-6 rounded-full shadow-2xl border border-white/10 backdrop-blur-xl"
           >
-            <span className="font-bold">¿Buscas info?</span>
+            <span className="font-bold">{isTeleformacion ? '¿Empiezas online?' : '¿Buscas info?'}</span>
             <div className="brand-btn px-6 py-3 rounded-full flex items-center gap-2 font-black text-sm uppercase tracking-wider">
-              Solicitar
+              {isTeleformacion ? 'Empezar' : 'Solicitar'}
               <ArrowRight className="w-4 h-4" />
             </div>
           </a>

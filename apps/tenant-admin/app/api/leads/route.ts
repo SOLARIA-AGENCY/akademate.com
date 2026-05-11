@@ -1090,6 +1090,13 @@ export async function POST(request: NextRequest) {
       meta_campaign_id: metaCampaignId,
       ad_id: adId,
       adset_id: adsetId,
+      lead_intent: normalizeOptionalTrackingValue(body.lead_intent, 120),
+      course_delivery: normalizeOptionalTrackingValue(body.course_delivery, 120),
+      enrollment_mode: normalizeOptionalTrackingValue(body.enrollment_mode, 120),
+      lead_metadata:
+        body.lead_metadata && typeof body.lead_metadata === 'object' && !Array.isArray(body.lead_metadata)
+          ? body.lead_metadata
+          : undefined,
     }
 
     // Build lead data — ONLY include fields that exist in the Leads collection

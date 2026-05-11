@@ -95,6 +95,16 @@ export default async function CursosCatalogPage({
           {courses.map((course) => {
             const imageUrl = course.imagenPortada || getPublicStudyTypeFallbackImage(course.studyType)
             const fallbackColor = getStudyTypeColor(course.studyType, studyTypeVisualMap) || heroColor
+            const isTeleformacion = course.studyType === 'teleformacion'
+            const availabilityLabel = isTeleformacion
+              ? 'Inicio inmediato'
+              : (course.enrollmentLabel || 'Próximamente')
+            const campusLabel = isTeleformacion
+              ? '100% online · desde casa'
+              : (course.nextRun?.campusLabel || 'Sede por confirmar')
+            const modalityLabel = isTeleformacion
+              ? 'Online a tu ritmo'
+              : (course.modality === 'online' ? 'Online' : 'Presencial')
             return (
               <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group">
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
@@ -114,10 +124,21 @@ export default async function CursosCatalogPage({
                     </div>
                   </div>
                   <div className="p-5">
-                    <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">{course.area}</p>
-                    <p className="text-sm text-gray-600 line-clamp-3 mb-4">{course.descripcion}</p>
-                    <span className="font-medium text-sm group-hover:opacity-90" style={{ color: fallbackColor }}>
-                      Ver más &rarr;
+                    <div className="mb-3 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wide">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{course.area || 'Formación'}</span>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{modalityLabel}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-3 mb-4">
+                      {isTeleformacion && !course.descripcion
+                        ? 'Formación online para avanzar a tu ritmo, con matrícula abierta permanente.'
+                        : course.descripcion}
+                    </p>
+                    <div className="mb-5 grid gap-2 text-sm text-gray-700">
+                      <p><span className="font-semibold text-gray-950">Disponibilidad:</span> {availabilityLabel}</p>
+                      <p><span className="font-semibold text-gray-950">Sede:</span> {campusLabel}</p>
+                    </div>
+                    <span className="inline-flex rounded-full px-4 py-2 font-semibold text-sm text-white group-hover:opacity-90" style={{ backgroundColor: fallbackColor }}>
+                      {isTeleformacion ? 'Empezar ahora' : 'Ver curso'} &rarr;
                     </span>
                   </div>
                 </div>

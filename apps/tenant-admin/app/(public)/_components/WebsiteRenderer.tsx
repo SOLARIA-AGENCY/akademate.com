@@ -307,6 +307,8 @@ async function CourseListSection({
               const imageUrl = resolveImageUrl(course.featured_image) || resolveImageUrl(course.image)
               const nextRun = nextRunByCourse.get(String(course.id))
               const campus = typeof nextRun?.campus === 'object' && nextRun.campus ? nextRun.campus : null
+              const normalizedStudyType = normalizeStudyType(String(course.course_type || ''))
+              const isTeleformacion = normalizedStudyType === 'teleformacion'
               const typeColor = getCourseTypeColor(course.course_type)
               return (
                 <Link key={course.id} href={`/cursos/${course.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
@@ -324,13 +326,15 @@ async function CourseListSection({
                         {getCourseArea(course)}
                       </span>
                     </div>
-                    <p className="line-clamp-3 text-sm leading-7 text-slate-600">{description || 'Programa especializado con orientación práctica.'}</p>
+                    <p className="line-clamp-3 text-sm leading-7 text-slate-600">
+                      {description || (isTeleformacion ? 'Formación online para avanzar a tu ritmo, con matrícula abierta permanente.' : 'Programa especializado con orientación práctica.')}
+                    </p>
                     <div className="mt-5 grid gap-2 text-sm text-slate-700">
-                      <p><span className="font-semibold text-slate-950">Fecha:</span> {formatDate(nextRun?.start_date)}</p>
-                      <p><span className="font-semibold text-slate-950">Sede:</span> {campus?.name || 'Por confirmar'}</p>
+                      <p><span className="font-semibold text-slate-950">Fecha:</span> {isTeleformacion ? 'Inicio inmediato' : formatDate(nextRun?.start_date)}</p>
+                      <p><span className="font-semibold text-slate-950">Sede:</span> {isTeleformacion ? '100% online · desde casa' : (campus?.name || 'Por confirmar')}</p>
                     </div>
                     <span className="mt-6 inline-flex w-fit items-center rounded-full bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[var(--cep-brand)]">
-                      Ver curso
+                      {isTeleformacion ? 'Empezar ahora' : 'Ver curso'}
                     </span>
                   </div>
                 </Link>

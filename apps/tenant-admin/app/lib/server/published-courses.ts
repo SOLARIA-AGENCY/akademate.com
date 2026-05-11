@@ -202,10 +202,22 @@ function toCampusLabel(campus: CourseRunDoc['campus']): string {
   return [campus.name, campus.city].filter(Boolean).join(' · ')
 }
 
-function toEnrollmentStatus(runs: CourseRunDoc[]): Pick<
+function toEnrollmentStatus(
+  runs: CourseRunDoc[],
+  studyType?: PublicStudyType | null
+): Pick<
   PublishedCourse,
   'enrollmentStatus' | 'enrollmentLabel' | 'nextRun' | 'totalConvocatorias'
 > {
+  if (studyType === 'teleformacion') {
+    return {
+      enrollmentStatus: 'open',
+      enrollmentLabel: 'Matrícula abierta permanente',
+      nextRun: null,
+      totalConvocatorias: 0,
+    }
+  }
+
   const visibleRuns = runs.filter((run) => ['enrollment_open', 'published'].includes(String(run.status ?? '')))
   const openRun = visibleRuns.find((run) => run.status === 'enrollment_open') ?? null
   const nextRun = openRun ?? visibleRuns[0] ?? null
@@ -352,7 +364,7 @@ function mapCourseDocToPublishedCourse(
     resolveMediaImageUrl(course.featured_image) ??
     resolveMediaImageUrl(course.image) ??
     getPublicStudyTypeFallbackImage(course.course_type)
-  const runMeta = toEnrollmentStatus(runs)
+  const runMeta = toEnrollmentStatus(runs, normalizedStudyType)
 
   return {
     id: String(course.id),

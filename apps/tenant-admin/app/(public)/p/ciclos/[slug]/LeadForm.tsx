@@ -21,6 +21,7 @@ interface LeadFormProps {
   notes?: string
   dossierUrl?: string
   dossierName?: string
+  leadMetadata?: Record<string, string>
 }
 
 export function LeadForm({
@@ -40,6 +41,7 @@ export function LeadForm({
   notes,
   dossierUrl,
   dossierName,
+  leadMetadata,
 }: LeadFormProps) {
   const requiresQualifiedData = hasActiveConvocatorias
   const [email, setEmail] = useState('')
@@ -76,6 +78,8 @@ export function LeadForm({
           dossier_requested: Boolean(dossierUrl),
           dossier_url: dossierUrl || undefined,
           dossier_name: dossierName || undefined,
+          ...(leadMetadata ?? {}),
+          lead_metadata: leadMetadata,
           gdpr_consent: true,
           consent_timestamp: new Date().toISOString(),
           utm_source:

@@ -15,9 +15,29 @@ interface CourseDossierModalProps {
   courseId: string
   courseName: string
   dossierUrl?: string | null
+  triggerLabel?: string
+  title?: string
+  description?: string
+  submitLabel?: string
+  sourceForm?: string
+  leadType?: string
+  notes?: string
+  leadMetadata?: Record<string, string>
 }
 
-export function CourseDossierModal({ courseId, courseName, dossierUrl }: CourseDossierModalProps) {
+export function CourseDossierModal({
+  courseId,
+  courseName,
+  dossierUrl,
+  triggerLabel = 'Solicitar Dossier',
+  title = 'Recibe el dossier del curso',
+  description,
+  submitLabel = 'Enviar y recibir dossier',
+  sourceForm = 'dossier_curso',
+  leadType = 'waiting_list',
+  notes,
+  leadMetadata,
+}: CourseDossierModalProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -25,7 +45,7 @@ export function CourseDossierModal({ courseId, courseName, dossierUrl }: CourseD
           type="button"
           className="inline-flex items-center gap-3 brand-btn px-10 py-5 rounded-full font-bold text-xl shadow-lg transition-all hover:-translate-y-1 active:translate-y-0"
         >
-          Solicitar Dossier
+          {triggerLabel}
           <ArrowRight className="w-6 h-6" />
         </button>
       </DialogTrigger>
@@ -35,10 +55,10 @@ export function CourseDossierModal({ courseId, courseName, dossierUrl }: CourseD
             <GraduationCap className="h-7 w-7" />
           </div>
           <DialogTitle className="text-2xl font-black tracking-tight text-gray-950">
-            Recibe el dossier del curso
+            {title}
           </DialogTitle>
           <DialogDescription className="text-base leading-relaxed text-gray-600">
-            Deja tus datos y te enviaremos la ficha PDF de {courseName}. El lead quedará registrado en la plataforma para seguimiento comercial.
+            {description || `Deja tus datos y te enviaremos la ficha PDF de ${courseName}. El lead quedará registrado para seguimiento comercial.`}
           </DialogDescription>
         </DialogHeader>
         <div className="px-7 pb-7">
@@ -55,11 +75,12 @@ export function CourseDossierModal({ courseId, courseName, dossierUrl }: CourseD
             inputClassName="rounded-lg border-gray-300 bg-white focus:border-transparent focus:ring-2 focus:ring-[var(--brand)]"
             buttonClassName="rounded-lg !bg-[#f2014b] hover:!bg-[#c9003f] !text-white shadow-none uppercase tracking-wide py-4 disabled:opacity-100 disabled:!bg-[#f2014b] disabled:!text-white"
             linkClassName="brand-text"
-            submitLabel="Enviar y recibir dossier"
+            submitLabel={submitLabel}
             submittingLabel="Enviando dossier..."
-            sourceForm="dossier_curso"
-            leadType="waiting_list"
-            notes={`Solicitud de dossier: ${courseName}`}
+            sourceForm={sourceForm}
+            leadType={leadType}
+            notes={notes || `Solicitud de dossier: ${courseName}`}
+            leadMetadata={leadMetadata}
             dossierUrl={dossierUrl || undefined}
             dossierName={`${courseName}.pdf`}
           />

@@ -231,7 +231,7 @@ function CursosPageContent() {
     },
     teleformacion: {
       title: 'Cursos Teleformación',
-      description: 'Cursos 100% online con certificación oficial',
+      description: 'Cursos 100% online con matrícula permanente e inicio flexible',
       icon: Monitor,
       color: 'text-orange-500',
       bgColor: 'bg-orange-50 dark:bg-orange-950',
