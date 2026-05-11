@@ -271,6 +271,81 @@ function CtaBannerSection({
   )
 }
 
+function JobPlacementSection({
+  section,
+  brandColor,
+}: {
+  section: Extract<WebsiteSection, { kind: 'jobPlacement' }>
+  brandColor: string
+}) {
+  const benefits = [
+    'Registro como candidato en bolsa de empleo',
+    'Intermediación laboral vinculada a tu perfil',
+    'Orientación para mejorar tu empleabilidad',
+  ]
+
+  return (
+    <section id={section.id} className="bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 shadow-2xl">
+          <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="relative min-h-[360px] overflow-hidden">
+              <img src={section.image} alt={section.title} loading="lazy" decoding="async" className="h-full min-h-[360px] w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <span className="inline-flex rounded-full bg-white/95 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-slate-950">
+                  Autorización 0500000212
+                </span>
+              </div>
+            </div>
+            <div className="relative p-7 text-white sm:p-10 lg:p-12">
+              <div
+                className="pointer-events-none absolute inset-0 opacity-80"
+                style={{
+                  background:
+                    'radial-gradient(circle at 90% 0%, rgba(242,1,75,0.22), transparent 34%), linear-gradient(135deg, rgba(255,255,255,0.08), transparent 42%)',
+                }}
+              />
+              <div className="relative">
+                <span className="inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white ring-1 ring-white/20" style={{ backgroundColor: brandColor }}>
+                  Bolsa de empleo
+                </span>
+                <h2 className="mt-6 text-balance text-3xl font-black leading-tight sm:text-4xl">{section.title}</h2>
+                {section.subtitle ? <p className="mt-5 max-w-2xl text-lg leading-8 text-white/78">{section.subtitle}</p> : null}
+
+                <div className="mt-8 grid gap-3">
+                  {benefits.map((benefit) => (
+                    <div key={benefit} className="flex items-center gap-3 rounded-2xl bg-white/8 px-4 py-3 ring-1 ring-white/10">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-sm font-black" style={{ color: brandColor }}>
+                        ✓
+                      </span>
+                      <span className="text-sm font-semibold text-white/88">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                  <Link href={section.cta.href} className="inline-flex min-h-14 items-center justify-center rounded-full px-6 text-sm font-black text-white shadow-xl transition hover:-translate-y-0.5" style={{ backgroundColor: brandColor }}>
+                    {section.cta.label}
+                  </Link>
+                  {section.secondaryCta ? (
+                    <a href={section.secondaryCta.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-14 items-center justify-center rounded-full bg-white px-6 text-sm font-black text-slate-950 transition hover:-translate-y-0.5 hover:shadow-xl">
+                      {section.secondaryCta.label}
+                    </a>
+                  ) : null}
+                </div>
+                <p className="mt-5 text-xs leading-6 text-white/45">
+                  Actualmente el registro se realiza en la plataforma oficial de la agencia. La integración interna queda prevista para una fase posterior.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 async function CourseListSection({
   section,
   brandColor,
@@ -733,19 +808,50 @@ function LeadFormSection({
 }) {
   return (
     <section className="bg-slate-950 text-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-        <div>
-          <h2 className="text-3xl font-semibold">{section.title}</h2>
-          {section.subtitle ? <p className="mt-3 text-white/70">{section.subtitle}</p> : null}
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+        <div className="flex flex-col justify-between gap-8">
+          <div>
+            <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white/80">
+              Atención personalizada
+            </span>
+            <h2 className="mt-5 max-w-xl text-balance text-3xl font-black leading-tight sm:text-4xl">{section.title}</h2>
+            {section.subtitle ? <p className="mt-4 max-w-xl text-lg leading-8 text-white/72">{section.subtitle}</p> : null}
+          </div>
+
+          <div className="grid gap-3 text-sm text-white/75 sm:grid-cols-2">
+            <a href="tel:+34922219257" className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.08]">
+              <span className="block text-xs font-black uppercase tracking-[0.14em] text-white/45">Llámanos</span>
+              <span className="mt-2 block text-lg font-black text-white">922 219 257</span>
+            </a>
+            <a href="mailto:info@cursostenerife.es" className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.08]">
+              <span className="block text-xs font-black uppercase tracking-[0.14em] text-white/45">Escríbenos</span>
+              <span className="mt-2 block font-bold text-white">info@cursostenerife.es</span>
+            </a>
+          </div>
+
+          <ul className="grid gap-3 text-sm font-semibold text-white/78">
+            {['Te ayudamos a elegir modalidad y horario', 'Revisamos plazas y próximas fechas', 'Orientación sobre matrícula y requisitos'].map((item) => (
+              <li key={item} className="flex items-center gap-3">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: brandColor }} />
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
-        <form className="grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-6">
-          <input className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/40" placeholder="Nombre" />
-          <input className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/40" placeholder="Email" />
-          <input className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/40" placeholder="Teléfono" />
-          <textarea className="min-h-28 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/40" placeholder="Cuéntanos qué te interesa" />
-          <button type="button" className="rounded-full px-6 py-3 text-sm font-semibold text-white" style={{ backgroundColor: brandColor }}>
+
+        <form className="grid gap-4 rounded-[2rem] border border-white/15 bg-white/[0.07] p-5 shadow-2xl shadow-black/20 sm:p-7">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Nombre" />
+            <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Teléfono" />
+          </div>
+          <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Email" />
+          <textarea className="min-h-32 rounded-2xl border border-white/15 bg-white px-4 py-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Cuéntanos qué formación te interesa" />
+          <button type="button" className="min-h-14 rounded-full px-6 text-sm font-black text-white shadow-xl transition hover:-translate-y-0.5" style={{ backgroundColor: brandColor }}>
             Solicitar información
           </button>
+          <p className="text-center text-xs leading-5 text-white/45">
+            Al enviar el formulario aceptas que CEP Formación contacte contigo para informarte sobre su oferta formativa.
+          </p>
         </form>
       </div>
     </section>
@@ -766,6 +872,8 @@ async function renderSection(
       return <FeatureStripSection section={section} />
     case 'ctaBanner':
       return <CtaBannerSection section={section} brandColor={brandColor} />
+    case 'jobPlacement':
+      return <JobPlacementSection section={section} brandColor={brandColor} />
     case 'courseList':
       return <CourseListSection section={section} brandColor={brandColor} tenantId={tenantId} />
     case 'cycleList':

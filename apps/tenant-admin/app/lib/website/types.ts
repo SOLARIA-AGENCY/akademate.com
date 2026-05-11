@@ -77,6 +77,18 @@ export type WebsiteSection =
       id?: string
       enabled?: boolean
       label?: string
+      kind: 'jobPlacement'
+      title: string
+      subtitle?: string
+      image: string
+      cta: WebsiteLink
+      secondaryCta?: WebsiteLink
+      externalRegistrationUrl: string
+    }
+  | {
+      id?: string
+      enabled?: boolean
+      label?: string
       kind: 'courseList'
       title: string
       subtitle?: string
