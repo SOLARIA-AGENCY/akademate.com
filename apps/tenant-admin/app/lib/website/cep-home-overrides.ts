@@ -2,20 +2,24 @@ import type { WebsitePage, WebsiteSection } from './types'
 
 const CEP_FEATURE_STRIP_OVERRIDE: Extract<WebsiteSection, { kind: 'featureStrip' }> = {
   kind: 'featureStrip',
-  title: 'Por qué CEP',
-  subtitle: 'Mismo tono de marca, estructura más mantenible.',
+  title: 'Por qué elegir CEP',
+  subtitle: 'Formación cercana, práctica y orientada a que avances con seguridad desde el primer contacto hasta el aula.',
   items: [
     {
-      title: 'Prácticas reales',
-      description: 'Programas conectados con empresas y entorno profesional.',
+      title: 'Asesoramiento antes de matricularte',
+      description: 'Te ayudamos a elegir curso, modalidad y convocatoria según tu objetivo profesional y tu disponibilidad real.',
     },
     {
-      title: 'Oferta mixta',
-      description: 'Ciclos oficiales, cursos privados y formación subvencionada.',
+      title: 'Aprendizaje aplicado',
+      description: 'Programas pensados para trabajar con casos prácticos, grupos controlados y contenidos conectados con el sector.',
     },
     {
-      title: 'Sedes activas',
-      description: 'Presencia física en Tenerife con atención académica continua.',
+      title: 'Oferta para cada etapa',
+      description: 'Ciclos oficiales, cursos privados, formación subvencionada y teleformación para avanzar sin perder el foco.',
+    },
+    {
+      title: 'Seguimiento durante la formación',
+      description: 'Atención académica y coordinación de centro para que tengas claro horarios, requisitos, documentación y próximos pasos.',
     },
   ],
 }
@@ -23,14 +27,14 @@ const CEP_FEATURE_STRIP_OVERRIDE: Extract<WebsiteSection, { kind: 'featureStrip'
 const CEP_CATEGORY_GRID_OVERRIDE: Extract<WebsiteSection, { kind: 'categoryGrid' }> = {
   kind: 'categoryGrid',
   title: 'Áreas de formación',
-  subtitle: 'Bloques visuales editables, conservando la estructura del sitio original.',
+  subtitle: 'Explora nuestras especialidades y encuentra cursos, ciclos y convocatorias agrupadas por área profesional.',
   items: [
-    { title: 'Área Sanitaria y Clínica', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/cursos' },
-    { title: 'Área Veterinaria y Bienestar Animal', image: '/website/cep/categories/mundo-animal.jpg', href: '/cursos' },
-    { title: 'Área Salud, Bienestar y Deporte', image: '/website/cep/categories/salud-bienestar-y-deporte.jpg', href: '/cursos' },
-    { title: 'Área Tecnología, Digital y Diseño', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/cursos' },
-    { title: 'Área Empresa, Administración y Gestión', image: '/website/cep/categories/ciclos-formativos.jpg', href: '/cursos' },
-    { title: 'Área Seguridad, Vigilancia y Protección', image: '/website/cep/categories/especializacion-sanitaria.jpg', href: '/cursos' },
+    { title: 'Área Sanitaria y Clínica', image: '/media/farmacia-hero.png', href: '/p/areas/area-sanitaria-y-clinica' },
+    { title: 'Área Veterinaria y Bienestar Animal', image: '/website/cep/categories/mundo-animal.jpg', href: '/p/areas/area-veterinaria-y-bienestar-animal' },
+    { title: 'Área Salud, Bienestar y Deporte', image: '/website/cep/categories/salud-bienestar-y-deporte.jpg', href: '/p/areas/area-salud-bienestar-y-deporte' },
+    { title: 'Área Tecnología, Digital y Diseño', image: '/media/dev-priv-0001.jpg', href: '/p/areas/area-tecnologia-digital-y-diseno' },
+    { title: 'Área Empresa, Administración y Gestión', image: '/media/mkt-ocup-0001.jpg', href: '/p/areas/area-empresa-administracion-y-gestion' },
+    { title: 'Área Seguridad, Vigilancia y Protección', image: '/media/dev-dese-0001.jpg', href: '/p/areas/area-seguridad-vigilancia-y-proteccion' },
   ],
 }
 
@@ -71,4 +75,3 @@ export function applyCepHomeOverrides(page: WebsitePage): WebsitePage {
     sections,
   }
 }
-

@@ -160,42 +160,24 @@ function StatsStripSection({ section, brandColor }: { section: Extract<WebsiteSe
 function FeatureStripSection({ section }: { section: Extract<WebsiteSection, { kind: 'featureStrip' }> }) {
   const title = section.title === 'Por qué CEP' ? 'Por qué elegir CEP' : section.title
   const subtitle = section.subtitle?.includes('Mismo tono de marca')
-    ? 'Formación pensada para avanzar: orientación real, docentes en activo y acompañamiento hasta la matrícula.'
+    ? 'Formación cercana, práctica y orientada a que avances con seguridad desde el primer contacto hasta el aula.'
     : section.subtitle
-  const items = section.items.map((item) => {
-    if (item.title === 'Prácticas reales') {
-      return {
-        title: 'Aprende con profesionales en activo',
-        description: 'Clases prácticas con docentes que conocen lo que se exige fuera del aula.',
-      }
-    }
-    if (item.title === 'Oferta mixta') {
-      return {
-        title: 'Elige el camino que encaja contigo',
-        description: 'Ciclos oficiales, cursos privados y formación subvencionada con asesoramiento antes de matricularte.',
-      }
-    }
-    if (item.title === 'Sedes activas') {
-      return {
-        title: 'Estudia cerca, con seguimiento real',
-        description: 'Sedes en Tenerife, grupos reducidos y atención académica para resolver dudas desde el primer día.',
-      }
-    }
-    return item
-  })
+  const items = section.items.map((item) => item)
 
   return (
     <section className="bg-white" id={title === 'Por qué elegir CEP' ? 'por-que-cep' : undefined}>
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        {title ? <h2 className="text-3xl font-semibold text-slate-900">{title}</h2> : null}
-        {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        <div className="max-w-3xl">
+          {title ? <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{title}</h2> : null}
+          {subtitle ? <p className="mt-4 text-lg leading-8 text-slate-600">{subtitle}</p> : null}
+        </div>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((item, index) => (
-            <article key={item.title} className="rounded-3xl border border-slate-200 bg-slate-50 p-7 shadow-sm">
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-50 text-sm font-black text-[var(--cep-brand)]">
+            <article key={item.title} className="group rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-red-100 hover:shadow-xl">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50 text-sm font-black text-[var(--cep-brand)] transition group-hover:bg-[var(--cep-brand)] group-hover:text-white">
                 {String(index + 1).padStart(2, '0')}
               </span>
-              <h3 className="mt-6 text-xl font-semibold text-slate-900">{item.title}</h3>
+              <h3 className="mt-6 text-lg font-black leading-snug text-slate-950">{item.title}</h3>
               <p className="mt-3 text-base leading-7 text-slate-600">{item.description}</p>
             </article>
           ))}
@@ -506,65 +488,41 @@ async function CampusListSection({
     limit: section.limit ?? 3,
     sort: 'name',
   })
-  const runsResult = await payload.find({
-    collection: 'course-runs',
-    where: withTenantScope({ status: { in: ['published', 'enrollment_open'] } }, tenantId) as any,
-    depth: 2,
-    limit: 120,
-    sort: '-start_date',
-  })
-
-  const offeringsByCampus = new Map<string, Array<{ label: string; href: string }>>()
-  for (const run of runsResult.docs as any[]) {
-    const campus = typeof run.campus === 'object' && run.campus ? run.campus : null
-    if (!campus?.id) continue
-    const key = String(campus.id)
-    const course = typeof run.course === 'object' ? run.course : null
-    const cycle = typeof run.cycle === 'object' ? run.cycle : null
-    const label = cycle?.name || course?.title || course?.name
-    const href = cycle?.slug ? `/ciclos/${cycle.slug}` : course?.slug ? `/cursos/${course.slug}` : ''
-    if (!label || !href) continue
-    const items = offeringsByCampus.get(key) ?? []
-    if (!items.some((item) => item.href === href)) {
-      items.push({ label, href })
-      offeringsByCampus.set(key, items)
-    }
-  }
 
   return (
     <section className="bg-white">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-semibold text-slate-900">{section.title}</h2>
-        {section.subtitle ? <p className="mt-3 max-w-2xl text-slate-600">{section.subtitle}</p> : null}
-        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
+        {section.subtitle ? (
+          <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">
+            Conoce nuestros centros en Tenerife, visita sus instalaciones y elige la sede que mejor encaja con tu formación.
+          </p>
+        ) : null}
+        <div className="mt-10 grid gap-8 md:grid-cols-2">
           {campusResult.docs.map((campus: any) => {
             const imageUrl = resolveImageUrl(campus.image)
-            const campusOfferings = offeringsByCampus.get(String(campus.id)) ?? []
             const schedule = campus?.schedule?.weekdays || campus?.schedule?.saturday || 'Horario pendiente'
             return (
-              <article key={campus.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
-                <div className="h-52">
-                  {imageUrl ? <img src={imageUrl} alt={campus.name} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : <div className="h-full w-full bg-slate-200" />}
+              <Link key={campus.id} href={`/sedes/${campus.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                <div className="relative h-72 overflow-hidden">
+                  {imageUrl ? <img src={imageUrl} alt={campus.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full bg-slate-200" />}
+                  <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/55 to-transparent" />
                 </div>
-                <div className="space-y-3 p-6">
-                  <h3 className="text-xl font-semibold text-slate-900">{campus.name}</h3>
-                  <p className="text-sm text-slate-600">{campus.city}{campus.address ? ` · ${campus.address}` : ''}</p>
-                  {campus.phone ? <p className="text-sm text-slate-700"><span className="font-semibold">Teléfono:</span> {campus.phone}</p> : null}
-                  <p className="text-sm text-slate-700"><span className="font-semibold">Horario:</span> {schedule}</p>
-                  {campusOfferings.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {campusOfferings.slice(0, 6).map((offering) => (
-                        <Link key={`${campus.id}-${offering.href}`} href={offering.href} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-700 transition hover:border-[var(--cep-brand)] hover:text-[var(--cep-brand)]">
-                          {offering.label}
-                        </Link>
-                      ))}
-                    </div>
-                  ) : null}
-                  <Link href={`/sedes/${campus.slug}`} className="inline-flex text-sm font-semibold text-[var(--cep-brand)]">
-                    Ver sede completa →
-                  </Link>
+                <div className="space-y-4 p-7">
+                  <h3 className="text-2xl font-black text-slate-950">{campus.name}</h3>
+                  <p className="text-base leading-7 text-slate-600">{campus.city}{campus.address ? ` · ${campus.address}` : ''}</p>
+                  <div className="grid gap-2 border-t border-slate-100 pt-4 text-sm text-slate-700">
+                    {campus.phone ? <p><span className="font-bold text-slate-950">Teléfono:</span> {campus.phone}</p> : null}
+                    <p><span className="font-bold text-slate-950">Horario:</span> {schedule}</p>
+                  </div>
+                  <span className="inline-flex items-center rounded-full bg-slate-950 px-5 py-2.5 text-sm font-bold text-white transition group-hover:bg-[var(--cep-brand)]">
+                    Visitar sede
+                    <svg className="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+                    </svg>
+                  </span>
                 </div>
-              </article>
+              </Link>
             )
           })}
         </div>
@@ -588,11 +546,19 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
               <article className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative h-56 overflow-hidden">
                   <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent" />
+                  <span className="absolute left-5 top-5 rounded-full bg-white/95 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--cep-brand)]">
+                    Área
+                  </span>
                 </div>
                 <div className="p-6">
-                  <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--cep-brand)]">Área</p>
-                  <h3 className="mt-2 text-xl font-black uppercase leading-tight text-slate-950">{item.title.replace(/^Área\s+/i, '')}</h3>
+                  <h3 className="text-xl font-black uppercase leading-tight text-slate-950">{item.title.replace(/^Área\s+/i, '')}</h3>
+                  <span className="mt-5 inline-flex items-center text-sm font-bold text-[var(--cep-brand)]">
+                    Ver formaciones
+                    <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+                    </svg>
+                  </span>
                 </div>
               </article>
             )
