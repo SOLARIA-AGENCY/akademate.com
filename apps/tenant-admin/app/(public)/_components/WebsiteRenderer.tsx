@@ -128,6 +128,19 @@ function getCategoryHref(item: { title: string; href?: string }): string {
   return `/p/areas/${slugify(item.title)}`
 }
 
+const CATEGORY_IMAGE_OVERRIDES: Record<string, string> = {
+  'area-sanitaria-y-clinica': '/media/area-sanitaria-clinica.webp',
+  'area-veterinaria-y-bienestar-animal': '/media/area-veterinaria-bienestar-animal.webp',
+  'area-salud-bienestar-y-deporte': '/media/area-salud-bienestar-deporte.webp',
+  'area-tecnologia-digital-y-diseno': '/media/area-tecnologia-digital-diseno.webp',
+  'area-empresa-administracion-y-gestion': '/media/area-empresa-administracion-gestion.webp',
+  'area-seguridad-vigilancia-y-proteccion': '/media/area-seguridad-vigilancia-proteccion.webp',
+}
+
+function getCategoryImage(item: { title: string; image: string }): string {
+  return CATEGORY_IMAGE_OVERRIDES[slugify(item.title)] || item.image
+}
+
 const CYCLE_LEVEL_META: Record<string, { label: string; bgColor: string; textColor: string }> = {
   grado_medio: { label: 'GRADO MEDIO', bgColor: '#E3003A', textColor: '#FFFFFF' },
   grado_superior: { label: 'GRADO SUPERIOR', bgColor: '#E3003A', textColor: '#FFFFFF' },
@@ -836,7 +849,7 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
             const content = (
               <article className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative h-56 overflow-hidden">
-                  <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                  <img src={getCategoryImage(item)} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent" />
                 </div>
                 <div className="p-6">
