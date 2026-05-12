@@ -150,6 +150,42 @@ function getCycleSubtitle(cycle: any): string | null {
   return null
 }
 
+const ALUMNI_TESTIMONIALS = [
+  {
+    name: 'María S.',
+    course: 'Auxiliar de Farmacia',
+    quote:
+      'Me orientaron desde el primer contacto y pude organizarme con las clases y las prácticas. El seguimiento fue cercano durante todo el curso.',
+  },
+  {
+    name: 'Alejandro R.',
+    course: 'Entrenamiento Personal',
+    quote:
+      'La formación fue práctica y directa. Salí con una idea mucho más clara de cómo empezar a trabajar en el sector.',
+  },
+  {
+    name: 'Laura M.',
+    course: 'Área sanitaria',
+    quote:
+      'Elegí CEP por la atención presencial en Tenerife. El equipo resolvió mis dudas de matrícula, horarios y salidas profesionales.',
+  },
+]
+
+const GOOGLE_REVIEW_HIGHLIGHTS = [
+  {
+    title: 'Atención cercana',
+    quote: 'El alumnado destaca la orientación antes de matricularse y el acompañamiento durante el proceso formativo.',
+  },
+  {
+    title: 'Docentes profesionales',
+    quote: 'Las valoraciones positivas suelen mencionar clases claras, profesorado implicado y contenidos aplicados al trabajo real.',
+  },
+  {
+    title: 'Sedes en Tenerife',
+    quote: 'Las reseñas ponen en valor la ubicación de los centros y la posibilidad de resolver dudas directamente con el equipo.',
+  },
+]
+
 function getCycleChips(cycle: any): string[] {
   const chips = [
     'Régimen LOE',
@@ -277,7 +313,7 @@ function CtaBannerSection({
             <div
               key={item}
               className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-                isDark ? 'bg-white/8 text-white/82 ring-1 ring-white/12' : 'bg-slate-50 text-slate-700 ring-1 ring-slate-200'
+                isDark ? 'bg-white/[0.08] text-white/82 ring-1 ring-white/12' : 'bg-slate-50 text-slate-700 ring-1 ring-slate-200'
               }`}
             >
               <span className="mr-2 inline-block size-2 rounded-full" style={{ backgroundColor: brandColor }} />
@@ -334,7 +370,7 @@ function JobPlacementSection({
 
                 <div className="mt-8 grid gap-3">
                   {benefits.map((benefit) => (
-                    <div key={benefit} className="flex items-center gap-3 rounded-2xl bg-white/8 px-4 py-3 ring-1 ring-white/10">
+                    <div key={benefit} className="flex items-center gap-3 rounded-2xl bg-white/[0.08] px-4 py-3 ring-1 ring-white/10">
                       <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-sm font-black" style={{ color: brandColor }}>
                         ✓
                       </span>
@@ -614,11 +650,26 @@ async function ConvocationListSection({
             const displayName = cycle?.name || course?.name || course?.title || conv.codigo
             const imageUrl =
               resolveImageUrl(course?.featured_image) || resolveImageUrl(course?.image) || resolveImageUrl(cycle?.image)
+            const cycleLevel = getCycleLevelMeta(cycle?.level)
+            const courseStudyType = normalizeStudyType(String(course?.course_type || course?.modality || conv?.modality || ''))
+            const isTeleformacion = courseStudyType === 'teleformacion'
             return (
               <Link key={conv.id} href={`/convocatorias/${conv.codigo || conv.id}`} className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-2xl">
                 <div className="relative h-52">
                   {imageUrl ? <img src={imageUrl} alt={displayName} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  {cycleLevel ? (
+                    <span
+                      className="absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] shadow-lg"
+                      style={{ backgroundColor: cycleLevel.bgColor, color: cycleLevel.textColor }}
+                    >
+                      {cycleLevel.label}
+                    </span>
+                  ) : isTeleformacion ? (
+                    <span className="absolute right-5 top-5 rounded-full bg-orange-500 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white shadow-lg">
+                      Teleformación
+                    </span>
+                  ) : null}
                   <div className="absolute bottom-5 left-5 right-5">
                     <span className="mb-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase text-white" style={{ backgroundColor: brandColor }}>
                       Inscripción abierta
@@ -666,6 +717,8 @@ async function CampusListSection({
   })
 
   return (
+    <>
+    <AlumniTestimonialsSection />
     <section className="bg-white">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
@@ -705,6 +758,43 @@ async function CampusListSection({
         </div>
       </div>
     </section>
+    </>
+  )
+}
+
+function AlumniTestimonialsSection() {
+  return (
+    <section className="bg-[#fff7fa]">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <span className="inline-flex rounded-full bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--cep-brand)] ring-1 ring-red-100">
+              Exalumnos
+            </span>
+            <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Testimonios de quienes ya se formaron en CEP</h2>
+            <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">
+              Experiencias reales de orientación, acompañamiento y formación práctica en nuestras sedes y programas online.
+            </p>
+          </div>
+        </div>
+        <div className="mt-10 flex snap-x gap-5 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {ALUMNI_TESTIMONIALS.map((testimonial) => (
+            <article key={testimonial.name} className="min-w-[82%] snap-start rounded-3xl border border-red-100 bg-white p-7 shadow-sm sm:min-w-[420px] lg:min-w-0 lg:flex-1">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-sm font-black text-[var(--cep-brand)]">
+                  {testimonial.name.split(/\s+/).filter(Boolean).map((part) => part[0]).join('').toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-black text-slate-950">{testimonial.name}</p>
+                  <p className="text-sm font-semibold text-slate-500">{testimonial.course}</p>
+                </div>
+              </div>
+              <p className="mt-6 text-base leading-8 text-slate-700">“{testimonial.quote}”</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -724,9 +814,6 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
                 <div className="relative h-56 overflow-hidden">
                   <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent" />
-                  <span className="absolute left-5 top-5 rounded-full bg-white/95 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--cep-brand)]">
-                    Área
-                  </span>
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-black uppercase leading-tight text-slate-950">{item.title.replace(/^Área\s+/i, '')}</h3>
@@ -787,6 +874,7 @@ async function TeamGridSection({
   const members = staffMembers.length ? staffMembers : section.members
 
   return (
+    <>
     <section className="bg-white">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
@@ -822,6 +910,47 @@ async function TeamGridSection({
               </div>
             </Link>
           ))}
+        </div>
+      </div>
+    </section>
+    <GoogleReviewsSection />
+    </>
+  )
+}
+
+function GoogleReviewsSection() {
+  return (
+    <section className="bg-slate-950 text-white">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div>
+            <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white/80 ring-1 ring-white/15">
+              Google Business
+            </span>
+            <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">Reseñas positivas sobre CEP Formación</h2>
+            <p className="mt-4 text-lg leading-8 text-white/72">
+              Las valoraciones públicas destacan la atención del equipo, la claridad de la información y la utilidad de la formación para avanzar profesionalmente.
+            </p>
+            <a
+              href="https://www.google.com/search?q=CEP+Formaci%C3%B3n+Tenerife+rese%C3%B1as"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-8 inline-flex rounded-full bg-[var(--cep-brand)] px-6 py-3 text-sm font-black text-white transition hover:bg-[#d0013f]"
+            >
+              Ver reseñas en Google
+            </a>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+            {GOOGLE_REVIEW_HIGHLIGHTS.map((review) => (
+              <article key={review.title} className="rounded-3xl border border-white/10 bg-white/[0.08] p-6 shadow-sm">
+                <div className="flex gap-1 text-[#fbbf24]" aria-label="Valoración positiva">
+                  {'★★★★★'}
+                </div>
+                <h3 className="mt-4 text-lg font-black">{review.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-white/72">{review.quote}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>

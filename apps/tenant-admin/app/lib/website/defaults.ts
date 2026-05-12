@@ -263,12 +263,12 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
           title: 'Áreas de formación',
           subtitle: 'Encuentra tu próxima formación por especialidad profesional.',
           items: [
-            { title: 'Área Sanitaria y Clínica', image: '/media/farmacia-hero.png', href: '/p/areas/area-sanitaria-y-clinica' },
-            { title: 'Área Veterinaria y Bienestar Animal', image: '/website/cep/categories/mundo-animal.jpg', href: '/p/areas/area-veterinaria-y-bienestar-animal' },
-            { title: 'Área Salud, Bienestar y Deporte', image: '/website/cep/categories/salud-bienestar-y-deporte.jpg', href: '/p/areas/area-salud-bienestar-y-deporte' },
-            { title: 'Área Tecnología, Digital y Diseño', image: '/media/dev-priv-0001.jpg', href: '/p/areas/area-tecnologia-digital-y-diseno' },
-            { title: 'Área Empresa, Administración y Gestión', image: '/media/mkt-ocup-0001.jpg', href: '/p/areas/area-empresa-administracion-y-gestion' },
-            { title: 'Área Seguridad, Vigilancia y Protección', image: '/media/dev-dese-0001.jpg', href: '/p/areas/area-seguridad-vigilancia-y-proteccion' },
+            { title: 'Área Sanitaria y Clínica', image: '/media/area-sanitaria-clinica.webp', href: '/p/areas/area-sanitaria-y-clinica' },
+            { title: 'Área Veterinaria y Bienestar Animal', image: '/media/area-veterinaria-bienestar-animal.webp', href: '/p/areas/area-veterinaria-y-bienestar-animal' },
+            { title: 'Área Salud, Bienestar y Deporte', image: '/media/area-salud-bienestar-deporte.webp', href: '/p/areas/area-salud-bienestar-y-deporte' },
+            { title: 'Área Tecnología, Digital y Diseño', image: '/media/area-tecnologia-digital-diseno.webp', href: '/p/areas/area-tecnologia-digital-y-diseno' },
+            { title: 'Área Empresa, Administración y Gestión', image: '/media/area-empresa-administracion-gestion.webp', href: '/p/areas/area-empresa-administracion-y-gestion' },
+            { title: 'Área Seguridad, Vigilancia y Protección', image: '/media/area-seguridad-vigilancia-proteccion.webp', href: '/p/areas/area-seguridad-vigilancia-y-proteccion' },
           ],
         },
         {
