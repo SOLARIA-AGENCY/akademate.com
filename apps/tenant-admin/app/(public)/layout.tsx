@@ -347,16 +347,14 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
           </div>
           <div className="border-t border-slate-200">
             <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                {website.footer.columns.flatMap((column) => column.links).map((link) => (
-                  <a key={link.href} href={toPublicFooterHref(link.href)} className="transition hover:text-slate-900">
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-              <p className="text-xs text-slate-500">
-                {website.footer.legalNote ?? 'Plataforma pública de CEP Formación.'}
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-600">
+                &copy; 2026 CEP FORMACIÓN
               </p>
+              <nav aria-label="Páginas legales" className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                <a href="/p/legal/privacidad" className="transition hover:text-slate-950">Privacidad</a>
+                <a href="/p/legal/terminos" className="transition hover:text-slate-950">Términos</a>
+                <a href="/p/legal/cookies" className="transition hover:text-slate-950">Cookies</a>
+              </nav>
             </div>
           </div>
         </footer>
