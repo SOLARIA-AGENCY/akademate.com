@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Mail, Phone } from 'lucide-react'
+import { ChevronDown, Mail, Phone } from 'lucide-react'
 
 type PublicHeaderClientProps = {
   brandColor: string
@@ -14,6 +14,13 @@ type PublicHeaderClientProps = {
 
 const SCROLL_DELTA_THRESHOLD = 12
 const TOP_VISIBLE_THRESHOLD = 24
+
+const COURSE_MENU_ITEMS = [
+  { label: 'Cursos privados', href: '/p/cursos?tipo=privados' },
+  { label: 'Cursos para ocupados', href: '/p/cursos?tipo=ocupados' },
+  { label: 'Cursos para desempleados', href: '/p/cursos?tipo=desempleados' },
+  { label: 'Teleformación', href: '/p/cursos?tipo=teleformacion' },
+]
 
 export function PublicHeaderClient({
   brandColor,
@@ -122,35 +129,37 @@ export function PublicHeaderClient({
             <a href="/p/ciclos" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Ciclos FP
             </a>
-            <a
-              href="/p/cursos?tipo=privados"
-              className="text-sm font-medium text-gray-600 brand-hover transition-colors"
-            >
-              Privados
-            </a>
-            <a
-              href="/p/cursos?tipo=desempleados"
-              className="text-sm font-medium text-gray-600 brand-hover transition-colors"
-            >
-              Desempleados
-            </a>
-            <a
-              href="/p/cursos?tipo=ocupados"
-              className="text-sm font-medium text-gray-600 brand-hover transition-colors"
-            >
-              Ocupados
-            </a>
-            <a
-              href="/p/cursos?tipo=teleformacion"
-              className="text-sm font-medium text-gray-600 brand-hover transition-colors"
-            >
-              Teleformación
-            </a>
+            <div className="group relative">
+              <a
+                href="/p/cursos"
+                className="inline-flex items-center gap-1 text-sm font-medium text-gray-600 brand-hover transition-colors"
+              >
+                Cursos
+                <ChevronDown className="h-4 w-4" aria-hidden="true" />
+              </a>
+              <div className="invisible absolute left-0 top-full z-50 w-64 translate-y-2 rounded-2xl border border-slate-200 bg-white p-2 opacity-0 shadow-xl transition group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                {COURSE_MENU_ITEMS.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </div>
             <a href="/#nuevas-formaciones" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Nuevas formaciones
             </a>
             <a href="/p/convocatorias" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Convocatorias
+            </a>
+            <a href="/blog" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+              Blog
+            </a>
+            <a href="/empleo" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+              Empleo
             </a>
             <a
               href="/p/contacto"
