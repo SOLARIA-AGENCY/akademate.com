@@ -3,20 +3,43 @@ import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import {
+  Award,
+  Briefcase,
+  Calendar,
+  CheckCircle2,
+  ChevronDown,
+  Clock,
+  CreditCard,
+  Euro,
+  GraduationCap,
+  MapPin,
+  ShieldCheck,
+  Star,
+  Users,
+} from 'lucide-react'
+import type React from 'react'
 import { PreinscripcionForm } from './PreinscripcionForm'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 
 export const dynamic = 'force-dynamic'
 
-/* -------------------------------------------------------------------------- */
-/*  Helpers                                                                    */
-/* -------------------------------------------------------------------------- */
+interface Props {
+  params: Promise<{ slug: string }>
+}
+
+type SummaryCardData = {
+  icon: React.ReactNode
+  label: string
+  value: string
+  description?: string
+}
 
 function resolveImageUrl(image: any): string | null {
   if (!image) return null
-  if (typeof image === 'object' && image.url) return image.url
-  if (typeof image === 'object' && image.filename) return `/media/${image.filename}`
+  if (typeof image === 'object' && image.url) return String(image.url).replace(/^\/media\/file\//, '/api/media/file/')
+  if (typeof image === 'object' && image.filename) return `/api/media/file/${image.filename}`
   return null
 }
 
@@ -40,33 +63,42 @@ function resolveCampusHref(campus: any): string | null {
 
 function resolveInstructorHref(instructor: any): string | null {
   if (!instructor || typeof instructor !== 'object' || !instructor.id) return null
-  return `/p/profesores/${instructor.id}`
+  return `/p/profesores/${instructor.slug || instructor.id}`
 }
 
-function formatMonth(date: string): string {
-  const d = new Date(date)
-  const month = d.toLocaleDateString('es-ES', { month: 'long' })
-  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${d.getFullYear()}`
+function formatDate(value: string | null | undefined): string {
+  if (!value) return 'Proximamente'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Proximamente'
+  return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(date)
+}
+
+function formatMonth(value: string | null | undefined): string {
+  if (!value) return 'Proximamente'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Proximamente'
+  const month = date.toLocaleDateString('es-ES', { month: 'long' })
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${date.getFullYear()}`
 }
 
 function modalityLabel(modality: string | undefined): string {
   const map: Record<string, string> = {
     presencial: 'Presencial',
     semipresencial: 'Semipresencial',
-    online: '100% Online',
+    online: 'Online',
     mixto: 'Modalidad mixta',
   }
-  return modality ? map[modality] || modality : ''
+  return modality ? map[modality] || modality : 'A consultar'
 }
 
 function levelLabel(level: string | undefined): string {
   const map: Record<string, string> = {
-    fp_basica: 'FP Basica',
-    grado_medio: 'Grado Medio',
-    grado_superior: 'Grado Superior',
-    certificado_profesionalidad: 'Certificado de Profesionalidad',
+    fp_basica: 'FP BASICA',
+    grado_medio: 'GRADO MEDIO',
+    grado_superior: 'GRADO SUPERIOR',
+    certificado_profesionalidad: 'CERTIFICADO DE PROFESIONALIDAD',
   }
-  return level ? map[level] || level : ''
+  return level ? map[level] || level.replace(/_/g, ' ').toUpperCase() : 'FORMACION CEP'
 }
 
 function formatCurrency(value: number | null | undefined): string {
@@ -78,141 +110,85 @@ function formatCurrency(value: number | null | undefined): string {
   }).format(Number(value))
 }
 
-/* -------------------------------------------------------------------------- */
-/*  SEO Metadata                                                               */
-/* -------------------------------------------------------------------------- */
-
-interface Props {
-  params: Promise<{ slug: string }>
+function textFromRichValue(value: unknown): string {
+  if (typeof value === 'string') return value.trim()
+  if (!value || typeof value !== 'object') return ''
+  return ''
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const tenant = await getTenantHostBranding()
+async function findConvocation(slug: string, tenantId: string) {
   const payload = await getPayload({ config: configPromise })
-  const result = await payload.find({
-    collection: 'course-runs',
-    where: withTenantScope({ codigo: { equals: slug } }, tenant.tenantId) as any,
-    limit: 1,
-    depth: 2,
-  })
-  const conv = result.docs[0] as any
-  if (!conv) return { title: 'Convocatoria no encontrada' }
-
-  const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
-  const course = typeof conv.course === 'object' ? conv.course : null
-  const campus = typeof conv.campus === 'object' ? conv.campus : null
-  const displayName = cycle?.name || course?.title || course?.name || ''
-  const sedeName = campus?.name || ''
-
-  return {
-    title: `${displayName} — Convocatoria abierta${sedeName ? ` en ${sedeName}` : ''}`,
-    description: `Inscripcion abierta para ${displayName}${sedeName ? ` en ${sedeName}` : ''}. Formacion oficial con orientacion practica y profesional. Solicita informacion sin compromiso.`,
-    openGraph: {
-      title: `${displayName} — Inscripcion abierta`,
-      description: `Reserva tu plaza en ${displayName}. Formacion oficial.`,
-    },
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Icon components (inline SVG, no external deps)                             */
-/* -------------------------------------------------------------------------- */
-
-const IconCalendar = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-  </svg>
-)
-const IconMapPin = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-  </svg>
-)
-const IconAcademicCap = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
-  </svg>
-)
-const IconBriefcase = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0" />
-  </svg>
-)
-const IconCurrencyEuro = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 7.756a4.5 4.5 0 100 8.488M7.5 10.5H5.25m2.25 3H5.25M9 7.5h3.75M9 16.5h3.75" />
-  </svg>
-)
-const IconClock = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-)
-const IconCheck = () => (
-  <svg className="h-4 w-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-  </svg>
-)
-const IconChevronDown = () => (
-  <svg className="h-4 w-4 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-  </svg>
-)
-const IconShield = () => (
-  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-  </svg>
-)
-
-/* -------------------------------------------------------------------------- */
-/*  Summary card component                                                     */
-/* -------------------------------------------------------------------------- */
-
-function SummaryCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4">
-      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg brand-bg-light brand-text">
-        {icon}
-      </div>
-      <div className="min-w-0">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</p>
-        <p className="text-sm font-semibold text-gray-900">{value}</p>
-      </div>
-    </div>
-  )
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Page                                                                       */
-/* -------------------------------------------------------------------------- */
-
-export default async function ConvocatoriaLandingPage({ params }: Props) {
-  const { slug } = await params
-  const tenant = await getTenantHostBranding()
-  const payload = await getPayload({ config: configPromise })
-
-  // Fetch by codigo first, then by ID
   let result = await payload.find({
     collection: 'course-runs',
-    where: withTenantScope({ codigo: { equals: slug } }, tenant.tenantId) as any,
+    where: withTenantScope({ codigo: { equals: slug } }, tenantId) as any,
     limit: 1,
     depth: 2,
   })
+
   if (result.docs.length === 0) {
     result = await payload.find({
       collection: 'course-runs',
-      where: withTenantScope({ id: { equals: slug } }, tenant.tenantId) as any,
+      where: withTenantScope({ id: { equals: slug } }, tenantId) as any,
       limit: 1,
       depth: 2,
     })
   }
 
-  const conv = result.docs[0] as any
+  return { payload, conv: result.docs[0] as any | undefined }
+}
+
+function SummaryCard({ icon, label, value, description }: SummaryCardData) {
+  return (
+    <div className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-red-100 hover:shadow-lg">
+      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-[#f2014b]">
+        {icon}
+      </div>
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-gray-400">{label}</p>
+      <p className="mt-2 text-base font-black leading-snug text-gray-950">{value}</p>
+      {description ? <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p> : null}
+    </div>
+  )
+}
+
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join('') || 'CEP'
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const tenant = await getTenantHostBranding()
+  const { conv } = await findConvocation(slug, tenant.tenantId)
+  if (!conv) return { title: 'Convocatoria no encontrada' }
+
+  const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
+  const course = typeof conv.course === 'object' ? conv.course : null
+  const campus = typeof conv.campus === 'object' ? conv.campus : null
+  const displayName = cycle?.name || course?.title || course?.name || 'Convocatoria CEP'
+  const sedeName = campus?.name || ''
+  const mode = modalityLabel(cycle?.duration?.modality || course?.modality || conv.modality)
+  const start = conv.start_date ? ` Inicio: ${formatDate(conv.start_date)}.` : ''
+
+  return {
+    title: `${displayName} - Convocatoria abierta${sedeName ? ` en ${sedeName}` : ''}`,
+    description: `Inscripcion abierta para ${displayName}${sedeName ? ` en ${sedeName}` : ''}. Modalidad ${mode}.${start} Solicita informacion sin compromiso con CEP Formacion.`,
+    openGraph: {
+      title: `${displayName} - Inscripcion abierta`,
+      description: `Reserva tu plaza en ${displayName}. Te orientamos sobre fechas, sede, acceso y matricula.`,
+    },
+  }
+}
+
+export default async function ConvocatoriaLandingPage({ params }: Props) {
+  const { slug } = await params
+  const tenant = await getTenantHostBranding()
+  const { conv } = await findConvocation(slug, tenant.tenantId)
   if (!conv) notFound()
 
-  // Resolve relationships
   const course = typeof conv.course === 'object' ? conv.course : null
   const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
   const campus = typeof conv.campus === 'object' ? conv.campus : null
@@ -221,30 +197,47 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   const instructorPhoto = resolveImageUrl(instructor?.photo)
   const instructorHref = resolveInstructorHref(instructor)
   const campusHref = resolveCampusHref(campus)
-  const instructorCertifications = Array.isArray(instructor?.certifications)
-    ? instructor.certifications.filter((cert: any) => typeof cert?.title === 'string' && cert.title.trim())
-    : []
 
-  // Image: cycle first, then course
-  const cycleImage = cycle ? resolveImageUrl(cycle.image) : null
+  const cycleImage = cycle ? resolveImageUrl(cycle.image || cycle.featured_image) : null
   const courseImage = course ? resolveImageUrl(course.image || course.featured_image) : null
-  const imageUrl = cycleImage || courseImage
-
-  // Display name
-  const displayName = cycle?.name || course?.title || course?.name || ''
-  const sedeName = campus?.name || ''
-
-  // Cycle data
-  const modality = cycle?.duration?.modality
-  const totalHours = cycle?.duration?.totalHours
+  const imageUrl = cycleImage || courseImage || '/website/cep/hero/cepformacion-hero-01.png'
+  const displayName = cycle?.name || course?.title || course?.name || 'Convocatoria CEP'
+  const areaName =
+    (typeof course?.area_formativa === 'object' && course.area_formativa?.nombre) ||
+    course?.area_formativa ||
+    course?.area ||
+    cycle?.area ||
+    'Formacion profesional'
+  const isOnline = [cycle?.duration?.modality, course?.modality, conv.modality].some((value) => value === 'online')
+  const modality = isOnline ? 'online' : cycle?.duration?.modality || course?.modality || conv.modality
+  const modalityText = modalityLabel(modality)
+  const sedeName = isOnline ? 'Online' : campus?.name || 'Sede a confirmar'
+  const startMonth = isOnline && !conv.start_date ? 'Empieza cuando quieras' : formatMonth(conv.start_date)
+  const startDate = isOnline && !conv.start_date ? 'Empieza cuando quieras' : formatDate(conv.start_date)
+  const endDate = conv.end_date ? formatDate(conv.end_date) : ''
+  const totalHours = cycle?.duration?.totalHours || course?.duration || course?.duration_hours || course?.duracion
   const practiceHours = cycle?.duration?.practiceHours
-  const scheduleText = cycle?.duration?.schedule
-  const classFrequency = cycle?.duration?.classFrequency
-  const competencies = Array.isArray(cycle?.competencies) ? cycle.competencies : []
-  const careerPaths = Array.isArray(cycle?.careerPaths) ? cycle.careerPaths : []
-  const requirements = Array.isArray(cycle?.requirements) ? cycle.requirements : []
+  const scheduleText = isOnline
+    ? 'Estudia online a tu ritmo'
+    : cycle?.duration?.schedule || conv.schedule || course?.schedule || 'Horario a consultar'
+  const classFrequency = cycle?.duration?.classFrequency || conv.class_frequency
   const cycleLevel = cycle?.level
   const officialTitle = cycle?.officialTitle
+  const competencies = Array.isArray(cycle?.competencies) ? cycle.competencies : []
+  const careerPaths = Array.isArray(cycle?.careerPaths) ? cycle.careerPaths : []
+  const cycleRequirements = Array.isArray(cycle?.requirements) ? cycle.requirements : []
+  const courseObjectives = Array.isArray(course?.landing_objectives)
+    ? course.landing_objectives
+    : Array.isArray(course?.landingObjectives)
+      ? course.landingObjectives
+      : []
+  const courseProgramBlocks = Array.isArray(course?.landing_program_blocks)
+    ? course.landing_program_blocks
+    : Array.isArray(course?.landingProgramBlocks)
+      ? course.landingProgramBlocks
+      : []
+  const courseOutcomes = textFromRichValue(course?.landing_outcomes || course?.landingOutcomes || course?.outcomes)
+  const courseRequirements = textFromRichValue(course?.landing_access_requirements || course?.landingAccessRequirements)
   const pricing = cycle?.pricing ?? {}
   const effectivePrice =
     (typeof conv.price_override === 'number' ? conv.price_override : null) ??
@@ -254,486 +247,443 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   const enrollmentFee = typeof pricing.enrollmentFee === 'number' ? pricing.enrollmentFee : null
   const monthlyFee = typeof pricing.monthlyFee === 'number' ? pricing.monthlyFee : null
   const paymentOptions = Array.isArray(pricing.paymentOptions)
-    ? pricing.paymentOptions
-      .map((item: any) => (typeof item?.option === 'string' ? item.option.trim() : ''))
-      .filter((item: string) => item.length > 0)
+    ? pricing.paymentOptions.map((item: any) => (typeof item?.option === 'string' ? item.option.trim() : '')).filter(Boolean)
     : []
   const scholarships = Array.isArray(cycle?.scholarships) ? cycle.scholarships : []
   const financingTypes = new Set<string>()
-  if (conv.financial_aid_available) financingTypes.add('Financiación interna CEP')
-  if (cycle?.fundaeEligible) financingTypes.add('Bonificación FUNDAE')
+  if (conv.financial_aid_available) financingTypes.add('Financiacion interna CEP')
+  if (cycle?.fundaeEligible) financingTypes.add('Bonificacion FUNDAE')
   scholarships.forEach((sch: any) => {
     if (sch?.type === 'beca') financingTypes.add('Becas')
     if (sch?.type === 'subvencion') financingTypes.add('Subvenciones')
     if (sch?.type === 'financiacion') financingTypes.add('Pago financiado')
   })
   const financingTypesList = Array.from(financingTypes)
+  const statusLabel = conv.status === 'enrollment_open' ? 'Matricula abierta' : 'Inscripcion abierta'
 
-  // Start month
-  const startMonth = conv.start_date ? formatMonth(conv.start_date) : null
+  const summaryCards: SummaryCardData[] = [
+    {
+      icon: <Calendar className="h-5 w-5" />,
+      label: 'Inicio',
+      value: startDate,
+      description: isOnline ? 'Acceso flexible tras formalizar la matricula.' : 'Te confirmamos horario y grupo al reservar plaza.',
+    },
+    {
+      icon: <MapPin className="h-5 w-5" />,
+      label: 'Sede',
+      value: sedeName,
+      description: isOnline ? 'Sin desplazamientos.' : 'Formacion en instalaciones CEP.',
+    },
+    {
+      icon: <Clock className="h-5 w-5" />,
+      label: 'Modalidad',
+      value: modalityText,
+      description: totalHours ? `${totalHours} horas de formacion.` : 'Duracion a confirmar por el equipo academico.',
+    },
+    {
+      icon: <Euro className="h-5 w-5" />,
+      label: 'Precio',
+      value: formatCurrency(effectivePrice),
+      description: conv.financial_aid_available ? 'Opciones de financiacion disponibles.' : 'Consulta condiciones de matricula.',
+    },
+  ]
 
-  // Build summary cards
-  const summaryCards: { icon: React.ReactNode; label: string; value: string }[] = []
-  if (startMonth) {
-    summaryCards.push({ icon: <IconCalendar />, label: 'Inicio', value: startMonth })
-  }
-  if (sedeName) {
-    summaryCards.push({ icon: <IconMapPin />, label: 'Sede', value: sedeName })
-  }
   if (officialTitle || cycleLevel) {
-    summaryCards.push({ icon: <IconAcademicCap />, label: 'Titulacion', value: officialTitle || `${levelLabel(cycleLevel)} oficial` })
+    summaryCards.splice(2, 0, {
+      icon: <GraduationCap className="h-5 w-5" />,
+      label: 'Titulacion',
+      value: officialTitle || levelLabel(cycleLevel),
+      description: 'Formacion orientada a salida profesional.',
+    })
   }
+
   if (practiceHours) {
-    summaryCards.push({ icon: <IconBriefcase />, label: 'Practicas', value: `${practiceHours}h en empresa` })
+    summaryCards.push({
+      icon: <Briefcase className="h-5 w-5" />,
+      label: 'Practicas',
+      value: `${practiceHours} h en empresa`,
+      description: 'Practicalidad y contacto con entorno profesional.',
+    })
   }
-  if (modality) {
-    summaryCards.push({ icon: <IconClock />, label: 'Modalidad', value: modalityLabel(modality) })
-  }
-  if (effectivePrice !== null) {
-    summaryCards.push({ icon: <IconCurrencyEuro />, label: 'Precio', value: formatCurrency(effectivePrice) })
-  }
-  if (conv.financial_aid_available) {
-    summaryCards.push({ icon: <IconCurrencyEuro />, label: 'Financiacion', value: 'Disponible' })
-  }
+
+  const trustBadges = [
+    { icon: <ShieldCheck className="h-5 w-5" />, title: '+25 anos de experiencia', desc: 'Formando profesionales en Tenerife.' },
+    { icon: <Award className="h-5 w-5" />, title: 'Equipo academico CEP', desc: 'Orientacion desde la primera consulta.' },
+    { icon: <CheckCircle2 className="h-5 w-5" />, title: 'Reserva sin compromiso', desc: 'Te contactamos para validar disponibilidad.' },
+  ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ================================================================== */}
-      {/* 1. HERO                                                             */}
-      {/* ================================================================== */}
-      <section className="relative min-h-[420px] sm:min-h-[480px] flex items-end">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={displayName}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 brand-bg" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20" />
-
-        <div className="relative z-10 w-full px-4 pb-10 pt-32 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            {/* Badges */}
-            <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
-              <span className="inline-flex items-center rounded-full brand-btn px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
-                Inscripcion abierta
-              </span>
-              <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-sm">
-                Plazas limitadas
-              </span>
-            </div>
-
-            {/* Headline */}
-            <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
-              {displayName}
-              {sedeName && (
-                <span className="mt-1 block text-lg font-medium text-white/80 sm:text-xl">
-                  Convocatoria abierta en {sedeName}
-                </span>
-              )}
-            </h1>
-
-            {/* Subtitle */}
-            <p className="mx-auto mt-4 max-w-xl text-base text-white/75 sm:text-lg">
-              {startMonth ? `Comienza en ${startMonth.toLowerCase()}. ` : ''}
-              Formacion oficial con orientacion practica y profesional
-            </p>
-
-            {/* CTA */}
-            <a
-              href="#formulario"
-              className="mt-6 inline-flex items-center rounded-lg brand-btn px-8 py-3.5 text-base font-bold uppercase tracking-wide text-white shadow-lg transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/50"
-            >
-              Solicitar informacion
-            </a>
-
-            {/* Codigo subtle */}
-            {conv.codigo && (
-              <p className="mt-4 text-xs font-mono text-white/40">
-                Ref. {conv.codigo}
-              </p>
-            )}
-          </div>
+    <div className="min-h-screen bg-white selection:bg-red-100 selection:text-red-950">
+      <section className="relative overflow-hidden bg-gray-950">
+        <div className="absolute inset-0">
+          <img src={imageUrl} alt={displayName} className="h-full w-full scale-105 object-cover opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-slate-950/15" />
+          <div className="absolute inset-y-0 left-0 w-[68%] bg-gradient-to-r from-[#f2014b]/35 via-[#f2014b]/12 to-transparent" />
         </div>
-      </section>
 
-      {/* ================================================================== */}
-      {/* 2. ESTA CONVOCATORIA INCLUYE                                        */}
-      {/* ================================================================== */}
-      {summaryCards.length > 0 && (
-        <section className="relative z-10 -mt-8 px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-4xl">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-              <h2 className="mb-5 text-center text-lg font-bold text-gray-900">
-                Esta convocatoria incluye
-              </h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {summaryCards.map((card, i) => (
-                  <SummaryCard key={i} {...card} />
-                ))}
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div>
+              <div className="mb-8 flex flex-wrap gap-3">
+                <span className="inline-flex items-center rounded-full bg-[#f2014b] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-red-950/20">
+                  {statusLabel}
+                </span>
+                <span className="inline-flex items-center rounded-full bg-white/12 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white ring-1 ring-white/20 backdrop-blur">
+                  Plazas limitadas
+                </span>
+              </div>
+              <p className="mb-5 text-sm font-black uppercase tracking-[0.22em] text-white/65">
+                Convocatoria CEP Formacion
+              </p>
+              <h1 className="max-w-4xl text-balance text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                {displayName}
+              </h1>
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-white/82 sm:text-xl">
+                Reserva tu plaza y recibe orientacion sobre fechas, modalidad, requisitos y proceso de matricula.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-4">
+                <a href="#registro" className="inline-flex min-h-14 items-center justify-center rounded-full bg-[#f2014b] px-8 text-base font-black text-white shadow-xl shadow-red-950/30 transition hover:-translate-y-0.5 hover:bg-[#c9003f]">
+                  Solicitar informacion
+                </a>
+                <a href="#detalles" className="inline-flex min-h-14 items-center justify-center rounded-full border border-white/35 px-8 text-base font-black text-white transition hover:bg-white/10">
+                  Ver detalles
+                </a>
               </div>
             </div>
-          </div>
-        </section>
-      )}
 
-      {/* Centered single-column content */}
-      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 space-y-16">
-
-        {/* ================================================================ */}
-        {/* 3. QUE APRENDERAS Y SALIDAS                                       */}
-        {/* ================================================================ */}
-        {(competencies.length > 0 || careerPaths.length > 0) && (
-          <section>
-            {competencies.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-2xl font-bold text-gray-900 mb-5">Que aprenderas</h2>
-                <ul className="space-y-3">
-                  {competencies.slice(0, 6).map((c: any, i: number) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="brand-text"><IconCheck /></span>
-                      <div>
-                        <p className="font-medium text-gray-900">{c.title}</p>
-                        {c.description && (
-                          <p className="mt-0.5 text-sm text-gray-600">{c.description}</p>
-                        )}
+            <div className="hidden lg:block">
+              <div className="relative rounded-[2rem] border border-white/35 bg-white/82 p-7 shadow-2xl shadow-black/25 backdrop-blur-xl">
+                <div className="mb-6 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Proxima convocatoria</p>
+                    <p className="mt-2 text-2xl font-black text-gray-950">{startMonth}</p>
+                  </div>
+                  <div className="rounded-full bg-green-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-green-700 ring-1 ring-green-100">
+                    Activa
+                  </div>
+                </div>
+                <div className="grid gap-4">
+                  {summaryCards.slice(0, 4).map((card) => (
+                    <div key={card.label} className="flex items-start gap-4 rounded-2xl bg-white/76 p-4 ring-1 ring-gray-900/5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-[#f2014b]">
+                        {card.icon}
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {careerPaths.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-5">Salidas profesionales</h2>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {careerPaths.slice(0, 8).map((cp: any, i: number) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4"
-                    >
-                      <span className="brand-text"><IconBriefcase /></span>
                       <div>
-                        <p className="font-medium text-gray-900">{cp.title}</p>
-                        {cp.sector && (
-                          <p className="text-xs text-gray-500">{cp.sector}</p>
-                        )}
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-400">{card.label}</p>
+                        <p className="mt-1 text-sm font-black text-gray-950">{card.value}</p>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* ================================================================ */}
-        {/* 4. SEDE Y MODALIDAD                                               */}
-        {/* ================================================================ */}
-        {(campus || modality || scheduleText) && (
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">Sede y modalidad</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {campus && (
-                <Link
-                  href={campusHref ?? '#'}
-                  className="rounded-xl border border-gray-200 bg-white p-5 transition hover:border-red-200 hover:shadow-md"
-                  aria-disabled={!campusHref}
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="brand-text"><IconMapPin /></span>
-                    <h3 className="font-semibold text-gray-900">Sede</h3>
-                  </div>
-                  <p className="font-medium text-gray-900">{campus.name}</p>
-                  {campus.address && <p className="text-sm text-gray-600 mt-1">{campus.address}</p>}
-                  {campus.city && <p className="text-sm text-gray-600">{campus.city}</p>}
-                  {campus.phone && <p className="text-sm text-gray-600 mt-1">Tel: {campus.phone}</p>}
-                  <span className="mt-3 inline-flex items-center text-sm font-medium brand-text">
-                    Ver ficha de la sede
-                  </span>
-                </Link>
-              )}
-
-              <div className="rounded-xl border border-gray-200 bg-white p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="brand-text"><IconClock /></span>
-                  <h3 className="font-semibold text-gray-900">Horario y modalidad</h3>
+                <div className="mt-6 flex items-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white">
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  Te contactamos para confirmar plaza y condiciones.
                 </div>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  {modality && (
-                    <li><span className="font-medium">Modalidad:</span> {modalityLabel(modality)}</li>
-                  )}
-                  {scheduleText && (
-                    <li><span className="font-medium">Horario:</span> {scheduleText}</li>
-                  )}
-                  {classFrequency && (
-                    <li><span className="font-medium">Frecuencia:</span> {classFrequency}</li>
-                  )}
-                  {totalHours && (
-                    <li><span className="font-medium">Duracion:</span> {totalHours} horas</li>
-                  )}
-                  {conv.start_date && (
-                    <li>
-                      <span className="font-medium">Inicio:</span>{' '}
-                      {new Date(conv.start_date).toLocaleDateString('es-ES', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </li>
-                  )}
-                  {conv.end_date && (
-                    <li>
-                      <span className="font-medium">Fin:</span>{' '}
-                      {new Date(conv.end_date).toLocaleDateString('es-ES', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </li>
-                  )}
-                </ul>
               </div>
-            </div>
-          </section>
-        )}
-
-        {instructorName && (
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">Docente asignado</h2>
-            <Link
-              href={instructorHref ?? '#'}
-              className="flex flex-col gap-5 rounded-xl border border-gray-200 bg-white p-5 transition hover:border-red-200 hover:shadow-md sm:flex-row sm:items-center"
-              aria-disabled={!instructorHref}
-            >
-              {instructorPhoto ? (
-                <img
-                  src={instructorPhoto}
-                  alt={instructorName}
-                  className="h-24 w-24 rounded-full object-cover"
-                />
-              ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-red-50 text-red-600">
-                  <IconAcademicCap />
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-medium uppercase tracking-wide text-gray-500">Docente</p>
-                <h3 className="text-lg font-bold text-gray-900">{instructorName}</h3>
-                {instructorCertifications.length > 0 && (
-                  <ul className="mt-2 space-y-1 text-sm text-gray-600">
-                    {instructorCertifications.slice(0, 3).map((cert: any, index: number) => (
-                      <li key={`${cert.title}-${index}`}>
-                        {cert.title}
-                        {cert.institution ? ` · ${cert.institution}` : ''}
-                        {cert.year ? ` · ${cert.year}` : ''}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </Link>
-          </section>
-        )}
-
-        {/* ================================================================ */}
-        {/* 5. PRECIO, FINANCIACION Y PAGOS                                   */}
-        {/* ================================================================ */}
-        <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-5">Precio, financiacion y pagos</h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="rounded-xl border border-gray-200 bg-white p-5">
-              <div className="mb-3 flex items-center gap-2">
-                <span className="brand-text"><IconCurrencyEuro /></span>
-                <h3 className="font-semibold text-gray-900">Precio del ciclo</h3>
-              </div>
-              <ul className="space-y-1.5 text-sm text-gray-700">
-                <li><span className="font-medium">Precio orientativo:</span> {formatCurrency(effectivePrice)}</li>
-                {enrollmentFee !== null && (
-                  <li><span className="font-medium">Matricula:</span> {formatCurrency(enrollmentFee)}</li>
-                )}
-                {monthlyFee !== null && (
-                  <li><span className="font-medium">Mensualidad:</span> {formatCurrency(monthlyFee)}</li>
-                )}
-                {pricing?.priceNotes && (
-                  <li className="pt-1 text-xs text-gray-500">{pricing.priceNotes}</li>
-                )}
-              </ul>
-            </div>
-
-            <div className="rounded-xl border border-gray-200 bg-white p-5">
-              <div className="mb-3 flex items-center gap-2">
-                <span className="brand-text"><IconCheck /></span>
-                <h3 className="font-semibold text-gray-900">Financiacion disponible</h3>
-              </div>
-              <ul className="space-y-1.5 text-sm text-gray-700">
-                {financingTypesList.length > 0 ? (
-                  financingTypesList.map((item) => (
-                    <li key={item}>• {item}</li>
-                  ))
-                ) : (
-                  <li>• Financiacion a consultar con asesor academico.</li>
-                )}
-                {scholarships.slice(0, 3).map((sch: any, i: number) => (
-                  <li key={`${sch?.name || 'scholarship'}-${i}`} className="text-xs text-gray-600">
-                    {sch?.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="rounded-xl border border-gray-200 bg-white p-5">
-              <div className="mb-3 flex items-center gap-2">
-                <span className="brand-text"><IconClock /></span>
-                <h3 className="font-semibold text-gray-900">Tipos de pago aceptados</h3>
-              </div>
-              <ul className="space-y-1.5 text-sm text-gray-700">
-                {paymentOptions.length > 0 ? (
-                  paymentOptions.map((option: string) => (
-                    <li key={option}>• {option}</li>
-                  ))
-                ) : (
-                  <>
-                    <li>• Transferencia bancaria</li>
-                    <li>• Tarjeta</li>
-                    <li>• Pago fraccionado (segun estudio)</li>
-                  </>
-                )}
-              </ul>
             </div>
           </div>
-        </section>
-
-        {/* ================================================================ */}
-        {/* 6. REQUISITOS DE ACCESO                                           */}
-        {/* ================================================================ */}
-        {requirements.length > 0 && (
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">Requisitos de acceso</h2>
-            <div className="rounded-xl border border-gray-200 bg-white p-5">
-              <ul className="space-y-2.5">
-                {requirements.map((req: any, i: number) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="brand-text"><IconCheck /></span>
-                    <span className="text-sm text-gray-700">
-                      {req.text}
-                      {req.type === 'obligatorio' && (
-                        <span className="ml-1.5 text-xs font-medium text-red-600">(obligatorio)</span>
-                      )}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {cycle?.slug && (
-                <p className="mt-4 text-sm text-gray-500">
-                  Consulta todos los detalles en la{' '}
-                  <a href={`/p/ciclos/${cycle.slug}`} className="brand-text font-medium hover:underline">
-                    ficha completa del ciclo
-                  </a>
-                  .
-                </p>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* ================================================================ */}
-        {/* 7. FORMULARIO CENTRADO (the star)                                  */}
-        {/* ================================================================ */}
-        <section id="formulario" className="scroll-mt-24">
-          <div className="mx-auto max-w-xl rounded-2xl brand-bg-light border-2 brand-border p-6 sm:p-8">
-            <div className="text-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
-                Solicita informacion o inicia tu inscripcion
-              </h2>
-              <p className="mt-2 text-sm text-gray-600">
-                Te contactaremos para confirmar detalles sobre sede, fechas, acceso y proceso de matricula
-              </p>
-            </div>
-
-            <PreinscripcionForm
-              convocatoriaId={String(conv.id)}
-              convocatoriaCodigo={conv.codigo || ''}
-              displayName={displayName}
-            />
-          </div>
-        </section>
-
-        {/* ================================================================ */}
-        {/* 8. CONFIANZA / FAQ                                                */}
-        {/* ================================================================ */}
-        <section>
-          {/* Trust badges */}
-          <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {[
-              { icon: <IconShield />, title: '26 anos de experiencia', desc: 'Formando profesionales desde 2000' },
-              { icon: <IconAcademicCap />, title: 'Centro autorizado', desc: 'Titulaciones reconocidas por el MEC' },
-              { icon: <IconCheck />, title: 'Calidad certificada', desc: 'Sistema de gestion ISO 9001' },
-            ].map((badge, i) => (
-              <div
-                key={i}
-                className="flex flex-col items-center rounded-xl border border-gray-200 bg-white p-5 text-center"
-              >
-                <span className="brand-text mb-2">{badge.icon}</span>
-                <p className="text-sm font-semibold text-gray-900">{badge.title}</p>
-                <p className="mt-0.5 text-xs text-gray-500">{badge.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* FAQ */}
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Preguntas frecuentes</h2>
-          <div className="space-y-2">
-            {[
-              {
-                q: 'Que necesito para inscribirme?',
-                a: 'Rellena el formulario de esta pagina y nos pondremos en contacto contigo en menos de 24h para guiarte en el proceso de matricula y verificar los requisitos de acceso.',
-              },
-              {
-                q: 'Puedo financiar mis estudios?',
-                a: conv.financial_aid_available
-                  ? 'Si, esta convocatoria dispone de opciones de financiacion. Te informaremos de las condiciones cuando contactemos contigo.'
-                  : 'Consulta con nuestro equipo las opciones de financiacion y becas disponibles.',
-              },
-              {
-                q: 'La titulacion es oficial?',
-                a: officialTitle
-                  ? `Si, al completar el ciclo obtendras el titulo de "${officialTitle}", reconocido oficialmente.`
-                  : 'Si, nuestras titulaciones son oficiales y reconocidas por el Ministerio de Educacion.',
-              },
-              {
-                q: 'Cuando puedo empezar?',
-                a: startMonth
-                  ? `Esta convocatoria tiene previsto su inicio en ${startMonth.toLowerCase()}. El plazo de inscripcion esta abierto.`
-                  : 'Las fechas exactas se confirman al completar la inscripcion. Contactanos para mas informacion.',
-              },
-            ].map((faq, i) => (
-              <details key={i} className="group rounded-xl border border-gray-200 bg-white">
-                <summary className="flex cursor-pointer items-center justify-between gap-2 px-5 py-4 text-sm font-semibold text-gray-900 list-none [&::-webkit-details-marker]:hidden">
-                  {faq.q}
-                  <IconChevronDown />
-                </summary>
-                <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">
-                  {faq.a}
-                </div>
-              </details>
-            ))}
-          </div>
-        </section>
-
-        {/* Bottom CTA */}
-        <div className="text-center pb-4">
-          <a
-            href="#formulario"
-            className="inline-flex items-center rounded-lg brand-btn px-8 py-3 text-sm font-bold uppercase tracking-wide text-white transition-transform hover:scale-[1.02]"
-          >
-            Solicitar informacion
-          </a>
-          <p className="mt-2 text-xs text-gray-400">Sin compromiso. Te contactamos en 24h.</p>
         </div>
+      </section>
+
+      <div className="hidden border-b border-gray-100 bg-white shadow-sm lg:block lg:sticky lg:top-0 lg:z-40">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-8 px-4 py-4 sm:px-6 lg:px-8">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-black text-gray-950">{displayName}</p>
+            <p className="text-xs font-semibold text-gray-500">{modalityText} · {sedeName}</p>
+          </div>
+          <nav className="flex items-center gap-6 text-sm font-bold text-gray-500">
+            <a href="#presentacion" className="hover:text-[#f2014b]">Presentacion</a>
+            <a href="#detalles" className="hover:text-[#f2014b]">Detalles</a>
+            <a href="#sede" className="hover:text-[#f2014b]">Sede</a>
+            {instructorName ? <a href="#docente" className="hover:text-[#f2014b]">Docente</a> : null}
+            <a href="#pagos" className="hover:text-[#f2014b]">Pagos</a>
+            <a href="#registro" className="rounded-full bg-[#f2014b] px-5 py-2.5 text-white hover:bg-[#c9003f]">Reservar plaza</a>
+          </nav>
+        </div>
+      </div>
+
+      <section className="relative z-10 -mt-8 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-4 rounded-[2rem] border border-gray-200 bg-white p-5 shadow-xl shadow-gray-950/5 sm:grid-cols-2 lg:grid-cols-4">
+            {summaryCards.slice(0, 4).map((card) => <SummaryCard key={card.label} {...card} />)}
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="grid gap-14 lg:grid-cols-12 lg:gap-20">
+          <div className="space-y-20 lg:col-span-8">
+            <section id="presentacion" className="scroll-mt-32">
+              <div className="mb-6 inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-[#f2014b]">
+                <span className="h-0.5 w-12 rounded-full bg-[#f2014b]" />
+                Presentacion
+              </div>
+              <h2 className="text-balance text-3xl font-black tracking-tight text-gray-950 sm:text-4xl">
+                Tu proxima oportunidad formativa en CEP
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-gray-600">
+                Esta convocatoria esta pensada para que puedas avanzar con informacion clara sobre modalidad, calendario, sede y proceso de reserva. El equipo de CEP te orientara antes de formalizar la matricula.
+              </p>
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                {trustBadges.map((badge) => (
+                  <div key={badge.title} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-[#f2014b]">{badge.icon}</div>
+                    <h3 className="font-black text-gray-950">{badge.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-gray-600">{badge.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section id="detalles" className="scroll-mt-32 rounded-[2rem] bg-gray-50 p-6 ring-1 ring-gray-100 sm:p-8 lg:p-10">
+              <h2 className="text-3xl font-black tracking-tight text-gray-950">Detalles de la convocatoria</h2>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                {summaryCards.map((card) => <SummaryCard key={`${card.label}-${card.value}`} {...card} />)}
+              </div>
+              <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6">
+                <h3 className="text-lg font-black text-gray-950">Horario y formato</h3>
+                <dl className="mt-5 grid gap-4 text-sm text-gray-700 sm:grid-cols-2">
+                  <div><dt className="font-bold text-gray-950">Modalidad</dt><dd className="mt-1">{modalityText}</dd></div>
+                  <div><dt className="font-bold text-gray-950">Inicio</dt><dd className="mt-1">{startDate}</dd></div>
+                  {endDate ? <div><dt className="font-bold text-gray-950">Fin</dt><dd className="mt-1">{endDate}</dd></div> : null}
+                  <div><dt className="font-bold text-gray-950">Horario</dt><dd className="mt-1">{scheduleText}</dd></div>
+                  {classFrequency ? <div><dt className="font-bold text-gray-950">Frecuencia</dt><dd className="mt-1">{classFrequency}</dd></div> : null}
+                  {totalHours ? <div><dt className="font-bold text-gray-950">Duracion</dt><dd className="mt-1">{totalHours} horas</dd></div> : null}
+                  {conv.codigo ? <div><dt className="font-bold text-gray-950">Referencia</dt><dd className="mt-1">{conv.codigo}</dd></div> : null}
+                </dl>
+              </div>
+            </section>
+
+            {(competencies.length > 0 || courseObjectives.length > 0 || courseProgramBlocks.length > 0 || courseOutcomes) && (
+              <section className="scroll-mt-32">
+                <div className="mb-8">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-[#f2014b]">Programa</p>
+                  <h2 className="mt-3 text-3xl font-black tracking-tight text-gray-950">Que vas a trabajar</h2>
+                </div>
+                {competencies.length > 0 || courseObjectives.length > 0 ? (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {[...competencies.slice(0, 6), ...courseObjectives.slice(0, 6)].slice(0, 8).map((item: any, index: number) => {
+                      const title = typeof item === 'string' ? item : item?.title || item?.objective || item?.text
+                      const description = typeof item === 'object' ? item?.description : ''
+                      return title ? (
+                        <div key={`${title}-${index}`} className="rounded-2xl border border-gray-200 bg-white p-5">
+                          <CheckCircle2 className="mb-4 h-5 w-5 text-[#f2014b]" />
+                          <h3 className="font-black text-gray-950">{title}</h3>
+                          {description ? <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p> : null}
+                        </div>
+                      ) : null
+                    })}
+                  </div>
+                ) : null}
+                {courseProgramBlocks.length > 0 ? (
+                  <div className="mt-8 divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white">
+                    {courseProgramBlocks.slice(0, 6).map((block: any, index: number) => (
+                      <div key={`${block?.title || 'bloque'}-${index}`} className="grid gap-4 p-6 sm:grid-cols-[56px_1fr]">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red-50 text-sm font-black text-[#f2014b]">
+                          {String(index + 1).padStart(2, '0')}
+                        </div>
+                        <div>
+                          <h3 className="font-black text-gray-950">{block?.title || `Bloque ${index + 1}`}</h3>
+                          {block?.body ? <p className="mt-2 text-sm leading-6 text-gray-600">{block.body}</p> : null}
+                          {Array.isArray(block?.items) && block.items.length > 0 ? (
+                            <ul className="mt-4 space-y-2 text-sm text-gray-700">
+                              {block.items.map((item: string) => <li key={item} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#f2014b]" />{item}</li>)}
+                            </ul>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {courseOutcomes ? <p className="mt-6 rounded-2xl bg-gray-50 p-6 text-base leading-8 text-gray-700">{courseOutcomes}</p> : null}
+              </section>
+            )}
+
+            {(careerPaths.length > 0 || practiceHours) && (
+              <section className="scroll-mt-32">
+                <h2 className="text-3xl font-black tracking-tight text-gray-950">Salidas y practica profesional</h2>
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {careerPaths.slice(0, 8).map((path: any, index: number) => (
+                    <div key={`${path?.title || 'salida'}-${index}`} className="rounded-2xl border border-gray-200 bg-white p-5">
+                      <Briefcase className="mb-4 h-5 w-5 text-[#f2014b]" />
+                      <h3 className="font-black text-gray-950">{path?.title || 'Salida profesional'}</h3>
+                      {path?.sector ? <p className="mt-2 text-sm text-gray-600">{path.sector}</p> : null}
+                    </div>
+                  ))}
+                  {practiceHours ? (
+                    <div className="rounded-2xl border border-red-100 bg-red-50 p-5">
+                      <Users className="mb-4 h-5 w-5 text-[#f2014b]" />
+                      <h3 className="font-black text-gray-950">{practiceHours} h de practicas</h3>
+                      <p className="mt-2 text-sm leading-6 text-gray-600">Practicas orientadas a consolidar competencias profesionales.</p>
+                    </div>
+                  ) : null}
+                </div>
+              </section>
+            )}
+
+            <section id="sede" className="scroll-mt-32">
+              <h2 className="text-3xl font-black tracking-tight text-gray-950">Sede y modalidad</h2>
+              <div className="mt-8 grid gap-5 sm:grid-cols-2">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <MapPin className="mb-4 h-6 w-6 text-[#f2014b]" />
+                  <h3 className="text-lg font-black text-gray-950">{sedeName}</h3>
+                  {campus && !isOnline ? (
+                    <>
+                      {campus.address ? <p className="mt-3 text-sm leading-6 text-gray-600">{campus.address}</p> : null}
+                      {campus.city ? <p className="text-sm leading-6 text-gray-600">{campus.city}</p> : null}
+                      {campus.phone ? <p className="mt-2 text-sm font-bold text-gray-800">Tel. {campus.phone}</p> : null}
+                      {campusHref ? <Link href={campusHref} className="mt-5 inline-flex text-sm font-black text-[#f2014b]">Ver ficha de la sede</Link> : null}
+                    </>
+                  ) : (
+                    <p className="mt-3 text-sm leading-6 text-gray-600">Formacion online sin sede fisica obligatoria para cursar esta convocatoria.</p>
+                  )}
+                </div>
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <Clock className="mb-4 h-6 w-6 text-[#f2014b]" />
+                  <h3 className="text-lg font-black text-gray-950">Modalidad {modalityText}</h3>
+                  <p className="mt-3 text-sm leading-6 text-gray-600">{scheduleText}</p>
+                  <p className="mt-3 text-sm font-bold text-gray-800">Inicio: {startDate}</p>
+                </div>
+              </div>
+            </section>
+
+            <section id="docente" className="scroll-mt-32">
+              <h2 className="text-3xl font-black tracking-tight text-gray-950">Equipo docente</h2>
+              {instructorName ? (
+                <Link href={instructorHref ?? '#'} className="mt-8 flex flex-col gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-red-100 hover:shadow-lg sm:flex-row sm:items-center">
+                  {instructorPhoto ? (
+                    <img src={instructorPhoto} alt={instructorName} className="h-28 w-28 rounded-2xl object-cover" />
+                  ) : (
+                    <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-gray-50 text-2xl font-black text-gray-500 ring-1 ring-gray-100">
+                      {initials(instructorName)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Docente</p>
+                    <h3 className="mt-2 text-2xl font-black text-gray-950">{instructorName}</h3>
+                    <p className="mt-2 text-sm leading-6 text-gray-600">Profesional asignado a esta convocatoria.</p>
+                    <span className="mt-4 inline-flex text-sm font-black text-[#f2014b]">Ver perfil docente</span>
+                  </div>
+                </Link>
+              ) : (
+                <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6">
+                  <p className="text-base font-bold text-gray-950">Equipo academico CEP</p>
+                  <p className="mt-2 text-sm leading-6 text-gray-600">El docente se confirma con el grupo antes del inicio de la convocatoria.</p>
+                </div>
+              )}
+            </section>
+
+            <section id="pagos" className="scroll-mt-32">
+              <h2 className="text-3xl font-black tracking-tight text-gray-950">Precio, financiacion y pagos</h2>
+              <div className="mt-8 grid gap-5 md:grid-cols-3">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <Euro className="mb-4 h-6 w-6 text-[#f2014b]" />
+                  <h3 className="font-black text-gray-950">Precio</h3>
+                  <p className="mt-3 text-2xl font-black text-gray-950">{formatCurrency(effectivePrice)}</p>
+                  {enrollmentFee !== null ? <p className="mt-2 text-sm text-gray-600">Matricula: {formatCurrency(enrollmentFee)}</p> : null}
+                  {monthlyFee !== null ? <p className="text-sm text-gray-600">Mensualidad: {formatCurrency(monthlyFee)}</p> : null}
+                </div>
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <CreditCard className="mb-4 h-6 w-6 text-[#f2014b]" />
+                  <h3 className="font-black text-gray-950">Financiacion</h3>
+                  <ul className="mt-3 space-y-2 text-sm text-gray-600">
+                    {(financingTypesList.length ? financingTypesList : ['Opciones a consultar con asesor academico']).map((item) => <li key={item}>· {item}</li>)}
+                  </ul>
+                </div>
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <CheckCircle2 className="mb-4 h-6 w-6 text-[#f2014b]" />
+                  <h3 className="font-black text-gray-950">Formas de pago</h3>
+                  <ul className="mt-3 space-y-2 text-sm text-gray-600">
+                    {(paymentOptions.length ? paymentOptions : ['Transferencia bancaria', 'Tarjeta', 'Pago fraccionado segun estudio']).map((item) => <li key={item}>· {item}</li>)}
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            {(cycleRequirements.length > 0 || courseRequirements) && (
+              <section id="requisitos" className="scroll-mt-32">
+                <h2 className="text-3xl font-black tracking-tight text-gray-950">Requisitos de acceso</h2>
+                <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                  {cycleRequirements.length > 0 ? (
+                    <ul className="space-y-3">
+                      {cycleRequirements.map((req: any, index: number) => (
+                        <li key={`${req?.text || 'requisito'}-${index}`} className="flex gap-3 text-sm leading-6 text-gray-700">
+                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#f2014b]" />
+                          <span>{req?.text || req}{req?.type === 'obligatorio' ? ' (obligatorio)' : ''}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm leading-7 text-gray-700">{courseRequirements}</p>
+                  )}
+                </div>
+              </section>
+            )}
+
+            <section className="scroll-mt-32">
+              <h2 className="text-3xl font-black tracking-tight text-gray-950">Preguntas frecuentes</h2>
+              <div className="mt-8 space-y-4">
+                {[
+                  ['Que necesito para reservar plaza?', 'Rellena el formulario y el equipo de CEP te contactara para validar disponibilidad, documentacion y condiciones de matricula.'],
+                  ['Puedo consultar antes de matricularme?', 'Si. La solicitud es informativa y sin compromiso hasta que confirmes la matricula con el equipo academico.'],
+                  ['Hay financiacion?', conv.financial_aid_available ? 'Si, esta convocatoria dispone de opciones de financiacion que se explican durante el contacto.' : 'Te orientamos sobre opciones de pago y condiciones disponibles para esta formacion.'],
+                  ['Cuando empieza?', isOnline ? 'En modalidad online puedes empezar cuando quieras segun las condiciones de acceso.' : `La fecha prevista es ${startDate}.`],
+                ].map(([q, a]) => (
+                  <details key={q} className="group rounded-2xl border border-gray-200 bg-white p-6 [&_summary::-webkit-details-marker]:hidden">
+                    <summary className="flex cursor-pointer items-center justify-between gap-4 text-lg font-black text-gray-950">
+                      {q}
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 transition group-open:rotate-180">
+                        <ChevronDown className="h-4 w-4" />
+                      </span>
+                    </summary>
+                    <p className="mt-4 border-t border-gray-100 pt-4 text-sm leading-7 text-gray-600">{a}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <aside className="lg:col-span-4">
+            <div id="registro" className="sticky top-28 scroll-mt-32">
+              <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white p-6 shadow-2xl shadow-gray-950/10">
+                <div className="mb-6 text-center">
+                  <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-red-50 text-[#f2014b] ring-1 ring-red-100">
+                    <GraduationCap className="h-8 w-8" />
+                  </div>
+                  <h2 className="text-2xl font-black tracking-tight text-gray-950">Reserva tu plaza</h2>
+                  <p className="mt-3 text-sm leading-6 text-gray-600">Te llamamos para confirmar fechas, requisitos, precio y disponibilidad.</p>
+                </div>
+                <PreinscripcionForm
+                  convocatoriaId={String(conv.id)}
+                  convocatoriaCodigo={conv.codigo || ''}
+                  displayName={displayName}
+                  courseName={displayName}
+                />
+                <div className="mt-7 space-y-3 border-t border-gray-100 pt-6">
+                  <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 text-sm font-bold text-gray-800">
+                    <Calendar className="h-5 w-5 text-[#f2014b]" />
+                    <span>{startDate}</span>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 text-sm font-bold text-gray-800">
+                    <MapPin className="h-5 w-5 text-[#f2014b]" />
+                    <span>{sedeName}</span>
+                  </div>
+                </div>
+                <div className="mt-8 text-center">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">Tambien por telefono</p>
+                  <a href="tel:922219257" className="mt-2 inline-flex text-2xl font-black text-[#f2014b]">922 219 257</a>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      <div className="fixed bottom-20 left-0 right-0 z-40 px-4 lg:hidden">
+        <a href="#registro" className="mx-auto flex max-w-md items-center justify-between rounded-full bg-gray-950 p-2 pl-6 text-white shadow-2xl ring-1 ring-white/10">
+          <span className="text-sm font-black">Reserva tu plaza</span>
+          <span className="rounded-full bg-[#f2014b] px-5 py-3 text-xs font-black uppercase tracking-wide">Solicitar</span>
+        </a>
       </div>
     </div>
   )
