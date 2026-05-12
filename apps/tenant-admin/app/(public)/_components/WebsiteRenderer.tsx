@@ -454,13 +454,13 @@ async function CourseListSection({
                   </div>
                   <div className="flex flex-1 flex-col p-6">
                     <p className="mb-4 text-xs font-black uppercase tracking-[0.16em] text-[var(--cep-brand)]">{getCourseArea(course)}</p>
-                    <p className="line-clamp-3 text-sm leading-7 text-slate-600">{description}</p>
+                    <p className="line-clamp-2 min-h-[3.5rem] text-sm leading-7 text-slate-600">{description}</p>
                     <div className="mt-5 grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
                       <p><span className="font-semibold text-slate-950">Modalidad:</span> {isTeleformacion ? 'Online' : String(course.modality || 'Consultar')}</p>
                       <p><span className="font-semibold text-slate-950">Inicio:</span> {isTeleformacion ? 'Empieza cuando quieras' : formatDate(nextRun?.start_date)}</p>
                       <p><span className="font-semibold text-slate-950">Sede:</span> {isTeleformacion ? 'Online' : (campus?.name || 'Por confirmar')}</p>
                     </div>
-                    <span className="mt-6 inline-flex w-fit items-center rounded-full bg-slate-950 px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[var(--cep-brand)]">
+                    <span className="mt-6 inline-flex w-fit items-center rounded-full bg-[var(--cep-brand)] px-5 py-2.5 text-sm font-black text-white transition hover:bg-[#d0013f] group-hover:bg-[#d0013f]">
                       Ver curso
                       <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />

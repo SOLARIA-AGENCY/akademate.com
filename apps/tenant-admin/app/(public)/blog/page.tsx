@@ -1,9 +1,26 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { STATIC_BLOG_POSTS } from './staticPosts'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Blog de formación, empleo y orientación | CEP Formación',
+  description:
+    'Artículos de CEP Formación sobre formación profesional en Tenerife, teleformación, ciclos oficiales, empleabilidad y agencia de colocación.',
+  alternates: {
+    canonical: '/blog',
+  },
+  openGraph: {
+    title: 'Blog de CEP Formación',
+    description:
+      'Guías prácticas sobre formación profesional, cursos, teleformación y empleo en Tenerife.',
+    type: 'website',
+    url: '/blog',
+  },
+}
 
 function resolveImageUrl(image: any): string | null {
   if (!image) return null
@@ -56,6 +73,8 @@ export default async function BlogIndexPage() {
                 <div className="p-6">
                   <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[#f2014b]">
                     <span>{post.category ?? 'CEP Formación'}</span>
+                    <span className="h-1 w-1 rounded-full bg-slate-300" />
+                    <span>{post.readingTime ?? 'Lectura'}</span>
                     <span className="h-1 w-1 rounded-full bg-slate-300" />
                     <span>{post.published_at ? new Date(post.published_at).toLocaleDateString('es-ES') : new Date(post.date).toLocaleDateString('es-ES')}</span>
                   </div>

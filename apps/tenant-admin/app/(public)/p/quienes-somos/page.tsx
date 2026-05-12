@@ -33,12 +33,14 @@ const campuses = [
   {
     name: 'Sede Santa Cruz',
     image: '/images/sedes/sede-cep-santa-cruz.png',
+    href: '/site/sedes/sede-santa-cruz',
     description:
       'Nuestra sede de Santa Cruz está situada en el Bajo Estadio Heliodoro Rodríguez López, en el corazón de la capital. Instalaciones modernas con aulas equipadas para la formación sanitaria práctica.',
   },
   {
     name: 'Sede Norte – La Orotava',
     image: '/images/sedes/sede-cep-norte.png',
+    href: '/site/sedes/sede-norte',
     description:
       'La sede Norte se encuentra en el Centro Comercial El Trompo, en La Orotava, en la última planta. Una ubicación estratégica para estudiantes del norte de Tenerife, con parking y acceso cómodo.',
   },
@@ -47,8 +49,13 @@ const campuses = [
 export default function QuienesSomosPage() {
   return (
     <div className="bg-white text-gray-900">
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#111827_0%,#1f2937_55%,#374151_100%)] py-16 sm:py-20">
-        <div className="absolute inset-0 opacity-20 [background:radial-gradient(circle_at_top_left,#e3003a,transparent_55%)]" />
+      <section className="relative overflow-hidden bg-slate-950 py-16 sm:py-20">
+        <img
+          src="/media/cep-formacion-tenerife-hero.webp"
+          alt="Alumnos de CEP Formación con Tenerife al fondo"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/68 to-slate-950/20" />
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <p className="inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white">
@@ -124,6 +131,12 @@ export default function QuienesSomosPage() {
                 <div className="p-5">
                   <h3 className="text-lg font-semibold">{campus.name}</h3>
                   <p className="mt-2 text-sm leading-6 text-gray-600">{campus.description}</p>
+                  <a
+                    href={campus.href}
+                    className="mt-5 inline-flex rounded-full bg-[#e3003a] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#c70034]"
+                  >
+                    Visitar sede
+                  </a>
                 </div>
               </article>
             ))}
@@ -148,4 +161,3 @@ export default function QuienesSomosPage() {
     </div>
   )
 }
-
