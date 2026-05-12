@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { normalizeImageToWebp } from './Media/hooks'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -29,6 +30,9 @@ export const Media: CollectionConfig = {
     ],
     adminThumbnail: 'thumbnail',
     mimeTypes: ['image/*'],
+  },
+  hooks: {
+    beforeChange: [normalizeImageToWebp],
   },
   fields: [
     {
