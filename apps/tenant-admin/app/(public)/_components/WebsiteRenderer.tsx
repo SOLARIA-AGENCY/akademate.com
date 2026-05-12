@@ -138,6 +138,36 @@ function getCycleLevelMeta(level: string | undefined) {
   return CYCLE_LEVEL_META[level] ?? null
 }
 
+function getConvocationBadge({
+  course,
+  cycle,
+  conv,
+  groupKey,
+  displayName,
+}: {
+  course: any
+  cycle: any
+  conv: any
+  groupKey: string
+  displayName: string
+}): { label: string; bgColor: string; textColor: string } | null {
+  const cycleLevel = getCycleLevelMeta(cycle?.level)
+  if (cycleLevel) return cycleLevel
+
+  const normalizedName = `${displayName} ${cycle?.slug || ''} ${course?.slug || ''}`.toLowerCase()
+  if (normalizedName.includes('farmacia')) return CYCLE_LEVEL_META.grado_medio
+  if (normalizedName.includes('higiene') || normalizedName.includes('bucodental')) return CYCLE_LEVEL_META.grado_superior
+
+  const courseStudyType = normalizeStudyType(String(course?.course_type || course?.modality || conv?.modality || ''))
+  const isOnline =
+    groupKey === 'online' ||
+    courseStudyType === 'teleformacion' ||
+    normalizedName.includes('online') ||
+    normalizedName.includes('tatuaje')
+
+  return isOnline ? { label: 'TELEFORMACIÓN', bgColor: '#f97316', textColor: '#FFFFFF' } : null
+}
+
 function getCycleSubtitle(cycle: any): string | null {
   const slug = String(cycle?.slug || '')
   const name = String(cycle?.name || '')
@@ -650,24 +680,18 @@ async function ConvocationListSection({
             const displayName = cycle?.name || course?.name || course?.title || conv.codigo
             const imageUrl =
               resolveImageUrl(course?.featured_image) || resolveImageUrl(course?.image) || resolveImageUrl(cycle?.image)
-            const cycleLevel = getCycleLevelMeta(cycle?.level)
-            const courseStudyType = normalizeStudyType(String(course?.course_type || course?.modality || conv?.modality || ''))
-            const isTeleformacion = courseStudyType === 'teleformacion'
+            const convocationBadge = getConvocationBadge({ course, cycle, conv, groupKey, displayName })
             return (
               <Link key={conv.id} href={`/convocatorias/${conv.codigo || conv.id}`} className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-2xl">
                 <div className="relative h-52">
                   {imageUrl ? <img src={imageUrl} alt={displayName} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  {cycleLevel ? (
+                  {convocationBadge ? (
                     <span
                       className="absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] shadow-lg"
-                      style={{ backgroundColor: cycleLevel.bgColor, color: cycleLevel.textColor }}
+                      style={{ backgroundColor: convocationBadge.bgColor, color: convocationBadge.textColor }}
                     >
-                      {cycleLevel.label}
-                    </span>
-                  ) : isTeleformacion ? (
-                    <span className="absolute right-5 top-5 rounded-full bg-orange-500 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white shadow-lg">
-                      Teleformación
+                      {convocationBadge.label}
                     </span>
                   ) : null}
                   <div className="absolute bottom-5 left-5 right-5">
