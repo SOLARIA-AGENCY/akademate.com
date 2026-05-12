@@ -100,6 +100,10 @@ const publicRoutes = [
   '/api/media/file', // Serve uploaded media files publicly (images, PDFs)
   // Public web pages (landing pages, catalogs) — no auth required
   '/p/',  // All public web pages under /p/ are accessible without auth
+  '/blog',
+  '/empleo',
+  '/agencia-colocacion',
+  '/faq',
   // Legal pages must be publicly accessible (GDPR requirement)
   '/legal',
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing
