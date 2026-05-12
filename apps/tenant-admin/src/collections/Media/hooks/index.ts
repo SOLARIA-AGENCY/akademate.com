@@ -20,3 +20,4 @@
 export { trackMediaCreator } from './trackMediaCreator';
 export { validateMediaFile } from './validateMediaFile';
 export { validateFolder } from './validateFolder';
+export { normalizeImageToWebp } from './normalizeImageToWebp';

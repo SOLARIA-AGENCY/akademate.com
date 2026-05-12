@@ -6,6 +6,7 @@ import {
   canDeleteMedia,
 } from './access';
 import {
+  normalizeImageToWebp,
   trackMediaCreator,
   validateMediaFile,
   validateFolder,
@@ -122,7 +123,7 @@ export const Media: CollectionConfig = {
     delete: canDeleteMedia,
   },
   hooks: {
-    beforeChange: [validateMediaFile],
+    beforeChange: [normalizeImageToWebp, validateMediaFile],
   },
   fields: [
     // ============================================================================
