@@ -7,7 +7,7 @@ import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
 import { normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
-import { BadgeCheck, BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-react'
+import { BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-react'
 import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses'
 import { buildCourseGroups } from '../p/cursos/page'
 import { CoursesCatalogView } from '../p/cursos/CoursesCatalogView'
@@ -239,9 +239,9 @@ const GOOGLE_REVIEW_HIGHLIGHTS = [
   },
 ]
 
-const TRUST_BADGES = [
-  { label: 'Google Business', icon: Star },
-  { label: 'Trustpilot', icon: BadgeCheck },
+const TRUST_BADGES: Array<{ label: string; icon?: typeof Star; logo?: string }> = [
+  { label: 'Google Business', logo: '/logos/trust/google.svg' },
+  { label: 'Trustpilot', logo: '/logos/trust/trustpilot.svg' },
   { label: 'Agencia autorizada', icon: BriefcaseBusiness },
   { label: 'ISO 9001 / ISO 14001', icon: ShieldCheck },
 ]
@@ -583,7 +583,7 @@ async function CourseListSection({
                       <p><span className="font-semibold text-slate-950">Inicio:</span> {isTeleformacion ? 'Empieza cuando quieras' : formatDate(nextRun?.start_date)}</p>
                       <p><span className="font-semibold text-slate-950">Sede:</span> {isTeleformacion ? 'Online' : (campus?.name || 'Por confirmar')}</p>
                     </div>
-                    <span className="mt-6 inline-flex w-fit items-center rounded-full bg-[var(--cep-brand)] px-5 py-2.5 text-sm font-black text-white transition hover:bg-[#d0013f] group-hover:bg-[#d0013f]">
+                  <span className="mt-6 inline-flex w-fit items-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-[#d0013f] group-hover:bg-[#d0013f]">
                       Ver curso
                       <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
@@ -653,7 +653,7 @@ async function CycleListSection({
                       </span>
                     ))}
                   </div>
-                  <span className="mt-auto inline-flex w-fit items-center rounded-full bg-[var(--cep-brand)] px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
+                  <span className="mt-auto inline-flex w-fit items-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition group-hover:bg-[#d0013f]">
                     Ver ciclo
                     <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
@@ -958,12 +958,13 @@ async function TeamGridSection({
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
         {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-          {members.map((member) => (
+        <div className="mt-10 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_6%,black_94%,transparent)]">
+          <div className="flex w-max animate-[cep-teacher-marquee_55s_linear_infinite] gap-4 hover:[animation-play-state:paused]">
+          {[...members, ...members].map((member, index) => (
             <Link
-              key={member.name}
+              key={`${member.name}-${index}`}
               href={getTeacherHref(member)}
-              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl"
+              className="group w-[196px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl"
             >
               <div className="flex justify-center bg-slate-50 p-5">
                 {member.image ? (
@@ -989,8 +990,15 @@ async function TeamGridSection({
               </div>
             </Link>
           ))}
+          </div>
         </div>
       </div>
+      <style>{`
+        @keyframes cep-teacher-marquee {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+      `}</style>
     </section>
     <GoogleReviewsSection />
     </>
@@ -1015,7 +1023,11 @@ function GoogleReviewsSection() {
                 const Icon = badge.icon
                 return (
                   <div key={badge.label} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3">
-                    <Icon className="h-5 w-5 text-[#fbbf24]" aria-hidden="true" />
+                    {badge.logo ? (
+                      <img src={badge.logo} alt={badge.label} loading="lazy" decoding="async" className="h-5 w-5 object-contain" />
+                    ) : Icon ? (
+                      <Icon className="h-5 w-5 text-[#fbbf24]" aria-hidden="true" />
+                    ) : null}
                     <span className="text-sm font-black text-white">{badge.label}</span>
                   </div>
                 )

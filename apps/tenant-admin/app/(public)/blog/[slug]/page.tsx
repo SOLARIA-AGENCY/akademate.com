@@ -142,15 +142,16 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         <div>
         {imageUrl ? <img src={imageUrl} alt={title} className="h-[28rem] w-full rounded-2xl object-cover shadow-lg" /> : null}
         <div className="mt-8 rounded-2xl border border-red-100 bg-[#fff7fa] p-6">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Guía CEP Formación</p>
-          <p className="mt-3 text-lg font-semibold leading-8 text-slate-800">{excerpt}</p>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">CEP Formación · www.cursostenerife.es</p>
+          <p className="mt-3 text-lg font-semibold leading-8 text-slate-800">
+            {excerpt} Artículo publicado por CEP Formación para orientar a alumnos y candidatos desde la web oficial de www.cursostenerife.es.
+          </p>
         </div>
         <div className="mt-10 max-w-none text-slate-800">
           {sections ? (
             sections.map((section, index) => (
-              <section id={slugifyHeading(section.heading)} key={section.heading} className="scroll-mt-28 border-t border-slate-200 py-9 first:border-t-0 first:pt-0">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Sección {String(index + 1).padStart(2, '0')}</p>
-                <h2 className="mt-3 text-2xl font-black leading-tight text-slate-950 sm:text-3xl">{section.heading}</h2>
+              <section id={slugifyHeading(section.heading)} key={section.heading} className="scroll-mt-28 py-5 first:pt-0">
+                <h2 className={index === 0 ? 'text-2xl font-black leading-tight text-slate-950 sm:text-3xl' : 'mt-5 text-2xl font-black leading-tight text-slate-950 sm:text-3xl'}>{section.heading}</h2>
                 {section.paragraphs.map((paragraph) => (
                   <p key={paragraph} className="mt-5 text-lg leading-9 text-slate-700">{paragraph}</p>
                 ))}
