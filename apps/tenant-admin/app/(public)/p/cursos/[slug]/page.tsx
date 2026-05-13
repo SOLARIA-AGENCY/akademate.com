@@ -390,6 +390,7 @@ export default async function CursoLandingPage({ params }: Props) {
   const title = course.nombre
   const description = course.descripcion
   const isTeleformacion = course.studyType === 'teleformacion'
+  const isSubsidized = course.studyType === 'ocupados' || course.studyType === 'desempleados'
   const detailedDescription = course.descripcionDetallada
   const imageUrl = course.imagenPortada || getPublicStudyTypeFallbackImage(course.studyType)
   const heroColor =
@@ -592,6 +593,11 @@ export default async function CursoLandingPage({ params }: Props) {
                 <ShieldCheck className="w-4 h-4 text-brand-accent" />
                 <span>Garantía de Calidad CEP Formación</span>
               </div>
+              {isSubsidized ? (
+                <div className="mb-6 inline-flex rounded-full bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-emerald-700 ring-1 ring-emerald-200">
+                  Formación gratuita subvencionada
+                </div>
+              ) : null}
               <h1 className="text-5xl lg:text-7xl font-extrabold text-white mb-8 leading-[1.1] tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.75)]">
                 {title}
               </h1>
@@ -735,7 +741,7 @@ export default async function CursoLandingPage({ params }: Props) {
           <div className="flex items-center gap-6">
               <div className="hidden xl:flex items-center gap-2 text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse" />
-                {course.enrollmentLabel || 'Avisarme de próximas fechas'}
+                {isSubsidized ? 'Formación gratuita subvencionada' : course.enrollmentLabel || 'Avisarme de próximas fechas'}
               </div>
             <a href="#registro" className="brand-btn px-6 py-2 rounded-full text-sm font-bold transition-all">
               {isTeleformacion ? 'Empezar ahora' : 'Inscríbete ahora'}

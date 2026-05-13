@@ -562,6 +562,7 @@ async function CourseListSection({
               const campus = typeof nextRun?.campus === 'object' && nextRun.campus ? nextRun.campus : null
               const normalizedStudyType = normalizeStudyType(String(course.course_type || ''))
               const isTeleformacion = normalizedStudyType === 'teleformacion'
+              const isSubsidized = normalizedStudyType === 'ocupados' || normalizedStudyType === 'desempleados'
               const typeColor = getCourseTypeColor(course.course_type)
               return (
                 <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl">
@@ -578,6 +579,11 @@ async function CourseListSection({
                   <div className="flex flex-1 flex-col p-6">
                     <p className="mb-4 text-xs font-black uppercase tracking-[0.16em] text-[var(--cep-brand)]">{getCourseArea(course)}</p>
                     <p className="line-clamp-2 min-h-[3.5rem] text-sm leading-7 text-slate-600">{description}</p>
+                    {isSubsidized ? (
+                      <span className="mt-4 inline-flex w-fit rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
+                        Formación gratuita subvencionada
+                      </span>
+                    ) : null}
                     <div className="mt-5 grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
                       <p><span className="font-semibold text-slate-950">Modalidad:</span> {isTeleformacion ? 'Online' : String(course.modality || 'Consultar')}</p>
                       <p><span className="font-semibold text-slate-950">Inicio:</span> {isTeleformacion ? 'Empieza cuando quieras' : formatDate(nextRun?.start_date)}</p>
@@ -826,7 +832,7 @@ async function CampusListSection({
                     {campus.phone ? <p><span className="font-bold text-slate-950">Teléfono:</span> {campus.phone}</p> : null}
                     <p><span className="font-bold text-slate-950">Horario:</span> {schedule}</p>
                   </div>
-                  <span className="inline-flex items-center rounded-full bg-[var(--cep-brand)] px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
+                  <span className="inline-flex items-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition group-hover:bg-[#d0013f]" style={{ backgroundColor: '#f2014b', color: '#ffffff' }}>
                     Visitar sede
                     <svg className="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
@@ -896,7 +902,7 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
                 </div>
                 <div className="flex min-h-[9.5rem] flex-col p-6">
                   <h3 className="line-clamp-2 min-h-[3.5rem] text-xl font-black uppercase leading-tight text-slate-950">{item.title.replace(/^Área\s+/i, '')}</h3>
-                  <span className="mt-auto inline-flex w-fit items-center rounded-full bg-[var(--cep-brand)] px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
+                  <span className="mt-auto inline-flex min-h-11 w-fit min-w-[11rem] items-center justify-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition group-hover:bg-[#d0013f]" style={{ backgroundColor: '#f2014b', color: '#ffffff' }}>
                     Ver formaciones
                     <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
@@ -959,7 +965,7 @@ async function TeamGridSection({
         <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
         {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
         <div className="mt-10 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_6%,black_94%,transparent)]">
-          <div className="flex w-max animate-[cep-teacher-marquee_55s_linear_infinite] gap-4 hover:[animation-play-state:paused]">
+          <div className="flex w-max animate-[cep-teacher-marquee_95s_linear_infinite] gap-4 hover:[animation-play-state:paused]">
           {[...members, ...members].map((member, index) => (
             <Link
               key={`${member.name}-${index}`}
@@ -1037,7 +1043,8 @@ function GoogleReviewsSection() {
               href="https://www.google.com/search?q=CEP+Formaci%C3%B3n+Tenerife+rese%C3%B1as"
               target="_blank"
               rel="noreferrer"
-              className="mt-8 inline-flex rounded-full bg-[var(--cep-brand)] px-6 py-3 text-sm font-black text-white transition hover:bg-[#d0013f]"
+              className="mt-8 inline-flex rounded-full bg-[#f2014b] px-6 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#d0013f]"
+              style={{ backgroundColor: '#f2014b', color: '#ffffff' }}
             >
               Ver reseñas en Google
             </a>

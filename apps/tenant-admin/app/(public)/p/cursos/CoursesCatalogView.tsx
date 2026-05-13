@@ -23,9 +23,11 @@ type CoursesCatalogViewProps = {
 function getCourseUi(course: PublishedCourse, visualMap: Record<string, StudyTypeVisualMeta>, fallbackColor: string) {
   const color = course.studyType ? visualMap[course.studyType]?.color || course.studyTypeColor || fallbackColor : course.studyTypeColor || fallbackColor
   const isTeleformacion = course.studyType === 'teleformacion'
+  const isSubsidized = course.studyType === 'ocupados' || course.studyType === 'desempleados'
   return {
     color,
     isTeleformacion,
+    isSubsidized,
     imageUrl: course.imagenPortada,
     availabilityLabel: isTeleformacion ? 'Inicio inmediato' : course.enrollmentLabel || 'Próximamente',
     campusLabel: isTeleformacion ? '100% online · desde casa' : course.nextRun?.campusLabel || 'Sede por confirmar',
@@ -67,6 +69,11 @@ function CourseGridCard({
             <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{ui.modalityLabel}</span>
           </div>
           <p className="line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-gray-600">{ui.description}</p>
+          {ui.isSubsidized ? (
+            <span className="mt-4 inline-flex w-fit rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
+              Formación gratuita subvencionada
+            </span>
+          ) : null}
           <div className="mt-5 grid gap-2 text-sm text-gray-700">
             <p><span className="font-semibold text-gray-950">Disponibilidad:</span> {ui.availabilityLabel}</p>
             <p><span className="font-semibold text-gray-950">Sede:</span> {ui.campusLabel}</p>
@@ -103,6 +110,11 @@ function CourseListCard({
           <div className="min-w-0">
             <h3 className="line-clamp-1 text-xl font-black text-slate-950">{course.nombre}</h3>
             <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{ui.description}</p>
+            {ui.isSubsidized ? (
+              <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
+                Formación gratuita subvencionada
+              </span>
+            ) : null}
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-700">
               <span><strong className="text-slate-950">Área:</strong> {course.area || 'Formación'}</span>
               <span><strong className="text-slate-950">Modalidad:</strong> {ui.modalityLabel}</span>

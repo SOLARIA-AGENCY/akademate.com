@@ -284,7 +284,7 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
 
         <main className="flex-1 pt-12 sm:pt-14 md:pt-[5.5rem]">{children}</main>
 
-        <footer className="mt-16 border-t border-slate-200 bg-white text-slate-700">
+        <footer className="border-t border-slate-200 bg-white text-slate-700">
           <div className="bg-slate-50 py-12">
             <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-4 lg:px-8">
               <div className="flex flex-col items-center lg:items-start">

@@ -116,6 +116,15 @@ function textFromRichValue(value: unknown): string {
   return ''
 }
 
+function normalizeStudyType(value: unknown): string {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
 async function findConvocation(slug: string, tenantId: string) {
   const payload = await getPayload({ config: configPromise })
   let result = await payload.find({
@@ -209,6 +218,8 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
     cycle?.area ||
     'Formacion profesional'
   const isOnline = [cycle?.duration?.modality, course?.modality, conv.modality].some((value) => value === 'online')
+  const normalizedCourseType = normalizeStudyType(course?.course_type || course?.tipo || course?.studyType || conv.course_type)
+  const isSubsidized = normalizedCourseType === 'ocupados' || normalizedCourseType === 'desempleados'
   const modality = isOnline ? 'online' : cycle?.duration?.modality || course?.modality || conv.modality
   const modalityText = modalityLabel(modality)
   const sedeName = isOnline ? 'Online' : campus?.name || 'Sede a confirmar'
@@ -331,6 +342,11 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                 <span className="inline-flex items-center rounded-full bg-white/12 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white ring-1 ring-white/20 backdrop-blur">
                   Plazas limitadas
                 </span>
+                {isSubsidized ? (
+                  <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-emerald-700 ring-1 ring-emerald-200">
+                    Formación gratuita subvencionada
+                  </span>
+                ) : null}
               </div>
               <p className="mb-5 text-sm font-black uppercase tracking-[0.22em] text-white/65">
                 Convocatoria CEP Formacion
@@ -442,6 +458,11 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
               </div>
               <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6">
                 <h3 className="text-lg font-black text-gray-950">Horario y formato</h3>
+                {isSubsidized ? (
+                  <span className="mt-4 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
+                    Formación gratuita subvencionada
+                  </span>
+                ) : null}
                 <dl className="mt-5 grid gap-4 text-sm text-gray-700 sm:grid-cols-2">
                   <div><dt className="font-bold text-gray-950">Modalidad</dt><dd className="mt-1">{modalityText}</dd></div>
                   <div><dt className="font-bold text-gray-950">Inicio</dt><dd className="mt-1">{startDate}</dd></div>
