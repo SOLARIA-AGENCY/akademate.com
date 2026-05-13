@@ -6,7 +6,7 @@ import {
   getStudyTypeVisualMap,
 } from '@/app/lib/server/published-courses'
 import { getPublicStudyTypeFallbackImage, normalizePublicStudyType } from '@/app/lib/website/study-types'
-import { CoursesCatalogView } from './CoursesCatalogView'
+import { CoursesCatalogView, type CourseGroup } from './CoursesCatalogView'
 
 export const metadata: Metadata = {
   title: 'Cursos | Formación Profesional',
@@ -48,6 +48,15 @@ const COURSE_SECTIONS = [
   },
 ]
 
+export function buildCourseGroups(courses: Awaited<ReturnType<typeof getPublishedCourses>>): CourseGroup[] {
+  return COURSE_SECTIONS
+    .map((section) => ({
+      ...section,
+      courses: courses.filter((course) => course.studyType === section.key),
+    }))
+    .filter((section) => section.courses.length > 0)
+}
+
 export default async function CursosCatalogPage({
   searchParams,
 }: {
@@ -74,12 +83,7 @@ export default async function CursosCatalogPage({
   const heroColor = selectedStudyTypeMeta?.color || tenant.primaryColor || '#0F172A'
   const heroImageUrl = selectedStudyType ? getPublicStudyTypeFallbackImage(selectedStudyType) : null
   const pageLabel = getReadableTypeLabel(rawTipo)
-  const visibleSections = COURSE_SECTIONS
-    .map((section) => ({
-      ...section,
-      courses: courses.filter((course) => course.studyType === section.key),
-    }))
-    .filter((section) => section.courses.length > 0)
+  const visibleSections = buildCourseGroups(courses)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

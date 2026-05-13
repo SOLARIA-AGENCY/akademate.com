@@ -8,6 +8,9 @@ import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
 import { normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
 import { BadgeCheck, BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-react'
+import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses'
+import { buildCourseGroups } from '../p/cursos/page'
+import { CoursesCatalogView } from '../p/cursos/CoursesCatalogView'
 
 const BRAND_RED = '#f2014b'
 
@@ -467,12 +470,38 @@ async function CourseListSection({
   brandColor: string
   tenantId: string
 }) {
+  const isFeaturedHomeList = section.featuredOnly && !section.title?.toLowerCase().includes('nuevas')
+  if (isFeaturedHomeList) {
+    const studyTypeVisualMap = await getStudyTypeVisualMap()
+    const courses = await getPublishedCourses({
+      tenantId,
+      includeInactive: false,
+      includeCycles: false,
+      limit: 200,
+      sort: 'name',
+    })
+    const groups = buildCourseGroups(courses)
+    return (
+      <section className="bg-[#fff7fa]">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Cursos</h2>
+          <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">
+            Consulta de un vistazo todos los cursos que imparte CEP Formación, agrupados por tipo de formación.
+          </p>
+          <div className="mt-10">
+            <CoursesCatalogView groups={groups} visualMap={studyTypeVisualMap} fallbackColor={brandColor} defaultViewMode="list" hideViewToggle />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'courses',
     where: withTenantScope({ active: { equals: true } }, tenantId) as any,
     depth: 1,
-    limit: section.limit ?? 6,
+    limit: section.title?.toLowerCase().includes('nuevas') ? section.limit ?? 6 : 200,
     sort: section.title?.toLowerCase().includes('nuevas') ? '-createdAt' : 'name',
   })
   const runsResult = await payload.find({
@@ -904,7 +933,7 @@ async function TeamGridSection({
       employment_status: { equals: 'active' },
     } as any,
     depth: 1,
-    limit: 8,
+    limit: 60,
     sort: 'full_name',
   })
   const subtitle = section.subtitle?.includes('Presentación editorial')
@@ -928,27 +957,27 @@ async function TeamGridSection({
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
         {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
           {members.map((member) => (
             <Link
               key={member.name}
               href={getTeacherHref(member)}
-              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl"
+              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl"
             >
-              <div className="flex justify-center bg-slate-50 p-7">
+              <div className="flex justify-center bg-slate-50 p-5">
                 {member.image ? (
-                  <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-48 w-48 rounded-full object-cover ring-4 ring-white transition duration-500 group-hover:scale-105" />
+                  <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-28 w-28 rounded-full object-cover ring-4 ring-white transition duration-500 group-hover:scale-105" />
                 ) : (
-                  <div className="flex h-48 w-48 items-center justify-center rounded-full bg-white text-slate-300 ring-4 ring-white transition duration-500 group-hover:scale-105">
-                    <GraduationCap className="h-20 w-20" aria-hidden="true" strokeWidth={1.6} />
+                  <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white text-slate-300 ring-4 ring-white transition duration-500 group-hover:scale-105">
+                    <GraduationCap className="h-12 w-12" aria-hidden="true" strokeWidth={1.6} />
                   </div>
                 )}
               </div>
-              <div className="p-5">
+              <div className="p-4">
                 <span className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--cep-brand)]">
                   Docente
                 </span>
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">{member.name}</h3>
+                <h3 className="mt-4 line-clamp-2 min-h-[2.75rem] text-sm font-black leading-snug text-slate-900">{member.name}</h3>
                 <p className="mt-1 line-clamp-2 text-sm capitalize text-slate-600">{member.role}</p>
                 <span className="mt-5 inline-flex items-center text-sm font-bold text-[var(--cep-brand)]">
                   Ver ficha
@@ -976,7 +1005,7 @@ function GoogleReviewsSection() {
             <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-white/80 ring-1 ring-white/15">
               Google Business
             </span>
-            <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">Reseñas positivas sobre CEP Formación</h2>
+            <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">Qué dicen sobre CEP Formación</h2>
             <p className="mt-4 text-lg leading-8 text-white/72">
               Valoraciones públicas de alumnos que destacan la atención del equipo, la orientación antes de matricularse y el acompañamiento durante la formación.
             </p>

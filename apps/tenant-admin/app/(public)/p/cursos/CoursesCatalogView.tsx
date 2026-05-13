@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { LayoutGrid, List } from 'lucide-react'
 import type { PublishedCourse, StudyTypeVisualMeta } from '@/app/lib/server/published-courses'
 
-type CourseGroup = {
+export type CourseGroup = {
   key: string
   label: string
   description: string
@@ -16,6 +16,8 @@ type CoursesCatalogViewProps = {
   groups: CourseGroup[]
   visualMap: Record<string, StudyTypeVisualMeta>
   fallbackColor: string
+  defaultViewMode?: 'grid' | 'list'
+  hideViewToggle?: boolean
 }
 
 function getCourseUi(course: PublishedCourse, visualMap: Record<string, StudyTypeVisualMeta>, fallbackColor: string) {
@@ -117,12 +119,18 @@ function CourseListCard({
   )
 }
 
-export function CoursesCatalogView({ groups, visualMap, fallbackColor }: CoursesCatalogViewProps) {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+export function CoursesCatalogView({
+  groups,
+  visualMap,
+  fallbackColor,
+  defaultViewMode = 'grid',
+  hideViewToggle = false,
+}: CoursesCatalogViewProps) {
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(defaultViewMode)
 
   return (
     <div>
-      <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      {!hideViewToggle ? <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-black uppercase tracking-[0.16em] text-[#f2014b]">Tipo de vista</p>
           <p className="mt-1 text-sm text-slate-600">Elige cards visuales o lista compacta por curso.</p>
@@ -145,7 +153,7 @@ export function CoursesCatalogView({ groups, visualMap, fallbackColor }: Courses
             Lista
           </button>
         </div>
-      </div>
+      </div> : null}
 
       <div className="space-y-14">
         {groups.map((group) => (
