@@ -7,6 +7,8 @@ import { afterEach, vi, beforeAll, afterAll, beforeEach } from 'vitest'
 // Load test environment variables
 config({ path: path.resolve(__dirname, '../.env.test') })
 
+process.env.PAYLOAD_SECRET ||= 'test-payload-secret'
+
 // Mock localStorage for jsdom
 const localStorageMock = (() => {
   let store: Record<string, string> = {}
@@ -76,6 +78,16 @@ vi.mock('next/link', () => ({
   default: ({ children, href, className, ...props }: any) => {
     const { createElement } = require('react')
     return createElement('a', { href, className, ...props }, children)
+  },
+}))
+
+vi.mock('payload', async () => ({
+  getPayload: async (...args: unknown[]) => {
+    const utilities = await import('@payloadcms/next/utilities')
+    if (typeof utilities.getPayloadHMR === 'function') {
+      return utilities.getPayloadHMR(...(args as Parameters<typeof utilities.getPayloadHMR>))
+    }
+    throw new Error('getPayloadHMR mock is not available in this test context')
   },
 }))
 

@@ -23,14 +23,14 @@ describe('StaffCard fallbacks', () => {
     render(<StaffCard {...baseStaff} staffType="profesor" />)
 
     expect(screen.getByText('Autónomo')).toBeInTheDocument()
-    expect(screen.getByText('Imagen genérica de docente')).toBeInTheDocument()
+    expect(screen.getByLabelText('Imagen genérica de docente')).toBeInTheDocument()
     expect(screen.queryByAltText('Sheila Méndez')).not.toBeInTheDocument()
   })
 
   it('shows the administrative fallback for administrative staff without a real photo', () => {
     render(<StaffCard {...baseStaff} staffType="administrativo" fullName="Laura Fernández" />)
 
-    expect(screen.getByText('Imagen genérica de administrativo')).toBeInTheDocument()
+    expect(screen.getByLabelText('Imagen genérica de administrativo')).toBeInTheDocument()
     expect(screen.queryByAltText('Laura Fernández')).not.toBeInTheDocument()
   })
 })

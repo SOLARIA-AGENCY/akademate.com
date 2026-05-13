@@ -53,6 +53,7 @@ const shortcuts: ShortcutItem[] = [
   { label: 'Personal', href: '/personal' },
   { label: 'Campus Virtual', href: '/campus-virtual' },
   { label: 'Leads', href: '/leads' },
+  { label: 'Calendario citas', href: '/calendario-citas' },
   { label: 'Analíticas', href: '/analiticas' },
   { label: 'Administración', href: '/administracion' },
   { label: 'Configuración', href: '/configuracion' },

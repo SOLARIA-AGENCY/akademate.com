@@ -117,6 +117,7 @@ const menuItems: MenuItemWithSection[] = [
       { title: 'Leads', icon: FileText, url: '/leads' },
       { title: 'Inscripciones', icon: UserPlus, url: '/inscripciones' },
       { title: 'Lista de Espera', icon: ListTodo, url: '/lista-espera' },
+      { title: 'Calendario citas', icon: CalendarDays, url: '/calendario-citas' },
     ],
   },
   {

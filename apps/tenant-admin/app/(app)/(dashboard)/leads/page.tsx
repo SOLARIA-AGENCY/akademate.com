@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
@@ -41,6 +42,7 @@ import {
   Filter,
   NotebookPen,
   UserCheck,
+  CalendarPlus,
 } from 'lucide-react'
 import { CommercialIntakeCard } from '../_components/CommercialIntakeCard'
 import {
@@ -994,6 +996,13 @@ export default function LeadsPage() {
                         >
                           <NotebookPen className="h-4 w-4" />
                           Nota
+                        </Button>
+
+                        <Button asChild size="sm" className="bg-red-600 text-white hover:bg-red-700">
+                          <Link href={`/calendario-citas?leadId=${lead.id}`}>
+                            <CalendarPlus className="h-4 w-4" />
+                            Programar cita
+                          </Link>
                         </Button>
 
                         <Select

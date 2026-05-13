@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
@@ -20,7 +21,7 @@ import { Textarea } from '@payload-config/components/ui/textarea'
 import {
   ArrowLeft, UserPlus, Phone, Mail, MessageSquare,
   Loader2, CheckCircle2, XCircle, Clock, Copy, Check, AlertCircle, PhoneOff,
-  GraduationCap, Trash2,
+  GraduationCap, Trash2, CalendarPlus,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -133,6 +134,29 @@ const DISINTEREST_REASONS = [
   'Solo pidió información',
   'Otro',
 ] as const
+
+interface LeadAppointment {
+  id: number
+  title: string
+  appointment_type: string
+  reason: string
+  status: string
+  starts_at: string
+  ends_at: string
+  duration_minutes: number
+  notes?: string | null
+  outcome_notes?: string | null
+  assigned_to?: { id?: string | number | null; name?: string | null; email?: string | null } | null
+}
+
+const APPOINTMENT_STATUS_LABELS: Record<string, string> = {
+  pending: 'Pendiente',
+  confirmed: 'Confirmada',
+  completed: 'Completada',
+  no_show: 'No atendida',
+  rescheduled: 'Reprogramada',
+  cancelled: 'Cancelada',
+}
 
 const INTERACTION_RESULT_OPTIONS = [
   { value: 'positive', label: 'Interacción positiva' },
@@ -393,6 +417,7 @@ export default function LeadDetailPage({ params }: Props) {
 
   // Interactions state
   const [interactions, setInteractions] = React.useState<any[]>([])
+  const [appointments, setAppointments] = React.useState<LeadAppointment[]>([])
 
   // Contact modal state
   const [showContactModal, setShowContactModal] = React.useState<{ channel: 'phone' | 'whatsapp' | 'email' } | null>(null)
@@ -456,10 +481,25 @@ export default function LeadDetailPage({ params }: Props) {
     }
   }, [fetchLeadApi, id, loginRedirectPath, router])
 
+  const loadAppointments = React.useCallback(async () => {
+    try {
+      const res = await fetchLeadApi(`/api/lead-appointments?leadId=${id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setAppointments(data.appointments ?? [])
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'No autenticado') {
+        router.push(loginRedirectPath)
+      }
+    }
+  }, [fetchLeadApi, id, loginRedirectPath, router])
+
   React.useEffect(() => {
     void loadLead()
     void loadInteractions()
-  }, [loadLead, loadInteractions])
+    void loadAppointments()
+  }, [loadLead, loadInteractions, loadAppointments])
 
   React.useEffect(() => {
     const timer = window.setInterval(() => {
@@ -1011,6 +1051,10 @@ export default function LeadDetailPage({ params }: Props) {
   const nextActionDateLabel = nextActionDate && !Number.isNaN(nextActionDate.getTime())
     ? nextActionDate.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
     : null
+  const activeAppointments = appointments
+    .filter((appointment) => appointment.status !== 'cancelled')
+    .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
+  const nextAppointment = activeAppointments.find((appointment) => new Date(appointment.starts_at).getTime() >= Date.now()) ?? activeAppointments[0] ?? null
   const nextActionChannelLabel = CHANNEL_OPTIONS.find((option) => option.value === lead.preferred_contact_method)?.label || null
   const nextActionTimeSlotLabel = CONTACT_TIME_OPTIONS.find((option) => option.value === lead.preferred_contact_time)?.label || null
   const normalizedDeleteVerification = deleteVerificationText.trim().toUpperCase()
@@ -1079,6 +1123,11 @@ Equipo CEP Formación`
         badge={<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>{statusConfig.label}</span>}
         actions={
           <div className="flex gap-2">
+            <Button asChild className="bg-red-600 text-white hover:bg-red-700">
+              <Link href={`/calendario-citas?leadId=${id}`}>
+                <CalendarPlus className="mr-2 h-4 w-4" />Programar cita
+              </Link>
+            </Button>
             {showEnrollButton && (
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={saving} onClick={() => openDecision('enroll')}>
                 <GraduationCap className="mr-2 h-4 w-4" />Matricular
@@ -1445,6 +1494,55 @@ Equipo CEP Formación`
                 <span className="text-muted-foreground">Responsable</span>
                 <span className="text-xs text-right">{responsibleName}</span>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between gap-3">
+                <CardTitle className="text-base">Citas</CardTitle>
+                <Button asChild size="sm" className="bg-red-600 text-white hover:bg-red-700">
+                  <Link href={`/calendario-citas?leadId=${id}`}>
+                    <CalendarPlus className="h-4 w-4" />
+                    Nueva
+                  </Link>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              {nextAppointment ? (
+                <div className="rounded-lg border bg-red-50/60 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-red-700">Próxima cita</p>
+                  <p className="mt-1 font-semibold">{nextAppointment.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(nextAppointment.starts_at).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    {' · '}
+                    {APPOINTMENT_STATUS_LABELS[nextAppointment.status] || nextAppointment.status}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Asesor: {nextAppointment.assigned_to?.name || nextAppointment.assigned_to?.email || 'Sin asignar'}
+                  </p>
+                </div>
+              ) : (
+                <p className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">Sin citas programadas para este lead.</p>
+              )}
+
+              {appointments.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Historial</p>
+                  {appointments.slice(0, 5).map((appointment) => (
+                    <div key={appointment.id} className="rounded-md border p-2">
+                      <div className="flex justify-between gap-2">
+                        <span className="font-medium">{appointment.title}</span>
+                        <span className="text-xs">{APPOINTMENT_STATUS_LABELS[appointment.status] || appointment.status}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(appointment.starts_at).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
