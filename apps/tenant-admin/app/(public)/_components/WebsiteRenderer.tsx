@@ -470,7 +470,8 @@ async function CourseListSection({
   brandColor: string
   tenantId: string
 }) {
-  const isFeaturedHomeList = section.featuredOnly && !section.title?.toLowerCase().includes('nuevas')
+  const normalizedSectionTitle = section.title?.toLowerCase() || ''
+  const isFeaturedHomeList = normalizedSectionTitle.includes('cursos destacados') || (section.featuredOnly && !normalizedSectionTitle.includes('nuevas'))
   if (isFeaturedHomeList) {
     const studyTypeVisualMap = await getStudyTypeVisualMap()
     const courses = await getPublishedCourses({
