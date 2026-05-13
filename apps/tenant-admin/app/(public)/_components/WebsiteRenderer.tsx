@@ -7,6 +7,7 @@ import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
 import { normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
+import { BadgeCheck, BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-react'
 
 const BRAND_RED = '#f2014b'
 
@@ -197,18 +198,21 @@ const ALUMNI_TESTIMONIALS = [
   {
     name: 'María S.',
     course: 'Auxiliar de Farmacia',
+    image: '/media/alumni-testimonial-maria.webp',
     quote:
       'Me orientaron desde el primer contacto y pude organizarme con las clases y las prácticas. El seguimiento fue cercano durante todo el curso.',
   },
   {
     name: 'Alejandro R.',
     course: 'Entrenamiento Personal',
+    image: '/media/alumni-testimonial-alejandro.webp',
     quote:
       'La formación fue práctica y directa. Salí con una idea mucho más clara de cómo empezar a trabajar en el sector.',
   },
   {
     name: 'Laura M.',
     course: 'Área sanitaria',
+    image: '/media/alumni-testimonial-laura.webp',
     quote:
       'Elegí CEP por la atención presencial en Tenerife. El equipo resolvió mis dudas de matrícula, horarios y salidas profesionales.',
   },
@@ -216,17 +220,27 @@ const ALUMNI_TESTIMONIALS = [
 
 const GOOGLE_REVIEW_HIGHLIGHTS = [
   {
-    title: 'Atención cercana',
-    quote: 'El alumnado destaca la orientación antes de matricularse y el acompañamiento durante el proceso formativo.',
+    author: 'Olga Mercedes',
+    source: 'Reseña pública verificada',
+    quote: 'Atienden muy bien.',
   },
   {
-    title: 'Docentes profesionales',
-    quote: 'Las valoraciones positivas suelen mencionar clases claras, profesorado implicado y contenidos aplicados al trabajo real.',
+    author: 'Isabel Clemente',
+    source: 'Reseña pública verificada',
+    quote: 'Lo recomiendo 100%.',
   },
   {
-    title: 'Sedes en Tenerife',
-    quote: 'Las reseñas ponen en valor la ubicación de los centros y la posibilidad de resolver dudas directamente con el equipo.',
+    author: 'Mr. Avocato',
+    source: 'Reseña pública verificada',
+    quote: 'Mejor academia que hay en la isla.',
   },
+]
+
+const TRUST_BADGES = [
+  { label: 'Google Business', icon: Star },
+  { label: 'Trustpilot', icon: BadgeCheck },
+  { label: 'Agencia autorizada', icon: BriefcaseBusiness },
+  { label: 'ISO 9001 / ISO 14001', icon: ShieldCheck },
 ]
 
 function getCycleChips(cycle: any): string[] {
@@ -609,7 +623,7 @@ async function CycleListSection({
                       </span>
                     ))}
                   </div>
-                  <span className="mt-auto inline-flex w-fit items-center rounded-full bg-slate-950 px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[var(--cep-brand)]">
+                  <span className="mt-auto inline-flex w-fit items-center rounded-full bg-[var(--cep-brand)] px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
                     Ver ciclo
                     <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
@@ -721,7 +735,7 @@ async function ConvocationListSection({
                     <p><span className="font-semibold text-white">Estado:</span> Plazas disponibles</p>
                     {typeof conv.price_snapshot === 'number' ? <p><span className="font-semibold text-white">Precio:</span> {conv.price_snapshot.toLocaleString('es-ES')} €</p> : null}
                   </div>
-                  <span className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-black text-slate-950 transition group-hover:bg-[var(--cep-brand)] group-hover:text-white">
+                  <span className="shrink-0 rounded-full bg-[var(--cep-brand)] px-4 py-2 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
                     Ver convocatoria
                   </span>
                 </div>
@@ -782,7 +796,7 @@ async function CampusListSection({
                     {campus.phone ? <p><span className="font-bold text-slate-950">Teléfono:</span> {campus.phone}</p> : null}
                     <p><span className="font-bold text-slate-950">Horario:</span> {schedule}</p>
                   </div>
-                  <span className="inline-flex items-center rounded-full bg-slate-950 px-5 py-2.5 text-sm font-bold text-white transition group-hover:bg-[var(--cep-brand)]">
+                  <span className="inline-flex items-center rounded-full bg-[var(--cep-brand)] px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
                     Visitar sede
                     <svg className="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
@@ -818,9 +832,7 @@ function AlumniTestimonialsSection() {
           {ALUMNI_TESTIMONIALS.map((testimonial) => (
             <article key={testimonial.name} className="min-w-[82%] snap-start rounded-3xl border border-red-100 bg-white p-7 shadow-sm sm:min-w-[420px] lg:min-w-0 lg:flex-1">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-sm font-black text-[var(--cep-brand)]">
-                  {testimonial.name.split(/\s+/).filter(Boolean).map((part) => part[0]).join('').toUpperCase()}
-                </div>
+                <img src={testimonial.image} alt={`Exalumno ${testimonial.name}`} loading="lazy" decoding="async" className="h-12 w-12 rounded-full object-cover ring-2 ring-red-50" />
                 <div>
                   <p className="font-black text-slate-950">{testimonial.name}</p>
                   <p className="text-sm font-semibold text-slate-500">{testimonial.course}</p>
@@ -852,9 +864,9 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
                   <img src={getCategoryImage(item)} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent" />
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-black uppercase leading-tight text-slate-950">{item.title.replace(/^Área\s+/i, '')}</h3>
-                  <span className="mt-5 inline-flex items-center text-sm font-bold text-[var(--cep-brand)]">
+                <div className="flex min-h-[9.5rem] flex-col p-6">
+                  <h3 className="line-clamp-2 min-h-[3.5rem] text-xl font-black uppercase leading-tight text-slate-950">{item.title.replace(/^Área\s+/i, '')}</h3>
+                  <span className="mt-auto inline-flex w-fit items-center rounded-full bg-[var(--cep-brand)] px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
                     Ver formaciones
                     <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
@@ -927,8 +939,8 @@ async function TeamGridSection({
                 {member.image ? (
                   <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-48 w-48 rounded-full object-cover ring-4 ring-white transition duration-500 group-hover:scale-105" />
                 ) : (
-                  <div className="flex h-48 w-48 items-center justify-center rounded-full bg-white text-5xl font-black text-slate-950 ring-4 ring-white transition duration-500 group-hover:scale-105">
-                    {member.name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}
+                  <div className="flex h-48 w-48 items-center justify-center rounded-full bg-white text-slate-300 ring-4 ring-white transition duration-500 group-hover:scale-105">
+                    <GraduationCap className="h-20 w-20" aria-hidden="true" strokeWidth={1.6} />
                   </div>
                 )}
               </div>
@@ -966,8 +978,19 @@ function GoogleReviewsSection() {
             </span>
             <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">Reseñas positivas sobre CEP Formación</h2>
             <p className="mt-4 text-lg leading-8 text-white/72">
-              Las valoraciones públicas destacan la atención del equipo, la claridad de la información y la utilidad de la formación para avanzar profesionalmente.
+              Valoraciones públicas de alumnos que destacan la atención del equipo, la orientación antes de matricularse y el acompañamiento durante la formación.
             </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {TRUST_BADGES.map((badge) => {
+                const Icon = badge.icon
+                return (
+                  <div key={badge.label} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3">
+                    <Icon className="h-5 w-5 text-[#fbbf24]" aria-hidden="true" />
+                    <span className="text-sm font-black text-white">{badge.label}</span>
+                  </div>
+                )
+              })}
+            </div>
             <a
               href="https://www.google.com/search?q=CEP+Formaci%C3%B3n+Tenerife+rese%C3%B1as"
               target="_blank"
@@ -979,12 +1002,13 @@ function GoogleReviewsSection() {
           </div>
           <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
             {GOOGLE_REVIEW_HIGHLIGHTS.map((review) => (
-              <article key={review.title} className="rounded-3xl border border-white/10 bg-white/[0.08] p-6 shadow-sm">
-                <div className="flex gap-1 text-[#fbbf24]" aria-label="Valoración positiva">
+              <article key={review.author} className="rounded-3xl border border-white/10 bg-white/[0.08] p-6 shadow-sm">
+                <div className="flex gap-1 text-[#fbbf24]" aria-label="Valoración de 5 estrellas">
                   {'★★★★★'}
                 </div>
-                <h3 className="mt-4 text-lg font-black">{review.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-white/72">{review.quote}</p>
+                <h3 className="mt-4 text-lg font-black">{review.author}</h3>
+                <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-white/45">{review.source}</p>
+                <p className="mt-3 text-base font-semibold leading-7 text-white/86">“{review.quote}”</p>
               </article>
             ))}
           </div>

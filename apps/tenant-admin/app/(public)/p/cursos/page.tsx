@@ -1,13 +1,12 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import {
   DEFAULT_STUDY_TYPE_VISUALS,
   getPublishedCourses,
-  getStudyTypeColor,
   getStudyTypeVisualMap,
 } from '@/app/lib/server/published-courses'
 import { getPublicStudyTypeFallbackImage, normalizePublicStudyType } from '@/app/lib/website/study-types'
+import { CoursesCatalogView } from './CoursesCatalogView'
 
 export const metadata: Metadata = {
   title: 'Cursos | Formación Profesional',
@@ -25,6 +24,29 @@ function getReadableTypeLabel(type: string | null | undefined): string {
 function buildHeroStyle(color: string) {
   return { background: `linear-gradient(135deg, ${color} 0%, #0f172a 100%)` }
 }
+
+const COURSE_SECTIONS = [
+  {
+    key: 'privados',
+    label: 'Cursos privados',
+    description: 'Formaciones especializadas con matrícula privada, orientación práctica y próximas fechas disponibles.',
+  },
+  {
+    key: 'desempleados',
+    label: 'Cursos para desempleados',
+    description: 'Programas orientados a mejorar la empleabilidad y adquirir competencias útiles para volver al mercado laboral.',
+  },
+  {
+    key: 'ocupados',
+    label: 'Cursos para ocupados',
+    description: 'Formación para profesionales en activo que necesitan actualizar competencias o reforzar su perfil.',
+  },
+  {
+    key: 'teleformacion',
+    label: 'Teleformación',
+    description: 'Cursos online para estudiar a tu ritmo, con matrícula flexible y acceso desde casa.',
+  },
+]
 
 export default async function CursosCatalogPage({
   searchParams,
@@ -52,6 +74,12 @@ export default async function CursosCatalogPage({
   const heroColor = selectedStudyTypeMeta?.color || tenant.primaryColor || '#0F172A'
   const heroImageUrl = selectedStudyType ? getPublicStudyTypeFallbackImage(selectedStudyType) : null
   const pageLabel = getReadableTypeLabel(rawTipo)
+  const visibleSections = COURSE_SECTIONS
+    .map((section) => ({
+      ...section,
+      courses: courses.filter((course) => course.studyType === section.key),
+    }))
+    .filter((section) => section.courses.length > 0)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -91,61 +119,7 @@ export default async function CursosCatalogPage({
           ) : null}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.map((course) => {
-            const imageUrl = course.imagenPortada || getPublicStudyTypeFallbackImage(course.studyType)
-            const fallbackColor = getStudyTypeColor(course.studyType, studyTypeVisualMap) || heroColor
-            const isTeleformacion = course.studyType === 'teleformacion'
-            const availabilityLabel = isTeleformacion
-              ? 'Inicio inmediato'
-              : (course.enrollmentLabel || 'Próximamente')
-            const campusLabel = isTeleformacion
-              ? '100% online · desde casa'
-              : (course.nextRun?.campusLabel || 'Sede por confirmar')
-            const modalityLabel = isTeleformacion
-              ? 'Online a tu ritmo'
-              : (course.modality === 'online' ? 'Online' : 'Presencial')
-            return (
-              <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group">
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
-                  <div className="relative h-48">
-                    <img src={imageUrl} alt={course.nombre} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute top-4 left-4">
-                      <span
-                        className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
-                        style={{ backgroundColor: fallbackColor }}
-                      >
-                        {course.studyTypeLabel}
-                      </span>
-                    </div>
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h2 className="text-xl font-bold text-white">{course.nombre}</h2>
-                    </div>
-                  </div>
-                  <div className="p-5">
-                    <div className="mb-3 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wide">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{course.area || 'Formación'}</span>
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{modalityLabel}</span>
-                    </div>
-                    <p className="text-sm text-gray-600 line-clamp-3 mb-4">
-                      {isTeleformacion && !course.descripcion
-                        ? 'Formación online para avanzar a tu ritmo, con matrícula abierta permanente.'
-                        : course.descripcion}
-                    </p>
-                    <div className="mb-5 grid gap-2 text-sm text-gray-700">
-                      <p><span className="font-semibold text-gray-950">Disponibilidad:</span> {availabilityLabel}</p>
-                      <p><span className="font-semibold text-gray-950">Sede:</span> {campusLabel}</p>
-                    </div>
-                    <span className="inline-flex rounded-full px-4 py-2 font-semibold text-sm text-white group-hover:opacity-90" style={{ backgroundColor: fallbackColor }}>
-                      {isTeleformacion ? 'Empezar ahora' : 'Ver curso'} &rarr;
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+        <CoursesCatalogView groups={visibleSections} visualMap={studyTypeVisualMap} fallbackColor={heroColor} />
       )}
     </div>
   )

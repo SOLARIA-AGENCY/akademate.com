@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { findStaticBlogPost } from '../staticPosts'
@@ -21,6 +22,15 @@ function extractPlainText(node: any): string {
     return [node.text, extractPlainText(node.children)].filter(Boolean).join(' ')
   }
   return ''
+}
+
+function slugifyHeading(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 type PageProps = { params: Promise<{ slug: string }> }
@@ -128,33 +138,57 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
           {excerpt ? <p className="mt-5 text-lg leading-8 text-white/75">{excerpt}</p> : null}
         </div>
       </header>
-      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-8">
+        <div>
         {imageUrl ? <img src={imageUrl} alt={title} className="h-[28rem] w-full rounded-2xl object-cover shadow-lg" /> : null}
-        <div className="prose prose-slate mt-10 max-w-none prose-h2:mt-10 prose-h2:text-2xl prose-h2:font-black prose-p:text-base prose-p:leading-8">
+        <div className="mt-8 rounded-2xl border border-red-100 bg-[#fff7fa] p-6">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Guía CEP Formación</p>
+          <p className="mt-3 text-lg font-semibold leading-8 text-slate-800">{excerpt}</p>
+        </div>
+        <div className="mt-10 max-w-none text-slate-800">
           {sections ? (
-            sections.map((section) => (
-              <section key={section.heading}>
-                <h2>{section.heading}</h2>
+            sections.map((section, index) => (
+              <section id={slugifyHeading(section.heading)} key={section.heading} className="scroll-mt-28 border-t border-slate-200 py-9 first:border-t-0 first:pt-0">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Sección {String(index + 1).padStart(2, '0')}</p>
+                <h2 className="mt-3 text-2xl font-black leading-tight text-slate-950 sm:text-3xl">{section.heading}</h2>
                 {section.paragraphs.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
+                  <p key={paragraph} className="mt-5 text-lg leading-9 text-slate-700">{paragraph}</p>
                 ))}
               </section>
             ))
           ) : (
-            <p>{body || excerpt || 'Artículo publicado.'}</p>
+            <p className="text-lg leading-9 text-slate-700">{body || excerpt || 'Artículo publicado.'}</p>
           )}
           {staticPost?.faqs?.length ? (
-            <section>
-              <h2>Preguntas frecuentes</h2>
+            <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
+              <h2 className="text-2xl font-black text-slate-950">Preguntas frecuentes</h2>
               {staticPost.faqs.map((faq) => (
-                <div key={faq.question}>
-                  <h3>{faq.question}</h3>
-                  <p>{faq.answer}</p>
+                <div key={faq.question} className="mt-6 border-t border-slate-200 pt-6 first:border-t-0 first:pt-0">
+                  <h3 className="text-lg font-black text-slate-950">{faq.question}</h3>
+                  <p className="mt-2 text-base leading-8 text-slate-700">{faq.answer}</p>
                 </div>
               ))}
             </section>
           ) : null}
         </div>
+        </div>
+        <aside className="hidden lg:block">
+          <div className="sticky top-28 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Contenido</p>
+            {sections?.length ? (
+              <nav className="mt-4 grid gap-3 text-sm font-semibold text-slate-700">
+                {sections.map((section) => (
+                  <a key={section.heading} href={`#${slugifyHeading(section.heading)}`} className="transition hover:text-[#f2014b]">
+                    {section.heading}
+                  </a>
+                ))}
+              </nav>
+            ) : null}
+            <Link href="/contacto" className="mt-6 inline-flex w-full justify-center rounded-full bg-[#f2014b] px-5 py-3 text-sm font-black text-white transition hover:bg-[#d0013f]">
+              Solicitar orientación
+            </Link>
+          </div>
+        </aside>
       </div>
     </article>
   )

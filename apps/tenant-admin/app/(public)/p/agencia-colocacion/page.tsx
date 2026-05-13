@@ -1,11 +1,6 @@
 import Link from 'next/link'
 import { BriefcaseBusiness, Building2, CheckCircle2, MapPin, Phone, ShieldCheck, UserRoundSearch } from 'lucide-react'
 
-const CANDIDATE_REGISTRATION_URL = 'https://cursostenerife.agenciascolocacion.com/candidatos/registro'
-const CANDIDATE_ACCESS_URL = 'https://cursostenerife.agenciascolocacion.com/candidatos/acceso'
-const COMPANY_REGISTRATION_URL = 'https://cursostenerife.agenciascolocacion.com/empresas/registro'
-const JOB_OFFERS_URL = 'https://cursostenerife.agenciascolocacion.com/ofertas/'
-
 const candidateSteps = [
   'Registro del perfil profesional y datos de contacto.',
   'Alta de formación, experiencia y ocupaciones de interés.',
@@ -53,13 +48,19 @@ export default function AgenciaColocacionPage() {
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/78">
               CEP Formación conecta orientación laboral, formación y oportunidades profesionales a través de su agencia de colocación autorizada.
             </p>
+            <div className="mt-7 rounded-2xl border border-white/15 bg-white/[0.08] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Próximamente</p>
+              <p className="mt-2 text-sm leading-7 text-white/78">
+                Estamos preparando la activación pública del portal de empleo. Hasta entonces, el equipo de CEP Formación atiende las consultas de orientación laboral de forma directa.
+              </p>
+            </div>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a href={CANDIDATE_REGISTRATION_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-14 items-center justify-center rounded-full bg-[#f2014b] px-7 text-sm font-black text-white shadow-xl transition hover:-translate-y-0.5">
+              <span aria-disabled="true" className="inline-flex min-h-14 cursor-not-allowed items-center justify-center rounded-full bg-white/20 px-7 text-sm font-black text-white/60">
                 Registrarme como candidato
-              </a>
-              <a href={JOB_OFFERS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-14 items-center justify-center rounded-full bg-white px-7 text-sm font-black text-slate-950 transition hover:-translate-y-0.5">
+              </span>
+              <span aria-disabled="true" className="inline-flex min-h-14 cursor-not-allowed items-center justify-center rounded-full bg-white/10 px-7 text-sm font-black text-white/55 ring-1 ring-white/15">
                 Ver ofertas activas
-              </a>
+              </span>
             </div>
           </div>
           <div className="relative min-h-[420px] overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 shadow-2xl">
@@ -108,12 +109,12 @@ export default function AgenciaColocacionPage() {
               ))}
             </ul>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <a href={CANDIDATE_REGISTRATION_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f2014b] px-6 text-sm font-black text-white">
+              <span aria-disabled="true" className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full bg-slate-200 px-6 text-sm font-black text-slate-500">
                 Alta de candidato
-              </a>
-              <a href={CANDIDATE_ACCESS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center rounded-full border border-slate-300 px-6 text-sm font-black text-slate-950">
+              </span>
+              <span aria-disabled="true" className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full border border-slate-200 px-6 text-sm font-black text-slate-400">
                 Acceder a mi perfil
-              </a>
+              </span>
             </div>
           </article>
 
@@ -132,12 +133,12 @@ export default function AgenciaColocacionPage() {
               ))}
             </ul>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <a href={COMPANY_REGISTRATION_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center rounded-full bg-slate-950 px-6 text-sm font-black text-white">
+              <span aria-disabled="true" className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full bg-slate-200 px-6 text-sm font-black text-slate-500">
                 Alta de empresa
-              </a>
-              <a href={JOB_OFFERS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center rounded-full border border-slate-300 px-6 text-sm font-black text-slate-950">
+              </span>
+              <span aria-disabled="true" className="inline-flex min-h-12 cursor-not-allowed items-center justify-center rounded-full border border-slate-200 px-6 text-sm font-black text-slate-400">
                 Ver ofertas
-              </a>
+              </span>
             </div>
           </article>
         </div>
