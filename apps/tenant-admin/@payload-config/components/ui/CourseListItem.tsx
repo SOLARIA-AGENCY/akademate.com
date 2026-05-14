@@ -85,8 +85,7 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
 
         <Button
           size="sm"
-          variant="outline"
-          className="h-8 shrink-0 px-3 text-xs"
+          className="h-8 shrink-0 bg-[#f2014b] px-3 text-xs text-white hover:bg-[#d80143] hover:text-white"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()

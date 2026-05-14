@@ -9,7 +9,7 @@ import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, Calendar, MapPin, Users, GraduationCap, DollarSign,
   ExternalLink, Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
-  Download, FileText, Pencil, Save, AlertCircle,
+  Download, FileText, Pencil, Save, AlertCircle, Printer,
 } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
@@ -289,6 +289,9 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
           <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
           <Button variant="outline" onClick={() => window.open(publicRunPath, '_blank', 'noopener,noreferrer')}>
             <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
+          </Button>
+          <Button variant="outline" onClick={() => router.push(`/dashboard/programacion/${id}/ficha`)}>
+            <Printer className="mr-2 h-4 w-4" />Imprimir convocatoria
           </Button>
         </>}
       />

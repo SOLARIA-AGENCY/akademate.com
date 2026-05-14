@@ -28,17 +28,17 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
 
   return (
     <Card
-      className={`course-template-card cursor-pointer overflow-hidden border-border/70 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className || ''}`}
+      className={`course-template-card h-full cursor-pointer overflow-hidden border-border/70 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className || ''}`}
       onClick={onClick}
       data-oid="w4mfu4l"
     >
-      <div className="grid min-h-[220px] grid-cols-[150px_1fr] gap-0 sm:grid-cols-[190px_1fr]" data-oid="card-grid">
-        <div className="relative min-h-full overflow-hidden bg-muted" data-oid="0:ln.eo">
+      <div className="grid h-full min-h-[230px] grid-cols-[150px_1fr] gap-0 sm:grid-cols-[190px_1fr]" data-oid="card-grid">
+        <div className="relative h-full min-h-[230px] overflow-hidden bg-muted" data-oid="0:ln.eo">
           {!imgError ? (
             <img
               src={template.imagenPortada || fallbackImage}
               alt={template.nombre}
-              className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 hover:scale-105"
               onError={() => setImgError(true)}
               data-oid="82e8gy5"
             />
@@ -110,8 +110,7 @@ export function CourseTemplateCard({ template, onClick, className }: CourseTempl
           </div>
 
           <Button
-            variant="outline"
-            className="mt-auto w-full"
+            className="mt-auto w-full bg-[#f2014b] text-white hover:bg-[#d80143] hover:text-white"
             onClick={(e) => {
               e.stopPropagation()
               onClick?.()

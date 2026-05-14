@@ -9,6 +9,7 @@ import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, GraduationCap, Clock, Layers, Edit, Loader2,
   Calendar, Users, ChevronRight, Plus, BookOpen, UserPlus, MapPin, FileText, ExternalLink,
+  Printer, Eye,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
@@ -105,9 +106,116 @@ function levelLabel(value?: string): string {
 }
 
 function normalizeCampaignStatus(value?: string): CampaignState {
-  return value && ['active', 'paused', 'draft', 'completed', 'archived'].includes(value)
-    ? value as CampaignState
-    : 'none'
+  const raw = String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '_')
+
+  if (raw === 'active' || raw === 'in_process' || raw === 'with_issues' || raw === 'pending_review') return 'active'
+  if (raw === 'paused' || raw === 'campaign_paused') return 'paused'
+  if (raw === 'draft') return 'draft'
+  if (raw === 'completed') return 'completed'
+  if (raw === 'archived' || raw === 'deleted') return 'archived'
+  return 'none'
+}
+
+type CampaignCandidate = {
+  id: string
+  name: string
+  status: CampaignState
+  destinationUrl: string | null
+}
+
+const COURSE_TOKEN_STOPWORDS = new Set([
+  'curso',
+  'ciclo',
+  'formativo',
+  'formacion',
+  'profesional',
+  'grado',
+  'medio',
+  'superior',
+  'tecnico',
+  'tecnica',
+  'de',
+  'del',
+  'la',
+  'el',
+  'y',
+  'en',
+  'para',
+  'con',
+])
+
+function normalizeText(value: string | undefined | null): string {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+}
+
+function parsePathname(rawUrl: string | null): string {
+  if (!rawUrl) return ''
+  try {
+    return new URL(rawUrl).pathname.toLowerCase()
+  } catch {
+    const raw = rawUrl.split('?')[0]?.trim().toLowerCase() || ''
+    return raw.startsWith('/') ? raw : `/${raw.replace(/^\/+/, '')}`
+  }
+}
+
+function toMeaningfulTokens(value: string): string[] {
+  return normalizeText(value)
+    .split(/[^a-z0-9]+/g)
+    .filter((token) => token.length >= 4 && !COURSE_TOKEN_STOPWORDS.has(token) && !/^\d+$/.test(token))
+}
+
+function campaignMatchesCycleRun(campaign: CampaignCandidate, run: { codigo?: string | null }, cycleName: string): boolean {
+  const code = normalizeText(run.codigo)
+  const campaignName = normalizeText(campaign.name)
+  const destinationPath = parsePathname(campaign.destinationUrl)
+
+  if (code) {
+    const convRoute = `/convocatorias/${code}`
+    const publicConvRoute = `/p/convocatorias/${code}`
+    if (destinationPath.includes(convRoute) || destinationPath.includes(publicConvRoute)) return true
+    if (campaignName.includes(code)) return true
+  }
+
+  const cycleTokens = toMeaningfulTokens(cycleName)
+  if (cycleTokens.length === 0) return false
+  const overlap = cycleTokens.filter((token) => campaignName.includes(token) || destinationPath.includes(token)).length
+  return overlap >= Math.min(2, cycleTokens.length)
+}
+
+async function fetchMetaCampaigns(): Promise<CampaignCandidate[]> {
+  try {
+    const response = await fetch('/api/meta/campaigns?limit=100&sort=updated_time&order=desc', { cache: 'no-store' })
+    if (!response.ok) return []
+    const payload = await response.json()
+    const docs = Array.isArray(payload.docs) ? payload.docs : []
+    return docs
+      .map((item: any) => {
+        const campaign = item?.campaign
+        const id = String(campaign?.id || '').trim()
+        if (!id) return null
+        return {
+          id,
+          name: String(campaign?.name || `Campaña ${id}`),
+          status: normalizeCampaignStatus(campaign?.status),
+          destinationUrl:
+            typeof campaign?.destination_url === 'string' && campaign.destination_url.trim().length > 0
+              ? campaign.destination_url
+              : null,
+        } satisfies CampaignCandidate
+      })
+      .filter((item: CampaignCandidate | null): item is CampaignCandidate => Boolean(item))
+  } catch {
+    return []
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -173,7 +281,20 @@ export default function CicloDetailPage({ params }: Props) {
               const cycleId = typeof cycleRef === 'object' && cycleRef ? cycleRef.id : cycleRef
               return String(cycleId) === String(id)
             })
-            if (mounted) setConvocatorias(cycleConvs)
+            const metaCampaigns = await fetchMetaCampaigns()
+            const enrichedConvs = cycleConvs.map((conv: any) => {
+              const matched = metaCampaigns.filter((campaign) => campaignMatchesCycleRun(campaign, conv, data.doc?.name ?? data.name ?? ''))
+              const active = matched.find((campaign) => campaign.status === 'active')
+              const selected = active || matched.find((campaign) => campaign.status === 'paused') || matched[0]
+              if (!selected) return conv
+              return {
+                ...conv,
+                campaignId: selected.id,
+                campaignName: selected.name,
+                campaignStatus: active ? 'active' : selected.status,
+              }
+            })
+            if (mounted) setConvocatorias(enrichedConvs)
           }
         } catch { /* convocatorias are optional */ }
       } catch (err) {
@@ -253,6 +374,9 @@ export default function CicloDetailPage({ params }: Props) {
             </Button>
             <Button size="sm" onClick={() => router.push(`/dashboard/ciclos/${id}/editar`)}>
               <Edit className="mr-2 h-4 w-4" />Editar
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/ciclos/${id}/ficha`)}>
+              <Printer className="mr-2 h-4 w-4" />Imprimir ciclo
             </Button>
           </div>
         </div>
@@ -481,12 +605,11 @@ export default function CicloDetailPage({ params }: Props) {
                 <Button
                   variant="outline"
                   className="w-full justify-between"
-                  onClick={() => window.open(publicCyclePath, '_blank', 'noopener,noreferrer')}
-                  disabled={!publicCycleAvailable}
+                  onClick={() => router.push(`/dashboard/ciclos/${id}/ficha`)}
                 >
                   <span className="flex items-center gap-2">
-                    <ExternalLink className="h-4 w-4" />
-                    Ver página pública
+                    <Eye className="h-4 w-4" />
+                    Ver ciclo
                   </span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
