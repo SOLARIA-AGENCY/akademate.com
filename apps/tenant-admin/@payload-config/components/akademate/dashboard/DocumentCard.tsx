@@ -38,7 +38,7 @@ export function DocumentCard({
         <div className="rounded-xl border bg-muted/30 p-4">
           <p className="font-semibold text-foreground">{hasFile ? fileName : 'PDF no disponible'}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {hasFile ? 'Última versión cargada en la ficha.' : 'Sube el dossier cuando esté preparado.'}
+            {hasFile ? 'Última versión cargada en la ficha.' : 'PDF del programa no disponible todavía.'}
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">

@@ -44,7 +44,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
-import { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from '@payload-config/components/akademate/dashboard'
+import { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from '../akademate/dashboard/DashboardSidebar'
 
 // Menu structure with sections
 // Section: null = no separator, otherwise show separator before item.

@@ -70,6 +70,7 @@ const PUBLIC_BASE_URL = 'https://cepformacion.akademate.com'
 const CONTACT_PHONE = '+34 922 533 533'
 const CONTACT_EMAIL = 'info@cepformacion.com'
 const CEP_LOGO_URL = '/logos/cep-formacion-logo.png'
+const PDF_FALLBACK_TEXT = 'PDF del programa no disponible todavía.'
 
 const NUTRICOSMETICA_FALLBACK = {
   targetAudience:
@@ -381,12 +382,13 @@ export default function CourseFichaPage({ params }: Props) {
           </div>
 
           <aside className="space-y-6">
-            <DocumentCard
-              fileName={dossierFileName}
-              fileUrl={dossierUrl}
-              downloadName={dossierFileName}
-              onUpload={() => router.push(`/dashboard/cursos/${id}/editar`)}
-              onReplace={() => router.push(`/dashboard/cursos/${id}/editar`)}
+             <DocumentCard
+               fileName={dossierFileName}
+               fileUrl={dossierUrl}
+               description={dossierUrl ? undefined : PDF_FALLBACK_TEXT}
+               downloadName={dossierFileName}
+               onUpload={() => router.push(`/dashboard/cursos/${id}/editar`)}
+               onReplace={() => router.push(`/dashboard/cursos/${id}/editar`)}
             />
 
             <Section title="Convocatorias asociadas">
