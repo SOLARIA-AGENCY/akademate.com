@@ -7,11 +7,15 @@ import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import {
   type PublishedCourse,
   getPublishedCourses,
-  getStudyTypeColor,
-  getStudyTypeVisualMap,
 } from '@/app/lib/server/published-courses'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getPublicStudyTypeFallbackImage } from '@/app/lib/website/study-types'
+import {
+  PublicCardCta,
+  PublicInfoGrid,
+  PublicMediaBadge,
+} from '../../../_components/PublicShadcnPrimitives'
+import { Card, CardContent } from '@payload-config/components/ui/card'
 
 export const dynamic = 'force-dynamic'
 
@@ -110,7 +114,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PublicAreaPage({ params }: Props) {
   const { slug } = await params
   const tenant = await getTenantHostBranding()
-  const studyTypeVisualMap = await getStudyTypeVisualMap()
   const payload = await getPayload({ config: configPromise })
   const courses = await getPublishedCourses({
     tenantId: tenant.tenantId === 'default' ? null : tenant.tenantId,
@@ -165,28 +168,48 @@ export default async function PublicAreaPage({ params }: Props) {
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {group.courses.map((course) => {
                 const imageUrl = course.imagenPortada || getPublicStudyTypeFallbackImage(course.studyType)
-                const color = getStudyTypeColor(course.studyType, studyTypeVisualMap) || tenant.primaryColor || '#f2014b'
+                const isTeleformacion = course.studyType === 'teleformacion'
+                const isSubsidized = course.studyType === 'ocupados' || course.studyType === 'desempleados'
                 return (
-                  <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-                    <div className="relative h-56">
+                  <Link key={course.id} href={`/p/cursos/${course.slug}`} className="group h-full">
+                    <Card className="flex h-full min-h-[520px] flex-col overflow-hidden border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                    <div className="relative h-56 shrink-0">
                       <img src={imageUrl} alt={course.nombre} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <span className="absolute left-5 top-5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-white" style={{ backgroundColor: color }}>
+                      <PublicMediaBadge
+                        tone={isTeleformacion ? 'warning' : isSubsidized ? 'success' : 'primary'}
+                        className="absolute left-5 top-5"
+                      >
                         {course.studyTypeLabel}
-                      </span>
+                      </PublicMediaBadge>
+                      {isTeleformacion ? (
+                        <PublicMediaBadge tone="success" className="absolute right-5 top-5">
+                          Empieza cuando quieras
+                        </PublicMediaBadge>
+                      ) : null}
                       <h3 className="absolute bottom-5 left-5 right-5 text-xl font-bold text-white">{course.nombre}</h3>
                     </div>
-                    <div className="p-6">
+                    <CardContent className="flex flex-1 flex-col p-6">
                       <p className="line-clamp-3 text-sm leading-7 text-slate-600">{course.descripcion}</p>
-                      <div className="mt-5 grid gap-2 text-sm text-slate-700">
-                        <p><span className="font-semibold text-slate-950">Duración:</span> {course.duracionReferencia ? `${course.duracionReferencia} h` : 'Consultar'}</p>
-                        <p><span className="font-semibold text-slate-950">Modalidad:</span> {course.modality || 'Consultar'}</p>
-                        <p><span className="font-semibold text-slate-950">Convocatoria:</span> {course.enrollmentLabel}</p>
+                      {isSubsidized ? (
+                        <PublicMediaBadge tone="success" className="mt-4 w-fit">
+                          Formación gratuita subvencionada
+                        </PublicMediaBadge>
+                      ) : null}
+                      <PublicInfoGrid
+                        className="mt-5"
+                        items={[
+                          { label: 'Duración', value: course.duracionReferencia ? `${course.duracionReferencia} h` : 'Consultar' },
+                          { label: 'Modalidad', value: course.modality || 'Consultar' },
+                          { label: 'Inicio', value: isTeleformacion ? 'Inicio inmediato' : course.enrollmentLabel },
+                          { label: 'Área', value: course.area || title },
+                        ]}
+                      />
+                      <div className="mt-auto flex justify-start pt-5">
+                        <PublicCardCta>Ver curso</PublicCardCta>
                       </div>
-                      <span className="mt-6 inline-flex rounded-full bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[var(--cep-brand)]">
-                        Ver curso
-                      </span>
-                    </div>
+                    </CardContent>
+                    </Card>
                   </Link>
                 )
               })}
@@ -207,23 +230,30 @@ export default async function PublicAreaPage({ params }: Props) {
               {areaCycles.map((cycle) => {
                 const imageUrl = resolveMediaImageUrl(cycle.image) || '/website/cep/categories/ciclos-formativos.jpg'
                 return (
-                  <Link key={cycle.id} href={`/p/ciclos/${cycle.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                  <Link key={cycle.id} href={`/p/ciclos/${cycle.slug}`} className="group h-full">
+                    <Card className="flex h-full flex-col overflow-hidden border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
                     <div className="relative h-64">
                       <img src={imageUrl} alt={cycle.name || 'Ciclo formativo'} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <span className="absolute left-5 top-5 rounded-full bg-[var(--cep-brand)] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white">
+                      <PublicMediaBadge tone="primary" className="absolute left-5 top-5">
                         {formatCycleLevel(cycle.level)}
-                      </span>
+                      </PublicMediaBadge>
                       <h3 className="absolute bottom-5 left-5 right-5 text-2xl font-black text-white">{cycle.name}</h3>
                     </div>
-                    <div className="grid gap-2 p-6 text-sm text-slate-700">
-                      <p><span className="font-semibold text-slate-950">Familia:</span> {cycle.family || 'Consultar'}</p>
-                      <p><span className="font-semibold text-slate-950">Duración:</span> {cycle.total_hours ? `${cycle.total_hours} h` : 'Consultar'}</p>
-                      <p><span className="font-semibold text-slate-950">Modalidad:</span> {cycle.modality || 'Consultar'}</p>
-                      <span className="mt-4 inline-flex w-fit rounded-full bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[var(--cep-brand)]">
-                        Ver ciclo
-                      </span>
-                    </div>
+                    <CardContent className="flex flex-1 flex-col p-6">
+                      <PublicInfoGrid
+                        items={[
+                          { label: 'Familia', value: cycle.family || 'Consultar' },
+                          { label: 'Duración', value: cycle.total_hours ? `${cycle.total_hours} h` : 'Consultar' },
+                          { label: 'Modalidad', value: cycle.modality || 'Consultar' },
+                          { label: 'Nivel', value: formatCycleLevel(cycle.level) },
+                        ]}
+                      />
+                      <div className="mt-auto flex justify-start pt-5">
+                        <PublicCardCta>Ver ciclo</PublicCardCta>
+                      </div>
+                    </CardContent>
+                    </Card>
                   </Link>
                 )
               })}

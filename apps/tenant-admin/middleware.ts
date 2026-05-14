@@ -107,7 +107,7 @@ const publicRoutes = [
   // Legal pages must be publicly accessible (GDPR requirement)
   '/legal',
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing
-  ...(process.env.NODE_ENV !== 'production' ? ['/design-system'] : []),
+  ...(process.env.NODE_ENV !== 'production' ? ['/design-system', '/shadcn-preview'] : []),
 ]
 
 // Static asset paths to ignore

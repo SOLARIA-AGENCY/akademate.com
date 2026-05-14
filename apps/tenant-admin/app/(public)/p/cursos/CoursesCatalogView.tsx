@@ -4,6 +4,13 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { LayoutGrid, List } from 'lucide-react'
 import type { PublishedCourse, StudyTypeVisualMeta } from '@/app/lib/server/published-courses'
+import {
+  PublicCardCta,
+  PublicInfoGrid,
+  PublicMediaBadge,
+} from '../../_components/PublicShadcnPrimitives'
+import { Card, CardContent } from '@payload-config/components/ui/card'
+import { Button } from '@payload-config/components/ui/button'
 
 export type CourseGroup = {
   key: string
@@ -21,11 +28,9 @@ type CoursesCatalogViewProps = {
 }
 
 function getCourseUi(course: PublishedCourse, visualMap: Record<string, StudyTypeVisualMeta>, fallbackColor: string) {
-  const color = course.studyType ? visualMap[course.studyType]?.color || course.studyTypeColor || fallbackColor : course.studyTypeColor || fallbackColor
   const isTeleformacion = course.studyType === 'teleformacion'
   const isSubsidized = course.studyType === 'ocupados' || course.studyType === 'desempleados'
   return {
-    color,
     isTeleformacion,
     isSubsidized,
     imageUrl: course.imagenPortada,
@@ -50,39 +55,47 @@ function CourseGridCard({
   const ui = getCourseUi(course, visualMap, fallbackColor)
   return (
     <Link href={`/p/cursos/${course.slug}`} className="group h-full">
-      <article className="flex h-full min-h-[560px] flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+      <Card className="flex h-full min-h-[560px] flex-col overflow-hidden border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
         <div className="relative h-48 shrink-0">
           <img src={ui.imageUrl} alt={course.nombre} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute left-4 top-4">
-            <span className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-white" style={{ backgroundColor: ui.color }}>
+            <PublicMediaBadge tone={ui.isTeleformacion ? 'warning' : ui.isSubsidized ? 'success' : 'primary'}>
               {course.studyTypeLabel}
-            </span>
+            </PublicMediaBadge>
           </div>
+          {ui.isTeleformacion ? (
+            <div className="absolute right-4 top-4">
+              <PublicMediaBadge tone="success">Empieza cuando quieras</PublicMediaBadge>
+            </div>
+          ) : null}
+          {ui.isSubsidized ? (
+            <div className="absolute right-4 top-4">
+              <PublicMediaBadge tone="success">Formación gratuita</PublicMediaBadge>
+            </div>
+          ) : null}
           <div className="absolute bottom-4 left-4 right-4">
             <h3 className="line-clamp-2 text-xl font-bold leading-tight text-white">{course.nombre}</h3>
           </div>
         </div>
-        <div className="flex flex-1 flex-col p-5">
+        <CardContent className="flex flex-1 flex-col p-5">
           <div className="mb-4 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wide">
             <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{course.area || 'Formación'}</span>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{ui.modalityLabel}</span>
           </div>
           <p className="line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-gray-600">{ui.description}</p>
-          {ui.isSubsidized ? (
-            <span className="mt-4 inline-flex w-fit rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
-              Formación gratuita subvencionada
-            </span>
-          ) : null}
-          <div className="mt-5 grid gap-2 text-sm text-gray-700">
-            <p><span className="font-semibold text-gray-950">Disponibilidad:</span> {ui.availabilityLabel}</p>
-            <p><span className="font-semibold text-gray-950">Sede:</span> {ui.campusLabel}</p>
+          <PublicInfoGrid
+            className="mt-5"
+            items={[
+              { label: 'Inicio', value: ui.availabilityLabel },
+              { label: 'Sede', value: ui.campusLabel },
+            ]}
+          />
+          <div className="mt-auto flex justify-start pt-5">
+            <PublicCardCta>{ui.isTeleformacion ? 'Empezar ahora' : 'Ver curso'}</PublicCardCta>
           </div>
-          <span className="mt-auto inline-flex w-fit rounded-full bg-[#f2014b] px-4 py-2 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
-            {ui.isTeleformacion ? 'Empezar ahora' : 'Ver curso'} &rarr;
-          </span>
-        </div>
-      </article>
+        </CardContent>
+      </Card>
     </Link>
   )
 }
@@ -99,34 +112,46 @@ function CourseListCard({
   const ui = getCourseUi(course, visualMap, fallbackColor)
   return (
     <Link href={`/p/cursos/${course.slug}`} className="group block">
-      <article className="grid overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[220px_1fr]">
+      <Card className="grid overflow-hidden border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[220px_1fr]">
         <div className="relative h-44 sm:h-full">
           <img src={ui.imageUrl} alt={course.nombre} className="h-full w-full object-cover" />
-          <span className="absolute left-4 top-4 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold text-white" style={{ backgroundColor: ui.color }}>
+          <PublicMediaBadge
+            tone={ui.isTeleformacion ? 'warning' : ui.isSubsidized ? 'success' : 'primary'}
+            className="absolute left-4 top-4"
+          >
             {course.studyTypeLabel}
-          </span>
+          </PublicMediaBadge>
+          {ui.isTeleformacion ? (
+            <PublicMediaBadge tone="success" className="absolute bottom-4 left-4">
+              Empieza cuando quieras
+            </PublicMediaBadge>
+          ) : null}
         </div>
-        <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <h3 className="line-clamp-1 text-xl font-black text-slate-950">{course.nombre}</h3>
-            <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{ui.description}</p>
-            {ui.isSubsidized ? (
-              <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
-                Formación gratuita subvencionada
-              </span>
-            ) : null}
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-700">
-              <span><strong className="text-slate-950">Área:</strong> {course.area || 'Formación'}</span>
-              <span><strong className="text-slate-950">Modalidad:</strong> {ui.modalityLabel}</span>
-              <span><strong className="text-slate-950">Inicio:</strong> {ui.availabilityLabel}</span>
-              <span><strong className="text-slate-950">Sede:</strong> {ui.campusLabel}</span>
+        <CardContent className="flex min-w-0 flex-col gap-4 p-5">
+          <div className="grid gap-4 xl:grid-cols-[1fr_1.45fr]">
+            <div className="min-w-0">
+              <h3 className="line-clamp-2 text-xl font-black text-slate-950">{course.nombre}</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-600">Curso de formación profesional</p>
+              {ui.isSubsidized ? (
+                <PublicMediaBadge tone="success" className="mt-3">
+                  Formación gratuita subvencionada
+                </PublicMediaBadge>
+              ) : null}
             </div>
+            <PublicInfoGrid
+              items={[
+                { label: 'Área', value: course.area || 'Formación' },
+                { label: 'Modalidad', value: ui.modalityLabel },
+                { label: 'Inicio', value: ui.availabilityLabel },
+                { label: 'Sede', value: ui.campusLabel },
+              ]}
+            />
           </div>
-          <span className="inline-flex shrink-0 rounded-full bg-[#f2014b] px-4 py-2 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
-            Ver curso &rarr;
-          </span>
-        </div>
-      </article>
+          <div className="mt-auto flex justify-end pt-2">
+            <PublicCardCta>Ver curso</PublicCardCta>
+          </div>
+        </CardContent>
+      </Card>
     </Link>
   )
 }
@@ -148,22 +173,24 @@ export function CoursesCatalogView({
           <p className="mt-1 text-sm text-slate-600">Elige cards visuales o lista compacta por curso.</p>
         </div>
         <div className="inline-flex w-fit rounded-full bg-slate-100 p-1">
-          <button
+          <Button
             type="button"
             onClick={() => setViewMode('grid')}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black transition ${viewMode === 'grid' ? 'bg-[#f2014b] text-white' : 'text-slate-700 hover:bg-white'}`}
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            className={`rounded-full font-black ${viewMode === 'grid' ? 'bg-[#f2014b] text-white hover:bg-[#d0013f]' : 'text-slate-700 hover:bg-white'}`}
           >
-            <LayoutGrid className="h-4 w-4" aria-hidden="true" />
+            <LayoutGrid data-icon="inline-start" aria-hidden="true" />
             Cards
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => setViewMode('list')}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black transition ${viewMode === 'list' ? 'bg-[#f2014b] text-white' : 'text-slate-700 hover:bg-white'}`}
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            className={`rounded-full font-black ${viewMode === 'list' ? 'bg-[#f2014b] text-white hover:bg-[#d0013f]' : 'text-slate-700 hover:bg-white'}`}
           >
-            <List className="h-4 w-4" aria-hidden="true" />
+            <List data-icon="inline-start" aria-hidden="true" />
             Lista
-          </button>
+          </Button>
         </div>
       </div> : null}
 

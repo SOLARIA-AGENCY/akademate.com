@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { ArrowLeft, BookOpen, Calendar, Download, Euro, FileText, Loader2, Printer } from 'lucide-react'
+import { ArrowLeft, BookOpen, Calendar, Download, Euro, FileText, Globe2, Loader2, Mail, Phone, Printer } from 'lucide-react'
 
 interface CourseDetail {
   id: string | number
@@ -65,6 +65,10 @@ const MODALITY_LABELS: Record<string, string> = {
 }
 
 const NUTRICOSMETICA_DOSSIER_URL = '/uploads/cep-course-programs/NUTRICOSMÉTICA.pdf'
+const PUBLIC_BASE_URL = 'https://cepformacion.akademate.com'
+const CONTACT_PHONE = '+34 922 533 533'
+const CONTACT_EMAIL = 'info@cepformacion.com'
+const CEP_LOGO_URL = '/logos/cep-formacion-logo.png'
 
 const NUTRICOSMETICA_FALLBACK = {
   targetAudience:
@@ -133,6 +137,12 @@ function resolveMediaName(media: MediaRef): string {
   if (typeof media === 'string') return media.split('/').pop() || 'Dossier del curso'
   if (typeof media === 'object' && media.filename) return media.filename
   return 'Dossier del curso'
+}
+
+function resolveDownloadName(media: MediaRef, fallback: string): string {
+  const mediaName = resolveMediaName(media)
+  if (mediaName !== 'Dossier del curso') return mediaName
+  return `${fallback.replace(/[^\w\d-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'curso'}-dossier.pdf`
 }
 
 function textList(items?: Array<{ text?: string | null }>): string[] {
@@ -257,28 +267,40 @@ export default function CourseFichaPage({ params }: Props) {
   const outcomes = course.landing_outcomes || (hasNutricosmeticaFallback ? NUTRICOSMETICA_FALLBACK.outcomes : '')
   const courseType = course.course_type ? (COURSE_TYPE_LABELS[course.course_type] ?? course.course_type) : 'Sin tipo'
   const modality = course.modality ? (MODALITY_LABELS[course.modality] ?? course.modality) : 'Por definir'
+  const publicCourseUrl = `${PUBLIC_BASE_URL}/p/cursos/${course.slug ?? course.id}`
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(publicCourseUrl)}`
+  const activeRuns = convocatorias.filter((conv) => !['cancelled', 'archived', 'completed'].includes(conv.estado ?? ''))
+  const dossierFileName = resolveDownloadName(course.dossier_pdf, course.name || `curso-${course.id}`)
 
   return (
     <div className="space-y-6">
       <style jsx global>{`
-        @page { size: A4; margin: 12mm; }
+        @page { size: A4; margin: 10mm; }
+        #course-print-sheet { display: none; }
         @media print {
-          body { background: white !important; }
-          .dashboard-sidebar, header, nav, .course-ficha-actions, .dashboard-footer { display: none !important; }
-          main { overflow: visible !important; }
-          .course-ficha-page { color: #111827; }
-          .course-ficha-page .shadow, .course-ficha-page .shadow-sm { box-shadow: none !important; }
+          body * { visibility: hidden !important; }
+          #course-print-sheet, #course-print-sheet * { visibility: visible !important; }
+          #course-print-sheet {
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: white !important;
+            color: #111827 !important;
+          }
+          .course-screen-only { display: none !important; }
         }
       `}</style>
 
-      <div className="course-ficha-actions flex flex-wrap items-center justify-between gap-3">
+      <div className="course-screen-only course-ficha-actions flex flex-wrap items-center justify-between gap-3">
         <Button variant="ghost" onClick={() => router.push(`/dashboard/cursos/${id}`)}>
           <ArrowLeft className="mr-2 h-4 w-4" />Volver al curso
         </Button>
-        <div className="flex flex-wrap gap-2">
-          {dossierUrl && (
-            <Button asChild variant="outline">
-              <a href={dossierUrl} target="_blank" rel="noopener noreferrer">
+          <div className="flex flex-wrap gap-2">
+            {dossierUrl && (
+              <Button asChild variant="outline">
+              <a href={dossierUrl} download={dossierFileName} target="_blank" rel="noopener noreferrer">
                 <Download className="mr-2 h-4 w-4" />Descargar PDF
               </a>
             </Button>
@@ -287,7 +309,7 @@ export default function CourseFichaPage({ params }: Props) {
         </div>
       </div>
 
-      <article className="course-ficha-page space-y-6 rounded-2xl bg-background">
+      <article className="course-screen-only course-ficha-page space-y-6 rounded-2xl bg-background">
         <section className="overflow-hidden rounded-2xl border bg-card">
           <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="p-7">
@@ -369,15 +391,27 @@ export default function CourseFichaPage({ params }: Props) {
           <aside className="space-y-6">
             <Section title="PDF del programa">
               {dossierUrl ? (
-                <a href={dossierUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-xl border border-red-100 bg-red-50 p-4 font-semibold text-red-700 transition hover:bg-red-100">
+                <div className="space-y-3">
+                <a href={dossierUrl} download={dossierFileName} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-xl border border-red-100 bg-red-50 p-4 font-semibold text-red-700 transition hover:bg-red-100">
                   <FileText className="h-7 w-7 shrink-0" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate">{resolveMediaName(course.dossier_pdf)}</span>
+                    <span className="block truncate">{dossierFileName}</span>
                     <span className="block text-xs font-normal">Descargar PDF</span>
                   </span>
                   <Download className="h-4 w-4 shrink-0" />
                 </a>
-              ) : 'PDF del programa no disponible todavía.'}
+                <Button asChild variant="outline" className="w-full">
+                  <a href={`/dashboard/cursos/${id}/editar`}>Sustituir PDF</a>
+                </Button>
+                </div>
+              ) : (
+                <div className="space-y-3 rounded-xl border border-dashed p-4">
+                  <p>PDF del programa no disponible todavía.</p>
+                  <Button asChild className="w-full">
+                    <a href={`/dashboard/cursos/${id}/editar`}>Subir PDF</a>
+                  </Button>
+                </div>
+              )}
             </Section>
 
             <Section title="Convocatorias asociadas">
@@ -399,6 +433,118 @@ export default function CourseFichaPage({ params }: Props) {
           </aside>
         </div>
       </article>
+
+      <section id="course-print-sheet" className="p-6 text-[12px] leading-relaxed">
+        <div className="flex items-start justify-between gap-6 border-b-4 border-[#f2014b] pb-5">
+          <div>
+            <img src={CEP_LOGO_URL} alt="CEP Formación" className="h-12 w-auto object-contain" />
+            <p className="mt-3 text-[10px] font-black uppercase tracking-[0.22em] text-[#f2014b]">
+              Ficha informativa de curso
+            </p>
+            <h1 className="mt-2 max-w-[560px] text-3xl font-black leading-tight text-slate-950">
+              {course.name || 'Curso sin nombre'}
+            </h1>
+            <p className="mt-1 text-sm text-slate-600">{course.codigo || `Curso ${course.id}`}</p>
+          </div>
+          <div className="w-36 shrink-0 text-center">
+            <img src={qrUrl} alt="QR página pública del curso" className="mx-auto h-32 w-32 rounded-lg border p-1" />
+            <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Ver curso online</p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-[1.35fr_0.65fr] gap-5">
+          <div className="space-y-4">
+            <div className="rounded-xl border border-slate-200 p-4">
+              <h2 className="text-base font-black text-slate-950">Presentación</h2>
+              <p className="mt-2 text-slate-700">{presentation || 'Información del curso disponible próximamente.'}</p>
+            </div>
+
+            {displayObjectives.length > 0 && (
+              <div className="rounded-xl border border-slate-200 p-4">
+                <h2 className="text-base font-black text-slate-950">Objetivos</h2>
+                <ul className="mt-2 space-y-1.5 pl-4 text-slate-700">
+                  {displayObjectives.slice(0, 6).map((objective) => (
+                    <li key={objective} className="list-disc">{objective}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {programBlocks.length > 0 && (
+              <div className="rounded-xl border border-slate-200 p-4">
+                <h2 className="text-base font-black text-slate-950">Programa</h2>
+                <div className="mt-2 grid gap-3">
+                  {programBlocks.slice(0, 5).map((block, index) => (
+                    <div key={`${block.title || 'bloque'}-print-${index}`} className="rounded-lg bg-slate-50 p-3">
+                      <p className="font-bold text-slate-900">{block.title || `Bloque ${index + 1}`}</p>
+                      {block.body && <p className="mt-1 text-slate-700">{block.body}</p>}
+                      {block.items?.length ? (
+                        <ul className="mt-1 grid gap-1 pl-4 text-slate-700">
+                          {block.items.slice(0, 6).map((item, itemIndex) =>
+                            item.text ? <li key={`${item.text}-print-${itemIndex}`} className="list-disc">{item.text}</li> : null
+                          )}
+                        </ul>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <aside className="space-y-4">
+            {imageUrl && (
+              <img src={imageUrl} alt={course.name || 'Curso'} className="h-40 w-full rounded-xl object-cover" />
+            )}
+
+            <div className="grid gap-2 rounded-xl border border-slate-200 p-4">
+              <div className="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                <span className="font-semibold text-slate-500">Tipo</span>
+                <span className="text-right font-bold text-slate-950">{courseType}</span>
+              </div>
+              <div className="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                <span className="font-semibold text-slate-500">Modalidad</span>
+                <span className="text-right font-bold text-slate-950">{modality}</span>
+              </div>
+              <div className="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                <span className="font-semibold text-slate-500">Duración</span>
+                <span className="text-right font-bold text-slate-950">{course.duration_hours ? `${course.duration_hours} horas` : 'Por definir'}</span>
+              </div>
+              <div className="flex justify-between gap-3 border-b border-slate-100 pb-2">
+                <span className="font-semibold text-slate-500">Área</span>
+                <span className="text-right font-bold text-slate-950">{areaName(course)}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="font-semibold text-slate-500">Precio</span>
+                <span className="text-right font-bold text-slate-950">{formatCurrency(course.base_price)}</span>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 p-4">
+              <h2 className="font-black text-slate-950">Próximas convocatorias</h2>
+              <div className="mt-2 space-y-2">
+                {(activeRuns.length > 0 ? activeRuns : convocatorias).slice(0, 4).map((conv) => (
+                  <div key={conv.id} className="rounded-lg bg-slate-50 p-3">
+                    <p className="font-bold text-slate-950">{conv.codigo || `Convocatoria ${conv.id}`}</p>
+                    <p className="mt-1 text-slate-600">{formatDateRange(conv.fechaInicio, conv.fechaFin)}</p>
+                    <p className="text-slate-600">{conv.campusNombre || 'Sede por definir'} · {conv.aulaNombre || 'Aula por definir'}</p>
+                  </div>
+                ))}
+                {convocatorias.length === 0 && <p className="text-slate-600">Consulta próximas fechas con CEP Formación.</p>}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#f2014b]/25 bg-[#f2014b]/5 p-4">
+              <h2 className="font-black text-slate-950">Solicita información</h2>
+              <div className="mt-3 space-y-2 text-slate-700">
+                <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-[#f2014b]" />{CONTACT_PHONE}</p>
+                <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-[#f2014b]" />{CONTACT_EMAIL}</p>
+                <p className="flex items-center gap-2"><Globe2 className="h-4 w-4 text-[#f2014b]" />{publicCourseUrl}</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
     </div>
   )
 }

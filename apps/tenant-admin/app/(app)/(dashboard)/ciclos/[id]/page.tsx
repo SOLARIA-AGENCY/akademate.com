@@ -415,7 +415,7 @@ export default function CicloDetailPage({ params }: Props) {
                 Convocatorias
                 <Badge variant="outline">{convocatorias.length}</Badge>
               </CardTitle>
-              <Button size="sm" onClick={() => router.push(`/programacion/nueva?ciclo=${id}`)}>
+              <Button size="sm" onClick={() => router.push(`/dashboard/programacion/nueva?ciclo=${id}`)}>
                 <Plus className="mr-1.5 h-3.5 w-3.5" />Crear convocatoria
               </Button>
             </CardHeader>

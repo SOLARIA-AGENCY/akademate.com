@@ -27,6 +27,7 @@ import {
   Save,
   ChevronUp,
   Check,
+  Lock,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -34,13 +35,28 @@ import {
 // ---------------------------------------------------------------------------
 
 interface Cycle {
-  id: string
+  id: string | number
   name: string
+  image?: MediaRef
+  duration?: {
+    modality?: string
+    totalHours?: number
+    practiceHours?: number
+  }
+  capacity?: number
 }
 
 interface Course {
-  id: string
-  title: string
+  id: string | number
+  title?: string
+  name?: string
+  short_description?: string
+  featured_image?: MediaRef
+  modality?: string
+  course_type?: string
+  area?: string
+  duration_hours?: number | null
+  base_price?: number | null
 }
 
 interface StaffMember {
@@ -65,7 +81,12 @@ interface ProgramItem {
   id: string
   label: string
   type: 'cycle' | 'course'
+  description?: string
+  imageUrl?: string | null
+  meta: Array<{ label: string; value: string }>
 }
+
+type MediaRef = number | string | { url?: string | null; filename?: string | null; alt?: string | null } | null | undefined
 
 // ---------------------------------------------------------------------------
 // Form state
@@ -90,6 +111,24 @@ const STATUS_OPTIONS = [
   { value: 'published', label: 'Planificada' },
   { value: 'enrollment_open', label: 'Abierta' },
 ] as const
+
+function resolveMediaUrl(media: MediaRef): string | null {
+  if (!media) return null
+  if (typeof media === 'number') return null
+  if (typeof media === 'string') return media
+  if (media.url) return media.url
+  if (media.filename) return `/api/media/file/${media.filename}`
+  return null
+}
+
+function formatCurrency(value?: number | null): string {
+  if (value == null || value <= 0) return 'Consultar'
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value)
+}
+
+function courseLabel(course: Course): string {
+  return course.name || course.title || `Curso ${course.id}`
+}
 
 // ---------------------------------------------------------------------------
 // Inline Creation Form — Sede
@@ -330,6 +369,13 @@ export default function NuevaConvocatoriaPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const preselectedProfessorId = searchParams.get('profesor')
+  const preselectedCourseId = searchParams.get('courseId') || searchParams.get('curso')
+  const preselectedCycleId = searchParams.get('cycleId') || searchParams.get('ciclo')
+  const lockedProgramValue = preselectedCourseId
+    ? `course:${preselectedCourseId}`
+    : preselectedCycleId
+      ? `cycle:${preselectedCycleId}`
+      : ''
 
   // Data from API
   const [cycles, setCycles] = useState<Cycle[]>([])
@@ -363,9 +409,34 @@ export default function NuevaConvocatoriaPage() {
 
   // Combined list for the selector
   const programItems: ProgramItem[] = [
-    ...cycles.map((c) => ({ id: `cycle:${c.id}`, label: c.name, type: 'cycle' as const })),
-    ...courses.map((c) => ({ id: `course:${c.id}`, label: c.title, type: 'course' as const })),
+    ...cycles.map((c) => ({
+      id: `cycle:${c.id}`,
+      label: c.name,
+      type: 'cycle' as const,
+      imageUrl: resolveMediaUrl(c.image),
+      description: 'Ciclo formativo oficial',
+      meta: [
+        { label: 'Tipo', value: 'Ciclo' },
+        { label: 'Modalidad', value: c.duration?.modality || 'Por definir' },
+        { label: 'Horas', value: c.duration?.totalHours ? `${c.duration.totalHours} h` : 'Por definir' },
+        { label: 'Plazas', value: c.capacity ? `${c.capacity}` : 'Por definir' },
+      ],
+    })),
+    ...courses.map((c) => ({
+      id: `course:${c.id}`,
+      label: courseLabel(c),
+      type: 'course' as const,
+      imageUrl: resolveMediaUrl(c.featured_image),
+      description: c.short_description || 'Curso de formación profesional',
+      meta: [
+        { label: 'Tipo', value: c.course_type || 'Curso' },
+        { label: 'Modalidad', value: c.modality || 'Por definir' },
+        { label: 'Horas', value: c.duration_hours ? `${c.duration_hours} h` : 'Por definir' },
+        { label: 'Precio', value: formatCurrency(c.base_price) },
+      ],
+    })),
   ]
+  const selectedProgram = programItems.find((item) => item.id === form.course)
 
   // -------------------------------------------------------------------------
   // Fetch data on mount
@@ -378,8 +449,8 @@ export default function NuevaConvocatoriaPage() {
 
       try {
         const [cyclesRes, coursesRes, staffRes, campusesRes] = await Promise.all([
-          fetch('/api/cycles?limit=100&sort=name').then((r) => r.json()),
-          fetch('/api/courses?limit=100&sort=title').then((r) => r.json()),
+          fetch('/api/cycles?limit=100&sort=name&depth=1').then((r) => r.json()),
+          fetch('/api/courses?limit=100&sort=name&depth=1').then((r) => r.json()),
           fetch('/api/staff?where[staff_type][equals]=profesor&limit=100').then((r) => r.json()),
           fetch('/api/campuses?limit=100').then((r) => r.json()),
         ])
@@ -403,6 +474,11 @@ export default function NuevaConvocatoriaPage() {
     if (!preselectedProfessorId) return
     setForm((prev) => (prev.instructor ? prev : { ...prev, instructor: preselectedProfessorId }))
   }, [preselectedProfessorId])
+
+  useEffect(() => {
+    if (!lockedProgramValue) return
+    setForm((prev) => (prev.course ? prev : { ...prev, course: lockedProgramValue }))
+  }, [lockedProgramValue])
 
   // -------------------------------------------------------------------------
   // Helpers
@@ -439,16 +515,8 @@ export default function NuevaConvocatoriaPage() {
     setSubmitting(true)
     setError(null)
 
-    // Extract the actual course ID from the combined selector value
-    // Format is "course:123" or "cycle:456" — the API expects a course ID
-    let courseId = form.course
-    if (courseId.startsWith('course:')) {
-      courseId = courseId.replace('course:', '')
-    } else if (courseId.startsWith('cycle:')) {
-      // If a cycle was selected, we still need a course — this is a simplification.
-      // In a real scenario, cycles might have a default course or the user picks one.
-      courseId = courseId.replace('cycle:', '')
-    }
+    const selectedType = form.course.startsWith('cycle:') ? 'cycle' : 'course'
+    const selectedId = form.course.replace(/^course:/, '').replace(/^cycle:/, '')
 
     // Auto-generate codigo from campus slug + year
     const selectedCampus = campuses.find(c => String(c.id) === form.campus)
@@ -457,11 +525,17 @@ export default function NuevaConvocatoriaPage() {
     const autoCode = form.codigo || `${campusCode}-${year}-${String(Date.now()).slice(-3)}`
 
     const body: Record<string, unknown> = {
-      course: courseId,
       max_students: form.max_students,
       min_students: form.min_students || 1,
       status: form.status,
       codigo: autoCode,
+    }
+
+    if (selectedType === 'cycle') {
+      body.cycle = selectedId
+      body.training_type = 'cycle'
+    } else {
+      body.course = selectedId
     }
 
     if (form.start_date) body.start_date = form.start_date
@@ -484,7 +558,9 @@ export default function NuevaConvocatoriaPage() {
         throw new Error(msg)
       }
 
-      router.push('/programacion')
+      const data = await res.json().catch(() => null)
+      const createdId = data?.doc?.id ?? data?.id
+      router.push(createdId ? `/dashboard/programacion/${createdId}` : '/dashboard/programacion')
     } catch (err: any) {
       setError(err.message ?? 'Error al crear la convocatoria')
     } finally {
@@ -525,7 +601,7 @@ export default function NuevaConvocatoriaPage() {
           description="Crear una nueva convocatoria de curso"
           icon={Calendar}
           actions={
-            <Button variant="outline" onClick={() => router.push('/programacion')}>
+            <Button variant="outline" onClick={() => router.push('/dashboard/programacion')}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver
             </Button>
@@ -560,7 +636,7 @@ export default function NuevaConvocatoriaPage() {
         description="Crear una nueva convocatoria de curso"
         icon={Calendar}
         actions={
-          <Button variant="outline" onClick={() => router.push('/programacion')}>
+          <Button variant="outline" onClick={() => router.push('/dashboard/programacion')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver
           </Button>
@@ -586,8 +662,8 @@ export default function NuevaConvocatoriaPage() {
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
           <Label htmlFor="program">Ciclo / Curso *</Label>
-          <Select value={form.course} onValueChange={(v) => updateField('course', v)}>
-            <SelectTrigger id="program">
+          <Select value={form.course} onValueChange={(v) => updateField('course', v)} disabled={Boolean(lockedProgramValue)}>
+            <SelectTrigger id="program" className={lockedProgramValue ? 'bg-muted/60' : undefined}>
               <SelectValue placeholder="Seleccionar ciclo o curso" />
             </SelectTrigger>
             <SelectContent>
@@ -632,6 +708,49 @@ export default function NuevaConvocatoriaPage() {
               )}
             </SelectContent>
           </Select>
+          {lockedProgramValue && (
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Lock className="h-3.5 w-3.5" />
+              Convocatoria bloqueada al programa desde el que se ha iniciado la creación.
+            </p>
+          )}
+          {selectedProgram && (
+            <div className="mt-4 overflow-hidden rounded-xl border bg-muted/25">
+              <div className="grid gap-0 md:grid-cols-[180px_1fr]">
+                {selectedProgram.imageUrl ? (
+                  <img
+                    src={selectedProgram.imageUrl}
+                    alt={selectedProgram.label}
+                    className="h-40 w-full object-cover md:h-full"
+                  />
+                ) : (
+                  <div className="flex h-40 items-center justify-center bg-muted text-muted-foreground md:h-full">
+                    <Calendar className="h-8 w-8" />
+                  </div>
+                )}
+                <div className="space-y-4 p-4">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline">{selectedProgram.type === 'cycle' ? 'Ciclo' : 'Curso'}</Badge>
+                      {lockedProgramValue && <Badge className="bg-[#f2014b] text-white">Preseleccionado</Badge>}
+                    </div>
+                    <h3 className="mt-2 text-lg font-semibold leading-tight">{selectedProgram.label}</h3>
+                    {selectedProgram.description && (
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{selectedProgram.description}</p>
+                    )}
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {selectedProgram.meta.map((item) => (
+                      <div key={item.label} className="rounded-lg border bg-background px-3 py-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</p>
+                        <p className="mt-1 truncate text-sm font-medium">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ----------------------------------------------------------------- */}
@@ -846,7 +965,7 @@ export default function NuevaConvocatoriaPage() {
         {/* Actions */}
         {/* ----------------------------------------------------------------- */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={() => router.push('/programacion')}>
+          <Button variant="outline" onClick={() => router.push('/dashboard/programacion')}>
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
