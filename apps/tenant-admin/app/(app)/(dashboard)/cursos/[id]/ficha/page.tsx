@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { ArrowLeft, BookOpen, Calendar, Download, Euro, FileText, Globe2, Loader2, Mail, Phone, Printer } from 'lucide-react'
+import { ArrowLeft, BookOpen, Download, Globe2, Loader2, Mail, Phone, Printer } from 'lucide-react'
+import { DocumentCard, FieldCard } from '@payload-config/components/akademate/dashboard'
 
 interface CourseDetail {
   id: string | number
@@ -200,15 +201,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-function DataCard({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border bg-background p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-      <div className="mt-1 font-semibold">{value}</div>
-    </div>
-  )
-}
-
 interface Props { params: Promise<{ id: string }> }
 
 export default function CourseFichaPage({ params }: Props) {
@@ -334,10 +326,10 @@ export default function CourseFichaPage({ params }: Props) {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <DataCard label="Duración" value={course.duration_hours ? `${course.duration_hours} horas` : 'Por definir'} />
-          <DataCard label="Precio" value={formatCurrency(course.base_price)} />
-          <DataCard label="Matrícula" value={formatCurrency(course.enrollment_fee)} />
-          <DataCard label="Área" value={areaName(course)} />
+          <FieldCard label="Duración" value={course.duration_hours ? `${course.duration_hours} horas` : 'Por definir'} />
+          <FieldCard label="Precio" value={formatCurrency(course.base_price)} />
+          <FieldCard label="Matrícula" value={formatCurrency(course.enrollment_fee)} />
+          <FieldCard label="Área" value={areaName(course)} />
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[1.35fr_0.75fr]">
@@ -389,30 +381,13 @@ export default function CourseFichaPage({ params }: Props) {
           </div>
 
           <aside className="space-y-6">
-            <Section title="PDF del programa">
-              {dossierUrl ? (
-                <div className="space-y-3">
-                <a href={dossierUrl} download={dossierFileName} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-xl border border-red-100 bg-red-50 p-4 font-semibold text-red-700 transition hover:bg-red-100">
-                  <FileText className="h-7 w-7 shrink-0" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate">{dossierFileName}</span>
-                    <span className="block text-xs font-normal">Descargar PDF</span>
-                  </span>
-                  <Download className="h-4 w-4 shrink-0" />
-                </a>
-                <Button asChild variant="outline" className="w-full">
-                  <a href={`/dashboard/cursos/${id}/editar`}>Sustituir PDF</a>
-                </Button>
-                </div>
-              ) : (
-                <div className="space-y-3 rounded-xl border border-dashed p-4">
-                  <p>PDF del programa no disponible todavía.</p>
-                  <Button asChild className="w-full">
-                    <a href={`/dashboard/cursos/${id}/editar`}>Subir PDF</a>
-                  </Button>
-                </div>
-              )}
-            </Section>
+            <DocumentCard
+              fileName={dossierFileName}
+              fileUrl={dossierUrl}
+              downloadName={dossierFileName}
+              onUpload={() => router.push(`/dashboard/cursos/${id}/editar`)}
+              onReplace={() => router.push(`/dashboard/cursos/${id}/editar`)}
+            />
 
             <Section title="Convocatorias asociadas">
               {convocatorias.length > 0 ? (

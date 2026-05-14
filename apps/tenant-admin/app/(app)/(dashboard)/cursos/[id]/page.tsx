@@ -8,11 +8,13 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, BookOpen, Clock, Edit, Loader2,
-  Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Monitor, Plus, Printer, MapPin, Users,
-  Download, FileText, Eye,
+  Calendar, Euro, ExternalLink, Monitor, Plus, Printer, MapPin, Users,
+  Eye,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
+import { EntityMetricCard, StatusBadge } from '@payload-config/components/akademate/dashboard'
+import { CoursePrintSheet } from '@payload-config/components/akademate/print'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -71,10 +73,10 @@ interface ConvocatoriaSummary {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const STATUS_LABELS: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' }> = {
-  draft: { label: 'Borrador', variant: 'secondary' },
-  published: { label: 'Publicado', variant: 'default' },
-  archived: { label: 'Archivado', variant: 'destructive' },
+const STATUS_LABELS: Record<string, { label: string; tone: 'draft' | 'published' | 'archived' }> = {
+  draft: { label: 'Sin publicar', tone: 'draft' },
+  published: { label: 'Publicado', tone: 'published' },
+  archived: { label: 'Archivado', tone: 'archived' },
 }
 
 const MODALITY_LABELS: Record<string, string> = {
@@ -124,10 +126,6 @@ function resolveImageUrl(image: CourseDetail['featured_image']): string | null {
 
 function resolveMediaUrl(media: CourseDetail['featured_image']): string | null {
   return resolveImageUrl(media)
-}
-
-function textList(items?: Array<{ text?: string }>): string[] {
-  return (items ?? []).map((item) => item.text?.trim()).filter((value): value is string => Boolean(value))
 }
 
 function resolveAreaName(area: CourseDetail['area_formativa']): string | null {
@@ -263,17 +261,12 @@ export default function CursoDetailPage({ params }: Props) {
   const activeRuns = convocatorias.filter((conv) => !['cancelled', 'archived', 'completed'].includes(conv.estado ?? ''))
   const isTeleformacion = course.course_type === 'teleformacion' || course.modality === 'teleformacion'
   const dossierUrl = resolveMediaUrl(course.dossier_pdf)
-  const objectives = textList(course.landing_objectives)
-  const programBlocks = course.landing_program_blocks ?? []
-  const requirements = course.landing_access_requirements?.trim()
-  const outcomes = course.landing_outcomes?.trim()
-
   return (
     <div className="space-y-6">
       <style jsx global>{`
         @page {
           size: A4;
-          margin: 10mm;
+          margin: 8mm;
         }
 
         @media print {
@@ -291,6 +284,8 @@ export default function CursoDetailPage({ params }: Props) {
             position: absolute;
             inset: 0 auto auto 0;
             width: 100%;
+            max-height: 281mm;
+            overflow: hidden;
             background: white;
             color: #111827;
           }
@@ -307,7 +302,7 @@ export default function CursoDetailPage({ params }: Props) {
         title={course.name ?? 'Sin nombre'}
         description={course.codigo ?? ''}
         icon={BookOpen}
-        badge={statusInfo && <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>}
+        badge={statusInfo && <StatusBadge tone={statusInfo.tone}>{statusInfo.label}</StatusBadge>}
         actions={<>
           <Button variant="ghost" onClick={() => router.push('/dashboard/cursos')}>
             <ArrowLeft className="mr-2 h-4 w-4" />Cursos
@@ -323,7 +318,7 @@ export default function CursoDetailPage({ params }: Props) {
           <Button onClick={() => router.push(`/dashboard/cursos/${id}/editar`)}>
             <Edit className="mr-2 h-4 w-4" />Editar
           </Button>
-          <Button variant="outline" onClick={() => router.push(`/dashboard/cursos/${id}/ficha`)}>
+          <Button variant="outline" onClick={() => window.print()}>
             <Printer className="mr-2 h-4 w-4" />Imprimir curso
           </Button>
         </>}
@@ -336,17 +331,7 @@ export default function CursoDetailPage({ params }: Props) {
           { label: 'Horas', value: course.duration_hours || 0, icon: Clock },
           { label: 'Convocatorias', value: convocatorias.length, icon: Calendar },
           { label: 'Precio base', value: formatCurrency(course.base_price), icon: Euro },
-        ].map(({ label, value, icon: Icon }) => (
-          <Card key={label}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{label}</span>
-                <Icon className="h-4 w-4 text-primary" />
-              </div>
-              <p className="mt-2 text-2xl font-semibold">{value}</p>
-            </CardContent>
-          </Card>
-        ))}
+        ].map((item) => <EntityMetricCard key={item.label} {...item} />)}
       </div>
 
       {/* Main grid */}
@@ -500,7 +485,7 @@ export default function CursoDetailPage({ params }: Props) {
               {statusInfo && (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Estado</span>
-                  <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+                  <StatusBadge tone={statusInfo.tone}>{statusInfo.label}</StatusBadge>
                 </div>
               )}
 
@@ -559,148 +544,22 @@ export default function CursoDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <section id="course-print-sheet" className="hidden p-6 text-[12px]">
-        <div className="flex items-center justify-between border-b-4 border-red-600 pb-4">
-          <img src={CEP_LOGO_URL} alt="CEP Formacion" className="h-14 w-auto object-contain" />
-          <div className="text-right">
-            <p className="text-xl font-bold uppercase tracking-wide">Ficha informativa de curso</p>
-            <p className="text-sm text-gray-600">{course.codigo ?? `Curso ${course.id}`}</p>
-          </div>
-        </div>
-
-        <div className="mt-5 grid grid-cols-[1.55fr_0.9fr] gap-5">
-          <div>
-            <p className="text-xs font-semibold uppercase text-red-700">{normalizeCourseType(course.course_type)}</p>
-            <h1 className="mt-1 text-3xl font-bold leading-tight">{course.name ?? 'Curso sin nombre'}</h1>
-            <p className="mt-3 text-sm leading-relaxed text-gray-700">
-              {course.short_description || 'Información detallada disponible próximamente.'}
-            </p>
-          </div>
-          {imageUrl ? (
-            <img src={imageUrl} alt={course.name ?? 'Curso'} className="h-44 w-full rounded-lg object-cover" />
-          ) : (
-            <div className="flex h-44 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-              Imagen de portada pendiente
-            </div>
-          )}
-        </div>
-
-        <div className="mt-5 grid grid-cols-4 gap-3">
-          <div className="rounded-lg border p-3">
-            <p className="text-[10px] uppercase text-gray-500">Modalidad</p>
-            <p className="mt-1 font-semibold">{course.modality ? (MODALITY_LABELS[course.modality] ?? course.modality) : 'Por definir'}</p>
-          </div>
-          <div className="rounded-lg border p-3">
-            <p className="text-[10px] uppercase text-gray-500">Duracion</p>
-            <p className="mt-1 font-semibold">{course.duration_hours ? `${course.duration_hours} horas` : 'Por definir'}</p>
-          </div>
-          <div className="rounded-lg border p-3">
-            <p className="text-[10px] uppercase text-gray-500">Area</p>
-            <p className="mt-1 font-semibold">{areaName ?? course.area ?? 'Por definir'}</p>
-          </div>
-          <div className="rounded-lg border p-3">
-            <p className="text-[10px] uppercase text-gray-500">Precio base</p>
-            <p className="mt-1 font-semibold">{formatCurrency(course.base_price)}</p>
-          </div>
-        </div>
-
-        <div className="mt-5 grid grid-cols-2 gap-4">
-          <div className="rounded-lg border p-3">
-            <h2 className="text-base font-bold">Objetivos</h2>
-            {objectives.length > 0 ? (
-              <ul className="mt-2 list-disc space-y-1 pl-4">
-                {objectives.slice(0, 8).map((objective) => <li key={objective}>{objective}</li>)}
-              </ul>
-            ) : (
-              <p className="mt-2 text-gray-600">Objetivos disponibles próximamente.</p>
-            )}
-          </div>
-          <div className="rounded-lg border p-3">
-            <h2 className="text-base font-bold">Requisitos y salidas</h2>
-            <p className="mt-2"><strong>Requisitos:</strong> {requirements || 'A consultar con admisiones.'}</p>
-            <p className="mt-2"><strong>Salidas:</strong> {outcomes || 'A consultar con orientación académica.'}</p>
-          </div>
-        </div>
-
-        <div className="mt-5 rounded-lg border p-3">
-          <h2 className="text-base font-bold">Contenidos / programa</h2>
-          {programBlocks.length > 0 ? (
-            <div className="mt-2 grid grid-cols-2 gap-3">
-              {programBlocks.slice(0, 6).map((block, index) => (
-                <div key={`${block.title ?? 'bloque'}-${index}`}>
-                  <p className="font-semibold">{block.title || `Bloque ${index + 1}`}</p>
-                  {block.body && <p className="text-gray-700">{block.body}</p>}
-                  {block.items?.length ? (
-                    <ul className="mt-1 list-disc pl-4 text-gray-700">
-                      {block.items.slice(0, 5).map((item, itemIndex) => item.text ? <li key={`${item.text}-${itemIndex}`}>{item.text}</li> : null)}
-                    </ul>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-2 text-gray-600">Programa disponible próximamente.</p>
-          )}
-          <p className="mt-3 text-sm"><strong>PDF:</strong> {dossierUrl ? 'Dossier disponible para descarga desde la ficha digital.' : 'PDF del programa no disponible todavía.'}</p>
-        </div>
-
-        <div className="mt-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold">Convocatorias</h2>
-            <p className="text-xs text-gray-500">{activeRuns.length} convocatoria(s) activa(s) o planificada(s)</p>
-          </div>
-          {activeRuns.length === 0 ? (
-            <div className="mt-2 rounded-lg border p-4 text-gray-600">
-              No hay convocatorias activas en este momento. Consulte disponibilidad en recepcion o en la web.
-            </div>
-          ) : (
-            <div className="mt-2 overflow-hidden rounded-lg border">
-              <table className="w-full border-collapse text-left">
-                <thead className="bg-gray-100 text-[10px] uppercase text-gray-600">
-                  <tr>
-                    <th className="p-2">Codigo</th>
-                    <th className="p-2">Sede / aula</th>
-                    <th className="p-2">Fechas</th>
-                    <th className="p-2">Horario</th>
-                    <th className="p-2">Plazas</th>
-                    <th className="p-2">Precio</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activeRuns.slice(0, 4).map((conv) => (
-                    <tr key={conv.id} className="border-t">
-                      <td className="p-2 font-semibold">{conv.codigo ?? conv.id}</td>
-                      <td className="p-2">{conv.campusNombre ?? 'Sede por definir'} / {conv.aulaNombre ?? 'Aula por definir'}</td>
-                      <td className="p-2">{formatDateRange(conv.fechaInicio, conv.fechaFin)}</td>
-                      <td className="p-2">{conv.horario?.trim() || conv.turno || 'Por definir'}</td>
-                      <td className="p-2">{conv.plazasOcupadas ?? 0}/{conv.plazasTotales ?? 0}</td>
-                      <td className="p-2">{formatCurrency(conv.precio)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-5 grid grid-cols-[1fr_auto] gap-5 border-t pt-4">
-          <div>
-            <h2 className="text-lg font-bold">Contacto</h2>
-            <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-              <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-red-700" />{CONTACT_PHONE}</p>
-              <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-red-700" />{CONTACT_EMAIL}</p>
-              <p className="flex items-center gap-2"><Globe2 className="h-4 w-4 text-red-700" />cepformacion.akademate.com</p>
-            </div>
-            <p className="mt-4 text-[10px] leading-relaxed text-gray-500">
-              Documento informativo. Las fechas, plazas, precios y condiciones pueden estar sujetos a cambios hasta la formalizacion de la matricula.
-            </p>
-          </div>
-          <div className="text-center">
-            <img src={qrUrl} alt="QR web del curso" className="h-28 w-28" />
-            <p className="mt-1 text-[10px] text-gray-500">Ver curso en la web</p>
-          </div>
-        </div>
-      </section>
+      <CoursePrintSheet
+        course={course}
+        imageUrl={imageUrl}
+        dossierUrl={dossierUrl}
+        areaName={areaName}
+        courseTypeLabel={normalizeCourseType(course.course_type)}
+        modalityLabel={course.modality ? (MODALITY_LABELS[course.modality] ?? course.modality) : 'Por definir'}
+        publicCourseUrl={publicCourseUrl}
+        qrUrl={qrUrl}
+        activeRuns={activeRuns}
+        formatCurrency={formatCurrency}
+        formatDateRange={formatDateRange}
+        logoUrl={CEP_LOGO_URL}
+        contactPhone={CONTACT_PHONE}
+        contactEmail={CONTACT_EMAIL}
+      />
     </div>
   )
 }
