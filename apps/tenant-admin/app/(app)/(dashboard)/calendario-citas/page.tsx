@@ -479,8 +479,59 @@ export default function LeadAppointmentsPage() {
                   )
                 })}
               </div>
+            ) : viewMode === 'week' ? (
+              <div className="overflow-x-auto">
+                <div className="min-w-[920px]">
+                  <div className="grid grid-cols-[74px_repeat(7,minmax(112px,1fr))] border-b">
+                    <div className="p-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Hora</div>
+                    {days.map((day) => (
+                      <button
+                        key={day.toISOString()}
+                        type="button"
+                        onClick={() => setSelectedDate(day)}
+                        className={`border-l p-2 text-left ${isSameDay(day, selectedDate) ? 'bg-red-50 text-red-700' : ''}`}
+                      >
+                        <span className="block text-xs font-semibold uppercase">{format(day, 'EEE', { locale: es })}</span>
+                        <span className="block text-lg font-bold">{format(day, 'd', { locale: es })}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="rounded-b-xl border border-t-0">
+                    {Array.from({ length: 14 }, (_, index) => index + 8).map((hour) => (
+                      <div key={hour} className="grid min-h-24 grid-cols-[74px_repeat(7,minmax(112px,1fr))] border-t first:border-t-0">
+                        <div className="border-r bg-muted/30 p-2 text-xs font-semibold text-muted-foreground">
+                          {String(hour).padStart(2, '0')}:00
+                        </div>
+                        {days.map((day) => {
+                          const hourAppointments = appointments.filter((appointment) => {
+                            const start = new Date(appointment.starts_at)
+                            return isSameDay(start, day) && start.getHours() === hour
+                          })
+                          return (
+                            <button
+                              key={`${day.toISOString()}-${hour}`}
+                              type="button"
+                              onClick={() => setSelectedDate(day)}
+                              className={`space-y-1 border-r p-2 text-left last:border-r-0 ${isSameDay(day, selectedDate) ? 'bg-red-50/40' : 'hover:bg-muted/40'}`}
+                            >
+                              {hourAppointments.map((appointment) => (
+                                <AppointmentPill
+                                  key={appointment.id}
+                                  appointment={appointment}
+                                  compact
+                                  onClick={(event) => { event.stopPropagation(); setSelectedAppointment(appointment); setSelectedDate(day) }}
+                                />
+                              ))}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             ) : (
-              <div className={viewMode === 'month' ? 'grid grid-cols-7 gap-2' : 'grid grid-cols-7 gap-3'}>
+              <div className="grid grid-cols-7 gap-2">
                 {days.map((day) => {
                   const dayAppointments = appointments.filter((appointment) => isSameDay(new Date(appointment.starts_at), day))
                   const active = isSameDay(day, selectedDate)
@@ -492,11 +543,11 @@ export default function LeadAppointmentsPage() {
                       className={`min-h-32 rounded-xl border p-3 text-left transition-colors ${active ? 'border-red-500 bg-red-50' : 'hover:border-red-200'} ${viewMode === 'month' && !isSameMonth(day, cursor) ? 'opacity-40' : ''}`}
                     >
                       <div className="mb-2 flex items-center justify-between">
-                        <span className="text-sm font-bold">{format(day, viewMode === 'week' ? 'EEE d' : 'd', { locale: es })}</span>
+                        <span className="text-sm font-bold">{format(day, 'd', { locale: es })}</span>
                         {dayAppointments.length > 0 && <Badge className="bg-red-600 text-white">{dayAppointments.length}</Badge>}
                       </div>
                       <div className="space-y-1">
-                        {dayAppointments.slice(0, viewMode === 'month' ? 3 : 8).map((appointment) => (
+                        {dayAppointments.slice(0, 3).map((appointment) => (
                           <AppointmentPill key={appointment.id} appointment={appointment} compact onClick={(event) => { event.stopPropagation(); setSelectedAppointment(appointment) }} />
                         ))}
                       </div>

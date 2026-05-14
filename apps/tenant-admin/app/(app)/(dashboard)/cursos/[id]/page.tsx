@@ -9,6 +9,7 @@ import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
   ArrowLeft, BookOpen, Clock, Edit, Loader2,
   Calendar, Euro, ExternalLink, Globe2, Mail, Phone, Monitor, Plus, Printer, MapPin, Users,
+  Download, FileText, X,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
@@ -29,8 +30,15 @@ interface CourseDetail {
   area?: string
   area_formativa?: { id: number; name: string } | number | null
   featured_image?: number | string | { url?: string; filename?: string }
+  dossier_pdf?: number | string | { url?: string; filename?: string }
   duration_hours?: number
   base_price?: number
+  landing_target_audience?: string
+  landing_access_requirements?: string
+  landing_outcomes?: string
+  landing_objectives?: Array<{ text?: string }>
+  landing_program_blocks?: Array<{ title?: string; body?: string; items?: Array<{ text?: string }> }>
+  landing_faqs?: Array<{ question?: string; answer?: string }>
   codigo?: string
   tenant?: number | { id: number }
   createdAt?: string
@@ -114,6 +122,14 @@ function resolveImageUrl(image: CourseDetail['featured_image']): string | null {
   return null
 }
 
+function resolveMediaUrl(media: CourseDetail['featured_image']): string | null {
+  return resolveImageUrl(media)
+}
+
+function textList(items?: Array<{ text?: string }>): string[] {
+  return (items ?? []).map((item) => item.text?.trim()).filter((value): value is string => Boolean(value))
+}
+
 function resolveAreaName(area: CourseDetail['area_formativa']): string | null {
   if (!area) return null
   if (typeof area === 'number') return null
@@ -189,6 +205,7 @@ export default function CursoDetailPage({ params }: Props) {
   const [convocatorias, setConvocatorias] = React.useState<ConvocatoriaSummary[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const [fullSheetOpen, setFullSheetOpen] = React.useState(false)
 
   React.useEffect(() => {
     let mounted = true
@@ -246,6 +263,11 @@ export default function CursoDetailPage({ params }: Props) {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(publicCourseUrl)}`
   const activeRuns = convocatorias.filter((conv) => !['cancelled', 'archived', 'completed'].includes(conv.estado ?? ''))
   const isTeleformacion = course.course_type === 'teleformacion' || course.modality === 'teleformacion'
+  const dossierUrl = resolveMediaUrl(course.dossier_pdf)
+  const objectives = textList(course.landing_objectives)
+  const programBlocks = course.landing_program_blocks ?? []
+  const requirements = course.landing_access_requirements?.trim()
+  const outcomes = course.landing_outcomes?.trim()
 
   return (
     <div className="space-y-6">
@@ -302,8 +324,8 @@ export default function CursoDetailPage({ params }: Props) {
           <Button onClick={() => router.push(`/dashboard/cursos/${id}/editar`)}>
             <Edit className="mr-2 h-4 w-4" />Editar
           </Button>
-          <Button variant="outline" onClick={() => window.print()}>
-            <Printer className="mr-2 h-4 w-4" />Imprimir ficha
+          <Button variant="outline" onClick={() => setFullSheetOpen(true)}>
+            <Printer className="mr-2 h-4 w-4" />Ficha completa
           </Button>
         </>}
         />
@@ -518,7 +540,7 @@ export default function CursoDetailPage({ params }: Props) {
                 <Button
                   variant="outline"
                   className="w-full justify-between"
-                  onClick={() => window.print()}
+                  onClick={() => setFullSheetOpen(true)}
                 >
                   <span className="flex items-center gap-2">
                     <Printer className="h-4 w-4" />
@@ -538,6 +560,129 @@ export default function CursoDetailPage({ params }: Props) {
         </div>
       </div>
 
+      {fullSheetOpen && (
+        <div className="course-screen-only fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/45 p-4">
+          <div className="w-full max-w-5xl rounded-2xl bg-background shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b bg-background p-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Ficha completa del curso</p>
+                <h2 className="mt-1 text-2xl font-bold">{course.name ?? 'Curso sin nombre'}</h2>
+                <p className="text-sm text-muted-foreground">{course.codigo ?? `Curso ${course.id}`}</p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {dossierUrl ? (
+                  <Button asChild variant="outline">
+                    <a href={dossierUrl} target="_blank" rel="noopener noreferrer">
+                      <Download className="mr-2 h-4 w-4" />Descargar PDF
+                    </a>
+                  </Button>
+                ) : null}
+                <Button onClick={() => window.print()}>
+                  <Printer className="mr-2 h-4 w-4" />Imprimir ficha
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setFullSheetOpen(false)} aria-label="Cerrar ficha completa">
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid gap-6 p-6 lg:grid-cols-[1.35fr_0.8fr]">
+              <div className="space-y-6">
+                <section className="rounded-xl border p-5">
+                  <h3 className="text-lg font-semibold">Presentación</h3>
+                  <p className="mt-3 leading-relaxed text-muted-foreground">
+                    {course.short_description || 'Información detallada pendiente de validación por CEP Formación.'}
+                  </p>
+                </section>
+
+                <section className="rounded-xl border p-5">
+                  <h3 className="text-lg font-semibold">Objetivos</h3>
+                  {objectives.length > 0 ? (
+                    <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+                      {objectives.map((objective) => <li key={objective}>{objective}</li>)}
+                    </ul>
+                  ) : (
+                    <p className="mt-3 text-sm text-muted-foreground">Objetivos pendientes de completar.</p>
+                  )}
+                </section>
+
+                <section className="rounded-xl border p-5">
+                  <h3 className="text-lg font-semibold">Contenidos / programa</h3>
+                  {programBlocks.length > 0 ? (
+                    <div className="mt-3 space-y-4">
+                      {programBlocks.map((block, index) => (
+                        <div key={`${block.title ?? 'bloque'}-${index}`} className="rounded-lg bg-muted/40 p-4">
+                          <p className="font-semibold">{block.title || `Bloque ${index + 1}`}</p>
+                          {block.body && <p className="mt-2 text-sm text-muted-foreground">{block.body}</p>}
+                          {block.items?.length ? (
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                              {block.items.map((item, itemIndex) => item.text ? <li key={`${item.text}-${itemIndex}`}>{item.text}</li> : null)}
+                            </ul>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-sm text-muted-foreground">Programa pendiente de completar.</p>
+                  )}
+                </section>
+
+                <section className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-xl border p-5">
+                    <h3 className="text-lg font-semibold">Requisitos</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{requirements || 'Requisitos no especificados todavía.'}</p>
+                  </div>
+                  <div className="rounded-xl border p-5">
+                    <h3 className="text-lg font-semibold">Salidas profesionales</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{outcomes || 'Salidas profesionales pendientes de completar.'}</p>
+                  </div>
+                </section>
+              </div>
+
+              <aside className="space-y-4">
+                {imageUrl ? (
+                  <img src={imageUrl} alt={course.name ?? 'Curso'} className="h-56 w-full rounded-xl object-cover" />
+                ) : (
+                  <div className="flex h-56 items-center justify-center rounded-xl border bg-muted text-sm text-muted-foreground">Sin imagen de portada</div>
+                )}
+                <div className="rounded-xl border p-5 text-sm">
+                  <div className="space-y-3">
+                    <InfoRow label="Tipo">{normalizeCourseType(course.course_type)}</InfoRow>
+                    <InfoRow label="Modalidad">{course.modality ? (MODALITY_LABELS[course.modality] ?? course.modality) : 'Por definir'}</InfoRow>
+                    <InfoRow label="Área">{areaName ?? course.area ?? 'Por definir'}</InfoRow>
+                    <InfoRow label="Duración">{course.duration_hours ? `${course.duration_hours} horas` : 'Por definir'}</InfoRow>
+                    <InfoRow label="Precio">{formatCurrency(course.base_price)}</InfoRow>
+                  </div>
+                </div>
+                <div className="rounded-xl border p-5">
+                  <h3 className="font-semibold">PDF del programa</h3>
+                  {dossierUrl ? (
+                    <a href={dossierUrl} target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center gap-3 rounded-lg border border-red-100 bg-red-50 p-3 text-sm font-medium text-red-700 transition hover:bg-red-100">
+                      <FileText className="h-5 w-5" />
+                      <span className="flex-1">Descargar dossier</span>
+                      <Download className="h-4 w-4" />
+                    </a>
+                  ) : (
+                    <p className="mt-3 text-sm text-muted-foreground">PDF del programa no disponible todavía.</p>
+                  )}
+                </div>
+                <div className="rounded-xl border p-5">
+                  <h3 className="font-semibold">Convocatorias asociadas</h3>
+                  <div className="mt-3 space-y-2 text-sm">
+                    {activeRuns.length > 0 ? activeRuns.map((conv) => (
+                      <button key={conv.id} type="button" className="w-full rounded-lg border p-3 text-left transition hover:bg-muted" onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}>
+                        <span className="block font-medium">{conv.codigo ?? `Convocatoria ${conv.id}`}</span>
+                        <span className="block text-xs text-muted-foreground">{formatDateRange(conv.fechaInicio, conv.fechaFin)} · {conv.campusNombre ?? 'Sede por definir'}</span>
+                      </button>
+                    )) : <p className="text-sm text-muted-foreground">No hay convocatorias activas en este momento.</p>}
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      )}
+
       <section id="course-print-sheet" className="hidden p-6 text-[12px]">
         <div className="flex items-center justify-between border-b-4 border-red-600 pb-4">
           <img src={CEP_LOGO_URL} alt="CEP Formacion" className="h-14 w-auto object-contain" />
@@ -552,7 +697,7 @@ export default function CursoDetailPage({ params }: Props) {
             <p className="text-xs font-semibold uppercase text-red-700">{normalizeCourseType(course.course_type)}</p>
             <h1 className="mt-1 text-3xl font-bold leading-tight">{course.name ?? 'Curso sin nombre'}</h1>
             <p className="mt-3 text-sm leading-relaxed text-gray-700">
-              {course.short_description || 'Informacion detallada pendiente de validacion por CEP Formacion.'}
+              {course.short_description || 'Información detallada disponible próximamente.'}
             </p>
           </div>
           {imageUrl ? (
@@ -581,6 +726,46 @@ export default function CursoDetailPage({ params }: Props) {
             <p className="text-[10px] uppercase text-gray-500">Precio base</p>
             <p className="mt-1 font-semibold">{formatCurrency(course.base_price)}</p>
           </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-4">
+          <div className="rounded-lg border p-3">
+            <h2 className="text-base font-bold">Objetivos</h2>
+            {objectives.length > 0 ? (
+              <ul className="mt-2 list-disc space-y-1 pl-4">
+                {objectives.slice(0, 8).map((objective) => <li key={objective}>{objective}</li>)}
+              </ul>
+            ) : (
+              <p className="mt-2 text-gray-600">Objetivos disponibles próximamente.</p>
+            )}
+          </div>
+          <div className="rounded-lg border p-3">
+            <h2 className="text-base font-bold">Requisitos y salidas</h2>
+            <p className="mt-2"><strong>Requisitos:</strong> {requirements || 'A consultar con admisiones.'}</p>
+            <p className="mt-2"><strong>Salidas:</strong> {outcomes || 'A consultar con orientación académica.'}</p>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-lg border p-3">
+          <h2 className="text-base font-bold">Contenidos / programa</h2>
+          {programBlocks.length > 0 ? (
+            <div className="mt-2 grid grid-cols-2 gap-3">
+              {programBlocks.slice(0, 6).map((block, index) => (
+                <div key={`${block.title ?? 'bloque'}-${index}`}>
+                  <p className="font-semibold">{block.title || `Bloque ${index + 1}`}</p>
+                  {block.body && <p className="text-gray-700">{block.body}</p>}
+                  {block.items?.length ? (
+                    <ul className="mt-1 list-disc pl-4 text-gray-700">
+                      {block.items.slice(0, 5).map((item, itemIndex) => item.text ? <li key={`${item.text}-${itemIndex}`}>{item.text}</li> : null)}
+                    </ul>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-gray-600">Programa disponible próximamente.</p>
+          )}
+          <p className="mt-3 text-sm"><strong>PDF:</strong> {dossierUrl ? 'Dossier disponible para descarga desde la ficha digital.' : 'PDF del programa no disponible todavía.'}</p>
         </div>
 
         <div className="mt-5">
