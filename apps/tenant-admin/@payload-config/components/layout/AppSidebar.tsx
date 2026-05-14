@@ -44,6 +44,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
+import { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from '@payload-config/components/akademate/dashboard'
 
 // Menu structure with sections
 // Section: null = no separator, otherwise show separator before item.
@@ -309,6 +310,7 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
 
       <SubIcon className={`h-4 w-4 shrink-0 ${subItem.upcoming ? 'text-muted-foreground/40' : 'text-foreground/70'}`} data-oid=":he6p21" />
       <span className={subItem.upcoming ? 'italic text-muted-foreground/60' : ''} data-oid="-wiel.j">{subItem.title}</span>
+      {subItem.upcoming ? <DashboardSidebarUpcomingBadge className="ml-auto" /> : null}
     </Link>
   )
 }
@@ -426,25 +428,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
             // Section separator component using active tenant primary color.
             const SectionSeparator = item.sectionBefore ? (
-              <li className="pt-4 pb-1 overflow-hidden" data-oid="dza5ht_">
-                {isCollapsed ? (
-                  <div className="flex justify-center">
-                    <div
-                      className="w-6 border-t"
-                      style={{ borderColor: 'hsl(var(--primary) / 0.45)' }}
-                      data-oid="r19606h"
-                    />
-                  </div>
-                ) : (
-                  <span
-                    className="block px-3 text-[10px] font-bold uppercase tracking-[0.16em] whitespace-nowrap"
-                    style={{ color: 'hsl(var(--primary))' }}
-                    data-oid="im22q2t"
-                  >
-                    {item.sectionBefore}
-                  </span>
-                )}
-              </li>
+              <DashboardSidebarGroup label={item.sectionBefore} collapsed={isCollapsed} />
             ) : null
 
             if (!hasSubItems) {
@@ -484,6 +468,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                       >
                         {item.title}
                       </span>
+                      {!isCollapsed && item.upcoming ? <DashboardSidebarUpcomingBadge /> : null}
                     </Link>
                   </li>
                 </React.Fragment>
@@ -537,6 +522,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                     >
                       {item.title}
                     </span>
+                    {!isCollapsed && item.upcoming ? <DashboardSidebarUpcomingBadge /> : null}
                     {!isCollapsed && (
                       <ChevronDown
                         className={`h-4 w-4 shrink-0 transition-transform duration-300 ease-in-out ${isOpen ? 'rotate-180' : ''}`}

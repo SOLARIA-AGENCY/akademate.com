@@ -22,8 +22,7 @@ import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
 import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
 import { getLimit } from '@payload-config/lib/planLimits'
-import { CourseTemplateCard } from '@payload-config/components/ui/CourseTemplateCard'
-import { CourseListItem } from '@payload-config/components/ui/CourseListItem'
+import { CourseDashboardCard, CourseDashboardListItem } from '@payload-config/components/akademate/dashboard'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
@@ -417,9 +416,9 @@ function CursosPageContent() {
                 {view === 'grid' ? (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2" data-oid="3kr--1i">
                     {group.courses.map((course) => (
-                      <CourseTemplateCard
+                      <CourseDashboardCard
                         key={course.id}
-                        template={{
+                        course={{
                           ...course,
                           tipo: getCourseType(course),
                         }}
@@ -431,7 +430,7 @@ function CursosPageContent() {
                 ) : (
                   <div className="flex flex-col gap-4" data-oid="9hy8e7h">
                     {group.courses.map((course) => (
-                      <CourseListItem
+                      <CourseDashboardListItem
                         key={course.id}
                         course={{
                           ...course,

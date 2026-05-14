@@ -11,6 +11,7 @@ import { BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-reac
 import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses'
 import { buildCourseGroups } from '../p/cursos/page'
 import { CoursesCatalogView } from '../p/cursos/CoursesCatalogView'
+import { AreaPublicCard, CampusPublicCard } from '@payload-config/components/akademate/public'
 
 const BRAND_RED = '#f2014b'
 
@@ -819,27 +820,16 @@ async function CampusListSection({
             const imageUrl = resolveImageUrl(campus.image)
             const schedule = campus?.schedule?.weekdays || campus?.schedule?.saturday || 'Consultar horario'
             return (
-              <Link key={campus.id} href={`/sedes/${campus.slug}`} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-                <div className="relative h-72 overflow-hidden">
-                  {imageUrl ? <img src={imageUrl} alt={campus.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full bg-slate-200" />}
-                  <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/55 to-transparent" />
-                </div>
-                <div className="space-y-4 p-7">
-                  <h3 className="text-2xl font-black text-slate-950">{campus.name}</h3>
-                  <p className="text-base leading-7 text-slate-600">{campus.city || 'Tenerife'}</p>
-                  <div className="grid gap-2 border-t border-slate-100 pt-4 text-sm text-slate-700">
-                    <p><span className="font-bold text-slate-950">Dirección:</span> {campus.address || 'Consultar dirección'}</p>
-                    {campus.phone ? <p><span className="font-bold text-slate-950">Teléfono:</span> {campus.phone}</p> : null}
-                    <p><span className="font-bold text-slate-950">Horario:</span> {schedule}</p>
-                  </div>
-                  <span className="inline-flex items-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition group-hover:bg-[#d0013f]" style={{ backgroundColor: '#f2014b', color: '#ffffff' }}>
-                    Visitar sede
-                    <svg className="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                    </svg>
-                  </span>
-                </div>
-              </Link>
+              <CampusPublicCard
+                key={campus.id}
+                name={campus.name}
+                href={`/sedes/${campus.slug}`}
+                imageUrl={imageUrl}
+                city={campus.city}
+                address={campus.address}
+                phone={campus.phone}
+                schedule={schedule}
+              />
             )
           })}
         </div>
@@ -894,31 +884,13 @@ function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { k
         {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
         <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {section.items.map((item) => {
-            const content = (
-              <article className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-                <div className="relative h-56 overflow-hidden">
-                  <img src={getCategoryImage(item)} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent" />
-                </div>
-                <div className="flex min-h-[9.5rem] flex-col p-6">
-                  <h3 className="line-clamp-2 min-h-[3.5rem] text-xl font-black uppercase leading-tight text-slate-950">{item.title.replace(/^Área\s+/i, '')}</h3>
-                  <span className="mt-auto inline-flex min-h-11 w-fit min-w-[11rem] items-center justify-center rounded-full bg-[#f2014b] px-5 py-2.5 text-sm font-black text-white shadow-sm transition group-hover:bg-[#d0013f]" style={{ backgroundColor: '#f2014b', color: '#ffffff' }}>
-                    Ver formaciones
-                    <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                    </svg>
-                  </span>
-                </div>
-              </article>
-            )
-            return item.href ? (
-              <Link key={item.title} href={getCategoryHref(item)} aria-label={`Ver cursos de ${item.title}`}>
-                {content}
-              </Link>
-            ) : (
-              <Link key={item.title} href={getCategoryHref(item)} aria-label={`Ver cursos de ${item.title}`}>
-                {content}
-              </Link>
+            return (
+              <AreaPublicCard
+                key={item.title}
+                title={item.title}
+                href={getCategoryHref(item)}
+                imageUrl={getCategoryImage(item)}
+              />
             )
           })}
         </div>
