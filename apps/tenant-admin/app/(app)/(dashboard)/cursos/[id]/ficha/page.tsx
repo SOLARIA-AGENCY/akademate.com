@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
-import { ArrowLeft, BookOpen, Download, Globe2, Loader2, Mail, Phone, Printer } from 'lucide-react'
-import { DocumentCard, FieldCard } from '@payload-config/components/akademate/dashboard'
+import { ArrowLeft, BookOpen, CalendarDays, Edit, Globe2, Loader2, Mail, MapPin, Phone, Printer, Users } from 'lucide-react'
+import { FieldCard, PdfManagerCard } from '@payload-config/components/akademate/dashboard'
 
 interface CourseDetail {
   id: string | number
@@ -120,6 +120,16 @@ const NUTRICOSMETICA_FALLBACK = {
   ],
 }
 
+const NUTRICOSMETICA_RELATED_COURSES = [
+  { name: 'Auxiliar de Farmacia', href: '/p/cursos/auxiliar-de-farmacia' },
+  { name: 'Auxiliar de Enfermería', href: '/p/cursos/auxiliar-de-enfermeria' },
+  { name: 'Auxiliar en Clínicas Estéticas', href: '/p/cursos/auxiliar-en-clinicas-esteticas' },
+  { name: 'Quiromasaje Holístico', href: '/p/cursos/quiromasaje-holistico' },
+  { name: 'Entrenamiento Personal', href: '/p/cursos/entrenamiento-personal' },
+  { name: 'Dietética y Nutrición', href: '/p/cursos/dietetica-y-nutricion' },
+  { name: 'Dermocosmética', href: '/p/cursos/dermocosmetica' },
+]
+
 function isNutricosmeticaCourse(course: CourseDetail): boolean {
   const value = `${course.slug || ''} ${course.name || ''}`.toLowerCase()
   return value.includes('nutricosmetica') || value.includes('nutricosmética')
@@ -199,6 +209,33 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       </CardHeader>
       <CardContent className="text-sm leading-relaxed text-muted-foreground">{children}</CardContent>
     </Card>
+  )
+}
+
+function RelatedCoursesList({ plainText }: { plainText: string }) {
+  if (!plainText) return <>Salidas profesionales disponibles próximamente.</>
+
+  const isNutri = NUTRICOSMETICA_RELATED_COURSES.some((course) => plainText.includes(course.name))
+  if (!isNutri) return <p>{plainText}</p>
+
+  return (
+    <div className="space-y-3">
+      <p>{plainText.split('Al terminar puedes ampliar conocimientos con')[0].trim() || 'Itinerarios relacionados:'}</p>
+      <div className="grid gap-2">
+        {NUTRICOSMETICA_RELATED_COURSES.map((course) => (
+          <a
+            key={course.name}
+            href={course.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between rounded-lg border bg-background px-3 py-2 font-medium text-foreground transition hover:border-primary/40 hover:bg-primary/5"
+          >
+            {course.name}
+            <Globe2 className="size-4 text-primary" />
+          </a>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -291,13 +328,9 @@ export default function CourseFichaPage({ params }: Props) {
           <ArrowLeft className="mr-2 h-4 w-4" />Volver al curso
         </Button>
           <div className="flex flex-wrap gap-2">
-            {dossierUrl && (
-              <Button asChild variant="outline">
-              <a href={dossierUrl} download={dossierFileName} target="_blank" rel="noopener noreferrer">
-                <Download className="mr-2 h-4 w-4" />Descargar PDF
-              </a>
-            </Button>
-          )}
+          <Button variant="outline" onClick={() => router.push(`/dashboard/cursos/${id}/editar`)}>
+            <Edit className="mr-2 h-4 w-4" />Editar curso
+          </Button>
           <Button onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Imprimir curso</Button>
         </div>
       </div>
@@ -314,7 +347,6 @@ export default function CourseFichaPage({ params }: Props) {
                 <Badge variant="outline">{modality}</Badge>
                 <Badge variant="outline">{areaName(course)}</Badge>
               </div>
-              {presentation && <p className="mt-5 max-w-3xl leading-relaxed text-muted-foreground">{presentation}</p>}
             </div>
             {imageUrl ? (
               <img src={imageUrl} alt={course.name || 'Curso'} className="h-72 w-full object-cover lg:h-full" />
@@ -376,37 +408,62 @@ export default function CourseFichaPage({ params }: Props) {
                 {accessRequirements || 'Requisitos no especificados todavía.'}
               </Section>
               <Section title="Salidas profesionales">
-                {outcomes || 'Salidas profesionales disponibles próximamente.'}
+                <RelatedCoursesList plainText={outcomes} />
               </Section>
             </div>
           </div>
 
           <aside className="space-y-6">
-             <DocumentCard
-               fileName={dossierFileName}
-               fileUrl={dossierUrl}
-               description={dossierUrl ? undefined : PDF_FALLBACK_TEXT}
-               downloadName={dossierFileName}
-               onUpload={() => router.push(`/dashboard/cursos/${id}/editar`)}
-               onReplace={() => router.push(`/dashboard/cursos/${id}/editar`)}
+            <PdfManagerCard
+              pdfName={dossierFileName}
+              pdfUrl={dossierUrl}
+              description={dossierUrl ? 'Documento operativo del curso para impresión, descarga y actualización.' : PDF_FALLBACK_TEXT}
+              onUpload={() => router.push(`/dashboard/cursos/${id}/editar`)}
+              onReplace={() => router.push(`/dashboard/cursos/${id}/editar`)}
             />
 
             <Section title="Convocatorias asociadas">
               {convocatorias.length > 0 ? (
                 <div className="space-y-3">
                   {convocatorias.map((conv) => (
-                    <button key={conv.id} type="button" className="w-full rounded-xl border p-3 text-left transition hover:bg-muted" onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}>
-                      <span className="block font-semibold text-foreground">{conv.codigo || `Convocatoria ${conv.id}`}</span>
-                      <span className="mt-1 block text-xs">{formatDateRange(conv.fechaInicio, conv.fechaFin)}</span>
-                      <span className="mt-1 block text-xs">{conv.campusNombre || 'Sede por definir'} · {conv.aulaNombre || 'Aula por definir'}</span>
-                      <span className="mt-1 block text-xs">{conv.plazasOcupadas ?? 0}/{conv.plazasTotales ?? 0} plazas · {formatCurrency(conv.precio)}</span>
+                    <button
+                      key={conv.id}
+                      type="button"
+                      className="w-full rounded-xl border bg-background p-4 text-left transition hover:border-primary/35 hover:bg-primary/5"
+                      onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}
+                    >
+                      <span className="flex items-start justify-between gap-3">
+                        <span className="min-w-0">
+                          <span className="block font-semibold text-foreground">{conv.codigo || `Convocatoria ${conv.id}`}</span>
+                          <span className="mt-1 line-clamp-2 block text-xs">{course.name}</span>
+                        </span>
+                        <Badge variant="outline">{conv.estado || 'Sin estado'}</Badge>
+                      </span>
+                      <span className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+                        <span className="flex items-center gap-1.5"><CalendarDays className="size-3.5" />{formatDateRange(conv.fechaInicio, conv.fechaFin)}</span>
+                        <span className="flex items-center gap-1.5"><MapPin className="size-3.5" />{conv.campusNombre || 'Sede por definir'} · {conv.aulaNombre || 'Aula por definir'}</span>
+                        <span className="flex items-center gap-1.5"><Users className="size-3.5" />{conv.plazasOcupadas ?? 0}/{conv.plazasTotales ?? 0} plazas</span>
+                        <span className="font-semibold text-foreground">Precio: {formatCurrency(conv.precio)}</span>
+                      </span>
                     </button>
                   ))}
                 </div>
               ) : 'No hay convocatorias asociadas en este momento.'}
             </Section>
 
-            {course.price_notes && <Section title="Notas de precio">{course.price_notes}</Section>}
+            <Section title="Precio">
+              <div className="grid gap-3">
+                <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/35 px-3 py-2">
+                  <span className="font-semibold text-foreground">Precio base</span>
+                  <span className="text-right font-bold text-foreground">{formatCurrency(course.base_price)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/35 px-3 py-2">
+                  <span className="font-semibold text-foreground">Matrícula</span>
+                  <span className="text-right font-bold text-foreground">{formatCurrency(course.enrollment_fee)}</span>
+                </div>
+                <p>{course.price_notes || 'Sin notas adicionales de precio.'}</p>
+              </div>
+            </Section>
           </aside>
         </div>
       </article>

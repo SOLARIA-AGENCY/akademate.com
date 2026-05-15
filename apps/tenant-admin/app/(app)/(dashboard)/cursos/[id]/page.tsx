@@ -7,7 +7,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
-  ArrowLeft, BookOpen, Clock, Edit, Loader2,
+  ArrowLeft, BookOpen, Clock, Loader2,
   Calendar, Euro, ExternalLink, Monitor, Plus, Printer, MapPin, Users,
   Eye,
 } from 'lucide-react'
@@ -315,9 +315,6 @@ export default function CursoDetailPage({ params }: Props) {
           >
             <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
           </Button>
-          <Button onClick={() => router.push(`/dashboard/cursos/${id}/editar`)}>
-            <Edit className="mr-2 h-4 w-4" />Editar
-          </Button>
           <Button variant="outline" onClick={() => window.print()}>
             <Printer className="mr-2 h-4 w-4" />Imprimir curso
           </Button>
@@ -523,22 +520,13 @@ export default function CursoDetailPage({ params }: Props) {
               <div className="border-t border-border pt-3">
                 <Button
                   variant="outline"
-                  className="w-full justify-between"
+                  className="w-full justify-center gap-2"
                   onClick={() => router.push(`/dashboard/cursos/${id}/ficha`)}
                 >
-                  <span className="flex items-center gap-2">
-                    <Eye className="h-4 w-4" />
-                    Ver curso
-                  </span>
+                  <Eye className="h-4 w-4" />
+                  Ver curso
                 </Button>
               </div>
-
-              {/* Description */}
-              {course.short_description && (
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                  {course.short_description}
-                </p>
-              )}
             </CardContent>
           </Card>
         </div>

@@ -8,6 +8,21 @@ export type { InfoGridProps, InfoRowProps } from './InfoRow'
 export { EmptyPanel, ErrorPanel, FormSection, LoadingPanel } from './Panels'
 export { EntityMetricCard } from './EntityMetricCard'
 export { StatusBadge } from './StatusBadge'
-export { StatusBadge as EntityStatusBadge } from './StatusBadge'
 export { CourseDashboardCard, CourseDashboardListItem } from './CourseDashboardCards'
 export { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from './DashboardSidebar'
+export {
+  ActionFooter,
+  AkadematePageShell,
+  DashboardPageHeader,
+  DashboardSection,
+  EntityHeroCard,
+  EntitySummaryCard,
+  SmallStatusBadge,
+} from './Shell'
+export {
+  CampaignStatusBadge,
+  EntityStatusBadge,
+  MediaBadge,
+  SubsidizedTrainingBadge,
+} from './Badges'
+export { PdfManagerCard } from './PdfManagerCard'

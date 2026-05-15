@@ -94,6 +94,10 @@ export default defineConfig({
         replacement: path.resolve(__dirname, './tests/__mocks__/@payload-config/components/ui'),
       },
       {
+        find: '@payload-config/components/akademate',
+        replacement: path.resolve(__dirname, './@payload-config/components/akademate'),
+      },
+      {
         find: '@payload-config/components',
         replacement: path.resolve(__dirname, './tests/__mocks__/@payload-config/components'),
       },

@@ -2,18 +2,18 @@
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
+import {
+  AuthDivider,
+  AuthError,
+  AuthLegalFooter,
+  AuthShell,
+} from '@payload-config/components/akademate/auth/AuthShell'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
-import { Lock, Mail, Eye, EyeOff, AlertTriangle, Shield, Loader2 } from 'lucide-react'
+import { Lock, Mail, Eye, EyeOff, Shield, Loader2 } from 'lucide-react'
 
 interface LoginUser {
   id: string
@@ -108,54 +108,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-background p-4"
-      data-oid="qp-da09"
+    <AuthShell
+      academyName={branding.academyName}
+      logoUrl={branding.logos.principal || branding.logos.favicon}
+      loading={brandingLoading}
+      title="Iniciar sesión"
+      description="Ingresa tus credenciales para acceder al sistema"
+      footer={<AuthLegalFooter academyName={branding.academyName} />}
     >
-      <div className="w-full max-w-md relative z-10" data-oid="2gm3fiy">
-        {/* Logo/Brand */}
-        <div className="text-center mb-8" data-oid="1vf7s_f">
-          <div className="flex flex-col items-center gap-2 mb-2" data-oid="ou4cocr">
-            <div className={`w-20 h-20 rounded-full bg-white shadow-lg border border-border flex items-center justify-center overflow-hidden transition-opacity duration-300 ${brandingLoading ? 'opacity-0' : 'opacity-100'}`}>
-              <img
-                src={branding.logos.principal || branding.logos.favicon}
-                alt={branding.academyName}
-                className="w-14 h-14 object-contain"
-              />
-            </div>
-            <span className={`text-2xl font-bold tracking-tight text-foreground transition-opacity duration-300 ${brandingLoading ? 'opacity-0' : 'opacity-100'}`}>
-              {branding.academyName}
-            </span>
-          </div>
-          <p className="text-muted-foreground text-sm" data-oid="_0xxfde">
-            Panel de Administración
-          </p>
-        </div>
+            <form onSubmit={handleLogin} className="flex flex-col gap-4" data-oid="-gbykj4">
+              <AuthError message={error} />
 
-        <Card className="shadow-2xl border-2" data-oid="eohhita">
-          <CardHeader className="space-y-1 text-center" data-oid="4t.knld">
-            <CardTitle className="text-2xl" data-oid="0kha606">
-              Iniciar Sesión
-            </CardTitle>
-            <CardDescription data-oid="ij6r3f-">
-              Ingresa tus credenciales para acceder al sistema
-            </CardDescription>
-          </CardHeader>
-          <CardContent data-oid="d1v.eyn">
-            <form onSubmit={handleLogin} className="space-y-4" data-oid="-gbykj4">
-              {error && (
-                <div
-                  className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg flex items-start gap-2"
-                  data-oid="j6r8fxg"
-                >
-                  <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" data-oid="gjhfun4" />
-                  <p className="text-sm" data-oid="eq8iluh">
-                    {error}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-2" data-oid="m2g:gwu">
+              <div className="flex flex-col gap-2" data-oid="m2g:gwu">
                 <Label htmlFor="email" data-oid="170hxjt">
                   Correo Electrónico
                 </Label>
@@ -181,7 +145,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="space-y-2" data-oid="0b:e2ud">
+              <div className="flex flex-col gap-2" data-oid="0b:e2ud">
                 <div className="flex items-center justify-between" data-oid="-dre3if">
                   <Label htmlFor="password" data-oid="-ckjl-b">
                     Contraseña
@@ -214,10 +178,12 @@ export default function LoginPage() {
                     data-oid="y_s_ukl"
                   />
 
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     data-oid="i84gx:1"
                   >
                     {showPassword ? (
@@ -225,17 +191,17 @@ export default function LoginPage() {
                     ) : (
                       <Eye className="h-5 w-5" data-oid="b81r2vg" />
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               <div className="flex items-center gap-2" data-oid="daw.r_j">
-                <input
-                  type="checkbox"
+                <Checkbox
                   id="remember"
                   checked={credentials.remember}
-                  onChange={(e) => setCredentials({ ...credentials, remember: e.target.checked })}
-                  className="rounded"
+                  onCheckedChange={(checked) =>
+                    setCredentials({ ...credentials, remember: checked === true })
+                  }
                   data-oid="1:m6f5w"
                 />
 
@@ -253,35 +219,25 @@ export default function LoginPage() {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" data-oid=".b-7yf3" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" data-icon="inline-start" data-oid=".b-7yf3" />
                     Iniciando sesión...
                   </>
                 ) : (
                   <>
-                    <Shield className="mr-2 h-5 w-5" data-oid="zw.slo_" />
+                    <Shield className="mr-2 h-5 w-5" data-icon="inline-start" data-oid="zw.slo_" />
                     Iniciar Sesión
                   </>
                 )}
               </Button>
-            </form>
 
-            {/* Divisor */}
-            <div className="relative my-5" data-oid="6eh1a7t">
-              <div className="absolute inset-0 flex items-center" data-oid="t.t-uds">
-                <span className="w-full border-t" data-oid="z-.kw69" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase" data-oid="f8klqxs">
-                <span className="bg-card px-2 text-muted-foreground" data-oid="vioid0d">
-                  O continúa con
-                </span>
-              </div>
-            </div>
+              <AuthDivider />
 
             {/* Google OAuth — disabled until SSO flow is fully integrated */}
-            <button
+            <Button
               type="button"
+              variant="outline"
               disabled
-              className="flex w-full items-center justify-center gap-3 rounded-md border border-input bg-muted/50 px-4 py-2.5 text-sm font-medium text-muted-foreground cursor-not-allowed opacity-60"
+              className="w-full justify-center gap-3"
               title="Google SSO estara disponible proximamente"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true" data-oid="no8qira">
@@ -308,10 +264,10 @@ export default function LoginPage() {
               </svg>
               Continuar con Google
               <span className="text-[10px] text-muted-foreground ml-1">(Proximamente)</span>
-            </button>
+            </Button>
 
             {/* Signup link */}
-            <p className="mt-5 text-center text-sm text-muted-foreground" data-oid="sqpl6o:">
+            <p className="text-center text-sm text-muted-foreground" data-oid="sqpl6o:">
               ¿No tienes cuenta?{' '}
               <Link
                 href="/auth/signup"
@@ -321,40 +277,7 @@ export default function LoginPage() {
                 Regístrate aquí
               </Link>
             </p>
-          </CardContent>
-        </Card>
-
-        <div className="mt-8 text-center text-sm text-muted-foreground" data-oid="scsub3k">
-          <p data-oid="4f2bl55">
-            © {new Date().getFullYear()} {branding.academyName}. Todos los derechos reservados.
-          </p>
-          <div className="flex items-center justify-center gap-4 mt-2" data-oid="f3ayrgb">
-            <a
-              href="/legal/privacidad"
-              className="hover:text-foreground transition-colors"
-              data-oid="8xdptus"
-            >
-              Política de Privacidad
-            </a>
-            <span data-oid="9c4tw03">•</span>
-            <a
-              href="/legal/terminos"
-              className="hover:text-foreground transition-colors"
-              data-oid=":9i5:6l"
-            >
-              Términos y Condiciones
-            </a>
-            <span data-oid="7b.1qfl">•</span>
-            <a
-              href="/legal/cookies"
-              className="hover:text-foreground transition-colors"
-              data-oid="vk:_fed"
-            >
-              Cookies
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+            </form>
+    </AuthShell>
   )
 }
