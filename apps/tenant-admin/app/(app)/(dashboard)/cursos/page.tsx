@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, Lock, Briefcase, Building2, Monitor, List } from 'lucide-react'
+import { Plus, Search, Lock, Briefcase, Building2, Monitor, List, ArrowRight } from 'lucide-react'
 import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
 import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
@@ -43,6 +43,7 @@ import type { PlantillaCurso } from '../../../../types'
 const PRIMARY_COURSE_TYPES = ['privados', 'ocupados', 'desempleados', 'teleformacion'] as const
 type DashboardCourseType = (typeof PRIMARY_COURSE_TYPES)[number]
 type DashboardFilterType = 'all' | DashboardCourseType
+type CourseGroup = 'privados' | 'sce'
 
 const TYPE_DISPLAY_ORDER: DashboardCourseType[] = [
   'ocupados',
@@ -50,6 +51,11 @@ const TYPE_DISPLAY_ORDER: DashboardCourseType[] = [
   'privados',
   'teleformacion',
 ]
+
+const GROUP_DISPLAY_ORDER: Record<CourseGroup, DashboardCourseType[]> = {
+  privados: ['privados', 'teleformacion'],
+  sce: ['ocupados', 'desempleados', 'teleformacion'],
+}
 
 const TYPE_ICONS: Record<DashboardCourseType, typeof Lock> = {
   privados: Lock,
@@ -63,7 +69,10 @@ function CursosPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tipo = searchParams.get('tipo')
+  const groupParam = searchParams.get('grupo')
   const selectedTypeFromUrl = normalizePublicStudyType(tipo)
+  const selectedGroup: CourseGroup | null =
+    groupParam === 'privados' || groupParam === 'sce' ? groupParam : null
 
   // View preference (eslint path alias resolution workaround)
 
@@ -149,6 +158,10 @@ function CursosPageContent() {
     router.push(`/dashboard/cursos?tipo=${encodeURIComponent(type)}`)
   }
 
+  const goToGroupPage = (group: CourseGroup) => {
+    router.push(`/dashboard/cursos?grupo=${encodeURIComponent(group)}`)
+  }
+
   const goToTypeLanding = () => {
     router.push('/dashboard/cursos')
   }
@@ -190,14 +203,19 @@ function CursosPageContent() {
   })
 
   const visibleTypes =
-    filterType === 'all' ? TYPE_DISPLAY_ORDER.filter((type) => typeCounts[type] > 0) : [filterType]
+    filterType === 'all'
+      ? (selectedGroup ? GROUP_DISPLAY_ORDER[selectedGroup] : TYPE_DISPLAY_ORDER).filter(
+          (type) => typeCounts[type] > 0
+        )
+      : [filterType]
 
   const groupedCourses = visibleTypes.map((type) => ({
     type,
     courses: filteredCourses.filter((course) => getCourseType(course) === type),
   }))
 
-  const isTypeLandingPage = !selectedTypeFromUrl
+  const isMainLandingPage = !selectedTypeFromUrl && !selectedGroup
+  const isGroupLandingPage = !selectedTypeFromUrl && Boolean(selectedGroup)
 
   // Configure header based on filter
   const tiposConfig: Record<DashboardCourseType, {
@@ -243,10 +261,20 @@ function CursosPageContent() {
   return (
     <div className="space-y-6" data-oid="bkc0c9v">
       <PageHeader
-        title={isTypeLandingPage ? 'Tipos de Cursos' : (config?.title ?? 'Catálogo de Cursos')}
+        title={
+          isMainLandingPage
+            ? 'Catálogo de formación'
+            : isGroupLandingPage
+              ? selectedGroup === 'privados'
+                ? 'CEP Formación - Cursos privados'
+                : 'CEP Formación - Servicio Canario de Empleo'
+              : (config?.title ?? 'Catálogo de Cursos')
+        }
         description={
-          isTypeLandingPage
-            ? 'Selecciona un tipo para ver su catálogo de cursos.'
+          isMainLandingPage
+            ? 'Selecciona una línea de formación para acceder a sus cursos.'
+            : isGroupLandingPage
+              ? 'Selecciona una categoría para ver los cursos disponibles.'
             : (config?.description ?? 'Gestiona y organiza tu oferta formativa.')
         }
         icon={Icon}
@@ -254,14 +282,18 @@ function CursosPageContent() {
         iconColor={config?.color ?? 'text-primary'}
         badge={
           <Badge variant="secondary" data-oid="m2mems3">
-            {isTypeLandingPage ? `${PRIMARY_COURSE_TYPES.length} categorías` : `${filteredCourses.length} cursos`}
+            {isMainLandingPage
+              ? '2 líneas'
+              : isGroupLandingPage
+                ? `${visibleTypes.length} categorías`
+                : `${filteredCourses.length} cursos`}
           </Badge>
         }
         actions={
           <div className="flex items-center gap-2">
-            {!isTypeLandingPage && (
+            {!isMainLandingPage && (
               <Button variant="outline" onClick={goToTypeLanding}>
-                Ver tipos
+                Ver líneas
               </Button>
             )}
             <Button onClick={handleAdd} data-oid="dn:ljue">
@@ -275,10 +307,76 @@ function CursosPageContent() {
 
       <UsageBar resource="cursos" current={cursos.length} limit={getLimit(plan, 'cursos')} />
 
-      {/* Landing de tipos de curso */}
-      {!loading && !error && isTypeLandingPage && (
+      {/* Landing principal de líneas de formación */}
+      {!loading && !error && isMainLandingPage && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <button type="button" onClick={() => goToGroupPage('privados')} className="group h-full text-left">
+            <Card className="relative h-full min-h-[360px] overflow-hidden border transition-all hover:border-primary hover:shadow-lg">
+              <div className="absolute inset-0">
+                <img
+                  src="/website/cep/courses/fallback-privados.png"
+                  alt="Cursos privados CEP Formación"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-[#f2014b]/55 to-slate-950/70" />
+              </div>
+              <CardContent className="relative flex h-full min-h-[360px] flex-col items-center justify-center gap-7 p-8 text-center text-white">
+                <div className="rounded-3xl bg-white/95 p-6 shadow-xl">
+                  <img src="/logos/cep-formacion-logo.png" alt="CEP Formación" className="h-20 w-auto object-contain" />
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.08em] text-white/80">CEP Formación</p>
+                  <h2 className="mt-2 text-3xl font-black tracking-tight">Cursos privados</h2>
+                  <p className="mt-3 text-lg font-semibold text-white/90">
+                    {typeCounts.privados + typeCounts.teleformacion} cursos disponibles
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm font-bold text-slate-950 transition group-hover:bg-primary group-hover:text-white">
+                  Ver cursos privados
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </CardContent>
+            </Card>
+          </button>
+
+          <button type="button" onClick={() => goToGroupPage('sce')} className="group h-full text-left">
+            <Card className="relative h-full min-h-[360px] overflow-hidden border transition-all hover:border-primary hover:shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#006b8f] via-[#159a86] to-[#8fbf3f]" />
+              <div className="absolute inset-0 opacity-35 [background:radial-gradient(circle_at_20%_20%,white,transparent_26%),radial-gradient(circle_at_80%_0%,white,transparent_22%),radial-gradient(circle_at_70%_80%,white,transparent_24%)]" />
+              <CardContent className="relative flex h-full min-h-[360px] flex-col items-center justify-center gap-7 p-8 text-center text-white">
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <div className="rounded-3xl bg-white/95 p-5 shadow-xl">
+                    <img src="/logos/cep-formacion-logo.png" alt="CEP Formación" className="h-16 w-auto object-contain" />
+                  </div>
+                  <div className="rounded-3xl bg-white/95 p-5 shadow-xl">
+                    <img
+                      src="/logos/servicio-canario-empleo.jpg"
+                      alt="Servicio Canario de Empleo"
+                      className="h-16 w-auto object-contain"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.08em] text-white/80">CEP Formación</p>
+                  <h2 className="mt-2 text-3xl font-black tracking-tight">Servicio Canario de Empleo</h2>
+                  <p className="mt-3 text-lg font-semibold text-white/90">
+                    {typeCounts.ocupados + typeCounts.desempleados + typeCounts.teleformacion} cursos disponibles
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm font-bold text-slate-950 transition group-hover:bg-primary group-hover:text-white">
+                  Ver formación subvencionada
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </CardContent>
+            </Card>
+          </button>
+        </div>
+      )}
+
+      {/* Landing de categorías por línea */}
+      {!loading && !error && isGroupLandingPage && (
         <div className="grid gap-6 md:grid-cols-2">
-          {PRIMARY_COURSE_TYPES.map((type) => {
+          {visibleTypes.map((type) => {
             const style = COURSE_TYPE_CONFIG[type]
             const IconByType = TYPE_ICONS[type]
             const typeImage = getPublicStudyTypeFallbackImage(type)
@@ -314,7 +412,7 @@ function CursosPageContent() {
       )}
 
       {/* Filtros - Estandarizados para todas las vistas */}
-      {!isTypeLandingPage && <Card className="bg-card" data-oid="0gd1z6-">
+      {!isMainLandingPage && !isGroupLandingPage && <Card className="bg-card" data-oid="0gd1z6-">
         <CardContent className="pt-6" data-oid=".w7czcl">
           <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="ohwi565">
             <div className="min-w-[260px] flex-1" data-oid="gnnziad">
@@ -398,7 +496,7 @@ function CursosPageContent() {
       )}
 
       {/* Grid o Lista de Cursos */}
-      {!loading && !error && !isTypeLandingPage && groupedCourses.length > 0 && (
+      {!loading && !error && !isMainLandingPage && !isGroupLandingPage && groupedCourses.length > 0 && (
         <div className="space-y-8">
           {groupedCourses.map((group) => {
             if (group.courses.length === 0) return null
