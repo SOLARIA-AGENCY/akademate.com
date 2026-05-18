@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { Button } from '@payload-config/components/ui/button'
 
 const CONSENT_KEY = 'cep_cookie_consent_v1'
 
@@ -39,20 +40,21 @@ export function CookieBanner() {
           .
         </p>
         <div className="flex flex-wrap items-center gap-2">
-          <button
+          <Button
             type="button"
-            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+            variant="outline"
+            className="rounded-full border-slate-300 text-slate-700 hover:border-slate-400 hover:text-slate-900"
             onClick={() => saveConsent('essential')}
           >
             Solo esenciales
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="rounded-full bg-[#f2014b] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#d0013f]"
+            className="rounded-full bg-[#f2014b] text-white hover:bg-[#d0013f]"
             onClick={() => saveConsent('all')}
           >
             Aceptar todas
-          </button>
+          </Button>
         </div>
       </div>
     </div>

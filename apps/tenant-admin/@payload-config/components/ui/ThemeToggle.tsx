@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Moon, Sun } from 'lucide-react'
+import { Button } from '@payload-config/components/ui/button'
 
 export function ThemeToggle() {
   const [isDark, setIsDark] = React.useState(false)
@@ -30,21 +31,24 @@ export function ThemeToggle() {
   // Prevent flash of unstyled content
   if (!mounted) {
     return (
-      <button
-        className="flex h-9 w-9 items-center justify-center rounded-md border border-input bg-transparent hover:bg-accent hover:text-accent-foreground transition-colors"
+      <Button
+        variant="outline"
+        size="icon"
         aria-label="Toggle theme"
         disabled
         data-oid="msmnbx8"
       >
         <Sun className="h-5 w-5" data-oid="_9m1.cy" />
-      </button>
+      </Button>
     )
   }
 
   return (
-    <button
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
       onClick={toggleTheme}
-      className="flex h-9 w-9 items-center justify-center rounded-md border border-input bg-transparent hover:bg-accent hover:text-accent-foreground transition-colors"
       title={`Cambiar a modo ${isDark ? 'claro' : 'oscuro'}`}
       data-oid="r-w_w5w"
     >
@@ -56,6 +60,6 @@ export function ThemeToggle() {
       <span className="sr-only" data-oid="51pnpj4">
         Cambiar tema
       </span>
-    </button>
+    </Button>
   )
 }

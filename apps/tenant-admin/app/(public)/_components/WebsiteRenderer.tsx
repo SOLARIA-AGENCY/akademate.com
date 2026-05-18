@@ -13,6 +13,8 @@ import { buildCourseGroups } from '../p/cursos/page'
 import { CoursesCatalogView } from '../p/cursos/CoursesCatalogView'
 import { AreaPublicCard, CampusPublicCard } from '@payload-config/components/akademate/public'
 import { Button } from '@payload-config/components/ui/button'
+import { Input } from '@payload-config/components/ui/input'
+import { Textarea } from '@payload-config/components/ui/textarea'
 
 const BRAND_RED = '#f2014b'
 
@@ -1086,11 +1088,11 @@ function LeadFormSection({
 
         <form className="grid gap-4 rounded-[2rem] border border-white/15 bg-white/[0.07] p-5 shadow-2xl shadow-black/20 sm:p-7">
           <div className="grid gap-4 sm:grid-cols-2">
-            <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Nombre" />
-            <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Teléfono" />
+            <Input className="min-h-14 rounded-2xl border-white/15 bg-white px-4 text-slate-950 placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Nombre" />
+            <Input className="min-h-14 rounded-2xl border-white/15 bg-white px-4 text-slate-950 placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Teléfono" />
           </div>
-          <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Email" />
-          <textarea className="min-h-32 rounded-2xl border border-white/15 bg-white px-4 py-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Cuéntanos qué formación te interesa" />
+          <Input className="min-h-14 rounded-2xl border-white/15 bg-white px-4 text-slate-950 placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Email" />
+          <Textarea className="min-h-32 rounded-2xl border-white/15 bg-white px-4 py-4 text-slate-950 placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Cuéntanos qué formación te interesa" />
           <Button type="button" className="min-h-14 rounded-full px-6 text-sm font-black text-white shadow-xl transition hover:-translate-y-0.5 hover:opacity-95" style={{ backgroundColor: brandColor }}>
             Solicitar información
           </Button>

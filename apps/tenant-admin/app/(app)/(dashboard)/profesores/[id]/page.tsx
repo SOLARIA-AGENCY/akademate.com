@@ -7,6 +7,13 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
+import {
   ArrowLeft,
   ChevronRight,
   Edit,
@@ -281,14 +288,16 @@ export default function ProfesorDetailPage() {
     <div className="space-y-6" data-oid=".5h6m09">
       <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-end md:justify-between">
         <nav className="flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => router.push('/dashboard/profesores')}
-            className="inline-flex items-center gap-1 hover:text-foreground"
+            className="gap-1 px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Profesores
-          </button>
+          </Button>
           <ChevronRight className="h-4 w-4" />
           <span>Ficha docente</span>
         </nav>
@@ -520,20 +529,23 @@ export default function ProfesorDetailPage() {
                 ) : null}
               </CardTitle>
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-                <select
+                <Select
                   aria-label="Seleccionar convocatoria existente"
-                  className="h-9 min-w-0 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-72"
                   value={selectedCourseRunId}
-                  onChange={(event) => setSelectedCourseRunId(event.target.value)}
+                  onValueChange={setSelectedCourseRunId}
                 >
-                  <option value="">Seleccionar convocatoria</option>
+                  <SelectTrigger className="h-9 min-w-0 sm:w-72">
+                    <SelectValue placeholder="Seleccionar convocatoria" />
+                  </SelectTrigger>
+                  <SelectContent>
                   {availableCourseRuns.map((courseRun) => (
-                    <option key={courseRun.id} value={String(courseRun.id)}>
+                    <SelectItem key={courseRun.id} value={String(courseRun.id)}>
                       {courseRun.codigo ? `${courseRun.codigo} · ` : ''}
                       {courseRun.cursoNombre || `Convocatoria #${courseRun.id}`}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
+                  </SelectContent>
+                </Select>
                 <Button
                   size="sm"
                   variant="outline"

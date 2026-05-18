@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { Check, Loader2 } from 'lucide-react'
+import { Button } from '@payload-config/components/ui/button'
+import { Input } from '@payload-config/components/ui/input'
 import { cn } from '@/lib/utils'
 
 interface LeadFormProps {
@@ -139,7 +141,7 @@ export function LeadForm({
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className={labelClasses}>Nombre</label>
-            <input
+            <Input
               type="text"
               required={requiresQualifiedData}
               placeholder="Ej. Juan"
@@ -150,7 +152,7 @@ export function LeadForm({
           </div>
           <div className="space-y-1.5">
             <label className={labelClasses}>Apellidos</label>
-            <input
+            <Input
               type="text"
               required={requiresQualifiedData}
               placeholder="Ej. Pérez"
@@ -163,7 +165,7 @@ export function LeadForm({
 
         <div className="space-y-1.5">
           <label className={labelClasses}>Email corporativo o personal</label>
-          <input
+          <Input
             type="email"
             required
             placeholder="juan.perez@example.com"
@@ -175,7 +177,7 @@ export function LeadForm({
 
         <div className="space-y-1.5">
           <label className={labelClasses}>Teléfono de contacto</label>
-          <input
+          <Input
             type="tel"
             required={requiresQualifiedData}
             placeholder="+34 600 000 000"
@@ -194,7 +196,7 @@ export function LeadForm({
       )}
 
       <div className="pt-2">
-        <button
+        <Button
           type="submit"
           disabled={submitting}
           className={buttonClasses}
@@ -207,7 +209,7 @@ export function LeadForm({
           ) : (
             <>{submitLabel || (hasActiveConvocatorias ? 'Solicitar información gratuita' : 'Avisarme de próximas fechas')}</>
           )}
-        </button>
+        </Button>
       </div>
 
       <p className="text-[11px] text-gray-400 text-center leading-tight">

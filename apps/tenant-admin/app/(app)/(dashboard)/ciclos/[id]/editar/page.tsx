@@ -455,37 +455,31 @@ export default function EditarCicloPage() {
           {/* Mobile: horizontal scroll */}
           <div className="flex lg:hidden gap-1 overflow-x-auto pb-2 scrollbar-none">
             {TABS.map(({ id, label, icon: Icon }) => (
-              <button
+              <Button
                 key={id}
                 type="button"
+                variant={activeTab === id ? 'secondary' : 'ghost'}
                 onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-sm rounded-md transition-colors ${
-                  activeTab === id
-                    ? 'bg-primary/10 text-primary font-medium'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
+                className={`gap-1.5 whitespace-nowrap text-sm ${activeTab === id ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
           {/* Desktop: vertical list */}
           <div className="hidden lg:flex lg:flex-col gap-1 sticky top-20">
             {TABS.map(({ id, label, icon: Icon }) => (
-              <button
+              <Button
                 key={id}
                 type="button"
+                variant={activeTab === id ? 'secondary' : 'ghost'}
                 onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors text-left w-full ${
-                  activeTab === id
-                    ? 'bg-primary/10 text-primary font-medium'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
+                className={`w-full justify-start gap-2 text-left text-sm ${activeTab === id ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
         </nav>

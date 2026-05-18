@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { Button } from '@payload-config/components/ui/button'
 import type { WebsiteSection } from '@/app/lib/website/types'
 
 type HeroCarouselSection = Extract<WebsiteSection, { kind: 'heroCarousel' }>
@@ -94,11 +95,13 @@ export function HeroCarouselClient({
           {slides.length > 1 ? (
             <div className="mt-8 flex items-center gap-2">
               {slides.map((slide, index) => (
-                <button
+                <Button
                   key={`${slide.image}-${index}`}
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   aria-label={`Ver slide ${index + 1}`}
-                  className={`h-2.5 rounded-full transition-all ${index === activeIndex ? 'w-8 bg-white' : 'w-2.5 bg-white/40 hover:bg-white/70'}`}
+                  className={`h-2.5 min-w-0 rounded-full p-0 transition-all hover:bg-white/70 ${index === activeIndex ? 'w-8 bg-white' : 'w-2.5 bg-white/40'}`}
                   onClick={() => setActiveIndex(index)}
                 />
               ))}

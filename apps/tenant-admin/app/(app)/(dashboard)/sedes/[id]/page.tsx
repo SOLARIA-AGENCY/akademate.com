@@ -412,11 +412,12 @@ export default function SedeDetailPage({ params }: Props) {
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {activeClassrooms.map((classroom) => (
-                    <button
+                    <Button
                       key={classroom.id ?? classroomName(classroom)}
                       type="button"
+                      variant="outline"
                       onClick={() => router.push(`/dashboard/sedes/${id}/aulas/${classroom.id}`)}
-                      className="rounded-lg border p-4 text-left transition hover:border-primary/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="h-auto justify-start rounded-lg p-4 text-left transition hover:border-primary/40 hover:bg-muted/30"
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -455,7 +456,7 @@ export default function SedeDetailPage({ params }: Props) {
                           {classroom.operational_notes}
                         </p>
                       ) : null}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               )}

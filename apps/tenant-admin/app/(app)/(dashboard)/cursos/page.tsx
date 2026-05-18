@@ -378,11 +378,12 @@ function CursosPageContent() {
             const IconByType = TYPE_ICONS[type]
             const typeImage = getPublicStudyTypeFallbackImage(type)
             return (
-              <button
+              <Button
                 key={type}
                 type="button"
+                variant="ghost"
                 onClick={() => goToTypePage(type)}
-                className="text-left h-full"
+                className="h-full p-0 text-left"
               >
                 <Card className="h-full overflow-hidden border transition-all hover:shadow-md hover:border-primary">
                   <div className="relative h-44">
@@ -402,7 +403,7 @@ function CursosPageContent() {
                     <p className="text-sm text-muted-foreground">cursos disponibles</p>
                   </CardContent>
                 </Card>
-              </button>
+              </Button>
             )
           })}
         </div>

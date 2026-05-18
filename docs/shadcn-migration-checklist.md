@@ -8,18 +8,43 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 - Componentes shadcn instalados: `button`, `card`, `badge`, `dialog`, `sheet`, `tabs`, `table`, `select`, `input`, `textarea`, `sidebar`, `avatar`, `separator`, `skeleton`, `alert`, `alert-dialog`, `checkbox`, `dropdown-menu`, `tooltip`, `toggle`, `toggle-group`, `progress`, `pagination`, `collapsible`, `accordion`.
 - Biblioteca de producto existente en `apps/tenant-admin/@payload-config/components/akademate`.
 - Deuda visual inicial detectada: 244 archivos con clases/markup manuales de UI.
-- Auditoría local 2026-05-18 antes del bloque actual:
-  - 15 imports directos de `@payload-config/components/akademate`.
-  - 94 usos de `PageHeader` legacy siguen pendientes de codemod directo.
-  - 13 usos de `<button>` manual siguen pendientes.
-  - 29 candidatos de hover blanco/sobre blanco siguen pendientes de revisión visual.
-  - 18 textos/estados `Borrador` siguen pendientes de normalización por contexto.
 - Auditoría local 2026-05-18 tras bloque actual:
   - 15 imports directos de `@payload-config/components/akademate`.
   - 94 usos de `PageHeader` legacy siguen pendientes de codemod directo, pero ya heredan wrapper shadcn.
-  - 0 usos reales de `<button>` HTML en `apps/tenant-admin/app` y `apps/tenant-admin/@payload-config/components`.
-  - 5 candidatos de hover blanco/sobre blanco en dashboard/componentes internos pendientes de revisión visual final.
+  - 0 usos operativos de `<button>` HTML en `apps/tenant-admin/app` y `apps/tenant-admin/@payload-config/components`.
+  - 1 `<button>` residual en `@payload-config/components/ui/sidebar.tsx`, aceptado por ser primitive base shadcn.
+  - 0 formularios públicos críticos con `<input>`, `<textarea>` o `<select>` manual.
+  - 0 selects operativos manuales en dashboard crítico tras migrar inscripciones, campus, profesores y sedes.
+  - Inputs residuales nativos clasificados como primitives shadcn (`Input`, `Textarea`) o controles técnicos `file/color` que no deben ocultar su semántica nativa.
+  - 0 candidatos críticos conocidos de botones blancos/invisibles en CTAs migrados del bloque actual.
   - 0 textos/estados `Borrador` en dashboard/componentes internos.
+- Iteración P6 2026-05-18:
+  - `ViewToggle` migra a `ToggleGroup` / `ToggleGroupItem`.
+  - `EmptyState` migra a `EmptyPanel` con soporte de icono en la capa Akademate.
+  - `SedeListItem`, `PersonalListItem` y `CicloListItem` migran a composición `Card` / `CardContent` / `Badge` / `Button`.
+  - `StaffCard` normaliza header/avatar con `CardHeader`, `CardTitle` y `Avatar`.
+  - `CourseListItem` migra a composición `Card` / `CardContent` / `Badge` / `Button`.
+  - `ResultsSummaryBar` migra a `Badge` y tokens semánticos.
+  - `AppSidebar` y `DashboardLayout` eliminan botones HTML manuales del shell principal.
+  - `Calendario citas` migra selects del modal de cita a `Select` shadcn.
+  - `Programación detalle` migra formularios inline de sede/aula/horario, fechas y precio a `Select`, `Input`, `Checkbox`, `Label`.
+  - Verificación estrecha: `corepack pnpm --filter tenant-admin typecheck`.
+- Iteración P7 2026-05-18:
+  - Formularios públicos sensibles migran a `Input`, `Textarea`, `Checkbox`, `Select`, `Button` sin cambiar payloads, tracking, Pixel ni UTMs.
+  - `WebsiteRenderer` usa `Input` y `Textarea` shadcn en la sección de contacto renderizada.
+  - CRM de inscripciones migra selects, fechas, checkboxes y verificación destructiva a componentes shadcn.
+  - Campus virtual, profesor detalle, sedes y áreas eliminan selects/checkboxes operativos manuales.
+  - Residual nativo aceptado: `input[type=file]`, `input[type=color]` y primitives internas de shadcn.
+  - Verificación estrecha: `corepack pnpm --filter tenant-admin typecheck`.
+- Iteración P8 2026-05-18:
+  - Mocks de `Select` y `Avatar` actualizados para reflejar contratos shadcn accesibles en tests.
+  - `Select` de test renderiza control nativo etiquetable y opciones válidas sin HTML inválido dentro de `option`.
+  - `CourseListItem` conserva CTA rojo CEP con `hover:text-white`.
+  - Verificación completa:
+    - `corepack pnpm --filter tenant-admin test`: 123 suites, 1693 tests passed, 1 skipped.
+    - `corepack pnpm --filter tenant-admin typecheck`.
+    - `corepack pnpm --filter tenant-admin build`.
+    - `git diff --check`.
 - Áreas con más deuda:
   - Dashboard: 121 archivos.
   - Web pública: 34 archivos.
@@ -43,7 +68,7 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 - [ ] Usar `Skeleton`, no `animate-pulse` manual.
 - [ ] Usar `Alert`, `EmptyPanel`, `LoadingPanel`, `ErrorPanel` para estados.
 - [ ] Usar `Dialog`, `Sheet`, `AlertDialog` para overlays.
-- [ ] Usar `Label`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch` en formularios.
+- [x] Usar `Label`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch` en formularios operativos.
 - [ ] Usar tokens semánticos (`primary`, `muted`, `foreground`, `card`, `destructive`) y no paletas crudas dispersas.
 - [ ] Evitar `space-y-*`; usar `flex flex-col gap-*`.
 - [ ] Mantener `tenant_id` y no tocar tracking/campañas/formularios públicos al migrar UI.
@@ -90,11 +115,13 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 
 - [x] `PageHeader` legacy queda convertido en wrapper shadcn/Akademate compatible.
 - [ ] Codemod progresivo de imports `PageHeader` a `DashboardPageHeader` cuando la página se migre por completo.
+- [x] `AppSidebar` usa `Button` shadcn en toggles de navegación.
 - [ ] Unificar `AppSidebar` con `akademate/dashboard/DashboardSidebar`.
 - [ ] Migrar aside wrapper a componente shadcn `Sidebar`.
 - [ ] Migrar header dashboard a componente `DashboardTopbar`.
+- [x] Búsqueda del topbar elimina botones HTML manuales.
 - [ ] Migrar búsqueda a patrón reutilizable.
-- [ ] Migrar usuario/notificaciones a `DropdownMenu`, `Avatar`, `Badge`.
+- [x] Usuario/notificaciones usan `DropdownMenu`, `Avatar`, `Badge`/componentes shadcn existentes.
 - [ ] Revisar modo colapsado y mobile.
 
 ## P3 - Dashboard académico
@@ -118,15 +145,15 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 - [ ] Ciclo detalle.
 - [ ] Ciclo ficha.
 - [ ] Programación listado.
-- [ ] Programación detalle.
+- [x] Programación detalle: edición de sede/aula/horario, fechas y precio usa formularios shadcn.
 - [ ] Programación ficha.
-- [ ] Calendario citas.
+- [x] Calendario citas: modal principal usa `Input`, `Textarea`, `Select`, `Dialog`, `Button`.
 - [ ] Leads.
-- [ ] Inscripciones.
+- [x] Inscripciones.
 - [ ] Lista espera.
 - [ ] Matrículas.
-- [ ] Sedes/aulas.
-- [ ] Profesores/personal.
+- [x] Sedes/aulas.
+- [x] Profesores/personal.
 
 ## P4 - Web pública
 
@@ -142,7 +169,7 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 - [ ] Profesores.
 - [ ] Blog.
 - [ ] Empleo/agencia colocación.
-- [ ] Formularios públicos sin tocar payload/tracking.
+- [x] Formularios públicos sin tocar payload/tracking.
 
 ## P5 - Campus
 
@@ -154,22 +181,22 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 
 ## P6 - Componentes legacy a reemplazar
 
-- [ ] `CourseListItem`
-- [ ] `CourseTemplateCard`
-- [ ] `CicloCard`
-- [ ] `CicloListItem`
-- [ ] `ConvocationCard`
-- [ ] `CursoCicloCard`
-- [ ] `StaffCard`
-- [ ] `SedeListItem`
-- [ ] `PersonalListItem`
-- [ ] `EmptyState`
-- [ ] `PageHeader`
-- [ ] `ViewToggle`
-- [ ] `ResultsSummaryBar`
-- [ ] `PlanLimitModal`
-- [ ] `DeleteCourseDialog`
-- [ ] `ConvocationGeneratorModal`
+- [x] `CourseListItem`
+- [x] `CourseTemplateCard`
+- [x] `CicloCard`
+- [x] `CicloListItem`
+- [x] `ConvocationCard`
+- [x] `CursoCicloCard`
+- [x] `StaffCard`
+- [x] `SedeListItem`
+- [x] `PersonalListItem`
+- [x] `EmptyState`
+- [x] `PageHeader`
+- [x] `ViewToggle`
+- [x] `ResultsSummaryBar`
+- [x] `PlanLimitModal`
+- [x] `DeleteCourseDialog`
+- [x] `ConvocationGeneratorModal`
 
 ## Verificación requerida antes de producción
 

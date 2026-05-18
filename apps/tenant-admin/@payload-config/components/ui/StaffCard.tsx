@@ -1,7 +1,8 @@
 'use client'
 
 import * as React from 'react'
-import { Card, CardContent, CardFooter } from '@payload-config/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import {
@@ -67,23 +68,26 @@ function StaffPhoto({
 }) {
   const teaching = isTeachingStaff(staffType)
   const BadgeIcon = teaching ? GraduationCap : Briefcase
+  const [photoError, setPhotoError] = React.useState(false)
 
   return (
     <div className="relative h-16 w-16 overflow-visible">
-      {!isPlaceholderPhoto(photo) ? (
-        <img
-          src={photo}
-          alt={fullName}
-          className="h-16 w-16 rounded-full border-2 border-background object-cover shadow-md ring-2 ring-muted ring-offset-2"
-        />
-      ) : (
-        <div
+      <Avatar className="h-16 w-16 border-2 border-background shadow-md ring-2 ring-muted ring-offset-2">
+        {!isPlaceholderPhoto(photo) && !photoError ? (
+          <AvatarImage
+            src={photo}
+            alt={fullName}
+            className="object-cover"
+            onError={() => setPhotoError(true)}
+          />
+        ) : null}
+        <AvatarFallback
           aria-label={teaching ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'}
-          className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-background bg-primary/10 text-primary shadow-md ring-2 ring-muted ring-offset-2"
+          className="bg-primary/10 text-primary"
         >
           <User className="h-7 w-7" aria-hidden="true" />
-        </div>
-      )}
+        </AvatarFallback>
+      </Avatar>
       <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
         <BadgeIcon className="h-3.5 w-3.5" aria-hidden="true" />
       </span>
@@ -114,59 +118,57 @@ export function StaffCard({
       data-oid="zwb_yf-"
     >
       <div onClick={() => onView(id)} data-oid="i0zslmk">
-        <CardContent className="p-6" data-oid="24ngeia">
-          {/* Header with Avatar and Menu */}
-          <div className="flex items-start justify-between mb-4" data-oid="hdjhmzo">
+        <CardHeader className="flex-row items-start justify-between space-y-0 pb-4">
+          <div className="flex min-w-0 items-start gap-4">
             <StaffPhoto fullName={fullName} photo={photo} staffType={staffType} />
-
-            <DropdownMenu data-oid="msf0ls9">
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()} data-oid="hxa2euo">
-                <Button
-                  variant="ghost"
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  data-oid="pfv9nwo"
-                >
-                  <span className="sr-only" data-oid="x53fj_-">
-                    Abrir menú
-                  </span>
-                  <MoreHorizontal className="h-4 w-4" data-oid="p.s5aqy" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" data-oid="9:6af3z">
-                <DropdownMenuLabel data-oid="ifwvtj3">Acciones</DropdownMenuLabel>
-                <DropdownMenuSeparator data-oid="seexs1g" />
-                <DropdownMenuItem onClick={() => onView(id)} data-oid="mr2ycq-">
-                  <Eye className="mr-2 h-4 w-4" data-oid="a4m-48a" />
-                  Ver Detalle
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit(id)} data-oid="zbj8prj">
-                  <Edit className="mr-2 h-4 w-4" data-oid="45fhukj" />
-                  Editar
-                </DropdownMenuItem>
-                <DropdownMenuSeparator data-oid="zc64rui" />
-                <DropdownMenuItem
-                  onClick={() => onDelete(id, fullName)}
-                  className="text-destructive"
-                  data-oid="6ytwys:"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" data-oid="hjfpijo" />
-                  Desactivar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="min-w-0 space-y-1">
+              <CardTitle className="line-clamp-2 text-lg leading-tight">{fullName}</CardTitle>
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Briefcase className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{position}</span>
+              </p>
+            </div>
           </div>
 
-          {/* Name and Position */}
-          <div className="space-y-2 mb-4" data-oid="1st-aup">
-            <h3 className="font-semibold text-lg leading-tight" data-oid="oqae0_.">
-              {fullName}
-            </h3>
-            <p className="text-sm text-muted-foreground flex items-center gap-2" data-oid="b.o40c_">
-              <Briefcase className="h-3.5 w-3.5" data-oid="yh6fxas" />
-              {position}
-            </p>
-          </div>
+          <DropdownMenu data-oid="msf0ls9">
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()} data-oid="hxa2euo">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="opacity-0 transition-opacity group-hover:opacity-100"
+                data-oid="pfv9nwo"
+              >
+                <span className="sr-only" data-oid="x53fj_-">
+                  Abrir menú
+                </span>
+                <MoreHorizontal className="h-4 w-4" data-oid="p.s5aqy" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" data-oid="9:6af3z">
+              <DropdownMenuLabel data-oid="ifwvtj3">Acciones</DropdownMenuLabel>
+              <DropdownMenuSeparator data-oid="seexs1g" />
+              <DropdownMenuItem onClick={() => onView(id)} data-oid="mr2ycq-">
+                <Eye className="mr-2 h-4 w-4" data-oid="a4m-48a" />
+                Ver Detalle
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(id)} data-oid="zbj8prj">
+                <Edit className="mr-2 h-4 w-4" data-oid="45fhukj" />
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuSeparator data-oid="zc64rui" />
+              <DropdownMenuItem
+                onClick={() => onDelete(id, fullName)}
+                className="text-destructive"
+                data-oid="6ytwys:"
+              >
+                <Trash2 className="mr-2 h-4 w-4" data-oid="hjfpijo" />
+                Desactivar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </CardHeader>
 
+        <CardContent className="pt-0" data-oid="24ngeia">
           {/* Badges */}
           <div className="flex gap-2 mb-4 flex-wrap" data-oid="34c-.1s">
             <Badge

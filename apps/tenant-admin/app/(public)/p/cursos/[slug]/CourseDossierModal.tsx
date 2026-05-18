@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { Button } from '@payload-config/components/ui/button'
 import { LeadForm } from '../../ciclos/[slug]/LeadForm'
 
 interface CourseDossierModalProps {
@@ -41,13 +42,13 @@ export function CourseDossierModal({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button
+        <Button
           type="button"
-          className="inline-flex items-center gap-3 brand-btn px-10 py-5 rounded-full font-bold text-xl shadow-lg transition-all hover:-translate-y-1 active:translate-y-0"
+          className="brand-btn h-auto gap-3 rounded-full px-10 py-5 text-xl font-bold shadow-lg transition-all hover:-translate-y-1 active:translate-y-0"
         >
           {triggerLabel}
           <ArrowRight className="w-6 h-6" />
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-xl rounded-2xl border-0 bg-white p-0 shadow-2xl overflow-hidden">
         <DialogHeader className="px-7 pt-7 text-left">

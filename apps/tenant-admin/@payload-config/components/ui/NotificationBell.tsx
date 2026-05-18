@@ -122,12 +122,15 @@ export function NotificationBell() {
           {/* Footer */}
           {notifications.length > 0 && (
             <div style={{ padding: '8px 16px', borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => { router.push('/administracion/actividad'); setOpen(false) }}
-                style={{ fontSize: 12, color: '#cc0000', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+                className="h-7 text-xs font-semibold text-[#cc0000]"
               >
                 Ver todas las notificaciones
-              </button>
+              </Button>
             </div>
           )}
         </div>

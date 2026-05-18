@@ -45,6 +45,7 @@ import { usePathname } from 'next/navigation'
 import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from '../akademate/dashboard/DashboardSidebar'
+import { Button } from '@payload-config/components/ui/button'
 
 // Menu structure with sections
 // Section: null = no separator, otherwise show separator before item.
@@ -226,7 +227,9 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
     const hasActiveNestedChild = subItem.items?.some((n) => matchesUrl(n.url)) ?? false
     return (
       <>
-        <button
+        <Button
+          type="button"
+          variant="ghost"
           onClick={() => setNestedOpen(!nestedOpen)}
           className={`group relative w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
             hasActiveNestedChild ? 'bg-sidebar-accent/50' : ''
@@ -250,7 +253,7 @@ function SubMenuItem({ subItem, pathname, currentSearch }: SubMenuItemProps) {
             }`}
             data-oid="wu7sv:t"
           />
-        </button>
+        </Button>
         {(nestedOpen || hasActiveNestedChild) && (
           <ul
             className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4"
@@ -488,7 +491,9 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
               <React.Fragment key={item.title}>
                 {SectionSeparator}
                 <li data-oid="mup0i0h">
-                  <button
+                  <Button
+                    type="button"
+                    variant="ghost"
                     onClick={() => toggleSection(item.title)}
                     className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
                       hasActiveChild && !isCollapsed ? 'bg-sidebar-accent/60' : ''
@@ -529,7 +534,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                         data-oid="h6d1idw"
                       />
                     )}
-                  </button>
+                  </Button>
                   {/* Submenu with smooth height transition */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -568,7 +573,10 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
             className={`py-2 flex items-center border-b border-sidebar-border ${isCollapsed ? 'justify-center' : 'justify-end px-4'}`}
             data-oid="374s6jy"
           >
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
               onClick={onToggle}
               className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent transition-colors text-foreground/70"
               title={isCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
@@ -579,7 +587,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
               ) : (
                 <ChevronLeft className="h-4 w-4" data-oid="0bu6x7h" />
               )}
-            </button>
+            </Button>
           </div>
         )}
 

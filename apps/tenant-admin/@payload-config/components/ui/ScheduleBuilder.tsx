@@ -95,14 +95,16 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                   <span className="text-xs" data-oid="l:45aoi">
                     {entry.startTime} - {entry.endTime}
                   </span>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => handleRemoveEntry(index)}
-                    className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
+                    className="ml-1 h-5 w-5 rounded-full hover:bg-destructive/20"
                     data-oid="_uql4ld"
                   >
                     <X className="h-3 w-3" data-oid="lf306yp" />
-                  </button>
+                  </Button>
                 </Badge>
               )
             })}

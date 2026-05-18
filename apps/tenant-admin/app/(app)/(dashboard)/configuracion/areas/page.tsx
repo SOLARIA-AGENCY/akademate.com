@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
@@ -400,12 +401,10 @@ export default function AreasPage() {
                 />
               </div>
               <div className="flex items-center gap-2 p-3 bg-muted rounded-lg" data-oid="e7e6t1.">
-                <input
-                  type="checkbox"
+                <Checkbox
                   id="edit-active"
                   checked={selectedArea.active}
-                  onChange={(e) => setSelectedArea({ ...selectedArea, active: e.target.checked })}
-                  className="rounded"
+                  onCheckedChange={(checked) => setSelectedArea({ ...selectedArea, active: checked === true })}
                   data-oid="pkfsrrs"
                 />
 

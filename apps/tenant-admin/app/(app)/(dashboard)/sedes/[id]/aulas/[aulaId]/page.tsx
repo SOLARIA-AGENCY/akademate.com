@@ -155,14 +155,16 @@ export default function ClassroomOccupancyPage({ params }: PageProps) {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-end md:justify-between">
         <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => router.push(`/dashboard/sedes/${id}`)}
-            className="inline-flex items-center gap-1 hover:text-foreground"
+            className="gap-1 px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Sede
-          </button>
+          </Button>
           <span>/</span>
           <span>Ocupación de aula</span>
         </nav>

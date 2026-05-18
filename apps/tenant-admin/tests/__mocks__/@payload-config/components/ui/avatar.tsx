@@ -27,11 +27,13 @@ export const AvatarImage = ({
 export const AvatarFallback = ({
   children,
   className,
+  ...props
 }: {
   children?: React.ReactNode
   className?: string
+  [key: string]: any
 }) => (
-  <span className={className} data-testid="avatar-fallback" data-oid="wz1ee91">
+  <span className={className} data-testid="avatar-fallback" {...props} data-oid="wz1ee91">
     {children}
   </span>
 )

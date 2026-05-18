@@ -338,10 +338,12 @@ export default function PersonalizacionPage() {
         <CardContent data-oid="tgjci8v">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" data-oid="ikxj31c">
             {DEFAULT_THEMES.map((preset) => (
-              <button
+              <Button
                 key={preset.name}
+                type="button"
+                variant="outline"
                 onClick={() => handleLoadPreset(preset)}
-                className="group relative border rounded-lg p-4 hover:border-primary transition-all hover:shadow-md bg-card"
+                className="group relative h-auto flex-col items-stretch rounded-lg p-4 hover:border-primary hover:shadow-md"
                 data-oid="6m3vl6e"
               >
                 <p className="font-medium mb-3" data-oid="ilb.8qe">
@@ -364,7 +366,7 @@ export default function PersonalizacionPage() {
                 >
                   <Eye className="h-4 w-4 text-primary" data-oid="zw:_py5" />
                 </div>
-              </button>
+              </Button>
             ))}
           </div>
         </CardContent>

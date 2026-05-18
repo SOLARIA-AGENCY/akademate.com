@@ -1,8 +1,12 @@
 'use client'
 
 import * as React from 'react'
+import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { Card, CardContent } from '@payload-config/components/ui/card'
+import { Separator } from '@payload-config/components/ui/separator'
+import { cn } from '@payload-config/lib/utils'
 import { Mail, Phone, BookOpen, User, GraduationCap } from 'lucide-react'
 
 interface TeacherExpanded {
@@ -52,105 +56,89 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
   const [photoError, setPhotoError] = React.useState(false)
 
   return (
-    <div
-      className={`flex min-h-24 items-center rounded-lg border bg-card py-3 pl-5 pr-4 transition-shadow duration-150 hover:shadow-md cursor-pointer ${className || ''}`}
+    <Card
+      className={cn(
+        'group cursor-pointer overflow-hidden shadow-sm transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring',
+        className
+      )}
       onClick={onClick}
-      data-oid="afb5w:u"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onClick?.()
+        }
+      }}
     >
-      <div
-        className="h-20 w-20 flex-shrink-0 overflow-visible rounded-full bg-muted"
-        data-oid="jbwoqz1"
-      >
-        {!isPlaceholderPhoto(teacher.photo) && !photoError ? (
-          <img
-            src={teacher.photo}
-            alt={`${teacher.firstName} ${teacher.lastName}`}
-            className="h-full w-full rounded-full object-cover"
-            onError={() => setPhotoError(true)}
-            data-oid="28ijt7d"
-          />
-        ) : (
-          <TeacherListFallback />
-        )}
-      </div>
+      <CardContent className="grid min-h-24 grid-cols-[5rem_1fr_auto] items-center gap-4 p-4">
+        <Avatar className="h-20 w-20 overflow-visible bg-muted">
+          {!isPlaceholderPhoto(teacher.photo) && !photoError ? (
+            <AvatarImage
+              src={teacher.photo}
+              alt={`${teacher.firstName} ${teacher.lastName}`}
+              className="rounded-full object-cover"
+              onError={() => setPhotoError(true)}
+            />
+          ) : null}
+          <AvatarFallback className="bg-transparent">
+            <TeacherListFallback />
+          </AvatarFallback>
+        </Avatar>
 
-      {/* Contenido con padding interno */}
-      <div className="flex items-center flex-1 gap-3 pl-4" data-oid="iz.1p66">
-        {/* Name + Department */}
-        <div className="flex-1 min-w-0" data-oid="5lw2jtv">
-          <h3 className="font-semibold text-sm truncate leading-tight mb-0.5" data-oid="xthbz4e">
-            {teacher.firstName} {teacher.lastName}
-          </h3>
-          <p className="text-xs text-muted-foreground truncate" data-oid="s:ke5zh">
-            {teacher.department}
-          </p>
-        </div>
+        <div className="grid min-w-0 items-center gap-3 md:grid-cols-[minmax(0,1fr)_180px] lg:grid-cols-[minmax(0,1fr)_180px_160px_auto]">
+          <div className="min-w-0">
+            <h3 className="truncate text-sm font-semibold leading-tight">
+              {teacher.firstName} {teacher.lastName}
+            </h3>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">{teacher.department}</p>
+          </div>
 
-        {/* Contact Info - Compacto */}
-        <div className="hidden md:flex flex-col gap-0.5 text-xs min-w-[180px]" data-oid="c23qbt1">
-          <div className="flex items-center gap-1" data-oid="nz-6sx_">
-            <Mail className="h-3 w-3 text-muted-foreground" data-oid="quf6j77" />
-            <span className="text-muted-foreground truncate" data-oid="ua52l:d">
-              {teacher.email}
+          <div className="hidden min-w-0 flex-col gap-1 text-xs md:flex">
+            <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
+              <Mail className="h-3 w-3 shrink-0" />
+              <span className="truncate">{teacher.email}</span>
+            </span>
+            {teacher.phone ? (
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <Phone className="h-3 w-3 shrink-0" />
+                <span>{teacher.phone}</span>
+              </span>
+            ) : null}
+          </div>
+
+          <div className="hidden min-w-0 flex-col gap-1 text-xs lg:flex">
+            {teacher.specialties.slice(0, 2).map((specialty) => (
+              <span key={specialty} className="truncate leading-tight text-muted-foreground">
+                {specialty}
+              </span>
+            ))}
+          </div>
+
+          <div className="hidden items-center gap-3 lg:flex">
+            <Badge variant={teacher.active ? 'success' : 'neutral'} className="text-[10px] uppercase tracking-wide">
+              {teacher.active ? 'Activo' : 'Inactivo'}
+            </Badge>
+            <Separator orientation="vertical" className="h-5" />
+            <span className="flex items-center gap-1 text-xs">
+              <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-medium">{teacher.courseRunsCount}</span>
+              <span className="text-muted-foreground">cursos</span>
             </span>
           </div>
-          <div className="flex items-center gap-1" data-oid="uwks_u_">
-            <Phone className="h-3 w-3 text-muted-foreground" data-oid="wd5:..z" />
-            <span className="text-muted-foreground" data-oid="vnrbfqw">
-              {teacher.phone}
-            </span>
-          </div>
         </div>
 
-        {/* Specialties (first 2) - Compacto */}
-        <div className="hidden lg:flex flex-col gap-0.5 text-xs min-w-[140px]" data-oid=".ido75a">
-          {teacher.specialties.slice(0, 2).map((specialty, idx) => (
-            <span
-              key={idx}
-              className="text-muted-foreground truncate leading-tight"
-              data-oid="j.prgx4"
-            >
-              • {specialty}
-            </span>
-          ))}
-        </div>
-
-        {/* Status Badge - Más pequeño */}
-        <div className="hidden lg:block w-[100px] flex justify-center" data-oid="0lag-ll">
-          <Badge
-            className={`${
-              teacher.active ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'
-            } text-white text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap px-2.5 py-1 leading-tight`}
-            data-oid="ere3jjl"
-          >
-            {teacher.active ? 'ACTIVO' : 'INACTIVO'}
-          </Badge>
-        </div>
-
-        {/* Courses Count - Compacto */}
-        <div className="hidden sm:flex items-center gap-1 text-xs w-28" data-oid="0hx0xsd">
-          <BookOpen className="h-3.5 w-3.5 text-muted-foreground" data-oid="0wrq0xg" />
-          <span className="font-medium" data-oid="ef4ll2d">
-            {teacher.courseRunsCount}
-          </span>
-          <span className="text-muted-foreground" data-oid="e366udr">
-            cursos
-          </span>
-        </div>
-
-        {/* Action Button - Compacto */}
         <Button
           size="sm"
-          className="bg-primary hover:bg-primary/90 text-white text-xs font-semibold uppercase tracking-wide shrink-0 h-7 px-3"
+          className="h-7 shrink-0 px-3 text-xs font-semibold uppercase tracking-wide"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()
           }}
-          data-oid="1pqhstl"
         >
-          VER
+          Ver
         </Button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, type ChangeEvent } from 'reac
 // Image import removed — using native <img> for dynamic logos
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Badge } from '@payload-config/components/ui/badge'
@@ -554,21 +555,16 @@ export default function ConfiguracionUnifiedPage() {
         {/* Vertical sidebar nav */}
         <nav className="hidden md:flex flex-col gap-1 w-48 flex-shrink-0 sticky top-4 self-start">
           {SECTIONS.map(({ id, label, icon: Icon }) => (
-            <button
+            <Button
               key={id}
+              type="button"
+              variant={activeSection === id ? 'default' : 'ghost'}
               onClick={() => scrollTo(id)}
-              className={`
-                flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-left
-                ${
-                  activeSection === id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }
-              `}
+              className={`justify-start gap-2 text-left text-sm ${activeSection === id ? '' : 'text-muted-foreground hover:text-foreground'}`}
             >
               <Icon className="h-4 w-4 flex-shrink-0" />
               {label}
-            </button>
+            </Button>
           ))}
         </nav>
 
@@ -576,21 +572,16 @@ export default function ConfiguracionUnifiedPage() {
         <div className="md:hidden sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border -mx-4 px-4">
           <div className="flex gap-1 overflow-x-auto py-2 scrollbar-none">
             {SECTIONS.map(({ id, label, icon: Icon }) => (
-              <button
+              <Button
                 key={id}
+                type="button"
+                variant={activeSection === id ? 'default' : 'ghost'}
                 onClick={() => scrollTo(id)}
-                className={`
-                  flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors
-                  ${
-                    activeSection === id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }
-                `}
+                className={`gap-2 whitespace-nowrap text-sm ${activeSection === id ? '' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 <Icon className="h-4 w-4" />
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -1057,13 +1048,15 @@ export default function ConfiguracionUnifiedPage() {
                       placeholder="Token de Conversions API"
                       className="pr-10"
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => setShowCapiToken(!showCapiToken)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showCapiToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -1099,13 +1092,15 @@ export default function ConfiguracionUnifiedPage() {
                       placeholder="API Key de Mailchimp"
                       className="pr-10"
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => setShowMailchimpKey(!showMailchimpKey)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showMailchimpKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -1322,11 +1317,9 @@ export default function ConfiguracionUnifiedPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {ALL_SCOPES.map((s) => (
                         <label key={s.value} className="flex items-center gap-2 text-sm cursor-pointer">
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={newKeyScopes.includes(s.value)}
-                            onChange={() => toggleScope(s.value)}
-                            className="rounded border-border"
+                            onCheckedChange={() => toggleScope(s.value)}
                           />
                           {s.label}
                         </label>

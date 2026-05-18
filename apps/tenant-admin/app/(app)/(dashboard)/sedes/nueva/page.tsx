@@ -11,6 +11,13 @@ import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { Switch } from '@payload-config/components/ui/switch'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
+import {
   MapPin,
   ArrowLeft,
   Save,
@@ -414,22 +421,16 @@ export default function NuevaSedeRage() {
       <div className="border-b border-border">
         <div className="flex gap-1 overflow-x-auto pb-px scrollbar-none">
           {TABS.map(({ id, label, icon: Icon }) => (
-            <button
+            <Button
               key={id}
               type="button"
+              variant="ghost"
               onClick={() => setActiveTab(id)}
-              className={`
-                flex items-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium border-b-2 transition-colors
-                ${
-                  activeTab === id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                }
-              `}
+              className={`gap-2 whitespace-nowrap rounded-none border-b-2 px-3 py-2.5 text-sm font-medium ${activeTab === id ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}
             >
               <Icon className="h-4 w-4" />
               {label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -1044,19 +1045,21 @@ export default function NuevaSedeRage() {
               <CardContent>
                 <div className="space-y-2 max-w-md">
                   <Label htmlFor="coordinator">Coordinador de sede</Label>
-                  <select
-                    id="coordinator"
+                  <Select
                     value={coordinator}
-                    onChange={(e) => setCoordinator(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    onValueChange={setCoordinator}
                   >
-                    <option value="">Sin asignar</option>
+                    <SelectTrigger id="coordinator" className="w-full">
+                      <SelectValue placeholder="Sin asignar" />
+                    </SelectTrigger>
+                    <SelectContent>
                     {staffOptions.map((s) => (
-                      <option key={s.id} value={String(s.id)}>
+                      <SelectItem key={s.id} value={String(s.id)}>
                         {getStaffDisplayName(s)}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>

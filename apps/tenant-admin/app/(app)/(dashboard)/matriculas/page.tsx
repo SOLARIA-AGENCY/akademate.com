@@ -499,25 +499,13 @@ export default function MatriculasPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" data-oid="36cp-ex">
-                              <DropdownMenuItem data-oid="3q2x-ff">
-                                <button
-                                  type="button"
-                                  className="flex w-full items-center"
-                                  onClick={() => router.push(`/matriculas/${matricula.id}`)}
-                                >
-                                  <Eye className="mr-2 h-4 w-4" data-oid="nmiu9dd" />
-                                  Ver detalles
-                                </button>
+                              <DropdownMenuItem onSelect={() => router.push(`/matriculas/${matricula.id}`)} data-oid="3q2x-ff">
+                                <Eye className="mr-2 h-4 w-4" data-oid="nmiu9dd" />
+                                Ver detalles
                               </DropdownMenuItem>
-                              <DropdownMenuItem data-oid="h5n1kgr">
-                                <button
-                                  type="button"
-                                  className="flex w-full items-center"
-                                  onClick={() => router.push(`/matriculas/${matricula.id}/editar`)}
-                                >
-                                  <Edit className="mr-2 h-4 w-4" data-oid="52z3miu" />
-                                  Editar
-                                </button>
+                              <DropdownMenuItem onSelect={() => router.push(`/matriculas/${matricula.id}/editar`)} data-oid="h5n1kgr">
+                                <Edit className="mr-2 h-4 w-4" data-oid="52z3miu" />
+                                Editar
                               </DropdownMenuItem>
                               <DropdownMenuSeparator data-oid="kzkznsi" />
                               <DropdownMenuItem className="text-destructive" data-oid="r_cj48z">

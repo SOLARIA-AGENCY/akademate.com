@@ -8,6 +8,9 @@ import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
+import { Input } from '@payload-config/components/ui/input'
+import { Textarea } from '@payload-config/components/ui/textarea'
 import { getCatalogPageBySlug } from '../page-catalog'
 
 type SectionEditor = {
@@ -118,14 +121,15 @@ export default function EditWebsitePage() {
                   className={`rounded-lg border p-3 ${isSelected ? 'border-primary bg-primary/5' : ''}`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <button
+                    <Button
                       type="button"
-                      className="min-w-0 text-left"
+                      variant="ghost"
+                      className="h-auto min-w-0 justify-start p-0 text-left hover:bg-transparent"
                       onClick={() => setSelectedSectionId(section.id)}
                     >
                       <p className="text-sm font-medium">{section.title}</p>
                       <p className="text-xs text-muted-foreground">{section.enabled ? 'Visible' : 'Oculta'}</p>
-                    </button>
+                    </Button>
                     <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
@@ -163,8 +167,8 @@ export default function EditWebsitePage() {
               <div className="space-y-3">
                 <div>
                   <label className="text-xs text-muted-foreground">Título</label>
-                  <input
-                    className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  <Input
+                    className="mt-1"
                     value={selectedSection.title}
                     onChange={(event) =>
                       setSections((prev) =>
@@ -177,9 +181,9 @@ export default function EditWebsitePage() {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Contenido</label>
-                  <textarea
+                  <Textarea
                     rows={6}
-                    className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
+                    className="mt-1 min-h-36"
                     value={selectedSection.body}
                     onChange={(event) =>
                       setSections((prev) =>
@@ -191,13 +195,12 @@ export default function EditWebsitePage() {
                   />
                 </div>
                 <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selectedSection.enabled}
-                    onChange={(event) =>
+                    onCheckedChange={(checked) =>
                       setSections((prev) =>
                         prev.map((item) =>
-                          item.id === selectedSection.id ? { ...item, enabled: event.target.checked } : item,
+                          item.id === selectedSection.id ? { ...item, enabled: checked === true } : item,
                         ),
                       )
                     }

@@ -13,6 +13,13 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
+import {
   Table,
   TableBody,
   TableCell,
@@ -65,22 +72,20 @@ export default function CampusContenidoPage() {
                 data-oid="ji02vn:"
               />
             </div>
-            <select
-              className="h-10 rounded-md border bg-background px-3 text-sm text-foreground"
+            <Select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onValueChange={setFilterStatus}
               data-oid="vzuzllx"
             >
-              <option value="all" data-oid="72-0nzf">
-                Todos los estados
-              </option>
-              <option value="published" data-oid="qgm0gnn">
-                Publicado
-              </option>
-              <option value="draft" data-oid="ypmkbp6">
-                Sin publicar
-              </option>
-            </select>
+              <SelectTrigger className="h-10 w-48" data-oid="72-0nzf">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                <SelectItem value="published">Publicado</SelectItem>
+                <SelectItem value="draft">Sin publicar</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>

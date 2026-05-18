@@ -2,6 +2,9 @@
 
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { Card, CardContent } from '@payload-config/components/ui/card'
+import { Separator } from '@payload-config/components/ui/separator'
+import { cn } from '@payload-config/lib/utils'
 import { Clock, BookOpen, Users } from 'lucide-react'
 import type { CicloPlantilla } from '@/types'
 
@@ -16,100 +19,77 @@ export function CicloListItem({ ciclo, onClick, className }: CicloListItemProps)
     ciclo.tipo === 'superior' ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'
 
   return (
-    <div
-      className={`flex items-center h-20 pr-4 bg-card border-y border-r rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-150 cursor-pointer ${className || ''}`}
+    <Card
+      className={cn(
+        'group cursor-pointer overflow-hidden shadow-sm transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring',
+        className
+      )}
       onClick={onClick}
-      data-oid="oql_5mf"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onClick?.()
+        }
+      }}
     >
-      {/* Borde de color como div separado - PEGADO a la imagen */}
-      <div
-        className={`h-full w-1 flex-shrink-0 ${ciclo.tipo === 'superior' ? 'bg-red-600' : 'bg-red-500'}`}
-        data-oid=".a1aocx"
-      />
-
-      {/* Thumbnail - Pegada al borde sin gap */}
-      <div className="flex-shrink-0 h-full" data-oid="i_utyui">
+      <CardContent className="grid h-20 grid-cols-[5rem_1fr_auto] items-center gap-4 border-l-4 p-0 pr-3" style={{ borderLeftColor: ciclo.tipo === 'superior' ? '#dc2626' : '#ef4444' }}>
         {ciclo.image ? (
-          <img
-            src={ciclo.image}
-            alt={ciclo.nombre}
-            className="h-full w-20 object-cover"
-            data-oid="znzsh04"
-          />
+          <img src={ciclo.image} alt={ciclo.nombre} className="h-full w-20 object-cover" />
         ) : (
-          <div className="h-full w-20 bg-muted flex items-center justify-center">
+          <div className="flex h-full w-20 items-center justify-center bg-muted">
             <BookOpen className="h-5 w-5 text-muted-foreground" />
           </div>
         )}
-      </div>
 
-      {/* Contenido con padding interno */}
-      <div className="flex items-center flex-1 gap-3 pl-4" data-oid="9e_ey3d">
-        {/* Title + Family */}
-        <div className="flex-1 min-w-0" data-oid="wy5mwug">
-          <h3
-            className="font-semibold text-sm truncate leading-tight mb-0.5"
-            title={ciclo.nombre}
-            data-oid="g-5-x9f"
-          >
-            {ciclo.nombre}
-          </h3>
-          <p className="text-xs text-muted-foreground truncate" data-oid="0-:5dy7">
-            {ciclo.familia_profesional}
-          </p>
-        </div>
-
-        {/* Duration + Courses - Compacto */}
-        <div className="hidden sm:flex items-center gap-3 text-xs" data-oid="s6g7:.p">
-          <div className="flex items-center gap-1" data-oid="z0j0fbh">
-            <Clock className="h-3.5 w-3.5 text-muted-foreground" data-oid="gsyomu0" />
-            <span className="font-medium" data-oid="87v6u8n">
-              {ciclo.duracion_total_horas}H
-            </span>
+        <div className="grid min-w-0 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_150px] lg:grid-cols-[minmax(0,1fr)_190px_120px_auto]">
+          <div className="min-w-0">
+            <h3 className="truncate text-sm font-semibold leading-tight" title={ciclo.nombre}>
+              {ciclo.nombre}
+            </h3>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              {ciclo.familia_profesional}
+            </p>
           </div>
-          <div className="flex items-center gap-1" data-oid="xvh.38m">
-            <BookOpen className="h-3.5 w-3.5 text-muted-foreground" data-oid="ye8g7qb" />
-            <span className="text-muted-foreground" data-oid="9tfjjrr">
+
+          <div className="hidden items-center gap-3 text-xs sm:flex">
+            <span className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-medium">{ciclo.duracion_total_horas}H</span>
+            </span>
+            <Separator orientation="vertical" className="h-5" />
+            <span className="flex items-center gap-1 text-muted-foreground">
+              <BookOpen className="h-3.5 w-3.5" />
               {ciclo.cursos.length} {ciclo.cursos.length === 1 ? 'curso' : 'cursos'}
             </span>
           </div>
-        </div>
 
-        {/* Type Badge - Más pequeño */}
-        <div className="hidden lg:block w-[160px] flex justify-center" data-oid="2s8r.-y">
           <Badge
-            className={`${tipoBadgeClass} text-white text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap px-2.5 py-1 leading-tight`}
-            data-oid="6t0-3d9"
+            className={`${tipoBadgeClass} hidden whitespace-nowrap px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white lg:inline-flex`}
           >
             {ciclo.tipo === 'superior' ? 'CFGS' : 'CFGM'}
           </Badge>
-        </div>
 
-        {/* Students - Compacto */}
-        <div className="hidden md:flex items-center gap-1 text-xs w-28" data-oid="p:rueq5">
-          <Users className="h-3.5 w-3.5 text-muted-foreground" data-oid="jlkxcxv" />
-          <span className="font-medium" data-oid="kk:hi:r">
-            {ciclo.total_alumnos || 0}
-          </span>
-          <span className="text-muted-foreground" data-oid="gmg6epv">
-            alumnos
+          <span className="hidden items-center gap-1 text-xs md:flex">
+            <Users className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="font-medium">{ciclo.total_alumnos || 0}</span>
+            <span className="text-muted-foreground">alumnos</span>
           </span>
         </div>
 
-        {/* Action Button - Compacto */}
         <Button
           variant="outline"
           size="sm"
-          className="text-xs font-semibold uppercase tracking-wide shrink-0 h-7 px-3"
+          className="h-7 shrink-0 px-3 text-xs font-semibold uppercase tracking-wide"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()
           }}
-          data-oid="83-x4k5"
         >
-          VER
+          Ver
         </Button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

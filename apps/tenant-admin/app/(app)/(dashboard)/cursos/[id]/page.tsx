@@ -395,10 +395,11 @@ export default function CursoDetailPage({ params }: Props) {
                     const runImage = conv.cursoImagen || imageUrl
                     const statusLabel = RUN_STATUS_LABELS[conv.estado ?? ''] ?? conv.estado ?? 'Sin estado'
                     return (
-                    <button
+                    <Button
                       key={conv.id}
                       type="button"
-                      className="block w-full overflow-hidden rounded-lg border text-left transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      variant="outline"
+                      className="h-auto w-full justify-start overflow-hidden p-0 text-left transition hover:shadow-md"
                       onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}
                     >
                       <div className="flex items-stretch">
@@ -463,7 +464,7 @@ export default function CursoDetailPage({ params }: Props) {
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </Button>
                   )})}
                 </div>
               )}

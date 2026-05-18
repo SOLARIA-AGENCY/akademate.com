@@ -42,6 +42,13 @@ import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { Badge } from '@payload-config/components/ui/badge'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -263,12 +270,21 @@ function AppointmentDialog({
           <div className="md:col-span-2 space-y-2">
             <Label>Lead</Label>
             <Input value={leadQuery} onChange={(event) => setLeadQuery(event.target.value)} placeholder="Buscar por nombre, email o teléfono" />
-            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={leadId} onChange={(event) => setLeadId(event.target.value)} disabled={Boolean(appointment)}>
-              <option value="">Selecciona un lead</option>
+            <Select
+              value={leadId || '_none'}
+              onValueChange={(value) => setLeadId(value === '_none' ? '' : value)}
+              disabled={Boolean(appointment)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona un lead" />
+              </SelectTrigger>
+              <SelectContent>
+              <SelectItem value="_none">Selecciona un lead</SelectItem>
               {filteredLeads.map((lead) => (
-                <option key={lead.id} value={lead.id}>{leadName(lead)} · {lead.email || lead.phone || 'sin contacto'}</option>
+                <SelectItem key={lead.id} value={String(lead.id)}>{leadName(lead)} · {lead.email || lead.phone || 'sin contacto'}</SelectItem>
               ))}
-            </select>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label>Fecha y hora</Label>
@@ -280,27 +296,51 @@ function AppointmentDialog({
           </div>
           <div className="space-y-2">
             <Label>Tipo</Label>
-            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={type} onChange={(event) => setType(event.target.value)}>
-              {Object.entries(TYPE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </select>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(TYPE_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label>Motivo</Label>
-            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={reason} onChange={(event) => setReason(event.target.value)}>
-              {Object.entries(REASON_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </select>
+            <Select value={reason} onValueChange={setReason}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(REASON_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label>Estado</Label>
-            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={status} onChange={(event) => setStatus(event.target.value)}>
-              {Object.entries(STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </select>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(STATUS_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label>Asesor asignado</Label>
-            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={assignedTo} onChange={(event) => setAssignedTo(event.target.value)}>
-              {users.map((user) => <option key={user.id} value={user.id}>{userName(user)}</option>)}
-            </select>
+            <Select
+              value={assignedTo || '_none'}
+              onValueChange={(value) => setAssignedTo(value === '_none' ? '' : value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_none">Asignar al creador</SelectItem>
+                {users.map((user) => <SelectItem key={user.id} value={String(user.id)}>{userName(user)}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="md:col-span-2 space-y-2">
             <Label>Notas</Label>
@@ -485,15 +525,16 @@ export default function LeadAppointmentsPage() {
                   <div className="grid grid-cols-[74px_repeat(7,minmax(112px,1fr))] border-b">
                     <div className="p-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Hora</div>
                     {days.map((day) => (
-                      <button
+                      <Button
                         key={day.toISOString()}
                         type="button"
+                        variant="ghost"
                         onClick={() => setSelectedDate(day)}
-                        className={`border-l p-2 text-left ${isSameDay(day, selectedDate) ? 'bg-red-50 text-red-700' : ''}`}
+                        className={`h-auto justify-start rounded-none border-l p-2 text-left ${isSameDay(day, selectedDate) ? 'bg-red-50 text-red-700 hover:bg-red-50 hover:text-red-700' : ''}`}
                       >
                         <span className="block text-xs font-semibold uppercase">{format(day, 'EEE', { locale: es })}</span>
                         <span className="block text-lg font-bold">{format(day, 'd', { locale: es })}</span>
-                      </button>
+                      </Button>
                     ))}
                   </div>
                   <div className="rounded-b-xl border border-t-0">
@@ -508,11 +549,12 @@ export default function LeadAppointmentsPage() {
                             return isSameDay(start, day) && start.getHours() === hour
                           })
                           return (
-                            <button
+                            <Button
                               key={`${day.toISOString()}-${hour}`}
                               type="button"
+                              variant="ghost"
                               onClick={() => setSelectedDate(day)}
-                              className={`space-y-1 border-r p-2 text-left last:border-r-0 ${isSameDay(day, selectedDate) ? 'bg-red-50/40' : 'hover:bg-muted/40'}`}
+                              className={`h-auto min-h-24 justify-start rounded-none border-r p-2 text-left last:border-r-0 ${isSameDay(day, selectedDate) ? 'bg-red-50/40 hover:bg-red-50/40' : 'hover:bg-muted/40'}`}
                             >
                               {hourAppointments.map((appointment) => (
                                 <AppointmentPill
@@ -522,7 +564,7 @@ export default function LeadAppointmentsPage() {
                                   onClick={(event) => { event.stopPropagation(); setSelectedAppointment(appointment); setSelectedDate(day) }}
                                 />
                               ))}
-                            </button>
+                            </Button>
                           )
                         })}
                       </div>
@@ -536,11 +578,12 @@ export default function LeadAppointmentsPage() {
                   const dayAppointments = appointments.filter((appointment) => isSameDay(new Date(appointment.starts_at), day))
                   const active = isSameDay(day, selectedDate)
                   return (
-                    <button
+                    <Button
                       key={day.toISOString()}
                       type="button"
+                      variant="outline"
                       onClick={() => setSelectedDate(day)}
-                      className={`min-h-32 rounded-xl border p-3 text-left transition-colors ${active ? 'border-red-500 bg-red-50' : 'hover:border-red-200'} ${viewMode === 'month' && !isSameMonth(day, cursor) ? 'opacity-40' : ''}`}
+                      className={`h-auto min-h-32 justify-start rounded-xl p-3 text-left transition-colors ${active ? 'border-red-500 bg-red-50 hover:bg-red-50' : 'hover:border-red-200'} ${viewMode === 'month' && !isSameMonth(day, cursor) ? 'opacity-40' : ''}`}
                     >
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-sm font-bold">{format(day, 'd', { locale: es })}</span>
@@ -551,7 +594,7 @@ export default function LeadAppointmentsPage() {
                           <AppointmentPill key={appointment.id} appointment={appointment} compact onClick={(event) => { event.stopPropagation(); setSelectedAppointment(appointment) }} />
                         ))}
                       </div>
-                    </button>
+                    </Button>
                   )
                 })}
               </div>

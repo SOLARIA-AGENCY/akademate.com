@@ -10,7 +10,15 @@ import {
 } from '@payload-config/components/ui/card'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { Input } from '@payload-config/components/ui/input'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
 import {
   Table,
   TableBody,
@@ -121,51 +129,49 @@ export default function CampusInscripcionesPage() {
         <CardContent className="grid gap-3 md:grid-cols-3" data-oid="-2s5r35">
           <label className="text-sm text-muted-foreground" data-oid="6_-7d5d">
             Curso
-            <select
-              className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-foreground"
+            <Select
               value={courseFilter}
-              onChange={(event) => setCourseFilter(event.target.value)}
+              onValueChange={setCourseFilter}
               data-oid="t_07ba0"
             >
-              <option value="all" data-oid="6ozjc0j">
-                Todos
-              </option>
+              <SelectTrigger className="mt-1 w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+              <SelectItem value="all" data-oid="6ozjc0j">Todos</SelectItem>
               {courseOptions.map((course) => (
-                <option key={course} value={course} data-oid="dn9l1ii">
+                <SelectItem key={course} value={course} data-oid="dn9l1ii">
                   {course}
-                </option>
+                </SelectItem>
               ))}
-            </select>
+              </SelectContent>
+            </Select>
           </label>
 
           <label className="text-sm text-muted-foreground" data-oid="i7o7rnq">
             Estado
-            <select
-              className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-foreground"
+            <Select
               value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
+              onValueChange={setStatusFilter}
               data-oid="7m1nzyb"
             >
-              <option value="all" data-oid="o3tdjp1">
-                Todos
-              </option>
-              <option value="active" data-oid="q:8avqi">
-                Activo
-              </option>
-              <option value="completed" data-oid="npoyw.c">
-                Completado
-              </option>
-              <option value="cancelled" data-oid="if366yl">
-                Cancelado
-              </option>
-            </select>
+              <SelectTrigger className="mt-1 w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="active">Activo</SelectItem>
+                <SelectItem value="completed">Completado</SelectItem>
+                <SelectItem value="cancelled">Cancelado</SelectItem>
+              </SelectContent>
+            </Select>
           </label>
 
           <label className="text-sm text-muted-foreground" data-oid="poetxmg">
             Fecha
-            <input
+            <Input
               type="date"
-              className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-foreground"
+              className="mt-1"
               value={dateFilter}
               onChange={(event) => setDateFilter(event.target.value)}
               data-oid="-:p.eaz"

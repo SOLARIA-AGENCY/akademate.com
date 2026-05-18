@@ -6,6 +6,16 @@
 'use client'
 
 import React, { useState, useCallback, useMemo } from 'react'
+import { Button } from '@payload-config/components/ui/button'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
+import { Input } from '@payload-config/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
 
 export interface MediaItem {
   id: string
@@ -210,12 +220,12 @@ export function MediaBrowser({
       <div className="flex flex-wrap items-center gap-3" data-oid="igmnaat">
         {/* Search */}
         <div className="relative flex-1" data-oid="uuj4q3w">
-          <input
+          <Input
             type="text"
             placeholder="Buscar archivos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-4 py-2 pl-10 text-sm focus:border-primary focus:outline-none"
+            className="pl-10"
             data-oid="fe0wsyu"
           />
 
@@ -228,52 +238,50 @@ export function MediaBrowser({
         </div>
 
         {/* Sort */}
-        <select
+        <Select
           value={`${sortField}-${sortOrder}`}
-          onChange={(e) => {
-            const [field, order] = e.target.value.split('-') as [SortField, SortOrder]
+          onValueChange={(value) => {
+            const [field, order] = value.split('-') as [SortField, SortOrder]
             setSortField(field)
             setSortOrder(order)
           }}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
           data-oid="3y5brqg"
         >
-          <option value="createdAt-desc" data-oid="t.yu2.m">
-            Mas recientes
-          </option>
-          <option value="createdAt-asc" data-oid="p.3q487">
-            Mas antiguos
-          </option>
-          <option value="filename-asc" data-oid="k6ljkbg">
-            Nombre A-Z
-          </option>
-          <option value="filename-desc" data-oid="581hu-i">
-            Nombre Z-A
-          </option>
-          <option value="filesize-desc" data-oid="fa7mwpl">
-            Mayor tamano
-          </option>
-          <option value="filesize-asc" data-oid="ovv2b71">
-            Menor tamano
-          </option>
-        </select>
+          <SelectTrigger className="w-[170px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="createdAt-desc" data-oid="t.yu2.m">Mas recientes</SelectItem>
+            <SelectItem value="createdAt-asc" data-oid="p.3q487">Mas antiguos</SelectItem>
+            <SelectItem value="filename-asc" data-oid="k6ljkbg">Nombre A-Z</SelectItem>
+            <SelectItem value="filename-desc" data-oid="581hu-i">Nombre Z-A</SelectItem>
+            <SelectItem value="filesize-desc" data-oid="fa7mwpl">Mayor tamano</SelectItem>
+            <SelectItem value="filesize-asc" data-oid="ovv2b71">Menor tamano</SelectItem>
+          </SelectContent>
+        </Select>
 
         {/* View mode */}
         <div className="flex rounded-lg border border-border" data-oid="ia9ox:a">
-          <button
+          <Button
+            type="button"
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            size="sm"
             onClick={() => setViewMode('grid')}
-            className={`px-3 py-2 ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : ''}`}
+            className="rounded-r-none"
             data-oid="_ia3b_h"
           >
             ▦
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="sm"
             onClick={() => setViewMode('list')}
-            className={`px-3 py-2 ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : ''}`}
+            className="rounded-l-none"
             data-oid="9i-xhc5"
           >
             ≡
-          </button>
+          </Button>
         </div>
 
         {/* Actions */}
@@ -283,50 +291,60 @@ export function MediaBrowser({
               {localSelection.size} seleccionado(s)
             </span>
             {onDelete && (
-              <button
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
                 onClick={handleDelete}
-                className="rounded-lg bg-destructive px-3 py-2 text-sm text-destructive-foreground"
                 data-oid="92jn511"
               >
                 Eliminar
-              </button>
+              </Button>
             )}
           </>
         )}
 
         {onRefresh && (
-          <button
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
             onClick={onRefresh}
             disabled={isLoading}
-            className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted"
             data-oid="9a_1_2r"
           >
             {isLoading ? '⏳' : '🔄'}
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm" data-oid="ik:dl6r">
-        <button
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           onClick={() => setCurrentFolder(null)}
           className={`hover:text-primary ${!currentFolder ? 'font-medium text-primary' : ''}`}
           data-oid="zch-xv6"
         >
           📁 Todos
-        </button>
+        </Button>
         {breadcrumbs.map((crumb, i) => (
           <React.Fragment key={crumb.path}>
             <span className="text-muted-foreground" data-oid="qd_n:sd">
               /
             </span>
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => setCurrentFolder(crumb.path)}
               className={`hover:text-primary ${currentFolder === crumb.path ? 'font-medium text-primary' : ''}`}
               data-oid=".pf.hoa"
             >
               {crumb.name}
-            </button>
+            </Button>
           </React.Fragment>
         ))}
       </div>
@@ -343,14 +361,17 @@ export function MediaBrowser({
               )
             })
             .map((folder) => (
-              <button
+              <Button
                 key={folder}
+                type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setCurrentFolder(folder)}
-                className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted"
+                className="gap-2"
                 data-oid="_zi2q-."
               >
                 📂 {folder.split('/').pop()}
-              </button>
+              </Button>
             ))}
         </div>
       )}
@@ -439,12 +460,11 @@ export function MediaBrowser({
               <tr data-oid="mhl38r2">
                 {selectionMode === 'multiple' && (
                   <th className="w-12 px-3 py-2" data-oid="2hc.lm7">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={
                         localSelection.size === filteredItems.length && filteredItems.length > 0
                       }
-                      onChange={handleSelectAll}
+                      onCheckedChange={handleSelectAll}
                       data-oid="yti8dtb"
                     />
                   </th>
@@ -476,10 +496,9 @@ export function MediaBrowser({
                 >
                   {selectionMode === 'multiple' && (
                     <td className="px-3 py-2" data-oid="7oyj1dd">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={localSelection.has(item.id)}
-                        onChange={() => {}}
+                        onCheckedChange={() => {}}
                         data-oid="w2c36xl"
                       />
                     </td>
@@ -520,13 +539,16 @@ export function MediaBrowser({
             onClick={(e) => e.stopPropagation()}
             data-oid="kd.xwhy"
           >
-            <button
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon"
               onClick={() => setPreviewItem(null)}
-              className="absolute right-2 top-2 z-10 rounded-full bg-background p-2 shadow-lg hover:bg-muted"
+              className="absolute right-2 top-2 z-10 rounded-full shadow-lg"
               data-oid="ut4d-e."
             >
               ✕
-            </button>
+            </Button>
             {isImagePreviewable(previewItem.mimeType) ? (
               <img
                 src={previewItem.url}

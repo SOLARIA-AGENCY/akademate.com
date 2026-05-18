@@ -1,6 +1,8 @@
 'use client'
 
 import * as React from 'react'
+import { Badge } from '@payload-config/components/ui/badge'
+import { cn } from '@payload-config/lib/utils'
 
 interface ResultsSummaryBarProps {
   count: number
@@ -17,20 +19,18 @@ export function ResultsSummaryBar({
 }: ResultsSummaryBarProps) {
   return (
     <div
-      className={`flex items-center gap-2 bg-muted rounded-md px-4 py-2 text-sm text-muted-foreground ${className}`}
+      className={cn(
+        'flex items-center gap-2 rounded-md border bg-muted/50 px-4 py-2 text-sm text-muted-foreground',
+        className
+      )}
       data-oid=".o3.p:c"
     >
-      <span data-oid="d7qfzm.">
-        <span className="font-medium text-foreground" data-oid="qt00_u-">
-          {count}
-        </span>{' '}
+      <Badge variant="secondary" className="tabular-nums">
+        {count}
+      </Badge>
+      <span className="min-w-0 truncate" data-oid="d7qfzm.">
         {entity}
-        {extra && (
-          <>
-            {' · '}
-            {extra}
-          </>
-        )}
+        {extra ? <span className="text-muted-foreground"> · {extra}</span> : null}
       </span>
     </div>
   )

@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
+import { Card, CardContent } from '@payload-config/components/ui/card'
+import { Separator } from '@payload-config/components/ui/separator'
+import { cn } from '@payload-config/lib/utils'
 import { CalendarDays, Clock } from 'lucide-react'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
 import { getPublicStudyTypeFallbackImage, toDashboardStudyType } from '@/app/lib/website/study-types'
@@ -20,12 +23,23 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
   const [imgError, setImgError] = useState(false)
 
   return (
-    <div
-      className={`flex items-center gap-4 rounded-lg border bg-card px-4 py-3 transition-shadow hover:shadow-sm cursor-pointer ${className || ''}`}
+    <Card
+      className={cn(
+        'group cursor-pointer overflow-hidden shadow-sm transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring',
+        className
+      )}
       onClick={onClick}
-      data-oid="bfba_ve"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onClick?.()
+        }
+      }}
     >
-      <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded bg-muted" data-oid="__da7mf">
+      <CardContent className="grid min-h-20 grid-cols-[6rem_1fr_auto] items-center gap-4 p-3">
+      <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-md bg-muted" data-oid="__da7mf">
         {!imgError ? (
           <img
             src={course.imagenPortada || fallbackImage}
@@ -46,8 +60,8 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
         )}
       </div>
 
-      <div className="flex min-w-0 flex-1 items-center gap-4" data-oid="ku49jm4">
-        <div className="min-w-0 flex-1" data-oid="2.vkthd">
+      <div className="grid min-w-0 items-center gap-4 md:grid-cols-[minmax(0,1fr)_250px]">
+        <div className="min-w-0" data-oid="2.vkthd">
           <h3
             className="mb-1 truncate text-sm font-extrabold uppercase tracking-wide leading-tight"
             title={course.nombre}
@@ -68,13 +82,14 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
           </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-5 text-sm" data-oid="g.oqgk7">
+        <div className="hidden items-center gap-5 text-sm md:flex" data-oid="g.oqgk7">
           <div className="flex items-center gap-1.5" data-oid="3w1ar4y">
             <Clock className="h-4 w-4 text-muted-foreground" data-oid=".z32xno" />
             <span className="font-medium" data-oid="t7.uut_">
               {course.duracionReferencia ? `${course.duracionReferencia} h` : 'Pendiente'}
             </span>
           </div>
+          <Separator orientation="vertical" className="h-5" />
           <div className="flex items-center gap-1.5" data-oid="sa8jbtd">
             <CalendarDays className="h-4 w-4 text-muted-foreground" data-oid="97xktqx" />
             <span className="font-medium" data-oid="4w4-k36">
@@ -82,6 +97,7 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
             </span>
           </div>
         </div>
+      </div>
 
         <Button
           size="sm"
@@ -94,7 +110,7 @@ export function CourseListItem({ course, onClick, className }: CourseListItemPro
         >
           Abrir
         </Button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

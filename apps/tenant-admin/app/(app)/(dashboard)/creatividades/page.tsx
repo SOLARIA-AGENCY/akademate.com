@@ -107,14 +107,15 @@ function SlotCard({ slot, onUpload, onDelete }: {
           <p className="text-[10px] text-muted-foreground mt-1">Subiendo...</p>
         </div>
       ) : (
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => inputRef.current?.click()}
-          className="w-full py-6 flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
+          className="h-auto w-full flex-col gap-1 py-6 text-muted-foreground hover:text-primary"
         >
           <Upload className="h-6 w-6" />
           <span className="text-[10px]">Click para subir</span>
-        </button>
+        </Button>
       )}
 
       <input

@@ -224,10 +224,12 @@ export default function RolesPage() {
             {rolesData.map((rol) => {
               const Icon = rol.icon
               return (
-                <button
+                <Button
                   key={rol.id}
+                  type="button"
+                  variant="ghost"
                   onClick={() => setSelectedRole(rol.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
+                  className={`h-auto w-full justify-start gap-3 p-3 text-left transition-colors ${
                     selectedRole === rol.id
                       ? 'bg-primary/10 border-2'
                       : 'bg-muted/50 hover:bg-muted border-2 border-transparent'
@@ -254,7 +256,7 @@ export default function RolesPage() {
                       {rol.usuarios} usuarios
                     </p>
                   </div>
-                </button>
+                </Button>
               )
             })}
           </CardContent>

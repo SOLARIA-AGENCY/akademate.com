@@ -384,49 +384,57 @@ function GraficaVisitantesTiempo({
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {(mode === 'all' || mode === 'organic') && (
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => setVisible((prev) => ({ ...prev, organic: !prev.organic }))}
-              className={`inline-flex items-center gap-1 rounded border px-2 py-1 ${
+              className={`h-7 gap-1 px-2 text-xs ${
                 visible.organic ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-border text-muted-foreground'
               }`}
             >
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS.organic }} />
               Orgánico
-            </button>
+            </Button>
           )}
           {mode === 'all' && (
             <>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setVisible((prev) => ({ ...prev, facebook: !prev.facebook }))}
-                className={`inline-flex items-center gap-1 rounded border px-2 py-1 ${
+                className={`h-7 gap-1 px-2 text-xs ${
                   visible.facebook ? 'border-blue-300 bg-blue-50 text-blue-800' : 'border-border text-muted-foreground'
                 }`}
               >
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS.facebook }} />
                 Facebook Ads
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setVisible((prev) => ({ ...prev, google: !prev.google }))}
-                className={`inline-flex items-center gap-1 rounded border px-2 py-1 ${
+                className={`h-7 gap-1 px-2 text-xs ${
                   visible.google ? 'border-orange-300 bg-orange-50 text-orange-800' : 'border-border text-muted-foreground'
                 }`}
               >
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS.google }} />
                 Google Ads
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setVisible((prev) => ({ ...prev, total: !prev.total }))}
-                className={`inline-flex items-center gap-1 rounded border px-2 py-1 ${
+                className={`h-7 gap-1 px-2 text-xs ${
                   visible.total ? 'border-teal-300 bg-teal-50 text-teal-800' : 'border-border text-muted-foreground'
                 }`}
               >
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS.total }} />
                 Total
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -896,17 +904,16 @@ export default function AnaliticasPage() {
             )}
             <div className="flex items-center rounded-lg border border-border bg-card overflow-hidden">
               {DATE_RANGES.map((r) => (
-                <button
+                <Button
                   key={r}
+                  type="button"
+                  variant={dateRange === r ? 'default' : 'ghost'}
+                  size="sm"
                   onClick={() => setDateRange(r)}
-                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                    dateRange === r
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  className="h-7 rounded-none px-3 text-xs"
                 >
                   {r}
-                </button>
+                </Button>
               ))}
             </div>
             <div className="flex items-center rounded-lg border border-border bg-card overflow-hidden">
@@ -918,9 +925,11 @@ export default function AnaliticasPage() {
                     (trafficGranularity !== 'hour' || canUseHourGranularity)
 
                   return (
-                    <button
+                    <Button
                       key={granularity}
                       type="button"
+                      variant={isSelected ? 'default' : 'ghost'}
+                      size="sm"
                       disabled={isDisabled}
                       title={
                         isDisabled
@@ -932,14 +941,10 @@ export default function AnaliticasPage() {
                       onClick={() => {
                         if (!isDisabled) setTrafficGranularity(granularity)
                       }}
-                      className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                        isSelected
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-muted-foreground hover:text-foreground'
-                      } ${isDisabled ? 'cursor-not-allowed opacity-60 hover:text-muted-foreground' : ''}`}
+                      className={`h-7 rounded-none px-3 text-xs ${isDisabled ? 'cursor-not-allowed opacity-60 hover:text-muted-foreground' : ''}`}
                     >
                       {TRAFFIC_GRANULARITY_LABELS[granularity]}
-                    </button>
+                    </Button>
                   )
                 })}
             </div>
@@ -1009,8 +1014,10 @@ export default function AnaliticasPage() {
           const Icon = tab.icon
           const isActive = activeTab === tab.id
           return (
-            <button
+            <Button
               key={tab.id}
+              type="button"
+              variant="ghost"
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 -mb-px ${
                 isActive
@@ -1020,7 +1027,7 @@ export default function AnaliticasPage() {
             >
               <Icon className="h-4 w-4" />
               {tab.label}
-            </button>
+            </Button>
           )
         })}
       </div>

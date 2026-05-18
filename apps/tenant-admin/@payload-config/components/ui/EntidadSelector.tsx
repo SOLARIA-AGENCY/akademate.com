@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Label } from '@payload-config/components/ui/label'
+import { Button } from '@payload-config/components/ui/button'
 import { cn } from '@/lib/utils'
 import { getEntidadesDisponibles } from '@payload-config/lib/entidadesFinanciadoras'
 import type { EntidadFinanciadoraKey } from '@/types'
@@ -29,15 +30,14 @@ export function EntidadSelector({ onSelect, excluidas, entidadesUsadas }: Entida
       <Label data-oid="ewav9zq">Agregar Entidad Financiadora</Label>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" data-oid="z4bt744">
         {entidadesDisponibles.map((entidad) => (
-          <button
+          <Button
             key={entidad.key}
             type="button"
+            variant="outline"
             onClick={() => onSelect(entidad.key)}
             className={cn(
-              'flex flex-col items-center gap-2 p-3 border-2 rounded-lg',
-              'hover:border-primary hover:bg-accent',
-              'transition-colors cursor-pointer',
-              'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+              'h-auto flex-col items-center gap-2 p-3',
+              'hover:border-primary hover:bg-accent'
             )}
             data-oid="rmvfktf"
           >
@@ -55,7 +55,7 @@ export function EntidadSelector({ onSelect, excluidas, entidadesUsadas }: Entida
             <span className="text-xs font-medium text-center line-clamp-2" data-oid="uq8c_3v">
               {entidad.nombre}
             </span>
-          </button>
+          </Button>
         ))}
       </div>
     </div>

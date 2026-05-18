@@ -158,11 +158,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         data-oid="dq:3ws5"
       >
         {isMobile && sidebarOpen && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
             aria-label="Cerrar menú lateral"
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-30 bg-black/40 md:hidden"
+            className="fixed inset-0 z-30 h-auto w-auto rounded-none bg-black/40 p-0 hover:bg-black/40 md:hidden"
           />
         )}
 
@@ -234,18 +235,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   >
                     {filteredShortcuts.length > 0 ? (
                       filteredShortcuts.slice(0, 6).map((item) => (
-                        <button
+                        <Button
                           key={item.href}
                           type="button"
+                          variant="ghost"
                           onMouseDown={() => goToShortcut(item.href)}
-                          className="flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-sm hover:bg-accent"
+                          className="h-auto w-full justify-between rounded-sm px-3 py-2 text-left text-sm font-normal"
                           data-oid="lyvogvu"
                         >
                           <span data-oid="tks9og7">{item.label}</span>
                           <span className="text-xs text-muted-foreground" data-oid="oowdwwx">
                             {item.href}
                           </span>
-                        </button>
+                        </Button>
                       ))
                     ) : (
                       <p className="px-3 py-2 text-sm text-muted-foreground" data-oid="7e56m0c">

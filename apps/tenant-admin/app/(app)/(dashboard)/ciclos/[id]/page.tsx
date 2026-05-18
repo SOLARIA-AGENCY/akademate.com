@@ -348,14 +348,16 @@ export default function CicloDetailPage({ params }: Props) {
       {/* Header */}
       <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-end md:justify-between">
         <nav className="flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => router.push('/dashboard/ciclos')}
-            className="inline-flex items-center gap-1 hover:text-foreground"
+            className="gap-1 px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Ciclos
-          </button>
+          </Button>
           <ChevronRight className="h-4 w-4" />
           <span>Ficha de ciclo</span>
         </nav>
@@ -441,10 +443,11 @@ export default function CicloDetailPage({ params }: Props) {
                     const inscritos = conv.current_enrollments || 0
                     const porcentaje = plazas > 0 ? Math.round((inscritos / plazas) * 100) : 0
                     return (
-                      <button
+                      <Button
                         key={conv.id}
                         type="button"
-                        className={`block w-full rounded-lg border border-l-4 text-left ${statusColors[conv.status] || 'border-l-gray-300'} overflow-hidden transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+                        variant="outline"
+                        className={`h-auto w-full justify-start rounded-lg border-l-4 p-0 text-left ${statusColors[conv.status] || 'border-l-gray-300'} overflow-hidden transition-all hover:shadow-md`}
                         onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}
                       >
                         <div className="flex items-stretch">
@@ -489,7 +492,7 @@ export default function CicloDetailPage({ params }: Props) {
                             </div>
                           </div>
                         </div>
-                      </button>
+                      </Button>
                     )
                   })}
                 </div>

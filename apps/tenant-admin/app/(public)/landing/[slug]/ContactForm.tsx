@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { Button } from '@payload-config/components/ui/button'
+import { Input } from '@payload-config/components/ui/input'
 
 interface ContactFormProps {
   courseRunId: number
@@ -118,13 +120,13 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
           <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
             Nombre *
           </label>
-          <input
+          <Input
             type="text"
             id="first_name"
             required
             value={formData.first_name}
             onChange={(e) => setFormData((prev) => ({ ...prev, first_name: e.target.value }))}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
+            className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             placeholder="Tu nombre"
           />
         </div>
@@ -132,13 +134,13 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
           <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">
             Apellidos *
           </label>
-          <input
+          <Input
             type="text"
             id="last_name"
             required
             value={formData.last_name}
             onChange={(e) => setFormData((prev) => ({ ...prev, last_name: e.target.value }))}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
+            className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             placeholder="Tus apellidos"
           />
         </div>
@@ -147,13 +149,13 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
           Email *
         </label>
-        <input
+        <Input
           type="email"
           id="email"
           required
           value={formData.email}
           onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
+          className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           placeholder="tu@email.com"
         />
       </div>
@@ -161,12 +163,12 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
         <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
           Telefono
         </label>
-        <input
+        <Input
           type="tel"
           id="phone"
           value={formData.phone}
           onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
+          className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           placeholder="+34 600 000 000"
         />
       </div>
@@ -175,13 +177,13 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
         <p className="text-sm text-red-600">{errorMsg}</p>
       )}
 
-      <button
+      <Button
         type="submit"
         disabled={status === 'submitting'}
-        className="w-full rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        className="h-auto w-full rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {status === 'submitting' ? 'Enviando...' : 'Solicitar Informacion'}
-      </button>
+      </Button>
 
       <p className="text-xs text-gray-500 text-center">
         Sin compromiso. Al enviar aceptas nuestra{' '}

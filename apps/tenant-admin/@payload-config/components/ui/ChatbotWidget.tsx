@@ -86,9 +86,11 @@ export function ChatbotWidget() {
   return (
     <>
       {/* Floating Button */}
-      <button
+      <Button
+        type="button"
+        size="icon"
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center group"
+        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg transition-all hover:scale-110 hover:shadow-xl"
         data-oid="_2h6sl-"
       >
         {isOpen ? (
@@ -108,7 +110,7 @@ export function ChatbotWidget() {
             </span>
           </>
         )}
-      </button>
+      </Button>
 
       {/* Chat Window */}
       {isOpen && (
@@ -135,13 +137,16 @@ export function ChatbotWidget() {
                 {branding.academyName}
               </p>
             </div>
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => setIsOpen(false)}
-              className="h-8 w-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors"
+              className="h-8 w-8 rounded-full text-primary-foreground hover:bg-white/20 hover:text-primary-foreground"
               data-oid="h:67np9"
             >
               <X className="h-4 w-4" data-oid="v__a77w" />
-            </button>
+            </Button>
           </div>
 
           {/* Body */}

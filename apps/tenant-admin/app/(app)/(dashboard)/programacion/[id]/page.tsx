@@ -5,7 +5,17 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
+import { Input } from '@payload-config/components/ui/input'
+import { Label } from '@payload-config/components/ui/label'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
 import {
   ArrowLeft, Calendar, MapPin, Users, GraduationCap, DollarSign,
   ExternalLink, Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
@@ -467,31 +477,39 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                 </>
               ) : (
                 <div className="space-y-3">
-                  <label className="block space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground">Sede</span>
-                    <select
-                      className="w-full rounded-md border bg-background px-3 py-2"
-                      value={locationForm.campus}
-                      onChange={(event) => setLocationForm((form) => ({ ...form, campus: event.target.value, classroom: '' }))}
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Sede</Label>
+                    <Select
+                      value={locationForm.campus || '_none'}
+                      onValueChange={(value) => setLocationForm((form) => ({ ...form, campus: value === '_none' ? '' : value, classroom: '' }))}
                     >
-                      <option value="">Seleccionar sede</option>
-                      {campuses.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-                    </select>
-                  </label>
-                  <label className="block space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground">Aula</span>
-                    <select
-                      className="w-full rounded-md border bg-background px-3 py-2"
-                      value={locationForm.classroom}
-                      onChange={(event) => setLocationForm((form) => ({ ...form, classroom: event.target.value }))}
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar sede" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="_none">Seleccionar sede</SelectItem>
+                        {campuses.map((item) => <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Aula</Label>
+                    <Select
+                      value={locationForm.classroom || '_none'}
+                      onValueChange={(value) => setLocationForm((form) => ({ ...form, classroom: value === '_none' ? '' : value }))}
                       disabled={!locationForm.campus}
                     >
-                      <option value="">Sin aula asignada</option>
-                      {classrooms.map((item) => (
-                        <option key={item.id} value={item.id}>{item.name} · {item.capacity} plazas</option>
-                      ))}
-                    </select>
-                  </label>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sin aula asignada" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="_none">Sin aula asignada</SelectItem>
+                        {classrooms.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>{item.name} · {item.capacity} plazas</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div>
                     <span className="text-xs font-medium text-muted-foreground">Días</span>
                     <div className="mt-2 grid grid-cols-2 gap-2">
@@ -504,40 +522,44 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                         ['saturday', 'Sábado'],
                         ['sunday', 'Domingo'],
                       ].map(([value, label]) => (
-                        <label key={value} className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs">
-                          <input
-                            type="checkbox"
+                        <Label key={value} className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs">
+                          <Checkbox
                             checked={locationForm.schedule_days.includes(value)}
-                            onChange={(event) => setLocationForm((form) => ({
+                            onCheckedChange={(checked) => setLocationForm((form) => ({
                               ...form,
-                              schedule_days: event.target.checked
+                              schedule_days: checked
                                 ? [...form.schedule_days, value]
                                 : form.schedule_days.filter((day) => day !== value),
                             }))}
                           />
                           {label}
-                        </label>
+                        </Label>
                       ))}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <label className="block space-y-1">
-                      <span className="text-xs font-medium text-muted-foreground">Hora inicio</span>
-                      <input className="w-full rounded-md border bg-background px-3 py-2" type="time" value={locationForm.schedule_time_start} onChange={(event) => setLocationForm((form) => ({ ...form, schedule_time_start: event.target.value }))} />
-                    </label>
-                    <label className="block space-y-1">
-                      <span className="text-xs font-medium text-muted-foreground">Hora fin</span>
-                      <input className="w-full rounded-md border bg-background px-3 py-2" type="time" value={locationForm.schedule_time_end} onChange={(event) => setLocationForm((form) => ({ ...form, schedule_time_end: event.target.value }))} />
-                    </label>
+                    <div className="flex flex-col gap-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground">Hora inicio</Label>
+                      <Input type="time" value={locationForm.schedule_time_start} onChange={(event) => setLocationForm((form) => ({ ...form, schedule_time_start: event.target.value }))} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground">Hora fin</Label>
+                      <Input type="time" value={locationForm.schedule_time_end} onChange={(event) => setLocationForm((form) => ({ ...form, schedule_time_end: event.target.value }))} />
+                    </div>
                   </div>
-                  <label className="block space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground">Turno</span>
-                    <select className="w-full rounded-md border bg-background px-3 py-2" value={locationForm.shift} onChange={(event) => setLocationForm((form) => ({ ...form, shift: event.target.value }))}>
-                      <option value="morning">Mañana</option>
-                      <option value="afternoon">Tarde</option>
-                      <option value="evening_extra">Tercer turno</option>
-                    </select>
-                  </label>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Turno</Label>
+                    <Select value={locationForm.shift} onValueChange={(value) => setLocationForm((form) => ({ ...form, shift: value }))}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="morning">Mañana</SelectItem>
+                        <SelectItem value="afternoon">Tarde</SelectItem>
+                        <SelectItem value="evening_extra">Tercer turno</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Button className="w-full" disabled={saving} onClick={saveLocation}>
                     {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                     Guardar sede y horario
@@ -564,14 +586,14 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                 </>
               ) : (
                 <div className="space-y-3">
-                  <label className="block space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground">Fecha inicio</span>
-                    <input className="w-full rounded-md border bg-background px-3 py-2" type="date" value={dateForm.start_date} onChange={(event) => setDateForm((form) => ({ ...form, start_date: event.target.value }))} />
-                  </label>
-                  <label className="block space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground">Fecha fin</span>
-                    <input className="w-full rounded-md border bg-background px-3 py-2" type="date" value={dateForm.end_date} onChange={(event) => setDateForm((form) => ({ ...form, end_date: event.target.value }))} />
-                  </label>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Fecha inicio</Label>
+                    <Input type="date" value={dateForm.start_date} onChange={(event) => setDateForm((form) => ({ ...form, start_date: event.target.value }))} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Fecha fin</Label>
+                    <Input type="date" value={dateForm.end_date} onChange={(event) => setDateForm((form) => ({ ...form, end_date: event.target.value }))} />
+                  </div>
                   <Button className="w-full" disabled={saving} onClick={saveDates}>
                     {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                     Guardar fechas
@@ -598,14 +620,14 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                 </>
               ) : (
                 <div className="space-y-3">
-                  <label className="block space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground">Precio total</span>
-                    <input className="w-full rounded-md border bg-background px-3 py-2" type="number" min="0" step="0.01" placeholder="Consultar" value={priceForm.price_override} onChange={(event) => setPriceForm((form) => ({ ...form, price_override: event.target.value }))} />
-                  </label>
-                  <label className="block space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground">Matrícula / reserva</span>
-                    <input className="w-full rounded-md border bg-background px-3 py-2" type="number" min="0" step="0.01" placeholder="Consultar" value={priceForm.enrollment_fee_snapshot} onChange={(event) => setPriceForm((form) => ({ ...form, enrollment_fee_snapshot: event.target.value }))} />
-                  </label>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Precio total</Label>
+                    <Input type="number" min="0" step="0.01" placeholder="Consultar" value={priceForm.price_override} onChange={(event) => setPriceForm((form) => ({ ...form, price_override: event.target.value }))} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Matrícula / reserva</Label>
+                    <Input type="number" min="0" step="0.01" placeholder="Consultar" value={priceForm.enrollment_fee_snapshot} onChange={(event) => setPriceForm((form) => ({ ...form, enrollment_fee_snapshot: event.target.value }))} />
+                  </div>
                   <Button className="w-full" disabled={saving} onClick={savePrice}>
                     {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                     Guardar precio

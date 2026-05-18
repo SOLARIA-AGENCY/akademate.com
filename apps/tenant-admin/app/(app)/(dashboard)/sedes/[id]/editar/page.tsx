@@ -12,6 +12,13 @@ import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { Switch } from '@payload-config/components/ui/switch'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
+import {
   MapPin,
   ArrowLeft,
   Save,
@@ -569,22 +576,16 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
       <div className="border-b border-border">
         <div className="flex gap-1 overflow-x-auto pb-px scrollbar-none">
           {TABS.map(({ id: tabId, label, icon: Icon }) => (
-            <button
+            <Button
               key={tabId}
               type="button"
+              variant="ghost"
               onClick={() => setActiveTab(tabId)}
-              className={`
-                flex items-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium border-b-2 transition-colors
-                ${
-                  activeTab === tabId
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                }
-              `}
+              className={`gap-2 whitespace-nowrap rounded-none border-b-2 px-3 py-2.5 text-sm font-medium ${activeTab === tabId ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}
             >
               <Icon className="h-4 w-4" />
               {label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -1199,19 +1200,21 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
               <CardContent>
                 <div className="space-y-2 max-w-md">
                   <Label htmlFor="coordinator">Coordinador de sede</Label>
-                  <select
-                    id="coordinator"
+                  <Select
                     value={coordinator}
-                    onChange={(e) => setCoordinator(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    onValueChange={setCoordinator}
                   >
-                    <option value="">Sin asignar</option>
+                    <SelectTrigger id="coordinator" className="w-full">
+                      <SelectValue placeholder="Sin asignar" />
+                    </SelectTrigger>
+                    <SelectContent>
                     {administrativeOptions.map((s) => (
-                      <option key={s.id} value={String(s.id)}>
+                      <SelectItem key={s.id} value={String(s.id)}>
                         {getStaffDisplayName(s)}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>
@@ -1228,12 +1231,10 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
                 ) : (
                   <div className="space-y-4">
                     <div className="flex max-w-xl flex-col gap-2 sm:flex-row">
-                      <select
+                      <Select
                         aria-label="Asignar administrativo"
-                        className="flex h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         value=""
-                        onChange={(event) => {
-                          const value = event.target.value
+                        onValueChange={(value) => {
                           if (value) {
                             setStaffMembers((current) =>
                               current.includes(value) ? current : [...current, value],
@@ -1241,13 +1242,17 @@ export default function EditarSedePage({ params }: EditSedePageProps) {
                           }
                         }}
                       >
-                        <option value="">Seleccionar administrativo</option>
+                        <SelectTrigger className="h-10 min-w-0 flex-1">
+                          <SelectValue placeholder="Seleccionar administrativo" />
+                        </SelectTrigger>
+                        <SelectContent>
                         {unassignedAdministrativeOptions.map((s) => (
-                          <option key={s.id} value={String(s.id)}>
+                          <SelectItem key={s.id} value={String(s.id)}>
                             {getStaffDisplayName(s)}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
+                        </SelectContent>
+                      </Select>
                       <div className="inline-flex h-10 items-center gap-2 rounded-md border px-3 text-sm text-muted-foreground">
                         <UserPlus className="h-4 w-4" />
                         {selectedAdministrativeMembers.length} asignados

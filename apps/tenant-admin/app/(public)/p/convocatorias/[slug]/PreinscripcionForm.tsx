@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { Button } from '@payload-config/components/ui/button'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
+import { Input } from '@payload-config/components/ui/input'
+import { Textarea } from '@payload-config/components/ui/textarea'
 
 interface Props {
   convocatoriaId: string
@@ -139,17 +142,17 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <input type="text" required placeholder="Nombre completo *" value={name} onChange={(e) => setName(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent" />
-      <input type="email" required placeholder="Email *" value={email} onChange={(e) => setEmail(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent" />
-      <input type="tel" required placeholder="Telefono *" value={phone} onChange={(e) => setPhone(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent" />
-      <textarea placeholder="Mensaje o consulta (opcional)" value={message} onChange={(e) => setMessage(e.target.value)} rows={3}
-        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 brand-ring focus:border-transparent resize-none" />
+      <Input type="text" required placeholder="Nombre completo *" value={name} onChange={(e) => setName(e.target.value)}
+        className="h-auto rounded-lg px-4 py-2.5 text-sm brand-ring" />
+      <Input type="email" required placeholder="Email *" value={email} onChange={(e) => setEmail(e.target.value)}
+        className="h-auto rounded-lg px-4 py-2.5 text-sm brand-ring" />
+      <Input type="tel" required placeholder="Telefono *" value={phone} onChange={(e) => setPhone(e.target.value)}
+        className="h-auto rounded-lg px-4 py-2.5 text-sm brand-ring" />
+      <Textarea placeholder="Mensaje o consulta (opcional)" value={message} onChange={(e) => setMessage(e.target.value)} rows={3}
+        className="min-h-24 resize-none rounded-lg px-4 py-2.5 text-sm brand-ring" />
 
       <label className="flex items-start gap-2 cursor-pointer">
-        <input type="checkbox" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} className="mt-1 rounded border-gray-300" />
+        <Checkbox checked={privacy} onCheckedChange={(checked) => setPrivacy(checked === true)} className="mt-1" />
         <span className="text-xs text-gray-600">Acepto la <a href="/legal/privacidad" className="brand-text underline" target="_blank">politica de privacidad</a> y el tratamiento de mis datos.</span>
       </label>
 

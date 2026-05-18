@@ -677,16 +677,17 @@ export default function ProgramacionPage() {
           {/* View tabs */}
           <div className="flex rounded-lg border overflow-hidden">
             {viewButtons.map(({ key, label, icon: Icon }) => (
-              <button
+              <Button
+                type="button"
+                variant={view === key ? 'default' : 'ghost'}
+                size="sm"
                 key={key}
                 onClick={() => setView(key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-                  view === key ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
+                className="gap-1.5 rounded-none text-xs"
               >
                 <Icon className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{label}</span>
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -700,24 +701,26 @@ export default function ProgramacionPage() {
 
           {/* Sede filter */}
           <div className="flex items-center gap-1 ml-auto">
-            <button
+            <Button
+              type="button"
+              variant={sedeFilter === 'todas' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setSedeFilter('todas')}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                sedeFilter === 'todas' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
+              className="h-7 px-2.5 text-xs"
             >
               Todas
-            </button>
+            </Button>
             {campuses.map((c) => (
-              <button
+              <Button
                 key={c.id}
+                type="button"
+                variant={sedeFilter === c.id ? 'default' : 'ghost'}
+                size="sm"
                 onClick={() => setSedeFilter(c.id)}
-                className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                  sedeFilter === c.id ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
+                className="h-7 px-2.5 text-xs"
               >
                 {c.name}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

@@ -314,8 +314,10 @@ function OccupancyMatrix({
                             {shiftCards.map((card) => {
                               const style = courseTypeStyle(card.tipo)
                               return (
-                              <button
+                              <Button
                                 key={card.id}
+                                type="button"
+                                variant="outline"
                                 className={`flex min-h-16 w-full overflow-hidden rounded-md border text-left shadow-sm transition hover:shadow-md ${style.bg} ${style.border}`}
                                 onClick={() => window.location.assign(`/dashboard/programacion/${card.id}`)}
                               >
@@ -335,7 +337,7 @@ function OccupancyMatrix({
                                     {formatSchedule(card)}
                                   </div>
                                 </div>
-                              </button>
+                              </Button>
                             )})}
                           </div>
                         )}
@@ -557,15 +559,16 @@ export default function PlannerPage() {
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground font-medium">Filtrar por sede:</span>
           {campuses.map((c) => (
-            <button
+            <Button
               key={c.id}
+              type="button"
+              variant={sedeFilter === c.id ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setSedeFilter(c.id)}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                sedeFilter === c.id ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
+              className="h-7 px-2.5 text-xs"
             >
               {c.name}
-            </button>
+            </Button>
           ))}
         </div>
       </Card>

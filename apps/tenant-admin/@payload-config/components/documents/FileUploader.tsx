@@ -6,6 +6,7 @@
 'use client'
 
 import React, { useCallback, useState, useRef } from 'react'
+import { Button } from '@payload-config/components/ui/button'
 
 export interface UploadedFile {
   id: string
@@ -287,13 +288,16 @@ export function FileUploader({
               Archivos
             </h4>
             {uploads.some((u) => u.status === 'complete') && (
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={clearCompleted}
-                className="text-xs text-muted-foreground hover:text-foreground"
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
                 data-oid="d6lbrdo"
               >
                 Limpiar completados
-              </button>
+              </Button>
             )}
           </div>
 
@@ -353,13 +357,16 @@ export function FileUploader({
                   </span>
                 )}
                 {upload.status !== 'uploading' && (
-                  <button
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => removeUpload(index)}
-                    className="text-muted-foreground hover:text-destructive"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
                     data-oid="5by75mz"
                   >
                     ✕
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

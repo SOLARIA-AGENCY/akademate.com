@@ -426,10 +426,11 @@ export default function CourseFichaPage({ params }: Props) {
               {convocatorias.length > 0 ? (
                 <div className="space-y-3">
                   {convocatorias.map((conv) => (
-                    <button
+                    <Button
                       key={conv.id}
                       type="button"
-                      className="w-full rounded-xl border bg-background p-4 text-left transition hover:border-primary/35 hover:bg-primary/5"
+                      variant="outline"
+                      className="h-auto w-full justify-start rounded-xl p-4 text-left transition hover:border-primary/35 hover:bg-primary/5"
                       onClick={() => router.push(`/dashboard/programacion/${conv.id}`)}
                     >
                       <span className="flex items-start justify-between gap-3">
@@ -445,7 +446,7 @@ export default function CourseFichaPage({ params }: Props) {
                         <span className="flex items-center gap-1.5"><Users className="size-3.5" />{conv.plazasOcupadas ?? 0}/{conv.plazasTotales ?? 0} plazas</span>
                         <span className="font-semibold text-foreground">Precio: {formatCurrency(conv.precio)}</span>
                       </span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               ) : 'No hay convocatorias asociadas en este momento.'}

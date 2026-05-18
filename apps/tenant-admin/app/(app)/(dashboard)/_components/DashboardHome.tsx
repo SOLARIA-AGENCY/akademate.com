@@ -349,13 +349,13 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground" data-oid="4jbulqb">
               {error.message}
             </p>
-            <button
+            <Button
+              type="button"
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
               data-oid="cuj-a3y"
             >
               Reintentar
-            </button>
+            </Button>
           </CardContent>
         </Card>
       </div>

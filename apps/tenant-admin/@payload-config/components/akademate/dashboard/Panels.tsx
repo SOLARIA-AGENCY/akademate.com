@@ -37,17 +37,19 @@ export function FormSection({
 export function EmptyPanel({
   title = 'Sin datos',
   description,
+  icon,
   action,
   className,
 }: {
   title?: string
   description?: string
+  icon?: React.ReactNode
   action?: React.ReactNode
   className?: string
 }) {
   return (
     <div className={cn('flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center', className)}>
-      <Inbox className="size-8 text-muted-foreground" />
+      {icon ?? <Inbox className="size-8 text-muted-foreground" />}
       <p className="mt-3 font-semibold text-foreground">{title}</p>
       {description ? <p className="mt-1 max-w-md text-sm text-muted-foreground">{description}</p> : null}
       {action ? <div className="mt-4">{action}</div> : null}

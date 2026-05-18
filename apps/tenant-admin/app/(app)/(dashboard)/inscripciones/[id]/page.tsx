@@ -6,6 +6,15 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
+import { Input } from '@payload-config/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -1803,42 +1812,48 @@ Equipo CEP Formación`
                   <div className="grid gap-3 sm:grid-cols-2">
                     <label className="space-y-1 text-sm">
                       <span className="font-medium">Resultado de la interacción *</span>
-                      <select
-                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      <Select
                         value={decisionForm.interactionResult}
-                        onChange={(event) => setDecisionForm((current) => ({ ...current, interactionResult: event.target.value }))}
+                        onValueChange={(value) => setDecisionForm((current) => ({ ...current, interactionResult: value }))}
                       >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                         {INTERACTION_RESULT_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value}>
+                          <SelectItem key={option.value} value={option.value}>
                             {option.label}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
+                        </SelectContent>
+                      </Select>
                     </label>
 
                     <label className="space-y-1 text-sm">
                       <span className="font-medium">Motivo de seguimiento *</span>
-                      <select
-                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      <Select
                         value={decisionForm.followUpReason}
-                        onChange={(event) => setDecisionForm((current) => ({ ...current, followUpReason: event.target.value }))}
+                        onValueChange={(value) => setDecisionForm((current) => ({ ...current, followUpReason: value }))}
                       >
-                        <option value="">Selecciona un motivo</option>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecciona un motivo" />
+                        </SelectTrigger>
+                        <SelectContent>
                         {FOLLOW_UP_REASONS.map((reason) => (
-                          <option key={reason} value={reason}>
+                          <SelectItem key={reason} value={reason}>
                             {reason}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
+                        </SelectContent>
+                      </Select>
                     </label>
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-3">
                     <label className="space-y-1 text-sm">
                       <span className="font-medium">Próxima fecha de contacto *</span>
-                      <input
+                      <Input
                         type="datetime-local"
-                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                         value={decisionForm.nextContactAt}
                         onChange={(event) => setDecisionForm((current) => ({ ...current, nextContactAt: event.target.value }))}
                       />
@@ -1846,32 +1861,40 @@ Equipo CEP Formación`
 
                     <label className="space-y-1 text-sm">
                       <span className="font-medium">Franja recomendada *</span>
-                      <select
-                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      <Select
                         value={decisionForm.timeSlot}
-                        onChange={(event) => setDecisionForm((current) => ({ ...current, timeSlot: event.target.value }))}
+                        onValueChange={(value) => setDecisionForm((current) => ({ ...current, timeSlot: value }))}
                       >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                         {CONTACT_TIME_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value}>
+                          <SelectItem key={option.value} value={option.value}>
                             {option.label}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
+                        </SelectContent>
+                      </Select>
                     </label>
 
                     <label className="space-y-1 text-sm">
                       <span className="font-medium">Canal preferido *</span>
-                      <select
-                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      <Select
                         value={decisionForm.channel}
-                        onChange={(event) => setDecisionForm((current) => ({ ...current, channel: event.target.value }))}
+                        onValueChange={(value) => setDecisionForm((current) => ({ ...current, channel: value }))}
                       >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                         {CHANNEL_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value}>
+                          <SelectItem key={option.value} value={option.value}>
                             {option.label}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
+                        </SelectContent>
+                      </Select>
                     </label>
                   </div>
 
@@ -1891,25 +1914,27 @@ Equipo CEP Formación`
                 <div className="space-y-4">
                   <label className="space-y-1 text-sm block">
                     <span className="font-medium">Causa de espera *</span>
-                    <select
-                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                    <Select
                       value={decisionForm.pauseReason}
-                      onChange={(event) => setDecisionForm((current) => ({ ...current, pauseReason: event.target.value }))}
+                      onValueChange={(value) => setDecisionForm((current) => ({ ...current, pauseReason: value }))}
                     >
-                      <option value="">Selecciona la causa</option>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecciona la causa" />
+                      </SelectTrigger>
+                      <SelectContent>
                       {PAUSE_REASONS.map((reason) => (
-                        <option key={reason} value={reason}>
+                        <SelectItem key={reason} value={reason}>
                           {reason}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
+                      </SelectContent>
+                    </Select>
                   </label>
 
                   <label className="space-y-1 text-sm block">
                     <span className="font-medium">Fecha de reactivacion (opcional)</span>
-                    <input
+                    <Input
                       type="datetime-local"
-                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                       value={decisionForm.reactivationAt}
                       onChange={(event) => setDecisionForm((current) => ({ ...current, reactivationAt: event.target.value }))}
                     />
@@ -1931,18 +1956,21 @@ Equipo CEP Formación`
                 <div className="space-y-4">
                   <label className="space-y-1 text-sm block">
                     <span className="font-medium">Motivo de no interés *</span>
-                    <select
-                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                    <Select
                       value={decisionForm.disinterestReason}
-                      onChange={(event) => setDecisionForm((current) => ({ ...current, disinterestReason: event.target.value }))}
+                      onValueChange={(value) => setDecisionForm((current) => ({ ...current, disinterestReason: value }))}
                     >
-                      <option value="">Selecciona el motivo</option>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecciona el motivo" />
+                      </SelectTrigger>
+                      <SelectContent>
                       {DISINTEREST_REASONS.map((reason) => (
-                        <option key={reason} value={reason}>
+                        <SelectItem key={reason} value={reason}>
                           {reason}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
+                      </SelectContent>
+                    </Select>
                   </label>
 
                   <label className="space-y-1 text-sm block">
@@ -1956,10 +1984,9 @@ Equipo CEP Formación`
                   </label>
 
                   <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={decisionForm.excludeManualFollowUp}
-                      onChange={(event) => setDecisionForm((current) => ({ ...current, excludeManualFollowUp: event.target.checked }))}
+                      onCheckedChange={(checked) => setDecisionForm((current) => ({ ...current, excludeManualFollowUp: checked === true }))}
                     />
                     Excluir de seguimiento comercial manual (mantener para segmentacion automatica)
                   </label>
@@ -2055,21 +2082,19 @@ Equipo CEP Formación`
             </CardHeader>
             <CardContent className="space-y-4">
               <label className="flex items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 h-4 w-4"
+                <Checkbox
+                  className="mt-0.5"
                   checked={deleteConfirmPermanent}
-                  onChange={(event) => setDeleteConfirmPermanent(event.target.checked)}
+                  onCheckedChange={(checked) => setDeleteConfirmPermanent(checked === true)}
                 />
                 <span>Confirmo que esta eliminación es permanente y no se puede deshacer.</span>
               </label>
 
               <label className="flex items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 h-4 w-4"
+                <Checkbox
+                  className="mt-0.5"
                   checked={deleteConfirmInvalidRecord}
-                  onChange={(event) => setDeleteConfirmInvalidRecord(event.target.checked)}
+                  onCheckedChange={(checked) => setDeleteConfirmInvalidRecord(checked === true)}
                 />
                 <span>Confirmo que este registro está invalidado y no debe seguir en CRM.</span>
               </label>
@@ -2078,9 +2103,8 @@ Equipo CEP Formación`
                 <span className="font-medium">
                   Escribe <code>{DELETE_CONFIRM_PHRASE}</code> para validar:
                 </span>
-                <input
+                <Input
                   type="text"
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                   placeholder={DELETE_CONFIRM_PHRASE}
                   value={deleteVerificationText}
                   onChange={(event) => setDeleteVerificationText(event.target.value)}

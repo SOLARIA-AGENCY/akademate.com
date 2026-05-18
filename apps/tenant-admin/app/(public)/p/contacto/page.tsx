@@ -3,6 +3,17 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { Button } from '@payload-config/components/ui/button'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
+import { Input } from '@payload-config/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@payload-config/components/ui/select'
+import { Textarea } from '@payload-config/components/ui/textarea'
 
 export default function ContactoPage() {
   const searchParams = useSearchParams()
@@ -126,73 +137,75 @@ export default function ContactoPage() {
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 4 }}>Nombre completo *</label>
-                <input
+                <Input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Tu nombre y apellidos"
                   required
-                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' as const }}
+                  className="h-auto rounded-lg px-3.5 py-2.5 text-[15px]"
                 />
               </div>
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 4 }}>Email *</label>
-                <input
+                <Input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="tu@email.com"
                   required
-                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' as const }}
+                  className="h-auto rounded-lg px-3.5 py-2.5 text-[15px]"
                 />
               </div>
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 4 }}>Telefono</label>
-                <input
+                <Input
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder="+34 600 000 000"
-                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' as const }}
+                  className="h-auto rounded-lg px-3.5 py-2.5 text-[15px]"
                 />
               </div>
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 4 }}>Area de interes</label>
-                <select
+                <Select
                   value={form.course_interest}
-                  onChange={(e) => setForm({ ...form, course_interest: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' as const, background: '#fff' }}
+                  onValueChange={(value) => setForm({ ...form, course_interest: value })}
                 >
-                  <option value="">Selecciona un area...</option>
-                  <option value="sanitaria">Area Sanitaria</option>
-                  <option value="veterinaria">Area Veterinaria</option>
-                  <option value="bienestar">Area Bienestar</option>
-                  <option value="ciclos_medio">Ciclos Grado Medio</option>
-                  <option value="ciclos_superior">Ciclos Grado Superior</option>
-                  <option value="otro">Otro / No estoy seguro</option>
-                </select>
+                  <SelectTrigger className="h-auto w-full rounded-lg px-3.5 py-2.5 text-[15px]">
+                    <SelectValue placeholder="Selecciona un area..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sanitaria">Area Sanitaria</SelectItem>
+                    <SelectItem value="veterinaria">Area Veterinaria</SelectItem>
+                    <SelectItem value="bienestar">Area Bienestar</SelectItem>
+                    <SelectItem value="ciclos_medio">Ciclos Grado Medio</SelectItem>
+                    <SelectItem value="ciclos_superior">Ciclos Grado Superior</SelectItem>
+                    <SelectItem value="otro">Otro / No estoy seguro</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 4 }}>Mensaje</label>
-                <textarea
+                <Textarea
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   placeholder="Cuentanos en que podemos ayudarte..."
                   rows={4}
-                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' as const, resize: 'vertical' as const }}
+                  className="min-h-28 rounded-lg px-3.5 py-2.5 text-[15px]"
                 />
               </div>
 
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={form.gdpr}
-                    onChange={(e) => setForm({ ...form, gdpr: e.target.checked })}
+                    onCheckedChange={(checked) => setForm({ ...form, gdpr: checked === true })}
                     style={{ marginTop: 3 }}
                   />
                   <span style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>
@@ -201,9 +214,10 @@ export default function ContactoPage() {
                 </label>
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={sending}
+                className="h-auto"
                 style={{
                   width: '100%',
                   padding: '14px',
@@ -217,7 +231,7 @@ export default function ContactoPage() {
                 }}
               >
                 {sending ? 'Enviando...' : 'Enviar solicitud'}
-              </button>
+              </Button>
             </form>
           </div>
 
