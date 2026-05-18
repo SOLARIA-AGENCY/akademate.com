@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, Suspense, type ChangeEvent } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
@@ -158,10 +159,6 @@ function CursosPageContent() {
     router.push(`/dashboard/cursos?tipo=${encodeURIComponent(type)}`)
   }
 
-  const goToGroupPage = (group: CourseGroup) => {
-    router.push(`/dashboard/cursos?grupo=${encodeURIComponent(group)}`)
-  }
-
   const goToTypeLanding = () => {
     router.push('/dashboard/cursos')
   }
@@ -310,7 +307,7 @@ function CursosPageContent() {
       {/* Landing principal de líneas de formación */}
       {!loading && !error && isMainLandingPage && (
         <div className="grid gap-6 lg:grid-cols-2">
-          <button type="button" onClick={() => goToGroupPage('privados')} className="group h-full text-left">
+          <Link href="/dashboard/cursos?grupo=privados" className="group h-full text-left no-underline">
             <Card className="relative h-full min-h-[360px] overflow-hidden border transition-all hover:border-primary hover:shadow-lg">
               <div className="absolute inset-0">
                 <img
@@ -331,15 +328,15 @@ function CursosPageContent() {
                     {typeCounts.privados + typeCounts.teleformacion} cursos disponibles
                   </p>
                 </div>
-                <span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm font-bold text-slate-950 transition group-hover:bg-primary group-hover:text-white">
+                <span className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground shadow-sm transition group-hover:bg-primary/90">
                   Ver cursos privados
                   <ArrowRight className="h-4 w-4" />
                 </span>
               </CardContent>
             </Card>
-          </button>
+          </Link>
 
-          <button type="button" onClick={() => goToGroupPage('sce')} className="group h-full text-left">
+          <Link href="/dashboard/cursos?grupo=sce" className="group h-full text-left no-underline">
             <Card className="relative h-full min-h-[360px] overflow-hidden border transition-all hover:border-primary hover:shadow-lg">
               <div className="absolute inset-0 bg-gradient-to-br from-[#006b8f] via-[#159a86] to-[#8fbf3f]" />
               <div className="absolute inset-0 opacity-35 [background:radial-gradient(circle_at_20%_20%,white,transparent_26%),radial-gradient(circle_at_80%_0%,white,transparent_22%),radial-gradient(circle_at_70%_80%,white,transparent_24%)]" />
@@ -363,13 +360,13 @@ function CursosPageContent() {
                     {typeCounts.ocupados + typeCounts.desempleados + typeCounts.teleformacion} cursos disponibles
                   </p>
                 </div>
-                <span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm font-bold text-slate-950 transition group-hover:bg-primary group-hover:text-white">
+                <span className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground shadow-sm transition group-hover:bg-primary/90">
                   Ver formación subvencionada
                   <ArrowRight className="h-4 w-4" />
                 </span>
               </CardContent>
             </Card>
-          </button>
+          </Link>
         </div>
       )}
 

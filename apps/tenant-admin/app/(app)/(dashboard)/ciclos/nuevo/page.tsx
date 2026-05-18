@@ -308,23 +308,35 @@ export default function NuevoCicloPage() {
           {/* Mobile: horizontal scroll */}
           <div className="flex lg:hidden gap-1 overflow-x-auto pb-2 scrollbar-none">
             {TABS.map(({ id, label, icon: Icon }) => (
-              <button key={id} type="button" onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-sm rounded-md transition-colors ${
-                  activeTab === id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted'
-                }`}>
+              <Button
+                key={id}
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setActiveTab(id)}
+                className={`whitespace-nowrap ${
+                  activeTab === id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground'
+                }`}
+              >
                 <Icon className="h-4 w-4" />{label}
-              </button>
+              </Button>
             ))}
           </div>
           {/* Desktop: vertical list */}
           <div className="hidden lg:flex lg:flex-col gap-1 sticky top-20">
             {TABS.map(({ id, label, icon: Icon }) => (
-              <button key={id} type="button" onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors text-left w-full ${
-                  activeTab === id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}>
+              <Button
+                key={id}
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setActiveTab(id)}
+                className={`w-full justify-start ${
+                  activeTab === id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground'
+                }`}
+              >
                 <Icon className="h-4 w-4 shrink-0" />{label}
-              </button>
+              </Button>
             ))}
           </div>
         </nav>

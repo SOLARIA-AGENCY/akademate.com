@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { Button } from '@payload-config/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 
 export const dynamic = 'force-dynamic'
@@ -48,22 +49,16 @@ export default async function BlogPage() {
       />
 
       <div className="flex flex-wrap gap-2">
-        <Link
-          href="/blog"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-        >
-          Ver blog público
-        </Link>
-        <Link
-          href="/faq"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-        >
-          Ver FAQs públicas
-        </Link>
+        <Button asChild variant="outline">
+          <Link href="/blog" target="_blank" rel="noreferrer">
+            Ver blog público
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/faq" target="_blank" rel="noreferrer">
+            Ver FAQs públicas
+          </Link>
+        </Button>
       </div>
 
       <Card>

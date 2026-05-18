@@ -100,7 +100,7 @@ describe('InvoiceRow', () => {
         </tbody>
       </table>
     )
-    expect(screen.getByText('Borrador')).toBeInTheDocument()
+    expect(screen.getByText('Sin publicar')).toBeInTheDocument()
   })
 
   it('renders uncollectible status correctly', () => {

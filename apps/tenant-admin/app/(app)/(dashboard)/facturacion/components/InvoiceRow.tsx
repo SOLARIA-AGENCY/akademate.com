@@ -34,7 +34,7 @@ export function InvoiceRow({ invoice, onDownload, onView }: InvoiceRowProps) {
     paid: { label: 'Pagada', variant: 'default', color: 'bg-green-500' },
     open: { label: 'Pendiente', variant: 'secondary', color: 'bg-blue-500' },
     void: { label: 'Anulada', variant: 'secondary', color: 'bg-gray-500' },
-    draft: { label: 'Borrador', variant: 'secondary', color: 'bg-gray-400' },
+    draft: { label: 'Sin publicar', variant: 'secondary', color: 'bg-gray-400' },
     uncollectible: { label: 'Incobrable', variant: 'destructive', color: 'bg-red-500' },
   }
 

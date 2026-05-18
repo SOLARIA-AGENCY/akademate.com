@@ -174,7 +174,7 @@ describe('InvoicesTable', () => {
     expect(screen.getByText('Pagada')).toBeInTheDocument()
     expect(screen.getByText('Pendiente')).toBeInTheDocument()
     expect(screen.getByText('Anulada')).toBeInTheDocument()
-    expect(screen.getByText('Borrador')).toBeInTheDocument()
+    expect(screen.getByText('Sin publicar')).toBeInTheDocument()
   })
 
   it('displays file icon in empty state', () => {

@@ -430,11 +430,11 @@ export default function CicloDetailPage({ params }: Props) {
                   {convocatorias.map((conv: any) => {
                     const campusName = typeof conv.campus === 'object' && conv.campus ? conv.campus.name : null
                     const statusLabels: Record<string, string> = {
-                      enrollment_open: 'Inscripcion abierta', published: 'Publicada',
+                      draft: 'Sin publicar', enrollment_open: 'Inscripcion abierta', published: 'Publicado',
                       in_progress: 'En curso', completed: 'Finalizada', cancelled: 'Cancelada',
                     }
                     const statusColors: Record<string, string> = {
-                      enrollment_open: 'border-l-green-500', published: 'border-l-primary',
+                      draft: 'border-l-slate-300', enrollment_open: 'border-l-green-500', published: 'border-l-emerald-500',
                       in_progress: 'border-l-amber-500', completed: 'border-l-gray-400', cancelled: 'border-l-red-500',
                     }
                     const plazas = conv.max_students || 0

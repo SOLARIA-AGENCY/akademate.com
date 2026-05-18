@@ -1551,13 +1551,17 @@ Equipo CEP Formación`
             <CardHeader className="pb-3"><CardTitle className="text-base">Estado</CardTitle></CardHeader>
             <CardContent className="space-y-1">
               {STATUS_OPTIONS.map(opt => (
-                <button key={opt.value}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${currentStatus === opt.value ? opt.color + ' font-medium ring-1 ring-offset-1 ring-current' : 'hover:bg-muted'}`}
+                <Button
+                  key={opt.value}
+                  type="button"
+                  variant="ghost"
+                  className={`w-full justify-start gap-2 ${currentStatus === opt.value ? opt.color + ' font-medium ring-1 ring-offset-1 ring-current' : ''}`}
                   disabled={saving}
-                  onClick={() => void changeStatus(opt.value)}>
+                  onClick={() => void changeStatus(opt.value)}
+                >
                   <span className={`inline-block w-2 h-2 rounded-full ${opt.dot}`} />
                   {opt.label}
-                </button>
+                </Button>
               ))}
             </CardContent>
           </Card>

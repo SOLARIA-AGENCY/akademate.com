@@ -568,13 +568,21 @@ export default function LeadAppointmentsPage() {
             <CardContent className="space-y-3">
               {selectedDayAppointments.length === 0 && <p className="rounded-lg bg-muted p-4 text-sm text-muted-foreground">No hay citas para el día seleccionado.</p>}
               {selectedDayAppointments.map((appointment) => (
-                <button key={appointment.id} className="w-full rounded-xl border p-3 text-left hover:border-red-300" onClick={() => setSelectedAppointment(appointment)}>
+                <Button
+                  key={appointment.id}
+                  type="button"
+                  variant="ghost"
+                  className="h-auto w-full justify-start rounded-xl border p-3 text-left hover:border-red-300"
+                  onClick={() => setSelectedAppointment(appointment)}
+                >
+                  <div className="w-full">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold">{format(new Date(appointment.starts_at), 'HH:mm')} · {appointment.title}</span>
                     <Badge className={STATUS_CLASS[appointment.status]}>{STATUS_LABELS[appointment.status] || appointment.status}</Badge>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">{leadName(appointment.lead)} · {userName(appointment.assigned_to)}</p>
-                </button>
+                  </div>
+                </Button>
               ))}
               {selectedAppointment && (
                 <div className="rounded-xl border bg-slate-50 p-4">

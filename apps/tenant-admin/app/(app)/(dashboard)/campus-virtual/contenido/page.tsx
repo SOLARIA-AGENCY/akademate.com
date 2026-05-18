@@ -78,7 +78,7 @@ export default function CampusContenidoPage() {
                 Publicado
               </option>
               <option value="draft" data-oid="ypmkbp6">
-                Borrador
+                Sin publicar
               </option>
             </select>
           </div>

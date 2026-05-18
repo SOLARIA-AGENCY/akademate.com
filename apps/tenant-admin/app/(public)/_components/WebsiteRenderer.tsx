@@ -12,6 +12,7 @@ import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/pub
 import { buildCourseGroups } from '../p/cursos/page'
 import { CoursesCatalogView } from '../p/cursos/CoursesCatalogView'
 import { AreaPublicCard, CampusPublicCard } from '@payload-config/components/akademate/public'
+import { Button } from '@payload-config/components/ui/button'
 
 const BRAND_RED = '#f2014b'
 
@@ -1090,9 +1091,9 @@ function LeadFormSection({
           </div>
           <input className="min-h-14 rounded-2xl border border-white/15 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Email" />
           <textarea className="min-h-32 rounded-2xl border border-white/15 bg-white px-4 py-4 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Cuéntanos qué formación te interesa" />
-          <button type="button" className="min-h-14 rounded-full px-6 text-sm font-black text-white shadow-xl transition hover:-translate-y-0.5" style={{ backgroundColor: brandColor }}>
+          <Button type="button" className="min-h-14 rounded-full px-6 text-sm font-black text-white shadow-xl transition hover:-translate-y-0.5 hover:opacity-95" style={{ backgroundColor: brandColor }}>
             Solicitar información
-          </button>
+          </Button>
           <p className="text-center text-xs leading-5 text-white/45">
             Al enviar el formulario aceptas que CEP Formación contacte contigo para informarte sobre su oferta formativa.
           </p>

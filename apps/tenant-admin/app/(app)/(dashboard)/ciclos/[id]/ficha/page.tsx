@@ -304,12 +304,20 @@ export default function CycleFichaPage({ params }: Props) {
               {runs.length ? (
                 <div className="space-y-3">
                   {runs.map((run) => (
-                    <button key={run.id} type="button" className="w-full rounded-xl border p-3 text-left transition hover:bg-muted" onClick={() => router.push(`/dashboard/programacion/${run.id}`)}>
+                    <Button
+                      key={run.id}
+                      type="button"
+                      variant="ghost"
+                      className="h-auto w-full justify-start rounded-xl border p-3 text-left transition hover:bg-muted"
+                      onClick={() => router.push(`/dashboard/programacion/${run.id}`)}
+                    >
+                      <span className="block w-full">
                       <span className="block font-semibold text-foreground">{run.codigo || `Convocatoria ${run.id}`}</span>
                       <span className="mt-1 block text-xs">{formatDate(run.start_date)} - {formatDate(run.end_date)}</span>
                       <span className="mt-1 block text-xs">{relationName(run.campus, 'Sede por definir')} · {relationName(run.classroom, 'Aula por definir')}</span>
                       <span className="mt-1 block text-xs">{run.current_enrollments ?? 0}/{run.max_students ?? 0} plazas · {formatCurrency(run.price_override ?? run.price_snapshot)}</span>
-                    </button>
+                      </span>
+                    </Button>
                   ))}
                 </div>
               ) : 'No hay convocatorias asociadas en este momento.'}

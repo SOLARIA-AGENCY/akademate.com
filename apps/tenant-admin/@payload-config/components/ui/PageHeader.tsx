@@ -3,6 +3,9 @@
 import * as React from 'react'
 import { LucideIcon, Plus } from 'lucide-react'
 import { Button } from './button'
+import { Card, CardContent } from './card'
+import { Separator } from './separator'
+import { cn } from '@payload-config/lib/utils'
 
 interface PageHeaderProps {
   /** Page title */
@@ -36,29 +39,43 @@ interface PageHeaderProps {
 export function PageHeader({
   title,
   description,
-  icon: _icon,
-  iconBgColor: _iconBgColor,
-  iconColor: _iconColor,
+  icon: Icon,
+  iconBgColor,
+  iconColor,
   showAddButton = false,
   addButtonText = 'Nuevo',
   onAdd,
   actions,
   filters,
-  badge: _badge,
+  badge,
   withCard = true,
   className = '',
 }: PageHeaderProps) {
   const content = (
-    <>
-      {/* Row 1: Title and Actions */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between" data-oid="nq9arpo">
-        <div className="flex items-center gap-3" data-oid="_zscgyl">
-          <div data-oid="msm_hkf">
-            <h1 className="text-xl sm:text-2xl font-bold" data-oid=".ik_qyi">
-              {title}
-            </h1>
+    <div className="flex flex-col gap-4" data-oid="nq9arpo">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          {Icon ? (
+            <div
+              className={cn(
+                'mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary',
+                iconBgColor,
+                iconColor
+              )}
+              aria-hidden="true"
+            >
+              <Icon className="h-5 w-5" />
+            </div>
+          ) : null}
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl" data-oid=".ik_qyi">
+                {title}
+              </h1>
+              {badge ? <div className="shrink-0">{badge}</div> : null}
+            </div>
             {description && (
-              <p className="text-sm text-muted-foreground mt-0.5" data-oid="eclyf72">
+              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground" data-oid="eclyf72">
                 {description}
               </p>
             )}
@@ -66,7 +83,7 @@ export function PageHeader({
         </div>
 
         <div
-          className="flex w-full sm:w-auto flex-wrap items-center justify-start sm:justify-end gap-2"
+          className="flex w-full flex-wrap items-center justify-start gap-2 sm:w-auto sm:justify-end"
           data-oid="1n2t8tr"
         >
           {actions}
@@ -79,28 +96,27 @@ export function PageHeader({
         </div>
       </div>
 
-      {/* Row 2: Filters (optional) */}
       {filters && (
-        <div
-          className="flex items-center gap-3 flex-wrap mt-3 pt-3 border-t border-border"
-          data-oid="on_hyte"
-        >
-          {filters}
-        </div>
+        <>
+          <Separator />
+          <div className="flex flex-wrap items-center gap-3" data-oid="on_hyte">
+            {filters}
+          </div>
+        </>
       )}
-    </>
+    </div>
   )
 
   if (withCard) {
     return (
-      <div className={`py-4 mb-2 ${className}`} data-oid="ecwgyxr">
-        {content}
-      </div>
+      <Card className={cn('mb-2 border-border/80 shadow-sm', className)} data-oid="ecwgyxr">
+        <CardContent className="p-5 sm:p-6">{content}</CardContent>
+      </Card>
     )
   }
 
   return (
-    <div className={`py-4 mb-2 ${className}`} data-oid="mtp78ig">
+    <div className={cn('mb-2 py-4', className)} data-oid="mtp78ig">
       {content}
     </div>
   )

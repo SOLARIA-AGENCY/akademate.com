@@ -110,7 +110,7 @@ describe('WebConvocatoriasPage', () => {
     await waitFor(() => {
       expect(screen.getAllByText('Abierta').length).toBeGreaterThan(0)
     })
-    expect(screen.getAllByText('Borrador').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Sin publicar').length).toBeGreaterThan(0)
   })
 
   it('shows toggle switch for each convocatoria', async () => {

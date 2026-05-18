@@ -107,7 +107,7 @@ interface FormState {
 }
 
 const STATUS_OPTIONS = [
-  { value: 'draft', label: 'Borrador' },
+  { value: 'draft', label: 'Sin publicar' },
   { value: 'published', label: 'Planificada' },
   { value: 'enrollment_open', label: 'Abierta' },
 ] as const

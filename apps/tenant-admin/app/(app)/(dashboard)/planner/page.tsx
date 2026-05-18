@@ -80,7 +80,7 @@ interface KanbanColumn {
 // ---------------------------------------------------------------------------
 
 const COLUMNS_CONFIG: { key: string; label: string; color: string; bgColor: string }[] = [
-  { key: 'draft', label: 'Borrador', color: 'border-gray-400', bgColor: 'bg-gray-50 dark:bg-gray-900/30' },
+  { key: 'draft', label: 'Sin publicar', color: 'border-gray-400', bgColor: 'bg-gray-50 dark:bg-gray-900/30' },
   { key: 'enrollment_open', label: 'Inscripcion Abierta', color: 'border-green-500', bgColor: 'bg-green-50 dark:bg-green-900/20' },
   { key: 'in_progress', label: 'En Curso', color: 'border-blue-500', bgColor: 'bg-blue-50 dark:bg-blue-900/20' },
   { key: 'completed', label: 'Completada', color: 'border-gray-300', bgColor: 'bg-gray-50/50 dark:bg-gray-900/10' },

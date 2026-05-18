@@ -8,11 +8,18 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 - Componentes shadcn instalados: `button`, `card`, `badge`, `dialog`, `sheet`, `tabs`, `table`, `select`, `input`, `textarea`, `sidebar`, `avatar`, `separator`, `skeleton`, `alert`, `alert-dialog`, `checkbox`, `dropdown-menu`, `tooltip`, `toggle`, `toggle-group`, `progress`, `pagination`, `collapsible`, `accordion`.
 - Biblioteca de producto existente en `apps/tenant-admin/@payload-config/components/akademate`.
 - Deuda visual inicial detectada: 244 archivos con clases/markup manuales de UI.
-- Auditoría posterior al primer bloque:
-  - 10 páginas ya importan `@payload-config/components/akademate`.
-  - 91 usos de `PageHeader` legacy siguen pendientes.
-  - 57 usos de `<button>` manual siguen pendientes.
-  - 17 textos/estados `Borrador` siguen pendientes de normalización por contexto.
+- Auditoría local 2026-05-18 antes del bloque actual:
+  - 15 imports directos de `@payload-config/components/akademate`.
+  - 94 usos de `PageHeader` legacy siguen pendientes de codemod directo.
+  - 13 usos de `<button>` manual siguen pendientes.
+  - 29 candidatos de hover blanco/sobre blanco siguen pendientes de revisión visual.
+  - 18 textos/estados `Borrador` siguen pendientes de normalización por contexto.
+- Auditoría local 2026-05-18 tras bloque actual:
+  - 15 imports directos de `@payload-config/components/akademate`.
+  - 94 usos de `PageHeader` legacy siguen pendientes de codemod directo, pero ya heredan wrapper shadcn.
+  - 0 usos reales de `<button>` HTML en `apps/tenant-admin/app` y `apps/tenant-admin/@payload-config/components`.
+  - 5 candidatos de hover blanco/sobre blanco en dashboard/componentes internos pendientes de revisión visual final.
+  - 0 textos/estados `Borrador` en dashboard/componentes internos.
 - Áreas con más deuda:
   - Dashboard: 121 archivos.
   - Web pública: 34 archivos.
@@ -20,9 +27,16 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
   - Campus: 7 archivos.
   - Componentes legacy internos: 54 archivos.
 
+## Gate de despliegue
+
+- [ ] No desplegar a Hetzner hasta que este checklist esté al 100%.
+- [ ] No hacer `push` de producción ni reinicio remoto mientras queden checks pendientes.
+- [ ] Cada bloque se implementa con ciclo `ralph-loop`: cambio pequeño, verificación barata, ajuste, siguiente cambio.
+- [ ] Al final, ejecutar checks completos y verificación visual local antes de cualquier despliegue.
+
 ## Reglas obligatorias
 
-- [ ] Usar `Button`, nunca `<button className=...>` salvo overlays técnicos inevitables.
+- [x] Usar `Button`, nunca `<button className=...>` salvo overlays técnicos inevitables.
 - [ ] Usar `CardHeader`, `CardContent`, `CardFooter`, no `div.rounded-xl.border...`.
 - [ ] Usar `Badge`, no `span.inline-flex...`.
 - [ ] Usar `Separator`, no `border-t` manual para divisores.
@@ -74,6 +88,8 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 
 ## P2 - Dashboard shell
 
+- [x] `PageHeader` legacy queda convertido en wrapper shadcn/Akademate compatible.
+- [ ] Codemod progresivo de imports `PageHeader` a `DashboardPageHeader` cuando la página se migre por completo.
 - [ ] Unificar `AppSidebar` con `akademate/dashboard/DashboardSidebar`.
 - [ ] Migrar aside wrapper a componente shadcn `Sidebar`.
 - [ ] Migrar header dashboard a componente `DashboardTopbar`.
@@ -88,6 +104,10 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 - [x] Curso detalle corrige impresión directa con `CoursePrintSheet`.
 - [x] Curso detalle elimina CTA duplicado de edición y centra `Ver curso`.
 - [x] Crear convocatoria desde curso bloquea el programa origen y muestra foto/metadatos.
+- [x] Selector principal de líneas de cursos usa cards enlazadas sin `<button>` manual.
+- [x] Estados visibles de curso/convocatoria/ciclo normalizados a `Sin publicar` y `Publicado`.
+- [x] Blog/FAQ del dashboard usan `Button asChild` en enlaces de acción.
+- [x] Botones manuales restantes en público migrados a `Button` sin cambiar formularios ni tracking.
 - [x] Curso ficha usa `PdfManagerCard`.
 - [x] Curso ficha separa descarga/sustitución/subida de PDF del header.
 - [x] Curso ficha mejora convocatorias asociadas con información visual.
@@ -153,9 +173,10 @@ Estado generado por auditoría de código local. La meta es que toda UI operativ
 
 ## Verificación requerida antes de producción
 
-- [ ] `corepack pnpm --filter tenant-admin typecheck`
-- [ ] `corepack pnpm --filter tenant-admin build`
-- [ ] `git diff --check`
+- [x] `corepack pnpm --filter tenant-admin typecheck`
+- [x] `corepack pnpm --filter tenant-admin test`
+- [x] `corepack pnpm --filter tenant-admin build`
+- [x] `git diff --check`
 - [ ] Verificación local `/login`.
 - [ ] Verificación local `/dashboard`.
 - [ ] Verificación local `/dashboard/cursos`.

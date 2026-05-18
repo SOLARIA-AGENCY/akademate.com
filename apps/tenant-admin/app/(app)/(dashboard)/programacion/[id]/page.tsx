@@ -12,9 +12,9 @@ import {
   Download, FileText, Pencil, Save, AlertCircle, Printer,
 } from 'lucide-react'
 
-const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
-  draft: { label: 'Borrador', variant: 'secondary' },
-  published: { label: 'Publicada', variant: 'outline' },
+const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' | 'success' }> = {
+  draft: { label: 'Sin publicar', variant: 'secondary' },
+  published: { label: 'Publicado', variant: 'success' },
   enrollment_open: { label: 'Inscripcion abierta', variant: 'default' },
   in_progress: { label: 'En curso', variant: 'default' },
   completed: { label: 'Finalizada', variant: 'secondary' },

@@ -97,10 +97,10 @@ const COURSE_TYPE_LABELS: Record<string, string> = {
 }
 
 const RUN_STATUS_LABELS: Record<string, string> = {
-  draft: 'Borrador',
+  draft: 'Sin publicar',
   pending_validation: 'Pendiente de validar',
   validated: 'Validada',
-  published: 'Publicada',
+  published: 'Publicado',
   enrollment_open: 'Matricula abierta',
   in_progress: 'En curso',
   completed: 'Finalizada',
@@ -419,7 +419,16 @@ export default function CursoDetailPage({ params }: Props) {
                                 {conv.codigo ?? `Convocatoria ${conv.id}`}
                               </p>
                             </div>
-                            <Badge variant={conv.estado === 'enrollment_open' ? 'default' : 'secondary'} className="shrink-0">
+                            <Badge
+                              variant={conv.estado === 'enrollment_open' ? 'default' : 'secondary'}
+                              className={
+                                conv.estado === 'published'
+                                  ? 'shrink-0 border-transparent bg-emerald-600 text-white'
+                                  : conv.estado === 'draft'
+                                    ? 'shrink-0 border-transparent bg-slate-100 text-slate-700'
+                                    : 'shrink-0'
+                              }
+                            >
                               {statusLabel}
                             </Badge>
                           </div>

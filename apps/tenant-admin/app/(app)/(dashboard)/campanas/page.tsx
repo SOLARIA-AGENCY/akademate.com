@@ -51,7 +51,7 @@ interface AdAccountsResponse {
 const STATUS_BADGES: Record<UiStatus, { label: string; className: string }> = {
   active: { label: 'Activa', className: 'text-green-700 border-green-200 bg-green-50' },
   paused: { label: 'Pausada', className: 'text-amber-700 border-amber-200 bg-amber-50' },
-  draft: { label: 'Borrador', className: 'text-slate-700 border-slate-200 bg-slate-50' },
+  draft: { label: 'Sin publicar', className: 'text-slate-700 border-slate-200 bg-slate-50' },
   completed: { label: 'Finalizada', className: 'text-blue-700 border-blue-200 bg-blue-50' },
 }
 
@@ -418,7 +418,7 @@ export default function CampanasPage() {
                   <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="active">Activa</SelectItem>
                   <SelectItem value="paused">Pausada</SelectItem>
-                  <SelectItem value="draft">Borrador</SelectItem>
+                  <SelectItem value="draft">Sin publicar</SelectItem>
                   <SelectItem value="completed">Finalizada</SelectItem>
                 </SelectContent>
               </Select>

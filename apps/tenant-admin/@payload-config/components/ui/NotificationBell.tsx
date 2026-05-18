@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useNotifications } from '@/app/providers/notifications'
 import { Bell, Check, CheckCheck, Settings } from 'lucide-react'
+import { Button } from './button'
 
 const TYPE_ICONS: Record<string, { color: string; label: string }> = {
   new_lead: { color: '#cc0000', label: 'Nuevo lead' },
@@ -30,9 +31,12 @@ export function NotificationBell() {
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       {/* Bell button */}
-      <button
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
         onClick={() => setOpen(!open)}
-        style={{ position: 'relative', padding: 8, borderRadius: 8, background: 'transparent', border: 'none', cursor: 'pointer' }}
+        className="relative"
         title="Notificaciones"
       >
         <Bell style={{ width: 20, height: 20, color: unreadCount > 0 ? '#cc0000' : '#6b7280' }} />
@@ -46,7 +50,7 @@ export function NotificationBell() {
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
-      </button>
+      </Button>
 
       {/* Dropdown */}
       {open && (
@@ -60,14 +64,14 @@ export function NotificationBell() {
             <span style={{ fontSize: 14, fontWeight: 600, color: '#111' }}>Notificaciones</span>
             <div style={{ display: 'flex', gap: 8 }}>
               {!permissionGranted && (
-                <button onClick={requestPermission} style={{ fontSize: 11, color: '#cc0000', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[11px] font-semibold text-[#cc0000]" onClick={requestPermission}>
                   Activar sonido
-                </button>
+                </Button>
               )}
               {unreadCount > 0 && (
-                <button onClick={markAllRead} style={{ fontSize: 11, color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Button type="button" variant="ghost" size="sm" className="h-7 gap-1 px-2 text-[11px] text-muted-foreground" onClick={markAllRead}>
                   <CheckCheck style={{ width: 12, height: 12 }} />Marcar leidas
-                </button>
+                </Button>
               )}
             </div>
           </div>

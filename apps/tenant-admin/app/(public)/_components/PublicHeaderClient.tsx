@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { ChevronDown, Mail, Phone } from 'lucide-react'
+import { Button } from '@payload-config/components/ui/button'
 
 type PublicHeaderClientProps = {
   brandColor: string
@@ -169,11 +170,11 @@ export function PublicHeaderClient({
               Contacto
             </a>
           </nav>
-          <button className="lg:hidden p-2 text-gray-600" aria-label="Menu">
+          <Button type="button" variant="ghost" size="icon" className="lg:hidden text-gray-600" aria-label="Menu">
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-          </button>
+          </Button>
         </div>
       </div>
     </header>

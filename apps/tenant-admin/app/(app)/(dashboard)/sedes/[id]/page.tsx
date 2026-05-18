@@ -128,8 +128,8 @@ interface ConvocatoriasApiResponse {
 // ---------------------------------------------------------------------------
 
 const STATUS_LABELS: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
-  draft: { label: 'Borrador', variant: 'secondary' },
-  published: { label: 'Publicada', variant: 'outline' },
+  draft: { label: 'Sin publicar', variant: 'secondary' },
+  published: { label: 'Publicado', variant: 'outline' },
   enrollment_open: { label: 'Inscripcion abierta', variant: 'default' },
   in_progress: { label: 'En curso', variant: 'default' },
   completed: { label: 'Finalizada', variant: 'secondary' },

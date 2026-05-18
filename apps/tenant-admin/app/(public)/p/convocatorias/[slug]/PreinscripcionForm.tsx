@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Button } from '@payload-config/components/ui/button'
 
 interface Props {
   convocatoriaId: string
@@ -154,10 +155,10 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
 
       {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <button type="submit" disabled={submitting || !email || !name || !phone || !privacy}
+      <Button type="submit" disabled={submitting || !email || !name || !phone || !privacy}
         className="w-full px-4 py-3 brand-btn text-white rounded-lg text-base font-bold  disabled:opacity-50 transition-colors uppercase tracking-wide">
         {submitting ? 'Enviando...' : 'Reserva tu plaza'}
-      </button>
+      </Button>
 
       <p className="text-xs text-gray-400 text-center">Sin compromiso. Te contactaremos en 24h.</p>
     </form>

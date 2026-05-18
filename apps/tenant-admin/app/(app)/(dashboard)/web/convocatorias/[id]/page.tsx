@@ -95,7 +95,7 @@ interface CourseRunData {
 // ---------------------------------------------------------------------------
 
 const ESTADO_MAP: Record<string, { label: string; variant: 'info' | 'success' | 'default' | 'neutral' | 'destructive' | 'outline' | 'warning' }> = {
-  draft: { label: 'Borrador', variant: 'outline' },
+  draft: { label: 'Sin publicar', variant: 'outline' },
   published: { label: 'Publicada', variant: 'info' },
   enrollment_open: { label: 'Inscripcion Abierta', variant: 'success' },
   enrollment_closed: { label: 'Inscripcion Cerrada', variant: 'warning' },

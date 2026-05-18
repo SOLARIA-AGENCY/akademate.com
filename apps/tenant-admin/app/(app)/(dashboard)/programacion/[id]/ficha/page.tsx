@@ -33,8 +33,8 @@ interface CourseRun {
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  draft: 'Borrador',
-  published: 'Publicada',
+  draft: 'Sin publicar',
+  published: 'Publicado',
   enrollment_open: 'Inscripción abierta',
   enrollment_closed: 'Inscripción cerrada',
   in_progress: 'En curso',
@@ -212,7 +212,17 @@ export default function ConvocatoriaFichaPage({ params }: Props) {
               <h1 className="mt-3 text-3xl font-black tracking-tight">{title}</h1>
               <p className="mt-2 text-sm text-muted-foreground">{run.codigo || `Convocatoria ${run.id}`}</p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Badge className="bg-[#f2014b] text-white hover:bg-[#d80143]">{STATUS_LABELS[run.status || ''] || run.status || 'Sin estado'}</Badge>
+                <Badge
+                  className={
+                    run.status === 'published'
+                      ? 'border-transparent bg-emerald-600 text-white hover:bg-emerald-700'
+                      : run.status === 'draft'
+                        ? 'border-transparent bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        : 'bg-[#f2014b] text-white hover:bg-[#d80143]'
+                  }
+                >
+                  {STATUS_LABELS[run.status || ''] || run.status || 'Sin estado'}
+                </Badge>
                 <Badge variant="outline">{cycle ? 'Ciclo formativo' : 'Curso'}</Badge>
                 <Badge variant="outline">{relationName(run.campus, 'Sin sede')}</Badge>
               </div>
