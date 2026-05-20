@@ -271,11 +271,6 @@ export default function TodosLosCiclosPage() {
         title="Ciclos Formativos"
         description="Gestión unificada de ciclos de grado medio y superior."
         icon={GraduationCap}
-        badge={
-          <Badge variant="secondary" data-oid="0h5qd3g">
-            {filteredCiclos.length} visibles
-          </Badge>
-        }
         actions={
           <Button onClick={handleNuevoCiclo} data-oid="b-t2nxs">
             <Plus className="h-4 w-4" />

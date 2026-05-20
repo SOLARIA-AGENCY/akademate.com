@@ -225,11 +225,6 @@ function PersonalPageContent() {
         <PageHeader
           title="Personal"
           icon={Users}
-          badge={
-            <Badge variant="secondary" data-oid="qavqrr-">
-              {filteredStaff.length} en vista
-            </Badge>
-          }
           actions={
             <Button
               onClick={() =>

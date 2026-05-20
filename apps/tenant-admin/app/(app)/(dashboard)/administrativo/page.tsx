@@ -7,6 +7,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import {
   Select,
   SelectContent,
@@ -15,6 +16,9 @@ import {
   SelectValue,
 } from '@payload-config/components/ui/select'
 import { Plus, Search, User, Mail, Phone, Briefcase, Eye, Loader2 } from 'lucide-react'
+import { useViewPreference } from '@payload-config/hooks/useViewPreference'
+
+type ViewMode = 'grid' | 'list'
 
 interface AdminStaff {
   id: string
@@ -63,6 +67,9 @@ interface ApiResponse {
 
 export default function AdministrativosPage() {
   const router = useRouter()
+  const viewPreference = useViewPreference('administrativo') as [ViewMode, (view: ViewMode) => void]
+  const view = viewPreference[0]
+  const setView = viewPreference[1]
   const [searchTerm, setSearchTerm] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('all')
   const [administrativosData, setAdministrativosData] = useState<AdminStaff[]>([])
@@ -181,8 +188,8 @@ export default function AdministrativosPage() {
 
       <Card data-oid="pz5ian6">
         <CardContent className="pt-6" data-oid="ei37n:m">
-          <div className="grid gap-4 md:grid-cols-2" data-oid="n87:n39">
-            <div className="relative" data-oid="gzhnjcu">
+          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="n87:n39">
+            <div className="relative min-w-[260px] flex-1" data-oid="gzhnjcu">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
                 data-oid="r_ieulf"
@@ -197,7 +204,7 @@ export default function AdministrativosPage() {
             </div>
 
             <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="-xzyyj3">
-              <SelectTrigger data-oid="7v98u3e">
+              <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="7v98u3e">
                 <SelectValue placeholder="Todos los departamentos" data-oid="lssmc78" />
               </SelectTrigger>
               <SelectContent data-oid="p9-i57:">
@@ -211,6 +218,10 @@ export default function AdministrativosPage() {
                 ))}
               </SelectContent>
             </Select>
+
+            <div className="hidden xl:ml-auto xl:block">
+              <ViewToggle view={view} onViewChange={setView} />
+            </div>
           </div>
 
           {(searchTerm || filterDepartment !== 'all') && (
@@ -231,15 +242,15 @@ export default function AdministrativosPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid=".qyvxmm">
+      <div className={view === 'grid' ? 'grid gap-6 md:grid-cols-2 lg:grid-cols-3' : 'space-y-3'} data-oid=".qyvxmm">
         {filteredAdmins.map((admin) => (
           <Card
             key={admin.id}
-            className="cursor-pointer hover:shadow-lg transition-all duration-300"
+            className={`cursor-pointer hover:shadow-lg transition-all duration-300 ${view === 'list' ? 'overflow-hidden' : ''}`}
             onClick={() => router.push(`/administrativo/${admin.id}`)}
             data-oid="jq97pgy"
           >
-            <CardContent className="p-6 space-y-4" data-oid="c-731r_">
+            <CardContent className={view === 'grid' ? 'p-6 space-y-4' : 'grid gap-4 p-4 md:grid-cols-[minmax(0,1fr)_220px_180px_auto] md:items-center'} data-oid="c-731r_">
               <div className="flex items-start gap-4" data-oid="z3h91.f">
                 <div className="relative" data-oid="5_myoha">
                   {!isPlaceholderPhoto(admin.photo) ? (
@@ -269,13 +280,13 @@ export default function AdministrativosPage() {
                 </div>
               </div>
 
-              <div className="space-y-2" data-oid="6xnyx.f">
+              <div className={view === 'grid' ? 'space-y-2' : 'flex items-center md:justify-center'} data-oid="6xnyx.f">
                 <Badge variant="secondary" className="text-xs" data-oid="6xz2_jk">
                   {admin.department}
                 </Badge>
               </div>
 
-              <div className="space-y-2 text-sm" data-oid="ouwgdtd">
+              <div className={view === 'grid' ? 'space-y-2 text-sm' : 'space-y-1 text-sm'} data-oid="ouwgdtd">
                 <div className="flex items-center gap-2 text-muted-foreground" data-oid=".s54pkp">
                   <Mail className="h-4 w-4 flex-shrink-0" data-oid="u8xwikl" />
                   <span className="truncate" data-oid="pwj3pu9">
@@ -289,11 +300,11 @@ export default function AdministrativosPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 border-t" data-oid="-4fclxf">
+              <div className={view === 'grid' ? 'pt-3 border-t' : 'flex justify-end'} data-oid="-4fclxf">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full"
+                  className={view === 'grid' ? 'w-full' : 'min-w-36'}
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation()
                     router.push(`/administrativo/${admin.id}`)

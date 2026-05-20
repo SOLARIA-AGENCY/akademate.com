@@ -300,11 +300,6 @@ export default function CiclosMedioPage() {
         title="Ciclos Formativos de Grado Medio"
         description="Gestión compacta de ciclos, plazas y modalidades."
         icon={GraduationCap}
-        badge={
-          <Badge variant="secondary" data-oid="v3pqq8e">
-            {filteredCiclos.length} visibles
-          </Badge>
-        }
         actions={
           <Button onClick={handleAdd} data-oid="9tt8pjd">
             <Plus className="mr-2 h-4 w-4" data-oid="it4ei3l" />

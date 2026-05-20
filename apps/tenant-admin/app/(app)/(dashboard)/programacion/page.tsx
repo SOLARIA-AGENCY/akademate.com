@@ -639,7 +639,6 @@ export default function ProgramacionPage() {
         icon={Calendar}
         badge={
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">{totalConvs} convocatorias</Badge>
             <Badge variant="default">{activas} activas</Badge>
           </div>
         }

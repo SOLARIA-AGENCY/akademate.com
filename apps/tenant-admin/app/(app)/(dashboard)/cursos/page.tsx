@@ -277,15 +277,6 @@ function CursosPageContent() {
         icon={Icon}
         iconBgColor={config?.bgColor ?? 'bg-primary/10'}
         iconColor={config?.color ?? 'text-primary'}
-        badge={
-          <Badge variant="secondary" data-oid="m2mems3">
-            {isMainLandingPage
-              ? '2 líneas'
-              : isGroupLandingPage
-                ? `${visibleTypes.length} categorías`
-                : `${filteredCourses.length} cursos`}
-          </Badge>
-        }
         actions={
           <div className="flex items-center gap-2">
             {!isMainLandingPage && (

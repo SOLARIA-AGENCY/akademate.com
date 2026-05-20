@@ -36,6 +36,26 @@ interface PageHeaderProps {
   className?: string
 }
 
+function getNodeText(node: React.ReactNode): string {
+  if (node == null || typeof node === 'boolean') return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(getNodeText).join(' ')
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    return getNodeText(node.props.children)
+  }
+  return ''
+}
+
+function isDecorativeHeaderBadge(node: React.ReactNode): boolean {
+  const text = getNodeText(node).trim().toLowerCase()
+  if (!text) return false
+
+  const hasSemanticState = /\b(activo|activa|inactivo|inactiva|publicado|sin publicar|borrador|inscripción|inscripcion|abierta|cerrada|conflicto|guardando|nuevo|nueva|prototipo)\b/.test(text)
+  if (hasSemanticState) return false
+
+  return /\b(visibles?|líneas?|lineas?|categorías?|categorias?|centros?|en vista|cursos?|convocatorias?)\b/.test(text)
+}
+
 export function PageHeader({
   title,
   description,
@@ -51,14 +71,16 @@ export function PageHeader({
   withCard = true,
   className = '',
 }: PageHeaderProps) {
+  const shouldRenderBadge = !!badge && !isDecorativeHeaderBadge(badge)
+
   const content = (
     <div className="flex flex-col gap-4" data-oid="nq9arpo">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 items-start gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
           {Icon ? (
             <div
               className={cn(
-                'mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary',
+                'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary',
                 iconBgColor,
                 iconColor
               )}
@@ -72,7 +94,7 @@ export function PageHeader({
               <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl" data-oid=".ik_qyi">
                 {title}
               </h1>
-              {badge ? <div className="shrink-0">{badge}</div> : null}
+              {shouldRenderBadge ? <div className="shrink-0">{badge}</div> : null}
             </div>
             {description && (
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground" data-oid="eclyf72">

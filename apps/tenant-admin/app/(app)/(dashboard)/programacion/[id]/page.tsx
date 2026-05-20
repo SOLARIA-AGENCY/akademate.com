@@ -9,6 +9,7 @@ import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 import {
   Select,
   SelectContent,
@@ -290,6 +291,12 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   return (
     <div className="space-y-6">
       {/* Header */}
+      <DashboardBreadcrumb
+        items={[
+          { label: 'Programación', href: '/dashboard/programacion' },
+          { label: 'Ficha de convocatoria' },
+        ]}
+      />
       <PageHeader
         title={title}
         description={`Convocatoria ${conv.codigo}`}

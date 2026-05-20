@@ -365,11 +365,6 @@ export default function CiclosSuperiorPage() {
         title="Ciclos Formativos de Grado Superior"
         description="Gestión compacta de ciclos, plazas y modalidades."
         icon={GraduationCap}
-        badge={
-          <Badge variant="secondary" data-oid="husbrik">
-            {filteredCiclos.length} visibles
-          </Badge>
-        }
         actions={
           <Button onClick={handleAdd} data-oid="xbur5oe">
             <Plus className="mr-2 h-4 w-4" data-oid="s5:kgxm" />

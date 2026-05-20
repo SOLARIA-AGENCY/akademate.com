@@ -13,12 +13,17 @@ export { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from './Dashboar
 export {
   ActionFooter,
   AkadematePageShell,
+  DashboardBreadcrumb,
+  DashboardEntityHeader,
+  DashboardListingShell,
   DashboardPageHeader,
   DashboardSection,
+  DashboardToolbar,
   EntityHeroCard,
   EntitySummaryCard,
   SmallStatusBadge,
 } from './Shell'
+export type { DashboardBreadcrumbItem, DashboardToolbarProps } from './Shell'
 export {
   CampaignStatusBadge,
   EntityStatusBadge,
@@ -26,3 +31,4 @@ export {
   SubsidizedTrainingBadge,
 } from './Badges'
 export { PdfManagerCard } from './PdfManagerCard'
+export { ViewToggle as DashboardViewToggle } from '@payload-config/components/ui/ViewToggle'

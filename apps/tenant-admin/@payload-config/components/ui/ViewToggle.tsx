@@ -26,13 +26,15 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
         variant="outline"
         size="sm"
         aria-label="Vista en cuadrícula"
-        className={`h-8 px-3 transition-all ${
-          view === 'grid' ? 'bg-background shadow-sm' : 'hover:bg-background/50'
+        className={`h-8 border-0 px-3 transition-all focus-visible:ring-primary ${
+          view === 'grid'
+            ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
+            : 'text-muted-foreground hover:bg-background/70 hover:text-foreground'
         }`}
         data-oid="yx7_2a1"
       >
         <LayoutGrid
-          className={`h-4 w-4 ${view === 'grid' ? 'text-foreground' : 'text-muted-foreground'}`}
+          className="h-4 w-4"
           data-oid="-a_7hzw"
         />
       </ToggleGroupItem>
@@ -41,13 +43,15 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
         variant="outline"
         size="sm"
         aria-label="Vista en lista"
-        className={`h-8 px-3 transition-all ${
-          view === 'list' ? 'bg-background shadow-sm' : 'hover:bg-background/50'
+        className={`h-8 border-0 px-3 transition-all focus-visible:ring-primary ${
+          view === 'list'
+            ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
+            : 'text-muted-foreground hover:bg-background/70 hover:text-foreground'
         }`}
         data-oid="j4bg:mv"
       >
         <List
-          className={`h-4 w-4 ${view === 'list' ? 'text-foreground' : 'text-muted-foreground'}`}
+          className="h-4 w-4"
           data-oid="zc:16kd"
         />
       </ToggleGroupItem>

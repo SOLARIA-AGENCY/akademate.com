@@ -525,7 +525,6 @@ export default function PlannerPage() {
   // Filtered columns
   const filteredColumns = columns.map((col) => ({ ...col, cards: col.cards.filter((c) => c.sedeId === sedeFilter) }))
 
-  const totalCards = columns.reduce((s, c) => s + c.cards.length, 0)
   const selectedCampus = campuses.find((campus) => campus.id === sedeFilter)
 
   return (
@@ -536,7 +535,6 @@ export default function PlannerPage() {
         icon={LayoutGrid}
         badge={
           <div className="flex items-center gap-2">
-	            <Badge variant="secondary">{totalCards} convocatorias</Badge>
 	            {openConflictCount > 0 && (
 	              <Badge variant="destructive" className="gap-1">
 	                <AlertTriangle className="h-3 w-3" />

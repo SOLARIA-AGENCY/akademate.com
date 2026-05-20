@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 import {
   MapPin, ArrowLeft, Edit, DoorOpen, Users,
   Loader2, Calendar, GraduationCap, Briefcase, ChevronRight, Plus, BookOpen, Clock, ExternalLink,
@@ -339,6 +340,12 @@ export default function SedeDetailPage({ params }: Props) {
   return (
     <div className="space-y-6">
       {/* Header */}
+      <DashboardBreadcrumb
+        items={[
+          { label: 'Sedes', href: '/dashboard/sedes' },
+          { label: 'Ficha de sede' },
+        ]}
+      />
       <PageHeader
         title={sede.name || 'Sede'}
         description={sede.city || ''}

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/compon
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 import { Loader2, ArrowLeft, Edit, UserPlus, GraduationCap, CreditCard, User } from 'lucide-react'
 
 interface Props {
@@ -107,6 +108,12 @@ export default function MatriculaDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
+      <DashboardBreadcrumb
+        items={[
+          { label: 'Matrículas', href: '/matriculas' },
+          { label: `Matrícula #${id}` },
+        ]}
+      />
       <PageHeader
         title={`Matrícula #${id}`}
         description={leadName}

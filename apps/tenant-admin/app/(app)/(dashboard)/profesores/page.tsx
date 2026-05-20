@@ -219,11 +219,6 @@ export default function ProfesoresPage() {
       <PageHeader
         title="Profesores"
         icon={User}
-        badge={
-          <Badge variant="secondary" data-oid="rkjy8pp">
-            {filteredTeachers.length} visibles
-          </Badge>
-        }
         actions={
           <Button onClick={handleAdd} data-oid="p6j7z6w">
             <Plus className="h-4 w-4" data-oid="f-mq7s4" />

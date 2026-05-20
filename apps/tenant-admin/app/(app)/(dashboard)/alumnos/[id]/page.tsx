@@ -7,6 +7,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Avatar, AvatarFallback } from '@payload-config/components/ui/avatar'
+import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 import {
   ArrowLeft,
   Edit,
@@ -130,6 +131,12 @@ export default function StudentDetailPage({ params }: StudentDetailPageProps) {
 
   return (
     <div className="space-y-6" data-oid="seiyw9a">
+      <DashboardBreadcrumb
+        items={[
+          { label: 'Alumnos', href: '/dashboard/alumnos' },
+          { label: 'Ficha de alumno' },
+        ]}
+      />
       <PageHeader
         title={`${student.first_name} ${student.last_name}`}
         description="Ficha de alumno"

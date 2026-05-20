@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { ArrowLeft, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, Search, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
@@ -12,6 +12,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@payload-config/components/ui/card'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@payload-config/components/ui/breadcrumb'
+import { Input } from '@payload-config/components/ui/input'
 import { Separator } from '@payload-config/components/ui/separator'
 import { cn } from '@payload-config/lib/utils'
 
@@ -82,6 +91,110 @@ export function DashboardPageHeader({
         {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
     </header>
+  )
+}
+
+export interface DashboardBreadcrumbItem {
+  label: string
+  href?: string
+}
+
+export function DashboardBreadcrumb({
+  items,
+  className,
+}: {
+  items: DashboardBreadcrumbItem[]
+  className?: string
+}) {
+  if (!items.length) return null
+
+  return (
+    <Breadcrumb className={className}>
+      <BreadcrumbList>
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1
+          return (
+            <React.Fragment key={`${item.label}-${index}`}>
+              <BreadcrumbItem>
+                {item.href && !isLast ? (
+                  <BreadcrumbLink asChild>
+                    <Link href={item.href}>{item.label}</Link>
+                  </BreadcrumbLink>
+                ) : (
+                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                )}
+              </BreadcrumbItem>
+              {!isLast ? <BreadcrumbSeparator /> : null}
+            </React.Fragment>
+          )
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
+  )
+}
+
+export interface DashboardToolbarProps {
+  searchValue?: string
+  onSearchChange?: (value: string) => void
+  searchPlaceholder?: string
+  filters?: React.ReactNode
+  actions?: React.ReactNode
+  viewToggle?: React.ReactNode
+  className?: string
+}
+
+export function DashboardToolbar({
+  searchValue,
+  onSearchChange,
+  searchPlaceholder = 'Buscar...',
+  filters,
+  actions,
+  viewToggle,
+  className,
+}: DashboardToolbarProps) {
+  return (
+    <Card className={cn('border-border/80 shadow-sm', className)}>
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
+          {typeof searchValue === 'string' && onSearchChange ? (
+            <div className="relative min-w-[240px] flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={searchValue}
+                onChange={(event) => onSearchChange(event.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full pl-9"
+              />
+            </div>
+          ) : null}
+          {filters ? <div className="flex flex-1 flex-wrap items-center gap-3 xl:flex-none">{filters}</div> : null}
+          {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+          {viewToggle ? <div className="ml-auto flex items-center">{viewToggle}</div> : null}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+export const DashboardEntityHeader = DashboardPageHeader
+
+export function DashboardListingShell({
+  header,
+  toolbar,
+  children,
+  className,
+}: {
+  header: React.ReactNode
+  toolbar?: React.ReactNode
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={cn('space-y-6', className)}>
+      {header}
+      {toolbar}
+      {children}
+    </div>
   )
 }
 

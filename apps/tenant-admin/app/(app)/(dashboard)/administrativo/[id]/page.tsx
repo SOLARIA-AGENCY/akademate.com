@@ -7,8 +7,6 @@ import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
-  ArrowLeft,
-  ChevronRight,
   Edit,
   Mail,
   Phone,
@@ -19,6 +17,7 @@ import {
   Loader2,
   Building2,
 } from 'lucide-react'
+import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 
 interface StaffMember {
   id: number
@@ -161,20 +160,12 @@ export default function AdministrativoDetailPage() {
   return (
     <div className="space-y-6" data-oid="9gk3trs">
       <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-end md:justify-between">
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/dashboard/administrativo')}
-            className="gap-1 px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Administrativos
-          </Button>
-          <ChevronRight className="h-4 w-4" />
-          <span>Ficha administrativo</span>
-        </nav>
+        <DashboardBreadcrumb
+          items={[
+            { label: 'Administrativos', href: '/dashboard/administrativo' },
+            { label: 'Ficha administrativo' },
+          ]}
+        />
         <div className="text-left md:text-right">
           <h1 className="text-3xl font-bold tracking-tight">{admin.fullName}</h1>
           <p className="text-muted-foreground">{admin.position}</p>

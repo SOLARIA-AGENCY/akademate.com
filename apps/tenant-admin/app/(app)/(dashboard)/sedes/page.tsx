@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Button } from '@payload-config/components/ui/button'
-import { Badge } from '@payload-config/components/ui/badge'
 import { MapPin, DoorOpen, Users, BookOpen, Phone, Mail, Plus } from 'lucide-react'
 import { SedeListItem } from '@payload-config/components/ui/SedeListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
@@ -180,11 +179,6 @@ export default function SedesPage() {
         title="Sedes"
         description="Vista simplificada para operación diaria."
         icon={MapPin}
-        badge={
-          <Badge variant="secondary" data-oid="0fk8_-.">
-            {sedes.length} centros
-          </Badge>
-        }
         actions={
           <Button onClick={handleAdd} data-oid="hrtnwkn">
             <Plus className="h-4 w-4" />

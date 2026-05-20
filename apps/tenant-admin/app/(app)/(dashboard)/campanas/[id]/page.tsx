@@ -1,20 +1,12 @@
 'use client'
 
 import * as React from 'react'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@payload-config/components/ui/breadcrumb'
+import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 import {
   Table,
   TableBody,
@@ -257,31 +249,14 @@ export default function CampaignDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/dashboard">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/marketing/campanas">Marketing</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/campanas">Campañas</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{detail?.campaign?.name || `Campaña ${id}`}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <DashboardBreadcrumb
+        items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Marketing', href: '/marketing/campanas' },
+          { label: 'Campañas', href: '/campanas' },
+          { label: detail?.campaign?.name || `Campaña ${id}` },
+        ]}
+      />
 
       {error && (
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">

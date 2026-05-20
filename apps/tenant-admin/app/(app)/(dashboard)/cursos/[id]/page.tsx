@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
-import { EntityMetricCard, StatusBadge } from '@payload-config/components/akademate/dashboard'
+import { DashboardBreadcrumb, EntityMetricCard, StatusBadge } from '@payload-config/components/akademate/dashboard'
 import { CoursePrintSheet } from '@payload-config/components/akademate/print'
 
 // ---------------------------------------------------------------------------
@@ -298,6 +298,13 @@ export default function CursoDetailPage({ params }: Props) {
 
       {/* Header */}
       <div className="course-screen-only">
+        <DashboardBreadcrumb
+          className="mb-4"
+          items={[
+            { label: 'Cursos', href: '/dashboard/cursos' },
+            { label: 'Ficha de curso' },
+          ]}
+        />
         <PageHeader
         title={course.name ?? 'Sin nombre'}
         description={course.codigo ?? ''}
