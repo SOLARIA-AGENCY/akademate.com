@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 export default function AdministrativosPage() {
   const router = useRouter()
   useEffect(() => {
-    router.replace('/personal?tab=administrativos')
+    router.replace('/dashboard/administrativo')
   }, [router])
   return null
 }

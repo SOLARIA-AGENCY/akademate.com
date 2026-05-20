@@ -95,7 +95,7 @@ const menuItems: MenuItemWithSection[] = [
     icon: Users,
     items: [
       { title: 'Profesores', icon: GraduationCap, url: '/dashboard/profesores' },
-      { title: 'Administrativos', icon: Briefcase, url: '/dashboard/personal/administrativos' },
+      { title: 'Administrativos', icon: Briefcase, url: '/dashboard/administrativo' },
     ],
   },
   {
