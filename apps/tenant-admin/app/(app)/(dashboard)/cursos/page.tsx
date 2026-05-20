@@ -374,9 +374,9 @@ function CursosPageContent() {
                 type="button"
                 variant="ghost"
                 onClick={() => goToTypePage(type)}
-                className="h-full p-0 text-left"
+                className="h-full w-full justify-start p-0 text-left"
               >
-                <Card className="h-full overflow-hidden border transition-all hover:shadow-md hover:border-primary">
+                <Card className="h-full w-full overflow-hidden border transition-all hover:border-primary hover:shadow-md">
                   <div className="relative h-44">
                     <img src={typeImage} alt={style.label} className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
