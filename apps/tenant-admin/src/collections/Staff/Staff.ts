@@ -32,6 +32,7 @@ interface StaffData {
   first_name?: string;
   last_name?: string;
   full_name?: string;
+  nif?: string;
   email?: string;
   phone?: string;
   bio?: string;
@@ -39,6 +40,11 @@ interface StaffData {
   position?: string;
   contract_type?: string;
   employment_status?: string;
+  inactive_reason?: string;
+  inactive_at?: string;
+  reactivated_at?: string;
+  last_import_batch?: string;
+  import_review_status?: string;
   hire_date?: string;
   specialties?: string[];
   alias_names?: string;
@@ -292,6 +298,31 @@ export const Staff: CollectionConfig = {
     },
 
     {
+      name: 'nif',
+      type: 'text',
+      required: false,
+      unique: true,
+      index: true,
+      maxLength: 20,
+      admin: {
+        description: 'DNI/NIF/NIE interno del docente o personal. No se muestra en la web pública.',
+        placeholder: '12345678Z',
+      },
+      hooks: {
+        beforeChange: [
+          ({ value }): string | undefined => {
+            if (typeof value !== 'string') return undefined;
+            const normalized = value.trim().toUpperCase().replace(/\s+/g, '');
+            return normalized.length > 0 ? normalized : undefined;
+          },
+        ],
+      },
+      access: {
+        read: ({ req: { user } }) => !!user && hasRole(user) && user.role !== 'lectura',
+      },
+    },
+
+    {
       name: 'phone',
       type: 'text',
       admin: {
@@ -381,6 +412,36 @@ export const Staff: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'Current employment status',
+      },
+    },
+
+    {
+      name: 'inactive_reason',
+      type: 'textarea',
+      admin: {
+        description: 'Motivo interno de baja, inactividad o retirada del docente.',
+        rows: 2,
+        condition: (data: StaffData) => data.employment_status !== 'active',
+      },
+    },
+
+    {
+      name: 'inactive_at',
+      type: 'date',
+      admin: {
+        description: 'Fecha efectiva de baja o inactividad.',
+        date: { pickerAppearance: 'dayOnly' },
+        condition: (data: StaffData) => data.employment_status !== 'active',
+      },
+    },
+
+    {
+      name: 'reactivated_at',
+      type: 'date',
+      admin: {
+        description: 'Fecha de última reactivación.',
+        date: { pickerAppearance: 'dayOnly' },
+        condition: (data: StaffData) => data.employment_status === 'active',
       },
     },
 
@@ -538,6 +599,32 @@ export const Staff: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'Estado de calidad del dato operativo',
+      },
+    },
+    {
+      name: 'import_review_status',
+      type: 'select',
+      required: true,
+      defaultValue: 'validated',
+      index: true,
+      options: [
+        { label: 'Validado', value: 'validated' },
+        { label: 'Pendiente de revisión', value: 'pending_review' },
+        { label: 'Ambiguo', value: 'ambiguous' },
+        { label: 'Candidato a baja', value: 'retired_candidate' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Estado de revisión del registro tras importaciones o auditorías.',
+      },
+    },
+    {
+      name: 'last_import_batch',
+      type: 'text',
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Identificador del último lote de importación que tocó este registro.',
       },
     },
     {

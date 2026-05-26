@@ -15,11 +15,17 @@ interface StaffDocument {
   first_name: string;
   last_name: string;
   full_name?: string;
+  nif?: string | null;
   email: string;
   phone?: string;
   position: string;
   contract_type: string;
   employment_status: string;
+  inactive_reason?: string | null;
+  inactive_at?: string | null;
+  reactivated_at?: string | null;
+  import_review_status?: string | null;
+  last_import_batch?: string | null;
   hire_date: string;
   bio?: string;
   is_active: boolean;
@@ -93,11 +99,17 @@ export async function GET(
         firstName: staffMember.first_name,
         lastName: staffMember.last_name,
         fullName: staffMember.full_name ?? `${staffMember.first_name} ${staffMember.last_name}`,
+        nif: staffMember.nif ?? null,
         email: staffMember.email,
         phone: staffMember.phone ?? null,
         position: staffMember.position,
         contractType: staffMember.contract_type,
         employmentStatus: staffMember.employment_status,
+        inactiveReason: staffMember.inactive_reason ?? null,
+        inactiveAt: staffMember.inactive_at ?? null,
+        reactivatedAt: staffMember.reactivated_at ?? null,
+        importReviewStatus: staffMember.import_review_status ?? 'validated',
+        lastImportBatch: staffMember.last_import_batch ?? null,
         hireDate: staffMember.hire_date,
         bio: staffMember.bio ?? null,
         photoId: photo.id,

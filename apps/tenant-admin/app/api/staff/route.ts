@@ -60,14 +60,20 @@ interface StaffQueryRow {
   first_name: string;
   last_name: string;
   full_name: string | null;
+  nif: string | null;
   email: string | null;
   phone: string | null;
   position: string;
   contract_type: 'full_time' | 'part_time' | 'freelance';
   employment_status: 'active' | 'temporary_leave' | 'inactive';
+  inactive_reason: string | null;
+  inactive_at: string | null;
+  reactivated_at: string | null;
   hire_date: string | null;
   bio: string | null;
   data_quality_status: 'complete' | 'pending_validation';
+  import_review_status: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate';
+  last_import_batch: string | null;
   source: string | null;
   alias_names: string | null;
   detected_courses: string | null;
@@ -87,11 +93,17 @@ interface CreateStaffBody {
   staffType: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico';
   firstName: string;
   lastName: string;
+  nif?: string;
   email: string;
   phone?: string;
   position: string;
   contractType?: 'full_time' | 'part_time' | 'freelance';
   employmentStatus?: 'active' | 'temporary_leave' | 'inactive';
+  inactiveReason?: string;
+  inactiveAt?: string;
+  reactivatedAt?: string;
+  importReviewStatus?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate';
+  lastImportBatch?: string;
   hireDate: string;
   bio?: string;
   specialties?: Staff['specialties'];
@@ -111,11 +123,17 @@ interface CreateStaffBody {
 interface UpdateStaffBody {
   firstName?: string;
   lastName?: string;
+  nif?: string | null;
   email?: string;
   phone?: string | null;
   position?: string;
   contractType?: 'full_time' | 'part_time' | 'freelance';
   employmentStatus?: 'active' | 'temporary_leave' | 'inactive';
+  inactiveReason?: string | null;
+  inactiveAt?: string | null;
+  reactivatedAt?: string | null;
+  importReviewStatus?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate';
+  lastImportBatch?: string | null;
   hireDate?: string;
   bio?: string | null;
   photoId?: string | number | null;
@@ -136,11 +154,17 @@ interface UpdateStaffBody {
 interface StaffUpdateData {
   first_name?: string;
   last_name?: string;
+  nif?: string | null;
   email?: string;
   phone?: string | null;
   position?: string;
   contract_type?: 'full_time' | 'part_time' | 'freelance';
   employment_status?: 'active' | 'temporary_leave' | 'inactive';
+  inactive_reason?: string | null;
+  inactive_at?: string | null;
+  reactivated_at?: string | null;
+  import_review_status?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate';
+  last_import_batch?: string | null;
   hire_date?: string;
   bio?: string | null;
   photo?: number | null;
@@ -171,6 +195,39 @@ function resolveMediaUrl(filename?: string | null, url?: string | null): string 
   return '/placeholder-avatar.svg';
 }
 
+function normalizeNif(value?: string | null): string | null {
+  if (!value) return null;
+  const normalized = value.trim().toUpperCase().replace(/\s+/g, '');
+  return normalized.length > 0 ? normalized : null;
+}
+
+async function createStaffStatusEvent(args: {
+  payload: Payload;
+  staffId: number;
+  previousStatus: 'active' | 'temporary_leave' | 'inactive' | 'created';
+  newStatus: 'active' | 'temporary_leave' | 'inactive' | 'created';
+  reason: string;
+  source?: 'manual' | 'excel_import' | 'audit' | 'system';
+  importBatch?: string | null;
+  notes?: string | null;
+}) {
+  const create = args.payload.create as unknown as (options: Record<string, unknown>) => Promise<unknown>;
+  await create({
+    collection: 'staff-status-events',
+    overrideAccess: true,
+    data: {
+      staff: args.staffId,
+      previous_status: args.previousStatus,
+      new_status: args.newStatus,
+      reason: args.reason,
+      source: args.source ?? 'manual',
+      import_batch: args.importBatch ?? undefined,
+      changed_at: new Date().toISOString(),
+      notes: args.notes ?? undefined,
+    },
+  });
+}
+
 // ============================================================================
 // API Route Handlers
 // ============================================================================
@@ -196,10 +253,11 @@ export async function GET(request: NextRequest) {
       searchParams.get('where[staff_type][equals]');
     const campusId = searchParams.get('campus');
     const employmentStatus = searchParams.get('status'); // 'active' | 'temporary_leave' | 'inactive'
+    const includeInactive = searchParams.get('includeInactive') === 'true' || searchParams.get('includeInactive') === '1';
     const limit = parseInt(searchParams.get('limit') ?? '50');
 
     // Build dynamic WHERE clause
-    const conditions = ['s.is_active = true'];
+    const conditions = includeInactive ? [] : ['s.is_active = true'];
     const params: string[] = [];
 
     if (rawStaffType) {
@@ -224,6 +282,18 @@ export async function GET(request: NextRequest) {
       conditions.push(`s.employment_status = $${params.length}`);
     }
 
+    if (campusId) {
+      const parsedCampusId = parseInt(campusId, 10);
+      if (Number.isNaN(parsedCampusId)) {
+        return NextResponse.json(
+          { success: false, error: 'Sede no válida' },
+          { status: 400 },
+        );
+      }
+      params.push(String(parsedCampusId));
+      conditions.push(`EXISTS (SELECT 1 FROM staff_rels sr2 WHERE sr2.parent_id = s.id AND sr2.campuses_id = $${params.length})`);
+    }
+
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Query staff with photo, campus relationships, and assigned course runs
@@ -234,14 +304,20 @@ export async function GET(request: NextRequest) {
         s.first_name,
         s.last_name,
         s.full_name,
+        s.nif,
         s.email,
         s.phone,
         s.position,
         s.contract_type,
         s.employment_status,
+        s.inactive_reason,
+        s.inactive_at,
+        s.reactivated_at,
         s.hire_date,
         s.bio,
         s.data_quality_status,
+        s.import_review_status,
+        s.last_import_batch,
         s.source,
         s.alias_names,
         s.detected_courses,
@@ -300,7 +376,6 @@ export async function GET(request: NextRequest) {
       LEFT JOIN campuses camp ON camp.id = cr.campus_id
       LEFT JOIN staff_certifications cert ON cert._parent_id = s.id
       ${whereClause}
-      ${campusId ? `AND EXISTS (SELECT 1 FROM staff_rels sr2 WHERE sr2.parent_id = s.id AND sr2.campuses_id = ${parseInt(campusId)})` : ''}
       GROUP BY s.id, m.filename, m.url
       ORDER BY s.created_at DESC
       LIMIT ${limit}
@@ -316,13 +391,19 @@ export async function GET(request: NextRequest) {
         firstName: member.first_name,
         lastName: member.last_name,
         fullName: member.full_name,
+        nif: member.nif,
         email: member.email,
         phone: member.phone,
         position: member.position,
         contractType: member.contract_type,
         employmentStatus: member.employment_status,
+        inactiveReason: member.inactive_reason,
+        inactiveAt: member.inactive_at,
+        reactivatedAt: member.reactivated_at,
         hireDate: member.hire_date,
         dataQualityStatus: member.data_quality_status,
+        importReviewStatus: member.import_review_status,
+        lastImportBatch: member.last_import_batch,
         source: member.source,
         aliasNames: member.alias_names,
         detectedCourses: member.detected_courses,
@@ -367,11 +448,17 @@ export async function POST(request: NextRequest) {
       staffType,
       firstName,
       lastName,
+      nif,
       email,
       phone,
       position,
       contractType,
       employmentStatus,
+      inactiveReason,
+      inactiveAt,
+      reactivatedAt,
+      importReviewStatus,
+      lastImportBatch,
       hireDate,
       bio,
       specialties,
@@ -404,11 +491,17 @@ export async function POST(request: NextRequest) {
         staff_type: staffType,
         first_name: firstName,
         last_name: lastName,
+        nif: normalizeNif(nif) ?? undefined,
         email: email || undefined,
         phone: phone ?? undefined,
         position,
         contract_type: contractType ?? 'full_time',
         employment_status: employmentStatus ?? 'active',
+        inactive_reason: inactiveReason ?? undefined,
+        inactive_at: inactiveAt || undefined,
+        reactivated_at: reactivatedAt || undefined,
+        import_review_status: importReviewStatus ?? 'validated',
+        last_import_batch: lastImportBatch ?? undefined,
         hire_date: hireDate || undefined,
         bio: bio ?? undefined,
         photo: photoId ? parseInt(String(photoId)) : undefined,
@@ -421,6 +514,16 @@ export async function POST(request: NextRequest) {
         data_quality_status: (!email || !hireDate || !assignedCampuses || assignedCampuses.length === 0) ? 'pending_validation' : 'complete',
       },
     }) as unknown as Staff;
+
+    await createStaffStatusEvent({
+      payload,
+      staffId: Number(staffMember.id),
+      previousStatus: 'created',
+      newStatus: (employmentStatus ?? 'active') as 'active' | 'temporary_leave' | 'inactive',
+      reason: lastImportBatch ? 'Alta creada desde importación de personal' : 'Alta creada manualmente',
+      source: lastImportBatch ? 'excel_import' : 'manual',
+      importBatch: lastImportBatch,
+    });
 
     return NextResponse.json({
       success: true,
@@ -465,17 +568,29 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json() as UpdateStaffBody;
     const payload = await initPayload();
+    const current = await payload.findByID({
+      collection: 'staff',
+      id: parseInt(id),
+      overrideAccess: true,
+      depth: 0,
+    }) as unknown as Staff;
 
     // Preparar datos de actualización
     const updateData: StaffUpdateData = {};
 
     if (body.firstName) updateData.first_name = body.firstName;
     if (body.lastName) updateData.last_name = body.lastName;
+    if (body.nif !== undefined) updateData.nif = normalizeNif(body.nif);
     if (body.email) updateData.email = body.email;
     if (body.phone !== undefined) updateData.phone = body.phone;
     if (body.position) updateData.position = body.position;
     if (body.contractType) updateData.contract_type = body.contractType;
     if (body.employmentStatus) updateData.employment_status = body.employmentStatus;
+    if (body.inactiveReason !== undefined) updateData.inactive_reason = body.inactiveReason;
+    if (body.inactiveAt !== undefined) updateData.inactive_at = body.inactiveAt;
+    if (body.reactivatedAt !== undefined) updateData.reactivated_at = body.reactivatedAt;
+    if (body.importReviewStatus) updateData.import_review_status = body.importReviewStatus;
+    if (body.lastImportBatch !== undefined) updateData.last_import_batch = body.lastImportBatch;
     if (body.hireDate) updateData.hire_date = body.hireDate;
     if (body.bio !== undefined) updateData.bio = body.bio;
     if (body.photoId !== undefined) updateData.photo = body.photoId ? parseInt(String(body.photoId)) : null;
@@ -493,6 +608,28 @@ export async function PUT(request: NextRequest) {
       overrideAccess: true,
       data: updateData as unknown as Record<string, unknown>,
     }) as unknown as Staff;
+
+    if (body.employmentStatus && body.employmentStatus !== current.employment_status) {
+      await createStaffStatusEvent({
+        payload,
+        staffId: parseInt(id),
+        previousStatus: current.employment_status as 'active' | 'temporary_leave' | 'inactive',
+        newStatus: body.employmentStatus,
+        reason: body.inactiveReason || 'Cambio de estado laboral',
+        source: body.lastImportBatch ? 'excel_import' : 'manual',
+        importBatch: body.lastImportBatch,
+      });
+    } else if (body.contractType && body.contractType !== current.contract_type) {
+      await createStaffStatusEvent({
+        payload,
+        staffId: parseInt(id),
+        previousStatus: current.employment_status as 'active' | 'temporary_leave' | 'inactive',
+        newStatus: current.employment_status as 'active' | 'temporary_leave' | 'inactive',
+        reason: `Cambio de contrato: ${current.contract_type} -> ${body.contractType}`,
+        source: body.lastImportBatch ? 'excel_import' : 'manual',
+        importBatch: body.lastImportBatch,
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -537,15 +674,34 @@ export async function DELETE(request: NextRequest) {
     }
 
     const payload = await initPayload();
-
-    // En lugar de eliminar, marcamos como inactivo (soft delete)
-    await payload.update({
+    const current = await payload.findByID({
       collection: 'staff',
       id: parseInt(id),
+      overrideAccess: true,
+      depth: 0,
+    }) as unknown as Staff;
+
+    // En lugar de eliminar, marcamos como inactivo (soft delete)
+    const update = payload.update as unknown as (options: Record<string, unknown>) => Promise<unknown>;
+    await update({
+      collection: 'staff',
+      id: parseInt(id),
+      overrideAccess: true,
       data: {
         is_active: false,
         employment_status: 'inactive',
+        inactive_at: new Date().toISOString(),
+        inactive_reason: 'Desactivación manual desde API',
       },
+    });
+
+    await createStaffStatusEvent({
+      payload,
+      staffId: parseInt(id),
+      previousStatus: (current.employment_status ?? 'active') as 'active' | 'temporary_leave' | 'inactive',
+      newStatus: 'inactive',
+      reason: 'Desactivación manual desde API',
+      source: 'manual',
     });
 
     return NextResponse.json({

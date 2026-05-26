@@ -14,7 +14,7 @@ interface TeacherExpanded {
   firstName: string
   lastName: string
   initials: string
-  email: string
+  email?: string | null
   phone?: string
   photo: string
   department: string
@@ -97,7 +97,7 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
           <div className="hidden min-w-0 flex-col gap-1 text-xs md:flex">
             <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
               <Mail className="h-3 w-3 shrink-0" />
-              <span className="truncate">{teacher.email}</span>
+              <span className="truncate">{teacher.email || 'Sin email'}</span>
             </span>
             {teacher.phone ? (
               <span className="flex items-center gap-1 text-muted-foreground">

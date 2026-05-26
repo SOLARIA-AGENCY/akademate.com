@@ -76,6 +76,7 @@ interface StaffMember {
   lastName: string
   fullName: string
   email: string
+  nif?: string | null
   phone?: string
   position: string
   contractType: string
@@ -92,9 +93,26 @@ interface StaffMember {
   courseRuns?: CourseRun[]
   courseRunsCount?: number
   isActive: boolean
+  inactiveReason?: string | null
+  inactiveAt?: string | null
+  reactivatedAt?: string | null
+  importReviewStatus?: string | null
+  lastImportBatch?: string | null
   hireDate?: string
   createdAt: string
   updatedAt: string
+}
+
+interface StaffStatusEvent {
+  id: number
+  previousStatus: string
+  newStatus: string
+  reason: string
+  source: string
+  importBatch?: string | null
+  changedAt: string
+  notes?: string | null
+  changedByEmail?: string | null
 }
 
 const isPlaceholderPhoto = (photo?: string | null) =>
@@ -146,8 +164,10 @@ export default function ProfesorDetailPage() {
 
   const [professor, setProfessor] = useState<StaffMember | null>(null)
   const [availableCourseRuns, setAvailableCourseRuns] = useState<AssignableCourseRun[]>([])
+  const [statusEvents, setStatusEvents] = useState<StaffStatusEvent[]>([])
   const [selectedCourseRunId, setSelectedCourseRunId] = useState('')
   const [assigningCourseRun, setAssigningCourseRun] = useState(false)
+  const [changingStatus, setChangingStatus] = useState(false)
   const [assignError, setAssignError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -156,9 +176,10 @@ export default function ProfesorDetailPage() {
     async function loadProfessor() {
       try {
         setLoading(true)
-        const [response, courseRunsResponse] = await Promise.all([
-          fetch('/api/staff?type=profesor&limit=100'),
+        const [response, courseRunsResponse, eventsResponse] = await Promise.all([
+          fetch(`/api/staff/${professorId}`),
           fetch('/api/convocatorias'),
+          fetch(`/api/staff/${professorId}/status-events`),
         ])
 
         if (!response.ok) {
@@ -171,9 +192,7 @@ export default function ProfesorDetailPage() {
           throw new Error('API returned error')
         }
 
-        // Find the specific professor
-        const foundProfessor = result.data.find((s: StaffMember) => s.id.toString() === professorId)
-
+        const foundProfessor = result.data as StaffMember | undefined
         if (!foundProfessor) {
           throw new Error('Professor not found')
         }
@@ -189,6 +208,10 @@ export default function ProfesorDetailPage() {
               (courseRun) => !assignedCourseRunIds.has(String(courseRun.id)),
             ),
           )
+        }
+        if (eventsResponse.ok) {
+          const eventsResult = (await eventsResponse.json()) as { success?: boolean; data?: StaffStatusEvent[] }
+          setStatusEvents(eventsResult.data ?? [])
         }
         setError(null)
       } catch (err) {
@@ -256,6 +279,41 @@ export default function ProfesorDetailPage() {
   const publicProfessorPath = `/p/profesores/${professor.id}`
   const publicProfessorAvailable = professor.isActive !== false && professor.employmentStatus !== 'inactive'
 
+  async function handleEmploymentStatusChange(nextStatus: 'active' | 'inactive' | 'temporary_leave') {
+    if (!professor) return
+    const now = new Date().toISOString()
+    const reason =
+      nextStatus === 'active'
+        ? 'Reactivación manual desde ficha docente'
+        : nextStatus === 'temporary_leave'
+          ? 'Baja temporal manual desde ficha docente'
+          : 'Baja manual desde ficha docente'
+
+    try {
+      setChangingStatus(true)
+      const response = await fetch(`/api/staff?id=${professor.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employmentStatus: nextStatus,
+          isActive: nextStatus === 'active',
+          inactiveReason: nextStatus === 'active' ? null : reason,
+          inactiveAt: nextStatus === 'active' ? null : now,
+          reactivatedAt: nextStatus === 'active' ? now : null,
+        }),
+      })
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok || result?.success === false) {
+        throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo cambiar el estado')
+      }
+      window.location.reload()
+    } catch (err) {
+      setAssignError(err instanceof Error ? err.message : 'No se pudo cambiar el estado')
+    } finally {
+      setChangingStatus(false)
+    }
+  }
+
   async function handleAssignCourseRun() {
     if (!selectedCourseRunId || !professor) return
 
@@ -309,6 +367,30 @@ export default function ProfesorDetailPage() {
             <Button size="sm" onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}>
               <Edit className="mr-2 h-4 w-4" />Editar
             </Button>
+            {professor.employmentStatus === 'active' ? (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={changingStatus}
+                  onClick={() => void handleEmploymentStatusChange('temporary_leave')}
+                >
+                  Baja temporal
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={changingStatus}
+                  onClick={() => void handleEmploymentStatusChange('inactive')}
+                >
+                  Dar de baja
+                </Button>
+              </>
+            ) : (
+              <Button size="sm" disabled={changingStatus} onClick={() => void handleEmploymentStatusChange('active')}>
+                Reactivar
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -354,6 +436,10 @@ export default function ProfesorDetailPage() {
                 </span>
                 <StaffStatusBadge status={professor.employmentStatus} data-oid=".w9t6n7" />
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">NIF/DNI</span>
+                <span className="text-sm font-medium">{professor.nif || 'Sin registrar'}</span>
+              </div>
               <div className="flex items-center justify-between" data-oid="bbzsgm:">
                 <span className="text-sm text-muted-foreground" data-oid=":a.leh-">
                   Contrato
@@ -362,6 +448,18 @@ export default function ProfesorDetailPage() {
                   {contractTypeLabels[professor.contractType] || professor.contractType}
                 </StaffContractBadge>
               </div>
+              {professor.importReviewStatus && professor.importReviewStatus !== 'validated' ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                  Revisión pendiente: {professor.importReviewStatus}
+                  {professor.lastImportBatch ? <span className="block text-xs">Lote: {professor.lastImportBatch}</span> : null}
+                </div>
+              ) : null}
+              {professor.employmentStatus !== 'active' && professor.inactiveReason ? (
+                <div className="rounded-lg border bg-muted/30 p-3 text-sm">
+                  <p className="font-medium">Motivo de baja</p>
+                  <p className="text-muted-foreground">{professor.inactiveReason}</p>
+                </div>
+              ) : null}
             </div>
 
             <Separator data-oid="d0trccx" />
@@ -672,6 +770,37 @@ export default function ProfesorDetailPage() {
                   </p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Historial de altas y bajas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {statusEvents.length > 0 ? (
+                <div className="space-y-3">
+                  {statusEvents.map((event) => (
+                    <div key={event.id} className="rounded-lg border p-3 text-sm">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-medium">
+                          {event.previousStatus} → {event.newStatus}
+                        </p>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(event.changedAt).toLocaleString('es-ES')}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-muted-foreground">{event.reason}</p>
+                      {event.source ? <p className="mt-1 text-xs text-muted-foreground">Origen: {event.source}</p> : null}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Sin movimientos registrados todavía.</p>
+              )}
             </CardContent>
           </Card>
 

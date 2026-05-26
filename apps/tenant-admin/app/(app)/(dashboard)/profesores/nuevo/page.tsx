@@ -84,6 +84,7 @@ export default function NewProfesorPage() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    nif: '',
     email: '',
     phone: '',
     position: '',
@@ -127,6 +128,7 @@ export default function NewProfesorPage() {
           staffType: 'profesor',
           firstName: formData.firstName,
           lastName: formData.lastName,
+          nif: formData.nif || undefined,
           email: formData.email,
           phone: formData.phone,
           position: formData.position,
@@ -343,6 +345,16 @@ export default function NewProfesorPage() {
 
             {/* Contact Info */}
             <div className="grid gap-4 md:grid-cols-2" data-oid="grbkuel">
+              <div className="space-y-2">
+                <Label htmlFor="nif">NIF/DNI</Label>
+                <Input
+                  id="nif"
+                  value={formData.nif}
+                  onChange={handleInputChange('nif')}
+                  placeholder="00000000A"
+                />
+              </div>
+
               <div className="space-y-2" data-oid="4_o4wae">
                 <Label htmlFor="email" data-oid="kqrl_j8">
                   Email{' '}

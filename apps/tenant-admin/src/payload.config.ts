@@ -34,6 +34,7 @@ import { FAQs } from './collections/FAQs/FAQs';
 import { Media } from './collections/Media';
 import { AuditLogs } from './collections/AuditLogs/AuditLogs';
 import { Staff } from './collections/Staff/Staff';
+import { StaffStatusEvents } from './collections/StaffStatusEvents/StaffStatusEvents';
 import { Tenants } from './collections/Tenants/Tenants'
 import { ApiKeys } from './collections/ApiKeys/ApiKeys';
 import { CourseTypes } from './collections/CourseTypes/CourseTypes';
@@ -94,6 +95,7 @@ export const getPayloadConfig = () => buildConfig({
 
     // Personal
     Staff, // ✅ Professors and administrative staff
+    StaffStatusEvents, // ✅ Staff status history and import audit trail
 
     // Marketing
     Campaigns, // ✅ Marketing campaign tracking with UTM & analytics

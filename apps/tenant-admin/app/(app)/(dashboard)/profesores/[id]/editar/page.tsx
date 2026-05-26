@@ -27,11 +27,16 @@ interface StaffRecord {
   id: number
   firstName: string
   lastName: string
+  nif?: string | null
   email?: string
   phone?: string
   position: string
   contractType?: string
   employmentStatus?: string
+  inactiveReason?: string | null
+  inactiveAt?: string | null
+  reactivatedAt?: string | null
+  importReviewStatus?: string | null
   hireDate?: string
   bio?: string
   assignedCampuses: Campus[]
@@ -96,11 +101,13 @@ export default function EditProfesorPage() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    nif: '',
     email: '',
     phone: '',
     position: '',
     contractType: 'full_time',
     employmentStatus: 'active',
+    inactiveReason: '',
     bio: '',
     hireDate: '',
     assignedCampuses: [] as number[],
@@ -116,16 +123,16 @@ export default function EditProfesorPage() {
         setError(null)
 
         const [staffRes, campusRes] = await Promise.all([
-          fetch('/api/staff?type=profesor&limit=200', { cache: 'no-cache' }),
+          fetch(`/api/staff/${professorId}`, { cache: 'no-cache' }),
           fetch('/api/campuses?limit=100', { cache: 'no-cache' }),
         ])
 
         if (!staffRes.ok) throw new Error('No se pudo cargar el profesorado')
         if (!campusRes.ok) throw new Error('No se pudieron cargar las sedes')
 
-        const staffJson = (await staffRes.json()) as { success?: boolean; data?: StaffRecord[] }
+        const staffJson = (await staffRes.json()) as { success?: boolean; data?: StaffRecord }
         const campusJson = (await campusRes.json()) as CampusApiResponse
-        const professor = staffJson.data?.find((item) => String(item.id) === professorId)
+        const professor = staffJson.data
 
         if (!professor) throw new Error('Profesor no encontrado')
         if (cancelled) return
@@ -134,11 +141,13 @@ export default function EditProfesorPage() {
         setFormData({
           firstName: professor.firstName ?? '',
           lastName: professor.lastName ?? '',
+          nif: professor.nif ?? '',
           email: professor.email ?? '',
           phone: professor.phone ?? '',
           position: professor.position ?? '',
           contractType: professor.contractType ?? 'full_time',
           employmentStatus: professor.employmentStatus ?? 'active',
+          inactiveReason: professor.inactiveReason ?? '',
           bio: professor.bio ?? '',
           hireDate: professor.hireDate ? String(professor.hireDate).slice(0, 10) : '',
           assignedCampuses: (professor.assignedCampuses ?? []).map((campus) => Number(campus.id)),
@@ -260,11 +269,15 @@ export default function EditProfesorPage() {
         body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
+          nif: formData.nif || null,
           email: formData.email,
           phone: formData.phone || null,
           position: formData.position,
           contractType: formData.contractType,
           employmentStatus: formData.employmentStatus,
+          inactiveReason: formData.employmentStatus === 'active' ? null : formData.inactiveReason || 'Baja manual desde edición de docente',
+          inactiveAt: formData.employmentStatus === 'active' ? null : new Date().toISOString(),
+          reactivatedAt: formData.employmentStatus === 'active' ? new Date().toISOString() : null,
           hireDate: formData.hireDate,
           bio: formData.bio || null,
           certifications: formData.certifications
@@ -390,6 +403,10 @@ export default function EditProfesorPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
+                <Label htmlFor="nif">NIF/DNI</Label>
+                <Input id="nif" value={formData.nif} onChange={handleInputChange('nif')} placeholder="00000000A" />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" value={formData.email} onChange={handleInputChange('email')} />
               </div>
@@ -398,6 +415,19 @@ export default function EditProfesorPage() {
                 <Input id="phone" value={formData.phone} onChange={handleInputChange('phone')} />
               </div>
             </div>
+
+            {formData.employmentStatus !== 'active' ? (
+              <div className="space-y-2">
+                <Label htmlFor="inactiveReason">Motivo de baja o inactividad</Label>
+                <Textarea
+                  id="inactiveReason"
+                  rows={3}
+                  value={formData.inactiveReason}
+                  onChange={handleInputChange('inactiveReason')}
+                  placeholder="Indica el motivo para poder auditar o reactivar más adelante."
+                />
+              </div>
+            ) : null}
 
             <div className="space-y-2">
               <Label htmlFor="position">Especialidad / Área</Label>

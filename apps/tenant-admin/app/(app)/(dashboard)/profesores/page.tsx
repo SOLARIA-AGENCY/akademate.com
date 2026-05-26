@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, Eye, Loader2, GraduationCap, MapPin } from 'lucide-react'
+import { Plus, Search, User, Mail, Phone, Eye, Loader2, GraduationCap, MapPin, Upload } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
@@ -31,7 +31,8 @@ interface StaffMember {
   firstName: string
   lastName: string
   fullName: string
-  email: string
+  email?: string | null
+  nif?: string | null
   phone?: string
   position: string
   contractType: string
@@ -45,6 +46,10 @@ interface StaffMember {
   }[]
   courseRunsCount?: number
   isActive: boolean
+  inactiveReason?: string | null
+  inactiveAt?: string | null
+  importReviewStatus?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate'
+  lastImportBatch?: string | null
 }
 
 const isPlaceholderPhoto = (photo?: string | null) =>
@@ -84,8 +89,24 @@ interface StaffApiResponse {
   data: StaffMember[]
 }
 
+interface StaffImportResult {
+  success?: boolean
+  mode?: string
+  importBatch?: string
+  summary?: Record<string, number>
+  applied?: number
+  error?: string
+}
+
+const reviewLabels: Record<string, string> = {
+  pending_review: 'Revisar importación',
+  ambiguous: 'Coincidencia dudosa',
+  retired_candidate: 'Baja detectada',
+}
+
 export default function ProfesoresPage() {
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // View preference
   const [view, setView] = useViewPreference('profesores')
@@ -94,6 +115,9 @@ export default function ProfesoresPage() {
   const [teachersExpanded, setTeachersExpanded] = useState<TeacherExpanded[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [importing, setImporting] = useState(false)
+  const [selectedImportFile, setSelectedImportFile] = useState<File | null>(null)
+  const [importResult, setImportResult] = useState<StaffImportResult | null>(null)
 
   // Filtros
   const [searchTerm, setSearchTerm] = useState('')
@@ -105,7 +129,7 @@ export default function ProfesoresPage() {
     async function loadProfessors() {
       try {
         setLoading(true)
-        const response = await fetch('/api/staff?type=profesor&limit=100')
+        const response = await fetch('/api/staff?type=profesor&limit=200&includeInactive=true')
 
         if (!response.ok) {
           throw new Error('Failed to load professors')
@@ -121,7 +145,7 @@ export default function ProfesoresPage() {
         const transformed: TeacherExpanded[] = result.data.map((staff: StaffMember) => ({
           ...staff,
           initials: getInitials(staff.fullName),
-          active: staff.employmentStatus === 'active',
+          active: staff.employmentStatus === 'active' && staff.isActive !== false,
           department: staff.position, // Using position as department for now
           specialties: [], // No specialties in current schema
           certifications: [],
@@ -154,6 +178,36 @@ export default function ProfesoresPage() {
     router.push('/dashboard/profesores/nuevo')
   }
 
+  async function runImport(apply: boolean) {
+    if (!selectedImportFile) {
+      fileInputRef.current?.click()
+      return
+    }
+
+    try {
+      setImporting(true)
+      setImportResult(null)
+      const body = new FormData()
+      body.append('file', selectedImportFile)
+      const response = await fetch(`/api/staff/import${apply ? '?apply=true' : ''}`, {
+        method: 'POST',
+        body,
+      })
+      const result = (await response.json().catch(() => ({}))) as StaffImportResult
+      if (!response.ok || result.success === false) {
+        throw new Error(result.error || 'No se pudo procesar el Excel')
+      }
+      setImportResult(result)
+      if (apply) {
+        window.location.reload()
+      }
+    } catch (err) {
+      setImportResult({ success: false, error: err instanceof Error ? err.message : 'No se pudo importar el Excel' })
+    } finally {
+      setImporting(false)
+    }
+  }
+
   const handleViewTeacher = (teacherId: number) => {
     router.push(`/dashboard/profesores/${teacherId}`)
   }
@@ -166,7 +220,8 @@ export default function ProfesoresPage() {
     const matchesSearch =
       teacher.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       teacher.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (teacher.email ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (teacher.nif ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       teacher.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
       teacher.specialties.some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()))
 
@@ -174,7 +229,11 @@ export default function ProfesoresPage() {
     const matchesStatus =
       filterStatus === 'all' ||
       (filterStatus === 'active' && teacher.active) ||
-      (filterStatus === 'inactive' && !teacher.active)
+      (filterStatus === 'inactive' && !teacher.active) ||
+      (filterStatus === 'temporary_leave' && teacher.employmentStatus === 'temporary_leave') ||
+      (filterStatus === 'pending_review' && teacher.importReviewStatus === 'pending_review') ||
+      (filterStatus === 'ambiguous' && teacher.importReviewStatus === 'ambiguous') ||
+      (filterStatus === 'retired_candidate' && teacher.importReviewStatus === 'retired_candidate')
 
     return matchesSearch && matchesDepartment && matchesStatus
   })
@@ -220,13 +279,57 @@ export default function ProfesoresPage() {
         title="Profesores"
         icon={User}
         actions={
-          <Button onClick={handleAdd} data-oid="p6j7z6w">
-            <Plus className="h-4 w-4" data-oid="f-mq7s4" />
-            Nuevo Profesor
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls"
+              className="hidden"
+              onChange={(event) => setSelectedImportFile(event.target.files?.[0] ?? null)}
+            />
+            <Button type="button" variant="outline" disabled={importing} onClick={() => fileInputRef.current?.click()}>
+              <Upload className="h-4 w-4" />
+              {selectedImportFile ? selectedImportFile.name : 'Excel personal'}
+            </Button>
+            <Button type="button" variant="outline" disabled={importing || !selectedImportFile} onClick={() => void runImport(false)}>
+              {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Auditar Excel
+            </Button>
+            <Button type="button" variant="outline" disabled={importing || !selectedImportFile} onClick={() => void runImport(true)}>
+              Aplicar Excel
+            </Button>
+            <Button onClick={handleAdd} data-oid="p6j7z6w">
+              <Plus className="h-4 w-4" data-oid="f-mq7s4" />
+              Nuevo Profesor
+            </Button>
+          </div>
         }
         data-oid="i_jz_am"
       />
+
+      {importResult ? (
+        <Card className={importResult.success === false ? 'border-destructive/30 bg-destructive/5' : 'border-emerald-200 bg-emerald-50'}>
+          <CardContent className="pt-6 text-sm">
+            {importResult.success === false ? (
+              <p className="font-medium text-destructive">{importResult.error}</p>
+            ) : (
+              <div className="space-y-2 text-emerald-950">
+                <p className="font-semibold">
+                  Excel procesado en modo {importResult.mode === 'apply' ? 'aplicación' : 'auditoría'}.
+                </p>
+                <p className="text-xs">Lote: {importResult.importBatch}</p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(importResult.summary ?? {}).map(([key, value]) => (
+                    <span key={key} className="rounded-full bg-white px-3 py-1 text-xs font-semibold shadow-sm">
+                      {key}: {value}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card data-oid="u0-zxep">
         <CardContent className="pt-6" data-oid="ie6f8wq">
@@ -275,6 +378,10 @@ export default function ProfesoresPage() {
                 <SelectItem value="inactive" data-oid="z4_gy17">
                   Inactivos
                 </SelectItem>
+                <SelectItem value="temporary_leave">Baja temporal</SelectItem>
+                <SelectItem value="pending_review">Pendientes de revisión</SelectItem>
+                <SelectItem value="ambiguous">Coincidencias dudosas</SelectItem>
+                <SelectItem value="retired_candidate">Bajas detectadas</SelectItem>
               </SelectContent>
             </Select>
 
@@ -341,6 +448,11 @@ export default function ProfesoresPage() {
                       <span className="truncate">{getDefaultCampusLabel(teacher.assignedCampuses)}</span>
                     </p>
                     <StaffStatusBadge status={teacher.active} className="mt-2" data-oid="vtx5757" />
+                    {teacher.importReviewStatus && teacher.importReviewStatus !== 'validated' ? (
+                      <div className="mt-2 inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
+                        {reviewLabels[teacher.importReviewStatus] ?? teacher.importReviewStatus}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
@@ -348,9 +460,15 @@ export default function ProfesoresPage() {
                   <div className="flex items-center gap-2 text-muted-foreground" data-oid="0m4es40">
                     <Mail className="h-4 w-4 flex-shrink-0" data-oid="gv811l:" />
                     <span className="truncate" data-oid="7r7086-">
-                      {teacher.email}
+                      {teacher.email || 'Sin email'}
                     </span>
                   </div>
+                  {teacher.nif ? (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <User className="h-4 w-4 flex-shrink-0" />
+                      <span>{teacher.nif}</span>
+                    </div>
+                  ) : null}
                   <div className="flex items-center gap-2 text-muted-foreground" data-oid="9bdf1cp">
                     <Phone className="h-4 w-4 flex-shrink-0" data-oid="9rawdwn" />
                     <span data-oid="m3p2ole">{teacher.phone}</span>
