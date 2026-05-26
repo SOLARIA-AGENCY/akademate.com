@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { StaffContractBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
   Select,
@@ -351,20 +352,15 @@ export default function ProfesorDetailPage() {
                 <span className="text-sm text-muted-foreground" data-oid="yc6qu9x">
                   Estado
                 </span>
-                <Badge
-                  variant={professor.employmentStatus === 'active' ? 'default' : 'secondary'}
-                  data-oid=".w9t6n7"
-                >
-                  {statusLabels[professor.employmentStatus] || professor.employmentStatus}
-                </Badge>
+                <StaffStatusBadge status={professor.employmentStatus} data-oid=".w9t6n7" />
               </div>
               <div className="flex items-center justify-between" data-oid="bbzsgm:">
                 <span className="text-sm text-muted-foreground" data-oid=":a.leh-">
                   Contrato
                 </span>
-                <Badge variant="outline" data-oid="en.tqka">
+                <StaffContractBadge data-oid="en.tqka">
                   {contractTypeLabels[professor.contractType] || professor.contractType}
-                </Badge>
+                </StaffContractBadge>
               </div>
             </div>
 

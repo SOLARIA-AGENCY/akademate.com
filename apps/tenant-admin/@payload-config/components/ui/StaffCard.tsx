@@ -4,7 +4,11 @@ import * as React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Badge } from '@payload-config/components/ui/badge'
+import {
+  StaffCampusBadge,
+  StaffContractBadge,
+  StaffStatusBadge,
+} from '@payload-config/components/ui/StaffBadges'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@payload-config/components/ui/dropdown-menu'
-import { Eye, Edit, Trash2, MoreHorizontal, MapPin, Mail, Phone, Briefcase, GraduationCap, User } from 'lucide-react'
+import { Eye, Edit, Trash2, MoreHorizontal, Mail, Phone, Briefcase, GraduationCap, User } from 'lucide-react'
 
 interface StaffCardProps {
   id: number
@@ -43,12 +47,6 @@ const STATUS_LABELS: Record<string, string> = {
   active: 'Activo',
   temporary_leave: 'Baja Temporal',
   inactive: 'Inactivo',
-}
-
-const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive'> = {
-  active: 'default',
-  temporary_leave: 'secondary',
-  inactive: 'destructive',
 }
 
 const isPlaceholderPhoto = (photo?: string | null) =>
@@ -171,16 +169,10 @@ export function StaffCard({
         <CardContent className="pt-0" data-oid="24ngeia">
           {/* Badges */}
           <div className="flex gap-2 mb-4 flex-wrap" data-oid="34c-.1s">
-            <Badge
-              variant={STATUS_VARIANTS[employmentStatus]}
-              className="text-xs"
-              data-oid="8_xl-hu"
-            >
-              {STATUS_LABELS[employmentStatus]}
-            </Badge>
-            <Badge variant="outline" className="text-xs" data-oid="0m5w5if">
+            <StaffStatusBadge status={employmentStatus} data-oid="8_xl-hu" />
+            <StaffContractBadge data-oid="0m5w5if">
               {CONTRACT_TYPE_LABELS[contractType]}
-            </Badge>
+            </StaffContractBadge>
           </div>
 
           {/* Contact Info */}
@@ -227,10 +219,9 @@ export function StaffCard({
                 </span>
               ) : (
                 assignedCampuses.map((campus) => (
-                  <Badge key={campus.id} variant="secondary" className="text-xs" data-oid=":pfs_wt">
-                    <MapPin className="h-3 w-3 mr-1" data-oid="x6:g9o9" />
+                  <StaffCampusBadge key={campus.id} data-oid=":pfs_wt">
                     {campus.name}
-                  </Badge>
+                  </StaffCampusBadge>
                 ))
               )}
             </div>

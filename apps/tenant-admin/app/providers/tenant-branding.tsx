@@ -121,7 +121,12 @@ function hexToHSL(hex: string): string {
 function applyThemeVariables(theme: TenantTheme): void {
   if (typeof document === 'undefined') return
   const root = document.documentElement
-  root.style.setProperty('--primary', hexToHSL(theme.primary))
+  const primary = hexToHSL(theme.primary)
+  root.style.setProperty('--primary', primary)
+  root.style.setProperty('--ring', primary)
+  root.style.setProperty('--sidebar-primary', primary)
+  root.style.setProperty('--sidebar-ring', primary)
+  root.style.setProperty('--brand-accent', primary)
   // NOTE: --secondary is intentionally NOT overridden here.
   // shadcn/ui uses --secondary as a neutral surface color (light gray / dark gray).
   // The tenant brand secondary (#1a1a2e navy) is stored in --brand-secondary for

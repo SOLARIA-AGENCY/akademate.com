@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
-import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { StaffCountBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
 import {
   Select,
   SelectContent,
@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, BookOpen, Eye, Loader2, GraduationCap, MapPin } from 'lucide-react'
+import { Plus, Search, User, Mail, Phone, Eye, Loader2, GraduationCap, MapPin } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
@@ -340,13 +340,7 @@ export default function ProfesoresPage() {
                       <MapPin className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
                       <span className="truncate">{getDefaultCampusLabel(teacher.assignedCampuses)}</span>
                     </p>
-                    <Badge
-                      variant={teacher.active ? 'default' : 'secondary'}
-                      className="mt-2"
-                      data-oid="vtx5757"
-                    >
-                      {teacher.active ? 'Activo' : 'Inactivo'}
-                    </Badge>
+                    <StaffStatusBadge status={teacher.active} className="mt-2" data-oid="vtx5757" />
                   </div>
                 </div>
 
@@ -364,10 +358,7 @@ export default function ProfesoresPage() {
                 </div>
 
                 <div className="border-t pt-3" data-oid="n2dx5nr">
-                  <Badge variant="outline" className="gap-1" data-oid="4zvp0-t">
-                    <BookOpen className="h-3.5 w-3.5" data-oid="9t33254" />
-                    {teacher.courseRunsCount} convocatorias
-                  </Badge>
+                  <StaffCountBadge count={teacher.courseRunsCount} data-oid="4zvp0-t" />
                 </div>
 
                 <div className="pt-3 border-t" data-oid="c.v05ji">

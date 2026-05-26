@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
-import { Badge } from '@payload-config/components/ui/badge'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
+import { StaffContractBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
 import {
   Select,
   SelectContent,
@@ -281,12 +281,14 @@ export default function AdministrativosPage() {
               </div>
 
               <div className={view === 'grid' ? 'space-y-2' : 'flex items-center md:justify-center'} data-oid="6xnyx.f">
-                <Badge variant="secondary" className="text-xs" data-oid="6xz2_jk">
+                <StaffContractBadge data-oid="6xz2_jk">
                   {admin.department}
-                </Badge>
+                </StaffContractBadge>
+                {view === 'grid' ? <StaffStatusBadge status={admin.active} className="mt-2" /> : null}
               </div>
 
               <div className={view === 'grid' ? 'space-y-2 text-sm' : 'space-y-1 text-sm'} data-oid="ouwgdtd">
+                {view === 'list' ? <StaffStatusBadge status={admin.active} className="mb-1" /> : null}
                 <div className="flex items-center gap-2 text-muted-foreground" data-oid=".s54pkp">
                   <Mail className="h-4 w-4 flex-shrink-0" data-oid="u8xwikl" />
                   <span className="truncate" data-oid="pwj3pu9">

@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { Badge } from '@payload-config/components/ui/badge'
+import { StaffContractBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
 import { Separator } from '@payload-config/components/ui/separator'
 import {
   Edit,
@@ -206,20 +207,15 @@ export default function AdministrativoDetailPage() {
                 <span className="text-sm text-muted-foreground" data-oid="jkxg8yu">
                   Estado
                 </span>
-                <Badge
-                  variant={admin.employmentStatus === 'active' ? 'default' : 'secondary'}
-                  data-oid="vlhj9mm"
-                >
-                  {statusLabels[admin.employmentStatus] || admin.employmentStatus}
-                </Badge>
+                <StaffStatusBadge status={admin.employmentStatus} data-oid="vlhj9mm" />
               </div>
               <div className="flex items-center justify-between" data-oid="c5fq6z-">
                 <span className="text-sm text-muted-foreground" data-oid="exxjx55">
                   Contrato
                 </span>
-                <Badge variant="outline" data-oid="2ow:84r">
+                <StaffContractBadge data-oid="2ow:84r">
                   {contractTypeLabels[admin.contractType] || admin.contractType}
-                </Badge>
+                </StaffContractBadge>
               </div>
             </div>
 

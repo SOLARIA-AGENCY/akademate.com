@@ -2,12 +2,12 @@
 
 import * as React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
-import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Separator } from '@payload-config/components/ui/separator'
+import { StaffCountBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
 import { cn } from '@payload-config/lib/utils'
-import { Mail, Phone, BookOpen, User, GraduationCap } from 'lucide-react'
+import { Mail, Phone, User, GraduationCap } from 'lucide-react'
 
 interface TeacherExpanded {
   id: number
@@ -116,15 +116,9 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <Badge variant={teacher.active ? 'success' : 'neutral'} className="text-[10px] uppercase tracking-wide">
-              {teacher.active ? 'Activo' : 'Inactivo'}
-            </Badge>
+            <StaffStatusBadge status={teacher.active} />
             <Separator orientation="vertical" className="h-5" />
-            <span className="flex items-center gap-1 text-xs">
-              <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="font-medium">{teacher.courseRunsCount}</span>
-              <span className="text-muted-foreground">cursos</span>
-            </span>
+            <StaffCountBadge count={teacher.courseRunsCount} label="cursos" />
           </div>
         </div>
 

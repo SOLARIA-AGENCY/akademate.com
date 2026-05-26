@@ -265,6 +265,11 @@ body:not([data-payload-admin]) {
       'rlig' 1,
       'calt' 1;
   }
+
+  body:not(.payload-admin) ::selection {
+    background-color: hsl(var(--primary) / 0.22);
+    color: hsl(var(--foreground));
+  }
 }
 
 /* Utility classes for theme colors - Manual generation for Tailwind v4 */
