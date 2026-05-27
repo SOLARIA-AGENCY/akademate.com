@@ -161,6 +161,48 @@ describe('/api/course-runs/[id]', () => {
     }))
   })
 
+  it('updates enrollment status and deadline when valid', async () => {
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        enrollment_status: 'closed',
+        enrollment_deadline: '2026-08-20T00:00:00.000Z',
+      }),
+    }), params())
+
+    expect(response.status).toBe(200)
+    expect(payloadMock.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        enrollment_status: 'closed',
+        enrollment_deadline: '2026-08-20T00:00:00.000Z',
+      }),
+    }))
+  })
+
+  it('rejects enrollment status outside the commercial status contract', async () => {
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ enrollment_status: 'published' }),
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(data.error).toMatch(/matrícula/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('rejects enrollment deadline after the start date', async () => {
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ enrollment_deadline: '2026-09-20T00:00:00.000Z' }),
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(data.error).toMatch(/matrícula/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
   it('rejects campus assignment from another tenant', async () => {
     installFindRouter({ missingCampus: true })
     const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {

@@ -15,7 +15,7 @@ import {
   applyCourseRunPriceSnapshot,
   detectPlanningConflicts,
 } from './hooks';
-import { VALID_WEEKDAYS, VALID_STATUSES } from './CourseRuns.validation';
+import { VALID_WEEKDAYS, VALID_STATUSES, VALID_ENROLLMENT_STATUSES } from './CourseRuns.validation';
 import { tenantField } from '../../access/tenantAccess';
 
 /**
@@ -418,6 +418,28 @@ export const CourseRuns: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'Current status of the course run',
+      },
+    },
+    {
+      name: 'enrollment_status',
+      type: 'select',
+      required: true,
+      defaultValue: 'open',
+      index: true,
+      options: [
+        { label: 'Matrícula abierta', value: 'open' },
+        { label: 'Matrícula cerrada', value: 'closed' },
+        { label: 'Apertura programada', value: 'scheduled' },
+        { label: 'Matrícula permanente', value: 'always_open' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Estado comercial de matrícula, independiente del estado operativo de la convocatoria',
+      },
+      validate: (val: string | undefined) => {
+        if (!val) return 'El estado de matrícula es obligatorio';
+        if (!VALID_ENROLLMENT_STATUSES.includes(val as any)) return 'Estado de matrícula no válido';
+        return true;
       },
     },
     {

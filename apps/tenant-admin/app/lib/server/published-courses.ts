@@ -12,6 +12,7 @@ import {
   PUBLIC_STUDY_TYPE_COURSE_TYPE_VALUES,
   type PublicStudyType,
 } from '@/app/lib/website/study-types'
+import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
 
 type CourseDoc = {
   id: number | string
@@ -51,6 +52,7 @@ type CourseDoc = {
 type CourseRunDoc = {
   id: number | string
   status?: string | null
+  enrollment_status?: string | null
   start_date?: string | null
   end_date?: string | null
   enrollment_deadline?: string | null
@@ -218,10 +220,11 @@ function toEnrollmentStatus(
     }
   }
 
-  const visibleRuns = runs.filter((run) => ['enrollment_open', 'published'].includes(String(run.status ?? '')))
-  const openRun = visibleRuns.find((run) => run.status === 'enrollment_open') ?? null
+  const visibleRuns = runs.filter((run) => ['enrollment_open', 'published', 'in_progress'].includes(String(run.status ?? '')))
+  const openRun = visibleRuns.find((run) => getCourseRunEnrollmentStatusInfo(run).allowsEnrollment) ?? null
   const nextRun = openRun ?? visibleRuns[0] ?? null
   const enrollmentStatus = openRun ? 'open' : nextRun ? 'published' : 'none'
+  const enrollmentInfo = nextRun ? getCourseRunEnrollmentStatusInfo(nextRun) : null
   const availableSeats =
     nextRun && typeof nextRun.max_students === 'number'
       ? Math.max(0, nextRun.max_students - Number(nextRun.current_enrollments ?? 0))
@@ -230,8 +233,8 @@ function toEnrollmentStatus(
   return {
     enrollmentStatus,
     enrollmentLabel:
-      enrollmentStatus === 'open'
-        ? 'Matrícula abierta'
+      enrollmentInfo?.allowsEnrollment
+        ? enrollmentInfo.publicLabel
         : enrollmentStatus === 'published'
           ? 'Próximas fechas'
           : 'Avisarme de próximas fechas',

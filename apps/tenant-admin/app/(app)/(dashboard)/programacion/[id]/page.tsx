@@ -22,6 +22,11 @@ import {
   ExternalLink, Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
   Download, FileText, Pencil, Save, AlertCircle, Printer,
 } from 'lucide-react'
+import {
+  COURSE_RUN_ENROLLMENT_STATUS_INFO,
+  getCourseRunEnrollmentStatusInfo,
+  resolveCourseRunEnrollmentStatus,
+} from '@/app/lib/course-run-enrollment-status'
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' | 'success' }> = {
   draft: { label: 'Sin publicar', variant: 'secondary' },
@@ -30,6 +35,13 @@ const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secon
   in_progress: { label: 'En curso', variant: 'default' },
   completed: { label: 'Finalizada', variant: 'secondary' },
   cancelled: { label: 'Cancelada', variant: 'destructive' },
+}
+
+const ENROLLMENT_BADGE_VARIANTS: Record<string, 'default' | 'secondary' | 'outline' | 'destructive' | 'success'> = {
+  open: 'success',
+  closed: 'secondary',
+  scheduled: 'outline',
+  always_open: 'default',
 }
 
 function formatCurrency(v: number | undefined): string {
@@ -107,10 +119,12 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const [editingDates, setEditingDates] = React.useState(false)
   const [editingPrice, setEditingPrice] = React.useState(false)
   const [editingLocation, setEditingLocation] = React.useState(false)
+  const [editingEnrollment, setEditingEnrollment] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
   const [saveMessage, setSaveMessage] = React.useState<string | null>(null)
   const [saveError, setSaveError] = React.useState<string | null>(null)
   const [dateForm, setDateForm] = React.useState({ start_date: '', end_date: '' })
+  const [enrollmentForm, setEnrollmentForm] = React.useState({ enrollment_status: 'open', enrollment_deadline: '' })
   const [priceForm, setPriceForm] = React.useState({ price_override: '', enrollment_fee_snapshot: '' })
   const [locationForm, setLocationForm] = React.useState({
     campus: '',
@@ -136,6 +150,10 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     setDateForm({
       start_date: toDateInput(conv.start_date),
       end_date: toDateInput(conv.end_date),
+    })
+    setEnrollmentForm({
+      enrollment_status: resolveCourseRunEnrollmentStatus(conv),
+      enrollment_deadline: toDateInput(conv.enrollment_deadline),
     })
     setPriceForm({
       price_override: conv.price_override != null ? String(conv.price_override) : '',
@@ -225,6 +243,25 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     if (await saveRunPatch(dateForm)) setEditingDates(false)
   }
 
+  async function saveEnrollment() {
+    if (!enrollmentForm.enrollment_status) {
+      setSaveError('Selecciona el estado de matrícula.')
+      return
+    }
+    if (
+      enrollmentForm.enrollment_deadline &&
+      dateForm.start_date &&
+      new Date(enrollmentForm.enrollment_deadline) > new Date(dateForm.start_date)
+    ) {
+      setSaveError('La fecha límite de matrícula no puede ser posterior al inicio.')
+      return
+    }
+    if (await saveRunPatch({
+      enrollment_status: enrollmentForm.enrollment_status,
+      enrollment_deadline: enrollmentForm.enrollment_deadline || null,
+    })) setEditingEnrollment(false)
+  }
+
   async function savePrice() {
     const price = priceForm.price_override.trim()
     const fee = priceForm.enrollment_fee_snapshot.trim()
@@ -271,6 +308,9 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const campus = typeof conv.campus === 'object' ? conv.campus : null
   const instructor = typeof conv.instructor === 'object' ? conv.instructor : null
   const status = STATUS_CONFIG[conv.status] || STATUS_CONFIG.draft
+  const enrollmentStatusKey = resolveCourseRunEnrollmentStatus(conv)
+  const enrollmentStatus = getCourseRunEnrollmentStatusInfo(conv)
+  const enrollmentBadgeVariant = ENROLLMENT_BADGE_VARIANTS[enrollmentStatusKey] || 'secondary'
   const plazas = conv.max_students || 0
   const inscritos = conv.current_enrollments || 0
   const porcentaje = plazas > 0 ? Math.round((inscritos / plazas) * 100) : 0
@@ -570,6 +610,66 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                   <Button className="w-full" disabled={saving} onClick={saveLocation}>
                     {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                     Guardar sede y horario
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Matrícula */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2"><Users className="h-4 w-4" />Matrícula</CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => setEditingEnrollment((value) => !value)}>
+                <Pencil className="mr-1.5 h-3.5 w-3.5" />Editar
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              {!editingEnrollment ? (
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-muted-foreground">Estado</span>
+                    <Badge variant={enrollmentBadgeVariant}>{enrollmentStatus.label}</Badge>
+                  </div>
+                  <p className="rounded-md bg-muted px-3 py-2 text-xs leading-5 text-muted-foreground">
+                    {enrollmentStatus.description}
+                  </p>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-muted-foreground">Límite</span>
+                    <span className="text-right font-medium">
+                      {conv.enrollment_deadline ? new Date(conv.enrollment_deadline).toLocaleDateString('es-ES') : 'Sin fecha límite'}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Estado de matrícula</Label>
+                    <Select
+                      value={enrollmentForm.enrollment_status}
+                      onValueChange={(value) => setEnrollmentForm((form) => ({ ...form, enrollment_status: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(COURSE_RUN_ENROLLMENT_STATUS_INFO).map(([key, config]) => (
+                          <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Fecha límite</Label>
+                    <Input
+                      type="date"
+                      value={enrollmentForm.enrollment_deadline}
+                      onChange={(event) => setEnrollmentForm((form) => ({ ...form, enrollment_deadline: event.target.value }))}
+                    />
+                  </div>
+                  <Button className="w-full" disabled={saving} onClick={saveEnrollment}>
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                    Guardar matrícula
                   </Button>
                 </div>
               )}

@@ -889,7 +889,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
       ).rejects.toThrow();
     });
 
-    it('should validate course_run status is enrollment_open', async () => {
+    it('should reject course_run when operational status is not enrollable', async () => {
       // Create course run with wrong status
       const closedCourseRun = await payload.create({
         collection: 'course-runs',
@@ -900,7 +900,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
           max_students: 10,
           min_students: 3,
           current_enrollments: 0,
-          status: 'completed', // Not enrollment_open
+          status: 'completed',
         },
         user: adminUser,
       });
@@ -918,7 +918,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
           },
           user: adminUser,
         })
-      ).rejects.toThrow(/enrollment_open/i);
+      ).rejects.toThrow(/not accepting enrollments/i);
     });
 
     it('should set status to waitlisted if course_run is full', async () => {
@@ -1819,7 +1819,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
         ).rejects.toThrow(/course.*run/i);
       });
 
-      it('should validate course_run status is enrollment_open', async () => {
+      it('should reject course_run when operational status is not enrollable', async () => {
         const closedRun = await payload.create({
           collection: 'course-runs',
           data: {
@@ -1828,7 +1828,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
             end_date: '2026-06-30',
             max_students: 10,
             min_students: 3,
-            status: 'draft', // Not enrollment_open
+            status: 'draft',
           },
           user: adminUser,
         });
@@ -1846,7 +1846,7 @@ describe('Enrollments Collection - TDD Test Suite', () => {
             },
             user: adminUser,
           })
-        ).rejects.toThrow(/enrollment_open/i);
+        ).rejects.toThrow(/not accepting enrollments/i);
       });
     });
 

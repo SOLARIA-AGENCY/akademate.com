@@ -3,6 +3,7 @@ import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '../../_lib/auth'
+import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,8 +20,15 @@ const NON_ENROLLABLE_COURSE_RUN_STATUSES = new Set([
   'inactive',
   'archived',
   'draft',
-  'published',
+  'completed',
 ])
+
+function enrollmentStatusAllowsEnrollment(courseRun: any): { ok: boolean; error?: string } {
+  const enrollmentStatus = getCourseRunEnrollmentStatusInfo(courseRun)
+  if (enrollmentStatus.allowsEnrollment) return { ok: true }
+  if (enrollmentStatus.key === 'scheduled') return { ok: false, error: 'La matrícula de esta convocatoria todavía no está abierta' }
+  return { ok: false, error: 'La matrícula de esta convocatoria está cerrada' }
+}
 function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
   if (typeof value === 'string' && /^\d+$/.test(value)) return parseInt(value, 10)
@@ -145,6 +153,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (courseRunStatus && NON_ENROLLABLE_COURSE_RUN_STATUSES.has(courseRunStatus)) {
       return NextResponse.json(
         { error: 'La convocatoria no está abierta para matrícula' },
+        { status: 422 },
+      )
+    }
+
+    const enrollmentStatus = enrollmentStatusAllowsEnrollment(courseRun)
+    if (!enrollmentStatus.ok) {
+      return NextResponse.json(
+        { error: enrollmentStatus.error || 'La convocatoria no está abierta para matrícula' },
         { status: 422 },
       )
     }

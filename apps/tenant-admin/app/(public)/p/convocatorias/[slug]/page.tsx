@@ -22,6 +22,7 @@ import type React from 'react'
 import { PreinscripcionForm } from './PreinscripcionForm'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
 
 export const dynamic = 'force-dynamic'
 
@@ -181,13 +182,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const sedeName = campus?.name || ''
   const mode = modalityLabel(cycle?.duration?.modality || course?.modality || conv.modality)
   const start = conv.start_date ? ` Inicio: ${formatDate(conv.start_date)}.` : ''
+  const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
 
   return {
-    title: `${displayName} - Convocatoria abierta${sedeName ? ` en ${sedeName}` : ''}`,
-    description: `Inscripcion abierta para ${displayName}${sedeName ? ` en ${sedeName}` : ''}. Modalidad ${mode}.${start} Solicita informacion sin compromiso con CEP Formacion.`,
+    title: `${displayName} - ${enrollmentInfo.publicLabel}${sedeName ? ` en ${sedeName}` : ''}`,
+    description: `${enrollmentInfo.publicLabel} para ${displayName}${sedeName ? ` en ${sedeName}` : ''}. Modalidad ${mode}.${start} Solicita informacion sin compromiso con CEP Formacion.`,
     openGraph: {
-      title: `${displayName} - Inscripcion abierta`,
-      description: `Reserva tu plaza en ${displayName}. Te orientamos sobre fechas, sede, acceso y matricula.`,
+      title: `${displayName} - ${enrollmentInfo.publicLabel}`,
+      description: `${enrollmentInfo.ctaLabel} en ${displayName}. Te orientamos sobre fechas, sede, acceso y matricula.`,
     },
   }
 }
@@ -270,7 +272,11 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
     if (sch?.type === 'financiacion') financingTypes.add('Pago financiado')
   })
   const financingTypesList = Array.from(financingTypes)
-  const statusLabel = conv.status === 'enrollment_open' ? 'Matricula abierta' : 'Inscripcion abierta'
+  const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
+  const statusLabel = enrollmentInfo.publicLabel
+  const heroCopy = enrollmentInfo.allowsEnrollment
+    ? 'Reserva tu plaza y recibe orientacion sobre fechas, modalidad, requisitos y proceso de matricula.'
+    : 'Déjanos tus datos y te avisamos sobre próximas opciones de matrícula para esta formación.'
 
   const summaryCards: SummaryCardData[] = [
     {
@@ -355,11 +361,11 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                 {displayName}
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-white/82 sm:text-xl">
-                Reserva tu plaza y recibe orientacion sobre fechas, modalidad, requisitos y proceso de matricula.
+                {heroCopy}
               </p>
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <a href="#registro" className="inline-flex min-h-14 items-center justify-center rounded-full bg-[#f2014b] px-8 text-base font-black text-white shadow-xl shadow-red-950/30 transition hover:-translate-y-0.5 hover:bg-[#c9003f]">
-                  Solicitar informacion
+                  {enrollmentInfo.ctaLabel}
                 </a>
                 <a href="#detalles" className="inline-flex min-h-14 items-center justify-center rounded-full border border-white/35 px-8 text-base font-black text-white transition hover:bg-white/10">
                   Ver detalles
@@ -413,7 +419,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
             <a href="#sede" className="hover:text-[#f2014b]">Sede</a>
             {instructorName ? <a href="#docente" className="hover:text-[#f2014b]">Docente</a> : null}
             <a href="#pagos" className="hover:text-[#f2014b]">Pagos</a>
-            <a href="#registro" className="rounded-full bg-[#f2014b] px-5 py-2.5 text-white hover:bg-[#c9003f]">Reservar plaza</a>
+            <a href="#registro" className="rounded-full bg-[#f2014b] px-5 py-2.5 text-white hover:bg-[#c9003f]">{enrollmentInfo.ctaLabel}</a>
           </nav>
         </div>
       </div>
@@ -671,14 +677,17 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                   <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-red-50 text-[#f2014b] ring-1 ring-red-100">
                     <GraduationCap className="h-8 w-8" />
                   </div>
-                  <h2 className="text-2xl font-black tracking-tight text-gray-950">Reserva tu plaza</h2>
-                  <p className="mt-3 text-sm leading-6 text-gray-600">Te llamamos para confirmar fechas, requisitos, precio y disponibilidad.</p>
+                  <h2 className="text-2xl font-black tracking-tight text-gray-950">{enrollmentInfo.ctaLabel}</h2>
+                  <p className="mt-3 text-sm leading-6 text-gray-600">{enrollmentInfo.allowsEnrollment ? 'Te llamamos para confirmar fechas, requisitos, precio y disponibilidad.' : 'Te llamamos para orientarte sobre esta formación y próximas opciones de matrícula.'}</p>
                 </div>
                 <PreinscripcionForm
                   convocatoriaId={String(conv.id)}
                   convocatoriaCodigo={conv.codigo || ''}
                   displayName={displayName}
                   courseName={displayName}
+                  submitLabel={enrollmentInfo.ctaLabel}
+                  successTitle={enrollmentInfo.allowsEnrollment ? 'Solicitud de plaza recibida' : 'Solicitud de información recibida'}
+                  successDescription={enrollmentInfo.allowsEnrollment ? 'Nos pondremos en contacto contigo para confirmar tu inscripción.' : 'Nos pondremos en contacto contigo para orientarte sobre próximas opciones de matrícula.'}
                 />
                 <div className="mt-7 space-y-3 border-t border-gray-100 pt-6">
                   <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 text-sm font-bold text-gray-800">
@@ -702,7 +711,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
 
       <div className="fixed bottom-20 left-0 right-0 z-40 px-4 lg:hidden">
         <a href="#registro" className="mx-auto flex max-w-md items-center justify-between rounded-full bg-gray-950 p-2 pl-6 text-white shadow-2xl ring-1 ring-white/10">
-          <span className="text-sm font-black">Reserva tu plaza</span>
+          <span className="text-sm font-black">{enrollmentInfo.mobileCtaLabel}</span>
           <span className="rounded-full bg-[#f2014b] px-5 py-3 text-xs font-black uppercase tracking-wide">Solicitar</span>
         </a>
       </div>

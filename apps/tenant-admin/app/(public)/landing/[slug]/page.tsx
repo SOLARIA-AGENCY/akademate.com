@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { PageViewTracker } from './PageViewTracker'
 import { ContactForm } from './ContactForm'
+import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
 
 // ---------------------------------------------------------------------------
 // Types (inline — avoid importing heavy payload-types for public page)
@@ -245,7 +246,7 @@ function generateJsonLdScript(courseRun: any, courseName: string, description: s
               '@type': 'Offer',
               price: courseRun.price_override,
               priceCurrency: 'EUR',
-              availability: courseRun.status === 'enrollment_open' ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
+              availability: getCourseRunEnrollmentStatusInfo(courseRun).allowsEnrollment ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
             },
           }
         : {}),
@@ -294,7 +295,8 @@ export default async function LandingPage({
   const spotsLeft = maxStudents - currentEnrollments
   const price = courseRun.price_override ?? 0
   const schedule = formatSchedule(courseRun.schedule_days, courseRun.schedule_time_start, courseRun.schedule_time_end)
-  const isEnrollmentOpen = courseRun.status === 'enrollment_open'
+  const enrollmentInfo = getCourseRunEnrollmentStatusInfo(courseRun)
+  const isEnrollmentOpen = enrollmentInfo.allowsEnrollment
 
   const jsonLdScript = generateJsonLdScript(
     courseRun,
@@ -335,7 +337,12 @@ export default async function LandingPage({
           <div className="flex flex-wrap items-center gap-2 mb-6">
             {isEnrollmentOpen && (
               <span className="inline-flex items-center rounded-full bg-green-500 px-3 py-1 text-xs font-semibold text-white">
-                Inscripcion Abierta
+                {enrollmentInfo.publicLabel}
+              </span>
+            )}
+            {!isEnrollmentOpen && (
+              <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                {enrollmentInfo.publicLabel}
               </span>
             )}
             {courseModality && (

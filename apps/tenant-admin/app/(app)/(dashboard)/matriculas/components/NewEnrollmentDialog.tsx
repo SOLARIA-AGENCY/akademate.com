@@ -46,7 +46,8 @@ interface NewEnrollmentDialogProps {
 }
 
 const NON_ENROLLABLE_LEAD_STATUSES = new Set(['not_interested', 'unreachable', 'discarded', 'spam', 'rejected'])
-const ENROLLABLE_COURSE_RUN_STATUSES = new Set(['enrollment_open'])
+const ENROLLABLE_OPERATIONAL_STATUSES = new Set(['published', 'enrollment_open', 'in_progress'])
+const ENROLLABLE_COMMERCIAL_STATUSES = new Set(['open', 'always_open'])
 
 export function NewEnrollmentDialog({ open, onOpenChange, onCreated, initialLeadId }: NewEnrollmentDialogProps) {
   const [source, setSource] = useState<EnrollmentSource>('lead')
@@ -150,7 +151,11 @@ export function NewEnrollmentDialog({ open, onOpenChange, onCreated, initialLead
         const payload = await res.json()
         const rows = Array.isArray(payload?.data) ? payload.data : []
         const options = rows
-          .filter((row: any) => ENROLLABLE_COURSE_RUN_STATUSES.has(String(row?.estado ?? '').toLowerCase()))
+          .filter((row: any) => {
+            const operational = String(row?.estado ?? '').trim().toLowerCase()
+            const commercial = String(row?.enrollmentStatus ?? 'open').trim().toLowerCase()
+            return ENROLLABLE_OPERATIONAL_STATUSES.has(operational) && ENROLLABLE_COMMERCIAL_STATUSES.has(commercial)
+          })
           .map((row: any) => {
             const id = String(row?.id ?? '')
             const courseName = String(row?.cursoNombre ?? 'Curso')

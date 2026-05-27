@@ -63,6 +63,8 @@ interface PopulatedCourseRun {
   schedule_time_start?: string | null;
   schedule_time_end?: string | null;
   status?: string | null;
+  enrollment_status?: string | null;
+  enrollment_deadline?: string | null;
   max_students?: number | null;
   current_enrollments?: number | null;
   price_override?: number | null;
@@ -541,6 +543,8 @@ export async function GET(request: NextRequest) {
           horaFin: conv.schedule_time_end,
           horario: formatSchedule(dias, conv.schedule_time_start, conv.schedule_time_end),
           estado: conv.status,
+          enrollmentStatus: conv.enrollment_status,
+          enrollmentDeadline: conv.enrollment_deadline,
           planningStatus: conv.planning_status,
           trainingType: conv.training_type,
           turno: conv.shift,

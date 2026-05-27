@@ -37,6 +37,15 @@ export const VALID_STATUSES = [
 
 export type CourseRunStatus = typeof VALID_STATUSES[number];
 
+export const VALID_ENROLLMENT_STATUSES = [
+  'open',
+  'closed',
+  'scheduled',
+  'always_open',
+] as const;
+
+export type CourseRunEnrollmentStatus = typeof VALID_ENROLLMENT_STATUSES[number];
+
 /**
  * Schema for validating date logic
  */
@@ -205,6 +214,10 @@ export const statusValidationSchema = z.object({
   status: z.enum(VALID_STATUSES).default('draft'),
 });
 
+export const enrollmentStatusValidationSchema = z.object({
+  enrollment_status: z.enum(VALID_ENROLLMENT_STATUSES).default('open'),
+});
+
 /**
  * Complete CourseRun validation schema (for reference/documentation)
  * Note: This is for documentation purposes. Individual validation schemas are used in hooks.
@@ -231,6 +244,7 @@ export const courseRunSchema = z.object({
 
   // Status
   status: z.enum(VALID_STATUSES).default('draft'),
+  enrollment_status: z.enum(VALID_ENROLLMENT_STATUSES).default('open'),
 
   // Pricing
   price_override: z.number().min(0).optional(),

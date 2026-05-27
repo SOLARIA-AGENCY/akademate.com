@@ -15,6 +15,7 @@ import { AreaPublicCard, CampusPublicCard } from '@payload-config/components/aka
 import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Textarea } from '@payload-config/components/ui/textarea'
+import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
 
 const BRAND_RED = '#f2014b'
 
@@ -748,6 +749,7 @@ async function ConvocationListSection({
             const imageUrl =
               resolveImageUrl(course?.featured_image) || resolveImageUrl(course?.image) || resolveImageUrl(cycle?.image)
             const convocationBadge = getConvocationBadge({ course, cycle, conv, groupKey, displayName })
+            const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
             return (
               <Link key={conv.id} href={`/convocatorias/${conv.codigo || conv.id}`} className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-2xl">
                 <div className="relative h-52">
@@ -763,7 +765,7 @@ async function ConvocationListSection({
                   ) : null}
                   <div className="absolute bottom-5 left-5 right-5">
                     <span className="mb-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase text-white" style={{ backgroundColor: brandColor }}>
-                      Inscripción abierta
+                      {enrollmentInfo.publicLabel}
                     </span>
                     <h3 className="text-2xl font-black leading-tight">{displayName}</h3>
                   </div>
@@ -772,7 +774,7 @@ async function ConvocationListSection({
                   <div className="grid gap-1 text-sm text-white/70">
                     <p><span className="font-semibold text-white">Fecha:</span> {formatDate(conv.start_date)}</p>
                     <p><span className="font-semibold text-white">Sede:</span> {group.title}</p>
-                    <p><span className="font-semibold text-white">Estado:</span> Plazas disponibles</p>
+                    <p><span className="font-semibold text-white">Estado:</span> {enrollmentInfo.publicLabel}</p>
                     {typeof conv.price_snapshot === 'number' ? <p><span className="font-semibold text-white">Precio:</span> {conv.price_snapshot.toLocaleString('es-ES')} €</p> : null}
                   </div>
                   <span className="shrink-0 rounded-full bg-[var(--cep-brand)] px-4 py-2 text-sm font-black text-white transition group-hover:bg-[#d0013f]">

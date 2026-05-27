@@ -8,7 +8,7 @@ import type { CollectionBeforeValidateHook } from 'payload';
  * Validations:
  * 1. Student exists in database
  * 2. CourseRun exists in database
- * 3. CourseRun status is 'enrollment_open' (accepting enrollments)
+ * 3. CourseRun operational status is usable and commercial enrollment status accepts enrollments
  *
  * Throws validation error if any check fails.
  *
@@ -57,10 +57,26 @@ export const validateEnrollmentRelationships: CollectionBeforeValidateHook = asy
         id: data.course_run,
       });
 
-      // Check if course run is accepting enrollments
-      if (courseRun.status !== 'enrollment_open') {
+      const operationalStatus = String(courseRun.status ?? '').trim().toLowerCase();
+      const nonEnrollOperationStatuses = new Set([
+        'draft',
+        'enrollment_closed',
+        'closed',
+        'cancelled',
+        'inactive',
+        'archived',
+        'completed',
+      ]);
+      if (nonEnrollOperationStatuses.has(operationalStatus)) {
         throw new Error(
           `Course run ${data.course_run} is not accepting enrollments. Current status: ${courseRun.status}`
+        );
+      }
+
+      const commercialStatus = String((courseRun as any).enrollment_status ?? '').trim().toLowerCase();
+      if (commercialStatus === 'closed' || commercialStatus === 'scheduled') {
+        throw new Error(
+          `Course run ${data.course_run} is not accepting enrollments. Current enrollment status: ${commercialStatus}`
         );
       }
     } catch (error) {

@@ -20,10 +20,12 @@ type CourseRunDoc = {
   codigo?: string
   start_date?: string
   end_date?: string
+  enrollment_deadline?: string
   schedule_days?: string[]
   schedule_time_start?: string
   schedule_time_end?: string
   status?: string
+  enrollment_status?: string
   planning_status?: string
 }
 
@@ -167,6 +169,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     if ('start_date' in body) data.start_date = body.start_date
     if ('end_date' in body) data.end_date = body.end_date
+    if ('enrollment_deadline' in body) data.enrollment_deadline = body.enrollment_deadline || null
+    if ('enrollment_status' in body) data.enrollment_status = body.enrollment_status || 'open'
     if ('price_override' in body) data.price_override = body.price_override === '' ? null : body.price_override
     if ('price_snapshot' in body) data.price_snapshot = body.price_snapshot === '' ? null : body.price_snapshot
     if ('enrollment_fee_snapshot' in body) data.enrollment_fee_snapshot = body.enrollment_fee_snapshot === '' ? null : body.enrollment_fee_snapshot
@@ -181,6 +185,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const endDate = String(data.end_date ?? current.end_date ?? '')
     if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
       return NextResponse.json({ error: 'La fecha de fin no puede ser anterior a la fecha de inicio.' }, { status: 400 })
+    }
+
+    const allowedEnrollmentStatuses = new Set(['open', 'closed', 'scheduled', 'always_open'])
+    if (data.enrollment_status && !allowedEnrollmentStatuses.has(String(data.enrollment_status))) {
+      return NextResponse.json({ error: 'Estado de matrícula no válido.' }, { status: 400 })
+    }
+
+    const enrollmentDeadline = String(data.enrollment_deadline ?? current.enrollment_deadline ?? '')
+    if (enrollmentDeadline && startDate && new Date(enrollmentDeadline) > new Date(startDate)) {
+      return NextResponse.json({ error: 'La fecha límite de matrícula no puede ser posterior al inicio.' }, { status: 400 })
     }
 
     for (const field of ['price_override', 'price_snapshot', 'enrollment_fee_snapshot']) {

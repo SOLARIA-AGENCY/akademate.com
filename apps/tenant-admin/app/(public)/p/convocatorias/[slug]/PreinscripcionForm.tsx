@@ -11,9 +11,20 @@ interface Props {
   convocatoriaCodigo: string
   displayName?: string
   courseName?: string
+  submitLabel?: string
+  successTitle?: string
+  successDescription?: string
 }
 
-export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, displayName, courseName }: Props) {
+export function PreinscripcionForm({
+  convocatoriaId,
+  convocatoriaCodigo,
+  displayName,
+  courseName,
+  submitLabel = 'Reserva tu plaza',
+  successTitle = 'Solicitud recibida',
+  successDescription = 'Nos pondremos en contacto contigo para confirmar la información.',
+}: Props) {
   const name_ = displayName || courseName || ''
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -134,8 +145,8 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
         <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
           <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
         </div>
-        <p className="text-lg font-bold text-gray-900">Plaza reservada</p>
-        <p className="text-sm text-gray-600 mt-2">Nos pondremos en contacto contigo para confirmar tu inscripcion.</p>
+        <p className="text-lg font-bold text-gray-900">{successTitle}</p>
+        <p className="text-sm text-gray-600 mt-2">{successDescription}</p>
       </div>
     )
   }
@@ -160,7 +171,7 @@ export function PreinscripcionForm({ convocatoriaId, convocatoriaCodigo, display
 
       <Button type="submit" disabled={submitting || !email || !name || !phone || !privacy}
         className="w-full px-4 py-3 brand-btn text-white rounded-lg text-base font-bold  disabled:opacity-50 transition-colors uppercase tracking-wide">
-        {submitting ? 'Enviando...' : 'Reserva tu plaza'}
+        {submitting ? 'Enviando...' : submitLabel}
       </Button>
 
       <p className="text-xs text-gray-400 text-center">Sin compromiso. Te contactaremos en 24h.</p>

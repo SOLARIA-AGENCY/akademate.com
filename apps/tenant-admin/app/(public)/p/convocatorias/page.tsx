@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import { CalendarDays, Clock, Euro, MapPin, Users } from 'lucide-react'
+import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
 
 export const metadata: Metadata = {
   title: 'Convocatorias Abiertas',
@@ -106,7 +107,7 @@ export default async function ConvocatoriasPage() {
               : null
             const maxStudents = Number(conv.max_students ?? 0)
             const currentEnrollments = Number(conv.current_enrollments ?? 0)
-            const isOpen = conv.status === 'enrollment_open'
+            const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
 
             return (
               <article
@@ -124,8 +125,8 @@ export default async function ConvocatoriasPage() {
                         </h2>
                         <p className="mt-1 font-mono text-sm text-gray-500">{conv.codigo}</p>
                       </div>
-                      <span className={`rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-white ${isOpen ? 'bg-green-600' : 'bg-red-600'}`}>
-                        {isOpen ? 'Inscripción abierta' : 'Próximas fechas'}
+                      <span className={`rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-white ${enrollmentInfo.allowsEnrollment ? 'bg-green-600' : 'bg-slate-500'}`}>
+                        {enrollmentInfo.publicLabel}
                       </span>
                     </div>
 
@@ -163,7 +164,7 @@ export default async function ConvocatoriasPage() {
                           href={detailHref}
                           className="inline-flex w-full items-center justify-center rounded-md border border-red-200 bg-white px-3 py-3 text-sm font-extrabold uppercase tracking-wide text-red-700 hover:bg-red-50"
                         >
-                          RESERVAR PLAZA
+                          {enrollmentInfo.ctaLabel.toUpperCase()}
                         </Link>
                     </div>
                   </div>

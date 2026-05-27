@@ -89,13 +89,20 @@ describe('Lead enroll route', () => {
   })
 
   it('creates enrollment with relationship fields and logs action with authenticated user', async () => {
-    mockFindByID.mockResolvedValue({
-      id: 16,
-      status: 'interested',
-      tenant_id: 2,
-      enrollment_id: null,
-      course_id: 11,
-    })
+    mockFindByID
+      .mockResolvedValueOnce({
+        id: 16,
+        status: 'interested',
+        tenant_id: 2,
+        enrollment_id: null,
+        course_id: 11,
+      })
+      .mockResolvedValueOnce({
+        id: 11,
+        tenant: 2,
+        status: 'published',
+        enrollment_status: 'open',
+      })
     mockCreate.mockResolvedValue({ id: 31 })
     mockExecute.mockResolvedValue({ rows: [] })
 
@@ -131,13 +138,20 @@ describe('Lead enroll route', () => {
   })
 
   it('allows enrollment when lead status is following_up', async () => {
-    mockFindByID.mockResolvedValue({
-      id: 16,
-      status: 'following_up',
-      tenant_id: 2,
-      enrollment_id: null,
-      course_id: 11,
-    })
+    mockFindByID
+      .mockResolvedValueOnce({
+        id: 16,
+        status: 'following_up',
+        tenant_id: 2,
+        enrollment_id: null,
+        course_id: 11,
+      })
+      .mockResolvedValueOnce({
+        id: 11,
+        tenant: 2,
+        status: 'published',
+        enrollment_status: 'open',
+      })
     mockFind.mockResolvedValue({
       docs: [
         {
@@ -163,13 +177,20 @@ describe('Lead enroll route', () => {
   })
 
   it('allows enrollment when lead status is new', async () => {
-    mockFindByID.mockResolvedValue({
-      id: 16,
-      status: 'new',
-      tenant_id: 2,
-      enrollment_id: null,
-      course_id: 11,
-    })
+    mockFindByID
+      .mockResolvedValueOnce({
+        id: 16,
+        status: 'new',
+        tenant_id: 2,
+        enrollment_id: null,
+        course_id: 11,
+      })
+      .mockResolvedValueOnce({
+        id: 11,
+        tenant: 2,
+        status: 'enrollment_open',
+        enrollment_status: 'open',
+      })
     mockFind.mockResolvedValue({
       docs: [
         {
@@ -192,6 +213,64 @@ describe('Lead enroll route', () => {
     expect(response.status).toBe(200)
     expect(payload.success).toBe(true)
     expect(payload.enrollmentId).toBe(501)
+  })
+
+  it('rejects enrollment when commercial enrollment status is closed', async () => {
+    mockFindByID
+      .mockResolvedValueOnce({
+        id: 16,
+        status: 'interested',
+        tenant_id: 2,
+        enrollment_id: null,
+        course_run_id: 44,
+      })
+      .mockResolvedValueOnce({
+        id: 44,
+        tenant: 2,
+        status: 'published',
+        enrollment_status: 'closed',
+      })
+
+    const request = new NextRequest('http://localhost/api/leads/16/enroll', {
+      method: 'POST',
+      headers: { cookie: 'payload-token=ok' },
+    })
+
+    const response = await POST(request, buildContext())
+    const payload = await response.json()
+
+    expect(response.status).toBe(422)
+    expect(payload.error).toContain('matrícula de esta convocatoria está cerrada')
+    expect(mockCreate).not.toHaveBeenCalled()
+  })
+
+  it('rejects enrollment when commercial enrollment status is scheduled', async () => {
+    mockFindByID
+      .mockResolvedValueOnce({
+        id: 16,
+        status: 'interested',
+        tenant_id: 2,
+        enrollment_id: null,
+        course_run_id: 45,
+      })
+      .mockResolvedValueOnce({
+        id: 45,
+        tenant: 2,
+        status: 'published',
+        enrollment_status: 'scheduled',
+      })
+
+    const request = new NextRequest('http://localhost/api/leads/16/enroll', {
+      method: 'POST',
+      headers: { cookie: 'payload-token=ok' },
+    })
+
+    const response = await POST(request, buildContext())
+    const payload = await response.json()
+
+    expect(response.status).toBe(422)
+    expect(payload.error).toContain('todavía no está abierta')
+    expect(mockCreate).not.toHaveBeenCalled()
   })
 
   it('rejects enrollment when lead status is blocked', async () => {
