@@ -109,6 +109,7 @@ describe('Direct enrollment route', () => {
     mockFindByID.mockResolvedValue({
       id: 15,
       status: 'published',
+      enrollment_status: 'closed',
       tenant: 2,
       course: 20,
     })
@@ -129,7 +130,7 @@ describe('Direct enrollment route', () => {
     const payload = await response.json()
 
     expect(response.status).toBe(422)
-    expect(payload.error).toContain('no está abierta para matrícula')
+    expect(payload.error).toContain('está cerrada')
     expect(mockCreate).not.toHaveBeenCalled()
   })
 

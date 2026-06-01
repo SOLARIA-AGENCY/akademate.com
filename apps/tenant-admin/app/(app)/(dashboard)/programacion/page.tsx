@@ -63,6 +63,7 @@ const WEEKDAYS = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 8) // 8:00 - 21:00
 
 const STATUS_COLORS: Record<string, string> = {
+  published: 'bg-green-500',
   enrollment_open: 'bg-green-500',
   in_progress: 'bg-blue-500',
   draft: 'bg-gray-400',
@@ -71,6 +72,7 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, string> = {
+  published: 'Publicado',
   enrollment_open: 'Inscripcion abierta',
   in_progress: 'En curso',
   draft: 'Sin publicar',
@@ -617,7 +619,7 @@ export default function ProgramacionPage() {
 
   // Stats
   const totalConvs = filtered.length
-  const activas = filtered.filter((c) => c.estado === 'enrollment_open' || c.estado === 'in_progress').length
+  const activas = filtered.filter((c) => c.estado === 'published' || c.estado === 'enrollment_open' || c.estado === 'in_progress').length
   const totalPlazas = filtered.reduce((s, c) => s + c.plazas, 0)
   const totalInscritos = filtered.reduce((s, c) => s + c.inscritos, 0)
 

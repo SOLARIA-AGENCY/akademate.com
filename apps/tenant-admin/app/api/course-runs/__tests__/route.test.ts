@@ -33,6 +33,8 @@ const currentRun = {
   schedule_time_start: '09:00:00',
   schedule_time_end: '13:00:00',
   status: 'published',
+  max_students: 17,
+  course: 187,
 }
 
 function params(id = '84') {
@@ -175,6 +177,54 @@ describe('/api/course-runs/[id]', () => {
       data: expect.objectContaining({
         enrollment_status: 'closed',
         enrollment_deadline: '2026-08-20T00:00:00.000Z',
+      }),
+    }))
+  })
+
+  it('publishes a ready convocatoria and synchronizes planning status', async () => {
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'published' }),
+    }), params())
+
+    expect(response.status).toBe(200)
+    expect(payloadMock.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        status: 'published',
+        planning_status: 'published',
+      }),
+    }))
+  })
+
+  it('rejects publishing when required public data is missing', async () => {
+    installFindRouter()
+    payloadMock.find.mockImplementationOnce(async () => ({
+      docs: [{ ...currentRun, codigo: '', max_students: 0, course: null, cycle: null }],
+    }))
+
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'published' }),
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(data.error).toMatch(/lista para publicar/i)
+    expect(data.blockers.length).toBeGreaterThan(0)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('returns draft and planning draft when unpublishing', async () => {
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'draft' }),
+    }), params())
+
+    expect(response.status).toBe(200)
+    expect(payloadMock.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        status: 'draft',
+        planning_status: 'draft',
       }),
     }))
   })

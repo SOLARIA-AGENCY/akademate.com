@@ -11,6 +11,14 @@ import { Label } from '@payload-config/components/ui/label'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { DashboardBreadcrumb } from '@payload-config/components/akademate/dashboard'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@payload-config/components/ui/dialog'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -20,7 +28,7 @@ import {
 import {
   ArrowLeft, Calendar, MapPin, Users, GraduationCap, DollarSign,
   ExternalLink, Loader2, Clock, UserPlus, BookOpen, ChevronRight, Plus,
-  Download, FileText, Pencil, Save, AlertCircle, Printer,
+  Download, FileText, Pencil, Save, AlertCircle, Printer, CheckCircle2,
 } from 'lucide-react'
 import {
   COURSE_RUN_ENROLLMENT_STATUS_INFO,
@@ -31,8 +39,8 @@ import {
 const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' | 'success' }> = {
   draft: { label: 'Sin publicar', variant: 'secondary' },
   published: { label: 'Publicado', variant: 'success' },
-  enrollment_open: { label: 'Inscripcion abierta', variant: 'default' },
-  in_progress: { label: 'En curso', variant: 'default' },
+  enrollment_open: { label: 'Inscripcion abierta', variant: 'success' },
+  in_progress: { label: 'En curso', variant: 'success' },
   completed: { label: 'Finalizada', variant: 'secondary' },
   cancelled: { label: 'Cancelada', variant: 'destructive' },
 }
@@ -106,6 +114,29 @@ function getFirstCertification(instructor: any): string | null {
   return typeof first?.title === 'string' && first.title.trim() ? first.title : null
 }
 
+function getPublicationChecks(conv: any) {
+  const course = typeof conv?.course === 'object' && conv.course ? conv.course : null
+  const cycle = typeof conv?.cycle === 'object' && conv.cycle ? conv.cycle : null
+  const campus = typeof conv?.campus === 'object' && conv.campus ? conv.campus : null
+  const classroom = typeof conv?.classroom === 'object' && conv.classroom ? conv.classroom : null
+  const instructor = typeof conv?.instructor === 'object' && conv.instructor ? conv.instructor : null
+  const checks = [
+    { label: 'Código público', ok: Boolean(conv?.codigo), required: true },
+    { label: 'Curso o ciclo asociado', ok: Boolean(course || cycle), required: true },
+    { label: 'Fecha de inicio', ok: Boolean(conv?.start_date), required: true },
+    { label: 'Plazas configuradas', ok: Number(conv?.max_students ?? 0) > 0, required: true },
+    { label: 'Sede asignada', ok: Boolean(campus), required: false },
+    { label: 'Aula asignada', ok: Boolean(classroom), required: false },
+    { label: 'Horario definido', ok: Boolean(conv?.schedule_time_start && conv?.schedule_time_end), required: false },
+    { label: 'Docente asignado', ok: Boolean(instructor), required: false },
+  ]
+  return {
+    checks,
+    blockers: checks.filter((item) => item.required && !item.ok),
+    warnings: checks.filter((item) => !item.required && !item.ok),
+  }
+}
+
 interface Props { params: Promise<{ id: string }> }
 
 export default function ConvocatoriaDetailPage({ params }: Props) {
@@ -120,6 +151,8 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const [editingPrice, setEditingPrice] = React.useState(false)
   const [editingLocation, setEditingLocation] = React.useState(false)
   const [editingEnrollment, setEditingEnrollment] = React.useState(false)
+  const [publishDialogOpen, setPublishDialogOpen] = React.useState(false)
+  const [unpublishDialogOpen, setUnpublishDialogOpen] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
   const [saveMessage, setSaveMessage] = React.useState<string | null>(null)
   const [saveError, setSaveError] = React.useState<string | null>(null)
@@ -294,6 +327,18 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     })) setEditingLocation(false)
   }
 
+  async function publishRun() {
+    if (await saveRunPatch({ status: 'published', planning_status: 'published' })) {
+      setPublishDialogOpen(false)
+    }
+  }
+
+  async function unpublishRun() {
+    if (await saveRunPatch({ status: 'draft', planning_status: 'draft' })) {
+      setUnpublishDialogOpen(false)
+    }
+  }
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
   if (error || !conv) return (
     <div className="space-y-6">
@@ -327,6 +372,9 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
 
   const title = cycle?.name || course?.name || course?.title || conv.codigo
   const publicRunPath = `/p/convocatorias/${conv.codigo ?? conv.id}`
+  const isPublicRun = ['published', 'enrollment_open'].includes(String(conv.status))
+  const publicationReadiness = getPublicationChecks(conv)
+  const instructorHref = instructor?.id ? `/dashboard/profesores/${instructor.id}` : null
 
   return (
     <div className="space-y-6">
@@ -344,9 +392,18 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
         badge={<Badge variant={status.variant}>{status.label}</Badge>}
         actions={<>
           <Button variant="ghost" onClick={() => router.back()}><ArrowLeft className="mr-2 h-4 w-4" />Volver</Button>
-          <Button variant="outline" onClick={() => window.open(publicRunPath, '_blank', 'noopener,noreferrer')}>
+          <Button variant="outline" disabled={!isPublicRun} onClick={() => window.open(publicRunPath, '_blank', 'noopener,noreferrer')}>
             <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
           </Button>
+          {isPublicRun ? (
+            <Button variant="outline" onClick={() => setUnpublishDialogOpen(true)}>
+              <AlertCircle className="mr-2 h-4 w-4" />Despublicar
+            </Button>
+          ) : (
+            <Button onClick={() => setPublishDialogOpen(true)}>
+              <CheckCircle2 className="mr-2 h-4 w-4" />Publicar
+            </Button>
+          )}
           <Button variant="outline" onClick={() => router.push(`/dashboard/programacion/${id}/ficha`)}>
             <Printer className="mr-2 h-4 w-4" />Imprimir convocatoria
           </Button>
@@ -436,7 +493,11 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
             </CardHeader>
             <CardContent>
               {instructor ? (
-                <div className="rounded-lg border p-4">
+                <button
+                  type="button"
+                  onClick={() => instructorHref && router.push(instructorHref)}
+                  className="w-full rounded-lg border p-4 text-left transition hover:border-primary/40 hover:bg-muted/40"
+                >
                   <div className="flex items-start gap-4">
                     {instructorImage ? (
                       <img
@@ -470,9 +531,10 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                         )}
                       </div>
                       {instructor.email && <p className="mt-2 text-xs text-muted-foreground">{instructor.email}</p>}
+                      <p className="mt-3 text-xs font-semibold text-primary">Ver ficha docente</p>
                     </div>
                   </div>
-                </div>
+                </button>
               ) : (
                 <div className="flex flex-col items-center justify-center py-6 text-center">
                   <p className="text-sm text-muted-foreground">No hay profesores asignados</p>
@@ -788,6 +850,57 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
           )}
         </div>
       </div>
+
+      <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Publicar convocatoria</DialogTitle>
+            <DialogDescription>
+              Al publicar, la convocatoria será visible en la web pública. La matrícula se controlará aparte desde el estado de matrícula.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            {publicationReadiness.checks.map((item) => (
+              <div key={item.label} className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
+                <span>{item.label}</span>
+                <Badge variant={item.ok ? 'success' : item.required ? 'destructive' : 'outline'}>
+                  {item.ok ? 'Correcto' : item.required ? 'Requerido' : 'Revisar'}
+                </Badge>
+              </div>
+            ))}
+            {publicationReadiness.warnings.length > 0 && (
+              <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                Puedes publicar con avisos, pero conviene completar sede, aula, horario y docente antes de activar campañas.
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPublishDialogOpen(false)}>Cancelar</Button>
+            <Button disabled={saving || publicationReadiness.blockers.length > 0} onClick={publishRun}>
+              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+              Publicar convocatoria
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={unpublishDialogOpen} onOpenChange={setUnpublishDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Despublicar convocatoria</DialogTitle>
+            <DialogDescription>
+              La convocatoria volverá a borrador y dejará de estar visible en la web pública.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUnpublishDialogOpen(false)}>Cancelar</Button>
+            <Button variant="destructive" disabled={saving} onClick={unpublishRun}>
+              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Despublicar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -27,6 +27,7 @@ type CourseRunDoc = {
   status?: string
   enrollment_status?: string
   planning_status?: string
+  max_students?: number
 }
 
 function relationId(value: RelationValue): string | number | null {
@@ -74,6 +75,34 @@ function daysOverlap(a?: string[], b?: string[]) {
   if (!a?.length || !b?.length) return false
   const set = new Set(b)
   return a.some((day) => set.has(day))
+}
+
+const COURSE_RUN_STATUSES = new Set([
+  'draft',
+  'published',
+  'enrollment_open',
+  'enrollment_closed',
+  'in_progress',
+  'completed',
+  'cancelled',
+])
+
+const COURSE_RUN_PLANNING_STATUSES = new Set([
+  'draft',
+  'pending_validation',
+  'validated',
+  'published',
+  'cancelled',
+  'completed',
+])
+
+function validatePublicationReadiness(candidate: CourseRunDoc) {
+  const blockers: string[] = []
+  if (!candidate.codigo) blockers.push('La convocatoria necesita un código público.')
+  if (!candidate.course && !candidate.cycle) blockers.push('La convocatoria necesita un curso o ciclo asociado.')
+  if (!candidate.start_date) blockers.push('La convocatoria necesita fecha de inicio.')
+  if (!Number(candidate.max_students ?? 0)) blockers.push('La convocatoria necesita plazas configuradas.')
+  return blockers
 }
 
 async function findTenantDoc(payload: any, collection: string, id: unknown, tenantId: number) {
@@ -171,6 +200,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if ('end_date' in body) data.end_date = body.end_date
     if ('enrollment_deadline' in body) data.enrollment_deadline = body.enrollment_deadline || null
     if ('enrollment_status' in body) data.enrollment_status = body.enrollment_status || 'open'
+    if ('status' in body) data.status = body.status || current.status || 'draft'
+    if ('planning_status' in body) data.planning_status = body.planning_status || current.planning_status || 'draft'
     if ('price_override' in body) data.price_override = body.price_override === '' ? null : body.price_override
     if ('price_snapshot' in body) data.price_snapshot = body.price_snapshot === '' ? null : body.price_snapshot
     if ('enrollment_fee_snapshot' in body) data.enrollment_fee_snapshot = body.enrollment_fee_snapshot === '' ? null : body.enrollment_fee_snapshot
@@ -190,6 +221,22 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const allowedEnrollmentStatuses = new Set(['open', 'closed', 'scheduled', 'always_open'])
     if (data.enrollment_status && !allowedEnrollmentStatuses.has(String(data.enrollment_status))) {
       return NextResponse.json({ error: 'Estado de matrícula no válido.' }, { status: 400 })
+    }
+
+    if (data.status && !COURSE_RUN_STATUSES.has(String(data.status))) {
+      return NextResponse.json({ error: 'Estado de convocatoria no válido.' }, { status: 400 })
+    }
+
+    if (data.planning_status && !COURSE_RUN_PLANNING_STATUSES.has(String(data.planning_status))) {
+      return NextResponse.json({ error: 'Estado de planificación no válido.' }, { status: 400 })
+    }
+
+    if (data.status === 'published' && !data.planning_status) {
+      data.planning_status = 'published'
+    }
+
+    if (data.status === 'draft' && !data.planning_status) {
+      data.planning_status = 'draft'
     }
 
     const enrollmentDeadline = String(data.enrollment_deadline ?? current.enrollment_deadline ?? '')
@@ -218,6 +265,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     const candidate = { ...current, ...data, id: current.id } as CourseRunDoc
+    if (data.status === 'published') {
+      const blockers = validatePublicationReadiness(candidate)
+      if (blockers.length > 0) {
+        return NextResponse.json({ error: 'La convocatoria no está lista para publicar.', blockers }, { status: 400 })
+      }
+    }
+
     const conflict = await validateClassroomAvailability(payload, candidate, authContext.tenantId)
     if (conflict) return NextResponse.json(conflict, { status: 409 })
 

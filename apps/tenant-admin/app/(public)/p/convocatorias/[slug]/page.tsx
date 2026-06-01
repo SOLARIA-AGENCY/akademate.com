@@ -128,9 +128,10 @@ function normalizeStudyType(value: unknown): string {
 
 async function findConvocation(slug: string, tenantId: string) {
   const payload = await getPayload({ config: configPromise })
+  const publicStatusFilter = { status: { in: ['published', 'enrollment_open'] } }
   let result = await payload.find({
     collection: 'course-runs',
-    where: withTenantScope({ codigo: { equals: slug } }, tenantId) as any,
+    where: withTenantScope({ and: [{ codigo: { equals: slug } }, publicStatusFilter] }, tenantId) as any,
     limit: 1,
     depth: 2,
   })
@@ -138,7 +139,7 @@ async function findConvocation(slug: string, tenantId: string) {
   if (result.docs.length === 0) {
     result = await payload.find({
       collection: 'course-runs',
-      where: withTenantScope({ id: { equals: slug } }, tenantId) as any,
+      where: withTenantScope({ and: [{ id: { equals: slug } }, publicStatusFilter] }, tenantId) as any,
       limit: 1,
       depth: 2,
     })
@@ -680,15 +681,30 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                   <h2 className="text-2xl font-black tracking-tight text-gray-950">{enrollmentInfo.ctaLabel}</h2>
                   <p className="mt-3 text-sm leading-6 text-gray-600">{enrollmentInfo.allowsEnrollment ? 'Te llamamos para confirmar fechas, requisitos, precio y disponibilidad.' : 'Te llamamos para orientarte sobre esta formación y próximas opciones de matrícula.'}</p>
                 </div>
-                <PreinscripcionForm
-                  convocatoriaId={String(conv.id)}
-                  convocatoriaCodigo={conv.codigo || ''}
-                  displayName={displayName}
-                  courseName={displayName}
-                  submitLabel={enrollmentInfo.ctaLabel}
-                  successTitle={enrollmentInfo.allowsEnrollment ? 'Solicitud de plaza recibida' : 'Solicitud de información recibida'}
-                  successDescription={enrollmentInfo.allowsEnrollment ? 'Nos pondremos en contacto contigo para confirmar tu inscripción.' : 'Nos pondremos en contacto contigo para orientarte sobre próximas opciones de matrícula.'}
-                />
+                {enrollmentInfo.allowsEnrollment ? (
+                  <PreinscripcionForm
+                    convocatoriaId={String(conv.id)}
+                    convocatoriaCodigo={conv.codigo || ''}
+                    displayName={displayName}
+                    courseName={displayName}
+                    submitLabel={enrollmentInfo.ctaLabel}
+                    successTitle="Solicitud de plaza recibida"
+                    successDescription="Nos pondremos en contacto contigo para confirmar tu inscripción."
+                  />
+                ) : (
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-left">
+                    <p className="text-sm font-black text-amber-950">{enrollmentInfo.publicLabel}</p>
+                    <p className="mt-2 text-sm leading-6 text-amber-900">
+                      Esta convocatoria está publicada, pero la matrícula directa no está abierta ahora mismo. Contacta con CEP para recibir aviso de próximas plazas o alternativas.
+                    </p>
+                    <a
+                      href="/contacto"
+                      className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-[#f2014b] px-5 py-3 text-sm font-black text-white transition hover:bg-[#c9003f]"
+                    >
+                      Solicitar información
+                    </a>
+                  </div>
+                )}
                 <div className="mt-7 space-y-3 border-t border-gray-100 pt-6">
                   <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 text-sm font-bold text-gray-800">
                     <Calendar className="h-5 w-5 text-[#f2014b]" />
