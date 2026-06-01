@@ -643,10 +643,16 @@ export default function ProgramacionPage() {
           </div>
         }
         actions={
-          <Button onClick={() => router.push('/programacion/nueva')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nueva Convocatoria
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => router.push('/dashboard/cursos/convocatorias')}>
+              <List className="mr-2 h-4 w-4" />
+              Ver convocatorias en lista
+            </Button>
+            <Button onClick={() => router.push('/programacion/nueva')}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva Convocatoria
+            </Button>
+          </div>
         }
       />
 

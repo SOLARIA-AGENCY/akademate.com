@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, Lock, Briefcase, Building2, Monitor, List, ArrowRight } from 'lucide-react'
+import { Plus, Search, Lock, Briefcase, Building2, Monitor, List, ArrowRight, CalendarDays } from 'lucide-react'
 import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
 import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
@@ -284,6 +284,20 @@ function CursosPageContent() {
                 Ver líneas
               </Button>
             )}
+            <Button asChild variant="outline">
+              <Link
+                href={
+                  selectedTypeFromUrl
+                    ? `/dashboard/cursos/convocatorias?tipo=${encodeURIComponent(selectedTypeFromUrl)}`
+                    : selectedGroup
+                      ? `/dashboard/cursos/convocatorias?grupo=${encodeURIComponent(selectedGroup)}`
+                      : '/dashboard/cursos/convocatorias'
+                }
+              >
+                <CalendarDays className="h-4 w-4" />
+                Ver convocatorias
+              </Link>
+            </Button>
             <Button onClick={handleAdd} data-oid="dn:ljue">
               <Plus className="h-4 w-4" data-oid="mp04.p1" />
               Nuevo Curso
