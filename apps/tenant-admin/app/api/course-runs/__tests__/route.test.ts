@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET, PATCH } from '../[id]/route'
+import { GET as GET_AVAILABILITY } from '../[id]/availability/route'
+import { POST as GENERATE_SESSIONS } from '../[id]/generate-sessions/route'
 
 const { payloadMock, authMock } = vi.hoisted(() => ({
   payloadMock: {
     find: vi.fn(),
+    create: vi.fn(),
     update: vi.fn(),
   },
   authMock: vi.fn(),
@@ -33,6 +36,8 @@ const currentRun = {
   schedule_time_start: '09:00:00',
   schedule_time_end: '13:00:00',
   status: 'published',
+  enrollment_status: 'open',
+  training_type: 'private',
   max_students: 17,
   course: 187,
 }
@@ -75,6 +80,12 @@ function installFindRouter(options?: { noCurrent?: boolean; conflict?: boolean; 
           : [{ id: 10, tenant: tenantId, campus: options?.foreignClassroomCampus ? 2 : 1, name: 'Aula 2' }],
       }
     }
+    if (collection === 'staff') {
+      return { docs: [{ id: 44, tenant: tenantId, full_name: 'Docente Activo', is_active: true, employment_status: 'active' }] }
+    }
+    if (collection === 'course-run-sessions') {
+      return { docs: [] }
+    }
     return { docs: [] }
   })
 }
@@ -84,6 +95,7 @@ describe('/api/course-runs/[id]', () => {
     vi.clearAllMocks()
     authMock.mockResolvedValue({ userId: 31, tenantId })
     payloadMock.update.mockResolvedValue({ ...currentRun, campus: { id: 1, name: 'Sede Norte' } })
+    payloadMock.create.mockImplementation(async ({ data }: any) => ({ id: Math.random(), ...data }))
     installFindRouter()
   })
 
@@ -319,6 +331,64 @@ describe('/api/course-runs/[id]', () => {
     expect(response.status).toBe(409)
     expect(data.error).toMatch(/aula ocupada/i)
     expect(data.detail).toContain('SC-2026-099')
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('returns availability blockers through tenant-scoped planning endpoint', async () => {
+    installFindRouter({ conflict: true })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?classroom=10&schedule_days=monday&schedule_time_start=09:00&schedule_time_end=13:00'), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.blockers[0].type).toBe('classroom_overlap')
+    expect(data.availability.blockers[0].message).toContain('SC-2026-099')
+    expect(payloadMock.find).toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'course-runs',
+      where: expect.objectContaining({
+        and: expect.arrayContaining([
+          { tenant: { equals: tenantId } },
+          { id: { not_equals: 84 } },
+        ]),
+      }),
+    }))
+  })
+
+  it('generates concrete sessions from a configured convocatoria without duplicating existing sessions', async () => {
+    const response = await GENERATE_SESSIONS(new NextRequest('http://localhost/api/course-runs/84/generate-sessions', {
+      method: 'POST',
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.created).toBeGreaterThan(0)
+    expect(payloadMock.create).toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'course-run-sessions',
+      data: expect.objectContaining({
+        course_run: 84,
+        weekday: 'monday',
+        time_start: '09:00:00',
+        time_end: '13:00:00',
+        tenant: tenantId,
+      }),
+      overrideAccess: true,
+    }))
+  })
+
+  it('rejects inactive instructor assignment', async () => {
+    payloadMock.find.mockImplementation(async ({ collection, where }: any) => {
+      if (collection === 'course-runs') return { docs: [currentRun] }
+      if (collection === 'staff') return { docs: [{ id: 44, tenant: tenantId, full_name: 'Docente Baja', is_active: false, employment_status: 'inactive' }] }
+      return { docs: [] }
+    })
+
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ instructor: 44 }),
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(data.error).toMatch(/no está activo/i)
     expect(payloadMock.update).not.toHaveBeenCalled()
   })
 })

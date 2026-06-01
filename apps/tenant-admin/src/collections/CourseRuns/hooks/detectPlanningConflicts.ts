@@ -139,6 +139,7 @@ export const detectPlanningConflicts: CollectionBeforeValidateHook = async ({
 
   const candidate: CourseRunLike = { ...originalDoc, ...data };
   const conflicts: Conflict[] = [];
+  const tenantId = relationId(data.tenant ?? originalDoc?.tenant);
   const classroomId = relationId(candidate.classroom);
   const instructorIds = [
     relationId(candidate.instructor),
@@ -200,6 +201,7 @@ export const detectPlanningConflicts: CollectionBeforeValidateHook = async ({
 
   const where: Record<string, unknown> = {
     and: [
+      ...(tenantId ? [{ tenant: { equals: tenantId } }] : []),
       { id: { not_equals: candidate.id ?? '__new__' } },
       { status: { not_in: ['cancelled', 'completed'] } },
     ],

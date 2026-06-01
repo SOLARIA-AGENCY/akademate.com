@@ -3,14 +3,22 @@ import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
+import {
+  evaluateCourseRunAvailability,
+  findTenantDoc,
+  normalizeTime,
+  relationId,
+  sameId,
+  validatePublicationReadiness,
+  type CourseRunPlanningDoc,
+  type RelationValue,
+} from '@/app/lib/server/course-run-planning'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-type RelationValue = string | number | { id?: string | number; name?: string; codigo?: string; code?: string } | null | undefined
-
-type CourseRunDoc = {
+type CourseRunDoc = CourseRunPlanningDoc & {
   id: string | number
   tenant?: RelationValue
   campus?: RelationValue
@@ -28,53 +36,6 @@ type CourseRunDoc = {
   enrollment_status?: string
   planning_status?: string
   max_students?: number
-}
-
-function relationId(value: RelationValue): string | number | null {
-  if (typeof value === 'string' || typeof value === 'number') return value
-  if (value && typeof value === 'object' && (typeof value.id === 'string' || typeof value.id === 'number')) return value.id
-  return null
-}
-
-function sameId(a: RelationValue, b: RelationValue) {
-  const left = relationId(a)
-  const right = relationId(b)
-  return left != null && right != null && String(left) === String(right)
-}
-
-function toTime(value: unknown): string | undefined {
-  if (typeof value !== 'string' || !value.trim()) return undefined
-  const raw = value.trim()
-  if (/^\d{2}:\d{2}$/.test(raw)) return `${raw}:00`
-  if (/^\d{2}:\d{2}:\d{2}$/.test(raw)) return raw
-  return undefined
-}
-
-function toSeconds(value?: string): number | null {
-  if (!value) return null
-  const parts = value.split(':').map(Number)
-  if (parts.length < 2 || parts.some(Number.isNaN)) return null
-  return parts[0] * 3600 + parts[1] * 60 + (parts[2] ?? 0)
-}
-
-function dateRangesOverlap(startA?: string, endA?: string, startB?: string, endB?: string) {
-  if (!startA || !endA || !startB || !endB) return false
-  return new Date(startA) <= new Date(endB) && new Date(startB) <= new Date(endA)
-}
-
-function timeRangesOverlap(startA?: string, endA?: string, startB?: string, endB?: string) {
-  const aStart = toSeconds(startA)
-  const aEnd = toSeconds(endA)
-  const bStart = toSeconds(startB)
-  const bEnd = toSeconds(endB)
-  if (aStart == null || aEnd == null || bStart == null || bEnd == null) return false
-  return aStart < bEnd && bStart < aEnd
-}
-
-function daysOverlap(a?: string[], b?: string[]) {
-  if (!a?.length || !b?.length) return false
-  const set = new Set(b)
-  return a.some((day) => set.has(day))
 }
 
 const COURSE_RUN_STATUSES = new Set([
@@ -95,67 +56,6 @@ const COURSE_RUN_PLANNING_STATUSES = new Set([
   'cancelled',
   'completed',
 ])
-
-function validatePublicationReadiness(candidate: CourseRunDoc) {
-  const blockers: string[] = []
-  if (!candidate.codigo) blockers.push('La convocatoria necesita un código público.')
-  if (!candidate.course && !candidate.cycle) blockers.push('La convocatoria necesita un curso o ciclo asociado.')
-  if (!candidate.start_date) blockers.push('La convocatoria necesita fecha de inicio.')
-  if (!Number(candidate.max_students ?? 0)) blockers.push('La convocatoria necesita plazas configuradas.')
-  return blockers
-}
-
-async function findTenantDoc(payload: any, collection: string, id: unknown, tenantId: number) {
-  const resolvedId = relationId(id as RelationValue)
-  if (resolvedId == null) return null
-  const result = await payload.find({
-    collection,
-    where: withTenantScope({ id: { equals: resolvedId } }, tenantId) as any,
-    limit: 1,
-    depth: 0,
-    overrideAccess: true,
-  })
-  return result.docs[0] ?? null
-}
-
-async function validateClassroomAvailability(payload: any, candidate: CourseRunDoc, tenantId: number) {
-  const classroomId = relationId(candidate.classroom)
-  if (!classroomId || !candidate.start_date || !candidate.end_date || !candidate.schedule_days?.length || !candidate.schedule_time_start || !candidate.schedule_time_end) {
-    return null
-  }
-
-  const existing = await payload.find({
-    collection: 'course-runs',
-    where: withTenantScope(
-      {
-        and: [
-          { id: { not_equals: candidate.id } },
-          { classroom: { equals: classroomId } },
-          { status: { not_in: ['cancelled', 'completed'] } },
-        ],
-      },
-      tenantId,
-    ) as any,
-    limit: 200,
-    depth: 1,
-    overrideAccess: true,
-  })
-
-  const conflict = (existing.docs as CourseRunDoc[]).find((run) => {
-    return (
-      dateRangesOverlap(candidate.start_date, candidate.end_date, run.start_date, run.end_date) &&
-      daysOverlap(candidate.schedule_days, run.schedule_days) &&
-      timeRangesOverlap(candidate.schedule_time_start, candidate.schedule_time_end, run.schedule_time_start, run.schedule_time_end)
-    )
-  })
-
-  if (!conflict) return null
-  const classroomName = typeof conflict.classroom === 'object' ? (conflict.classroom.name ?? conflict.classroom.code) : `Aula ${classroomId}`
-  return {
-    error: 'Aula ocupada en esa franja horaria.',
-    detail: `${classroomName ?? 'El aula'} ya está asignada a ${conflict.codigo ?? `convocatoria ${conflict.id}`}.`,
-  }
-}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -208,9 +108,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if ('campus' in body) data.campus = body.campus || null
     if ('classroom' in body) data.classroom = body.classroom || null
     if ('schedule_days' in body) data.schedule_days = Array.isArray(body.schedule_days) ? body.schedule_days : []
-    if ('schedule_time_start' in body) data.schedule_time_start = toTime(body.schedule_time_start) ?? null
-    if ('schedule_time_end' in body) data.schedule_time_end = toTime(body.schedule_time_end) ?? null
+    if ('schedule_time_start' in body) data.schedule_time_start = normalizeTime(body.schedule_time_start) ?? null
+    if ('schedule_time_end' in body) data.schedule_time_end = normalizeTime(body.schedule_time_end) ?? null
     if ('shift' in body) data.shift = body.shift || null
+    if ('instructor' in body) data.instructor = body.instructor || null
+    if ('instructors' in body) data.instructors = Array.isArray(body.instructors) ? body.instructors : []
 
     const startDate = String(data.start_date ?? current.start_date ?? '')
     const endDate = String(data.end_date ?? current.end_date ?? '')
@@ -264,6 +166,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
+    const instructorIds = [
+      data.instructor,
+      ...(Array.isArray(data.instructors) ? data.instructors : []),
+    ].filter((value) => value != null && value !== '')
+    for (const instructorId of instructorIds) {
+      const instructor = await findTenantDoc(payload, 'staff', instructorId, authContext.tenantId)
+      if (!instructor) return NextResponse.json({ error: 'El docente seleccionado no pertenece a este tenant.' }, { status: 403 })
+      if (instructor.is_active === false || (instructor.employment_status && instructor.employment_status !== 'active')) {
+        return NextResponse.json({ error: 'El docente seleccionado no está activo.' }, { status: 400 })
+      }
+    }
+
     const candidate = { ...current, ...data, id: current.id } as CourseRunDoc
     if (data.status === 'published') {
       const blockers = validatePublicationReadiness(candidate)
@@ -272,8 +186,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
-    const conflict = await validateClassroomAvailability(payload, candidate, authContext.tenantId)
-    if (conflict) return NextResponse.json(conflict, { status: 409 })
+    const availability = await evaluateCourseRunAvailability(payload, candidate, authContext.tenantId)
+    if (availability.blockers.length > 0) {
+      const firstBlocker = availability.blockers[0]
+      return NextResponse.json({
+        error: firstBlocker.type === 'classroom_overlap' ? 'Aula ocupada en esa franja horaria.' : 'Hay conflictos de planificación.',
+        detail: firstBlocker.message,
+        blockers: availability.blockers,
+      }, { status: 409 })
+    }
 
     const updated = await payload.update({
       collection: 'course-runs',

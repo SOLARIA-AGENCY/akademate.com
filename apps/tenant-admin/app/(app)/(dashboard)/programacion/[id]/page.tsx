@@ -147,6 +147,8 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const [error, setError] = React.useState<string | null>(null)
   const [campuses, setCampuses] = React.useState<any[]>([])
   const [classrooms, setClassrooms] = React.useState<any[]>([])
+  const [availability, setAvailability] = React.useState<{ blockers: any[]; warnings: any[] } | null>(null)
+  const [availabilityLoading, setAvailabilityLoading] = React.useState(false)
   const [editingDates, setEditingDates] = React.useState(false)
   const [editingPrice, setEditingPrice] = React.useState(false)
   const [editingLocation, setEditingLocation] = React.useState(false)
@@ -154,6 +156,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const [publishDialogOpen, setPublishDialogOpen] = React.useState(false)
   const [unpublishDialogOpen, setUnpublishDialogOpen] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
+  const [generatingSessions, setGeneratingSessions] = React.useState(false)
   const [saveMessage, setSaveMessage] = React.useState<string | null>(null)
   const [saveError, setSaveError] = React.useState<string | null>(null)
   const [dateForm, setDateForm] = React.useState({ start_date: '', end_date: '' })
@@ -233,6 +236,49 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
       })
     return () => { mounted = false }
   }, [locationForm.campus])
+
+  React.useEffect(() => {
+    if (!editingLocation || !locationForm.classroom || !locationForm.schedule_days.length || !locationForm.schedule_time_start || !locationForm.schedule_time_end) {
+      setAvailability(null)
+      return
+    }
+
+    const params = new URLSearchParams()
+    params.set('campus', locationForm.campus)
+    params.set('classroom', locationForm.classroom)
+    params.set('start_date', dateForm.start_date || toDateInput(conv?.start_date))
+    params.set('end_date', dateForm.end_date || toDateInput(conv?.end_date))
+    params.set('schedule_time_start', locationForm.schedule_time_start)
+    params.set('schedule_time_end', locationForm.schedule_time_end)
+    params.set('shift', locationForm.shift)
+    for (const day of locationForm.schedule_days) params.append('schedule_days', day)
+
+    let mounted = true
+    const timer = window.setTimeout(() => {
+      setAvailabilityLoading(true)
+      fetch(`/api/course-runs/${id}/availability?${params.toString()}`, { cache: 'no-store' })
+        .then((response) => (response.ok ? response.json() : Promise.reject(new Error('No se pudo validar disponibilidad'))))
+        .then((data) => {
+          if (mounted) setAvailability(data.availability ?? null)
+        })
+        .catch((err) => {
+          if (mounted) {
+            setAvailability({
+              blockers: [{ message: err instanceof Error ? err.message : 'No se pudo validar disponibilidad' }],
+              warnings: [],
+            })
+          }
+        })
+        .finally(() => {
+          if (mounted) setAvailabilityLoading(false)
+        })
+    }, 250)
+
+    return () => {
+      mounted = false
+      window.clearTimeout(timer)
+    }
+  }, [conv?.end_date, conv?.start_date, dateForm.end_date, dateForm.start_date, editingLocation, id, locationForm])
 
   async function saveRunPatch(payload: Record<string, unknown>) {
     setSaving(true)
@@ -339,6 +385,22 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     }
   }
 
+  async function generateSessions() {
+    setGeneratingSessions(true)
+    setSaveError(null)
+    setSaveMessage(null)
+    try {
+      const response = await fetch(`/api/course-runs/${id}/generate-sessions`, { method: 'POST' })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.error || 'No se pudieron generar las sesiones')
+      setSaveMessage(data.message || `Sesiones generadas: ${data.created ?? 0}`)
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'No se pudieron generar las sesiones')
+    } finally {
+      setGeneratingSessions(false)
+    }
+  }
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
   if (error || !conv) return (
     <div className="space-y-6">
@@ -375,6 +437,8 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const isPublicRun = ['published', 'enrollment_open'].includes(String(conv.status))
   const publicationReadiness = getPublicationChecks(conv)
   const instructorHref = instructor?.id ? `/dashboard/profesores/${instructor.id}` : null
+  const availabilityBlockers = availability?.blockers ?? []
+  const availabilityWarnings = availability?.warnings ?? []
 
   return (
     <div className="space-y-6">
@@ -619,6 +683,26 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                       </SelectContent>
                     </Select>
                   </div>
+                  {(availabilityLoading || availabilityBlockers.length > 0 || availabilityWarnings.length > 0) && (
+                    <div className="space-y-2">
+                      {availabilityLoading && (
+                        <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          Validando disponibilidad de aula y horario...
+                        </div>
+                      )}
+                      {availabilityBlockers.map((item, index) => (
+                        <div key={`blocker-${index}`} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                          <span className="font-semibold">No disponible: </span>{item.message}
+                        </div>
+                      ))}
+                      {availabilityWarnings.map((item, index) => (
+                        <div key={`warning-${index}`} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                          <span className="font-semibold">Aviso: </span>{item.message}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div>
                     <span className="text-xs font-medium text-muted-foreground">Días</span>
                     <div className="mt-2 grid grid-cols-2 gap-2">
@@ -669,11 +753,44 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button className="w-full" disabled={saving} onClick={saveLocation}>
+                  <Button className="w-full" disabled={saving || availabilityLoading || availabilityBlockers.length > 0} onClick={saveLocation}>
                     {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                     Guardar sede y horario
                   </Button>
                 </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Sesiones */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2"><Calendar className="h-4 w-4" />Sesiones</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <p className="rounded-md bg-muted px-3 py-2 text-xs leading-5 text-muted-foreground">
+                Genera el calendario real de clases a partir de fechas, días, horario, aula y docente. Las sesiones existentes no se duplican.
+              </p>
+              <Button
+                className="w-full"
+                disabled={
+                  generatingSessions ||
+                  !conv.start_date ||
+                  !conv.end_date ||
+                  !Array.isArray(conv.schedule_days) ||
+                  conv.schedule_days.length === 0 ||
+                  !conv.schedule_time_start ||
+                  !conv.schedule_time_end
+                }
+                onClick={generateSessions}
+              >
+                {generatingSessions ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Calendar className="mr-2 h-4 w-4" />}
+                Generar sesiones
+              </Button>
+              {(!conv.start_date || !conv.end_date || !Array.isArray(conv.schedule_days) || conv.schedule_days.length === 0 || !conv.schedule_time_start || !conv.schedule_time_end) && (
+                <p className="text-xs text-muted-foreground">
+                  Completa fechas, días y horario para generar sesiones.
+                </p>
               )}
             </CardContent>
           </Card>
