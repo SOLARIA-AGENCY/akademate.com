@@ -45,6 +45,8 @@ export type PlanningConflict = {
     | 'instructor_overlap'
     | 'instructor_area_mismatch'
     | 'instructor_area_missing'
+    | 'instructor_not_found'
+    | 'instructor_inactive'
     | 'room_capacity_exceeded'
     | 'missing_publication_data'
   severity: 'blocker' | 'warning'

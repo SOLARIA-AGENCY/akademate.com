@@ -73,7 +73,25 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       const instructors = await Promise.all(
         instructorIds.map((instructorId) => findTenantDoc(payload, 'staff', instructorId, authContext.tenantId)),
       )
-      for (const instructor of instructors) {
+      for (let index = 0; index < instructors.length; index += 1) {
+        const instructorId = instructorIds[index]
+        const instructor = instructors[index]
+        if (!instructor) {
+          availability.blockers.push({
+            type: 'instructor_not_found',
+            severity: 'blocker',
+            message: `El docente seleccionado (${instructorId}) no existe o no pertenece a este tenant. Recarga la lista de docentes antes de guardar.`,
+          })
+          continue
+        }
+        if (instructor.is_active === false || instructor.employment_status === 'inactive') {
+          availability.blockers.push({
+            type: 'instructor_inactive',
+            severity: 'blocker',
+            message: `${instructor.full_name ?? 'El docente seleccionado'} no está activo y no puede asignarse a esta convocatoria.`,
+          })
+          continue
+        }
         const qualification = evaluateInstructorAreaQualification(instructor, requiredAreaId)
         if (!qualification.ok) {
           availability.blockers.push({

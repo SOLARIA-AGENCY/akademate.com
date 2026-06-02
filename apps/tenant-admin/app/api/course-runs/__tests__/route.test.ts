@@ -52,6 +52,8 @@ function installFindRouter(options?: {
   missingCampus?: boolean
   missingClassroom?: boolean
   foreignClassroomCampus?: boolean
+  missingStaff?: boolean
+  inactiveStaff?: boolean
   staffQualifiedAreas?: Array<number | string>
 }) {
   payloadMock.find.mockImplementation(async ({ collection, where }: any) => {
@@ -88,7 +90,18 @@ function installFindRouter(options?: {
       }
     }
     if (collection === 'staff') {
-      return { docs: [{ id: 44, tenant: tenantId, full_name: 'Docente Activo', is_active: true, employment_status: 'active', qualified_areas: options?.staffQualifiedAreas ?? [] }] }
+      return {
+        docs: options?.missingStaff
+          ? []
+          : [{
+              id: 44,
+              tenant: tenantId,
+              full_name: options?.inactiveStaff ? 'Docente Inactivo' : 'Docente Activo',
+              is_active: !options?.inactiveStaff,
+              employment_status: options?.inactiveStaff ? 'inactive' : 'active',
+              qualified_areas: options?.staffQualifiedAreas ?? [],
+            }],
+      }
     }
     if (collection === 'courses') {
       return { docs: [{ id: 187, tenant: tenantId, name: 'Curso test', area_formativa: 7 }] }
@@ -373,6 +386,36 @@ describe('/api/course-runs/[id]', () => {
       expect.objectContaining({
         type: 'instructor_area_mismatch',
         severity: 'blocker',
+      }),
+    ])
+  })
+
+  it('returns a clear blocker when the selected instructor does not exist in the tenant', async () => {
+    installFindRouter({ missingStaff: true })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?instructor=44'), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.blockers).toEqual([
+      expect.objectContaining({
+        type: 'instructor_not_found',
+        severity: 'blocker',
+        message: expect.stringMatching(/no existe|tenant/i),
+      }),
+    ])
+  })
+
+  it('returns a clear blocker when the selected instructor is inactive', async () => {
+    installFindRouter({ inactiveStaff: true, staffQualifiedAreas: [7] })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?instructor=44'), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.blockers).toEqual([
+      expect.objectContaining({
+        type: 'instructor_inactive',
+        severity: 'blocker',
+        message: expect.stringMatching(/no está activo/i),
       }),
     ])
   })

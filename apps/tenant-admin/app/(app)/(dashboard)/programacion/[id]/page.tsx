@@ -203,6 +203,14 @@ function appendIfPresent(params: URLSearchParams, key: string, value: string) {
   if (trimmed) params.set(key, trimmed)
 }
 
+async function readAvailabilityResponse(response: Response) {
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    throw new Error(data.error || data.message || 'No se pudo validar disponibilidad')
+  }
+  return data
+}
+
 interface Props { params: Promise<{ id: string }> }
 
 export default function ConvocatoriaDetailPage({ params }: Props) {
@@ -360,7 +368,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     const timer = window.setTimeout(() => {
       setAvailabilityLoading(true)
       fetch(`/api/course-runs/${id}/availability?${params.toString()}`, { cache: 'no-store' })
-        .then((response) => (response.ok ? response.json() : Promise.reject(new Error('No se pudo validar disponibilidad'))))
+        .then(readAvailabilityResponse)
         .then((data) => {
           if (mounted) setAvailability(data.availability ?? null)
         })
@@ -413,7 +421,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     const timer = window.setTimeout(() => {
       setInstructorAvailabilityLoading(true)
       fetch(`/api/course-runs/${id}/availability?${params.toString()}`, { cache: 'no-store' })
-        .then((response) => (response.ok ? response.json() : Promise.reject(new Error('No se pudo validar el docente'))))
+        .then(readAvailabilityResponse)
         .then((data) => {
           if (mounted) setInstructorAvailability(data.availability ?? null)
         })
@@ -453,7 +461,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     let mounted = true
     setSessionAvailabilityLoading(true)
     fetch(`/api/course-runs/${id}/availability`, { cache: 'no-store' })
-      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('No se pudo validar la ocupación'))))
+      .then(readAvailabilityResponse)
       .then((data) => {
         if (mounted) setSessionAvailability(data.availability ?? null)
       })
