@@ -145,6 +145,31 @@ function getPublicationChecks(conv: any) {
   }
 }
 
+function uniqueInstructors(items: any[]): any[] {
+  const seen = new Set<string>()
+  const result: any[] = []
+  for (const item of items) {
+    const id = relationId(item)
+    if (!id || seen.has(id)) continue
+    seen.add(id)
+    result.push(item)
+  }
+  return result
+}
+
+function getAssignedInstructors(conv: any): any[] {
+  const primary = typeof conv?.instructor === 'object' && conv.instructor ? [conv.instructor] : []
+  const additional = Array.isArray(conv?.instructors)
+    ? conv.instructors.filter((item: any) => item && typeof item === 'object')
+    : []
+  return uniqueInstructors([...primary, ...additional])
+}
+
+function appendIfPresent(params: URLSearchParams, key: string, value: string) {
+  const trimmed = value.trim()
+  if (trimmed) params.set(key, trimmed)
+}
+
 interface Props { params: Promise<{ id: string }> }
 
 export default function ConvocatoriaDetailPage({ params }: Props) {
@@ -182,7 +207,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     schedule_time_end: '',
     shift: 'morning',
   })
-  const [instructorForm, setInstructorForm] = React.useState({ instructor: '' })
+  const [instructorForm, setInstructorForm] = React.useState({ instructor: '', instructors: [] as string[] })
 
   React.useEffect(() => {
     let mounted = true
@@ -218,6 +243,9 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     })
     setInstructorForm({
       instructor: relationId(conv.instructor),
+      instructors: Array.isArray(conv.instructors)
+        ? conv.instructors.map(relationId).filter((value: string) => value && value !== relationId(conv.instructor))
+        : [],
     })
   }, [conv])
 
@@ -275,13 +303,22 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     }
 
     const params = new URLSearchParams()
-    params.set('campus', locationForm.campus)
-    params.set('classroom', locationForm.classroom)
-    params.set('start_date', dateForm.start_date || toDateInput(conv?.start_date))
-    params.set('end_date', dateForm.end_date || toDateInput(conv?.end_date))
-    params.set('schedule_time_start', locationForm.schedule_time_start)
-    params.set('schedule_time_end', locationForm.schedule_time_end)
-    params.set('shift', locationForm.shift)
+    appendIfPresent(params, 'campus', locationForm.campus)
+    appendIfPresent(params, 'classroom', locationForm.classroom)
+    appendIfPresent(params, 'start_date', dateForm.start_date || toDateInput(conv?.start_date))
+    appendIfPresent(params, 'end_date', dateForm.end_date || toDateInput(conv?.end_date))
+    appendIfPresent(params, 'schedule_time_start', locationForm.schedule_time_start)
+    appendIfPresent(params, 'schedule_time_end', locationForm.schedule_time_end)
+    appendIfPresent(params, 'shift', locationForm.shift)
+    appendIfPresent(params, 'instructor', instructorForm.instructor || relationId(conv?.instructor))
+    const currentCoInstructors = instructorForm.instructors.length
+      ? instructorForm.instructors
+      : Array.isArray(conv?.instructors)
+        ? conv.instructors.map(relationId).filter(Boolean)
+        : []
+    for (const instructorId of currentCoInstructors) {
+      if (instructorId !== (instructorForm.instructor || relationId(conv?.instructor))) params.append('instructors', instructorId)
+    }
     for (const day of locationForm.schedule_days) params.append('schedule_days', day)
 
     let mounted = true
@@ -309,23 +346,31 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
       mounted = false
       window.clearTimeout(timer)
     }
-  }, [conv?.end_date, conv?.start_date, dateForm.end_date, dateForm.start_date, editingLocation, id, locationForm])
+  }, [conv, dateForm.end_date, dateForm.start_date, editingLocation, id, instructorForm.instructor, instructorForm.instructors, locationForm])
 
   React.useEffect(() => {
-    if (!editingInstructor || !instructorForm.instructor) {
+    const selectedInstructorIds = [
+      instructorForm.instructor,
+      ...instructorForm.instructors,
+    ].filter(Boolean)
+
+    if (!editingInstructor || selectedInstructorIds.length === 0) {
       setInstructorAvailability(null)
       return
     }
 
     const params = new URLSearchParams()
-    params.set('instructor', instructorForm.instructor)
-    params.set('campus', locationForm.campus || relationId(conv?.campus))
-    params.set('classroom', locationForm.classroom || relationId(conv?.classroom))
-    params.set('start_date', dateForm.start_date || toDateInput(conv?.start_date))
-    params.set('end_date', dateForm.end_date || toDateInput(conv?.end_date))
-    params.set('schedule_time_start', locationForm.schedule_time_start || toTimeInput(conv?.schedule_time_start))
-    params.set('schedule_time_end', locationForm.schedule_time_end || toTimeInput(conv?.schedule_time_end))
-    params.set('shift', locationForm.shift || conv?.shift || 'morning')
+    appendIfPresent(params, 'instructor', instructorForm.instructor)
+    for (const instructorId of instructorForm.instructors) {
+      if (instructorId !== instructorForm.instructor) params.append('instructors', instructorId)
+    }
+    appendIfPresent(params, 'campus', locationForm.campus || relationId(conv?.campus))
+    appendIfPresent(params, 'classroom', locationForm.classroom || relationId(conv?.classroom))
+    appendIfPresent(params, 'start_date', dateForm.start_date || toDateInput(conv?.start_date))
+    appendIfPresent(params, 'end_date', dateForm.end_date || toDateInput(conv?.end_date))
+    appendIfPresent(params, 'schedule_time_start', locationForm.schedule_time_start || toTimeInput(conv?.schedule_time_start))
+    appendIfPresent(params, 'schedule_time_end', locationForm.schedule_time_end || toTimeInput(conv?.schedule_time_end))
+    appendIfPresent(params, 'shift', locationForm.shift || conv?.shift || 'morning')
     const days = locationForm.schedule_days.length ? locationForm.schedule_days : Array.isArray(conv?.schedule_days) ? conv.schedule_days : []
     for (const day of days) params.append('schedule_days', day)
 
@@ -354,7 +399,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
       mounted = false
       window.clearTimeout(timer)
     }
-  }, [conv, dateForm.end_date, dateForm.start_date, editingInstructor, id, instructorForm.instructor, locationForm])
+  }, [conv, dateForm.end_date, dateForm.start_date, editingInstructor, id, instructorForm.instructor, instructorForm.instructors, locationForm])
 
   async function saveRunPatch(payload: Record<string, unknown>) {
     setSaving(true)
@@ -451,12 +496,16 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
 
   async function saveInstructor() {
     const selectedInstructor = instructorForm.instructor.trim()
+    const selectedCoInstructors = instructorForm.instructors
+      .filter((value) => value && value !== selectedInstructor)
+      .map(Number)
     if (instructorAvailability?.blockers?.length) {
       setSaveError('No se puede guardar el docente porque hay conflictos de planificación.')
       return
     }
     if (await saveRunPatch({
       instructor: selectedInstructor ? Number(selectedInstructor) : null,
+      instructors: selectedCoInstructors,
     })) setEditingInstructor(false)
   }
 
@@ -501,6 +550,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
   const campus = typeof conv.campus === 'object' ? conv.campus : null
   const instructor = typeof conv.instructor === 'object' ? conv.instructor : null
+  const assignedInstructors = getAssignedInstructors(conv)
   const status = STATUS_CONFIG[conv.status] || STATUS_CONFIG.draft
   const enrollmentStatusKey = resolveCourseRunEnrollmentStatus(conv)
   const enrollmentStatus = getCourseRunEnrollmentStatusInfo(conv)
@@ -513,9 +563,6 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const cycleImage = cycle ? resolveImageUrl(cycle.image) : null
   const courseImage = course ? resolveImageUrl(course.featured_image) : null
   const heroImage = cycleImage || courseImage
-  const instructorImage = instructor ? resolveImageUrl(instructor.photo) : null
-  const instructorName = instructor ? getInstructorName(instructor) : ''
-  const instructorTitle = instructor?.position || getFirstCertification(instructor) || 'Docente'
   const runSchedule = formatRunSchedule(conv)
   const dossierPdf = course ? resolveImageUrl(course.dossier_pdf) : null
 
@@ -523,7 +570,6 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const publicRunPath = `/p/convocatorias/${conv.codigo ?? conv.id}`
   const isPublicRun = ['published', 'enrollment_open'].includes(String(conv.status))
   const publicationReadiness = getPublicationChecks(conv)
-  const instructorHref = instructor?.id ? `/dashboard/profesores/${instructor.id}` : null
   const availabilityBlockers = availability?.blockers ?? []
   const availabilityWarnings = availability?.warnings ?? []
   const instructorAvailabilityBlockers = instructorAvailability?.blockers ?? []
@@ -648,49 +694,62 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
-              {!editingInstructor && instructor ? (
-                <button
-                  type="button"
-                  onClick={() => instructorHref && router.push(instructorHref)}
-                  className="w-full rounded-lg border p-4 text-left transition hover:border-primary/40 hover:bg-muted/40"
-                >
-                  <div className="flex items-start gap-4">
-                    {instructorImage ? (
-                      <img
-                        src={instructorImage}
-                        alt={instructorName}
-                        className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-primary/15"
-                      />
-                    ) : (
-                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-2 ring-primary/15">
-                        <GraduationCap className="h-7 w-7 text-primary" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="truncate text-base font-semibold">{instructorName}</p>
-                          <p className="text-sm text-muted-foreground">{instructorTitle}</p>
+              {!editingInstructor && assignedInstructors.length > 0 ? (
+                <div className="space-y-3">
+                  {assignedInstructors.map((assignedInstructor, index) => {
+                    const assignedId = relationId(assignedInstructor)
+                    const assignedName = getInstructorName(assignedInstructor)
+                    const assignedTitle = assignedInstructor?.position || getFirstCertification(assignedInstructor) || 'Docente'
+                    const assignedImage = resolveImageUrl(assignedInstructor?.photo)
+                    return (
+                      <button
+                        key={assignedId || index}
+                        type="button"
+                        onClick={() => assignedId && router.push(`/dashboard/profesores/${assignedId}`)}
+                        className="w-full rounded-lg border p-4 text-left transition hover:border-primary/40 hover:bg-muted/40"
+                      >
+                        <div className="flex items-start gap-4">
+                          {assignedImage ? (
+                            <img
+                              src={assignedImage}
+                              alt={assignedName}
+                              className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-primary/15"
+                            />
+                          ) : (
+                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-2 ring-primary/15">
+                              <GraduationCap className="h-7 w-7 text-primary" />
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="truncate text-base font-semibold">{assignedName}</p>
+                                <p className="text-sm text-muted-foreground">{assignedTitle}</p>
+                              </div>
+                              <Badge variant={index === 0 ? 'default' : 'outline'} className="shrink-0">
+                                {index === 0 ? 'Docente principal' : 'Co-docente'}
+                              </Badge>
+                            </div>
+                            <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                              <span className="inline-flex items-center gap-1.5">
+                                <Clock className="h-3.5 w-3.5 text-primary" />
+                                {runSchedule}
+                              </span>
+                              {conv.shift && (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <Calendar className="h-3.5 w-3.5 text-primary" />
+                                  Turno: {conv.shift === 'morning' ? 'Mañana' : conv.shift === 'afternoon' ? 'Tarde' : 'Tercer turno'}
+                                </span>
+                              )}
+                            </div>
+                            {assignedInstructor.email && <p className="mt-2 text-xs text-muted-foreground">{assignedInstructor.email}</p>}
+                            <p className="mt-3 text-xs font-semibold text-primary">Ver ficha docente</p>
+                          </div>
                         </div>
-                        <Badge variant="outline" className="shrink-0">Docente</Badge>
-                      </div>
-                      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5 text-primary" />
-                          {runSchedule}
-                        </span>
-                        {conv.shift && (
-                          <span className="inline-flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5 text-primary" />
-                            Turno: {conv.shift === 'morning' ? 'Mañana' : conv.shift === 'afternoon' ? 'Tarde' : 'Tercer turno'}
-                          </span>
-                        )}
-                      </div>
-                      {instructor.email && <p className="mt-2 text-xs text-muted-foreground">{instructor.email}</p>}
-                      <p className="mt-3 text-xs font-semibold text-primary">Ver ficha docente</p>
-                    </div>
-                  </div>
-                </button>
+                      </button>
+                    )
+                  })}
+                </div>
               ) : !editingInstructor ? (
                 <div className="flex flex-col items-center justify-center py-6 text-center">
                   <p className="text-sm text-muted-foreground">No hay profesores asignados</p>
@@ -702,10 +761,13 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
               ) : (
                 <div className="space-y-4">
                   <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Docente</Label>
+                    <Label className="text-xs font-medium text-muted-foreground">Docente principal</Label>
                     <Select
                       value={instructorForm.instructor || '_none'}
-                      onValueChange={(value) => setInstructorForm({ instructor: value === '_none' ? '' : value })}
+                      onValueChange={(value) => setInstructorForm((current) => ({
+                        instructor: value === '_none' ? '' : value,
+                        instructors: current.instructors.filter((id) => id !== value),
+                      }))}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccionar docente" />
@@ -723,6 +785,42 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                         })}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-muted-foreground">Co-docentes</Label>
+                    <div className="max-h-64 space-y-2 overflow-y-auto rounded-lg border bg-muted/20 p-2">
+                      {staffCandidates.map((member) => {
+                        const memberId = String(member.id)
+                        const qualifiedAreaIds = getQualifiedAreaIds(member)
+                        const areaMismatch = requiredAreaId && qualifiedAreaIds.length > 0 && !qualifiedAreaIds.some((areaId) => String(areaId) === String(requiredAreaId))
+                        const isPrimary = memberId === instructorForm.instructor
+                        const selected = instructorForm.instructors.includes(memberId)
+                        return (
+                          <label
+                            key={`co-instructor-${member.id}`}
+                            className={`flex items-start gap-3 rounded-md border bg-background p-3 text-sm ${areaMismatch || isPrimary ? 'opacity-50' : 'cursor-pointer hover:border-primary/40'}`}
+                          >
+                            <Checkbox
+                              checked={selected}
+                              disabled={Boolean(areaMismatch || isPrimary)}
+                              onCheckedChange={(checked) => setInstructorForm((current) => ({
+                                ...current,
+                                instructors: checked
+                                  ? [...current.instructors, memberId].filter((id, index, values) => values.indexOf(id) === index)
+                                  : current.instructors.filter((id) => id !== memberId),
+                              }))}
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate font-medium">{getInstructorName(member)}</span>
+                              <span className="block text-xs text-muted-foreground">
+                                {isPrimary ? 'Seleccionado como principal' : areaMismatch ? 'Fuera del área del curso' : member.position || 'Docente activo'}
+                              </span>
+                            </span>
+                          </label>
+                        )
+                      })}
+                    </div>
                   </div>
 
                   {staffCandidates.length === 0 && (
@@ -767,7 +865,12 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                       disabled={saving}
                       onClick={() => {
                         setEditingInstructor(false)
-                        setInstructorForm({ instructor: relationId(conv.instructor) })
+                        setInstructorForm({
+                          instructor: relationId(conv.instructor),
+                          instructors: Array.isArray(conv.instructors)
+                            ? conv.instructors.map(relationId).filter((value: string) => value && value !== relationId(conv.instructor))
+                            : [],
+                        })
                         setInstructorAvailability(null)
                       }}
                     >

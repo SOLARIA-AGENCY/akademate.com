@@ -377,6 +377,32 @@ describe('/api/course-runs/[id]', () => {
     ])
   })
 
+  it('ignores blank availability query params instead of treating them as selected values', async () => {
+    installFindRouter({ staffQualifiedAreas: [7] })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?campus=&classroom=&instructor=&schedule_time_start=&schedule_time_end='), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability).toEqual(expect.objectContaining({
+      blockers: expect.any(Array),
+      warnings: expect.any(Array),
+    }))
+  })
+
+  it('returns co-instructor area blockers through the availability endpoint', async () => {
+    installFindRouter({ staffQualifiedAreas: [8] })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?instructors=44'), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.blockers).toEqual([
+      expect.objectContaining({
+        type: 'instructor_area_mismatch',
+        severity: 'blocker',
+      }),
+    ])
+  })
+
   it('generates concrete sessions from a configured convocatoria without duplicating existing sessions', async () => {
     const response = await GENERATE_SESSIONS(new NextRequest('http://localhost/api/course-runs/84/generate-sessions', {
       method: 'POST',
@@ -441,6 +467,20 @@ describe('/api/course-runs/[id]', () => {
     expect(response.status).toBe(200)
     expect(payloadMock.update).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({ instructor: 44 }),
+    }))
+  })
+
+  it('allows co-instructor assignment when qualified areas match the course area', async () => {
+    installFindRouter({ staffQualifiedAreas: [7, 8] })
+
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ instructors: [44] }),
+    }), params())
+
+    expect(response.status).toBe(200)
+    expect(payloadMock.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ instructors: [44] }),
     }))
   })
 })
