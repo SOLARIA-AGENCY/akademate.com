@@ -139,6 +139,7 @@ export function validatePublicationReadiness(candidate: CourseRunPlanningDoc) {
   if (!isOnline) {
     if (!candidate.campus) blockers.push('La convocatoria presencial necesita sede.')
     if (!candidate.classroom) blockers.push('La convocatoria presencial necesita aula.')
+    if (!candidate.instructor && !candidate.instructors?.length) blockers.push('La convocatoria presencial necesita docente asignado.')
     if (!candidate.schedule_days?.length) blockers.push('La convocatoria necesita días de clase.')
     if (!candidate.schedule_time_start || !candidate.schedule_time_end) blockers.push('La convocatoria necesita horario de inicio y fin.')
   }

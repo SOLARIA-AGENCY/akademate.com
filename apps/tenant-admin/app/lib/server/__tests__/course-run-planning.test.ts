@@ -38,6 +38,7 @@ const readyPresentialRun: CourseRunPlanningDoc = {
   enrollment_status: 'open',
   status: 'draft',
   max_students: 18,
+  instructor: 44,
 }
 
 describe('course-run planning helpers', () => {

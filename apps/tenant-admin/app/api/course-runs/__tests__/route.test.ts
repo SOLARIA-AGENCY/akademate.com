@@ -40,6 +40,7 @@ const currentRun = {
   training_type: 'private',
   max_students: 17,
   course: 187,
+  instructor: 44,
 }
 
 function params(id = '84') {
@@ -55,13 +56,14 @@ function installFindRouter(options?: {
   missingStaff?: boolean
   inactiveStaff?: boolean
   staffQualifiedAreas?: Array<number | string>
+  currentOverrides?: Record<string, unknown>
 }) {
   payloadMock.find.mockImplementation(async ({ collection, where }: any) => {
     if (collection === 'course-runs' && where?.and) {
       const idCondition = where.and.find((item: any) => item?.id?.equals === '84')
       const classroomCondition = where.and.find((item: any) => item?.classroom?.equals === 10 || item?.classroom?.equals === '10')
       if (idCondition && !classroomCondition) {
-        return { docs: options?.noCurrent ? [] : [currentRun] }
+        return { docs: options?.noCurrent ? [] : [{ ...currentRun, ...(options?.currentOverrides ?? {}) }] }
       }
       return {
         docs: options?.conflict
@@ -249,6 +251,33 @@ describe('/api/course-runs/[id]', () => {
     expect(payloadMock.update).not.toHaveBeenCalled()
   })
 
+  it('rejects publishing a presencial convocatoria without assigned instructor', async () => {
+    installFindRouter({ currentOverrides: { instructor: null, instructors: [] } })
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'published' }),
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(data.error).toMatch(/lista para publicar/i)
+    expect(data.blockers).toContain('La convocatoria presencial necesita docente asignado.')
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('rejects saving when the already assigned instructor is inactive', async () => {
+    installFindRouter({ inactiveStaff: true, staffQualifiedAreas: [7] })
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'published' }),
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(data.error).toMatch(/no está activo/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
   it('returns draft and planning draft when unpublishing', async () => {
     const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
       method: 'PATCH',
@@ -433,7 +462,7 @@ describe('/api/course-runs/[id]', () => {
   })
 
   it('returns co-instructor area blockers through the availability endpoint', async () => {
-    installFindRouter({ staffQualifiedAreas: [8] })
+    installFindRouter({ staffQualifiedAreas: [8], currentOverrides: { instructor: null } })
     const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?instructors=44'), params())
     const data = await response.json()
 

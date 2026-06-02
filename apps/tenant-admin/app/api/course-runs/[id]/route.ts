@@ -171,9 +171,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const candidate = { ...current, ...data, id: current.id } as CourseRunDoc
     const requiredAreaId = await getCourseRunRequiredAreaId(payload, candidate, authContext.tenantId)
     const instructorIds = [
-      data.instructor,
-      ...(Array.isArray(data.instructors) ? data.instructors : []),
-    ].filter((value) => value != null && value !== '')
+      relationId(candidate.instructor),
+      ...(Array.isArray(candidate.instructors) ? candidate.instructors.map((item) => relationId(item)) : []),
+    ]
+      .filter((value): value is string | number => value != null && value !== '')
+      .filter((value, index, values) => values.indexOf(value) === index)
     for (const instructorId of instructorIds) {
       const instructor = await findTenantDoc(payload, 'staff', instructorId, authContext.tenantId)
       if (!instructor) return NextResponse.json({ error: 'El docente seleccionado no pertenece a este tenant.' }, { status: 403 })
