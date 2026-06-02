@@ -3,7 +3,15 @@ import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
-import { evaluateCourseRunAvailability, normalizeTime, type CourseRunPlanningDoc } from '@/app/lib/server/course-run-planning'
+import {
+  evaluateCourseRunAvailability,
+  evaluateInstructorAreaQualification,
+  findTenantDoc,
+  getCourseRunRequiredAreaId,
+  normalizeTime,
+  relationId,
+  type CourseRunPlanningDoc,
+} from '@/app/lib/server/course-run-planning'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 
 export const dynamic = 'force-dynamic'
@@ -44,6 +52,27 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const availability = await evaluateCourseRunAvailability(payload, candidate, authContext.tenantId)
+    const instructorId = relationId(candidate.instructor)
+    if (instructorId != null) {
+      const [requiredAreaId, instructor] = await Promise.all([
+        getCourseRunRequiredAreaId(payload, candidate, authContext.tenantId),
+        findTenantDoc(payload, 'staff', instructorId, authContext.tenantId),
+      ])
+      const qualification = evaluateInstructorAreaQualification(instructor, requiredAreaId)
+      if (!qualification.ok) {
+        availability.blockers.push({
+          type: 'instructor_area_mismatch',
+          severity: 'blocker',
+          message: qualification.message ?? 'El docente no está habilitado para el área formativa de esta convocatoria.',
+        })
+      } else if (qualification.reason === 'no_qualified_areas' && requiredAreaId != null) {
+        availability.warnings.push({
+          type: 'instructor_area_missing',
+          severity: 'warning',
+          message: 'El docente no tiene áreas habilitadas cargadas. Revisa su ficha antes de confirmar la asignación.',
+        })
+      }
+    }
     return NextResponse.json({ availability })
   } catch (error) {
     console.error('[course-runs/:id/availability] GET error:', error)

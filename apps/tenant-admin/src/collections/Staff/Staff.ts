@@ -47,6 +47,7 @@ interface StaffData {
   import_review_status?: string;
   hire_date?: string;
   specialties?: string[];
+  qualified_areas?: (string | number)[];
   alias_names?: string;
   detected_courses?: string;
   certifications?: {
@@ -509,6 +510,22 @@ export const Staff: CollectionConfig = {
         description: 'Specialties (for professors only)',
         condition: (data: StaffData) => data.staff_type === 'profesor',
       },
+    },
+
+    {
+      name: 'qualified_areas',
+      type: 'relationship',
+      relationTo: 'areas-formativas',
+      hasMany: true,
+      required: false,
+      index: true,
+      admin: {
+        description: 'Áreas formativas para las que el docente está habilitado. Si está vacío, requiere validación manual antes de asignar.',
+        condition: (data: StaffData) => data.staff_type === 'profesor' || data.staff_type === 'academico',
+      },
+      filterOptions: () => ({
+        activo: { equals: true },
+      }),
     },
 
     {

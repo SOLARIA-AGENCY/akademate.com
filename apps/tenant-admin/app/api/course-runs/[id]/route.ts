@@ -4,8 +4,10 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
 import {
+  evaluateInstructorAreaQualification,
   evaluateCourseRunAvailability,
   findTenantDoc,
+  getCourseRunRequiredAreaId,
   normalizeTime,
   relationId,
   sameId,
@@ -166,6 +168,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
+    const candidate = { ...current, ...data, id: current.id } as CourseRunDoc
+    const requiredAreaId = await getCourseRunRequiredAreaId(payload, candidate, authContext.tenantId)
     const instructorIds = [
       data.instructor,
       ...(Array.isArray(data.instructors) ? data.instructors : []),
@@ -176,9 +180,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       if (instructor.is_active === false || (instructor.employment_status && instructor.employment_status !== 'active')) {
         return NextResponse.json({ error: 'El docente seleccionado no está activo.' }, { status: 400 })
       }
+      const qualification = evaluateInstructorAreaQualification(instructor, requiredAreaId)
+      if (!qualification.ok) {
+        return NextResponse.json({ error: qualification.message ?? 'El docente no está habilitado para el área formativa de esta convocatoria.' }, { status: 400 })
+      }
     }
 
-    const candidate = { ...current, ...data, id: current.id } as CourseRunDoc
     if (data.status === 'published') {
       const blockers = validatePublicationReadiness(candidate)
       if (blockers.length > 0) {

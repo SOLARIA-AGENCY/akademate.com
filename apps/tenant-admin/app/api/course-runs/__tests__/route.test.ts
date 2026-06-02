@@ -46,7 +46,14 @@ function params(id = '84') {
   return { params: Promise.resolve({ id }) }
 }
 
-function installFindRouter(options?: { noCurrent?: boolean; conflict?: boolean; missingCampus?: boolean; missingClassroom?: boolean; foreignClassroomCampus?: boolean }) {
+function installFindRouter(options?: {
+  noCurrent?: boolean
+  conflict?: boolean
+  missingCampus?: boolean
+  missingClassroom?: boolean
+  foreignClassroomCampus?: boolean
+  staffQualifiedAreas?: Array<number | string>
+}) {
   payloadMock.find.mockImplementation(async ({ collection, where }: any) => {
     if (collection === 'course-runs' && where?.and) {
       const idCondition = where.and.find((item: any) => item?.id?.equals === '84')
@@ -81,7 +88,10 @@ function installFindRouter(options?: { noCurrent?: boolean; conflict?: boolean; 
       }
     }
     if (collection === 'staff') {
-      return { docs: [{ id: 44, tenant: tenantId, full_name: 'Docente Activo', is_active: true, employment_status: 'active' }] }
+      return { docs: [{ id: 44, tenant: tenantId, full_name: 'Docente Activo', is_active: true, employment_status: 'active', qualified_areas: options?.staffQualifiedAreas ?? [] }] }
+    }
+    if (collection === 'courses') {
+      return { docs: [{ id: 187, tenant: tenantId, name: 'Curso test', area_formativa: 7 }] }
     }
     if (collection === 'course-run-sessions') {
       return { docs: [] }
@@ -353,6 +363,20 @@ describe('/api/course-runs/[id]', () => {
     }))
   })
 
+  it('returns instructor area blockers through the availability endpoint', async () => {
+    installFindRouter({ staffQualifiedAreas: [8] })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?instructor=44'), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.blockers).toEqual([
+      expect.objectContaining({
+        type: 'instructor_area_mismatch',
+        severity: 'blocker',
+      }),
+    ])
+  })
+
   it('generates concrete sessions from a configured convocatoria without duplicating existing sessions', async () => {
     const response = await GENERATE_SESSIONS(new NextRequest('http://localhost/api/course-runs/84/generate-sessions', {
       method: 'POST',
@@ -390,5 +414,33 @@ describe('/api/course-runs/[id]', () => {
     expect(response.status).toBe(400)
     expect(data.error).toMatch(/no está activo/i)
     expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('rejects active instructor assignment when qualified areas do not match the course area', async () => {
+    installFindRouter({ staffQualifiedAreas: [8] })
+
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ instructor: 44 }),
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(data.error).toMatch(/no está habilitado/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('allows instructor assignment when qualified areas match the course area', async () => {
+    installFindRouter({ staffQualifiedAreas: [7, 8] })
+
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ instructor: 44 }),
+    }), params())
+
+    expect(response.status).toBe(200)
+    expect(payloadMock.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ instructor: 44 }),
+    }))
   })
 })

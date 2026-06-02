@@ -9,6 +9,7 @@ import * as migration_20260513_lead_appointments from './20260513_lead_appointme
 import * as migration_20260526_staff_import_status from './20260526_staff_import_status';
 import * as migration_20260527_course_run_enrollment_status from './20260527_course_run_enrollment_status';
 import * as migration_20260601_course_run_sessions from './20260601_course_run_sessions';
+import * as migration_20260602_staff_qualified_areas from './20260602_staff_qualified_areas';
 
 export const migrations = [
   {
@@ -65,5 +66,10 @@ export const migrations = [
     up: migration_20260601_course_run_sessions.up,
     down: migration_20260601_course_run_sessions.down,
     name: '20260601_course_run_sessions'
+  },
+  {
+    up: migration_20260602_staff_qualified_areas.up,
+    down: migration_20260602_staff_qualified_areas.down,
+    name: '20260602_staff_qualified_areas'
   },
 ];

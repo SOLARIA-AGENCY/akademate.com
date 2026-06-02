@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   dateRangesOverlap,
   daysOverlap,
+  evaluateInstructorAreaQualification,
   evaluateCourseRunAvailability,
   normalizeTime,
   relationId,
@@ -63,6 +64,24 @@ describe('course-run planning helpers', () => {
     expect(dateRangesOverlap('2026-09-01', '2026-09-29', '2026-09-30', '2026-10-10')).toBe(false)
     expect(daysOverlap(['monday', 'wednesday'], ['friday', 'wednesday'])).toBe(true)
     expect(daysOverlap(['monday'], ['friday'])).toBe(false)
+  })
+
+  it('evaluates instructor area qualification when structured areas are present', () => {
+    expect(evaluateInstructorAreaQualification({ full_name: 'Docente', qualified_areas: [3, { id: 4 }] }, 4)).toEqual(expect.objectContaining({
+      ok: true,
+      qualifiedAreaIds: [3, 4],
+    }))
+
+    expect(evaluateInstructorAreaQualification({ full_name: 'Docente', qualified_areas: [3] }, 4)).toEqual(expect.objectContaining({
+      ok: false,
+      reason: 'area_mismatch',
+      requiredAreaId: 4,
+    }))
+
+    expect(evaluateInstructorAreaQualification({ full_name: 'Docente', qualified_areas: [] }, 4)).toEqual(expect.objectContaining({
+      ok: true,
+      reason: 'no_qualified_areas',
+    }))
   })
 })
 

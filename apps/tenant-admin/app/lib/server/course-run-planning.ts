@@ -31,8 +31,22 @@ export type CourseRunPlanningDoc = {
   shift?: string | null
 }
 
+export type InstructorQualificationResult = {
+  ok: boolean
+  reason?: 'no_required_area' | 'no_qualified_areas' | 'area_mismatch'
+  requiredAreaId?: string | number
+  qualifiedAreaIds: Array<string | number>
+  message?: string
+}
+
 export type PlanningConflict = {
-  type: 'classroom_overlap' | 'instructor_overlap' | 'room_capacity_exceeded' | 'missing_publication_data'
+  type:
+    | 'classroom_overlap'
+    | 'instructor_overlap'
+    | 'instructor_area_mismatch'
+    | 'instructor_area_missing'
+    | 'room_capacity_exceeded'
+    | 'missing_publication_data'
   severity: 'blocker' | 'warning'
   message: string
   conflictingRunId?: string | number
@@ -132,6 +146,44 @@ export async function findTenantDoc(payload: any, collection: string, id: unknow
     overrideAccess: true,
   })
   return result.docs[0] ?? null
+}
+
+export async function getCourseRunRequiredAreaId(
+  payload: any,
+  candidate: CourseRunPlanningDoc,
+  tenantId: number,
+): Promise<string | number | null> {
+  const courseId = relationId(candidate.course)
+  if (!courseId) return null
+
+  const course = await findTenantDoc(payload, 'courses', courseId, tenantId)
+  return relationId(course?.area_formativa as RelationValue)
+}
+
+export function evaluateInstructorAreaQualification(
+  instructor: { qualified_areas?: RelationValue[] | RelationValue; full_name?: string } | null | undefined,
+  requiredAreaId: string | number | null,
+): InstructorQualificationResult {
+  const qualifiedAreaIds = relationIds(instructor?.qualified_areas as RelationValue[] | RelationValue | undefined)
+
+  if (requiredAreaId == null) {
+    return { ok: true, reason: 'no_required_area', qualifiedAreaIds }
+  }
+
+  if (qualifiedAreaIds.length === 0) {
+    return { ok: true, reason: 'no_qualified_areas', requiredAreaId, qualifiedAreaIds }
+  }
+
+  const ok = qualifiedAreaIds.some((areaId) => String(areaId) === String(requiredAreaId))
+  return {
+    ok,
+    reason: ok ? undefined : 'area_mismatch',
+    requiredAreaId,
+    qualifiedAreaIds,
+    message: ok
+      ? undefined
+      : `${instructor?.full_name ?? 'El docente'} no está habilitado para el área formativa de esta convocatoria.`,
+  }
 }
 
 export async function evaluateCourseRunAvailability(
