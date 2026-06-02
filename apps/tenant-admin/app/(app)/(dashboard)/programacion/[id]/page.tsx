@@ -52,6 +52,28 @@ const ENROLLMENT_BADGE_VARIANTS: Record<string, 'default' | 'secondary' | 'outli
   always_open: 'default',
 }
 
+type AvailabilityState = {
+  blockers: any[]
+  warnings: any[]
+  occupancy?: Array<{
+    weekday: string
+    timeStart?: string | null
+    timeEnd?: string | null
+    status: 'available' | 'blocked'
+    conflicts: any[]
+  }>
+}
+
+const WEEKDAY_OPTIONS = [
+  ['monday', 'Lunes'],
+  ['tuesday', 'Martes'],
+  ['wednesday', 'Miércoles'],
+  ['thursday', 'Jueves'],
+  ['friday', 'Viernes'],
+  ['saturday', 'Sábado'],
+  ['sunday', 'Domingo'],
+] as const
+
 function formatCurrency(v: number | undefined): string {
   if (v == null) return '-'
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(v)
@@ -88,6 +110,17 @@ function formatDayLabel(day: string): string {
     sunday: 'DOM',
   }
   return labels[day] ?? day.toUpperCase()
+}
+
+function formatLongDayLabel(day: string): string {
+  return WEEKDAY_OPTIONS.find(([value]) => value === day)?.[1] ?? day
+}
+
+function formatSlotTime(start?: string | null, end?: string | null): string {
+  const cleanStart = typeof start === 'string' ? start.slice(0, 5) : ''
+  const cleanEnd = typeof end === 'string' ? end.slice(0, 5) : ''
+  if (cleanStart && cleanEnd) return `${cleanStart} - ${cleanEnd}`
+  return cleanStart || cleanEnd || 'Horario por definir'
 }
 
 function formatRunSchedule(conv: any): string {
@@ -181,10 +214,12 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const [campuses, setCampuses] = React.useState<any[]>([])
   const [classrooms, setClassrooms] = React.useState<any[]>([])
   const [staffCandidates, setStaffCandidates] = React.useState<any[]>([])
-  const [availability, setAvailability] = React.useState<{ blockers: any[]; warnings: any[] } | null>(null)
-  const [instructorAvailability, setInstructorAvailability] = React.useState<{ blockers: any[]; warnings: any[] } | null>(null)
+  const [availability, setAvailability] = React.useState<AvailabilityState | null>(null)
+  const [instructorAvailability, setInstructorAvailability] = React.useState<AvailabilityState | null>(null)
+  const [sessionAvailability, setSessionAvailability] = React.useState<AvailabilityState | null>(null)
   const [availabilityLoading, setAvailabilityLoading] = React.useState(false)
   const [instructorAvailabilityLoading, setInstructorAvailabilityLoading] = React.useState(false)
+  const [sessionAvailabilityLoading, setSessionAvailabilityLoading] = React.useState(false)
   const [editingDates, setEditingDates] = React.useState(false)
   const [editingPrice, setEditingPrice] = React.useState(false)
   const [editingLocation, setEditingLocation] = React.useState(false)
@@ -401,6 +436,54 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     }
   }, [conv, dateForm.end_date, dateForm.start_date, editingInstructor, id, instructorForm.instructor, instructorForm.instructors, locationForm])
 
+  React.useEffect(() => {
+    if (
+      !conv ||
+      !conv.start_date ||
+      !conv.end_date ||
+      !Array.isArray(conv.schedule_days) ||
+      conv.schedule_days.length === 0 ||
+      !conv.schedule_time_start ||
+      !conv.schedule_time_end
+    ) {
+      setSessionAvailability(null)
+      return
+    }
+
+    let mounted = true
+    setSessionAvailabilityLoading(true)
+    fetch(`/api/course-runs/${id}/availability`, { cache: 'no-store' })
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('No se pudo validar la ocupación'))))
+      .then((data) => {
+        if (mounted) setSessionAvailability(data.availability ?? null)
+      })
+      .catch((err) => {
+        if (mounted) {
+          setSessionAvailability({
+            blockers: [{ message: err instanceof Error ? err.message : 'No se pudo validar la ocupación' }],
+            warnings: [],
+            occupancy: [],
+          })
+        }
+      })
+      .finally(() => {
+        if (mounted) setSessionAvailabilityLoading(false)
+      })
+
+    return () => { mounted = false }
+  }, [
+    conv?.campus,
+    conv?.classroom,
+    conv?.end_date,
+    conv?.instructor,
+    conv?.instructors,
+    conv?.schedule_days,
+    conv?.schedule_time_end,
+    conv?.schedule_time_start,
+    conv?.start_date,
+    id,
+  ])
+
   async function saveRunPatch(payload: Record<string, unknown>) {
     setSaving(true)
     setSaveError(null)
@@ -575,6 +658,17 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const instructorAvailabilityBlockers = instructorAvailability?.blockers ?? []
   const instructorAvailabilityWarnings = instructorAvailability?.warnings ?? []
   const requiredAreaId = relationId(course?.area_formativa)
+  const sessionConfigComplete = Boolean(
+    conv.start_date &&
+    conv.end_date &&
+    Array.isArray(conv.schedule_days) &&
+    conv.schedule_days.length > 0 &&
+    conv.schedule_time_start &&
+    conv.schedule_time_end,
+  )
+  const sessionOccupancy = sessionAvailability?.occupancy ?? []
+  const sessionOccupancyBlockers = sessionAvailability?.blockers ?? []
+  const sessionOccupancyWarnings = sessionAvailability?.warnings ?? []
 
   return (
     <div className="space-y-6">
@@ -981,15 +1075,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                   <div>
                     <span className="text-xs font-medium text-muted-foreground">Días</span>
                     <div className="mt-2 grid grid-cols-2 gap-2">
-                      {[
-                        ['monday', 'Lunes'],
-                        ['tuesday', 'Martes'],
-                        ['wednesday', 'Miércoles'],
-                        ['thursday', 'Jueves'],
-                        ['friday', 'Viernes'],
-                        ['saturday', 'Sábado'],
-                        ['sunday', 'Domingo'],
-                      ].map(([value, label]) => (
+                      {WEEKDAY_OPTIONS.map(([value, label]) => (
                         <Label key={value} className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs">
                           <Checkbox
                             checked={locationForm.schedule_days.includes(value)}
@@ -1042,30 +1128,107 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <CardTitle className="text-base flex items-center gap-2"><Calendar className="h-4 w-4" />Sesiones</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p className="rounded-md bg-muted px-3 py-2 text-xs leading-5 text-muted-foreground">
-                Genera el calendario real de clases a partir de fechas, días, horario, aula y docente. Las sesiones existentes no se duplican.
-              </p>
+            <CardContent className="space-y-4 text-sm">
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <p className="text-xs font-medium uppercase text-muted-foreground">Mapa de ocupación</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Revisa la disponibilidad de aula y docentes antes de generar el calendario real de clases. Las sesiones existentes no se duplican.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-lg border px-3 py-2">
+                  <span className="block text-muted-foreground">Fechas</span>
+                  <span className="font-semibold text-foreground">{toDateInput(conv.start_date) || 'Inicio pendiente'} - {toDateInput(conv.end_date) || 'Fin pendiente'}</span>
+                </div>
+                <div className="rounded-lg border px-3 py-2">
+                  <span className="block text-muted-foreground">Horario</span>
+                  <span className="font-semibold text-foreground">{formatSlotTime(conv.schedule_time_start, conv.schedule_time_end)}</span>
+                </div>
+              </div>
+
+              {sessionAvailabilityLoading && (
+                <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Calculando ocupación guardada...
+                </div>
+              )}
+
+              {sessionConfigComplete && sessionOccupancy.length > 0 && (
+                <div className="grid grid-cols-1 gap-2">
+                  {sessionOccupancy.map((slot) => {
+                    const blocked = slot.status === 'blocked'
+                    return (
+                      <div
+                        key={`slot-${slot.weekday}`}
+                        className={`rounded-lg border px-3 py-2 ${blocked ? 'border-red-200 bg-red-50 text-red-800' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="flex items-center gap-2 font-semibold">
+                            {blocked ? <AlertCircle className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                            {formatLongDayLabel(slot.weekday)}
+                          </span>
+                          <span className="text-[11px] font-medium">{formatSlotTime(slot.timeStart, slot.timeEnd)}</span>
+                        </div>
+                        {blocked ? (
+                          <div className="mt-2 space-y-1">
+                            {slot.conflicts.map((item, index) => (
+                              <p key={`slot-conflict-${slot.weekday}-${index}`} className="text-[11px] leading-4">
+                                {item.message}
+                              </p>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="mt-1 text-[11px]">Aula y docentes libres en esta franja.</p>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {sessionConfigComplete && sessionOccupancyBlockers.length > 0 && sessionOccupancy.length === 0 && (
+                <div className="space-y-2">
+                  {sessionOccupancyBlockers.map((item, index) => (
+                    <div key={`session-blocker-${index}`} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                      <span className="font-semibold">No disponible: </span>{item.message}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {sessionOccupancyWarnings.length > 0 && (
+                <div className="space-y-2">
+                  {sessionOccupancyWarnings.map((item, index) => (
+                    <div key={`session-warning-${index}`} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                      <span className="font-semibold">Aviso: </span>{item.message}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <Button
                 className="w-full"
                 disabled={
                   generatingSessions ||
-                  !conv.start_date ||
-                  !conv.end_date ||
-                  !Array.isArray(conv.schedule_days) ||
-                  conv.schedule_days.length === 0 ||
-                  !conv.schedule_time_start ||
-                  !conv.schedule_time_end
+                  !sessionConfigComplete ||
+                  sessionAvailabilityLoading ||
+                  sessionOccupancyBlockers.length > 0
                 }
                 onClick={generateSessions}
               >
                 {generatingSessions ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Calendar className="mr-2 h-4 w-4" />}
                 Generar sesiones
               </Button>
-              {(!conv.start_date || !conv.end_date || !Array.isArray(conv.schedule_days) || conv.schedule_days.length === 0 || !conv.schedule_time_start || !conv.schedule_time_end) && (
-                <p className="text-xs text-muted-foreground">
-                  Completa fechas, días y horario para generar sesiones.
-                </p>
+              {!sessionConfigComplete && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                  Completa fecha de inicio, fecha de fin, días y horario para visualizar ocupación y generar sesiones.
+                </div>
+              )}
+              {sessionConfigComplete && sessionOccupancyBlockers.length > 0 && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                  Resuelve las colisiones antes de generar sesiones.
+                </div>
               )}
             </CardContent>
           </Card>

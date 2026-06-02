@@ -169,6 +169,15 @@ describe('evaluateCourseRunAvailability', () => {
         conflictingRunCode: 'SC-2026-020',
       }),
     ])
+    expect(availability.occupancy).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        weekday: 'wednesday',
+        status: 'blocked',
+        conflicts: expect.arrayContaining([
+          expect.objectContaining({ type: 'classroom_overlap' }),
+        ]),
+      }),
+    ]))
     expect(payload.find).toHaveBeenCalledWith(expect.objectContaining({
       collection: 'course-runs',
       where: expect.objectContaining({
@@ -219,6 +228,10 @@ describe('evaluateCourseRunAvailability', () => {
 
     const availability = await evaluateCourseRunAvailability(payload, readyPresentialRun, 1)
 
-    expect(availability).toEqual({ blockers: [], warnings: [] })
+    expect(availability).toEqual(expect.objectContaining({ blockers: [], warnings: [] }))
+    expect(availability.occupancy).toEqual([
+      expect.objectContaining({ weekday: 'monday', status: 'available', conflicts: [] }),
+      expect.objectContaining({ weekday: 'wednesday', status: 'available', conflicts: [] }),
+    ])
   })
 })

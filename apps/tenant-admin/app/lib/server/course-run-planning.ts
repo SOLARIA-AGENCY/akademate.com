@@ -53,9 +53,18 @@ export type PlanningConflict = {
   conflictingRunCode?: string
 }
 
+export type PlanningOccupancySlot = {
+  weekday: string
+  timeStart?: string | null
+  timeEnd?: string | null
+  status: 'available' | 'blocked'
+  conflicts: PlanningConflict[]
+}
+
 export type PlanningAvailability = {
   blockers: PlanningConflict[]
   warnings: PlanningConflict[]
+  occupancy?: PlanningOccupancySlot[]
 }
 
 export function relationId(value: RelationValue): string | number | null {
@@ -203,6 +212,23 @@ export async function evaluateCourseRunAvailability(
     return { blockers, warnings }
   }
 
+  const occupancy: PlanningOccupancySlot[] = candidate.schedule_days.map((weekday) => ({
+    weekday,
+    timeStart: candidate.schedule_time_start,
+    timeEnd: candidate.schedule_time_end,
+    status: 'available',
+    conflicts: [],
+  }))
+
+  function markOccupied(weekdays: string[], conflict: PlanningConflict) {
+    for (const weekday of weekdays) {
+      const slot = occupancy.find((item) => item.weekday === weekday)
+      if (!slot) continue
+      slot.status = 'blocked'
+      slot.conflicts.push(conflict)
+    }
+  }
+
   const existing = await payload.find({
     collection: 'course-runs',
     where: {
@@ -221,28 +247,33 @@ export async function evaluateCourseRunAvailability(
     if (!dateRangesOverlap(candidate.start_date, candidate.end_date, run.start_date, run.end_date)) continue
     if (!daysOverlap(candidate.schedule_days, run.schedule_days)) continue
     if (!timeRangesOverlap(candidate.schedule_time_start, candidate.schedule_time_end, run.schedule_time_start, run.schedule_time_end)) continue
+    const overlappingDays = candidate.schedule_days.filter((day) => run.schedule_days?.includes(day))
 
     if (classroomId && String(relationId(run.classroom)) === String(classroomId)) {
-      blockers.push({
+      const conflict: PlanningConflict = {
         type: 'classroom_overlap',
         severity: 'blocker',
         message: `${displayRelation(run.classroom, 'El aula')} ya está asignada a ${run.codigo ?? `convocatoria ${run.id}`}.`,
         conflictingRunId: run.id,
         conflictingRunCode: run.codigo,
-      })
+      }
+      blockers.push(conflict)
+      markOccupied(overlappingDays, conflict)
     }
 
     const runInstructorIds = [relationId(run.instructor), ...relationIds(run.instructors)].filter((id): id is string | number => id != null)
     if (instructorIds.length > 0 && instructorIds.some((id) => runInstructorIds.some((other) => String(other) === String(id)))) {
-      blockers.push({
+      const conflict: PlanningConflict = {
         type: 'instructor_overlap',
         severity: 'blocker',
         message: `Un docente ya está asignado a ${run.codigo ?? `convocatoria ${run.id}`} en la misma franja horaria.`,
         conflictingRunId: run.id,
         conflictingRunCode: run.codigo,
-      })
+      }
+      blockers.push(conflict)
+      markOccupied(overlappingDays, conflict)
     }
   }
 
-  return { blockers, warnings }
+  return { blockers, warnings, occupancy }
 }
