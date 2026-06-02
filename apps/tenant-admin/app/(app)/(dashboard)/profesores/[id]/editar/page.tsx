@@ -23,6 +23,13 @@ interface Campus {
   city: string
 }
 
+interface TrainingArea {
+  id: number
+  nombre: string
+  codigo?: string | null
+  active?: boolean
+}
+
 interface StaffRecord {
   id: number
   firstName: string
@@ -42,6 +49,7 @@ interface StaffRecord {
   assignedCampuses: Campus[]
   photo?: string
   certifications?: Certification[]
+  qualifiedAreas?: TrainingArea[]
 }
 
 interface Certification {
@@ -55,6 +63,11 @@ interface CampusApiResponse {
   success?: boolean
   data?: Campus[]
   docs?: Campus[]
+}
+
+interface AreasApiResponse {
+  success?: boolean
+  data?: TrainingArea[]
 }
 
 interface StaffPhotoUploadResponse {
@@ -92,9 +105,11 @@ export default function EditProfesorPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [loadingCampuses, setLoadingCampuses] = useState(true)
+  const [loadingAreas, setLoadingAreas] = useState(true)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [campuses, setCampuses] = useState<Campus[]>([])
+  const [areas, setAreas] = useState<TrainingArea[]>([])
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [photoId, setPhotoId] = useState('')
   const [photoRemoved, setPhotoRemoved] = useState(false)
@@ -111,6 +126,7 @@ export default function EditProfesorPage() {
     bio: '',
     hireDate: '',
     assignedCampuses: [] as number[],
+    qualifiedAreas: [] as number[],
     certifications: [] as Certification[],
   })
 
@@ -122,22 +138,26 @@ export default function EditProfesorPage() {
         setLoading(true)
         setError(null)
 
-        const [staffRes, campusRes] = await Promise.all([
+        const [staffRes, campusRes, areaRes] = await Promise.all([
           fetch(`/api/staff/${professorId}`, { cache: 'no-cache' }),
           fetch('/api/campuses?limit=100', { cache: 'no-cache' }),
+          fetch('/api/areas-formativas', { cache: 'no-cache' }),
         ])
 
         if (!staffRes.ok) throw new Error('No se pudo cargar el profesorado')
         if (!campusRes.ok) throw new Error('No se pudieron cargar las sedes')
+        if (!areaRes.ok) throw new Error('No se pudieron cargar las áreas formativas')
 
         const staffJson = (await staffRes.json()) as { success?: boolean; data?: StaffRecord }
         const campusJson = (await campusRes.json()) as CampusApiResponse
+        const areaJson = (await areaRes.json()) as AreasApiResponse
         const professor = staffJson.data
 
         if (!professor) throw new Error('Profesor no encontrado')
         if (cancelled) return
 
         setCampuses(campusJson.data ?? campusJson.docs ?? [])
+        setAreas((areaJson.data ?? []).filter((area) => area.active !== false))
         setFormData({
           firstName: professor.firstName ?? '',
           lastName: professor.lastName ?? '',
@@ -151,6 +171,7 @@ export default function EditProfesorPage() {
           bio: professor.bio ?? '',
           hireDate: professor.hireDate ? String(professor.hireDate).slice(0, 10) : '',
           assignedCampuses: (professor.assignedCampuses ?? []).map((campus) => Number(campus.id)),
+          qualifiedAreas: (professor.qualifiedAreas ?? []).map((area) => Number(area.id)),
           certifications: (professor.certifications ?? []).map((cert) => ({
             id: cert.id,
             title: cert.title ?? '',
@@ -167,6 +188,7 @@ export default function EditProfesorPage() {
         if (!cancelled) {
           setLoading(false)
           setLoadingCampuses(false)
+          setLoadingAreas(false)
         }
       }
     }
@@ -193,6 +215,15 @@ export default function EditProfesorPage() {
     setFormData((prev) => ({
       ...prev,
       assignedCampuses: [campusId],
+    }))
+  }
+
+  const toggleQualifiedArea = (areaId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      qualifiedAreas: prev.qualifiedAreas.includes(areaId)
+        ? prev.qualifiedAreas.filter((id) => id !== areaId)
+        : [...prev.qualifiedAreas, areaId],
     }))
   }
 
@@ -280,6 +311,7 @@ export default function EditProfesorPage() {
           reactivatedAt: formData.employmentStatus === 'active' ? new Date().toISOString() : null,
           hireDate: formData.hireDate,
           bio: formData.bio || null,
+          qualifiedAreas: formData.qualifiedAreas,
           certifications: formData.certifications
             .filter((cert) => cert.title.trim())
             .map((cert) => ({
@@ -432,6 +464,48 @@ export default function EditProfesorPage() {
             <div className="space-y-2">
               <Label htmlFor="position">Especialidad / Área</Label>
               <Input id="position" value={formData.position} onChange={handleInputChange('position')} required />
+            </div>
+
+            <div className="space-y-3 rounded-lg border p-4">
+              <div className="space-y-1">
+                <Label>Áreas habilitadas para docencia</Label>
+                <p className="text-sm text-muted-foreground">
+                  Estas áreas se usan para validar si el docente puede asignarse a una convocatoria sin incumplir la habilitación profesional.
+                </p>
+              </div>
+              {loadingAreas ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Cargando áreas...
+                </div>
+              ) : areas.length === 0 ? (
+                <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                  No hay áreas formativas activas disponibles. El sistema permitirá asignaciones, pero mostrará advertencias de validación.
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {areas.map((area) => {
+                    const selected = formData.qualifiedAreas.includes(area.id)
+                    return (
+                      <Button
+                        key={area.id}
+                        type="button"
+                        variant={selected ? 'default' : 'outline'}
+                        size="sm"
+                        aria-pressed={selected}
+                        onClick={() => toggleQualifiedArea(area.id)}
+                      >
+                        {area.nombre}
+                      </Button>
+                    )
+                  })}
+                </div>
+              )}
+              {formData.qualifiedAreas.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Sin áreas asignadas: las convocatorias mostrarán una advertencia hasta completar esta información.
+                </p>
+              ) : null}
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">

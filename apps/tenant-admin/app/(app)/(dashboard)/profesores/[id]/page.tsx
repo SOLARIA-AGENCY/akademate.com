@@ -69,6 +69,12 @@ interface Certification {
   year?: number | null
 }
 
+interface QualifiedArea {
+  id: number
+  nombre: string
+  codigo?: string | null
+}
+
 interface StaffMember {
   id: number
   staffType: string
@@ -85,6 +91,7 @@ interface StaffMember {
   photo: string
   bio?: string
   certifications?: Certification[]
+  qualifiedAreas?: QualifiedArea[]
   assignedCampuses: {
     id: number
     name: string
@@ -597,6 +604,30 @@ export default function ProfesorDetailPage() {
                 <p className="text-sm text-muted-foreground" data-oid="67h8..m">
                   No tiene sedes asignadas
                 </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <GraduationCap className="h-5 w-5" />
+                Áreas habilitadas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {professor.qualifiedAreas && professor.qualifiedAreas.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {professor.qualifiedAreas.map((area) => (
+                    <Badge key={area.id} variant="secondary">
+                      {area.nombre}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                  Sin áreas habilitadas cargadas. Las convocatorias podrán mostrar advertencias hasta completar esta información.
+                </div>
               )}
             </CardContent>
           </Card>

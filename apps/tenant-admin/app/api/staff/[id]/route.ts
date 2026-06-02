@@ -9,6 +9,12 @@ interface CampusRel {
   city: string;
 }
 
+interface AreaRel {
+  id: number;
+  nombre: string;
+  codigo?: string | null;
+}
+
 interface StaffDocument {
   id: number;
   staff_type: 'profesor' | 'administrativo';
@@ -31,6 +37,7 @@ interface StaffDocument {
   is_active: boolean;
   photo?: { id: number; filename?: string; url?: string | null } | number;
   assigned_campuses?: (CampusRel | number)[];
+  qualified_areas?: (AreaRel | number)[];
   createdAt: string;
   updatedAt: string;
 }
@@ -91,6 +98,14 @@ export async function GET(
       .filter((c): c is CampusRel => typeof c === 'object' && c !== null)
       .map((c) => ({ id: c.id, name: c.name, city: c.city }));
 
+    const qualifiedAreas = (staffMember.qualified_areas ?? [])
+      .filter((area): area is AreaRel => typeof area === 'object' && area !== null)
+      .map((area) => ({
+        id: area.id,
+        nombre: area.nombre,
+        codigo: area.codigo ?? null,
+      }));
+
     return NextResponse.json({
       success: true,
       data: {
@@ -115,6 +130,7 @@ export async function GET(
         photoId: photo.id,
         photo: photo.url,
         assignedCampuses: campuses,
+        qualifiedAreas,
         isActive: staffMember.is_active,
         createdAt: staffMember.createdAt,
         updatedAt: staffMember.updatedAt,

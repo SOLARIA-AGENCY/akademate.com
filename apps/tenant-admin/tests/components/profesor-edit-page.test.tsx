@@ -41,6 +41,9 @@ describe('EditProfesorPage', () => {
                     contractType: 'freelance',
                     employmentStatus: 'active',
                     assignedCampuses: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }],
+                    qualifiedAreas: [
+                      { id: 7, nombre: 'Área Salud, Bienestar y Deporte', codigo: 'salud' },
+                    ],
                     photo: '/placeholder-avatar.svg',
                   },
                 ],
@@ -61,6 +64,20 @@ describe('EditProfesorPage', () => {
           })
         }
 
+        if (url.startsWith('/api/areas-formativas')) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                success: true,
+                data: [
+                  { id: 7, nombre: 'Área Salud, Bienestar y Deporte', codigo: 'salud', active: true },
+                  { id: 8, nombre: 'Área Veterinaria y Bienestar Animal', codigo: 'veterinaria', active: true },
+                ],
+              }),
+          })
+        }
+
         return Promise.reject(new Error(`Unexpected URL: ${url}`))
       }) as unknown as typeof fetch,
     )
@@ -73,6 +90,7 @@ describe('EditProfesorPage', () => {
 
     expect(screen.getByText('Sede Norte - La Orotava')).toBeInTheDocument()
     expect(screen.getByText('Autónomo')).toBeInTheDocument()
+    expect(screen.getByText('Área Salud, Bienestar y Deporte')).toBeInTheDocument()
   })
 
   it('uses the generic teacher fallback instead of rendering the placeholder image', async () => {
@@ -105,6 +123,17 @@ describe('EditProfesorPage', () => {
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ docs: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }] }),
+          })
+        }
+
+        if (url.startsWith('/api/areas-formativas')) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                success: true,
+                data: [{ id: 7, nombre: 'Área Salud, Bienestar y Deporte', codigo: 'salud', active: true }],
+              }),
           })
         }
 

@@ -53,6 +53,12 @@ interface CertificationData {
   year: number | null;
 }
 
+interface QualifiedAreaData {
+  id: number;
+  codigo: string | null;
+  nombre: string;
+}
+
 /** Raw staff row returned from SQL query */
 interface StaffQueryRow {
   id: number;
@@ -86,6 +92,7 @@ interface StaffQueryRow {
   campuses: CampusData[];
   course_runs: CourseRunData[];
   certifications: CertificationData[];
+  qualified_areas: QualifiedAreaData[];
 }
 
 /** Request body for creating a staff member */
@@ -107,6 +114,7 @@ interface CreateStaffBody {
   hireDate: string;
   bio?: string;
   specialties?: Staff['specialties'];
+  qualifiedAreas?: (string | number)[];
   aliasNames?: string;
   detectedCourses?: string;
   certifications?: {
@@ -138,6 +146,7 @@ interface UpdateStaffBody {
   bio?: string | null;
   photoId?: string | number | null;
   specialties?: Staff['specialties'];
+  qualifiedAreas?: (string | number)[];
   aliasNames?: string | null;
   detectedCourses?: string | null;
   certifications?: {
@@ -169,6 +178,7 @@ interface StaffUpdateData {
   bio?: string | null;
   photo?: number | null;
   specialties?: Staff['specialties'];
+  qualified_areas?: number[];
   alias_names?: string | null;
   detected_courses?: string | null;
   certifications?: {
@@ -364,11 +374,23 @@ export async function GET(request: NextRequest) {
             )
           ) FILTER (WHERE cert.id IS NOT NULL),
           '[]'::json
-        ) as certifications
+        ) as certifications,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', area.id,
+              'codigo', area.codigo,
+              'nombre', area.nombre
+            )
+          ) FILTER (WHERE area.id IS NOT NULL),
+          '[]'::json
+        ) as qualified_areas
       FROM staff s
       LEFT JOIN media m ON s.photo_id = m.id
       LEFT JOIN staff_rels sr ON sr.parent_id = s.id AND sr.path = 'assigned_campuses'
       LEFT JOIN campuses c ON c.id = sr.campuses_id
+      LEFT JOIN staff_rels sr_area ON sr_area.parent_id = s.id AND sr_area.path = 'qualified_areas'
+      LEFT JOIN areas_formativas area ON area.id = sr_area.areas_formativas_id
       LEFT JOIN course_runs_rels crr ON crr.staff_id = s.id AND crr.path = 'instructors'
       LEFT JOIN course_runs cr ON cr.instructor_id = s.id OR cr.id = crr.parent_id
       LEFT JOIN courses course ON course.id = cr.course_id
@@ -411,6 +433,7 @@ export async function GET(request: NextRequest) {
         photo: resolveMediaUrl(member.photo_filename, member.photo_url),
         bio: member.bio,
         certifications: member.certifications || [],
+        qualifiedAreas: member.qualified_areas || [],
         assignedCampuses: member.campuses || [],
         courseRuns: member.course_runs || [],
         courseRunsCount: Array.isArray(member.course_runs) ? member.course_runs.length : 0,
@@ -462,6 +485,7 @@ export async function POST(request: NextRequest) {
       hireDate,
       bio,
       specialties,
+      qualifiedAreas,
       aliasNames,
       detectedCourses,
       certifications,
@@ -506,6 +530,7 @@ export async function POST(request: NextRequest) {
         bio: bio ?? undefined,
         photo: photoId ? parseInt(String(photoId)) : undefined,
         specialties: (specialties ?? []) as Staff['specialties'],
+        qualified_areas: (qualifiedAreas ?? []).map((id) => typeof id === 'string' ? parseInt(id) : id),
         alias_names: aliasNames ?? undefined,
         detected_courses: detectedCourses ?? undefined,
         certifications: certifications ?? [],
@@ -595,6 +620,10 @@ export async function PUT(request: NextRequest) {
     if (body.bio !== undefined) updateData.bio = body.bio;
     if (body.photoId !== undefined) updateData.photo = body.photoId ? parseInt(String(body.photoId)) : null;
     if (body.specialties) updateData.specialties = body.specialties as Staff['specialties'];
+    if (body.qualifiedAreas !== undefined)
+      updateData.qualified_areas = body.qualifiedAreas
+        .map((areaId) => typeof areaId === 'string' ? parseInt(areaId, 10) : areaId)
+        .filter((areaId) => Number.isFinite(areaId));
     if (body.aliasNames !== undefined) updateData.alias_names = body.aliasNames;
     if (body.detectedCourses !== undefined) updateData.detected_courses = body.detectedCourses;
     if (body.certifications) updateData.certifications = body.certifications;
