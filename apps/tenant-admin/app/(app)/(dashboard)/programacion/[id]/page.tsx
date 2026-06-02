@@ -66,7 +66,15 @@ function resolveImageUrl(image: any): string | null {
 }
 
 function getInstructorName(instructor: any): string {
-  return instructor?.full_name || `${instructor?.first_name || ''} ${instructor?.last_name || ''}`.trim() || 'Docente asignado'
+  return instructor?.full_name || instructor?.fullName || `${instructor?.first_name || instructor?.firstName || ''} ${instructor?.last_name || instructor?.lastName || ''}`.trim() || 'Docente asignado'
+}
+
+function getQualifiedAreaIds(member: any): string[] {
+  const areas = member?.qualified_areas ?? member?.qualifiedAreas ?? []
+  if (!Array.isArray(areas)) return []
+  return areas
+    .map((area) => relationId(area))
+    .filter(Boolean)
 }
 
 function formatDayLabel(day: string): string {
@@ -147,11 +155,15 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const [error, setError] = React.useState<string | null>(null)
   const [campuses, setCampuses] = React.useState<any[]>([])
   const [classrooms, setClassrooms] = React.useState<any[]>([])
+  const [staffCandidates, setStaffCandidates] = React.useState<any[]>([])
   const [availability, setAvailability] = React.useState<{ blockers: any[]; warnings: any[] } | null>(null)
+  const [instructorAvailability, setInstructorAvailability] = React.useState<{ blockers: any[]; warnings: any[] } | null>(null)
   const [availabilityLoading, setAvailabilityLoading] = React.useState(false)
+  const [instructorAvailabilityLoading, setInstructorAvailabilityLoading] = React.useState(false)
   const [editingDates, setEditingDates] = React.useState(false)
   const [editingPrice, setEditingPrice] = React.useState(false)
   const [editingLocation, setEditingLocation] = React.useState(false)
+  const [editingInstructor, setEditingInstructor] = React.useState(false)
   const [editingEnrollment, setEditingEnrollment] = React.useState(false)
   const [publishDialogOpen, setPublishDialogOpen] = React.useState(false)
   const [unpublishDialogOpen, setUnpublishDialogOpen] = React.useState(false)
@@ -170,6 +182,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     schedule_time_end: '',
     shift: 'morning',
   })
+  const [instructorForm, setInstructorForm] = React.useState({ instructor: '' })
 
   React.useEffect(() => {
     let mounted = true
@@ -203,7 +216,25 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
       schedule_time_end: toTimeInput(conv.schedule_time_end),
       shift: conv.shift || 'morning',
     })
+    setInstructorForm({
+      instructor: relationId(conv.instructor),
+    })
   }, [conv])
+
+  React.useEffect(() => {
+    if (!editingInstructor) return
+    let mounted = true
+    fetch('/api/staff?type=profesor&status=active&limit=200', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar docentes'))))
+      .then((data) => {
+        if (!mounted) return
+        setStaffCandidates(Array.isArray(data.data) ? data.data : [])
+      })
+      .catch(() => {
+        if (mounted) setStaffCandidates([])
+      })
+    return () => { mounted = false }
+  }, [editingInstructor])
 
   React.useEffect(() => {
     let mounted = true
@@ -279,6 +310,51 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
       window.clearTimeout(timer)
     }
   }, [conv?.end_date, conv?.start_date, dateForm.end_date, dateForm.start_date, editingLocation, id, locationForm])
+
+  React.useEffect(() => {
+    if (!editingInstructor || !instructorForm.instructor) {
+      setInstructorAvailability(null)
+      return
+    }
+
+    const params = new URLSearchParams()
+    params.set('instructor', instructorForm.instructor)
+    params.set('campus', locationForm.campus || relationId(conv?.campus))
+    params.set('classroom', locationForm.classroom || relationId(conv?.classroom))
+    params.set('start_date', dateForm.start_date || toDateInput(conv?.start_date))
+    params.set('end_date', dateForm.end_date || toDateInput(conv?.end_date))
+    params.set('schedule_time_start', locationForm.schedule_time_start || toTimeInput(conv?.schedule_time_start))
+    params.set('schedule_time_end', locationForm.schedule_time_end || toTimeInput(conv?.schedule_time_end))
+    params.set('shift', locationForm.shift || conv?.shift || 'morning')
+    const days = locationForm.schedule_days.length ? locationForm.schedule_days : Array.isArray(conv?.schedule_days) ? conv.schedule_days : []
+    for (const day of days) params.append('schedule_days', day)
+
+    let mounted = true
+    const timer = window.setTimeout(() => {
+      setInstructorAvailabilityLoading(true)
+      fetch(`/api/course-runs/${id}/availability?${params.toString()}`, { cache: 'no-store' })
+        .then((response) => (response.ok ? response.json() : Promise.reject(new Error('No se pudo validar el docente'))))
+        .then((data) => {
+          if (mounted) setInstructorAvailability(data.availability ?? null)
+        })
+        .catch((err) => {
+          if (mounted) {
+            setInstructorAvailability({
+              blockers: [{ message: err instanceof Error ? err.message : 'No se pudo validar el docente' }],
+              warnings: [],
+            })
+          }
+        })
+        .finally(() => {
+          if (mounted) setInstructorAvailabilityLoading(false)
+        })
+    }, 250)
+
+    return () => {
+      mounted = false
+      window.clearTimeout(timer)
+    }
+  }, [conv, dateForm.end_date, dateForm.start_date, editingInstructor, id, instructorForm.instructor, locationForm])
 
   async function saveRunPatch(payload: Record<string, unknown>) {
     setSaving(true)
@@ -373,6 +449,17 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     })) setEditingLocation(false)
   }
 
+  async function saveInstructor() {
+    const selectedInstructor = instructorForm.instructor.trim()
+    if (instructorAvailability?.blockers?.length) {
+      setSaveError('No se puede guardar el docente porque hay conflictos de planificación.')
+      return
+    }
+    if (await saveRunPatch({
+      instructor: selectedInstructor ? Number(selectedInstructor) : null,
+    })) setEditingInstructor(false)
+  }
+
   async function publishRun() {
     if (await saveRunPatch({ status: 'published', planning_status: 'published' })) {
       setPublishDialogOpen(false)
@@ -439,6 +526,9 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const instructorHref = instructor?.id ? `/dashboard/profesores/${instructor.id}` : null
   const availabilityBlockers = availability?.blockers ?? []
   const availabilityWarnings = availability?.warnings ?? []
+  const instructorAvailabilityBlockers = instructorAvailability?.blockers ?? []
+  const instructorAvailabilityWarnings = instructorAvailability?.warnings ?? []
+  const requiredAreaId = relationId(course?.area_formativa)
 
   return (
     <div className="space-y-6">
@@ -553,10 +643,12 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                 <GraduationCap className="h-4 w-4 text-primary" />
                 Profesores asignados
               </CardTitle>
-              <Button size="sm" variant="outline"><UserPlus className="mr-1.5 h-3.5 w-3.5" />Asignar</Button>
+              <Button size="sm" variant="outline" onClick={() => setEditingInstructor((value) => !value)}>
+                <UserPlus className="mr-1.5 h-3.5 w-3.5" />{instructor ? 'Cambiar' : 'Asignar'}
+              </Button>
             </CardHeader>
-            <CardContent>
-              {instructor ? (
+            <CardContent className="space-y-4">
+              {!editingInstructor && instructor ? (
                 <button
                   type="button"
                   onClick={() => instructorHref && router.push(instructorHref)}
@@ -599,9 +691,89 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                     </div>
                   </div>
                 </button>
-              ) : (
+              ) : !editingInstructor ? (
                 <div className="flex flex-col items-center justify-center py-6 text-center">
                   <p className="text-sm text-muted-foreground">No hay profesores asignados</p>
+                  <Button size="sm" className="mt-4" onClick={() => setEditingInstructor(true)}>
+                    <UserPlus className="mr-1.5 h-3.5 w-3.5" />
+                    Asignar docente
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Docente</Label>
+                    <Select
+                      value={instructorForm.instructor || '_none'}
+                      onValueChange={(value) => setInstructorForm({ instructor: value === '_none' ? '' : value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar docente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="_none">Sin docente asignado</SelectItem>
+                        {staffCandidates.map((member) => {
+                          const qualifiedAreaIds = getQualifiedAreaIds(member)
+                          const areaMismatch = requiredAreaId && qualifiedAreaIds.length > 0 && !qualifiedAreaIds.some((areaId) => String(areaId) === String(requiredAreaId))
+                          return (
+                            <SelectItem key={member.id} value={String(member.id)} disabled={Boolean(areaMismatch)}>
+                              {getInstructorName(member)}{areaMismatch ? ' · fuera de área' : ''}
+                            </SelectItem>
+                          )
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {staffCandidates.length === 0 && (
+                    <div className="rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                      No hay docentes activos disponibles para seleccionar.
+                    </div>
+                  )}
+
+                  {(instructorAvailabilityLoading || instructorAvailabilityBlockers.length > 0 || instructorAvailabilityWarnings.length > 0) && (
+                    <div className="space-y-2">
+                      {instructorAvailabilityLoading && (
+                        <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          Validando disponibilidad y área docente...
+                        </div>
+                      )}
+                      {instructorAvailabilityBlockers.map((item, index) => (
+                        <div key={`instructor-blocker-${index}`} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                          <span className="font-semibold">No disponible: </span>{item.message}
+                        </div>
+                      ))}
+                      {instructorAvailabilityWarnings.map((item, index) => (
+                        <div key={`instructor-warning-${index}`} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                          <span className="font-semibold">Aviso: </span>{item.message}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button
+                      className="flex-1"
+                      disabled={saving || instructorAvailabilityLoading || instructorAvailabilityBlockers.length > 0}
+                      onClick={saveInstructor}
+                    >
+                      {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                      Guardar docente
+                    </Button>
+                    <Button
+                      className="flex-1"
+                      variant="outline"
+                      disabled={saving}
+                      onClick={() => {
+                        setEditingInstructor(false)
+                        setInstructorForm({ instructor: relationId(conv.instructor) })
+                        setInstructorAvailability(null)
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
