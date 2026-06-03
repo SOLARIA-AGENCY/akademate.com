@@ -4,6 +4,7 @@ import {
   daysOverlap,
   evaluateInstructorAreaQualification,
   evaluateCourseRunAvailability,
+  findTenantDoc,
   normalizeTime,
   relationId,
   relationIds,
@@ -83,6 +84,40 @@ describe('course-run planning helpers', () => {
       ok: true,
       reason: 'no_qualified_areas',
     }))
+  })
+
+  it('finds tenant documents in collections that do not expose a queryable tenant path', async () => {
+    const payload = {
+      find: vi.fn(async ({ where }: { where: any }) => {
+        if (where?.and?.some((item: any) => item.tenant)) {
+          throw new Error('The following path cannot be queried: tenant')
+        }
+        return { docs: [{ id: 44, full_name: 'Docente global', is_active: true }] }
+      }),
+    }
+
+    await expect(findTenantDoc(payload, 'staff', 44, 1)).resolves.toEqual(expect.objectContaining({
+      id: 44,
+      full_name: 'Docente global',
+    }))
+    expect(payload.find).toHaveBeenCalledTimes(2)
+    expect(payload.find).toHaveBeenLastCalledWith(expect.objectContaining({
+      collection: 'staff',
+      where: { id: { equals: 44 } },
+    }))
+  })
+
+  it('does not return a document from another tenant after tenant-query fallback', async () => {
+    const payload = {
+      find: vi.fn(async ({ where }: { where: any }) => {
+        if (where?.and?.some((item: any) => item.tenant)) {
+          throw new Error('The following path cannot be queried: tenant')
+        }
+        return { docs: [{ id: 187, tenant_id: 99, name: 'Curso externo' }] }
+      }),
+    }
+
+    await expect(findTenantDoc(payload, 'courses', 187, 1)).resolves.toBeNull()
   })
 })
 

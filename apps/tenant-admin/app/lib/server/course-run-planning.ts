@@ -155,17 +155,50 @@ export function validatePublicationReadiness(candidate: CourseRunPlanningDoc) {
   return blockers
 }
 
+function isNonQueryablePathError(error: unknown, path: string) {
+  return error instanceof Error && error.message.includes(`path cannot be queried: ${path}`)
+}
+
+function docTenantId(doc: any): string | number | null {
+  return relationId(doc?.tenant as RelationValue)
+    ?? relationId(doc?.tenant_id as RelationValue)
+    ?? relationId(doc?.tenantId as RelationValue)
+}
+
+function belongsToTenantOrGlobal(doc: any, tenantId: number) {
+  const currentTenantId = docTenantId(doc)
+  return currentTenantId == null || String(currentTenantId) === String(tenantId)
+}
+
 export async function findTenantDoc(payload: any, collection: string, id: unknown, tenantId: number) {
   const resolvedId = relationId(id as RelationValue)
   if (resolvedId == null) return null
-  const result = await payload.find({
-    collection,
-    where: { and: [{ tenant: { equals: tenantId } }, { id: { equals: resolvedId } }] },
-    limit: 1,
-    depth: 0,
-    overrideAccess: true,
-  })
-  return result.docs[0] ?? null
+
+  const byIdWhere = { id: { equals: resolvedId } }
+  let result: { docs?: any[] }
+
+  try {
+    result = await payload.find({
+      collection,
+      where: { and: [{ tenant: { equals: tenantId } }, byIdWhere] },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+  } catch (error) {
+    if (!isNonQueryablePathError(error, 'tenant')) throw error
+    result = await payload.find({
+      collection,
+      where: byIdWhere,
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+  }
+
+  const doc = result.docs?.[0] ?? null
+  if (!doc) return null
+  return belongsToTenantOrGlobal(doc, tenantId) ? doc : null
 }
 
 export async function getCourseRunRequiredAreaId(
