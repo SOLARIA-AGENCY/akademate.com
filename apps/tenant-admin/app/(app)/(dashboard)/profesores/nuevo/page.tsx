@@ -152,6 +152,10 @@ export default function NewProfesorPage() {
     setError(null)
 
     try {
+      if (formData.qualifiedAreas.length === 0) {
+        throw new Error('Asigna al menos un área habilitada antes de guardar este docente.')
+      }
+
       const response = await fetch('/api/staff', {
         method: 'POST',
         headers: {
@@ -182,13 +186,9 @@ export default function NewProfesorPage() {
         }),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to create professor')
-      }
-
       const result = (await response.json()) as StaffApiResponse
 
-      if (!result.success) {
+      if (!response.ok || !result.success) {
         throw new Error(result.error ?? 'Error creating professor')
       }
 
@@ -453,7 +453,7 @@ export default function NewProfesorPage() {
               <div className="space-y-1">
                 <Label>Áreas habilitadas para docencia</Label>
                 <p className="text-sm text-muted-foreground">
-                  Estas áreas habilitan al docente para aparecer como candidato válido en convocatorias de cursos del mismo ámbito.
+                  Selecciona al menos un área. Sin áreas habilitadas no se puede guardar una ficha docente ni asignarla a convocatorias.
                 </p>
               </div>
               {loadingAreas ? (
@@ -485,8 +485,8 @@ export default function NewProfesorPage() {
                 </div>
               )}
               {formData.qualifiedAreas.length === 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  Sin áreas asignadas: el sistema avisará al intentar asignar este docente a una convocatoria.
+                <p className="text-xs font-medium text-destructive">
+                  Obligatorio: asigna al menos un área habilitada para poder guardar este docente.
                 </p>
               ) : null}
             </div>

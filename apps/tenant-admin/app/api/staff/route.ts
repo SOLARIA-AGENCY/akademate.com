@@ -191,6 +191,33 @@ interface StaffUpdateData {
   is_active?: boolean;
 }
 
+function isTeachingStaffType(staffType?: string | null): boolean {
+  return staffType === 'profesor' || staffType === 'academico'
+}
+
+function normalizeQualifiedAreaIds(qualifiedAreas?: (string | number)[]): number[] {
+  return (qualifiedAreas ?? [])
+    .map((areaId) => typeof areaId === 'string' ? parseInt(areaId, 10) : areaId)
+    .filter((areaId) => Number.isFinite(areaId))
+}
+
+type StaffWithQualifiedAreas = Staff & {
+  qualified_areas?: (number | string | { id?: number | string | null })[] | null
+}
+
+function getExistingQualifiedAreaIds(staff: StaffWithQualifiedAreas | undefined | null): number[] {
+  const areas = staff?.qualified_areas
+  if (!Array.isArray(areas)) return []
+  return areas
+    .map((area) => {
+      if (typeof area === 'number') return area
+      if (typeof area === 'string') return parseInt(area, 10)
+      if (area && typeof area === 'object' && 'id' in area) return Number(area.id)
+      return NaN
+    })
+    .filter((areaId) => Number.isFinite(areaId))
+}
+
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -504,6 +531,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const normalizedQualifiedAreas = normalizeQualifiedAreaIds(qualifiedAreas)
+    if (isTeachingStaffType(staffType) && normalizedQualifiedAreas.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Un docente debe tener al menos un área habilitada para poder darse de alta.',
+        },
+        { status: 400 }
+      );
+    }
+
     const payload = await initPayload();
 
     // Crear miembro del personal
@@ -530,7 +568,7 @@ export async function POST(request: NextRequest) {
         bio: bio ?? undefined,
         photo: photoId ? parseInt(String(photoId)) : undefined,
         specialties: (specialties ?? []) as Staff['specialties'],
-        qualified_areas: (qualifiedAreas ?? []).map((id) => typeof id === 'string' ? parseInt(id) : id),
+        qualified_areas: normalizedQualifiedAreas,
         alias_names: aliasNames ?? undefined,
         detected_courses: detectedCourses ?? undefined,
         certifications: certifications ?? [],
@@ -621,15 +659,25 @@ export async function PUT(request: NextRequest) {
     if (body.photoId !== undefined) updateData.photo = body.photoId ? parseInt(String(body.photoId)) : null;
     if (body.specialties) updateData.specialties = body.specialties as Staff['specialties'];
     if (body.qualifiedAreas !== undefined)
-      updateData.qualified_areas = body.qualifiedAreas
-        .map((areaId) => typeof areaId === 'string' ? parseInt(areaId, 10) : areaId)
-        .filter((areaId) => Number.isFinite(areaId));
+      updateData.qualified_areas = normalizeQualifiedAreaIds(body.qualifiedAreas);
     if (body.aliasNames !== undefined) updateData.alias_names = body.aliasNames;
     if (body.detectedCourses !== undefined) updateData.detected_courses = body.detectedCourses;
     if (body.certifications) updateData.certifications = body.certifications;
     if (body.assignedCampuses)
       updateData.assigned_campuses = body.assignedCampuses.map((cid) => typeof cid === 'string' ? parseInt(cid) : cid);
     if (body.isActive !== undefined) updateData.is_active = body.isActive;
+
+    const effectiveStaffType = current.staff_type;
+    const effectiveQualifiedAreas = updateData.qualified_areas ?? getExistingQualifiedAreaIds(current);
+    if (isTeachingStaffType(effectiveStaffType) && effectiveQualifiedAreas.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Un docente debe tener al menos un área habilitada antes de guardar la ficha.',
+        },
+        { status: 400 }
+      );
+    }
 
     const staffMember = await payload.update({
       collection: 'staff',

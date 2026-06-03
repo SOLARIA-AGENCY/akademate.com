@@ -294,6 +294,10 @@ export default function EditProfesorPage() {
     setError(null)
 
     try {
+      if (formData.qualifiedAreas.length === 0) {
+        throw new Error('Asigna al menos un área habilitada antes de guardar este docente.')
+      }
+
       const response = await fetch(`/api/staff?id=${professorId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -470,7 +474,7 @@ export default function EditProfesorPage() {
               <div className="space-y-1">
                 <Label>Áreas habilitadas para docencia</Label>
                 <p className="text-sm text-muted-foreground">
-                  Estas áreas se usan para validar si el docente puede asignarse a una convocatoria sin incumplir la habilitación profesional.
+                  Selecciona al menos un área. Sin áreas habilitadas no se puede guardar una ficha docente ni asignarla a convocatorias.
                 </p>
               </div>
               {loadingAreas ? (
@@ -502,8 +506,8 @@ export default function EditProfesorPage() {
                 </div>
               )}
               {formData.qualifiedAreas.length === 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  Sin áreas asignadas: las convocatorias mostrarán una advertencia hasta completar esta información.
+                <p className="text-xs font-medium text-destructive">
+                  Obligatorio: asigna al menos un área habilitada para poder guardar este docente.
                 </p>
               ) : null}
             </div>

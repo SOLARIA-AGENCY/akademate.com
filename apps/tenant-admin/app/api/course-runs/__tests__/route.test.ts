@@ -104,7 +104,7 @@ function installFindRouter(options?: {
               full_name: options?.inactiveStaff ? 'Docente Inactivo' : 'Docente Activo',
               is_active: !options?.inactiveStaff,
               employment_status: options?.inactiveStaff ? 'inactive' : 'active',
-              qualified_areas: options?.staffQualifiedAreas ?? [],
+              qualified_areas: options?.staffQualifiedAreas ?? [7],
             }],
       }
     }

@@ -224,7 +224,13 @@ export function evaluateInstructorAreaQualification(
   }
 
   if (qualifiedAreaIds.length === 0) {
-    return { ok: true, reason: 'no_qualified_areas', requiredAreaId, qualifiedAreaIds }
+    return {
+      ok: false,
+      reason: 'no_qualified_areas',
+      requiredAreaId,
+      qualifiedAreaIds,
+      message: `${instructor?.full_name ?? 'El docente'} no tiene áreas habilitadas para impartir esta convocatoria.`,
+    }
   }
 
   const ok = qualifiedAreaIds.some((areaId) => String(areaId) === String(requiredAreaId))

@@ -81,8 +81,9 @@ describe('course-run planning helpers', () => {
     }))
 
     expect(evaluateInstructorAreaQualification({ full_name: 'Docente', qualified_areas: [] }, 4)).toEqual(expect.objectContaining({
-      ok: true,
+      ok: false,
       reason: 'no_qualified_areas',
+      requiredAreaId: 4,
     }))
   })
 

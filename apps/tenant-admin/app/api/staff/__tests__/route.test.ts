@@ -31,8 +31,10 @@ describe('/api/staff qualified areas', () => {
     vi.clearAllMocks()
     payloadMock.findByID.mockResolvedValue({
       id: 44,
+      staff_type: 'profesor',
       employment_status: 'active',
       contract_type: 'full_time',
+      qualified_areas: [7],
     })
     payloadMock.update.mockResolvedValue({
       id: 44,
@@ -99,6 +101,79 @@ describe('/api/staff qualified areas', () => {
       collection: 'staff',
       data: expect.objectContaining({
         qualified_areas: [7, 9],
+      }),
+    }))
+  })
+
+  it('rejects creating a teacher without qualified areas', async () => {
+    const { POST } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff', {
+      method: 'POST',
+      body: JSON.stringify({
+        staffType: 'profesor',
+        firstName: 'Docente',
+        lastName: 'Sin Areas',
+        email: 'docente@example.com',
+        position: 'Sanidad',
+        hireDate: '2026-06-01',
+        assignedCampuses: [1],
+        qualifiedAreas: [],
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await POST(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(json.error).toMatch(/área habilitada/i)
+    expect(payloadMock.create).not.toHaveBeenCalled()
+  })
+
+  it('rejects removing all qualified areas from an existing teacher', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        qualifiedAreas: [],
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(json.error).toMatch(/área habilitada/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('allows administrative staff without teaching areas', async () => {
+    const { POST } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff', {
+      method: 'POST',
+      body: JSON.stringify({
+        staffType: 'administrativo',
+        firstName: 'Admin',
+        lastName: 'Test',
+        email: 'admin@example.com',
+        position: 'Administración',
+        hireDate: '2026-06-01',
+        assignedCampuses: [1],
+        qualifiedAreas: [],
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await POST(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        staff_type: 'administrativo',
+        qualified_areas: [],
       }),
     }))
   })

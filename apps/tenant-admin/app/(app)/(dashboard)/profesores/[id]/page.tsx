@@ -625,8 +625,8 @@ export default function ProfesorDetailPage() {
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                  Sin áreas habilitadas cargadas. Las convocatorias podrán mostrar advertencias hasta completar esta información.
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                  Bloqueado para convocatorias: este docente necesita al menos un área habilitada en su ficha.
                 </div>
               )}
             </CardContent>
