@@ -1,6 +1,6 @@
 import type { CollectionConfig, FieldAccess } from 'payload';
 import { canEditStaff, canManageStaff } from './access';
-import { trackStaffCreator } from './hooks';
+import { trackStaffCreator, validateTeachingAreas } from './hooks';
 
 /**
  * Type definitions for Staff collection
@@ -727,6 +727,9 @@ export const Staff: CollectionConfig = {
    * Hooks - Business logic and validation
    */
   hooks: {
+    beforeValidate: [
+      validateTeachingAreas,
+    ],
     /**
      * Before Change: Run after validation, before database write
      */

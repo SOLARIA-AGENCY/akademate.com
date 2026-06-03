@@ -3,6 +3,11 @@ import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
 import type { CourseRun, Course, Campus } from '../../../src/payload-types';
+import {
+  evaluateInstructorAreaQualification,
+  relationId,
+  type RelationValue,
+} from '@/app/lib/server/course-run-planning';
 
 // ============================================================================
 // Type Definitions
@@ -88,9 +93,13 @@ interface CampaignLike {
 }
 
 interface StaffLike {
+  id?: number | string;
   full_name?: string | null;
   first_name?: string | null;
   last_name?: string | null;
+  is_active?: boolean | null;
+  employment_status?: string | null;
+  qualified_areas?: unknown;
 }
 
 /** Data structure for course-run creation */
@@ -214,6 +223,27 @@ function getRelationId(value: unknown): string | null {
     return id == null ? null : String(id);
   }
   return null;
+}
+
+async function getCourseRequiredAreaId(
+  payload: LoosePayloadClient,
+  course: unknown,
+): Promise<string | number | null> {
+  if (course && typeof course === 'object') {
+    const areaId = relationId((course as { area_formativa?: RelationValue }).area_formativa);
+    if (areaId != null) return areaId;
+  }
+
+  const courseId = getRelationId(course);
+  if (!courseId) return null;
+
+  const courseDoc = await payload.findByID({
+    collection: 'courses',
+    id: courseId,
+    depth: 1,
+  });
+
+  return relationId((courseDoc as { area_formativa?: RelationValue }).area_formativa);
 }
 
 function formatSchedule(days?: string[] | null, start?: string | null, end?: string | null): string {
@@ -406,8 +436,40 @@ export async function PATCH(request: NextRequest) {
     const current = await payloadLoose.findByID({
       collection: 'course-runs',
       id: convocatoriaId,
-      depth: 0,
+      depth: 2,
     })
+
+    const professor = await payloadLoose.findByID({
+      collection: 'staff',
+      id: profesorId,
+      depth: 1,
+    }) as StaffLike
+
+    if (!professor) {
+      return NextResponse.json(
+        { success: false, error: 'El docente seleccionado no existe.' },
+        { status: 404 },
+      )
+    }
+
+    if (professor.is_active === false || (professor.employment_status && professor.employment_status !== 'active')) {
+      return NextResponse.json(
+        { success: false, error: 'El docente seleccionado no está activo.' },
+        { status: 400 },
+      )
+    }
+
+    const requiredAreaId = await getCourseRequiredAreaId(payloadLoose, current.course)
+    const qualification = evaluateInstructorAreaQualification(professor, requiredAreaId)
+    if (!qualification.ok) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: qualification.message ?? 'El docente no está habilitado para el área formativa de esta convocatoria.',
+        },
+        { status: 400 },
+      )
+    }
 
     const existingInstructors = Array.isArray(current.instructors)
       ? current.instructors
