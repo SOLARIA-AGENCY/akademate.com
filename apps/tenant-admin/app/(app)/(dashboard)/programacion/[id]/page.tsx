@@ -595,6 +595,15 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   }
 
   async function publishRun() {
+    const hasPlanningBlockers = [
+      ...(availability?.blockers ?? []),
+      ...(instructorAvailability?.blockers ?? []),
+      ...(sessionAvailability?.blockers ?? []),
+    ].length > 0
+    if (hasPlanningBlockers) {
+      setSaveError('No se puede publicar hasta resolver los conflictos de aula, horario o docente.')
+      return
+    }
     if (await saveRunPatch({ status: 'published', planning_status: 'published' })) {
       setPublishDialogOpen(false)
     }
@@ -676,6 +685,20 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const sessionOccupancy = sessionAvailability?.occupancy ?? []
   const sessionOccupancyBlockers = sessionAvailability?.blockers ?? []
   const sessionOccupancyWarnings = sessionAvailability?.warnings ?? []
+  const planningPublicationBlockers = [
+    ...availabilityBlockers,
+    ...instructorAvailabilityBlockers,
+    ...sessionOccupancyBlockers,
+  ]
+  const planningPublicationWarnings = [
+    ...availabilityWarnings,
+    ...instructorAvailabilityWarnings,
+    ...sessionOccupancyWarnings,
+  ]
+  const publicationBlockerCount = publicationReadiness.blockers.length + planningPublicationBlockers.length
+  const publicationWarningCount = publicationReadiness.warnings.length + planningPublicationWarnings.length
+  const publicationValidationLoading = availabilityLoading || instructorAvailabilityLoading || sessionAvailabilityLoading
+  const canPublishRun = publicationBlockerCount === 0 && !publicationValidationLoading
 
   return (
     <div className="space-y-6">
@@ -777,8 +800,12 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                     Configura la convocatoria en orden: sede, fechas, turno, aula, docente y sesiones. La disponibilidad se valida contra aulas y docentes ocupados.
                   </p>
                 </div>
-                <Badge variant={publicationReadiness.blockers.length === 0 ? 'success' : 'outline'} className="shrink-0">
-                  {publicationReadiness.blockers.length === 0 ? 'Lista para publicar' : `${publicationReadiness.blockers.length} pendientes`}
+                <Badge variant={canPublishRun ? 'success' : 'outline'} className="shrink-0">
+                  {publicationValidationLoading
+                    ? 'Validando'
+                    : canPublishRun
+                      ? 'Lista para publicar'
+                      : `${publicationBlockerCount} pendientes`}
                 </Badge>
               </div>
             </CardHeader>
@@ -1522,11 +1549,13 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
               </div>
 
               <div className="rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
-                {publicationReadiness.blockers.length > 0
-                  ? `Faltan ${publicationReadiness.blockers.length} requisito(s) obligatorios para publicar.`
-                  : publicationReadiness.warnings.length > 0
-                    ? 'Puede publicarse, aunque conviene completar avisos operativos antes de activar campañas.'
-                    : 'Configuración mínima lista para publicar.'}
+                {publicationValidationLoading
+                  ? 'Validando disponibilidad de aula, horario y docentes antes de publicar.'
+                  : publicationBlockerCount > 0
+                    ? `Faltan ${publicationBlockerCount} requisito(s) o conflictos por resolver antes de publicar.`
+                    : publicationWarningCount > 0
+                      ? 'Puede publicarse, aunque conviene completar avisos operativos antes de activar campañas.'
+                      : 'Configuración operativa lista para publicar.'}
               </div>
 
               <div className="grid gap-2">
@@ -1536,7 +1565,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                     Despublicar
                   </Button>
                 ) : (
-                  <Button className="w-full" onClick={() => setPublishDialogOpen(true)}>
+                  <Button className="w-full" disabled={publicationValidationLoading} onClick={() => setPublishDialogOpen(true)}>
                     <CheckCircle2 className="mr-2 h-4 w-4" />
                     Publicar convocatoria
                   </Button>
@@ -1611,7 +1640,22 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                 </Badge>
               </div>
             ))}
-            {publicationReadiness.warnings.length > 0 && (
+            {planningPublicationBlockers.length > 0 && (
+              <div className="space-y-2">
+                {planningPublicationBlockers.map((item, index) => (
+                  <div key={`publish-planning-blocker-${index}`} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                    <span className="font-semibold">Bloqueo operativo: </span>{item.message}
+                  </div>
+                ))}
+              </div>
+            )}
+            {publicationValidationLoading && (
+              <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Validando disponibilidad antes de publicar...
+              </div>
+            )}
+            {publicationWarningCount > 0 && (
               <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
                 Puedes publicar con avisos, pero conviene completar sede, aula, horario y docente antes de activar campañas.
               </p>
@@ -1619,7 +1663,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPublishDialogOpen(false)}>Cancelar</Button>
-            <Button disabled={saving || publicationReadiness.blockers.length > 0} onClick={publishRun}>
+            <Button disabled={saving || !canPublishRun} onClick={publishRun}>
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
               Publicar convocatoria
             </Button>
