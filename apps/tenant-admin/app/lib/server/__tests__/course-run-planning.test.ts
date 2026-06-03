@@ -235,4 +235,21 @@ describe('evaluateCourseRunAvailability', () => {
       expect.objectContaining({ weekday: 'wednesday', status: 'available', conflicts: [] }),
     ])
   })
+
+  it('can return a full weekly occupancy map for visual planning', async () => {
+    const payload = payloadWithRuns([])
+
+    const availability = await evaluateCourseRunAvailability(payload, readyPresentialRun, 1, { includeWeekMap: true })
+
+    expect(availability.occupancy).toHaveLength(7)
+    expect(availability.occupancy).toEqual([
+      expect.objectContaining({ weekday: 'monday', selected: true, status: 'available', timeStart: '10:00:00' }),
+      expect.objectContaining({ weekday: 'tuesday', selected: false, status: 'not_selected', timeStart: null }),
+      expect.objectContaining({ weekday: 'wednesday', selected: true, status: 'available', timeStart: '10:00:00' }),
+      expect.objectContaining({ weekday: 'thursday', selected: false, status: 'not_selected', timeStart: null }),
+      expect.objectContaining({ weekday: 'friday', selected: false, status: 'not_selected', timeStart: null }),
+      expect.objectContaining({ weekday: 'saturday', selected: false, status: 'not_selected', timeStart: null }),
+      expect.objectContaining({ weekday: 'sunday', selected: false, status: 'not_selected', timeStart: null }),
+    ])
+  })
 })

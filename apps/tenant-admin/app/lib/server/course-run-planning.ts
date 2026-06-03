@@ -59,7 +59,8 @@ export type PlanningOccupancySlot = {
   weekday: string
   timeStart?: string | null
   timeEnd?: string | null
-  status: 'available' | 'blocked'
+  status: 'available' | 'blocked' | 'not_selected'
+  selected?: boolean
   conflicts: PlanningConflict[]
 }
 
@@ -68,6 +69,12 @@ export type PlanningAvailability = {
   warnings: PlanningConflict[]
   occupancy?: PlanningOccupancySlot[]
 }
+
+export type CourseRunAvailabilityOptions = {
+  includeWeekMap?: boolean
+}
+
+export const PLANNING_WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const
 
 export function relationId(value: RelationValue): string | number | null {
   if (typeof value === 'string' || typeof value === 'number') return value
@@ -202,6 +209,7 @@ export async function evaluateCourseRunAvailability(
   payload: any,
   candidate: CourseRunPlanningDoc,
   tenantId: number,
+  options: CourseRunAvailabilityOptions = {},
 ): Promise<PlanningAvailability> {
   const blockers: PlanningConflict[] = []
   const warnings: PlanningConflict[] = []
@@ -215,19 +223,28 @@ export async function evaluateCourseRunAvailability(
     return { blockers, warnings }
   }
 
-  const occupancy: PlanningOccupancySlot[] = candidate.schedule_days.map((weekday) => ({
-    weekday,
-    timeStart: candidate.schedule_time_start,
-    timeEnd: candidate.schedule_time_end,
-    status: 'available',
-    conflicts: [],
-  }))
+  const selectedWeekdays = new Set(candidate.schedule_days)
+  const occupancyWeekdays = options.includeWeekMap ? [...PLANNING_WEEKDAYS] : candidate.schedule_days
+  const occupancy: PlanningOccupancySlot[] = occupancyWeekdays.map((weekday) => {
+    const selected = selectedWeekdays.has(weekday)
+    return {
+      weekday,
+      timeStart: selected ? candidate.schedule_time_start : null,
+      timeEnd: selected ? candidate.schedule_time_end : null,
+      selected,
+      status: selected ? 'available' : 'not_selected',
+      conflicts: [],
+    }
+  })
 
   function markOccupied(weekdays: string[], conflict: PlanningConflict) {
     for (const weekday of weekdays) {
       const slot = occupancy.find((item) => item.weekday === weekday)
       if (!slot) continue
       slot.status = 'blocked'
+      slot.selected = true
+      slot.timeStart = candidate.schedule_time_start
+      slot.timeEnd = candidate.schedule_time_end
       slot.conflicts.push(conflict)
     }
   }

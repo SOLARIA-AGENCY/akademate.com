@@ -60,7 +60,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       instructors: instructorsParams.length > 0 ? instructorsParams : current.instructors,
     }
 
-    const availability = await evaluateCourseRunAvailability(payload, candidate, authContext.tenantId)
+    const availability = await evaluateCourseRunAvailability(payload, candidate, authContext.tenantId, {
+      includeWeekMap: searchParams.get('occupancy') === 'week',
+    })
     const instructorIds = [
       relationId(candidate.instructor),
       ...(Array.isArray(candidate.instructors) ? candidate.instructors.map((item) => relationId(item)) : []),
