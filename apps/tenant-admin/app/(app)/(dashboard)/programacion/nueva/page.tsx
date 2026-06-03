@@ -18,6 +18,7 @@ import {
 } from '@payload-config/components/ui/select'
 import {
   Calendar,
+  Clock,
   MapPin,
   User,
   Plus,
@@ -28,6 +29,7 @@ import {
   ChevronUp,
   Check,
   Lock,
+  XCircle,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -60,7 +62,7 @@ interface Course {
 }
 
 interface StaffMember {
-  id: string
+  id: string | number
   first_name?: string
   last_name?: string
   firstName?: string
@@ -74,6 +76,29 @@ interface Campus {
   name: string
   slug?: string
   code?: string
+}
+
+interface Classroom {
+  id: string | number
+  code?: string
+  name?: string
+  nombre?: string
+  capacity?: number
+  capacidad?: number
+  usage_policy?: string
+  enabled_shifts?: string[]
+}
+
+interface AvailabilityMessage {
+  type: string
+  severity: 'blocker' | 'warning'
+  message: string
+}
+
+interface AvailabilityState {
+  blockers: AvailabilityMessage[]
+  warnings: AvailabilityMessage[]
+  unavailableInstructorIds?: Array<string | number>
 }
 
 // Combined item for the course/cycle selector
@@ -96,20 +121,49 @@ interface FormState {
   course: string // course ID (required by API)
   campus: string
   instructor: string
+  classroom: string
   start_date: string
   end_date: string
+  schedule_days: string[]
+  schedule_time_start: string
+  schedule_time_end: string
+  shift: string
   max_students: number
   min_students: number
   price_override: string // string so empty = no override
   status: string
+  enrollment_status: string
   codigo: string
   notes: string
 }
+
+const WEEKDAY_OPTIONS = [
+  { value: 'monday', label: 'Lunes' },
+  { value: 'tuesday', label: 'Martes' },
+  { value: 'wednesday', label: 'Miércoles' },
+  { value: 'thursday', label: 'Jueves' },
+  { value: 'friday', label: 'Viernes' },
+  { value: 'saturday', label: 'Sábado' },
+  { value: 'sunday', label: 'Domingo' },
+] as const
+
+const SHIFT_OPTIONS = [
+  { value: 'morning', label: 'Mañana' },
+  { value: 'afternoon', label: 'Tarde' },
+  { value: 'evening_extra', label: 'Tercer turno' },
+] as const
 
 const STATUS_OPTIONS = [
   { value: 'draft', label: 'Sin publicar' },
   { value: 'published', label: 'Planificada' },
   { value: 'enrollment_open', label: 'Abierta' },
+] as const
+
+const ENROLLMENT_STATUS_OPTIONS = [
+  { value: 'open', label: 'Matrícula abierta' },
+  { value: 'closed', label: 'Matrícula cerrada' },
+  { value: 'scheduled', label: 'Apertura programada' },
+  { value: 'always_open', label: 'Matrícula permanente' },
 ] as const
 
 function resolveMediaUrl(media: MediaRef): string | null {
@@ -124,6 +178,13 @@ function resolveMediaUrl(media: MediaRef): string | null {
 function formatCurrency(value?: number | null): string {
   if (value == null || value <= 0) return 'Consultar'
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value)
+}
+
+function normalizeTimeForApi(value: string): string | undefined {
+  if (!value.trim()) return undefined
+  if (/^\d{2}:\d{2}$/.test(value)) return `${value}:00`
+  if (/^\d{2}:\d{2}:\d{2}$/.test(value)) return value
+  return undefined
 }
 
 function courseLabel(course: Course): string {
@@ -382,11 +443,15 @@ export default function NuevaConvocatoriaPage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [staff, setStaff] = useState<StaffMember[]>([])
   const [campuses, setCampuses] = useState<Campus[]>([])
+  const [classrooms, setClassrooms] = useState<Classroom[]>([])
 
   // UI state
   const [loading, setLoading] = useState(true)
+  const [classroomsLoading, setClassroomsLoading] = useState(false)
+  const [availabilityLoading, setAvailabilityLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [availability, setAvailability] = useState<AvailabilityState | null>(null)
 
   // Inline creation form toggles
   const [showNewSede, setShowNewSede] = useState(false)
@@ -397,12 +462,18 @@ export default function NuevaConvocatoriaPage() {
     course: '',
     campus: '',
     instructor: '',
+    classroom: '',
     start_date: '',
     end_date: '',
+    schedule_days: [],
+    schedule_time_start: '',
+    schedule_time_end: '',
+    shift: 'morning',
     max_students: 30,
     min_students: 5,
     price_override: '',
     status: 'draft',
+    enrollment_status: 'open',
     codigo: '',
     notes: '',
   })
@@ -480,12 +551,122 @@ export default function NuevaConvocatoriaPage() {
     setForm((prev) => (prev.course ? prev : { ...prev, course: lockedProgramValue }))
   }, [lockedProgramValue])
 
+  useEffect(() => {
+    if (!form.campus) {
+      setClassrooms([])
+      setForm((prev) => (prev.classroom ? { ...prev, classroom: '' } : prev))
+      return
+    }
+
+    let mounted = true
+    setClassroomsLoading(true)
+    fetch(`/api/aulas?campus_id=${encodeURIComponent(form.campus)}&active=true`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar aulas'))))
+      .then((data) => {
+        if (!mounted) return
+        setClassrooms(data.data ?? [])
+      })
+      .catch((err) => {
+        console.error('Error loading classrooms:', err)
+        if (mounted) setClassrooms([])
+      })
+      .finally(() => {
+        if (mounted) setClassroomsLoading(false)
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [form.campus])
+
+  useEffect(() => {
+    const hasPlanningSlot = Boolean(
+      form.course &&
+      form.campus &&
+      form.start_date &&
+      form.end_date &&
+      form.schedule_days.length &&
+      form.schedule_time_start &&
+      form.schedule_time_end,
+    )
+
+    if (!hasPlanningSlot) {
+      setAvailability(null)
+      return
+    }
+
+    const params = new URLSearchParams()
+    const selectedType = form.course.startsWith('cycle:') ? 'cycle' : 'course'
+    const selectedId = form.course.replace(/^course:/, '').replace(/^cycle:/, '')
+    params.set(selectedType, selectedId)
+    params.set('campus', form.campus)
+    if (form.classroom) params.set('classroom', form.classroom)
+    if (form.instructor) params.set('instructor', form.instructor)
+    params.set('start_date', form.start_date)
+    params.set('end_date', form.end_date)
+    params.set('shift', form.shift)
+    params.set('schedule_time_start', normalizeTimeForApi(form.schedule_time_start) ?? form.schedule_time_start)
+    params.set('schedule_time_end', normalizeTimeForApi(form.schedule_time_end) ?? form.schedule_time_end)
+    params.set('max_students', String(form.max_students || 0))
+    params.set('training_type', selectedType === 'cycle' ? 'cycle' : 'private')
+    for (const day of form.schedule_days) params.append('schedule_days', day)
+
+    let mounted = true
+    setAvailabilityLoading(true)
+    fetch(`/api/course-runs/availability?${params.toString()}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudo validar disponibilidad'))))
+      .then((data) => {
+        if (mounted) setAvailability(data.availability ?? null)
+      })
+      .catch((err) => {
+        console.error('Error validating new course run availability:', err)
+        if (mounted) {
+          setAvailability({
+            blockers: [{
+              type: 'availability_error',
+              severity: 'blocker',
+              message: 'No se pudo validar disponibilidad. Revisa conexión y vuelve a intentarlo.',
+            }],
+            warnings: [],
+          })
+        }
+      })
+      .finally(() => {
+        if (mounted) setAvailabilityLoading(false)
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [
+    form.campus,
+    form.classroom,
+    form.course,
+    form.end_date,
+    form.instructor,
+    form.max_students,
+    form.schedule_days,
+    form.schedule_time_end,
+    form.schedule_time_start,
+    form.shift,
+    form.start_date,
+  ])
+
   // -------------------------------------------------------------------------
   // Helpers
   // -------------------------------------------------------------------------
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const toggleScheduleDay = (day: string) => {
+    setForm((prev) => ({
+      ...prev,
+      schedule_days: prev.schedule_days.includes(day)
+        ? prev.schedule_days.filter((item) => item !== day)
+        : [...prev.schedule_days, day],
+    }))
   }
 
   const staffDisplayName = (s: StaffMember) =>
@@ -497,7 +678,7 @@ export default function NuevaConvocatoriaPage() {
   // Inline creation callbacks
   const handleSedeCreated = useCallback((newCampus: Campus) => {
     setCampuses((prev) => [...prev, newCampus])
-    setForm((prev) => ({ ...prev, campus: String(newCampus.id) }))
+    setForm((prev) => ({ ...prev, campus: String(newCampus.id), classroom: '' }))
     setShowNewSede(false)
   }, [])
 
@@ -536,13 +717,20 @@ export default function NuevaConvocatoriaPage() {
       body.training_type = 'cycle'
     } else {
       body.course = selectedId
+      body.training_type = 'private'
     }
 
     if (form.start_date) body.start_date = form.start_date
     if (form.end_date) body.end_date = form.end_date
     if (form.campus) body.campus = form.campus
+    if (form.classroom) body.classroom = form.classroom
     if (form.instructor) body.instructor = form.instructor
+    if (form.schedule_days.length > 0) body.schedule_days = form.schedule_days
+    if (form.schedule_time_start) body.schedule_time_start = normalizeTimeForApi(form.schedule_time_start)
+    if (form.schedule_time_end) body.schedule_time_end = normalizeTimeForApi(form.schedule_time_end)
+    if (form.shift) body.shift = form.shift
     if (form.price_override !== '') body.price_override = Number(form.price_override)
+    if (form.enrollment_status) body.enrollment_status = form.enrollment_status
     if (form.notes) body.notes = form.notes
 
     try {
@@ -571,7 +759,11 @@ export default function NuevaConvocatoriaPage() {
   const canSubmit =
     form.course !== '' &&
     form.campus !== '' &&
+    (!form.start_date || !form.end_date || new Date(form.end_date) >= new Date(form.start_date)) &&
+    (!form.schedule_time_start || !form.schedule_time_end || form.schedule_time_end > form.schedule_time_start) &&
     form.max_students > 0 &&
+    !availabilityLoading &&
+    (availability?.blockers.length ?? 0) === 0 &&
     !submitting
 
   // -------------------------------------------------------------------------
@@ -760,7 +952,7 @@ export default function NuevaConvocatoriaPage() {
           <Label htmlFor="campus">Sede *</Label>
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <Select value={form.campus} onValueChange={(v) => updateField('campus', v)}>
+              <Select value={form.campus} onValueChange={(v) => setForm((prev) => ({ ...prev, campus: v, classroom: '' }))}>
                 <SelectTrigger id="campus">
                   <SelectValue placeholder="Seleccionar sede" />
                 </SelectTrigger>
@@ -800,28 +992,147 @@ export default function NuevaConvocatoriaPage() {
         </div>
 
         {/* ----------------------------------------------------------------- */}
+        {/* Fechas, turno y horario */}
+        {/* ----------------------------------------------------------------- */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="start_date">Fecha inicio *</Label>
+            <Input
+              id="start_date"
+              type="date"
+              value={form.start_date}
+              onChange={(e) => updateField('start_date', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="end_date">Fecha fin *</Label>
+            <Input
+              id="end_date"
+              type="date"
+              value={form.end_date}
+              onChange={(e) => updateField('end_date', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="shift">Turno</Label>
+            <Select value={form.shift} onValueChange={(v) => updateField('shift', v)}>
+              <SelectTrigger id="shift">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SHIFT_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <Label>Días de clase</Label>
+          <div className="flex flex-wrap gap-2">
+            {WEEKDAY_OPTIONS.map((day) => {
+              const selected = form.schedule_days.includes(day.value)
+              return (
+                <Button
+                  key={day.value}
+                  type="button"
+                  variant={selected ? 'default' : 'outline'}
+                  size="sm"
+                  className={selected ? 'bg-[#f2014b] text-white hover:bg-[#c9013f]' : ''}
+                  onClick={() => toggleScheduleDay(day.value)}
+                >
+                  {day.label}
+                </Button>
+              )
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Selecciona los días reales de clase. Se usarán para validar aula y docente.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="schedule_time_start">Hora inicio</Label>
+            <Input
+              id="schedule_time_start"
+              type="time"
+              value={form.schedule_time_start}
+              onChange={(e) => updateField('schedule_time_start', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="schedule_time_end">Hora fin</Label>
+            <Input
+              id="schedule_time_end"
+              type="time"
+              value={form.schedule_time_end}
+              onChange={(e) => updateField('schedule_time_end', e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* ----------------------------------------------------------------- */}
+        {/* Aula */}
+        {/* ----------------------------------------------------------------- */}
+        <div className="space-y-2">
+          <Label htmlFor="classroom">Aula</Label>
+          <Select
+            value={form.classroom || '_none'}
+            onValueChange={(v) => updateField('classroom', v === '_none' ? '' : v)}
+            disabled={!form.campus || classroomsLoading}
+          >
+            <SelectTrigger id="classroom">
+              <SelectValue placeholder={classroomsLoading ? 'Cargando aulas...' : 'Seleccionar aula'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_none">Sin aula asignada</SelectItem>
+              {classrooms.map((classroom) => {
+                const capacity = classroom.capacity ?? classroom.capacidad
+                return (
+                  <SelectItem key={classroom.id} value={String(classroom.id)}>
+                    <span className="flex items-center gap-2">
+                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                      {classroom.name ?? classroom.nombre ?? classroom.code ?? `Aula ${classroom.id}`}
+                      {capacity ? <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{capacity} plazas</Badge> : null}
+                    </span>
+                  </SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
+          {!form.campus && <p className="text-xs text-muted-foreground">Selecciona una sede para ver sus aulas.</p>}
+        </div>
+
+        {/* ----------------------------------------------------------------- */}
         {/* Profesor + inline creation */}
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
-          <Label htmlFor="instructor">Profesor *</Label>
+          <Label htmlFor="instructor">Profesor</Label>
           <div className="flex items-center gap-2">
             <div className="flex-1">
               <Select
-                value={form.instructor}
-                onValueChange={(v) => updateField('instructor', v)}
+                value={form.instructor || '_none'}
+                onValueChange={(v) => updateField('instructor', v === '_none' ? '' : v)}
               >
                 <SelectTrigger id="instructor">
                   <SelectValue placeholder="Seleccionar profesor" />
                 </SelectTrigger>
                 <SelectContent>
-                  {staff.map((s) => (
-                    <SelectItem key={s.id} value={String(s.id)}>
-                      <span className="flex items-center gap-2">
-                        <User className="h-3.5 w-3.5 text-muted-foreground" />
-                        {staffDisplayName(s)}
-                      </span>
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="_none">Sin profesor asignado</SelectItem>
+                  {staff.map((s) => {
+                    const unavailable = availability?.unavailableInstructorIds?.some((id) => String(id) === String(s.id)) ?? false
+                    return (
+                      <SelectItem key={s.id} value={String(s.id)} disabled={unavailable}>
+                        <span className="flex items-center gap-2">
+                          <User className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span>{staffDisplayName(s)}</span>
+                          {unavailable && <span className="text-xs text-red-600">No disponible</span>}
+                        </span>
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -841,31 +1152,39 @@ export default function NuevaConvocatoriaPage() {
             </Button>
           </div>
           {showNewProfesor && <InlineProfesorForm onCreated={handleProfesorCreated} compact />}
+          <p className="text-xs text-muted-foreground">
+            Los docentes ocupados en la misma franja aparecen deshabilitados. La compatibilidad de área se valida antes de guardar.
+          </p>
         </div>
 
-        {/* ----------------------------------------------------------------- */}
-        {/* Fechas */}
-        {/* ----------------------------------------------------------------- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="start_date">Fecha inicio *</Label>
-            <Input
-              id="start_date"
-              type="date"
-              value={form.start_date}
-              onChange={(e) => updateField('start_date', e.target.value)}
-            />
+        {(availabilityLoading || availability?.blockers.length || availability?.warnings.length) ? (
+          <div className="space-y-2 rounded-xl border bg-muted/30 p-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              {availabilityLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              ) : availability?.blockers.length ? (
+                <XCircle className="h-4 w-4 text-red-600" />
+              ) : (
+                <Check className="h-4 w-4 text-emerald-600" />
+              )}
+              Validación de disponibilidad
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              {form.schedule_days.length ? `${form.schedule_days.length} día(s)` : 'Sin días'} · {form.schedule_time_start || '--:--'} - {form.schedule_time_end || '--:--'}
+            </div>
+            {availabilityLoading && <p className="text-sm text-muted-foreground">Validando aula, horario y docente...</p>}
+            {availability?.blockers.map((item, index) => (
+              <p key={`blocker-${index}`} className="text-sm text-red-700">{item.message}</p>
+            ))}
+            {availability?.warnings.map((item, index) => (
+              <p key={`warning-${index}`} className="text-sm text-amber-700">{item.message}</p>
+            ))}
+            {!availabilityLoading && availability && availability.blockers.length === 0 && availability.warnings.length === 0 && (
+              <p className="text-sm text-emerald-700">No se detectan conflictos para la configuración actual.</p>
+            )}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="end_date">Fecha fin *</Label>
-            <Input
-              id="end_date"
-              type="date"
-              value={form.end_date}
-              onChange={(e) => updateField('end_date', e.target.value)}
-            />
-          </div>
-        </div>
+        ) : null}
 
         {/* ----------------------------------------------------------------- */}
         {/* Plazas */}
@@ -929,6 +1248,25 @@ export default function NuevaConvocatoriaPage() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="enrollment_status">Estado de matrícula</Label>
+          <Select value={form.enrollment_status} onValueChange={(v) => updateField('enrollment_status', v)}>
+            <SelectTrigger id="enrollment_status">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ENROLLMENT_STATUS_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Controla si la convocatoria acepta inscripciones en la web pública cuando se publique.
+          </p>
         </div>
 
         {/* ----------------------------------------------------------------- */}

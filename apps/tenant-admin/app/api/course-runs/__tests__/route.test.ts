@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET, PATCH } from '../[id]/route'
 import { GET as GET_AVAILABILITY } from '../[id]/availability/route'
+import { GET as GET_NEW_AVAILABILITY } from '../availability/route'
 import { POST as GENERATE_SESSIONS } from '../[id]/generate-sessions/route'
 
 const { payloadMock, authMock } = vi.hoisted(() => ({
@@ -484,6 +485,19 @@ describe('/api/course-runs/[id]', () => {
         severity: 'blocker',
       }),
     ])
+  })
+
+  it('validates a new course run candidate before creation', async () => {
+    installFindRouter({ conflict: true, staffQualifiedAreas: [7], conflictInstructor: 44 })
+    const response = await GET_NEW_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/availability?course=187&campus=1&classroom=10&instructor=44&start_date=2026-09-01&end_date=2026-11-17&schedule_days=monday&schedule_time_start=09:00&schedule_time_end=13:00&shift=morning'))
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.blockers).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'classroom_overlap' }),
+      expect.objectContaining({ type: 'instructor_overlap' }),
+    ]))
+    expect(data.availability.unavailableInstructorIds).toEqual([44])
   })
 
   it('generates concrete sessions from a configured convocatoria without duplicating existing sessions', async () => {
