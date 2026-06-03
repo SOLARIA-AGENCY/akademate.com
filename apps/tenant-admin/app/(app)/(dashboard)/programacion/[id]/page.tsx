@@ -854,6 +854,266 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
+          {/* Sede y aula */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" />Sede, aula y horario</CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => setEditingLocation((value) => !value)}>
+                <Pencil className="mr-1.5 h-3.5 w-3.5" />{campus ? 'Cambiar' : 'Asignar'}
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              {!editingLocation ? (
+                <>
+                  <p className="font-medium">{campus?.name ?? 'Sin sede asignada'}</p>
+                  {campus?.address && <p className="text-muted-foreground">{campus.address}</p>}
+                  {campus?.city && <p className="text-muted-foreground">{campus.city}{campus.postal_code ? `, ${campus.postal_code}` : ''}</p>}
+                  {campus?.phone && <p className="text-muted-foreground">{campus.phone}</p>}
+                  {conv.classroom && (
+                    <p className="rounded-md bg-muted px-3 py-2 text-muted-foreground">
+                      Aula: <span className="font-medium text-foreground">{typeof conv.classroom === 'object' ? (conv.classroom.name ?? conv.classroom.code) : conv.classroom}</span>
+                    </p>
+                  )}
+                  {campus && (
+                    <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => router.push(`/dashboard/sedes/${campus.id}`)}>
+                      Ver sede <ChevronRight className="h-3 w-3 ml-1" />
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Sede</Label>
+                    <Select
+                      value={locationForm.campus || '_none'}
+                      onValueChange={(value) => setLocationForm((form) => ({ ...form, campus: value === '_none' ? '' : value, classroom: '' }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar sede" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="_none">Seleccionar sede</SelectItem>
+                        {campuses.map((item) => <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Aula</Label>
+                    <Select
+                      value={locationForm.classroom || '_none'}
+                      onValueChange={(value) => setLocationForm((form) => ({ ...form, classroom: value === '_none' ? '' : value }))}
+                      disabled={!locationForm.campus}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sin aula asignada" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="_none">Sin aula asignada</SelectItem>
+                        {classrooms.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>{item.name} · {item.capacity} plazas</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {(availabilityLoading || availabilityBlockers.length > 0 || availabilityWarnings.length > 0) && (
+                    <div className="space-y-2">
+                      {availabilityLoading && (
+                        <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          Validando disponibilidad de aula y horario...
+                        </div>
+                      )}
+                      {availabilityBlockers.map((item, index) => (
+                        <div key={`blocker-${index}`} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                          <span className="font-semibold">No disponible: </span>{item.message}
+                        </div>
+                      ))}
+                      {availabilityWarnings.map((item, index) => (
+                        <div key={`warning-${index}`} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                          <span className="font-semibold">Aviso: </span>{item.message}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-xs font-medium text-muted-foreground">Días</span>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {WEEKDAY_OPTIONS.map(([value, label]) => (
+                        <Label key={value} className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs">
+                          <Checkbox
+                            checked={locationForm.schedule_days.includes(value)}
+                            onCheckedChange={(checked) => setLocationForm((form) => ({
+                              ...form,
+                              schedule_days: checked
+                                ? [...form.schedule_days, value]
+                                : form.schedule_days.filter((day) => day !== value),
+                            }))}
+                          />
+                          {label}
+                        </Label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground">Hora inicio</Label>
+                      <Input type="time" value={locationForm.schedule_time_start} onChange={(event) => setLocationForm((form) => ({ ...form, schedule_time_start: event.target.value }))} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground">Hora fin</Label>
+                      <Input type="time" value={locationForm.schedule_time_end} onChange={(event) => setLocationForm((form) => ({ ...form, schedule_time_end: event.target.value }))} />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Turno</Label>
+                    <Select value={locationForm.shift} onValueChange={(value) => setLocationForm((form) => ({ ...form, shift: value }))}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="morning">Mañana</SelectItem>
+                        <SelectItem value="afternoon">Tarde</SelectItem>
+                        <SelectItem value="evening_extra">Tercer turno</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button className="w-full" disabled={saving || availabilityLoading || availabilityBlockers.length > 0} onClick={saveLocation}>
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                    Guardar sede y horario
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Fechas */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2"><Clock className="h-4 w-4" />Fechas</CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => setEditingDates((value) => !value)}>
+                <Pencil className="mr-1.5 h-3.5 w-3.5" />Editar
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              {!editingDates ? (
+                <>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Inicio</span><span className="font-medium">{conv.start_date ? new Date(conv.start_date).toLocaleDateString('es-ES') : 'Por definir'}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Fin</span><span className="font-medium">{conv.end_date ? new Date(conv.end_date).toLocaleDateString('es-ES') : 'Por definir'}</span></div>
+                  {conv.enrollment_deadline && <div className="flex justify-between"><span className="text-muted-foreground">Limite inscripcion</span><span className="font-medium">{new Date(conv.enrollment_deadline).toLocaleDateString('es-ES')}</span></div>}
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Fecha inicio</Label>
+                    <Input type="date" value={dateForm.start_date} onChange={(event) => setDateForm((form) => ({ ...form, start_date: event.target.value }))} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Fecha fin</Label>
+                    <Input type="date" value={dateForm.end_date} onChange={(event) => setDateForm((form) => ({ ...form, end_date: event.target.value }))} />
+                  </div>
+                  <Button className="w-full" disabled={saving} onClick={saveDates}>
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                    Guardar fechas
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Matrícula */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2"><Users className="h-4 w-4" />Matrícula</CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => setEditingEnrollment((value) => !value)}>
+                <Pencil className="mr-1.5 h-3.5 w-3.5" />Editar
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              {!editingEnrollment ? (
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-muted-foreground">Estado</span>
+                    <Badge variant={enrollmentBadgeVariant}>{enrollmentStatus.label}</Badge>
+                  </div>
+                  <p className="rounded-md bg-muted px-3 py-2 text-xs leading-5 text-muted-foreground">
+                    {enrollmentStatus.description}
+                  </p>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-muted-foreground">Límite</span>
+                    <span className="text-right font-medium">
+                      {conv.enrollment_deadline ? new Date(conv.enrollment_deadline).toLocaleDateString('es-ES') : 'Sin fecha límite'}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Estado de matrícula</Label>
+                    <Select
+                      value={enrollmentForm.enrollment_status}
+                      onValueChange={(value) => setEnrollmentForm((form) => ({ ...form, enrollment_status: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(COURSE_RUN_ENROLLMENT_STATUS_INFO).map(([key, config]) => (
+                          <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Fecha límite</Label>
+                    <Input
+                      type="date"
+                      value={enrollmentForm.enrollment_deadline}
+                      onChange={(event) => setEnrollmentForm((form) => ({ ...form, enrollment_deadline: event.target.value }))}
+                    />
+                  </div>
+                  <Button className="w-full" disabled={saving} onClick={saveEnrollment}>
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                    Guardar matrícula
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Precios */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base flex items-center gap-2"><DollarSign className="h-4 w-4" />Precios</CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => setEditingPrice((value) => !value)}>
+                <Pencil className="mr-1.5 h-3.5 w-3.5" />Editar
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              {!editingPrice ? (
+                <>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Precio total</span><span className="text-lg font-bold text-primary">{formatCurrency(conv.price_override)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Matrícula / reserva</span><span className="font-medium">{formatCurrency(conv.enrollment_fee_snapshot)}</span></div>
+                  {conv.financial_aid_available && <Badge variant="outline" className="text-xs">Financiacion disponible</Badge>}
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Precio total</Label>
+                    <Input type="number" min="0" step="0.01" placeholder="Consultar" value={priceForm.price_override} onChange={(event) => setPriceForm((form) => ({ ...form, price_override: event.target.value }))} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Matrícula / reserva</Label>
+                    <Input type="number" min="0" step="0.01" placeholder="Consultar" value={priceForm.enrollment_fee_snapshot} onChange={(event) => setPriceForm((form) => ({ ...form, enrollment_fee_snapshot: event.target.value }))} />
+                  </div>
+                  <Button className="w-full" disabled={saving} onClick={savePrice}>
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                    Guardar precio
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Alumnos matriculados */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -1093,208 +1353,6 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
-          {/* Notas */}
-          {conv.notes && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Notas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{conv.notes}</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          <Card className="lg:sticky lg:top-6">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <FileText className="h-4 w-4 text-primary" />
-                Resumen de convocatoria
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">Publicación</span>
-                  <Badge variant={status.variant}>{status.label}</Badge>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">Matrícula</span>
-                  <Badge variant={enrollmentBadgeVariant}>{enrollmentStatus.label}</Badge>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">Plazas</span>
-                  <span className="font-medium">{inscritos}/{plazas}</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">Ocupación</span>
-                  <span className="font-medium">{porcentaje}%</span>
-                </div>
-              </div>
-
-              <div className="rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
-                {publicationReadiness.blockers.length > 0
-                  ? `Faltan ${publicationReadiness.blockers.length} requisito(s) obligatorios para publicar.`
-                  : publicationReadiness.warnings.length > 0
-                    ? 'Puede publicarse, aunque conviene completar avisos operativos antes de activar campañas.'
-                    : 'Configuración mínima lista para publicar.'}
-              </div>
-
-              <div className="grid gap-2">
-                {isPublicRun ? (
-                  <Button variant="outline" className="w-full" onClick={() => setUnpublishDialogOpen(true)}>
-                    <AlertCircle className="mr-2 h-4 w-4" />
-                    Despublicar
-                  </Button>
-                ) : (
-                  <Button className="w-full" onClick={() => setPublishDialogOpen(true)}>
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Publicar convocatoria
-                  </Button>
-                )}
-                <Button variant="outline" className="w-full" onClick={() => router.push(`/dashboard/programacion/${id}/ficha`)}>
-                  <Printer className="mr-2 h-4 w-4" />
-                  Imprimir ficha
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Sede y aula */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" />Sede</CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setEditingLocation((value) => !value)}>
-                <Pencil className="mr-1.5 h-3.5 w-3.5" />{campus ? 'Cambiar' : 'Asignar'}
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              {!editingLocation ? (
-                <>
-                  <p className="font-medium">{campus?.name ?? 'Sin sede asignada'}</p>
-                  {campus?.address && <p className="text-muted-foreground">{campus.address}</p>}
-                  {campus?.city && <p className="text-muted-foreground">{campus.city}{campus.postal_code ? `, ${campus.postal_code}` : ''}</p>}
-                  {campus?.phone && <p className="text-muted-foreground">{campus.phone}</p>}
-                  {conv.classroom && (
-                    <p className="rounded-md bg-muted px-3 py-2 text-muted-foreground">
-                      Aula: <span className="font-medium text-foreground">{typeof conv.classroom === 'object' ? (conv.classroom.name ?? conv.classroom.code) : conv.classroom}</span>
-                    </p>
-                  )}
-                  {campus && (
-                    <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => router.push(`/dashboard/sedes/${campus.id}`)}>
-                      Ver sede <ChevronRight className="h-3 w-3 ml-1" />
-                    </Button>
-                  )}
-                </>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Sede</Label>
-                    <Select
-                      value={locationForm.campus || '_none'}
-                      onValueChange={(value) => setLocationForm((form) => ({ ...form, campus: value === '_none' ? '' : value, classroom: '' }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar sede" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="_none">Seleccionar sede</SelectItem>
-                        {campuses.map((item) => <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Aula</Label>
-                    <Select
-                      value={locationForm.classroom || '_none'}
-                      onValueChange={(value) => setLocationForm((form) => ({ ...form, classroom: value === '_none' ? '' : value }))}
-                      disabled={!locationForm.campus}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sin aula asignada" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="_none">Sin aula asignada</SelectItem>
-                        {classrooms.map((item) => (
-                          <SelectItem key={item.id} value={String(item.id)}>{item.name} · {item.capacity} plazas</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {(availabilityLoading || availabilityBlockers.length > 0 || availabilityWarnings.length > 0) && (
-                    <div className="space-y-2">
-                      {availabilityLoading && (
-                        <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          Validando disponibilidad de aula y horario...
-                        </div>
-                      )}
-                      {availabilityBlockers.map((item, index) => (
-                        <div key={`blocker-${index}`} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
-                          <span className="font-semibold">No disponible: </span>{item.message}
-                        </div>
-                      ))}
-                      {availabilityWarnings.map((item, index) => (
-                        <div key={`warning-${index}`} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
-                          <span className="font-semibold">Aviso: </span>{item.message}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-xs font-medium text-muted-foreground">Días</span>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      {WEEKDAY_OPTIONS.map(([value, label]) => (
-                        <Label key={value} className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs">
-                          <Checkbox
-                            checked={locationForm.schedule_days.includes(value)}
-                            onCheckedChange={(checked) => setLocationForm((form) => ({
-                              ...form,
-                              schedule_days: checked
-                                ? [...form.schedule_days, value]
-                                : form.schedule_days.filter((day) => day !== value),
-                            }))}
-                          />
-                          {label}
-                        </Label>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex flex-col gap-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">Hora inicio</Label>
-                      <Input type="time" value={locationForm.schedule_time_start} onChange={(event) => setLocationForm((form) => ({ ...form, schedule_time_start: event.target.value }))} />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">Hora fin</Label>
-                      <Input type="time" value={locationForm.schedule_time_end} onChange={(event) => setLocationForm((form) => ({ ...form, schedule_time_end: event.target.value }))} />
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Turno</Label>
-                    <Select value={locationForm.shift} onValueChange={(value) => setLocationForm((form) => ({ ...form, shift: value }))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="morning">Mañana</SelectItem>
-                        <SelectItem value="afternoon">Tarde</SelectItem>
-                        <SelectItem value="evening_extra">Tercer turno</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button className="w-full" disabled={saving || availabilityLoading || availabilityBlockers.length > 0} onClick={saveLocation}>
-                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Guardar sede y horario
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
           {/* Sesiones */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -1421,131 +1479,73 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
-          {/* Matrícula */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><Users className="h-4 w-4" />Matrícula</CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setEditingEnrollment((value) => !value)}>
-                <Pencil className="mr-1.5 h-3.5 w-3.5" />Editar
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              {!editingEnrollment ? (
-                <>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-muted-foreground">Estado</span>
-                    <Badge variant={enrollmentBadgeVariant}>{enrollmentStatus.label}</Badge>
-                  </div>
-                  <p className="rounded-md bg-muted px-3 py-2 text-xs leading-5 text-muted-foreground">
-                    {enrollmentStatus.description}
-                  </p>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-muted-foreground">Límite</span>
-                    <span className="text-right font-medium">
-                      {conv.enrollment_deadline ? new Date(conv.enrollment_deadline).toLocaleDateString('es-ES') : 'Sin fecha límite'}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Estado de matrícula</Label>
-                    <Select
-                      value={enrollmentForm.enrollment_status}
-                      onValueChange={(value) => setEnrollmentForm((form) => ({ ...form, enrollment_status: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(COURSE_RUN_ENROLLMENT_STATUS_INFO).map(([key, config]) => (
-                          <SelectItem key={key} value={key}>{config.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Fecha límite</Label>
-                    <Input
-                      type="date"
-                      value={enrollmentForm.enrollment_deadline}
-                      onChange={(event) => setEnrollmentForm((form) => ({ ...form, enrollment_deadline: event.target.value }))}
-                    />
-                  </div>
-                  <Button className="w-full" disabled={saving} onClick={saveEnrollment}>
-                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Guardar matrícula
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Notas */}
+          {conv.notes && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Notas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{conv.notes}</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
-          {/* Fechas */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><Clock className="h-4 w-4" />Fechas</CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setEditingDates((value) => !value)}>
-                <Pencil className="mr-1.5 h-3.5 w-3.5" />Editar
-              </Button>
+        {/* Sidebar */}
+        <div className="space-y-6">
+          <Card className="lg:sticky lg:top-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                Resumen de convocatoria
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              {!editingDates ? (
-                <>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Inicio</span><span className="font-medium">{conv.start_date ? new Date(conv.start_date).toLocaleDateString('es-ES') : 'Por definir'}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Fin</span><span className="font-medium">{conv.end_date ? new Date(conv.end_date).toLocaleDateString('es-ES') : 'Por definir'}</span></div>
-                  {conv.enrollment_deadline && <div className="flex justify-between"><span className="text-muted-foreground">Limite inscripcion</span><span className="font-medium">{new Date(conv.enrollment_deadline).toLocaleDateString('es-ES')}</span></div>}
-                </>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Fecha inicio</Label>
-                    <Input type="date" value={dateForm.start_date} onChange={(event) => setDateForm((form) => ({ ...form, start_date: event.target.value }))} />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Fecha fin</Label>
-                    <Input type="date" value={dateForm.end_date} onChange={(event) => setDateForm((form) => ({ ...form, end_date: event.target.value }))} />
-                  </div>
-                  <Button className="w-full" disabled={saving} onClick={saveDates}>
-                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Guardar fechas
-                  </Button>
+            <CardContent className="space-y-4 text-sm">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Publicación</span>
+                  <Badge variant={status.variant}>{status.label}</Badge>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Matrícula</span>
+                  <Badge variant={enrollmentBadgeVariant}>{enrollmentStatus.label}</Badge>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Plazas</span>
+                  <span className="font-medium">{inscritos}/{plazas}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Ocupación</span>
+                  <span className="font-medium">{porcentaje}%</span>
+                </div>
+              </div>
 
-          {/* Precios */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><DollarSign className="h-4 w-4" />Precios</CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setEditingPrice((value) => !value)}>
-                <Pencil className="mr-1.5 h-3.5 w-3.5" />Editar
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              {!editingPrice ? (
-                <>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Precio total</span><span className="text-lg font-bold text-primary">{formatCurrency(conv.price_override)}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Matrícula / reserva</span><span className="font-medium">{formatCurrency(conv.enrollment_fee_snapshot)}</span></div>
-                  {conv.financial_aid_available && <Badge variant="outline" className="text-xs">Financiacion disponible</Badge>}
-                </>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Precio total</Label>
-                    <Input type="number" min="0" step="0.01" placeholder="Consultar" value={priceForm.price_override} onChange={(event) => setPriceForm((form) => ({ ...form, price_override: event.target.value }))} />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium text-muted-foreground">Matrícula / reserva</Label>
-                    <Input type="number" min="0" step="0.01" placeholder="Consultar" value={priceForm.enrollment_fee_snapshot} onChange={(event) => setPriceForm((form) => ({ ...form, enrollment_fee_snapshot: event.target.value }))} />
-                  </div>
-                  <Button className="w-full" disabled={saving} onClick={savePrice}>
-                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Guardar precio
+              <div className="rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
+                {publicationReadiness.blockers.length > 0
+                  ? `Faltan ${publicationReadiness.blockers.length} requisito(s) obligatorios para publicar.`
+                  : publicationReadiness.warnings.length > 0
+                    ? 'Puede publicarse, aunque conviene completar avisos operativos antes de activar campañas.'
+                    : 'Configuración mínima lista para publicar.'}
+              </div>
+
+              <div className="grid gap-2">
+                {isPublicRun ? (
+                  <Button variant="outline" className="w-full" onClick={() => setUnpublishDialogOpen(true)}>
+                    <AlertCircle className="mr-2 h-4 w-4" />
+                    Despublicar
                   </Button>
-                </div>
-              )}
+                ) : (
+                  <Button className="w-full" onClick={() => setPublishDialogOpen(true)}>
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Publicar convocatoria
+                  </Button>
+                )}
+                <Button variant="outline" className="w-full" onClick={() => router.push(`/dashboard/programacion/${id}/ficha`)}>
+                  <Printer className="mr-2 h-4 w-4" />
+                  Imprimir ficha
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
