@@ -661,6 +661,10 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const instructorAvailabilityWarnings = instructorAvailability?.warnings ?? []
   const unavailableInstructorIds = new Set((instructorAvailability?.unavailableInstructorIds ?? []).map((item) => String(item)))
   const requiredAreaId = relationId(course?.area_formativa)
+  const requiredAreaName =
+    course && typeof course.area_formativa === 'object' && course.area_formativa
+      ? course.area_formativa.nombre || course.area_formativa.name || null
+      : null
   const sessionConfigComplete = Boolean(
     conv.start_date &&
     conv.end_date &&
@@ -761,6 +765,95 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
+          <Card className="border-primary/15 bg-primary/[0.015]">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    Configuración operativa
+                  </CardTitle>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Configura la convocatoria en orden: sede, fechas, turno, aula, docente y sesiones. La disponibilidad se valida contra aulas y docentes ocupados.
+                  </p>
+                </div>
+                <Badge variant={publicationReadiness.blockers.length === 0 ? 'success' : 'outline'} className="shrink-0">
+                  {publicationReadiness.blockers.length === 0 ? 'Lista para publicar' : `${publicationReadiness.blockers.length} pendientes`}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 md:grid-cols-2">
+                {[
+                  {
+                    label: '1. Sede y aula',
+                    value: `${campus?.name ?? 'Sin sede'} · ${typeof conv.classroom === 'object' && conv.classroom ? (conv.classroom.name ?? conv.classroom.code ?? 'Aula asignada') : 'Sin aula'}`,
+                    ok: Boolean(campus && conv.classroom),
+                    action: () => setEditingLocation(true),
+                    actionLabel: campus ? 'Cambiar sede/aula' : 'Asignar sede',
+                  },
+                  {
+                    label: '2. Fechas y turno',
+                    value: `${conv.start_date ? new Date(conv.start_date).toLocaleDateString('es-ES') : 'Inicio pendiente'} · ${runSchedule}`,
+                    ok: Boolean(conv.start_date && conv.end_date && conv.schedule_time_start && conv.schedule_time_end),
+                    action: () => {
+                      setEditingDates(true)
+                      setEditingLocation(true)
+                    },
+                    actionLabel: 'Editar fechas/turno',
+                  },
+                  {
+                    label: '3. Docentes habilitados',
+                    value: assignedInstructors.length
+                      ? assignedInstructors.map(getInstructorName).join(', ')
+                      : `Sin docente${requiredAreaName ? ` · área requerida: ${requiredAreaName}` : ''}`,
+                    ok: assignedInstructors.length > 0,
+                    action: () => setEditingInstructor(true),
+                    actionLabel: assignedInstructors.length ? 'Cambiar docentes' : 'Asignar docentes',
+                  },
+                  {
+                    label: '4. Sesiones y ocupación',
+                    value: sessionConfigComplete
+                      ? sessionOccupancyBlockers.length > 0
+                        ? `${sessionOccupancyBlockers.length} conflictos detectados`
+                        : 'Mapa de ocupación disponible'
+                      : 'Faltan fechas, días u horario',
+                    ok: sessionConfigComplete && sessionOccupancyBlockers.length === 0,
+                    action: () => {},
+                    actionLabel: sessionConfigComplete ? 'Revisar sesiones' : 'Completar datos',
+                  },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-lg border bg-background p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold uppercase text-muted-foreground">{item.label}</p>
+                        <p className="mt-1 line-clamp-2 text-sm font-medium">{item.value}</p>
+                      </div>
+                      <Badge variant={item.ok ? 'success' : 'outline'} className="shrink-0">
+                        {item.ok ? 'OK' : 'Revisar'}
+                      </Badge>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="mt-3 w-full justify-center"
+                      onClick={item.action}
+                    >
+                      {item.actionLabel}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {(availabilityBlockers.length > 0 || instructorAvailabilityBlockers.length > 0 || sessionOccupancyBlockers.length > 0) && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                  Hay conflictos de ocupación o docente. Corrige sede, aula, horario o profesor antes de publicar o generar sesiones.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Alumnos matriculados */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -1015,6 +1108,61 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          <Card className="lg:sticky lg:top-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                Resumen de convocatoria
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Publicación</span>
+                  <Badge variant={status.variant}>{status.label}</Badge>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Matrícula</span>
+                  <Badge variant={enrollmentBadgeVariant}>{enrollmentStatus.label}</Badge>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Plazas</span>
+                  <span className="font-medium">{inscritos}/{plazas}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Ocupación</span>
+                  <span className="font-medium">{porcentaje}%</span>
+                </div>
+              </div>
+
+              <div className="rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
+                {publicationReadiness.blockers.length > 0
+                  ? `Faltan ${publicationReadiness.blockers.length} requisito(s) obligatorios para publicar.`
+                  : publicationReadiness.warnings.length > 0
+                    ? 'Puede publicarse, aunque conviene completar avisos operativos antes de activar campañas.'
+                    : 'Configuración mínima lista para publicar.'}
+              </div>
+
+              <div className="grid gap-2">
+                {isPublicRun ? (
+                  <Button variant="outline" className="w-full" onClick={() => setUnpublishDialogOpen(true)}>
+                    <AlertCircle className="mr-2 h-4 w-4" />
+                    Despublicar
+                  </Button>
+                ) : (
+                  <Button className="w-full" onClick={() => setPublishDialogOpen(true)}>
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Publicar convocatoria
+                  </Button>
+                )}
+                <Button variant="outline" className="w-full" onClick={() => router.push(`/dashboard/programacion/${id}/ficha`)}>
+                  <Printer className="mr-2 h-4 w-4" />
+                  Imprimir ficha
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Sede y aula */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
