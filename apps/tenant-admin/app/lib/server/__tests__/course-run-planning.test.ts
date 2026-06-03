@@ -147,6 +147,28 @@ describe('evaluateCourseRunAvailability', () => {
     expect(payload.find).not.toHaveBeenCalled()
   })
 
+  it('returns a pending weekly map when visual planning is requested with incomplete timing', async () => {
+    const payload = payloadWithRuns([])
+    const availability = await evaluateCourseRunAvailability(payload, {
+      ...readyPresentialRun,
+      schedule_time_start: null,
+      schedule_time_end: null,
+    }, 1, { includeWeekMap: true })
+
+    expect(availability.blockers).toEqual([])
+    expect(availability.occupancy).toHaveLength(7)
+    expect(availability.occupancy).toEqual([
+      expect.objectContaining({ weekday: 'monday', selected: true, status: 'pending', timeStart: null }),
+      expect.objectContaining({ weekday: 'tuesday', selected: false, status: 'not_selected', timeStart: null }),
+      expect.objectContaining({ weekday: 'wednesday', selected: true, status: 'pending', timeStart: null }),
+      expect.objectContaining({ weekday: 'thursday', selected: false, status: 'not_selected', timeStart: null }),
+      expect.objectContaining({ weekday: 'friday', selected: false, status: 'not_selected', timeStart: null }),
+      expect.objectContaining({ weekday: 'saturday', selected: false, status: 'not_selected', timeStart: null }),
+      expect.objectContaining({ weekday: 'sunday', selected: false, status: 'not_selected', timeStart: null }),
+    ])
+    expect(payload.find).not.toHaveBeenCalled()
+  })
+
   it('blocks classroom overlap in the same tenant, date, day and time range', async () => {
     const payload = payloadWithRuns([{
       id: 20,

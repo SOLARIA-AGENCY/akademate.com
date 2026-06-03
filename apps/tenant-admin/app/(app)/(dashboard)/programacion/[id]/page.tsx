@@ -59,7 +59,7 @@ type AvailabilityState = {
     weekday: string
     timeStart?: string | null
     timeEnd?: string | null
-    status: 'available' | 'blocked' | 'not_selected'
+    status: 'available' | 'blocked' | 'not_selected' | 'pending'
     selected?: boolean
     conflicts: any[]
   }>
@@ -446,15 +446,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   }, [conv, dateForm.end_date, dateForm.start_date, editingInstructor, id, instructorForm.instructor, instructorForm.instructors, locationForm])
 
   React.useEffect(() => {
-    if (
-      !conv ||
-      !conv.start_date ||
-      !conv.end_date ||
-      !Array.isArray(conv.schedule_days) ||
-      conv.schedule_days.length === 0 ||
-      !conv.schedule_time_start ||
-      !conv.schedule_time_end
-    ) {
+    if (!conv) {
       setSessionAvailability(null)
       return
     }
@@ -1163,10 +1155,11 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                 </div>
               )}
 
-              {sessionConfigComplete && sessionOccupancy.length > 0 && (
+              {sessionOccupancy.length > 0 && (
                 <div className="grid grid-cols-1 gap-2">
                   {sessionOccupancy.map((slot) => {
                     const blocked = slot.status === 'blocked'
+                    const pending = slot.status === 'pending'
                     const selected = slot.selected !== false && slot.status !== 'not_selected'
                     return (
                       <div
@@ -1174,6 +1167,8 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                         className={`rounded-lg border px-3 py-2 ${
                           blocked
                             ? 'border-red-200 bg-red-50 text-red-800'
+                            : pending
+                              ? 'border-amber-200 bg-amber-50 text-amber-800'
                             : selected
                               ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
                               : 'border-slate-200 bg-slate-50 text-slate-500'
@@ -1181,10 +1176,10 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                       >
                         <div className="flex items-center justify-between gap-3">
                           <span className="flex items-center gap-2 font-semibold">
-                            {blocked ? <AlertCircle className="h-3.5 w-3.5" /> : selected ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
+                            {blocked ? <AlertCircle className="h-3.5 w-3.5" /> : pending ? <Clock className="h-3.5 w-3.5" /> : selected ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
                             {formatLongDayLabel(slot.weekday)}
                           </span>
-                          <span className="text-[11px] font-medium">{selected ? formatSlotTime(slot.timeStart, slot.timeEnd) : 'Sin clase'}</span>
+                          <span className="text-[11px] font-medium">{pending ? 'Pendiente' : selected ? formatSlotTime(slot.timeStart, slot.timeEnd) : 'Sin clase'}</span>
                         </div>
                         {blocked ? (
                           <div className="mt-2 space-y-1">
@@ -1195,7 +1190,13 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                             ))}
                           </div>
                         ) : (
-                          <p className="mt-1 text-[11px]">{selected ? 'Aula y docentes libres en esta franja.' : 'Día no seleccionado para esta convocatoria.'}</p>
+                          <p className="mt-1 text-[11px]">
+                            {pending
+                              ? 'Falta completar horario o rango de fechas para validar ocupación.'
+                              : selected
+                                ? 'Aula y docentes libres en esta franja.'
+                                : 'Día no seleccionado para esta convocatoria.'}
+                          </p>
                         )}
                       </div>
                     )

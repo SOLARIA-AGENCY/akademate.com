@@ -59,7 +59,7 @@ export type PlanningOccupancySlot = {
   weekday: string
   timeStart?: string | null
   timeEnd?: string | null
-  status: 'available' | 'blocked' | 'not_selected'
+  status: 'available' | 'blocked' | 'not_selected' | 'pending'
   selected?: boolean
   conflicts: PlanningConflict[]
 }
@@ -219,23 +219,35 @@ export async function evaluateCourseRunAvailability(
     ...relationIds(candidate.instructors),
   ].filter((id): id is string | number => id != null)
 
-  if (!candidate.start_date || !candidate.end_date || !candidate.schedule_days?.length || !candidate.schedule_time_start || !candidate.schedule_time_end) {
-    return { blockers, warnings }
-  }
-
-  const selectedWeekdays = new Set(candidate.schedule_days)
-  const occupancyWeekdays = options.includeWeekMap ? [...PLANNING_WEEKDAYS] : candidate.schedule_days
+  const selectedWeekdays = new Set(candidate.schedule_days ?? [])
+  const hasCompletePlanningRange = Boolean(
+    candidate.start_date &&
+    candidate.end_date &&
+    candidate.schedule_days?.length &&
+    candidate.schedule_time_start &&
+    candidate.schedule_time_end,
+  )
+  const occupancyWeekdays = options.includeWeekMap
+    ? [...PLANNING_WEEKDAYS]
+    : hasCompletePlanningRange
+      ? (candidate.schedule_days ?? [])
+      : []
   const occupancy: PlanningOccupancySlot[] = occupancyWeekdays.map((weekday) => {
     const selected = selectedWeekdays.has(weekday)
+    const hasCompleteTime = Boolean(candidate.schedule_time_start && candidate.schedule_time_end)
     return {
       weekday,
-      timeStart: selected ? candidate.schedule_time_start : null,
-      timeEnd: selected ? candidate.schedule_time_end : null,
+      timeStart: selected && hasCompleteTime ? candidate.schedule_time_start : null,
+      timeEnd: selected && hasCompleteTime ? candidate.schedule_time_end : null,
       selected,
-      status: selected ? 'available' : 'not_selected',
+      status: selected ? (hasCompleteTime ? 'available' : 'pending') : 'not_selected',
       conflicts: [],
     }
   })
+
+  if (!candidate.start_date || !candidate.end_date || !candidate.schedule_days?.length || !candidate.schedule_time_start || !candidate.schedule_time_end) {
+    return { blockers, warnings, ...(occupancy.length ? { occupancy } : {}) }
+  }
 
   function markOccupied(weekdays: string[], conflict: PlanningConflict) {
     for (const weekday of weekdays) {
