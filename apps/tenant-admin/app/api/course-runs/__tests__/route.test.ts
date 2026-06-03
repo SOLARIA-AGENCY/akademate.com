@@ -56,6 +56,7 @@ function installFindRouter(options?: {
   missingStaff?: boolean
   inactiveStaff?: boolean
   staffQualifiedAreas?: Array<number | string>
+  conflictInstructor?: number
   currentOverrides?: Record<string, unknown>
 }) {
   payloadMock.find.mockImplementation(async ({ collection, where }: any) => {
@@ -77,6 +78,7 @@ function installFindRouter(options?: {
               schedule_time_start: '10:00:00',
               schedule_time_end: '12:00:00',
               status: 'published',
+              instructor: options?.conflictInstructor ? { id: options.conflictInstructor, full_name: 'Docente Ocupado' } : undefined,
             }]
           : [],
       }
@@ -403,6 +405,15 @@ describe('/api/course-runs/[id]', () => {
         ]),
       }),
     }))
+  })
+
+  it('returns unavailable instructors for the selected planning slot', async () => {
+    installFindRouter({ conflict: true, conflictInstructor: 44 })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?schedule_days=monday&schedule_time_start=09:00&schedule_time_end=13:00'), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.unavailableInstructorIds).toEqual([44])
   })
 
   it('returns instructor area blockers through the availability endpoint', async () => {

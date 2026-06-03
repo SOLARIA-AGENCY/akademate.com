@@ -55,6 +55,7 @@ const ENROLLMENT_BADGE_VARIANTS: Record<string, 'default' | 'secondary' | 'outli
 type AvailabilityState = {
   blockers: any[]
   warnings: any[]
+  unavailableInstructorIds?: Array<string | number>
   occupancy?: Array<{
     weekday: string
     timeStart?: string | null
@@ -398,7 +399,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
       ...instructorForm.instructors,
     ].filter(Boolean)
 
-    if (!editingInstructor || selectedInstructorIds.length === 0) {
+    if (!editingInstructor) {
       setInstructorAvailability(null)
       return
     }
@@ -658,6 +659,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   const availabilityWarnings = availability?.warnings ?? []
   const instructorAvailabilityBlockers = instructorAvailability?.blockers ?? []
   const instructorAvailabilityWarnings = instructorAvailability?.warnings ?? []
+  const unavailableInstructorIds = new Set((instructorAvailability?.unavailableInstructorIds ?? []).map((item) => String(item)))
   const requiredAreaId = relationId(course?.area_formativa)
   const sessionConfigComplete = Boolean(
     conv.start_date &&
@@ -870,11 +872,13 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                       <SelectContent>
                         <SelectItem value="_none">Sin docente asignado</SelectItem>
                         {staffCandidates.map((member) => {
+                          const memberId = String(member.id)
                           const qualifiedAreaIds = getQualifiedAreaIds(member)
                           const areaMismatch = requiredAreaId && qualifiedAreaIds.length > 0 && !qualifiedAreaIds.some((areaId) => String(areaId) === String(requiredAreaId))
+                          const timeUnavailable = unavailableInstructorIds.has(memberId) && memberId !== instructorForm.instructor
                           return (
-                            <SelectItem key={member.id} value={String(member.id)} disabled={Boolean(areaMismatch)}>
-                              {getInstructorName(member)}{areaMismatch ? ' · fuera de área' : ''}
+                            <SelectItem key={member.id} value={memberId} disabled={Boolean(areaMismatch || timeUnavailable)}>
+                              {getInstructorName(member)}{areaMismatch ? ' · fuera de área' : timeUnavailable ? ' · ocupado en horario' : ''}
                             </SelectItem>
                           )
                         })}
@@ -891,14 +895,15 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                         const areaMismatch = requiredAreaId && qualifiedAreaIds.length > 0 && !qualifiedAreaIds.some((areaId) => String(areaId) === String(requiredAreaId))
                         const isPrimary = memberId === instructorForm.instructor
                         const selected = instructorForm.instructors.includes(memberId)
+                        const timeUnavailable = unavailableInstructorIds.has(memberId) && !selected && !isPrimary
                         return (
                           <label
                             key={`co-instructor-${member.id}`}
-                            className={`flex items-start gap-3 rounded-md border bg-background p-3 text-sm ${areaMismatch || isPrimary ? 'opacity-50' : 'cursor-pointer hover:border-primary/40'}`}
+                            className={`flex items-start gap-3 rounded-md border bg-background p-3 text-sm ${areaMismatch || isPrimary || timeUnavailable ? 'opacity-60' : 'cursor-pointer hover:border-primary/40'} ${timeUnavailable ? 'border-red-200 bg-red-50 text-red-800' : ''}`}
                           >
                             <Checkbox
                               checked={selected}
-                              disabled={Boolean(areaMismatch || isPrimary)}
+                              disabled={Boolean(areaMismatch || isPrimary || timeUnavailable)}
                               onCheckedChange={(checked) => setInstructorForm((current) => ({
                                 ...current,
                                 instructors: checked
@@ -909,7 +914,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                             <span className="min-w-0 flex-1">
                               <span className="block truncate font-medium">{getInstructorName(member)}</span>
                               <span className="block text-xs text-muted-foreground">
-                                {isPrimary ? 'Seleccionado como principal' : areaMismatch ? 'Fuera del área del curso' : member.position || 'Docente activo'}
+                                {isPrimary ? 'Seleccionado como principal' : areaMismatch ? 'Fuera del área del curso' : timeUnavailable ? 'Ocupado en esta franja horaria' : member.position || 'Docente activo'}
                               </span>
                             </span>
                           </label>

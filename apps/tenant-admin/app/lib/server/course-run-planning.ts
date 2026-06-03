@@ -68,6 +68,7 @@ export type PlanningAvailability = {
   blockers: PlanningConflict[]
   warnings: PlanningConflict[]
   occupancy?: PlanningOccupancySlot[]
+  unavailableInstructorIds?: Array<string | number>
 }
 
 export type CourseRunAvailabilityOptions = {
@@ -213,6 +214,7 @@ export async function evaluateCourseRunAvailability(
 ): Promise<PlanningAvailability> {
   const blockers: PlanningConflict[] = []
   const warnings: PlanningConflict[] = []
+  const unavailableInstructorIds: Array<string | number> = []
   const classroomId = relationId(candidate.classroom)
   const instructorIds = [
     relationId(candidate.instructor),
@@ -261,6 +263,14 @@ export async function evaluateCourseRunAvailability(
     }
   }
 
+  function addUnavailableInstructorIds(ids: Array<string | number>) {
+    for (const id of ids) {
+      if (!unavailableInstructorIds.some((current) => String(current) === String(id))) {
+        unavailableInstructorIds.push(id)
+      }
+    }
+  }
+
   const existing = await payload.find({
     collection: 'course-runs',
     where: {
@@ -294,6 +304,7 @@ export async function evaluateCourseRunAvailability(
     }
 
     const runInstructorIds = [relationId(run.instructor), ...relationIds(run.instructors)].filter((id): id is string | number => id != null)
+    addUnavailableInstructorIds(runInstructorIds)
     if (instructorIds.length > 0 && instructorIds.some((id) => runInstructorIds.some((other) => String(other) === String(id)))) {
       const conflict: PlanningConflict = {
         type: 'instructor_overlap',
@@ -307,5 +318,10 @@ export async function evaluateCourseRunAvailability(
     }
   }
 
-  return { blockers, warnings, occupancy }
+  return {
+    blockers,
+    warnings,
+    occupancy,
+    ...(unavailableInstructorIds.length ? { unavailableInstructorIds } : {}),
+  }
 }
