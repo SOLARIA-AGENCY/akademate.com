@@ -30,23 +30,21 @@ describe('EditProfesorPage', () => {
             json: () =>
               Promise.resolve({
                 success: true,
-                data: [
-                  {
-                    id: 32,
-                    firstName: 'Sheila',
-                    lastName: 'Méndez',
-                    email: '',
-                    phone: '',
-                    position: 'Aux. en Clínicas Estéticas',
-                    contractType: 'freelance',
-                    employmentStatus: 'active',
-                    assignedCampuses: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }],
-                    qualifiedAreas: [
-                      { id: 7, nombre: 'Área Salud, Bienestar y Deporte', codigo: 'salud' },
-                    ],
-                    photo: '/placeholder-avatar.svg',
-                  },
-                ],
+                data: {
+                  id: 32,
+                  firstName: 'Sheila',
+                  lastName: 'Méndez',
+                  email: '',
+                  phone: '',
+                  position: 'Aux. en Clínicas Estéticas',
+                  contractType: 'freelance',
+                  employmentStatus: 'active',
+                  assignedCampuses: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }],
+                  qualifiedAreas: [
+                    { id: 7, nombre: 'Área Salud, Bienestar y Deporte', codigo: 'salud' },
+                  ],
+                  photo: '/placeholder-avatar.svg',
+                },
               }),
           })
         }
@@ -103,18 +101,17 @@ describe('EditProfesorPage', () => {
             json: () =>
               Promise.resolve({
                 success: true,
-                data: [
-                  {
-                    id: 32,
-                    firstName: 'Sheila',
-                    lastName: 'Méndez',
-                    position: 'Aux. en Clínicas Estéticas',
-                    contractType: 'freelance',
-                    employmentStatus: 'active',
-                    assignedCampuses: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }],
-                    photo: '/placeholder-avatar.svg',
-                  },
-                ],
+                data: {
+                  id: 32,
+                  firstName: 'Sheila',
+                  lastName: 'Méndez',
+                  position: 'Aux. en Clínicas Estéticas',
+                  contractType: 'freelance',
+                  employmentStatus: 'active',
+                  assignedCampuses: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }],
+                  qualifiedAreas: [],
+                  photo: '/placeholder-avatar.svg',
+                },
               }),
           })
         }
@@ -148,5 +145,61 @@ describe('EditProfesorPage', () => {
     })
 
     expect(screen.queryByAltText('Foto del profesor')).not.toBeInTheDocument()
+  })
+
+  it('blocks saving inherited teaching records until an area is assigned', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) => {
+        if (url.startsWith('/api/staff')) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                success: true,
+                data: {
+                  id: 32,
+                  firstName: 'Docente',
+                  lastName: 'Sin Área',
+                  position: 'Docente',
+                  contractType: 'freelance',
+                  employmentStatus: 'active',
+                  assignedCampuses: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }],
+                  qualifiedAreas: [],
+                  photo: '/placeholder-avatar.svg',
+                },
+              }),
+          })
+        }
+
+        if (url.startsWith('/api/campuses')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ docs: [{ id: 2, name: 'Sede Norte', city: 'La Orotava' }] }),
+          })
+        }
+
+        if (url.startsWith('/api/areas-formativas')) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                success: true,
+                data: [{ id: 7, nombre: 'Área Salud, Bienestar y Deporte', codigo: 'salud', active: true }],
+              }),
+          })
+        }
+
+        return Promise.reject(new Error(`Unexpected URL: ${url}`))
+      }) as unknown as typeof fetch,
+    )
+
+    render(<EditProfesorPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Esta ficha docente está incompleta/i)).toBeInTheDocument()
+    })
+
+    expect(screen.getByRole('button', { name: /Guardar Cambios/i })).toBeDisabled()
   })
 })

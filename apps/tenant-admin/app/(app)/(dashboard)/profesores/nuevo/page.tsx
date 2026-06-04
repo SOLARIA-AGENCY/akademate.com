@@ -681,7 +681,12 @@ export default function NewProfesorPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={loading || uploadingPhoto || formData.assignedCampuses.length === 0}
+                disabled={
+                  loading ||
+                  uploadingPhoto ||
+                  formData.assignedCampuses.length === 0 ||
+                  formData.qualifiedAreas.length === 0
+                }
                 data-oid="_78ql89"
               >
                 {loading ? (

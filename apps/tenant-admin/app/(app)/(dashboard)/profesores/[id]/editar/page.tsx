@@ -130,6 +130,8 @@ export default function EditProfesorPage() {
     certifications: [] as Certification[],
   })
 
+  const hasQualifiedAreas = formData.qualifiedAreas.length > 0
+
   useEffect(() => {
     let cancelled = false
 
@@ -477,6 +479,11 @@ export default function EditProfesorPage() {
                   Selecciona al menos un área. Sin áreas habilitadas no se puede guardar una ficha docente ni asignarla a convocatorias.
                 </p>
               </div>
+              {!hasQualifiedAreas ? (
+                <div className="rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+                  Esta ficha docente está incompleta. Asigna al menos un área habilitada para poder guardar cambios o usar este docente en convocatorias.
+                </div>
+              ) : null}
               {loadingAreas ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -629,7 +636,10 @@ export default function EditProfesorPage() {
               <Button type="button" variant="outline" onClick={() => router.back()} disabled={saving}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={saving || uploadingPhoto || formData.assignedCampuses.length === 0}>
+              <Button
+                type="submit"
+                disabled={saving || uploadingPhoto || formData.assignedCampuses.length === 0 || !hasQualifiedAreas}
+              >
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
