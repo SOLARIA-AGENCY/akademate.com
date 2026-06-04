@@ -14,6 +14,7 @@ export interface StaffAreaAssignmentStaff {
   staffType: string
   employmentStatus: string | null
   isActive: boolean | null
+  tenantIds: number[]
 }
 
 export interface StaffAreaAssignmentArea {
@@ -41,6 +42,8 @@ export interface StaffAreaAssignmentPlan {
 
 interface ScriptOptions {
   csvPath: string | null
+  tenantId: number | null
+  tenantSlug: string | null
   apply: boolean
   replace: boolean
   json: boolean
@@ -49,9 +52,18 @@ interface ScriptOptions {
 function parseArgs(argv: string[]): ScriptOptions {
   const csvFlagIndex = argv.findIndex((arg) => arg === '--csv')
   const csvEquals = argv.find((arg) => arg.startsWith('--csv='))
+  const tenantIdFlagIndex = argv.findIndex((arg) => arg === '--tenant-id')
+  const tenantIdEquals = argv.find((arg) => arg.startsWith('--tenant-id='))
+  const tenantSlugFlagIndex = argv.findIndex((arg) => arg === '--tenant-slug')
+  const tenantSlugEquals = argv.find((arg) => arg.startsWith('--tenant-slug='))
+  const tenantIdRaw = tenantIdEquals?.slice('--tenant-id='.length)
+    ?? (tenantIdFlagIndex >= 0 ? argv[tenantIdFlagIndex + 1] : null)
 
   return {
     csvPath: csvEquals?.slice('--csv='.length) ?? (csvFlagIndex >= 0 ? argv[csvFlagIndex + 1] : null),
+    tenantId: tenantIdRaw ? Number(tenantIdRaw) : null,
+    tenantSlug: tenantSlugEquals?.slice('--tenant-slug='.length)
+      ?? (tenantSlugFlagIndex >= 0 ? argv[tenantSlugFlagIndex + 1] : null),
     apply: argv.includes('--apply'),
     replace: argv.includes('--replace'),
     json: argv.includes('--json'),
@@ -155,6 +167,7 @@ export function buildStaffAreaAssignmentPlan(
   records: StaffAreaAssignmentRecord[],
   staffById: Map<number, StaffAreaAssignmentStaff>,
   areaById: Map<number, StaffAreaAssignmentArea>,
+  tenantId: number,
 ): StaffAreaAssignmentPlan {
   const items = records.map((record) => {
     const errors: string[] = []
@@ -171,6 +184,9 @@ export function buildStaffAreaAssignmentPlan(
       }
       if (staff.isActive === false || staff.employmentStatus !== 'active') {
         errors.push(`Docente #${record.staffId} no esta activo`)
+      }
+      if (!staff.tenantIds.includes(tenantId)) {
+        errors.push(`Docente #${record.staffId} no pertenece al tenant #${tenantId} o no tiene sede asignada en ese tenant`)
       }
     }
 
@@ -201,6 +217,30 @@ export function buildStaffAreaAssignmentPlan(
   }
 }
 
+async function resolveTenantId(sql: postgres.Sql, options: Pick<ScriptOptions, 'tenantId' | 'tenantSlug'>) {
+  if (options.tenantId != null) {
+    if (!Number.isInteger(options.tenantId) || options.tenantId <= 0) {
+      throw new Error('--tenant-id debe ser un entero positivo')
+    }
+    return options.tenantId
+  }
+
+  if (!options.tenantSlug) {
+    throw new Error('Uso: pnpm audit:staff:areas:apply -- --tenant-id 1 --csv ./areas.csv [--apply] [--replace]')
+  }
+
+  const rows = await sql<{ id: number }[]>`
+    SELECT id
+    FROM tenants
+    WHERE slug = ${options.tenantSlug}
+       OR domain = ${options.tenantSlug}
+    LIMIT 1
+  `
+
+  if (!rows[0]) throw new Error(`No existe tenant con slug/domain "${options.tenantSlug}"`)
+  return rows[0].id
+}
+
 async function fetchStaff(sql: postgres.Sql, ids: number[]) {
   if (ids.length === 0) return new Map<number, StaffAreaAssignmentStaff>()
 
@@ -210,10 +250,25 @@ async function fetchStaff(sql: postgres.Sql, ids: number[]) {
     staff_type: string
     employment_status: string | null
     is_active: boolean | null
+    tenant_ids: number[] | null
   }[]>`
-    SELECT id, full_name, staff_type, employment_status, is_active
-    FROM staff
-    WHERE id = ANY(${ids})
+    SELECT
+      s.id,
+      s.full_name,
+      s.staff_type,
+      s.employment_status,
+      s.is_active,
+      COALESCE(
+        array_agg(DISTINCT c.tenant_id) FILTER (WHERE c.tenant_id IS NOT NULL),
+        ARRAY[]::integer[]
+      ) AS tenant_ids
+    FROM staff s
+    LEFT JOIN staff_rels sr
+      ON sr.parent_id = s.id
+     AND sr.path = 'assigned_campuses'
+    LEFT JOIN campuses c ON c.id = sr.campuses_id
+    WHERE s.id = ANY(${ids})
+    GROUP BY s.id, s.full_name, s.staff_type, s.employment_status, s.is_active
   `
 
   return new Map(rows.map((row) => [row.id, {
@@ -222,6 +277,7 @@ async function fetchStaff(sql: postgres.Sql, ids: number[]) {
     staffType: row.staff_type,
     employmentStatus: row.employment_status,
     isActive: row.is_active,
+    tenantIds: row.tenant_ids ?? [],
   }]))
 }
 
@@ -313,7 +369,7 @@ function printPlan(plan: StaffAreaAssignmentPlan, applied?: Awaited<ReturnType<t
 }
 
 export async function runStaffAreaAssignment(options: ScriptOptions) {
-  if (!options.csvPath) throw new Error('Uso: pnpm audit:staff:areas:apply -- --csv ./areas.csv [--apply] [--replace]')
+  if (!options.csvPath) throw new Error('Uso: pnpm audit:staff:areas:apply -- --tenant-id 1 --csv ./areas.csv [--apply] [--replace]')
 
   const databaseUri = process.env.DATABASE_URI
   if (!databaseUri) throw new Error('DATABASE_URI is required to apply staff qualified areas')
@@ -325,11 +381,12 @@ export async function runStaffAreaAssignment(options: ScriptOptions) {
 
   const sql = postgres(databaseUri, { max: 1 })
   try {
+    const tenantId = await resolveTenantId(sql, options)
     const [staffById, areaById] = await Promise.all([
       fetchStaff(sql, staffIds),
       fetchAreas(sql, areaIds),
     ])
-    const plan = buildStaffAreaAssignmentPlan(records, staffById, areaById)
+    const plan = buildStaffAreaAssignmentPlan(records, staffById, areaById, tenantId)
 
     let applied: Awaited<ReturnType<typeof applyPlan>> | undefined
     if (options.apply) {

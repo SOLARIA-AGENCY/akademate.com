@@ -13,6 +13,7 @@ describe('apply-staff-qualified-areas', () => {
     staffType: 'profesor',
     employmentStatus: 'active',
     isActive: true,
+    tenantIds: [1],
   }
 
   const activeArea: StaffAreaAssignmentArea = {
@@ -49,6 +50,7 @@ describe('apply-staff-qualified-areas', () => {
       records,
       new Map([[activeTeacher.id, activeTeacher]]),
       new Map([[activeArea.id, activeArea]]),
+      1,
     )
 
     expect(plan.ok).toBe(true)
@@ -72,11 +74,27 @@ describe('apply-staff-qualified-areas', () => {
         [45, { ...activeTeacher, id: 45, employmentStatus: 'inactive' }],
       ]),
       new Map([[activeArea.id, activeArea]]),
+      1,
     )
 
     expect(plan.ok).toBe(false)
     expect(plan.invalidRecords).toBe(2)
     expect(plan.items[0].errors).toEqual(['Personal #44 no es docente ni academico'])
     expect(plan.items[1].errors).toEqual(['Docente #45 no esta activo', 'Area #99 no existe'])
+  })
+
+  test('blocks staff without assigned campuses in the selected tenant', () => {
+    const records = parseStaffAreaAssignmentCsv('staff_id,area_ids\n32,7')
+    const plan = buildStaffAreaAssignmentPlan(
+      records,
+      new Map([[activeTeacher.id, { ...activeTeacher, tenantIds: [2] }]]),
+      new Map([[activeArea.id, activeArea]]),
+      1,
+    )
+
+    expect(plan.ok).toBe(false)
+    expect(plan.items[0].errors).toEqual([
+      'Docente #32 no pertenece al tenant #1 o no tiene sede asignada en ese tenant',
+    ])
   })
 })
