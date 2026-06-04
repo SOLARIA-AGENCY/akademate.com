@@ -473,6 +473,20 @@ describe('/api/course-runs/[id]', () => {
     }))
   })
 
+  it('does not revalidate the previous instructor when the edit form explicitly clears it', async () => {
+    installFindRouter({ staffQualifiedAreas: [8] })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?instructor='), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.blockers).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'instructor_area_mismatch' }),
+    ]))
+    expect(payloadMock.find).not.toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'staff',
+    }))
+  })
+
   it('returns co-instructor area blockers through the availability endpoint', async () => {
     installFindRouter({ staffQualifiedAreas: [8], currentOverrides: { instructor: null } })
     const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?instructors=44'), params())

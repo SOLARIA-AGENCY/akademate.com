@@ -405,7 +405,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     }
 
     const params = new URLSearchParams()
-    appendIfPresent(params, 'instructor', instructorForm.instructor)
+    params.set('instructor', instructorForm.instructor.trim())
     for (const instructorId of instructorForm.instructors) {
       if (instructorId !== instructorForm.instructor) params.append('instructors', instructorId)
     }

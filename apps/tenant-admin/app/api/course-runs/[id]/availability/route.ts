@@ -43,6 +43,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const searchParams = new URL(request.url).searchParams
     const instructorParam = cleanSearchParam(searchParams.get('instructor'))
+    const hasInstructorParam = searchParams.has('instructor')
+    const hasInstructorsParam = searchParams.has('instructors')
     const instructorsParams = searchParams.getAll('instructors').map(cleanSearchParam).filter((value): value is string => Boolean(value))
     const candidate: CourseRunPlanningDoc = {
       ...current,
@@ -56,8 +58,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       schedule_time_start: normalizeTime(cleanSearchParam(searchParams.get('schedule_time_start'))) ?? current.schedule_time_start,
       schedule_time_end: normalizeTime(cleanSearchParam(searchParams.get('schedule_time_end'))) ?? current.schedule_time_end,
       shift: cleanSearchParam(searchParams.get('shift')) ?? current.shift,
-      instructor: instructorParam ?? current.instructor,
-      instructors: instructorsParams.length > 0 ? instructorsParams : current.instructors,
+      instructor: hasInstructorParam ? instructorParam : current.instructor,
+      instructors: hasInstructorsParam ? instructorsParams : current.instructors,
     }
 
     const availability = await evaluateCourseRunAvailability(payload, candidate, authContext.tenantId, {
