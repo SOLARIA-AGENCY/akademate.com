@@ -1,13 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
-const { payloadMock } = vi.hoisted(() => ({
+const { payloadMock, sqlMock } = vi.hoisted(() => ({
   payloadMock: {
     find: vi.fn(),
     findByID: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
   },
+  sqlMock: Object.assign(vi.fn(), {
+    unsafe: vi.fn(),
+  }),
 }))
 
 vi.mock('payload', () => ({
@@ -17,7 +20,7 @@ vi.mock('payload', () => ({
 vi.mock('@payload-config', () => ({ default: {} }))
 
 vi.mock('postgres', () => ({
-  default: vi.fn(() => vi.fn()),
+  default: vi.fn(() => sqlMock),
 }))
 
 async function loadRoute() {
@@ -29,6 +32,7 @@ async function loadRoute() {
 describe('/api/staff qualified areas', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    sqlMock.unsafe.mockResolvedValue([])
     payloadMock.findByID.mockResolvedValue({
       id: 44,
       staff_type: 'profesor',
@@ -46,6 +50,68 @@ describe('/api/staff qualified areas', () => {
       }
       return { id: 1, ...data }
     })
+  })
+
+  it('filters active teachers by qualified area when requested', async () => {
+    const { GET } = await loadRoute()
+    sqlMock.unsafe.mockResolvedValue([
+      {
+        id: 44,
+        staff_type: 'profesor',
+        first_name: 'Docente',
+        last_name: 'Sanidad',
+        full_name: 'Docente Sanidad',
+        nif: null,
+        email: 'docente@example.com',
+        phone: null,
+        position: 'Docente',
+        contract_type: 'freelance',
+        employment_status: 'active',
+        inactive_reason: null,
+        inactive_at: null,
+        reactivated_at: null,
+        hire_date: null,
+        bio: null,
+        data_quality_status: 'complete',
+        import_review_status: 'validated',
+        last_import_batch: null,
+        source: null,
+        alias_names: null,
+        detected_courses: null,
+        is_active: true,
+        created_at: '2026-06-01T00:00:00.000Z',
+        updated_at: '2026-06-01T00:00:00.000Z',
+        photo_id: null,
+        photo_filename: null,
+        photo_url: null,
+        campuses: [],
+        course_runs: [],
+        certifications: [],
+        qualified_areas: [{ id: 7, codigo: 'SAN', nombre: 'Sanitaria y Clínica' }],
+      },
+    ])
+
+    const response = await GET(new NextRequest('http://localhost/api/staff?type=profesor&status=active&qualifiedArea=7'))
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.data).toHaveLength(1)
+    expect(json.data[0].qualifiedAreas).toEqual([{ id: 7, codigo: 'SAN', nombre: 'Sanitaria y Clínica' }])
+    expect(sqlMock.unsafe).toHaveBeenCalledWith(
+      expect.stringContaining("sr3.path = 'qualified_areas'"),
+      expect.arrayContaining(['active', '7']),
+    )
+  })
+
+  it('rejects invalid qualified area filters', async () => {
+    const { GET } = await loadRoute()
+
+    const response = await GET(new NextRequest('http://localhost/api/staff?type=profesor&qualifiedArea=abc'))
+    const json = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(json.error).toMatch(/área habilitada/i)
+    expect(sqlMock.unsafe).not.toHaveBeenCalled()
   })
 
   it('persists qualifiedAreas when updating staff', async () => {

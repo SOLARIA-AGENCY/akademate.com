@@ -289,6 +289,7 @@ export async function GET(request: NextRequest) {
       searchParams.get('staffType') ??
       searchParams.get('where[staff_type][equals]');
     const campusId = searchParams.get('campus');
+    const qualifiedAreaId = searchParams.get('qualifiedArea') ?? searchParams.get('qualified_area');
     const employmentStatus = searchParams.get('status'); // 'active' | 'temporary_leave' | 'inactive'
     const includeInactive = searchParams.get('includeInactive') === 'true' || searchParams.get('includeInactive') === '1';
     const limit = parseInt(searchParams.get('limit') ?? '50');
@@ -329,6 +330,18 @@ export async function GET(request: NextRequest) {
       }
       params.push(String(parsedCampusId));
       conditions.push(`EXISTS (SELECT 1 FROM staff_rels sr2 WHERE sr2.parent_id = s.id AND sr2.campuses_id = $${params.length})`);
+    }
+
+    if (qualifiedAreaId) {
+      const parsedQualifiedAreaId = parseInt(qualifiedAreaId, 10);
+      if (Number.isNaN(parsedQualifiedAreaId)) {
+        return NextResponse.json(
+          { success: false, error: 'Área habilitada no válida' },
+          { status: 400 },
+        );
+      }
+      params.push(String(parsedQualifiedAreaId));
+      conditions.push(`EXISTS (SELECT 1 FROM staff_rels sr3 WHERE sr3.parent_id = s.id AND sr3.path = 'qualified_areas' AND sr3.areas_formativas_id = $${params.length})`);
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';

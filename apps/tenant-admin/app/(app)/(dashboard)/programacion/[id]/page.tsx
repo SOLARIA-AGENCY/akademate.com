@@ -297,7 +297,16 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
   React.useEffect(() => {
     if (!editingInstructor) return
     let mounted = true
-    fetch('/api/staff?type=profesor&status=active&limit=200', { cache: 'no-store' })
+    const params = new URLSearchParams({
+      type: 'profesor',
+      status: 'active',
+      limit: '200',
+    })
+    const courseAreaId = relationId(
+      typeof conv?.course === 'object' && conv.course ? conv.course.area_formativa : null,
+    )
+    if (courseAreaId) params.set('qualifiedArea', String(courseAreaId))
+    fetch(`/api/staff?${params.toString()}`, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar docentes'))))
       .then((data) => {
         if (!mounted) return
@@ -307,7 +316,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
         if (mounted) setStaffCandidates([])
       })
     return () => { mounted = false }
-  }, [editingInstructor])
+  }, [conv?.course, editingInstructor])
 
   React.useEffect(() => {
     let mounted = true
