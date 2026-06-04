@@ -57,6 +57,7 @@ interface Course {
   modality?: string
   course_type?: string
   area?: string
+  area_formativa?: RelationRef
   duration_hours?: number | null
   base_price?: number | null
 }
@@ -69,6 +70,8 @@ interface StaffMember {
   lastName?: string
   fullName?: string
   email?: string
+  qualifiedAreas?: Array<{ id: string | number; nombre?: string; name?: string }>
+  qualified_areas?: RelationRef[]
 }
 
 interface Campus {
@@ -112,6 +115,7 @@ interface ProgramItem {
 }
 
 type MediaRef = number | string | { url?: string | null; filename?: string | null; alt?: string | null } | null | undefined
+type RelationRef = number | string | { id?: string | number | null; nombre?: string | null; name?: string | null } | null | undefined
 
 // ---------------------------------------------------------------------------
 // Form state
@@ -172,6 +176,17 @@ function resolveMediaUrl(media: MediaRef): string | null {
   if (typeof media === 'string') return media
   if (media.url) return media.url
   if (media.filename) return `/api/media/file/${media.filename}`
+  return null
+}
+
+function relationId(value: RelationRef): string | null {
+  if (typeof value === 'number' || typeof value === 'string') return String(value)
+  if (value && typeof value === 'object' && value.id != null) return String(value.id)
+  return null
+}
+
+function relationName(value: RelationRef): string | null {
+  if (value && typeof value === 'object') return value.nombre ?? value.name ?? null
   return null
 }
 
@@ -309,9 +324,13 @@ function InlineSedeForm({
 
 function InlineProfesorForm({
   onCreated,
+  qualifiedAreaId,
+  qualifiedAreaName,
   compact = false,
 }: {
   onCreated: (newStaff: StaffMember) => void
+  qualifiedAreaId?: string | null
+  qualifiedAreaName?: string | null
   compact?: boolean
 }) {
   const [firstName, setFirstName] = useState('')
@@ -322,6 +341,10 @@ function InlineProfesorForm({
 
   const handleCreate = async () => {
     if (!firstName.trim() || !lastName.trim()) return
+    if (!qualifiedAreaId) {
+      setFormError('Selecciona primero un curso con área formativa para asignar el área habilitada del docente.')
+      return
+    }
     setSaving(true)
     setFormError(null)
 
@@ -330,11 +353,14 @@ function InlineProfesorForm({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
+          staffType: 'profesor',
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
           email: email.trim() || undefined,
-          staff_type: 'profesor',
-          tenant: 1,
+          position: 'Docente',
+          employmentStatus: 'active',
+          contractType: 'autonomo',
+          qualifiedAreas: [qualifiedAreaId],
         }),
       })
 
@@ -344,7 +370,7 @@ function InlineProfesorForm({
       }
 
       const data = await res.json()
-      const created: StaffMember = data.doc ?? data
+      const created: StaffMember = data.data ?? data.doc ?? data
       onCreated(created)
       setFirstName('')
       setLastName('')
@@ -363,6 +389,15 @@ function InlineProfesorForm({
       <p className="text-sm font-medium text-blue-800">
         {compact ? 'Crear nuevo profesor' : 'Crear profesor para continuar'}
       </p>
+      {qualifiedAreaId ? (
+        <p className="text-xs text-muted-foreground">
+          Se creará habilitado para el área {qualifiedAreaName ? <strong>{qualifiedAreaName}</strong> : `#${qualifiedAreaId}`}.
+        </p>
+      ) : (
+        <p className="text-xs text-amber-700">
+          Selecciona un curso con área formativa antes de crear un docente desde esta pantalla.
+        </p>
+      )}
       {formError && <p className="text-xs text-red-600">{formError}</p>}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="space-y-1">
@@ -407,7 +442,7 @@ function InlineProfesorForm({
         <Button
           size="sm"
           onClick={handleCreate}
-          disabled={!firstName.trim() || !lastName.trim() || saving}
+          disabled={!firstName.trim() || !lastName.trim() || !qualifiedAreaId || saving}
           className="h-8"
         >
           {saving ? (
@@ -508,6 +543,11 @@ export default function NuevaConvocatoriaPage() {
     })),
   ]
   const selectedProgram = programItems.find((item) => item.id === form.course)
+  const selectedCourse = form.course.startsWith('course:')
+    ? courses.find((course) => String(course.id) === form.course.replace(/^course:/, ''))
+    : null
+  const selectedCourseAreaId = relationId(selectedCourse?.area_formativa)
+  const selectedCourseAreaName = relationName(selectedCourse?.area_formativa) ?? selectedCourse?.area ?? null
 
   // -------------------------------------------------------------------------
   // Fetch data on mount
@@ -519,16 +559,14 @@ export default function NuevaConvocatoriaPage() {
       setError(null)
 
       try {
-        const [cyclesRes, coursesRes, staffRes, campusesRes] = await Promise.all([
+        const [cyclesRes, coursesRes, campusesRes] = await Promise.all([
           fetch('/api/cycles?limit=100&sort=name&depth=1').then((r) => r.json()),
           fetch('/api/courses?limit=100&sort=name&depth=1').then((r) => r.json()),
-          fetch('/api/staff?where[staff_type][equals]=profesor&limit=100').then((r) => r.json()),
           fetch('/api/campuses?limit=100').then((r) => r.json()),
         ])
 
         setCycles(cyclesRes.docs ?? [])
         setCourses(coursesRes.docs ?? [])
-        setStaff(staffRes.docs ?? staffRes.data ?? [])
         setCampuses(campusesRes.docs ?? [])
       } catch (err) {
         console.error('Error fetching data:', err)
@@ -540,6 +578,31 @@ export default function NuevaConvocatoriaPage() {
 
     fetchData()
   }, [])
+
+  useEffect(() => {
+    let mounted = true
+    const params = new URLSearchParams({
+      type: 'profesor',
+      status: 'active',
+      limit: '100',
+    })
+    if (selectedCourseAreaId) params.set('qualifiedArea', selectedCourseAreaId)
+
+    fetch(`/api/staff?${params.toString()}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar docentes'))))
+      .then((data) => {
+        if (!mounted) return
+        setStaff(data.data ?? data.docs ?? [])
+      })
+      .catch((err) => {
+        console.error('Error fetching staff:', err)
+        if (mounted) setStaff([])
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [selectedCourseAreaId])
 
   useEffect(() => {
     if (!preselectedProfessorId) return
@@ -1151,9 +1214,16 @@ export default function NuevaConvocatoriaPage() {
               )}
             </Button>
           </div>
-          {showNewProfesor && <InlineProfesorForm onCreated={handleProfesorCreated} compact />}
+          {showNewProfesor && (
+            <InlineProfesorForm
+              onCreated={handleProfesorCreated}
+              qualifiedAreaId={selectedCourseAreaId}
+              qualifiedAreaName={selectedCourseAreaName}
+              compact
+            />
+          )}
           <p className="text-xs text-muted-foreground">
-            Los docentes ocupados en la misma franja aparecen deshabilitados. La compatibilidad de área se valida antes de guardar.
+            Los docentes se filtran por el área habilitada del curso cuando existe. Los ocupados en la misma franja aparecen deshabilitados.
           </p>
         </div>
 
