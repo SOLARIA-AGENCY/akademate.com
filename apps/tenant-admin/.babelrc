@@ -3,7 +3,7 @@
   "compact": true,
   "env": {
     "development": {
-      "plugins": ["@onlook/babel-plugin-react"]
+      "plugins": []
     }
   }
 }
