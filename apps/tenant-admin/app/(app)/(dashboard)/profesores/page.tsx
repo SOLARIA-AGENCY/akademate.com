@@ -44,6 +44,11 @@ interface StaffMember {
     name: string
     city: string
   }[]
+  qualifiedAreas?: {
+    id: number
+    codigo?: string | null
+    nombre: string
+  }[]
   courseRunsCount?: number
   isActive: boolean
   inactiveReason?: string | null
@@ -149,6 +154,7 @@ export default function ProfesoresPage() {
           department: staff.position, // Using position as department for now
           specialties: [], // No specialties in current schema
           certifications: [],
+          qualifiedAreas: staff.qualifiedAreas ?? [],
           courseRunsCount: staff.courseRunsCount ?? 0,
         }))
 
@@ -223,6 +229,7 @@ export default function ProfesoresPage() {
       (teacher.email ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (teacher.nif ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       teacher.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (teacher.qualifiedAreas ?? []).some((area) => area.nombre.toLowerCase().includes(searchTerm.toLowerCase())) ||
       teacher.specialties.some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()))
 
     const matchesDepartment = filterDepartment === 'all' || teacher.department === filterDepartment
@@ -233,7 +240,8 @@ export default function ProfesoresPage() {
       (filterStatus === 'temporary_leave' && teacher.employmentStatus === 'temporary_leave') ||
       (filterStatus === 'pending_review' && teacher.importReviewStatus === 'pending_review') ||
       (filterStatus === 'ambiguous' && teacher.importReviewStatus === 'ambiguous') ||
-      (filterStatus === 'retired_candidate' && teacher.importReviewStatus === 'retired_candidate')
+      (filterStatus === 'retired_candidate' && teacher.importReviewStatus === 'retired_candidate') ||
+      (filterStatus === 'missing_area' && (teacher.qualifiedAreas ?? []).length === 0)
 
     return matchesSearch && matchesDepartment && matchesStatus
   })
@@ -382,6 +390,7 @@ export default function ProfesoresPage() {
                 <SelectItem value="pending_review">Pendientes de revisión</SelectItem>
                 <SelectItem value="ambiguous">Coincidencias dudosas</SelectItem>
                 <SelectItem value="retired_candidate">Bajas detectadas</SelectItem>
+                <SelectItem value="missing_area">Sin área habilitada</SelectItem>
               </SelectContent>
             </Select>
 
@@ -448,6 +457,11 @@ export default function ProfesoresPage() {
                       <span className="truncate">{getDefaultCampusLabel(teacher.assignedCampuses)}</span>
                     </p>
                     <StaffStatusBadge status={teacher.active} className="mt-2" data-oid="vtx5757" />
+                    {(teacher.qualifiedAreas ?? []).length === 0 ? (
+                      <div className="mt-2 inline-flex rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive">
+                        Sin área habilitada
+                      </div>
+                    ) : null}
                     {teacher.importReviewStatus && teacher.importReviewStatus !== 'validated' ? (
                       <div className="mt-2 inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
                         {reviewLabels[teacher.importReviewStatus] ?? teacher.importReviewStatus}

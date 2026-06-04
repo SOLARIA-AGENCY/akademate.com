@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
+import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Separator } from '@payload-config/components/ui/separator'
@@ -22,6 +23,11 @@ interface TeacherExpanded {
   bio?: string
   active: boolean
   courseRunsCount: number
+  qualifiedAreas?: Array<{
+    id: number
+    codigo?: string | null
+    nombre: string
+  }>
   certifications: Array<{
     title: string
     institution: string
@@ -54,6 +60,7 @@ function TeacherListFallback() {
 
 export function PersonalListItem({ teacher, onClick, className }: PersonalListItemProps) {
   const [photoError, setPhotoError] = React.useState(false)
+  const missingQualifiedAreas = (teacher.qualifiedAreas ?? []).length === 0
 
   return (
     <Card
@@ -92,6 +99,11 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
               {teacher.firstName} {teacher.lastName}
             </h3>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">{teacher.department}</p>
+            {missingQualifiedAreas ? (
+              <Badge variant="destructive" className="mt-2 h-6 w-fit px-2 text-[11px]">
+                Sin área habilitada
+              </Badge>
+            ) : null}
           </div>
 
           <div className="hidden min-w-0 flex-col gap-1 text-xs md:flex">
