@@ -44,9 +44,17 @@ interface StaffDoc {
   nif?: string | null
   email?: string | null
   phone?: string | null
+  qualified_areas?: Array<number | string | { id?: number | string | null }> | null
   employment_status?: EmploymentStatus
   contract_type?: ContractType
   is_active?: boolean
+}
+
+interface CourseDoc {
+  id: number | string
+  name?: string | null
+  title?: string | null
+  area_formativa?: number | string | { id?: number | string | null } | null
 }
 
 interface ImportAction {
@@ -84,6 +92,22 @@ function normalizeName(value: unknown): string {
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase()
+}
+
+function relationId(value: number | string | { id?: number | string | null } | null | undefined): number | null {
+  if (typeof value === 'number') return value
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+  if (value && typeof value === 'object' && 'id' in value) return relationId(value.id as number | string | null)
+  return null
+}
+
+function existingQualifiedAreaIds(staff?: StaffDoc): number[] {
+  return (staff?.qualified_areas ?? [])
+    .map((area) => relationId(area))
+    .filter((id): id is number => id != null)
 }
 
 function normalizeNif(value: unknown): string | null {
@@ -125,6 +149,44 @@ function extractCourses(row: ExcelPersonRow | ExcelRetiredRow): string[] {
     text((row as ExcelRetiredRow)['CURSOS ASIGNADOS']),
   ]
   return values.filter((value) => value && value.toUpperCase() !== 'PENDIENTE')
+}
+
+function resolveAssignedCourseAreas(
+  assignedCourses: string[],
+  courses: CourseDoc[],
+): { qualifiedAreaIds: number[]; unmatchedCourses: string[] } {
+  const areaIds = new Set<number>()
+  const unmatchedCourses: string[] = []
+
+  const searchableCourses = courses
+    .map((course) => {
+      const title = text(course.name) || text(course.title)
+      return {
+        title,
+        normalizedTitle: normalizeName(title),
+        areaId: relationId(course.area_formativa),
+      }
+    })
+    .filter((course) => course.normalizedTitle && course.areaId != null)
+
+  for (const assignedCourse of assignedCourses) {
+    const normalizedAssigned = normalizeName(assignedCourse)
+    if (!normalizedAssigned) continue
+
+    const match = searchableCourses.find((course) => (
+      course.normalizedTitle === normalizedAssigned ||
+      course.normalizedTitle.includes(normalizedAssigned) ||
+      normalizedAssigned.includes(course.normalizedTitle)
+    ))
+
+    if (match?.areaId != null) {
+      areaIds.add(match.areaId)
+    } else {
+      unmatchedCourses.push(assignedCourse)
+    }
+  }
+
+  return { qualifiedAreaIds: Array.from(areaIds), unmatchedCourses }
 }
 
 function certificationFrom(row: ExcelPersonRow): { title: string; institution: string; year: number }[] {
@@ -282,7 +344,7 @@ export async function POST(request: NextRequest) {
     const apply = url.searchParams.get('apply') === 'true' || url.searchParams.get('apply') === '1'
     const importBatch = `cep-personal-${new Date().toISOString().replace(/[:.]/g, '-')}`
     const payload = await initPayload()
-    const [{ personalRows, retiredRows, source }, campusMap, staffResult] = await Promise.all([
+    const [{ personalRows, retiredRows, source }, campusMap, staffResult, coursesResult] = await Promise.all([
       loadWorkbookRows(request),
       getCampusMap(payload),
       payload.find({
@@ -292,9 +354,17 @@ export async function POST(request: NextRequest) {
         depth: 0,
         where: {},
       }),
+      payload.find({
+        collection: 'courses',
+        limit: 1000,
+        overrideAccess: true,
+        depth: 1,
+        where: {},
+      }),
     ])
 
     const existingStaff = staffResult.docs as unknown as StaffDoc[]
+    const courseDocs = coursesResult.docs as unknown as CourseDoc[]
     const indexes = buildStaffIndexes(existingStaff)
     const actions: ImportAction[] = []
 
@@ -312,6 +382,7 @@ export async function POST(request: NextRequest) {
       const phone = normalizePhone(row['MÓVIL'])
       const assignedCampuses = assignedCampusesFor(row, campusMap)
       const courses = extractCourses(row)
+      const { qualifiedAreaIds, unmatchedCourses } = resolveAssignedCourseAreas(courses, courseDocs)
       const reviewStatus: ImportReviewStatus = match.ambiguous ? 'ambiguous' : email || nif ? 'validated' : 'pending_review'
       const basePayload: Record<string, unknown> = {
         staff_type: 'profesor',
@@ -334,9 +405,33 @@ export async function POST(request: NextRequest) {
         import_review_status: reviewStatus,
         last_import_batch: importBatch,
       }
+      if (qualifiedAreaIds.length > 0) {
+        basePayload.qualified_areas = qualifiedAreaIds
+      }
 
       if (match.ambiguous) {
         actions.push({ type: 'ambiguous', name: fullName, nif, email, reason: 'Coincidencia múltiple por nombre', payload: basePayload })
+      } else if (!match.match && qualifiedAreaIds.length === 0) {
+        actions.push({
+          type: 'skip',
+          name: fullName,
+          nif,
+          email,
+          reason: courses.length
+            ? `No se pudo inferir área habilitada desde cursos asignados: ${unmatchedCourses.join(', ') || courses.join(', ')}`
+            : 'Docente sin cursos asignados; requiere área habilitada antes de crear ficha',
+          payload: basePayload,
+        })
+      } else if (match.match && existingQualifiedAreaIds(match.match).length === 0 && qualifiedAreaIds.length === 0) {
+        actions.push({
+          type: 'skip',
+          staffId: match.match.id,
+          name: fullName,
+          nif,
+          email,
+          reason: 'Docente existente sin área habilitada; requiere asignación manual antes de actualizar',
+          payload: basePayload,
+        })
       } else if (match.match) {
         actions.push({ type: 'update', staffId: match.match.id, name: fullName, nif, email, reason: `Actualizar docente existente por ${match.reason}`, payload: basePayload })
       } else {
@@ -395,4 +490,8 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     )
   }
+}
+
+export const __staffImportTestables = {
+  resolveAssignedCourseAreas,
 }
