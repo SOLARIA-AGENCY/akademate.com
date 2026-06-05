@@ -3,7 +3,13 @@ import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
-import { normalizeTime, relationId, type CourseRunPlanningDoc } from '@/app/lib/server/course-run-planning'
+import {
+  evaluateCourseRunAvailability,
+  evaluateCourseRunInstructorReadiness,
+  normalizeTime,
+  relationId,
+  type CourseRunPlanningDoc,
+} from '@/app/lib/server/course-run-planning'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 
 export const dynamic = 'force-dynamic'
@@ -78,6 +84,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({
         error: 'La convocatoria necesita fechas, días y horario para generar sesiones.',
       }, { status: 400 })
+    }
+
+    const availability = await evaluateCourseRunAvailability(payload, run, authContext.tenantId)
+    const instructorReadiness = await evaluateCourseRunInstructorReadiness(payload, run, authContext.tenantId)
+    const blockers = [...availability.blockers, ...instructorReadiness.blockers]
+    if (blockers.length > 0) {
+      return NextResponse.json({
+        error: 'No se pueden generar sesiones porque la planificación tiene conflictos.',
+        blockers,
+        warnings: [...availability.warnings, ...instructorReadiness.warnings],
+      }, { status: 409 })
     }
 
     const existing = await payloadAny.find({

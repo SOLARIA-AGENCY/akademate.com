@@ -5,12 +5,9 @@ import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
 import {
   evaluateCourseRunAvailability,
-  evaluateInstructorAreaQualification,
+  evaluateCourseRunInstructorReadiness,
   findTenantDoc,
-  getCourseRunRequiredAreaId,
-  isInstructorInactive,
   normalizeTime,
-  relationId,
   sameId,
   type CourseRunPlanningDoc,
 } from '@/app/lib/server/course-run-planning'
@@ -107,54 +104,9 @@ export async function GET(request: NextRequest) {
     const availability = await evaluateCourseRunAvailability(payload, candidate, authContext.tenantId, {
       includeWeekMap: searchParams.get('occupancy') === 'week',
     })
-
-    const instructorIds = [
-      relationId(candidate.instructor),
-      ...(Array.isArray(candidate.instructors) ? candidate.instructors.map((item) => relationId(item)) : []),
-    ]
-      .filter((value): value is string | number => value != null && value !== '')
-      .filter((value, index, values) => values.indexOf(value) === index)
-
-    if (instructorIds.length > 0) {
-      const requiredAreaId = await getCourseRunRequiredAreaId(payload, candidate, authContext.tenantId)
-      const instructors = await Promise.all(
-        instructorIds.map((instructorId) => findTenantDoc(payload, 'staff', instructorId, authContext.tenantId)),
-      )
-      for (let index = 0; index < instructors.length; index += 1) {
-        const instructorId = instructorIds[index]
-        const instructor = instructors[index]
-        if (!instructor) {
-          availability.blockers.push({
-            type: 'instructor_not_found',
-            severity: 'blocker',
-            message: `El docente seleccionado (${instructorId}) no existe o no pertenece a este tenant.`,
-          })
-          continue
-        }
-        if (isInstructorInactive(instructor)) {
-          availability.blockers.push({
-            type: 'instructor_inactive',
-            severity: 'blocker',
-            message: `${instructor.full_name ?? instructor.fullName ?? 'El docente seleccionado'} no está activo y no puede asignarse.`,
-          })
-          continue
-        }
-        const qualification = evaluateInstructorAreaQualification(instructor, requiredAreaId)
-        if (!qualification.ok) {
-          availability.blockers.push({
-            type: 'instructor_area_mismatch',
-            severity: 'blocker',
-            message: qualification.message ?? 'El docente no está habilitado para el área formativa de esta convocatoria.',
-          })
-        } else if (qualification.reason === 'no_qualified_areas' && requiredAreaId != null) {
-          availability.warnings.push({
-            type: 'instructor_area_missing',
-            severity: 'warning',
-            message: 'El docente no tiene áreas habilitadas cargadas. Revisa su ficha antes de confirmar.',
-          })
-        }
-      }
-    }
+    const instructorReadiness = await evaluateCourseRunInstructorReadiness(payload, candidate, authContext.tenantId)
+    availability.blockers.push(...instructorReadiness.blockers)
+    availability.warnings.push(...instructorReadiness.warnings)
 
     return NextResponse.json({ availability })
   } catch (error) {

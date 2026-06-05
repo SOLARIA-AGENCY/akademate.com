@@ -571,6 +571,35 @@ describe('/api/course-runs/[id]', () => {
     }))
   })
 
+  it('rejects session generation when the classroom is occupied by another convocatoria', async () => {
+    installFindRouter({ conflict: true })
+    const response = await GENERATE_SESSIONS(new NextRequest('http://localhost/api/course-runs/84/generate-sessions', {
+      method: 'POST',
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(data.error).toMatch(/conflictos/i)
+    expect(data.blockers).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'classroom_overlap' }),
+    ]))
+    expect(payloadMock.create).not.toHaveBeenCalled()
+  })
+
+  it('rejects session generation when the assigned instructor is not active', async () => {
+    installFindRouter({ inactiveStaff: true, staffQualifiedAreas: [7] })
+    const response = await GENERATE_SESSIONS(new NextRequest('http://localhost/api/course-runs/84/generate-sessions', {
+      method: 'POST',
+    }), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(data.blockers).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'instructor_inactive' }),
+    ]))
+    expect(payloadMock.create).not.toHaveBeenCalled()
+  })
+
   it('rejects inactive instructor assignment', async () => {
     payloadMock.find.mockImplementation(async ({ collection, where }: any) => {
       if (collection === 'course-runs') return { docs: [currentRun] }

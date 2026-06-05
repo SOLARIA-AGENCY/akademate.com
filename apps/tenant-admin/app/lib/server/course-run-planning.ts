@@ -385,3 +385,56 @@ export async function evaluateCourseRunAvailability(
     ...(unavailableInstructorIds.length ? { unavailableInstructorIds } : {}),
   }
 }
+
+export async function evaluateCourseRunInstructorReadiness(
+  payload: any,
+  candidate: CourseRunPlanningDoc,
+  tenantId: number,
+): Promise<Pick<PlanningAvailability, 'blockers' | 'warnings'>> {
+  const blockers: PlanningConflict[] = []
+  const warnings: PlanningConflict[] = []
+  const instructorIds = [
+    relationId(candidate.instructor),
+    ...relationIds(candidate.instructors),
+  ]
+    .filter((value): value is string | number => value != null && value !== '')
+    .filter((value, index, values) => values.findIndex((item) => String(item) === String(value)) === index)
+
+  if (instructorIds.length === 0) return { blockers, warnings }
+
+  const requiredAreaId = await getCourseRunRequiredAreaId(payload, candidate, tenantId)
+  const instructors = await Promise.all(
+    instructorIds.map((instructorId) => findTenantDoc(payload, 'staff', instructorId, tenantId)),
+  )
+
+  for (let index = 0; index < instructors.length; index += 1) {
+    const instructorId = instructorIds[index]
+    const instructor = instructors[index] as InstructorPlanningDoc | null
+    if (!instructor) {
+      blockers.push({
+        type: 'instructor_not_found',
+        severity: 'blocker',
+        message: `El docente seleccionado (${instructorId}) no existe o no pertenece a este tenant. Recarga la lista de docentes antes de guardar.`,
+      })
+      continue
+    }
+    if (isInstructorInactive(instructor)) {
+      blockers.push({
+        type: 'instructor_inactive',
+        severity: 'blocker',
+        message: `${instructor.full_name ?? instructor.fullName ?? 'El docente seleccionado'} no está activo y no puede asignarse a esta convocatoria.`,
+      })
+      continue
+    }
+    const qualification = evaluateInstructorAreaQualification(instructor, requiredAreaId)
+    if (!qualification.ok) {
+      blockers.push({
+        type: qualification.reason === 'no_qualified_areas' ? 'instructor_area_missing' : 'instructor_area_mismatch',
+        severity: 'blocker',
+        message: qualification.message ?? 'El docente no está habilitado para el área formativa de esta convocatoria.',
+      })
+    }
+  }
+
+  return { blockers, warnings }
+}
