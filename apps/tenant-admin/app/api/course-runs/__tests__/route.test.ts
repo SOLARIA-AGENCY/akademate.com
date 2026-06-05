@@ -56,7 +56,10 @@ function installFindRouter(options?: {
   foreignClassroomCampus?: boolean
   missingStaff?: boolean
   inactiveStaff?: boolean
+  temporaryLeaveStaff?: boolean
   staffQualifiedAreas?: Array<number | string>
+  staffQualifiedAreasCamel?: Array<number | string>
+  staffEmploymentStatusCamel?: string
   conflictInstructor?: number
   currentOverrides?: Record<string, unknown>
 }) {
@@ -101,10 +104,15 @@ function installFindRouter(options?: {
           : [{
               id: 44,
               tenant: tenantId,
-              full_name: options?.inactiveStaff ? 'Docente Inactivo' : 'Docente Activo',
+              full_name: options?.inactiveStaff || options?.temporaryLeaveStaff ? 'Docente No Activo' : 'Docente Activo',
+              fullName: options?.inactiveStaff || options?.temporaryLeaveStaff ? 'Docente No Activo' : 'Docente Activo',
               is_active: !options?.inactiveStaff,
-              employment_status: options?.inactiveStaff ? 'inactive' : 'active',
-              qualified_areas: options?.staffQualifiedAreas ?? [7],
+              isActive: !options?.inactiveStaff,
+              employment_status: options?.temporaryLeaveStaff ? 'temporary_leave' : options?.inactiveStaff ? 'inactive' : 'active',
+              employmentStatus: options?.staffEmploymentStatusCamel ?? (options?.temporaryLeaveStaff ? 'temporary_leave' : options?.inactiveStaff ? 'inactive' : 'active'),
+              ...(options?.staffQualifiedAreasCamel
+                ? { qualifiedAreas: options.staffQualifiedAreasCamel }
+                : { qualified_areas: options?.staffQualifiedAreas ?? [7] }),
             }],
       }
     }
@@ -459,6 +467,34 @@ describe('/api/course-runs/[id]', () => {
         message: expect.stringMatching(/no está activo/i),
       }),
     ])
+  })
+
+  it('returns a clear blocker when the selected instructor is on temporary leave', async () => {
+    installFindRouter({ temporaryLeaveStaff: true, staffQualifiedAreas: [7] })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?instructor=44'), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.blockers).toEqual([
+      expect.objectContaining({
+        type: 'instructor_inactive',
+        severity: 'blocker',
+        message: expect.stringMatching(/no está activo/i),
+      }),
+    ])
+  })
+
+  it('accepts camelCase staff documents when validating instructor qualified areas', async () => {
+    installFindRouter({ staffQualifiedAreasCamel: [7], currentOverrides: { instructor: null } })
+    const response = await GET_AVAILABILITY(new NextRequest('http://localhost/api/course-runs/84/availability?instructor=44'), params())
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.availability.blockers).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'instructor_area_mismatch' }),
+      expect.objectContaining({ type: 'instructor_area_missing' }),
+      expect.objectContaining({ type: 'instructor_inactive' }),
+    ]))
   })
 
   it('ignores blank availability query params instead of treating them as selected values', async () => {

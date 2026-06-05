@@ -39,6 +39,17 @@ export type InstructorQualificationResult = {
   message?: string
 }
 
+export type InstructorPlanningDoc = {
+  qualified_areas?: RelationValue[] | RelationValue
+  qualifiedAreas?: RelationValue[] | RelationValue
+  full_name?: string
+  fullName?: string
+  is_active?: boolean
+  isActive?: boolean
+  employment_status?: string | null
+  employmentStatus?: string | null
+}
+
 export type PlanningConflict = {
   type:
     | 'classroom_overlap'
@@ -214,10 +225,13 @@ export async function getCourseRunRequiredAreaId(
 }
 
 export function evaluateInstructorAreaQualification(
-  instructor: { qualified_areas?: RelationValue[] | RelationValue; full_name?: string } | null | undefined,
+  instructor: InstructorPlanningDoc | null | undefined,
   requiredAreaId: string | number | null,
 ): InstructorQualificationResult {
-  const qualifiedAreaIds = relationIds(instructor?.qualified_areas as RelationValue[] | RelationValue | undefined)
+  const qualifiedAreaIds = relationIds(
+    (instructor?.qualified_areas ?? instructor?.qualifiedAreas) as RelationValue[] | RelationValue | undefined,
+  )
+  const instructorName = instructor?.full_name ?? instructor?.fullName
 
   if (requiredAreaId == null) {
     return { ok: true, reason: 'no_required_area', qualifiedAreaIds }
@@ -229,7 +243,7 @@ export function evaluateInstructorAreaQualification(
       reason: 'no_qualified_areas',
       requiredAreaId,
       qualifiedAreaIds,
-      message: `${instructor?.full_name ?? 'El docente'} no tiene áreas habilitadas para impartir esta convocatoria.`,
+      message: `${instructorName ?? 'El docente'} no tiene áreas habilitadas para impartir esta convocatoria.`,
     }
   }
 
@@ -241,8 +255,15 @@ export function evaluateInstructorAreaQualification(
     qualifiedAreaIds,
     message: ok
       ? undefined
-      : `${instructor?.full_name ?? 'El docente'} no está habilitado para el área formativa de esta convocatoria.`,
+      : `${instructorName ?? 'El docente'} no está habilitado para el área formativa de esta convocatoria.`,
   }
+}
+
+export function isInstructorInactive(instructor: InstructorPlanningDoc | null | undefined) {
+  if (!instructor) return false
+  if (instructor.is_active === false || instructor.isActive === false) return true
+  const status = instructor.employment_status ?? instructor.employmentStatus
+  return typeof status === 'string' && status.toLowerCase() !== 'active'
 }
 
 export async function evaluateCourseRunAvailability(

@@ -8,6 +8,7 @@ import {
   evaluateInstructorAreaQualification,
   findTenantDoc,
   getCourseRunRequiredAreaId,
+  isInstructorInactive,
   normalizeTime,
   relationId,
   sameId,
@@ -130,11 +131,11 @@ export async function GET(request: NextRequest) {
           })
           continue
         }
-        if (instructor.is_active === false || instructor.employment_status === 'inactive') {
+        if (isInstructorInactive(instructor)) {
           availability.blockers.push({
             type: 'instructor_inactive',
             severity: 'blocker',
-            message: `${instructor.full_name ?? 'El docente seleccionado'} no está activo y no puede asignarse.`,
+            message: `${instructor.full_name ?? instructor.fullName ?? 'El docente seleccionado'} no está activo y no puede asignarse.`,
           })
           continue
         }

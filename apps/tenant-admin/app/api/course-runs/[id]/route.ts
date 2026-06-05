@@ -8,6 +8,7 @@ import {
   evaluateCourseRunAvailability,
   findTenantDoc,
   getCourseRunRequiredAreaId,
+  isInstructorInactive,
   normalizeTime,
   relationId,
   sameId,
@@ -179,7 +180,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     for (const instructorId of instructorIds) {
       const instructor = await findTenantDoc(payload, 'staff', instructorId, authContext.tenantId)
       if (!instructor) return NextResponse.json({ error: 'El docente seleccionado no pertenece a este tenant.' }, { status: 403 })
-      if (instructor.is_active === false || (instructor.employment_status && instructor.employment_status !== 'active')) {
+      if (isInstructorInactive(instructor)) {
         return NextResponse.json({ error: 'El docente seleccionado no está activo.' }, { status: 400 })
       }
       const qualification = evaluateInstructorAreaQualification(instructor, requiredAreaId)
