@@ -1,22 +1,14 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import type { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { resolveMetaRequestContext } from '../../_lib/integrations'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const SESSION_COOKIE = 'akademate_session'
-const LEGACY_SESSION_COOKIE = 'cep_session'
 const MAX_ASSET_SIZE = 50 * 1024 * 1024
-const ALLOWED_ROLES = new Set(['superadmin', 'admin', 'gestor', 'marketing', 'asesor'])
 const ALLOWED_RATIOS = new Set(['1:1', '9:16', '16:9'])
-
-interface SessionUser {
-  id: string | number
-  email?: string
-  role?: string
-}
 
 interface CreatedMediaDoc {
   id: string | number
@@ -33,30 +25,6 @@ interface UploadFileLike {
   type: string
   size: number
   arrayBuffer: () => Promise<ArrayBuffer>
-}
-
-async function getSessionUser(): Promise<SessionUser | null> {
-  const cookieStore = await cookies()
-  const serializedSession = cookieStore.get(SESSION_COOKIE)?.value || cookieStore.get(LEGACY_SESSION_COOKIE)?.value
-  if (!serializedSession) return null
-
-  const candidates = [serializedSession]
-  try {
-    const decoded = decodeURIComponent(serializedSession)
-    if (decoded !== serializedSession) candidates.push(decoded)
-  } catch {
-    // keep raw value
-  }
-
-  for (const candidate of candidates) {
-    try {
-      const session = JSON.parse(candidate) as { user?: SessionUser }
-      if (session.user) return session.user
-    } catch {
-      // try next candidate
-    }
-  }
-  return null
 }
 
 function getMediaUrl(doc: { url?: string | null; filename?: string | null }) {
@@ -90,10 +58,10 @@ function isUploadFileLike(value: unknown): value is UploadFileLike {
   )
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const user = await getSessionUser()
-    if (!user?.id || !user.role || !ALLOWED_ROLES.has(user.role)) {
+    const metaContext = await resolveMetaRequestContext(request, request.nextUrl.searchParams.get('tenantId'))
+    if (!metaContext.authenticated || !metaContext.userId || !metaContext.tenantId) {
       return NextResponse.json({ success: false, error: 'No autorizado para subir creatividades Meta' }, { status: 401 })
     }
 
@@ -136,9 +104,7 @@ export async function POST(request: Request) {
         size: file.size,
       },
       user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
+        id: metaContext.userId,
       },
     })) as CreatedMediaDoc
 

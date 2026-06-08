@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { POST } from '../../app/api/meta/assets/upload/route'
 
-const cookieGet = vi.fn()
 const payloadCreate = vi.fn()
+const resolveMetaRequestContext = vi.fn()
 
-vi.mock('next/headers', () => ({
-  cookies: vi.fn(async () => ({ get: cookieGet })),
+vi.mock('../../app/api/meta/_lib/integrations', () => ({
+  resolveMetaRequestContext: (...args: unknown[]) => resolveMetaRequestContext(...args),
 }))
 
 vi.mock('payload', () => ({
@@ -14,35 +14,35 @@ vi.mock('payload', () => ({
 
 vi.mock('@payload-config', () => ({ default: {} }))
 
-function session(role = 'marketing') {
-  return encodeURIComponent(JSON.stringify({ user: { id: 7, email: 'marketing@test.com', role } }))
-}
-
 function mockFormData(values: Record<string, unknown>) {
   return {
     get: vi.fn((key: string) => values[key] ?? null),
   } as any
 }
 
+function mockRequest(form: any = new FormData()) {
+  return {
+    nextUrl: new URL('https://cepformacion.akademate.com/api/meta/assets/upload'),
+    headers: new Headers({ 'content-type': 'multipart/form-data' }),
+    formData: vi.fn(async () => form),
+  } as any
+}
+
 describe('/api/meta/assets/upload', () => {
   beforeEach(() => {
-    cookieGet.mockReset()
     payloadCreate.mockReset()
+    resolveMetaRequestContext.mockReset()
+    resolveMetaRequestContext.mockResolvedValue({ authenticated: true, userId: 7, tenantId: '2' })
     payloadCreate.mockResolvedValue({ id: 123, filename: 'asset.webp', url: '/api/media/file/asset.webp', mimeType: 'image/webp', filesize: 1000 })
   })
 
   it('rejects unauthenticated uploads', async () => {
-    cookieGet.mockReturnValue(undefined)
-    const req = {
-      headers: new Headers({ 'content-type': 'multipart/form-data' }),
-      formData: vi.fn(async () => new FormData()),
-    } as any
-    const res = await POST(req)
+    resolveMetaRequestContext.mockResolvedValue({ authenticated: false, userId: null, tenantId: '2' })
+    const res = await POST(mockRequest())
     expect(res.status).toBe(401)
   })
 
   it('uploads a valid image asset to media and returns media id', async () => {
-    cookieGet.mockReturnValue({ value: session('marketing') })
     const file = {
       name: 'higiene.png',
       type: 'image/png',
@@ -56,11 +56,7 @@ describe('/api/meta/assets/upload', () => {
       file,
     })
 
-    const req = {
-      headers: new Headers({ 'content-type': 'multipart/form-data' }),
-      formData: vi.fn(async () => form),
-    } as any
-    const res = await POST(req)
+    const res = await POST(mockRequest(form))
     const payload = await res.json()
 
     expect(res.status).toBe(200)
@@ -71,21 +67,16 @@ describe('/api/meta/assets/upload', () => {
   })
 
   it('rejects unsupported ratios', async () => {
-    cookieGet.mockReturnValue({ value: session('marketing') })
     const form = mockFormData({
       ratio: '4:5',
       file: {
-      name: 'bad.png',
-      type: 'image/png',
-      size: 1,
-      arrayBuffer: vi.fn(async () => new Uint8Array([1]).buffer),
+        name: 'bad.png',
+        type: 'image/png',
+        size: 1,
+        arrayBuffer: vi.fn(async () => new Uint8Array([1]).buffer),
       },
     })
-    const req = {
-      headers: new Headers({ 'content-type': 'multipart/form-data' }),
-      formData: vi.fn(async () => form),
-    } as any
-    const res = await POST(req)
+    const res = await POST(mockRequest(form))
     expect(res.status).toBe(400)
   })
 })
