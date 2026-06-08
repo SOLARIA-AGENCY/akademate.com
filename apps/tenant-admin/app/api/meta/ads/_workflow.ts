@@ -92,6 +92,13 @@ function buildRequestScopedLandingUrl(request: NextRequest, convocatoriaCode: st
   return `${request.nextUrl.origin.replace(/\/$/, '')}/p/convocatorias/${encodeURIComponent(convocatoriaCode)}`
 }
 
+function assertPublicConvocatoria(convocatoria: any) {
+  const rawStatus = typeof convocatoria?.status === 'string' ? convocatoria.status.trim().toLowerCase() : ''
+  if (!rawStatus) return
+  if (rawStatus === 'published' || rawStatus === 'enrollment_open') return
+  throw new Error('La convocatoria debe estar publicada o abierta para inscripcion antes de generar publicidad en Meta.')
+}
+
 export function buildMetaAdUrlParameters(input: { utmCampaign: string; metaCampaignId: string; ratio?: string }) {
   const params = new URLSearchParams(buildUtmParams(input.utmCampaign))
   if (input.metaCampaignId) {
@@ -239,6 +246,7 @@ export async function getConvocatoria(payload: any, id: number) {
 }
 
 export function resolveConvocatoriaPlan(input: { request: NextRequest; body: AdWorkflowBody; convocatoria: any }) {
+  assertPublicConvocatoria(input.convocatoria)
   const code = String(input.convocatoria?.codigo || input.body.convocatoria_id).trim()
   const startIso = toIsoDate(input.body.start_time) || new Date().toISOString()
   const stopIso = toIsoDate(input.body.stop_time) || toIsoDate(input.convocatoria?.start_date)

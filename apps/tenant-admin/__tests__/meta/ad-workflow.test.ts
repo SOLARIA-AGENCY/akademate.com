@@ -59,6 +59,7 @@ describe('Meta ad workflow', () => {
     const convocatoria = {
       id: 2,
       codigo: 'SC-2026-002',
+      status: 'enrollment_open',
       start_date: futureStop.toISOString(),
       course: { name: 'CFGS Higiene Bucodental' },
     }
@@ -86,6 +87,7 @@ describe('Meta ad workflow', () => {
       const convocatoria = {
         id: 2,
         codigo: 'SC-2026-CEP',
+        status: 'published',
         start_date: body.stop_time,
         course: { name: 'CFGM Farmacia y Parafarmacia' },
       }
@@ -113,6 +115,21 @@ describe('Meta ad workflow', () => {
   it('blocks activation windows when convocatoria already started', () => {
     const body = validBody({ stop_time: '2020-01-01T00:00:00.000Z' })
     expect(() => resolveConvocatoriaPlan({ request, body, convocatoria: { codigo: 'OLD', start_date: '2020-01-01' } })).toThrow(/ya ha comenzado/i)
+  })
+
+  it('blocks Meta advertising when the public convocatoria landing is not available', () => {
+    const body = validBody()
+    expect(() =>
+      resolveConvocatoriaPlan({
+        request,
+        body,
+        convocatoria: {
+          codigo: 'DRAFT-2026',
+          status: 'draft',
+          start_date: body.stop_time,
+        },
+      })
+    ).toThrow(/publicada o abierta/i)
   })
 
   it('blocks Meta creation until the operator confirms review', async () => {
