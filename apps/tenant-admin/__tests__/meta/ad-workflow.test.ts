@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildPreview, normalizeAdWorkflowBody, resolveConvocatoriaPlan } from '../../app/api/meta/ads/_workflow'
+import { buildMetaAdUrlParameters, buildPreview, normalizeAdWorkflowBody, resolveConvocatoriaPlan } from '../../app/api/meta/ads/_workflow'
 
 const request = {
   nextUrl: new URL('https://cepformacion.akademate.com/api/meta/ads/preview'),
@@ -88,6 +88,19 @@ describe('Meta ad workflow', () => {
     } finally {
       process.env.NEXT_PUBLIC_TENANT_URL = previousTenantUrl
     }
+  })
+
+  it('adds Meta campaign identifiers to ad URL parameters for CRM attribution', () => {
+    const params = new URLSearchParams(buildMetaAdUrlParameters({
+      utmCampaign: 'SA-SC-TEST',
+      metaCampaignId: '6966251962240',
+      ratio: '9:16',
+    }))
+    expect(params.get('utm_campaign')).toBe('SA-SC-TEST')
+    expect(params.get('meta_campaign_id')).toBe('6966251962240')
+    expect(params.get('campaign_id')).toBe('6966251962240')
+    expect(params.get('utm_id')).toBe('6966251962240')
+    expect(params.get('utm_content')).toBe('9:16')
   })
 
   it('blocks activation windows when convocatoria already started', () => {

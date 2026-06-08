@@ -91,6 +91,17 @@ function buildRequestScopedLandingUrl(request: NextRequest, convocatoriaCode: st
   return `${request.nextUrl.origin.replace(/\/$/, '')}/p/convocatorias/${encodeURIComponent(convocatoriaCode)}`
 }
 
+export function buildMetaAdUrlParameters(input: { utmCampaign: string; metaCampaignId: string; ratio?: string }) {
+  const params = new URLSearchParams(buildUtmParams(input.utmCampaign))
+  if (input.metaCampaignId) {
+    params.set('meta_campaign_id', input.metaCampaignId)
+    params.set('campaign_id', input.metaCampaignId)
+    params.set('utm_id', input.metaCampaignId)
+  }
+  if (input.ratio) params.set('utm_content', input.ratio)
+  return params.toString()
+}
+
 function assertCopy(copy: AdWorkflowCopy) {
   if (!Array.isArray(copy?.primary_texts) || copy.primary_texts.filter(Boolean).length < 1) {
     throw new Error('Debes incluir al menos un texto principal.')
@@ -451,7 +462,7 @@ export async function publishToMeta(input: { request: NextRequest; body: AdWorkf
       description: input.body.copy.descriptions[0] || '',
       linkUrl: plan.landingUrl,
       callToAction: input.body.copy.cta || 'SIGN_UP',
-      urlParameters: buildUtmParams(plan.utmCampaign),
+      urlParameters: buildMetaAdUrlParameters({ utmCampaign: plan.utmCampaign, metaCampaignId, ratio: asset.ratio }),
     })
     if (!creative.success || !creative.data?.id) throw new Error(creative.error || `No se pudo crear creative Meta para ${asset.ratio}.`)
 
