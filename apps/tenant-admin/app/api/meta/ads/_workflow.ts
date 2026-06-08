@@ -13,6 +13,7 @@ import {
   createCampaign,
   updateAdStatus,
   uploadAdImage,
+  uploadAdVideo,
 } from '../../../../src/lib/meta-marketing'
 
 export type AdStrategy = 'new_campaign' | 'new_ad_existing_adset' | 'refresh_existing_ad'
@@ -29,6 +30,13 @@ export interface AdWorkflowAsset {
   media_id: number
   ratio: '1:1' | '9:16' | '16:9'
   type: 'image' | 'video'
+}
+
+export interface PublishedMetaAd {
+  ratio: AdWorkflowAsset['ratio']
+  type: AdWorkflowAsset['type']
+  meta_creative_id: string
+  meta_ad_id: string
 }
 
 export interface AdWorkflowBody {
@@ -96,6 +104,16 @@ function assertAssets(assets: AdWorkflowAsset[]) {
   }
 }
 
+function assertStrategy(body: Partial<AdWorkflowBody>) {
+  const strategy = body.strategy || 'new_campaign'
+  if (strategy === 'new_ad_existing_adset' && (!body.campaign_id || !body.adset_id)) {
+    throw new Error('Para crear un anuncio en un adset existente debes indicar campaign_id y adset_id.')
+  }
+  if (strategy === 'refresh_existing_ad' && (!body.campaign_id || !body.adset_id)) {
+    throw new Error('Para refrescar una campaña existente debes indicar campaign_id y adset_id.')
+  }
+}
+
 export function normalizeAdWorkflowBody(raw: Partial<AdWorkflowBody>): AdWorkflowBody {
   const convocatoriaId = toPositiveInt(raw.convocatoria_id)
   if (!convocatoriaId) throw new Error('convocatoria_id es obligatorio.')
@@ -107,11 +125,12 @@ export function normalizeAdWorkflowBody(raw: Partial<AdWorkflowBody>): AdWorkflo
   assertCopy(copy)
   const assets = Array.isArray(raw.assets) ? raw.assets : []
   assertAssets(assets)
+  assertStrategy(raw)
 
   return {
     draft_id: toPositiveInt(raw.draft_id) || undefined,
     convocatoria_id: convocatoriaId,
-    strategy: raw.strategy || 'refresh_existing_ad',
+    strategy: raw.strategy || 'new_campaign',
     campaign_id: typeof raw.campaign_id === 'string' ? raw.campaign_id.trim() : undefined,
     adset_id: typeof raw.adset_id === 'string' ? raw.adset_id.trim() : undefined,
     daily_budget: Math.round(dailyBudget),
@@ -165,6 +184,7 @@ export async function ensureWorkflowTables(drizzle: any) {
       meta_adset_id VARCHAR(64),
       meta_creative_id VARCHAR(64),
       meta_ad_id VARCHAR(64),
+      meta_ads JSONB NOT NULL DEFAULT '[]'::jsonb,
       landing_url TEXT NOT NULL,
       utm_campaign VARCHAR(255),
       daily_budget INTEGER NOT NULL,
@@ -182,6 +202,7 @@ export async function ensureWorkflowTables(drizzle: any) {
     )
   `)
   await drizzle.execute(`CREATE INDEX IF NOT EXISTS meta_ad_drafts_tenant_conv_idx ON meta_ad_drafts (tenant_id, convocatoria_id, created_at DESC)`)
+  await drizzle.execute(`ALTER TABLE meta_ad_drafts ADD COLUMN IF NOT EXISTS meta_ads JSONB NOT NULL DEFAULT '[]'::jsonb`)
   await drizzle.execute(`
     CREATE TABLE IF NOT EXISTS meta_publish_jobs (
       id BIGSERIAL PRIMARY KEY,
@@ -270,6 +291,7 @@ export async function upsertDraft(input: {
   status: AdWorkflowStatus
   diagnostics?: Record<string, unknown>
   meta?: Record<string, string | null | undefined>
+  metaAds?: PublishedMetaAd[]
 }): Promise<number> {
   const draftId = input.body.draft_id
   const meta = input.meta || {}
@@ -284,6 +306,7 @@ export async function upsertDraft(input: {
         meta_adset_id=${meta.meta_adset_id ? `'${esc(meta.meta_adset_id)}'` : 'meta_adset_id'},
         meta_creative_id=${meta.meta_creative_id ? `'${esc(meta.meta_creative_id)}'` : 'meta_creative_id'},
         meta_ad_id=${meta.meta_ad_id ? `'${esc(meta.meta_ad_id)}'` : 'meta_ad_id'},
+        meta_ads='${esc(JSON.stringify(input.metaAds || []))}'::jsonb,
         landing_url='${esc(input.plan.landingUrl)}',
         utm_campaign='${esc(input.plan.utmCampaign)}',
         daily_budget=${input.body.daily_budget},
@@ -304,7 +327,7 @@ export async function upsertDraft(input: {
   const result = await input.drizzle.execute(`
     INSERT INTO meta_ad_drafts (
       tenant_id, convocatoria_id, strategy, status, campaign_id, adset_id, landing_url, utm_campaign,
-      daily_budget, start_time, stop_time, copy, assets, preview, diagnostics, created_by
+      daily_budget, start_time, stop_time, copy, assets, preview, diagnostics, meta_ads, created_by
     ) VALUES (
       ${Number(input.tenantId)}, ${input.body.convocatoria_id}, '${esc(input.body.strategy || 'refresh_existing_ad')}', '${esc(input.status)}',
       ${input.body.campaign_id ? `'${esc(input.body.campaign_id)}'` : 'NULL'},
@@ -315,11 +338,46 @@ export async function upsertDraft(input: {
       '${esc(JSON.stringify(input.body.assets))}'::jsonb,
       '${esc(JSON.stringify(input.preview))}'::jsonb,
       '${esc(JSON.stringify(input.diagnostics || {}))}'::jsonb,
+      '${esc(JSON.stringify(input.metaAds || []))}'::jsonb,
       ${input.userId ? `'${esc(String(input.userId))}'` : 'NULL'}
     ) RETURNING id
   `)
   const rows = asRows(result)
   return Number(rows[0]?.id || 0)
+}
+
+function parseMetaAds(raw: unknown): PublishedMetaAd[] {
+  if (Array.isArray(raw)) return raw as PublishedMetaAd[]
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw)
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+  return []
+}
+
+async function resolveMediaAsset(input: {
+  payload: any
+  request: NextRequest
+  adAccountId: string
+  accessToken: string
+  asset: AdWorkflowAsset
+}): Promise<{ imageHash?: string; videoId?: string }> {
+  const media = await input.payload.findByID({ collection: 'media', id: input.asset.media_id })
+  const mediaUrl = typeof media?.url === 'string' ? media.url : ''
+  if (!mediaUrl) throw new Error(`La creatividad ${input.asset.media_id} no tiene URL de media.`)
+  const absoluteUrl = mediaUrl.startsWith('http') ? mediaUrl : `${input.request.nextUrl.origin}${mediaUrl}`
+  if (input.asset.type === 'video') {
+    const uploaded = await uploadAdVideo(input.adAccountId, input.accessToken, absoluteUrl)
+    if (!uploaded.success || !uploaded.data?.id) throw new Error(uploaded.error || `No se pudo subir video ${input.asset.media_id} a Meta.`)
+    return { videoId: uploaded.data.id }
+  }
+  const uploaded = await uploadAdImage(input.adAccountId, input.accessToken, absoluteUrl)
+  if (!uploaded.success || !uploaded.data?.hash) throw new Error(uploaded.error || `No se pudo subir imagen ${input.asset.media_id} a Meta.`)
+  return { imageHash: uploaded.data.hash }
 }
 
 export async function getDraft(drizzle: any, tenantId: string, draftId: number) {
@@ -369,42 +427,48 @@ export async function publishToMeta(input: { request: NextRequest; body: AdWorkf
     metaAdSetId = adSet.data.id
   }
 
-  let imageHash: string | undefined
-  const primaryImage = input.body.assets.find((asset) => asset.type === 'image' && asset.ratio === '1:1') || input.body.assets.find((asset) => asset.type === 'image')
-  if (primaryImage) {
-    const media = await ctx.payload.findByID({ collection: 'media', id: primaryImage.media_id })
-    const mediaUrl = typeof media?.url === 'string' ? media.url : ''
-    if (mediaUrl) {
-      const absoluteUrl = mediaUrl.startsWith('http') ? mediaUrl : `${input.request.nextUrl.origin}${mediaUrl}`
-      const uploaded = await uploadAdImage(adAccountId, accessToken, absoluteUrl)
-      if (uploaded.success && uploaded.data?.hash) imageHash = uploaded.data.hash
-    }
+  const publishedAds: PublishedMetaAd[] = []
+  for (const asset of input.body.assets) {
+    const uploadedAsset = await resolveMediaAsset({
+      payload: ctx.payload,
+      request: input.request,
+      adAccountId,
+      accessToken,
+      asset,
+    })
+    const creative = await createAdCreative({
+      adAccountId,
+      accessToken,
+      name: `Creative - ${courseName} - ${asset.ratio} - ${new Date().toISOString().slice(0, 10)}`,
+      pageId: META_PAGE_ID,
+      imageHash: uploadedAsset.imageHash,
+      videoId: uploadedAsset.videoId,
+      headline: input.body.copy.headlines[0],
+      body: input.body.copy.primary_texts[0],
+      description: input.body.copy.descriptions[0] || '',
+      linkUrl: plan.landingUrl,
+      callToAction: input.body.copy.cta || 'SIGN_UP',
+      urlParameters: buildUtmParams(plan.utmCampaign),
+    })
+    if (!creative.success || !creative.data?.id) throw new Error(creative.error || `No se pudo crear creative Meta para ${asset.ratio}.`)
+
+    const ad = await createAd({
+      adAccountId,
+      accessToken,
+      adSetId: metaAdSetId,
+      name: `AD / ${courseName} / ${plan.code} / ${asset.ratio} / ${new Date().toISOString().slice(0, 10)}`,
+      creativeId: creative.data.id,
+      status: 'PAUSED',
+    })
+    if (!ad.success || !ad.data?.id) throw new Error(ad.error || `No se pudo crear anuncio Meta para ${asset.ratio}.`)
+    publishedAds.push({
+      ratio: asset.ratio,
+      type: asset.type,
+      meta_creative_id: creative.data.id,
+      meta_ad_id: ad.data.id,
+    })
   }
-
-  const creative = await createAdCreative({
-    adAccountId,
-    accessToken,
-    name: `Creative - ${courseName} - ${new Date().toISOString().slice(0, 10)}`,
-    pageId: META_PAGE_ID,
-    imageHash,
-    headline: input.body.copy.headlines[0],
-    body: input.body.copy.primary_texts[0],
-    description: input.body.copy.descriptions[0] || '',
-    linkUrl: plan.landingUrl,
-    callToAction: input.body.copy.cta || 'SIGN_UP',
-    urlParameters: buildUtmParams(plan.utmCampaign),
-  })
-  if (!creative.success || !creative.data?.id) throw new Error(creative.error || 'No se pudo crear creative Meta.')
-
-  const ad = await createAd({
-    adAccountId,
-    accessToken,
-    adSetId: metaAdSetId,
-    name: `AD / ${courseName} / ${plan.code} / ${new Date().toISOString().slice(0, 10)}`,
-    creativeId: creative.data.id,
-    status: 'PAUSED',
-  })
-  if (!ad.success || !ad.data?.id) throw new Error(ad.error || 'No se pudo crear anuncio Meta.')
+  const primaryPublishedAd = publishedAds[0]
 
   const draftId = await upsertDraft({
     drizzle: ctx.drizzle,
@@ -417,24 +481,30 @@ export async function publishToMeta(input: { request: NextRequest; body: AdWorkf
     meta: {
       meta_campaign_id: metaCampaignId,
       meta_adset_id: metaAdSetId,
-      meta_creative_id: creative.data.id,
-      meta_ad_id: ad.data.id,
+      meta_creative_id: primaryPublishedAd?.meta_creative_id,
+      meta_ad_id: primaryPublishedAd?.meta_ad_id,
     },
+    metaAds: publishedAds,
   })
-  await logPublishJob({ drizzle: ctx.drizzle, tenantId: ctx.metaContext.tenantId!, draftId, type: 'publish', status: 'success', request: input.body, response: { metaCampaignId, metaAdSetId, metaCreativeId: creative.data.id, metaAdId: ad.data.id } })
+  await logPublishJob({ drizzle: ctx.drizzle, tenantId: ctx.metaContext.tenantId!, draftId, type: 'publish', status: 'success', request: input.body, response: { metaCampaignId, metaAdSetId, metaAds: publishedAds } })
 
-  return { ctx, draftId, preview, metaCampaignId, metaAdSetId, metaCreativeId: creative.data.id, metaAdId: ad.data.id }
+  return { ctx, draftId, preview, metaCampaignId, metaAdSetId, metaAds: publishedAds, metaCreativeId: primaryPublishedAd?.meta_creative_id, metaAdId: primaryPublishedAd?.meta_ad_id }
 }
 
 export async function activateMetaAd(input: { request: NextRequest; draftId: number }) {
   const ctx = await getWorkflowContext(input.request)
   const draft = await getDraft(ctx.drizzle, ctx.metaContext.tenantId!, input.draftId)
   if (!draft) throw new Error('Draft no encontrado.')
-  const metaAdId = String(draft.meta_ad_id || '')
-  if (!metaAdId) throw new Error('El anuncio aún no existe en Meta.')
-  const result = await updateAdStatus({ adId: metaAdId, accessToken: ctx.metaContext.meta.marketingApiToken, status: 'ACTIVE' })
-  if (!result.success) throw new Error(result.error || 'No se pudo activar el anuncio.')
+  const metaAds = parseMetaAds(draft.meta_ads)
+  const adIds = metaAds.length > 0 ? metaAds.map((ad) => ad.meta_ad_id).filter(Boolean) : [String(draft.meta_ad_id || '')].filter(Boolean)
+  if (adIds.length === 0) throw new Error('El anuncio aún no existe en Meta.')
+  const results = []
+  for (const adId of adIds) {
+    const result = await updateAdStatus({ adId, accessToken: ctx.metaContext.meta.marketingApiToken, status: 'ACTIVE' })
+    if (!result.success) throw new Error(result.error || `No se pudo activar el anuncio ${adId}.`)
+    results.push({ metaAdId: adId, status: 'ACTIVE' })
+  }
   await ctx.drizzle.execute(`UPDATE meta_ad_drafts SET status='active', activated_at=NOW(), updated_at=NOW() WHERE id=${input.draftId} AND tenant_id=${Number(ctx.metaContext.tenantId)}`)
-  await logPublishJob({ drizzle: ctx.drizzle, tenantId: ctx.metaContext.tenantId!, draftId: input.draftId, type: 'activate', status: 'success', request: { draftId: input.draftId }, response: result.data || {} })
-  return { ctx, draft, metaAdId }
+  await logPublishJob({ drizzle: ctx.drizzle, tenantId: ctx.metaContext.tenantId!, draftId: input.draftId, type: 'activate', status: 'success', request: { draftId: input.draftId }, response: { ads: results } })
+  return { ctx, draft, metaAdId: adIds[0], metaAds: results }
 }

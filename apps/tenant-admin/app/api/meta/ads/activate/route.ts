@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: { message: 'draft_id es obligatorio.' } }, { status: 400 })
     }
     const result = await activateMetaAd({ request, draftId })
-    return NextResponse.json({ success: true, draft_id: draftId, data: { metaAdId: result.metaAdId, status: 'ACTIVE' } })
+    return NextResponse.json({ success: true, draft_id: draftId, data: { metaAdId: result.metaAdId, metaAds: result.metaAds, status: 'ACTIVE' } })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'No se pudo activar el anuncio Meta.'
     const status = message === 'UNAUTHORIZED' ? 401 : 400

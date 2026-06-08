@@ -54,6 +54,15 @@ interface PreviewPayload {
   }
 }
 
+interface MetaAdResult {
+  ratio?: string
+  type?: string
+  meta_creative_id?: string
+  meta_ad_id?: string
+  metaAdId?: string
+  status?: string
+}
+
 function formatBudget(cents?: number): string {
   if (!cents || !Number.isFinite(cents)) return '--'
   return `${(cents / 100).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`
@@ -76,7 +85,7 @@ function ratioClass(ratio: Ratio): string {
 }
 
 export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Props) {
-  const [strategy, setStrategy] = React.useState<Strategy>('refresh_existing_ad')
+  const [strategy, setStrategy] = React.useState<Strategy>('new_campaign')
   const [campaignId, setCampaignId] = React.useState('')
   const [adsetId, setAdsetId] = React.useState('')
   const [dailyBudgetEuros, setDailyBudgetEuros] = React.useState('20')
@@ -168,6 +177,28 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido')
       return null
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  async function activateCampaign() {
+    if (!draftId) return
+    setError(null)
+    setLoading('activate')
+    try {
+      const res = await fetch('/api/meta/ads/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ draft_id: draftId }),
+      })
+      const payload = await res.json().catch(() => ({}))
+      if (!res.ok || payload.success === false) {
+        throw new Error(payload.error?.message || 'No se pudo activar la campaña Meta.')
+      }
+      if (payload.data) setResult(payload.data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
       setLoading(null)
     }
@@ -278,7 +309,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
             <Button onClick={() => void callWorkflow('/api/meta/ads/publish', 'publish')} disabled={!canPublish}>
               {loading === 'publish' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />} Crear en Meta pausado
             </Button>
-            <Button variant="destructive" onClick={() => void callWorkflow('/api/meta/ads/activate', 'activate')} disabled={!canActivate}>
+            <Button variant="destructive" onClick={() => void activateCampaign()} disabled={!canActivate}>
               {loading === 'activate' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />} Poner en marcha campaña
             </Button>
           </div>
@@ -312,9 +343,21 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
 
           {result ? (
             <section className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-900">
-              <p className="font-black">Anuncio creado en Meta como PAUSED.</p>
-              <p>Ad ID: {result.metaAdId}</p>
-              <p>Creative ID: {result.metaCreativeId}</p>
+              <p className="font-black">{result.status === 'ACTIVE' ? 'Campaña activada en Meta.' : 'Anuncios creados en Meta como PAUSED.'}</p>
+              {Array.isArray(result.metaAds) && result.metaAds.length > 0 ? (
+                <div className="mt-2 space-y-1">
+                  {result.metaAds.map((ad: MetaAdResult, index: number) => (
+                    <p key={`${ad.meta_ad_id || ad.metaAdId || index}`}>
+                      {ad.ratio ? `${ad.ratio} · ` : ''}Ad ID: {ad.meta_ad_id || ad.metaAdId} {ad.meta_creative_id ? `· Creative ID: ${ad.meta_creative_id}` : ''}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <p>Ad ID: {result.metaAdId}</p>
+                  <p>Creative ID: {result.metaCreativeId}</p>
+                </>
+              )}
               {result.adsManagerUrl ? <a className="underline" href={result.adsManagerUrl} target="_blank">Abrir en Ads Manager</a> : null}
             </section>
           ) : null}

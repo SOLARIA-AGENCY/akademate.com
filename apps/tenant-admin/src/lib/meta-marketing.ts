@@ -186,18 +186,31 @@ export async function createAdSet(params: CreateAdSetParams): Promise<MetaApiRes
 }
 
 export async function createAdCreative(params: CreateAdCreativeParams): Promise<MetaApiResult<{ id: string }>> {
-  const objectStorySpec: Record<string, unknown> = {
-    page_id: params.pageId,
-    link_data: {
-      link: params.linkUrl,
-      message: params.body,
-      name: params.headline,
-      description: params.description,
-      call_to_action: { type: params.callToAction ?? 'LEARN_MORE' },
-      ...(params.imageHash ? { image_hash: params.imageHash } : {}),
-      ...(params.urlParameters ? { url_tags: params.urlParameters } : {}),
-    },
-  }
+  const objectStorySpec: Record<string, unknown> = params.videoId
+    ? {
+      page_id: params.pageId,
+      video_data: {
+        video_id: params.videoId,
+        message: params.body,
+        title: params.headline,
+        call_to_action: {
+          type: params.callToAction ?? 'LEARN_MORE',
+          value: { link: params.linkUrl },
+        },
+      },
+    }
+    : {
+      page_id: params.pageId,
+      link_data: {
+        link: params.linkUrl,
+        message: params.body,
+        name: params.headline,
+        description: params.description,
+        call_to_action: { type: params.callToAction ?? 'LEARN_MORE' },
+        ...(params.imageHash ? { image_hash: params.imageHash } : {}),
+        ...(params.urlParameters ? { url_tags: params.urlParameters } : {}),
+      },
+    }
 
   return metaPost(`/act_${params.adAccountId}/adcreatives`, {
     name: params.name,

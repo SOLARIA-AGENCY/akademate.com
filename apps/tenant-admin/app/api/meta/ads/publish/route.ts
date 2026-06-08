@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
         metaAdSetId: result.metaAdSetId,
         metaCreativeId: result.metaCreativeId,
         metaAdId: result.metaAdId,
+        metaAds: result.metaAds,
         status: 'PAUSED',
         adsManagerUrl: `https://adsmanager.facebook.com/adsmanager/manage/ads?act=${result.ctx.metaContext.meta.adAccountIdNormalized}&selected_ad_ids=${result.metaAdId}`,
       },

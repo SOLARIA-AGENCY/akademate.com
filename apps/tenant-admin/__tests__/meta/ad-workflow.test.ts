@@ -40,6 +40,16 @@ describe('Meta ad workflow', () => {
     expect(() => validBody({ assets: [{ media_id: 101, ratio: '1:1', type: 'image' }] })).toThrow(/1:1 y 9:16/i)
   })
 
+  it('defaults to a new campaign when no existing Meta ids are provided', () => {
+    const body = validBody({ strategy: undefined, campaign_id: undefined, adset_id: undefined })
+    expect(body.strategy).toBe('new_campaign')
+  })
+
+  it('requires existing campaign and adset ids for refresh strategies', () => {
+    expect(() => validBody({ strategy: 'refresh_existing_ad', campaign_id: undefined, adset_id: undefined })).toThrow(/campaign_id y adset_id/i)
+    expect(() => validBody({ strategy: 'new_ad_existing_adset', campaign_id: undefined, adset_id: '123' })).toThrow(/campaign_id y adset_id/i)
+  })
+
   it('uses convocatoria start_date as stop_time and builds tracking preview', () => {
     const body = validBody({ stop_time: undefined })
     const futureStop = new Date()
