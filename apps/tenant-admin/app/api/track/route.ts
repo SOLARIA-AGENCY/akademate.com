@@ -15,7 +15,7 @@ import { Pool } from 'pg'
  *     event_id?, fbc?, fbp?, utm_source?, utm_medium?, utm_campaign? }
  *
  * Body (custom tracked event):
- *   { type: 'event', event_type: 'form_click' | 'form_submit', path, event_id?,
+ *   { type: 'event', event_type: 'form_click' | 'form_submit' | 'form_error', path, event_id?,
  *     referrer?, userAgent?, utm_source?, utm_medium?, utm_campaign?, meta_campaign_id?, campaign_id?, utm_id? }
  *
  * This endpoint is intentionally public (no auth required).
@@ -33,10 +33,10 @@ interface TenantInfo {
   integrations: TenantIntegrations
 }
 
-type TrackEventType = 'page_view' | 'lead' | 'form_click' | 'form_submit'
+type TrackEventType = 'page_view' | 'lead' | 'form_click' | 'form_submit' | 'form_error'
 
 const RESERVED_TENANT_SLUGS = new Set(['www', 'admin', 'app'])
-const ALLOWED_CUSTOM_EVENT_TYPES = new Set<TrackEventType>(['form_click', 'form_submit'])
+const ALLOWED_CUSTOM_EVENT_TYPES = new Set<TrackEventType>(['form_click', 'form_submit', 'form_error'])
 let trafficFallbackPool: Pool | null = null
 
 function isDatabaseConnectionError(error: unknown): boolean {

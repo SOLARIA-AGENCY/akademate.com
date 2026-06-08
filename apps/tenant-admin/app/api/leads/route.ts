@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { createHash } from 'node:crypto'
 import path from 'node:path'
 import {
   buildCommercialClassificationContext,
@@ -19,6 +20,127 @@ const PLACEHOLDER_PHONE = '+34 000 000 000'
 
 function esc(s: string): string {
   return s.replace(/'/g, "''")
+}
+
+function hashUserAgent(userAgent: string): string {
+  return createHash('sha256').update(userAgent).digest('hex')
+}
+
+async function persistLeadTrafficEvent(
+  payload: any,
+  tenantId: number,
+  body: Record<string, any>,
+  sourcePage: string,
+  sourceDetails: Record<string, unknown>,
+): Promise<void> {
+  const drizzle = (payload.db as any).drizzle || (payload.db as any).pool
+  if (!drizzle?.execute) return
+
+  await drizzle.execute(`
+    CREATE TABLE IF NOT EXISTS traffic_events (
+      id BIGSERIAL PRIMARY KEY,
+      tenant_id INTEGER NOT NULL,
+      event_type VARCHAR(32) NOT NULL,
+      event_id VARCHAR(191),
+      path TEXT,
+      referrer TEXT,
+      user_agent_hash VARCHAR(64),
+      utm_source VARCHAR(255),
+      utm_medium VARCHAR(255),
+      utm_campaign VARCHAR(255),
+      meta_campaign_id VARCHAR(64),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `)
+  await drizzle.execute(`ALTER TABLE traffic_events ADD COLUMN IF NOT EXISTS meta_campaign_id VARCHAR(64)`)
+  await drizzle.execute(`DROP INDEX IF EXISTS traffic_events_tenant_event_unique`)
+  await drizzle.execute(`
+    CREATE UNIQUE INDEX IF NOT EXISTS traffic_events_tenant_event_unique
+    ON traffic_events (tenant_id, event_id)
+  `)
+
+  const eventId = normalizeOptionalTrackingValue(body.event_id, 170)
+  const trackingEventId = eventId ? `${eventId}-lead` : null
+  const pathValue =
+    normalizeOptionalTrackingValue(body.path, 2048) ||
+    normalizeOptionalTrackingValue(sourcePage, 2048)
+  const referrer = normalizeOptionalTrackingValue(body.referrer, 2048)
+  const userAgent = normalizeOptionalTrackingValue(body.userAgent, 1024)
+  const metaCampaignId =
+    normalizeOptionalTrackingValue(body.meta_campaign_id, 64) ||
+    normalizeOptionalTrackingValue(body.campaign_id, 64) ||
+    normalizeOptionalTrackingValue(sourceDetails.meta_campaign_id, 64)
+
+  await drizzle.execute(`
+    INSERT INTO traffic_events (
+      tenant_id,
+      event_type,
+      event_id,
+      path,
+      referrer,
+      user_agent_hash,
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      meta_campaign_id,
+      created_at
+    ) VALUES (
+      ${tenantId},
+      'lead',
+      ${trackingEventId ? `'${esc(trackingEventId)}'` : 'NULL'},
+      ${pathValue ? `'${esc(pathValue)}'` : 'NULL'},
+      ${referrer ? `'${esc(referrer)}'` : 'NULL'},
+      ${userAgent ? `'${esc(hashUserAgent(userAgent))}'` : 'NULL'},
+      ${sourceDetails.utm_source ? `'${esc(String(sourceDetails.utm_source))}'` : 'NULL'},
+      ${sourceDetails.utm_medium ? `'${esc(String(sourceDetails.utm_medium))}'` : 'NULL'},
+      ${sourceDetails.utm_campaign ? `'${esc(String(sourceDetails.utm_campaign))}'` : 'NULL'},
+      ${metaCampaignId ? `'${esc(metaCampaignId)}'` : 'NULL'},
+      NOW()
+    )
+    ON CONFLICT (tenant_id, event_id) DO NOTHING
+  `)
+}
+
+async function fireLeadCapiEvent(
+  request: NextRequest,
+  tenant: any,
+  eventId: string | null,
+  body: Record<string, any>,
+  sourcePage: string,
+): Promise<void> {
+  if (!eventId) return
+
+  const pixelId =
+    (typeof tenant?.integrations_meta_pixel_id === 'string' && tenant.integrations_meta_pixel_id.trim()) ||
+    (typeof tenant?.branding?.integrations?.metaPixelId === 'string' && tenant.branding.integrations.metaPixelId.trim()) ||
+    ''
+  const accessToken =
+    (typeof tenant?.integrations_meta_conversions_api_token === 'string' && tenant.integrations_meta_conversions_api_token.trim()) ||
+    (typeof tenant?.branding?.integrations?.metaConversionsApiToken === 'string' && tenant.branding.integrations.metaConversionsApiToken.trim()) ||
+    ''
+  if (!pixelId || !accessToken) return
+
+  const { sendMetaEvent } = await import('@/src/lib/meta-capi')
+  await sendMetaEvent({
+    pixelId,
+    accessToken,
+    eventName: 'Lead',
+    eventId,
+    eventSourceUrl: sourcePage || request.nextUrl.href,
+    userData: {
+      email: body.email,
+      phone: body.phone,
+      firstName: body.first_name || body.name,
+      clientIpAddress: request.headers.get('x-forwarded-for') || '',
+      clientUserAgent: body.userAgent || request.headers.get('user-agent') || '',
+      fbc: body.fbc,
+      fbp: body.fbp,
+    },
+    customData: {
+      content_name: body.course_name || body.notes || '',
+      content_category: 'convocatoria',
+    },
+  })
 }
 
 function normalizeWhatsAppPhone(raw?: string): string | null {
@@ -1145,6 +1267,22 @@ export async function POST(request: NextRequest) {
       collection: 'leads',
       data: leadData as any,
     })
+
+    // Persist lead conversion telemetry only after the CRM lead exists.
+    try {
+      await persistLeadTrafficEvent(payload, tenantIdNumeric, body, sourcePage, sourceDetailsPayload)
+    } catch (trackingErr) {
+      console.error('[leads] Lead traffic event insert failed:', trackingErr)
+    }
+
+    try {
+      const capiEventId = normalizeOptionalTrackingValue(body.event_id, 170)
+      fireLeadCapiEvent(request, tenant, capiEventId, body, sourcePage).catch((capiErr) => {
+        console.error('[leads] Lead CAPI event failed:', capiErr)
+      })
+    } catch {
+      // CAPI is fire-and-forget and must never block lead capture.
+    }
 
     // Create real-time notification for the dashboard
     try {

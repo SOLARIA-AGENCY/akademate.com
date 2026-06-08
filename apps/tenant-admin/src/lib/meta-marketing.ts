@@ -72,6 +72,12 @@ interface CreateAdParams {
   status?: string
 }
 
+interface UpdateAdStatusParams {
+  adId: string
+  accessToken: string
+  status: 'ACTIVE' | 'PAUSED'
+}
+
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
@@ -208,6 +214,12 @@ export async function createAd(params: CreateAdParams): Promise<MetaApiResult<{ 
   }, params.accessToken)
 }
 
+export async function updateAdStatus(params: UpdateAdStatusParams): Promise<MetaApiResult<{ id: string }>> {
+  return metaPost(`/${params.adId}`, {
+    status: params.status,
+  }, params.accessToken)
+}
+
 export async function uploadAdImage(
   adAccountId: string,
   accessToken: string,
@@ -242,6 +254,16 @@ export async function uploadAdImage(
     console.error('[meta-marketing] uploadAdImage exception:', msg)
     return { success: false, error: msg }
   }
+}
+
+export async function uploadAdVideo(
+  adAccountId: string,
+  accessToken: string,
+  videoUrl: string,
+): Promise<MetaApiResult<{ id: string }>> {
+  return metaPost(`/act_${adAccountId}/advideos`, {
+    file_url: videoUrl,
+  }, accessToken)
 }
 
 export async function getCampaignInsights(

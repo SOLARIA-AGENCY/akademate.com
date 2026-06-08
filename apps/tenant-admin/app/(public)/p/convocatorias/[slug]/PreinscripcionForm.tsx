@@ -69,14 +69,6 @@ export function PreinscripcionForm({
         meta_campaign_id: metaCampaignId || undefined,
       }
 
-      // Fire browser Pixel Lead event
-      if ((window as any).fbq) {
-        ;(window as any).fbq('track', 'Lead', {
-          content_name: courseName || '',
-          content_category: 'convocatoria',
-        }, { eventID: eventId })
-      }
-
       void fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -117,6 +109,14 @@ export function PreinscripcionForm({
           }),
       })
       if (res.ok) {
+        // Fire conversion only after the lead has been persisted in CRM.
+        if ((window as any).fbq) {
+          ;(window as any).fbq('track', 'Lead', {
+            content_name: courseName || '',
+            content_category: 'convocatoria',
+          }, { eventID: eventId })
+        }
+
         void fetch('/api/track', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -130,6 +130,16 @@ export function PreinscripcionForm({
         setSubmitted(true)
       } else {
         const payload = await res.json().catch(() => ({} as { error?: string }))
+        void fetch('/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'event',
+            event_type: 'form_error',
+            event_id: `${eventId}-error`,
+            ...trackingPayload,
+          }),
+        }).catch(() => {})
         setError(payload.error || 'No se pudo enviar. Intentalo de nuevo.')
       }
     } catch {

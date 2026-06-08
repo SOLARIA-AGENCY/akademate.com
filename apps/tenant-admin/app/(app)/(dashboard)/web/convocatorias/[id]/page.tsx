@@ -22,7 +22,9 @@ import {
   Euro,
   Clock,
   AlertCircle,
+  Megaphone,
 } from 'lucide-react'
+import { MetaAdvertisingWizard } from './MetaAdvertisingWizard'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -169,6 +171,7 @@ export default function WebConvocatoriaPreviewPage() {
   const [data, setData] = useState<CourseRunData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [metaWizardOpen, setMetaWizardOpen] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -254,10 +257,16 @@ export default function WebConvocatoriaPreviewPage() {
     <div className="space-y-0">
       {/* Back button */}
       <div className="mb-4">
-        <Button variant="ghost" size="sm" onClick={() => router.push('/web/convocatorias')}>
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Volver a Gestion Web
-        </Button>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Button variant="ghost" size="sm" onClick={() => router.push('/web/convocatorias')}>
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Volver a Gestion Web
+          </Button>
+          <Button size="sm" onClick={() => setMetaWizardOpen(true)}>
+            <Megaphone className="mr-2 h-4 w-4" />
+            Generar publicidad en Meta
+          </Button>
+        </div>
       </div>
 
       {/* Status banner — show link to live page if published */}
@@ -535,6 +544,17 @@ export default function WebConvocatoriaPreviewPage() {
       <div className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground text-center">
         Esta es una vista previa. La pagina publica se generara cuando se active la convocatoria.
       </div>
+
+      <MetaAdvertisingWizard
+        open={metaWizardOpen}
+        onOpenChange={setMetaWizardOpen}
+        convocatoria={{
+          id: data.id,
+          codigo: data.codigo,
+          start_date: data.start_date,
+          courseName,
+        }}
+      />
     </div>
   )
 }
