@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { buildPreview, normalizeAdWorkflowBody, resolveConvocatoriaPlan } from '../../app/api/meta/ads/_workflow'
 
-const request = new Request('https://cepformacion.akademate.com/api/meta/ads/preview') as any
+const request = {
+  nextUrl: new URL('https://cepformacion.akademate.com/api/meta/ads/preview'),
+} as any
 
 function validBody(overrides = {}) {
   const futureStop = new Date()
@@ -67,6 +69,25 @@ describe('Meta ad workflow', () => {
     expect(preview.tracking.traffic_events).toContain('lead')
     expect(preview.landing_url).toContain('/p/convocatorias/SC-2026-002')
     expect(preview.landing_url).toContain('utm_source=facebook')
+  })
+
+  it('builds landing URLs from the current tenant host instead of global app env', () => {
+    const previousTenantUrl = process.env.NEXT_PUBLIC_TENANT_URL
+    process.env.NEXT_PUBLIC_TENANT_URL = 'https://app.akademate.com'
+    try {
+      const body = validBody()
+      const convocatoria = {
+        id: 2,
+        codigo: 'SC-2026-CEP',
+        start_date: body.stop_time,
+        course: { name: 'CFGM Farmacia y Parafarmacia' },
+      }
+      const plan = resolveConvocatoriaPlan({ request, body, convocatoria })
+      expect(plan.landingUrl).toContain('https://cepformacion.akademate.com/p/convocatorias/SC-2026-CEP')
+      expect(plan.landingUrl).not.toContain('https://app.akademate.com')
+    } finally {
+      process.env.NEXT_PUBLIC_TENANT_URL = previousTenantUrl
+    }
   })
 
   it('blocks activation windows when convocatoria already started', () => {

@@ -5,7 +5,6 @@ import { resolveMetaRequestContext } from '../_lib/integrations'
 import { checkMetaHealth } from '../_lib/meta-graph'
 import {
   buildCampaignName,
-  buildLandingUrl,
   buildUtmParams,
   createAd,
   createAdCreative,
@@ -86,6 +85,10 @@ function addUrlParams(rawUrl: string, params: Record<string, string | null | und
     if (value) url.searchParams.set(key, value)
   }
   return url.toString()
+}
+
+function buildRequestScopedLandingUrl(request: NextRequest, convocatoriaCode: string): string {
+  return `${request.nextUrl.origin.replace(/\/$/, '')}/p/convocatorias/${encodeURIComponent(convocatoriaCode)}`
 }
 
 function assertCopy(copy: AdWorkflowCopy) {
@@ -230,7 +233,7 @@ export function resolveConvocatoriaPlan(input: { request: NextRequest; body: AdW
   if (new Date(stopIso).getTime() <= Date.now()) {
     throw new Error('La convocatoria ya ha comenzado o no permite campaña hasta fecha de inicio.')
   }
-  const baseLanding = input.body.landing_url || buildLandingUrl(code)
+  const baseLanding = input.body.landing_url || buildRequestScopedLandingUrl(input.request, code)
   const utmCampaign = `SA-SC-${code}`.replace(/[^A-Za-z0-9_-]+/g, '-').slice(0, 120)
   const landingUrl = addUrlParams(baseLanding, {
     utm_source: 'facebook',
