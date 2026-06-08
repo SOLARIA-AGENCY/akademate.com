@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildMetaAdUrlParameters, buildPreview, normalizeAdWorkflowBody, resolveConvocatoriaPlan } from '../../app/api/meta/ads/_workflow'
+import { activateMetaAd, buildMetaAdUrlParameters, buildPreview, normalizeAdWorkflowBody, publishToMeta, resolveConvocatoriaPlan } from '../../app/api/meta/ads/_workflow'
 
 const request = {
   nextUrl: new URL('https://cepformacion.akademate.com/api/meta/ads/preview'),
@@ -66,6 +66,13 @@ describe('Meta ad workflow', () => {
     const preview = buildPreview({ body, convocatoria, plan })
     expect(plan.stopIso).toBe(futureStop.toISOString())
     expect(preview.status_after_publish).toBe('PAUSED')
+    expect(preview.lifecycle.created_in_meta_status).toBe('PAUSED')
+    expect(preview.lifecycle.manual_activation_required).toBe(true)
+    expect(preview.lifecycle.auto_stop_at).toBe(futureStop.toISOString())
+    expect(preview.tracking.public_form_connected).toBe(true)
+    expect(preview.tracking.crm_lead_connected).toBe(true)
+    expect(preview.tracking.meta_campaign_id_url_tags).toBe(true)
+    expect(preview.review_checklist).toContain('La campana no se activa hasta confirmacion manual')
     expect(preview.tracking.traffic_events).toContain('lead')
     expect(preview.landing_url).toContain('/p/convocatorias/SC-2026-002')
     expect(preview.landing_url).toContain('utm_source=facebook')
@@ -106,5 +113,13 @@ describe('Meta ad workflow', () => {
   it('blocks activation windows when convocatoria already started', () => {
     const body = validBody({ stop_time: '2020-01-01T00:00:00.000Z' })
     expect(() => resolveConvocatoriaPlan({ request, body, convocatoria: { codigo: 'OLD', start_date: '2020-01-01' } })).toThrow(/ya ha comenzado/i)
+  })
+
+  it('blocks Meta creation until the operator confirms review', async () => {
+    await expect(publishToMeta({ request, body: validBody({ review_confirmed: false }) })).rejects.toThrow(/confirmar la revision/i)
+  })
+
+  it('blocks activation until the operator confirms manual launch', async () => {
+    await expect(activateMetaAd({ request, draftId: 1, confirmed: false })).rejects.toThrow(/confirmar manualmente/i)
   })
 })

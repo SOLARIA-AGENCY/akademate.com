@@ -44,6 +44,7 @@ export interface AdWorkflowBody {
   strategy?: AdStrategy
   campaign_id?: string
   adset_id?: string
+  review_confirmed?: boolean
   daily_budget: number
   start_time?: string
   stop_time?: string
@@ -147,6 +148,7 @@ export function normalizeAdWorkflowBody(raw: Partial<AdWorkflowBody>): AdWorkflo
     strategy: raw.strategy || 'new_campaign',
     campaign_id: typeof raw.campaign_id === 'string' ? raw.campaign_id.trim() : undefined,
     adset_id: typeof raw.adset_id === 'string' ? raw.adset_id.trim() : undefined,
+    review_confirmed: raw.review_confirmed === true,
     daily_budget: Math.round(dailyBudget),
     start_time: typeof raw.start_time === 'string' ? raw.start_time : undefined,
     stop_time: typeof raw.stop_time === 'string' ? raw.stop_time : undefined,
@@ -279,6 +281,13 @@ export function buildPreview(input: { body: AdWorkflowBody; convocatoria: any; p
     status_after_publish: 'PAUSED',
     status_after_activation: 'ACTIVE',
     placements: ['feed', 'stories_reels', 'right_column'],
+    lifecycle: {
+      review_required: true,
+      created_in_meta_status: 'PAUSED',
+      manual_activation_required: true,
+      auto_stop_at: input.plan.stopIso,
+      stop_source: 'convocatoria.start_date',
+    },
     ad: {
       primary_text: input.body.copy.primary_texts[0],
       headline: input.body.copy.headlines[0],
@@ -289,9 +298,21 @@ export function buildPreview(input: { body: AdWorkflowBody; convocatoria: any; p
     tracking: {
       pixel_after_crm_success: true,
       capi_dedup_event_id: true,
+      public_form_connected: true,
+      crm_lead_connected: true,
+      meta_campaign_id_url_tags: true,
       traffic_events: ['page_view', 'form_click', 'form_submit', 'form_error', 'lead'],
       utm_campaign: input.plan.utmCampaign,
     },
+    review_checklist: [
+      'Creatividades 1:1 y 9:16 cargadas',
+      'Textos/titulares revisados por operario',
+      'Landing publica de convocatoria conectada',
+      'Pixel/CAPI se disparan despues de crear el lead en CRM',
+      'UTM y meta_campaign_id viajan a CRM, trafico y analiticas',
+      'La campana se detiene automaticamente en la fecha de inicio de convocatoria',
+      'La campana no se activa hasta confirmacion manual',
+    ],
   }
 }
 
@@ -407,6 +428,10 @@ export async function logPublishJob(input: { drizzle: any; tenantId: string; dra
 }
 
 export async function publishToMeta(input: { request: NextRequest; body: AdWorkflowBody }) {
+  if (input.body.review_confirmed !== true) {
+    throw new Error('Debes confirmar la revision operativa antes de crear el borrador en Meta.')
+  }
+
   const ctx = await getWorkflowContext(input.request)
   const convocatoria = await getConvocatoria(ctx.payload, input.body.convocatoria_id)
   const plan = resolveConvocatoriaPlan({ request: input.request, body: input.body, convocatoria })
@@ -505,7 +530,11 @@ export async function publishToMeta(input: { request: NextRequest; body: AdWorkf
   return { ctx, draftId, preview, metaCampaignId, metaAdSetId, metaAds: publishedAds, metaCreativeId: primaryPublishedAd?.meta_creative_id, metaAdId: primaryPublishedAd?.meta_ad_id }
 }
 
-export async function activateMetaAd(input: { request: NextRequest; draftId: number }) {
+export async function activateMetaAd(input: { request: NextRequest; draftId: number; confirmed?: boolean }) {
+  if (input.confirmed !== true) {
+    throw new Error('Debes confirmar manualmente la puesta en marcha antes de activar anuncios en Meta.')
+  }
+
   const ctx = await getWorkflowContext(input.request)
   const draft = await getDraft(ctx.drizzle, ctx.metaContext.tenantId!, input.draftId)
   if (!draft) throw new Error('Draft no encontrado.')

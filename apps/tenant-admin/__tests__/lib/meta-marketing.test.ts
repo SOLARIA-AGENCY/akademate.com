@@ -327,6 +327,24 @@ describe('createAdCreative', () => {
     expect(storySpec.link_data.url_tags).toBe('utm_source=facebook&utm_medium=paid')
   })
 
+  it('adds tracking parameters to video creative CTA links', async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ id: 'creative_video' }))
+
+    await createAdCreative({
+      ...baseParams,
+      videoId: 'video_123',
+      urlParameters: 'utm_source=facebook&utm_medium=paid&meta_campaign_id=6966251962240',
+    })
+
+    const body = new URLSearchParams(mockFetch.mock.calls[0][1].body)
+    const storySpec = JSON.parse(body.get('object_story_spec')!)
+    const link = new URL(storySpec.video_data.call_to_action.value.link)
+    expect(storySpec.video_data.video_id).toBe('video_123')
+    expect(link.searchParams.get('utm_source')).toBe('facebook')
+    expect(link.searchParams.get('utm_medium')).toBe('paid')
+    expect(link.searchParams.get('meta_campaign_id')).toBe('6966251962240')
+  })
+
   it('uses custom callToAction', async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ id: 'creative_cta' }))
 

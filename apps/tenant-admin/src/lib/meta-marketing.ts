@@ -146,6 +146,16 @@ async function metaGet(
   }
 }
 
+function appendQueryString(rawUrl: string, queryString?: string): string {
+  if (!queryString) return rawUrl
+  const url = new URL(rawUrl)
+  const params = new URLSearchParams(queryString)
+  for (const [key, value] of params.entries()) {
+    url.searchParams.set(key, value)
+  }
+  return url.toString()
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -186,6 +196,7 @@ export async function createAdSet(params: CreateAdSetParams): Promise<MetaApiRes
 }
 
 export async function createAdCreative(params: CreateAdCreativeParams): Promise<MetaApiResult<{ id: string }>> {
+  const videoLinkUrl = appendQueryString(params.linkUrl, params.urlParameters)
   const objectStorySpec: Record<string, unknown> = params.videoId
     ? {
       page_id: params.pageId,
@@ -195,7 +206,7 @@ export async function createAdCreative(params: CreateAdCreativeParams): Promise<
         title: params.headline,
         call_to_action: {
           type: params.callToAction ?? 'LEARN_MORE',
-          value: { link: params.linkUrl },
+          value: { link: videoLinkUrl },
         },
       },
     }

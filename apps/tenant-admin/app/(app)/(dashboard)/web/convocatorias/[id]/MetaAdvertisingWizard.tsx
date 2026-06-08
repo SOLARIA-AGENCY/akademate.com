@@ -8,6 +8,7 @@ import { Textarea } from '@payload-config/components/ui/textarea'
 import { Badge } from '@payload-config/components/ui/badge'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@payload-config/components/ui/sheet'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@payload-config/components/ui/select'
+import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { AlertCircle, CheckCircle2, ImagePlus, Loader2, Megaphone, Play, Send } from 'lucide-react'
 
 type Strategy = 'new_campaign' | 'new_ad_existing_adset' | 'refresh_existing_ad'
@@ -51,7 +52,20 @@ interface PreviewPayload {
   tracking?: {
     utm_campaign?: string
     traffic_events?: string[]
+    public_form_connected?: boolean
+    crm_lead_connected?: boolean
+    pixel_after_crm_success?: boolean
+    capi_dedup_event_id?: boolean
+    meta_campaign_id_url_tags?: boolean
   }
+  lifecycle?: {
+    review_required?: boolean
+    created_in_meta_status?: string
+    manual_activation_required?: boolean
+    auto_stop_at?: string
+    stop_source?: string
+  }
+  review_checklist?: string[]
 }
 
 interface MetaAdResult {
@@ -99,6 +113,8 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
   const [result, setResult] = React.useState<any>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState<string | null>(null)
+  const [reviewConfirmed, setReviewConfirmed] = React.useState(false)
+  const [launchConfirmed, setLaunchConfirmed] = React.useState(false)
 
   async function uploadAsset(ratio: Ratio, file: File | null) {
     if (!file) return
@@ -145,6 +161,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
       strategy,
       ...(campaignId.trim() ? { campaign_id: campaignId.trim() } : {}),
       ...(adsetId.trim() ? { adset_id: adsetId.trim() } : {}),
+      review_confirmed: reviewConfirmed,
       daily_budget: dailyBudget,
       stop_time: convocatoria.start_date,
       copy: {
@@ -155,7 +172,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
       },
       assets: workflowAssets,
     }
-  }, [adsetId, assets, campaignId, convocatoria.id, convocatoria.start_date, cta, dailyBudgetEuros, descriptions, draftId, headlines, primaryTexts, strategy])
+  }, [adsetId, assets, campaignId, convocatoria.id, convocatoria.start_date, cta, dailyBudgetEuros, descriptions, draftId, headlines, primaryTexts, reviewConfirmed, strategy])
 
   async function callWorkflow(endpoint: string, label: string) {
     setError(null)
@@ -190,7 +207,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
       const res = await fetch('/api/meta/ads/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ draft_id: draftId }),
+        body: JSON.stringify({ draft_id: draftId, confirmed: launchConfirmed }),
       })
       const payload = await res.json().catch(() => ({}))
       if (!res.ok || payload.success === false) {
@@ -206,8 +223,9 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
 
   const hasRequiredAssets = Boolean(assets['1:1']?.mediaId && assets['9:16']?.mediaId)
   const canPreview = hasRequiredAssets && !loading
-  const canPublish = Boolean(preview) && !loading
-  const canActivate = Boolean(result?.metaAdId && draftId) && !loading
+  const canPublish = Boolean(preview) && reviewConfirmed && !loading
+  const hasPublishedAds = Boolean(result?.metaAdId || (Array.isArray(result?.metaAds) && result.metaAds.length > 0))
+  const canActivate = hasPublishedAds && Boolean(draftId) && launchConfirmed && !loading
   const heroAsset = assets['1:1'] || assets['9:16'] || assets['16:9']
 
   return (
@@ -216,7 +234,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5" /> Generar publicidad en Meta</SheetTitle>
           <SheetDescription>
-            Crea un anuncio revisable para {convocatoria.courseName}. La campaña se publica pausada y solo se activa con confirmación manual.
+            Crea una campaña revisable para {convocatoria.courseName}. Primero se muestra preview completo; despues el operario crea el borrador en Meta y lo pone en marcha manualmente.
           </SheetDescription>
         </SheetHeader>
 
@@ -307,7 +325,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
               {loading === 'preview' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />} Generar preview
             </Button>
             <Button onClick={() => void callWorkflow('/api/meta/ads/publish', 'publish')} disabled={!canPublish}>
-              {loading === 'publish' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />} Crear en Meta pausado
+              {loading === 'publish' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />} Crear borrador en Meta
             </Button>
             <Button variant="destructive" onClick={() => void activateCampaign()} disabled={!canActivate}>
               {loading === 'activate' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />} Poner en marcha campaña
@@ -333,17 +351,38 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
                   <p><strong>Total estimado:</strong> {formatBudget(preview.estimated_total_budget)}</p>
                   <p><strong>Inicio:</strong> {preview.start_time ? new Date(preview.start_time).toLocaleString('es-ES') : '--'}</p>
                   <p><strong>Fin:</strong> {preview.stop_time ? new Date(preview.stop_time).toLocaleString('es-ES') : '--'}</p>
+                  <p><strong>Auto-stop:</strong> {preview.lifecycle?.auto_stop_at ? new Date(preview.lifecycle.auto_stop_at).toLocaleString('es-ES') : '--'} ({preview.lifecycle?.stop_source || 'convocatoria'})</p>
                   <p className="break-all"><strong>Landing:</strong> {preview.landing_url}</p>
                   <p><strong>UTM:</strong> {preview.tracking?.utm_campaign}</p>
                   <p><strong>Eventos:</strong> {preview.tracking?.traffic_events?.join(', ')}</p>
                 </div>
               </div>
+              <div className="mt-4 grid gap-3 rounded-xl border bg-white p-4 md:grid-cols-2">
+                <div>
+                  <h4 className="font-black">Checklist antes de crear</h4>
+                  <ul className="mt-2 space-y-1 text-sm text-slate-600">
+                    {(preview.review_checklist || []).map((item) => <li key={item}>✓ {item}</li>)}
+                  </ul>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <h4 className="font-black">Medicion y atribucion</h4>
+                  <p>Formulario publico: {preview.tracking?.public_form_connected ? 'Conectado' : 'No confirmado'}</p>
+                  <p>CRM lead: {preview.tracking?.crm_lead_connected ? 'Conectado' : 'No confirmado'}</p>
+                  <p>Pixel despues de CRM: {preview.tracking?.pixel_after_crm_success ? 'Activo' : 'No confirmado'}</p>
+                  <p>CAPI dedupe event_id: {preview.tracking?.capi_dedup_event_id ? 'Activo' : 'No confirmado'}</p>
+                  <p>meta_campaign_id en URL tags: {preview.tracking?.meta_campaign_id_url_tags ? 'Activo' : 'No confirmado'}</p>
+                </div>
+              </div>
+              <label className="mt-4 flex items-start gap-3 rounded-xl border bg-white p-4 text-sm">
+                <Checkbox checked={reviewConfirmed} onCheckedChange={(checked) => setReviewConfirmed(checked === true)} />
+                <span>Confirmo que he revisado creatividad, textos, presupuesto, fechas, landing publica, formulario, Pixel/CAPI y atribucion CRM. Crear en Meta dejara los anuncios sin activar hasta la puesta en marcha manual.</span>
+              </label>
             </section>
           ) : null}
 
           {result ? (
             <section className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-900">
-              <p className="font-black">{result.status === 'ACTIVE' ? 'Campaña activada en Meta.' : 'Anuncios creados en Meta como PAUSED.'}</p>
+              <p className="font-black">{result.status === 'ACTIVE' ? 'Campaña puesta en marcha en Meta.' : 'Borrador creado en Meta. Los anuncios estan sin activar hasta confirmacion manual.'}</p>
               {Array.isArray(result.metaAds) && result.metaAds.length > 0 ? (
                 <div className="mt-2 space-y-1">
                   {result.metaAds.map((ad: MetaAdResult, index: number) => (
@@ -359,6 +398,12 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
                 </>
               )}
               {result.adsManagerUrl ? <a className="underline" href={result.adsManagerUrl} target="_blank">Abrir en Ads Manager</a> : null}
+              {result.status !== 'ACTIVE' ? (
+                <label className="mt-3 flex items-start gap-3 rounded-lg border border-green-300 bg-white/70 p-3">
+                  <Checkbox checked={launchConfirmed} onCheckedChange={(checked) => setLaunchConfirmed(checked === true)} />
+                  <span>Confirmo que el borrador creado en Meta esta revisado y autorizo poner en marcha la campaña ahora.</span>
+                </label>
+              ) : null}
             </section>
           ) : null}
         </div>
