@@ -68,6 +68,25 @@ interface PreviewPayload {
   review_checklist?: string[]
 }
 
+interface PreflightPayload {
+  ok?: boolean
+  checks?: {
+    meta_health?: string
+    ads_management?: boolean
+    ads_read?: boolean
+    ad_account_access?: boolean
+    workflow_tables?: boolean
+    convocatoria_public?: boolean
+    landing_url?: string
+    auto_stop_at?: string
+    duration_days?: number
+  }
+  diagnostics?: {
+    ad_account_id?: string
+    strategy?: string
+  }
+}
+
 interface MetaAdResult {
   ratio?: string
   type?: string
@@ -109,6 +128,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
   const [cta, setCta] = React.useState('SIGN_UP')
   const [assets, setAssets] = React.useState<Partial<Record<Ratio, UploadedAsset>>>({})
   const [draftId, setDraftId] = React.useState<number | null>(null)
+  const [preflight, setPreflight] = React.useState<PreflightPayload | null>(null)
   const [preview, setPreview] = React.useState<PreviewPayload | null>(null)
   const [result, setResult] = React.useState<any>(null)
   const [error, setError] = React.useState<string | null>(null)
@@ -188,6 +208,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
         throw new Error(payload.error?.message || 'No se pudo completar la operación Meta.')
       }
       if (payload.draft_id) setDraftId(Number(payload.draft_id))
+      if (payload.preflight) setPreflight(payload.preflight)
       if (payload.preview) setPreview(payload.preview)
       if (payload.data) setResult(payload.data)
       return payload
@@ -222,6 +243,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
   }
 
   const hasRequiredAssets = Boolean(assets['1:1']?.mediaId && assets['9:16']?.mediaId)
+  const canPreflight = !loading
   const canPreview = hasRequiredAssets && !loading
   const canPublish = Boolean(preview) && reviewConfirmed && !loading
   const hasPublishedAds = Boolean(result?.metaAdId || (Array.isArray(result?.metaAds) && result.metaAds.length > 0))
@@ -321,6 +343,9 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
           </section>
 
           <div className="flex flex-wrap gap-3">
+            <Button variant="outline" onClick={() => void callWorkflow('/api/meta/ads/preflight', 'preflight')} disabled={!canPreflight}>
+              {loading === 'preflight' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />} Verificar configuración
+            </Button>
             <Button variant="outline" onClick={() => void callWorkflow('/api/meta/ads/preview', 'preview')} disabled={!canPreview}>
               {loading === 'preview' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />} Generar preview
             </Button>
@@ -331,6 +356,26 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
               {loading === 'activate' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />} Poner en marcha campaña
             </Button>
           </div>
+
+          {preflight ? (
+            <section className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-black">Preflight operativo Meta</p>
+                <Badge variant={preflight.ok ? 'success' : 'warning'}>{preflight.ok ? 'Listo para preview' : 'Revisar configuración'}</Badge>
+              </div>
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                <p>Meta health: {preflight.checks?.meta_health || '--'}</p>
+                <p>Ad account: {preflight.diagnostics?.ad_account_id || '--'}</p>
+                <p>Permiso ads_read: {preflight.checks?.ads_read ? 'OK' : 'No confirmado'}</p>
+                <p>Permiso ads_management: {preflight.checks?.ads_management ? 'OK' : 'No confirmado'}</p>
+                <p>Tablas workflow: {preflight.checks?.workflow_tables ? 'OK' : 'No confirmado'}</p>
+                <p>Convocatoria publica: {preflight.checks?.convocatoria_public ? 'OK' : 'No confirmado'}</p>
+                <p>Duración estimada: {preflight.checks?.duration_days || '--'} días</p>
+                <p>Auto-stop: {preflight.checks?.auto_stop_at ? new Date(preflight.checks.auto_stop_at).toLocaleString('es-ES') : '--'}</p>
+              </div>
+              <p className="mt-2 break-all"><strong>Landing:</strong> {preflight.checks?.landing_url || '--'}</p>
+            </section>
+          ) : null}
 
           {preview ? (
             <section className="rounded-2xl border bg-slate-50 p-5">

@@ -66,6 +66,30 @@ function previewPayload() {
   }
 }
 
+function preflightPayload() {
+  return {
+    success: true,
+    preflight: {
+      ok: true,
+      checks: {
+        meta_health: 'ok',
+        ads_management: true,
+        ads_read: true,
+        ad_account_access: true,
+        workflow_tables: true,
+        convocatoria_public: true,
+        landing_url: 'https://cepformacion.akademate.com/p/convocatorias/SC-2026-002?utm_source=facebook',
+        auto_stop_at: '2026-09-15T00:00:00.000Z',
+        duration_days: 98,
+      },
+      diagnostics: {
+        ad_account_id: '730494526974837',
+        strategy: 'new_campaign',
+      },
+    },
+  }
+}
+
 function renderWizard() {
   return render(
     <MetaAdvertisingWizard
@@ -95,6 +119,7 @@ describe('MetaAdvertisingWizard launch review flow', () => {
         const uploadIndex = mockFetch.mock.calls.filter(([calledUrl]) => String(calledUrl) === '/api/meta/assets/upload').length
         return jsonResponse(uploadPayload(100 + uploadIndex, uploadIndex === 1 ? 'farmacia-1x1.png' : 'farmacia-9x16.png'))
       }
+      if (url === '/api/meta/ads/preflight') return jsonResponse(preflightPayload())
       if (url === '/api/meta/ads/preview') return jsonResponse(previewPayload())
       if (url === '/api/meta/ads/publish') {
         return jsonResponse({
@@ -125,6 +150,21 @@ describe('MetaAdvertisingWizard launch review flow', () => {
     })
 
     const { container } = renderWizard()
+
+    fireEvent.click(screen.getByText('Verificar configuración'))
+
+    await waitFor(() => expect(screen.getByText('Preflight operativo Meta')).toBeInTheDocument())
+    expect(screen.getByText('Listo para preview')).toBeInTheDocument()
+    expect(screen.getByText(/730494526974837/)).toBeInTheDocument()
+
+    const preflightCall = mockFetch.mock.calls.find(([url]) => String(url) === '/api/meta/ads/preflight')
+    expect(preflightCall).toBeTruthy()
+    expect(JSON.parse(String((preflightCall?.[1] as RequestInit).body))).toMatchObject({
+      convocatoria_id: 2,
+      review_confirmed: false,
+      daily_budget: 2000,
+      assets: [],
+    })
 
     const fileInputs = Array.from(container.querySelectorAll('input[type="file"]')) as HTMLInputElement[]
     expect(fileInputs).toHaveLength(3)

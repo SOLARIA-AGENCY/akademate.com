@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { activateMetaAd, buildMetaAdUrlParameters, buildPreview, normalizeAdWorkflowBody, publishToMeta, resolveConvocatoriaPlan } from '../../app/api/meta/ads/_workflow'
+import { activateMetaAd, buildMetaAdUrlParameters, buildPreview, normalizeAdPreflightBody, normalizeAdWorkflowBody, publishToMeta, resolveConvocatoriaPlan } from '../../app/api/meta/ads/_workflow'
 
 const request = {
   nextUrl: new URL('https://cepformacion.akademate.com/api/meta/ads/preview'),
@@ -36,6 +36,19 @@ describe('Meta ad workflow', () => {
     expect(body.daily_budget).toBe(2500)
     expect(body.copy.cta).toBe('SIGN_UP')
     expect(body.assets.map((asset) => asset.ratio)).toEqual(['1:1', '9:16', '16:9'])
+  })
+
+  it('normalizes preflight without requiring creative assets', () => {
+    const body = normalizeAdPreflightBody({
+      convocatoria_id: 2,
+      daily_budget: 2000,
+      strategy: 'new_campaign',
+    })
+    expect(body).toMatchObject({
+      convocatoria_id: 2,
+      daily_budget: 2000,
+      strategy: 'new_campaign',
+    })
   })
 
   it('requires square and vertical assets before preview/publish', () => {

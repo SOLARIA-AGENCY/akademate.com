@@ -53,6 +53,17 @@ export interface AdWorkflowBody {
   assets: AdWorkflowAsset[]
 }
 
+export interface AdPreflightBody {
+  convocatoria_id: number
+  strategy?: AdStrategy
+  campaign_id?: string
+  adset_id?: string
+  daily_budget?: number
+  start_time?: string
+  stop_time?: string
+  landing_url?: string
+}
+
 const META_PAGE_ID = process.env.META_PAGE_ID || '174953792552373'
 const META_REGION_TENERIFE = '3872'
 const DEFAULT_CATEGORY = 'CICLOS FP'
@@ -170,6 +181,27 @@ export function normalizeAdWorkflowBody(raw: Partial<AdWorkflowBody>): AdWorkflo
   }
 }
 
+export function normalizeAdPreflightBody(raw: Partial<AdPreflightBody>): AdPreflightBody {
+  const convocatoriaId = toPositiveInt(raw.convocatoria_id)
+  if (!convocatoriaId) throw new Error('convocatoria_id es obligatorio.')
+  const dailyBudget = raw.daily_budget === undefined ? undefined : Number(raw.daily_budget)
+  if (dailyBudget !== undefined && (!Number.isFinite(dailyBudget) || dailyBudget < 100)) {
+    throw new Error('daily_budget debe estar en céntimos y ser mayor o igual a 100.')
+  }
+  assertStrategy(raw)
+
+  return {
+    convocatoria_id: convocatoriaId,
+    strategy: raw.strategy || 'new_campaign',
+    campaign_id: typeof raw.campaign_id === 'string' ? raw.campaign_id.trim() : undefined,
+    adset_id: typeof raw.adset_id === 'string' ? raw.adset_id.trim() : undefined,
+    daily_budget: dailyBudget === undefined ? undefined : Math.round(dailyBudget),
+    start_time: typeof raw.start_time === 'string' ? raw.start_time : undefined,
+    stop_time: typeof raw.stop_time === 'string' ? raw.stop_time : undefined,
+    landing_url: typeof raw.landing_url === 'string' ? raw.landing_url.trim() : undefined,
+  }
+}
+
 export async function getWorkflowContext(request: NextRequest) {
   const metaContext = await resolveMetaRequestContext(request, request.nextUrl.searchParams.get('tenantId'))
   if (!metaContext.authenticated) throw new Error('UNAUTHORIZED')
@@ -191,6 +223,60 @@ export async function getWorkflowContext(request: NextRequest) {
   if (!drizzle?.execute) throw new Error('Base de datos no disponible para el workflow Meta.')
   await ensureWorkflowTables(drizzle)
   return { payload, drizzle, metaContext, health }
+}
+
+export async function preflightMetaAd(input: { request: NextRequest; body: AdPreflightBody }) {
+  const ctx = await getWorkflowContext(input.request)
+  const syntheticBody = {
+    convocatoria_id: input.body.convocatoria_id,
+    strategy: input.body.strategy || 'new_campaign',
+    campaign_id: input.body.campaign_id,
+    adset_id: input.body.adset_id,
+    daily_budget: input.body.daily_budget || 100,
+    start_time: input.body.start_time,
+    stop_time: input.body.stop_time,
+    landing_url: input.body.landing_url,
+    copy: {
+      primary_texts: ['preflight'],
+      headlines: ['preflight'],
+      descriptions: [],
+      cta: 'SIGN_UP',
+    },
+    assets: [
+      { media_id: 1, ratio: '1:1', type: 'image' },
+      { media_id: 2, ratio: '9:16', type: 'image' },
+    ],
+  } satisfies AdWorkflowBody
+  const convocatoria = await getConvocatoria(ctx.payload, input.body.convocatoria_id)
+  const plan = resolveConvocatoriaPlan({ request: input.request, body: syntheticBody, convocatoria })
+
+  return {
+    ctx,
+    preflight: {
+      ok: true,
+      checks: {
+        authenticated: true,
+        tenant_resolved: Boolean(ctx.metaContext.tenantId),
+        meta_health: ctx.health.status,
+        ads_management: Boolean(ctx.health.permissions.ads_management),
+        ads_read: Boolean(ctx.health.permissions.ads_read),
+        ad_account_access: Boolean(ctx.health.ad_account_access),
+        workflow_tables: true,
+        convocatoria_public: true,
+        landing_url: plan.landingUrl,
+        auto_stop_at: plan.stopIso,
+        duration_days: plan.days,
+      },
+      diagnostics: {
+        tenant_id: ctx.metaContext.tenantId,
+        ad_account_id: ctx.metaContext.meta.adAccountIdNormalized,
+        strategy: input.body.strategy || 'new_campaign',
+        requires_existing_campaign: input.body.strategy === 'new_ad_existing_adset' || input.body.strategy === 'refresh_existing_ad',
+        campaign_id: input.body.campaign_id || null,
+        adset_id: input.body.adset_id || null,
+      },
+    },
+  }
 }
 
 export async function ensureWorkflowTables(drizzle: any) {
