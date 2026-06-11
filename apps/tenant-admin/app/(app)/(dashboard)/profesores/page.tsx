@@ -4,8 +4,8 @@ import { useRef, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Input } from '@payload-config/components/ui/input'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { DashboardToolbar } from '@payload-config/components/akademate/dashboard'
 import { StaffCountBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
 import {
   Select,
@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, Eye, Loader2, GraduationCap, MapPin, Upload } from 'lucide-react'
+import { Plus, User, Mail, Phone, Eye, Loader2, GraduationCap, MapPin, Upload } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
@@ -339,23 +339,12 @@ export default function ProfesoresPage() {
         </Card>
       ) : null}
 
-      <Card data-oid="u0-zxep">
-        <CardContent className="pt-6" data-oid="ie6f8wq">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="pnn908d">
-            <div className="relative min-w-[260px] flex-1" data-oid="wsgdaqp">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                data-oid="ouumgj-"
-              />
-              <Input
-                placeholder="Buscar por nombre, email, departamento..."
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className="w-full pl-9"
-                data-oid="jmj.zg-"
-              />
-            </div>
-
+      <DashboardToolbar
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Buscar por nombre, email, departamento..."
+        filters={
+          <>
             <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="mrhrz82">
               <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="9cxbj.j">
                 <SelectValue placeholder="Todos los departamentos" data-oid="d9jzw43" />
@@ -393,28 +382,26 @@ export default function ProfesoresPage() {
                 <SelectItem value="missing_area">Sin área habilitada</SelectItem>
               </SelectContent>
             </Select>
-
-            <div className="hidden xl:ml-auto xl:block" data-oid="e6sxh7_">
-              <ViewToggle view={view} onViewChange={setView} data-oid="3q7lfq3" />
-            </div>
-
-            {(searchTerm || filterDepartment !== 'all' || filterStatus !== 'all') && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilterDepartment('all')
-                  setFilterStatus('all')
-                }}
-                data-oid="0d.n:bw"
-              >
-                Limpiar filtros
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </>
+        }
+        actions={
+          searchTerm || filterDepartment !== 'all' || filterStatus !== 'all' ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSearchTerm('')
+                setFilterDepartment('all')
+                setFilterStatus('all')
+              }}
+              data-oid="0d.n:bw"
+            >
+              Limpiar filtros
+            </Button>
+          ) : null
+        }
+        viewToggle={<ViewToggle view={view} onViewChange={setView} data-oid="3q7lfq3" />}
+      />
 
       {view === 'grid' ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid="39mqpx7">
