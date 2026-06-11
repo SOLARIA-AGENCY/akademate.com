@@ -1,16 +1,10 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import { useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-
-export default function PersonalPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
-  useEffect(() => {
-    const tab = searchParams.get('tab')
-    router.replace(tab === 'administrativos' ? '/dashboard/administrativo' : '/dashboard/profesores')
-  }, [router, searchParams])
-
-  return null
+export default async function PersonalPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>
+}) {
+  const params = await searchParams
+  redirect(params?.tab === 'administrativos' ? '/dashboard/administrativo' : '/dashboard/profesores')
 }

@@ -32,7 +32,7 @@ const menuItems: MenuItem[] = [
     title: 'Personal',
     items: [
       { title: 'Profesores', url: '/dashboard/profesores' },
-      { title: 'Administrativos', url: '/dashboard/personal/administrativos' },
+      { title: 'Administrativos', url: '/dashboard/administrativo' },
     ],
   },
   {
@@ -171,9 +171,9 @@ describe('Sidebar: Personal', () => {
     expect(sub).toBeDefined()
   })
 
-  it('Administrativos url is /dashboard/personal/administrativos', () => {
+  it('Administrativos url is /dashboard/administrativo', () => {
     const sub = findSubItem('Personal', 'Administrativos')
-    expect(sub!.url).toBe('/dashboard/personal/administrativos')
+    expect(sub!.url).toBe('/dashboard/administrativo')
   })
 })
 
