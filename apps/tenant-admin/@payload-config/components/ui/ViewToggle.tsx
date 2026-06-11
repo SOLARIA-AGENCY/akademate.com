@@ -26,7 +26,7 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
         variant="outline"
         size="sm"
         aria-label="Vista en cuadrícula"
-        className={`h-8 border-0 px-3 transition-all focus-visible:ring-primary ${
+        className={`h-8 border-0 px-3 transition-all focus-visible:ring-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 ${
           view === 'grid'
             ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
             : 'text-muted-foreground hover:bg-background/70 hover:text-foreground'
@@ -43,7 +43,7 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
         variant="outline"
         size="sm"
         aria-label="Vista en lista"
-        className={`h-8 border-0 px-3 transition-all focus-visible:ring-primary ${
+        className={`h-8 border-0 px-3 transition-all focus-visible:ring-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 ${
           view === 'list'
             ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
             : 'text-muted-foreground hover:bg-background/70 hover:text-foreground'

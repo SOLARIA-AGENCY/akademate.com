@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Input } from '@payload-config/components/ui/input'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { DashboardToolbar } from '@payload-config/components/akademate/dashboard'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
-import { StaffContractBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
+import { StaffCampusBadge, StaffContractBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
 import {
   Select,
   SelectContent,
@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, User, Mail, Phone, Briefcase, Eye, Loader2 } from 'lucide-react'
+import { Plus, User, Mail, Phone, Briefcase, Eye, Loader2 } from 'lucide-react'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 
 type ViewMode = 'grid' | 'list'
@@ -28,8 +28,14 @@ interface AdminStaff {
   phone: string
   department: string
   role: string
+  contractType: string
   active: boolean
   photo?: string
+  assignedCampuses: {
+    id: number
+    name: string
+    city: string
+  }[]
 }
 
 const isPlaceholderPhoto = (photo?: string | null) =>
@@ -56,8 +62,26 @@ interface ApiStaffData {
   email: string
   phone?: string
   position: string
+  contractType?: string
   employmentStatus: string
   photo?: string
+  assignedCampuses?: {
+    id: number
+    name: string
+    city: string
+  }[]
+}
+
+function formatContractType(value?: string | null) {
+  const normalized = String(value ?? '').trim().toLowerCase()
+  const labels: Record<string, string> = {
+    full_time: 'Tiempo completo',
+    part_time: 'Tiempo parcial',
+    freelance: 'Autónomo',
+    contract: 'Contrato',
+    employee: 'Empleado',
+  }
+  return labels[normalized] ?? value ?? 'Contrato por definir'
 }
 
 interface ApiResponse {
@@ -102,8 +126,10 @@ export default function AdministrativosPage() {
           phone: staff.phone ?? 'No disponible',
           department: staff.position,
           role: staff.position,
+          contractType: staff.contractType ?? 'Contrato por definir',
           active: staff.employmentStatus === 'active',
           photo: staff.photo,
+          assignedCampuses: staff.assignedCampuses ?? [],
         }))
 
         setAdministrativosData(transformed)
@@ -120,7 +146,7 @@ export default function AdministrativosPage() {
   }, [])
 
   const handleAdd = () => {
-    router.push('/administrativo/nuevo')
+    router.push('/dashboard/administrativo/nuevo')
   }
 
   const departments = Array.from(new Set(administrativosData.map((a) => a.department)))
@@ -175,8 +201,9 @@ export default function AdministrativosPage() {
   return (
     <div className="space-y-6" data-oid="p5r5ky.">
       <PageHeader
-        title="Personal Administrativo"
+        title="Administrativos"
         icon={Briefcase}
+        description="Gestión del personal administrativo, sedes asignadas y estado operativo."
         actions={
           <Button onClick={handleAdd} data-oid="7xp380:">
             <Plus className="h-4 w-4" data-oid="koic1br" />
@@ -186,68 +213,51 @@ export default function AdministrativosPage() {
         data-oid="a_ioxi."
       />
 
-      <Card data-oid="pz5ian6">
-        <CardContent className="pt-6" data-oid="ei37n:m">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="n87:n39">
-            <div className="relative min-w-[260px] flex-1" data-oid="gzhnjcu">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                data-oid="r_ieulf"
-              />
-              <Input
-                placeholder="Buscar por nombre, email o departamento..."
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className="pl-9"
-                data-oid="wk9dzf:"
-              />
-            </div>
-
-            <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="-xzyyj3">
-              <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="7v98u3e">
-                <SelectValue placeholder="Todos los departamentos" data-oid="lssmc78" />
-              </SelectTrigger>
-              <SelectContent data-oid="p9-i57:">
-                <SelectItem value="all" data-oid="w5074d7">
-                  Todos los departamentos
+      <DashboardToolbar
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Buscar por nombre, email o departamento..."
+        filters={
+          <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="-xzyyj3">
+            <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="7v98u3e">
+              <SelectValue placeholder="Todos los departamentos" data-oid="lssmc78" />
+            </SelectTrigger>
+            <SelectContent data-oid="p9-i57:">
+              <SelectItem value="all" data-oid="w5074d7">
+                Todos los departamentos
+              </SelectItem>
+              {departments.map((dept) => (
+                <SelectItem key={dept} value={dept} data-oid="1rwzxt-">
+                  {dept}
                 </SelectItem>
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept} data-oid="1rwzxt-">
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <div className="hidden xl:ml-auto xl:block">
-              <ViewToggle view={view} onViewChange={setView} />
-            </div>
-          </div>
-
-          {(searchTerm || filterDepartment !== 'all') && (
-            <div className="flex items-center gap-4 mt-4" data-oid="zfwgtt1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilterDepartment('all')
-                }}
-                data-oid="zcoz4.4"
-              >
-                Limpiar filtros
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+        actions={
+          searchTerm || filterDepartment !== 'all' ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSearchTerm('')
+                setFilterDepartment('all')
+              }}
+              data-oid="zcoz4.4"
+            >
+              Limpiar filtros
+            </Button>
+          ) : null
+        }
+        viewToggle={<ViewToggle view={view} onViewChange={setView} />}
+      />
 
       <div className={view === 'grid' ? 'grid gap-6 md:grid-cols-2 lg:grid-cols-3' : 'space-y-3'} data-oid=".qyvxmm">
         {filteredAdmins.map((admin) => (
           <Card
             key={admin.id}
             className={`cursor-pointer hover:shadow-lg transition-all duration-300 ${view === 'list' ? 'overflow-hidden' : ''}`}
-            onClick={() => router.push(`/administrativo/${admin.id}`)}
+            onClick={() => router.push(`/dashboard/administrativo/${admin.id}`)}
             data-oid="jq97pgy"
           >
             <CardContent className={view === 'grid' ? 'p-6 space-y-4' : 'grid gap-4 p-4 md:grid-cols-[minmax(0,1fr)_220px_180px_auto] md:items-center'} data-oid="c-731r_">
@@ -280,15 +290,24 @@ export default function AdministrativosPage() {
                 </div>
               </div>
 
-              <div className={view === 'grid' ? 'space-y-2' : 'flex items-center md:justify-center'} data-oid="6xnyx.f">
+              <div className={view === 'grid' ? 'flex flex-wrap gap-2' : 'flex items-center md:justify-center'} data-oid="6xnyx.f">
                 <StaffContractBadge data-oid="6xz2_jk">
-                  {admin.department}
+                  {formatContractType(admin.contractType)}
                 </StaffContractBadge>
                 {view === 'grid' ? <StaffStatusBadge status={admin.active} className="mt-2" /> : null}
               </div>
 
               <div className={view === 'grid' ? 'space-y-2 text-sm' : 'space-y-1 text-sm'} data-oid="ouwgdtd">
                 {view === 'list' ? <StaffStatusBadge status={admin.active} className="mb-1" /> : null}
+                <div className="flex flex-wrap gap-1.5">
+                  {admin.assignedCampuses.length > 0 ? (
+                    admin.assignedCampuses.map((campus) => (
+                      <StaffCampusBadge key={campus.id}>{campus.name}</StaffCampusBadge>
+                    ))
+                  ) : (
+                    <StaffCampusBadge>Sin sede</StaffCampusBadge>
+                  )}
+                </div>
                 <div className="flex items-center gap-2 text-muted-foreground" data-oid=".s54pkp">
                   <Mail className="h-4 w-4 flex-shrink-0" data-oid="u8xwikl" />
                   <span className="truncate" data-oid="pwj3pu9">
@@ -309,7 +328,7 @@ export default function AdministrativosPage() {
                   className={view === 'grid' ? 'w-full' : 'min-w-36'}
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation()
-                    router.push(`/administrativo/${admin.id}`)
+                    router.push(`/dashboard/administrativo/${admin.id}`)
                   }}
                   data-oid="_0w5mks"
                 >
