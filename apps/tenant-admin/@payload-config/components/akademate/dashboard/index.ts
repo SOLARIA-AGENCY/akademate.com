@@ -32,3 +32,5 @@ export {
 } from './Badges'
 export { PdfManagerCard } from './PdfManagerCard'
 export { ViewToggle as DashboardViewToggle } from '@payload-config/components/ui/ViewToggle'
+export { SegmentedToggle as DashboardSegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
+export type { SegmentedToggleOption as DashboardSegmentedToggleOption } from '@payload-config/components/ui/SegmentedToggle'

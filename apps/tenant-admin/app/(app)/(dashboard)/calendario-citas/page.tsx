@@ -56,6 +56,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@payload-config/components/ui/dialog'
+import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 
 type ViewMode = 'month' | 'week' | 'day'
 
@@ -493,11 +494,16 @@ export default function LeadAppointmentsPage() {
               <Button variant="outline" size="icon" onClick={() => move(-1)}><ChevronLeft className="h-4 w-4" /></Button>
               <Button variant="outline" onClick={() => { setCursor(new Date()); setSelectedDate(new Date()) }}>Hoy</Button>
               <Button variant="outline" size="icon" onClick={() => move(1)}><ChevronRight className="h-4 w-4" /></Button>
-              {(['month', 'week', 'day'] as ViewMode[]).map((mode) => (
-                <Button key={mode} variant={viewMode === mode ? 'default' : 'outline'} onClick={() => setViewMode(mode)}>
-                  {mode === 'month' ? 'Mes' : mode === 'week' ? 'Semana' : 'Día'}
-                </Button>
-              ))}
+              <SegmentedToggle
+                value={viewMode}
+                options={[
+                  { value: 'month', label: 'Mes' },
+                  { value: 'week', label: 'Semana' },
+                  { value: 'day', label: 'Día' },
+                ]}
+                onValueChange={setViewMode}
+                ariaLabel="Vista del calendario de citas"
+              />
               <Button variant="outline" size="icon" onClick={() => void loadAppointments()}><RefreshCw className="h-4 w-4" /></Button>
             </div>
           </CardHeader>

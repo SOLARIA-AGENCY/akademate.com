@@ -24,6 +24,7 @@ import {
   List,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
+import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -681,22 +682,12 @@ export default function ProgramacionPage() {
       {/* Controls bar */}
       <Card className="p-3">
         <div className="flex flex-wrap items-center gap-3">
-          {/* View tabs */}
-          <div className="flex rounded-lg border overflow-hidden">
-            {viewButtons.map(({ key, label, icon: Icon }) => (
-              <Button
-                type="button"
-                variant={view === key ? 'default' : 'ghost'}
-                size="sm"
-                key={key}
-                onClick={() => setView(key)}
-                className="gap-1.5 rounded-none text-xs"
-              >
-                <Icon className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{label}</span>
-              </Button>
-            ))}
-          </div>
+          <SegmentedToggle
+            value={view}
+            options={viewButtons.map(({ key, label, icon }) => ({ value: key, label, icon }))}
+            onValueChange={setView}
+            ariaLabel="Vista de programación"
+          />
 
           {/* Navigation */}
           <div className="flex items-center gap-1">
