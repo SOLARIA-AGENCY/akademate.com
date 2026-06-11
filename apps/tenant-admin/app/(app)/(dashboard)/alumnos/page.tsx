@@ -23,12 +23,11 @@ import {
   CheckCircle2,
   Eye,
   Edit,
-  LayoutGrid,
-  List,
   MapPin,
   GraduationCap,
   UserPlus,
 } from 'lucide-react'
+import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 
 interface Student {
   id: string
@@ -184,38 +183,7 @@ export default function AlumnosPage() {
         title="Alumnos"
         description={`${filteredStudents.length} alumnos de ${students.length} totales`}
         icon={User}
-        actions={
-          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg" data-oid="mddf.5b">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              className={
-                viewMode === 'list'
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }
-              onClick={() => setViewMode('list')}
-              data-oid="f.4b31g"
-            >
-              <List className="h-4 w-4 mr-2" data-oid="skj-s5p" />
-              Listado
-            </Button>
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
-              className={
-                viewMode === 'grid'
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }
-              onClick={() => setViewMode('grid')}
-              data-oid="t_--gmp"
-            >
-              <LayoutGrid className="h-4 w-4 mr-2" data-oid="frog:b0" />
-              Fichas
-            </Button>
-          </div>
-        }
+        actions={<ViewToggle view={viewMode} onViewChange={setViewMode} />}
         data-oid="2bu4ozx"
       />
 
