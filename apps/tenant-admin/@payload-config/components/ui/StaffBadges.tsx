@@ -11,6 +11,16 @@ const statusLabel: Record<string, string> = {
   temporary_leave: 'Baja temporal',
 }
 
+function normalizeStatus(status: StaffStatus) {
+  if (typeof status === 'boolean') return status ? 'active' : 'inactive'
+
+  const normalized = String(status).trim().toLowerCase().replace(/\s+/g, '_')
+  if (normalized === 'activo' || normalized === 'activa') return 'active'
+  if (normalized === 'inactivo' || normalized === 'inactiva' || normalized === 'retirado') return 'inactive'
+  if (normalized === 'baja_temporal' || normalized === 'temporary_leave') return 'temporary_leave'
+  return normalized
+}
+
 export function StaffStatusBadge({
   status,
   className,
@@ -19,13 +29,13 @@ export function StaffStatusBadge({
   status: StaffStatus
   className?: string
 } & React.HTMLAttributes<HTMLDivElement>) {
-  const normalized = typeof status === 'boolean' ? (status ? 'active' : 'inactive') : status
+  const normalized = normalizeStatus(status)
   const active = normalized === 'active'
 
   return (
     <Badge
       className={cn(
-        'h-6 min-w-[5.75rem] justify-center rounded-full px-3 text-[11px] font-bold uppercase leading-none tracking-[0.02em] shadow-sm',
+        'h-6 w-[6.75rem] max-w-full justify-center rounded-full px-3 text-[11px] font-bold uppercase leading-none tracking-[0.02em] shadow-sm',
         active
           ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/90'
           : 'border-transparent bg-neutral text-neutral-foreground hover:bg-neutral/90',
@@ -50,12 +60,12 @@ export function StaffContractBadge({
     <Badge
       variant="outline"
       className={cn(
-        'h-6 min-w-[8.25rem] justify-center rounded-full px-3 text-[11px] font-semibold leading-none',
+        'h-6 w-[8.75rem] max-w-full justify-center rounded-full px-3 text-[11px] font-semibold leading-none',
         className
       )}
       {...props}
     >
-      {children}
+      <span className="truncate">{children}</span>
     </Badge>
   )
 }
@@ -72,7 +82,7 @@ export function StaffCampusBadge({
     <Badge
       variant="secondary"
       className={cn(
-        'h-6 min-w-[8.5rem] justify-center gap-1 rounded-full px-3 text-[11px] font-semibold leading-none',
+        'h-6 w-[9.25rem] max-w-full justify-center gap-1 rounded-full px-3 text-[11px] font-semibold leading-none',
         className
       )}
       {...props}
@@ -97,7 +107,7 @@ export function StaffCountBadge({
     <Badge
       variant="outline"
       className={cn(
-        'h-6 min-w-[8.25rem] justify-center gap-1 rounded-full px-3 text-[11px] font-semibold leading-none',
+        'h-6 w-[8.75rem] max-w-full justify-center gap-1 rounded-full px-3 text-[11px] font-semibold leading-none',
         className
       )}
       {...props}
