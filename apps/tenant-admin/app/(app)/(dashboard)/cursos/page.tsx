@@ -155,10 +155,6 @@ function CursosPageContent() {
     router.push(`/dashboard/cursos/${course.id}`)
   }
 
-  const goToTypePage = (type: DashboardCourseType) => {
-    router.push(`/dashboard/cursos?tipo=${encodeURIComponent(type)}`)
-  }
-
   const goToTypeLanding = () => {
     router.push('/dashboard/cursos')
   }
@@ -383,14 +379,13 @@ function CursosPageContent() {
             const IconByType = TYPE_ICONS[type]
             const typeImage = getPublicStudyTypeFallbackImage(type)
             return (
-              <button
+              <Link
                 key={type}
-                type="button"
-                onClick={() => goToTypePage(type)}
-                className="group h-full w-full rounded-xl text-left outline-none transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                href={`/dashboard/cursos?tipo=${encodeURIComponent(type)}`}
+                className="group block h-full w-full rounded-xl text-left no-underline outline-none transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
-                <Card className="h-full w-full overflow-hidden border transition-all hover:border-primary hover:shadow-md">
-                  <div className="relative h-44">
+                <Card className="flex h-full min-h-[260px] w-full flex-col overflow-hidden border bg-card shadow-sm transition-all group-hover:border-primary group-hover:shadow-md">
+                  <div className="relative h-44 shrink-0 overflow-hidden">
                     <img src={typeImage} alt={style.label} className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute left-4 top-4 flex items-center gap-2">
@@ -402,12 +397,17 @@ function CursosPageContent() {
                       <IconByType className={`h-4 w-4 ${style.textColor}`} />
                     </div>
                   </div>
-                  <CardContent className="p-5">
-                    <p className="text-3xl font-bold">{typeCounts[type]}</p>
-                    <p className="text-sm text-muted-foreground">cursos disponibles</p>
+                  <CardContent className="flex flex-1 items-end justify-between gap-4 p-5">
+                    <div>
+                      <p className="text-3xl font-bold leading-none text-foreground">{typeCounts[type]}</p>
+                      <p className="mt-2 text-sm text-muted-foreground">cursos disponibles</p>
+                    </div>
+                    <span className="inline-flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
                   </CardContent>
                 </Card>
-              </button>
+              </Link>
             )
           })}
         </div>
