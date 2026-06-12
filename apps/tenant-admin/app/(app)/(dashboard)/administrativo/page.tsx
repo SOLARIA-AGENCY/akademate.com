@@ -7,6 +7,7 @@ import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { DashboardToolbar } from '@payload-config/components/akademate/dashboard'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
+import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { StaffCampusBadge, StaffContractBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
 import {
   Select,
@@ -252,94 +253,117 @@ export default function AdministrativosPage() {
         viewToggle={<ViewToggle view={view} onViewChange={setView} />}
       />
 
-      <div className={view === 'grid' ? 'grid gap-6 md:grid-cols-2 lg:grid-cols-3' : 'space-y-3'} data-oid=".qyvxmm">
-        {filteredAdmins.map((admin) => (
-          <Card
-            key={admin.id}
-            className={`cursor-pointer hover:shadow-lg transition-all duration-300 ${view === 'list' ? 'overflow-hidden' : ''}`}
-            onClick={() => router.push(`/dashboard/administrativo/${admin.id}`)}
-            data-oid="jq97pgy"
-          >
-            <CardContent className={view === 'grid' ? 'p-6 space-y-4' : 'grid gap-4 p-4 md:grid-cols-[minmax(0,1fr)_220px_180px_auto] md:items-center'} data-oid="c-731r_">
-              <div className="flex items-start gap-4" data-oid="z3h91.f">
-                <div className="relative" data-oid="5_myoha">
-                  {!isPlaceholderPhoto(admin.photo) ? (
-                    <img
-                      src={admin.photo}
-                      alt={`${admin.first_name} ${admin.last_name}`}
-                      className="h-16 w-16 rounded-full object-cover border-2 border-background shadow-md"
-                      data-oid="9kjjih1"
-                    />
-                  ) : (
-                    <AdminPhotoFallback />
-                  )}
-                  {admin.active && (
-                    <div
-                      className="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-green-500 border-2 border-white"
-                      data-oid="a--3fut"
-                    />
-                  )}
+      {view === 'grid' ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid=".qyvxmm">
+          {filteredAdmins.map((admin) => (
+            <Card
+              key={admin.id}
+              className="cursor-pointer transition-all duration-300 hover:shadow-lg"
+              onClick={() => router.push(`/dashboard/administrativo/${admin.id}`)}
+              data-oid="jq97pgy"
+            >
+              <CardContent className="space-y-4 p-6" data-oid="c-731r_">
+                <div className="flex items-start gap-4" data-oid="z3h91.f">
+                  <div className="relative" data-oid="5_myoha">
+                    {!isPlaceholderPhoto(admin.photo) ? (
+                      <img
+                        src={admin.photo}
+                        alt={`${admin.first_name} ${admin.last_name}`}
+                        className="h-16 w-16 rounded-full border-2 border-background object-cover shadow-md"
+                        data-oid="9kjjih1"
+                      />
+                    ) : (
+                      <AdminPhotoFallback />
+                    )}
+                    {admin.active && (
+                      <div
+                        className="absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-white bg-green-500"
+                        data-oid="a--3fut"
+                      />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1" data-oid=":4dy::8">
+                    <h3 className="truncate text-lg font-bold leading-tight" data-oid="hc:1-ns">
+                      {admin.first_name} {admin.last_name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground" data-oid="yz:7z45">
+                      {admin.role}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0" data-oid=":4dy::8">
-                  <h3 className="font-bold text-lg leading-tight truncate" data-oid="hc:1-ns">
-                    {admin.first_name} {admin.last_name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground" data-oid="yz:7z45">
-                    {admin.role}
-                  </p>
-                </div>
-              </div>
 
-              <div className={view === 'grid' ? 'flex flex-wrap gap-2' : 'flex items-center md:justify-center'} data-oid="6xnyx.f">
-                <StaffContractBadge data-oid="6xz2_jk">
-                  {formatContractType(admin.contractType)}
-                </StaffContractBadge>
-                {view === 'grid' ? <StaffStatusBadge status={admin.active} className="mt-2" /> : null}
-              </div>
+                <div className="flex flex-wrap gap-2" data-oid="6xnyx.f">
+                  <StaffStatusBadge status={admin.active} />
+                  <StaffContractBadge data-oid="6xz2_jk">
+                    {formatContractType(admin.contractType)}
+                  </StaffContractBadge>
+                </div>
 
-              <div className={view === 'grid' ? 'space-y-2 text-sm' : 'space-y-1 text-sm'} data-oid="ouwgdtd">
-                {view === 'list' ? <StaffStatusBadge status={admin.active} className="mb-1" /> : null}
-                <div className="flex flex-wrap gap-1.5">
-                  {admin.assignedCampuses.length > 0 ? (
-                    admin.assignedCampuses.map((campus) => (
-                      <StaffCampusBadge key={campus.id}>{campus.name}</StaffCampusBadge>
-                    ))
-                  ) : (
-                    <StaffCampusBadge>Sin sede</StaffCampusBadge>
-                  )}
+                <div className="space-y-2 text-sm" data-oid="ouwgdtd">
+                  <div className="flex flex-wrap gap-1.5">
+                    {admin.assignedCampuses.length > 0 ? (
+                      admin.assignedCampuses.map((campus) => (
+                        <StaffCampusBadge key={campus.id}>{campus.name}</StaffCampusBadge>
+                      ))
+                    ) : (
+                      <StaffCampusBadge>Sin sede</StaffCampusBadge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground" data-oid=".s54pkp">
+                    <Mail className="h-4 w-4 flex-shrink-0" data-oid="u8xwikl" />
+                    <span className="truncate" data-oid="pwj3pu9">
+                      {admin.email}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="a9:9pgq">
+                    <Phone className="h-4 w-4 flex-shrink-0" data-oid="d-q80-3" />
+                    <span data-oid="cnkl9ot">{admin.phone}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-muted-foreground" data-oid=".s54pkp">
-                  <Mail className="h-4 w-4 flex-shrink-0" data-oid="u8xwikl" />
-                  <span className="truncate" data-oid="pwj3pu9">
-                    {admin.email}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground" data-oid="a9:9pgq">
-                  <Phone className="h-4 w-4 flex-shrink-0" data-oid="d-q80-3" />
-                  <span data-oid="cnkl9ot">{admin.phone}</span>
-                </div>
-              </div>
 
-              {/* Action Buttons */}
-              <div className={view === 'grid' ? 'pt-3 border-t' : 'flex justify-end'} data-oid="-4fclxf">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={view === 'grid' ? 'w-full' : 'min-w-36'}
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation()
-                    router.push(`/dashboard/administrativo/${admin.id}`)
-                  }}
-                  data-oid="_0w5mks"
-                >
-                  <Eye className="mr-2 h-4 w-4" data-oid="4pw.ske" />
-                  Ver ficha administrativo
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                <div className="border-t pt-3" data-oid="-4fclxf">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation()
+                      router.push(`/dashboard/administrativo/${admin.id}`)
+                    }}
+                    data-oid="_0w5mks"
+                  >
+                    <Eye className="mr-2 h-4 w-4" data-oid="4pw.ske" />
+                    Ver ficha administrativo
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2" data-oid=".qyvxmm-list">
+          {filteredAdmins.map((admin) => (
+            <PersonalListItem
+              key={admin.id}
+              teacher={{
+                id: admin.id,
+                firstName: admin.first_name,
+                lastName: admin.last_name,
+                email: admin.email,
+                phone: admin.phone,
+                photo: admin.photo,
+                position: admin.role,
+                staffType: 'administrativo',
+                active: admin.active,
+                contractLabel: formatContractType(admin.contractType),
+                assignedCampuses: admin.assignedCampuses,
+              }}
+              actionLabel="Ver ficha administrativo"
+              onClick={() => router.push(`/dashboard/administrativo/${admin.id}`)}
+            />
+          ))}
+        </div>
+      )}
 
       {filteredAdmins.length === 0 && (
         <Card data-oid="ivnzxuh">

@@ -6,61 +6,83 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { Button } from '@payload-config/components/ui/button'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Separator } from '@payload-config/components/ui/separator'
-import { StaffCountBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
+import {
+  StaffCampusBadge,
+  StaffContractBadge,
+  StaffCountBadge,
+  StaffStatusBadge,
+} from '@payload-config/components/ui/StaffBadges'
 import { cn } from '@payload-config/lib/utils'
-import { Mail, Phone, User, GraduationCap } from 'lucide-react'
+import { Mail, Phone, User, GraduationCap, Briefcase } from 'lucide-react'
 
-interface TeacherExpanded {
-  id: number
+interface StaffListItemPerson {
+  id: number | string
   firstName: string
   lastName: string
-  initials: string
   email?: string | null
-  phone?: string
-  photo: string
-  department: string
-  specialties: string[]
-  bio?: string
-  active: boolean
-  courseRunsCount: number
+  phone?: string | null
+  photo?: string | null
+  department?: string | null
+  position?: string | null
+  staffType?: string | null
+  active: boolean | string
+  contractLabel?: string | null
+  courseRunsCount?: number
+  assignedCampuses?: Array<{
+    id: number | string
+    name: string
+    city?: string | null
+  }>
   qualifiedAreas?: Array<{
     id: number
     codigo?: string | null
     nombre: string
   }>
-  certifications: Array<{
-    title: string
-    institution: string
-    year: number
-  }>
+  specialties?: string[]
 }
 
 interface PersonalListItemProps {
-  teacher: TeacherExpanded
+  teacher: StaffListItemPerson
   onClick?: () => void
   className?: string
+  actionLabel?: string
+  countLabel?: string
 }
 
 const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
 
-function TeacherListFallback() {
+function StaffListFallback({ staffType }: { staffType?: string | null }) {
+  const isTeacher = staffType !== 'administrativo'
+  const BadgeIcon = isTeacher ? GraduationCap : Briefcase
+  const label = isTeacher ? 'Imagen genérica de docente' : 'Imagen genérica de administrativo'
+
   return (
     <div
-      aria-label="Imagen genérica de docente"
+      aria-label={label}
       className="relative flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary"
     >
       <User className="h-7 w-7" aria-hidden="true" />
       <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
-        <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
+        <BadgeIcon className="h-3.5 w-3.5" aria-hidden="true" />
       </span>
     </div>
   )
 }
 
-export function PersonalListItem({ teacher, onClick, className }: PersonalListItemProps) {
+export function PersonalListItem({
+  teacher,
+  onClick,
+  className,
+  actionLabel,
+  countLabel,
+}: PersonalListItemProps) {
   const [photoError, setPhotoError] = React.useState(false)
   const missingQualifiedAreas = (teacher.qualifiedAreas ?? []).length === 0
+  const isAdministrative = teacher.staffType === 'administrativo'
+  const roleLabel = teacher.department ?? teacher.position ?? (isAdministrative ? 'Administrativo' : 'Docente')
+  const campuses = teacher.assignedCampuses ?? []
+  const resolvedActionLabel = actionLabel ?? (isAdministrative ? 'Ver ficha administrativo' : 'Ver ficha docente')
 
   return (
     <Card
@@ -82,24 +104,24 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
         <Avatar className="h-20 w-20 overflow-visible bg-muted">
           {!isPlaceholderPhoto(teacher.photo) && !photoError ? (
             <AvatarImage
-              src={teacher.photo}
+              src={teacher.photo ?? undefined}
               alt={`${teacher.firstName} ${teacher.lastName}`}
               className="rounded-full object-cover"
               onError={() => setPhotoError(true)}
             />
           ) : null}
           <AvatarFallback className="bg-transparent">
-            <TeacherListFallback />
+            <StaffListFallback staffType={teacher.staffType} />
           </AvatarFallback>
         </Avatar>
 
-        <div className="grid min-w-0 items-center gap-3 md:grid-cols-[minmax(0,1fr)_180px] lg:grid-cols-[minmax(0,1fr)_180px_160px_auto]">
+        <div className="grid min-w-0 items-center gap-3 md:grid-cols-[minmax(0,1fr)_180px] lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold leading-tight">
               {teacher.firstName} {teacher.lastName}
             </h3>
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">{teacher.department}</p>
-            {missingQualifiedAreas ? (
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">{roleLabel}</p>
+            {!isAdministrative && missingQualifiedAreas ? (
               <Badge variant="destructive" className="mt-2 h-6 w-fit px-2 text-[11px]">
                 Sin área habilitada
               </Badge>
@@ -120,17 +142,33 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
           </div>
 
           <div className="hidden min-w-0 flex-col gap-1 text-xs lg:flex">
-            {teacher.specialties.slice(0, 2).map((specialty) => (
-              <span key={specialty} className="truncate leading-tight text-muted-foreground">
-                {specialty}
-              </span>
-            ))}
+            {isAdministrative && teacher.contractLabel ? (
+              <StaffContractBadge>{teacher.contractLabel}</StaffContractBadge>
+            ) : null}
+            {campuses.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {campuses.slice(0, 2).map((campus) => (
+                  <StaffCampusBadge key={campus.id}>{campus.name}</StaffCampusBadge>
+                ))}
+              </div>
+            ) : null}
+            {!isAdministrative && !campuses.length
+              ? (teacher.specialties ?? []).slice(0, 2).map((specialty) => (
+                  <span key={specialty} className="truncate leading-tight text-muted-foreground">
+                    {specialty}
+                  </span>
+                ))
+              : null}
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
             <StaffStatusBadge status={teacher.active} />
-            <Separator orientation="vertical" className="h-5" />
-            <StaffCountBadge count={teacher.courseRunsCount} label="cursos" />
+            {typeof teacher.courseRunsCount === 'number' ? (
+              <>
+                <Separator orientation="vertical" className="h-5" />
+                <StaffCountBadge count={teacher.courseRunsCount} label={countLabel ?? 'cursos'} />
+              </>
+            ) : null}
           </div>
         </div>
 
@@ -142,7 +180,7 @@ export function PersonalListItem({ teacher, onClick, className }: PersonalListIt
             onClick?.()
           }}
         >
-          Ver
+          {resolvedActionLabel}
         </Button>
       </CardContent>
     </Card>
