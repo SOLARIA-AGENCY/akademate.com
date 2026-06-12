@@ -6,7 +6,6 @@ import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { DashboardToolbar } from '@payload-config/components/akademate/dashboard'
-import { StaffCountBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
 import {
   Select,
   SelectContent,
@@ -14,8 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, User, Mail, Phone, Eye, Loader2, GraduationCap, MapPin, Upload } from 'lucide-react'
+import { Plus, User, Loader2, Upload } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
+import { StaffCard } from '@payload-config/components/ui/StaffCard'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
 
@@ -55,29 +55,6 @@ interface StaffMember {
   inactiveAt?: string | null
   importReviewStatus?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate'
   lastImportBatch?: string | null
-}
-
-const isPlaceholderPhoto = (photo?: string | null) =>
-  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
-
-function TeacherPhotoFallback({ className = 'h-16 w-16' }: { className?: string }) {
-  return (
-    <div
-      aria-label="Imagen genérica de docente"
-      className={`relative flex ${className} items-center justify-center rounded-full border bg-primary/10 text-primary`}
-    >
-      <User className="h-7 w-7" aria-hidden="true" />
-      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
-        <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
-      </span>
-    </div>
-  )
-}
-
-function getDefaultCampusLabel(assignedCampuses: StaffMember['assignedCampuses']) {
-  if (!assignedCampuses.length) return 'Sin sede asignada'
-  const [campus] = assignedCampuses
-  return campus.city ? `${campus.name} · ${campus.city}` : campus.name
 }
 
 interface TeacherExpanded extends StaffMember {
@@ -406,97 +383,28 @@ export default function ProfesoresPage() {
       {view === 'grid' ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid="39mqpx7">
           {filteredTeachers.map((teacher) => (
-            <Card
+            <StaffCard
               key={teacher.id}
-              className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
-              onClick={() => handleViewTeacher(teacher.id)}
-              data-oid="o-nrwq:"
-            >
-              <CardContent className="p-6 space-y-4" data-oid="..9i8:7">
-                <div className="flex items-start gap-4" data-oid="uisstqq">
-                  <div className="relative" data-oid="0gj2jev">
-                    {!isPlaceholderPhoto(teacher.photo) ? (
-                      <img
-                        src={teacher.photo}
-                        alt={`${teacher.firstName} ${teacher.lastName}`}
-                        className="h-16 w-16 rounded-full object-cover"
-                        data-oid="fvzsjyv"
-                      />
-                    ) : (
-                      <TeacherPhotoFallback />
-                    )}
-                    {teacher.active && (
-                      <div
-                        className="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-green-500 border-2 border-white"
-                        data-oid="8_vc-xr"
-                      />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0" data-oid="tlyx7:z">
-                    <h3 className="font-bold text-lg leading-tight truncate" data-oid="qql9o:b">
-                      {teacher.firstName} {teacher.lastName}
-                    </h3>
-                    <p className="text-sm text-muted-foreground truncate" data-oid="j9cy:nh">
-                      {teacher.department}
-                    </p>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground" data-oid="teacher-campus">
-                      <MapPin className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
-                      <span className="truncate">{getDefaultCampusLabel(teacher.assignedCampuses)}</span>
-                    </p>
-                    <StaffStatusBadge status={teacher.active} className="mt-2" data-oid="vtx5757" />
-                    {(teacher.qualifiedAreas ?? []).length === 0 ? (
-                      <div className="mt-2 inline-flex rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive">
-                        Sin área habilitada
-                      </div>
-                    ) : null}
-                    {teacher.importReviewStatus && teacher.importReviewStatus !== 'validated' ? (
-                      <div className="mt-2 inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
-                        {reviewLabels[teacher.importReviewStatus] ?? teacher.importReviewStatus}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-sm" data-oid="c168r1m">
-                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="0m4es40">
-                    <Mail className="h-4 w-4 flex-shrink-0" data-oid="gv811l:" />
-                    <span className="truncate" data-oid="7r7086-">
-                      {teacher.email || 'Sin email'}
-                    </span>
-                  </div>
-                  {teacher.nif ? (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <User className="h-4 w-4 flex-shrink-0" />
-                      <span>{teacher.nif}</span>
-                    </div>
-                  ) : null}
-                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="9bdf1cp">
-                    <Phone className="h-4 w-4 flex-shrink-0" data-oid="9rawdwn" />
-                    <span data-oid="m3p2ole">{teacher.phone}</span>
-                  </div>
-                </div>
-
-                <div className="border-t pt-3" data-oid="n2dx5nr">
-                  <StaffCountBadge count={teacher.courseRunsCount} data-oid="4zvp0-t" />
-                </div>
-
-                <div className="pt-3 border-t" data-oid="c.v05ji">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      handleViewTeacher(teacher.id)
-                    }}
-                    data-oid="..tsp8r"
-                  >
-                    <Eye className="mr-2 h-4 w-4" data-oid="2z3k-sj" />
-                    Ver ficha docente
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              id={teacher.id}
+              fullName={`${teacher.firstName} ${teacher.lastName}`}
+              staffType="profesor"
+              position={teacher.department}
+              contractType={teacher.contractType}
+              employmentStatus={teacher.active ? 'active' : teacher.employmentStatus}
+              photo={teacher.photo}
+              email={teacher.email || 'Sin email'}
+              phone={teacher.phone || 'Sin teléfono'}
+              assignedCampuses={teacher.assignedCampuses}
+              courseRunsCount={teacher.courseRunsCount}
+              qualifiedAreas={teacher.qualifiedAreas ?? []}
+              reviewLabel={
+                teacher.importReviewStatus && teacher.importReviewStatus !== 'validated'
+                  ? reviewLabels[teacher.importReviewStatus] ?? teacher.importReviewStatus
+                  : undefined
+              }
+              onView={(id) => handleViewTeacher(Number(id))}
+              detailLabel="Ver ficha docente"
+            />
           ))}
         </div>
       ) : (

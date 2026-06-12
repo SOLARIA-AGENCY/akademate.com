@@ -8,7 +8,7 @@ import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { DashboardToolbar } from '@payload-config/components/akademate/dashboard'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
-import { StaffCampusBadge, StaffContractBadge, StaffStatusBadge } from '@payload-config/components/ui/StaffBadges'
+import { StaffCard } from '@payload-config/components/ui/StaffCard'
 import {
   Select,
   SelectContent,
@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, User, Mail, Phone, Briefcase, Eye, Loader2 } from 'lucide-react'
+import { Plus, Briefcase, Loader2 } from 'lucide-react'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 
 type ViewMode = 'grid' | 'list'
@@ -37,23 +37,6 @@ interface AdminStaff {
     name: string
     city: string
   }[]
-}
-
-const isPlaceholderPhoto = (photo?: string | null) =>
-  !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
-
-function AdminPhotoFallback() {
-  return (
-    <div
-      aria-label="Imagen genérica de administrativo"
-      className="relative flex h-16 w-16 items-center justify-center rounded-full border bg-primary/10 text-primary shadow-md"
-    >
-      <User className="h-7 w-7" aria-hidden="true" />
-      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-background text-primary shadow-sm">
-        <Briefcase className="h-3.5 w-3.5" aria-hidden="true" />
-      </span>
-    </div>
-  )
 }
 
 interface ApiStaffData {
@@ -256,88 +239,21 @@ export default function AdministrativosPage() {
       {view === 'grid' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid=".qyvxmm">
           {filteredAdmins.map((admin) => (
-            <Card
+            <StaffCard
               key={admin.id}
-              className="cursor-pointer transition-all duration-300 hover:shadow-lg"
-              onClick={() => router.push(`/dashboard/administrativo/${admin.id}`)}
-              data-oid="jq97pgy"
-            >
-              <CardContent className="space-y-4 p-6" data-oid="c-731r_">
-                <div className="flex items-start gap-4" data-oid="z3h91.f">
-                  <div className="relative" data-oid="5_myoha">
-                    {!isPlaceholderPhoto(admin.photo) ? (
-                      <img
-                        src={admin.photo}
-                        alt={`${admin.first_name} ${admin.last_name}`}
-                        className="h-16 w-16 rounded-full border-2 border-background object-cover shadow-md"
-                        data-oid="9kjjih1"
-                      />
-                    ) : (
-                      <AdminPhotoFallback />
-                    )}
-                    {admin.active && (
-                      <div
-                        className="absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-white bg-green-500"
-                        data-oid="a--3fut"
-                      />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1" data-oid=":4dy::8">
-                    <h3 className="truncate text-lg font-bold leading-tight" data-oid="hc:1-ns">
-                      {admin.first_name} {admin.last_name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground" data-oid="yz:7z45">
-                      {admin.role}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2" data-oid="6xnyx.f">
-                  <StaffStatusBadge status={admin.active} />
-                  <StaffContractBadge data-oid="6xz2_jk">
-                    {formatContractType(admin.contractType)}
-                  </StaffContractBadge>
-                </div>
-
-                <div className="space-y-2 text-sm" data-oid="ouwgdtd">
-                  <div className="flex flex-wrap gap-1.5">
-                    {admin.assignedCampuses.length > 0 ? (
-                      admin.assignedCampuses.map((campus) => (
-                        <StaffCampusBadge key={campus.id}>{campus.name}</StaffCampusBadge>
-                      ))
-                    ) : (
-                      <StaffCampusBadge>Sin sede</StaffCampusBadge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground" data-oid=".s54pkp">
-                    <Mail className="h-4 w-4 flex-shrink-0" data-oid="u8xwikl" />
-                    <span className="truncate" data-oid="pwj3pu9">
-                      {admin.email}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground" data-oid="a9:9pgq">
-                    <Phone className="h-4 w-4 flex-shrink-0" data-oid="d-q80-3" />
-                    <span data-oid="cnkl9ot">{admin.phone}</span>
-                  </div>
-                </div>
-
-                <div className="border-t pt-3" data-oid="-4fclxf">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation()
-                      router.push(`/dashboard/administrativo/${admin.id}`)
-                    }}
-                    data-oid="_0w5mks"
-                  >
-                    <Eye className="mr-2 h-4 w-4" data-oid="4pw.ske" />
-                    Ver ficha administrativo
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              id={admin.id}
+              fullName={`${admin.first_name} ${admin.last_name}`}
+              staffType="administrativo"
+              position={admin.role}
+              contractType={formatContractType(admin.contractType)}
+              employmentStatus={admin.active ? 'active' : 'inactive'}
+              photo={admin.photo ?? '/placeholder-avatar.svg'}
+              email={admin.email}
+              phone={admin.phone}
+              assignedCampuses={admin.assignedCampuses}
+              onView={(id) => router.push(`/dashboard/administrativo/${id}`)}
+              detailLabel="Ver ficha administrativo"
+            />
           ))}
         </div>
       ) : (

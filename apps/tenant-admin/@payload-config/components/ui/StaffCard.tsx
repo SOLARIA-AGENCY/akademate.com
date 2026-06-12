@@ -7,6 +7,7 @@ import { Button } from '@payload-config/components/ui/button'
 import {
   StaffCampusBadge,
   StaffContractBadge,
+  StaffCountBadge,
   StaffStatusBadge,
 } from '@payload-config/components/ui/StaffBadges'
 import {
@@ -19,8 +20,10 @@ import {
 } from '@payload-config/components/ui/dropdown-menu'
 import { Eye, Edit, Trash2, MoreHorizontal, Mail, Phone, Briefcase, GraduationCap, User } from 'lucide-react'
 
+type StaffCardId = number | string
+
 interface StaffCardProps {
-  id: number
+  id: StaffCardId
   fullName: string
   staffType?: string
   position: string
@@ -31,9 +34,12 @@ interface StaffCardProps {
   phone: string
   bio?: string
   assignedCampuses: Array<{ id: number; name: string; city: string }>
-  onView: (id: number) => void
-  onEdit: (id: number) => void
-  onDelete: (id: number, name: string) => void
+  courseRunsCount?: number
+  qualifiedAreas?: Array<{ id: number; nombre: string }>
+  reviewLabel?: string
+  onView: (id: StaffCardId) => void
+  onEdit?: (id: StaffCardId) => void
+  onDelete?: (id: StaffCardId, name: string) => void
   detailLabel?: string
 }
 
@@ -41,6 +47,8 @@ const CONTRACT_TYPE_LABELS: Record<string, string> = {
   full_time: 'Tiempo Completo',
   part_time: 'Medio Tiempo',
   freelance: 'Autónomo',
+  contract: 'Contrato',
+  employee: 'Empleado',
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -105,11 +113,17 @@ export function StaffCard({
   phone,
   bio,
   assignedCampuses,
+  courseRunsCount,
+  qualifiedAreas,
+  reviewLabel,
   onView,
   onEdit,
   onDelete,
   detailLabel = 'Ver Ficha Completa',
 }: StaffCardProps) {
+  const teaching = isTeachingStaff(staffType)
+  const hasMenuActions = !!onEdit || !!onDelete
+
   return (
     <Card
       className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
@@ -128,42 +142,50 @@ export function StaffCard({
             </div>
           </div>
 
-          <DropdownMenu data-oid="msf0ls9">
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()} data-oid="hxa2euo">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="opacity-0 transition-opacity group-hover:opacity-100"
-                data-oid="pfv9nwo"
-              >
-                <span className="sr-only" data-oid="x53fj_-">
-                  Abrir menú
-                </span>
-                <MoreHorizontal className="h-4 w-4" data-oid="p.s5aqy" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" data-oid="9:6af3z">
-              <DropdownMenuLabel data-oid="ifwvtj3">Acciones</DropdownMenuLabel>
-              <DropdownMenuSeparator data-oid="seexs1g" />
-              <DropdownMenuItem onClick={() => onView(id)} data-oid="mr2ycq-">
-                <Eye className="mr-2 h-4 w-4" data-oid="a4m-48a" />
-                Ver Detalle
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(id)} data-oid="zbj8prj">
-                <Edit className="mr-2 h-4 w-4" data-oid="45fhukj" />
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuSeparator data-oid="zc64rui" />
-              <DropdownMenuItem
-                onClick={() => onDelete(id, fullName)}
-                className="text-destructive"
-                data-oid="6ytwys:"
-              >
-                <Trash2 className="mr-2 h-4 w-4" data-oid="hjfpijo" />
-                Desactivar
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {hasMenuActions ? (
+            <DropdownMenu data-oid="msf0ls9">
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()} data-oid="hxa2euo">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 transition-opacity group-hover:opacity-100"
+                  data-oid="pfv9nwo"
+                >
+                  <span className="sr-only" data-oid="x53fj_-">
+                    Abrir menú
+                  </span>
+                  <MoreHorizontal className="h-4 w-4" data-oid="p.s5aqy" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" data-oid="9:6af3z">
+                <DropdownMenuLabel data-oid="ifwvtj3">Acciones</DropdownMenuLabel>
+                <DropdownMenuSeparator data-oid="seexs1g" />
+                <DropdownMenuItem onClick={() => onView(id)} data-oid="mr2ycq-">
+                  <Eye className="mr-2 h-4 w-4" data-oid="a4m-48a" />
+                  Ver Detalle
+                </DropdownMenuItem>
+                {onEdit ? (
+                  <DropdownMenuItem onClick={() => onEdit(id)} data-oid="zbj8prj">
+                    <Edit className="mr-2 h-4 w-4" data-oid="45fhukj" />
+                    Editar
+                  </DropdownMenuItem>
+                ) : null}
+                {onDelete ? (
+                  <>
+                    <DropdownMenuSeparator data-oid="zc64rui" />
+                    <DropdownMenuItem
+                      onClick={() => onDelete(id, fullName)}
+                      className="text-destructive"
+                      data-oid="6ytwys:"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" data-oid="hjfpijo" />
+                      Desactivar
+                    </DropdownMenuItem>
+                  </>
+                ) : null}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : null}
         </CardHeader>
 
         <CardContent className="pt-0" data-oid="24ngeia">
@@ -171,9 +193,19 @@ export function StaffCard({
           <div className="flex gap-2 mb-4 flex-wrap" data-oid="34c-.1s">
             <StaffStatusBadge status={employmentStatus} data-oid="8_xl-hu" />
             <StaffContractBadge data-oid="0m5w5if">
-              {CONTRACT_TYPE_LABELS[contractType]}
+              {CONTRACT_TYPE_LABELS[contractType] ?? contractType}
             </StaffContractBadge>
           </div>
+          {teaching && qualifiedAreas?.length === 0 ? (
+            <div className="mb-4 inline-flex rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive">
+              Sin área habilitada
+            </div>
+          ) : null}
+          {reviewLabel ? (
+            <div className="mb-4 inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
+              {reviewLabel}
+            </div>
+          ) : null}
 
           {/* Contact Info */}
           <div className="space-y-2 mb-4" data-oid="lq81nmx">
@@ -226,6 +258,11 @@ export function StaffCard({
               )}
             </div>
           </div>
+          {typeof courseRunsCount === 'number' ? (
+            <div className="mt-4 border-t pt-3">
+              <StaffCountBadge count={courseRunsCount} />
+            </div>
+          ) : null}
         </CardContent>
       </div>
 
