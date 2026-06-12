@@ -57,12 +57,9 @@ export interface DashboardPageHeaderProps {
 
 export function DashboardPageHeader({
   title,
-  description,
-  eyebrow,
   backHref,
   backLabel = 'Volver',
   actions,
-  meta,
   className,
 }: DashboardPageHeaderProps) {
   return (
@@ -77,16 +74,7 @@ export function DashboardPageHeader({
       ) : null}
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
-          {eyebrow ? (
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-primary">{eyebrow}</p>
-          ) : null}
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground md:text-3xl">{title}</h1>
-          {description ? (
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
-              {description}
-            </p>
-          ) : null}
-          {meta ? <div className="mt-3 flex flex-wrap items-center gap-2">{meta}</div> : null}
         </div>
         {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
