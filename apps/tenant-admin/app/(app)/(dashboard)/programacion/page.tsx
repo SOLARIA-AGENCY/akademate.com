@@ -32,10 +32,13 @@ import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 
 interface Convocatoria {
   id: string
+  codigo: string
   curso: string
   tipo: string
   sede: string
   sedeId: string
+  aula: string
+  aulaId: string
   fechaInicio: string
   fechaFin: string
   horaInicio: string
@@ -43,13 +46,52 @@ interface Convocatoria {
   dias: string[]
   plazas: number
   inscritos: number
+  precio: number
+  matricula?: number
+  profesor: string
   estado: string
+  planningStatus?: string
   color: string
 }
 
 interface Campus {
   id: string
   name: string
+}
+
+interface CourseOption {
+  id: string
+  name: string
+  tipo: string
+}
+
+interface ClassroomOption {
+  id: string
+  name: string
+  campusId: string
+  capacity: number
+}
+
+interface StaffOption {
+  id: string
+  name: string
+  campusIds: string[]
+}
+
+type DraftConvocatoria = {
+  courseId: string
+  campusId: string
+  classroomId: string
+  instructorId: string
+  startDate: string
+  endDate: string
+  day: string
+  timeStart: string
+  timeEnd: string
+  shift: string
+  maxStudents: string
+  price: string
+  enrollmentFee: string
 }
 
 type ViewMode = 'anual' | 'mes' | 'semana' | 'dia' | 'lista'
@@ -80,6 +122,31 @@ const STATUS_LABELS: Record<string, string> = {
   completed: 'Completada',
   cancelled: 'Cancelada',
 }
+
+const EMPTY_DRAFT: DraftConvocatoria = {
+  courseId: '',
+  campusId: '',
+  classroomId: '',
+  instructorId: '',
+  startDate: '',
+  endDate: '',
+  day: 'monday',
+  timeStart: '10:00',
+  timeEnd: '14:00',
+  shift: 'morning',
+  maxStudents: '18',
+  price: '',
+  enrollmentFee: '150',
+}
+
+const DAY_OPTIONS = [
+  { value: 'monday', label: 'Lunes' },
+  { value: 'tuesday', label: 'Martes' },
+  { value: 'wednesday', label: 'Miércoles' },
+  { value: 'thursday', label: 'Jueves' },
+  { value: 'friday', label: 'Viernes' },
+  { value: 'saturday', label: 'Sábado' },
+]
 
 // Festivos Canarias 2026
 const HOLIDAYS_2026: Record<string, string> = {
@@ -521,51 +588,196 @@ export default function ProgramacionPage() {
   const [sedeFilter, setSedeFilter] = useState('todas')
   const [convocatorias, setConvocatorias] = useState<Convocatoria[]>([])
   const [campuses, setCampuses] = useState<Campus[]>([])
+  const [courses, setCourses] = useState<CourseOption[]>([])
+  const [classrooms, setClassrooms] = useState<ClassroomOption[]>([])
+  const [staff, setStaff] = useState<StaffOption[]>([])
+  const [draft, setDraft] = useState<DraftConvocatoria>(EMPTY_DRAFT)
+  const [listMessage, setListMessage] = useState<string | null>(null)
+  const [isSavingDraft, setIsSavingDraft] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  const loadData = React.useCallback(async () => {
+    try {
+      const [convsRes, campusRes, coursesRes, classroomsRes, staffRes] = await Promise.all([
+        fetch('/api/convocatorias', { cache: 'no-cache' }),
+        fetch('/api/campuses?limit=50', { cache: 'no-cache' }),
+        fetch('/api/cursos?includeInactive=true&includeCycles=true&limit=2000', { cache: 'no-cache' }),
+        fetch('/api/aulas?active=true', { cache: 'no-cache' }),
+        fetch('/api/staff?staffType=profesor&active=true', { cache: 'no-cache' }),
+      ])
+
+      if (convsRes.ok) {
+        const convsData = await convsRes.json()
+        const items = Array.isArray(convsData.data) ? convsData.data : []
+        setConvocatorias(items.map((c: Record<string, unknown>) => ({
+          id: String(c.id),
+          codigo: (c.codigo as string) || '',
+          curso: (c.cursoNombre as string) || 'Curso',
+          tipo: (c.cursoTipo as string) || '',
+          sede: (c.campusNombre as string) || 'Sin sede',
+          sedeId: String(c.campusId || ''),
+          aula: (c.aulaNombre as string) || 'Sin aula',
+          aulaId: String(c.aulaId || ''),
+          fechaInicio: (c.fechaInicio as string) || '',
+          fechaFin: (c.fechaFin as string) || '',
+          horaInicio: ((c.horaInicio as string) || ((c.horario as string) || '').split(' ').pop()?.split('-')[0] || '09:00').slice(0, 5),
+          horaFin: ((c.horaFin as string) || ((c.horario as string) || '').split(' ').pop()?.split('-')[1] || '14:00').slice(0, 5),
+          dias: Array.isArray(c.dias) ? c.dias as string[] : [],
+          plazas: (c.plazasTotales as number) || 0,
+          inscritos: (c.plazasOcupadas as number) || 0,
+          precio: (c.precio as number) || 0,
+          matricula: c.matricula as number | undefined,
+          profesor: (c.profesor as string) || 'Sin docente',
+          estado: (c.estado as string) || 'draft',
+          planningStatus: (c.planningStatus as string) || '',
+          color: STATUS_COLORS[(c.estado as string) || 'draft'] || 'bg-primary',
+        })))
+      }
+
+      if (campusRes.ok) {
+        const campusData = await campusRes.json()
+        const docs = Array.isArray(campusData.docs) ? campusData.docs : []
+        setCampuses(docs.map((c: Record<string, unknown>) => ({
+          id: String(c.id),
+          name: (c.name as string) || 'Sede',
+        })))
+      }
+
+      if (coursesRes.ok) {
+        const coursesData = await coursesRes.json()
+        const docs = Array.isArray(coursesData.data) ? coursesData.data : []
+        setCourses(docs.map((c: Record<string, unknown>) => ({
+          id: String(c.id),
+          name: (c.nombre as string) || (c.name as string) || (c.title as string) || 'Curso',
+          tipo: (c.studyTypeLabel as string) || (c.course_type as string) || (c.tipo as string) || '',
+        })))
+      }
+
+      if (classroomsRes.ok) {
+        const classroomsData = await classroomsRes.json()
+        const docs = Array.isArray(classroomsData.data) ? classroomsData.data : []
+        setClassrooms(docs.map((a: Record<string, unknown>) => ({
+          id: String(a.id),
+          name: (a.nombre as string) || (a.name as string) || (a.code as string) || 'Aula',
+          campusId: String(a.sedeId || a.campusId || ''),
+          capacity: Number(a.capacidad || a.capacity || 0),
+        })))
+      }
+
+      if (staffRes.ok) {
+        const staffData = await staffRes.json()
+        const docs = Array.isArray(staffData.data) ? staffData.data : []
+        setStaff(docs.map((person: Record<string, unknown>) => {
+          const campusesRaw = Array.isArray(person.campuses) ? person.campuses : []
+          return {
+            id: String(person.id),
+            name: (person.fullName as string) || (person.full_name as string) || `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim() || 'Docente',
+            campusIds: campusesRaw
+              .map((campus) => typeof campus === 'object' && campus !== null ? String((campus as { id?: unknown }).id ?? '') : String(campus))
+              .filter(Boolean),
+          }
+        }))
+      }
+    } catch { /* graceful */ }
+    finally { setIsLoading(false) }
+  }, [])
 
   // Fetch data
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [convsRes, campusRes] = await Promise.all([
-          fetch('/api/convocatorias', { cache: 'no-cache' }),
-          fetch('/api/campuses?limit=50', { cache: 'no-cache' }),
-        ])
+    void loadData()
+  }, [loadData])
 
-        if (convsRes.ok) {
-          const convsData = await convsRes.json()
-          const items = Array.isArray(convsData.data) ? convsData.data : []
-          setConvocatorias(items.map((c: Record<string, unknown>) => ({
-            id: String(c.id),
-            curso: (c.cursoNombre as string) || 'Curso',
-            tipo: (c.cursoTipo as string) || '',
-            sede: (c.campusNombre as string) || 'Sin sede',
-            sedeId: String(c.campusId || ''),
-            fechaInicio: (c.fechaInicio as string) || '',
-            fechaFin: (c.fechaFin as string) || '',
-            horaInicio: ((c.horario as string) || '').split(' ').pop()?.split('-')[0] || '09:00',
-            horaFin: ((c.horario as string) || '').split(' ').pop()?.split('-')[1] || '14:00',
-            dias: ((c.horario as string) || '').split(' ')[0]?.split(',').map((d: string) => d.trim().toLowerCase()) || ['monday', 'tuesday', 'wednesday'],
-            plazas: (c.plazasTotales as number) || 0,
-            inscritos: (c.plazasOcupadas as number) || 0,
-            estado: (c.estado as string) || 'draft',
-            color: STATUS_COLORS[(c.estado as string) || 'draft'] || 'bg-primary',
-          })))
-        }
+  const filteredClassrooms = useMemo(() => (
+    draft.campusId ? classrooms.filter((classroom) => classroom.campusId === draft.campusId) : classrooms
+  ), [classrooms, draft.campusId])
 
-        if (campusRes.ok) {
-          const campusData = await campusRes.json()
-          const docs = Array.isArray(campusData.docs) ? campusData.docs : []
-          setCampuses(docs.map((c: Record<string, unknown>) => ({
-            id: String(c.id),
-            name: (c.name as string) || 'Sede',
-          })))
-        }
-      } catch { /* graceful */ }
-      finally { setIsLoading(false) }
+  const filteredStaff = useMemo(() => (
+    draft.campusId
+      ? staff.filter((person) => person.campusIds.length === 0 || person.campusIds.includes(draft.campusId))
+      : staff
+  ), [staff, draft.campusId])
+
+  const updateDraft = (patch: Partial<DraftConvocatoria>) => {
+    setListMessage(null)
+    setDraft((current) => ({ ...current, ...patch }))
+  }
+
+  const createDraftConvocatoria = async () => {
+    setListMessage(null)
+    const missing = [
+      ['curso/ciclo', draft.courseId],
+      ['sede', draft.campusId],
+      ['aula', draft.classroomId],
+      ['docente', draft.instructorId],
+      ['inicio', draft.startDate],
+      ['fin', draft.endDate],
+      ['hora inicio', draft.timeStart],
+      ['hora fin', draft.timeEnd],
+    ].filter(([, value]) => !value).map(([label]) => label)
+
+    if (missing.length > 0) {
+      setListMessage(`Faltan campos: ${missing.join(', ')}.`)
+      return
     }
-    void load()
-  }, [])
+
+    setIsSavingDraft(true)
+    try {
+      const availabilityParams = new URLSearchParams({
+        course: draft.courseId,
+        campus: draft.campusId,
+        classroom: draft.classroomId,
+        instructor: draft.instructorId,
+        start_date: draft.startDate,
+        end_date: draft.endDate,
+        schedule_time_start: draft.timeStart,
+        schedule_time_end: draft.timeEnd,
+        shift: draft.shift,
+        max_students: draft.maxStudents,
+      })
+      availabilityParams.append('schedule_days', draft.day)
+      const availabilityRes = await fetch(`/api/course-runs/availability?${availabilityParams.toString()}`, { cache: 'no-store' })
+      const availabilityData = await availabilityRes.json()
+      const blockers = availabilityData?.availability?.blockers ?? []
+      if (Array.isArray(blockers) && blockers.length > 0) {
+        setListMessage(blockers.map((blocker: { message?: string }) => blocker.message).filter(Boolean).join(' ') || 'La convocatoria tiene conflictos de planificación.')
+        return
+      }
+
+      const createRes = await fetch('/api/convocatorias', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseId: draft.courseId,
+          fechaInicio: draft.startDate,
+          fechaFin: draft.endDate,
+          horario: [{ day: draft.day, startTime: `${draft.timeStart}:00`.replace(/:00:00$/, ':00'), endTime: `${draft.timeEnd}:00`.replace(/:00:00$/, ':00') }],
+          estado: 'borrador',
+          plazasTotales: Number(draft.maxStudents) || 1,
+          precio: Number(draft.price) || 0,
+          profesorId: draft.instructorId,
+          profesorIds: [draft.instructorId],
+          sedeId: draft.campusId,
+          aulaId: draft.classroomId,
+          trainingType: 'private',
+          planningStatus: 'draft',
+          turno: draft.shift,
+          matricula: Number(draft.enrollmentFee) || 0,
+        }),
+      })
+      const createData = await createRes.json()
+      if (!createRes.ok || createData?.success === false) {
+        setListMessage(createData?.error || 'No se pudo crear la convocatoria.')
+        return
+      }
+      setDraft(EMPTY_DRAFT)
+      setListMessage('Convocatoria creada. Revisa la fila generada y completa publicación cuando corresponda.')
+      await loadData()
+    } catch (error) {
+      setListMessage(error instanceof Error ? error.message : 'No se pudo crear la convocatoria.')
+    } finally {
+      setIsSavingDraft(false)
+    }
+  }
 
   // Filtered convocatorias
   const filtered = useMemo(() => {
@@ -647,7 +859,7 @@ export default function ProgramacionPage() {
         }
         actions={
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => router.push('/dashboard/cursos/convocatorias')}>
+            <Button variant="outline" onClick={() => setView('lista')}>
               <List className="mr-2 h-4 w-4" />
               Ver convocatorias en lista
             </Button>
@@ -751,62 +963,164 @@ export default function ProgramacionPage() {
       {/* List View */}
       {!isLoading && view === 'lista' && (
         <Card>
-          <CardContent className="p-0">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/30">
-                  <th className="text-left p-3 font-medium">Curso / Ciclo</th>
-                  <th className="text-left p-3 font-medium hidden sm:table-cell">Sede</th>
-                  <th className="text-left p-3 font-medium hidden md:table-cell">Fechas</th>
-                  <th className="text-left p-3 font-medium hidden lg:table-cell">Horario</th>
-                  <th className="text-center p-3 font-medium">Plazas</th>
-                  <th className="text-center p-3 font-medium">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-muted-foreground">No hay convocatorias</td></tr>
-                ) : (
-                  filtered.map((conv) => {
-                    const ocupacion = conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
-                    return (
-                      <tr
-                        key={conv.id}
-                        className="border-b hover:bg-muted/20 cursor-pointer transition-colors"
-                        onClick={() => handleConvClick(conv.id)}
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <List className="h-4 w-4" />
+              Lista operativa de convocatorias
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Vista estructurada para planificación: curso, sede, aula, docente, fechas, horario, precio y plazas. La creación valida conflictos antes de guardar.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {listMessage ? (
+              <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
+                {listMessage}
+              </div>
+            ) : null}
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1280px] text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/30">
+                    <th className="text-left p-2 font-medium">Código</th>
+                    <th className="text-left p-2 font-medium min-w-[260px]">Curso / ciclo</th>
+                    <th className="text-left p-2 font-medium">Sede</th>
+                    <th className="text-left p-2 font-medium">Aula</th>
+                    <th className="text-left p-2 font-medium">Docente</th>
+                    <th className="text-left p-2 font-medium">Inicio</th>
+                    <th className="text-left p-2 font-medium">Fin</th>
+                    <th className="text-left p-2 font-medium">Día</th>
+                    <th className="text-left p-2 font-medium">Horario</th>
+                    <th className="text-right p-2 font-medium">Precio</th>
+                    <th className="text-center p-2 font-medium">Plazas</th>
+                    <th className="text-center p-2 font-medium">Estado</th>
+                    <th className="text-right p-2 font-medium">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b bg-muted/10 align-top">
+                    <td className="p-2 text-xs font-semibold text-muted-foreground">Nueva</td>
+                    <td className="p-2">
+                      <select
+                        value={draft.courseId}
+                        onChange={(event) => updateDraft({ courseId: event.target.value })}
+                        className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
                       >
-                        <td className="p-3">
-                          <p className="font-medium">{conv.curso}</p>
-                          <p className="text-xs text-muted-foreground sm:hidden">{conv.sede}</p>
-                        </td>
-                        <td className="p-3 text-muted-foreground hidden sm:table-cell">
-                          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{conv.sede}</span>
-                        </td>
-                        <td className="p-3 text-muted-foreground hidden md:table-cell whitespace-nowrap">
-                          {conv.fechaInicio ? new Date(conv.fechaInicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : '—'}
-                          {conv.fechaFin ? ` — ${new Date(conv.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })}` : ''}
-                        </td>
-                        <td className="p-3 text-muted-foreground hidden lg:table-cell">
-                          <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{conv.horaInicio}–{conv.horaFin}</span>
-                        </td>
-                        <td className="p-3 text-center">
-                          <span className="font-medium">{conv.inscritos}</span>
-                          <span className="text-muted-foreground">/{conv.plazas}</span>
-                          <div className="w-full h-1 bg-muted rounded-full mt-1">
-                            <div className={`h-1 rounded-full ${ocupacion >= 90 ? 'bg-primary' : ocupacion >= 70 ? 'bg-orange-500' : 'bg-green-500'}`} style={{ width: `${ocupacion}%` }} />
-                          </div>
-                        </td>
-                        <td className="p-3 text-center">
-                          <Badge className={`text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}>
-                            {STATUS_LABELS[conv.estado] || conv.estado}
-                          </Badge>
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
+                        <option value="">Seleccionar curso/ciclo</option>
+                        {courses.map((course) => (
+                          <option key={course.id} value={course.id}>{course.name}{course.tipo ? ` · ${course.tipo}` : ''}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="p-2">
+                      <select
+                        value={draft.campusId}
+                        onChange={(event) => updateDraft({ campusId: event.target.value, classroomId: '', instructorId: '' })}
+                        className="h-9 w-36 rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        <option value="">Sede</option>
+                        {campuses.map((campus) => (
+                          <option key={campus.id} value={campus.id}>{campus.name}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="p-2">
+                      <select
+                        value={draft.classroomId}
+                        onChange={(event) => {
+                          const room = filteredClassrooms.find((item) => item.id === event.target.value)
+                          updateDraft({ classroomId: event.target.value, maxStudents: room?.capacity ? String(room.capacity) : draft.maxStudents })
+                        }}
+                        className="h-9 w-36 rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        <option value="">Aula</option>
+                        {filteredClassrooms.map((classroom) => (
+                          <option key={classroom.id} value={classroom.id}>{classroom.name} · {classroom.capacity}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="p-2">
+                      <select
+                        value={draft.instructorId}
+                        onChange={(event) => updateDraft({ instructorId: event.target.value })}
+                        className="h-9 w-40 rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        <option value="">Docente</option>
+                        {filteredStaff.map((person) => (
+                          <option key={person.id} value={person.id}>{person.name}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="p-2"><input type="date" value={draft.startDate} onChange={(event) => updateDraft({ startDate: event.target.value })} className="h-9 w-32 rounded-md border border-input bg-background px-2 text-xs" /></td>
+                    <td className="p-2"><input type="date" value={draft.endDate} onChange={(event) => updateDraft({ endDate: event.target.value })} className="h-9 w-32 rounded-md border border-input bg-background px-2 text-xs" /></td>
+                    <td className="p-2">
+                      <select value={draft.day} onChange={(event) => updateDraft({ day: event.target.value })} className="h-9 w-28 rounded-md border border-input bg-background px-2 text-xs">
+                        {DAY_OPTIONS.map((day) => <option key={day.value} value={day.value}>{day.label}</option>)}
+                      </select>
+                    </td>
+                    <td className="p-2">
+                      <div className="flex gap-1">
+                        <input type="time" value={draft.timeStart} onChange={(event) => updateDraft({ timeStart: event.target.value })} className="h-9 w-24 rounded-md border border-input bg-background px-2 text-xs" />
+                        <input type="time" value={draft.timeEnd} onChange={(event) => updateDraft({ timeEnd: event.target.value })} className="h-9 w-24 rounded-md border border-input bg-background px-2 text-xs" />
+                      </div>
+                    </td>
+                    <td className="p-2"><input type="number" value={draft.price} onChange={(event) => updateDraft({ price: event.target.value })} className="h-9 w-24 rounded-md border border-input bg-background px-2 text-right text-xs" placeholder="€" /></td>
+                    <td className="p-2"><input type="number" value={draft.maxStudents} onChange={(event) => updateDraft({ maxStudents: event.target.value })} className="h-9 w-20 rounded-md border border-input bg-background px-2 text-center text-xs" /></td>
+                    <td className="p-2 text-center"><Badge variant="secondary">Borrador</Badge></td>
+                    <td className="p-2 text-right">
+                      <Button size="sm" onClick={createDraftConvocatoria} disabled={isSavingDraft}>
+                        {isSavingDraft ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Plus className="mr-2 h-3 w-3" />}
+                        Crear
+                      </Button>
+                    </td>
+                  </tr>
+                  {filtered.length === 0 ? (
+                    <tr><td colSpan={13} className="text-center py-8 text-muted-foreground">No hay convocatorias</td></tr>
+                  ) : (
+                    filtered.map((conv) => {
+                      const ocupacion = conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
+                      const dateStart = conv.fechaInicio ? new Date(conv.fechaInicio).toLocaleDateString('es-ES') : '—'
+                      const dateEnd = conv.fechaFin ? new Date(conv.fechaFin).toLocaleDateString('es-ES') : '—'
+                      return (
+                        <tr key={conv.id} className="border-b hover:bg-muted/20 transition-colors">
+                          <td className="p-2 font-mono text-xs text-muted-foreground">{conv.codigo || conv.id}</td>
+                          <td className="p-2">
+                            <p className="font-medium">{conv.curso}</p>
+                            <p className="text-xs text-muted-foreground">{conv.tipo || 'Curso'}</p>
+                          </td>
+                          <td className="p-2 text-muted-foreground"><span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{conv.sede}</span></td>
+                          <td className="p-2 text-muted-foreground">{conv.aula}</td>
+                          <td className="p-2 text-muted-foreground">{conv.profesor}</td>
+                          <td className="p-2 whitespace-nowrap">{dateStart}</td>
+                          <td className="p-2 whitespace-nowrap">{dateEnd}</td>
+                          <td className="p-2 text-muted-foreground">{conv.dias.map((day) => DAY_OPTIONS.find((item) => item.value === day)?.label ?? day).join(', ') || '—'}</td>
+                          <td className="p-2 text-muted-foreground"><span className="flex items-center gap-1"><Clock className="h-3 w-3" />{conv.horaInicio}–{conv.horaFin}</span></td>
+                          <td className="p-2 text-right">{conv.precio ? `${conv.precio.toLocaleString('es-ES')} €` : 'Consultar'}</td>
+                          <td className="p-2 text-center">
+                            <span className="font-medium">{conv.inscritos}</span>
+                            <span className="text-muted-foreground">/{conv.plazas}</span>
+                            <div className="mt-1 h-1 w-full rounded-full bg-muted">
+                              <div className={`h-1 rounded-full ${ocupacion >= 90 ? 'bg-primary' : ocupacion >= 70 ? 'bg-orange-500' : 'bg-green-500'}`} style={{ width: `${ocupacion}%` }} />
+                            </div>
+                          </td>
+                          <td className="p-2 text-center">
+                            <Badge className={`text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}>
+                              {STATUS_LABELS[conv.estado] || conv.estado}
+                            </Badge>
+                            {conv.planningStatus ? <p className="mt-1 text-[10px] text-muted-foreground">{conv.planningStatus}</p> : null}
+                          </td>
+                          <td className="p-2 text-right">
+                            <Button variant="outline" size="sm" onClick={() => handleConvClick(conv.id)}>
+                              Editar
+                            </Button>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
       )}

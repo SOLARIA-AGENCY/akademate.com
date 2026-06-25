@@ -23,6 +23,7 @@
     "seed:cep:content": "tsx scripts/seed-cep-editorial-content.ts",
     "seed:cep:planning": "tsx scripts/seed-cep-planning-v1.ts",
     "import:cep:planning": "tsx scripts/import-cep-planning-v1.ts",
+    "import:cep:convocatorias:xlsx": "tsx scripts/import-cep-convocatorias-xlsx.ts",
     "import:cep:course-programs": "tsx scripts/import-cep-course-programs.ts",
     "sync:nerea-illescas": "tsx scripts/sync-nerea-illescas.ts",
     "sync:lucia-corominas": "tsx scripts/sync-lucia-corominas.ts",
