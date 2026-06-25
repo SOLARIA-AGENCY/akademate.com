@@ -52,6 +52,19 @@ interface CycleDetail {
   slug?: string
 }
 
+interface CycleAreaInfo {
+  area: string
+  areaColor: string
+  areaCode?: string
+}
+
+interface CourseAreaApiItem {
+  cycleId?: string | number | null
+  area?: string
+  areaColor?: string
+  areaCode?: string
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -70,7 +83,7 @@ const MODALITY_LABELS: Record<string, string> = {
 }
 
 const MODULE_TYPE_COLORS: Record<string, string> = {
-  troncal: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  troncal: 'bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary',
   optativo: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
   transversal: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
   fct: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
@@ -97,6 +110,20 @@ function resolveImageUrl(image: CycleDetail['image']): string | null {
     if (image.filename) return `/api/media/file/${image.filename}`
   }
   return null
+}
+
+function validAreaColor(value?: string | null): string {
+  return /^#[0-9A-Fa-f]{6}$/.test(value ?? '') ? value! : '#64748B'
+}
+
+function AreaBadge({ area }: { area: CycleAreaInfo | null }) {
+  const color = validAreaColor(area?.areaColor)
+  return (
+    <Badge variant="outline" className="gap-1.5 border-border bg-background">
+      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+      {area?.area || 'Área por definir'}
+    </Badge>
+  )
 }
 
 function formatSchoolYears(courses?: number, modality?: string): string | null {
@@ -186,6 +213,7 @@ export default function CicloDetallePage({ params }: Props) {
   const { id } = React.use(params)
 
   const [cycle, setCycle] = React.useState<CycleDetail | null>(null)
+  const [cycleArea, setCycleArea] = React.useState<CycleAreaInfo | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -197,6 +225,20 @@ export default function CicloDetallePage({ params }: Props) {
         if (!res.ok) throw new Error('No se pudo cargar el ciclo')
         const data = await res.json()
         if (mounted) setCycle(data.doc ?? data)
+
+        const coursesRes = await fetch('/api/cursos?includeInactive=true&includeCycles=true&limit=1000', { cache: 'no-store' })
+        if (coursesRes.ok) {
+          const coursesData = await coursesRes.json() as { data?: CourseAreaApiItem[] }
+          const course = (Array.isArray(coursesData.data) ? coursesData.data : [])
+            .find((item) => String(item.cycleId ?? '') === String(id))
+          if (mounted && course) {
+            setCycleArea({
+              area: course.area || 'Área por definir',
+              areaColor: validAreaColor(course.areaColor),
+              areaCode: course.areaCode,
+            })
+          }
+        }
       } catch (err) {
         if (mounted) setError(err instanceof Error ? err.message : 'Error')
       } finally {
@@ -323,7 +365,13 @@ export default function CicloDetallePage({ params }: Props) {
       ================================================================ */}
       <div className="cycle-screen-only">
       {(imageUrl || cycle.description) && (
-        <Card>
+        <Card className="relative overflow-hidden">
+          <div
+            aria-hidden="true"
+            data-cycle-area-accent
+            className="absolute inset-y-0 right-0 z-10 w-2"
+            style={{ backgroundColor: validAreaColor(cycleArea?.areaColor) }}
+          />
           <CardContent className="p-0 overflow-hidden">
             {imageUrl && (
               <div className="w-full h-56 sm:h-72 xl:h-80 bg-muted">
@@ -351,6 +399,7 @@ export default function CicloDetallePage({ params }: Props) {
       ================================================================ */}
       <Section title="Informacion General" icon={BookOpen}>
         <div className="grid gap-x-8 gap-y-1 sm:grid-cols-2">
+          <InfoRow label="Área"><AreaBadge area={cycleArea} /></InfoRow>
           <InfoRow label="Nivel">
             <Badge variant="outline">{LEVEL_LABELS[cycle.level] ?? cycle.level}</Badge>
           </InfoRow>

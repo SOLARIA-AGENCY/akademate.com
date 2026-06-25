@@ -19,6 +19,7 @@ type CoursesCatalogViewProps = {
   fallbackColor: string
   defaultViewMode?: 'grid' | 'list'
   hideViewToggle?: boolean
+  compactListItems?: boolean
 }
 
 export function CoursesCatalogView({
@@ -27,6 +28,7 @@ export function CoursesCatalogView({
   fallbackColor: _fallbackColor,
   defaultViewMode = 'grid',
   hideViewToggle = false,
+  compactListItems = false,
 }: CoursesCatalogViewProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(defaultViewMode)
 
@@ -78,7 +80,7 @@ export function CoursesCatalogView({
             ) : (
               <div className="grid gap-5">
                 {group.courses.map((course) => (
-                  <CoursePublicListItem key={course.id} course={course} />
+                  <CoursePublicListItem key={course.id} course={course} compact={compactListItems} />
                 ))}
               </div>
             )}

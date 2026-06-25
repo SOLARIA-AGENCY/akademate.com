@@ -236,8 +236,8 @@ function CursosPageContent() {
       title: 'Cursos Desempleados',
       description: 'Formación gratuita para personas en situación de desempleo',
       icon: Building2,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-50 dark:bg-blue-950',
+      color: 'text-primary',
+      bgColor: 'bg-primary/10 dark:bg-primary/15',
     },
     teleformacion: {
       title: 'Cursos Teleformación',

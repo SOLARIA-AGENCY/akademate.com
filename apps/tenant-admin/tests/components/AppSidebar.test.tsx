@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
 // Mock dependencies BEFORE importing the component
 vi.mock('@/app/providers/tenant-branding', () => ({
@@ -56,6 +56,9 @@ describe('AppSidebar', () => {
     expect(screen.getAllByText('Cursos').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Ciclos').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Sedes').length).toBeGreaterThan(0)
+    expect(screen.getByText('Profesores')).toBeInTheDocument()
+    expect(screen.getByText('Administrativos')).toBeInTheDocument()
+    expect(screen.queryByText('Personal')).not.toBeInTheDocument()
   })
 
   it('does not render logout button (removed from sidebar)', () => {
@@ -77,6 +80,15 @@ describe('AppSidebar', () => {
   it('shows collapsed state correctly', () => {
     render(<AppSidebar {...defaultProps} isCollapsed={true} />)
     expect(screen.getByAltText('Test Academy')).toBeInTheDocument()
+  })
+
+  it('keeps submenu entries reachable when collapsed', () => {
+    render(<AppSidebar {...defaultProps} isCollapsed={true} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Marketing' }))
+
+    expect(screen.getByRole('button', { name: /Campañas/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Creatividades/i })).toBeInTheDocument()
   })
 
   it('renders icons with brand color styles', () => {

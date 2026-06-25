@@ -125,8 +125,8 @@ const estadoConfig: Record<
 > = {
   en_lista: {
     label: 'En Lista',
-    color: 'text-blue-700 dark:text-blue-300',
-    bgColor: 'bg-blue-100 dark:bg-blue-950',
+    color: 'text-primary dark:text-primary',
+    bgColor: 'bg-primary/10 dark:bg-primary/15',
     icon: Clock,
   },
   notificado: {
@@ -339,10 +339,10 @@ export default function ListaEsperaPage() {
         <Card data-oid="er9d4t7">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2" data-oid="73t_ek8">
             <CardTitle className="text-sm font-medium" data-oid="x3i5z4u">Esperando Plaza</CardTitle>
-            <Clock className="h-4 w-4 text-blue-500" data-oid="pxt59_:" />
+            <Clock className="h-4 w-4 text-primary" data-oid="pxt59_:" />
           </CardHeader>
           <CardContent data-oid="ohskkj-">
-            <div className="text-2xl font-bold text-blue-600" data-oid="v4.e_jc">{stats.enLista}</div>
+            <div className="text-2xl font-bold text-primary" data-oid="v4.e_jc">{stats.enLista}</div>
             <p className="text-xs text-muted-foreground" data-oid="6:t9phj">activos en lista</p>
           </CardContent>
         </Card>
@@ -610,13 +610,13 @@ export default function ListaEsperaPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg border border-blue-200 bg-blue-50" data-oid="_o1gwur">
-                <CalendarClock className="h-5 w-5 text-blue-600 mt-0.5" data-oid="xh2hdb2" />
+              <div className="flex items-start gap-3 p-3 rounded-lg border border-primary/20 bg-primary/10" data-oid="_o1gwur">
+                <CalendarClock className="h-5 w-5 text-primary mt-0.5" data-oid="xh2hdb2" />
                 <div data-oid="4s8:adp">
-                  <p className="font-medium text-blue-900" data-oid="v0gg-g1">
+                  <p className="font-medium text-primary" data-oid="v0gg-g1">
                     {pendingActions.sinContactar} sin contactar
                   </p>
-                  <p className="text-sm text-blue-800" data-oid="jwe_d15">
+                  <p className="text-sm text-primary" data-oid="jwe_d15">
                     Sin contacto en más de 7 días desde su entrada.
                   </p>
                 </div>

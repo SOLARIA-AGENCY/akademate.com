@@ -126,6 +126,7 @@ export interface DashboardToolbarProps {
   onSearchChange?: (value: string) => void
   searchPlaceholder?: string
   filters?: React.ReactNode
+  clearAction?: React.ReactNode
   actions?: React.ReactNode
   viewToggle?: React.ReactNode
   className?: string
@@ -136,6 +137,7 @@ export function DashboardToolbar({
   onSearchChange,
   searchPlaceholder = 'Buscar...',
   filters,
+  clearAction,
   actions,
   viewToggle,
   className,
@@ -156,7 +158,8 @@ export function DashboardToolbar({
             </div>
           ) : null}
           {filters ? <div className="flex flex-1 flex-wrap items-center gap-3 xl:flex-none">{filters}</div> : null}
-          {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+          {clearAction ? <div className="flex flex-wrap items-center gap-2">{clearAction}</div> : null}
+          {actions ? <div className="flex flex-wrap items-center gap-2 xl:ml-auto">{actions}</div> : null}
           {viewToggle ? <div className="ml-auto flex items-center">{viewToggle}</div> : null}
         </div>
       </CardContent>
@@ -165,6 +168,117 @@ export function DashboardToolbar({
 }
 
 export const DashboardEntityHeader = DashboardPageHeader
+
+export interface DashboardTitleCardProps {
+  title: string
+  description?: string
+  actions?: React.ReactNode
+  className?: string
+}
+
+export function DashboardTitleCard({
+  title,
+  description,
+  actions,
+  className,
+}: DashboardTitleCardProps) {
+  return (
+    <Card className={cn('border-border/80 shadow-sm', className)}>
+      <CardContent className="p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h1>
+            {description ? (
+              <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">{description}</p>
+            ) : null}
+          </div>
+          {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+export interface DashboardStatItem {
+  label: string
+  value: React.ReactNode
+  description?: React.ReactNode
+  icon?: LucideIcon
+  tone?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'
+}
+
+const statToneClass: Record<NonNullable<DashboardStatItem['tone']>, string> = {
+  default: 'text-foreground',
+  primary: 'text-primary',
+  success: 'text-emerald-600',
+  warning: 'text-amber-600',
+  danger: 'text-destructive',
+  info: 'text-primary',
+}
+
+export function DashboardStatsGrid({
+  items,
+  className,
+}: {
+  items: DashboardStatItem[]
+  className?: string
+}) {
+  if (!items.length) return null
+
+  return (
+    <div className={cn('grid gap-4 sm:grid-cols-2 xl:grid-cols-4', className)}>
+      {items.map((item) => {
+        const Icon = item.icon
+        const tone = item.tone ?? 'default'
+        return (
+          <Card key={item.label} className="border-border/80 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-muted-foreground">{item.label}</p>
+                  <div className={cn('mt-1 text-2xl font-bold leading-none', statToneClass[tone])}>
+                    {item.value}
+                  </div>
+                  {item.description ? (
+                    <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
+                  ) : null}
+                </div>
+                {Icon ? <Icon className={cn('h-5 w-5 shrink-0 opacity-70', statToneClass[tone])} /> : null}
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })}
+    </div>
+  )
+}
+
+export function DashboardListingLayout({
+  title,
+  description,
+  actions,
+  stats,
+  toolbar,
+  children,
+  className,
+}: {
+  title: string
+  description?: string
+  actions?: React.ReactNode
+  stats?: DashboardStatItem[]
+  toolbar?: React.ReactNode
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={cn('space-y-6', className)}>
+      <DashboardTitleCard title={title} description={description} actions={actions} />
+      {stats ? <DashboardStatsGrid items={stats} /> : null}
+      {toolbar}
+      {children}
+    </div>
+  )
+}
 
 export function DashboardListingShell({
   header,

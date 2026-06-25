@@ -132,7 +132,7 @@ body:not([data-payload-admin]) {
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary — blue-700 #1D4ED8 */
+    /* Primary tenant token */
     --primary: 224 71% 48%;
     --primary-foreground: 0 0% 100%;
 
@@ -192,7 +192,7 @@ body:not([data-payload-admin]) {
     --popover: 222 47% 10%;
     --popover-foreground: 210 40% 98%;
 
-    /* Primary dark — blue-500 brightened for AA */
+    /* Primary dark tenant token */
     --primary: 221 83% 63%;
     --primary-foreground: 0 0% 100%;
 
@@ -238,6 +238,16 @@ body:not([data-payload-admin]) {
 
     /* Tenant brand dark */
     --brand-accent: 221 83% 63%;
+    --brand-accent-foreground: 0 0% 100%;
+  }
+
+  body.profesores-route:not([data-payload-admin]) {
+    --primary: 0 100% 42%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 0 100% 42%;
+    --sidebar-primary: 0 100% 42%;
+    --sidebar-ring: 0 100% 42%;
+    --brand-accent: 0 100% 42%;
     --brand-accent-foreground: 0 0% 100%;
   }
 }

@@ -5,6 +5,7 @@ import {
   StaffCampusBadge,
   StaffContractBadge,
   StaffCountBadge,
+  StaffAreaBadge,
   StaffStatusBadge,
 } from '../../@payload-config/components/ui/StaffBadges'
 
@@ -48,5 +49,17 @@ describe('StaffBadges', () => {
     expect(screen.getByText('2 convocatorias').closest('[data-testid="badge"]')).toHaveClass(
       'w-[8.75rem]'
     )
+  })
+
+  it('renderiza badges de area con color estable por semilla', () => {
+    render(
+      <div>
+        <StaffAreaBadge seed="ODO-HIG">Odontología e Higiene Bucodental</StaffAreaBadge>
+        <StaffAreaBadge seed="SAN">Sanidad</StaffAreaBadge>
+      </div>
+    )
+
+    expect(screen.getByText('Odontología e Higiene Bucodental')).toHaveClass('truncate')
+    expect(screen.getByText('Sanidad').closest('[data-testid="badge"]')).toHaveClass('rounded-full')
   })
 })

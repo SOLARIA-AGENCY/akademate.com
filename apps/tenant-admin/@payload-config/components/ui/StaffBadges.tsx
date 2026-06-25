@@ -93,6 +93,46 @@ export function StaffCampusBadge({
   )
 }
 
+const areaBadgeStyles = [
+  'border-emerald-200 bg-emerald-50 text-emerald-800',
+  'border-violet-200 bg-violet-50 text-violet-800',
+  'border-amber-200 bg-amber-50 text-amber-800',
+  'border-rose-200 bg-rose-50 text-rose-800',
+  'border-red-200 bg-red-50 text-red-800',
+  'border-slate-200 bg-slate-50 text-slate-800',
+]
+
+function getAreaStyle(seed: string | number) {
+  const value = String(seed)
+  const hash = value.split('').reduce((total, char) => total + char.charCodeAt(0), 0)
+  return areaBadgeStyles[hash % areaBadgeStyles.length]
+}
+
+export function StaffAreaBadge({
+  children,
+  seed,
+  className,
+  ...props
+}: {
+  children: React.ReactNode
+  seed: string | number
+  className?: string
+} & React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        'h-6 max-w-full justify-center rounded-full px-2.5 text-[11px] font-semibold leading-none',
+        getAreaStyle(seed),
+        className
+      )}
+      {...props}
+    >
+      <span className="truncate">{children}</span>
+    </Badge>
+  )
+}
+
 export function StaffCountBadge({
   count,
   label = 'convocatorias',

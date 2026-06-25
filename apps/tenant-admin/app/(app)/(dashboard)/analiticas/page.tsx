@@ -405,7 +405,7 @@ function GraficaVisitantesTiempo({
                 size="sm"
                 onClick={() => setVisible((prev) => ({ ...prev, facebook: !prev.facebook }))}
                 className={`h-7 gap-1 px-2 text-xs ${
-                  visible.facebook ? 'border-blue-300 bg-blue-50 text-blue-800' : 'border-border text-muted-foreground'
+                  visible.facebook ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border text-muted-foreground'
                 }`}
               >
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS.facebook }} />
@@ -675,7 +675,7 @@ function HourlyDistributionChart({ points }: { points: Array<{ hourLabel: string
 function alertBadgeClass(severity: DataQualityAlert['severity']): string {
   if (severity === 'critical') return 'bg-red-600 text-white'
   if (severity === 'warning') return 'bg-amber-500 text-black'
-  return 'bg-blue-600 text-white'
+  return 'bg-primary text-primary-foreground'
 }
 
 function alertLabel(severity: DataQualityAlert['severity']): string {

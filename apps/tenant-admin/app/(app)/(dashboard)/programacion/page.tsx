@@ -66,7 +66,7 @@ const HOURS = Array.from({ length: 14 }, (_, i) => i + 8) // 8:00 - 21:00
 const STATUS_COLORS: Record<string, string> = {
   published: 'bg-green-500',
   enrollment_open: 'bg-green-500',
-  in_progress: 'bg-blue-500',
+  in_progress: 'bg-primary',
   draft: 'bg-gray-400',
   completed: 'bg-gray-300',
   cancelled: 'bg-red-400',

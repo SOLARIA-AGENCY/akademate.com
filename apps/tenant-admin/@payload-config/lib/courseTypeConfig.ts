@@ -7,7 +7,7 @@
  * COLOR MAPPING:
  * - PRIVADOS: RED (bg-red-600) - Private paid courses
  * - OCUPADOS: GREEN (bg-green-600) - Employed workers (100% subsidized)
- * - DESEMPLEADOS: BLUE (bg-blue-600) - Unemployed workers (free)
+ * - DESEMPLEADOS: BLUE (bg-primary) - Unemployed workers (free)
  * - TELEFORMACIÓN: ORANGE (bg-orange-600) - Online/remote courses
  * - CICLO MEDIO: PINK/RED (bg-red-500) - Mid-level vocational training
  * - CICLO SUPERIOR: RED (bg-red-600) - Advanced vocational training
@@ -43,11 +43,11 @@ export const COURSE_TYPE_CONFIG = {
   },
   desempleados: {
     label: 'DESEMPLEADOS',
-    bgColor: 'bg-blue-600',
-    hoverColor: 'hover:bg-blue-700',
-    textColor: 'text-blue-600',
-    borderColor: 'border-blue-600',
-    dotColor: 'bg-blue-600',
+    bgColor: 'bg-primary',
+    hoverColor: 'hover:bg-primary',
+    textColor: 'text-primary',
+    borderColor: 'border-primary',
+    dotColor: 'bg-primary',
     badgeVariant: 'warning' as BadgeSemanticVariant,
   },
   teleformacion: {

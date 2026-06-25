@@ -8,7 +8,7 @@ const CONFIG: Record<CampaignState, { label: string; dotClass: string; textClass
   active: { label: 'Campaña activa', dotClass: 'bg-green-500 animate-pulse', textClass: 'text-green-600' },
   paused: { label: 'Campaña en pausa', dotClass: 'bg-yellow-500', textClass: 'text-yellow-600' },
   draft: { label: 'Campaña borrador', dotClass: 'bg-gray-400', textClass: 'text-muted-foreground' },
-  completed: { label: 'Campaña finalizada', dotClass: 'bg-blue-500', textClass: 'text-blue-600' },
+  completed: { label: 'Campaña finalizada', dotClass: 'bg-primary', textClass: 'text-primary' },
   archived: { label: 'Campaña archivada', dotClass: 'bg-gray-300', textClass: 'text-muted-foreground' },
   none: { label: 'Sin campaña', dotClass: '', textClass: 'text-muted-foreground/50' },
 }

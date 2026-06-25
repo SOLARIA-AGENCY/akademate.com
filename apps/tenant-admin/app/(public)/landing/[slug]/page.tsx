@@ -328,7 +328,7 @@ export default async function LandingPage({
             className="absolute inset-0 w-full h-full object-cover opacity-40"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/50 to-gray-900/30" />
 
@@ -454,7 +454,7 @@ export default async function LandingPage({
                           {mod.courseYear ? `${mod.courseYear}o curso` : ''}{mod.type ? ` - ${mod.type}` : ''}
                         </p>
                       </div>
-                      <span className="ml-3 flex-shrink-0 rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                      <span className="ml-3 flex-shrink-0 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
                         {mod.hours}h
                       </span>
                     </div>
@@ -494,7 +494,7 @@ export default async function LandingPage({
                 <ul className="space-y-2.5">
                   {cycle.requirements.map((req, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span className="text-sm text-gray-700">{req.text}</span>
@@ -514,12 +514,12 @@ export default async function LandingPage({
                   {campus.city && <p className="text-sm text-gray-600">{campus.city}</p>}
                   {campus.phone && (
                     <p className="text-sm text-gray-600 mt-2">
-                      Tel: <a href={`tel:${campus.phone}`} className="text-blue-600 hover:underline">{campus.phone}</a>
+                      Tel: <a href={`tel:${campus.phone}`} className="text-primary hover:underline">{campus.phone}</a>
                     </p>
                   )}
                   {campus.email && (
                     <p className="text-sm text-gray-600">
-                      Email: <a href={`mailto:${campus.email}`} className="text-blue-600 hover:underline">{campus.email}</a>
+                      Email: <a href={`mailto:${campus.email}`} className="text-primary hover:underline">{campus.email}</a>
                     </p>
                   )}
                 </div>

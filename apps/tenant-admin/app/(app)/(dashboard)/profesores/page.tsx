@@ -4,8 +4,11 @@ import { useRef, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { DashboardToolbar } from '@payload-config/components/akademate/dashboard'
+import {
+  DashboardListingLayout,
+  DashboardToolbar,
+  type DashboardStatItem,
+} from '@payload-config/components/akademate/dashboard'
 import {
   Select,
   SelectContent,
@@ -91,7 +94,7 @@ export default function ProfesoresPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // View preference
-  const [view, setView] = useViewPreference('profesores')
+  const [view, setView] = useViewPreference('profesores', 'list')
 
   // Data state
   const [teachersExpanded, setTeachersExpanded] = useState<TeacherExpanded[]>([])
@@ -107,6 +110,15 @@ export default function ProfesoresPage() {
   const [filterStatus, setFilterStatus] = useState('all')
 
   // Load staff data from API
+  useEffect(() => {
+    document.body.classList.add('profesores-route')
+    setView('list')
+
+    return () => {
+      document.body.classList.remove('profesores-route')
+    }
+  }, [setView])
+
   useEffect(() => {
     async function loadProfessors() {
       try {
@@ -223,6 +235,23 @@ export default function ProfesoresPage() {
     return matchesSearch && matchesDepartment && matchesStatus
   })
 
+  const stats: DashboardStatItem[] = [
+    { label: 'Total profesores', value: teachersExpanded.length, icon: User },
+    {
+      label: 'Activos',
+      value: teachersExpanded.filter((teacher) => teacher.active).length,
+      icon: User,
+      tone: 'success',
+    },
+    {
+      label: 'Sin área habilitada',
+      value: teachersExpanded.filter((teacher) => (teacher.qualifiedAreas ?? []).length === 0).length,
+      icon: User,
+      tone: 'warning',
+    },
+    { label: 'Visibles', value: filteredTeachers.length, icon: User },
+  ]
+
   // Show loading state
   if (loading) {
     return (
@@ -259,39 +288,102 @@ export default function ProfesoresPage() {
   }
 
   return (
-    <div className="space-y-6" data-oid="e2l0769">
-      <PageHeader
-        title="Profesores"
-        icon={User}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx,.xls"
-              className="hidden"
-              onChange={(event) => setSelectedImportFile(event.target.files?.[0] ?? null)}
-            />
-            <Button type="button" variant="outline" disabled={importing} onClick={() => fileInputRef.current?.click()}>
-              <Upload className="h-4 w-4" />
-              {selectedImportFile ? selectedImportFile.name : 'Excel personal'}
-            </Button>
-            <Button type="button" variant="outline" disabled={importing || !selectedImportFile} onClick={() => void runImport(false)}>
-              {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Auditar Excel
-            </Button>
-            <Button type="button" variant="outline" disabled={importing || !selectedImportFile} onClick={() => void runImport(true)}>
-              Aplicar Excel
-            </Button>
-            <Button onClick={handleAdd} data-oid="p6j7z6w">
-              <Plus className="h-4 w-4" data-oid="f-mq7s4" />
-              Nuevo Profesor
-            </Button>
-          </div>
-        }
-        data-oid="i_jz_am"
-      />
+    <DashboardListingLayout
+      title="Profesores"
+      description="Gestión del equipo docente, áreas habilitadas y estado operativo."
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={(event) => setSelectedImportFile(event.target.files?.[0] ?? null)}
+          />
+          <Button type="button" variant="outline" disabled={importing} onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4" />
+            {selectedImportFile ? selectedImportFile.name : 'Excel personal'}
+          </Button>
+          <Button type="button" variant="outline" disabled={importing || !selectedImportFile} onClick={() => void runImport(false)}>
+            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Auditar Excel
+          </Button>
+          <Button type="button" variant="outline" disabled={importing || !selectedImportFile} onClick={() => void runImport(true)}>
+            Aplicar Excel
+          </Button>
+          <Button onClick={handleAdd} data-oid="p6j7z6w">
+            <Plus className="h-4 w-4" data-oid="f-mq7s4" />
+            Nuevo Profesor
+          </Button>
+        </div>
+      }
+      stats={stats}
+      toolbar={
+        <DashboardToolbar
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Buscar por nombre, email, departamento..."
+          filters={
+            <>
+              <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="mrhrz82">
+                <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="9cxbj.j">
+                  <SelectValue placeholder="Todos los departamentos" data-oid="d9jzw43" />
+                </SelectTrigger>
+                <SelectContent data-oid="el2al_u">
+                  <SelectItem value="all" data-oid="r-jroyq">
+                    Todos los departamentos
+                  </SelectItem>
+                  {departments.map((dept) => (
+                    <SelectItem key={dept} value={dept} data-oid="a.:d.aa">
+                      {dept}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
+              <Select value={filterStatus} onValueChange={setFilterStatus} data-oid="h95d028">
+                <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="hfo3rek">
+                  <SelectValue placeholder="Todos los estados" data-oid="sbtozd9" />
+                </SelectTrigger>
+                <SelectContent data-oid="7b:8uhb">
+                  <SelectItem value="all" data-oid="f-e6w5g">
+                    Todos los estados
+                  </SelectItem>
+                  <SelectItem value="active" data-oid="tm3l5zf">
+                    Activos
+                  </SelectItem>
+                  <SelectItem value="inactive" data-oid="z4_gy17">
+                    Inactivos
+                  </SelectItem>
+                  <SelectItem value="temporary_leave">Baja temporal</SelectItem>
+                  <SelectItem value="pending_review">Pendientes de revisión</SelectItem>
+                  <SelectItem value="ambiguous">Coincidencias dudosas</SelectItem>
+                  <SelectItem value="retired_candidate">Bajas detectadas</SelectItem>
+                  <SelectItem value="missing_area">Sin área habilitada</SelectItem>
+                </SelectContent>
+              </Select>
+            </>
+          }
+          clearAction={
+            searchTerm || filterDepartment !== 'all' || filterStatus !== 'all' ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm('')
+                  setFilterDepartment('all')
+                  setFilterStatus('all')
+                }}
+                data-oid="0d.n:bw"
+              >
+                Limpiar filtros
+              </Button>
+            ) : null
+          }
+          viewToggle={<ViewToggle view={view} onViewChange={setView} data-oid="3q7lfq3" />}
+        />
+      }
+    >
       {importResult ? (
         <Card className={importResult.success === false ? 'border-destructive/30 bg-destructive/5' : 'border-emerald-200 bg-emerald-50'}>
           <CardContent className="pt-6 text-sm">
@@ -316,72 +408,8 @@ export default function ProfesoresPage() {
         </Card>
       ) : null}
 
-      <DashboardToolbar
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder="Buscar por nombre, email, departamento..."
-        filters={
-          <>
-            <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="mrhrz82">
-              <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="9cxbj.j">
-                <SelectValue placeholder="Todos los departamentos" data-oid="d9jzw43" />
-              </SelectTrigger>
-              <SelectContent data-oid="el2al_u">
-                <SelectItem value="all" data-oid="r-jroyq">
-                  Todos los departamentos
-                </SelectItem>
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept} data-oid="a.:d.aa">
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filterStatus} onValueChange={setFilterStatus} data-oid="h95d028">
-              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="hfo3rek">
-                <SelectValue placeholder="Todos los estados" data-oid="sbtozd9" />
-              </SelectTrigger>
-              <SelectContent data-oid="7b:8uhb">
-                <SelectItem value="all" data-oid="f-e6w5g">
-                  Todos los estados
-                </SelectItem>
-                <SelectItem value="active" data-oid="tm3l5zf">
-                  Activos
-                </SelectItem>
-                <SelectItem value="inactive" data-oid="z4_gy17">
-                  Inactivos
-                </SelectItem>
-                <SelectItem value="temporary_leave">Baja temporal</SelectItem>
-                <SelectItem value="pending_review">Pendientes de revisión</SelectItem>
-                <SelectItem value="ambiguous">Coincidencias dudosas</SelectItem>
-                <SelectItem value="retired_candidate">Bajas detectadas</SelectItem>
-                <SelectItem value="missing_area">Sin área habilitada</SelectItem>
-              </SelectContent>
-            </Select>
-          </>
-        }
-        actions={
-          searchTerm || filterDepartment !== 'all' || filterStatus !== 'all' ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSearchTerm('')
-                setFilterDepartment('all')
-                setFilterStatus('all')
-              }}
-              data-oid="0d.n:bw"
-            >
-              Limpiar filtros
-            </Button>
-          ) : null
-        }
-        viewToggle={<ViewToggle view={view} onViewChange={setView} data-oid="3q7lfq3" />}
-      />
-
       {view === 'grid' ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-oid="39mqpx7">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" data-oid="39mqpx7">
           {filteredTeachers.map((teacher) => (
             <StaffCard
               key={teacher.id}
@@ -392,8 +420,8 @@ export default function ProfesoresPage() {
               contractType={teacher.contractType}
               employmentStatus={teacher.active ? 'active' : teacher.employmentStatus}
               photo={teacher.photo}
-              email={teacher.email || 'Sin email'}
-              phone={teacher.phone || 'Sin teléfono'}
+              email={teacher.email}
+              phone={teacher.phone}
               assignedCampuses={teacher.assignedCampuses}
               courseRunsCount={teacher.courseRunsCount}
               qualifiedAreas={teacher.qualifiedAreas ?? []}
@@ -429,6 +457,6 @@ export default function ProfesoresPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </DashboardListingLayout>
   )
 }

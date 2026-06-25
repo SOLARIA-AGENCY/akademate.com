@@ -433,7 +433,7 @@ export function MediaBrowser({
                   <div
                     className={`
                       absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full border-2
-                      ${localSelection.has(item.id) ? 'border-primary bg-primary text-white' : 'border-white bg-white/50 opacity-0 group-hover:opacity-100'}
+                      ${localSelection.has(item.id) ? 'border-primary bg-primary text-primary-foreground' : 'border-white bg-white/50 opacity-0 group-hover:opacity-100'}
                     `}
                     data-oid="kqy_xky"
                   >

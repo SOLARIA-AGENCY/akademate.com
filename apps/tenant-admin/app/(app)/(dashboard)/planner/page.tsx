@@ -82,7 +82,7 @@ interface KanbanColumn {
 const COLUMNS_CONFIG: { key: string; label: string; color: string; bgColor: string }[] = [
   { key: 'draft', label: 'Sin publicar', color: 'border-gray-400', bgColor: 'bg-gray-50 dark:bg-gray-900/30' },
   { key: 'enrollment_open', label: 'Inscripcion Abierta', color: 'border-green-500', bgColor: 'bg-green-50 dark:bg-green-900/20' },
-  { key: 'in_progress', label: 'En Curso', color: 'border-blue-500', bgColor: 'bg-blue-50 dark:bg-blue-900/20' },
+  { key: 'in_progress', label: 'En Curso', color: 'border-primary/50', bgColor: 'bg-primary/10 dark:bg-primary/15' },
   { key: 'completed', label: 'Completada', color: 'border-gray-300', bgColor: 'bg-gray-50/50 dark:bg-gray-900/10' },
   { key: 'cancelled', label: 'Cancelada', color: 'border-red-400', bgColor: 'bg-red-50/50 dark:bg-red-900/10' },
 ]
@@ -101,8 +101,8 @@ const COURSE_TYPE_STYLES: Record<string, { bar: string; bg: string; text: string
   privados: { bar: 'bg-[#f2014b]', bg: 'bg-rose-50', text: 'text-rose-950', border: 'border-rose-200' },
   privado: { bar: 'bg-[#f2014b]', bg: 'bg-rose-50', text: 'text-rose-950', border: 'border-rose-200' },
   private: { bar: 'bg-[#f2014b]', bg: 'bg-rose-50', text: 'text-rose-950', border: 'border-rose-200' },
-  desempleados: { bar: 'bg-blue-600', bg: 'bg-blue-50', text: 'text-blue-950', border: 'border-blue-200' },
-  fped: { bar: 'bg-blue-600', bg: 'bg-blue-50', text: 'text-blue-950', border: 'border-blue-200' },
+  desempleados: { bar: 'bg-primary', bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/20' },
+  fped: { bar: 'bg-primary', bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/20' },
   ocupados: { bar: 'bg-emerald-600', bg: 'bg-emerald-50', text: 'text-emerald-950', border: 'border-emerald-200' },
   teleformacion: { bar: 'bg-orange-500', bg: 'bg-orange-50', text: 'text-orange-950', border: 'border-orange-200' },
   online: { bar: 'bg-orange-500', bg: 'bg-orange-50', text: 'text-orange-950', border: 'border-orange-200' },

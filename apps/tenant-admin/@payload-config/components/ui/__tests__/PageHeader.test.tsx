@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { User } from 'lucide-react'
-import { DashboardPageHeader } from '../../akademate/dashboard'
+import {
+  DashboardListingLayout,
+  DashboardPageHeader,
+  DashboardToolbar,
+} from '../../akademate/dashboard'
 import { Badge } from '../badge'
 import { PageHeader } from '../PageHeader'
 
@@ -50,5 +54,35 @@ describe('DashboardPageHeader', () => {
     expect(screen.queryByText('Calendario de convocatorias, horarios y ocupación')).not.toBeInTheDocument()
     expect(screen.queryByText('Gestión académica')).not.toBeInTheDocument()
     expect(screen.queryByText('3 activas')).not.toBeInTheDocument()
+  })
+})
+
+describe('Dashboard listing primitives', () => {
+  it('renders listing pages in title, stats, toolbar, content order', () => {
+    render(
+      <DashboardListingLayout
+        title="Sedes"
+        description="Vista simplificada para operación diaria."
+        stats={[{ label: 'Total sedes', value: 2, icon: User }]}
+        toolbar={
+          <DashboardToolbar
+            searchValue=""
+            onSearchChange={() => undefined}
+            searchPlaceholder="Buscar sedes..."
+          />
+        }
+      >
+        <section>Contenido listado</section>
+      </DashboardListingLayout>
+    )
+
+    const title = screen.getByRole('heading', { name: 'Sedes' })
+    const stat = screen.getByText('Total sedes')
+    const search = screen.getByPlaceholderText('Buscar sedes...')
+    const content = screen.getByText('Contenido listado')
+
+    expect(title.compareDocumentPosition(stat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(stat.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(search.compareDocumentPosition(content) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })

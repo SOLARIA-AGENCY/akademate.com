@@ -82,7 +82,7 @@ export function SubscriptionCard({
 
   const statusConfig: Record<SubscriptionStatusType, StatusConfigItem> = {
     active: { label: 'Activa', variant: 'default', color: 'bg-green-500' },
-    trialing: { label: 'Prueba', variant: 'secondary', color: 'bg-blue-500' },
+    trialing: { label: 'Prueba', variant: 'secondary', color: 'bg-primary' },
     past_due: { label: 'Pago Pendiente', variant: 'destructive', color: 'bg-orange-500' },
     canceled: { label: 'Cancelada', variant: 'secondary', color: 'bg-gray-500' },
     incomplete: { label: 'Incompleta', variant: 'destructive', color: 'bg-red-500' },
@@ -149,15 +149,15 @@ export function SubscriptionCard({
 
         {subscription.cancelAtPeriodEnd && (
           <div
-            className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4"
+            className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/10 p-4"
             data-oid="9kxx3su"
           >
-            <AlertCircle className="h-5 w-5 text-blue-500" data-oid="1v-i1oj" />
+            <AlertCircle className="h-5 w-5 text-primary" data-oid="1v-i1oj" />
             <div className="flex-1" data-oid="w_j:91x">
-              <p className="font-medium text-blue-800" data-oid="jiygbhe">
+              <p className="font-medium text-primary" data-oid="jiygbhe">
                 Cancelación Programada
               </p>
-              <p className="text-sm text-blue-600" data-oid="f_gm:p.">
+              <p className="text-sm text-primary" data-oid="f_gm:p.">
                 Tu suscripción se cancelará el {formatDate(subscription.currentPeriodEnd)}
               </p>
             </div>

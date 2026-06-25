@@ -112,8 +112,8 @@ type QueueFilter =
 const STATUS_CONFIG: Record<string, { label: string; dot: string; badge: string }> = {
   new: {
     label: 'Nuevo',
-    dot: 'bg-blue-500',
-    badge: 'bg-blue-100 text-blue-800 border border-blue-300',
+    dot: 'bg-primary',
+    badge: 'bg-primary/10 text-primary border border-primary/30',
   },
   contacted: {
     label: 'Contactado',
@@ -163,7 +163,7 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; badge: string 
 }
 
 const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
-  lead: { label: 'Lead', color: 'bg-blue-100 text-blue-800 border border-blue-300' },
+  lead: { label: 'Lead', color: 'bg-primary/10 text-primary border border-primary/30' },
   inscripcion: {
     label: 'Inscripcion',
     color: 'bg-orange-100 text-orange-800 border border-orange-300',
@@ -910,7 +910,7 @@ export default function LeadsPage() {
               if (advisorName !== 'Sin asignar') {
                 cardBadges.push({
                   label: `Asesor: ${advisorName}`,
-                  className: 'bg-indigo-100 text-indigo-800',
+                  className: 'bg-primary/10 text-primary',
                 })
               }
 

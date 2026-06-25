@@ -115,8 +115,8 @@ export function CheckoutDialog({
           </div>
 
           {/* Info */}
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-3" data-oid="kbcmd07">
-            <p className="text-sm text-blue-800" data-oid="iaedlhr">
+          <div className="rounded-lg border border-primary/20 bg-primary/10 p-3" data-oid="kbcmd07">
+            <p className="text-sm text-primary" data-oid="iaedlhr">
               <strong data-oid="bm9-10u">Nota:</strong> El pago se procesará de forma segura a
               través de Stripe. Puedes cancelar en cualquier momento.
             </p>

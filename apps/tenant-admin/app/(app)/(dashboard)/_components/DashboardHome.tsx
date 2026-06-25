@@ -838,7 +838,7 @@ export default function DashboardPage() {
                     className={`flex items-center gap-3 rounded-md border p-3 ${
                       alert.severity === 'warning'
                         ? 'border-orange-200 bg-orange-50 dark:border-orange-900 dark:bg-orange-950'
-                        : 'border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950'
+                        : 'border-primary/20 bg-primary/10 dark:border-primary/30 dark:bg-primary/15'
                     }`}
                     data-oid="veafq43"
                   >
@@ -849,7 +849,7 @@ export default function DashboardPage() {
                       />
                     ) : (
                       <Info
-                        className="h-5 w-5 text-blue-600 dark:text-blue-400"
+                        className="h-5 w-5 text-primary dark:text-primary"
                         data-oid="pwd4oea"
                       />
                     )}

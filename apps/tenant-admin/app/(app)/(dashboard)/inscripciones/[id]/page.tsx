@@ -42,7 +42,7 @@ const STATUS_OPTIONS = [
   { value: 'contacted', label: 'Contactado', color: 'bg-amber-700 text-white border border-amber-800', dot: 'bg-amber-500' },
   { value: 'following_up', label: 'En seguimiento', color: 'bg-amber-700 text-white border border-amber-800', dot: 'bg-amber-500' },
   { value: 'interested', label: 'Interesado', color: 'bg-emerald-700 text-white border border-emerald-800', dot: 'bg-emerald-500' },
-  { value: 'enrolling', label: 'En matriculación', color: 'bg-blue-700 text-white border border-blue-800', dot: 'bg-blue-500' },
+  { value: 'enrolling', label: 'En matriculación', color: 'bg-primary text-primary-foreground border border-primary/40', dot: 'bg-primary' },
   { value: 'enrolled', label: 'Matriculado', color: 'bg-green-800 text-white border border-green-900', dot: 'bg-emerald-500' },
   { value: 'on_hold', label: 'En espera', color: 'bg-slate-700 text-white border border-slate-800', dot: 'bg-slate-500' },
   { value: 'not_interested', label: 'No interesado', color: 'bg-zinc-700 text-white border border-zinc-800', dot: 'bg-zinc-500' },
@@ -1304,12 +1304,12 @@ Equipo CEP Formación`
                 <div className="rounded-lg border p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-blue-600" />
+                      <Mail className="h-4 w-4 text-primary" />
                       <span className="font-medium">{lead.email}</span>
                     </div>
                     <div className="flex gap-2">
                       <a href={`mailto:${lead.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`}
-                        className="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm font-medium">
+                        className="inline-flex items-center px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm font-medium">
                         Enviar email
                       </a>
                       <Button size="sm" variant="outline" onClick={() => setShowContactModal({ channel: 'email' })}>
@@ -1351,8 +1351,8 @@ Equipo CEP Formación`
                     <p className="mt-1 text-xs text-slate-600">Usa este nombre durante toda la llamada para mantener foco comercial.</p>
                   </div>
 
-                <div className="rounded-lg border border-sky-200 bg-sky-50 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-sky-700">OPERADOR - APERTURA</p>
+                <div className="rounded-lg border border-primary/20 bg-primary/10 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-primary">OPERADOR - APERTURA</p>
                   <p className="mt-2 text-sm font-semibold text-slate-900">{openingLine}</p>
                 </div>
 
@@ -1651,7 +1651,7 @@ Equipo CEP Formación`
                       href={sourcePageHref}
                       target={sourcePageIsExternal ? '_blank' : undefined}
                       rel={sourcePageIsExternal ? 'noopener noreferrer' : undefined}
-                      className="text-xs font-medium text-blue-700 hover:underline break-words"
+                      className="text-xs font-medium text-primary hover:underline break-words"
                     >
                       {programContextLabel}
                     </a>
@@ -1668,7 +1668,7 @@ Equipo CEP Formación`
                     href={sourcePageHref}
                     target={sourcePageIsExternal ? '_blank' : undefined}
                     rel={sourcePageIsExternal ? 'noopener noreferrer' : undefined}
-                    className="text-xs break-all font-medium text-blue-700 hover:underline"
+                    className="text-xs break-all font-medium text-primary hover:underline"
                   >
                     {sourcePageHref}
                   </a>
@@ -1707,13 +1707,13 @@ Equipo CEP Formación`
                 const interactionNote = normalizeInteractionNote(interaction)
                 const eventTone =
                   interaction.result === 'note_added'
-                    ? 'border-l-blue-400'
+                    ? 'border-l-primary/40'
                     : interaction.channel === 'phone'
                       ? 'border-l-amber-500'
                       : interaction.channel === 'whatsapp'
                         ? 'border-l-green-500'
                         : interaction.channel === 'email'
-                          ? 'border-l-sky-500'
+                          ? 'border-l-primary/50'
                           : 'border-l-slate-400'
 
                 return (

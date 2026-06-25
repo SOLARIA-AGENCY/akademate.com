@@ -11,6 +11,7 @@ interface AreaFormativa {
   id: number;
   codigo: string;
   nombre: string;
+  color?: string | null;
 }
 
 interface FeaturedImage {
@@ -105,8 +106,12 @@ export async function GET(
     // Extraer nombre del área formativa
     const areaFormativa = curso.area_formativa;
     let areaName = 'Sin área';
+    let areaColor = '#64748B';
+    let areaCode = '';
     if (typeof areaFormativa === 'object' && areaFormativa !== null) {
       areaName = areaFormativa.nombre ?? 'Sin área';
+      areaColor = /^#[0-9A-Fa-f]{6}$/.test(areaFormativa.color ?? '') ? areaFormativa.color! : areaColor;
+      areaCode = areaFormativa.codigo ?? '';
     }
 
     const imagenPortada =
@@ -122,6 +127,8 @@ export async function GET(
         studyType: normalizeStudyType(curso.course_type),
         descripcion: curso.short_description ?? '',
         area: areaName,
+        areaColor,
+        areaCode,
         duracionReferencia: curso.duration_hours ?? 0,
         precioReferencia: curso.base_price ?? 0,
         porcentajeSubvencion: curso.subsidy_percentage ?? 100,

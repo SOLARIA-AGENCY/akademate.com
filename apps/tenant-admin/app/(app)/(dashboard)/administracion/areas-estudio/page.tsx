@@ -6,7 +6,7 @@ import { Badge } from '@payload-config/components/ui/badge'
 import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Plus, Trash2, Save, Loader2, BookOpen, Check, Palette, X, Pencil } from 'lucide-react'
+import { Plus, Trash2, Save, Loader2, BookOpen, Check, X, Pencil } from 'lucide-react'
 
 interface Area {
   id: number
@@ -23,6 +23,10 @@ function parseAreasResponse(payload: unknown): Area[] {
   if (Array.isArray(obj.docs)) return obj.docs as Area[]
   if (Array.isArray(obj.data)) return obj.data as Area[]
   return []
+}
+
+function areaColor(area: Pick<Area, 'color'>): string {
+  return /^#[0-9A-Fa-f]{6}$/.test(area.color ?? '') ? area.color! : '#64748B'
 }
 
 export default function AreasEstudioPage() {
@@ -210,8 +214,15 @@ export default function AreasEstudioPage() {
           {areas.map((area) => (
             <Card
               key={area.id}
-              className={`transition-shadow hover:shadow-md ${editingId === area.id ? 'ring-2 ring-primary/40' : ''}`}
+              className={`relative overflow-hidden border-l-4 transition-shadow hover:shadow-md ${editingId === area.id ? 'ring-2 ring-primary/40' : ''}`}
+              style={{ borderLeftColor: areaColor(area) }}
             >
+              <div
+                aria-hidden="true"
+                data-area-accent
+                className="absolute inset-x-0 top-0 h-1"
+                style={{ backgroundColor: areaColor(area) }}
+              />
               {editingId === area.id ? (
                 /* Inline edit form */
                 <CardContent className="pt-4 space-y-3">
@@ -265,10 +276,13 @@ export default function AreasEstudioPage() {
                   <CardHeader className="pb-2 flex flex-row items-start justify-between">
                     <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className="h-10 w-10 rounded-lg shrink-0 flex items-center justify-center"
-                        style={{ backgroundColor: (area.color ?? '#3B82F6') + '20' }}
+                        className="h-10 w-10 rounded-lg shrink-0 flex items-center justify-center border"
+                        style={{
+                          backgroundColor: `${areaColor(area)}20`,
+                          borderColor: `${areaColor(area)}55`,
+                        }}
                       >
-                        <BookOpen className="h-5 w-5" style={{ color: area.color ?? '#3B82F6' }} />
+                        <BookOpen className="h-5 w-5" style={{ color: areaColor(area) }} />
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium truncate">{area.nombre}</p>
@@ -287,10 +301,10 @@ export default function AreasEstudioPage() {
                   <CardContent className="pt-0">
                     <div className="flex items-center gap-2">
                       <div
-                        className="h-4 w-4 rounded-full border border-border"
-                        style={{ backgroundColor: area.color ?? '#3B82F6' }}
+                        className="h-3.5 w-3.5 rounded-full border border-background shadow-sm"
+                        style={{ backgroundColor: areaColor(area) }}
                       />
-                      <span className="text-xs text-muted-foreground">{area.color ?? 'Sin color'}</span>
+                      <span className="text-xs font-medium text-muted-foreground">Color de área</span>
                       {area.activo ? (
                         <Badge variant="outline" className="ml-auto text-xs">Activa</Badge>
                       ) : (

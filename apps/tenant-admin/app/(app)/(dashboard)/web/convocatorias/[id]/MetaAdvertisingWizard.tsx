@@ -358,7 +358,7 @@ export function MetaAdvertisingWizard({ open, onOpenChange, convocatoria }: Prop
           </div>
 
           {preflight ? (
-            <section className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
+            <section className="rounded-xl border border-primary/20 bg-primary/10 p-4 text-sm text-primary">
               <div className="flex items-center justify-between gap-3">
                 <p className="font-black">Preflight operativo Meta</p>
                 <Badge variant={preflight.ok ? 'success' : 'warning'}>{preflight.ok ? 'Listo para preview' : 'Revisar configuración'}</Badge>

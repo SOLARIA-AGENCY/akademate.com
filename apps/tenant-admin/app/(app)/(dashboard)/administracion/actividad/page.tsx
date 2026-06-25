@@ -71,7 +71,7 @@ const severidadConfig: Record<
     color: string
   }
 > = {
-  info: { label: 'Info', variant: 'secondary', icon: Info, color: 'text-blue-600' },
+  info: { label: 'Info', variant: 'secondary', icon: Info, color: 'text-primary' },
   success: { label: 'Éxito', variant: 'outline', icon: CheckCircle2, color: 'text-green-600' },
   warning: {
     label: 'Advertencia',
@@ -86,12 +86,12 @@ const accionConfig: Record<
   string,
   { icon: React.ComponentType<{ className?: string }>; color: string }
 > = {
-  LOGIN: { icon: LogIn, color: 'text-blue-500' },
+  LOGIN: { icon: LogIn, color: 'text-primary' },
   LOGOUT: { icon: LogOut, color: 'text-gray-500' },
   CREATE: { icon: Plus, color: 'text-green-500' },
   UPDATE: { icon: Edit, color: 'text-amber-500' },
   DELETE: { icon: Trash2, color: 'text-red-500' },
-  VIEW: { icon: Eye, color: 'text-blue-400' },
+  VIEW: { icon: Eye, color: 'text-primary' },
   BACKUP: { icon: RefreshCw, color: 'text-purple-500' },
   CONFIG_CHANGE: { icon: Settings, color: 'text-orange-500' },
   ERROR: { icon: AlertCircle, color: 'text-red-600' },
@@ -195,10 +195,10 @@ export default function ActividadPage() {
             <CardTitle className="text-sm font-medium" data-oid="500kuih">
               Inicios de Sesión
             </CardTitle>
-            <LogIn className="h-4 w-4 text-blue-500" data-oid="tmo_v47" />
+            <LogIn className="h-4 w-4 text-primary" data-oid="tmo_v47" />
           </CardHeader>
           <CardContent data-oid="t7a:b61">
-            <div className="text-2xl font-bold text-blue-600" data-oid="5t3425m">
+            <div className="text-2xl font-bold text-primary" data-oid="5t3425m">
               {stats.loginHoy}
             </div>
             <p className="text-xs text-muted-foreground" data-oid="1d-0582">

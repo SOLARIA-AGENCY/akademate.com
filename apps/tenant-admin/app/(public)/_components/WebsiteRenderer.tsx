@@ -495,7 +495,14 @@ async function CourseListSection({
             Consulta de un vistazo todos los cursos que imparte CEP Formación, agrupados por tipo de formación.
           </p>
           <div className="mt-10">
-            <CoursesCatalogView groups={groups} visualMap={studyTypeVisualMap} fallbackColor={brandColor} defaultViewMode="list" hideViewToggle />
+            <CoursesCatalogView
+              groups={groups}
+              visualMap={studyTypeVisualMap}
+              fallbackColor={brandColor}
+              defaultViewMode="list"
+              hideViewToggle
+              compactListItems
+            />
           </div>
         </div>
       </section>
@@ -1068,11 +1075,19 @@ function LeadFormSection({
           </div>
 
           <div className="grid gap-3 text-sm text-white/75 sm:grid-cols-2">
-            <a href="tel:+34922219257" className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.08]">
+            <a
+              href="tel:+34922219257"
+              aria-label="Llamar a CEP Formación al 922 219 257"
+              className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.08]"
+            >
               <span className="block text-xs font-black uppercase tracking-[0.14em] text-white/45">Llámanos</span>
               <span className="mt-2 block text-lg font-black text-white">922 219 257</span>
             </a>
-            <a href="mailto:info@cursostenerife.es" className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.08]">
+            <a
+              href="mailto:info@cursostenerife.es"
+              aria-label="Enviar email a info@cursostenerife.es"
+              className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.08]"
+            >
               <span className="block text-xs font-black uppercase tracking-[0.14em] text-white/45">Escríbenos</span>
               <span className="mt-2 block font-bold text-white">info@cursostenerife.es</span>
             </a>
@@ -1088,17 +1103,17 @@ function LeadFormSection({
           </ul>
         </div>
 
-        <form className="grid gap-4 rounded-[2rem] border border-white/15 bg-white/[0.07] p-5 shadow-2xl shadow-black/20 sm:p-7">
+        <form className="grid gap-4 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-black/20 sm:p-7">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Input className="min-h-14 rounded-2xl border-white/15 bg-white px-4 text-slate-950 placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Nombre" />
-            <Input className="min-h-14 rounded-2xl border-white/15 bg-white px-4 text-slate-950 placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Teléfono" />
+            <Input className="min-h-14 rounded-2xl border-slate-200 bg-white px-4 text-slate-950 placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200" placeholder="Nombre" />
+            <Input className="min-h-14 rounded-2xl border-slate-200 bg-white px-4 text-slate-950 placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200" placeholder="Teléfono" />
           </div>
-          <Input className="min-h-14 rounded-2xl border-white/15 bg-white px-4 text-slate-950 placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Email" />
-          <Textarea className="min-h-32 rounded-2xl border-white/15 bg-white px-4 py-4 text-slate-950 placeholder:text-slate-400 focus:border-white focus:ring-4 focus:ring-white/10" placeholder="Cuéntanos qué formación te interesa" />
+          <Input className="min-h-14 rounded-2xl border-slate-200 bg-white px-4 text-slate-950 placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200" placeholder="Email" />
+          <Textarea className="min-h-32 rounded-2xl border-slate-200 bg-white px-4 py-4 text-slate-950 placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200" placeholder="Cuéntanos qué formación te interesa" />
           <Button type="button" className="min-h-14 rounded-full px-6 text-sm font-black text-white shadow-xl transition hover:-translate-y-0.5 hover:opacity-95" style={{ backgroundColor: brandColor }}>
             Solicitar información
           </Button>
-          <p className="text-center text-xs leading-5 text-white/45">
+          <p className="text-center text-xs leading-5 text-slate-500">
             Al enviar el formulario aceptas que CEP Formación contacte contigo para informarte sobre su oferta formativa.
           </p>
         </form>

@@ -116,6 +116,42 @@ describe('StaffCard Component', () => {
 
       expect(screen.getByText('+34 922 123 456')).toBeInTheDocument()
     })
+
+    it('should render actionable email and phone links', () => {
+      render(
+        <StaffCard
+          {...mockStaffProfesor}
+          onView={vi.fn()}
+          onEdit={vi.fn()}
+          onDelete={vi.fn()}
+        />
+      )
+
+      expect(screen.getByRole('link', { name: 'miguel.torres@cepcomunicacion.com' })).toHaveAttribute(
+        'href',
+        'mailto:miguel.torres@cepcomunicacion.com'
+      )
+      expect(screen.getByRole('link', { name: '+34 922 123 456' })).toHaveAttribute(
+        'href',
+        'tel:+34922123456'
+      )
+    })
+
+    it('should keep contact rows visible when email and phone are missing', () => {
+      render(
+        <StaffCard
+          {...mockStaffProfesor}
+          email={null}
+          phone=""
+          onView={vi.fn()}
+          onEdit={vi.fn()}
+          onDelete={vi.fn()}
+        />
+      )
+
+      expect(screen.getByText('Sin mail')).toBeInTheDocument()
+      expect(screen.getByText('Sin teléfono')).toBeInTheDocument()
+    })
   })
 
   describe('Avatar rendering', () => {
@@ -144,7 +180,7 @@ describe('StaffCard Component', () => {
       const mockOnEdit = vi.fn()
       const mockOnDelete = vi.fn()
 
-      const { container: _container } = render(
+      const { container } = render(
         <StaffCard
           {...mockStaffProfesor}
           onView={mockOnView}
@@ -314,7 +350,7 @@ describe('StaffCard Component', () => {
         bio: undefined,
       }
 
-      const { container: _container } = render(
+      const { container } = render(
         <StaffCard
           {...noBioStaff}
           onView={mockOnView}

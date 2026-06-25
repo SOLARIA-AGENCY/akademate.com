@@ -10,6 +10,7 @@ import {
   StaffCampusBadge,
   StaffContractBadge,
   StaffCountBadge,
+  StaffAreaBadge,
   StaffStatusBadge,
 } from '@payload-config/components/ui/StaffBadges'
 import { cn } from '@payload-config/lib/utils'
@@ -82,7 +83,10 @@ export function PersonalListItem({
   const isAdministrative = teacher.staffType === 'administrativo'
   const roleLabel = teacher.department ?? teacher.position ?? (isAdministrative ? 'Administrativo' : 'Docente')
   const campuses = teacher.assignedCampuses ?? []
+  const qualifiedAreas = teacher.qualifiedAreas ?? []
   const resolvedActionLabel = actionLabel ?? (isAdministrative ? 'Ver ficha administrativo' : 'Ver ficha docente')
+  const email = teacher.email?.trim()
+  const phone = teacher.phone?.trim()
 
   return (
     <Card
@@ -115,12 +119,26 @@ export function PersonalListItem({
           </AvatarFallback>
         </Avatar>
 
-        <div className="grid min-w-0 items-center gap-3 md:grid-cols-[minmax(0,1fr)_180px] lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
+        <div className="grid min-w-0 items-center gap-4 md:grid-cols-[minmax(14rem,1fr)_minmax(14rem,20rem)] xl:grid-cols-[minmax(15rem,1fr)_minmax(16rem,22rem)_minmax(14rem,22rem)_auto]">
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold leading-tight">
               {teacher.firstName} {teacher.lastName}
             </h3>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">{roleLabel}</p>
+            {!isAdministrative && !missingQualifiedAreas ? (
+              <div className="mt-2 flex max-w-full flex-wrap gap-1">
+                {qualifiedAreas.slice(0, 2).map((area) => (
+                  <StaffAreaBadge key={area.id} seed={area.codigo ?? area.id} className="max-w-[12rem]">
+                    {area.nombre}
+                  </StaffAreaBadge>
+                ))}
+                {qualifiedAreas.length > 2 ? (
+                  <StaffAreaBadge seed={`${teacher.id}-more`} className="max-w-[5rem]">
+                    +{qualifiedAreas.length - 2}
+                  </StaffAreaBadge>
+                ) : null}
+              </div>
+            ) : null}
             {!isAdministrative && missingQualifiedAreas ? (
               <Badge variant="destructive" className="mt-2 h-6 w-fit px-2 text-[11px]">
                 Sin área habilitada
@@ -128,17 +146,35 @@ export function PersonalListItem({
             ) : null}
           </div>
 
-          <div className="hidden min-w-0 flex-col gap-1 text-xs md:flex">
-            <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
+          <div className="hidden min-w-0 flex-col gap-1.5 text-xs md:flex">
+            <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
               <Mail className="h-3 w-3 shrink-0" />
-              <span className="truncate">{teacher.email || 'Sin email'}</span>
+              {email ? (
+                <a
+                  href={`mailto:${email}`}
+                  className="min-w-0 truncate font-medium text-primary hover:underline"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  {email}
+                </a>
+              ) : (
+                <span className="truncate italic text-muted-foreground/70">Sin mail</span>
+              )}
             </span>
-            {teacher.phone ? (
-              <span className="flex items-center gap-1 text-muted-foreground">
-                <Phone className="h-3 w-3 shrink-0" />
-                <span>{teacher.phone}</span>
-              </span>
-            ) : null}
+            <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
+              <Phone className="h-3 w-3 shrink-0" />
+              {phone ? (
+                <a
+                  href={`tel:${phone.replace(/\s+/g, '')}`}
+                  className="min-w-0 truncate font-medium text-primary hover:underline"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  {phone}
+                </a>
+              ) : (
+                <span className="truncate italic text-muted-foreground/70">Sin teléfono</span>
+              )}
+            </span>
           </div>
 
           <div className="hidden min-w-0 flex-col gap-1 text-xs lg:flex">

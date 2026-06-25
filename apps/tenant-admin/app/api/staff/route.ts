@@ -218,6 +218,19 @@ function getExistingQualifiedAreaIds(staff: StaffWithQualifiedAreas | undefined 
     .filter((areaId) => Number.isFinite(areaId))
 }
 
+function isStatusOnlyUpdate(body: UpdateStaffBody): boolean {
+  const allowedKeys = new Set([
+    'employmentStatus',
+    'inactiveReason',
+    'inactiveAt',
+    'reactivatedAt',
+    'isActive',
+    'lastImportBatch',
+  ])
+
+  return Object.keys(body).length > 0 && Object.keys(body).every((key) => allowedKeys.has(key))
+}
+
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -643,6 +656,96 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json() as UpdateStaffBody;
+
+    if (body.employmentStatus && isStatusOnlyUpdate(body)) {
+      const staffId = parseInt(id, 10);
+      if (Number.isNaN(staffId)) {
+        return NextResponse.json({ success: false, error: 'ID inválido' }, { status: 400 });
+      }
+
+      const currentRows = await sql`
+        SELECT id, full_name, employment_status, last_import_batch
+        FROM staff
+        WHERE id = ${staffId}
+        LIMIT 1
+      `;
+      const current = currentRows[0] as
+        | { id: number; full_name: string | null; employment_status: 'active' | 'temporary_leave' | 'inactive'; last_import_batch: string | null }
+        | undefined;
+
+      if (!current) {
+        return NextResponse.json({ success: false, error: 'Miembro del personal no encontrado' }, { status: 404 });
+      }
+
+      const nextStatus = body.employmentStatus;
+      const nextIsActive = body.isActive ?? nextStatus === 'active';
+      const statusReason = body.inactiveReason || (
+        nextStatus === 'active'
+          ? 'Reactivación manual desde ficha docente'
+          : nextStatus === 'temporary_leave'
+            ? 'Baja temporal manual desde ficha docente'
+            : 'Baja manual desde ficha docente'
+      );
+
+      const updatedRows = await sql.begin(async (tx) => {
+        const updated = await tx`
+          UPDATE staff
+          SET
+            employment_status = ${nextStatus},
+            is_active = ${nextIsActive},
+            inactive_reason = ${nextStatus === 'active' ? null : statusReason},
+            inactive_at = ${nextStatus === 'active' ? null : (body.inactiveAt ?? new Date().toISOString())},
+            reactivated_at = ${nextStatus === 'active' ? (body.reactivatedAt ?? new Date().toISOString()) : null},
+            import_review_status = CASE
+              WHEN ${nextStatus} = 'active' AND import_review_status = 'retired_candidate' THEN 'validated'
+              ELSE import_review_status
+            END,
+            updated_at = now()
+          WHERE id = ${staffId}
+          RETURNING id, full_name
+        `;
+
+        if (nextStatus !== current.employment_status) {
+          await tx`
+            INSERT INTO staff_status_events (
+              staff_id,
+              previous_status,
+              new_status,
+              reason,
+              source,
+              import_batch,
+              changed_at,
+              updated_at,
+              created_at
+            )
+            VALUES (
+              ${staffId},
+              ${current.employment_status},
+              ${nextStatus},
+              ${statusReason},
+              'manual',
+              ${body.lastImportBatch ?? current.last_import_batch},
+              now(),
+              now(),
+              now()
+            )
+          `;
+        }
+
+        return updated;
+      });
+
+      const updated = updatedRows[0] as { id: number; full_name: string | null };
+      return NextResponse.json({
+        success: true,
+        data: {
+          id: updated.id,
+          fullName: updated.full_name,
+        },
+        message: 'Estado del personal actualizado exitosamente',
+      });
+    }
+
     const payload = await initPayload();
     const current = await payload.findByID({
       collection: 'staff',

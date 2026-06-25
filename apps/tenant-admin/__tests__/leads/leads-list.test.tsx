@@ -12,7 +12,7 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; badge: string 
   contacted:      { label: 'Contactado',         dot: 'bg-amber-500',   badge: 'bg-amber-100 text-amber-800' },
   following_up:   { label: 'En seguimiento',     dot: 'bg-amber-500',   badge: 'bg-amber-100 text-amber-800' },
   interested:     { label: 'Interesado',         dot: 'bg-green-500',   badge: 'bg-green-100 text-green-800' },
-  enrolling:      { label: 'En matriculacion',   dot: 'bg-blue-500',    badge: 'bg-blue-100 text-blue-800' },
+  enrolling:      { label: 'En matriculacion',   dot: 'bg-primary',    badge: 'bg-primary/10 text-primary' },
   enrolled:       { label: 'Matriculado',        dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800 border border-emerald-300' },
   on_hold:        { label: 'En espera',          dot: 'bg-amber-500',   badge: 'bg-gray-100 text-gray-600' },
   not_interested: { label: 'No interesado',      dot: 'bg-gray-400',    badge: 'bg-gray-100 text-gray-500' },
@@ -49,7 +49,7 @@ describe('Leads List — Status Config', () => {
   })
 
   it('enrolling has blue dot', () => {
-    expect(STATUS_CONFIG.enrolling.dot).toBe('bg-blue-500')
+    expect(STATUS_CONFIG.enrolling.dot).toBe('bg-primary')
   })
 
   it('enrolled has emerald dot', () => {

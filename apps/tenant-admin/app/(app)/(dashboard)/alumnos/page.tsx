@@ -1,12 +1,15 @@
 'use client'
 
-import { useEffect, useState, type ChangeEvent, type MouseEvent, type KeyboardEvent } from 'react'
+import { useEffect, useState, type MouseEvent, type KeyboardEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { Input } from '@payload-config/components/ui/input'
 import { Badge } from '@payload-config/components/ui/badge'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import {
+  DashboardListingLayout,
+  DashboardToolbar,
+  type DashboardStatItem,
+} from '@payload-config/components/akademate/dashboard'
 import {
   Select,
   SelectContent,
@@ -15,7 +18,6 @@ import {
   SelectValue,
 } from '@payload-config/components/ui/select'
 import {
-  Search,
   User,
   Mail,
   Phone,
@@ -159,8 +161,118 @@ export default function AlumnosPage() {
     totalCompleted: students.reduce((sum, s) => sum + s.completed_courses, 0),
   }
 
+  const statItems: DashboardStatItem[] = [
+    { label: 'Total alumnos', value: stats.total, icon: User },
+    { label: 'Activos', value: stats.active, icon: User, tone: 'success' },
+    { label: 'Inactivos', value: stats.inactive, icon: User },
+    { label: 'Cursando', value: stats.totalEnrolled, icon: BookOpen, tone: 'primary' },
+    { label: 'Completados', value: stats.totalCompleted, icon: CheckCircle2, tone: 'success' },
+  ]
+
   return (
-    <div className="space-y-6" data-oid="qc1.kvz">
+    <DashboardListingLayout
+      title="Alumnos"
+      description={`${filteredStudents.length} alumnos de ${students.length} totales`}
+      stats={statItems}
+      toolbar={
+        <DashboardToolbar
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Buscar por nombre o email..."
+          filters={
+            <>
+              <Select value={filterStatus} onValueChange={setFilterStatus} data-oid="8gn04-c">
+                <SelectTrigger className="w-full min-w-[160px] md:w-[190px]" data-oid=":.:.p3e">
+                  <SelectValue placeholder="Estado" data-oid="wrk4a2x" />
+                </SelectTrigger>
+                <SelectContent data-oid="neuz-.3">
+                  <SelectItem value="all" data-oid="itl3tn_">
+                    Todos los estados
+                  </SelectItem>
+                  <SelectItem value="active" data-oid=":zs2vyc">
+                    Activos
+                  </SelectItem>
+                  <SelectItem value="inactive" data-oid="2jzbrsm">
+                    Inactivos
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={filterSede} onValueChange={setFilterSede} data-oid="ah85kl0">
+                <SelectTrigger className="w-full min-w-[160px] md:w-[190px]" data-oid="_-je2:c">
+                  <SelectValue placeholder="Sede" data-oid="hg5vqi2" />
+                </SelectTrigger>
+                <SelectContent data-oid=":p47ksq">
+                  <SelectItem value="all" data-oid="_5ra9.d">
+                    Todas las sedes
+                  </SelectItem>
+                  {sedes.map((sede) => (
+                    <SelectItem key={sede} value={sede} data-oid="mqcbyh_">
+                      {sede}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={filterCurso} onValueChange={setFilterCurso} data-oid="zd.guip">
+                <SelectTrigger className="w-full min-w-[160px] md:w-[190px]" data-oid="5mx06il">
+                  <SelectValue placeholder="Curso" data-oid="oj62xzc" />
+                </SelectTrigger>
+                <SelectContent data-oid="xo2qpfm">
+                  <SelectItem value="all" data-oid=":4n:frr">
+                    Todos los cursos
+                  </SelectItem>
+                  {cursos.map((curso) => (
+                    <SelectItem key={curso} value={curso} data-oid="o3rms35">
+                      {curso}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={filterCiclo} onValueChange={setFilterCiclo} data-oid="yzzmgac">
+                <SelectTrigger className="w-full min-w-[160px] md:w-[190px]" data-oid="8w3syz2">
+                  <SelectValue placeholder="Ciclo" data-oid="x676wrn" />
+                </SelectTrigger>
+                <SelectContent data-oid="min-q8c">
+                  <SelectItem value="all" data-oid="c3ijif3">
+                    Todos los ciclos
+                  </SelectItem>
+                  {ciclos.map((ciclo) => (
+                    <SelectItem key={ciclo} value={ciclo} data-oid="oe33wrz">
+                      {ciclo}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          }
+          clearAction={
+            searchTerm ||
+            filterStatus !== 'all' ||
+            filterSede !== 'all' ||
+            filterCurso !== 'all' ||
+            filterCiclo !== 'all' ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm('')
+                  setFilterStatus('all')
+                  setFilterSede('all')
+                  setFilterCurso('all')
+                  setFilterCiclo('all')
+                }}
+                data-oid="dqkla-s"
+              >
+                Limpiar filtros
+              </Button>
+            ) : null
+          }
+          viewToggle={<ViewToggle view={viewMode} onViewChange={setViewMode} />}
+        />
+      }
+    >
       {isLoading && (
         <div
           className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
@@ -178,211 +290,6 @@ export default function AlumnosPage() {
           {errorMessage}
         </div>
       )}
-
-      <PageHeader
-        title="Alumnos"
-        description={`${filteredStudents.length} alumnos de ${students.length} totales`}
-        icon={User}
-        actions={<ViewToggle view={viewMode} onViewChange={setViewMode} />}
-        data-oid="2bu4ozx"
-      />
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-5" data-oid="bmuqe2r">
-        <Card data-oid="i9o81nx">
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 pb-2"
-            data-oid="j-ci10l"
-          >
-            <CardTitle className="text-sm font-medium" data-oid="htxb7pm">
-              Total Alumnos
-            </CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" data-oid="nb1upgw" />
-          </CardHeader>
-          <CardContent data-oid="rjkm_dm">
-            <div className="text-2xl font-bold" data-oid="1ez4bgy">
-              {stats.total}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card data-oid="ae-hi1.">
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 pb-2"
-            data-oid="vvtdu7e"
-          >
-            <CardTitle className="text-sm font-medium" data-oid="mdh4-q4">
-              Activos
-            </CardTitle>
-            <User className="h-4 w-4 text-green-600" data-oid="adomjjz" />
-          </CardHeader>
-          <CardContent data-oid="c2pqroj">
-            <div className="text-2xl font-bold text-green-600" data-oid="r2kauom">
-              {stats.active}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card data-oid="y3wfsxn">
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 pb-2"
-            data-oid="-uy8c-v"
-          >
-            <CardTitle className="text-sm font-medium" data-oid="dvlaf_b">
-              Inactivos
-            </CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" data-oid="3h91fjo" />
-          </CardHeader>
-          <CardContent data-oid="v.52w67">
-            <div className="text-2xl font-bold text-muted-foreground" data-oid="6wb8cp5">
-              {stats.inactive}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card data-oid="a5hss9v">
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 pb-2"
-            data-oid="-7bcqip"
-          >
-            <CardTitle className="text-sm font-medium" data-oid="aroui51">
-              Cursando
-            </CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" data-oid="vjbebdr" />
-          </CardHeader>
-          <CardContent data-oid="-sg-5w3">
-            <div className="text-2xl font-bold" data-oid="tuhe1c0">
-              {stats.totalEnrolled}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card data-oid=".c0:t2.">
-          <CardHeader
-            className="flex flex-row items-center justify-between space-y-0 pb-2"
-            data-oid="l_vqrpm"
-          >
-            <CardTitle className="text-sm font-medium" data-oid="hmx8:9i">
-              Completados
-            </CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-muted-foreground" data-oid="i:z-7t4" />
-          </CardHeader>
-          <CardContent data-oid="a2jw_qu">
-            <div className="text-2xl font-bold" data-oid="tl2vlow">
-              {stats.totalCompleted}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filtros */}
-      <Card data-oid="evhc1ab">
-        <CardContent className="pt-6" data-oid="vrvrvg9">
-          <div className="grid gap-4 md:grid-cols-5" data-oid="t_sy_:2">
-            <div className="relative" data-oid="606pz0d">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                data-oid="0d7hxhx"
-              />
-              <Input
-                placeholder="Buscar por nombre o email..."
-                value={searchTerm}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className="pl-9"
-                data-oid="6l4uu5l"
-              />
-            </div>
-
-            <Select value={filterStatus} onValueChange={setFilterStatus} data-oid="8gn04-c">
-              <SelectTrigger data-oid=":.:.p3e">
-                <SelectValue placeholder="Estado" data-oid="wrk4a2x" />
-              </SelectTrigger>
-              <SelectContent data-oid="neuz-.3">
-                <SelectItem value="all" data-oid="itl3tn_">
-                  Todos los estados
-                </SelectItem>
-                <SelectItem value="active" data-oid=":zs2vyc">
-                  Activos
-                </SelectItem>
-                <SelectItem value="inactive" data-oid="2jzbrsm">
-                  Inactivos
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filterSede} onValueChange={setFilterSede} data-oid="ah85kl0">
-              <SelectTrigger data-oid="_-je2:c">
-                <SelectValue placeholder="Sede" data-oid="hg5vqi2" />
-              </SelectTrigger>
-              <SelectContent data-oid=":p47ksq">
-                <SelectItem value="all" data-oid="_5ra9.d">
-                  Todas las sedes
-                </SelectItem>
-                {sedes.map((sede) => (
-                  <SelectItem key={sede} value={sede} data-oid="mqcbyh_">
-                    {sede}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filterCurso} onValueChange={setFilterCurso} data-oid="zd.guip">
-              <SelectTrigger data-oid="5mx06il">
-                <SelectValue placeholder="Curso" data-oid="oj62xzc" />
-              </SelectTrigger>
-              <SelectContent data-oid="xo2qpfm">
-                <SelectItem value="all" data-oid=":4n:frr">
-                  Todos los cursos
-                </SelectItem>
-                {cursos.map((curso) => (
-                  <SelectItem key={curso} value={curso} data-oid="o3rms35">
-                    {curso}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filterCiclo} onValueChange={setFilterCiclo} data-oid="yzzmgac">
-              <SelectTrigger data-oid="8w3syz2">
-                <SelectValue placeholder="Ciclo" data-oid="x676wrn" />
-              </SelectTrigger>
-              <SelectContent data-oid="min-q8c">
-                <SelectItem value="all" data-oid="c3ijif3">
-                  Todos los ciclos
-                </SelectItem>
-                {ciclos.map((ciclo) => (
-                  <SelectItem key={ciclo} value={ciclo} data-oid="oe33wrz">
-                    {ciclo}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {(searchTerm ||
-            filterStatus !== 'all' ||
-            filterSede !== 'all' ||
-            filterCurso !== 'all' ||
-            filterCiclo !== 'all') && (
-            <div className="flex items-center gap-4 mt-4" data-oid="80uls9:">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilterStatus('all')
-                  setFilterSede('all')
-                  setFilterCurso('all')
-                  setFilterCiclo('all')
-                }}
-                data-oid="dqkla-s"
-              >
-                Limpiar filtros
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Vista LISTADO (default) */}
       {viewMode === 'list' && (
@@ -789,6 +696,6 @@ export default function AlumnosPage() {
           )}
         </div>
       )}
-    </div>
+    </DashboardListingLayout>
   )
 }

@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { DashboardToolbar } from '@payload-config/components/akademate/dashboard'
+import {
+  DashboardListingLayout,
+  DashboardToolbar,
+  type DashboardStatItem,
+} from '@payload-config/components/akademate/dashboard'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { StaffCard } from '@payload-config/components/ui/StaffCard'
@@ -147,6 +150,27 @@ export default function AdministrativosPage() {
     return matchesSearch && matchesDepartment
   })
 
+  const stats: DashboardStatItem[] = [
+    { label: 'Total administrativos', value: administrativosData.length, icon: Briefcase },
+    {
+      label: 'Activos',
+      value: administrativosData.filter((admin) => admin.active).length,
+      icon: Briefcase,
+      tone: 'success',
+    },
+    {
+      label: 'Departamentos',
+      value: departments.length,
+      icon: Briefcase,
+      tone: 'primary',
+    },
+    {
+      label: 'Visibles',
+      value: filteredAdmins.length,
+      icon: Briefcase,
+    },
+  ]
+
   // Show loading state
   if (loading) {
     return (
@@ -183,59 +207,57 @@ export default function AdministrativosPage() {
   }
 
   return (
-    <div className="space-y-6" data-oid="p5r5ky.">
-      <PageHeader
-        title="Administrativos"
-        icon={Briefcase}
-        description="Gestión del personal administrativo, sedes asignadas y estado operativo."
-        actions={
-          <Button onClick={handleAdd} data-oid="7xp380:">
-            <Plus className="h-4 w-4" data-oid="koic1br" />
-            Nuevo Administrativo
-          </Button>
-        }
-        data-oid="a_ioxi."
-      />
-
-      <DashboardToolbar
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder="Buscar por nombre, email o departamento..."
-        filters={
-          <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="-xzyyj3">
-            <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="7v98u3e">
-              <SelectValue placeholder="Todos los departamentos" data-oid="lssmc78" />
-            </SelectTrigger>
-            <SelectContent data-oid="p9-i57:">
-              <SelectItem value="all" data-oid="w5074d7">
-                Todos los departamentos
-              </SelectItem>
-              {departments.map((dept) => (
-                <SelectItem key={dept} value={dept} data-oid="1rwzxt-">
-                  {dept}
+    <DashboardListingLayout
+      title="Administrativos"
+      description="Gestión del personal administrativo, sedes asignadas y estado operativo."
+      actions={
+        <Button onClick={handleAdd} data-oid="7xp380:">
+          <Plus className="h-4 w-4" data-oid="koic1br" />
+          Nuevo Administrativo
+        </Button>
+      }
+      stats={stats}
+      toolbar={
+        <DashboardToolbar
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Buscar por nombre, email o departamento..."
+          filters={
+            <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="-xzyyj3">
+              <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="7v98u3e">
+                <SelectValue placeholder="Todos los departamentos" data-oid="lssmc78" />
+              </SelectTrigger>
+              <SelectContent data-oid="p9-i57:">
+                <SelectItem value="all" data-oid="w5074d7">
+                  Todos los departamentos
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        }
-        actions={
-          searchTerm || filterDepartment !== 'all' ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSearchTerm('')
-                setFilterDepartment('all')
-              }}
-              data-oid="zcoz4.4"
-            >
-              Limpiar filtros
-            </Button>
-          ) : null
-        }
-        viewToggle={<ViewToggle view={view} onViewChange={setView} />}
-      />
-
+                {departments.map((dept) => (
+                  <SelectItem key={dept} value={dept} data-oid="1rwzxt-">
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          }
+          clearAction={
+            searchTerm || filterDepartment !== 'all' ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm('')
+                  setFilterDepartment('all')
+                }}
+                data-oid="zcoz4.4"
+              >
+                Limpiar filtros
+              </Button>
+            ) : null
+          }
+          viewToggle={<ViewToggle view={view} onViewChange={setView} />}
+        />
+      }
+    >
       {view === 'grid' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid=".qyvxmm">
           {filteredAdmins.map((admin) => (
@@ -290,6 +312,6 @@ export default function AdministrativosPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </DashboardListingLayout>
   )
 }

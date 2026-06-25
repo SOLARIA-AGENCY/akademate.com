@@ -8,7 +8,7 @@ const publicBadgeToneClass: Record<PublicBadgeTone, string> = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
   success: 'bg-emerald-600 text-white hover:bg-emerald-700',
   warning: 'bg-orange-500 text-white hover:bg-orange-600',
-  info: 'bg-blue-600 text-white hover:bg-blue-700',
+  info: 'bg-primary text-primary-foreground hover:bg-primary/90',
   neutral: 'bg-slate-950 text-white hover:bg-slate-900',
 }
 

@@ -8,6 +8,7 @@ import {
   StaffCampusBadge,
   StaffContractBadge,
   StaffCountBadge,
+  StaffAreaBadge,
   StaffStatusBadge,
 } from '@payload-config/components/ui/StaffBadges'
 import {
@@ -30,12 +31,12 @@ interface StaffCardProps {
   contractType: string
   employmentStatus: string
   photo: string
-  email: string
-  phone: string
+  email?: string | null
+  phone?: string | null
   bio?: string
   assignedCampuses: Array<{ id: number; name: string; city: string }>
   courseRunsCount?: number
-  qualifiedAreas?: Array<{ id: number; nombre: string }>
+  qualifiedAreas?: Array<{ id: number; codigo?: string | null; nombre: string }>
   reviewLabel?: string
   onView: (id: StaffCardId) => void
   onEdit?: (id: StaffCardId) => void
@@ -123,19 +124,22 @@ export function StaffCard({
 }: StaffCardProps) {
   const teaching = isTeachingStaff(staffType)
   const hasMenuActions = !!onEdit || !!onDelete
+  const normalizedEmail = email?.trim()
+  const normalizedPhone = phone?.trim()
+  const missingQualifiedAreas = teaching && (qualifiedAreas ?? []).length === 0
 
   return (
     <Card
-      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+      className="group flex min-h-[18rem] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-lg"
       data-oid="zwb_yf-"
     >
-      <div onClick={() => onView(id)} data-oid="i0zslmk">
-        <CardHeader className="flex-row items-start justify-between space-y-0 pb-4">
-          <div className="flex min-w-0 items-start gap-4">
+      <div className="flex flex-1 flex-col" onClick={() => onView(id)} data-oid="i0zslmk">
+        <CardHeader className="flex-row items-start justify-between space-y-0 p-4 pb-3">
+          <div className="flex min-w-0 items-start gap-3">
             <StaffPhoto fullName={fullName} photo={photo} staffType={staffType} />
-            <div className="min-w-0 space-y-1">
-              <CardTitle className="line-clamp-2 text-lg leading-tight">{fullName}</CardTitle>
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="min-w-0 space-y-1.5">
+              <CardTitle className="line-clamp-2 text-base leading-tight">{fullName}</CardTitle>
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Briefcase className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{position}</span>
               </p>
@@ -188,56 +192,92 @@ export function StaffCard({
           ) : null}
         </CardHeader>
 
-        <CardContent className="pt-0" data-oid="24ngeia">
+        <CardContent className="flex flex-1 flex-col px-4 pb-3 pt-0" data-oid="24ngeia">
           {/* Badges */}
-          <div className="flex gap-2 mb-4 flex-wrap" data-oid="34c-.1s">
-            <StaffStatusBadge status={employmentStatus} data-oid="8_xl-hu" />
-            <StaffContractBadge data-oid="0m5w5if">
+          <div className="mb-3 flex flex-wrap gap-1.5" data-oid="34c-.1s">
+            <StaffStatusBadge status={employmentStatus} className="w-auto min-w-[5.5rem]" data-oid="8_xl-hu" />
+            <StaffContractBadge className="w-auto min-w-[6.5rem]" data-oid="0m5w5if">
               {CONTRACT_TYPE_LABELS[contractType] ?? contractType}
             </StaffContractBadge>
           </div>
-          {teaching && qualifiedAreas?.length === 0 ? (
-            <div className="mb-4 inline-flex rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive">
+          {teaching && !missingQualifiedAreas ? (
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {(qualifiedAreas ?? []).slice(0, 2).map((area) => (
+                <StaffAreaBadge key={area.id} seed={area.codigo ?? area.id} className="max-w-[12rem]">
+                  {area.nombre}
+                </StaffAreaBadge>
+              ))}
+              {(qualifiedAreas ?? []).length > 2 ? (
+                <StaffAreaBadge seed={`${id}-more`} className="max-w-[5rem]">
+                  +{(qualifiedAreas ?? []).length - 2}
+                </StaffAreaBadge>
+              ) : null}
+            </div>
+          ) : null}
+          {missingQualifiedAreas ? (
+            <div className="mb-3 inline-flex w-fit rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive">
               Sin área habilitada
             </div>
           ) : null}
           {reviewLabel ? (
-            <div className="mb-4 inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
+            <div className="mb-3 inline-flex w-fit rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
               {reviewLabel}
             </div>
           ) : null}
 
           {/* Contact Info */}
-          <div className="space-y-2 mb-4" data-oid="lq81nmx">
+          <div className="mb-3 space-y-2" data-oid="lq81nmx">
             <div
-              className="flex items-center gap-2 text-sm text-muted-foreground"
+              className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground"
               data-oid="1qrmnly"
             >
               <Mail className="h-3.5 w-3.5 flex-shrink-0" data-oid="d-nl2o." />
-              <span className="truncate" data-oid="2axlsrq">
-                {email}
-              </span>
+              {normalizedEmail ? (
+                <a
+                  href={`mailto:${normalizedEmail}`}
+                  className="min-w-0 truncate font-medium text-primary hover:underline"
+                  onClick={(event) => event.stopPropagation()}
+                  data-oid="2axlsrq"
+                >
+                  {normalizedEmail}
+                </a>
+              ) : (
+                <span className="truncate italic text-muted-foreground/70" data-oid="2axlsrq">
+                  Sin mail
+                </span>
+              )}
             </div>
-            {phone && (
-              <div
-                className="flex items-center gap-2 text-sm text-muted-foreground"
-                data-oid="u-4v2i3"
-              >
-                <Phone className="h-3.5 w-3.5 flex-shrink-0" data-oid="xah4sk6" />
-                <span data-oid="8dxim-i">{phone}</span>
-              </div>
-            )}
+            <div
+              className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground"
+              data-oid="u-4v2i3"
+            >
+              <Phone className="h-3.5 w-3.5 flex-shrink-0" data-oid="xah4sk6" />
+              {normalizedPhone ? (
+                <a
+                  href={`tel:${normalizedPhone.replace(/\s+/g, '')}`}
+                  className="min-w-0 truncate font-medium text-primary hover:underline"
+                  onClick={(event) => event.stopPropagation()}
+                  data-oid="8dxim-i"
+                >
+                  {normalizedPhone}
+                </a>
+              ) : (
+                <span className="truncate italic text-muted-foreground/70" data-oid="8dxim-i">
+                  Sin teléfono
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Bio Preview */}
           {bio && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-4" data-oid="tgiu333">
+            <p className="mb-3 line-clamp-2 text-xs text-muted-foreground" data-oid="tgiu333">
               {bio}
             </p>
           )}
 
           {/* Assigned Campuses */}
-          <div className="space-y-2" data-oid="f0-qctf">
+          <div className="mt-auto space-y-2" data-oid="f0-qctf">
             <p
               className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
               data-oid="7d5jh7a"
@@ -246,12 +286,12 @@ export function StaffCard({
             </p>
             <div className="flex gap-1 flex-wrap" data-oid="fpgw5-j">
               {assignedCampuses.length === 0 ? (
-                <span className="text-sm text-muted-foreground" data-oid="xgrw:yc">
+                <span className="text-xs text-muted-foreground" data-oid="xgrw:yc">
                   Sin sedes asignadas
                 </span>
               ) : (
-                assignedCampuses.map((campus) => (
-                  <StaffCampusBadge key={campus.id} data-oid=":pfs_wt">
+                assignedCampuses.slice(0, 2).map((campus) => (
+                  <StaffCampusBadge key={campus.id} className="w-auto max-w-[10rem]" data-oid=":pfs_wt">
                     {campus.name}
                   </StaffCampusBadge>
                 ))
@@ -259,18 +299,18 @@ export function StaffCard({
             </div>
           </div>
           {typeof courseRunsCount === 'number' ? (
-            <div className="mt-4 border-t pt-3">
-              <StaffCountBadge count={courseRunsCount} />
+            <div className="mt-3 border-t pt-3">
+              <StaffCountBadge count={courseRunsCount} className="w-auto min-w-[7rem]" />
             </div>
           ) : null}
         </CardContent>
       </div>
 
-      <CardFooter className="bg-muted/50 p-4 border-t" data-oid="m18tdm8">
+      <CardFooter className="border-t bg-muted/50 p-3" data-oid="m18tdm8">
         <Button
           variant="outline"
           size="sm"
-          className="w-full"
+          className="h-8 w-full text-xs font-semibold uppercase"
           onClick={() => onView(id)}
           data-oid="hs3__v2"
         >

@@ -117,7 +117,7 @@ function AchievementsView() {
   const getCategoryColor = (category: BadgeData['category']) => {
     switch (category) {
       case 'learning':
-        return 'bg-blue-100 text-blue-600'
+        return 'bg-primary/10 text-primary'
       case 'streak':
         return 'bg-orange-100 text-orange-600'
       case 'achievement':
@@ -286,10 +286,10 @@ function AchievementsView() {
 
             <div className="text-center" data-oid="s7nxw5y">
               <div
-                className="mx-auto w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2"
+                className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2"
                 data-oid="2u_6j1l"
               >
-                <BookOpen className="h-6 w-6 text-blue-600" data-oid="iy..4xp" />
+                <BookOpen className="h-6 w-6 text-primary" data-oid="iy..4xp" />
               </div>
               <p className="text-2xl font-bold" data-oid="p-a-bdx">
                 {data.stats.lessonsCompleted}
@@ -500,7 +500,7 @@ function AchievementsView() {
                             ? 'bg-yellow-100'
                             : activity.type === 'milestone'
                               ? 'bg-purple-100'
-                              : 'bg-blue-100'
+                              : 'bg-primary/10'
                         }`}
                         data-oid="m7.4t56"
                       >
@@ -509,7 +509,7 @@ function AchievementsView() {
                         ) : activity.type === 'milestone' ? (
                           <Target className="h-4 w-4 text-purple-600" data-oid="2fc5k5o" />
                         ) : (
-                          <Zap className="h-4 w-4 text-blue-600" data-oid="bq1bl81" />
+                          <Zap className="h-4 w-4 text-primary" data-oid="bq1bl81" />
                         )}
                       </div>
                       <div className="flex-1" data-oid="7rmpr3d">

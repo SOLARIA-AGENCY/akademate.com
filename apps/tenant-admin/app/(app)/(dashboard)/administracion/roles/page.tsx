@@ -59,7 +59,7 @@ const rolesData = [
     descripcion:
       'Gestiona contenido académico, cursos, ciclos y convocatorias. No accede a facturación ni configuración avanzada.',
     usuarios: 3,
-    color: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
+    color: 'bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary',
     icon: Users,
     editable: true,
   },
@@ -190,15 +190,15 @@ export default function RolesPage() {
       />
 
       {/* Info Card */}
-      <Card className="bg-blue-50 border-blue-200" data-oid="j9uuoml">
+      <Card className="bg-primary/10 border-primary/20" data-oid="j9uuoml">
         <CardContent className="pt-6" data-oid="-x.wpll">
           <div className="flex items-start gap-4" data-oid="h.nyma9">
-            <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" data-oid="r6jjdgz" />
+            <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" data-oid="r6jjdgz" />
             <div className="space-y-1" data-oid="hoxo9wl">
-              <h4 className="font-medium text-blue-900" data-oid="wtym5cx">
+              <h4 className="font-medium text-primary" data-oid="wtym5cx">
                 Sistema de Permisos Granular
               </h4>
-              <p className="text-sm text-blue-800" data-oid="p2kr4ft">
+              <p className="text-sm text-primary" data-oid="p2kr4ft">
                 Los permisos se heredan jerárquicamente: Admin {'>'} Gestor {'>'} Marketing {'>'}{' '}
                 Asesor {'>'} Lectura. Los roles del sistema no pueden eliminarse, pero puedes crear
                 roles personalizados con permisos específicos.

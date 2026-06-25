@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { ChevronDown, Mail, Phone } from 'lucide-react'
+import { ChevronDown, Mail, Menu, Phone, X } from 'lucide-react'
 import { Button } from '@payload-config/components/ui/button'
 
 type PublicHeaderClientProps = {
@@ -32,6 +32,7 @@ export function PublicHeaderClient({
   isCepTenant,
 }: PublicHeaderClientProps) {
   const [isVisible, setIsVisible] = React.useState(true)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
   const [reduceMotion, setReduceMotion] = React.useState(false)
   const lastScrollYRef = React.useRef(0)
   const rafRef = React.useRef<number | null>(null)
@@ -39,12 +40,22 @@ export function PublicHeaderClient({
   React.useEffect(() => {
     if (typeof window === 'undefined') return
 
+    const mobileMedia = window.matchMedia('(max-width: 1023px)')
+
+    const ensureHeaderVisibleWhenNeeded = () => {
+      if (window.scrollY < TOP_VISIBLE_THRESHOLD || mobileMedia.matches) {
+        setIsVisible(true)
+      }
+    }
+
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
     const updateMotionPreference = () => setReduceMotion(media.matches)
     updateMotionPreference()
     media.addEventListener('change', updateMotionPreference)
+    mobileMedia.addEventListener('change', ensureHeaderVisibleWhenNeeded)
 
     lastScrollYRef.current = window.scrollY
+    ensureHeaderVisibleWhenNeeded()
 
     const onScroll = () => {
       if (rafRef.current !== null) return
@@ -67,13 +78,32 @@ export function PublicHeaderClient({
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', ensureHeaderVisibleWhenNeeded)
 
     return () => {
       window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', ensureHeaderVisibleWhenNeeded)
       media.removeEventListener('change', updateMotionPreference)
+      mobileMedia.removeEventListener('change', ensureHeaderVisibleWhenNeeded)
       if (rafRef.current !== null) {
         window.cancelAnimationFrame(rafRef.current)
       }
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
     }
   }, [])
 
@@ -86,7 +116,7 @@ export function PublicHeaderClient({
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur ${transitionClass} ${
-        isVisible ? 'translate-y-0' : '-translate-y-full'
+        isVisible || isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
       }`}
     >
       <div className="hidden md:block text-white" style={{ backgroundColor: brandColor }}>
@@ -170,13 +200,121 @@ export function PublicHeaderClient({
               Contacto
             </a>
           </nav>
-          <Button type="button" variant="ghost" size="icon" className="lg:hidden text-gray-600" aria-label="Menu">
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="lg:hidden text-gray-600"
+            aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-controls="public-mobile-menu"
+            aria-expanded={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen((current) => !current)}
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
           </Button>
         </div>
       </div>
+      {isMobileMenuOpen ? (
+        <div id="public-mobile-menu" className="border-t border-slate-200 bg-white shadow-lg lg:hidden">
+          <nav className="mx-auto max-w-7xl px-4 py-4 sm:px-6" aria-label="Navegación móvil">
+            <div className="grid gap-2">
+              <a
+                href="/quienes-somos"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Quiénes somos
+              </a>
+              <a
+                href="/p/ciclos"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Ciclos FP
+              </a>
+              <div className="rounded-2xl bg-slate-50 p-2">
+                <a
+                  href="/p/cursos"
+                  className="block rounded-xl px-3 py-3 text-sm font-black text-slate-950 transition hover:bg-white"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Cursos
+                </a>
+                <div className="grid gap-1">
+                  {COURSE_MENU_ITEMS.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-white hover:text-slate-950"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+              <a
+                href="/#nuevas-formaciones"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Nuevas formaciones
+              </a>
+              <a
+                href="/p/convocatorias"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Convocatorias
+              </a>
+              <a
+                href="/blog"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Blog
+              </a>
+              <a
+                href="/empleo"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Empleo
+              </a>
+              <div className="grid gap-2 border-t border-slate-200 pt-3">
+                {phone1 ? (
+                  <a
+                    href={`tel:${phone1.replace(/\s+/g, '')}`}
+                    className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Phone className="h-4 w-4" aria-hidden="true" />
+                    {phone1}
+                  </a>
+                ) : null}
+                {phone2 ? (
+                  <a
+                    href={`tel:${phone2.replace(/\s+/g, '')}`}
+                    className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Phone className="h-4 w-4" aria-hidden="true" />
+                    {phone2}
+                  </a>
+                ) : null}
+                <a
+                  href="/p/contacto"
+                  className="inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
+                  style={{ backgroundColor: brandColor }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Contacto
+                </a>
+              </div>
+            </div>
+          </nav>
+        </div>
+      ) : null}
     </header>
   )
 }

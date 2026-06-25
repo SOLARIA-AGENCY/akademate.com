@@ -30,9 +30,9 @@ interface Convocatoria {
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive'; color: string }> = {
   draft: { label: 'Sin publicar', variant: 'secondary', color: 'border-gray-300' },
-  published: { label: 'Publicado', variant: 'outline', color: 'border-blue-300' },
+  published: { label: 'Publicado', variant: 'outline', color: 'border-primary/30' },
   enrollment_open: { label: 'Inscripcion abierta', variant: 'default', color: 'border-green-400' },
-  in_progress: { label: 'En curso', variant: 'default', color: 'border-blue-400' },
+  in_progress: { label: 'En curso', variant: 'default', color: 'border-primary/40' },
   completed: { label: 'Finalizada', variant: 'secondary', color: 'border-gray-400' },
   cancelled: { label: 'Cancelada', variant: 'destructive', color: 'border-red-400' },
   archived: { label: 'Archivada', variant: 'secondary', color: 'border-gray-300' },

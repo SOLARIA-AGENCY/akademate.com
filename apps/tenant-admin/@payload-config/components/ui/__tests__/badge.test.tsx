@@ -63,10 +63,10 @@ describe('badgeVariants', () => {
     expect(classes).toContain('text-white')
   })
 
-  it('info variant uses semantic blue', () => {
+  it('info variant uses tenant primary tokens', () => {
     const classes = badgeVariants({ variant: 'info' })
-    expect(classes).toContain('bg-blue-600')
-    expect(classes).toContain('text-white')
+    expect(classes).toContain('bg-primary')
+    expect(classes).toContain('text-primary-foreground')
   })
 
   it('neutral variant uses semantic gray', () => {
@@ -157,15 +157,15 @@ describe('Badge component', () => {
     expect(el.className).toContain('text-white')
   })
 
-  it('renders info variant with blue classes', () => {
+  it('renders info variant with tenant primary classes', () => {
     const { container } = render(
       <Badge variant="info" data-oid="apgcp7q">
         Online
       </Badge>
     )
     const el = container.firstChild as HTMLElement
-    expect(el.className).toContain('bg-blue-600')
-    expect(el.className).toContain('text-white')
+    expect(el.className).toContain('bg-primary')
+    expect(el.className).toContain('text-primary-foreground')
   })
 
   it('spreads additional HTML attributes', () => {

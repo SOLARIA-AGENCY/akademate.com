@@ -46,6 +46,14 @@ import { MenuItem } from '@/types'
 import { useTenantBranding } from '@/app/providers/tenant-branding'
 import { DashboardSidebarGroup, DashboardSidebarUpcomingBadge } from '../akademate/dashboard/DashboardSidebar'
 import { Button } from '@payload-config/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@payload-config/components/ui/dropdown-menu'
 
 // Menu structure with sections
 // Section: null = no separator, otherwise show separator before item.
@@ -91,12 +99,14 @@ const menuItems: MenuItemWithSection[] = [
     url: '/dashboard/alumnos',
   },
   {
-    title: 'Personal',
-    icon: Users,
-    items: [
-      { title: 'Profesores', icon: GraduationCap, url: '/dashboard/profesores' },
-      { title: 'Administrativos', icon: Briefcase, url: '/dashboard/administrativo' },
-    ],
+    title: 'Profesores',
+    icon: GraduationCap,
+    url: '/dashboard/profesores',
+  },
+  {
+    title: 'Administrativos',
+    icon: Briefcase,
+    url: '/dashboard/administrativo',
   },
   {
     title: 'Matriculacion',
@@ -386,6 +396,63 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const topLevelInteractionClass =
     'transition-all duration-200 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-0'
 
+  const renderCollapsedSubmenu = (item: MenuItemWithSection, Icon: React.ElementType, hasActiveChild: boolean) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          className={`group relative flex items-center rounded-md py-2 text-sm ${topLevelInteractionClass} ${
+            hasActiveChild ? 'bg-sidebar-accent/60' : ''
+          } ${topLevelBaseClass}`}
+          title={item.title}
+          aria-label={item.title}
+        >
+          <Icon
+            className={`h-5 w-5 shrink-0 ${item.upcoming ? 'text-muted-foreground/40' : 'text-foreground/80'}`}
+          />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="right" align="start" sideOffset={10} className="w-60">
+        <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {item.items?.map((subItem) => {
+          const SubIcon = subItem.icon
+          const hasNestedItems = subItem.items && subItem.items.length > 0
+          if (hasNestedItems) {
+            return (
+              <React.Fragment key={subItem.title}>
+                <DropdownMenuLabel className="px-2 py-1.5 text-xs text-muted-foreground">
+                  {subItem.title}
+                </DropdownMenuLabel>
+                {subItem.items?.map((nestedItem) => {
+                  const NestedIcon = nestedItem.icon
+                  return (
+                    <DropdownMenuItem key={nestedItem.title} asChild>
+                      <Link href={nestedItem.url!} className="flex items-center gap-2">
+                        <NestedIcon className="h-4 w-4" />
+                        {nestedItem.title}
+                      </Link>
+                    </DropdownMenuItem>
+                  )
+                })}
+              </React.Fragment>
+            )
+          }
+
+          return (
+            <DropdownMenuItem key={subItem.title} asChild>
+              <Link href={subItem.url!} className="flex items-center gap-2">
+                <SubIcon className="h-4 w-4" />
+                {subItem.title}
+              </Link>
+            </DropdownMenuItem>
+          )
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+
   return (
     <div
       className="flex h-full flex-col overflow-hidden bg-card text-sidebar-foreground"
@@ -486,6 +553,15 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                 }
                 return isUrlActive(subItem.url)
               }) ?? false
+
+            if (isCollapsed) {
+              return (
+                <React.Fragment key={item.title}>
+                  {SectionSeparator}
+                  <li data-oid="mup0i0h">{renderCollapsedSubmenu(item, Icon, hasActiveChild)}</li>
+                </React.Fragment>
+              )
+            }
 
             return (
               <React.Fragment key={item.title}>

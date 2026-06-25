@@ -3,7 +3,11 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
-import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import {
+  DashboardListingLayout,
+  DashboardToolbar,
+  type DashboardStatItem,
+} from '@payload-config/components/akademate/dashboard'
 import { Button } from '@payload-config/components/ui/button'
 import { MapPin, DoorOpen, Users, BookOpen, Phone, Mail, Plus } from 'lucide-react'
 import { SedeListItem } from '@payload-config/components/ui/SedeListItem'
@@ -155,8 +159,40 @@ export default function SedesPage() {
     router.push('/dashboard/sedes/nueva')
   }
 
+  const stats: DashboardStatItem[] = [
+    { label: 'Total sedes', value: sedes.length, icon: MapPin },
+    {
+      label: 'Aulas activas',
+      value: sedes.reduce((total, sede) => total + sede.aulas, 0),
+      icon: DoorOpen,
+      tone: 'primary',
+    },
+    {
+      label: 'Capacidad total',
+      value: sedes.reduce((total, sede) => total + sede.capacidad, 0),
+      icon: Users,
+      tone: 'success',
+    },
+    {
+      label: 'Cursos activos',
+      value: sedes.reduce((total, sede) => total + sede.cursosActivos, 0),
+      icon: BookOpen,
+    },
+  ]
+
   return (
-    <div className="space-y-6" data-oid="5.ig9gq">
+    <DashboardListingLayout
+      title="Sedes"
+      description="Vista simplificada para operación diaria."
+      actions={
+        <Button onClick={handleAdd} data-oid="hrtnwkn">
+          <Plus className="h-4 w-4" />
+          Nueva Sede
+        </Button>
+      }
+      stats={stats}
+      toolbar={<DashboardToolbar viewToggle={<ViewToggle view={view} onViewChange={setView} data-oid="3df3n_r" />} />}
+    >
       {isLoading && (
         <div
           className="rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
@@ -174,24 +210,6 @@ export default function SedesPage() {
           {errorMessage}
         </div>
       )}
-
-      <PageHeader
-        title="Sedes"
-        description="Vista simplificada para operación diaria."
-        icon={MapPin}
-        actions={
-          <Button onClick={handleAdd} data-oid="hrtnwkn">
-            <Plus className="h-4 w-4" />
-            Nueva Sede
-          </Button>
-        }
-        filters={
-          <div className="flex w-full items-center justify-end gap-3" data-oid="-_wk.s:">
-            <ViewToggle view={view} onViewChange={setView} data-oid="3df3n_r" />
-          </div>
-        }
-        data-oid="e1:wo92"
-      />
 
       <UsageBar resource="sedes" current={sedes.length} limit={getLimit(plan, 'sedes')} />
 
@@ -324,6 +342,6 @@ export default function SedesPage() {
           plan={plan}
         />
       )}
-    </div>
+    </DashboardListingLayout>
   )
 }

@@ -90,7 +90,7 @@ function buildCourseFeatures(course: NonNullable<Awaited<ReturnType<typeof getPu
       label: durationLabel,
       icon: Clock,
       description: isTeleformacion ? 'Avanza desde casa con acceso flexible.' : 'Carga lectiva completa certificada.',
-      color: 'text-blue-500'
+      color: 'text-primary'
     },
     {
       label: isTeleformacion ? 'Matrícula permanente' : 'Agencia de colocación oficial',
@@ -102,7 +102,7 @@ function buildCourseFeatures(course: NonNullable<Awaited<ReturnType<typeof getPu
       label: isTeleformacion ? '100% Online' : 'Clases Presenciales',
       icon: Users,
       description: isTeleformacion ? 'Formación completa sin desplazamientos.' : 'Aprendizaje en aula con expertos.',
-      color: 'text-indigo-500'
+      color: 'text-primary'
     },
     {
       label: isTeleformacion ? 'Aprendizaje Flexible' : 'Grupos Reducidos',
@@ -1053,7 +1053,7 @@ export default async function CursoLandingPage({ params }: Props) {
       <section className="bg-gray-900 py-32 px-4 relative overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
           <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-brand-600 rounded-full blur-[120px] -translate-y-1/2" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-indigo-600 rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-primary rounded-full blur-[100px]" />
         </div>
         
         <div className="relative z-10 text-center max-w-4xl mx-auto">

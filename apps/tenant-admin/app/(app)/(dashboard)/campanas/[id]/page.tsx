@@ -56,8 +56,8 @@ const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   active: { label: 'Activa', className: 'text-green-700 border-green-200 bg-green-50' },
   paused: { label: 'Pausada', className: 'text-amber-700 border-amber-200 bg-amber-50' },
   draft: { label: 'Sin publicar', className: 'text-slate-700 border-slate-200 bg-slate-50' },
-  completed: { label: 'Finalizada', className: 'text-blue-700 border-blue-200 bg-blue-50' },
-  archived: { label: 'Finalizada', className: 'text-blue-700 border-blue-200 bg-blue-50' },
+  completed: { label: 'Finalizada', className: 'text-primary border-primary/20 bg-primary/10' },
+  archived: { label: 'Finalizada', className: 'text-primary border-primary/20 bg-primary/10' },
 }
 
 function formatDate(value?: string | null): string {

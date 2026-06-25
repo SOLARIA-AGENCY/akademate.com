@@ -7,6 +7,7 @@ interface AreaFormativaDocument {
   id: number;
   codigo: string;
   nombre: string;
+  color?: string | null;
   descripcion?: string;
   activo?: boolean;
   createdAt: string;
@@ -36,7 +37,9 @@ export async function GET() {
         id: area.id,
         codigo: area.codigo,
         nombre: area.nombre,
+        color: area.color ?? null,
         descripcion: area.descripcion ?? '',
+        activo: area.activo ?? true,
         active: area.activo ?? true,
       })),
       total: result.totalDocs,
@@ -60,7 +63,7 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   try {
-    const body = await request.json() as { codigo: string; nombre: string; descripcion?: string };
+    const body = await request.json() as { codigo: string; nombre: string; descripcion?: string; color?: string; activo?: boolean };
 
     if (!body.codigo || !body.nombre) {
       return NextResponse.json(
@@ -77,7 +80,8 @@ export async function POST(request: Request) {
         codigo: body.codigo,
         nombre: body.nombre,
         descripcion: body.descripcion ?? '',
-        activo: true,
+        color: /^#[0-9A-Fa-f]{6}$/.test(body.color ?? '') ? body.color : '#64748B',
+        activo: body.activo ?? true,
       },
     });
 

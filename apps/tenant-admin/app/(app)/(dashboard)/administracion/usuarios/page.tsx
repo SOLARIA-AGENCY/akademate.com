@@ -83,8 +83,8 @@ const rolConfig: Record<string, { color: string; bgColor: string; icon: React.Re
     icon: <Shield className="h-3 w-3" data-oid="4u9vff9" />,
   },
   Gestor: {
-    color: 'text-blue-700 dark:text-blue-300',
-    bgColor: 'bg-blue-100 dark:bg-blue-950',
+    color: 'text-primary dark:text-primary',
+    bgColor: 'bg-primary/10 dark:bg-primary/15',
     icon: <Users className="h-3 w-3" data-oid="6gipt.i" />,
   },
   Marketing: {
@@ -389,10 +389,10 @@ export default function UsuariosPage() {
             <CardTitle className="text-sm font-medium" data-oid="e0dh_u5">
               Con 2FA
             </CardTitle>
-            <Key className="h-4 w-4 text-blue-500" data-oid="i4jl4oa" />
+            <Key className="h-4 w-4 text-primary" data-oid="i4jl4oa" />
           </CardHeader>
           <CardContent data-oid="ue37a8r">
-            <div className="text-2xl font-bold text-blue-600" data-oid="k::lz_2">
+            <div className="text-2xl font-bold text-primary" data-oid="k::lz_2">
               {estadisticas.con2FA}
             </div>
             <p className="text-xs text-muted-foreground" data-oid="b0i39ub">

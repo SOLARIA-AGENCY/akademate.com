@@ -21,6 +21,8 @@ type CourseDoc = {
   name?: string | null
   title?: string | null
   course_type?: string | null
+  cycle_id?: number | string | null
+  cycle?: { id?: number | string | null } | number | string | null
   short_description?: string | null
   description?: string | null
   long_description?: unknown
@@ -41,7 +43,7 @@ type CourseDoc = {
   landing_faqs?: { question?: string | null; answer?: string | null }[] | null
   active?: boolean | null
   featured?: boolean | null
-  area_formativa?: { nombre?: string | null } | number | null
+  area_formativa?: { nombre?: string | null; color?: string | null; codigo?: string | null } | number | null
   featured_image?: { url?: string | null; filename?: string | null } | number | null
   image?: { url?: string | null; filename?: string | null } | number | null
   dossier_pdf?: { url?: string | null; filename?: string | null } | number | null
@@ -87,9 +89,12 @@ export type PublishedCourse = {
   studyType: PublicStudyType | null
   studyTypeLabel: string
   studyTypeColor: string
+  cycleId: string | null
   descripcion: string
   descripcionDetallada: string[]
   area: string
+  areaColor: string
+  areaCode: string
   modality: string
   duracionReferencia: number
   precioReferencia: number
@@ -153,6 +158,23 @@ function isValidHexColor(color: string | null | undefined): color is string {
 function toAreaName(area: CourseDoc['area_formativa']): string {
   if (typeof area === 'object' && area && area.nombre) return area.nombre
   return 'Sin área'
+}
+
+function toAreaColor(area: CourseDoc['area_formativa']): string {
+  if (typeof area === 'object' && area && isValidHexColor(area.color)) return area.color
+  return '#64748B'
+}
+
+function toAreaCode(area: CourseDoc['area_formativa']): string {
+  if (typeof area === 'object' && area && area.codigo) return area.codigo
+  return ''
+}
+
+function toCycleId(course: CourseDoc): string | null {
+  if (course.cycle_id) return String(course.cycle_id)
+  if (typeof course.cycle === 'object' && course.cycle && course.cycle.id) return String(course.cycle.id)
+  if (typeof course.cycle === 'number' || typeof course.cycle === 'string') return String(course.cycle)
+  return null
 }
 
 function resolveMediaImageUrl(
@@ -378,11 +400,14 @@ function mapCourseDocToPublishedCourse(
     studyType: normalizedStudyType,
     studyTypeLabel: visual?.label || 'Sin tipo',
     studyTypeColor: visual?.color || '#64748B',
+    cycleId: toCycleId(course),
     descripcion:
       String(course.short_description || course.description || '').trim() ||
       'Curso de formación profesional',
     descripcionDetallada: extractTextFromRichText(course.long_description),
     area: toAreaName(course.area_formativa),
+    areaColor: toAreaColor(course.area_formativa),
+    areaCode: toAreaCode(course.area_formativa),
     modality: String(course.modality || 'presencial'),
     duracionReferencia: Number(course.duration_hours || 0),
     precioReferencia: Number(course.base_price || 0),

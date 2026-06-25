@@ -126,7 +126,7 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
             required
             value={formData.first_name}
             onChange={(e) => setFormData((prev) => ({ ...prev, first_name: e.target.value }))}
-            className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
             placeholder="Tu nombre"
           />
         </div>
@@ -140,7 +140,7 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
             required
             value={formData.last_name}
             onChange={(e) => setFormData((prev) => ({ ...prev, last_name: e.target.value }))}
-            className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
             placeholder="Tus apellidos"
           />
         </div>
@@ -155,7 +155,7 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
           required
           value={formData.email}
           onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-          className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
           placeholder="tu@email.com"
         />
       </div>
@@ -168,7 +168,7 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
           id="phone"
           value={formData.phone}
           onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-          className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="h-auto rounded-lg px-4 py-2.5 text-sm focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
           placeholder="+34 600 000 000"
         />
       </div>
@@ -180,7 +180,7 @@ export function ContactForm({ courseRunId, courseName, slug }: ContactFormProps)
       <Button
         type="submit"
         disabled={status === 'submitting'}
-        className="h-auto w-full rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-auto w-full rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {status === 'submitting' ? 'Enviando...' : 'Solicitar Informacion'}
       </Button>

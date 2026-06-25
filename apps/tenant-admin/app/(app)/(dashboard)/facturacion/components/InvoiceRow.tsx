@@ -32,7 +32,7 @@ interface InvoiceRowProps {
 export function InvoiceRow({ invoice, onDownload, onView }: InvoiceRowProps) {
   const statusConfig: Record<InvoiceStatus, StatusConfig> = {
     paid: { label: 'Pagada', variant: 'default', color: 'bg-green-500' },
-    open: { label: 'Pendiente', variant: 'secondary', color: 'bg-blue-500' },
+    open: { label: 'Pendiente', variant: 'secondary', color: 'bg-primary' },
     void: { label: 'Anulada', variant: 'secondary', color: 'bg-gray-500' },
     draft: { label: 'Sin publicar', variant: 'secondary', color: 'bg-gray-400' },
     uncollectible: { label: 'Incobrable', variant: 'destructive', color: 'bg-red-500' },

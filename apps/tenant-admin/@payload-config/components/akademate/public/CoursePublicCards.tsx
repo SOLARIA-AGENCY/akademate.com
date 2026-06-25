@@ -13,6 +13,7 @@ export interface PublicCourseCardData {
   area?: string | null
   studyType?: string | null
   studyTypeLabel: string
+  studyTypeColor?: string | null
   modality?: string | null
   descripcion?: string | null
   enrollmentLabel?: string | null
@@ -38,15 +39,19 @@ export function getPublicCourseUi(course: PublicCourseCardData) {
 
 export function CoursePublicCard({ course }: { course: PublicCourseCardData }) {
   const ui = getPublicCourseUi(course)
+  const typeColor = course.studyTypeColor || '#f2014b'
   return (
     <Link href={`/p/cursos/${course.slug}`} className="group h-full">
       <Card className="flex h-full min-h-[560px] flex-col overflow-hidden border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
         <div className="relative h-48 shrink-0">
           <img src={ui.imageUrl} alt={course.nombre} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <PublicMediaBadge tone={ui.isTeleformacion ? 'warning' : ui.isSubsidized ? 'success' : 'primary'} className="absolute left-4 top-4">
+          <span
+            className="absolute left-4 top-4 inline-flex items-center rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white shadow-sm"
+            style={{ backgroundColor: typeColor }}
+          >
             {course.studyTypeLabel}
-          </PublicMediaBadge>
+          </span>
           {ui.isTeleformacion ? <PublicMediaBadge tone="success" className="absolute right-4 top-4">Empieza cuando quieras</PublicMediaBadge> : null}
           {ui.isSubsidized ? <PublicMediaBadge tone="success" className="absolute right-4 top-4">Formación gratuita</PublicMediaBadge> : null}
           <div className="absolute bottom-4 left-4 right-4">
@@ -76,16 +81,54 @@ export function CoursePublicCard({ course }: { course: PublicCourseCardData }) {
   )
 }
 
-export function CoursePublicListItem({ course }: { course: PublicCourseCardData }) {
+export function CoursePublicListItem({
+  course,
+  compact = false,
+}: {
+  course: PublicCourseCardData
+  compact?: boolean
+}) {
   const ui = getPublicCourseUi(course)
+  const typeColor = course.studyTypeColor || '#f2014b'
+
+  if (compact) {
+    return (
+      <Link href={`/p/cursos/${course.slug}`} className="group block">
+        <div
+          className="grid gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:border-slate-300 hover:shadow-md sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+        >
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-2">
+              <span
+                className="inline-flex shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white"
+                style={{ backgroundColor: typeColor }}
+              >
+                {course.studyTypeLabel}
+              </span>
+              <h3 className="min-w-0 flex-1 truncate text-sm font-black leading-6 text-slate-950 sm:text-base">
+                {course.nombre}
+              </h3>
+            </div>
+          </div>
+          <span className="inline-flex w-fit items-center justify-center rounded-full bg-[#f2014b] px-3 py-1.5 text-xs font-black text-white transition group-hover:bg-[#d0013f]">
+            Ver curso
+          </span>
+        </div>
+      </Link>
+    )
+  }
+
   return (
     <Link href={`/p/cursos/${course.slug}`} className="group block">
       <Card className="grid overflow-hidden border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[220px_1fr]">
         <div className="relative h-44 sm:h-full">
           <img src={ui.imageUrl} alt={course.nombre} className="h-full w-full object-cover" />
-          <PublicMediaBadge tone={ui.isTeleformacion ? 'warning' : ui.isSubsidized ? 'success' : 'primary'} className="absolute left-4 top-4">
+          <span
+            className="absolute left-4 top-4 inline-flex items-center rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white shadow-sm"
+            style={{ backgroundColor: typeColor }}
+          >
             {course.studyTypeLabel}
-          </PublicMediaBadge>
+          </span>
           {ui.isTeleformacion ? <PublicMediaBadge tone="success" className="absolute bottom-4 left-4">Empieza cuando quieras</PublicMediaBadge> : null}
         </div>
         <CardContent className="flex min-w-0 flex-col gap-4 p-5">

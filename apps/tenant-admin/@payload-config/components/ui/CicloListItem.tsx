@@ -17,11 +17,12 @@ interface CicloListItemProps {
 export function CicloListItem({ ciclo, onClick, className }: CicloListItemProps) {
   const tipoBadgeClass =
     ciclo.tipo === 'superior' ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'
+  const areaColor = /^#[0-9A-Fa-f]{6}$/.test(ciclo.areaColor ?? '') ? ciclo.areaColor! : '#64748B'
 
   return (
     <Card
       className={cn(
-        'group cursor-pointer overflow-hidden shadow-sm transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring',
+        'group relative cursor-pointer overflow-hidden shadow-sm transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring',
         className
       )}
       onClick={onClick}
@@ -34,7 +35,13 @@ export function CicloListItem({ ciclo, onClick, className }: CicloListItemProps)
         }
       }}
     >
-      <CardContent className="grid h-20 grid-cols-[5rem_1fr_auto] items-center gap-4 border-l-4 p-0 pr-3" style={{ borderLeftColor: ciclo.tipo === 'superior' ? '#dc2626' : '#ef4444' }}>
+      <div
+        aria-hidden="true"
+        data-cycle-area-accent
+        className="absolute inset-y-0 right-0 w-1.5"
+        style={{ backgroundColor: areaColor }}
+      />
+      <CardContent className="grid h-20 grid-cols-[5rem_1fr_auto] items-center gap-4 border-l-4 p-0 pr-3" style={{ borderLeftColor: areaColor }}>
         {ciclo.image ? (
           <img src={ciclo.image} alt={ciclo.nombre} className="h-full w-20 object-cover" />
         ) : (
@@ -49,7 +56,7 @@ export function CicloListItem({ ciclo, onClick, className }: CicloListItemProps)
               {ciclo.nombre}
             </h3>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              {ciclo.familia_profesional}
+              {ciclo.area || ciclo.familia_profesional}
             </p>
           </div>
 

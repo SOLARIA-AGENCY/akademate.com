@@ -30,7 +30,9 @@ interface CourseDetail {
   modality?: string
   course_type?: string
   area?: string
-  area_formativa?: { id: number; name: string } | number | null
+  areaColor?: string
+  areaCode?: string
+  area_formativa?: { id: number; name?: string; nombre?: string; color?: string | null; codigo?: string | null } | number | null
   featured_image?: number | string | { url?: string; filename?: string }
   dossier_pdf?: number | string | { url?: string; filename?: string }
   duration_hours?: number
@@ -131,7 +133,22 @@ function resolveMediaUrl(media: CourseDetail['featured_image']): string | null {
 function resolveAreaName(area: CourseDetail['area_formativa']): string | null {
   if (!area) return null
   if (typeof area === 'number') return null
-  return area.name ?? null
+  return area.name ?? area.nombre ?? null
+}
+
+function resolveAreaColor(course: CourseDetail): string {
+  const fromArea = course.area_formativa && typeof course.area_formativa === 'object' ? course.area_formativa.color : null
+  const candidate = fromArea || course.areaColor || ''
+  return /^#[0-9A-Fa-f]{6}$/.test(candidate) ? candidate : '#64748B'
+}
+
+function AreaBadge({ course, label }: { course: CourseDetail; label: string }) {
+  return (
+    <Badge variant="outline" className="gap-1.5 border-border bg-background">
+      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: resolveAreaColor(course) }} />
+      {label}
+    </Badge>
+  )
 }
 
 function formatCurrency(value?: number | null): string {
@@ -253,6 +270,7 @@ export default function CursoDetailPage({ params }: Props) {
   // Derived
   const imageUrl = resolveImageUrl(course.featured_image)
   const areaName = resolveAreaName(course.area_formativa)
+  const displayAreaName = areaName ?? course.area ?? 'Por definir'
   const statusInfo = STATUS_LABELS[course.active === false ? 'archived' : (course.status ?? 'draft')]
   const publicCourseUrl = `${PUBLIC_BASE_URL}/p/cursos/${course.slug ?? course.id}`
   const publicCoursePath = `/p/cursos/${course.slug ?? course.id}`
@@ -342,7 +360,13 @@ export default function CursoDetailPage({ params }: Props) {
       <div className="course-screen-only grid gap-6 lg:grid-cols-3">
         {/* MAIN (2/3) */}
         <div className="lg:col-span-2 space-y-6">
-          <Card>
+          <Card className="relative overflow-hidden">
+            <div
+              aria-hidden="true"
+              data-course-area-accent
+              className="absolute inset-y-0 right-0 w-1.5"
+              style={{ backgroundColor: resolveAreaColor(course) }}
+            />
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-primary" />
@@ -358,7 +382,7 @@ export default function CursoDetailPage({ params }: Props) {
               <div className="grid gap-3 sm:grid-cols-2">
                 <InfoRow label="Tipo">{normalizeCourseType(course.course_type)}</InfoRow>
                 <InfoRow label="Modalidad">{course.modality ? (MODALITY_LABELS[course.modality] ?? course.modality) : 'Por definir'}</InfoRow>
-                <InfoRow label="Area">{areaName ?? course.area ?? 'Por definir'}</InfoRow>
+                <InfoRow label="Area"><AreaBadge course={course} label={displayAreaName} /></InfoRow>
                 <InfoRow label="Precio">{formatCurrency(course.base_price)}</InfoRow>
               </div>
               {isTeleformacion && (

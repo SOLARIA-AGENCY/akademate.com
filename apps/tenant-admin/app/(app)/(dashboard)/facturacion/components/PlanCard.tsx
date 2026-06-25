@@ -108,7 +108,7 @@ export function PlanCard({
         {/* Trial badge for non-enterprise plans */}
         {!isEnterprise && (
           <div className="mt-3">
-            <Badge variant="outline" className="text-xs border-blue-200 text-blue-700 dark:border-blue-800 dark:text-blue-400 bg-blue-50 dark:bg-blue-950">
+            <Badge variant="outline" className="text-xs border-primary/20 text-primary dark:border-primary/40 dark:text-primary bg-primary/10 dark:bg-primary/15">
               15 días de prueba gratuita
             </Badge>
           </div>

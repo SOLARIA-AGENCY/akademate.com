@@ -47,7 +47,7 @@ interface Lead {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  new: { label: 'Nuevo', className: 'bg-blue-100 text-blue-800 border border-blue-300' },
+  new: { label: 'Nuevo', className: 'bg-primary/10 text-primary border border-primary/30' },
   contacted: { label: 'Contactado', className: 'bg-amber-100 text-amber-800 border border-amber-300' },
   following_up: { label: 'En seguimiento', className: 'bg-amber-100 text-amber-800 border border-amber-300' },
   interested: { label: 'Interesado', className: 'bg-green-100 text-green-800 border border-green-300' },
@@ -225,7 +225,7 @@ export default function InscripcionesPage() {
             if (advisorName !== 'Sin asignar') {
               visualBadges.push({
                 label: `Asesor: ${advisorName}`,
-                className: 'bg-indigo-100 text-indigo-800',
+                className: 'bg-primary/10 text-primary',
               })
             }
 

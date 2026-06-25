@@ -33,4 +33,31 @@ describe('StaffCard fallbacks', () => {
     expect(screen.getByLabelText('Imagen genérica de administrativo')).toBeInTheDocument()
     expect(screen.queryByAltText('Laura Fernández')).not.toBeInTheDocument()
   })
+
+  it('keeps contact affordances visible when email and phone are missing', () => {
+    render(<StaffCard {...baseStaff} staffType="profesor" email={null} phone="" />)
+
+    expect(screen.getByText('Sin mail')).toBeInTheDocument()
+    expect(screen.getByText('Sin teléfono')).toBeInTheDocument()
+  })
+
+  it('renders email and phone as actionable links when present', () => {
+    render(
+      <StaffCard
+        {...baseStaff}
+        staffType="profesor"
+        email="docente@cepformacion.com"
+        phone="+34 600 111 222"
+      />
+    )
+
+    expect(screen.getByRole('link', { name: 'docente@cepformacion.com' })).toHaveAttribute(
+      'href',
+      'mailto:docente@cepformacion.com'
+    )
+    expect(screen.getByRole('link', { name: '+34 600 111 222' })).toHaveAttribute(
+      'href',
+      'tel:+34600111222'
+    )
+  })
 })

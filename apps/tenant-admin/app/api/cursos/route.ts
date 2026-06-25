@@ -322,6 +322,8 @@ export async function GET(request?: NextRequest) {
     const includeInactiveParam = url.searchParams.get('includeInactive');
     const includeInactive = includeInactiveParam === '1' || includeInactiveParam === 'true';
     const requestedStudyType = url.searchParams.get('tipo') ?? url.searchParams.get('studyType');
+    const includeCyclesParam = url.searchParams.get('includeCycles');
+    const includeCycles = includeCyclesParam === '1' || includeCyclesParam === 'true';
     const limitParam = Number(url.searchParams.get('limit') || '');
     const limit = Number.isFinite(limitParam) && limitParam > 0 ? limitParam : 1000;
 
@@ -329,7 +331,7 @@ export async function GET(request?: NextRequest) {
       payload,
       tenantId: authContext?.tenantId ?? null,
       includeInactive,
-      includeCycles: false,
+      includeCycles,
       studyType: requestedStudyType,
       limit,
       sort: '-createdAt',

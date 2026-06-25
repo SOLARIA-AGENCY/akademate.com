@@ -16,7 +16,7 @@ export const Daily: Story = {
   render: () => {
     const hours = Array.from({ length: 12 }, (_, i) => `${8 + i}:00`)
     const events = [
-      { hour: 9, duration: 2, title: 'React Avanzado', aula: 'Aula 3', color: 'bg-blue-500' },
+      { hour: 9, duration: 2, title: 'React Avanzado', aula: 'Aula 3', color: 'bg-primary' },
       { hour: 12, duration: 1, title: 'Tutoría individual', aula: 'Sala B', color: 'bg-emerald-500' },
       { hour: 15, duration: 3, title: 'Diseño UX/UI', aula: 'Lab Diseño', color: 'bg-violet-500' },
     ]

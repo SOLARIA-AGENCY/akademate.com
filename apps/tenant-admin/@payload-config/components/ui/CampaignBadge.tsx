@@ -35,10 +35,10 @@ const CONFIG: Record<CampaignState, {
   },
   completed: {
     label: 'Campaña finalizada',
-    dotClass: 'bg-blue-500',
-    bgClass: 'bg-blue-50 dark:bg-blue-950',
-    textClass: 'text-blue-700 dark:text-blue-400',
-    borderClass: 'border-blue-200 dark:border-blue-800',
+    dotClass: 'bg-primary',
+    bgClass: 'bg-primary/10 dark:bg-primary/15',
+    textClass: 'text-primary dark:text-primary',
+    borderClass: 'border-primary/20 dark:border-primary/40',
   },
   archived: {
     label: 'Campaña archivada',

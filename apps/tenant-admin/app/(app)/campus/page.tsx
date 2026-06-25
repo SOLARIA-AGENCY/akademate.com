@@ -138,8 +138,8 @@ function CampusDashboard() {
           <Card data-oid="ue8pxrq">
             <CardContent className="pt-6" data-oid="djd3z3b">
               <div className="flex items-center gap-4" data-oid="psv2as8">
-                <div className="p-3 bg-blue-100 rounded-full" data-oid="lc7xal.">
-                  <BookOpen className="h-5 w-5 text-blue-600" data-oid="s:idnm1" />
+                <div className="p-3 bg-primary/10 rounded-full" data-oid="lc7xal.">
+                  <BookOpen className="h-5 w-5 text-primary" data-oid="s:idnm1" />
                 </div>
                 <div data-oid="yjkt4b1">
                   <p className="text-2xl font-bold" data-oid="rbybe-5">

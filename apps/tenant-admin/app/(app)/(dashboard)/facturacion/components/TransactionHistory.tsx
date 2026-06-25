@@ -61,7 +61,7 @@ export function TransactionHistory({ transactions, loading }: TransactionHistory
       label: 'Pendiente',
       icon: Clock,
       variant: 'secondary' as const,
-      color: 'text-blue-500',
+      color: 'text-primary',
     },
     processing: {
       label: 'Procesando',

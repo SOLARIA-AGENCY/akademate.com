@@ -173,10 +173,11 @@ async function getTenantBranding(tenantId: string): Promise<TenantBrandingResult
     if (!row) return undefined
 
     const branding: TenantBranding = {}
+    const tenantPrimary = row.branding_primary_color ?? mockConfig.personalizacion.primary
     branding.theme = {
-      primary: row.branding_primary_color ?? mockConfig.personalizacion.primary,
+      primary: tenantPrimary,
       secondary: row.branding_secondary_color ?? mockConfig.personalizacion.secondary,
-      accent: mockConfig.personalizacion.accent,
+      accent: tenantPrimary,
       success: mockConfig.personalizacion.success,
       warning: mockConfig.personalizacion.warning,
       danger: mockConfig.personalizacion.danger,

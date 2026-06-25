@@ -53,6 +53,9 @@ interface Ciclo {
   nombre: string
   codigo: string
   familia: string
+  area: string
+  areaColor: string
+  areaCode?: string
   duracion: string
   modalidad: string
   plazas: number
@@ -84,6 +87,13 @@ interface CourseRunApiItem {
   start_date?: string | null
 }
 
+interface CourseAreaApiItem {
+  cycleId?: string | number | null
+  area?: string
+  areaColor?: string
+  areaCode?: string
+}
+
 const mockCiclosData: Ciclo[] = []
 
 function formatCycleStartDate(value?: string): string {
@@ -97,6 +107,19 @@ function formatCycleStartDate(value?: string): string {
 
 function formatCycleLevelLabel(value: string): string {
   return value.toUpperCase()
+}
+
+function validAreaColor(value?: string | null): string {
+  return /^#[0-9A-Fa-f]{6}$/.test(value ?? '') ? value! : '#64748B'
+}
+
+function AreaBadge({ name, color }: { name: string; color: string }) {
+  return (
+    <Badge variant="outline" className="gap-1.5 border-border bg-background text-[11px]">
+      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: validAreaColor(color) }} />
+      {name || 'Área por definir'}
+    </Badge>
+  )
 }
 
 export default function TodosLosCiclosPage() {
@@ -138,6 +161,30 @@ export default function TodosLosCiclosPage() {
 
         const payload: CycleApiResponse = (await response.json()) as CycleApiResponse
         const docs: CycleApiItem[] = Array.isArray(payload.docs) ? payload.docs : []
+        const areaMap: Record<string, { area: string; areaColor: string; areaCode?: string }> = {}
+
+        try {
+          const coursesRes = await fetch('/api/cursos?includeInactive=true&includeCycles=true&limit=1000', {
+            cache: 'no-cache',
+          })
+          if (coursesRes.ok) {
+            const coursesPayload = await coursesRes.json() as { data?: CourseAreaApiItem[] }
+            const cycleCourses = Array.isArray(coursesPayload.data) ? coursesPayload.data : []
+            for (const course of cycleCourses) {
+              if (!course.cycleId) continue
+              const key = String(course.cycleId)
+              if (areaMap[key]) continue
+              areaMap[key] = {
+                area: course.area || 'Área por definir',
+                areaColor: validAreaColor(course.areaColor),
+                areaCode: course.areaCode,
+              }
+            }
+          }
+        } catch {
+          // El badge de área es informativo; la lista de ciclos no debe caer si falla.
+        }
+
         const mapped: Ciclo[] = docs.map((cycle: CycleApiItem) => {
           const level = cycle.level
           const nivelLabel: 'Grado Medio' | 'Grado Superior' = (() => {
@@ -174,6 +221,9 @@ export default function TodosLosCiclosPage() {
             nombre: cycle.name ?? 'Ciclo sin nombre',
             codigo: cycle.slug ?? cycle.id,
             familia: 'Formación Profesional',
+            area: areaMap[String(cycle.id)]?.area ?? 'Área por definir',
+            areaColor: areaMap[String(cycle.id)]?.areaColor ?? '#64748B',
+            areaCode: areaMap[String(cycle.id)]?.areaCode,
             duracion: cycle.totalHours ? `${cycle.totalHours} horas` : '2000 horas',
             modalidad: cycle.modality ?? 'Presencial',
             plazas: 0,
@@ -385,10 +435,16 @@ export default function TodosLosCiclosPage() {
             return (
               <Card
                 key={ciclo.id}
-                className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+                className="relative cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
                 onClick={() => handleViewCiclo(ciclo)}
                 data-oid=":0o:6ca"
               >
+                <div
+                  aria-hidden="true"
+                  data-cycle-area-accent
+                  className="absolute inset-y-0 right-0 z-10 w-1.5"
+                  style={{ backgroundColor: validAreaColor(ciclo.areaColor) }}
+                />
                 <div className="relative h-56 overflow-hidden bg-muted" data-oid="w45omv8">
                   <CicloImageWithFallback
                     src={ciclo.imagen}
@@ -410,6 +466,9 @@ export default function TodosLosCiclosPage() {
                     <h3 className="line-clamp-2 text-base font-semibold" data-oid="5d1ydem">
                       {ciclo.nombre}
                     </h3>
+                    <div className="mt-2">
+                      <AreaBadge name={ciclo.area} color={ciclo.areaColor} />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 text-sm" data-oid="3f71-jd">
@@ -466,6 +525,9 @@ export default function TodosLosCiclosPage() {
               duracion_total_horas: parseInt(ciclo.duracion) || 2000,
               image: ciclo.imagen,
               color: '',
+              area: ciclo.area,
+              areaColor: ciclo.areaColor,
+              areaCode: ciclo.areaCode,
               cursos: Array.from({ length: convocatoriasCountMap[ciclo.id] || 0 }, (_, index) => ({
                 id: `curso-${ciclo.id}-${index}`,
                 ciclo_plantilla_id: ciclo.id,

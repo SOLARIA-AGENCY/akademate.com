@@ -27,15 +27,41 @@ function getCourseDashboardUi(course: PlantillaCurso) {
   return { typeConfig, fallbackImage, description, modalityLabel }
 }
 
+function getAreaColor(course: PlantillaCurso) {
+  return /^#[0-9A-Fa-f]{6}$/.test(course.areaColor || '') ? course.areaColor! : '#64748B'
+}
+
+function CourseAreaBadge({ course }: { course: PlantillaCurso }) {
+  const areaColor = getAreaColor(course)
+  const areaLabel = course.area || 'Sin área'
+
+  return (
+    <Badge
+      variant="outline"
+      className="max-w-full gap-1.5 truncate border-border bg-background pr-2 text-[11px]"
+      title={areaLabel}
+    >
+      <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: areaColor }} />
+      <span className="truncate">{areaLabel}</span>
+    </Badge>
+  )
+}
+
 export function CourseDashboardCard({ course, onClick, className }: CourseDashboardCardProps) {
   const { typeConfig, fallbackImage, description, modalityLabel } = getCourseDashboardUi(course)
   const [imgError, setImgError] = useState(false)
 
   return (
     <Card
-      className={`h-full cursor-pointer overflow-hidden border-border/70 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className || ''}`}
+      className={`relative h-full cursor-pointer overflow-hidden border-border/70 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className || ''}`}
       onClick={onClick}
     >
+      <div
+        aria-hidden="true"
+        data-course-area-accent
+        className="absolute inset-y-0 right-0 z-10 w-1.5"
+        style={{ backgroundColor: getAreaColor(course) }}
+      />
       <div className="grid h-full min-h-[230px] grid-cols-[150px_1fr] gap-0 sm:grid-cols-[190px_1fr]">
         <div className="relative h-full min-h-[230px] overflow-hidden bg-muted">
           {!imgError ? (
@@ -57,9 +83,7 @@ export function CourseDashboardCard({ course, onClick, className }: CourseDashbo
             <Badge className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-[11px] font-semibold text-white`}>
               {typeConfig.label}
             </Badge>
-            <Badge variant="outline" className="max-w-full truncate text-[11px]">
-              {course.area || 'Sin area'}
-            </Badge>
+            <CourseAreaBadge course={course} />
           </div>
 
           <h3 className="line-clamp-2 text-base font-extrabold uppercase leading-snug tracking-wide text-foreground" title={course.nombre}>
@@ -112,9 +136,15 @@ export function CourseDashboardListItem({ course, onClick, className }: CourseDa
 
   return (
     <div
-      className={`flex cursor-pointer items-center gap-4 rounded-lg border bg-card px-4 py-3 transition-shadow hover:shadow-sm ${className || ''}`}
+      className={`relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-lg border bg-card px-4 py-3 transition-shadow hover:shadow-sm ${className || ''}`}
       onClick={onClick}
     >
+      <div
+        aria-hidden="true"
+        data-course-area-accent
+        className="absolute inset-y-0 right-0 w-1.5"
+        style={{ backgroundColor: getAreaColor(course) }}
+      />
       <div className="h-16 w-24 shrink-0 overflow-hidden rounded bg-muted">
         {!imgError ? (
           <img
@@ -136,9 +166,7 @@ export function CourseDashboardListItem({ course, onClick, className }: CourseDa
             {course.nombre}
           </h3>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-[11px]">
-              {course.area}
-            </Badge>
+            <CourseAreaBadge course={course} />
             <Badge className={`${typeConfig.bgColor} ${typeConfig.hoverColor} text-[11px] text-white`}>
               {typeConfig.label}
             </Badge>

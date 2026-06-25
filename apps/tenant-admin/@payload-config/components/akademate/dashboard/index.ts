@@ -16,14 +16,17 @@ export {
   DashboardBreadcrumb,
   DashboardEntityHeader,
   DashboardListingShell,
+  DashboardListingLayout,
   DashboardPageHeader,
   DashboardSection,
+  DashboardStatsGrid,
+  DashboardTitleCard,
   DashboardToolbar,
   EntityHeroCard,
   EntitySummaryCard,
   SmallStatusBadge,
 } from './Shell'
-export type { DashboardBreadcrumbItem, DashboardToolbarProps } from './Shell'
+export type { DashboardBreadcrumbItem, DashboardStatItem, DashboardToolbarProps } from './Shell'
 export {
   CampaignStatusBadge,
   EntityStatusBadge,

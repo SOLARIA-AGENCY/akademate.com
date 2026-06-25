@@ -80,7 +80,7 @@ const historialImpersonaciones: {
 
 const rolConfig: Record<string, { color: string; bgColor: string }> = {
   Admin: { color: 'text-red-700 dark:text-red-300', bgColor: 'bg-red-100 dark:bg-red-950' },
-  Gestor: { color: 'text-blue-700 dark:text-blue-300', bgColor: 'bg-blue-100 dark:bg-blue-950' },
+  Gestor: { color: 'text-primary dark:text-primary', bgColor: 'bg-primary/10 dark:bg-primary/15' },
   Marketing: {
     color: 'text-purple-700 dark:text-purple-300',
     bgColor: 'bg-purple-100 dark:bg-purple-950',

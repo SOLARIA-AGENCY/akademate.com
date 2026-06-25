@@ -61,7 +61,7 @@ const AREA_SEEDS: AreaSeed[] = [
   {
     nombre: 'Área Sanitaria y Clínica',
     codigo: 'SCLN',
-    color: '#E3003A',
+    color: '#7C3AED',
     descripcion: 'Formación sanitaria, clínica y especialización asistencial.',
   },
   {

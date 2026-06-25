@@ -8,7 +8,7 @@ export default function AdminHeader() {
   return (
     <div
       style={{
-        background: 'linear-gradient(90deg, #0066CC, #1A56D6)',
+        background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary)))',
         color: 'white',
         textAlign: 'center',
         fontSize: '0.7rem',

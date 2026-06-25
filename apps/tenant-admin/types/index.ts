@@ -22,6 +22,9 @@ export interface CicloPlantilla {
   codigo: string
   tipo: TipoCiclo
   familia_profesional: string
+  area?: string
+  areaColor?: string
+  areaCode?: string
   descripcion: string
   objetivos: string[]
   perfil_profesional: string
@@ -282,6 +285,9 @@ export interface PlantillaCurso {
   descripcion: string
   imagenPortada: string
   area: string // Marketing, Desarrollo, Diseño, Audiovisual, Gestión
+  areaColor?: string
+  areaCode?: string
+  cycleId?: string | null
   tipo: CourseType
   duracionReferencia: number // horas de referencia
   precioReferencia?: number // precio base de referencia

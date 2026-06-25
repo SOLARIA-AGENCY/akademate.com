@@ -260,9 +260,9 @@ function InlineSedeForm({
 
   return (
     <div
-      className={`rounded-lg border border-dashed border-blue-300 bg-blue-50/50 p-4 space-y-3 ${compact ? 'mt-2' : ''}`}
+      className={`rounded-lg border border-dashed border-primary/30 bg-primary/10 p-4 space-y-3 ${compact ? 'mt-2' : ''}`}
     >
-      <p className="text-sm font-medium text-blue-800">
+      <p className="text-sm font-medium text-primary">
         {compact ? 'Crear nueva sede' : 'Crear sede para continuar'}
       </p>
       {formError && <p className="text-xs text-red-600">{formError}</p>}
@@ -384,9 +384,9 @@ function InlineProfesorForm({
 
   return (
     <div
-      className={`rounded-lg border border-dashed border-blue-300 bg-blue-50/50 p-4 space-y-3 ${compact ? 'mt-2' : ''}`}
+      className={`rounded-lg border border-dashed border-primary/30 bg-primary/10 p-4 space-y-3 ${compact ? 'mt-2' : ''}`}
     >
-      <p className="text-sm font-medium text-blue-800">
+      <p className="text-sm font-medium text-primary">
         {compact ? 'Crear nuevo profesor' : 'Crear profesor para continuar'}
       </p>
       {qualifiedAreaId ? (

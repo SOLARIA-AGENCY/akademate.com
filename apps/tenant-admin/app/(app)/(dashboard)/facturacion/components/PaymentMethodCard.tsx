@@ -99,7 +99,7 @@ export function PaymentMethodCard({
           <div className="flex items-start gap-4" data-oid="ika92m7">
             {type === 'card' && card ? (
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-2xl"
+                className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600 text-2xl"
                 data-oid="s-j27.u"
               >
                 {getCardBrandLogo(card.brand)}

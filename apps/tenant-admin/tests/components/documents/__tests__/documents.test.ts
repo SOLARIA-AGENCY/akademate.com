@@ -479,7 +479,7 @@ describe('Material Type Mapping', () => {
       case 'audio':
         return 'bg-green-500/10 text-green-600 border-green-500/30'
       case 'document':
-        return 'bg-blue-500/10 text-blue-600 border-blue-500/30'
+        return 'bg-primary/10 text-primary border-primary/30'
       case 'link':
         return 'bg-cyan-500/10 text-cyan-600 border-cyan-500/30'
       default:
@@ -500,7 +500,7 @@ describe('Material Type Mapping', () => {
     expect(getMaterialColor('pdf')).toContain('red')
     expect(getMaterialColor('video')).toContain('purple')
     expect(getMaterialColor('audio')).toContain('green')
-    expect(getMaterialColor('document')).toContain('blue')
+    expect(getMaterialColor('document')).toContain('primary')
     expect(getMaterialColor('link')).toContain('cyan')
     expect(getMaterialColor('other')).toContain('gray')
   })

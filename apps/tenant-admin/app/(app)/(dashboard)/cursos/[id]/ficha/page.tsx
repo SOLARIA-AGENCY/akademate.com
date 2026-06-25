@@ -20,7 +20,9 @@ interface CourseDetail {
   modality?: string
   course_type?: string
   area?: string
-  area_formativa?: { id?: number; name?: string; nombre?: string } | number | null
+  areaColor?: string
+  areaCode?: string
+  area_formativa?: { id?: number; name?: string; nombre?: string; color?: string | null; codigo?: string | null } | number | null
   duration_hours?: number | null
   base_price?: number | null
   enrollment_fee?: number | null
@@ -201,6 +203,22 @@ function areaName(course: CourseDetail): string {
   return course.area || 'Por definir'
 }
 
+function areaColor(course: CourseDetail): string {
+  const fromArea = course.area_formativa && typeof course.area_formativa === 'object' ? course.area_formativa.color : null
+  const candidate = fromArea || course.areaColor || ''
+  return /^#[0-9A-Fa-f]{6}$/.test(candidate) ? candidate : '#64748B'
+}
+
+function AreaBadge({ course }: { course: CourseDetail }) {
+  const color = areaColor(course)
+  return (
+    <Badge variant="outline" className="gap-1.5 border-border bg-background">
+      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+      {areaName(course)}
+    </Badge>
+  )
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Card className="break-inside-avoid">
@@ -336,7 +354,13 @@ export default function CourseFichaPage({ params }: Props) {
       </div>
 
       <article className="course-screen-only course-ficha-page space-y-6 rounded-2xl bg-background">
-        <section className="overflow-hidden rounded-2xl border bg-card">
+        <section className="relative overflow-hidden rounded-2xl border bg-card">
+          <div
+            aria-hidden="true"
+            data-course-area-accent
+            className="absolute inset-y-0 right-0 z-10 w-2"
+            style={{ backgroundColor: areaColor(course) }}
+          />
           <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="p-7">
               <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Ficha interna de curso</p>
@@ -345,7 +369,7 @@ export default function CourseFichaPage({ params }: Props) {
               <div className="mt-5 flex flex-wrap gap-2">
                 <Badge className="bg-[#f2014b] text-white hover:bg-[#d80143]">{courseType}</Badge>
                 <Badge variant="outline">{modality}</Badge>
-                <Badge variant="outline">{areaName(course)}</Badge>
+                <AreaBadge course={course} />
               </div>
             </div>
             {imageUrl ? (
@@ -362,7 +386,20 @@ export default function CourseFichaPage({ params }: Props) {
           <FieldCard label="Duración" value={course.duration_hours ? `${course.duration_hours} horas` : 'Por definir'} />
           <FieldCard label="Precio" value={formatCurrency(course.base_price)} />
           <FieldCard label="Matrícula" value={formatCurrency(course.enrollment_fee)} />
-          <FieldCard label="Área" value={areaName(course)} />
+          <Card className="relative overflow-hidden">
+            <div
+              aria-hidden="true"
+              data-course-area-accent
+              className="absolute inset-y-0 right-0 w-1.5"
+              style={{ backgroundColor: areaColor(course) }}
+            />
+            <CardContent className="p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Área</p>
+              <div className="mt-2">
+                <AreaBadge course={course} />
+              </div>
+            </CardContent>
+          </Card>
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[1.35fr_0.75fr]">
