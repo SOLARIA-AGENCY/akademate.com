@@ -75,19 +75,24 @@ export function CommercialIntakeCard({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2">
-            {Array.isArray(badges)
-              ? badges.map((badge) => (
-                  <Badge key={`${badge.label}-${badge.className || 'default'}`} variant="outline" className={mergeClassNames('text-[11px]', badge.className)}>
-                    {badge.label}
-                  </Badge>
-                ))
-              : null}
-            {footerLeft}
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {Array.isArray(badges)
+            ? badges.map((badge) => (
+                <Badge
+                  key={`${badge.label}-${badge.className || 'default'}`}
+                  variant="outline"
+                  className={mergeClassNames('text-[11px]', badge.className)}
+                >
+                  {badge.label}
+                </Badge>
+              ))
+            : null}
+        </div>
 
-          <Button asChild size="sm" className="whitespace-nowrap">
+        <div className="flex flex-col gap-2 border-t pt-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-2">{footerLeft}</div>
+
+          <Button asChild size="sm" className="w-full whitespace-nowrap lg:w-auto">
             <Link href={viewHref}>
               {viewLabel}
               <ArrowUpRight className="h-4 w-4" />
