@@ -312,7 +312,7 @@ export default function AdministrativosPage() {
               phone={admin.phone}
               assignedCampuses={admin.assignedCampuses}
               onView={(id) => router.push(`/dashboard/administrativo/${id}`)}
-              detailLabel="Ver ficha administrativo"
+              detailLabel="Ver ficha"
             />
           ))}
         </div>
@@ -334,7 +334,7 @@ export default function AdministrativosPage() {
                 contractLabel: formatContractType(admin.contractType),
                 assignedCampuses: admin.assignedCampuses,
               }}
-              actionLabel="Ver ficha administrativo"
+              actionLabel="Ver ficha"
               onClick={() => router.push(`/dashboard/administrativo/${admin.id}`)}
             />
           ))}

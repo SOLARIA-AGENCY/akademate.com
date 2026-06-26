@@ -453,7 +453,7 @@ export default function ProfesoresPage() {
                   : undefined
               }
               onView={(id) => handleViewTeacher(Number(id))}
-              detailLabel="Ver ficha docente"
+              detailLabel="Ver ficha"
             />
           ))}
         </div>
@@ -462,7 +462,11 @@ export default function ProfesoresPage() {
           {filteredTeachers.map((teacher) => (
             <PersonalListItem
               key={teacher.id}
-              teacher={teacher}
+              teacher={{
+                ...teacher,
+                contractLabel: contractLabels[teacher.contractType] ?? teacher.contractType,
+              }}
+              actionLabel="Ver ficha"
               onClick={() => handleViewTeacher(teacher.id)}
               data-oid="5.iku8o"
             />

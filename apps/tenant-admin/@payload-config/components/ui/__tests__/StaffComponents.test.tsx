@@ -59,7 +59,7 @@ describe('PersonalListItem', () => {
             { id: 2, name: 'Sede Norte' },
           ],
         }}
-        actionLabel="Ver ficha administrativo"
+        actionLabel="Ver ficha"
       />
     )
 
@@ -68,7 +68,36 @@ describe('PersonalListItem', () => {
     expect(screen.getByText('Tiempo completo')).toBeInTheDocument()
     expect(screen.getByText('Sede Santa Cruz')).toBeInTheDocument()
     expect(screen.getByText('Sede Norte')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Ver ficha administrativo' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ver ficha' })).toBeInTheDocument()
+  })
+
+  it('renders teaching staff with the same contract and campus fields as administrative staff', () => {
+    render(
+      <PersonalListItem
+        teacher={{
+          id: '11',
+          firstName: 'Nuria Esther',
+          lastName: 'Ángel Ramos',
+          email: 'nuria@example.com',
+          phone: '677 615 684',
+          position: 'Docente',
+          staffType: 'profesor',
+          active: true,
+          contractLabel: 'Régimen General',
+          assignedCampuses: [
+            { id: 1, name: 'Sede Santa Cruz' },
+            { id: 2, name: 'Sede Norte' },
+          ],
+          qualifiedAreas: [{ id: 4, codigo: 'SCLN', nombre: 'Área Sanitaria y Clínica' }],
+        }}
+      />
+    )
+
+    expect(screen.getByText('Nuria Esther Ángel Ramos')).toBeInTheDocument()
+    expect(screen.getByText('Régimen General')).toBeInTheDocument()
+    expect(screen.getByText('Sede Santa Cruz')).toBeInTheDocument()
+    expect(screen.getByText('Sede Norte')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ver ficha' })).toBeInTheDocument()
   })
 })
 
@@ -89,7 +118,7 @@ describe('StaffCard', () => {
         qualifiedAreas={[]}
         courseRunsCount={0}
         onView={() => undefined}
-        detailLabel="Ver ficha docente"
+        detailLabel="Ver ficha"
       />
     )
 
@@ -115,7 +144,7 @@ describe('StaffCard', () => {
           { id: 2, name: 'Sede Norte', city: 'La Orotava' },
         ]}
         onView={() => undefined}
-        detailLabel="Ver ficha administrativo"
+        detailLabel="Ver ficha"
       />
     )
 

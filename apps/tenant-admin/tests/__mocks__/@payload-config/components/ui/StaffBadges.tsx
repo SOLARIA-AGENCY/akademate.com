@@ -8,7 +8,11 @@ export function StaffStatusBadge({
   children?: React.ReactNode
   status?: string | boolean
 } & React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...props}>{children ?? (typeof status === 'boolean' ? (status ? 'Activo' : 'Inactivo') : status)}</div>
+  return (
+    <div {...props}>
+      {children ?? (typeof status === 'boolean' ? (status ? 'Activo' : 'Inactivo') : status)}
+    </div>
+  )
 }
 
 export function StaffContractBadge({
@@ -29,6 +33,16 @@ export function StaffCampusBadge({
   return <div {...props}>{children}</div>
 }
 
+export function StaffAreaBadge({
+  children,
+  ...props
+}: {
+  children?: React.ReactNode
+  seed?: string | number
+} & React.HTMLAttributes<HTMLDivElement>) {
+  return <div {...props}>{children}</div>
+}
+
 export function StaffCountBadge({
   count,
   label = 'convocatorias',
@@ -37,5 +51,9 @@ export function StaffCountBadge({
   count: number
   label?: string
 } & React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...props}>{count} {label}</div>
+  return (
+    <div {...props}>
+      {count} {label}
+    </div>
+  )
 }

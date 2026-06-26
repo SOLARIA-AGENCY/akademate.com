@@ -85,8 +85,7 @@ export function PersonalListItem({
     teacher.department ?? teacher.position ?? (isAdministrative ? 'Administrativo' : 'Docente')
   const campuses = teacher.assignedCampuses ?? []
   const qualifiedAreas = teacher.qualifiedAreas ?? []
-  const resolvedActionLabel =
-    actionLabel ?? (isAdministrative ? 'Ver ficha administrativo' : 'Ver ficha docente')
+  const resolvedActionLabel = actionLabel ?? 'Ver ficha'
   const email = teacher.email?.trim()
   const phone = teacher.phone?.trim()
 
@@ -106,7 +105,7 @@ export function PersonalListItem({
         }
       }}
     >
-      <CardContent className="grid min-h-24 grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-3 p-4 xl:grid-cols-[4.5rem_minmax(0,1fr)_10rem] xl:gap-4 min-[1700px]:grid-cols-[5rem_minmax(0,1fr)_10rem]">
+      <CardContent className="grid min-h-24 grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-4 p-4 xl:grid-cols-[4.75rem_minmax(0,1fr)_8rem] xl:gap-5 min-[1700px]:grid-cols-[5rem_minmax(0,1fr)_8rem]">
         <Avatar className="h-[4.5rem] w-[4.5rem] overflow-visible bg-muted min-[1700px]:h-20 min-[1700px]:w-20">
           {!isPlaceholderPhoto(teacher.photo) && !photoError ? (
             <AvatarImage
@@ -121,7 +120,7 @@ export function PersonalListItem({
           </AvatarFallback>
         </Avatar>
 
-        <div className="grid min-w-0 items-center gap-3 md:grid-cols-[minmax(13rem,1fr)_minmax(12rem,18rem)] xl:grid-cols-[minmax(13rem,1fr)_minmax(12rem,18rem)_minmax(11rem,17rem)] min-[1700px]:grid-cols-[minmax(14rem,1fr)_minmax(13rem,19rem)_minmax(12rem,18rem)_minmax(13rem,16rem)] min-[1700px]:gap-4">
+        <div className="grid min-w-0 items-center gap-3 md:grid-cols-[minmax(13rem,1fr)_minmax(12rem,18rem)] xl:grid-cols-[minmax(13rem,1fr)_minmax(12rem,18rem)_minmax(12rem,18rem)] min-[1700px]:grid-cols-[minmax(14rem,1fr)_minmax(13rem,19rem)_minmax(12rem,18rem)_minmax(13rem,16rem)] min-[1700px]:gap-4">
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold leading-tight">
               {teacher.firstName} {teacher.lastName}
@@ -180,7 +179,7 @@ export function PersonalListItem({
           </div>
 
           <div className="hidden min-w-0 flex-col gap-1 text-xs lg:flex">
-            {isAdministrative && teacher.contractLabel ? (
+            {teacher.contractLabel ? (
               <StaffContractBadge>{teacher.contractLabel}</StaffContractBadge>
             ) : null}
             {campuses.length > 0 ? (
