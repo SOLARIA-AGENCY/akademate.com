@@ -16,7 +16,8 @@ function normalizeStatus(status: StaffStatus) {
 
   const normalized = String(status).trim().toLowerCase().replace(/\s+/g, '_')
   if (normalized === 'activo' || normalized === 'activa') return 'active'
-  if (normalized === 'inactivo' || normalized === 'inactiva' || normalized === 'retirado') return 'inactive'
+  if (normalized === 'inactivo' || normalized === 'inactiva' || normalized === 'retirado')
+    return 'inactive'
   if (normalized === 'baja_temporal' || normalized === 'temporary_leave') return 'temporary_leave'
   return normalized
 }
@@ -122,13 +123,13 @@ export function StaffAreaBadge({
     <Badge
       variant="outline"
       className={cn(
-        'h-6 max-w-full justify-center rounded-full px-2.5 text-[11px] font-semibold leading-none',
+        'min-h-6 max-w-full justify-center rounded-full px-2.5 py-1 text-[11px] font-semibold leading-tight',
         getAreaStyle(seed),
         className
       )}
       {...props}
     >
-      <span className="truncate">{children}</span>
+      <span className="whitespace-normal text-center leading-tight">{children}</span>
     </Badge>
   )
 }

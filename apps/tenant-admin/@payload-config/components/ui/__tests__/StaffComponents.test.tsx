@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import {
+  StaffAreaBadge,
   StaffCampusBadge,
   StaffContractBadge,
   StaffStatusBadge,
@@ -16,7 +17,7 @@ describe('StaffBadges', () => {
         <StaffCampusBadge>Sede Norte</StaffCampusBadge>
         <StaffContractBadge>Tiempo completo</StaffContractBadge>
         <StaffStatusBadge status="active" />
-      </div>,
+      </div>
     )
 
     const campusBadges = container.querySelectorAll('.w-\\[9\\.25rem\\]')
@@ -26,6 +27,16 @@ describe('StaffBadges', () => {
     expect(campusBadges).toHaveLength(2)
     expect(contractBadges).toHaveLength(1)
     expect(statusBadges).toHaveLength(1)
+  })
+
+  it('renders full area names without truncating the badge text', () => {
+    const { container } = render(
+      <StaffAreaBadge seed="SBD">Área Salud, Bienestar y Deporte</StaffAreaBadge>
+    )
+
+    expect(screen.getByText('Área Salud, Bienestar y Deporte')).toBeInTheDocument()
+    expect(container.querySelector('.truncate')).toBeNull()
+    expect(container.querySelector('.min-h-6')).not.toBeNull()
   })
 })
 
@@ -49,7 +60,7 @@ describe('PersonalListItem', () => {
           ],
         }}
         actionLabel="Ver ficha administrativo"
-      />,
+      />
     )
 
     expect(screen.getByText('Jan Méndez Ceballos')).toBeInTheDocument()
@@ -79,7 +90,7 @@ describe('StaffCard', () => {
         courseRunsCount={0}
         onView={() => undefined}
         detailLabel="Ver ficha docente"
-      />,
+      />
     )
 
     expect(screen.getByText('Sheila Méndez')).toBeInTheDocument()
@@ -105,7 +116,7 @@ describe('StaffCard', () => {
         ]}
         onView={() => undefined}
         detailLabel="Ver ficha administrativo"
-      />,
+      />
     )
 
     expect(screen.getByText('Jan Méndez Ceballos')).toBeInTheDocument()

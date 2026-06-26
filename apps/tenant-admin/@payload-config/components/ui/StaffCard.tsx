@@ -224,11 +224,7 @@ export function StaffCard({
           {teaching && !missingQualifiedAreas ? (
             <div className="mb-3 flex flex-wrap gap-1.5">
               {(qualifiedAreas ?? []).slice(0, 2).map((area) => (
-                <StaffAreaBadge
-                  key={area.id}
-                  seed={area.codigo ?? area.id}
-                  className="max-w-[12rem]"
-                >
+                <StaffAreaBadge key={area.id} seed={area.codigo ?? area.id}>
                   {area.nombre}
                 </StaffAreaBadge>
               ))}

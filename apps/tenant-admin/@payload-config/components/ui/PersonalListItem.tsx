@@ -130,11 +130,7 @@ export function PersonalListItem({
             {!isAdministrative && !missingQualifiedAreas ? (
               <div className="mt-2 flex max-w-full flex-wrap gap-1">
                 {qualifiedAreas.slice(0, 2).map((area) => (
-                  <StaffAreaBadge
-                    key={area.id}
-                    seed={area.codigo ?? area.id}
-                    className="max-w-[12rem]"
-                  >
+                  <StaffAreaBadge key={area.id} seed={area.codigo ?? area.id}>
                     {area.nombre}
                   </StaffAreaBadge>
                 ))}
