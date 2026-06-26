@@ -158,7 +158,6 @@ export default function AlumnosPage() {
     active: students.filter((s) => s.active).length,
     inactive: students.filter((s) => !s.active).length,
     totalEnrolled: students.reduce((sum, s) => sum + s.enrolled_courses, 0),
-    totalCompleted: students.reduce((sum, s) => sum + s.completed_courses, 0),
   }
 
   const statItems: DashboardStatItem[] = [
@@ -166,7 +165,6 @@ export default function AlumnosPage() {
     { label: 'Activos', value: stats.active, icon: User, tone: 'success' },
     { label: 'Inactivos', value: stats.inactive, icon: User },
     { label: 'Cursando', value: stats.totalEnrolled, icon: BookOpen, tone: 'primary' },
-    { label: 'Completados', value: stats.totalCompleted, icon: CheckCircle2, tone: 'success' },
   ]
 
   return (

@@ -22,6 +22,8 @@ import {
   Loader2,
   Building2,
   List,
+  Printer,
+  Download,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
@@ -943,6 +945,61 @@ export default function ProgramacionPage() {
     return operational.filter((c) => c.sedeId === sedeFilter)
   }, [convocatorias, sedeFilter])
 
+  const handlePrintList = () => {
+    window.print()
+  }
+
+  const handleDownloadCsv = () => {
+    const headers = [
+      'Codigo',
+      'Curso / ciclo',
+      'Tipo',
+      'Sede',
+      'Aula',
+      'Docente',
+      'Inicio',
+      'Fin',
+      'Dias',
+      'Horario',
+      'Precio',
+      'Plazas',
+      'Inscritos',
+      'Estado',
+    ]
+    const escapeCsv = (value: unknown) => {
+      const text = String(value ?? '')
+      return `"${text.replace(/"/g, '""')}"`
+    }
+    const rows = filtered.map((conv) => [
+      conv.codigo || conv.id,
+      conv.curso,
+      conv.tipo,
+      conv.sede,
+      conv.aula,
+      conv.profesor,
+      conv.fechaInicio,
+      conv.fechaFin,
+      conv.dias
+        .map((day) => DAY_OPTIONS.find((item) => item.value === day)?.label ?? day)
+        .join(', '),
+      `${conv.horaInicio}-${conv.horaFin}`,
+      conv.precio ? `${conv.precio}` : 'Consultar',
+      conv.plazas,
+      conv.inscritos,
+      STATUS_LABELS[conv.estado] || conv.estado,
+    ])
+    const csv = [headers, ...rows].map((row) => row.map(escapeCsv).join(',')).join('\n')
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `convocatorias-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   // Navigation
   const navPrev = () => {
     if (view === 'anual') setYear((y) => y - 1)
@@ -1178,15 +1235,21 @@ export default function ProgramacionPage() {
       {/* List View */}
       {!isLoading && view === 'lista' && (
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="flex flex-col gap-3 pb-3 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="flex items-center gap-2 text-base">
               <List className="h-4 w-4" />
               Lista operativa de convocatorias
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Vista estructurada para planificación: curso, sede, aula, docente, fechas, horario,
-              precio y plazas. La creación valida conflictos antes de guardar.
-            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={handlePrintList}>
+                <Printer className="h-4 w-4" />
+                Imprimir
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={handleDownloadCsv}>
+                <Download className="h-4 w-4" />
+                Descargar CSV
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {listMessage ? (
@@ -1473,7 +1536,7 @@ export default function ProgramacionPage() {
                           </td>
                           <td className="p-2 text-center">
                             <Badge
-                              className={`text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
+                              className={`whitespace-nowrap text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
                             >
                               {STATUS_LABELS[conv.estado] || conv.estado}
                             </Badge>
@@ -1519,7 +1582,7 @@ export default function ProgramacionPage() {
                           </p>
                         </div>
                         <Badge
-                          className={`shrink-0 text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
+                          className={`shrink-0 whitespace-nowrap text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
                         >
                           {STATUS_LABELS[conv.estado] || conv.estado}
                         </Badge>
