@@ -1,16 +1,16 @@
-import type { CollectionConfig, FieldAccess } from 'payload';
-import { canEditStaff, canManageStaff } from './access';
-import { trackStaffCreator, validateTeachingAreas } from './hooks';
+import type { CollectionConfig, FieldAccess } from 'payload'
+import { canEditStaff, canManageStaff } from './access'
+import { trackStaffCreator, validateTeachingAreas } from './hooks'
 
 /**
  * Type definitions for Staff collection
  */
-type UserRole = 'superadmin' | 'admin' | 'gestor' | 'marketing' | 'asesor' | 'lectura';
+type UserRole = 'superadmin' | 'admin' | 'gestor' | 'marketing' | 'asesor' | 'lectura'
 
 /** User with role for access control */
 interface UserWithRole {
-  id: string | number;
-  role: UserRole;
+  id: string | number
+  role: UserRole
 }
 
 /** Type guard to check if user has a valid role */
@@ -20,54 +20,54 @@ function hasRole(user: unknown): user is UserWithRole {
     user !== null &&
     'role' in user &&
     typeof (user as UserWithRole).role === 'string'
-  );
+  )
 }
 
 /** Staff type options */
-type StaffType = 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico';
+type StaffType = 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico'
 
 /** Data structure for admin condition functions */
 interface StaffData {
-  staff_type?: StaffType;
-  first_name?: string;
-  last_name?: string;
-  full_name?: string;
-  nif?: string;
-  email?: string;
-  phone?: string;
-  bio?: string;
-  photo?: string | number;
-  position?: string;
-  contract_type?: string;
-  employment_status?: string;
-  inactive_reason?: string;
-  inactive_at?: string;
-  reactivated_at?: string;
-  last_import_batch?: string;
-  import_review_status?: string;
-  hire_date?: string;
-  specialties?: string[];
-  qualified_areas?: (string | number)[];
-  alias_names?: string;
-  detected_courses?: string;
+  staff_type?: StaffType
+  first_name?: string
+  last_name?: string
+  full_name?: string
+  nif?: string
+  email?: string
+  phone?: string
+  bio?: string
+  photo?: string | number
+  position?: string
+  contract_type?: string
+  employment_status?: string
+  inactive_reason?: string
+  inactive_at?: string
+  reactivated_at?: string
+  last_import_batch?: string
+  import_review_status?: string
+  hire_date?: string
+  specialties?: string[]
+  qualified_areas?: (string | number)[]
+  alias_names?: string
+  detected_courses?: string
   certifications?: {
-    title?: string;
-    institution?: string;
-    year?: number;
-    document?: string | number;
-  }[];
-  assigned_campuses?: (string | number)[];
-  is_active?: boolean;
-  notes?: string;
-  created_by?: string | number;
-  id?: string | number;
+    title?: string
+    institution?: string
+    year?: number
+    document?: string | number
+  }[]
+  assigned_campuses?: (string | number)[]
+  is_active?: boolean
+  notes?: string
+  created_by?: string | number
+  id?: string | number
 }
 
 /** Field-level access for notes (only Gestor/Admin) */
 const notesReadAccess: FieldAccess = ({ req: { user } }) => {
-  if (!user) return false;
-  return hasRole(user) && (user.role === 'admin' || user.role === 'gestor');
-};
+  if (!user) return false
+  return hasRole(user) && (user.role === 'admin' || user.role === 'gestor')
+}
 
 /**
  * Staff Collection - Personal Management (Profesores y Administrativos)
@@ -189,11 +189,11 @@ export const Staff: CollectionConfig = {
         return {
           staff_type: { equals: 'profesor' },
           is_active: { equals: true },
-        };
+        }
       }
 
       // All authenticated users: read all staff
-      return true;
+      return true
     },
     update: canEditStaff, // All authenticated users
     delete: canManageStaff, // Gestor, Admin
@@ -231,10 +231,10 @@ export const Staff: CollectionConfig = {
         description: 'First name',
       },
       validate: (val: unknown): true | string => {
-        if (!val) return 'First name is required';
-        if (typeof val !== 'string') return 'First name must be a string';
-        if (val.trim().length < 2) return 'First name must be at least 2 characters';
-        return true;
+        if (!val) return 'First name is required'
+        if (typeof val !== 'string') return 'First name must be a string'
+        if (val.trim().length < 2) return 'First name must be at least 2 characters'
+        return true
       },
     },
 
@@ -247,10 +247,10 @@ export const Staff: CollectionConfig = {
         description: 'Last name',
       },
       validate: (val: unknown): true | string => {
-        if (!val) return 'Last name is required';
-        if (typeof val !== 'string') return 'Last name must be a string';
-        if (val.trim().length < 2) return 'Last name must be at least 2 characters';
-        return true;
+        if (!val) return 'Last name is required'
+        if (typeof val !== 'string') return 'Last name must be a string'
+        if (val.trim().length < 2) return 'Last name must be at least 2 characters'
+        return true
       },
     },
 
@@ -269,11 +269,11 @@ export const Staff: CollectionConfig = {
         beforeChange: [
           ({ data, value }): string | undefined => {
             // Auto-generate full_name from first_name and last_name
-            const staffData = data as StaffData | undefined;
+            const staffData = data as StaffData | undefined
             if (staffData?.first_name && staffData?.last_name) {
-              return `${staffData.first_name} ${staffData.last_name}`.trim();
+              return `${staffData.first_name} ${staffData.last_name}`.trim()
             }
-            return typeof value === 'string' ? value : undefined;
+            return typeof value === 'string' ? value : undefined
           },
         ],
       },
@@ -289,8 +289,8 @@ export const Staff: CollectionConfig = {
         description: 'Email address (must be unique)',
       },
       validate: (val: unknown): true | string => {
-        if (!val) return true;
-        return true;
+        if (!val) return true
+        return true
       },
       // PII Protection: Hide from public API
       access: {
@@ -312,9 +312,9 @@ export const Staff: CollectionConfig = {
       hooks: {
         beforeChange: [
           ({ value }): string | undefined => {
-            if (typeof value !== 'string') return undefined;
-            const normalized = value.trim().toUpperCase().replace(/\s+/g, '');
-            return normalized.length > 0 ? normalized : undefined;
+            if (typeof value !== 'string') return undefined
+            const normalized = value.trim().toUpperCase().replace(/\s+/g, '')
+            return normalized.length > 0 ? normalized : undefined
           },
         ],
       },
@@ -331,12 +331,12 @@ export const Staff: CollectionConfig = {
         placeholder: '+34 912 345 678',
       },
       validate: (val: unknown): true | string => {
-        if (!val) return true; // Optional
-        if (typeof val !== 'string') return 'Phone must be a string';
+        if (!val) return true // Optional
+        if (typeof val !== 'string') return 'Phone must be a string'
         if (!/^\+34\s\d{3}\s\d{3}\s\d{3}$/.test(val)) {
-          return 'Phone must be in format: +34 XXX XXX XXX';
+          return 'Phone must be in format: +34 XXX XXX XXX'
         }
-        return true;
+        return true
       },
       // PII Protection: Hide from public API
       access: {
@@ -372,14 +372,15 @@ export const Staff: CollectionConfig = {
       required: true,
       maxLength: 255,
       admin: {
-        description: 'Job position/title (e.g., "Profesor de Marketing Digital", "Coordinador Académico")',
+        description:
+          'Job position/title (e.g., "Profesor de Marketing Digital", "Coordinador Académico")',
         placeholder: 'e.g., Profesor de Marketing Digital',
       },
       validate: (val: unknown): true | string => {
-        if (!val) return 'Position is required';
-        if (typeof val !== 'string') return 'Position must be a string';
-        if (val.trim().length < 3) return 'Position must be at least 3 characters';
-        return true;
+        if (!val) return 'Position is required'
+        if (typeof val !== 'string') return 'Position must be a string'
+        if (val.trim().length < 3) return 'Position must be at least 3 characters'
+        return true
       },
     },
 
@@ -389,6 +390,7 @@ export const Staff: CollectionConfig = {
       required: true,
       index: true,
       options: [
+        { label: 'Régimen General', value: 'general_regime' },
         { label: 'Tiempo Completo', value: 'full_time' },
         { label: 'Medio Tiempo', value: 'part_time' },
         { label: 'Freelance / Por Horas', value: 'freelance' },
@@ -458,14 +460,15 @@ export const Staff: CollectionConfig = {
         },
       },
       validate: (val: unknown): true | string => {
-        if (!val) return true;
-        if (typeof val !== 'string' && !(val instanceof Date)) return 'Hire date must be a valid date';
-        const hireDate = new Date(val);
-        const today = new Date();
+        if (!val) return true
+        if (typeof val !== 'string' && !(val instanceof Date))
+          return 'Hire date must be a valid date'
+        const hireDate = new Date(val)
+        const today = new Date()
         if (hireDate > today) {
-          return 'Hire date cannot be in the future';
+          return 'Hire date cannot be in the future'
         }
-        return true;
+        return true
       },
     },
 
@@ -503,7 +506,10 @@ export const Staff: CollectionConfig = {
         { label: 'Peluquería canina y felina', value: 'peluqueria-canina-felina' },
         { label: 'Adiestramiento canino', value: 'adiestramiento-canino' },
         { label: 'Pilates', value: 'pilates' },
-        { label: 'Urgencias Laboratorio y Rehabilitación', value: 'urgencias-laboratorio-rehabilitacion' },
+        {
+          label: 'Urgencias Laboratorio y Rehabilitación',
+          value: 'urgencias-laboratorio-rehabilitacion',
+        },
         { label: 'SPD', value: 'spd' },
       ],
       admin: {
@@ -520,8 +526,10 @@ export const Staff: CollectionConfig = {
       required: false,
       index: true,
       admin: {
-        description: 'Áreas formativas para las que el docente está habilitado. Si está vacío, requiere validación manual antes de asignar.',
-        condition: (data: StaffData) => data.staff_type === 'profesor' || data.staff_type === 'academico',
+        description:
+          'Áreas formativas para las que el docente está habilitado. Si está vacío, requiere validación manual antes de asignar.',
+        condition: (data: StaffData) =>
+          data.staff_type === 'profesor' || data.staff_type === 'academico',
       },
       filterOptions: () => ({
         activo: { equals: true },
@@ -565,13 +573,13 @@ export const Staff: CollectionConfig = {
             placeholder: '2020',
           },
           validate: (val: unknown): true | string => {
-            if (!val) return 'Year is required';
-            if (typeof val !== 'number') return 'Year must be a number';
-            const currentYear = new Date().getFullYear();
+            if (!val) return 'Year is required'
+            if (typeof val !== 'number') return 'Year must be a number'
+            const currentYear = new Date().getFullYear()
             if (val < 1950 || val > currentYear) {
-              return `Year must be between 1950 and ${currentYear}`;
+              return `Year must be between 1950 and ${currentYear}`
             }
-            return true;
+            return true
           },
         },
         {
@@ -600,7 +608,7 @@ export const Staff: CollectionConfig = {
         description: 'Campuses where this staff member can work (select at least one)',
       },
       validate: (): true | string => {
-        return true;
+        return true
       },
     },
     {
@@ -657,7 +665,8 @@ export const Staff: CollectionConfig = {
       name: 'alias_names',
       type: 'textarea',
       admin: {
-        description: 'Alias o nombres abreviados detectados en cursos/convocatorias. Un alias siempre debe apuntar a una ficha staff maestra.',
+        description:
+          'Alias o nombres abreviados detectados en cursos/convocatorias. Un alias siempre debe apuntar a una ficha staff maestra.',
         rows: 2,
       },
     },
@@ -727,9 +736,7 @@ export const Staff: CollectionConfig = {
    * Hooks - Business logic and validation
    */
   hooks: {
-    beforeValidate: [
-      validateTeachingAreas,
-    ],
+    beforeValidate: [validateTeachingAreas],
     /**
      * Before Change: Run after validation, before database write
      */
@@ -742,4 +749,4 @@ export const Staff: CollectionConfig = {
    * Timestamps - Automatically add createdAt and updatedAt
    */
   timestamps: true,
-};
+}

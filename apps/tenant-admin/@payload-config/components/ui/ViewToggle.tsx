@@ -15,6 +15,7 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
       value={view}
       onValueChange={onViewChange}
       ariaLabel="Modo de visualización"
+      iconOnly
       options={[
         { value: 'grid', label: 'Vista en cuadrícula', shortLabel: 'Grid', icon: LayoutGrid },
         { value: 'list', label: 'Vista de lista', shortLabel: 'Lista', icon: List },

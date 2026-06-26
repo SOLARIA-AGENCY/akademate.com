@@ -15,7 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, GraduationCap, Loader2, MapPin, Plus, Save, Trash2, Upload, User } from 'lucide-react'
+import {
+  ArrowLeft,
+  GraduationCap,
+  Loader2,
+  MapPin,
+  Plus,
+  Save,
+  Trash2,
+  Upload,
+  User,
+} from 'lucide-react'
 
 interface Campus {
   id: number
@@ -119,7 +129,7 @@ export default function EditProfesorPage() {
     nif: '',
     email: '',
     phone: '',
-    position: '',
+    position: 'Docente',
     contractType: 'full_time',
     employmentStatus: 'active',
     inactiveReason: '',
@@ -166,7 +176,7 @@ export default function EditProfesorPage() {
           nif: professor.nif ?? '',
           email: professor.email ?? '',
           phone: professor.phone ?? '',
-          position: professor.position ?? '',
+          position: professor.position ?? 'Docente',
           contractType: professor.contractType ?? 'full_time',
           employmentStatus: professor.employmentStatus ?? 'active',
           inactiveReason: professor.inactiveReason ?? '',
@@ -181,7 +191,7 @@ export default function EditProfesorPage() {
             year: cert.year ?? '',
           })),
         })
-        setPhotoPreview(isPlaceholderPhoto(professor.photo) ? null : professor.photo ?? null)
+        setPhotoPreview(isPlaceholderPhoto(professor.photo) ? null : (professor.photo ?? null))
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'No se pudo cargar la ficha')
@@ -236,17 +246,13 @@ export default function EditProfesorPage() {
     }))
   }
 
-  const updateCertification = (
-    index: number,
-    field: keyof Certification,
-    value: string,
-  ) => {
+  const updateCertification = (index: number, field: keyof Certification, value: string) => {
     setFormData((prev) => ({
       ...prev,
       certifications: prev.certifications.map((cert, certIndex) =>
         certIndex === index
           ? { ...cert, [field]: field === 'year' ? (value ? Number(value) : '') : value }
-          : cert,
+          : cert
       ),
     }))
   }
@@ -270,11 +276,15 @@ export default function EditProfesorPage() {
       const result = (await response.json().catch(() => ({}))) as StaffPhotoUploadResponse
 
       if (!response.ok || !result.success || !result.doc?.id) {
-        throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo subir la foto')
+        throw new Error(
+          typeof result?.error === 'string' ? result.error : 'No se pudo subir la foto'
+        )
       }
 
       setPhotoId(String(result.doc.id))
-      setPhotoPreview(result.doc.url || (result.doc.filename ? `/api/media/file/${result.doc.filename}` : null))
+      setPhotoPreview(
+        result.doc.url || (result.doc.filename ? `/api/media/file/${result.doc.filename}` : null)
+      )
       setPhotoRemoved(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo subir la foto')
@@ -309,10 +319,13 @@ export default function EditProfesorPage() {
           nif: formData.nif || null,
           email: formData.email,
           phone: formData.phone || null,
-          position: formData.position,
+          position: 'Docente',
           contractType: formData.contractType,
           employmentStatus: formData.employmentStatus,
-          inactiveReason: formData.employmentStatus === 'active' ? null : formData.inactiveReason || 'Baja manual desde edición de docente',
+          inactiveReason:
+            formData.employmentStatus === 'active'
+              ? null
+              : formData.inactiveReason || 'Baja manual desde edición de docente',
           inactiveAt: formData.employmentStatus === 'active' ? null : new Date().toISOString(),
           reactivatedAt: formData.employmentStatus === 'active' ? new Date().toISOString() : null,
           hireDate: formData.hireDate,
@@ -332,7 +345,9 @@ export default function EditProfesorPage() {
 
       const result = await response.json().catch(() => ({}))
       if (!response.ok || result?.success === false) {
-        throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo guardar la ficha')
+        throw new Error(
+          typeof result?.error === 'string' ? result.error : 'No se pudo guardar la ficha'
+        )
       }
 
       router.push(`/dashboard/profesores/${professorId}`)
@@ -355,7 +370,7 @@ export default function EditProfesorPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Editar Profesor"
         description="Actualizar información del profesorado"
@@ -397,20 +412,24 @@ export default function EditProfesorPage() {
                     id="photo-upload"
                     type="file"
                     accept="image/*"
+                    className="sr-only"
                     disabled={uploadingPhoto || saving}
                     onChange={(e) => {
                       const file = e.target.files?.[0]
                       if (file) void handlePhotoUpload(file)
                     }}
                   />
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Label
+                    htmlFor="photo-upload"
+                    className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-input bg-background px-4 text-sm font-medium shadow-sm transition-colors hover:bg-primary/10 hover:text-primary"
+                  >
                     {uploadingPhoto ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                     ) : (
-                      <Upload className="h-3.5 w-3.5" />
+                      <Upload className="h-4 w-4" aria-hidden="true" />
                     )}
-                    <span>{uploadingPhoto ? 'Subiendo foto...' : 'Puedes reemplazar la foto actual desde aquí.'}</span>
-                  </div>
+                    {uploadingPhoto ? 'Subiendo imagen...' : 'Seleccionar imagen'}
+                  </Label>
                   {photoPreview ? (
                     <Button
                       type="button"
@@ -431,22 +450,42 @@ export default function EditProfesorPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="firstName">Nombre</Label>
-                <Input id="firstName" value={formData.firstName} onChange={handleInputChange('firstName')} required />
+                <Input
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange('firstName')}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Apellidos</Label>
-                <Input id="lastName" value={formData.lastName} onChange={handleInputChange('lastName')} required />
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange('lastName')}
+                  required
+                />
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="nif">NIF/DNI</Label>
-                <Input id="nif" value={formData.nif} onChange={handleInputChange('nif')} placeholder="00000000A" />
+                <Input
+                  id="nif"
+                  value={formData.nif}
+                  onChange={handleInputChange('nif')}
+                  placeholder="00000000A"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={formData.email} onChange={handleInputChange('email')} />
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange('email')}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Teléfono</Label>
@@ -467,21 +506,14 @@ export default function EditProfesorPage() {
               </div>
             ) : null}
 
-            <div className="space-y-2">
-              <Label htmlFor="position">Especialidad / Área</Label>
-              <Input id="position" value={formData.position} onChange={handleInputChange('position')} required />
-            </div>
-
             <div className="space-y-3 rounded-lg border p-4">
               <div className="space-y-1">
                 <Label>Áreas habilitadas para docencia</Label>
-                <p className="text-sm text-muted-foreground">
-                  Selecciona al menos un área. Sin áreas habilitadas no se puede guardar una ficha docente ni asignarla a convocatorias.
-                </p>
               </div>
               {!hasQualifiedAreas ? (
                 <div className="rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
-                  Esta ficha docente está incompleta. Asigna al menos un área habilitada para poder guardar cambios o usar este docente en convocatorias.
+                  Esta ficha docente está incompleta. Asigna al menos un área habilitada para poder
+                  guardar cambios o usar este docente en convocatorias.
                 </div>
               ) : null}
               {loadingAreas ? (
@@ -491,7 +523,8 @@ export default function EditProfesorPage() {
                 </div>
               ) : areas.length === 0 ? (
                 <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                  No hay áreas formativas activas disponibles. El sistema permitirá asignaciones, pero mostrará advertencias de validación.
+                  No hay áreas formativas activas disponibles. El sistema permitirá asignaciones,
+                  pero mostrará advertencias de validación.
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
@@ -501,9 +534,14 @@ export default function EditProfesorPage() {
                       <Button
                         key={area.id}
                         type="button"
-                        variant={selected ? 'default' : 'outline'}
+                        variant="outline"
                         size="sm"
                         aria-pressed={selected}
+                        className={
+                          selected
+                            ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15'
+                            : ''
+                        }
                         onClick={() => toggleQualifiedArea(area.id)}
                       >
                         {area.nombre}
@@ -512,21 +550,20 @@ export default function EditProfesorPage() {
                   })}
                 </div>
               )}
-              {formData.qualifiedAreas.length === 0 ? (
-                <p className="text-xs font-medium text-destructive">
-                  Obligatorio: asigna al menos un área habilitada para poder guardar este docente.
-                </p>
-              ) : null}
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="contractType">Tipo de Contrato</Label>
-                <Select value={formData.contractType} onValueChange={handleSelectChange('contractType')}>
+                <Select
+                  value={formData.contractType}
+                  onValueChange={handleSelectChange('contractType')}
+                >
                   <SelectTrigger id="contractType">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="general_regime">Régimen General</SelectItem>
                     <SelectItem value="full_time">Tiempo Completo</SelectItem>
                     <SelectItem value="part_time">Medio Tiempo</SelectItem>
                     <SelectItem value="freelance">Autónomo</SelectItem>
@@ -535,7 +572,10 @@ export default function EditProfesorPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="employmentStatus">Estado</Label>
-                <Select value={formData.employmentStatus} onValueChange={handleSelectChange('employmentStatus')}>
+                <Select
+                  value={formData.employmentStatus}
+                  onValueChange={handleSelectChange('employmentStatus')}
+                >
                   <SelectTrigger id="employmentStatus">
                     <SelectValue />
                   </SelectTrigger>
@@ -548,7 +588,12 @@ export default function EditProfesorPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="hireDate">Fecha de Contratación</Label>
-                <Input id="hireDate" type="date" value={formData.hireDate} onChange={handleInputChange('hireDate')} />
+                <Input
+                  id="hireDate"
+                  type="date"
+                  value={formData.hireDate}
+                  onChange={handleInputChange('hireDate')}
+                />
               </div>
             </div>
 
@@ -565,7 +610,9 @@ export default function EditProfesorPage() {
                 </div>
               ) : (
                 <Select
-                  value={formData.assignedCampuses[0] ? String(formData.assignedCampuses[0]) : undefined}
+                  value={
+                    formData.assignedCampuses[0] ? String(formData.assignedCampuses[0]) : undefined
+                  }
                   onValueChange={handleBaseCampusChange}
                 >
                   <SelectTrigger id="baseCampus" aria-label="Sede base asignada">
@@ -588,7 +635,12 @@ export default function EditProfesorPage() {
 
             <div className="space-y-2">
               <Label htmlFor="bio">Biografía Profesional</Label>
-              <Textarea id="bio" rows={4} value={formData.bio} onChange={handleInputChange('bio')} />
+              <Textarea
+                id="bio"
+                rows={4}
+                value={formData.bio}
+                onChange={handleInputChange('bio')}
+              />
             </div>
 
             <div className="space-y-3">
@@ -606,15 +658,22 @@ export default function EditProfesorPage() {
               ) : (
                 <div className="space-y-3">
                   {formData.certifications.map((cert, index) => (
-                    <div key={cert.id ?? index} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[1fr_1fr_120px_auto]">
+                    <div
+                      key={cert.id ?? index}
+                      className="grid gap-3 rounded-lg border p-3 md:grid-cols-[1fr_1fr_120px_auto]"
+                    >
                       <Input
                         value={cert.title}
-                        onChange={(event) => updateCertification(index, 'title', event.target.value)}
+                        onChange={(event) =>
+                          updateCertification(index, 'title', event.target.value)
+                        }
                         placeholder="Título o certificación"
                       />
                       <Input
                         value={cert.institution}
-                        onChange={(event) => updateCertification(index, 'institution', event.target.value)}
+                        onChange={(event) =>
+                          updateCertification(index, 'institution', event.target.value)
+                        }
                         placeholder="Institución"
                       />
                       <Input
@@ -623,7 +682,12 @@ export default function EditProfesorPage() {
                         onChange={(event) => updateCertification(index, 'year', event.target.value)}
                         placeholder="Año"
                       />
-                      <Button type="button" size="icon" variant="ghost" onClick={() => removeCertification(index)}>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => removeCertification(index)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -633,12 +697,22 @@ export default function EditProfesorPage() {
             </div>
 
             <div className="flex justify-end gap-4 border-t pt-4">
-              <Button type="button" variant="outline" onClick={() => router.back()} disabled={saving}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                disabled={saving}
+              >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                disabled={saving || uploadingPhoto || formData.assignedCampuses.length === 0 || !hasQualifiedAreas}
+                disabled={
+                  saving ||
+                  uploadingPhoto ||
+                  formData.assignedCampuses.length === 0 ||
+                  !hasQualifiedAreas
+                }
               >
                 {saving ? (
                   <>

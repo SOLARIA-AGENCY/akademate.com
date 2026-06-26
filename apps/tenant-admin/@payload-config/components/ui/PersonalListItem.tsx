@@ -106,7 +106,7 @@ export function PersonalListItem({
         }
       }}
     >
-      <CardContent className="grid min-h-24 grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-3 p-4 min-[1700px]:grid-cols-[5rem_minmax(0,1fr)_10rem] min-[1700px]:gap-4">
+      <CardContent className="grid min-h-24 grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-3 p-4 xl:grid-cols-[4.5rem_minmax(0,1fr)_10rem] xl:gap-4 min-[1700px]:grid-cols-[5rem_minmax(0,1fr)_10rem]">
         <Avatar className="h-[4.5rem] w-[4.5rem] overflow-visible bg-muted min-[1700px]:h-20 min-[1700px]:w-20">
           {!isPlaceholderPhoto(teacher.photo) && !photoError ? (
             <AvatarImage
@@ -220,7 +220,7 @@ export function PersonalListItem({
 
         <Button
           size="sm"
-          className="col-span-2 h-8 w-full justify-center px-3 text-xs font-semibold uppercase tracking-wide sm:col-span-1 sm:col-start-2 min-[1700px]:col-span-1 min-[1700px]:col-start-auto min-[1700px]:h-7"
+          className="col-span-2 h-8 w-full justify-center px-3 text-xs font-semibold uppercase tracking-wide sm:col-span-1 sm:col-start-2 xl:col-span-1 xl:col-start-auto xl:h-7"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()

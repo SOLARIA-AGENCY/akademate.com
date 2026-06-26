@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 type StaffType = 'profesor' | 'administrativo'
-type ContractType = 'full_time' | 'part_time' | 'freelance'
+type ContractType = 'general_regime' | 'full_time' | 'part_time' | 'freelance'
 type EmploymentStatus = 'active' | 'temporary_leave' | 'inactive'
 
 interface Campus {
@@ -283,7 +283,9 @@ describe('Staff API - GET /api/staff', () => {
       expect(data.success).toBe(true)
 
       data.data.forEach((staff: StaffRecord) => {
-        expect(staff.photo.startsWith('/media/') || staff.photo.startsWith('/placeholder')).toBe(true)
+        expect(staff.photo.startsWith('/media/') || staff.photo.startsWith('/placeholder')).toBe(
+          true
+        )
       })
     })
 
@@ -347,7 +349,12 @@ describe('Staff API - GET /api/staff', () => {
     it('should have valid contract types', async () => {
       const response = await fetch(`${API_BASE}/api/staff?limit=100`)
       const data = await response.json()
-      const validContractTypes: ContractType[] = ['full_time', 'part_time', 'freelance']
+      const validContractTypes: ContractType[] = [
+        'general_regime',
+        'full_time',
+        'part_time',
+        'freelance',
+      ]
 
       data.data.forEach((staff: StaffRecord) => {
         expect(validContractTypes).toContain(staff.contractType)
@@ -370,7 +377,9 @@ describe('Staff API - GET /api/staff', () => {
       const response = await fetch(`${API_BASE}/api/staff?type=profesor&limit=100`)
       const data = await response.json()
 
-      const miguel = data.data.find((staff: StaffRecord) => staff.fullName === 'Miguel Ángel Torres Ruiz')
+      const miguel = data.data.find(
+        (staff: StaffRecord) => staff.fullName === 'Miguel Ángel Torres Ruiz'
+      )
 
       expect(miguel).toBeDefined()
       expect(miguel.position).toBe('Profesor de Marketing Digital')
@@ -384,7 +393,9 @@ describe('Staff API - GET /api/staff', () => {
       const response = await fetch(`${API_BASE}/api/staff?type=administrativo&limit=100`)
       const data = await response.json()
 
-      const laura = data.data.find((staff: StaffRecord) => staff.fullName === 'Laura Fernández Castro')
+      const laura = data.data.find(
+        (staff: StaffRecord) => staff.fullName === 'Laura Fernández Castro'
+      )
 
       expect(laura).toBeDefined()
       expect(laura.position).toBe('Coordinadora Académica')
@@ -429,9 +440,7 @@ describe('Staff API - Dataset integrity', () => {
   })
 
   it('should have photos linked correctly for seed records', () => {
-    const seedStaff = STAFF_FIXTURE.filter((staff) =>
-      staff.email.endsWith('@cepcomunicacion.com')
-    )
+    const seedStaff = STAFF_FIXTURE.filter((staff) => staff.email.endsWith('@cepcomunicacion.com'))
 
     expect(seedStaff.length).toBeGreaterThanOrEqual(8)
     seedStaff.forEach((staff) => {

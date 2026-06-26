@@ -1,9 +1,9 @@
-import type { NextRequest} from 'next/server';
-import { NextResponse } from 'next/server';
-import postgres from 'postgres';
-import { getPayload, type Payload, type SanitizedConfig } from 'payload';
-import configPromise from '@payload-config';
-import type { Staff } from '../../../src/payload-types';
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import postgres from 'postgres'
+import { getPayload, type Payload, type SanitizedConfig } from 'payload'
+import configPromise from '@payload-config'
+import type { Staff } from '../../../src/payload-types'
 
 /**
  * Initialize Payload CMS instance.
@@ -13,13 +13,13 @@ import type { Staff } from '../../../src/payload-types';
 const initPayload = async (): Promise<Payload> => {
   // Cast config to satisfy ESLint's strict type checking
   // The configPromise is typed by Payload's buildConfig as Promise<SanitizedConfig>
-  const config = (await configPromise) as SanitizedConfig;
-  return getPayload({ config });
-};
+  const config = (await configPromise) as SanitizedConfig
+  return getPayload({ config })
+}
 
-const dbConnectionString = process.env.DATABASE_URL ?? process.env.DATABASE_URI;
+const dbConnectionString = process.env.DATABASE_URL ?? process.env.DATABASE_URI
 // PostgreSQL connection - support canonical DATABASE_URL first
-const sql = dbConnectionString ? postgres(dbConnectionString) : null;
+const sql = dbConnectionString ? postgres(dbConnectionString) : null
 
 // ============================================================================
 // Type Definitions
@@ -27,168 +27,168 @@ const sql = dbConnectionString ? postgres(dbConnectionString) : null;
 
 /** Campus data returned from SQL JSON aggregation */
 interface CampusData {
-  id: number;
-  name: string;
-  city: string;
+  id: number
+  name: string
+  city: string
 }
 
 /** Course run data returned from SQL JSON aggregation */
 interface CourseRunData {
-  id: number;
-  codigo: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  courseName: string;
-  courseSlug: string;
-  courseImage: string | null;
-  campusName: string;
-  campusCity: string;
+  id: number
+  codigo: string
+  status: string
+  startDate: string
+  endDate: string
+  courseName: string
+  courseSlug: string
+  courseImage: string | null
+  campusName: string
+  campusCity: string
 }
 
 interface CertificationData {
-  id: string;
-  title: string | null;
-  institution: string | null;
-  year: number | null;
+  id: string
+  title: string | null
+  institution: string | null
+  year: number | null
 }
 
 interface QualifiedAreaData {
-  id: number;
-  codigo: string | null;
-  nombre: string;
+  id: number
+  codigo: string | null
+  nombre: string
 }
 
 /** Raw staff row returned from SQL query */
 interface StaffQueryRow {
-  id: number;
-  staff_type: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico';
-  first_name: string;
-  last_name: string;
-  full_name: string | null;
-  nif: string | null;
-  email: string | null;
-  phone: string | null;
-  position: string;
-  contract_type: 'full_time' | 'part_time' | 'freelance';
-  employment_status: 'active' | 'temporary_leave' | 'inactive';
-  inactive_reason: string | null;
-  inactive_at: string | null;
-  reactivated_at: string | null;
-  hire_date: string | null;
-  bio: string | null;
-  data_quality_status: 'complete' | 'pending_validation';
-  import_review_status: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate';
-  last_import_batch: string | null;
-  source: string | null;
-  alias_names: string | null;
-  detected_courses: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-  photo_id: number | null;
-  photo_filename: string | null;
-  photo_url: string | null;
-  campuses: CampusData[];
-  course_runs: CourseRunData[];
-  certifications: CertificationData[];
-  qualified_areas: QualifiedAreaData[];
+  id: number
+  staff_type: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico'
+  first_name: string
+  last_name: string
+  full_name: string | null
+  nif: string | null
+  email: string | null
+  phone: string | null
+  position: string
+  contract_type: 'general_regime' | 'full_time' | 'part_time' | 'freelance'
+  employment_status: 'active' | 'temporary_leave' | 'inactive'
+  inactive_reason: string | null
+  inactive_at: string | null
+  reactivated_at: string | null
+  hire_date: string | null
+  bio: string | null
+  data_quality_status: 'complete' | 'pending_validation'
+  import_review_status: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate'
+  last_import_batch: string | null
+  source: string | null
+  alias_names: string | null
+  detected_courses: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  photo_id: number | null
+  photo_filename: string | null
+  photo_url: string | null
+  campuses: CampusData[]
+  course_runs: CourseRunData[]
+  certifications: CertificationData[]
+  qualified_areas: QualifiedAreaData[]
 }
 
 /** Request body for creating a staff member */
 interface CreateStaffBody {
-  staffType: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico';
-  firstName: string;
-  lastName: string;
-  nif?: string;
-  email: string;
-  phone?: string;
-  position: string;
-  contractType?: 'full_time' | 'part_time' | 'freelance';
-  employmentStatus?: 'active' | 'temporary_leave' | 'inactive';
-  inactiveReason?: string;
-  inactiveAt?: string;
-  reactivatedAt?: string;
-  importReviewStatus?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate';
-  lastImportBatch?: string;
-  hireDate: string;
-  bio?: string;
-  specialties?: Staff['specialties'];
-  qualifiedAreas?: (string | number)[];
-  aliasNames?: string;
-  detectedCourses?: string;
+  staffType: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico'
+  firstName: string
+  lastName: string
+  nif?: string
+  email: string
+  phone?: string
+  position: string
+  contractType?: 'general_regime' | 'full_time' | 'part_time' | 'freelance'
+  employmentStatus?: 'active' | 'temporary_leave' | 'inactive'
+  inactiveReason?: string
+  inactiveAt?: string
+  reactivatedAt?: string
+  importReviewStatus?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate'
+  lastImportBatch?: string
+  hireDate: string
+  bio?: string
+  specialties?: Staff['specialties']
+  qualifiedAreas?: (string | number)[]
+  aliasNames?: string
+  detectedCourses?: string
   certifications?: {
-    title: string;
-    institution: string;
-    year: number;
-    document?: number;
-  }[];
-  assignedCampuses: (string | number)[];
-  photoId?: string | number;
+    title: string
+    institution: string
+    year: number
+    document?: number
+  }[]
+  assignedCampuses: (string | number)[]
+  photoId?: string | number
 }
 
 /** Request body for updating a staff member */
 interface UpdateStaffBody {
-  firstName?: string;
-  lastName?: string;
-  nif?: string | null;
-  email?: string;
-  phone?: string | null;
-  position?: string;
-  contractType?: 'full_time' | 'part_time' | 'freelance';
-  employmentStatus?: 'active' | 'temporary_leave' | 'inactive';
-  inactiveReason?: string | null;
-  inactiveAt?: string | null;
-  reactivatedAt?: string | null;
-  importReviewStatus?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate';
-  lastImportBatch?: string | null;
-  hireDate?: string;
-  bio?: string | null;
-  photoId?: string | number | null;
-  specialties?: Staff['specialties'];
-  qualifiedAreas?: (string | number)[];
-  aliasNames?: string | null;
-  detectedCourses?: string | null;
+  firstName?: string
+  lastName?: string
+  nif?: string | null
+  email?: string
+  phone?: string | null
+  position?: string
+  contractType?: 'general_regime' | 'full_time' | 'part_time' | 'freelance'
+  employmentStatus?: 'active' | 'temporary_leave' | 'inactive'
+  inactiveReason?: string | null
+  inactiveAt?: string | null
+  reactivatedAt?: string | null
+  importReviewStatus?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate'
+  lastImportBatch?: string | null
+  hireDate?: string
+  bio?: string | null
+  photoId?: string | number | null
+  specialties?: Staff['specialties']
+  qualifiedAreas?: (string | number)[]
+  aliasNames?: string | null
+  detectedCourses?: string | null
   certifications?: {
-    title: string;
-    institution: string;
-    year: number;
-    document?: number;
-  }[];
-  assignedCampuses?: (string | number)[];
-  isActive?: boolean;
+    title: string
+    institution: string
+    year: number
+    document?: number
+  }[]
+  assignedCampuses?: (string | number)[]
+  isActive?: boolean
 }
 
 /** Data structure for Payload CMS staff updates */
 interface StaffUpdateData {
-  first_name?: string;
-  last_name?: string;
-  nif?: string | null;
-  email?: string;
-  phone?: string | null;
-  position?: string;
-  contract_type?: 'full_time' | 'part_time' | 'freelance';
-  employment_status?: 'active' | 'temporary_leave' | 'inactive';
-  inactive_reason?: string | null;
-  inactive_at?: string | null;
-  reactivated_at?: string | null;
-  import_review_status?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate';
-  last_import_batch?: string | null;
-  hire_date?: string;
-  bio?: string | null;
-  photo?: number | null;
-  specialties?: Staff['specialties'];
-  qualified_areas?: number[];
-  alias_names?: string | null;
-  detected_courses?: string | null;
+  first_name?: string
+  last_name?: string
+  nif?: string | null
+  email?: string
+  phone?: string | null
+  position?: string
+  contract_type?: 'general_regime' | 'full_time' | 'part_time' | 'freelance'
+  employment_status?: 'active' | 'temporary_leave' | 'inactive'
+  inactive_reason?: string | null
+  inactive_at?: string | null
+  reactivated_at?: string | null
+  import_review_status?: 'validated' | 'pending_review' | 'ambiguous' | 'retired_candidate'
+  last_import_batch?: string | null
+  hire_date?: string
+  bio?: string | null
+  photo?: number | null
+  specialties?: Staff['specialties']
+  qualified_areas?: number[]
+  alias_names?: string | null
+  detected_courses?: string | null
   certifications?: {
-    title: string;
-    institution: string;
-    year: number;
-    document?: number;
-  }[];
-  assigned_campuses?: number[];
-  is_active?: boolean;
+    title: string
+    institution: string
+    year: number
+    document?: number
+  }[]
+  assigned_campuses?: number[]
+  is_active?: boolean
 }
 
 function isTeachingStaffType(staffType?: string | null): boolean {
@@ -197,7 +197,7 @@ function isTeachingStaffType(staffType?: string | null): boolean {
 
 function normalizeQualifiedAreaIds(qualifiedAreas?: (string | number)[]): number[] {
   return (qualifiedAreas ?? [])
-    .map((areaId) => typeof areaId === 'string' ? parseInt(areaId, 10) : areaId)
+    .map((areaId) => (typeof areaId === 'string' ? parseInt(areaId, 10) : areaId))
     .filter((areaId) => Number.isFinite(areaId))
 }
 
@@ -234,34 +234,36 @@ function isStatusOnlyUpdate(body: UpdateStaffBody): boolean {
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
-    return error.message;
+    return error.message
   }
-  return String(error);
+  return String(error)
 }
 
 function resolveMediaUrl(filename?: string | null, url?: string | null): string {
-  if (url && url.trim().length > 0) return url;
-  if (filename && filename.trim().length > 0) return `/api/media/file/${filename}`;
-  return '/placeholder-avatar.svg';
+  if (url && url.trim().length > 0) return url
+  if (filename && filename.trim().length > 0) return `/api/media/file/${filename}`
+  return '/placeholder-avatar.svg'
 }
 
 function normalizeNif(value?: string | null): string | null {
-  if (!value) return null;
-  const normalized = value.trim().toUpperCase().replace(/\s+/g, '');
-  return normalized.length > 0 ? normalized : null;
+  if (!value) return null
+  const normalized = value.trim().toUpperCase().replace(/\s+/g, '')
+  return normalized.length > 0 ? normalized : null
 }
 
 async function createStaffStatusEvent(args: {
-  payload: Payload;
-  staffId: number;
-  previousStatus: 'active' | 'temporary_leave' | 'inactive' | 'created';
-  newStatus: 'active' | 'temporary_leave' | 'inactive' | 'created';
-  reason: string;
-  source?: 'manual' | 'excel_import' | 'audit' | 'system';
-  importBatch?: string | null;
-  notes?: string | null;
+  payload: Payload
+  staffId: number
+  previousStatus: 'active' | 'temporary_leave' | 'inactive' | 'created'
+  newStatus: 'active' | 'temporary_leave' | 'inactive' | 'created'
+  reason: string
+  source?: 'manual' | 'excel_import' | 'audit' | 'system'
+  importBatch?: string | null
+  notes?: string | null
 }) {
-  const create = args.payload.create as unknown as (options: Record<string, unknown>) => Promise<unknown>;
+  const create = args.payload.create as unknown as (
+    options: Record<string, unknown>
+  ) => Promise<unknown>
   await create({
     collection: 'staff-status-events',
     overrideAccess: true,
@@ -275,7 +277,7 @@ async function createStaffStatusEvent(args: {
       changed_at: new Date().toISOString(),
       notes: args.notes ?? undefined,
     },
-  });
+  })
 }
 
 // ============================================================================
@@ -292,72 +294,83 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { success: false, error: 'DATABASE_URL is required for /api/staff' },
       { status: 503 }
-    );
+    )
   }
 
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(request.url)
     const rawStaffType =
       searchParams.get('type') ??
       searchParams.get('staffType') ??
-      searchParams.get('where[staff_type][equals]');
-    const campusId = searchParams.get('campus');
-    const qualifiedAreaId = searchParams.get('qualifiedArea') ?? searchParams.get('qualified_area');
-    const employmentStatus = searchParams.get('status'); // 'active' | 'temporary_leave' | 'inactive'
-    const includeInactive = searchParams.get('includeInactive') === 'true' || searchParams.get('includeInactive') === '1';
-    const limit = parseInt(searchParams.get('limit') ?? '50');
+      searchParams.get('where[staff_type][equals]')
+    const campusId = searchParams.get('campus')
+    const qualifiedAreaId = searchParams.get('qualifiedArea') ?? searchParams.get('qualified_area')
+    const employmentStatus = searchParams.get('status') // 'active' | 'temporary_leave' | 'inactive'
+    const includeInactive =
+      searchParams.get('includeInactive') === 'true' || searchParams.get('includeInactive') === '1'
+    const limit = parseInt(searchParams.get('limit') ?? '50')
 
     // Build dynamic WHERE clause
-    const conditions = includeInactive ? [] : ['s.is_active = true'];
-    const params: string[] = [];
+    const conditions = includeInactive ? [] : ['s.is_active = true']
+    const params: string[] = []
 
     if (rawStaffType) {
-      const normalizedStaffType = rawStaffType.trim().toLowerCase();
-      if (normalizedStaffType === 'profesor' || normalizedStaffType === 'profesores' || normalizedStaffType === 'docente' || normalizedStaffType === 'docentes') {
-        conditions.push(`s.staff_type IN ('profesor', 'academico')`);
-      } else if (normalizedStaffType === 'administrativo' || normalizedStaffType === 'administrativos' || normalizedStaffType === 'admin') {
-        conditions.push(`s.staff_type IN ('administrativo', 'jefatura_administracion')`);
+      const normalizedStaffType = rawStaffType.trim().toLowerCase()
+      if (
+        normalizedStaffType === 'profesor' ||
+        normalizedStaffType === 'profesores' ||
+        normalizedStaffType === 'docente' ||
+        normalizedStaffType === 'docentes'
+      ) {
+        conditions.push(`s.staff_type IN ('profesor', 'academico')`)
+      } else if (
+        normalizedStaffType === 'administrativo' ||
+        normalizedStaffType === 'administrativos' ||
+        normalizedStaffType === 'admin'
+      ) {
+        conditions.push(`s.staff_type IN ('administrativo', 'jefatura_administracion')`)
       } else if (['jefatura_administracion', 'academico'].includes(normalizedStaffType)) {
-        params.push(normalizedStaffType);
-        conditions.push(`s.staff_type = $${params.length}`);
+        params.push(normalizedStaffType)
+        conditions.push(`s.staff_type = $${params.length}`)
       } else {
         return NextResponse.json(
           { success: false, error: 'Tipo de personal no válido' },
           { status: 400 }
-        );
+        )
       }
     }
 
     if (employmentStatus) {
-      params.push(employmentStatus);
-      conditions.push(`s.employment_status = $${params.length}`);
+      params.push(employmentStatus)
+      conditions.push(`s.employment_status = $${params.length}`)
     }
 
     if (campusId) {
-      const parsedCampusId = parseInt(campusId, 10);
+      const parsedCampusId = parseInt(campusId, 10)
       if (Number.isNaN(parsedCampusId)) {
-        return NextResponse.json(
-          { success: false, error: 'Sede no válida' },
-          { status: 400 },
-        );
+        return NextResponse.json({ success: false, error: 'Sede no válida' }, { status: 400 })
       }
-      params.push(String(parsedCampusId));
-      conditions.push(`EXISTS (SELECT 1 FROM staff_rels sr2 WHERE sr2.parent_id = s.id AND sr2.campuses_id = $${params.length})`);
+      params.push(String(parsedCampusId))
+      conditions.push(
+        `EXISTS (SELECT 1 FROM staff_rels sr2 WHERE sr2.parent_id = s.id AND sr2.campuses_id = $${params.length})`
+      )
     }
 
     if (qualifiedAreaId) {
-      const parsedQualifiedAreaId = parseInt(qualifiedAreaId, 10);
+      const parsedQualifiedAreaId = parseInt(qualifiedAreaId, 10)
       if (Number.isNaN(parsedQualifiedAreaId)) {
         return NextResponse.json(
           { success: false, error: 'Área habilitada no válida' },
-          { status: 400 },
-        );
+          { status: 400 }
+        )
       }
-      params.push(String(parsedQualifiedAreaId));
-      conditions.push(`EXISTS (SELECT 1 FROM staff_rels sr3 WHERE sr3.parent_id = s.id AND sr3.path = 'qualified_areas' AND sr3.areas_formativas_id = $${params.length})`);
+      params.push(String(parsedQualifiedAreaId))
+      conditions.push(
+        `EXISTS (SELECT 1 FROM staff_rels sr3 WHERE sr3.parent_id = s.id AND sr3.path = 'qualified_areas' AND sr3.areas_formativas_id = $${params.length})`
+      )
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
     // Query staff with photo, campus relationships, and assigned course runs
     const query = `
@@ -454,9 +467,9 @@ export async function GET(request: NextRequest) {
       GROUP BY s.id, m.filename, m.url
       ORDER BY s.created_at DESC
       LIMIT ${limit}
-    `;
+    `
 
-    const staff = await sql.unsafe(query, params) as StaffQueryRow[];
+    const staff = (await sql.unsafe(query, params)) as StaffQueryRow[]
 
     return NextResponse.json({
       success: true,
@@ -495,13 +508,13 @@ export async function GET(request: NextRequest) {
         updatedAt: member.updated_at,
       })),
       total: staff.length,
-    });
+    })
   } catch (error: unknown) {
-    console.error('Error fetching staff:', error);
+    console.error('Error fetching staff:', error)
     return NextResponse.json(
       { success: false, error: getErrorMessage(error) || 'Error al obtener personal' },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -515,11 +528,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { success: false, error: 'DATABASE_URL is required for /api/staff' },
       { status: 503 }
-    );
+    )
   }
 
   try {
-    const body = await request.json() as CreateStaffBody;
+    const body = (await request.json()) as CreateStaffBody
     const {
       staffType,
       firstName,
@@ -544,7 +557,7 @@ export async function POST(request: NextRequest) {
       certifications,
       assignedCampuses,
       photoId,
-    } = body;
+    } = body
 
     // Validaciones básicas
     if (!staffType || !firstName || !lastName || !position) {
@@ -554,7 +567,7 @@ export async function POST(request: NextRequest) {
           error: 'Campos requeridos: staffType, firstName, lastName, position',
         },
         { status: 400 }
-      );
+      )
     }
 
     const normalizedQualifiedAreas = normalizeQualifiedAreaIds(qualifiedAreas)
@@ -565,14 +578,16 @@ export async function POST(request: NextRequest) {
           error: 'Un docente debe tener al menos un área habilitada para poder darse de alta.',
         },
         { status: 400 }
-      );
+      )
     }
 
-    const payload = await initPayload();
+    const payload = await initPayload()
 
     // Crear miembro del personal
-    const createStaff = payload.create as unknown as (args: Record<string, unknown>) => Promise<unknown>;
-    const staffMember = await createStaff({
+    const createStaff = payload.create as unknown as (
+      args: Record<string, unknown>
+    ) => Promise<unknown>
+    const staffMember = (await createStaff({
       collection: 'staff',
       overrideAccess: true,
       data: {
@@ -598,21 +613,28 @@ export async function POST(request: NextRequest) {
         alias_names: aliasNames ?? undefined,
         detected_courses: detectedCourses ?? undefined,
         certifications: certifications ?? [],
-        assigned_campuses: (assignedCampuses ?? []).map((id) => typeof id === 'string' ? parseInt(id) : id),
+        assigned_campuses: (assignedCampuses ?? []).map((id) =>
+          typeof id === 'string' ? parseInt(id) : id
+        ),
         is_active: true,
-        data_quality_status: (!email || !hireDate || !assignedCampuses || assignedCampuses.length === 0) ? 'pending_validation' : 'complete',
+        data_quality_status:
+          !email || !hireDate || !assignedCampuses || assignedCampuses.length === 0
+            ? 'pending_validation'
+            : 'complete',
       },
-    }) as unknown as Staff;
+    })) as unknown as Staff
 
     await createStaffStatusEvent({
       payload,
       staffId: Number(staffMember.id),
       previousStatus: 'created',
       newStatus: (employmentStatus ?? 'active') as 'active' | 'temporary_leave' | 'inactive',
-      reason: lastImportBatch ? 'Alta creada desde importación de personal' : 'Alta creada manualmente',
+      reason: lastImportBatch
+        ? 'Alta creada desde importación de personal'
+        : 'Alta creada manualmente',
       source: lastImportBatch ? 'excel_import' : 'manual',
       importBatch: lastImportBatch,
-    });
+    })
 
     return NextResponse.json({
       success: true,
@@ -621,16 +643,16 @@ export async function POST(request: NextRequest) {
         fullName: staffMember.full_name,
       },
       message: 'Miembro del personal creado exitosamente',
-    });
+    })
   } catch (error: unknown) {
-    console.error('Error creating staff member:', error);
+    console.error('Error creating staff member:', error)
     return NextResponse.json(
       {
         success: false,
         error: getErrorMessage(error) || 'Error al crear miembro del personal',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -644,23 +666,23 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(
       { success: false, error: 'DATABASE_URL is required for /api/staff' },
       { status: 503 }
-    );
+    )
   }
 
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
 
     if (!id) {
-      return NextResponse.json({ success: false, error: 'ID requerido' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'ID requerido' }, { status: 400 })
     }
 
-    const body = await request.json() as UpdateStaffBody;
+    const body = (await request.json()) as UpdateStaffBody
 
     if (body.employmentStatus && isStatusOnlyUpdate(body)) {
-      const staffId = parseInt(id, 10);
+      const staffId = parseInt(id, 10)
       if (Number.isNaN(staffId)) {
-        return NextResponse.json({ success: false, error: 'ID inválido' }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'ID inválido' }, { status: 400 })
       }
 
       const currentRows = await sql`
@@ -668,24 +690,32 @@ export async function PUT(request: NextRequest) {
         FROM staff
         WHERE id = ${staffId}
         LIMIT 1
-      `;
+      `
       const current = currentRows[0] as
-        | { id: number; full_name: string | null; employment_status: 'active' | 'temporary_leave' | 'inactive'; last_import_batch: string | null }
-        | undefined;
+        | {
+            id: number
+            full_name: string | null
+            employment_status: 'active' | 'temporary_leave' | 'inactive'
+            last_import_batch: string | null
+          }
+        | undefined
 
       if (!current) {
-        return NextResponse.json({ success: false, error: 'Miembro del personal no encontrado' }, { status: 404 });
+        return NextResponse.json(
+          { success: false, error: 'Miembro del personal no encontrado' },
+          { status: 404 }
+        )
       }
 
-      const nextStatus = body.employmentStatus;
-      const nextIsActive = body.isActive ?? nextStatus === 'active';
-      const statusReason = body.inactiveReason || (
-        nextStatus === 'active'
+      const nextStatus = body.employmentStatus
+      const nextIsActive = body.isActive ?? nextStatus === 'active'
+      const statusReason =
+        body.inactiveReason ||
+        (nextStatus === 'active'
           ? 'Reactivación manual desde ficha docente'
           : nextStatus === 'temporary_leave'
             ? 'Baja temporal manual desde ficha docente'
-            : 'Baja manual desde ficha docente'
-      );
+            : 'Baja manual desde ficha docente')
 
       const updatedRows = await sql.begin(async (tx) => {
         const updated = await tx`
@@ -703,7 +733,7 @@ export async function PUT(request: NextRequest) {
             updated_at = now()
           WHERE id = ${staffId}
           RETURNING id, full_name
-        `;
+        `
 
         if (nextStatus !== current.employment_status) {
           await tx`
@@ -729,13 +759,13 @@ export async function PUT(request: NextRequest) {
               now(),
               now()
             )
-          `;
+          `
         }
 
-        return updated;
-      });
+        return updated
+      })
 
-      const updated = updatedRows[0] as { id: number; full_name: string | null };
+      const updated = updatedRows[0] as { id: number; full_name: string | null }
       return NextResponse.json({
         success: true,
         data: {
@@ -743,48 +773,52 @@ export async function PUT(request: NextRequest) {
           fullName: updated.full_name,
         },
         message: 'Estado del personal actualizado exitosamente',
-      });
+      })
     }
 
-    const payload = await initPayload();
-    const current = await payload.findByID({
+    const payload = await initPayload()
+    const current = (await payload.findByID({
       collection: 'staff',
       id: parseInt(id),
       overrideAccess: true,
       depth: 0,
-    }) as unknown as Staff;
+    })) as unknown as Staff
 
     // Preparar datos de actualización
-    const updateData: StaffUpdateData = {};
+    const updateData: StaffUpdateData = {}
 
-    if (body.firstName) updateData.first_name = body.firstName;
-    if (body.lastName) updateData.last_name = body.lastName;
-    if (body.nif !== undefined) updateData.nif = normalizeNif(body.nif);
-    if (body.email) updateData.email = body.email;
-    if (body.phone !== undefined) updateData.phone = body.phone;
-    if (body.position) updateData.position = body.position;
-    if (body.contractType) updateData.contract_type = body.contractType;
-    if (body.employmentStatus) updateData.employment_status = body.employmentStatus;
-    if (body.inactiveReason !== undefined) updateData.inactive_reason = body.inactiveReason;
-    if (body.inactiveAt !== undefined) updateData.inactive_at = body.inactiveAt;
-    if (body.reactivatedAt !== undefined) updateData.reactivated_at = body.reactivatedAt;
-    if (body.importReviewStatus) updateData.import_review_status = body.importReviewStatus;
-    if (body.lastImportBatch !== undefined) updateData.last_import_batch = body.lastImportBatch;
-    if (body.hireDate) updateData.hire_date = body.hireDate;
-    if (body.bio !== undefined) updateData.bio = body.bio;
-    if (body.photoId !== undefined) updateData.photo = body.photoId ? parseInt(String(body.photoId)) : null;
-    if (body.specialties) updateData.specialties = body.specialties as Staff['specialties'];
+    if (body.firstName) updateData.first_name = body.firstName
+    if (body.lastName) updateData.last_name = body.lastName
+    if (body.nif !== undefined) updateData.nif = normalizeNif(body.nif)
+    if (body.email) updateData.email = body.email
+    if (body.phone !== undefined) updateData.phone = body.phone
+    if (body.position) updateData.position = body.position
+    if (body.contractType) updateData.contract_type = body.contractType
+    if (body.employmentStatus) updateData.employment_status = body.employmentStatus
+    if (body.inactiveReason !== undefined) updateData.inactive_reason = body.inactiveReason
+    if (body.inactiveAt !== undefined) updateData.inactive_at = body.inactiveAt
+    if (body.reactivatedAt !== undefined) updateData.reactivated_at = body.reactivatedAt
+    if (body.importReviewStatus) updateData.import_review_status = body.importReviewStatus
+    if (body.lastImportBatch !== undefined) updateData.last_import_batch = body.lastImportBatch
+    if (body.hireDate) updateData.hire_date = body.hireDate
+    if (body.bio !== undefined) updateData.bio = body.bio
+    if (body.photoId !== undefined)
+      updateData.photo = body.photoId ? parseInt(String(body.photoId)) : null
+    if (body.specialties) updateData.specialties = body.specialties as Staff['specialties']
     if (body.qualifiedAreas !== undefined)
-      updateData.qualified_areas = normalizeQualifiedAreaIds(body.qualifiedAreas);
-    if (body.aliasNames !== undefined) updateData.alias_names = body.aliasNames;
-    if (body.detectedCourses !== undefined) updateData.detected_courses = body.detectedCourses;
-    if (body.certifications) updateData.certifications = body.certifications;
+      updateData.qualified_areas = normalizeQualifiedAreaIds(body.qualifiedAreas)
+    if (body.aliasNames !== undefined) updateData.alias_names = body.aliasNames
+    if (body.detectedCourses !== undefined) updateData.detected_courses = body.detectedCourses
+    if (body.certifications) updateData.certifications = body.certifications
     if (body.assignedCampuses)
-      updateData.assigned_campuses = body.assignedCampuses.map((cid) => typeof cid === 'string' ? parseInt(cid) : cid);
-    if (body.isActive !== undefined) updateData.is_active = body.isActive;
+      updateData.assigned_campuses = body.assignedCampuses.map((cid) =>
+        typeof cid === 'string' ? parseInt(cid) : cid
+      )
+    if (body.isActive !== undefined) updateData.is_active = body.isActive
 
-    const effectiveStaffType = current.staff_type;
-    const effectiveQualifiedAreas = updateData.qualified_areas ?? getExistingQualifiedAreaIds(current);
+    const effectiveStaffType = current.staff_type
+    const effectiveQualifiedAreas =
+      updateData.qualified_areas ?? getExistingQualifiedAreaIds(current)
     if (isTeachingStaffType(effectiveStaffType) && effectiveQualifiedAreas.length === 0) {
       return NextResponse.json(
         {
@@ -792,15 +826,15 @@ export async function PUT(request: NextRequest) {
           error: 'Un docente debe tener al menos un área habilitada antes de guardar la ficha.',
         },
         { status: 400 }
-      );
+      )
     }
 
-    const staffMember = await payload.update({
+    const staffMember = (await payload.update({
       collection: 'staff',
       id: parseInt(id),
       overrideAccess: true,
       data: updateData as unknown as Record<string, unknown>,
-    }) as unknown as Staff;
+    })) as unknown as Staff
 
     if (body.employmentStatus && body.employmentStatus !== current.employment_status) {
       await createStaffStatusEvent({
@@ -811,7 +845,7 @@ export async function PUT(request: NextRequest) {
         reason: body.inactiveReason || 'Cambio de estado laboral',
         source: body.lastImportBatch ? 'excel_import' : 'manual',
         importBatch: body.lastImportBatch,
-      });
+      })
     } else if (body.contractType && body.contractType !== current.contract_type) {
       await createStaffStatusEvent({
         payload,
@@ -821,7 +855,7 @@ export async function PUT(request: NextRequest) {
         reason: `Cambio de contrato: ${current.contract_type} -> ${body.contractType}`,
         source: body.lastImportBatch ? 'excel_import' : 'manual',
         importBatch: body.lastImportBatch,
-      });
+      })
     }
 
     return NextResponse.json({
@@ -831,16 +865,16 @@ export async function PUT(request: NextRequest) {
         fullName: staffMember.full_name,
       },
       message: 'Miembro del personal actualizado exitosamente',
-    });
+    })
   } catch (error: unknown) {
-    console.error('Error updating staff member:', error);
+    console.error('Error updating staff member:', error)
     return NextResponse.json(
       {
         success: false,
         error: getErrorMessage(error) || 'Error al actualizar miembro del personal',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -855,27 +889,29 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(
       { success: false, error: 'DATABASE_URL is required for /api/staff' },
       { status: 503 }
-    );
+    )
   }
 
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
 
     if (!id) {
-      return NextResponse.json({ success: false, error: 'ID requerido' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'ID requerido' }, { status: 400 })
     }
 
-    const payload = await initPayload();
-    const current = await payload.findByID({
+    const payload = await initPayload()
+    const current = (await payload.findByID({
       collection: 'staff',
       id: parseInt(id),
       overrideAccess: true,
       depth: 0,
-    }) as unknown as Staff;
+    })) as unknown as Staff
 
     // En lugar de eliminar, marcamos como inactivo (soft delete)
-    const update = payload.update as unknown as (options: Record<string, unknown>) => Promise<unknown>;
+    const update = payload.update as unknown as (
+      options: Record<string, unknown>
+    ) => Promise<unknown>
     await update({
       collection: 'staff',
       id: parseInt(id),
@@ -886,29 +922,32 @@ export async function DELETE(request: NextRequest) {
         inactive_at: new Date().toISOString(),
         inactive_reason: 'Desactivación manual desde API',
       },
-    });
+    })
 
     await createStaffStatusEvent({
       payload,
       staffId: parseInt(id),
-      previousStatus: (current.employment_status ?? 'active') as 'active' | 'temporary_leave' | 'inactive',
+      previousStatus: (current.employment_status ?? 'active') as
+        | 'active'
+        | 'temporary_leave'
+        | 'inactive',
       newStatus: 'inactive',
       reason: 'Desactivación manual desde API',
       source: 'manual',
-    });
+    })
 
     return NextResponse.json({
       success: true,
       message: 'Miembro del personal desactivado exitosamente',
-    });
+    })
   } catch (error: unknown) {
-    console.error('Error deleting staff member:', error);
+    console.error('Error deleting staff member:', error)
     return NextResponse.json(
       {
         success: false,
         error: getErrorMessage(error) || 'Error al eliminar miembro del personal',
       },
       { status: 500 }
-    );
+    )
   }
 }

@@ -100,7 +100,7 @@ export function MediaBrowser({
   selectionMode = 'single',
   className,
 }: MediaBrowserProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortField, setSortField] = useState<SortField>('createdAt')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
@@ -251,12 +251,24 @@ export function MediaBrowser({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="createdAt-desc" data-oid="t.yu2.m">Mas recientes</SelectItem>
-            <SelectItem value="createdAt-asc" data-oid="p.3q487">Mas antiguos</SelectItem>
-            <SelectItem value="filename-asc" data-oid="k6ljkbg">Nombre A-Z</SelectItem>
-            <SelectItem value="filename-desc" data-oid="581hu-i">Nombre Z-A</SelectItem>
-            <SelectItem value="filesize-desc" data-oid="fa7mwpl">Mayor tamano</SelectItem>
-            <SelectItem value="filesize-asc" data-oid="ovv2b71">Menor tamano</SelectItem>
+            <SelectItem value="createdAt-desc" data-oid="t.yu2.m">
+              Mas recientes
+            </SelectItem>
+            <SelectItem value="createdAt-asc" data-oid="p.3q487">
+              Mas antiguos
+            </SelectItem>
+            <SelectItem value="filename-asc" data-oid="k6ljkbg">
+              Nombre A-Z
+            </SelectItem>
+            <SelectItem value="filename-desc" data-oid="581hu-i">
+              Nombre Z-A
+            </SelectItem>
+            <SelectItem value="filesize-desc" data-oid="fa7mwpl">
+              Mayor tamano
+            </SelectItem>
+            <SelectItem value="filesize-asc" data-oid="ovv2b71">
+              Menor tamano
+            </SelectItem>
           </SelectContent>
         </Select>
 
@@ -267,6 +279,8 @@ export function MediaBrowser({
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('grid')}
+            aria-label="Vista en cuadrícula"
+            title="Vista en cuadrícula"
             className="rounded-r-none"
             data-oid="_ia3b_h"
           >
@@ -277,6 +291,8 @@ export function MediaBrowser({
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('list')}
+            aria-label="Vista de lista"
+            title="Vista de lista"
             className="rounded-l-none"
             data-oid="9i-xhc5"
           >

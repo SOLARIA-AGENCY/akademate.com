@@ -17,6 +17,7 @@ interface SegmentedToggleProps<TValue extends string> {
   onValueChange: (value: TValue) => void
   ariaLabel: string
   className?: string
+  iconOnly?: boolean
 }
 
 export function SegmentedToggle<TValue extends string>({
@@ -25,6 +26,7 @@ export function SegmentedToggle<TValue extends string>({
   onValueChange,
   ariaLabel,
   className,
+  iconOnly = false,
 }: SegmentedToggleProps<TValue>) {
   return (
     <ToggleGroup
@@ -45,16 +47,22 @@ export function SegmentedToggle<TValue extends string>({
             variant="outline"
             size="sm"
             aria-label={option.label}
+            title={option.label}
             className={cn(
-              'h-8 border-0 px-3 text-xs font-semibold transition-all focus-visible:ring-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary',
+              'h-8 border-0 text-xs font-semibold transition-all focus-visible:ring-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary',
+              iconOnly ? 'w-8 px-0' : 'px-3',
               value === option.value
                 ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary'
                 : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
             )}
           >
             {Icon ? <Icon className="h-4 w-4" aria-hidden="true" /> : null}
-            <span className="hidden sm:inline">{option.label}</span>
-            {option.shortLabel ? <span className="sm:hidden">{option.shortLabel}</span> : null}
+            {!iconOnly ? (
+              <>
+                <span className="hidden sm:inline">{option.label}</span>
+                {option.shortLabel ? <span className="sm:hidden">{option.shortLabel}</span> : null}
+              </>
+            ) : null}
           </ToggleGroupItem>
         )
       })}

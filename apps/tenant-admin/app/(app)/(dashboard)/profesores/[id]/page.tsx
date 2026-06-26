@@ -206,18 +206,21 @@ export default function ProfesorDetailPage() {
 
         setProfessor(foundProfessor)
         const assignedCourseRunIds = new Set(
-          (foundProfessor.courseRuns ?? []).map((courseRun: CourseRun) => String(courseRun.id)),
+          (foundProfessor.courseRuns ?? []).map((courseRun: CourseRun) => String(courseRun.id))
         )
         if (courseRunsResponse.ok) {
           const courseRunsResult = (await courseRunsResponse.json()) as ConvocatoriasApiResponse
           setAvailableCourseRuns(
             (courseRunsResult.data ?? []).filter(
-              (courseRun) => !assignedCourseRunIds.has(String(courseRun.id)),
-            ),
+              (courseRun) => !assignedCourseRunIds.has(String(courseRun.id))
+            )
           )
         }
         if (eventsResponse.ok) {
-          const eventsResult = (await eventsResponse.json()) as { success?: boolean; data?: StaffStatusEvent[] }
+          const eventsResult = (await eventsResponse.json()) as {
+            success?: boolean
+            data?: StaffStatusEvent[]
+          }
           setStatusEvents(eventsResult.data ?? [])
         }
         setError(null)
@@ -273,6 +276,7 @@ export default function ProfesorDetailPage() {
   }
 
   const contractTypeLabels: Record<string, string> = {
+    general_regime: 'Régimen General',
     full_time: 'Tiempo Completo',
     part_time: 'Medio Tiempo',
     freelance: 'Autónomo',
@@ -284,9 +288,12 @@ export default function ProfesorDetailPage() {
     inactive: 'Inactivo',
   }
   const publicProfessorPath = `/p/profesores/${professor.id}`
-  const publicProfessorAvailable = professor.isActive !== false && professor.employmentStatus !== 'inactive'
+  const publicProfessorAvailable =
+    professor.isActive !== false && professor.employmentStatus !== 'inactive'
 
-  async function handleEmploymentStatusChange(nextStatus: 'active' | 'inactive' | 'temporary_leave') {
+  async function handleEmploymentStatusChange(
+    nextStatus: 'active' | 'inactive' | 'temporary_leave'
+  ) {
     if (!professor) return
     const now = new Date().toISOString()
     const reason =
@@ -311,7 +318,9 @@ export default function ProfesorDetailPage() {
       })
       const result = await response.json().catch(() => ({}))
       if (!response.ok || result?.success === false) {
-        throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo cambiar el estado')
+        throw new Error(
+          typeof result?.error === 'string' ? result.error : 'No se pudo cambiar el estado'
+        )
       }
       window.location.reload()
     } catch (err) {
@@ -367,12 +376,21 @@ export default function ProfesorDetailPage() {
               size="sm"
               disabled={!publicProfessorAvailable}
               onClick={() => window.open(publicProfessorPath, '_blank', 'noopener,noreferrer')}
-              title={publicProfessorAvailable ? 'Abrir página pública del docente' : 'Página pública no disponible'}
+              title={
+                publicProfessorAvailable
+                  ? 'Abrir página pública del docente'
+                  : 'Página pública no disponible'
+              }
             >
-              <ExternalLink className="mr-2 h-4 w-4" />Ver página pública
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Ver página pública
             </Button>
-            <Button size="sm" onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}>
-              <Edit className="mr-2 h-4 w-4" />Editar
+            <Button
+              size="sm"
+              onClick={() => router.push(`/dashboard/profesores/${professorId}/editar`)}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Editar
             </Button>
             {professor.employmentStatus === 'active' ? (
               <>
@@ -394,7 +412,11 @@ export default function ProfesorDetailPage() {
                 </Button>
               </>
             ) : (
-              <Button size="sm" disabled={changingStatus} onClick={() => void handleEmploymentStatusChange('active')}>
+              <Button
+                size="sm"
+                disabled={changingStatus}
+                onClick={() => void handleEmploymentStatusChange('active')}
+              >
                 Reactivar
               </Button>
             )}
@@ -415,7 +437,7 @@ export default function ProfesorDetailPage() {
                   className="h-48 w-48 rounded-full object-cover border-4 border-background shadow-lg"
                   onError={() =>
                     setProfessor((current) =>
-                      current ? { ...current, photo: '/placeholder-avatar.svg' } : current,
+                      current ? { ...current, photo: '/placeholder-avatar.svg' } : current
                     )
                   }
                   data-oid="-ttwq2p"
@@ -458,7 +480,9 @@ export default function ProfesorDetailPage() {
               {professor.importReviewStatus && professor.importReviewStatus !== 'validated' ? (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
                   Revisión pendiente: {professor.importReviewStatus}
-                  {professor.lastImportBatch ? <span className="block text-xs">Lote: {professor.lastImportBatch}</span> : null}
+                  {professor.lastImportBatch ? (
+                    <span className="block text-xs">Lote: {professor.lastImportBatch}</span>
+                  ) : null}
                 </div>
               ) : null}
               {professor.employmentStatus !== 'active' && professor.inactiveReason ? (
@@ -626,7 +650,8 @@ export default function ProfesorDetailPage() {
                 </div>
               ) : (
                 <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                  Bloqueado para convocatorias: este docente necesita al menos un área habilitada en su ficha.
+                  Bloqueado para convocatorias: este docente necesita al menos un área habilitada en
+                  su ficha.
                 </div>
               )}
             </CardContent>
@@ -634,7 +659,10 @@ export default function ProfesorDetailPage() {
 
           {/* Course Runs (Convocatorias) */}
           <Card data-oid="ftaknd_">
-            <CardHeader className="flex flex-row items-center justify-between gap-4" data-oid="o2xkexi">
+            <CardHeader
+              className="flex flex-row items-center justify-between gap-4"
+              data-oid="o2xkexi"
+            >
               <CardTitle className="flex items-center gap-2" data-oid="nvdpxly">
                 <Briefcase className="h-5 w-5" data-oid="8n83o8d" />
                 Convocatorias Asignadas
@@ -654,12 +682,12 @@ export default function ProfesorDetailPage() {
                     <SelectValue placeholder="Seleccionar convocatoria" />
                   </SelectTrigger>
                   <SelectContent>
-                  {availableCourseRuns.map((courseRun) => (
-                    <SelectItem key={courseRun.id} value={String(courseRun.id)}>
-                      {courseRun.codigo ? `${courseRun.codigo} · ` : ''}
-                      {courseRun.cursoNombre || `Convocatoria #${courseRun.id}`}
-                    </SelectItem>
-                  ))}
+                    {availableCourseRuns.map((courseRun) => (
+                      <SelectItem key={courseRun.id} value={String(courseRun.id)}>
+                        {courseRun.codigo ? `${courseRun.codigo} · ` : ''}
+                        {courseRun.cursoNombre || `Convocatoria #${courseRun.id}`}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Button
@@ -678,9 +706,7 @@ export default function ProfesorDetailPage() {
               </div>
             </CardHeader>
             <CardContent data-oid="7m5v27-">
-              {assignError ? (
-                <p className="mb-3 text-sm text-destructive">{assignError}</p>
-              ) : null}
+              {assignError ? <p className="mb-3 text-sm text-destructive">{assignError}</p> : null}
               {professor.courseRuns && professor.courseRuns.length > 0 ? (
                 <div className="space-y-4" data-oid="i-2.5.3">
                   {professor.courseRuns.map((courseRun) => (
@@ -691,61 +717,61 @@ export default function ProfesorDetailPage() {
                     >
                       <CourseRunImage src={courseRun.courseImage} name={courseRun.courseName} />
                       <div className="flex flex-1 flex-col gap-3 p-4">
-                      <div className="flex items-start justify-between" data-oid="81:0z2k">
-                        <div className="flex-1" data-oid="pck94z.">
-                          <div className="flex items-center gap-2 mb-1" data-oid="tbajzug">
-                            <h4 className="font-semibold text-base" data-oid="jx6vgmb">
-                              {courseRun.courseName}
-                            </h4>
-                            <Badge
-                              variant={
-                                courseRun.status === 'active'
-                                  ? 'default'
-                                  : courseRun.status === 'scheduled'
-                                    ? 'secondary'
-                                    : 'outline'
-                              }
-                              data-oid="y1vx6lt"
-                            >
-                              {courseRun.status}
-                            </Badge>
+                        <div className="flex items-start justify-between" data-oid="81:0z2k">
+                          <div className="flex-1" data-oid="pck94z.">
+                            <div className="flex items-center gap-2 mb-1" data-oid="tbajzug">
+                              <h4 className="font-semibold text-base" data-oid="jx6vgmb">
+                                {courseRun.courseName}
+                              </h4>
+                              <Badge
+                                variant={
+                                  courseRun.status === 'active'
+                                    ? 'default'
+                                    : courseRun.status === 'scheduled'
+                                      ? 'secondary'
+                                      : 'outline'
+                                }
+                                data-oid="y1vx6lt"
+                              >
+                                {courseRun.status}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground" data-oid="w0ryve-">
+                              Código: {courseRun.codigo}
+                            </p>
                           </div>
-                          <p className="text-sm text-muted-foreground" data-oid="w0ryve-">
-                            Código: {courseRun.codigo}
-                          </p>
                         </div>
-                      </div>
 
-                      <div className="grid gap-2 text-sm" data-oid=".bq79f1">
-                        <div
-                          className="flex items-center gap-2 text-muted-foreground"
-                          data-oid="cip7-0z"
-                        >
-                          <Calendar className="h-4 w-4" data-oid="w_rwktq" />
-                          <span data-oid="cayz76c">
-                            {new Date(courseRun.startDate).toLocaleDateString('es-ES', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}{' '}
-                            -{' '}
-                            {new Date(courseRun.endDate).toLocaleDateString('es-ES', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
-                          </span>
+                        <div className="grid gap-2 text-sm" data-oid=".bq79f1">
+                          <div
+                            className="flex items-center gap-2 text-muted-foreground"
+                            data-oid="cip7-0z"
+                          >
+                            <Calendar className="h-4 w-4" data-oid="w_rwktq" />
+                            <span data-oid="cayz76c">
+                              {new Date(courseRun.startDate).toLocaleDateString('es-ES', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              })}{' '}
+                              -{' '}
+                              {new Date(courseRun.endDate).toLocaleDateString('es-ES', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              })}
+                            </span>
+                          </div>
+                          <div
+                            className="flex items-center gap-2 text-muted-foreground"
+                            data-oid="sfxuwe-"
+                          >
+                            <MapPin className="h-4 w-4" data-oid="500_xym" />
+                            <span data-oid="pd8w5:6">
+                              {courseRun.campusName} - {courseRun.campusCity}
+                            </span>
+                          </div>
                         </div>
-                        <div
-                          className="flex items-center gap-2 text-muted-foreground"
-                          data-oid="sfxuwe-"
-                        >
-                          <MapPin className="h-4 w-4" data-oid="500_xym" />
-                          <span data-oid="pd8w5:6">
-                            {courseRun.campusName} - {courseRun.campusCity}
-                          </span>
-                        </div>
-                      </div>
                       </div>
                     </div>
                   ))}
@@ -825,12 +851,16 @@ export default function ProfesorDetailPage() {
                         </span>
                       </div>
                       <p className="mt-1 text-muted-foreground">{event.reason}</p>
-                      {event.source ? <p className="mt-1 text-xs text-muted-foreground">Origen: {event.source}</p> : null}
+                      {event.source ? (
+                        <p className="mt-1 text-xs text-muted-foreground">Origen: {event.source}</p>
+                      ) : null}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Sin movimientos registrados todavía.</p>
+                <p className="text-sm text-muted-foreground">
+                  Sin movimientos registrados todavía.
+                </p>
               )}
             </CardContent>
           </Card>

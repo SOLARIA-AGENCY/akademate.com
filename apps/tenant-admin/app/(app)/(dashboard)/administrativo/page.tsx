@@ -60,8 +60,11 @@ interface ApiStaffData {
 }
 
 function formatContractType(value?: string | null) {
-  const normalized = String(value ?? '').trim().toLowerCase()
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase()
   const labels: Record<string, string> = {
+    general_regime: 'Régimen General',
     full_time: 'Tiempo completo',
     part_time: 'Tiempo parcial',
     freelance: 'Autónomo',

@@ -16,7 +16,7 @@ describe('SegmentedToggle', () => {
           { value: 'month', label: 'Mes' },
           { value: 'week', label: 'Semana', icon: CalendarDays },
         ]}
-      />,
+      />
     )
 
     const activeOption = screen.getByRole('radio', { name: 'Semana' })
@@ -39,7 +39,7 @@ describe('SegmentedToggle', () => {
           { value: 'month', label: 'Mes' },
           { value: 'week', label: 'Semana' },
         ]}
-      />,
+      />
     )
 
     await user.click(screen.getByRole('radio', { name: 'Semana' }))
@@ -55,7 +55,11 @@ describe('ViewToggle', () => {
 
     render(<ViewToggle view="grid" onViewChange={onViewChange} />)
 
-    expect(screen.getByRole('radio', { name: 'Vista en cuadrícula' })).toHaveClass('data-[state=on]:bg-primary')
+    expect(screen.getByRole('radio', { name: 'Vista en cuadrícula' })).toHaveClass(
+      'data-[state=on]:bg-primary'
+    )
+    expect(screen.queryByText('Vista en cuadrícula')).not.toBeInTheDocument()
+    expect(screen.queryByText('Vista de lista')).not.toBeInTheDocument()
     await user.click(screen.getByRole('radio', { name: 'Vista de lista' }))
 
     expect(onViewChange).toHaveBeenCalledWith('list')

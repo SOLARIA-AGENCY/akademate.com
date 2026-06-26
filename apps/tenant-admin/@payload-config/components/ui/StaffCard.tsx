@@ -2,7 +2,13 @@
 
 import * as React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@payload-config/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
 import {
   StaffCampusBadge,
@@ -19,7 +25,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@payload-config/components/ui/dropdown-menu'
-import { Eye, Edit, Trash2, MoreHorizontal, Mail, Phone, Briefcase, GraduationCap, User } from 'lucide-react'
+import {
+  Eye,
+  Edit,
+  Trash2,
+  MoreHorizontal,
+  Mail,
+  Phone,
+  Briefcase,
+  GraduationCap,
+  User,
+} from 'lucide-react'
 
 type StaffCardId = number | string
 
@@ -45,6 +61,7 @@ interface StaffCardProps {
 }
 
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
+  general_regime: 'Régimen General',
   full_time: 'Tiempo Completo',
   part_time: 'Medio Tiempo',
   freelance: 'Autónomo',
@@ -195,7 +212,11 @@ export function StaffCard({
         <CardContent className="flex flex-1 flex-col px-4 pb-3 pt-0" data-oid="24ngeia">
           {/* Badges */}
           <div className="mb-3 flex flex-wrap gap-1.5" data-oid="34c-.1s">
-            <StaffStatusBadge status={employmentStatus} className="w-auto min-w-[5.5rem]" data-oid="8_xl-hu" />
+            <StaffStatusBadge
+              status={employmentStatus}
+              className="w-auto min-w-[5.5rem]"
+              data-oid="8_xl-hu"
+            />
             <StaffContractBadge className="w-auto min-w-[6.5rem]" data-oid="0m5w5if">
               {CONTRACT_TYPE_LABELS[contractType] ?? contractType}
             </StaffContractBadge>
@@ -203,7 +224,11 @@ export function StaffCard({
           {teaching && !missingQualifiedAreas ? (
             <div className="mb-3 flex flex-wrap gap-1.5">
               {(qualifiedAreas ?? []).slice(0, 2).map((area) => (
-                <StaffAreaBadge key={area.id} seed={area.codigo ?? area.id} className="max-w-[12rem]">
+                <StaffAreaBadge
+                  key={area.id}
+                  seed={area.codigo ?? area.id}
+                  className="max-w-[12rem]"
+                >
                   {area.nombre}
                 </StaffAreaBadge>
               ))}
@@ -291,7 +316,11 @@ export function StaffCard({
                 </span>
               ) : (
                 assignedCampuses.slice(0, 2).map((campus) => (
-                  <StaffCampusBadge key={campus.id} className="w-auto max-w-[10rem]" data-oid=":pfs_wt">
+                  <StaffCampusBadge
+                    key={campus.id}
+                    className="w-auto max-w-[10rem]"
+                    data-oid=":pfs_wt"
+                  >
                     {campus.name}
                   </StaffCampusBadge>
                 ))

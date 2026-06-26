@@ -21,7 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, GraduationCap, Save, Loader2, MapPin, Plus, Trash2, Upload, User } from 'lucide-react'
+import {
+  ArrowLeft,
+  GraduationCap,
+  Save,
+  Loader2,
+  MapPin,
+  Plus,
+  Trash2,
+  Upload,
+  User,
+} from 'lucide-react'
 
 interface Campus {
   id: number
@@ -101,7 +111,7 @@ export default function NewProfesorPage() {
     nif: '',
     email: '',
     phone: '',
-    position: '',
+    position: 'Docente',
     contractType: 'full_time',
     employmentStatus: 'active',
     bio: '',
@@ -168,7 +178,7 @@ export default function NewProfesorPage() {
           nif: formData.nif || undefined,
           email: formData.email,
           phone: formData.phone,
-          position: formData.position,
+          position: 'Docente',
           contractType: formData.contractType,
           employmentStatus: formData.employmentStatus,
           hireDate: formData.hireDate,
@@ -240,11 +250,15 @@ export default function NewProfesorPage() {
       const result = (await response.json().catch(() => ({}))) as StaffPhotoUploadResponse
 
       if (!response.ok || !result.success || !result.doc?.id) {
-        throw new Error(typeof result?.error === 'string' ? result.error : 'No se pudo subir la foto')
+        throw new Error(
+          typeof result?.error === 'string' ? result.error : 'No se pudo subir la foto'
+        )
       }
 
       setPhotoId(String(result.doc.id))
-      setPhotoPreview(result.doc.url || (result.doc.filename ? `/api/media/file/${result.doc.filename}` : null))
+      setPhotoPreview(
+        result.doc.url || (result.doc.filename ? `/api/media/file/${result.doc.filename}` : null)
+      )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo subir la foto')
     } finally {
@@ -259,17 +273,13 @@ export default function NewProfesorPage() {
     }))
   }
 
-  const updateCertification = (
-    index: number,
-    field: keyof Certification,
-    value: string,
-  ) => {
+  const updateCertification = (index: number, field: keyof Certification, value: string) => {
     setFormData((prev) => ({
       ...prev,
       certifications: prev.certifications.map((cert, certIndex) =>
         certIndex === index
           ? { ...cert, [field]: field === 'year' ? (value ? Number(value) : '') : value }
-          : cert,
+          : cert
       ),
     }))
   }
@@ -282,7 +292,7 @@ export default function NewProfesorPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl" data-oid="nqgh2_8">
+    <div className="w-full space-y-6" data-oid="nqgh2_8">
       <PageHeader
         title="Nuevo Profesor"
         description="Añade un nuevo profesor al sistema"
@@ -330,21 +340,29 @@ export default function NewProfesorPage() {
                 ) : (
                   <TeacherPhotoFallback />
                 )}
-                <div className="space-y-2">
+                <div>
                   <Input
                     id="photo-upload"
                     type="file"
                     accept="image/*"
+                    className="sr-only"
                     disabled={uploadingPhoto || loading}
                     onChange={(e) => {
                       const file = e.target.files?.[0]
                       if (file) void handlePhotoUpload(file)
                     }}
                   />
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    {uploadingPhoto ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
-                    <span>{uploadingPhoto ? 'Subiendo foto...' : 'La imagen se vinculará a la ficha del profesor.'}</span>
-                  </div>
+                  <Label
+                    htmlFor="photo-upload"
+                    className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-input bg-background px-4 text-sm font-medium shadow-sm transition-colors hover:bg-primary/10 hover:text-primary"
+                  >
+                    {uploadingPhoto ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Upload className="h-4 w-4" aria-hidden="true" />
+                    )}
+                    {uploadingPhoto ? 'Subiendo imagen...' : 'Seleccionar imagen'}
+                  </Label>
                 </div>
               </div>
             </div>
@@ -431,30 +449,9 @@ export default function NewProfesorPage() {
               </div>
             </div>
 
-            {/* Position */}
-            <div className="space-y-2" data-oid="9_bli98">
-              <Label htmlFor="position" data-oid="ug3wmn_">
-                Especialidad / Área{' '}
-                <span className="text-destructive" data-oid="0p1oi4w">
-                  *
-                </span>
-              </Label>
-              <Input
-                id="position"
-                value={formData.position}
-                onChange={handleInputChange('position')}
-                required
-                placeholder="Profesor de Marketing Digital"
-                data-oid="i37pg:e"
-              />
-            </div>
-
             <div className="space-y-3 rounded-lg border p-4">
               <div className="space-y-1">
                 <Label>Áreas habilitadas para docencia</Label>
-                <p className="text-sm text-muted-foreground">
-                  Selecciona al menos un área. Sin áreas habilitadas no se puede guardar una ficha docente ni asignarla a convocatorias.
-                </p>
               </div>
               {loadingAreas ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -463,7 +460,8 @@ export default function NewProfesorPage() {
                 </div>
               ) : areas.length === 0 ? (
                 <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                  No hay áreas formativas activas disponibles. Podrás completar esta información desde la edición del docente.
+                  No hay áreas formativas activas disponibles. Podrás completar esta información
+                  desde la edición del docente.
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
@@ -473,9 +471,14 @@ export default function NewProfesorPage() {
                       <Button
                         key={area.id}
                         type="button"
-                        variant={selected ? 'default' : 'outline'}
+                        variant="outline"
                         size="sm"
                         aria-pressed={selected}
+                        className={
+                          selected
+                            ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15'
+                            : ''
+                        }
                         onClick={() => toggleQualifiedArea(area.id)}
                       >
                         {area.nombre}
@@ -484,11 +487,6 @@ export default function NewProfesorPage() {
                   })}
                 </div>
               )}
-              {formData.qualifiedAreas.length === 0 ? (
-                <p className="text-xs font-medium text-destructive">
-                  Obligatorio: asigna al menos un área habilitada para poder guardar este docente.
-                </p>
-              ) : null}
             </div>
 
             {/* Employment Details */}
@@ -506,6 +504,7 @@ export default function NewProfesorPage() {
                     <SelectValue data-oid="ht_l8b2" />
                   </SelectTrigger>
                   <SelectContent data-oid="c:enp_e">
+                    <SelectItem value="general_regime">Régimen General</SelectItem>
                     <SelectItem value="full_time" data-oid="37yi7bc">
                       Tiempo Completo
                     </SelectItem>
@@ -585,7 +584,9 @@ export default function NewProfesorPage() {
                 </p>
               ) : (
                 <Select
-                  value={formData.assignedCampuses[0] ? String(formData.assignedCampuses[0]) : undefined}
+                  value={
+                    formData.assignedCampuses[0] ? String(formData.assignedCampuses[0]) : undefined
+                  }
                   onValueChange={handleBaseCampusChange}
                   data-oid="8ed4v20"
                 >
@@ -604,11 +605,6 @@ export default function NewProfesorPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              )}
-              {formData.assignedCampuses.length === 0 && (
-                <p className="text-sm text-destructive" data-oid="l08yfnq">
-                  Debe seleccionar al menos una sede
-                </p>
               )}
             </div>
 
@@ -642,15 +638,22 @@ export default function NewProfesorPage() {
               ) : (
                 <div className="space-y-3">
                   {formData.certifications.map((cert, index) => (
-                    <div key={index} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[1fr_1fr_120px_auto]">
+                    <div
+                      key={index}
+                      className="grid gap-3 rounded-lg border p-3 md:grid-cols-[1fr_1fr_120px_auto]"
+                    >
                       <Input
                         value={cert.title}
-                        onChange={(event) => updateCertification(index, 'title', event.target.value)}
+                        onChange={(event) =>
+                          updateCertification(index, 'title', event.target.value)
+                        }
                         placeholder="Título o certificación"
                       />
                       <Input
                         value={cert.institution}
-                        onChange={(event) => updateCertification(index, 'institution', event.target.value)}
+                        onChange={(event) =>
+                          updateCertification(index, 'institution', event.target.value)
+                        }
                         placeholder="Institución"
                       />
                       <Input
@@ -659,7 +662,12 @@ export default function NewProfesorPage() {
                         onChange={(event) => updateCertification(index, 'year', event.target.value)}
                         placeholder="Año"
                       />
-                      <Button type="button" size="icon" variant="ghost" onClick={() => removeCertification(index)}>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => removeCertification(index)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

@@ -41,7 +41,7 @@ export function MediaGallery({
   onItemClick,
   selectedId,
 }: MediaGalleryProps) {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
 
   if (loading) {
     return (
@@ -106,6 +106,8 @@ export function MediaGallery({
             variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('grid')}
+            aria-label="Vista en cuadrícula"
+            title="Vista en cuadrícula"
             data-oid="di6t:5t"
           >
             <Grid3x3 className="h-4 w-4" data-oid="kwwlt8-" />
@@ -114,6 +116,8 @@ export function MediaGallery({
             variant={viewMode === 'list' ? 'secondary' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('list')}
+            aria-label="Vista de lista"
+            title="Vista de lista"
             data-oid="2gnhf0y"
           >
             <List className="h-4 w-4" data-oid="zi2_bj8" />

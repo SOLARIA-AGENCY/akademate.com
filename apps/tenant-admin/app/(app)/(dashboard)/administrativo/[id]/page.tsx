@@ -147,6 +147,7 @@ export default function AdministrativoDetailPage() {
   }
 
   const contractTypeLabels: Record<string, string> = {
+    general_regime: 'Régimen General',
     full_time: 'Tiempo Completo',
     part_time: 'Medio Tiempo',
     freelance: 'Autónomo',

@@ -4,39 +4,39 @@
  * Persists user's view preference (grid/list) per page in localStorage.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react'
 
-export type ViewMode = 'grid' | 'list';
-export type ViewType = ViewMode; // Alias for backward compatibility
+export type ViewMode = 'grid' | 'list'
+export type ViewType = ViewMode // Alias for backward compatibility
 
 export function useViewPreference(
   pageKey: string,
-  defaultView: ViewMode = 'grid'
+  defaultView: ViewMode = 'list'
 ): [ViewMode, (view: ViewMode) => void] {
-  const storageKey = `viewPreference_${pageKey}`;
+  const storageKey = `viewPreference_${pageKey}`
 
-  const [view, setViewState] = useState<ViewMode>(defaultView);
+  const [view, setViewState] = useState<ViewMode>(defaultView)
 
   // Load from localStorage on mount
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return
 
-    const stored = localStorage.getItem(storageKey);
+    const stored = localStorage.getItem(storageKey)
     if (stored === 'grid' || stored === 'list') {
-      setViewState(stored);
+      setViewState(stored)
     }
-  }, [storageKey]);
+  }, [storageKey])
 
   // Save to localStorage on change
   const setView = useCallback(
     (newView: ViewMode) => {
-      setViewState(newView);
+      setViewState(newView)
       if (typeof window !== 'undefined') {
-        localStorage.setItem(storageKey, newView);
+        localStorage.setItem(storageKey, newView)
       }
     },
     [storageKey]
-  );
+  )
 
-  return [view, setView];
+  return [view, setView]
 }
