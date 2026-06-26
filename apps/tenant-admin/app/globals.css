@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @font-face {
   font-family: 'Poppins';
@@ -279,6 +279,128 @@ body:not([data-payload-admin]) {
   body:not(.payload-admin) ::selection {
     background-color: hsl(var(--primary) / 0.22);
     color: hsl(var(--foreground));
+  }
+}
+
+#professors-print-sheet {
+  display: none;
+}
+
+@media print {
+  body.profesores-route:not([data-payload-admin]) * {
+    visibility: hidden !important;
+  }
+
+  body.profesores-route:not([data-payload-admin]) #professors-print-sheet,
+  body.profesores-route:not([data-payload-admin]) #professors-print-sheet * {
+    visibility: visible !important;
+  }
+
+  body.profesores-route:not([data-payload-admin]) #professors-print-sheet {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    padding: 16mm;
+    background: white;
+    color: #111827;
+    font-family: Inter, Arial, sans-serif;
+  }
+
+  .professors-print-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f2014b;
+  }
+
+  .professors-print-header h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .professors-print-header p {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 11px;
+  }
+
+  .professors-print-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    letter-spacing: -0.04em;
+  }
+
+  .professors-print-brand span {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    background: #f2014b;
+  }
+
+  .professors-print-list {
+    display: grid;
+    gap: 7px;
+  }
+
+  .professors-print-row {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    break-inside: avoid;
+    padding: 7px 9px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+
+  .professors-print-row img {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    object-fit: cover;
+    background: #f3f4f6;
+  }
+
+  .professors-print-line {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .professors-print-line strong {
+    min-width: 160px;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+  }
+
+  .professors-print-line span {
+    min-width: 0;
+    overflow: hidden;
+    color: #4b5563;
+    font-size: 10px;
+    text-overflow: ellipsis;
+  }
+
+  .professors-print-main-line span {
+    border-radius: 999px;
+    background: #fdf2f8;
+    color: #9f1239;
+    padding: 2px 7px;
+    font-weight: 700;
+  }
+
+  @page {
+    margin: 12mm;
   }
 }
 

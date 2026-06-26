@@ -106,14 +106,6 @@ const employmentLabels: Record<string, string> = {
   inactive: 'Inactivo',
 }
 
-function htmlEscape(value: unknown) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
-
 function formatDate(value?: string | null) {
   if (!value) return ''
   return new Date(value).toLocaleDateString('es-ES')
@@ -131,82 +123,6 @@ function formatCourseRuns(teacher: TeacherExpanded) {
       return `${run.courseName ?? 'Curso sin nombre'}${code}${campus}${dates}`
     })
     .join(' | ')
-}
-
-function printTeachersList(teachers: TeacherExpanded[]) {
-  const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=1200,height=800')
-  if (!printWindow) {
-    window.print()
-    return
-  }
-
-  const today = new Date().toLocaleDateString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
-  const body = teachers
-    .map((teacher) => {
-      const areas = (teacher.qualifiedAreas ?? []).map((area) => area.nombre).join(', ')
-      const campuses = (teacher.assignedCampuses ?? []).map((campus) => campus.name).join(', ')
-      const courses = formatCourseRuns(teacher)
-      const contract = contractLabels[teacher.contractType] ?? teacher.contractType
-      const status = employmentLabels[teacher.employmentStatus] ?? teacher.employmentStatus
-      return `<article class="teacher">
-        <img class="photo" src="${htmlEscape(teacher.photo || '/placeholder-avatar.svg')}" alt="" />
-        <div class="main">
-          <div class="line one">
-            <strong>${htmlEscape(teacher.fullName)}</strong>
-            <span>${htmlEscape(status)}</span>
-            <span>${htmlEscape(contract)}</span>
-            <span>${htmlEscape(campuses || 'Sin sede')}</span>
-          </div>
-          <div class="line two">
-            <span>${htmlEscape(teacher.email || 'Sin mail')}</span>
-            <span>${htmlEscape(teacher.phone || 'Sin teléfono')}</span>
-            <span>${htmlEscape(areas || 'Sin área habilitada')}</span>
-            <span>${htmlEscape(courses)}</span>
-          </div>
-        </div>
-      </article>`
-    })
-    .join('')
-
-  printWindow.document.write(`<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <title>Listado de profesores</title>
-  <style>
-    body { font-family: Inter, Arial, sans-serif; color: #111827; margin: 24px; }
-    header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f2014b; padding-bottom: 14px; margin-bottom: 18px; }
-    .brand { display: flex; align-items: center; gap: 12px; font-size: 28px; font-weight: 900; letter-spacing: -0.04em; }
-    .dot { width: 28px; height: 28px; border-radius: 999px; background: #f2014b; display: inline-block; }
-    h1 { font-size: 20px; margin: 0; }
-    .meta { color: #6b7280; font-size: 11px; margin-top: 4px; }
-    .teacher { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; break-inside: avoid; }
-    .photo { width: 44px; height: 44px; border-radius: 999px; object-fit: cover; background: #f3f4f6; }
-    .line { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .line span { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: #4b5563; font-size: 10px; }
-    .line strong { font-size: 12px; min-width: 160px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
-    .one span { border-radius: 999px; background: #fdf2f8; color: #9f1239; padding: 2px 7px; font-weight: 700; }
-    .two { margin-top: 4px; }
-    @page { margin: 14mm; }
-  </style>
-</head>
-<body>
-  <header>
-    <div>
-      <h1>Listado de profesores</h1>
-      <div class="meta">${today} · ${teachers.length} profesores visibles</div>
-    </div>
-    <div class="brand"><span class="dot"></span><span>cep formación</span></div>
-  </header>
-  ${body}
-  <script>window.print(); window.close();</script>
-</body>
-</html>`)
-  printWindow.document.close()
 }
 
 export default function ProfesoresPage() {
@@ -369,7 +285,13 @@ export default function ProfesoresPage() {
     { header: 'Detalle cursos', getValue: formatCourseRuns },
   ]
 
-  const handlePrint = () => printTeachersList(filteredTeachers)
+  const printDate = new Date().toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+
+  const handlePrint = () => window.print()
   const handleCsv = () =>
     downloadCsv(
       `profesores-${new Date().toISOString().slice(0, 10)}.csv`,
@@ -557,6 +479,52 @@ export default function ProfesoresPage() {
           </CardContent>
         </Card>
       )}
+
+      <section id="professors-print-sheet" aria-hidden="true">
+        <header className="professors-print-header">
+          <div>
+            <h1>Listado de profesores</h1>
+            <p>
+              {printDate} · {filteredTeachers.length} profesores visibles
+            </p>
+          </div>
+          <div className="professors-print-brand">
+            <span />
+            <strong>cep formación</strong>
+          </div>
+        </header>
+
+        <div className="professors-print-list">
+          {filteredTeachers.map((teacher) => {
+            const areas = (teacher.qualifiedAreas ?? []).map((area) => area.nombre).join(', ')
+            const campuses = (teacher.assignedCampuses ?? [])
+              .map((campus) => campus.name)
+              .join(', ')
+            const contract = contractLabels[teacher.contractType] ?? teacher.contractType
+            const status = employmentLabels[teacher.employmentStatus] ?? teacher.employmentStatus
+
+            return (
+              <article key={teacher.id} className="professors-print-row">
+                <img src={teacher.photo || '/placeholder-avatar.svg'} alt="" />
+                <div>
+                  <div className="professors-print-line professors-print-main-line">
+                    <strong>{teacher.fullName}</strong>
+                    <span>{status}</span>
+                    <span>{contract}</span>
+                    <span>{campuses || 'Sin sede'}</span>
+                  </div>
+                  <div className="professors-print-line">
+                    <span>{teacher.email || 'Sin mail'}</span>
+                    <span>{teacher.phone || 'Sin teléfono'}</span>
+                    <span>{areas || 'Sin área habilitada'}</span>
+                    <span>{formatCourseRuns(teacher)}</span>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      </section>
     </DashboardListingLayout>
   )
 }
