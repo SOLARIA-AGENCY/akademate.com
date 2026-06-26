@@ -46,6 +46,33 @@ export const DropdownMenuItem = ({
   </button>
 )
 
+export const DropdownMenuCheckboxItem = ({
+  children,
+  checked,
+  className,
+  onCheckedChange,
+  onSelect,
+}: {
+  children?: React.ReactNode
+  checked?: boolean
+  className?: string
+  onCheckedChange?: (checked: boolean) => void
+  onSelect?: (event: { preventDefault: () => void }) => void
+}) => (
+  <button
+    className={className}
+    data-checked={checked ? 'true' : 'false'}
+    data-testid="dropdown-checkbox-item"
+    onClick={() => {
+      onSelect?.({ preventDefault: () => undefined })
+      onCheckedChange?.(!checked)
+    }}
+    data-oid="xntg1cg"
+  >
+    {children}
+  </button>
+)
+
 export const DropdownMenuSeparator = ({ className }: { className?: string }) => (
   <hr className={className} data-testid="dropdown-separator" data-oid="s9mh-ak" />
 )

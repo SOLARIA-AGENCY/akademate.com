@@ -14,6 +14,7 @@ import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
+import { QualifiedAreasMultiSelect } from '@payload-config/components/ui/QualifiedAreasMultiSelect'
 import {
   Select,
   SelectContent,
@@ -471,28 +472,11 @@ export default function NewProfesorPage() {
                   desde la edición del docente.
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-2">
-                  {areas.map((area) => {
-                    const selected = formData.qualifiedAreas.includes(area.id)
-                    return (
-                      <Button
-                        key={area.id}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        aria-pressed={selected}
-                        className={
-                          selected
-                            ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15'
-                            : ''
-                        }
-                        onClick={() => toggleQualifiedArea(area.id)}
-                      >
-                        {area.nombre}
-                      </Button>
-                    )
-                  })}
-                </div>
+                <QualifiedAreasMultiSelect
+                  areas={areas}
+                  selectedAreaIds={formData.qualifiedAreas}
+                  onToggleArea={toggleQualifiedArea}
+                />
               )}
             </div>
 
