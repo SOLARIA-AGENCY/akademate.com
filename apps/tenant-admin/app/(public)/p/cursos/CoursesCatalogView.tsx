@@ -35,15 +35,7 @@ export function CoursesCatalogView({
   return (
     <div>
       {!hideViewToggle ? (
-        <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#f2014b]">
-              Tipo de vista
-            </p>
-            <p className="mt-1 text-sm text-slate-600">
-              Elige cards visuales o lista compacta por curso.
-            </p>
-          </div>
+        <div className="mb-8 flex justify-end">
           <div className="inline-flex w-fit rounded-full bg-slate-100 p-1">
             <Button
               type="button"

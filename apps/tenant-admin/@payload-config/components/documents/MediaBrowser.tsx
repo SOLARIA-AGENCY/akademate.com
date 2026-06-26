@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
+import { LayoutGrid, List } from 'lucide-react'
 
 export interface MediaItem {
   id: string
@@ -273,7 +274,7 @@ export function MediaBrowser({
         </Select>
 
         {/* View mode */}
-        <div className="flex rounded-lg border border-border" data-oid="ia9ox:a">
+        <div className="flex rounded-lg bg-muted p-1" data-oid="ia9ox:a">
           <Button
             type="button"
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
@@ -281,10 +282,10 @@ export function MediaBrowser({
             onClick={() => setViewMode('grid')}
             aria-label="Vista en cuadrícula"
             title="Vista en cuadrícula"
-            className="rounded-r-none"
+            className="h-8 w-8 rounded-md p-0"
             data-oid="_ia3b_h"
           >
-            ▦
+            <LayoutGrid className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             type="button"
@@ -293,10 +294,10 @@ export function MediaBrowser({
             onClick={() => setViewMode('list')}
             aria-label="Vista de lista"
             title="Vista de lista"
-            className="rounded-l-none"
+            className="h-8 w-8 rounded-md p-0"
             data-oid="9i-xhc5"
           >
-            ≡
+            <List className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
 

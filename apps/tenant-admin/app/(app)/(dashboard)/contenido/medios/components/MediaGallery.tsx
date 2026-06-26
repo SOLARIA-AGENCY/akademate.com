@@ -101,13 +101,14 @@ export function MediaGallery({
     <div className="space-y-4" data-oid="ca8qd2b">
       {/* View Mode Toggle */}
       <div className="flex justify-end" data-oid="ljqgwtf">
-        <div className="flex gap-1 rounded-lg border p-1" data-oid="fah_a.d">
+        <div className="flex gap-1 rounded-lg bg-muted p-1" data-oid="fah_a.d">
           <Button
             variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('grid')}
             aria-label="Vista en cuadrícula"
             title="Vista en cuadrícula"
+            className="h-8 w-8 p-0"
             data-oid="di6t:5t"
           >
             <Grid3x3 className="h-4 w-4" data-oid="kwwlt8-" />
@@ -118,6 +119,7 @@ export function MediaGallery({
             onClick={() => setViewMode('list')}
             aria-label="Vista de lista"
             title="Vista de lista"
+            className="h-8 w-8 p-0"
             data-oid="2gnhf0y"
           >
             <List className="h-4 w-4" data-oid="zi2_bj8" />
