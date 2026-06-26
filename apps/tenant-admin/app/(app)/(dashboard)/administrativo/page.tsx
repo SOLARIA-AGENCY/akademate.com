@@ -19,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Briefcase, Loader2 } from 'lucide-react'
+import { Plus, Briefcase, Loader2, Printer, Download } from 'lucide-react'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
+import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
 
 type ViewMode = 'grid' | 'list'
 
@@ -174,6 +175,28 @@ export default function AdministrativosPage() {
     },
   ]
 
+  const exportColumns: ExportColumn<AdminStaff>[] = [
+    { header: 'Nombre', getValue: (admin) => `${admin.first_name} ${admin.last_name}` },
+    { header: 'Email', getValue: (admin) => admin.email || 'Sin mail' },
+    { header: 'Telefono', getValue: (admin) => admin.phone || 'Sin telefono' },
+    { header: 'Departamento', getValue: (admin) => admin.department || 'Sin departamento' },
+    { header: 'Puesto', getValue: (admin) => admin.role || 'Administrativo' },
+    { header: 'Contrato', getValue: (admin) => formatContractType(admin.contractType) },
+    { header: 'Estado', getValue: (admin) => (admin.active ? 'Activo' : 'Inactivo') },
+    {
+      header: 'Sedes',
+      getValue: (admin) => admin.assignedCampuses.map((campus) => campus.name).join(', '),
+    },
+  ]
+
+  const handlePrint = () => printTable('Administrativos', exportColumns, filteredAdmins)
+  const handleCsv = () =>
+    downloadCsv(
+      `administrativos-${new Date().toISOString().slice(0, 10)}.csv`,
+      exportColumns,
+      filteredAdmins
+    )
+
   // Show loading state
   if (loading) {
     return (
@@ -256,6 +279,18 @@ export default function AdministrativosPage() {
                 Limpiar filtros
               </Button>
             ) : null
+          }
+          actions={
+            <>
+              <Button type="button" variant="outline" size="sm" onClick={handlePrint}>
+                <Printer className="h-4 w-4" />
+                Imprimir
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={handleCsv}>
+                <Download className="h-4 w-4" />
+                Descargar CSV
+              </Button>
+            </>
           }
           viewToggle={<ViewToggle view={view} onViewChange={setView} />}
         />

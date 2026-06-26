@@ -16,11 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, User, Loader2, Upload } from 'lucide-react'
+import { Download, Plus, Printer, User, Loader2, Upload } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { StaffCard } from '@payload-config/components/ui/StaffCard'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
+import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
 
 interface Certification {
   title: string
@@ -197,7 +198,10 @@ export default function ProfesoresPage() {
         window.location.reload()
       }
     } catch (err) {
-      setImportResult({ success: false, error: err instanceof Error ? err.message : 'No se pudo importar el Excel' })
+      setImportResult({
+        success: false,
+        error: err instanceof Error ? err.message : 'No se pudo importar el Excel',
+      })
     } finally {
       setImporting(false)
     }
@@ -218,7 +222,9 @@ export default function ProfesoresPage() {
       (teacher.email ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (teacher.nif ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       teacher.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (teacher.qualifiedAreas ?? []).some((area) => area.nombre.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (teacher.qualifiedAreas ?? []).some((area) =>
+        area.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+      ) ||
       teacher.specialties.some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()))
 
     const matchesDepartment = filterDepartment === 'all' || teacher.department === filterDepartment
@@ -229,7 +235,8 @@ export default function ProfesoresPage() {
       (filterStatus === 'temporary_leave' && teacher.employmentStatus === 'temporary_leave') ||
       (filterStatus === 'pending_review' && teacher.importReviewStatus === 'pending_review') ||
       (filterStatus === 'ambiguous' && teacher.importReviewStatus === 'ambiguous') ||
-      (filterStatus === 'retired_candidate' && teacher.importReviewStatus === 'retired_candidate') ||
+      (filterStatus === 'retired_candidate' &&
+        teacher.importReviewStatus === 'retired_candidate') ||
       (filterStatus === 'missing_area' && (teacher.qualifiedAreas ?? []).length === 0)
 
     return matchesSearch && matchesDepartment && matchesStatus
@@ -245,12 +252,38 @@ export default function ProfesoresPage() {
     },
     {
       label: 'Sin área habilitada',
-      value: teachersExpanded.filter((teacher) => (teacher.qualifiedAreas ?? []).length === 0).length,
+      value: teachersExpanded.filter((teacher) => (teacher.qualifiedAreas ?? []).length === 0)
+        .length,
       icon: User,
       tone: 'warning',
     },
     { label: 'Visibles', value: filteredTeachers.length, icon: User },
   ]
+
+  const exportColumns: ExportColumn<TeacherExpanded>[] = [
+    { header: 'Nombre', getValue: (teacher) => teacher.fullName },
+    { header: 'Email', getValue: (teacher) => teacher.email ?? 'Sin mail' },
+    { header: 'Telefono', getValue: (teacher) => teacher.phone ?? 'Sin telefono' },
+    { header: 'Estado', getValue: (teacher) => (teacher.active ? 'Activo' : 'Inactivo') },
+    {
+      header: 'Areas',
+      getValue: (teacher) => (teacher.qualifiedAreas ?? []).map((area) => area.nombre).join(', '),
+    },
+    {
+      header: 'Sedes',
+      getValue: (teacher) =>
+        (teacher.assignedCampuses ?? []).map((campus) => campus.name).join(', '),
+    },
+    { header: 'Cursos', getValue: (teacher) => teacher.courseRunsCount ?? 0 },
+  ]
+
+  const handlePrint = () => printTable('Profesores', exportColumns, filteredTeachers)
+  const handleCsv = () =>
+    downloadCsv(
+      `profesores-${new Date().toISOString().slice(0, 10)}.csv`,
+      exportColumns,
+      filteredTeachers
+    )
 
   // Show loading state
   if (loading) {
@@ -300,15 +333,30 @@ export default function ProfesoresPage() {
             className="hidden"
             onChange={(event) => setSelectedImportFile(event.target.files?.[0] ?? null)}
           />
-          <Button type="button" variant="outline" disabled={importing} onClick={() => fileInputRef.current?.click()}>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={importing}
+            onClick={() => fileInputRef.current?.click()}
+          >
             <Upload className="h-4 w-4" />
             {selectedImportFile ? selectedImportFile.name : 'Excel personal'}
           </Button>
-          <Button type="button" variant="outline" disabled={importing || !selectedImportFile} onClick={() => void runImport(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={importing || !selectedImportFile}
+            onClick={() => void runImport(false)}
+          >
             {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Auditar Excel
           </Button>
-          <Button type="button" variant="outline" disabled={importing || !selectedImportFile} onClick={() => void runImport(true)}>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={importing || !selectedImportFile}
+            onClick={() => void runImport(true)}
+          >
             Aplicar Excel
           </Button>
           <Button onClick={handleAdd} data-oid="p6j7z6w">
@@ -325,7 +373,11 @@ export default function ProfesoresPage() {
           searchPlaceholder="Buscar por nombre, email, departamento..."
           filters={
             <>
-              <Select value={filterDepartment} onValueChange={setFilterDepartment} data-oid="mrhrz82">
+              <Select
+                value={filterDepartment}
+                onValueChange={setFilterDepartment}
+                data-oid="mrhrz82"
+              >
                 <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="9cxbj.j">
                   <SelectValue placeholder="Todos los departamentos" data-oid="d9jzw43" />
                 </SelectTrigger>
@@ -380,24 +432,46 @@ export default function ProfesoresPage() {
               </Button>
             ) : null
           }
+          actions={
+            <>
+              <Button type="button" variant="outline" size="sm" onClick={handlePrint}>
+                <Printer className="h-4 w-4" />
+                Imprimir
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={handleCsv}>
+                <Download className="h-4 w-4" />
+                Descargar CSV
+              </Button>
+            </>
+          }
           viewToggle={<ViewToggle view={view} onViewChange={setView} data-oid="3q7lfq3" />}
         />
       }
     >
       {importResult ? (
-        <Card className={importResult.success === false ? 'border-destructive/30 bg-destructive/5' : 'border-emerald-200 bg-emerald-50'}>
+        <Card
+          className={
+            importResult.success === false
+              ? 'border-destructive/30 bg-destructive/5'
+              : 'border-emerald-200 bg-emerald-50'
+          }
+        >
           <CardContent className="pt-6 text-sm">
             {importResult.success === false ? (
               <p className="font-medium text-destructive">{importResult.error}</p>
             ) : (
               <div className="space-y-2 text-emerald-950">
                 <p className="font-semibold">
-                  Excel procesado en modo {importResult.mode === 'apply' ? 'aplicación' : 'auditoría'}.
+                  Excel procesado en modo{' '}
+                  {importResult.mode === 'apply' ? 'aplicación' : 'auditoría'}.
                 </p>
                 <p className="text-xs">Lote: {importResult.importBatch}</p>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(importResult.summary ?? {}).map(([key, value]) => (
-                    <span key={key} className="rounded-full bg-white px-3 py-1 text-xs font-semibold shadow-sm">
+                    <span
+                      key={key}
+                      className="rounded-full bg-white px-3 py-1 text-xs font-semibold shadow-sm"
+                    >
                       {key}: {value}
                     </span>
                   ))}
@@ -409,7 +483,10 @@ export default function ProfesoresPage() {
       ) : null}
 
       {view === 'grid' ? (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" data-oid="39mqpx7">
+        <div
+          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+          data-oid="39mqpx7"
+        >
           {filteredTeachers.map((teacher) => (
             <StaffCard
               key={teacher.id}
@@ -427,7 +504,7 @@ export default function ProfesoresPage() {
               qualifiedAreas={teacher.qualifiedAreas ?? []}
               reviewLabel={
                 teacher.importReviewStatus && teacher.importReviewStatus !== 'validated'
-                  ? reviewLabels[teacher.importReviewStatus] ?? teacher.importReviewStatus
+                  ? (reviewLabels[teacher.importReviewStatus] ?? teacher.importReviewStatus)
                   : undefined
               }
               onView={(id) => handleViewTeacher(Number(id))}

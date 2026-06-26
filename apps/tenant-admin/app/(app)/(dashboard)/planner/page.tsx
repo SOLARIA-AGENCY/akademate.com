@@ -20,6 +20,8 @@ import {
   GripVertical,
   Loader2,
   AlertTriangle,
+  BarChart3,
+  GraduationCap,
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
@@ -80,11 +82,36 @@ interface KanbanColumn {
 // ---------------------------------------------------------------------------
 
 const COLUMNS_CONFIG: { key: string; label: string; color: string; bgColor: string }[] = [
-  { key: 'draft', label: 'Sin publicar', color: 'border-gray-400', bgColor: 'bg-gray-50 dark:bg-gray-900/30' },
-  { key: 'enrollment_open', label: 'Inscripcion Abierta', color: 'border-green-500', bgColor: 'bg-green-50 dark:bg-green-900/20' },
-  { key: 'in_progress', label: 'En Curso', color: 'border-primary/50', bgColor: 'bg-primary/10 dark:bg-primary/15' },
-  { key: 'completed', label: 'Completada', color: 'border-gray-300', bgColor: 'bg-gray-50/50 dark:bg-gray-900/10' },
-  { key: 'cancelled', label: 'Cancelada', color: 'border-red-400', bgColor: 'bg-red-50/50 dark:bg-red-900/10' },
+  {
+    key: 'draft',
+    label: 'Sin publicar',
+    color: 'border-gray-400',
+    bgColor: 'bg-gray-50 dark:bg-gray-900/30',
+  },
+  {
+    key: 'enrollment_open',
+    label: 'Inscripcion Abierta',
+    color: 'border-green-500',
+    bgColor: 'bg-green-50 dark:bg-green-900/20',
+  },
+  {
+    key: 'in_progress',
+    label: 'En Curso',
+    color: 'border-primary/50',
+    bgColor: 'bg-primary/10 dark:bg-primary/15',
+  },
+  {
+    key: 'completed',
+    label: 'Completada',
+    color: 'border-gray-300',
+    bgColor: 'bg-gray-50/50 dark:bg-gray-900/10',
+  },
+  {
+    key: 'cancelled',
+    label: 'Cancelada',
+    color: 'border-red-400',
+    bgColor: 'bg-red-50/50 dark:bg-red-900/10',
+  },
 ]
 
 const DAY_LABELS: Record<string, string> = {
@@ -97,25 +124,76 @@ const DAY_LABELS: Record<string, string> = {
   sunday: 'DOM',
 }
 
-const COURSE_TYPE_STYLES: Record<string, { bar: string; bg: string; text: string; border: string }> = {
-  privados: { bar: 'bg-[#f2014b]', bg: 'bg-rose-50', text: 'text-rose-950', border: 'border-rose-200' },
-  privado: { bar: 'bg-[#f2014b]', bg: 'bg-rose-50', text: 'text-rose-950', border: 'border-rose-200' },
-  private: { bar: 'bg-[#f2014b]', bg: 'bg-rose-50', text: 'text-rose-950', border: 'border-rose-200' },
-  desempleados: { bar: 'bg-primary', bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/20' },
-  fped: { bar: 'bg-primary', bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/20' },
-  ocupados: { bar: 'bg-emerald-600', bg: 'bg-emerald-50', text: 'text-emerald-950', border: 'border-emerald-200' },
-  teleformacion: { bar: 'bg-orange-500', bg: 'bg-orange-50', text: 'text-orange-950', border: 'border-orange-200' },
-  online: { bar: 'bg-orange-500', bg: 'bg-orange-50', text: 'text-orange-950', border: 'border-orange-200' },
-  cycle: { bar: 'bg-violet-600', bg: 'bg-violet-50', text: 'text-violet-950', border: 'border-violet-200' },
+const COURSE_TYPE_STYLES: Record<
+  string,
+  { bar: string; bg: string; text: string; border: string }
+> = {
+  privados: {
+    bar: 'bg-[#f2014b]',
+    bg: 'bg-rose-50',
+    text: 'text-rose-950',
+    border: 'border-rose-200',
+  },
+  privado: {
+    bar: 'bg-[#f2014b]',
+    bg: 'bg-rose-50',
+    text: 'text-rose-950',
+    border: 'border-rose-200',
+  },
+  private: {
+    bar: 'bg-[#f2014b]',
+    bg: 'bg-rose-50',
+    text: 'text-rose-950',
+    border: 'border-rose-200',
+  },
+  desempleados: {
+    bar: 'bg-primary',
+    bg: 'bg-primary/10',
+    text: 'text-primary',
+    border: 'border-primary/20',
+  },
+  fped: {
+    bar: 'bg-primary',
+    bg: 'bg-primary/10',
+    text: 'text-primary',
+    border: 'border-primary/20',
+  },
+  ocupados: {
+    bar: 'bg-emerald-600',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-950',
+    border: 'border-emerald-200',
+  },
+  teleformacion: {
+    bar: 'bg-orange-500',
+    bg: 'bg-orange-50',
+    text: 'text-orange-950',
+    border: 'border-orange-200',
+  },
+  online: {
+    bar: 'bg-orange-500',
+    bg: 'bg-orange-50',
+    text: 'text-orange-950',
+    border: 'border-orange-200',
+  },
+  cycle: {
+    bar: 'bg-violet-600',
+    bg: 'bg-violet-50',
+    text: 'text-violet-950',
+    border: 'border-violet-200',
+  },
 }
 
 function normalizeCampaignStatus(value: unknown): CampaignState {
-  return typeof value === 'string' && ['active', 'paused', 'draft', 'completed', 'archived'].includes(value)
-    ? value as CampaignState
+  return typeof value === 'string' &&
+    ['active', 'paused', 'draft', 'completed', 'archived'].includes(value)
+    ? (value as CampaignState)
     : 'none'
 }
 
-function formatSchedule(card: Pick<KanbanCard, 'dias' | 'horaInicio' | 'horaFin' | 'horario'>): string {
+function formatSchedule(
+  card: Pick<KanbanCard, 'dias' | 'horaInicio' | 'horaFin' | 'horario'>
+): string {
   const days = card.dias.map((day) => DAY_LABELS[day] ?? day.toUpperCase()).join(', ')
   const start = card.horaInicio?.slice(0, 5) ?? ''
   const end = card.horaFin?.slice(0, 5) ?? ''
@@ -124,19 +202,25 @@ function formatSchedule(card: Pick<KanbanCard, 'dias' | 'horaInicio' | 'horaFin'
 }
 
 function courseTypeStyle(type?: string) {
-  return COURSE_TYPE_STYLES[(type ?? '').toLowerCase()] ?? {
-    bar: 'bg-slate-500',
-    bg: 'bg-slate-50',
-    text: 'text-slate-950',
-    border: 'border-slate-200',
-  }
+  return (
+    COURSE_TYPE_STYLES[(type ?? '').toLowerCase()] ?? {
+      bar: 'bg-slate-500',
+      bg: 'bg-slate-50',
+      text: 'text-slate-950',
+      border: 'border-slate-200',
+    }
+  )
 }
 
 // ---------------------------------------------------------------------------
 // Kanban Card Component
 // ---------------------------------------------------------------------------
 
-function KanbanCardItem({ card, onDragStart, onClick }: {
+function KanbanCardItem({
+  card,
+  onDragStart,
+  onClick,
+}: {
   card: KanbanCard
   onDragStart: (e: React.DragEvent, cardId: string) => void
   onClick: (id: string) => void
@@ -167,8 +251,12 @@ function KanbanCardItem({ card, onDragStart, onClick }: {
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3 shrink-0" />
                 <span>
-                  {new Date(card.fechaInicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
-                  {card.fechaFin && ` — ${new Date(card.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`}
+                  {new Date(card.fechaInicio).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                  })}
+                  {card.fechaFin &&
+                    ` — ${new Date(card.fechaFin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}`}
                 </span>
               </div>
             )}
@@ -185,9 +273,12 @@ function KanbanCardItem({ card, onDragStart, onClick }: {
             <div className="mt-2">
               <div className="flex justify-between text-[10px] mb-0.5">
                 <span className="text-muted-foreground flex items-center gap-0.5">
-                  <Users className="h-2.5 w-2.5" />Plazas
+                  <Users className="h-2.5 w-2.5" />
+                  Plazas
                 </span>
-                <span className="font-medium">{card.inscritos}/{card.plazas}</span>
+                <span className="font-medium">
+                  {card.inscritos}/{card.plazas}
+                </span>
               </div>
               <div className="h-1 bg-muted rounded-full">
                 <div
@@ -212,7 +303,14 @@ function KanbanCardItem({ card, onDragStart, onClick }: {
 // Kanban Column Component
 // ---------------------------------------------------------------------------
 
-function KanbanColumnView({ column, onDragStart, onDrop, onDragOver, onClick, onAdd }: {
+function KanbanColumnView({
+  column,
+  onDragStart,
+  onDrop,
+  onDragOver,
+  onClick,
+  onAdd,
+}: {
   column: KanbanColumn
   onDragStart: (e: React.DragEvent, cardId: string) => void
   onDrop: (e: React.DragEvent, columnKey: string) => void
@@ -225,15 +323,24 @@ function KanbanColumnView({ column, onDragStart, onDrop, onDragOver, onClick, on
   return (
     <div
       className={`flex flex-col rounded-lg border-t-4 ${column.color} ${column.bgColor} min-w-[260px] max-w-[320px] flex-1`}
-      onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); onDragOver(e) }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        setIsDragOver(true)
+        onDragOver(e)
+      }}
       onDragLeave={() => setIsDragOver(false)}
-      onDrop={(e) => { setIsDragOver(false); onDrop(e, column.key) }}
+      onDrop={(e) => {
+        setIsDragOver(false)
+        onDrop(e, column.key)
+      }}
     >
       {/* Column header */}
       <div className="flex items-center justify-between p-3 pb-2">
         <div className="flex items-center gap-2">
           <h3 className="text-xs font-semibold uppercase tracking-wider">{column.label}</h3>
-          <Badge variant="secondary" className="text-[10px] h-5 px-1.5">{column.cards.length}</Badge>
+          <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
+            {column.cards.length}
+          </Badge>
         </div>
         <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => onAdd(column.key)}>
           <Plus className="h-3.5 w-3.5" />
@@ -241,9 +348,11 @@ function KanbanColumnView({ column, onDragStart, onDrop, onDragOver, onClick, on
       </div>
 
       {/* Cards */}
-      <div className={`flex-1 p-2 pt-0 space-y-2 min-h-[100px] transition-colors rounded-b-lg ${
-        isDragOver ? 'bg-primary/5 ring-2 ring-primary/20 ring-inset' : ''
-      }`}>
+      <div
+        className={`flex-1 p-2 pt-0 space-y-2 min-h-[100px] transition-colors rounded-b-lg ${
+          isDragOver ? 'bg-primary/5 ring-2 ring-primary/20 ring-inset' : ''
+        }`}
+      >
         {column.cards.map((card) => (
           <KanbanCardItem key={card.id} card={card} onDragStart={onDragStart} onClick={onClick} />
         ))}
@@ -277,7 +386,9 @@ function OccupancyMatrix({
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-3">
-          <CardTitle className="text-sm">Matriz de ocupación por aula y turno · {sedeName ?? 'Sede seleccionada'}</CardTitle>
+          <CardTitle className="text-sm">
+            Matriz de ocupación por aula y turno · {sedeName ?? 'Sede seleccionada'}
+          </CardTitle>
           <Badge variant="outline">{visibleCards.length} convocatorias</Badge>
         </div>
       </CardHeader>
@@ -287,21 +398,33 @@ function OccupancyMatrix({
             <div className="grid grid-cols-[180px_repeat(3,minmax(150px,1fr))] border-b bg-muted/40 text-xs font-medium">
               <div className="p-2">Aula</div>
               {Object.entries(SHIFT_LABELS).map(([key, label]) => (
-                <div key={key} className="border-l p-2">{label}</div>
+                <div key={key} className="border-l p-2">
+                  {label}
+                </div>
               ))}
             </div>
             {visibleAulas.map((aula) => {
               const aulaCards = visibleCards.filter((card) => card.aulaId === aula.id)
               return (
-                <div key={aula.id} className="grid grid-cols-[180px_repeat(3,minmax(150px,1fr))] border-b last:border-b-0 text-xs">
+                <div
+                  key={aula.id}
+                  className="grid grid-cols-[180px_repeat(3,minmax(150px,1fr))] border-b last:border-b-0 text-xs"
+                >
                   <div className="p-2">
                     <div className="font-medium">{aula.name}</div>
                     <div className="mt-1 text-muted-foreground">{aula.capacity} plazas</div>
                   </div>
                   {Object.keys(SHIFT_LABELS).map((shift) => {
                     const shiftCards = aulaCards.filter((card) => card.turno === shift)
-                    const occupied = shiftCards.reduce((sum, card) => sum + Math.min(card.plazas || 0, aula.capacity || card.plazas || 0), 0)
-                    const ratio = aula.capacity > 0 ? Math.min(100, Math.round((occupied / aula.capacity) * 100)) : 0
+                    const occupied = shiftCards.reduce(
+                      (sum, card) =>
+                        sum + Math.min(card.plazas || 0, aula.capacity || card.plazas || 0),
+                      0
+                    )
+                    const ratio =
+                      aula.capacity > 0
+                        ? Math.min(100, Math.round((occupied / aula.capacity) * 100))
+                        : 0
                     return (
                       <div key={shift} className="min-h-[84px] border-l p-2">
                         {shiftCards.length === 0 ? (
@@ -309,36 +432,52 @@ function OccupancyMatrix({
                         ) : (
                           <div className="space-y-2">
                             <div className="h-1.5 rounded-full bg-muted">
-                              <div className={ratio >= 100 ? 'h-1.5 rounded-full bg-red-500' : 'h-1.5 rounded-full bg-green-500'} style={{ width: `${ratio}%` }} />
+                              <div
+                                className={
+                                  ratio >= 100
+                                    ? 'h-1.5 rounded-full bg-red-500'
+                                    : 'h-1.5 rounded-full bg-green-500'
+                                }
+                                style={{ width: `${ratio}%` }}
+                              />
                             </div>
                             {shiftCards.map((card) => {
                               const style = courseTypeStyle(card.tipo)
                               return (
-                              <Button
-                                key={card.id}
-                                type="button"
-                                variant="outline"
-                                className={`flex min-h-16 w-full overflow-hidden rounded-md border text-left shadow-sm transition hover:shadow-md ${style.bg} ${style.border}`}
-                                onClick={() => window.location.assign(`/dashboard/programacion/${card.id}`)}
-                              >
-                                <div className={`w-1.5 shrink-0 ${style.bar}`} />
-                                {card.cursoImagen ? (
-                                  <img src={card.cursoImagen} alt="" className="h-auto w-16 shrink-0 object-cover" />
-                                ) : (
-                                  <div className="flex w-16 shrink-0 items-center justify-center bg-white/65">
-                                    <BookOpen className="h-5 w-5 text-muted-foreground" />
+                                <Button
+                                  key={card.id}
+                                  type="button"
+                                  variant="outline"
+                                  className={`flex min-h-16 w-full overflow-hidden rounded-md border text-left shadow-sm transition hover:shadow-md ${style.bg} ${style.border}`}
+                                  onClick={() =>
+                                    window.location.assign(`/dashboard/programacion/${card.id}`)
+                                  }
+                                >
+                                  <div className={`w-1.5 shrink-0 ${style.bar}`} />
+                                  {card.cursoImagen ? (
+                                    <img
+                                      src={card.cursoImagen}
+                                      alt=""
+                                      className="h-auto w-16 shrink-0 object-cover"
+                                    />
+                                  ) : (
+                                    <div className="flex w-16 shrink-0 items-center justify-center bg-white/65">
+                                      <BookOpen className="h-5 w-5 text-muted-foreground" />
+                                    </div>
+                                  )}
+                                  <div className="min-w-0 flex-1 p-2">
+                                    <div
+                                      className={`line-clamp-2 text-[11px] font-bold uppercase leading-tight ${style.text}`}
+                                    >
+                                      {card.curso}
+                                    </div>
+                                    <div className="mt-1 text-[11px] font-medium text-muted-foreground">
+                                      {formatSchedule(card)}
+                                    </div>
                                   </div>
-                                )}
-                                <div className="min-w-0 flex-1 p-2">
-                                  <div className={`line-clamp-2 text-[11px] font-bold uppercase leading-tight ${style.text}`}>
-                                    {card.curso}
-                                  </div>
-                                  <div className="mt-1 text-[11px] font-medium text-muted-foreground">
-                                    {formatSchedule(card)}
-                                  </div>
-                                </div>
-                              </Button>
-                            )})}
+                                </Button>
+                              )
+                            })}
                           </div>
                         )}
                       </div>
@@ -378,7 +517,9 @@ export default function PlannerPage() {
           fetch('/api/convocatorias', { cache: 'no-cache' }),
           fetch('/api/campuses?limit=50', { cache: 'no-cache' }),
           fetch('/api/aulas', { cache: 'no-cache' }),
-          fetch('/api/planning-conflicts?where[status][equals]=open&limit=100', { cache: 'no-cache' }),
+          fetch('/api/planning-conflicts?where[status][equals]=open&limit=100', {
+            cache: 'no-cache',
+          }),
         ])
 
         let cards: KanbanCard[] = []
@@ -414,25 +555,30 @@ export default function PlannerPage() {
         let nextCampuses: { id: string; name: string }[] = []
         if (campusRes.ok) {
           const campusData = await campusRes.json()
-          nextCampuses = (Array.isArray(campusData.docs) ? campusData.docs : []).map((c: Record<string, unknown>) => ({
-            id: String(c.id), name: (c.name as string) || 'Sede',
-          }))
+          nextCampuses = (Array.isArray(campusData.docs) ? campusData.docs : []).map(
+            (c: Record<string, unknown>) => ({
+              id: String(c.id),
+              name: (c.name as string) || 'Sede',
+            })
+          )
           setCampuses(nextCampuses)
           if (nextCampuses.length > 0) {
-            setSedeFilter((current) => current === 'todas' ? nextCampuses[0]!.id : current)
+            setSedeFilter((current) => (current === 'todas' ? nextCampuses[0]!.id : current))
           }
         }
 
         if (aulasRes.ok) {
           const aulasData = await aulasRes.json()
           const aulaItems = Array.isArray(aulasData.data) ? aulasData.data : []
-          setAulas(aulaItems.map((a: Record<string, unknown>) => ({
-            id: String(a.id),
-            name: (a.name as string) || (a.code as string) || 'Aula',
-            campusId: String(a.campusId || ''),
-            capacity: (a.capacity as number) || 0,
-            usagePolicy: (a.usage_policy as string) || undefined,
-          })))
+          setAulas(
+            aulaItems.map((a: Record<string, unknown>) => ({
+              id: String(a.id),
+              name: (a.name as string) || (a.code as string) || 'Aula',
+              campusId: String(a.campusId || ''),
+              capacity: (a.capacity as number) || 0,
+              usagePolicy: (a.usage_policy as string) || undefined,
+            }))
+          )
         }
 
         if (conflictsRes.ok) {
@@ -442,12 +588,17 @@ export default function PlannerPage() {
 
         // Group into columns
         setAllCards(cards)
-        setColumns(COLUMNS_CONFIG.map((col) => ({
-          ...col,
-          cards: cards.filter((c) => c.estado === col.key),
-        })))
-      } catch { /* graceful */ }
-      finally { setIsLoading(false) }
+        setColumns(
+          COLUMNS_CONFIG.map((col) => ({
+            ...col,
+            cards: cards.filter((c) => c.estado === col.key),
+          }))
+        )
+      } catch {
+        /* graceful */
+      } finally {
+        setIsLoading(false)
+      }
     }
     void load()
   }, [])
@@ -464,68 +615,101 @@ export default function PlannerPage() {
     e.dataTransfer.dropEffect = 'move'
   }, [])
 
-  const handleDrop = useCallback(async (e: React.DragEvent, targetColumn: string) => {
-    e.preventDefault()
-    const cardId = e.dataTransfer.getData('text/plain') || draggedCardId
-    if (!cardId) return
+  const handleDrop = useCallback(
+    async (e: React.DragEvent, targetColumn: string) => {
+      e.preventDefault()
+      const cardId = e.dataTransfer.getData('text/plain') || draggedCardId
+      if (!cardId) return
 
-    // Find source column and card
-    let sourceCol = ''
-    let card: KanbanCard | null = null
-    for (const col of columns) {
-      const found = col.cards.find((c) => c.id === cardId)
-      if (found) { sourceCol = col.key; card = found; break }
-    }
-
-    if (!card || sourceCol === targetColumn) { setDraggedCardId(null); return }
-
-    // Optimistic update
-    setColumns((prev) => prev.map((col) => {
-      if (col.key === sourceCol) return { ...col, cards: col.cards.filter((c) => c.id !== cardId) }
-      if (col.key === targetColumn) return { ...col, cards: [...col.cards, { ...card!, estado: targetColumn }] }
-      return col
-    }))
-
-    // API call to update status
-    setUpdating(true)
-    try {
-      const statusMap: Record<string, string> = {
-        draft: 'draft',
-        enrollment_open: 'enrollment_open',
-        in_progress: 'in_progress',
-        completed: 'completed',
-        cancelled: 'cancelled',
+      // Find source column and card
+      let sourceCol = ''
+      let card: KanbanCard | null = null
+      for (const col of columns) {
+        const found = col.cards.find((c) => c.id === cardId)
+        if (found) {
+          sourceCol = col.key
+          card = found
+          break
+        }
       }
-      await fetch(`/api/course-runs/${cardId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: statusMap[targetColumn] || targetColumn }),
-      })
-    } catch {
-      // Revert on error
-      setColumns((prev) => prev.map((col) => {
-        if (col.key === targetColumn) return { ...col, cards: col.cards.filter((c) => c.id !== cardId) }
-        if (col.key === sourceCol) return { ...col, cards: [...col.cards, card!] }
-        return col
-      }))
-    } finally {
-      setUpdating(false)
-      setDraggedCardId(null)
-    }
-  }, [columns, draggedCardId])
 
-  const handleCardClick = useCallback((id: string) => {
-    router.push(`/dashboard/programacion/${id}`)
-  }, [router])
+      if (!card || sourceCol === targetColumn) {
+        setDraggedCardId(null)
+        return
+      }
 
-  const handleAdd = useCallback((columnKey: string) => {
-    router.push(`/dashboard/programacion/nueva`)
-  }, [router])
+      // Optimistic update
+      setColumns((prev) =>
+        prev.map((col) => {
+          if (col.key === sourceCol)
+            return { ...col, cards: col.cards.filter((c) => c.id !== cardId) }
+          if (col.key === targetColumn)
+            return { ...col, cards: [...col.cards, { ...card!, estado: targetColumn }] }
+          return col
+        })
+      )
+
+      // API call to update status
+      setUpdating(true)
+      try {
+        const statusMap: Record<string, string> = {
+          draft: 'draft',
+          enrollment_open: 'enrollment_open',
+          in_progress: 'in_progress',
+          completed: 'completed',
+          cancelled: 'cancelled',
+        }
+        await fetch(`/api/course-runs/${cardId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: statusMap[targetColumn] || targetColumn }),
+        })
+      } catch {
+        // Revert on error
+        setColumns((prev) =>
+          prev.map((col) => {
+            if (col.key === targetColumn)
+              return { ...col, cards: col.cards.filter((c) => c.id !== cardId) }
+            if (col.key === sourceCol) return { ...col, cards: [...col.cards, card!] }
+            return col
+          })
+        )
+      } finally {
+        setUpdating(false)
+        setDraggedCardId(null)
+      }
+    },
+    [columns, draggedCardId]
+  )
+
+  const handleCardClick = useCallback(
+    (id: string) => {
+      router.push(`/dashboard/programacion/${id}`)
+    },
+    [router]
+  )
+
+  const handleAdd = useCallback(
+    (columnKey: string) => {
+      router.push(`/dashboard/programacion/nueva`)
+    },
+    [router]
+  )
 
   // Filtered columns
-  const filteredColumns = columns.map((col) => ({ ...col, cards: col.cards.filter((c) => c.sedeId === sedeFilter) }))
+  const filteredColumns = columns.map((col) => ({
+    ...col,
+    cards: col.cards.filter((c) => c.sedeId === sedeFilter),
+  }))
 
   const selectedCampus = campuses.find((campus) => campus.id === sedeFilter)
+  const visibleCards =
+    sedeFilter === 'todas' ? allCards : allCards.filter((card) => card.sedeId === sedeFilter)
+  const activeCards = visibleCards.filter((card) =>
+    ['published', 'enrollment_open', 'in_progress'].includes(card.estado)
+  )
+  const totalSeats = visibleCards.reduce((sum, card) => sum + card.plazas, 0)
+  const occupiedSeats = visibleCards.reduce((sum, card) => sum + card.inscritos, 0)
 
   return (
     <div className="space-y-4">
@@ -535,13 +719,17 @@ export default function PlannerPage() {
         icon={LayoutGrid}
         badge={
           <div className="flex items-center gap-2">
-	            {openConflictCount > 0 && (
-	              <Badge variant="destructive" className="gap-1">
-	                <AlertTriangle className="h-3 w-3" />
-	                {openConflictCount} conflictos
-	              </Badge>
-	            )}
-	            {updating && <Badge variant="outline" className="animate-pulse">Guardando...</Badge>}
+            {openConflictCount > 0 && (
+              <Badge variant="destructive" className="gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                {openConflictCount} conflictos
+              </Badge>
+            )}
+            {updating && (
+              <Badge variant="outline" className="animate-pulse">
+                Guardando...
+              </Badge>
+            )}
           </div>
         }
         actions={
@@ -551,6 +739,29 @@ export default function PlannerPage() {
           </Button>
         }
       />
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          { label: 'Convocatorias', value: visibleCards.length, icon: GraduationCap },
+          { label: 'Activas', value: activeCards.length, icon: Calendar },
+          { label: 'Plazas totales', value: totalSeats, icon: Users },
+          {
+            label: 'Ocupacion',
+            value: totalSeats > 0 ? `${Math.round((occupiedSeats / totalSeats) * 100)}%` : '—',
+            icon: BarChart3,
+          },
+        ].map(({ label, value, icon: Icon }) => (
+          <Card key={label}>
+            <CardContent className="flex items-center justify-between p-3">
+              <div>
+                <p className="text-[10px] text-muted-foreground">{label}</p>
+                <p className="text-lg font-semibold">{value}</p>
+              </div>
+              <Icon className="h-4 w-4 text-primary" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       {/* Sede filter */}
       <Card className="p-3">
@@ -571,7 +782,12 @@ export default function PlannerPage() {
         </div>
       </Card>
 
-      <OccupancyMatrix aulas={aulas} cards={allCards} sedeFilter={sedeFilter} sedeName={selectedCampus?.name} />
+      <OccupancyMatrix
+        aulas={aulas}
+        cards={allCards}
+        sedeFilter={sedeFilter}
+        sedeName={selectedCampus?.name}
+      />
 
       {/* Loading */}
       {isLoading && (
@@ -599,7 +815,9 @@ export default function PlannerPage() {
 
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-4 text-[10px] text-muted-foreground px-1">
-        <span className="font-medium">Arrastra las tarjetas entre columnas para cambiar el estado de la convocatoria.</span>
+        <span className="font-medium">
+          Arrastra las tarjetas entre columnas para cambiar el estado de la convocatoria.
+        </span>
         <span className="flex items-center gap-1">
           <GripVertical className="h-3 w-3" /> = Arrastrar
         </span>

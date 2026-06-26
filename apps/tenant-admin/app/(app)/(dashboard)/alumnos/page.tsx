@@ -23,13 +23,16 @@ import {
   Phone,
   BookOpen,
   CheckCircle2,
+  Download,
   Eye,
   Edit,
   MapPin,
   GraduationCap,
+  Printer,
   UserPlus,
 } from 'lucide-react'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
+import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
 
 interface Student {
   id: string
@@ -167,6 +170,24 @@ export default function AlumnosPage() {
     { label: 'Cursando', value: stats.totalEnrolled, icon: BookOpen, tone: 'primary' },
   ]
 
+  const exportColumns: ExportColumn<Student>[] = [
+    { header: 'Nombre', getValue: (student) => `${student.first_name} ${student.last_name}` },
+    { header: 'Email', getValue: (student) => student.email },
+    { header: 'Telefono', getValue: (student) => student.phone },
+    { header: 'Estado', getValue: (student) => (student.active ? 'Activo' : 'Inactivo') },
+    { header: 'Sede', getValue: (student) => student.sede },
+    { header: 'Curso', getValue: (student) => student.curso_actual },
+    { header: 'Ciclo', getValue: (student) => student.ciclo },
+  ]
+
+  const handlePrint = () => printTable('Alumnos', exportColumns, filteredStudents)
+  const handleCsv = () =>
+    downloadCsv(
+      `alumnos-${new Date().toISOString().slice(0, 10)}.csv`,
+      exportColumns,
+      filteredStudents
+    )
+
   return (
     <DashboardListingLayout
       title="Alumnos"
@@ -266,6 +287,18 @@ export default function AlumnosPage() {
                 Limpiar filtros
               </Button>
             ) : null
+          }
+          actions={
+            <>
+              <Button type="button" variant="outline" size="sm" onClick={handlePrint}>
+                <Printer className="h-4 w-4" />
+                Imprimir
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={handleCsv}>
+                <Download className="h-4 w-4" />
+                Descargar CSV
+              </Button>
+            </>
           }
           viewToggle={<ViewToggle view={viewMode} onViewChange={setViewMode} />}
         />

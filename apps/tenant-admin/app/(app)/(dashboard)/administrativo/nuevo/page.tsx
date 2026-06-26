@@ -390,11 +390,6 @@ export default function NewAdministrativoPage() {
                   No hay sedes disponibles
                 </p>
               )}
-              {formData.assignedCampuses.length === 0 && (
-                <p className="text-sm text-destructive" data-oid="8o_.bgi">
-                  Debe seleccionar al menos una sede
-                </p>
-              )}
             </div>
 
             {/* Bio */}

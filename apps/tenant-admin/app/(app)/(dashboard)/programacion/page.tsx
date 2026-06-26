@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
+import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -945,60 +946,37 @@ export default function ProgramacionPage() {
     return operational.filter((c) => c.sedeId === sedeFilter)
   }, [convocatorias, sedeFilter])
 
-  const handlePrintList = () => {
-    window.print()
-  }
+  const exportColumns: ExportColumn<Convocatoria>[] = [
+    { header: 'Codigo', getValue: (conv) => conv.codigo || conv.id },
+    { header: 'Curso / ciclo', getValue: (conv) => conv.curso },
+    { header: 'Tipo', getValue: (conv) => conv.tipo },
+    { header: 'Sede', getValue: (conv) => conv.sede },
+    { header: 'Aula', getValue: (conv) => conv.aula },
+    { header: 'Docente', getValue: (conv) => conv.profesor },
+    { header: 'Inicio', getValue: (conv) => conv.fechaInicio },
+    { header: 'Fin', getValue: (conv) => conv.fechaFin },
+    {
+      header: 'Dias',
+      getValue: (conv) =>
+        conv.dias
+          .map((day) => DAY_OPTIONS.find((item) => item.value === day)?.label ?? day)
+          .join(', '),
+    },
+    { header: 'Horario', getValue: (conv) => `${conv.horaInicio}-${conv.horaFin}` },
+    { header: 'Precio', getValue: (conv) => (conv.precio ? `${conv.precio}` : 'Consultar') },
+    { header: 'Plazas', getValue: (conv) => conv.plazas },
+    { header: 'Inscritos', getValue: (conv) => conv.inscritos },
+    { header: 'Estado', getValue: (conv) => STATUS_LABELS[conv.estado] || conv.estado },
+  ]
 
-  const handleDownloadCsv = () => {
-    const headers = [
-      'Codigo',
-      'Curso / ciclo',
-      'Tipo',
-      'Sede',
-      'Aula',
-      'Docente',
-      'Inicio',
-      'Fin',
-      'Dias',
-      'Horario',
-      'Precio',
-      'Plazas',
-      'Inscritos',
-      'Estado',
-    ]
-    const escapeCsv = (value: unknown) => {
-      const text = String(value ?? '')
-      return `"${text.replace(/"/g, '""')}"`
-    }
-    const rows = filtered.map((conv) => [
-      conv.codigo || conv.id,
-      conv.curso,
-      conv.tipo,
-      conv.sede,
-      conv.aula,
-      conv.profesor,
-      conv.fechaInicio,
-      conv.fechaFin,
-      conv.dias
-        .map((day) => DAY_OPTIONS.find((item) => item.value === day)?.label ?? day)
-        .join(', '),
-      `${conv.horaInicio}-${conv.horaFin}`,
-      conv.precio ? `${conv.precio}` : 'Consultar',
-      conv.plazas,
-      conv.inscritos,
-      STATUS_LABELS[conv.estado] || conv.estado,
-    ])
-    const csv = [headers, ...rows].map((row) => row.map(escapeCsv).join(',')).join('\n')
-    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `convocatorias-${new Date().toISOString().slice(0, 10)}.csv`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }
+  const handlePrintList = () => printTable('Convocatorias', exportColumns, filtered)
+
+  const handleDownloadCsv = () =>
+    downloadCsv(
+      `convocatorias-${new Date().toISOString().slice(0, 10)}.csv`,
+      exportColumns,
+      filtered
+    )
 
   // Navigation
   const navPrev = () => {

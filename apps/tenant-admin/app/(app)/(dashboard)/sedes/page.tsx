@@ -9,7 +9,17 @@ import {
   type DashboardStatItem,
 } from '@payload-config/components/akademate/dashboard'
 import { Button } from '@payload-config/components/ui/button'
-import { MapPin, DoorOpen, Users, BookOpen, Phone, Mail, Plus } from 'lucide-react'
+import {
+  MapPin,
+  DoorOpen,
+  Users,
+  BookOpen,
+  Phone,
+  Mail,
+  Plus,
+  Printer,
+  Download,
+} from 'lucide-react'
 import { SedeListItem } from '@payload-config/components/ui/SedeListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
@@ -17,6 +27,7 @@ import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
 import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
 import { getLimit } from '@payload-config/lib/planLimits'
+import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
 
 /** Sede data structure used for display */
 interface Sede {
@@ -73,7 +84,11 @@ export default function SedesPage() {
   const [sedes, setSedes] = useState<Sede[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [limitModal, setLimitModal] = useState<{ open: boolean; current: number; limit: number } | null>(null)
+  const [limitModal, setLimitModal] = useState<{
+    open: boolean
+    current: number
+    limit: number
+  } | null>(null)
 
   const { checkLimit, plan } = usePlanLimits()
 
@@ -180,10 +195,23 @@ export default function SedesPage() {
     },
   ]
 
+  const exportColumns: ExportColumn<Sede>[] = [
+    { header: 'Sede', getValue: (sede) => sede.nombre },
+    { header: 'Direccion', getValue: (sede) => sede.direccion },
+    { header: 'Telefono', getValue: (sede) => sede.telefono },
+    { header: 'Email', getValue: (sede) => sede.email },
+    { header: 'Aulas', getValue: (sede) => sede.aulas },
+    { header: 'Capacidad', getValue: (sede) => sede.capacidad },
+    { header: 'Cursos activos', getValue: (sede) => sede.cursosActivos },
+  ]
+
+  const handlePrint = () => printTable('Sedes', exportColumns, sedes)
+  const handleCsv = () =>
+    downloadCsv(`sedes-${new Date().toISOString().slice(0, 10)}.csv`, exportColumns, sedes)
+
   return (
     <DashboardListingLayout
       title="Sedes"
-      description="Vista simplificada para operación diaria."
       actions={
         <Button onClick={handleAdd} data-oid="hrtnwkn">
           <Plus className="h-4 w-4" />
@@ -191,7 +219,23 @@ export default function SedesPage() {
         </Button>
       }
       stats={stats}
-      toolbar={<DashboardToolbar viewToggle={<ViewToggle view={view} onViewChange={setView} data-oid="3df3n_r" />} />}
+      toolbar={
+        <DashboardToolbar
+          actions={
+            <>
+              <Button type="button" variant="outline" size="sm" onClick={handlePrint}>
+                <Printer className="h-4 w-4" />
+                Imprimir
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={handleCsv}>
+                <Download className="h-4 w-4" />
+                Descargar CSV
+              </Button>
+            </>
+          }
+          viewToggle={<ViewToggle view={view} onViewChange={setView} data-oid="3df3n_r" />}
+        />
+      }
     >
       {isLoading && (
         <div
@@ -237,11 +281,7 @@ export default function SedesPage() {
             >
               <div className="relative h-56 w-full bg-primary/10 sm:h-64" data-oid="sede-image">
                 {sede.imagen ? (
-                  <img
-                    src={sede.imagen}
-                    alt={sede.nombre}
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={sede.imagen} alt={sede.nombre} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
                     <MapPin className="h-12 w-12 text-primary" />
@@ -258,7 +298,10 @@ export default function SedesPage() {
               </div>
 
               <CardContent className="space-y-5 p-6" data-oid="rke.tyb">
-                <div className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-2" data-oid="jks8htn">
+                <div
+                  className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-2"
+                  data-oid="jks8htn"
+                >
                   <div className="flex min-w-0 items-center gap-2" data-oid="qpi.:t:">
                     <Phone className="h-4 w-4 flex-shrink-0" data-oid="4stws:y" />
                     <span className="truncate" data-oid="r3x6t9d">
@@ -297,7 +340,10 @@ export default function SedesPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 border-t pt-4" data-oid="sede-footer">
+                <div
+                  className="flex items-center justify-between gap-3 border-t pt-4"
+                  data-oid="sede-footer"
+                >
                   <div className="min-w-0" data-oid="x6kzf:k">
                     <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                       Centro

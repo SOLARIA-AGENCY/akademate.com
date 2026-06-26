@@ -18,12 +18,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Plus, Search, Lock, Briefcase, Building2, Monitor, List, ArrowRight, CalendarDays } from 'lucide-react'
+import {
+  Plus,
+  Search,
+  Lock,
+  Briefcase,
+  Building2,
+  Monitor,
+  List,
+  ArrowRight,
+  CalendarDays,
+  Printer,
+  Download,
+} from 'lucide-react'
 import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
 import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
 import { getLimit } from '@payload-config/lib/planLimits'
-import { CourseDashboardCard, CourseDashboardListItem } from '@payload-config/components/akademate/dashboard'
+import {
+  CourseDashboardCard,
+  CourseDashboardListItem,
+} from '@payload-config/components/akademate/dashboard'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 import { COURSE_TYPE_CONFIG } from '@payload-config/lib/courseTypeConfig'
@@ -33,6 +48,7 @@ import {
   normalizePublicStudyType,
   toDashboardStudyType,
 } from '@/app/lib/website/study-types'
+import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
 
 // Local type definition to avoid ESLint path resolution issues
 type ViewMode = 'grid' | 'list'
@@ -83,9 +99,7 @@ function CursosPageContent() {
 
   // Filtros
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterType, setFilterType] = useState<DashboardFilterType>(
-    selectedTypeFromUrl ?? 'all'
-  )
+  const [filterType, setFilterType] = useState<DashboardFilterType>(selectedTypeFromUrl ?? 'all')
   const [filterArea, setFilterArea] = useState('all')
 
   // State para cursos y carga
@@ -93,7 +107,11 @@ function CursosPageContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [areas, setAreas] = useState<{ id: number; nombre: string }[]>([])
-  const [limitModal, setLimitModal] = useState<{ open: boolean; current: number; limit: number } | null>(null)
+  const [limitModal, setLimitModal] = useState<{
+    open: boolean
+    current: number
+    limit: number
+  } | null>(null)
 
   const { checkLimit, plan } = usePlanLimits()
 
@@ -160,7 +178,9 @@ function CursosPageContent() {
   }
 
   const getCourseType = (course: PlantillaCurso): DashboardCourseType =>
-    toDashboardStudyType((course as PlantillaCurso & { studyType?: string }).studyType ?? course.tipo)
+    toDashboardStudyType(
+      (course as PlantillaCurso & { studyType?: string }).studyType ?? course.tipo
+    )
 
   // Filtrado base (sin tipo) para construir cards dinámicas por categoría
   const baseFilteredCourses = cursos.filter((course) => {
@@ -210,14 +230,46 @@ function CursosPageContent() {
   const isMainLandingPage = !selectedTypeFromUrl && !selectedGroup
   const isGroupLandingPage = !selectedTypeFromUrl && Boolean(selectedGroup)
 
+  const exportColumns: ExportColumn<PlantillaCurso>[] = [
+    { header: 'Codigo', getValue: (course) => course.id },
+    { header: 'Curso', getValue: (course) => course.nombre },
+    { header: 'Tipo', getValue: (course) => COURSE_TYPE_CONFIG[getCourseType(course)]?.label },
+    { header: 'Area', getValue: (course) => course.area || 'Área por definir' },
+    { header: 'Horas', getValue: (course) => course.duracionReferencia },
+    {
+      header: 'Precio referencia',
+      getValue: (course) => course.precioReferencia ?? 'Consultar',
+    },
+    { header: 'Convocatorias', getValue: (course) => course.totalConvocatorias ?? 0 },
+    { header: 'Estado', getValue: (course) => (course.active ? 'Activo' : 'Inactivo') },
+  ]
+
+  const exportTitle = selectedTypeFromUrl
+    ? `Cursos ${COURSE_TYPE_CONFIG[selectedTypeFromUrl]?.label ?? selectedTypeFromUrl}`
+    : selectedGroup === 'privados'
+      ? 'Cursos privados'
+      : selectedGroup === 'sce'
+        ? 'Servicio Canario de Empleo'
+        : 'Catálogo de formación'
+  const handlePrint = () => printTable(exportTitle, exportColumns, filteredCourses)
+  const handleCsv = () =>
+    downloadCsv(
+      `cursos-${new Date().toISOString().slice(0, 10)}.csv`,
+      exportColumns,
+      filteredCourses
+    )
+
   // Configure header based on filter
-  const tiposConfig: Record<DashboardCourseType, {
-    title: string
-    description: string
-    icon: typeof Lock
-    color: string
-    bgColor: string
-  }> = {
+  const tiposConfig: Record<
+    DashboardCourseType,
+    {
+      title: string
+      description: string
+      icon: typeof Lock
+      color: string
+      bgColor: string
+    }
+  > = {
     privados: {
       title: 'Cursos Privados',
       description: 'Cursos de formación privada para empresas y particulares',
@@ -268,13 +320,21 @@ function CursosPageContent() {
             ? 'Selecciona una línea de formación para acceder a sus cursos.'
             : isGroupLandingPage
               ? 'Selecciona una categoría para ver los cursos disponibles.'
-            : (config?.description ?? 'Gestiona y organiza tu oferta formativa.')
+              : (config?.description ?? 'Gestiona y organiza tu oferta formativa.')
         }
         icon={Icon}
         iconBgColor={config?.bgColor ?? 'bg-primary/10'}
         iconColor={config?.color ?? 'text-primary'}
         actions={
           <div className="flex items-center gap-2">
+            <Button type="button" variant="outline" onClick={handlePrint}>
+              <Printer className="h-4 w-4" />
+              Imprimir
+            </Button>
+            <Button type="button" variant="outline" onClick={handleCsv}>
+              <Download className="h-4 w-4" />
+              Descargar CSV
+            </Button>
             {!isMainLandingPage && (
               <Button variant="outline" onClick={goToTypeLanding}>
                 Ver líneas
@@ -308,7 +368,10 @@ function CursosPageContent() {
       {/* Landing principal de líneas de formación */}
       {!loading && !error && isMainLandingPage && (
         <div className="grid gap-6 lg:grid-cols-2">
-          <Link href="/dashboard/cursos?grupo=privados" className="group h-full text-left no-underline">
+          <Link
+            href="/dashboard/cursos?grupo=privados"
+            className="group h-full text-left no-underline"
+          >
             <Card className="relative h-full min-h-[360px] overflow-hidden border transition-all hover:border-primary hover:shadow-lg">
               <div className="absolute inset-0">
                 <img
@@ -320,10 +383,16 @@ function CursosPageContent() {
               </div>
               <CardContent className="relative flex h-full min-h-[360px] flex-col items-center justify-center gap-7 p-8 text-center text-white">
                 <div className="rounded-3xl bg-white/95 p-6 shadow-xl">
-                  <img src="/logos/cep-formacion-logo.png" alt="CEP Formación" className="h-20 w-auto object-contain" />
+                  <img
+                    src="/logos/cep-formacion-logo.png"
+                    alt="CEP Formación"
+                    className="h-20 w-auto object-contain"
+                  />
                 </div>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.08em] text-white/80">CEP Formación</p>
+                  <p className="text-xs font-black uppercase tracking-[0.08em] text-white/80">
+                    CEP Formación
+                  </p>
                   <h2 className="mt-2 text-3xl font-black tracking-tight">Cursos privados</h2>
                   <p className="mt-3 text-lg font-semibold text-white/90">
                     {typeCounts.privados + typeCounts.teleformacion} cursos disponibles
@@ -344,7 +413,11 @@ function CursosPageContent() {
               <CardContent className="relative flex h-full min-h-[360px] flex-col items-center justify-center gap-7 p-8 text-center text-white">
                 <div className="flex flex-wrap items-center justify-center gap-4">
                   <div className="rounded-3xl bg-white/95 p-5 shadow-xl">
-                    <img src="/logos/cep-formacion-logo.png" alt="CEP Formación" className="h-16 w-auto object-contain" />
+                    <img
+                      src="/logos/cep-formacion-logo.png"
+                      alt="CEP Formación"
+                      className="h-16 w-auto object-contain"
+                    />
                   </div>
                   <div className="rounded-3xl bg-white/95 p-5 shadow-xl">
                     <img
@@ -355,10 +428,15 @@ function CursosPageContent() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.08em] text-white/80">CEP Formación</p>
-                  <h2 className="mt-2 text-3xl font-black tracking-tight">Servicio Canario de Empleo</h2>
+                  <p className="text-xs font-black uppercase tracking-[0.08em] text-white/80">
+                    CEP Formación
+                  </p>
+                  <h2 className="mt-2 text-3xl font-black tracking-tight">
+                    Servicio Canario de Empleo
+                  </h2>
                   <p className="mt-3 text-lg font-semibold text-white/90">
-                    {typeCounts.ocupados + typeCounts.desempleados + typeCounts.teleformacion} cursos disponibles
+                    {typeCounts.ocupados + typeCounts.desempleados + typeCounts.teleformacion}{' '}
+                    cursos disponibles
                   </p>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground shadow-sm transition group-hover:bg-primary/90">
@@ -389,7 +467,9 @@ function CursosPageContent() {
                     <img src={typeImage} alt={style.label} className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute left-4 top-4 flex items-center gap-2">
-                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold text-white ${style.bgColor}`}>
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold text-white ${style.bgColor}`}
+                      >
                         {style.label}
                       </span>
                     </div>
@@ -399,7 +479,9 @@ function CursosPageContent() {
                   </div>
                   <CardContent className="flex flex-1 items-end justify-between gap-4 p-5">
                     <div>
-                      <p className="text-3xl font-bold leading-none text-foreground">{typeCounts[type]}</p>
+                      <p className="text-3xl font-bold leading-none text-foreground">
+                        {typeCounts[type]}
+                      </p>
                       <p className="mt-2 text-sm text-muted-foreground">cursos disponibles</p>
                     </div>
                     <span className="inline-flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
@@ -414,66 +496,68 @@ function CursosPageContent() {
       )}
 
       {/* Filtros - Estandarizados para todas las vistas */}
-      {!isMainLandingPage && !isGroupLandingPage && <Card className="bg-card" data-oid="0gd1z6-">
-        <CardContent className="pt-6" data-oid=".w7czcl">
-          <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="ohwi565">
-            <div className="min-w-[260px] flex-1" data-oid="gnnziad">
-              {/* BÚSQUEDA: Siempre visible */}
-              <div className="relative" data-oid="k6ryv0w">
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                  data-oid="decf-bv"
-                />
-                <Input
-                  placeholder="Buscar por nombre o área..."
-                  value={searchTerm}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                  className="pl-9 w-full"
-                  data-oid="o8f_d28"
-                />
+      {!isMainLandingPage && !isGroupLandingPage && (
+        <Card className="bg-card" data-oid="0gd1z6-">
+          <CardContent className="pt-6" data-oid=".w7czcl">
+            <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap" data-oid="ohwi565">
+              <div className="min-w-[260px] flex-1" data-oid="gnnziad">
+                {/* BÚSQUEDA: Siempre visible */}
+                <div className="relative" data-oid="k6ryv0w">
+                  <Search
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                    data-oid="decf-bv"
+                  />
+                  <Input
+                    placeholder="Buscar por nombre o área..."
+                    value={searchTerm}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+                    className="pl-9 w-full"
+                    data-oid="o8f_d28"
+                  />
+                </div>
+              </div>
+
+              {/* FILTRO POR ÁREA */}
+              <Select value={filterArea} onValueChange={setFilterArea} data-oid="i0ek:n_">
+                <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="zwfzshz">
+                  <SelectValue placeholder="Todas las áreas" data-oid="_p-h3ai" />
+                </SelectTrigger>
+                <SelectContent data-oid="g6_9ait">
+                  <SelectItem value="all" data-oid="evmmpxb">
+                    Todas las áreas
+                  </SelectItem>
+                  {areas.map((area) => (
+                    <SelectItem key={area.id} value={area.nombre} data-oid="s0ssimh">
+                      {area.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* View Toggle */}
+              <div className="hidden xl:block xl:ml-auto" data-oid="w_7hauj">
+                <ViewToggle view={view} onViewChange={setView} data-oid="g1tt1yo" />
               </div>
             </div>
 
-            {/* FILTRO POR ÁREA */}
-            <Select value={filterArea} onValueChange={setFilterArea} data-oid="i0ek:n_">
-              <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="zwfzshz">
-                <SelectValue placeholder="Todas las áreas" data-oid="_p-h3ai" />
-              </SelectTrigger>
-              <SelectContent data-oid="g6_9ait">
-                <SelectItem value="all" data-oid="evmmpxb">
-                  Todas las áreas
-                </SelectItem>
-                {areas.map((area) => (
-                  <SelectItem key={area.id} value={area.nombre} data-oid="s0ssimh">
-                    {area.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* View Toggle */}
-            <div className="hidden xl:block xl:ml-auto" data-oid="w_7hauj">
-              <ViewToggle view={view} onViewChange={setView} data-oid="g1tt1yo" />
-            </div>
-          </div>
-
-          {(searchTerm || filterType !== 'all' || filterArea !== 'all') && (
-            <div className="flex items-center gap-4 mt-4" data-oid="wwhwrwt">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilterArea('all')
-                }}
-                data-oid="fb8q3px"
-              >
-                Limpiar filtros
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>}
+            {(searchTerm || filterType !== 'all' || filterArea !== 'all') && (
+              <div className="flex items-center gap-4 mt-4" data-oid="wwhwrwt">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('')
+                    setFilterArea('all')
+                  }}
+                  data-oid="fb8q3px"
+                >
+                  Limpiar filtros
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Loading State */}
       {loading && (
@@ -498,55 +582,61 @@ function CursosPageContent() {
       )}
 
       {/* Grid o Lista de Cursos */}
-      {!loading && !error && !isMainLandingPage && !isGroupLandingPage && groupedCourses.length > 0 && (
-        <div className="space-y-8">
-          {groupedCourses.map((group) => {
-            if (group.courses.length === 0) return null
-            const style = COURSE_TYPE_CONFIG[group.type]
-            return (
-              <section key={group.type} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className={`h-2.5 w-2.5 rounded-full ${style.dotColor}`} />
-                    <h2 className="text-lg font-semibold">{tiposConfig[group.type]?.title ?? style.label}</h2>
+      {!loading &&
+        !error &&
+        !isMainLandingPage &&
+        !isGroupLandingPage &&
+        groupedCourses.length > 0 && (
+          <div className="space-y-8">
+            {groupedCourses.map((group) => {
+              if (group.courses.length === 0) return null
+              const style = COURSE_TYPE_CONFIG[group.type]
+              return (
+                <section key={group.type} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className={`h-2.5 w-2.5 rounded-full ${style.dotColor}`} />
+                      <h2 className="text-lg font-semibold">
+                        {tiposConfig[group.type]?.title ?? style.label}
+                      </h2>
+                    </div>
+                    <Badge variant="secondary">{group.courses.length}</Badge>
                   </div>
-                  <Badge variant="secondary">{group.courses.length}</Badge>
-                </div>
 
-                {view === 'grid' ? (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2" data-oid="3kr--1i">
-                    {group.courses.map((course) => (
-                      <CourseDashboardCard
-                        key={course.id}
-                        course={{
-                          ...course,
-                          tipo: getCourseType(course),
-                        }}
-                        onClick={() => handleViewCourse(course)}
-                        data-oid="jicucw1"
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-4" data-oid="9hy8e7h">
-                    {group.courses.map((course) => (
-                      <CourseDashboardListItem
-                        key={course.id}
-                        course={{
-                          ...course,
-                          tipo: getCourseType(course),
-                        }}
-                        onClick={() => handleViewCourse(course)}
-                        data-oid="_gjcoji"
-                      />
-                    ))}
-                  </div>
-                )}
-              </section>
-            )
-          })}
-        </div>
-      )}
+                  {view === 'grid' ? (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2" data-oid="3kr--1i">
+                      {group.courses.map((course) => (
+                        <CourseDashboardCard
+                          key={course.id}
+                          course={{
+                            ...course,
+                            tipo: getCourseType(course),
+                          }}
+                          onClick={() => handleViewCourse(course)}
+                          data-oid="jicucw1"
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-4" data-oid="9hy8e7h">
+                      {group.courses.map((course) => (
+                        <CourseDashboardListItem
+                          key={course.id}
+                          course={{
+                            ...course,
+                            tipo: getCourseType(course),
+                          }}
+                          onClick={() => handleViewCourse(course)}
+                          data-oid="_gjcoji"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )
+            })}
+          </div>
+        )}
 
       {/* Si no hay resultados */}
       {!loading && !error && filteredCourses.length === 0 && (
