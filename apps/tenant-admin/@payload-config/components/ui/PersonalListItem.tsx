@@ -81,10 +81,12 @@ export function PersonalListItem({
   const [photoError, setPhotoError] = React.useState(false)
   const missingQualifiedAreas = (teacher.qualifiedAreas ?? []).length === 0
   const isAdministrative = teacher.staffType === 'administrativo'
-  const roleLabel = teacher.department ?? teacher.position ?? (isAdministrative ? 'Administrativo' : 'Docente')
+  const roleLabel =
+    teacher.department ?? teacher.position ?? (isAdministrative ? 'Administrativo' : 'Docente')
   const campuses = teacher.assignedCampuses ?? []
   const qualifiedAreas = teacher.qualifiedAreas ?? []
-  const resolvedActionLabel = actionLabel ?? (isAdministrative ? 'Ver ficha administrativo' : 'Ver ficha docente')
+  const resolvedActionLabel =
+    actionLabel ?? (isAdministrative ? 'Ver ficha administrativo' : 'Ver ficha docente')
   const email = teacher.email?.trim()
   const phone = teacher.phone?.trim()
 
@@ -104,8 +106,8 @@ export function PersonalListItem({
         }
       }}
     >
-      <CardContent className="grid min-h-24 grid-cols-[5rem_1fr_auto] items-center gap-4 p-4">
-        <Avatar className="h-20 w-20 overflow-visible bg-muted">
+      <CardContent className="grid min-h-24 grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-3 p-4 min-[1700px]:grid-cols-[5rem_minmax(0,1fr)_10rem] min-[1700px]:gap-4">
+        <Avatar className="h-[4.5rem] w-[4.5rem] overflow-visible bg-muted min-[1700px]:h-20 min-[1700px]:w-20">
           {!isPlaceholderPhoto(teacher.photo) && !photoError ? (
             <AvatarImage
               src={teacher.photo ?? undefined}
@@ -119,7 +121,7 @@ export function PersonalListItem({
           </AvatarFallback>
         </Avatar>
 
-        <div className="grid min-w-0 items-center gap-4 md:grid-cols-[minmax(14rem,1fr)_minmax(14rem,20rem)] xl:grid-cols-[minmax(15rem,1fr)_minmax(16rem,22rem)_minmax(14rem,22rem)_auto]">
+        <div className="grid min-w-0 items-center gap-3 md:grid-cols-[minmax(13rem,1fr)_minmax(12rem,18rem)] xl:grid-cols-[minmax(13rem,1fr)_minmax(12rem,18rem)_minmax(11rem,17rem)] min-[1700px]:grid-cols-[minmax(14rem,1fr)_minmax(13rem,19rem)_minmax(12rem,18rem)_minmax(13rem,16rem)] min-[1700px]:gap-4">
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold leading-tight">
               {teacher.firstName} {teacher.lastName}
@@ -128,7 +130,11 @@ export function PersonalListItem({
             {!isAdministrative && !missingQualifiedAreas ? (
               <div className="mt-2 flex max-w-full flex-wrap gap-1">
                 {qualifiedAreas.slice(0, 2).map((area) => (
-                  <StaffAreaBadge key={area.id} seed={area.codigo ?? area.id} className="max-w-[12rem]">
+                  <StaffAreaBadge
+                    key={area.id}
+                    seed={area.codigo ?? area.id}
+                    className="max-w-[12rem]"
+                  >
                     {area.nombre}
                   </StaffAreaBadge>
                 ))}
@@ -197,12 +203,16 @@ export function PersonalListItem({
               : null}
           </div>
 
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden min-w-0 items-center gap-2 xl:flex min-[1700px]:gap-3">
             <StaffStatusBadge status={teacher.active} />
             {typeof teacher.courseRunsCount === 'number' ? (
               <>
                 <Separator orientation="vertical" className="h-5" />
-                <StaffCountBadge count={teacher.courseRunsCount} label={countLabel ?? 'cursos'} />
+                <StaffCountBadge
+                  count={teacher.courseRunsCount}
+                  label={countLabel ?? 'cursos'}
+                  className="min-w-0"
+                />
               </>
             ) : null}
           </div>
@@ -210,7 +220,7 @@ export function PersonalListItem({
 
         <Button
           size="sm"
-          className="h-7 shrink-0 px-3 text-xs font-semibold uppercase tracking-wide"
+          className="col-span-2 h-8 w-full justify-center px-3 text-xs font-semibold uppercase tracking-wide sm:col-span-1 sm:col-start-2 min-[1700px]:col-span-1 min-[1700px]:col-start-auto min-[1700px]:h-7"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()

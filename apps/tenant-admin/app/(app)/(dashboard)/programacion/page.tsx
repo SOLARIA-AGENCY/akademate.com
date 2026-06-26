@@ -101,7 +101,20 @@ type ViewMode = 'anual' | 'mes' | 'semana' | 'dia' | 'lista'
 // ---------------------------------------------------------------------------
 
 const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-const MONTHS_FULL = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+const MONTHS_FULL = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
+]
 const WEEKDAYS = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 8) // 8:00 - 21:00
 
@@ -203,7 +216,11 @@ function convocatoriaOnDate(conv: Convocatoria, dateKey: string): boolean {
 // Annual Gantt View
 // ---------------------------------------------------------------------------
 
-function AnnualGantt({ convocatorias, year, onConvClick }: {
+function AnnualGantt({
+  convocatorias,
+  year,
+  onConvClick,
+}: {
   convocatorias: Convocatoria[]
   year: number
   onConvClick: (id: string) => void
@@ -217,10 +234,15 @@ function AnnualGantt({ convocatorias, year, onConvClick }: {
       <CardContent className="p-4 overflow-x-auto">
         {/* Month headers */}
         <div className="flex border-b pb-2 mb-3 min-w-[900px]">
-          <div className="w-48 shrink-0 text-xs font-medium text-muted-foreground">Convocatoria</div>
+          <div className="w-48 shrink-0 text-xs font-medium text-muted-foreground">
+            Convocatoria
+          </div>
           <div className="flex-1 flex">
             {MONTHS.map((m, i) => (
-              <div key={m} className="flex-1 text-center text-[10px] font-medium text-muted-foreground border-l border-border/30 first:border-l-0">
+              <div
+                key={m}
+                className="flex-1 text-center text-[10px] font-medium text-muted-foreground border-l border-border/30 first:border-l-0"
+              >
                 {m}
               </div>
             ))}
@@ -242,7 +264,8 @@ function AnnualGantt({ convocatorias, year, onConvClick }: {
               const leftPct = (barStart / yearDays) * 100
               const widthPct = ((barEnd - barStart) / yearDays) * 100
 
-              const ocupacion = conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
+              const ocupacion =
+                conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
 
               return (
                 <div key={conv.id} className="flex items-center group">
@@ -252,15 +275,24 @@ function AnnualGantt({ convocatorias, year, onConvClick }: {
                   >
                     <p className="text-xs font-medium truncate leading-tight">{conv.curso}</p>
                     <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-2.5 w-2.5" />{conv.sede}
+                      <MapPin className="h-2.5 w-2.5" />
+                      {conv.sede}
                     </p>
                   </div>
                   <div className="flex-1 relative h-8 bg-muted/30 rounded">
                     {/* Month grid lines */}
                     {MONTHS.map((_, i) => {
                       const monthStart = new Date(year, i, 1)
-                      const pct = ((monthStart.getTime() - yearStart) / (1000 * 60 * 60 * 24) / yearDays) * 100
-                      return <div key={i} className="absolute top-0 bottom-0 border-l border-border/20" style={{ left: `${pct}%` }} />
+                      const pct =
+                        ((monthStart.getTime() - yearStart) / (1000 * 60 * 60 * 24) / yearDays) *
+                        100
+                      return (
+                        <div
+                          key={i}
+                          className="absolute top-0 bottom-0 border-l border-border/20"
+                          style={{ left: `${pct}%` }}
+                        />
+                      )
                     })}
                     {/* Bar */}
                     <div
@@ -277,8 +309,14 @@ function AnnualGantt({ convocatorias, year, onConvClick }: {
                     {(() => {
                       const today = new Date()
                       if (today.getFullYear() === year) {
-                        const todayPct = ((today.getTime() - yearStart) / (1000 * 60 * 60 * 24) / yearDays) * 100
-                        return <div className="absolute top-0 bottom-0 w-px bg-red-500 z-10" style={{ left: `${todayPct}%` }} />
+                        const todayPct =
+                          ((today.getTime() - yearStart) / (1000 * 60 * 60 * 24) / yearDays) * 100
+                        return (
+                          <div
+                            className="absolute top-0 bottom-0 w-px bg-red-500 z-10"
+                            style={{ left: `${todayPct}%` }}
+                          />
+                        )
                       }
                       return null
                     })()}
@@ -319,7 +357,13 @@ function AnnualGantt({ convocatorias, year, onConvClick }: {
 // Month Calendar View
 // ---------------------------------------------------------------------------
 
-function MonthCalendar({ convocatorias, year, month, holidays, onConvClick }: {
+function MonthCalendar({
+  convocatorias,
+  year,
+  month,
+  holidays,
+  onConvClick,
+}: {
   convocatorias: Convocatoria[]
   year: number
   month: number
@@ -337,13 +381,17 @@ function MonthCalendar({ convocatorias, year, month, holidays, onConvClick }: {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">{MONTHS_FULL[month]} {year}</CardTitle>
+        <CardTitle className="text-base">
+          {MONTHS_FULL[month]} {year}
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-3">
         {/* Weekday headers */}
         <div className="grid grid-cols-7 gap-px mb-1">
           {WEEKDAYS.map((d) => (
-            <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-1">{d}</div>
+            <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-1">
+              {d}
+            </div>
           ))}
         </div>
         {/* Days grid */}
@@ -354,7 +402,7 @@ function MonthCalendar({ convocatorias, year, month, holidays, onConvClick }: {
             const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
             const isToday = dateKey === today
             const isHoliday = holidays[dateKey]
-            const isWeekend = (i % 7) >= 5
+            const isWeekend = i % 7 >= 5
 
             const dayConvs = convocatorias.filter((c) => convocatoriaOnDate(c, dateKey))
 
@@ -366,11 +414,15 @@ function MonthCalendar({ convocatorias, year, month, holidays, onConvClick }: {
                 } ${isHoliday ? 'bg-red-50 dark:bg-red-950/20' : isWeekend ? 'bg-muted/30' : 'bg-background'}`}
               >
                 <div className="flex items-center justify-between px-1">
-                  <span className={`text-[10px] font-medium ${isToday ? 'text-primary font-bold' : isHoliday ? 'text-red-500' : ''}`}>
+                  <span
+                    className={`text-[10px] font-medium ${isToday ? 'text-primary font-bold' : isHoliday ? 'text-red-500' : ''}`}
+                  >
                     {day}
                   </span>
                   {isHoliday && (
-                    <span className="text-[8px] text-red-400 truncate ml-1" title={isHoliday}>{isHoliday}</span>
+                    <span className="text-[8px] text-red-400 truncate ml-1" title={isHoliday}>
+                      {isHoliday}
+                    </span>
                   )}
                 </div>
                 <div className="space-y-px mt-0.5">
@@ -385,7 +437,9 @@ function MonthCalendar({ convocatorias, year, month, holidays, onConvClick }: {
                     </div>
                   ))}
                   {dayConvs.length > 3 && (
-                    <span className="text-[8px] text-muted-foreground">+{dayConvs.length - 3} mas</span>
+                    <span className="text-[8px] text-muted-foreground">
+                      +{dayConvs.length - 3} mas
+                    </span>
                   )}
                 </div>
               </div>
@@ -401,7 +455,12 @@ function MonthCalendar({ convocatorias, year, month, holidays, onConvClick }: {
 // Week View
 // ---------------------------------------------------------------------------
 
-function WeekView({ convocatorias, weekStart, holidays, onConvClick }: {
+function WeekView({
+  convocatorias,
+  weekStart,
+  holidays,
+  onConvClick,
+}: {
   convocatorias: Convocatoria[]
   weekStart: Date
   holidays: Record<string, string>
@@ -426,7 +485,9 @@ function WeekView({ convocatorias, weekStart, holidays, onConvClick }: {
               const holiday = holidays[key]
               return (
                 <div key={key} className={`text-center ${isToday ? 'text-primary font-bold' : ''}`}>
-                  <p className="text-[10px] text-muted-foreground">{WEEKDAYS[d.getDay() === 0 ? 6 : d.getDay() - 1]}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {WEEKDAYS[d.getDay() === 0 ? 6 : d.getDay() - 1]}
+                  </p>
                   <p className="text-sm font-medium">{d.getDate()}</p>
                   {holiday && <p className="text-[8px] text-red-400">{holiday}</p>}
                 </div>
@@ -436,8 +497,13 @@ function WeekView({ convocatorias, weekStart, holidays, onConvClick }: {
 
           {/* Time grid */}
           {HOURS.map((hour) => (
-            <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] gap-px border-b border-border/20">
-              <div className="text-[10px] text-muted-foreground py-2 text-right pr-2">{hour}:00</div>
+            <div
+              key={hour}
+              className="grid grid-cols-[60px_repeat(7,1fr)] gap-px border-b border-border/20"
+            >
+              <div className="text-[10px] text-muted-foreground py-2 text-right pr-2">
+                {hour}:00
+              </div>
               {days.map((d) => {
                 const key = formatDateKey(d)
                 const isHoliday = !!holidays[key]
@@ -467,7 +533,9 @@ function WeekView({ convocatorias, weekStart, holidays, onConvClick }: {
                           onClick={() => onConvClick(conv.id)}
                         >
                           <p className="font-medium truncate">{conv.curso}</p>
-                          <p className="opacity-80">{conv.horaInicio}-{conv.horaFin}</p>
+                          <p className="opacity-80">
+                            {conv.horaInicio}-{conv.horaFin}
+                          </p>
                         </div>
                       )
                     })}
@@ -486,7 +554,12 @@ function WeekView({ convocatorias, weekStart, holidays, onConvClick }: {
 // Day View (Classroom columns)
 // ---------------------------------------------------------------------------
 
-function DayView({ convocatorias, date, holidays, onConvClick }: {
+function DayView({
+  convocatorias,
+  date,
+  holidays,
+  onConvClick,
+}: {
   convocatorias: Convocatoria[]
   date: Date
   holidays: Record<string, string>
@@ -510,9 +583,18 @@ function DayView({ convocatorias, date, holidays, onConvClick }: {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">
-            {date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            {date.toLocaleDateString('es-ES', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
           </CardTitle>
-          {holiday && <Badge variant="destructive" className="text-[10px]">{holiday}</Badge>}
+          {holiday && (
+            <Badge variant="destructive" className="text-[10px]">
+              {holiday}
+            </Badge>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-3 overflow-x-auto">
@@ -522,11 +604,17 @@ function DayView({ convocatorias, date, holidays, onConvClick }: {
           </div>
         ) : (
           <div className="min-w-[500px]">
-            <div className={`grid gap-px`} style={{ gridTemplateColumns: `60px repeat(${Math.max(columns.length, 1)}, 1fr)` }}>
+            <div
+              className={`grid gap-px`}
+              style={{ gridTemplateColumns: `60px repeat(${Math.max(columns.length, 1)}, 1fr)` }}
+            >
               {/* Headers */}
               <div />
               {columns.map(([sede]) => (
-                <div key={sede} className="text-center text-xs font-medium py-2 bg-muted/30 rounded-t">
+                <div
+                  key={sede}
+                  className="text-center text-xs font-medium py-2 bg-muted/30 rounded-t"
+                >
                   <Building2 className="h-3 w-3 mx-auto mb-1" />
                   {sede}
                 </div>
@@ -535,7 +623,9 @@ function DayView({ convocatorias, date, holidays, onConvClick }: {
               {/* Hours */}
               {HOURS.map((hour) => (
                 <React.Fragment key={hour}>
-                  <div className="text-[10px] text-muted-foreground text-right pr-2 py-3">{hour}:00</div>
+                  <div className="text-[10px] text-muted-foreground text-right pr-2 py-3">
+                    {hour}:00
+                  </div>
                   {columns.map(([sede, convs]) => {
                     const hourConvs = convs.filter((c) => {
                       const startH = parseInt(c.horaInicio?.split(':')[0] || '0', 10)
@@ -544,7 +634,10 @@ function DayView({ convocatorias, date, holidays, onConvClick }: {
                     })
 
                     return (
-                      <div key={sede + hour} className="border-l border-t border-border/20 min-h-[40px] px-1">
+                      <div
+                        key={sede + hour}
+                        className="border-l border-t border-border/20 min-h-[40px] px-1"
+                      >
                         {hourConvs.map((conv) => {
                           const startH = parseInt(conv.horaInicio?.split(':')[0] || '0', 10)
                           if (hour !== startH) return null
@@ -557,8 +650,12 @@ function DayView({ convocatorias, date, holidays, onConvClick }: {
                               onClick={() => onConvClick(conv.id)}
                             >
                               <p className="font-semibold">{conv.curso}</p>
-                              <p className="opacity-80">{conv.horaInicio} — {conv.horaFin}</p>
-                              <p className="opacity-70 mt-0.5">{conv.inscritos}/{conv.plazas} alumnos</p>
+                              <p className="opacity-80">
+                                {conv.horaInicio} — {conv.horaFin}
+                              </p>
+                              <p className="opacity-70 mt-0.5">
+                                {conv.inscritos}/{conv.plazas} alumnos
+                              </p>
                             </div>
                           )
                         })}
@@ -601,7 +698,9 @@ export default function ProgramacionPage() {
       const [convsRes, campusRes, coursesRes, classroomsRes, staffRes] = await Promise.all([
         fetch('/api/convocatorias', { cache: 'no-cache' }),
         fetch('/api/campuses?limit=50', { cache: 'no-cache' }),
-        fetch('/api/cursos?includeInactive=true&includeCycles=true&limit=2000', { cache: 'no-cache' }),
+        fetch('/api/cursos?includeInactive=true&includeCycles=true&limit=2000', {
+          cache: 'no-cache',
+        }),
         fetch('/api/aulas?active=true', { cache: 'no-cache' }),
         fetch('/api/staff?staffType=profesor&active=true', { cache: 'no-cache' }),
       ])
@@ -609,77 +708,107 @@ export default function ProgramacionPage() {
       if (convsRes.ok) {
         const convsData = await convsRes.json()
         const items = Array.isArray(convsData.data) ? convsData.data : []
-        setConvocatorias(items.map((c: Record<string, unknown>) => ({
-          id: String(c.id),
-          codigo: (c.codigo as string) || '',
-          curso: (c.cursoNombre as string) || 'Curso',
-          tipo: (c.cursoTipo as string) || '',
-          sede: (c.campusNombre as string) || 'Sin sede',
-          sedeId: String(c.campusId || ''),
-          aula: (c.aulaNombre as string) || 'Sin aula',
-          aulaId: String(c.aulaId || ''),
-          fechaInicio: (c.fechaInicio as string) || '',
-          fechaFin: (c.fechaFin as string) || '',
-          horaInicio: ((c.horaInicio as string) || ((c.horario as string) || '').split(' ').pop()?.split('-')[0] || '09:00').slice(0, 5),
-          horaFin: ((c.horaFin as string) || ((c.horario as string) || '').split(' ').pop()?.split('-')[1] || '14:00').slice(0, 5),
-          dias: Array.isArray(c.dias) ? c.dias as string[] : [],
-          plazas: (c.plazasTotales as number) || 0,
-          inscritos: (c.plazasOcupadas as number) || 0,
-          precio: (c.precio as number) || 0,
-          matricula: c.matricula as number | undefined,
-          profesor: (c.profesor as string) || 'Sin docente',
-          estado: (c.estado as string) || 'draft',
-          planningStatus: (c.planningStatus as string) || '',
-          color: STATUS_COLORS[(c.estado as string) || 'draft'] || 'bg-primary',
-        })))
+        setConvocatorias(
+          items.map((c: Record<string, unknown>) => ({
+            id: String(c.id),
+            codigo: (c.codigo as string) || '',
+            curso: (c.cursoNombre as string) || 'Curso',
+            tipo: (c.cursoTipo as string) || '',
+            sede: (c.campusNombre as string) || 'Sin sede',
+            sedeId: String(c.campusId || ''),
+            aula: (c.aulaNombre as string) || 'Sin aula',
+            aulaId: String(c.aulaId || ''),
+            fechaInicio: (c.fechaInicio as string) || '',
+            fechaFin: (c.fechaFin as string) || '',
+            horaInicio: (
+              (c.horaInicio as string) ||
+              ((c.horario as string) || '').split(' ').pop()?.split('-')[0] ||
+              '09:00'
+            ).slice(0, 5),
+            horaFin: (
+              (c.horaFin as string) ||
+              ((c.horario as string) || '').split(' ').pop()?.split('-')[1] ||
+              '14:00'
+            ).slice(0, 5),
+            dias: Array.isArray(c.dias) ? (c.dias as string[]) : [],
+            plazas: (c.plazasTotales as number) || 0,
+            inscritos: (c.plazasOcupadas as number) || 0,
+            precio: (c.precio as number) || 0,
+            matricula: c.matricula as number | undefined,
+            profesor: (c.profesor as string) || 'Sin docente',
+            estado: (c.estado as string) || 'draft',
+            planningStatus: (c.planningStatus as string) || '',
+            color: STATUS_COLORS[(c.estado as string) || 'draft'] || 'bg-primary',
+          }))
+        )
       }
 
       if (campusRes.ok) {
         const campusData = await campusRes.json()
         const docs = Array.isArray(campusData.docs) ? campusData.docs : []
-        setCampuses(docs.map((c: Record<string, unknown>) => ({
-          id: String(c.id),
-          name: (c.name as string) || 'Sede',
-        })))
+        setCampuses(
+          docs.map((c: Record<string, unknown>) => ({
+            id: String(c.id),
+            name: (c.name as string) || 'Sede',
+          }))
+        )
       }
 
       if (coursesRes.ok) {
         const coursesData = await coursesRes.json()
         const docs = Array.isArray(coursesData.data) ? coursesData.data : []
-        setCourses(docs.map((c: Record<string, unknown>) => ({
-          id: String(c.id),
-          name: (c.nombre as string) || (c.name as string) || (c.title as string) || 'Curso',
-          tipo: (c.studyTypeLabel as string) || (c.course_type as string) || (c.tipo as string) || '',
-        })))
+        setCourses(
+          docs.map((c: Record<string, unknown>) => ({
+            id: String(c.id),
+            name: (c.nombre as string) || (c.name as string) || (c.title as string) || 'Curso',
+            tipo:
+              (c.studyTypeLabel as string) || (c.course_type as string) || (c.tipo as string) || '',
+          }))
+        )
       }
 
       if (classroomsRes.ok) {
         const classroomsData = await classroomsRes.json()
         const docs = Array.isArray(classroomsData.data) ? classroomsData.data : []
-        setClassrooms(docs.map((a: Record<string, unknown>) => ({
-          id: String(a.id),
-          name: (a.nombre as string) || (a.name as string) || (a.code as string) || 'Aula',
-          campusId: String(a.sedeId || a.campusId || ''),
-          capacity: Number(a.capacidad || a.capacity || 0),
-        })))
+        setClassrooms(
+          docs.map((a: Record<string, unknown>) => ({
+            id: String(a.id),
+            name: (a.nombre as string) || (a.name as string) || (a.code as string) || 'Aula',
+            campusId: String(a.sedeId || a.campusId || ''),
+            capacity: Number(a.capacidad || a.capacity || 0),
+          }))
+        )
       }
 
       if (staffRes.ok) {
         const staffData = await staffRes.json()
         const docs = Array.isArray(staffData.data) ? staffData.data : []
-        setStaff(docs.map((person: Record<string, unknown>) => {
-          const campusesRaw = Array.isArray(person.campuses) ? person.campuses : []
-          return {
-            id: String(person.id),
-            name: (person.fullName as string) || (person.full_name as string) || `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim() || 'Docente',
-            campusIds: campusesRaw
-              .map((campus) => typeof campus === 'object' && campus !== null ? String((campus as { id?: unknown }).id ?? '') : String(campus))
-              .filter(Boolean),
-          }
-        }))
+        setStaff(
+          docs.map((person: Record<string, unknown>) => {
+            const campusesRaw = Array.isArray(person.campuses) ? person.campuses : []
+            return {
+              id: String(person.id),
+              name:
+                (person.fullName as string) ||
+                (person.full_name as string) ||
+                `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim() ||
+                'Docente',
+              campusIds: campusesRaw
+                .map((campus) =>
+                  typeof campus === 'object' && campus !== null
+                    ? String((campus as { id?: unknown }).id ?? '')
+                    : String(campus)
+                )
+                .filter(Boolean),
+            }
+          })
+        )
       }
-    } catch { /* graceful */ }
-    finally { setIsLoading(false) }
+    } catch {
+      /* graceful */
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
 
   // Fetch data
@@ -687,15 +816,23 @@ export default function ProgramacionPage() {
     void loadData()
   }, [loadData])
 
-  const filteredClassrooms = useMemo(() => (
-    draft.campusId ? classrooms.filter((classroom) => classroom.campusId === draft.campusId) : classrooms
-  ), [classrooms, draft.campusId])
+  const filteredClassrooms = useMemo(
+    () =>
+      draft.campusId
+        ? classrooms.filter((classroom) => classroom.campusId === draft.campusId)
+        : classrooms,
+    [classrooms, draft.campusId]
+  )
 
-  const filteredStaff = useMemo(() => (
-    draft.campusId
-      ? staff.filter((person) => person.campusIds.length === 0 || person.campusIds.includes(draft.campusId))
-      : staff
-  ), [staff, draft.campusId])
+  const filteredStaff = useMemo(
+    () =>
+      draft.campusId
+        ? staff.filter(
+            (person) => person.campusIds.length === 0 || person.campusIds.includes(draft.campusId)
+          )
+        : staff,
+    [staff, draft.campusId]
+  )
 
   const updateDraft = (patch: Partial<DraftConvocatoria>) => {
     setListMessage(null)
@@ -713,7 +850,9 @@ export default function ProgramacionPage() {
       ['fin', draft.endDate],
       ['hora inicio', draft.timeStart],
       ['hora fin', draft.timeEnd],
-    ].filter(([, value]) => !value).map(([label]) => label)
+    ]
+      .filter(([, value]) => !value)
+      .map(([label]) => label)
 
     if (missing.length > 0) {
       setListMessage(`Faltan campos: ${missing.join(', ')}.`)
@@ -735,11 +874,19 @@ export default function ProgramacionPage() {
         max_students: draft.maxStudents,
       })
       availabilityParams.append('schedule_days', draft.day)
-      const availabilityRes = await fetch(`/api/course-runs/availability?${availabilityParams.toString()}`, { cache: 'no-store' })
+      const availabilityRes = await fetch(
+        `/api/course-runs/availability?${availabilityParams.toString()}`,
+        { cache: 'no-store' }
+      )
       const availabilityData = await availabilityRes.json()
       const blockers = availabilityData?.availability?.blockers ?? []
       if (Array.isArray(blockers) && blockers.length > 0) {
-        setListMessage(blockers.map((blocker: { message?: string }) => blocker.message).filter(Boolean).join(' ') || 'La convocatoria tiene conflictos de planificación.')
+        setListMessage(
+          blockers
+            .map((blocker: { message?: string }) => blocker.message)
+            .filter(Boolean)
+            .join(' ') || 'La convocatoria tiene conflictos de planificación.'
+        )
         return
       }
 
@@ -750,7 +897,13 @@ export default function ProgramacionPage() {
           courseId: draft.courseId,
           fechaInicio: draft.startDate,
           fechaFin: draft.endDate,
-          horario: [{ day: draft.day, startTime: `${draft.timeStart}:00`.replace(/:00:00$/, ':00'), endTime: `${draft.timeEnd}:00`.replace(/:00:00$/, ':00') }],
+          horario: [
+            {
+              day: draft.day,
+              startTime: `${draft.timeStart}:00`.replace(/:00:00$/, ':00'),
+              endTime: `${draft.timeEnd}:00`.replace(/:00:00$/, ':00'),
+            },
+          ],
           estado: 'borrador',
           plazasTotales: Number(draft.maxStudents) || 1,
           precio: Number(draft.price) || 0,
@@ -770,7 +923,9 @@ export default function ProgramacionPage() {
         return
       }
       setDraft(EMPTY_DRAFT)
-      setListMessage('Convocatoria creada. Revisa la fila generada y completa publicación cuando corresponda.')
+      setListMessage(
+        'Convocatoria creada. Revisa la fila generada y completa publicación cuando corresponda.'
+      )
       await loadData()
     } catch (error) {
       setListMessage(error instanceof Error ? error.message : 'No se pudo crear la convocatoria.')
@@ -781,27 +936,54 @@ export default function ProgramacionPage() {
 
   // Filtered convocatorias
   const filtered = useMemo(() => {
-    if (sedeFilter === 'todas') return convocatorias
-    return convocatorias.filter((c) => c.sedeId === sedeFilter)
+    const operational = convocatorias.filter(
+      (c) => c.estado !== 'draft' && c.planningStatus !== 'draft'
+    )
+    if (sedeFilter === 'todas') return operational
+    return operational.filter((c) => c.sedeId === sedeFilter)
   }, [convocatorias, sedeFilter])
 
   // Navigation
   const navPrev = () => {
     if (view === 'anual') setYear((y) => y - 1)
     else if (view === 'mes') {
-      if (month === 0) { setMonth(11); setYear((y) => y - 1) }
-      else setMonth((m) => m - 1)
-    } else if (view === 'semana') setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() - 7); return n })
-    else setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() - 1); return n })
+      if (month === 0) {
+        setMonth(11)
+        setYear((y) => y - 1)
+      } else setMonth((m) => m - 1)
+    } else if (view === 'semana')
+      setSelectedDate((d) => {
+        const n = new Date(d)
+        n.setDate(n.getDate() - 7)
+        return n
+      })
+    else
+      setSelectedDate((d) => {
+        const n = new Date(d)
+        n.setDate(n.getDate() - 1)
+        return n
+      })
   }
 
   const navNext = () => {
     if (view === 'anual') setYear((y) => y + 1)
     else if (view === 'mes') {
-      if (month === 11) { setMonth(0); setYear((y) => y + 1) }
-      else setMonth((m) => m + 1)
-    } else if (view === 'semana') setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() + 7); return n })
-    else setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() + 1); return n })
+      if (month === 11) {
+        setMonth(0)
+        setYear((y) => y + 1)
+      } else setMonth((m) => m + 1)
+    } else if (view === 'semana')
+      setSelectedDate((d) => {
+        const n = new Date(d)
+        n.setDate(n.getDate() + 7)
+        return n
+      })
+    else
+      setSelectedDate((d) => {
+        const n = new Date(d)
+        n.setDate(n.getDate() + 1)
+        return n
+      })
   }
 
   const navLabel = () => {
@@ -812,7 +994,12 @@ export default function ProgramacionPage() {
       end.setDate(end.getDate() + 6)
       return `${selectedDate.getDate()} ${MONTHS[selectedDate.getMonth()]} — ${end.getDate()} ${MONTHS[end.getMonth()]} ${year}`
     }
-    return selectedDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    return selectedDate.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
   }
 
   const navToday = () => {
@@ -832,7 +1019,9 @@ export default function ProgramacionPage() {
 
   // Stats
   const totalConvs = filtered.length
-  const activas = filtered.filter((c) => c.estado === 'published' || c.estado === 'enrollment_open' || c.estado === 'in_progress').length
+  const activas = filtered.filter(
+    (c) => c.estado === 'published' || c.estado === 'enrollment_open' || c.estado === 'in_progress'
+  ).length
   const totalPlazas = filtered.reduce((s, c) => s + c.plazas, 0)
   const totalInscritos = filtered.reduce((s, c) => s + c.inscritos, 0)
 
@@ -877,7 +1066,11 @@ export default function ProgramacionPage() {
           { label: 'Convocatorias', value: totalConvs, icon: GraduationCap },
           { label: 'Activas', value: activas, icon: Calendar },
           { label: 'Plazas totales', value: totalPlazas, icon: Users },
-          { label: 'Ocupacion', value: totalPlazas > 0 ? `${Math.round((totalInscritos / totalPlazas) * 100)}%` : '—', icon: BarChart3 },
+          {
+            label: 'Ocupacion',
+            value: totalPlazas > 0 ? `${Math.round((totalInscritos / totalPlazas) * 100)}%` : '—',
+            icon: BarChart3,
+          },
         ].map(({ label, value, icon: Icon }) => (
           <Card key={label}>
             <CardContent className="p-3 flex items-center justify-between">
@@ -903,10 +1096,16 @@ export default function ProgramacionPage() {
 
           {/* Navigation */}
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={navPrev}><ChevronLeft className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="sm" onClick={navPrev}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
             <span className="text-sm font-medium min-w-[140px] text-center">{navLabel()}</span>
-            <Button variant="ghost" size="sm" onClick={navNext}><ChevronRight className="h-4 w-4" /></Button>
-            <Button variant="outline" size="sm" className="text-xs ml-1" onClick={navToday}>Hoy</Button>
+            <Button variant="ghost" size="sm" onClick={navNext}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="sm" className="text-xs ml-1" onClick={navToday}>
+              Hoy
+            </Button>
           </div>
 
           {/* Sede filter */}
@@ -949,15 +1148,31 @@ export default function ProgramacionPage() {
       )}
 
       {!isLoading && view === 'mes' && (
-        <MonthCalendar convocatorias={filtered} year={year} month={month} holidays={HOLIDAYS_2026} onConvClick={handleConvClick} />
+        <MonthCalendar
+          convocatorias={filtered}
+          year={year}
+          month={month}
+          holidays={HOLIDAYS_2026}
+          onConvClick={handleConvClick}
+        />
       )}
 
       {!isLoading && view === 'semana' && (
-        <WeekView convocatorias={filtered} weekStart={weekStart} holidays={HOLIDAYS_2026} onConvClick={handleConvClick} />
+        <WeekView
+          convocatorias={filtered}
+          weekStart={weekStart}
+          holidays={HOLIDAYS_2026}
+          onConvClick={handleConvClick}
+        />
       )}
 
       {!isLoading && view === 'dia' && (
-        <DayView convocatorias={filtered} date={selectedDate} holidays={HOLIDAYS_2026} onConvClick={handleConvClick} />
+        <DayView
+          convocatorias={filtered}
+          date={selectedDate}
+          holidays={HOLIDAYS_2026}
+          onConvClick={handleConvClick}
+        />
       )}
 
       {/* List View */}
@@ -969,7 +1184,8 @@ export default function ProgramacionPage() {
               Lista operativa de convocatorias
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Vista estructurada para planificación: curso, sede, aula, docente, fechas, horario, precio y plazas. La creación valida conflictos antes de guardar.
+              Vista estructurada para planificación: curso, sede, aula, docente, fechas, horario,
+              precio y plazas. La creación valida conflictos antes de guardar.
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -978,139 +1194,267 @@ export default function ProgramacionPage() {
                 {listMessage}
               </div>
             ) : null}
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1280px] text-sm">
+            <div className="rounded-xl border bg-muted/10 p-3">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+                <Plus className="h-4 w-4 text-primary" />
+                Nueva convocatoria
+              </div>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(18rem,2fr)_minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(10rem,1fr)_repeat(2,minmax(8rem,1fr))]">
+                <label className="grid gap-1 text-xs font-medium text-muted-foreground md:col-span-2 xl:col-span-1">
+                  Curso / ciclo
+                  <select
+                    value={draft.courseId}
+                    onChange={(event) => updateDraft({ courseId: event.target.value })}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                  >
+                    <option value="">Seleccionar curso/ciclo</option>
+                    {courses.map((course) => (
+                      <option key={course.id} value={course.id}>
+                        {course.name}
+                        {course.tipo ? ` · ${course.tipo}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                  Sede
+                  <select
+                    value={draft.campusId}
+                    onChange={(event) =>
+                      updateDraft({
+                        campusId: event.target.value,
+                        classroomId: '',
+                        instructorId: '',
+                      })
+                    }
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                  >
+                    <option value="">Sede</option>
+                    {campuses.map((campus) => (
+                      <option key={campus.id} value={campus.id}>
+                        {campus.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                  Aula
+                  <select
+                    value={draft.classroomId}
+                    onChange={(event) => {
+                      const room = filteredClassrooms.find((item) => item.id === event.target.value)
+                      updateDraft({
+                        classroomId: event.target.value,
+                        maxStudents: room?.capacity ? String(room.capacity) : draft.maxStudents,
+                      })
+                    }}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                  >
+                    <option value="">Aula</option>
+                    {filteredClassrooms.map((classroom) => (
+                      <option key={classroom.id} value={classroom.id}>
+                        {classroom.name} · {classroom.capacity}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                  Docente
+                  <select
+                    value={draft.instructorId}
+                    onChange={(event) => updateDraft({ instructorId: event.target.value })}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                  >
+                    <option value="">Docente</option>
+                    {filteredStaff.map((person) => (
+                      <option key={person.id} value={person.id}>
+                        {person.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                  Inicio
+                  <input
+                    type="date"
+                    value={draft.startDate}
+                    onChange={(event) => updateDraft({ startDate: event.target.value })}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                  Fin
+                  <input
+                    type="date"
+                    value={draft.endDate}
+                    onChange={(event) => updateDraft({ endDate: event.target.value })}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                  Día
+                  <select
+                    value={draft.day}
+                    onChange={(event) => updateDraft({ day: event.target.value })}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                  >
+                    {DAY_OPTIONS.map((day) => (
+                      <option key={day.value} value={day.value}>
+                        {day.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Inicio hora
+                    <input
+                      type="time"
+                      value={draft.timeStart}
+                      onChange={(event) => updateDraft({ timeStart: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Fin hora
+                    <input
+                      type="time"
+                      value={draft.timeEnd}
+                      onChange={(event) => updateDraft({ timeEnd: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    />
+                  </label>
+                </div>
+                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                  Precio
+                  <input
+                    type="number"
+                    value={draft.price}
+                    onChange={(event) => updateDraft({ price: event.target.value })}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-right text-xs"
+                    placeholder="€"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                  Plazas
+                  <input
+                    type="number"
+                    value={draft.maxStudents}
+                    onChange={(event) => updateDraft({ maxStudents: event.target.value })}
+                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-center text-xs"
+                  />
+                </label>
+                <div className="flex items-end md:col-span-2 xl:col-span-1">
+                  <Button
+                    size="sm"
+                    className="h-9 w-full"
+                    onClick={createDraftConvocatoria}
+                    disabled={isSavingDraft}
+                  >
+                    {isSavingDraft ? (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    ) : (
+                      <Plus className="mr-2 h-3 w-3" />
+                    )}
+                    Crear
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="hidden lg:block">
+              <table className="w-full table-fixed text-sm">
                 <thead>
                   <tr className="border-b bg-muted/30">
-                    <th className="text-left p-2 font-medium">Código</th>
-                    <th className="text-left p-2 font-medium min-w-[260px]">Curso / ciclo</th>
-                    <th className="text-left p-2 font-medium">Sede</th>
-                    <th className="text-left p-2 font-medium">Aula</th>
-                    <th className="text-left p-2 font-medium">Docente</th>
-                    <th className="text-left p-2 font-medium">Inicio</th>
-                    <th className="text-left p-2 font-medium">Fin</th>
-                    <th className="text-left p-2 font-medium">Día</th>
-                    <th className="text-left p-2 font-medium">Horario</th>
-                    <th className="text-right p-2 font-medium">Precio</th>
-                    <th className="text-center p-2 font-medium">Plazas</th>
-                    <th className="text-center p-2 font-medium">Estado</th>
-                    <th className="text-right p-2 font-medium">Acciones</th>
+                    <th className="w-[28%] p-2 text-left font-medium">Convocatoria</th>
+                    <th className="w-[15%] p-2 text-left font-medium">Ubicación</th>
+                    <th className="w-[14%] p-2 text-left font-medium">Docente</th>
+                    <th className="w-[17%] p-2 text-left font-medium">Fechas y horario</th>
+                    <th className="w-[8%] p-2 text-right font-medium">Precio</th>
+                    <th className="w-[7%] p-2 text-center font-medium">Plazas</th>
+                    <th className="w-[6%] p-2 text-center font-medium">Estado</th>
+                    <th className="w-[5%] p-2 text-right font-medium">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b bg-muted/10 align-top">
-                    <td className="p-2 text-xs font-semibold text-muted-foreground">Nueva</td>
-                    <td className="p-2">
-                      <select
-                        value={draft.courseId}
-                        onChange={(event) => updateDraft({ courseId: event.target.value })}
-                        className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                      >
-                        <option value="">Seleccionar curso/ciclo</option>
-                        {courses.map((course) => (
-                          <option key={course.id} value={course.id}>{course.name}{course.tipo ? ` · ${course.tipo}` : ''}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="p-2">
-                      <select
-                        value={draft.campusId}
-                        onChange={(event) => updateDraft({ campusId: event.target.value, classroomId: '', instructorId: '' })}
-                        className="h-9 w-36 rounded-md border border-input bg-background px-2 text-xs"
-                      >
-                        <option value="">Sede</option>
-                        {campuses.map((campus) => (
-                          <option key={campus.id} value={campus.id}>{campus.name}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="p-2">
-                      <select
-                        value={draft.classroomId}
-                        onChange={(event) => {
-                          const room = filteredClassrooms.find((item) => item.id === event.target.value)
-                          updateDraft({ classroomId: event.target.value, maxStudents: room?.capacity ? String(room.capacity) : draft.maxStudents })
-                        }}
-                        className="h-9 w-36 rounded-md border border-input bg-background px-2 text-xs"
-                      >
-                        <option value="">Aula</option>
-                        {filteredClassrooms.map((classroom) => (
-                          <option key={classroom.id} value={classroom.id}>{classroom.name} · {classroom.capacity}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="p-2">
-                      <select
-                        value={draft.instructorId}
-                        onChange={(event) => updateDraft({ instructorId: event.target.value })}
-                        className="h-9 w-40 rounded-md border border-input bg-background px-2 text-xs"
-                      >
-                        <option value="">Docente</option>
-                        {filteredStaff.map((person) => (
-                          <option key={person.id} value={person.id}>{person.name}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="p-2"><input type="date" value={draft.startDate} onChange={(event) => updateDraft({ startDate: event.target.value })} className="h-9 w-32 rounded-md border border-input bg-background px-2 text-xs" /></td>
-                    <td className="p-2"><input type="date" value={draft.endDate} onChange={(event) => updateDraft({ endDate: event.target.value })} className="h-9 w-32 rounded-md border border-input bg-background px-2 text-xs" /></td>
-                    <td className="p-2">
-                      <select value={draft.day} onChange={(event) => updateDraft({ day: event.target.value })} className="h-9 w-28 rounded-md border border-input bg-background px-2 text-xs">
-                        {DAY_OPTIONS.map((day) => <option key={day.value} value={day.value}>{day.label}</option>)}
-                      </select>
-                    </td>
-                    <td className="p-2">
-                      <div className="flex gap-1">
-                        <input type="time" value={draft.timeStart} onChange={(event) => updateDraft({ timeStart: event.target.value })} className="h-9 w-24 rounded-md border border-input bg-background px-2 text-xs" />
-                        <input type="time" value={draft.timeEnd} onChange={(event) => updateDraft({ timeEnd: event.target.value })} className="h-9 w-24 rounded-md border border-input bg-background px-2 text-xs" />
-                      </div>
-                    </td>
-                    <td className="p-2"><input type="number" value={draft.price} onChange={(event) => updateDraft({ price: event.target.value })} className="h-9 w-24 rounded-md border border-input bg-background px-2 text-right text-xs" placeholder="€" /></td>
-                    <td className="p-2"><input type="number" value={draft.maxStudents} onChange={(event) => updateDraft({ maxStudents: event.target.value })} className="h-9 w-20 rounded-md border border-input bg-background px-2 text-center text-xs" /></td>
-                    <td className="p-2 text-center"><Badge variant="secondary">Borrador</Badge></td>
-                    <td className="p-2 text-right">
-                      <Button size="sm" onClick={createDraftConvocatoria} disabled={isSavingDraft}>
-                        {isSavingDraft ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Plus className="mr-2 h-3 w-3" />}
-                        Crear
-                      </Button>
-                    </td>
-                  </tr>
                   {filtered.length === 0 ? (
-                    <tr><td colSpan={13} className="text-center py-8 text-muted-foreground">No hay convocatorias</td></tr>
+                    <tr>
+                      <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                        No hay convocatorias publicadas
+                      </td>
+                    </tr>
                   ) : (
                     filtered.map((conv) => {
-                      const ocupacion = conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
-                      const dateStart = conv.fechaInicio ? new Date(conv.fechaInicio).toLocaleDateString('es-ES') : '—'
-                      const dateEnd = conv.fechaFin ? new Date(conv.fechaFin).toLocaleDateString('es-ES') : '—'
+                      const ocupacion =
+                        conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
+                      const dateStart = conv.fechaInicio
+                        ? new Date(conv.fechaInicio).toLocaleDateString('es-ES')
+                        : '—'
+                      const dateEnd = conv.fechaFin
+                        ? new Date(conv.fechaFin).toLocaleDateString('es-ES')
+                        : '—'
                       return (
                         <tr key={conv.id} className="border-b hover:bg-muted/20 transition-colors">
-                          <td className="p-2 font-mono text-xs text-muted-foreground">{conv.codigo || conv.id}</td>
-                          <td className="p-2">
-                            <p className="font-medium">{conv.curso}</p>
+                          <td className="min-w-0 p-2">
+                            <p className="truncate font-medium">{conv.curso}</p>
+                            <p className="truncate font-mono text-xs text-muted-foreground">
+                              {conv.codigo || conv.id}
+                            </p>
                             <p className="text-xs text-muted-foreground">{conv.tipo || 'Curso'}</p>
                           </td>
-                          <td className="p-2 text-muted-foreground"><span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{conv.sede}</span></td>
-                          <td className="p-2 text-muted-foreground">{conv.aula}</td>
-                          <td className="p-2 text-muted-foreground">{conv.profesor}</td>
-                          <td className="p-2 whitespace-nowrap">{dateStart}</td>
-                          <td className="p-2 whitespace-nowrap">{dateEnd}</td>
-                          <td className="p-2 text-muted-foreground">{conv.dias.map((day) => DAY_OPTIONS.find((item) => item.value === day)?.label ?? day).join(', ') || '—'}</td>
-                          <td className="p-2 text-muted-foreground"><span className="flex items-center gap-1"><Clock className="h-3 w-3" />{conv.horaInicio}–{conv.horaFin}</span></td>
-                          <td className="p-2 text-right">{conv.precio ? `${conv.precio.toLocaleString('es-ES')} €` : 'Consultar'}</td>
+                          <td className="min-w-0 p-2 text-muted-foreground">
+                            <span className="flex min-w-0 items-center gap-1">
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{conv.sede}</span>
+                            </span>
+                            <p className="truncate text-xs">{conv.aula}</p>
+                          </td>
+                          <td className="min-w-0 p-2 text-muted-foreground">
+                            <p className="truncate">{conv.profesor}</p>
+                          </td>
+                          <td className="p-2 text-muted-foreground">
+                            <p className="whitespace-nowrap text-foreground">
+                              {dateStart} - {dateEnd}
+                            </p>
+                            <p className="line-clamp-1 text-xs">
+                              {conv.dias
+                                .map(
+                                  (day) =>
+                                    DAY_OPTIONS.find((item) => item.value === day)?.label ?? day
+                                )
+                                .join(', ') || '—'}
+                            </p>
+                            <span className="flex items-center gap-1 text-xs">
+                              <Clock className="h-3 w-3" />
+                              {conv.horaInicio}–{conv.horaFin}
+                            </span>
+                          </td>
+                          <td className="p-2 text-right">
+                            {conv.precio ? `${conv.precio.toLocaleString('es-ES')} €` : 'Consultar'}
+                          </td>
                           <td className="p-2 text-center">
                             <span className="font-medium">{conv.inscritos}</span>
                             <span className="text-muted-foreground">/{conv.plazas}</span>
                             <div className="mt-1 h-1 w-full rounded-full bg-muted">
-                              <div className={`h-1 rounded-full ${ocupacion >= 90 ? 'bg-primary' : ocupacion >= 70 ? 'bg-orange-500' : 'bg-green-500'}`} style={{ width: `${ocupacion}%` }} />
+                              <div
+                                className={`h-1 rounded-full ${ocupacion >= 90 ? 'bg-primary' : ocupacion >= 70 ? 'bg-orange-500' : 'bg-green-500'}`}
+                                style={{ width: `${ocupacion}%` }}
+                              />
                             </div>
                           </td>
                           <td className="p-2 text-center">
-                            <Badge className={`text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}>
+                            <Badge
+                              className={`text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
+                            >
                               {STATUS_LABELS[conv.estado] || conv.estado}
                             </Badge>
-                            {conv.planningStatus ? <p className="mt-1 text-[10px] text-muted-foreground">{conv.planningStatus}</p> : null}
                           </td>
                           <td className="p-2 text-right">
-                            <Button variant="outline" size="sm" onClick={() => handleConvClick(conv.id)}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleConvClick(conv.id)}
+                            >
                               Editar
                             </Button>
                           </td>
@@ -1120,6 +1464,71 @@ export default function ProgramacionPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+            <div className="space-y-3 lg:hidden">
+              {filtered.length === 0 ? (
+                <div className="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
+                  No hay convocatorias publicadas
+                </div>
+              ) : (
+                filtered.map((conv) => {
+                  const ocupacion =
+                    conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
+                  const dateStart = conv.fechaInicio
+                    ? new Date(conv.fechaInicio).toLocaleDateString('es-ES')
+                    : '—'
+                  const dateEnd = conv.fechaFin
+                    ? new Date(conv.fechaFin).toLocaleDateString('es-ES')
+                    : '—'
+                  return (
+                    <div key={conv.id} className="rounded-xl border bg-background p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold">{conv.curso}</p>
+                          <p className="truncate font-mono text-xs text-muted-foreground">
+                            {conv.codigo || conv.id}
+                          </p>
+                        </div>
+                        <Badge
+                          className={`shrink-0 text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
+                        >
+                          {STATUS_LABELS[conv.estado] || conv.estado}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                        <span className="flex min-w-0 items-center gap-1">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          <span className="truncate">
+                            {conv.sede} · {conv.aula}
+                          </span>
+                        </span>
+                        <span className="truncate">Docente: {conv.profesor}</span>
+                        <span>
+                          {dateStart} - {dateEnd}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {conv.horaInicio}–{conv.horaFin}
+                        </span>
+                        <span>
+                          {conv.precio ? `${conv.precio.toLocaleString('es-ES')} €` : 'Consultar'}
+                        </span>
+                        <span>
+                          {conv.inscritos}/{conv.plazas} plazas ({ocupacion}%)
+                        </span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3 w-full"
+                        onClick={() => handleConvClick(conv.id)}
+                      >
+                        Editar
+                      </Button>
+                    </div>
+                  )
+                })
+              )}
             </div>
           </CardContent>
         </Card>
