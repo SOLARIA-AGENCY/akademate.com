@@ -4,6 +4,7 @@ import postgres from 'postgres'
 import { getPayload, type Payload, type SanitizedConfig } from 'payload'
 import configPromise from '@payload-config'
 import type { Staff } from '../../../src/payload-types'
+import { normalizeOptionalSpanishPhone, SPANISH_PHONE_ERROR } from '@/lib/phone'
 
 /**
  * Initialize Payload CMS instance.
@@ -581,6 +582,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const normalizedPhone = normalizeOptionalSpanishPhone(phone)
+    if (phone !== undefined && phone !== null && phone.trim() !== '' && !normalizedPhone) {
+      return NextResponse.json({ success: false, error: SPANISH_PHONE_ERROR }, { status: 400 })
+    }
+
     const payload = await initPayload()
 
     // Crear miembro del personal
@@ -596,7 +602,7 @@ export async function POST(request: NextRequest) {
         last_name: lastName,
         nif: normalizeNif(nif) ?? undefined,
         email: email || undefined,
-        phone: phone ?? undefined,
+        phone: normalizedPhone ?? undefined,
         position,
         contract_type: contractType ?? 'full_time',
         employment_status: employmentStatus ?? 'active',
@@ -791,7 +797,13 @@ export async function PUT(request: NextRequest) {
     if (body.lastName) updateData.last_name = body.lastName
     if (body.nif !== undefined) updateData.nif = normalizeNif(body.nif)
     if (body.email) updateData.email = body.email
-    if (body.phone !== undefined) updateData.phone = body.phone
+    if (body.phone !== undefined) {
+      const normalizedPhone = normalizeOptionalSpanishPhone(body.phone)
+      if (body.phone !== null && String(body.phone).trim() !== '' && !normalizedPhone) {
+        return NextResponse.json({ success: false, error: SPANISH_PHONE_ERROR }, { status: 400 })
+      }
+      updateData.phone = normalizedPhone ?? null
+    }
     if (body.position) updateData.position = body.position
     if (body.contractType) updateData.contract_type = body.contractType
     if (body.employmentStatus) updateData.employment_status = body.employmentStatus

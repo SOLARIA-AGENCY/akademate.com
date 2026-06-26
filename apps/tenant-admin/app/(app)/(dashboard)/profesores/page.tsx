@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 import { Button } from '@payload-config/components/ui/button'
@@ -16,12 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { Download, Plus, Printer, User, Loader2, Upload } from 'lucide-react'
+import { Download, Plus, Printer, User, Loader2 } from 'lucide-react'
 import { PersonalListItem } from '@payload-config/components/ui/PersonalListItem'
 import { StaffCard } from '@payload-config/components/ui/StaffCard'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@/hooks/useViewPreference'
-import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
+import { downloadCsv, type ExportColumn } from '@/app/lib/dashboard-export'
 
 interface Certification {
   title: string
@@ -54,6 +54,17 @@ interface StaffMember {
     nombre: string
   }[]
   courseRunsCount?: number
+  courseRuns?: {
+    id: number
+    codigo?: string | null
+    status?: string | null
+    startDate?: string | null
+    endDate?: string | null
+    courseName?: string | null
+    courseSlug?: string | null
+    campusName?: string | null
+    campusCity?: string | null
+  }[]
   isActive: boolean
   inactiveReason?: string | null
   inactiveAt?: string | null
@@ -68,20 +79,12 @@ interface TeacherExpanded extends StaffMember {
   specialties: string[]
   certifications: Certification[]
   courseRunsCount: number
+  courseRuns: NonNullable<StaffMember['courseRuns']>
 }
 
 interface StaffApiResponse {
   success: boolean
   data: StaffMember[]
-}
-
-interface StaffImportResult {
-  success?: boolean
-  mode?: string
-  importBatch?: string
-  summary?: Record<string, number>
-  applied?: number
-  error?: string
 }
 
 const reviewLabels: Record<string, string> = {
@@ -90,9 +93,124 @@ const reviewLabels: Record<string, string> = {
   retired_candidate: 'Baja detectada',
 }
 
+const contractLabels: Record<string, string> = {
+  general_regime: 'Régimen General',
+  full_time: 'Tiempo completo',
+  part_time: 'Tiempo parcial',
+  freelance: 'Autónomo',
+}
+
+const employmentLabels: Record<string, string> = {
+  active: 'Activo',
+  temporary_leave: 'Baja temporal',
+  inactive: 'Inactivo',
+}
+
+function htmlEscape(value: unknown) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function formatDate(value?: string | null) {
+  if (!value) return ''
+  return new Date(value).toLocaleDateString('es-ES')
+}
+
+function formatCourseRuns(teacher: TeacherExpanded) {
+  if (!teacher.courseRuns.length) return `${teacher.courseRunsCount ?? 0} cursos`
+  return teacher.courseRuns
+    .map((run) => {
+      const code = run.codigo ? ` (${run.codigo})` : ''
+      const campus = run.campusName ? ` - ${run.campusName}` : ''
+      const dates = run.startDate
+        ? ` - ${formatDate(run.startDate)}${run.endDate ? ` a ${formatDate(run.endDate)}` : ''}`
+        : ''
+      return `${run.courseName ?? 'Curso sin nombre'}${code}${campus}${dates}`
+    })
+    .join(' | ')
+}
+
+function printTeachersList(teachers: TeacherExpanded[]) {
+  const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=1200,height=800')
+  if (!printWindow) {
+    window.print()
+    return
+  }
+
+  const today = new Date().toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+  const body = teachers
+    .map((teacher) => {
+      const areas = (teacher.qualifiedAreas ?? []).map((area) => area.nombre).join(', ')
+      const campuses = (teacher.assignedCampuses ?? []).map((campus) => campus.name).join(', ')
+      const courses = formatCourseRuns(teacher)
+      const contract = contractLabels[teacher.contractType] ?? teacher.contractType
+      const status = employmentLabels[teacher.employmentStatus] ?? teacher.employmentStatus
+      return `<article class="teacher">
+        <img class="photo" src="${htmlEscape(teacher.photo || '/placeholder-avatar.svg')}" alt="" />
+        <div class="main">
+          <div class="line one">
+            <strong>${htmlEscape(teacher.fullName)}</strong>
+            <span>${htmlEscape(status)}</span>
+            <span>${htmlEscape(contract)}</span>
+            <span>${htmlEscape(campuses || 'Sin sede')}</span>
+          </div>
+          <div class="line two">
+            <span>${htmlEscape(teacher.email || 'Sin mail')}</span>
+            <span>${htmlEscape(teacher.phone || 'Sin teléfono')}</span>
+            <span>${htmlEscape(areas || 'Sin área habilitada')}</span>
+            <span>${htmlEscape(courses)}</span>
+          </div>
+        </div>
+      </article>`
+    })
+    .join('')
+
+  printWindow.document.write(`<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Listado de profesores</title>
+  <style>
+    body { font-family: Inter, Arial, sans-serif; color: #111827; margin: 24px; }
+    header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f2014b; padding-bottom: 14px; margin-bottom: 18px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-size: 28px; font-weight: 900; letter-spacing: -0.04em; }
+    .dot { width: 28px; height: 28px; border-radius: 999px; background: #f2014b; display: inline-block; }
+    h1 { font-size: 20px; margin: 0; }
+    .meta { color: #6b7280; font-size: 11px; margin-top: 4px; }
+    .teacher { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; break-inside: avoid; }
+    .photo { width: 44px; height: 44px; border-radius: 999px; object-fit: cover; background: #f3f4f6; }
+    .line { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .line span { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: #4b5563; font-size: 10px; }
+    .line strong { font-size: 12px; min-width: 160px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+    .one span { border-radius: 999px; background: #fdf2f8; color: #9f1239; padding: 2px 7px; font-weight: 700; }
+    .two { margin-top: 4px; }
+    @page { margin: 14mm; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Listado de profesores</h1>
+      <div class="meta">${today} · ${teachers.length} profesores visibles</div>
+    </div>
+    <div class="brand"><span class="dot"></span><span>cep formación</span></div>
+  </header>
+  ${body}
+  <script>window.print(); window.close();</script>
+</body>
+</html>`)
+  printWindow.document.close()
+}
+
 export default function ProfesoresPage() {
   const router = useRouter()
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // View preference
   const [view, setView] = useViewPreference('profesores', 'list')
@@ -101,9 +219,6 @@ export default function ProfesoresPage() {
   const [teachersExpanded, setTeachersExpanded] = useState<TeacherExpanded[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [importing, setImporting] = useState(false)
-  const [selectedImportFile, setSelectedImportFile] = useState<File | null>(null)
-  const [importResult, setImportResult] = useState<StaffImportResult | null>(null)
 
   // Filtros
   const [searchTerm, setSearchTerm] = useState('')
@@ -145,6 +260,7 @@ export default function ProfesoresPage() {
           specialties: [], // No specialties in current schema
           certifications: [],
           qualifiedAreas: staff.qualifiedAreas ?? [],
+          courseRuns: staff.courseRuns ?? [],
           courseRunsCount: staff.courseRunsCount ?? 0,
         }))
 
@@ -172,39 +288,6 @@ export default function ProfesoresPage() {
 
   const handleAdd = () => {
     router.push('/dashboard/profesores/nuevo')
-  }
-
-  async function runImport(apply: boolean) {
-    if (!selectedImportFile) {
-      fileInputRef.current?.click()
-      return
-    }
-
-    try {
-      setImporting(true)
-      setImportResult(null)
-      const body = new FormData()
-      body.append('file', selectedImportFile)
-      const response = await fetch(`/api/staff/import${apply ? '?apply=true' : ''}`, {
-        method: 'POST',
-        body,
-      })
-      const result = (await response.json().catch(() => ({}))) as StaffImportResult
-      if (!response.ok || result.success === false) {
-        throw new Error(result.error || 'No se pudo procesar el Excel')
-      }
-      setImportResult(result)
-      if (apply) {
-        window.location.reload()
-      }
-    } catch (err) {
-      setImportResult({
-        success: false,
-        error: err instanceof Error ? err.message : 'No se pudo importar el Excel',
-      })
-    } finally {
-      setImporting(false)
-    }
   }
 
   const handleViewTeacher = (teacherId: number) => {
@@ -264,7 +347,15 @@ export default function ProfesoresPage() {
     { header: 'Nombre', getValue: (teacher) => teacher.fullName },
     { header: 'Email', getValue: (teacher) => teacher.email ?? 'Sin mail' },
     { header: 'Telefono', getValue: (teacher) => teacher.phone ?? 'Sin telefono' },
-    { header: 'Estado', getValue: (teacher) => (teacher.active ? 'Activo' : 'Inactivo') },
+    {
+      header: 'Estado',
+      getValue: (teacher) => employmentLabels[teacher.employmentStatus] ?? teacher.employmentStatus,
+    },
+    {
+      header: 'Contrato',
+      getValue: (teacher) => contractLabels[teacher.contractType] ?? teacher.contractType,
+    },
+    { header: 'Motivo baja', getValue: (teacher) => teacher.inactiveReason ?? '' },
     {
       header: 'Areas',
       getValue: (teacher) => (teacher.qualifiedAreas ?? []).map((area) => area.nombre).join(', '),
@@ -275,9 +366,10 @@ export default function ProfesoresPage() {
         (teacher.assignedCampuses ?? []).map((campus) => campus.name).join(', '),
     },
     { header: 'Cursos', getValue: (teacher) => teacher.courseRunsCount ?? 0 },
+    { header: 'Detalle cursos', getValue: formatCourseRuns },
   ]
 
-  const handlePrint = () => printTable('Profesores', exportColumns, filteredTeachers)
+  const handlePrint = () => printTeachersList(filteredTeachers)
   const handleCsv = () =>
     downloadCsv(
       `profesores-${new Date().toISOString().slice(0, 10)}.csv`,
@@ -325,45 +417,10 @@ export default function ProfesoresPage() {
       title="Profesores"
       description="Gestión del equipo docente, áreas habilitadas y estado operativo."
       actions={
-        <div className="flex flex-wrap items-center gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls"
-            className="hidden"
-            onChange={(event) => setSelectedImportFile(event.target.files?.[0] ?? null)}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            disabled={importing}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Upload className="h-4 w-4" />
-            {selectedImportFile ? selectedImportFile.name : 'Excel personal'}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={importing || !selectedImportFile}
-            onClick={() => void runImport(false)}
-          >
-            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            Auditar Excel
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={importing || !selectedImportFile}
-            onClick={() => void runImport(true)}
-          >
-            Aplicar Excel
-          </Button>
-          <Button onClick={handleAdd} data-oid="p6j7z6w">
-            <Plus className="h-4 w-4" data-oid="f-mq7s4" />
-            Nuevo Profesor
-          </Button>
-        </div>
+        <Button onClick={handleAdd} data-oid="p6j7z6w">
+          <Plus className="h-4 w-4" data-oid="f-mq7s4" />
+          Nuevo Profesor
+        </Button>
       }
       stats={stats}
       toolbar={
@@ -448,40 +505,6 @@ export default function ProfesoresPage() {
         />
       }
     >
-      {importResult ? (
-        <Card
-          className={
-            importResult.success === false
-              ? 'border-destructive/30 bg-destructive/5'
-              : 'border-emerald-200 bg-emerald-50'
-          }
-        >
-          <CardContent className="pt-6 text-sm">
-            {importResult.success === false ? (
-              <p className="font-medium text-destructive">{importResult.error}</p>
-            ) : (
-              <div className="space-y-2 text-emerald-950">
-                <p className="font-semibold">
-                  Excel procesado en modo{' '}
-                  {importResult.mode === 'apply' ? 'aplicación' : 'auditoría'}.
-                </p>
-                <p className="text-xs">Lote: {importResult.importBatch}</p>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(importResult.summary ?? {}).map(([key, value]) => (
-                    <span
-                      key={key}
-                      className="rounded-full bg-white px-3 py-1 text-xs font-semibold shadow-sm"
-                    >
-                      {key}: {value}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ) : null}
-
       {view === 'grid' ? (
         <div
           className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"

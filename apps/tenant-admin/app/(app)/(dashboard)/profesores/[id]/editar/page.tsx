@@ -26,6 +26,7 @@ import {
   Upload,
   User,
 } from 'lucide-react'
+import { formatSpanishPhoneInput } from '@/lib/phone'
 
 interface Campus {
   id: number
@@ -216,6 +217,10 @@ export default function EditProfesorPage() {
     (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }))
     }
+
+  const handlePhoneBlur = () => {
+    setFormData((prev) => ({ ...prev, phone: formatSpanishPhoneInput(prev.phone) }))
+  }
 
   const handleSelectChange = (field: string) => (value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -489,7 +494,15 @@ export default function EditProfesorPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Teléfono</Label>
-                <Input id="phone" value={formData.phone} onChange={handleInputChange('phone')} />
+                <Input
+                  id="phone"
+                  type="tel"
+                  inputMode="tel"
+                  value={formData.phone}
+                  onChange={handleInputChange('phone')}
+                  onBlur={handlePhoneBlur}
+                  placeholder="+34 922 123 456"
+                />
               </div>
             </div>
 

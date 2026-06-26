@@ -1,6 +1,7 @@
 import type { CollectionConfig, FieldAccess } from 'payload'
 import { canEditStaff, canManageStaff } from './access'
 import { trackStaffCreator, validateTeachingAreas } from './hooks'
+import { normalizeSpanishPhone, SPANISH_PHONE_ERROR } from '@/lib/phone'
 
 /**
  * Type definitions for Staff collection
@@ -327,15 +328,21 @@ export const Staff: CollectionConfig = {
       name: 'phone',
       type: 'text',
       admin: {
-        description: 'Phone number (Spanish format: +34 XXX XXX XXX)',
+        description: 'Phone number (Spanish fixed or mobile)',
         placeholder: '+34 912 345 678',
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value }) => {
+            if (typeof value !== 'string' || value.trim() === '') return value
+            return normalizeSpanishPhone(value) ?? value
+          },
+        ],
       },
       validate: (val: unknown): true | string => {
         if (!val) return true // Optional
         if (typeof val !== 'string') return 'Phone must be a string'
-        if (!/^\+34\s\d{3}\s\d{3}\s\d{3}$/.test(val)) {
-          return 'Phone must be in format: +34 XXX XXX XXX'
-        }
+        if (!normalizeSpanishPhone(val)) return SPANISH_PHONE_ERROR
         return true
       },
       // PII Protection: Hide from public API

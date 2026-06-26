@@ -91,22 +91,28 @@ describe('/api/staff qualified areas', () => {
       },
     ])
 
-    const response = await GET(new NextRequest('http://localhost/api/staff?type=profesor&status=active&qualifiedArea=7'))
+    const response = await GET(
+      new NextRequest('http://localhost/api/staff?type=profesor&status=active&qualifiedArea=7')
+    )
     const json = await response.json()
 
     expect(response.status).toBe(200)
     expect(json.data).toHaveLength(1)
-    expect(json.data[0].qualifiedAreas).toEqual([{ id: 7, codigo: 'SAN', nombre: 'Sanitaria y Clínica' }])
+    expect(json.data[0].qualifiedAreas).toEqual([
+      { id: 7, codigo: 'SAN', nombre: 'Sanitaria y Clínica' },
+    ])
     expect(sqlMock.unsafe).toHaveBeenCalledWith(
       expect.stringContaining("sr3.path = 'qualified_areas'"),
-      expect.arrayContaining(['active', '7']),
+      expect.arrayContaining(['active', '7'])
     )
   })
 
   it('rejects invalid qualified area filters', async () => {
     const { GET } = await loadRoute()
 
-    const response = await GET(new NextRequest('http://localhost/api/staff?type=profesor&qualifiedArea=abc'))
+    const response = await GET(
+      new NextRequest('http://localhost/api/staff?type=profesor&qualifiedArea=abc')
+    )
     const json = await response.json()
 
     expect(response.status).toBe(400)
@@ -132,13 +138,15 @@ describe('/api/staff qualified areas', () => {
 
     expect(response.status).toBe(200)
     expect(json.success).toBe(true)
-    expect(payloadMock.update).toHaveBeenCalledWith(expect.objectContaining({
-      collection: 'staff',
-      id: 44,
-      data: expect.objectContaining({
-        qualified_areas: [7, 9],
-      }),
-    }))
+    expect(payloadMock.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        id: 44,
+        data: expect.objectContaining({
+          qualified_areas: [7, 9],
+        }),
+      })
+    )
   })
 
   it('persists qualifiedAreas when creating staff', async () => {
@@ -163,12 +171,90 @@ describe('/api/staff qualified areas', () => {
 
     expect(response.status).toBe(200)
     expect(json.success).toBe(true)
-    expect(payloadMock.create).toHaveBeenCalledWith(expect.objectContaining({
-      collection: 'staff',
-      data: expect.objectContaining({
-        qualified_areas: [7, 9],
+    expect(payloadMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          qualified_areas: [7, 9],
+        }),
+      })
+    )
+  })
+
+  it('normalizes fixed Spanish phone numbers when creating staff', async () => {
+    const { POST } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff', {
+      method: 'POST',
+      body: JSON.stringify({
+        staffType: 'profesor',
+        firstName: 'Docente',
+        lastName: 'Telefono',
+        email: 'docente@example.com',
+        phone: '922219257',
+        position: 'Docente',
+        hireDate: '2026-06-01',
+        assignedCampuses: [1],
+        qualifiedAreas: [7],
       }),
-    }))
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await POST(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          phone: '+34 922 219 257',
+        }),
+      })
+    )
+  })
+
+  it('normalizes mobile Spanish phone numbers when updating staff', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        phone: '+34 677 615 684',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          phone: '+34 677 615 684',
+        }),
+      })
+    )
+  })
+
+  it('rejects invalid Spanish phone numbers with a clear message', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        phone: '555555555',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(json.error).toMatch(/teléfono fijo o móvil español válido/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
   })
 
   it('rejects creating a teacher without qualified areas', async () => {
@@ -236,11 +322,13 @@ describe('/api/staff qualified areas', () => {
 
     expect(response.status).toBe(200)
     expect(json.success).toBe(true)
-    expect(payloadMock.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        staff_type: 'administrativo',
-        qualified_areas: [],
-      }),
-    }))
+    expect(payloadMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          staff_type: 'administrativo',
+          qualified_areas: [],
+        }),
+      })
+    )
   })
 })
