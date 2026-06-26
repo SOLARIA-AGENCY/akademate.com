@@ -689,6 +689,7 @@ export default function ProgramacionPage() {
   const [classrooms, setClassrooms] = useState<ClassroomOption[]>([])
   const [staff, setStaff] = useState<StaffOption[]>([])
   const [draft, setDraft] = useState<DraftConvocatoria>(EMPTY_DRAFT)
+  const [showDraftCreator, setShowDraftCreator] = useState(false)
   const [listMessage, setListMessage] = useState<string | null>(null)
   const [isSavingDraft, setIsSavingDraft] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -923,6 +924,7 @@ export default function ProgramacionPage() {
         return
       }
       setDraft(EMPTY_DRAFT)
+      setShowDraftCreator(false)
       setListMessage(
         'Convocatoria creada. Revisa la fila generada y completa publicación cuando corresponda.'
       )
@@ -936,9 +938,7 @@ export default function ProgramacionPage() {
 
   // Filtered convocatorias
   const filtered = useMemo(() => {
-    const operational = convocatorias.filter(
-      (c) => c.estado !== 'draft' && c.planningStatus !== 'draft'
-    )
+    const operational = convocatorias.filter((c) => c.estado !== 'draft')
     if (sedeFilter === 'todas') return operational
     return operational.filter((c) => c.sedeId === sedeFilter)
   }, [convocatorias, sedeFilter])
@@ -1194,173 +1194,202 @@ export default function ProgramacionPage() {
                 {listMessage}
               </div>
             ) : null}
-            <div className="rounded-xl border bg-muted/10 p-3">
-              <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
-                <Plus className="h-4 w-4 text-primary" />
-                Nueva convocatoria
-              </div>
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(18rem,2fr)_minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(10rem,1fr)_repeat(2,minmax(8rem,1fr))]">
-                <label className="grid gap-1 text-xs font-medium text-muted-foreground md:col-span-2 xl:col-span-1">
-                  Curso / ciclo
-                  <select
-                    value={draft.courseId}
-                    onChange={(event) => updateDraft({ courseId: event.target.value })}
-                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                  >
-                    <option value="">Seleccionar curso/ciclo</option>
-                    {courses.map((course) => (
-                      <option key={course.id} value={course.id}>
-                        {course.name}
-                        {course.tipo ? ` · ${course.tipo}` : ''}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                  Sede
-                  <select
-                    value={draft.campusId}
-                    onChange={(event) =>
-                      updateDraft({
-                        campusId: event.target.value,
-                        classroomId: '',
-                        instructorId: '',
-                      })
-                    }
-                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                  >
-                    <option value="">Sede</option>
-                    {campuses.map((campus) => (
-                      <option key={campus.id} value={campus.id}>
-                        {campus.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                  Aula
-                  <select
-                    value={draft.classroomId}
-                    onChange={(event) => {
-                      const room = filteredClassrooms.find((item) => item.id === event.target.value)
-                      updateDraft({
-                        classroomId: event.target.value,
-                        maxStudents: room?.capacity ? String(room.capacity) : draft.maxStudents,
-                      })
-                    }}
-                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                  >
-                    <option value="">Aula</option>
-                    {filteredClassrooms.map((classroom) => (
-                      <option key={classroom.id} value={classroom.id}>
-                        {classroom.name} · {classroom.capacity}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                  Docente
-                  <select
-                    value={draft.instructorId}
-                    onChange={(event) => updateDraft({ instructorId: event.target.value })}
-                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                  >
-                    <option value="">Docente</option>
-                    {filteredStaff.map((person) => (
-                      <option key={person.id} value={person.id}>
-                        {person.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                  Inicio
-                  <input
-                    type="date"
-                    value={draft.startDate}
-                    onChange={(event) => updateDraft({ startDate: event.target.value })}
-                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                  />
-                </label>
-                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                  Fin
-                  <input
-                    type="date"
-                    value={draft.endDate}
-                    onChange={(event) => updateDraft({ endDate: event.target.value })}
-                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                  />
-                </label>
-                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                  Día
-                  <select
-                    value={draft.day}
-                    onChange={(event) => updateDraft({ day: event.target.value })}
-                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                  >
-                    {DAY_OPTIONS.map((day) => (
-                      <option key={day.value} value={day.value}>
-                        {day.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                    Inicio hora
-                    <input
-                      type="time"
-                      value={draft.timeStart}
-                      onChange={(event) => updateDraft({ timeStart: event.target.value })}
-                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                    />
-                  </label>
-                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                    Fin hora
-                    <input
-                      type="time"
-                      value={draft.timeEnd}
-                      onChange={(event) => updateDraft({ timeEnd: event.target.value })}
-                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
-                    />
-                  </label>
-                </div>
-                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                  Precio
-                  <input
-                    type="number"
-                    value={draft.price}
-                    onChange={(event) => updateDraft({ price: event.target.value })}
-                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-right text-xs"
-                    placeholder="€"
-                  />
-                </label>
-                <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                  Plazas
-                  <input
-                    type="number"
-                    value={draft.maxStudents}
-                    onChange={(event) => updateDraft({ maxStudents: event.target.value })}
-                    className="h-9 w-full rounded-md border border-input bg-background px-2 text-center text-xs"
-                  />
-                </label>
-                <div className="flex items-end md:col-span-2 xl:col-span-1">
+            {!showDraftCreator ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full justify-center sm:w-auto"
+                onClick={() => setShowDraftCreator(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Crear convocatoria
+              </Button>
+            ) : (
+              <div className="rounded-xl border bg-muted/10 p-3">
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <Plus className="h-4 w-4 text-primary" />
+                    Nueva convocatoria
+                  </div>
                   <Button
+                    type="button"
+                    variant="ghost"
                     size="sm"
-                    className="h-9 w-full"
-                    onClick={createDraftConvocatoria}
-                    disabled={isSavingDraft}
+                    onClick={() => {
+                      setShowDraftCreator(false)
+                      setDraft(EMPTY_DRAFT)
+                      setListMessage(null)
+                    }}
                   >
-                    {isSavingDraft ? (
-                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                    ) : (
-                      <Plus className="mr-2 h-3 w-3" />
-                    )}
-                    Crear
+                    Cancelar
                   </Button>
                 </div>
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(18rem,2fr)_minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(10rem,1fr)_repeat(2,minmax(8rem,1fr))]">
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground md:col-span-2 xl:col-span-1">
+                    Curso / ciclo
+                    <select
+                      value={draft.courseId}
+                      onChange={(event) => updateDraft({ courseId: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    >
+                      <option value="">Seleccionar curso/ciclo</option>
+                      {courses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.name}
+                          {course.tipo ? ` · ${course.tipo}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Sede
+                    <select
+                      value={draft.campusId}
+                      onChange={(event) =>
+                        updateDraft({
+                          campusId: event.target.value,
+                          classroomId: '',
+                          instructorId: '',
+                        })
+                      }
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    >
+                      <option value="">Sede</option>
+                      {campuses.map((campus) => (
+                        <option key={campus.id} value={campus.id}>
+                          {campus.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Aula
+                    <select
+                      value={draft.classroomId}
+                      onChange={(event) => {
+                        const room = filteredClassrooms.find(
+                          (item) => item.id === event.target.value
+                        )
+                        updateDraft({
+                          classroomId: event.target.value,
+                          maxStudents: room?.capacity ? String(room.capacity) : draft.maxStudents,
+                        })
+                      }}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    >
+                      <option value="">Aula</option>
+                      {filteredClassrooms.map((classroom) => (
+                        <option key={classroom.id} value={classroom.id}>
+                          {classroom.name} · {classroom.capacity}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Docente
+                    <select
+                      value={draft.instructorId}
+                      onChange={(event) => updateDraft({ instructorId: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    >
+                      <option value="">Docente</option>
+                      {filteredStaff.map((person) => (
+                        <option key={person.id} value={person.id}>
+                          {person.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Inicio
+                    <input
+                      type="date"
+                      value={draft.startDate}
+                      onChange={(event) => updateDraft({ startDate: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Fin
+                    <input
+                      type="date"
+                      value={draft.endDate}
+                      onChange={(event) => updateDraft({ endDate: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Día
+                    <select
+                      value={draft.day}
+                      onChange={(event) => updateDraft({ day: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    >
+                      {DAY_OPTIONS.map((day) => (
+                        <option key={day.value} value={day.value}>
+                          {day.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                      Inicio hora
+                      <input
+                        type="time"
+                        value={draft.timeStart}
+                        onChange={(event) => updateDraft({ timeStart: event.target.value })}
+                        className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      />
+                    </label>
+                    <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                      Fin hora
+                      <input
+                        type="time"
+                        value={draft.timeEnd}
+                        onChange={(event) => updateDraft({ timeEnd: event.target.value })}
+                        className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      />
+                    </label>
+                  </div>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Precio
+                    <input
+                      type="number"
+                      value={draft.price}
+                      onChange={(event) => updateDraft({ price: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-right text-xs"
+                      placeholder="€"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Plazas
+                    <input
+                      type="number"
+                      value={draft.maxStudents}
+                      onChange={(event) => updateDraft({ maxStudents: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-center text-xs"
+                    />
+                  </label>
+                  <div className="flex items-end md:col-span-2 xl:col-span-1">
+                    <Button
+                      size="sm"
+                      className="h-9 w-full"
+                      onClick={createDraftConvocatoria}
+                      disabled={isSavingDraft}
+                    >
+                      {isSavingDraft ? (
+                        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                      ) : (
+                        <Plus className="mr-2 h-3 w-3" />
+                      )}
+                      Crear
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="hidden lg:block">
               <table className="w-full table-fixed text-sm">

@@ -114,8 +114,18 @@ interface ProgramItem {
   meta: Array<{ label: string; value: string }>
 }
 
-type MediaRef = number | string | { url?: string | null; filename?: string | null; alt?: string | null } | null | undefined
-type RelationRef = number | string | { id?: string | number | null; nombre?: string | null; name?: string | null } | null | undefined
+type MediaRef =
+  | number
+  | string
+  | { url?: string | null; filename?: string | null; alt?: string | null }
+  | null
+  | undefined
+type RelationRef =
+  | number
+  | string
+  | { id?: string | number | null; nombre?: string | null; name?: string | null }
+  | null
+  | undefined
 
 // ---------------------------------------------------------------------------
 // Form state
@@ -342,7 +352,9 @@ function InlineProfesorForm({
   const handleCreate = async () => {
     if (!firstName.trim() || !lastName.trim()) return
     if (!qualifiedAreaId) {
-      setFormError('Selecciona primero un curso con área formativa para asignar el área habilitada del docente.')
+      setFormError(
+        'Selecciona primero un curso con área formativa para asignar el área habilitada del docente.'
+      )
       return
     }
     setSaving(true)
@@ -391,7 +403,8 @@ function InlineProfesorForm({
       </p>
       {qualifiedAreaId ? (
         <p className="text-xs text-muted-foreground">
-          Se creará habilitado para el área {qualifiedAreaName ? <strong>{qualifiedAreaName}</strong> : `#${qualifiedAreaId}`}.
+          Se creará habilitado para el área{' '}
+          {qualifiedAreaName ? <strong>{qualifiedAreaName}</strong> : `#${qualifiedAreaId}`}.
         </p>
       ) : (
         <p className="text-xs text-amber-700">
@@ -524,7 +537,10 @@ export default function NuevaConvocatoriaPage() {
       meta: [
         { label: 'Tipo', value: 'Ciclo' },
         { label: 'Modalidad', value: c.duration?.modality || 'Por definir' },
-        { label: 'Horas', value: c.duration?.totalHours ? `${c.duration.totalHours} h` : 'Por definir' },
+        {
+          label: 'Horas',
+          value: c.duration?.totalHours ? `${c.duration.totalHours} h` : 'Por definir',
+        },
         { label: 'Plazas', value: c.capacity ? `${c.capacity}` : 'Por definir' },
       ],
     })),
@@ -547,7 +563,8 @@ export default function NuevaConvocatoriaPage() {
     ? courses.find((course) => String(course.id) === form.course.replace(/^course:/, ''))
     : null
   const selectedCourseAreaId = relationId(selectedCourse?.area_formativa)
-  const selectedCourseAreaName = relationName(selectedCourse?.area_formativa) ?? selectedCourse?.area ?? null
+  const selectedCourseAreaName =
+    relationName(selectedCourse?.area_formativa) ?? selectedCourse?.area ?? null
 
   // -------------------------------------------------------------------------
   // Fetch data on mount
@@ -623,7 +640,9 @@ export default function NuevaConvocatoriaPage() {
 
     let mounted = true
     setClassroomsLoading(true)
-    fetch(`/api/aulas?campus_id=${encodeURIComponent(form.campus)}&active=true`, { cache: 'no-store' })
+    fetch(`/api/aulas?campus_id=${encodeURIComponent(form.campus)}&active=true`, {
+      cache: 'no-store',
+    })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar aulas'))))
       .then((data) => {
         if (!mounted) return
@@ -650,7 +669,7 @@ export default function NuevaConvocatoriaPage() {
       form.end_date &&
       form.schedule_days.length &&
       form.schedule_time_start &&
-      form.schedule_time_end,
+      form.schedule_time_end
     )
 
     if (!hasPlanningSlot) {
@@ -668,8 +687,14 @@ export default function NuevaConvocatoriaPage() {
     params.set('start_date', form.start_date)
     params.set('end_date', form.end_date)
     params.set('shift', form.shift)
-    params.set('schedule_time_start', normalizeTimeForApi(form.schedule_time_start) ?? form.schedule_time_start)
-    params.set('schedule_time_end', normalizeTimeForApi(form.schedule_time_end) ?? form.schedule_time_end)
+    params.set(
+      'schedule_time_start',
+      normalizeTimeForApi(form.schedule_time_start) ?? form.schedule_time_start
+    )
+    params.set(
+      'schedule_time_end',
+      normalizeTimeForApi(form.schedule_time_end) ?? form.schedule_time_end
+    )
     params.set('max_students', String(form.max_students || 0))
     params.set('training_type', selectedType === 'cycle' ? 'cycle' : 'private')
     for (const day of form.schedule_days) params.append('schedule_days', day)
@@ -677,7 +702,9 @@ export default function NuevaConvocatoriaPage() {
     let mounted = true
     setAvailabilityLoading(true)
     fetch(`/api/course-runs/availability?${params.toString()}`, { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudo validar disponibilidad'))))
+      .then((r) =>
+        r.ok ? r.json() : Promise.reject(new Error('No se pudo validar disponibilidad'))
+      )
       .then((data) => {
         if (mounted) setAvailability(data.availability ?? null)
       })
@@ -685,11 +712,14 @@ export default function NuevaConvocatoriaPage() {
         console.error('Error validating new course run availability:', err)
         if (mounted) {
           setAvailability({
-            blockers: [{
-              type: 'availability_error',
-              severity: 'blocker',
-              message: 'No se pudo validar disponibilidad. Revisa conexión y vuelve a intentarlo.',
-            }],
+            blockers: [
+              {
+                type: 'availability_error',
+                severity: 'blocker',
+                message:
+                  'No se pudo validar disponibilidad. Revisa conexión y vuelve a intentarlo.',
+              },
+            ],
             warnings: [],
           })
         }
@@ -763,7 +793,7 @@ export default function NuevaConvocatoriaPage() {
     const selectedId = form.course.replace(/^course:/, '').replace(/^cycle:/, '')
 
     // Auto-generate codigo from campus slug + year
-    const selectedCampus = campuses.find(c => String(c.id) === form.campus)
+    const selectedCampus = campuses.find((c) => String(c.id) === form.campus)
     const campusCode = selectedCampus?.slug?.substring(0, 3).toUpperCase() || 'GEN'
     const year = new Date().getFullYear()
     const autoCode = form.codigo || `${campusCode}-${year}-${String(Date.now()).slice(-3)}`
@@ -789,7 +819,8 @@ export default function NuevaConvocatoriaPage() {
     if (form.classroom) body.classroom = form.classroom
     if (form.instructor) body.instructor = form.instructor
     if (form.schedule_days.length > 0) body.schedule_days = form.schedule_days
-    if (form.schedule_time_start) body.schedule_time_start = normalizeTimeForApi(form.schedule_time_start)
+    if (form.schedule_time_start)
+      body.schedule_time_start = normalizeTimeForApi(form.schedule_time_start)
     if (form.schedule_time_end) body.schedule_time_end = normalizeTimeForApi(form.schedule_time_end)
     if (form.shift) body.shift = form.shift
     if (form.price_override !== '') body.price_override = Number(form.price_override)
@@ -823,7 +854,9 @@ export default function NuevaConvocatoriaPage() {
     form.course !== '' &&
     form.campus !== '' &&
     (!form.start_date || !form.end_date || new Date(form.end_date) >= new Date(form.start_date)) &&
-    (!form.schedule_time_start || !form.schedule_time_end || form.schedule_time_end > form.schedule_time_start) &&
+    (!form.schedule_time_start ||
+      !form.schedule_time_end ||
+      form.schedule_time_end > form.schedule_time_start) &&
     form.max_students > 0 &&
     !availabilityLoading &&
     (availability?.blockers.length ?? 0) === 0 &&
@@ -917,7 +950,11 @@ export default function NuevaConvocatoriaPage() {
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
           <Label htmlFor="program">Ciclo / Curso *</Label>
-          <Select value={form.course} onValueChange={(v) => updateField('course', v)} disabled={Boolean(lockedProgramValue)}>
+          <Select
+            value={form.course}
+            onValueChange={(v) => updateField('course', v)}
+            disabled={Boolean(lockedProgramValue)}
+          >
             <SelectTrigger id="program" className={lockedProgramValue ? 'bg-muted/60' : undefined}>
               <SelectValue placeholder="Seleccionar ciclo o curso" />
             </SelectTrigger>
@@ -986,18 +1023,33 @@ export default function NuevaConvocatoriaPage() {
                 <div className="space-y-4 p-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="outline">{selectedProgram.type === 'cycle' ? 'Ciclo' : 'Curso'}</Badge>
-                      {lockedProgramValue && <Badge className="bg-[#f2014b] text-white">Preseleccionado</Badge>}
+                      <Badge variant="outline">
+                        {selectedProgram.type === 'cycle' ? 'Ciclo' : 'Curso'}
+                      </Badge>
+                      {lockedProgramValue && (
+                        <Badge
+                          variant="outline"
+                          className="border-primary/30 bg-primary/10 text-primary"
+                        >
+                          Preseleccionado
+                        </Badge>
+                      )}
                     </div>
-                    <h3 className="mt-2 text-lg font-semibold leading-tight">{selectedProgram.label}</h3>
+                    <h3 className="mt-2 text-lg font-semibold leading-tight">
+                      {selectedProgram.label}
+                    </h3>
                     {selectedProgram.description && (
-                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{selectedProgram.description}</p>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                        {selectedProgram.description}
+                      </p>
                     )}
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                     {selectedProgram.meta.map((item) => (
                       <div key={item.label} className="rounded-lg border bg-background px-3 py-2">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          {item.label}
+                        </p>
                         <p className="mt-1 truncate text-sm font-medium">{item.value}</p>
                       </div>
                     ))}
@@ -1015,7 +1067,10 @@ export default function NuevaConvocatoriaPage() {
           <Label htmlFor="campus">Sede *</Label>
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <Select value={form.campus} onValueChange={(v) => setForm((prev) => ({ ...prev, campus: v, classroom: '' }))}>
+              <Select
+                value={form.campus}
+                onValueChange={(v) => setForm((prev) => ({ ...prev, campus: v, classroom: '' }))}
+              >
                 <SelectTrigger id="campus">
                   <SelectValue placeholder="Seleccionar sede" />
                 </SelectTrigger>
@@ -1044,11 +1099,7 @@ export default function NuevaConvocatoriaPage() {
               onClick={() => setShowNewSede((v) => !v)}
               title="Crear nueva sede"
             >
-              {showNewSede ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
+              {showNewSede ? <ChevronUp className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             </Button>
           </div>
           {showNewSede && <InlineSedeForm onCreated={handleSedeCreated} compact />}
@@ -1084,7 +1135,9 @@ export default function NuevaConvocatoriaPage() {
               </SelectTrigger>
               <SelectContent>
                 {SHIFT_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -1100,9 +1153,13 @@ export default function NuevaConvocatoriaPage() {
                 <Button
                   key={day.value}
                   type="button"
-                  variant={selected ? 'default' : 'outline'}
+                  variant="outline"
                   size="sm"
-                  className={selected ? 'bg-[#f2014b] text-white hover:bg-[#c9013f]' : ''}
+                  className={
+                    selected
+                      ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary'
+                      : ''
+                  }
                   onClick={() => toggleScheduleDay(day.value)}
                 >
                   {day.label}
@@ -1147,7 +1204,9 @@ export default function NuevaConvocatoriaPage() {
             disabled={!form.campus || classroomsLoading}
           >
             <SelectTrigger id="classroom">
-              <SelectValue placeholder={classroomsLoading ? 'Cargando aulas...' : 'Seleccionar aula'} />
+              <SelectValue
+                placeholder={classroomsLoading ? 'Cargando aulas...' : 'Seleccionar aula'}
+              />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="_none">Sin aula asignada</SelectItem>
@@ -1157,15 +1216,24 @@ export default function NuevaConvocatoriaPage() {
                   <SelectItem key={classroom.id} value={String(classroom.id)}>
                     <span className="flex items-center gap-2">
                       <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                      {classroom.name ?? classroom.nombre ?? classroom.code ?? `Aula ${classroom.id}`}
-                      {capacity ? <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{capacity} plazas</Badge> : null}
+                      {classroom.name ??
+                        classroom.nombre ??
+                        classroom.code ??
+                        `Aula ${classroom.id}`}
+                      {capacity ? (
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                          {capacity} plazas
+                        </Badge>
+                      ) : null}
                     </span>
                   </SelectItem>
                 )
               })}
             </SelectContent>
           </Select>
-          {!form.campus && <p className="text-xs text-muted-foreground">Selecciona una sede para ver sus aulas.</p>}
+          {!form.campus && (
+            <p className="text-xs text-muted-foreground">Selecciona una sede para ver sus aulas.</p>
+          )}
         </div>
 
         {/* ----------------------------------------------------------------- */}
@@ -1185,13 +1253,18 @@ export default function NuevaConvocatoriaPage() {
                 <SelectContent>
                   <SelectItem value="_none">Sin profesor asignado</SelectItem>
                   {staff.map((s) => {
-                    const unavailable = availability?.unavailableInstructorIds?.some((id) => String(id) === String(s.id)) ?? false
+                    const unavailable =
+                      availability?.unavailableInstructorIds?.some(
+                        (id) => String(id) === String(s.id)
+                      ) ?? false
                     return (
                       <SelectItem key={s.id} value={String(s.id)} disabled={unavailable}>
                         <span className="flex items-center gap-2">
                           <User className="h-3.5 w-3.5 text-muted-foreground" />
                           <span>{staffDisplayName(s)}</span>
-                          {unavailable && <span className="text-xs text-red-600">No disponible</span>}
+                          {unavailable && (
+                            <span className="text-xs text-red-600">No disponible</span>
+                          )}
                         </span>
                       </SelectItem>
                     )
@@ -1207,11 +1280,7 @@ export default function NuevaConvocatoriaPage() {
               onClick={() => setShowNewProfesor((v) => !v)}
               title="Crear nuevo profesor"
             >
-              {showNewProfesor ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
+              {showNewProfesor ? <ChevronUp className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             </Button>
           </div>
           {showNewProfesor && (
@@ -1223,11 +1292,12 @@ export default function NuevaConvocatoriaPage() {
             />
           )}
           <p className="text-xs text-muted-foreground">
-            Los docentes se filtran por el área habilitada del curso cuando existe. Los ocupados en la misma franja aparecen deshabilitados.
+            Los docentes se filtran por el área habilitada del curso cuando existe. Los ocupados en
+            la misma franja aparecen deshabilitados.
           </p>
         </div>
 
-        {(availabilityLoading || availability?.blockers.length || availability?.warnings.length) ? (
+        {availabilityLoading || availability?.blockers.length || availability?.warnings.length ? (
           <div className="space-y-2 rounded-xl border bg-muted/30 p-4">
             <div className="flex items-center gap-2 text-sm font-medium">
               {availabilityLoading ? (
@@ -1241,18 +1311,32 @@ export default function NuevaConvocatoriaPage() {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
-              {form.schedule_days.length ? `${form.schedule_days.length} día(s)` : 'Sin días'} · {form.schedule_time_start || '--:--'} - {form.schedule_time_end || '--:--'}
+              {form.schedule_days.length
+                ? `${form.schedule_days.length} día(s)`
+                : 'Sin días'} · {form.schedule_time_start || '--:--'} -{' '}
+              {form.schedule_time_end || '--:--'}
             </div>
-            {availabilityLoading && <p className="text-sm text-muted-foreground">Validando aula, horario y docente...</p>}
+            {availabilityLoading && (
+              <p className="text-sm text-muted-foreground">Validando aula, horario y docente...</p>
+            )}
             {availability?.blockers.map((item, index) => (
-              <p key={`blocker-${index}`} className="text-sm text-red-700">{item.message}</p>
+              <p key={`blocker-${index}`} className="text-sm text-red-700">
+                {item.message}
+              </p>
             ))}
             {availability?.warnings.map((item, index) => (
-              <p key={`warning-${index}`} className="text-sm text-amber-700">{item.message}</p>
+              <p key={`warning-${index}`} className="text-sm text-amber-700">
+                {item.message}
+              </p>
             ))}
-            {!availabilityLoading && availability && availability.blockers.length === 0 && availability.warnings.length === 0 && (
-              <p className="text-sm text-emerald-700">No se detectan conflictos para la configuración actual.</p>
-            )}
+            {!availabilityLoading &&
+              availability &&
+              availability.blockers.length === 0 &&
+              availability.warnings.length === 0 && (
+                <p className="text-sm text-emerald-700">
+                  No se detectan conflictos para la configuración actual.
+                </p>
+              )}
           </div>
         ) : null}
 
@@ -1322,7 +1406,10 @@ export default function NuevaConvocatoriaPage() {
 
         <div className="space-y-2">
           <Label htmlFor="enrollment_status">Estado de matrícula</Label>
-          <Select value={form.enrollment_status} onValueChange={(v) => updateField('enrollment_status', v)}>
+          <Select
+            value={form.enrollment_status}
+            onValueChange={(v) => updateField('enrollment_status', v)}
+          >
             <SelectTrigger id="enrollment_status">
               <SelectValue />
             </SelectTrigger>
