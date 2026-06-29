@@ -210,6 +210,24 @@ function normalizeInstructorNames(primary: unknown, instructors: unknown): strin
   return Array.from(names.values());
 }
 
+function normalizeInstructorRefs(primary: unknown, instructors: unknown): Array<{ id: string; name: string }> {
+  const refs = new Map<string, { id: string; name: string }>();
+  const pushInstructor = (instructor: unknown) => {
+    if (!instructor || typeof instructor !== 'object' || !('id' in instructor)) return;
+    const id = String((instructor as { id?: string | number }).id ?? '');
+    if (!id) return;
+    const name = normalizeInstructorName(instructor);
+    if (name !== 'Sin asignar') refs.set(id, { id, name });
+  };
+
+  pushInstructor(primary);
+  if (Array.isArray(instructors)) {
+    for (const instructor of instructors) pushInstructor(instructor);
+  }
+
+  return Array.from(refs.values());
+}
+
 const DAY_LABELS: Record<string, string> = {
   monday: 'LUN',
   tuesday: 'MAR',
@@ -643,6 +661,7 @@ export async function GET(request: NextRequest) {
           priceSource: conv.price_source,
           profesor: normalizeInstructorName(conv.instructor),
           profesores: normalizeInstructorNames(conv.instructor, conv.instructors),
+          profesorRefs: normalizeInstructorRefs(conv.instructor, conv.instructors),
           responsable: normalizeInstructorName(conv.administrative_owner),
           modalidad: conv.modality ?? 'presencial',
           campaignId: campaign ? String(campaign.id) : null,

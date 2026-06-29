@@ -34,6 +34,7 @@ interface Convocatoria {
   id: string
   codigo: string
   curso: string
+  cursoId: string
   tipo: string
   sede: string
   sedeId: string
@@ -50,6 +51,7 @@ interface Convocatoria {
   matricula?: number
   profesor: string
   profesores: string[]
+  profesorRefs: Array<{ id: string; name: string }>
   estado: string
   planningStatus?: string
   color: string
@@ -227,6 +229,55 @@ function formatEnrollmentFee(value?: number | null): string {
 
 function formatTeacherNames(conv: Pick<Convocatoria, 'profesor' | 'profesores'>): string {
   return conv.profesores.length > 0 ? conv.profesores.join(', ') : conv.profesor
+}
+
+function formatLongDate(value?: string | null): string {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return new Intl.DateTimeFormat('es-ES', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })
+    .format(date)
+    .replace(' de ', ' ')
+    .replace(' de ', ' ')
+}
+
+function formatDayLabels(days: string[]): string {
+  const labels = days
+    .map((day) => DAY_OPTIONS.find((item) => item.value === day)?.label ?? day)
+    .filter(Boolean)
+  return labels.length > 0 ? labels.join(', ') : '—'
+}
+
+function formatScheduleRange(start?: string, end?: string): string {
+  if (!start || !end) return '—'
+  return `${start} - ${end}`
+}
+
+function formatSessionHours(start?: string, end?: string): string {
+  if (!start || !end) return '—'
+  const [startHour = '0', startMinute = '0'] = start.split(':')
+  const [endHour = '0', endMinute = '0'] = end.split(':')
+  const startTotal = Number(startHour) * 60 + Number(startMinute)
+  const endTotal = Number(endHour) * 60 + Number(endMinute)
+  const diff = endTotal - startTotal
+  if (!Number.isFinite(diff) || diff <= 0) return '—'
+  const hours = diff / 60
+  return Number.isInteger(hours)
+    ? `${hours} h`
+    : `${hours.toLocaleString('es-ES', { maximumFractionDigits: 1 })} h`
+}
+
+function escapeHtml(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
 // ---------------------------------------------------------------------------
@@ -731,6 +782,7 @@ export default function ProgramacionPage() {
             id: String(c.id),
             codigo: (c.codigo as string) || '',
             curso: (c.cursoNombre as string) || 'Curso',
+            cursoId: String(c.cursoId || ''),
             tipo: (c.cursoTipo as string) || '',
             sede: (c.campusNombre as string) || 'Sin sede',
             sedeId: String(c.campusId || ''),
@@ -756,6 +808,11 @@ export default function ProgramacionPage() {
             profesor: (c.profesor as string) || 'Sin docente',
             profesores: Array.isArray(c.profesores)
               ? (c.profesores as string[]).filter(Boolean)
+              : [],
+            profesorRefs: Array.isArray(c.profesorRefs)
+              ? (c.profesorRefs as Array<{ id?: string | number; name?: string }>)
+                  .map((person) => ({ id: String(person.id || ''), name: String(person.name || '') }))
+                  .filter((person) => person.id && person.name)
               : [],
             estado: (c.estado as string) || 'draft',
             planningStatus: (c.planningStatus as string) || '',
@@ -971,16 +1028,11 @@ export default function ProgramacionPage() {
     { header: 'Sede', getValue: (conv) => conv.sede },
     { header: 'Aula', getValue: (conv) => conv.aula },
     { header: 'Docentes', getValue: (conv) => formatTeacherNames(conv) },
-    { header: 'Inicio', getValue: (conv) => conv.fechaInicio },
-    { header: 'Fin', getValue: (conv) => conv.fechaFin },
-    {
-      header: 'Dias',
-      getValue: (conv) =>
-        conv.dias
-          .map((day) => DAY_OPTIONS.find((item) => item.value === day)?.label ?? day)
-          .join(', '),
-    },
-    { header: 'Horario', getValue: (conv) => `${conv.horaInicio}-${conv.horaFin}` },
+    { header: 'Inicio', getValue: (conv) => formatLongDate(conv.fechaInicio) },
+    { header: 'Fin', getValue: (conv) => formatLongDate(conv.fechaFin) },
+    { header: 'Dia', getValue: (conv) => formatDayLabels(conv.dias) },
+    { header: 'Horario', getValue: (conv) => formatScheduleRange(conv.horaInicio, conv.horaFin) },
+    { header: 'Horas', getValue: (conv) => formatSessionHours(conv.horaInicio, conv.horaFin) },
     { header: 'Matricula', getValue: (conv) => formatEnrollmentFee(conv.matricula) },
     { header: 'Precio', getValue: (conv) => formatMoney(conv.precio) },
     { header: 'Plazas', getValue: (conv) => conv.plazas },
@@ -988,7 +1040,89 @@ export default function ProgramacionPage() {
     { header: 'Estado', getValue: (conv) => STATUS_LABELS[conv.estado] || conv.estado },
   ]
 
-  const handlePrintList = () => printTable('Convocatorias', exportColumns, filtered)
+  const handlePrintList = () => {
+    const generatedAt = new Intl.DateTimeFormat('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date())
+    const headers = exportColumns.map((column) => `<th>${escapeHtml(column.header)}</th>`).join('')
+    const rows = filtered
+      .map(
+        (conv) =>
+          `<tr>${exportColumns
+            .map((column) => `<td>${escapeHtml(column.getValue(conv) || '—')}</td>`)
+            .join('')}</tr>`
+      )
+      .join('')
+    const iframe = document.createElement('iframe')
+    iframe.style.position = 'fixed'
+    iframe.style.right = '0'
+    iframe.style.bottom = '0'
+    iframe.style.width = '0'
+    iframe.style.height = '0'
+    iframe.style.border = '0'
+    document.body.appendChild(iframe)
+    const doc = iframe.contentWindow?.document
+    if (!doc) {
+      document.body.removeChild(iframe)
+      printTable('Programación Académica', exportColumns, filtered)
+      return
+    }
+
+    doc.open()
+    doc.write(`<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Programación Académica</title>
+  <style>
+    @page { size: landscape; margin: 12mm; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #111827; font-family: Inter, Arial, sans-serif; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 3px solid #f2014b; padding-bottom: 14px; margin-bottom: 18px; }
+    img { width: 168px; height: auto; object-fit: contain; }
+    h1 { margin: 0; font-size: 24px; line-height: 1.1; letter-spacing: -0.03em; }
+    .meta { margin-top: 6px; color: #64748b; font-size: 11px; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9px; }
+    th { background: #fff1f4; color: #111827; border-bottom: 1px solid #f2014b; padding: 7px 5px; text-align: left; font-size: 8px; text-transform: uppercase; letter-spacing: .04em; }
+    td { border-bottom: 1px solid #e5e7eb; padding: 6px 5px; vertical-align: top; overflow-wrap: anywhere; }
+    th:nth-child(2), td:nth-child(2) { width: 18%; font-weight: 800; }
+    th:nth-child(6), td:nth-child(6) { width: 12%; }
+    th:nth-child(7), td:nth-child(7), th:nth-child(8), td:nth-child(8) { width: 8%; }
+    th:nth-child(9), td:nth-child(9), th:nth-child(10), td:nth-child(10), th:nth-child(11), td:nth-child(11), th:nth-child(12), td:nth-child(12) { width: 6%; }
+    footer { margin-top: 16px; border-top: 1px solid #e5e7eb; padding-top: 10px; color: #64748b; font-size: 10px; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Programación Académica</h1>
+      <div class="meta">${escapeHtml(filtered.length)} convocatorias visibles · Generado el ${escapeHtml(generatedAt)}</div>
+    </div>
+    <img src="/logos/cep-formacion-logo-rectangular.png" alt="CEP Formación" />
+  </header>
+  <table>
+    <thead><tr>${headers}</tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <footer>
+    <span>CEP Formación · Listado operativo de convocatorias</span>
+    <span>Documento interno generado desde Akademate</span>
+  </footer>
+  <script>
+    window.onload = function () {
+      window.focus();
+      window.print();
+      setTimeout(function () { window.parent.document.body.removeChild(window.frameElement); }, 500);
+    };
+  </script>
+</body>
+</html>`)
+    doc.close()
+  }
 
   const handleDownloadCsv = () =>
     downloadCsv(
@@ -1454,25 +1588,29 @@ export default function ProgramacionPage() {
             )}
 
             <div className="hidden lg:block">
-              <table className="w-full table-fixed text-xs xl:text-sm">
+              <table className="w-full table-fixed text-[11px] xl:text-xs">
                 <thead>
                   <tr className="border-b bg-muted/30">
-                    <th className="w-[17%] p-2 text-left font-medium">Convocatoria</th>
-                    <th className="w-[9%] p-2 text-left font-medium">Sede</th>
-                    <th className="w-[8%] p-2 text-left font-medium">Aula</th>
-                    <th className="w-[12%] p-2 text-left font-medium">Docentes</th>
-                    <th className="w-[14%] p-2 text-left font-medium">Fechas y horario</th>
-                    <th className="w-[7%] p-2 text-right font-medium">Matrícula</th>
-                    <th className="w-[7%] p-2 text-right font-medium">Precio</th>
-                    <th className="w-[6%] p-2 text-center font-medium">Plazas</th>
-                    <th className="w-[12%] p-2 text-center font-medium">Estado</th>
-                    <th className="w-[8%] p-2 text-right font-medium">Acción</th>
+                    <th className="w-[15%] p-2 text-left font-medium">Convocatoria</th>
+                    <th className="w-[8%] p-2 text-left font-medium">Sede</th>
+                    <th className="w-[7%] p-2 text-left font-medium">Aula</th>
+                    <th className="w-[11%] p-2 text-left font-medium">Docentes</th>
+                    <th className="w-[8%] p-2 text-left font-medium">Inicio</th>
+                    <th className="w-[8%] p-2 text-left font-medium">Fin</th>
+                    <th className="w-[7%] p-2 text-left font-medium">Día</th>
+                    <th className="w-[7%] p-2 text-left font-medium">Horario</th>
+                    <th className="w-[5%] p-2 text-left font-medium">Horas</th>
+                    <th className="w-[6%] p-2 text-right font-medium">Matrícula</th>
+                    <th className="w-[6%] p-2 text-right font-medium">Precio</th>
+                    <th className="w-[5%] p-2 text-center font-medium">Plazas</th>
+                    <th className="w-[9%] p-2 text-center font-medium">Estado</th>
+                    <th className="w-[5%] p-2 text-right font-medium">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={10} className="py-8 text-center text-muted-foreground">
+                      <td colSpan={14} className="py-8 text-center text-muted-foreground">
                         No hay convocatorias publicadas
                       </td>
                     </tr>
@@ -1481,50 +1619,77 @@ export default function ProgramacionPage() {
                       const ocupacion =
                         conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
                       const dateStart = conv.fechaInicio
-                        ? new Date(conv.fechaInicio).toLocaleDateString('es-ES')
+                        ? formatLongDate(conv.fechaInicio)
                         : '—'
                       const dateEnd = conv.fechaFin
-                        ? new Date(conv.fechaFin).toLocaleDateString('es-ES')
+                        ? formatLongDate(conv.fechaFin)
                         : '—'
+                      const dayLabels = formatDayLabels(conv.dias)
+                      const scheduleRange = formatScheduleRange(conv.horaInicio, conv.horaFin)
+                      const sessionHours = formatSessionHours(conv.horaInicio, conv.horaFin)
                       return (
                         <tr key={conv.id} className="border-b hover:bg-muted/20 transition-colors">
                           <td className="min-w-0 p-2">
-                            <p className="truncate font-medium">{conv.curso}</p>
+                            <button
+                              type="button"
+                              onClick={() => handleConvClick(conv.id)}
+                              className="block w-full text-left font-semibold leading-tight text-foreground underline-offset-2 hover:text-primary hover:underline"
+                            >
+                              {conv.curso}
+                            </button>
                             <p className="truncate font-mono text-xs text-muted-foreground">
                               {conv.codigo || conv.id}
                             </p>
                             <p className="text-xs text-muted-foreground">{conv.tipo || 'Curso'}</p>
                           </td>
                           <td className="min-w-0 p-2">
-                            <span className="flex min-w-0 items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => conv.sedeId && router.push(`/dashboard/sedes/${conv.sedeId}`)}
+                              className="flex min-w-0 items-center gap-1 text-left font-semibold text-foreground underline-offset-2 hover:text-primary hover:underline disabled:pointer-events-none disabled:opacity-70"
+                              disabled={!conv.sedeId}
+                            >
                               <MapPin className="h-3 w-3 shrink-0 text-muted-foreground" />
-                              <span className="truncate font-semibold text-foreground">{conv.sede}</span>
-                            </span>
+                              <span className="break-words">{conv.sede}</span>
+                            </button>
                           </td>
                           <td className="min-w-0 p-2">
-                            <p className="truncate font-semibold text-foreground">{conv.aula}</p>
+                            <p className="break-words font-semibold text-foreground">{conv.aula}</p>
                           </td>
                           <td className="min-w-0 p-2">
-                            <p className="line-clamp-2 font-semibold text-foreground">
-                              {formatTeacherNames(conv)}
-                            </p>
+                            <div className="space-y-1">
+                              {conv.profesorRefs.length > 0 ? (
+                                conv.profesorRefs.map((person) => (
+                                  <button
+                                    key={person.id}
+                                    type="button"
+                                    onClick={() => router.push(`/dashboard/profesores/${person.id}`)}
+                                    className="block text-left font-semibold leading-tight text-foreground underline-offset-2 hover:text-primary hover:underline"
+                                  >
+                                    {person.name}
+                                  </button>
+                                ))
+                              ) : (
+                                <span className="font-semibold text-foreground">
+                                  {formatTeacherNames(conv)}
+                                </span>
+                              )}
+                            </div>
                           </td>
-                          <td className="p-2 text-muted-foreground">
-                            <p className="whitespace-nowrap font-semibold text-foreground">
-                              {dateStart} - {dateEnd}
-                            </p>
-                            <p className="line-clamp-1 text-xs">
-                              {conv.dias
-                                .map(
-                                  (day) =>
-                                    DAY_OPTIONS.find((item) => item.value === day)?.label ?? day
-                                )
-                                .join(', ') || '—'}
-                            </p>
-                            <span className="flex items-center gap-1 text-xs">
-                              <Clock className="h-3 w-3" />
-                              {conv.horaInicio}–{conv.horaFin}
-                            </span>
+                          <td className="p-2 font-semibold leading-tight text-foreground">
+                            {dateStart}
+                          </td>
+                          <td className="p-2 font-semibold leading-tight text-foreground">
+                            {dateEnd}
+                          </td>
+                          <td className="p-2 font-semibold leading-tight text-foreground">
+                            {dayLabels}
+                          </td>
+                          <td className="p-2 font-semibold leading-tight text-foreground">
+                            {scheduleRange}
+                          </td>
+                          <td className="p-2 font-semibold leading-tight text-foreground">
+                            {sessionHours}
                           </td>
                           <td className="p-2 text-right font-semibold text-foreground">
                             {formatEnrollmentFee(conv.matricula)}
@@ -1544,7 +1709,7 @@ export default function ProgramacionPage() {
                           </td>
                           <td className="p-2 text-center">
                             <Badge
-                              className={`min-w-[8.25rem] justify-center whitespace-nowrap text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
+                              className={`min-w-[7.75rem] justify-center whitespace-nowrap px-2 text-[9px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
                             >
                               {STATUS_LABELS[conv.estado] || conv.estado}
                             </Badge>
@@ -1554,6 +1719,7 @@ export default function ProgramacionPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => handleConvClick(conv.id)}
+                              className="px-2 text-[11px]"
                             >
                               Editar
                             </Button>
@@ -1575,11 +1741,14 @@ export default function ProgramacionPage() {
                   const ocupacion =
                     conv.plazas > 0 ? Math.round((conv.inscritos / conv.plazas) * 100) : 0
                   const dateStart = conv.fechaInicio
-                    ? new Date(conv.fechaInicio).toLocaleDateString('es-ES')
+                    ? formatLongDate(conv.fechaInicio)
                     : '—'
                   const dateEnd = conv.fechaFin
-                    ? new Date(conv.fechaFin).toLocaleDateString('es-ES')
+                    ? formatLongDate(conv.fechaFin)
                     : '—'
+                  const dayLabels = formatDayLabels(conv.dias)
+                  const scheduleRange = formatScheduleRange(conv.horaInicio, conv.horaFin)
+                  const sessionHours = formatSessionHours(conv.horaInicio, conv.horaFin)
                   return (
                     <div key={conv.id} className="rounded-xl border bg-background p-3">
                       <div className="flex items-start justify-between gap-3">
@@ -1607,11 +1776,17 @@ export default function ProgramacionPage() {
                           Docentes: {formatTeacherNames(conv)}
                         </span>
                         <span>
-                          {dateStart} - {dateEnd}
+                          Inicio: {dateStart}
+                        </span>
+                        <span>
+                          Fin: {dateEnd}
+                        </span>
+                        <span>
+                          Día: {dayLabels}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {conv.horaInicio}–{conv.horaFin}
+                          {scheduleRange} · {sessionHours}
                         </span>
                         <span>
                           Matrícula: {formatEnrollmentFee(conv.matricula)}
