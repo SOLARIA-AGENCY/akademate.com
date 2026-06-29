@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="Idiomas y competencias lingüísticas">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#e0f2fe"/>
+      <stop offset="1" stop-color="#fff1f2"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f8fafc"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <circle cx="1010" cy="140" r="180" fill="#f2014b" opacity=".12"/>
+  <circle cx="190" cy="610" r="210" fill="#2563eb" opacity=".12"/>
+  <rect x="180" y="145" width="840" height="430" rx="44" fill="url(#card)" stroke="#cbd5e1" stroke-width="4"/>
+  <rect x="245" y="215" width="300" height="70" rx="18" fill="#f2014b" opacity=".95"/>
+  <rect x="245" y="315" width="250" height="30" rx="15" fill="#0f172a" opacity=".18"/>
+  <rect x="245" y="365" width="350" height="30" rx="15" fill="#0f172a" opacity=".12"/>
+  <rect x="245" y="415" width="285" height="30" rx="15" fill="#0f172a" opacity=".14"/>
+  <g transform="translate(650 220)">
+    <circle cx="110" cy="110" r="104" fill="#0f172a" opacity=".08"/>
+    <path d="M44 116c0-43 32-76 74-76 39 0 68 26 68 62 0 37-31 57-69 57H91v43H44v-86Zm73 8c17 0 28-8 28-22 0-15-11-24-27-24H91v46h26Z" fill="#0f172a"/>
+    <path d="M230 62h74c44 0 73 27 73 67 0 41-29 68-73 68h-28v50h-46V62Zm71 98c18 0 30-11 30-29s-12-29-30-29h-25v58h25Z" fill="#f2014b"/>
+  </g>
+  <text x="275" y="263" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800">ENGLISH</text>
+  <text x="245" y="525" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800">Idiomas</text>
+</svg>

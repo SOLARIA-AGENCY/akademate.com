@@ -31,6 +31,7 @@ export function CoursesCatalogView({
   compactListItems = false,
 }: CoursesCatalogViewProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(defaultViewMode)
+  const [queries, setQueries] = useState<Record<string, string>>({})
 
   return (
     <div>
@@ -62,7 +63,16 @@ export function CoursesCatalogView({
       ) : null}
 
       <div className="space-y-14">
-        {groups.map((group) => (
+        {groups.map((group) => {
+          const query = queries[group.key]?.trim().toLowerCase() ?? ''
+          const visibleCourses = query
+            ? group.courses.filter((course) => {
+                const haystack = `${course.nombre} ${course.area ?? ''} ${course.codigo ?? ''}`.toLowerCase()
+                return haystack.includes(query)
+              })
+            : group.courses
+
+          return (
           <section key={group.key} id={group.key} className="scroll-mt-28">
             <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -77,15 +87,25 @@ export function CoursesCatalogView({
                 </p>
               </div>
             </div>
+            <label className="mb-4 block">
+              <span className="sr-only">Buscar en {group.label}</span>
+              <input
+                type="search"
+                value={queries[group.key] ?? ''}
+                onChange={(event) => setQueries((current) => ({ ...current, [group.key]: event.target.value }))}
+                placeholder={`Buscar en ${group.label.toLowerCase()}...`}
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 hover:border-rose-200 focus:border-rose-300 focus:ring-4 focus:ring-rose-100 sm:max-w-md"
+              />
+            </label>
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {group.courses.map((course) => (
+                {visibleCourses.map((course) => (
                   <CoursePublicCard key={course.id} course={course} />
                 ))}
               </div>
             ) : (
               <div className="grid gap-5">
-                {group.courses.map((course) => (
+                {visibleCourses.map((course) => (
                   <CoursePublicListItem
                     key={course.id}
                     course={course}
@@ -94,8 +114,13 @@ export function CoursesCatalogView({
                 ))}
               </div>
             )}
+            {visibleCourses.length === 0 ? (
+              <p className="mt-4 rounded-xl border border-rose-100 bg-white px-4 py-3 text-sm font-semibold text-slate-600">
+                No hay cursos que coincidan con la búsqueda en esta sección.
+              </p>
+            ) : null}
           </section>
-        ))}
+        )})}
       </div>
     </div>
   )

@@ -17,7 +17,6 @@ import {
   ChevronRight,
   GraduationCap,
   BarChart3,
-  CalendarDays,
   CalendarRange,
   Loader2,
   Building2,
@@ -25,8 +24,6 @@ import {
   Printer,
   Download,
 } from 'lucide-react'
-import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
-import { SegmentedToggle } from '@payload-config/components/ui/SegmentedToggle'
 import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
 
 // ---------------------------------------------------------------------------
@@ -52,6 +49,7 @@ interface Convocatoria {
   precio: number
   matricula?: number
   profesor: string
+  profesores: string[]
   estado: string
   planningStatus?: string
   color: string
@@ -85,7 +83,7 @@ type DraftConvocatoria = {
   courseId: string
   campusId: string
   classroomId: string
-  instructorId: string
+  instructorIds: string[]
   startDate: string
   endDate: string
   day: string
@@ -143,7 +141,7 @@ const EMPTY_DRAFT: DraftConvocatoria = {
   courseId: '',
   campusId: '',
   classroomId: '',
-  instructorId: '',
+  instructorIds: [],
   startDate: '',
   endDate: '',
   day: 'monday',
@@ -213,6 +211,22 @@ function convocatoriaOnDate(conv: Convocatoria, dateKey: string): boolean {
   if (d < start || d > end) return false
   const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
   return conv.dias.includes(dayNames[d.getDay()])
+}
+
+function formatMoney(value?: number | null): string {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? `${value.toLocaleString('es-ES')} €`
+    : 'Consultar'
+}
+
+function formatEnrollmentFee(value?: number | null): string {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? `${value.toLocaleString('es-ES')} €`
+    : '—'
+}
+
+function formatTeacherNames(conv: Pick<Convocatoria, 'profesor' | 'profesores'>): string {
+  return conv.profesores.length > 0 ? conv.profesores.join(', ') : conv.profesor
 }
 
 // ---------------------------------------------------------------------------
@@ -681,7 +695,7 @@ function DayView({
 
 export default function ProgramacionPage() {
   const router = useRouter()
-  const [view, setView] = useState<ViewMode>('anual')
+  const [view, setView] = useState<ViewMode>('lista')
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -740,6 +754,9 @@ export default function ProgramacionPage() {
             precio: (c.precio as number) || 0,
             matricula: c.matricula as number | undefined,
             profesor: (c.profesor as string) || 'Sin docente',
+            profesores: Array.isArray(c.profesores)
+              ? (c.profesores as string[]).filter(Boolean)
+              : [],
             estado: (c.estado as string) || 'draft',
             planningStatus: (c.planningStatus as string) || '',
             color: STATUS_COLORS[(c.estado as string) || 'draft'] || 'bg-primary',
@@ -849,7 +866,7 @@ export default function ProgramacionPage() {
       ['curso/ciclo', draft.courseId],
       ['sede', draft.campusId],
       ['aula', draft.classroomId],
-      ['docente', draft.instructorId],
+      ['docente', draft.instructorIds.length > 0 ? draft.instructorIds.join(',') : ''],
       ['inicio', draft.startDate],
       ['fin', draft.endDate],
       ['hora inicio', draft.timeStart],
@@ -869,7 +886,7 @@ export default function ProgramacionPage() {
         course: draft.courseId,
         campus: draft.campusId,
         classroom: draft.classroomId,
-        instructor: draft.instructorId,
+        instructor: draft.instructorIds[0] ?? '',
         start_date: draft.startDate,
         end_date: draft.endDate,
         schedule_time_start: draft.timeStart,
@@ -878,6 +895,7 @@ export default function ProgramacionPage() {
         max_students: draft.maxStudents,
       })
       availabilityParams.append('schedule_days', draft.day)
+      draft.instructorIds.forEach((id) => availabilityParams.append('instructors', id))
       const availabilityRes = await fetch(
         `/api/course-runs/availability?${availabilityParams.toString()}`,
         { cache: 'no-store' }
@@ -911,8 +929,8 @@ export default function ProgramacionPage() {
           estado: 'borrador',
           plazasTotales: Number(draft.maxStudents) || 1,
           precio: Number(draft.price) || 0,
-          profesorId: draft.instructorId,
-          profesorIds: [draft.instructorId],
+          profesorId: draft.instructorIds[0] ?? '',
+          profesorIds: draft.instructorIds,
           sedeId: draft.campusId,
           aulaId: draft.classroomId,
           trainingType: 'private',
@@ -952,7 +970,7 @@ export default function ProgramacionPage() {
     { header: 'Tipo', getValue: (conv) => conv.tipo },
     { header: 'Sede', getValue: (conv) => conv.sede },
     { header: 'Aula', getValue: (conv) => conv.aula },
-    { header: 'Docente', getValue: (conv) => conv.profesor },
+    { header: 'Docentes', getValue: (conv) => formatTeacherNames(conv) },
     { header: 'Inicio', getValue: (conv) => conv.fechaInicio },
     { header: 'Fin', getValue: (conv) => conv.fechaFin },
     {
@@ -963,7 +981,8 @@ export default function ProgramacionPage() {
           .join(', '),
     },
     { header: 'Horario', getValue: (conv) => `${conv.horaInicio}-${conv.horaFin}` },
-    { header: 'Precio', getValue: (conv) => (conv.precio ? `${conv.precio}` : 'Consultar') },
+    { header: 'Matricula', getValue: (conv) => formatEnrollmentFee(conv.matricula) },
+    { header: 'Precio', getValue: (conv) => formatMoney(conv.precio) },
     { header: 'Plazas', getValue: (conv) => conv.plazas },
     { header: 'Inscritos', getValue: (conv) => conv.inscritos },
     { header: 'Estado', getValue: (conv) => STATUS_LABELS[conv.estado] || conv.estado },
@@ -1062,14 +1081,6 @@ export default function ProgramacionPage() {
 
   const handleConvClick = (id: string) => router.push(`/programacion/${id}`)
 
-  const viewButtons: { key: ViewMode; label: string; icon: typeof Calendar }[] = [
-    { key: 'anual', label: 'Anual', icon: CalendarRange },
-    { key: 'mes', label: 'Mes', icon: CalendarDays },
-    { key: 'semana', label: 'Semana', icon: Calendar },
-    { key: 'dia', label: 'Dia', icon: Clock },
-    { key: 'lista', label: 'Lista', icon: List },
-  ]
-
   return (
     <div className="space-y-4">
       <PageHeader
@@ -1083,13 +1094,13 @@ export default function ProgramacionPage() {
         }
         actions={
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => setView('lista')}>
+            <Button variant={view === 'lista' ? 'default' : 'outline'} onClick={() => setView('lista')}>
               <List className="mr-2 h-4 w-4" />
-              Ver convocatorias en lista
+              Vista de lista
             </Button>
-            <Button onClick={() => router.push('/programacion/nueva')}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nueva Convocatoria
+            <Button variant={view === 'anual' ? 'default' : 'outline'} onClick={() => setView('anual')}>
+              <CalendarRange className="mr-2 h-4 w-4" />
+              Cronograma
             </Button>
           </div>
         }
@@ -1122,26 +1133,20 @@ export default function ProgramacionPage() {
       {/* Controls bar */}
       <Card className="p-3">
         <div className="flex flex-wrap items-center gap-3">
-          <SegmentedToggle
-            value={view}
-            options={viewButtons.map(({ key, label, icon }) => ({ value: key, label, icon }))}
-            onValueChange={setView}
-            ariaLabel="Vista de programación"
-          />
-
-          {/* Navigation */}
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={navPrev}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-sm font-medium min-w-[140px] text-center">{navLabel()}</span>
-            <Button variant="ghost" size="sm" onClick={navNext}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" className="text-xs ml-1" onClick={navToday}>
-              Hoy
-            </Button>
-          </div>
+          {view !== 'lista' ? (
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="sm" onClick={navPrev}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm font-medium min-w-[140px] text-center">{navLabel()}</span>
+              <Button variant="ghost" size="sm" onClick={navNext}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="text-xs ml-1" onClick={navToday}>
+                Hoy
+              </Button>
+            </div>
+          ) : null}
 
           {/* Sede filter */}
           <div className="flex items-center gap-1 ml-auto">
@@ -1291,7 +1296,7 @@ export default function ProgramacionPage() {
                         updateDraft({
                           campusId: event.target.value,
                           classroomId: '',
-                          instructorId: '',
+                          instructorIds: [],
                         })
                       }
                       className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
@@ -1328,13 +1333,19 @@ export default function ProgramacionPage() {
                     </select>
                   </label>
                   <label className="grid gap-1 text-xs font-medium text-muted-foreground">
-                    Docente
+                    Docentes
                     <select
-                      value={draft.instructorId}
-                      onChange={(event) => updateDraft({ instructorId: event.target.value })}
-                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      multiple
+                      value={draft.instructorIds}
+                      onChange={(event) =>
+                        updateDraft({
+                          instructorIds: Array.from(event.target.selectedOptions).map(
+                            (option) => option.value
+                          ),
+                        })
+                      }
+                      className="min-h-24 w-full rounded-md border border-input bg-background px-2 py-2 text-xs"
                     >
-                      <option value="">Docente</option>
                       {filteredStaff.map((person) => (
                         <option key={person.id} value={person.id}>
                           {person.name}
@@ -1395,6 +1406,16 @@ export default function ProgramacionPage() {
                     </label>
                   </div>
                   <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Matrícula
+                    <input
+                      type="number"
+                      value={draft.enrollmentFee}
+                      onChange={(event) => updateDraft({ enrollmentFee: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-right text-xs"
+                      placeholder="€"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
                     Precio
                     <input
                       type="number"
@@ -1433,23 +1454,25 @@ export default function ProgramacionPage() {
             )}
 
             <div className="hidden lg:block">
-              <table className="w-full table-fixed text-sm">
+              <table className="w-full table-fixed text-xs xl:text-sm">
                 <thead>
                   <tr className="border-b bg-muted/30">
-                    <th className="w-[28%] p-2 text-left font-medium">Convocatoria</th>
-                    <th className="w-[15%] p-2 text-left font-medium">Ubicación</th>
-                    <th className="w-[14%] p-2 text-left font-medium">Docente</th>
-                    <th className="w-[17%] p-2 text-left font-medium">Fechas y horario</th>
-                    <th className="w-[8%] p-2 text-right font-medium">Precio</th>
-                    <th className="w-[7%] p-2 text-center font-medium">Plazas</th>
-                    <th className="w-[6%] p-2 text-center font-medium">Estado</th>
-                    <th className="w-[5%] p-2 text-right font-medium">Acción</th>
+                    <th className="w-[17%] p-2 text-left font-medium">Convocatoria</th>
+                    <th className="w-[9%] p-2 text-left font-medium">Sede</th>
+                    <th className="w-[8%] p-2 text-left font-medium">Aula</th>
+                    <th className="w-[12%] p-2 text-left font-medium">Docentes</th>
+                    <th className="w-[14%] p-2 text-left font-medium">Fechas y horario</th>
+                    <th className="w-[7%] p-2 text-right font-medium">Matrícula</th>
+                    <th className="w-[7%] p-2 text-right font-medium">Precio</th>
+                    <th className="w-[6%] p-2 text-center font-medium">Plazas</th>
+                    <th className="w-[12%] p-2 text-center font-medium">Estado</th>
+                    <th className="w-[8%] p-2 text-right font-medium">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                      <td colSpan={10} className="py-8 text-center text-muted-foreground">
                         No hay convocatorias publicadas
                       </td>
                     </tr>
@@ -1472,18 +1495,22 @@ export default function ProgramacionPage() {
                             </p>
                             <p className="text-xs text-muted-foreground">{conv.tipo || 'Curso'}</p>
                           </td>
-                          <td className="min-w-0 p-2 text-muted-foreground">
+                          <td className="min-w-0 p-2">
                             <span className="flex min-w-0 items-center gap-1">
-                              <MapPin className="h-3 w-3 shrink-0" />
-                              <span className="truncate">{conv.sede}</span>
+                              <MapPin className="h-3 w-3 shrink-0 text-muted-foreground" />
+                              <span className="truncate font-semibold text-foreground">{conv.sede}</span>
                             </span>
-                            <p className="truncate text-xs">{conv.aula}</p>
                           </td>
-                          <td className="min-w-0 p-2 text-muted-foreground">
-                            <p className="truncate">{conv.profesor}</p>
+                          <td className="min-w-0 p-2">
+                            <p className="truncate font-semibold text-foreground">{conv.aula}</p>
+                          </td>
+                          <td className="min-w-0 p-2">
+                            <p className="line-clamp-2 font-semibold text-foreground">
+                              {formatTeacherNames(conv)}
+                            </p>
                           </td>
                           <td className="p-2 text-muted-foreground">
-                            <p className="whitespace-nowrap text-foreground">
+                            <p className="whitespace-nowrap font-semibold text-foreground">
                               {dateStart} - {dateEnd}
                             </p>
                             <p className="line-clamp-1 text-xs">
@@ -1499,8 +1526,11 @@ export default function ProgramacionPage() {
                               {conv.horaInicio}–{conv.horaFin}
                             </span>
                           </td>
+                          <td className="p-2 text-right font-semibold text-foreground">
+                            {formatEnrollmentFee(conv.matricula)}
+                          </td>
                           <td className="p-2 text-right">
-                            {conv.precio ? `${conv.precio.toLocaleString('es-ES')} €` : 'Consultar'}
+                            {formatMoney(conv.precio)}
                           </td>
                           <td className="p-2 text-center">
                             <span className="font-medium">{conv.inscritos}</span>
@@ -1514,7 +1544,7 @@ export default function ProgramacionPage() {
                           </td>
                           <td className="p-2 text-center">
                             <Badge
-                              className={`whitespace-nowrap text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
+                              className={`min-w-[8.25rem] justify-center whitespace-nowrap text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
                             >
                               {STATUS_LABELS[conv.estado] || conv.estado}
                             </Badge>
@@ -1568,11 +1598,14 @@ export default function ProgramacionPage() {
                       <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                         <span className="flex min-w-0 items-center gap-1">
                           <MapPin className="h-3 w-3 shrink-0" />
-                          <span className="truncate">
-                            {conv.sede} · {conv.aula}
-                          </span>
+                          <span className="truncate font-medium text-foreground">{conv.sede}</span>
                         </span>
-                        <span className="truncate">Docente: {conv.profesor}</span>
+                        <span className="truncate font-medium text-foreground">
+                          Aula: {conv.aula}
+                        </span>
+                        <span className="truncate font-medium text-foreground">
+                          Docentes: {formatTeacherNames(conv)}
+                        </span>
                         <span>
                           {dateStart} - {dateEnd}
                         </span>
@@ -1581,7 +1614,10 @@ export default function ProgramacionPage() {
                           {conv.horaInicio}–{conv.horaFin}
                         </span>
                         <span>
-                          {conv.precio ? `${conv.precio.toLocaleString('es-ES')} €` : 'Consultar'}
+                          Matrícula: {formatEnrollmentFee(conv.matricula)}
+                        </span>
+                        <span>
+                          Precio: {formatMoney(conv.precio)}
                         </span>
                         <span>
                           {conv.inscritos}/{conv.plazas} plazas ({ocupacion}%)

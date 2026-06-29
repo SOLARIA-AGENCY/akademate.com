@@ -17,8 +17,10 @@ export interface PublicCourseCardData {
   modality?: string | null
   descripcion?: string | null
   enrollmentLabel?: string | null
+  enrollmentStatus?: 'open' | 'published' | 'none' | string | null
   imagenPortada: string
-  nextRun?: { campusLabel?: string | null } | null
+  areaColor?: string | null
+  nextRun?: { campusLabel?: string | null; href?: string | null } | null
 }
 
 export function getPublicCourseUi(course: PublicCourseCardData) {
@@ -92,27 +94,33 @@ export function CoursePublicListItem({
   const typeColor = course.studyTypeColor || '#f2014b'
 
   if (compact) {
+    const href = course.enrollmentStatus === 'open' && course.nextRun?.href ? course.nextRun.href : `/p/cursos/${course.slug}`
+    const accentColor = course.areaColor || typeColor
     return (
-      <Link href={`/p/cursos/${course.slug}`} className="group block">
+      <Link href={href} className="group block">
         <div
-          className="grid gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:border-slate-300 hover:shadow-md sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+          className="grid gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm transition hover:border-rose-200 hover:bg-rose-50/35 hover:shadow-md sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
         >
           <div className="min-w-0">
-            <div className="flex min-w-0 items-center gap-2">
-              <span
-                className="inline-flex shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white"
-                style={{ backgroundColor: typeColor }}
-              >
-                {course.studyTypeLabel}
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="h-10 w-14 shrink-0 overflow-hidden rounded-lg border-2 bg-slate-100" style={{ borderColor: accentColor }}>
+                <img src={ui.imageUrl} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
               </span>
               <h3 className="min-w-0 flex-1 truncate text-sm font-black leading-6 text-slate-950 sm:text-base">
                 {course.nombre}
               </h3>
             </div>
           </div>
-          <span className="inline-flex w-fit items-center justify-center rounded-full bg-[#f2014b] px-3 py-1.5 text-xs font-black text-white transition group-hover:bg-[#d0013f]">
-            Ver curso
-          </span>
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            {course.enrollmentStatus === 'open' ? (
+              <span className="inline-flex w-fit items-center justify-center rounded-full bg-green-600 px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white">
+                Matrícula abierta
+              </span>
+            ) : null}
+            <span className="inline-flex w-fit items-center justify-center rounded-full bg-[#f2014b] px-3 py-1.5 text-xs font-black text-white transition group-hover:bg-[#d0013f]">
+              Ver curso
+            </span>
+          </div>
         </div>
       </Link>
     )

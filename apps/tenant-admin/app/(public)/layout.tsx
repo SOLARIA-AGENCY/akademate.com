@@ -297,7 +297,7 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
                   className="h-14 w-auto object-contain lg:h-16"
                 />
                 <p className="mt-4 text-sm font-medium text-slate-600">
-                  &copy; {new Date().getFullYear()} {tenant.name}
+                  Formación cercana en Tenerife, con orientación real antes, durante y después de la matrícula.
                 </p>
               </div>
               <div>
@@ -316,8 +316,8 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-900">Contacto</h3>
                 <ul className="mt-4 space-y-3 text-sm text-slate-700">
-                  <li>Teléfono: 922 21 92 57</li>
-                  <li>Email: info@cursostenerife.es</li>
+                  <li>Teléfono: <a href="tel:+34922219257" className="font-semibold text-[#f2014b] hover:underline">922 21 92 57</a></li>
+                  <li>Email: <a href="mailto:info@cursostenerife.es" className="font-semibold text-[#f2014b] hover:underline">info@cursostenerife.es</a></li>
                   <li>Horario: L-V 10:00-14:00 y 16:00-20:00</li>
                 </ul>
               </div>

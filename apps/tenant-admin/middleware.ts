@@ -107,6 +107,7 @@ const publicRoutes = [
   '/agencia-colocacion',
   '/faq',
   '/presentacion',
+  '/convocatorias',
   // Legal pages must be publicly accessible (GDPR requirement)
   '/legal',
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing
@@ -291,7 +292,7 @@ export function middleware(request: NextRequest) {
 
   // Canonical public routes for CEP host
   if (!pathname.startsWith('/api/') && ['GET', 'HEAD'].includes(request.method) && isCepHost(host)) {
-    if (pathname === '/' || pathname === '/convocatorias') {
+    if (pathname === '/' || pathname === '/convocatorias' || pathname.startsWith('/convocatorias/')) {
       return NextResponse.next()
     }
 

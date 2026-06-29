@@ -61,6 +61,7 @@ interface PopulatedCourseRun {
   classroom?: number | null | { id: number; name?: string | null; code?: string | null; capacity?: number | null };
   administrative_owner?: number | null | StaffLike;
   instructor?: number | null | StaffLike;
+  instructors?: Array<number | string | StaffLike> | null;
   modality?: string | null;
   start_date?: string | null;
   end_date?: string | null;
@@ -184,6 +185,29 @@ function normalizeInstructorName(instructor: unknown): string {
   }
 
   return 'Sin asignar';
+}
+
+function normalizeInstructorNames(primary: unknown, instructors: unknown): string[] {
+  const names = new Map<string, string>();
+  const pushInstructor = (instructor: unknown) => {
+    const name = normalizeInstructorName(instructor);
+    if (name !== 'Sin asignar') {
+      const key =
+        instructor && typeof instructor === 'object' && 'id' in instructor
+          ? String((instructor as { id?: string | number }).id ?? name)
+          : name;
+      names.set(key, name);
+    }
+  };
+
+  pushInstructor(primary);
+  if (Array.isArray(instructors)) {
+    for (const instructor of instructors) {
+      pushInstructor(instructor);
+    }
+  }
+
+  return Array.from(names.values());
 }
 
 const DAY_LABELS: Record<string, string> = {
@@ -618,6 +642,7 @@ export async function GET(request: NextRequest) {
           cuotaCantidad: conv.installment_count_snapshot,
           priceSource: conv.price_source,
           profesor: normalizeInstructorName(conv.instructor),
+          profesores: normalizeInstructorNames(conv.instructor, conv.instructors),
           responsable: normalizeInstructorName(conv.administrative_owner),
           modalidad: conv.modality ?? 'presencial',
           campaignId: campaign ? String(campaign.id) : null,

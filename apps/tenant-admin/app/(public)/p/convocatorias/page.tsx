@@ -6,6 +6,13 @@ import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import { CalendarDays, Clock, Euro, MapPin, Users } from 'lucide-react'
 import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
+import {
+  formatPublicCurrency,
+  formatPublicDate,
+  formatRunSchedule,
+  getPublicConvocationHref,
+  getRunPrice,
+} from '@/app/lib/public-convocations'
 
 export const metadata: Metadata = {
   title: 'Convocatorias Abiertas',
@@ -20,21 +27,6 @@ function resolveImageUrl(image: any): string | null {
   return null
 }
 
-function formatRunSchedule(conv: any): string {
-  const days = Array.isArray(conv.schedule_days) ? conv.schedule_days.join(', ') : ''
-  const start = typeof conv.schedule_time_start === 'string' ? conv.schedule_time_start.replace(/:00$/, '') : ''
-  const end = typeof conv.schedule_time_end === 'string' ? conv.schedule_time_end.replace(/:00$/, '') : ''
-  if (days && start && end) return `${days} · ${start}-${end}`
-  if (start && end) return `${start}-${end}`
-  return days || 'Horario por confirmar'
-}
-
-function formatPrice(value: unknown): string {
-  const price = Number(value)
-  if (!Number.isFinite(price) || price <= 0) return 'Consultar'
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price)
-}
-
 export default async function ConvocatoriasPage() {
   const tenant = await getTenantHostBranding()
   const payload = await getPayload({ config: configPromise })
@@ -42,7 +34,7 @@ export default async function ConvocatoriasPage() {
     collection: 'course-runs',
     where: withTenantScope({ status: { in: ['enrollment_open', 'published'] } }, tenant.tenantId) as any,
     limit: 50,
-    sort: '-start_date',
+    sort: 'start_date',
     depth: 2,
   })
 
@@ -80,12 +72,22 @@ export default async function ConvocatoriasPage() {
         <div className="space-y-10">
           {Array.from(grouped.entries()).map(([groupKey, group]) => (
             <section key={groupKey}>
-              <div className="mb-5 flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="flex items-start gap-3">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-4.35 7-10a7 7 0 1 0-14 0c0 5.65 7 10 7 10Z" />
                   <circle cx="12" cy="11" r="2.5" />
                 </svg>
-                <span>{group.title}{group.city ? ` — ${group.city}` : ''}</span>
+                    <div>
+                      <h2 className="text-2xl font-black text-slate-950">{group.title}</h2>
+                      {group.city ? <p className="mt-1 text-sm font-semibold text-slate-600">{group.city}</p> : null}
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-rose-50 px-4 py-2 text-xs font-black uppercase tracking-wide text-[#f2014b]">
+                    {group.docs.length} convocatorias
+                  </span>
+                </div>
               </div>
               <div className="grid grid-cols-1 gap-6">
                 {group.docs.map((conv: any) => {
@@ -97,14 +99,10 @@ export default async function ConvocatoriasPage() {
             const imageUrl = (course ? resolveImageUrl(course.featured_image) : null)
               || (cycle ? resolveImageUrl(cycle.image) : null)
               || (course ? resolveImageUrl(course.image) : null)
-            const detailHref = `/convocatorias/${conv.codigo || conv.id}`
+            const detailHref = getPublicConvocationHref(conv)
             const courseName = course?.title || course?.name || cycle?.title || cycle?.name || conv.codigo
-            const startDateText = conv.start_date
-              ? new Date(conv.start_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
-              : 'Fecha por confirmar'
-            const endDateText = conv.end_date
-              ? new Date(conv.end_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
-              : null
+            const startDateText = formatPublicDate(conv.start_date)
+            const endDateText = conv.end_date ? formatPublicDate(conv.end_date) : null
             const maxStudents = Number(conv.max_students ?? 0)
             const currentEnrollments = Number(conv.current_enrollments ?? 0)
             const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
@@ -149,7 +147,7 @@ export default async function ConvocatoriasPage() {
                       </span>
                       <span className="flex items-center gap-2">
                         <Euro className="h-4 w-4 text-red-600" />
-                        {formatPrice(conv.price ?? course?.base_price)}
+                        {formatPublicCurrency(getRunPrice(conv, course, cycle))}
                       </span>
                     </div>
 

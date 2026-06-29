@@ -53,6 +53,8 @@ type CourseDoc = {
 
 type CourseRunDoc = {
   id: number | string
+  codigo?: string | null
+  course?: number | string | { id?: number | string | null } | null
   status?: string | null
   enrollment_status?: string | null
   start_date?: string | null
@@ -119,6 +121,8 @@ export type PublishedCourse = {
   enrollmentLabel: string
   nextRun: {
     id: string
+    codigo: string
+    href: string
     status: string
     startDate: string | null
     endDate: string | null
@@ -263,6 +267,8 @@ function toEnrollmentStatus(
     nextRun: nextRun
       ? {
           id: String(nextRun.id),
+          codigo: String(nextRun.codigo || ''),
+          href: `/convocatorias/${nextRun.codigo || nextRun.id}`,
           status: String(nextRun.status ?? ''),
           startDate: nextRun.start_date ?? null,
           endDate: nextRun.end_date ?? null,
@@ -512,8 +518,46 @@ export async function getPublishedCourses(options: GetPublishedCoursesOptions = 
       page += 1
     }
 
+    let runsByCourseId = new Map<string, CourseRunDoc[]>()
+    if (docs.length > 0) {
+      try {
+        const courseIds = docs.map((course) => course.id)
+        const runResult = await payload.find({
+          collection: 'course-runs',
+          where: withTenantScope(
+            {
+              and: [
+                { course: { in: courseIds } },
+                { status: { in: ['enrollment_open', 'published', 'in_progress'] } },
+              ],
+            } as Record<string, unknown>,
+            options.tenantId
+          ) as any,
+          limit: Math.min(1000, Math.max(100, docs.length * 5)),
+          depth: 1,
+          sort: 'start_date',
+        })
+
+        runsByCourseId = (runResult.docs ?? []).reduce((map, run) => {
+          const rawCourse = (run as CourseRunDoc).course
+          const courseId =
+            rawCourse && typeof rawCourse === 'object' && 'id' in rawCourse
+              ? rawCourse.id
+              : rawCourse
+          if (courseId == null) return map
+          const key = String(courseId)
+          const current = map.get(key) ?? []
+          current.push(run as CourseRunDoc)
+          map.set(key, current)
+          return map
+        }, new Map<string, CourseRunDoc[]>())
+      } catch {
+        runsByCourseId = new Map()
+      }
+    }
+
     const studyTypeMap = await getStudyTypeVisualMap(payload)
-    return docs.map((course) => mapCourseDocToPublishedCourse(course, studyTypeMap))
+    return docs.map((course) => mapCourseDocToPublishedCourse(course, studyTypeMap, runsByCourseId.get(String(course.id)) ?? []))
   } catch (e) {
     console.error('Error fetching published courses:', e)
     return []

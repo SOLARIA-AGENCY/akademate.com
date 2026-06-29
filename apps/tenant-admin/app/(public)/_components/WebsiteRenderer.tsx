@@ -7,6 +7,7 @@ import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
 import { normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
+import { TeacherCarouselClient } from './TeacherCarouselClient'
 import { BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-react'
 import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses'
 import { buildCourseGroups } from '../p/cursos/page'
@@ -16,6 +17,13 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
+import {
+  formatPublicCurrency,
+  formatPublicDate,
+  formatRunSchedule,
+  getPublicConvocationHref,
+  getRunPrice,
+} from '@/app/lib/public-convocations'
 
 const BRAND_RED = '#f2014b'
 
@@ -126,12 +134,6 @@ function getRunCourseId(run: any): string | null {
   return null
 }
 
-function getTeacherHref(member: { name: string; href?: string; id?: string | number }): string {
-  if (member.href) return member.href
-  if (member.id) return `/p/profesores/${member.id}`
-  return `/p/profesores/${slugify(member.name)}`
-}
-
 function getCategoryHref(item: { title: string; href?: string }): string {
   if (item.href && !['/cursos', '/p/cursos'].includes(item.href)) return item.href
   return `/p/areas/${slugify(item.title)}`
@@ -144,6 +146,8 @@ const CATEGORY_IMAGE_OVERRIDES: Record<string, string> = {
   'area-tecnologia-digital-y-diseno': '/media/area-tecnologia-digital-diseno.webp',
   'area-empresa-administracion-y-gestion': '/media/area-empresa-administracion-gestion.webp',
   'area-seguridad-vigilancia-y-proteccion': '/media/area-seguridad-vigilancia-proteccion.webp',
+  'area-idiomas-y-competencias-linguisticas': '/website/cep/categories/idiomas-competencias-linguisticas.svg',
+  'area-idiomas': '/website/cep/categories/idiomas-competencias-linguisticas.svg',
 }
 
 function getCategoryImage(item: { title: string; image: string }): string {
@@ -705,12 +709,19 @@ async function ConvocationListSection({
     collection: 'course-runs',
     where: withTenantScope({ status: { in: ['published', 'enrollment_open'] } }, tenantId) as any,
     depth: 2,
-    limit: section.limit ?? 4,
-    sort: '-start_date',
+    limit: section.limit ?? 12,
+    sort: 'start_date',
+  })
+
+  const sortedDocs = [...(result.docs as any[])].sort((a, b) => {
+    const aCycle = a.cycle ? 0 : 1
+    const bCycle = b.cycle ? 0 : 1
+    if (aCycle !== bCycle) return aCycle - bCycle
+    return new Date(a.start_date || '9999-12-31').getTime() - new Date(b.start_date || '9999-12-31').getTime()
   })
 
   const grouped = new Map<string, { title: string; city?: string; docs: any[] }>()
-  for (const conv of result.docs) {
+  for (const conv of sortedDocs) {
     const campus = typeof conv.campus === 'object' && conv.campus ? conv.campus : null
     const key = campus?.id ? String(campus.id) : 'online'
     if (!grouped.has(key)) {
@@ -748,7 +759,7 @@ async function ConvocationListSection({
                 </svg>
                 <span>{group.title}{group.city ? ` — ${group.city}` : ''}</span>
               </div>
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
                 {group.docs.map((conv: any) => {
             const course = typeof conv.course === 'object' ? conv.course : null
             const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
@@ -757,9 +768,18 @@ async function ConvocationListSection({
               resolveImageUrl(course?.featured_image) || resolveImageUrl(course?.image) || resolveImageUrl(cycle?.image)
             const convocationBadge = getConvocationBadge({ course, cycle, conv, groupKey, displayName })
             const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
+            const isCycleRun = Boolean(cycle)
+            const areaColor =
+              (course?.area_formativa && typeof course.area_formativa === 'object' && course.area_formativa.color) ||
+              getCourseTypeColor(course?.course_type || conv?.course_type)
             return (
-              <Link key={conv.id} href={`/convocatorias/${conv.codigo || conv.id}`} className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-2xl">
-                <div className="relative h-52">
+              <Link
+                key={conv.id}
+                href={getPublicConvocationHref(conv)}
+                className={`group overflow-hidden rounded-3xl border bg-white transition hover:-translate-y-1 hover:shadow-2xl ${isCycleRun ? 'xl:col-span-2' : ''}`}
+                style={{ borderColor: areaColor }}
+              >
+                <div className={isCycleRun ? 'relative h-52' : 'relative h-40'}>
                   {imageUrl ? <img src={imageUrl} alt={displayName} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   {convocationBadge ? (
@@ -771,20 +791,20 @@ async function ConvocationListSection({
                     </span>
                   ) : null}
                   <div className="absolute bottom-5 left-5 right-5">
-                    <span className="mb-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase text-white" style={{ backgroundColor: brandColor }}>
+                    <span className="mb-3 inline-flex rounded-full bg-green-600 px-3 py-1 text-xs font-semibold uppercase text-white">
                       {enrollmentInfo.publicLabel}
                     </span>
-                    <h3 className="text-2xl font-black leading-tight">{displayName}</h3>
+                    <h3 className={isCycleRun ? 'text-2xl font-black leading-tight text-white' : 'line-clamp-2 text-lg font-black leading-tight text-white'}>{displayName}</h3>
                   </div>
                 </div>
-                <div className="flex items-center justify-between gap-4 p-5">
-                  <div className="grid gap-1 text-sm text-white/70">
-                    <p><span className="font-semibold text-white">Fecha:</span> {formatDate(conv.start_date)}</p>
-                    <p><span className="font-semibold text-white">Sede:</span> {group.title}</p>
-                    <p><span className="font-semibold text-white">Estado:</span> {enrollmentInfo.publicLabel}</p>
-                    {typeof conv.price_snapshot === 'number' ? <p><span className="font-semibold text-white">Precio:</span> {conv.price_snapshot.toLocaleString('es-ES')} €</p> : null}
+                <div className="flex flex-col gap-4 p-5 text-slate-950 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="grid gap-1 text-sm text-slate-700">
+                    <p><span className="font-semibold text-slate-950">Fecha:</span> {formatPublicDate(conv.start_date, { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                    <p><span className="font-semibold text-slate-950">Sede:</span> {group.title}</p>
+                    <p><span className="font-semibold text-slate-950">Horario:</span> {formatRunSchedule(conv)}</p>
+                    <p><span className="font-semibold text-slate-950">Precio:</span> {formatPublicCurrency(getRunPrice(conv, course, cycle))}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-[var(--cep-brand)] px-4 py-2 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
+                  <span className="shrink-0 rounded-full bg-[#f2014b] px-4 py-2 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
                     Ver convocatoria
                   </span>
                 </div>
@@ -840,6 +860,7 @@ async function CampusListSection({
                 city={campus.city}
                 address={campus.address}
                 phone={campus.phone}
+                email={campus.email}
                 schedule={schedule}
               />
             )
@@ -885,24 +906,50 @@ function AlumniTestimonialsSection() {
   )
 }
 
-function CategoryGridSection({ section }: { section: Extract<WebsiteSection, { kind: 'categoryGrid' }> }) {
+async function CategoryGridSection({
+  section,
+}: {
+  section: Extract<WebsiteSection, { kind: 'categoryGrid' }>
+}) {
   const subtitle = section.subtitle?.includes('Bloques visuales')
     ? 'Encuentra tu próxima formación por especialidad profesional.'
     : section.subtitle
+  const payload = await getPayload({ config: configPromise })
+  let items = section.items
+  try {
+    const result = await payload.find({
+      collection: 'areas-formativas',
+      where: { activo: { equals: true } } as any,
+      depth: 0,
+      limit: 20,
+      sort: 'nombre',
+    })
+    items = (result.docs as any[]).map((area) => ({
+      title: area.nombre,
+      href: `/p/areas/${slugify(area.nombre)}`,
+      image: getCategoryImage({ title: area.nombre, image: '/website/cep/categories/especializacion-sanitaria.jpg' }),
+      color: area.color,
+    }))
+  } catch {
+    items = section.items
+  }
+
   return (
     <section className="bg-[#fff7fa]">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-semibold text-slate-900">{section.title}</h2>
         {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
-        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {section.items.map((item) => {
+        <div className="mt-10 flex flex-wrap justify-center gap-6">
+          {items.map((item: any) => {
             return (
-              <AreaPublicCard
-                key={item.title}
-                title={item.title}
-                href={getCategoryHref(item)}
-                imageUrl={getCategoryImage(item)}
-              />
+              <div key={item.title} className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)]">
+                <AreaPublicCard
+                  title={item.title}
+                  href={getCategoryHref(item)}
+                  imageUrl={getCategoryImage(item)}
+                  color={item.color}
+                />
+              </div>
             )
           })}
         </div>
@@ -930,17 +977,25 @@ async function TeamGridSection({
   const subtitle = section.subtitle?.includes('Presentación editorial')
     ? 'Conoce a nuestro equipo docente y su experiencia profesional por áreas.'
     : section.subtitle
-  const staffMembers = (staffResult.docs as any[]).map((staff) => {
+  const staffMembers = (staffResult.docs as any[])
+    .map((staff) => {
     const name = getStaffName(staff)
     return {
       id: staff.id,
       name,
       role: getStaffSpecialtyLabel(staff),
       image: resolveImageUrl(staff.photo),
-      href: staff.slug ? `/p/profesores/${staff.slug}` : `/p/profesores/${staff.id}`,
+      areas: (Array.isArray(staff.qualified_areas) ? staff.qualified_areas : [])
+        .filter((area: any) => area && typeof area === 'object')
+        .map((area: any) => ({
+          name: String(area.nombre || area.name || '').trim(),
+          color: area.color || null,
+        }))
+        .filter((area: { name: string }) => area.name),
     }
   })
-  const members = staffMembers.length ? staffMembers : section.members
+    .filter((member) => member.image)
+  const members = staffMembers
 
   return (
     <>
@@ -948,47 +1003,8 @@ async function TeamGridSection({
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{section.title}</h2>
         {subtitle ? <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">{subtitle}</p> : null}
-        <div className="mt-10 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_6%,black_94%,transparent)]">
-          <div className="flex w-max animate-[cep-teacher-marquee_95s_linear_infinite] gap-4 hover:[animation-play-state:paused]">
-          {[...members, ...members].map((member, index) => (
-            <Link
-              key={`${member.name}-${index}`}
-              href={getTeacherHref(member)}
-              className="group w-[196px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl"
-            >
-              <div className="flex justify-center bg-slate-50 p-5">
-                {member.image ? (
-                  <img src={member.image} alt={member.name} loading="lazy" decoding="async" className="h-28 w-28 rounded-full object-cover ring-4 ring-white transition duration-500 group-hover:scale-105" />
-                ) : (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white text-slate-300 ring-4 ring-white transition duration-500 group-hover:scale-105">
-                    <GraduationCap className="h-12 w-12" aria-hidden="true" strokeWidth={1.6} />
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <span className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--cep-brand)]">
-                  Docente
-                </span>
-                <h3 className="mt-4 line-clamp-2 min-h-[2.75rem] text-sm font-black leading-snug text-slate-900">{member.name}</h3>
-                <p className="mt-1 line-clamp-2 text-sm capitalize text-slate-600">{member.role}</p>
-                <span className="mt-5 inline-flex items-center text-sm font-bold text-[var(--cep-brand)]">
-                  Ver ficha
-                  <svg className="ml-2 h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-                  </svg>
-                </span>
-              </div>
-            </Link>
-          ))}
-          </div>
-        </div>
+        <TeacherCarouselClient members={members} />
       </div>
-      <style>{`
-        @keyframes cep-teacher-marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-      `}</style>
     </section>
     <GoogleReviewsSection />
     </>

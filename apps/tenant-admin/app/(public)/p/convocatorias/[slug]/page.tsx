@@ -23,6 +23,19 @@ import { PreinscripcionForm } from './PreinscripcionForm'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
+import {
+  formatPublicCurrency,
+  formatPublicDate,
+  formatPublicMonth,
+  formatRunSchedule,
+  getRunEnrollmentFee,
+  getRunInstallmentLabel,
+  getRunModality,
+  getRunPrice,
+  hasPhysicalLocation,
+  modalityLabel as publicModalityLabel,
+  textFromRichValue,
+} from '@/app/lib/public-convocations'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,10 +64,18 @@ function resolveInstructorName(instructor: any): string {
   return [instructor.first_name, instructor.last_name].filter(Boolean).join(' ').trim()
 }
 
-function resolvePrimaryInstructor(conv: any): any {
-  if (typeof conv.instructor === 'object' && conv.instructor !== null) return conv.instructor
-  const instructors = Array.isArray(conv.instructors) ? conv.instructors : []
-  return instructors.find((item: unknown) => typeof item === 'object' && item !== null) ?? null
+function resolveInstructors(conv: any): any[] {
+  const candidates = [
+    typeof conv.instructor === 'object' && conv.instructor !== null ? conv.instructor : null,
+    ...(Array.isArray(conv.instructors) ? conv.instructors : []),
+  ].filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
+  const seen = new Set<string>()
+  return candidates.filter((item) => {
+    const key = String(item.id || resolveInstructorName(item))
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 function resolveCampusHref(campus: any): string | null {
@@ -67,31 +88,6 @@ function resolveInstructorHref(instructor: any): string | null {
   return `/p/profesores/${instructor.slug || instructor.id}`
 }
 
-function formatDate(value: string | null | undefined): string {
-  if (!value) return 'Proximamente'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Proximamente'
-  return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(date)
-}
-
-function formatMonth(value: string | null | undefined): string {
-  if (!value) return 'Proximamente'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Proximamente'
-  const month = date.toLocaleDateString('es-ES', { month: 'long' })
-  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${date.getFullYear()}`
-}
-
-function modalityLabel(modality: string | undefined): string {
-  const map: Record<string, string> = {
-    presencial: 'Presencial',
-    semipresencial: 'Semipresencial',
-    online: 'Online',
-    mixto: 'Modalidad mixta',
-  }
-  return modality ? map[modality] || modality : 'A consultar'
-}
-
 function levelLabel(level: string | undefined): string {
   const map: Record<string, string> = {
     fp_basica: 'FP BASICA',
@@ -100,21 +96,6 @@ function levelLabel(level: string | undefined): string {
     certificado_profesionalidad: 'CERTIFICADO DE PROFESIONALIDAD',
   }
   return level ? map[level] || level.replace(/_/g, ' ').toUpperCase() : 'FORMACION CEP'
-}
-
-function formatCurrency(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(Number(value))) return 'A consultar'
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-  }).format(Number(value))
-}
-
-function textFromRichValue(value: unknown): string {
-  if (typeof value === 'string') return value.trim()
-  if (!value || typeof value !== 'object') return ''
-  return ''
 }
 
 function normalizeStudyType(value: unknown): string {
@@ -181,8 +162,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const campus = typeof conv.campus === 'object' ? conv.campus : null
   const displayName = cycle?.name || course?.title || course?.name || 'Convocatoria CEP'
   const sedeName = campus?.name || ''
-  const mode = modalityLabel(cycle?.duration?.modality || course?.modality || conv.modality)
-  const start = conv.start_date ? ` Inicio: ${formatDate(conv.start_date)}.` : ''
+  const mode = publicModalityLabel(getRunModality(conv, course, cycle))
+  const start = conv.start_date ? ` Inicio: ${formatPublicDate(conv.start_date)}.` : ''
   const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
 
   return {
@@ -204,10 +185,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
   const course = typeof conv.course === 'object' ? conv.course : null
   const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
   const campus = typeof conv.campus === 'object' ? conv.campus : null
-  const instructor = resolvePrimaryInstructor(conv)
-  const instructorName = resolveInstructorName(instructor)
-  const instructorPhoto = resolveImageUrl(instructor?.photo)
-  const instructorHref = resolveInstructorHref(instructor)
+  const assignedInstructors = resolveInstructors(conv)
   const campusHref = resolveCampusHref(campus)
 
   const cycleImage = cycle ? resolveImageUrl(cycle.image || cycle.featured_image) : null
@@ -220,20 +198,18 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
     course?.area ||
     cycle?.area ||
     'Formacion profesional'
-  const isOnline = [cycle?.duration?.modality, course?.modality, conv.modality].some((value) => value === 'online')
+  const modality = getRunModality(conv, course, cycle)
+  const isOnline = modality === 'online' && !hasPhysicalLocation(conv)
   const normalizedCourseType = normalizeStudyType(course?.course_type || course?.tipo || course?.studyType || conv.course_type)
   const isSubsidized = normalizedCourseType === 'ocupados' || normalizedCourseType === 'desempleados'
-  const modality = isOnline ? 'online' : cycle?.duration?.modality || course?.modality || conv.modality
-  const modalityText = modalityLabel(modality)
+  const modalityText = publicModalityLabel(modality)
   const sedeName = isOnline ? 'Online' : campus?.name || 'Sede a confirmar'
-  const startMonth = isOnline && !conv.start_date ? 'Empieza cuando quieras' : formatMonth(conv.start_date)
-  const startDate = isOnline && !conv.start_date ? 'Empieza cuando quieras' : formatDate(conv.start_date)
-  const endDate = conv.end_date ? formatDate(conv.end_date) : ''
+  const startMonth = isOnline && !conv.start_date ? 'Empieza cuando quieras' : formatPublicMonth(conv.start_date)
+  const startDate = isOnline && !conv.start_date ? 'Empieza cuando quieras' : formatPublicDate(conv.start_date)
+  const endDate = conv.end_date ? formatPublicDate(conv.end_date) : ''
   const totalHours = cycle?.duration?.totalHours || course?.duration || course?.duration_hours || course?.duracion
   const practiceHours = cycle?.duration?.practiceHours
-  const scheduleText = isOnline
-    ? 'Estudia online a tu ritmo'
-    : cycle?.duration?.schedule || conv.schedule || course?.schedule || 'Horario a consultar'
+  const scheduleText = isOnline ? 'Estudia online a tu ritmo' : formatRunSchedule(conv)
   const classFrequency = cycle?.duration?.classFrequency || conv.class_frequency
   const cycleLevel = cycle?.level
   const officialTitle = cycle?.officialTitle
@@ -250,16 +226,15 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
     : Array.isArray(course?.landingProgramBlocks)
       ? course.landingProgramBlocks
       : []
+  const courseDescription = textFromRichValue(course?.description || course?.short_description || course?.long_description || course?.landing_description || course?.landingDescription)
   const courseOutcomes = textFromRichValue(course?.landing_outcomes || course?.landingOutcomes || course?.outcomes)
   const courseRequirements = textFromRichValue(course?.landing_access_requirements || course?.landingAccessRequirements)
   const pricing = cycle?.pricing ?? {}
-  const effectivePrice =
-    (typeof conv.price_override === 'number' ? conv.price_override : null) ??
-    (typeof pricing.totalPrice === 'number' ? pricing.totalPrice : null) ??
-    (typeof pricing.monthlyFee === 'number' ? pricing.monthlyFee : null) ??
-    (typeof course?.base_price === 'number' ? course.base_price : null)
-  const enrollmentFee = typeof pricing.enrollmentFee === 'number' ? pricing.enrollmentFee : null
-  const monthlyFee = typeof pricing.monthlyFee === 'number' ? pricing.monthlyFee : null
+  const effectivePrice = getRunPrice(conv, course, cycle)
+  const enrollmentFee = getRunEnrollmentFee(conv, cycle)
+  const monthlyFee = Number(conv.installment_amount_snapshot ?? pricing.monthlyFee)
+  const hasMonthlyFee = Number.isFinite(monthlyFee) && monthlyFee > 0
+  const installmentLabel = getRunInstallmentLabel(conv, cycle)
   const paymentOptions = Array.isArray(pricing.paymentOptions)
     ? pricing.paymentOptions.map((item: any) => (typeof item?.option === 'string' ? item.option.trim() : '')).filter(Boolean)
     : []
@@ -301,7 +276,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
     {
       icon: <Euro className="h-5 w-5" />,
       label: 'Precio',
-      value: formatCurrency(effectivePrice),
+      value: formatPublicCurrency(effectivePrice),
       description: conv.financial_aid_available ? 'Opciones de financiacion disponibles.' : 'Consulta condiciones de matricula.',
     },
   ]
@@ -418,7 +393,7 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
             <a href="#presentacion" className="hover:text-[#f2014b]">Presentacion</a>
             <a href="#detalles" className="hover:text-[#f2014b]">Detalles</a>
             <a href="#sede" className="hover:text-[#f2014b]">Sede</a>
-            {instructorName ? <a href="#docente" className="hover:text-[#f2014b]">Docente</a> : null}
+            {assignedInstructors.length > 0 ? <a href="#docente" className="hover:text-[#f2014b]">Docente</a> : null}
             <a href="#pagos" className="hover:text-[#f2014b]">Pagos</a>
             <a href="#registro" className="rounded-full bg-[#f2014b] px-5 py-2.5 text-white hover:bg-[#c9003f]">{enrollmentInfo.ctaLabel}</a>
           </nav>
@@ -455,6 +430,38 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                     <p className="mt-2 text-sm leading-6 text-gray-600">{badge.desc}</p>
                   </div>
                 ))}
+              </div>
+            </section>
+
+            <section className="scroll-mt-32 rounded-[2rem] border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+              <div className="mb-6">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-[#f2014b]">Información del curso</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-gray-950">Qué incluye esta formación</h2>
+              </div>
+              {courseDescription ? (
+                <p className="text-base leading-8 text-gray-700">{courseDescription}</p>
+              ) : (
+                <p className="text-base leading-8 text-gray-700">
+                  CEP confirmará contigo el contenido académico, requisitos de acceso y documentación antes de formalizar la matrícula.
+                </p>
+              )}
+              <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl bg-gray-50 p-5">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-gray-500">Área</p>
+                  <p className="mt-2 font-black text-gray-950">{areaName}</p>
+                </div>
+                <div className="rounded-2xl bg-gray-50 p-5">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-gray-500">Modalidad real</p>
+                  <p className="mt-2 font-black text-gray-950">{modalityText}</p>
+                </div>
+                <div className="rounded-2xl bg-gray-50 p-5">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-gray-500">Duración</p>
+                  <p className="mt-2 font-black text-gray-950">{totalHours ? `${totalHours} horas` : 'A confirmar'}</p>
+                </div>
+                <div className="rounded-2xl bg-gray-50 p-5">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-gray-500">Plazas</p>
+                  <p className="mt-2 font-black text-gray-950">{conv.capacity ? `${conv.enrolled_count || 0}/${conv.capacity} plazas` : 'Consultar disponibilidad'}</p>
+                </div>
               </div>
             </section>
 
@@ -577,22 +584,39 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
 
             <section id="docente" className="scroll-mt-32">
               <h2 className="text-3xl font-black tracking-tight text-gray-950">Equipo docente</h2>
-              {instructorName ? (
-                <Link href={instructorHref ?? '#'} className="mt-8 flex flex-col gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-red-100 hover:shadow-lg sm:flex-row sm:items-center">
-                  {instructorPhoto ? (
-                    <img src={instructorPhoto} alt={instructorName} className="h-28 w-28 rounded-2xl object-cover" />
-                  ) : (
-                    <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-gray-50 text-2xl font-black text-gray-500 ring-1 ring-gray-100">
-                      {initials(instructorName)}
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Docente</p>
-                    <h3 className="mt-2 text-2xl font-black text-gray-950">{instructorName}</h3>
-                    <p className="mt-2 text-sm leading-6 text-gray-600">Profesional asignado a esta convocatoria.</p>
-                    <span className="mt-4 inline-flex text-sm font-black text-[#f2014b]">Ver perfil docente</span>
-                  </div>
-                </Link>
+              {assignedInstructors.length > 0 ? (
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {assignedInstructors.map((assigned) => {
+                    const name = resolveInstructorName(assigned)
+                    const photo = resolveImageUrl(assigned.photo)
+                    const href = resolveInstructorHref(assigned)
+                    const content = (
+                      <>
+                        {photo ? (
+                          <img src={photo} alt={name} className="h-24 w-24 rounded-2xl object-cover" />
+                        ) : (
+                          <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gray-50 text-2xl font-black text-gray-500 ring-1 ring-gray-100">
+                            {initials(name)}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">Docente</p>
+                          <h3 className="mt-2 text-xl font-black text-gray-950">{name}</h3>
+                          <p className="mt-2 text-sm leading-6 text-gray-600">Profesional asignado a esta convocatoria.</p>
+                        </div>
+                      </>
+                    )
+                    return href ? (
+                      <Link key={String(assigned.id || name)} href={href} className="flex gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-red-100 hover:shadow-lg">
+                        {content}
+                      </Link>
+                    ) : (
+                      <article key={String(assigned.id || name)} className="flex gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                        {content}
+                      </article>
+                    )
+                  })}
+                </div>
               ) : (
                 <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6">
                   <p className="text-base font-bold text-gray-950">Equipo academico CEP</p>
@@ -607,9 +631,10 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                   <Euro className="mb-4 h-6 w-6 text-[#f2014b]" />
                   <h3 className="font-black text-gray-950">Precio</h3>
-                  <p className="mt-3 text-2xl font-black text-gray-950">{formatCurrency(effectivePrice)}</p>
-                  {enrollmentFee !== null ? <p className="mt-2 text-sm text-gray-600">Matricula: {formatCurrency(enrollmentFee)}</p> : null}
-                  {monthlyFee !== null ? <p className="text-sm text-gray-600">Mensualidad: {formatCurrency(monthlyFee)}</p> : null}
+                  <p className="mt-3 text-2xl font-black text-gray-950">{formatPublicCurrency(effectivePrice)}</p>
+                  {enrollmentFee !== null ? <p className="mt-2 text-sm text-gray-600">Matricula: {formatPublicCurrency(enrollmentFee)}</p> : null}
+                  {installmentLabel ? <p className="text-sm text-gray-600">{installmentLabel}</p> : null}
+                  {!installmentLabel && hasMonthlyFee ? <p className="text-sm text-gray-600">Mensualidad: {formatPublicCurrency(monthlyFee)}</p> : null}
                 </div>
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                   <CreditCard className="mb-4 h-6 w-6 text-[#f2014b]" />

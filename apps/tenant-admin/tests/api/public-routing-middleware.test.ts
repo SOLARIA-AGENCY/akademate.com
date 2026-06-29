@@ -51,6 +51,22 @@ describe('Public website routing middleware', () => {
     expect(getHeader(response, 'x-middleware-rewrite')).toBe('')
   })
 
+  it('serves public convocation detail pages without redirecting to login', () => {
+    const request = new NextRequest('https://cepformacion.akademate.com/convocatorias/SC-2026-009')
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
+  })
+
+  it('keeps legacy public convocation detail pages public', () => {
+    const request = new NextRequest('https://cepformacion.akademate.com/p/convocatorias/SC-2026-009')
+    const response = middleware(request)
+
+    expect(response.status).toBe(200)
+    expect(getHeader(response, 'location')).toBe('')
+  })
+
   it('keeps canonical website routes public on CEP host even for authenticated users', () => {
     const request = new NextRequest('https://cepformacion.akademate.com/cursos', {
       headers: { cookie: 'payload-token=session-token' },

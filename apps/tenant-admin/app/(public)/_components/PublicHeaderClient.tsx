@@ -183,7 +183,7 @@ export function PublicHeaderClient({
             <a href="/#nuevas-formaciones" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Nuevas formaciones
             </a>
-            <a href="/p/convocatorias" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+            <a href="/convocatorias" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Convocatorias
             </a>
             <a href="/blog" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
@@ -261,7 +261,7 @@ export function PublicHeaderClient({
                 Nuevas formaciones
               </a>
               <a
-                href="/p/convocatorias"
+                href="/convocatorias"
                 className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
