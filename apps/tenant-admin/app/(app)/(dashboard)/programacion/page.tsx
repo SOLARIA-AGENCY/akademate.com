@@ -23,6 +23,7 @@ import {
   List,
   Printer,
   Download,
+  X,
 } from 'lucide-react'
 import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
 
@@ -66,6 +67,9 @@ interface CourseOption {
   id: string
   name: string
   tipo: string
+  studyType: string
+  areaId: string
+  areaName: string
 }
 
 interface ClassroomOption {
@@ -79,9 +83,18 @@ interface StaffOption {
   id: string
   name: string
   campusIds: string[]
+  qualifiedAreaIds: string[]
+}
+
+interface AreaOption {
+  id: string
+  name: string
+  color?: string | null
 }
 
 type DraftConvocatoria = {
+  trainingType: string
+  areaId: string
   courseId: string
   campusId: string
   classroomId: string
@@ -140,6 +153,8 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const EMPTY_DRAFT: DraftConvocatoria = {
+  trainingType: '',
+  areaId: '',
   courseId: '',
   campusId: '',
   classroomId: '',
@@ -162,6 +177,14 @@ const DAY_OPTIONS = [
   { value: 'thursday', label: 'Jueves' },
   { value: 'friday', label: 'Viernes' },
   { value: 'saturday', label: 'Sábado' },
+]
+
+const TRAINING_TYPE_OPTIONS = [
+  { value: 'privados', label: 'Curso privado' },
+  { value: 'ocupados', label: 'Curso para ocupados' },
+  { value: 'desempleados', label: 'Curso para desempleados' },
+  { value: 'teleformacion', label: 'Teleformación' },
+  { value: 'ciclo', label: 'Ciclo' },
 ]
 
 // Festivos Canarias 2026
@@ -219,6 +242,40 @@ function formatMoney(value?: number | null): string {
   return typeof value === 'number' && Number.isFinite(value) && value > 0
     ? `${value.toLocaleString('es-ES')} €`
     : 'Consultar'
+}
+
+function normalizePlanningTrainingType(course?: Pick<CourseOption, 'tipo' | 'studyType'> | null): string {
+  const raw = `${course?.studyType ?? ''} ${course?.tipo ?? ''}`.toLowerCase()
+  if (raw.includes('ciclo')) return 'ciclo'
+  if (raw.includes('teleformacion') || raw.includes('online')) return 'teleformacion'
+  if (raw.includes('ocupado')) return 'ocupados'
+  if (raw.includes('desempleado') || raw.includes('fped')) return 'desempleados'
+  if (raw.includes('privado') || raw.includes('private')) return 'privados'
+  return ''
+}
+
+function getCourseTrainingPayloadType(course: CourseOption | undefined, fallback: string): string {
+  if (course?.tipo) return course.tipo
+  if (fallback === 'ciclo') return 'ciclo_medio'
+  if (fallback === 'privados') return 'private'
+  return fallback
+}
+
+function relationId(value: unknown): string | null {
+  if (typeof value === 'number' || typeof value === 'string') return String(value)
+  if (value && typeof value === 'object' && 'id' in value) {
+    const id = (value as { id?: unknown }).id
+    if (id != null) return String(id)
+  }
+  return null
+}
+
+function relationName(value: unknown): string {
+  if (value && typeof value === 'object') {
+    const record = value as { nombre?: unknown; name?: unknown }
+    return String(record.nombre ?? record.name ?? '').trim()
+  }
+  return ''
 }
 
 function formatEnrollmentFee(value?: number | null): string {
@@ -754,22 +811,25 @@ export default function ProgramacionPage() {
   const [convocatorias, setConvocatorias] = useState<Convocatoria[]>([])
   const [campuses, setCampuses] = useState<Campus[]>([])
   const [courses, setCourses] = useState<CourseOption[]>([])
+  const [areas, setAreas] = useState<AreaOption[]>([])
   const [classrooms, setClassrooms] = useState<ClassroomOption[]>([])
   const [staff, setStaff] = useState<StaffOption[]>([])
   const [draft, setDraft] = useState<DraftConvocatoria>(EMPTY_DRAFT)
   const [showDraftCreator, setShowDraftCreator] = useState(false)
+  const [showInstructorPicker, setShowInstructorPicker] = useState(false)
   const [listMessage, setListMessage] = useState<string | null>(null)
   const [isSavingDraft, setIsSavingDraft] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   const loadData = React.useCallback(async () => {
     try {
-      const [convsRes, campusRes, coursesRes, classroomsRes, staffRes] = await Promise.all([
+      const [convsRes, campusRes, coursesRes, areasRes, classroomsRes, staffRes] = await Promise.all([
         fetch('/api/convocatorias', { cache: 'no-cache' }),
         fetch('/api/campuses?limit=50', { cache: 'no-cache' }),
         fetch('/api/cursos?includeInactive=true&includeCycles=true&limit=2000', {
           cache: 'no-cache',
         }),
+        fetch('/api/areas-formativas', { cache: 'no-cache' }),
         fetch('/api/aulas?active=true', { cache: 'no-cache' }),
         fetch('/api/staff?staffType=profesor&active=true', { cache: 'no-cache' }),
       ])
@@ -836,12 +896,41 @@ export default function ProgramacionPage() {
         const coursesData = await coursesRes.json()
         const docs = Array.isArray(coursesData.data) ? coursesData.data : []
         setCourses(
-          docs.map((c: Record<string, unknown>) => ({
-            id: String(c.id),
-            name: (c.nombre as string) || (c.name as string) || (c.title as string) || 'Curso',
-            tipo:
-              (c.studyTypeLabel as string) || (c.course_type as string) || (c.tipo as string) || '',
-          }))
+          docs.map((c: Record<string, unknown>) => {
+            const areaId =
+              String(c.areaId ?? '') ||
+              relationId(c.area_formativa) ||
+              String(c.area_formativa_id ?? '')
+            const areaName =
+              (c.area as string) ||
+              relationName(c.area_formativa) ||
+              (c.areaName as string) ||
+              'Sin área'
+            const tipo = (c.course_type as string) || (c.tipo as string) || ''
+            const studyType = (c.studyType as string) || ''
+            return {
+              id: String(c.id),
+              name: (c.nombre as string) || (c.name as string) || (c.title as string) || 'Curso',
+              tipo,
+              studyType,
+              areaId,
+              areaName,
+            }
+          })
+        )
+      }
+
+      if (areasRes.ok) {
+        const areasData = await areasRes.json()
+        const docs = Array.isArray(areasData.data) ? areasData.data : []
+        setAreas(
+          docs
+            .filter((area: Record<string, unknown>) => area.active !== false && area.activo !== false)
+            .map((area: Record<string, unknown>) => ({
+              id: String(area.id),
+              name: (area.nombre as string) || (area.name as string) || 'Área',
+              color: (area.color as string) || null,
+            }))
         )
       }
 
@@ -878,6 +967,15 @@ export default function ProgramacionPage() {
                     : String(campus)
                 )
                 .filter(Boolean),
+              qualifiedAreaIds: (
+                Array.isArray(person.qualifiedAreas)
+                  ? person.qualifiedAreas
+                  : Array.isArray(person.qualified_areas)
+                    ? person.qualified_areas
+                    : []
+              )
+                .map((area) => relationId(area))
+                .filter((areaId): areaId is string => Boolean(areaId)),
             }
           })
         )
@@ -902,14 +1000,50 @@ export default function ProgramacionPage() {
     [classrooms, draft.campusId]
   )
 
+  const derivedAreas = useMemo(() => {
+    if (areas.length > 0) return areas
+    const byId = new Map<string, AreaOption>()
+    courses.forEach((course) => {
+      if (!course.areaId) return
+      byId.set(course.areaId, { id: course.areaId, name: course.areaName })
+    })
+    return Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name, 'es'))
+  }, [areas, courses])
+
+  const filteredCourses = useMemo(
+    () =>
+      courses.filter((course) => {
+        const matchesType = draft.trainingType
+          ? normalizePlanningTrainingType(course) === draft.trainingType
+          : true
+        const matchesArea = draft.areaId ? course.areaId === draft.areaId : true
+        return matchesType && matchesArea
+      }),
+    [courses, draft.areaId, draft.trainingType]
+  )
+
+  const selectedCourse = useMemo(
+    () => courses.find((course) => course.id === draft.courseId),
+    [courses, draft.courseId]
+  )
+
   const filteredStaff = useMemo(
     () =>
-      draft.campusId
-        ? staff.filter(
-            (person) => person.campusIds.length === 0 || person.campusIds.includes(draft.campusId)
-          )
-        : staff,
-    [staff, draft.campusId]
+      staff.filter((person) => {
+        const matchesCampus = draft.campusId
+          ? person.campusIds.length === 0 || person.campusIds.includes(draft.campusId)
+          : true
+        const matchesArea = draft.areaId
+          ? person.qualifiedAreaIds.some((areaId) => areaId === draft.areaId)
+          : true
+        return matchesCampus && matchesArea
+      }),
+    [staff, draft.areaId, draft.campusId]
+  )
+
+  const selectedInstructors = useMemo(
+    () => staff.filter((person) => draft.instructorIds.includes(person.id)),
+    [draft.instructorIds, staff]
   )
 
   const updateDraft = (patch: Partial<DraftConvocatoria>) => {
@@ -920,6 +1054,8 @@ export default function ProgramacionPage() {
   const createDraftConvocatoria = async () => {
     setListMessage(null)
     const missing = [
+      ['tipo', draft.trainingType],
+      ['área', draft.areaId],
       ['curso/ciclo', draft.courseId],
       ['sede', draft.campusId],
       ['aula', draft.classroomId],
@@ -934,6 +1070,16 @@ export default function ProgramacionPage() {
 
     if (missing.length > 0) {
       setListMessage(`Faltan campos: ${missing.join(', ')}.`)
+      return
+    }
+
+    if (!filteredCourses.some((course) => course.id === draft.courseId)) {
+      setListMessage('El curso seleccionado no pertenece al tipo y área elegidos.')
+      return
+    }
+
+    if (draft.instructorIds.some((id) => !filteredStaff.some((person) => person.id === id))) {
+      setListMessage('Hay docentes seleccionados que no pertenecen al área o sede elegida.')
       return
     }
 
@@ -990,7 +1136,7 @@ export default function ProgramacionPage() {
           profesorIds: draft.instructorIds,
           sedeId: draft.campusId,
           aulaId: draft.classroomId,
-          trainingType: 'private',
+          trainingType: getCourseTrainingPayloadType(selectedCourse, draft.trainingType),
           planningStatus: 'draft',
           turno: draft.shift,
           matricula: Number(draft.enrollmentFee) || 0,
@@ -1405,19 +1551,68 @@ export default function ProgramacionPage() {
                     Cancelar
                   </Button>
                 </div>
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(18rem,2fr)_minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(10rem,1fr)_repeat(2,minmax(8rem,1fr))]">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Tipo de formación
+                    <select
+                      value={draft.trainingType}
+                      onChange={(event) =>
+                        updateDraft({
+                          trainingType: event.target.value,
+                          areaId: '',
+                          courseId: '',
+                          instructorIds: [],
+                        })
+                      }
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    >
+                      <option value="">Tipo</option>
+                      {TRAINING_TYPE_OPTIONS.map((type) => (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Área
+                    <select
+                      value={draft.areaId}
+                      onChange={(event) =>
+                        updateDraft({
+                          areaId: event.target.value,
+                          courseId: '',
+                          instructorIds: [],
+                        })
+                      }
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      disabled={!draft.trainingType}
+                    >
+                      <option value="">
+                        {draft.trainingType ? 'Seleccionar área' : 'Selecciona tipo'}
+                      </option>
+                      {derivedAreas.map((area) => (
+                        <option key={area.id} value={area.id}>
+                          {area.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                   <label className="grid gap-1 text-xs font-medium text-muted-foreground md:col-span-2 xl:col-span-1">
                     Curso / ciclo
                     <select
                       value={draft.courseId}
                       onChange={(event) => updateDraft({ courseId: event.target.value })}
                       className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      disabled={!draft.trainingType || !draft.areaId}
                     >
-                      <option value="">Seleccionar curso/ciclo</option>
-                      {courses.map((course) => (
+                      <option value="">
+                        {draft.areaId ? 'Seleccionar curso/ciclo' : 'Selecciona área'}
+                      </option>
+                      {filteredCourses.map((course) => (
                         <option key={course.id} value={course.id}>
                           {course.name}
-                          {course.tipo ? ` · ${course.tipo}` : ''}
+                          {course.areaName ? ` · ${course.areaName}` : ''}
                         </option>
                       ))}
                     </select>
@@ -1466,27 +1661,81 @@ export default function ProgramacionPage() {
                       ))}
                     </select>
                   </label>
-                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                  <div className="relative grid gap-1 text-xs font-medium text-muted-foreground md:col-span-2 xl:col-span-1">
                     Docentes
-                    <select
-                      multiple
-                      value={draft.instructorIds}
-                      onChange={(event) =>
-                        updateDraft({
-                          instructorIds: Array.from(event.target.selectedOptions).map(
-                            (option) => option.value
-                          ),
-                        })
-                      }
-                      className="min-h-24 w-full rounded-md border border-input bg-background px-2 py-2 text-xs"
+                    <button
+                      type="button"
+                      className="flex min-h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-2 py-1 text-left text-xs text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={!draft.areaId}
+                      onClick={() => setShowInstructorPicker((current) => !current)}
                     >
-                      {filteredStaff.map((person) => (
-                        <option key={person.id} value={person.id}>
-                          {person.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                      <span className="truncate">
+                        {selectedInstructors.length > 0
+                          ? `${selectedInstructors.length} docente${selectedInstructors.length === 1 ? '' : 's'}`
+                          : draft.areaId
+                            ? 'Seleccionar docentes'
+                            : 'Selecciona área'}
+                      </span>
+                      <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                    {selectedInstructors.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {selectedInstructors.map((person) => (
+                          <Badge
+                            key={person.id}
+                            variant="secondary"
+                            className="max-w-full gap-1 truncate bg-primary/10 text-primary"
+                          >
+                            <span className="truncate">{person.name}</span>
+                            <button
+                              type="button"
+                              aria-label={`Quitar ${person.name}`}
+                              onClick={() =>
+                                updateDraft({
+                                  instructorIds: draft.instructorIds.filter((id) => id !== person.id),
+                                })
+                              }
+                              className="rounded-full hover:bg-primary/10"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : null}
+                    {showInstructorPicker ? (
+                      <div className="absolute left-0 right-0 top-full z-30 mt-1 max-h-64 overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
+                        {filteredStaff.length === 0 ? (
+                          <div className="px-2 py-2 text-xs text-muted-foreground">
+                            No hay docentes activos para esta área y sede.
+                          </div>
+                        ) : (
+                          filteredStaff.map((person) => {
+                            const selected = draft.instructorIds.includes(person.id)
+                            return (
+                              <button
+                                key={person.id}
+                                type="button"
+                                className={`flex w-full items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-left text-xs hover:bg-primary/10 ${
+                                  selected ? 'bg-primary/10 text-primary' : ''
+                                }`}
+                                onClick={() =>
+                                  updateDraft({
+                                    instructorIds: selected
+                                      ? draft.instructorIds.filter((id) => id !== person.id)
+                                      : [...draft.instructorIds, person.id],
+                                  })
+                                }
+                              >
+                                <span className="truncate">{person.name}</span>
+                                {selected ? <span className="text-[10px] font-semibold">Seleccionado</span> : null}
+                              </button>
+                            )
+                          })
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
                   <label className="grid gap-1 text-xs font-medium text-muted-foreground">
                     Inicio
                     <input

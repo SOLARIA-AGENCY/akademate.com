@@ -124,6 +124,16 @@ const DAY_LABELS: Record<string, string> = {
   sunday: 'DOM',
 }
 
+const DAY_ORDER: Record<string, number> = {
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+  sunday: 7,
+}
+
 const COURSE_TYPE_STYLES: Record<
   string,
   { bar: string; bg: string; text: string; border: string }
@@ -201,6 +211,21 @@ function formatSchedule(
   return [days, time].filter(Boolean).join(' · ') || card.horario
 }
 
+function firstDayOrder(card: Pick<KanbanCard, 'dias'>): number {
+  const orders = card.dias.map((day) => DAY_ORDER[day] ?? 99)
+  return orders.length > 0 ? Math.min(...orders) : 99
+}
+
+function sortCardsByWeekday<T extends Pick<KanbanCard, 'dias' | 'horaInicio' | 'curso'>>(cards: T[]): T[] {
+  return [...cards].sort((a, b) => {
+    const byDay = firstDayOrder(a) - firstDayOrder(b)
+    if (byDay !== 0) return byDay
+    const byTime = String(a.horaInicio || '').localeCompare(String(b.horaInicio || ''))
+    if (byTime !== 0) return byTime
+    return a.curso.localeCompare(b.curso, 'es')
+  })
+}
+
 function courseTypeStyle(type?: string) {
   return (
     COURSE_TYPE_STYLES[(type ?? '').toLowerCase()] ?? {
@@ -239,7 +264,14 @@ function KanbanCardItem({
         <GripVertical className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 mt-0.5 shrink-0" />
         <div className="flex-1 min-w-0">
           {/* Title */}
-          <h4 className="text-sm font-semibold leading-tight line-clamp-2">{card.curso}</h4>
+          <div className="flex items-start justify-between gap-2">
+            <h4 className="text-sm font-semibold leading-tight line-clamp-2">{card.curso}</h4>
+            {card.estado === 'enrollment_open' ? (
+              <Badge className="shrink-0 bg-green-500 px-1.5 py-0 text-[9px] text-white hover:bg-green-500">
+                Matrícula abierta
+              </Badge>
+            ) : null}
+          </div>
 
           {/* Info */}
           <div className="mt-2 space-y-1 text-[11px] text-muted-foreground">
@@ -415,7 +447,9 @@ function OccupancyMatrix({
                     <div className="mt-1 text-muted-foreground">{aula.capacity} plazas</div>
                   </div>
                   {Object.keys(SHIFT_LABELS).map((shift) => {
-                    const shiftCards = aulaCards.filter((card) => card.turno === shift)
+                    const shiftCards = sortCardsByWeekday(
+                      aulaCards.filter((card) => card.turno === shift)
+                    )
                     const occupied = shiftCards.reduce(
                       (sum, card) =>
                         sum + Math.min(card.plazas || 0, aula.capacity || card.plazas || 0),
@@ -466,6 +500,11 @@ function OccupancyMatrix({
                                     </div>
                                   )}
                                   <div className="min-w-0 flex-1 p-2">
+                                    {card.estado === 'enrollment_open' ? (
+                                      <Badge className="mb-1 bg-green-500 px-1.5 py-0 text-[9px] text-white hover:bg-green-500">
+                                        Matrícula abierta
+                                      </Badge>
+                                    ) : null}
                                     <div
                                       className={`line-clamp-2 text-[11px] font-bold uppercase leading-tight ${style.text}`}
                                     >
@@ -591,7 +630,7 @@ export default function PlannerPage() {
         setColumns(
           COLUMNS_CONFIG.map((col) => ({
             ...col,
-            cards: cards.filter((c) => c.estado === col.key),
+            cards: sortCardsByWeekday(cards.filter((c) => c.estado === col.key)),
           }))
         )
       } catch {
@@ -644,7 +683,10 @@ export default function PlannerPage() {
           if (col.key === sourceCol)
             return { ...col, cards: col.cards.filter((c) => c.id !== cardId) }
           if (col.key === targetColumn)
-            return { ...col, cards: [...col.cards, { ...card!, estado: targetColumn }] }
+            return {
+              ...col,
+              cards: sortCardsByWeekday([...col.cards, { ...card!, estado: targetColumn }]),
+            }
           return col
         })
       )
@@ -699,7 +741,7 @@ export default function PlannerPage() {
   // Filtered columns
   const filteredColumns = columns.map((col) => ({
     ...col,
-    cards: col.cards.filter((c) => c.sedeId === sedeFilter),
+    cards: sortCardsByWeekday(col.cards.filter((c) => c.sedeId === sedeFilter)),
   }))
 
   const selectedCampus = campuses.find((campus) => campus.id === sedeFilter)

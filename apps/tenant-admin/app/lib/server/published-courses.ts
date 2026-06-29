@@ -43,7 +43,7 @@ type CourseDoc = {
   landing_faqs?: { question?: string | null; answer?: string | null }[] | null
   active?: boolean | null
   featured?: boolean | null
-  area_formativa?: { nombre?: string | null; color?: string | null; codigo?: string | null } | number | null
+  area_formativa?: { id?: number | string | null; nombre?: string | null; color?: string | null; codigo?: string | null } | number | null
   featured_image?: { url?: string | null; filename?: string | null } | number | null
   image?: { url?: string | null; filename?: string | null } | number | null
   dossier_pdf?: { url?: string | null; filename?: string | null } | number | null
@@ -94,6 +94,7 @@ export type PublishedCourse = {
   cycleId: string | null
   descripcion: string
   descripcionDetallada: string[]
+  areaId: string | null
   area: string
   areaColor: string
   areaCode: string
@@ -162,6 +163,12 @@ function isValidHexColor(color: string | null | undefined): color is string {
 function toAreaName(area: CourseDoc['area_formativa']): string {
   if (typeof area === 'object' && area && area.nombre) return area.nombre
   return 'Sin área'
+}
+
+function toAreaId(area: CourseDoc['area_formativa']): string | null {
+  if (typeof area === 'number' || typeof area === 'string') return String(area)
+  if (typeof area === 'object' && area && area.id != null) return String(area.id)
+  return null
 }
 
 function toAreaColor(area: CourseDoc['area_formativa']): string {
@@ -411,6 +418,7 @@ function mapCourseDocToPublishedCourse(
       String(course.short_description || course.description || '').trim() ||
       'Curso de formación profesional',
     descripcionDetallada: extractTextFromRichText(course.long_description),
+    areaId: toAreaId(course.area_formativa),
     area: toAreaName(course.area_formativa),
     areaColor: toAreaColor(course.area_formativa),
     areaCode: toAreaCode(course.area_formativa),
