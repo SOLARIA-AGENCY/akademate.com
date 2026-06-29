@@ -1841,25 +1841,25 @@ export default function ProgramacionPage() {
               </div>
             )}
 
-            <div className="hidden lg:block">
-              <table className="w-full table-fixed text-[10px] xl:text-[11px]">
+            <div className="hidden 2xl:block">
+              <table className="w-full table-fixed text-[11px]">
                 <thead>
                   <tr className="border-b bg-muted/30">
-                    <th className="w-[12%] p-2 text-left font-medium">Convocatoria</th>
-                    <th className="w-[7%] p-2 text-left font-medium">Sede</th>
+                    <th className="w-[11%] p-2 text-left font-medium">Convocatoria</th>
+                    <th className="w-[6%] p-2 text-left font-medium">Sede</th>
                     <th className="w-[6%] p-2 text-left font-medium">Aula</th>
-                    <th className="w-[9%] p-2 text-left font-medium">Docentes</th>
+                    <th className="w-[8%] p-2 text-left font-medium">Docentes</th>
                     <th className="w-[7%] p-2 text-left font-medium">Inicio</th>
                     <th className="w-[7%] p-2 text-left font-medium">Fin</th>
-                    <th className="w-[6%] p-2 text-left font-medium">Día</th>
+                    <th className="w-[5%] p-2 text-left font-medium">Día</th>
                     <th className="w-[6%] p-2 text-left font-medium">Horario</th>
                     <th className="w-[6%] p-2 text-left font-medium">Prácticas</th>
                     <th className="w-[7%] p-2 text-left font-medium">Certificación</th>
                     <th className="w-[5%] p-2 text-right font-medium">Matrícula</th>
                     <th className="w-[5%] p-2 text-right font-medium">Precio</th>
                     <th className="w-[4%] p-2 text-center font-medium">Plazas</th>
-                    <th className="w-[8%] p-2 text-center font-medium">Estado</th>
-                    <th className="w-[5%] p-2 text-right font-medium"></th>
+                    <th className="w-[10%] p-2 text-center font-medium">Estado</th>
+                    <th className="w-[4%] p-2 text-right font-medium"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1968,9 +1968,11 @@ export default function ProgramacionPage() {
                           </td>
                           <td className="p-2 text-center">
                             <Badge
-                              className={`w-full max-w-full justify-center whitespace-nowrap px-1.5 text-[8px] leading-none text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
+                              className="w-full max-w-full justify-center whitespace-nowrap rounded-full border border-green-200 bg-green-50 px-2 py-1 text-[10px] font-semibold leading-none text-green-700 shadow-none"
                             >
-                              {STATUS_LABELS[conv.estado] || conv.estado}
+                              {conv.estado === 'enrollment_open'
+                                ? 'Matrícula abierta'
+                                : STATUS_LABELS[conv.estado] || conv.estado}
                             </Badge>
                           </td>
                           <td className="p-2 text-right">
@@ -1990,7 +1992,7 @@ export default function ProgramacionPage() {
                 </tbody>
               </table>
             </div>
-            <div className="space-y-3 lg:hidden">
+            <div className="space-y-3 2xl:hidden">
               {filtered.length === 0 ? (
                 <div className="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
                   No hay convocatorias publicadas

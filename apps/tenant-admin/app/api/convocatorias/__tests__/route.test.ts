@@ -131,4 +131,58 @@ describe('/api/convocatorias instructor assignment', () => {
       }),
     }))
   })
+
+  it('returns Excel planning metadata from course and start date when notes are empty', async () => {
+    payloadMock.find.mockImplementation(async ({ collection }: any) => {
+      if (collection === 'course-runs') {
+        return {
+          docs: [{
+            id: 909,
+            codigo: 'SC-2026-009',
+            course: {
+              id: 301,
+              name: 'Auxiliar de Odontología e Higiene',
+              course_type: 'privado',
+            },
+            campus: { id: 2, name: 'Sede Santa Cruz' },
+            classroom: { id: 8, name: 'Sillones / Área común', capacity: 22 },
+            start_date: '2026-11-25T00:00:00.000Z',
+            end_date: '2027-06-02T00:00:00.000Z',
+            schedule_days: ['wednesday'],
+            schedule_time_start: '10:00',
+            schedule_time_end: '14:00',
+            status: 'published',
+            enrollment_status: 'enrollment_open',
+            planning_status: 'confirmed',
+            training_type: 'privado',
+            shift: 'morning',
+            max_students: 22,
+            current_enrollments: 0,
+            price_override: null,
+            price_snapshot: 990,
+            enrollment_fee_snapshot: 150,
+            notes: '',
+            instructors: [],
+            instructor: null,
+          }],
+          totalDocs: 1,
+        }
+      }
+      if (collection === 'campaigns') {
+        return { docs: [], totalDocs: 0 }
+      }
+      return { docs: [], totalDocs: 0 }
+    })
+
+    const { GET } = await loadRoute()
+    const response = await GET(new NextRequest('http://localhost/api/convocatorias'))
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.data[0]).toMatchObject({
+      codigo: 'SC-2026-009',
+      horasPracticas: '200h',
+      certificacion: 'CEP',
+    })
+  })
 })

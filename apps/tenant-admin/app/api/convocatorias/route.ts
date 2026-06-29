@@ -239,6 +239,98 @@ const DAY_LABELS: Record<string, string> = {
   sunday: 'DOM',
 };
 
+const CEP_EXCEL_PLANNING_METADATA = [
+  {
+    aliases: ['Auxiliar en Clínicas Estéticas', 'Auxiliar de Clínicas Estéticas'],
+    startDate: '2026-05-11',
+    practiceHours: '150h',
+    certification: 'CEP + U.V 210€',
+  },
+  {
+    aliases: ['Auxiliar de Farmacia y Parafarmacia + Dermocosmética', 'Farmacia y Dermocosmética'],
+    startDate: '2026-09-08',
+    practiceHours: '350h',
+    certification: 'CEP',
+  },
+  {
+    aliases: ['Instructor de Pilates', 'Instructor/a de Pilates'],
+    startDate: '2026-09-09',
+    practiceHours: null,
+    certification: 'CEP',
+  },
+  {
+    aliases: ['Quiromasaje Holístico', 'Quiromasaje'],
+    startDate: '2026-09-11',
+    practiceHours: '100h',
+    certification: 'CEP',
+  },
+  {
+    aliases: ['ACV (Aux. Clínico Veterinario)', 'Auxiliar Clínico Veterinario'],
+    startDate: '2026-09-14',
+    practiceHours: '350h',
+    certification: 'CEP + U.V 200€',
+  },
+  {
+    aliases: ['Auxiliar en Clínicas Estéticas', 'Auxiliar de Clínicas Estéticas'],
+    startDate: '2026-09-17',
+    practiceHours: '150h',
+    certification: 'CEP + U.V 210€',
+  },
+  {
+    aliases: ['Auxiliar Odontología', 'Auxiliar de Odontología e Higiene'],
+    startDate: '2026-11-25',
+    practiceHours: '200h',
+    certification: 'CEP',
+  },
+  {
+    aliases: ['Auxiliar de Enfermería'],
+    startDate: '2026-06-24',
+    practiceHours: '300h',
+    certification: 'CEP',
+  },
+  {
+    aliases: ['Auxiliar de Farmacia y Parafarmacia + Dermocosmética', 'Farmacia y Dermocosmética'],
+    startDate: '2026-06-17',
+    practiceHours: '350h',
+    certification: 'CEP',
+  },
+  {
+    aliases: ['ATV Combo (Alicia)', 'Ayudante Técnico Veterinario (ATV)'],
+    startDate: '2026-09-08',
+    practiceHours: '50h',
+    certification: 'CEP',
+  },
+  {
+    aliases: ['Auxiliar de Enfermería'],
+    startDate: '2026-09-21',
+    practiceHours: '300h',
+    certification: 'CEP',
+  },
+  {
+    aliases: ['Agente Funerario', 'Agente Funerario (Tanatopraxia y Tanatoestética)'],
+    startDate: '2026-10-01',
+    practiceHours: '160h',
+    certification: 'CEP',
+  },
+  {
+    aliases: ['Auxiliar de Farmacia y Parafarmacia + Dermocosmética', 'Farmacia y Dermocosmética'],
+    startDate: '2026-10-23',
+    practiceHours: '350h',
+    certification: 'CEP',
+  },
+  {
+    aliases: ['Peluquería Canina y Felina'],
+    startDate: '2026-10-26',
+    practiceHours: '25h adicionales',
+    certification: 'CEP',
+  },
+] satisfies Array<{
+  aliases: string[];
+  startDate: string;
+  practiceHours: string | null;
+  certification: string | null;
+}>;
+
 function normalizeCampaignStatus(status: unknown): CampaignState {
   if (typeof status !== 'string') return 'none';
   if (['active', 'paused', 'draft', 'completed', 'archived'].includes(status)) {
@@ -274,6 +366,40 @@ function extractExcelPlanningMetadata(notes?: string | null): {
   return {
     certification: normalize(certificationMatch?.[1]),
     practiceHours: normalize(practiceMatch?.[1]),
+  };
+}
+
+function normalizePlanningText(value?: string | null): string {
+  return (value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function getExcelPlanningMetadataFromSheet(
+  courseName?: string | null,
+  startDate?: string | null,
+): {
+  certification: string | null;
+  practiceHours: string | null;
+} {
+  const normalizedCourse = normalizePlanningText(courseName);
+  const dateKey = (startDate ?? '').slice(0, 10);
+  if (!normalizedCourse || !dateKey) return { certification: null, practiceHours: null };
+
+  const match = CEP_EXCEL_PLANNING_METADATA.find((item) => {
+    if (item.startDate !== dateKey) return false;
+    return item.aliases.some((alias) => {
+      const normalizedAlias = normalizePlanningText(alias);
+      return normalizedCourse.includes(normalizedAlias) || normalizedAlias.includes(normalizedCourse);
+    });
+  });
+
+  return {
+    certification: match?.certification ?? null,
+    practiceHours: match?.practiceHours ?? null,
   };
 }
 
@@ -648,6 +774,10 @@ export async function GET(request: NextRequest) {
           : null;
         const dias = conv.schedule_days ?? [];
         const excelMetadata = extractExcelPlanningMetadata(conv.notes);
+        const sheetMetadata = getExcelPlanningMetadataFromSheet(
+          typeof conv.course === 'object' ? conv.course.name : null,
+          conv.start_date,
+        );
 
         return {
           id: conv.id,
@@ -679,8 +809,8 @@ export async function GET(request: NextRequest) {
           matricula: conv.enrollment_fee_snapshot,
           cuotaImporte: conv.installment_amount_snapshot,
           cuotaCantidad: conv.installment_count_snapshot,
-          horasPracticas: excelMetadata.practiceHours,
-          certificacion: excelMetadata.certification,
+          horasPracticas: excelMetadata.practiceHours ?? sheetMetadata.practiceHours,
+          certificacion: excelMetadata.certification ?? sheetMetadata.certification,
           priceSource: conv.price_source,
           profesor: normalizeInstructorName(conv.instructor),
           profesores: normalizeInstructorNames(conv.instructor, conv.instructors),
