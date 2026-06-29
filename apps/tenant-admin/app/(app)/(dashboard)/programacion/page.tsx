@@ -873,7 +873,7 @@ export default function ProgramacionPage() {
         }),
         fetch('/api/areas-formativas', { cache: 'no-cache' }),
         fetch('/api/aulas?active=true', { cache: 'no-cache' }),
-        fetch('/api/staff?staffType=profesor&active=true', { cache: 'no-cache' }),
+        fetch('/api/staff?type=profesor&status=active&limit=2000', { cache: 'no-cache' }),
       ])
 
       if (convsRes.ok) {
@@ -996,7 +996,11 @@ export default function ProgramacionPage() {
         const docs = Array.isArray(staffData.data) ? staffData.data : []
         setStaff(
           docs.map((person: Record<string, unknown>) => {
-            const campusesRaw = Array.isArray(person.campuses) ? person.campuses : []
+            const campusesRaw = Array.isArray(person.assignedCampuses)
+              ? person.assignedCampuses
+              : Array.isArray(person.campuses)
+                ? person.campuses
+                : []
             return {
               id: String(person.id),
               name:
@@ -1074,6 +1078,7 @@ export default function ProgramacionPage() {
   const filteredStaff = useMemo(
     () =>
       staff.filter((person) => {
+        if (draft.instructorIds.includes(person.id)) return true
         const matchesCampus = draft.campusId
           ? person.campusIds.length === 0 || person.campusIds.includes(draft.campusId)
           : true
@@ -1082,7 +1087,7 @@ export default function ProgramacionPage() {
           : true
         return matchesCampus && matchesArea
       }),
-    [staff, draft.areaId, draft.campusId]
+    [staff, draft.areaId, draft.campusId, draft.instructorIds]
   )
 
   const selectedInstructors = useMemo(
