@@ -82,6 +82,7 @@ interface PopulatedCourseRun {
   installment_amount_snapshot?: number | null;
   installment_count_snapshot?: number | null;
   price_source?: 'unknown' | 'course_default' | 'run_override' | 'manual_import' | null;
+  notes?: string | null;
 }
 
 type CampaignState = 'active' | 'paused' | 'draft' | 'completed' | 'archived' | 'none';
@@ -255,6 +256,25 @@ function resolveMediaUrl(media: unknown): string | null {
     if (typeof record.filename === 'string') return `/media/${record.filename}`;
   }
   return null;
+}
+
+function extractExcelPlanningMetadata(notes?: string | null): {
+  certification: string | null;
+  practiceHours: string | null;
+} {
+  const text = notes ?? '';
+  const certificationMatch = text.match(/Diploma:\s*([^\n.]+)/i);
+  const practiceMatch = text.match(/Prácticas:\s*([^\n.]+)/i);
+  const normalize = (value?: string) => {
+    const clean = value?.trim();
+    if (!clean || clean === '-' || /^n\/?a$/i.test(clean)) return null;
+    return clean;
+  };
+
+  return {
+    certification: normalize(certificationMatch?.[1]),
+    practiceHours: normalize(practiceMatch?.[1]),
+  };
 }
 
 function getRelationId(value: unknown): string | null {
@@ -627,6 +647,7 @@ export async function GET(request: NextRequest) {
           ? resolveMediaUrl(conv.course.featured_image)
           : null;
         const dias = conv.schedule_days ?? [];
+        const excelMetadata = extractExcelPlanningMetadata(conv.notes);
 
         return {
           id: conv.id,
@@ -658,6 +679,8 @@ export async function GET(request: NextRequest) {
           matricula: conv.enrollment_fee_snapshot,
           cuotaImporte: conv.installment_amount_snapshot,
           cuotaCantidad: conv.installment_count_snapshot,
+          horasPracticas: excelMetadata.practiceHours,
+          certificacion: excelMetadata.certification,
           priceSource: conv.price_source,
           profesor: normalizeInstructorName(conv.instructor),
           profesores: normalizeInstructorNames(conv.instructor, conv.instructors),

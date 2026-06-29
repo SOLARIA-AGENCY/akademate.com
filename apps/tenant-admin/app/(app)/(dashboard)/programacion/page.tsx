@@ -50,6 +50,8 @@ interface Convocatoria {
   inscritos: number
   precio: number
   matricula?: number
+  horasPracticas?: string | null
+  certificacion?: string | null
   profesor: string
   profesores: string[]
   profesorRefs: Array<{ id: string; name: string }>
@@ -865,6 +867,8 @@ export default function ProgramacionPage() {
             inscritos: (c.plazasOcupadas as number) || 0,
             precio: (c.precio as number) || 0,
             matricula: c.matricula as number | undefined,
+            horasPracticas: (c.horasPracticas as string | null) || null,
+            certificacion: (c.certificacion as string | null) || null,
             profesor: (c.profesor as string) || 'Sin docente',
             profesores: Array.isArray(c.profesores)
               ? (c.profesores as string[]).filter(Boolean)
@@ -1178,7 +1182,8 @@ export default function ProgramacionPage() {
     { header: 'Fin', getValue: (conv) => formatLongDate(conv.fechaFin) },
     { header: 'Dia', getValue: (conv) => formatDayLabels(conv.dias) },
     { header: 'Horario', getValue: (conv) => formatScheduleRange(conv.horaInicio, conv.horaFin) },
-    { header: 'Horas', getValue: (conv) => formatSessionHours(conv.horaInicio, conv.horaFin) },
+    { header: 'Horas practicas', getValue: (conv) => conv.horasPracticas || '—' },
+    { header: 'Certificacion', getValue: (conv) => conv.certificacion || '—' },
     { header: 'Matricula', getValue: (conv) => formatEnrollmentFee(conv.matricula) },
     { header: 'Precio', getValue: (conv) => formatMoney(conv.precio) },
     { header: 'Plazas', getValue: (conv) => conv.plazas },
@@ -1837,29 +1842,30 @@ export default function ProgramacionPage() {
             )}
 
             <div className="hidden lg:block">
-              <table className="w-full table-fixed text-[11px] xl:text-xs">
+              <table className="w-full table-fixed text-[10px] xl:text-[11px]">
                 <thead>
                   <tr className="border-b bg-muted/30">
-                    <th className="w-[15%] p-2 text-left font-medium">Convocatoria</th>
-                    <th className="w-[8%] p-2 text-left font-medium">Sede</th>
-                    <th className="w-[7%] p-2 text-left font-medium">Aula</th>
-                    <th className="w-[11%] p-2 text-left font-medium">Docentes</th>
-                    <th className="w-[8%] p-2 text-left font-medium">Inicio</th>
-                    <th className="w-[8%] p-2 text-left font-medium">Fin</th>
-                    <th className="w-[7%] p-2 text-left font-medium">Día</th>
-                    <th className="w-[7%] p-2 text-left font-medium">Horario</th>
-                    <th className="w-[5%] p-2 text-left font-medium">Horas</th>
-                    <th className="w-[6%] p-2 text-right font-medium">Matrícula</th>
-                    <th className="w-[6%] p-2 text-right font-medium">Precio</th>
-                    <th className="w-[5%] p-2 text-center font-medium">Plazas</th>
-                    <th className="w-[9%] p-2 text-center font-medium">Estado</th>
-                    <th className="w-[5%] p-2 text-right font-medium">Acción</th>
+                    <th className="w-[12%] p-2 text-left font-medium">Convocatoria</th>
+                    <th className="w-[7%] p-2 text-left font-medium">Sede</th>
+                    <th className="w-[6%] p-2 text-left font-medium">Aula</th>
+                    <th className="w-[9%] p-2 text-left font-medium">Docentes</th>
+                    <th className="w-[7%] p-2 text-left font-medium">Inicio</th>
+                    <th className="w-[7%] p-2 text-left font-medium">Fin</th>
+                    <th className="w-[6%] p-2 text-left font-medium">Día</th>
+                    <th className="w-[6%] p-2 text-left font-medium">Horario</th>
+                    <th className="w-[6%] p-2 text-left font-medium">Prácticas</th>
+                    <th className="w-[7%] p-2 text-left font-medium">Certificación</th>
+                    <th className="w-[5%] p-2 text-right font-medium">Matrícula</th>
+                    <th className="w-[5%] p-2 text-right font-medium">Precio</th>
+                    <th className="w-[4%] p-2 text-center font-medium">Plazas</th>
+                    <th className="w-[8%] p-2 text-center font-medium">Estado</th>
+                    <th className="w-[5%] p-2 text-right font-medium"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={14} className="py-8 text-center text-muted-foreground">
+                      <td colSpan={15} className="py-8 text-center text-muted-foreground">
                         No hay convocatorias publicadas
                       </td>
                     </tr>
@@ -1875,7 +1881,8 @@ export default function ProgramacionPage() {
                         : '—'
                       const dayLabels = formatDayLabels(conv.dias)
                       const scheduleRange = formatScheduleRange(conv.horaInicio, conv.horaFin)
-                      const sessionHours = formatSessionHours(conv.horaInicio, conv.horaFin)
+                      const practiceHours = conv.horasPracticas || '—'
+                      const certification = conv.certificacion || '—'
                       return (
                         <tr key={conv.id} className="border-b hover:bg-muted/20 transition-colors">
                           <td className="min-w-0 p-2">
@@ -1938,7 +1945,10 @@ export default function ProgramacionPage() {
                             {scheduleRange}
                           </td>
                           <td className="p-2 font-semibold leading-tight text-foreground">
-                            {sessionHours}
+                            {practiceHours}
+                          </td>
+                          <td className="p-2 font-semibold leading-tight text-foreground">
+                            {certification}
                           </td>
                           <td className="p-2 text-right font-semibold text-foreground">
                             {formatEnrollmentFee(conv.matricula)}
@@ -1958,7 +1968,7 @@ export default function ProgramacionPage() {
                           </td>
                           <td className="p-2 text-center">
                             <Badge
-                              className={`min-w-[7.75rem] justify-center whitespace-nowrap px-2 text-[9px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
+                              className={`w-full max-w-full justify-center whitespace-nowrap px-1.5 text-[8px] leading-none text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
                             >
                               {STATUS_LABELS[conv.estado] || conv.estado}
                             </Badge>
@@ -1968,7 +1978,7 @@ export default function ProgramacionPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => handleConvClick(conv.id)}
-                              className="px-2 text-[11px]"
+                              className="h-7 px-2 text-[10px]"
                             >
                               Editar
                             </Button>
@@ -1997,7 +2007,8 @@ export default function ProgramacionPage() {
                     : '—'
                   const dayLabels = formatDayLabels(conv.dias)
                   const scheduleRange = formatScheduleRange(conv.horaInicio, conv.horaFin)
-                  const sessionHours = formatSessionHours(conv.horaInicio, conv.horaFin)
+                  const practiceHours = conv.horasPracticas || '—'
+                  const certification = conv.certificacion || '—'
                   return (
                     <div key={conv.id} className="rounded-xl border bg-background p-3">
                       <div className="flex items-start justify-between gap-3">
@@ -2035,7 +2046,13 @@ export default function ProgramacionPage() {
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {scheduleRange} · {sessionHours}
+                          {scheduleRange}
+                        </span>
+                        <span>
+                          Prácticas: {practiceHours}
+                        </span>
+                        <span>
+                          Certificación: {certification}
                         </span>
                         <span>
                           Matrícula: {formatEnrollmentFee(conv.matricula)}
