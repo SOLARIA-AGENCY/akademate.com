@@ -555,6 +555,20 @@ export const CourseRuns: CollectionConfig = {
         description: 'Is financial aid available for this course run?',
       },
     },
+    {
+      name: 'practice_hours',
+      type: 'text',
+      admin: {
+        description: 'Horas de prácticas asociadas a esta convocatoria. Ej: 200h, 25h adicionales.',
+      },
+    },
+    {
+      name: 'certification_type',
+      type: 'text',
+      admin: {
+        description: 'Tipo de certificación o diploma de la convocatoria. Ej: CEP, CEP + U.V 210€.',
+      },
+    },
 
     // ============================================================================
     // INSTRUCTOR INFORMATION

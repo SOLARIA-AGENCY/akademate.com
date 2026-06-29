@@ -211,6 +211,60 @@ describe('/api/course-runs/[id]', () => {
     }))
   })
 
+  it('updates all operational planning fields used by the programación form', async () => {
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        course: 187,
+        campus: 1,
+        classroom: 10,
+        instructor: 44,
+        instructors: [44],
+        start_date: '2026-11-25',
+        end_date: '2027-06-02',
+        schedule_days: ['wednesday'],
+        schedule_time_start: '10:00',
+        schedule_time_end: '14:00',
+        practice_hours: '200h',
+        certification_type: 'CEP + U.V 210€',
+        enrollment_fee_snapshot: 150,
+        price_override: 990,
+        price_snapshot: 990,
+        max_students: 22,
+        status: 'enrollment_open',
+        enrollment_status: 'open',
+        planning_status: 'published',
+      }),
+    }), params())
+
+    expect(response.status).toBe(200)
+    expect(payloadMock.update).toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'course-runs',
+      id: '84',
+      data: expect.objectContaining({
+        course: 187,
+        campus: 1,
+        classroom: 10,
+        instructor: 44,
+        instructors: [44],
+        start_date: '2026-11-25',
+        end_date: '2027-06-02',
+        schedule_days: ['wednesday'],
+        schedule_time_start: '10:00:00',
+        schedule_time_end: '14:00:00',
+        practice_hours: '200h',
+        certification_type: 'CEP + U.V 210€',
+        enrollment_fee_snapshot: 150,
+        price_override: 990,
+        price_snapshot: 990,
+        max_students: 22,
+        status: 'enrollment_open',
+        enrollment_status: 'open',
+        planning_status: 'published',
+      }),
+    }))
+  })
+
   it('updates enrollment status and deadline when valid', async () => {
     const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
       method: 'PATCH',

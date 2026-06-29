@@ -44,6 +44,8 @@ interface CreateConvocationRequest {
   matricula?: number;
   cuotaImporte?: number;
   cuotaCantidad?: number;
+  horasPracticas?: string | null;
+  certificacion?: string | null;
 }
 
 /** Where clause for course-runs query */
@@ -82,6 +84,8 @@ interface PopulatedCourseRun {
   installment_amount_snapshot?: number | null;
   installment_count_snapshot?: number | null;
   price_source?: 'unknown' | 'course_default' | 'run_override' | 'manual_import' | null;
+  practice_hours?: string | null;
+  certification_type?: string | null;
   notes?: string | null;
 }
 
@@ -124,6 +128,8 @@ interface CourseRunCreateData {
   installment_amount_snapshot: number | undefined;
   installment_count_snapshot: number | undefined;
   price_source: string;
+  practice_hours: string | undefined;
+  certification_type: string | undefined;
   instructor: number | undefined;
   instructors: number[] | undefined;
   administrative_owner: number | undefined;
@@ -442,6 +448,31 @@ function formatSchedule(days?: string[] | null, start?: string | null, end?: str
   return [dayText, timeText].filter(Boolean).join(' · ');
 }
 
+function normalizeOptionalText(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+function mapPlanningStatusToCourseRunStatus(status?: string | null): CourseRun['status'] {
+  if (status === 'published') return 'published';
+  if (status === 'in_progress') return 'in_progress';
+  if (status === 'completed') return 'completed';
+  if (status === 'cancelled') return 'cancelled';
+  if (status === 'enrollment_closed') return 'enrollment_closed';
+  if (status === 'draft' || status === 'borrador') return 'draft';
+  return 'enrollment_open';
+}
+
+function mapCourseRunStatusToPlanningStatus(
+  status: CourseRun['status'],
+  planningStatus?: CreateConvocationRequest['planningStatus'],
+): string {
+  if (planningStatus) return planningStatus;
+  if (status === 'draft') return 'draft';
+  if (status === 'cancelled') return 'cancelled';
+  if (status === 'completed') return 'completed';
+  return 'published';
+}
+
 // ============================================================================
 // Route Handlers
 // ============================================================================
@@ -473,6 +504,8 @@ export async function POST(request: NextRequest) {
       matricula,
       cuotaImporte,
       cuotaCantidad,
+      horasPracticas,
+      certificacion,
     } = body;
 
     // Validaciones basicas
@@ -539,6 +572,7 @@ export async function POST(request: NextRequest) {
       responsableId && !isNaN(parseInt(responsableId, 10)) ? parseInt(responsableId, 10) : undefined;
 
     // Prepare data for course-run creation
+    const normalizedStatus = mapPlanningStatusToCourseRunStatus(estado);
     const courseRunData: CourseRunCreateData = {
       course: parseInt(courseId),
       campus: campusId,
@@ -548,7 +582,7 @@ export async function POST(request: NextRequest) {
       schedule_days: horario.map((e: ScheduleEntry) => e.day as DayKey),
       schedule_time_start: earliestStart,
       schedule_time_end: latestEnd,
-      status: estado === 'abierta' ? 'enrollment_open' : 'draft',
+      status: normalizedStatus,
       min_students: 5,
       max_students: plazasTotales,
       current_enrollments: 0,
@@ -558,11 +592,13 @@ export async function POST(request: NextRequest) {
       installment_amount_snapshot: typeof cuotaImporte === 'number' && cuotaImporte >= 0 ? cuotaImporte : undefined,
       installment_count_snapshot: typeof cuotaCantidad === 'number' && cuotaCantidad >= 0 ? cuotaCantidad : undefined,
       price_source: precio > 0 ? 'run_override' : 'course_default',
+      practice_hours: normalizeOptionalText(horasPracticas),
+      certification_type: normalizeOptionalText(certificacion),
       instructor: primaryInstructorId,
       instructors: instructorIds.length > 0 ? instructorIds : undefined,
       administrative_owner: administrativeOwnerId,
       training_type: trainingType ?? 'private',
-      planning_status: planningStatus ?? (estado === 'abierta' ? 'published' : 'draft'),
+      planning_status: mapCourseRunStatusToPlanningStatus(normalizedStatus, planningStatus),
       shift: turno ?? 'morning',
       notes: '',
     };
@@ -809,8 +845,8 @@ export async function GET(request: NextRequest) {
           matricula: conv.enrollment_fee_snapshot,
           cuotaImporte: conv.installment_amount_snapshot,
           cuotaCantidad: conv.installment_count_snapshot,
-          horasPracticas: excelMetadata.practiceHours ?? sheetMetadata.practiceHours,
-          certificacion: excelMetadata.certification ?? sheetMetadata.certification,
+          horasPracticas: conv.practice_hours ?? excelMetadata.practiceHours ?? sheetMetadata.practiceHours,
+          certificacion: conv.certification_type ?? excelMetadata.certification ?? sheetMetadata.certification,
           priceSource: conv.price_source,
           profesor: normalizeInstructorName(conv.instructor),
           profesores: normalizeInstructorNames(conv.instructor, conv.instructors),

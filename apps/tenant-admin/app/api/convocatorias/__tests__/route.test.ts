@@ -132,6 +132,58 @@ describe('/api/convocatorias instructor assignment', () => {
     }))
   })
 
+  it('creates a convocatoria with editable planning metadata and financial fields', async () => {
+    payloadMock.findByID.mockResolvedValue({
+      id: 301,
+      name: 'Auxiliar de Odontología e Higiene',
+    })
+    payloadMock.create.mockResolvedValue({ id: 909 })
+
+    const { POST } = await loadRoute()
+    const response = await POST(new NextRequest('http://localhost/api/convocatorias', {
+      method: 'POST',
+      body: JSON.stringify({
+        courseId: '301',
+        fechaInicio: '2026-11-25',
+        fechaFin: '2027-06-02',
+        horario: [{ day: 'wednesday', startTime: '10:00:00', endTime: '14:00:00' }],
+        estado: 'enrollment_open',
+        plazasTotales: 22,
+        precio: 990,
+        matricula: 150,
+        profesorId: '248',
+        profesorIds: ['248', '222'],
+        sedeId: '2',
+        aulaId: '8',
+        trainingType: 'private',
+        horasPracticas: '200h',
+        certificacion: 'CEP',
+      }),
+    }))
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.create).toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'course-runs',
+      data: expect.objectContaining({
+        course: 301,
+        campus: 2,
+        classroom: 8,
+        instructor: 248,
+        instructors: [248, 222],
+        status: 'enrollment_open',
+        planning_status: 'published',
+        price_override: 990,
+        price_snapshot: 990,
+        enrollment_fee_snapshot: 150,
+        max_students: 22,
+        practice_hours: '200h',
+        certification_type: 'CEP',
+      }),
+    }))
+  })
+
   it('returns Excel planning metadata from course and start date when notes are empty', async () => {
     payloadMock.find.mockImplementation(async ({ collection }: any) => {
       if (collection === 'course-runs') {

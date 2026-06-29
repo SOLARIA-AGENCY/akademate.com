@@ -95,6 +95,7 @@ interface AreaOption {
 }
 
 type DraftConvocatoria = {
+  id?: string
   trainingType: string
   areaId: string
   courseId: string
@@ -107,6 +108,9 @@ type DraftConvocatoria = {
   timeStart: string
   timeEnd: string
   shift: string
+  status: string
+  practiceHours: string
+  certification: string
   maxStudents: string
   price: string
   enrollmentFee: string
@@ -147,7 +151,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATUS_LABELS: Record<string, string> = {
   published: 'Publicado',
-  enrollment_open: 'Inscripcion abierta',
+  enrollment_open: 'Matrícula abierta',
   in_progress: 'En curso',
   draft: 'Sin publicar',
   completed: 'Completada',
@@ -155,6 +159,7 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const EMPTY_DRAFT: DraftConvocatoria = {
+  id: undefined,
   trainingType: '',
   areaId: '',
   courseId: '',
@@ -167,6 +172,9 @@ const EMPTY_DRAFT: DraftConvocatoria = {
   timeStart: '10:00',
   timeEnd: '14:00',
   shift: 'morning',
+  status: 'enrollment_open',
+  practiceHours: '',
+  certification: '',
   maxStudents: '18',
   price: '',
   enrollmentFee: '150',
@@ -187,6 +195,15 @@ const TRAINING_TYPE_OPTIONS = [
   { value: 'desempleados', label: 'Curso para desempleados' },
   { value: 'teleformacion', label: 'Teleformación' },
   { value: 'ciclo', label: 'Ciclo' },
+]
+
+const RUN_STATUS_OPTIONS = [
+  { value: 'enrollment_open', label: 'Matrícula abierta' },
+  { value: 'draft', label: 'Borrador' },
+  { value: 'published', label: 'Publicado' },
+  { value: 'in_progress', label: 'En curso' },
+  { value: 'completed', label: 'Completada' },
+  { value: 'cancelled', label: 'Cancelada' },
 ]
 
 // Festivos Canarias 2026
@@ -328,6 +345,29 @@ function formatSessionHours(start?: string, end?: string): string {
   return Number.isInteger(hours)
     ? `${hours} h`
     : `${hours.toLocaleString('es-ES', { maximumFractionDigits: 1 })} h`
+}
+
+function normalizeRunStatus(value?: string | null): string {
+  if (!value || value === 'abierta') return 'enrollment_open'
+  if (value === 'borrador') return 'draft'
+  return value
+}
+
+function planningStatusForRunStatus(status: string): string {
+  if (status === 'draft') return 'draft'
+  if (status === 'cancelled') return 'cancelled'
+  if (status === 'completed') return 'completed'
+  return 'published'
+}
+
+function enrollmentStatusForRunStatus(status: string): string {
+  if (status === 'enrollment_closed' || status === 'cancelled' || status === 'completed') return 'closed'
+  return 'open'
+}
+
+function toNumericOrNull(value: string): number | null {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null
 }
 
 function escapeHtml(value: unknown): string {
@@ -1050,12 +1090,56 @@ export default function ProgramacionPage() {
     [draft.instructorIds, staff]
   )
 
+  const draftFromConvocatoria = (conv: Convocatoria): DraftConvocatoria => {
+    const course = courses.find((item) => item.id === conv.cursoId)
+    const normalizedType = normalizePlanningTrainingType(course) || normalizePlanningTrainingType({
+      tipo: conv.tipo,
+      studyType: '',
+    })
+    const courseAreaId = course?.areaId ?? ''
+    return {
+      id: conv.id,
+      trainingType: normalizedType,
+      areaId: courseAreaId,
+      courseId: conv.cursoId,
+      campusId: conv.sedeId,
+      classroomId: conv.aulaId,
+      instructorIds: conv.profesorRefs.map((person) => person.id),
+      startDate: conv.fechaInicio ? conv.fechaInicio.slice(0, 10) : '',
+      endDate: conv.fechaFin ? conv.fechaFin.slice(0, 10) : '',
+      day: conv.dias[0] ?? 'monday',
+      timeStart: conv.horaInicio?.slice(0, 5) || '10:00',
+      timeEnd: conv.horaFin?.slice(0, 5) || '14:00',
+      shift: 'morning',
+      status: normalizeRunStatus(conv.estado),
+      practiceHours: conv.horasPracticas ?? '',
+      certification: conv.certificacion ?? '',
+      maxStudents: conv.plazas ? String(conv.plazas) : '18',
+      price: conv.precio ? String(conv.precio) : '',
+      enrollmentFee: conv.matricula != null ? String(conv.matricula) : '',
+    }
+  }
+
   const updateDraft = (patch: Partial<DraftConvocatoria>) => {
     setListMessage(null)
     setDraft((current) => ({ ...current, ...patch }))
   }
 
-  const createDraftConvocatoria = async () => {
+  const resetDraftForm = () => {
+    setShowDraftCreator(false)
+    setShowInstructorPicker(false)
+    setDraft(EMPTY_DRAFT)
+    setListMessage(null)
+  }
+
+  const editConvocatoria = (conv: Convocatoria) => {
+    setDraft(draftFromConvocatoria(conv))
+    setShowDraftCreator(true)
+    setShowInstructorPicker(false)
+    setListMessage(null)
+  }
+
+  const saveDraftConvocatoria = async () => {
     setListMessage(null)
     const missing = [
       ['tipo', draft.trainingType],
@@ -1068,6 +1152,7 @@ export default function ProgramacionPage() {
       ['fin', draft.endDate],
       ['hora inicio', draft.timeStart],
       ['hora fin', draft.timeEnd],
+      ['estado', draft.status],
     ]
       .filter(([, value]) => !value)
       .map(([label]) => label)
@@ -1101,6 +1186,7 @@ export default function ProgramacionPage() {
         shift: draft.shift,
         max_students: draft.maxStudents,
       })
+      if (draft.id) availabilityParams.set('id', draft.id)
       availabilityParams.append('schedule_days', draft.day)
       draft.instructorIds.forEach((id) => availabilityParams.append('instructors', id))
       const availabilityRes = await fetch(
@@ -1119,46 +1205,78 @@ export default function ProgramacionPage() {
         return
       }
 
-      const createRes = await fetch('/api/convocatorias', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          courseId: draft.courseId,
-          fechaInicio: draft.startDate,
-          fechaFin: draft.endDate,
-          horario: [
-            {
-              day: draft.day,
-              startTime: `${draft.timeStart}:00`.replace(/:00:00$/, ':00'),
-              endTime: `${draft.timeEnd}:00`.replace(/:00:00$/, ':00'),
-            },
-          ],
-          estado: 'borrador',
-          plazasTotales: Number(draft.maxStudents) || 1,
-          precio: Number(draft.price) || 0,
-          profesorId: draft.instructorIds[0] ?? '',
-          profesorIds: draft.instructorIds,
-          sedeId: draft.campusId,
-          aulaId: draft.classroomId,
-          trainingType: getCourseTrainingPayloadType(selectedCourse, draft.trainingType),
-          planningStatus: 'draft',
-          turno: draft.shift,
-          matricula: Number(draft.enrollmentFee) || 0,
-        }),
-      })
-      const createData = await createRes.json()
-      if (!createRes.ok || createData?.success === false) {
-        setListMessage(createData?.error || 'No se pudo crear la convocatoria.')
+      const payloadBody = {
+        courseId: draft.courseId,
+        fechaInicio: draft.startDate,
+        fechaFin: draft.endDate,
+        horario: [
+          {
+            day: draft.day,
+            startTime: `${draft.timeStart}:00`.replace(/:00:00$/, ':00'),
+            endTime: `${draft.timeEnd}:00`.replace(/:00:00$/, ':00'),
+          },
+        ],
+        estado: normalizeRunStatus(draft.status),
+        plazasTotales: Number(draft.maxStudents) || 1,
+        precio: Number(draft.price) || 0,
+        profesorId: draft.instructorIds[0] ?? '',
+        profesorIds: draft.instructorIds,
+        sedeId: draft.campusId,
+        aulaId: draft.classroomId,
+        trainingType: getCourseTrainingPayloadType(selectedCourse, draft.trainingType),
+        planningStatus: planningStatusForRunStatus(normalizeRunStatus(draft.status)),
+        turno: draft.shift,
+        matricula: Number(draft.enrollmentFee) || 0,
+        horasPracticas: draft.practiceHours.trim() || null,
+        certificacion: draft.certification.trim() || null,
+      }
+
+      const saveRes = draft.id
+        ? await fetch(`/api/course-runs/${draft.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              course: Number(draft.courseId),
+              campus: Number(draft.campusId),
+              classroom: draft.classroomId ? Number(draft.classroomId) : null,
+              instructor: draft.instructorIds[0] ? Number(draft.instructorIds[0]) : null,
+              instructors: draft.instructorIds.map((id) => Number(id)).filter((id) => Number.isFinite(id)),
+              start_date: draft.startDate,
+              end_date: draft.endDate,
+              schedule_days: [draft.day],
+              schedule_time_start: draft.timeStart,
+              schedule_time_end: draft.timeEnd,
+              shift: draft.shift,
+              status: normalizeRunStatus(draft.status),
+              enrollment_status: enrollmentStatusForRunStatus(normalizeRunStatus(draft.status)),
+              planning_status: planningStatusForRunStatus(normalizeRunStatus(draft.status)),
+              training_type: getCourseTrainingPayloadType(selectedCourse, draft.trainingType),
+              max_students: Number(draft.maxStudents) || 1,
+              price_override: toNumericOrNull(draft.price),
+              price_snapshot: toNumericOrNull(draft.price),
+              enrollment_fee_snapshot: toNumericOrNull(draft.enrollmentFee),
+              practice_hours: draft.practiceHours.trim() || null,
+              certification_type: draft.certification.trim() || null,
+            }),
+          })
+        : await fetch('/api/convocatorias', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadBody),
+          })
+      const saveData = await saveRes.json()
+      if (!saveRes.ok || saveData?.success === false) {
+        setListMessage(saveData?.error || 'No se pudo guardar la convocatoria.')
         return
       }
       setDraft(EMPTY_DRAFT)
       setShowDraftCreator(false)
       setListMessage(
-        'Convocatoria creada. Revisa la fila generada y completa publicación cuando corresponda.'
+        draft.id ? 'Convocatoria actualizada correctamente.' : 'Convocatoria creada correctamente.'
       )
       await loadData()
     } catch (error) {
-      setListMessage(error instanceof Error ? error.message : 'No se pudo crear la convocatoria.')
+      setListMessage(error instanceof Error ? error.message : 'No se pudo guardar la convocatoria.')
     } finally {
       setIsSavingDraft(false)
     }
@@ -1182,9 +1300,9 @@ export default function ProgramacionPage() {
     { header: 'Fin', getValue: (conv) => formatLongDate(conv.fechaFin) },
     { header: 'Dia', getValue: (conv) => formatDayLabels(conv.dias) },
     { header: 'Horario', getValue: (conv) => formatScheduleRange(conv.horaInicio, conv.horaFin) },
-    { header: 'Horas practicas', getValue: (conv) => conv.horasPracticas || '—' },
-    { header: 'Certificacion', getValue: (conv) => conv.certificacion || '—' },
-    { header: 'Matricula', getValue: (conv) => formatEnrollmentFee(conv.matricula) },
+    { header: 'Prácticas', getValue: (conv) => conv.horasPracticas || '—' },
+    { header: 'Certificación', getValue: (conv) => conv.certificacion || '—' },
+    { header: 'Matrícula', getValue: (conv) => formatEnrollmentFee(conv.matricula) },
     { header: 'Precio', getValue: (conv) => formatMoney(conv.precio) },
     { header: 'Plazas', getValue: (conv) => conv.plazas },
     { header: 'Inscritos', getValue: (conv) => conv.inscritos },
@@ -1541,16 +1659,14 @@ export default function ProgramacionPage() {
                 <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <Plus className="h-4 w-4 text-primary" />
-                    Nueva convocatoria
+                    {draft.id ? 'Editar convocatoria' : 'Nueva convocatoria'}
                   </div>
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setShowDraftCreator(false)
-                      setDraft(EMPTY_DRAFT)
-                      setListMessage(null)
+                      resetDraftForm()
                     }}
                   >
                     Cancelar
@@ -1794,6 +1910,26 @@ export default function ProgramacionPage() {
                     </label>
                   </div>
                   <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Prácticas
+                    <input
+                      type="text"
+                      value={draft.practiceHours}
+                      onChange={(event) => updateDraft({ practiceHours: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      placeholder="200h"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Certificación
+                    <input
+                      type="text"
+                      value={draft.certification}
+                      onChange={(event) => updateDraft({ certification: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      placeholder="CEP"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
                     Matrícula
                     <input
                       type="number"
@@ -1822,11 +1958,25 @@ export default function ProgramacionPage() {
                       className="h-9 w-full rounded-md border border-input bg-background px-2 text-center text-xs"
                     />
                   </label>
+                  <label className="grid gap-1 text-xs font-medium text-muted-foreground">
+                    Estado
+                    <select
+                      value={draft.status}
+                      onChange={(event) => updateDraft({ status: event.target.value })}
+                      className="h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                    >
+                      {RUN_STATUS_OPTIONS.map((status) => (
+                        <option key={status.value} value={status.value}>
+                          {status.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                   <div className="flex items-end md:col-span-2 xl:col-span-1">
                     <Button
                       size="sm"
                       className="h-9 w-full"
-                      onClick={createDraftConvocatoria}
+                      onClick={saveDraftConvocatoria}
                       disabled={isSavingDraft}
                     >
                       {isSavingDraft ? (
@@ -1834,7 +1984,7 @@ export default function ProgramacionPage() {
                       ) : (
                         <Plus className="mr-2 h-3 w-3" />
                       )}
-                      Crear
+                      {draft.id ? 'Guardar' : 'Crear'}
                     </Button>
                   </div>
                 </div>
@@ -1858,7 +2008,7 @@ export default function ProgramacionPage() {
                     <th className="w-[5%] p-2 text-right font-medium">Matrícula</th>
                     <th className="w-[5%] p-2 text-right font-medium">Precio</th>
                     <th className="w-[4%] p-2 text-center font-medium">Plazas</th>
-                    <th className="w-[10%] p-2 text-center font-medium">Estado</th>
+                    <th className="w-[10%] min-w-[7.5rem] p-2 text-center font-medium">Estado</th>
                     <th className="w-[4%] p-2 text-right font-medium"></th>
                   </tr>
                 </thead>
@@ -1968,18 +2118,19 @@ export default function ProgramacionPage() {
                           </td>
                           <td className="p-2 text-center">
                             <Badge
-                              className="w-full max-w-full justify-center whitespace-nowrap rounded-full border border-green-200 bg-green-50 px-2 py-1 text-[10px] font-semibold leading-none text-green-700 shadow-none"
+                              title={STATUS_LABELS[conv.estado] || conv.estado}
+                              className="inline-flex min-w-[6.75rem] max-w-full justify-center whitespace-nowrap rounded-full border border-green-200 bg-green-50 px-2 py-1 text-[9px] font-semibold leading-none text-green-700 shadow-none"
                             >
-                              {conv.estado === 'enrollment_open'
-                                ? 'Matrícula abierta'
-                                : STATUS_LABELS[conv.estado] || conv.estado}
+                              <span className="truncate">
+                                {STATUS_LABELS[conv.estado] || conv.estado}
+                              </span>
                             </Badge>
                           </td>
                           <td className="p-2 text-right">
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleConvClick(conv.id)}
+                              onClick={() => editConvocatoria(conv)}
                               className="h-7 px-2 text-[10px]"
                             >
                               Editar
@@ -2021,7 +2172,8 @@ export default function ProgramacionPage() {
                           </p>
                         </div>
                         <Badge
-                          className={`shrink-0 whitespace-nowrap text-[10px] text-white border-0 ${STATUS_COLORS[conv.estado] || 'bg-gray-400'}`}
+                          title={STATUS_LABELS[conv.estado] || conv.estado}
+                          className="shrink-0 whitespace-nowrap rounded-full border border-green-200 bg-green-50 px-2 py-1 text-[10px] font-semibold leading-none text-green-700 shadow-none"
                         >
                           {STATUS_LABELS[conv.estado] || conv.estado}
                         </Badge>
@@ -2070,7 +2222,7 @@ export default function ProgramacionPage() {
                         variant="outline"
                         size="sm"
                         className="mt-3 w-full"
-                        onClick={() => handleConvClick(conv.id)}
+                        onClick={() => editConvocatoria(conv)}
                       >
                         Editar
                       </Button>

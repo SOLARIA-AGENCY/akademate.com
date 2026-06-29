@@ -11,6 +11,7 @@ import * as migration_20260527_course_run_enrollment_status from './20260527_cou
 import * as migration_20260601_course_run_sessions from './20260601_course_run_sessions'
 import * as migration_20260602_staff_qualified_areas from './20260602_staff_qualified_areas'
 import * as migration_20260626_staff_general_regime_contract from './20260626_staff_general_regime_contract'
+import * as migration_20260629_course_run_practice_certification from './20260629_course_run_practice_certification'
 
 export const migrations = [
   {
@@ -77,5 +78,10 @@ export const migrations = [
     up: migration_20260626_staff_general_regime_contract.up,
     down: migration_20260626_staff_general_regime_contract.down,
     name: '20260626_staff_general_regime_contract',
+  },
+  {
+    up: migration_20260629_course_run_practice_certification.up,
+    down: migration_20260629_course_run_practice_certification.down,
+    name: '20260629_course_run_practice_certification',
   },
 ]

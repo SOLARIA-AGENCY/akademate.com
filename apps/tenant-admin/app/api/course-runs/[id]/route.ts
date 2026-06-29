@@ -39,6 +39,9 @@ type CourseRunDoc = CourseRunPlanningDoc & {
   enrollment_status?: string
   planning_status?: string
   max_students?: number
+  training_type?: string
+  practice_hours?: string | null
+  certification_type?: string | null
 }
 
 const COURSE_RUN_STATUSES = new Set([
@@ -108,6 +111,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if ('price_override' in body) data.price_override = body.price_override === '' ? null : body.price_override
     if ('price_snapshot' in body) data.price_snapshot = body.price_snapshot === '' ? null : body.price_snapshot
     if ('enrollment_fee_snapshot' in body) data.enrollment_fee_snapshot = body.enrollment_fee_snapshot === '' ? null : body.enrollment_fee_snapshot
+    if ('practice_hours' in body) data.practice_hours = typeof body.practice_hours === 'string' && body.practice_hours.trim() ? body.practice_hours.trim() : null
+    if ('certification_type' in body) data.certification_type = typeof body.certification_type === 'string' && body.certification_type.trim() ? body.certification_type.trim() : null
+    if ('max_students' in body) data.max_students = body.max_students
+    if ('course' in body) data.course = body.course || null
+    if ('training_type' in body) data.training_type = body.training_type || current.training_type || 'private'
     if ('campus' in body) data.campus = body.campus || null
     if ('classroom' in body) data.classroom = body.classroom || null
     if ('schedule_days' in body) data.schedule_days = Array.isArray(body.schedule_days) ? body.schedule_days : []
@@ -153,6 +161,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       if (data[field] != null && Number(data[field]) < 0) {
         return NextResponse.json({ error: 'Los importes no pueden ser negativos.' }, { status: 400 })
       }
+    }
+
+    if (data.max_students != null && (!Number.isFinite(Number(data.max_students)) || Number(data.max_students) < 1)) {
+      return NextResponse.json({ error: 'Las plazas deben ser mayores que cero.' }, { status: 400 })
     }
 
     if (data.campus) {
