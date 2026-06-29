@@ -13,6 +13,26 @@ interface AreaRel {
   codigo?: string | null;
 }
 
+interface CertificationRel {
+  id: number;
+  title: string;
+  institution?: string | null;
+  year?: number | null;
+}
+
+interface CourseRunRel {
+  id: number;
+  codigo: string | null;
+  status: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  courseName: string | null;
+  courseSlug: string | null;
+  courseImage: string | null;
+  campusName: string | null;
+  campusCity: string | null;
+}
+
 interface StaffDocument {
   id: number;
   staff_type: 'profesor' | 'administrativo';
@@ -65,6 +85,8 @@ interface StaffDetailRow {
   photo_url: string | null
   assigned_campuses: CampusRel[]
   qualified_areas: AreaRel[]
+  certifications: CertificationRel[]
+  course_runs: CourseRunRel[]
   created_at: string
   updated_at: string
 }
@@ -131,26 +153,99 @@ export async function GET(
         m.url AS photo_url,
         s.created_at,
         s.updated_at,
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object('id', c.id, 'name', c.name, 'city', c.city)
-          ) FILTER (WHERE c.id IS NOT NULL),
-          '[]'::json
-        ) AS assigned_campuses,
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object('id', a.id, 'nombre', a.nombre, 'codigo', a.codigo)
-          ) FILTER (WHERE a.id IS NOT NULL),
-          '[]'::json
-        ) AS qualified_areas
+        COALESCE(campuses.data, '[]'::json) AS assigned_campuses,
+        COALESCE(areas.data, '[]'::json) AS qualified_areas,
+        COALESCE(certifications.data, '[]'::json) AS certifications,
+        COALESCE(course_runs.data, '[]'::json) AS course_runs
       FROM staff s
       LEFT JOIN media m ON m.id = s.photo_id
-      LEFT JOIN staff_rels sr_campus ON sr_campus.parent_id = s.id AND sr_campus.path = 'assigned_campuses'
-      LEFT JOIN campuses c ON c.id = sr_campus.campuses_id
-      LEFT JOIN staff_rels sr_area ON sr_area.parent_id = s.id AND sr_area.path = 'qualified_areas'
-      LEFT JOIN areas_formativas a ON a.id = sr_area.areas_formativas_id
+      LEFT JOIN LATERAL (
+        SELECT json_agg(
+          jsonb_build_object('id', rel.id, 'name', rel.name, 'city', rel.city)
+          ORDER BY rel.name
+        ) AS data
+        FROM (
+          SELECT DISTINCT c.id, c.name, c.city
+          FROM staff_rels sr_campus
+          JOIN campuses c ON c.id = sr_campus.campuses_id
+          WHERE sr_campus.parent_id = s.id
+            AND sr_campus.path = 'assigned_campuses'
+        ) rel
+      ) campuses ON true
+      LEFT JOIN LATERAL (
+        SELECT json_agg(
+          jsonb_build_object('id', rel.id, 'nombre', rel.nombre, 'codigo', rel.codigo)
+          ORDER BY rel.nombre
+        ) AS data
+        FROM (
+          SELECT DISTINCT a.id, a.nombre, a.codigo
+          FROM staff_rels sr_area
+          JOIN areas_formativas a ON a.id = sr_area.areas_formativas_id
+          WHERE sr_area.parent_id = s.id
+            AND sr_area.path = 'qualified_areas'
+        ) rel
+      ) areas ON true
+      LEFT JOIN LATERAL (
+        SELECT json_agg(
+          jsonb_build_object(
+            'id', cert.id,
+            'title', cert.title,
+            'institution', cert.institution,
+            'year', cert.year
+          )
+          ORDER BY cert.id
+        ) AS data
+        FROM staff_certifications cert
+        WHERE cert._parent_id = s.id
+      ) certifications ON true
+      LEFT JOIN LATERAL (
+        SELECT json_agg(
+          jsonb_build_object(
+            'id', rel.id,
+            'codigo', rel.codigo,
+            'status', rel.status,
+            'startDate', rel.start_date,
+            'endDate', rel.end_date,
+            'courseName', COALESCE(rel.course_name, rel.cycle_name, rel.codigo),
+            'courseSlug', COALESCE(rel.course_slug, rel.cycle_slug),
+            'courseImage', rel.course_image,
+            'campusName', rel.campus_name,
+            'campusCity', rel.campus_city
+          )
+          ORDER BY rel.start_date DESC NULLS LAST, rel.id DESC
+        ) AS data
+        FROM (
+          SELECT DISTINCT ON (cr.id)
+            cr.id,
+            cr.codigo,
+            cr.status,
+            cr.start_date,
+            cr.end_date,
+            course.name AS course_name,
+            course.slug AS course_slug,
+            cycle.name AS cycle_name,
+            cycle.slug AS cycle_slug,
+            CASE
+              WHEN course_media.url IS NOT NULL AND course_media.url <> '' THEN course_media.url
+              WHEN course_media.filename IS NOT NULL AND course_media.filename <> '' THEN '/api/media/file/' || course_media.filename
+              ELSE NULL
+            END AS course_image,
+            camp.name AS campus_name,
+            camp.city AS campus_city
+          FROM course_runs cr
+          LEFT JOIN course_runs_rels crr
+            ON crr.parent_id = cr.id
+            AND crr.path = 'instructors'
+          LEFT JOIN courses course ON course.id = cr.course_id
+          LEFT JOIN cycles cycle ON cycle.id = cr.cycle_id
+          LEFT JOIN media course_media ON course_media.id = course.featured_image_id
+          LEFT JOIN campuses camp ON camp.id = cr.campus_id
+          WHERE cr.instructor_id = s.id
+             OR crr.staff_id = s.id
+          ORDER BY cr.id, cr.start_date DESC NULLS LAST
+        ) rel
+      ) course_runs ON true
       WHERE s.id = ${numericId}
-      GROUP BY s.id, m.filename, m.url
       LIMIT 1
     `
 
@@ -190,6 +285,9 @@ export async function GET(
         photo,
         assignedCampuses: staffMember.assigned_campuses ?? [],
         qualifiedAreas: staffMember.qualified_areas ?? [],
+        certifications: staffMember.certifications ?? [],
+        courseRuns: staffMember.course_runs ?? [],
+        courseRunsCount: Array.isArray(staffMember.course_runs) ? staffMember.course_runs.length : 0,
         isActive: staffMember.is_active,
         createdAt: staffMember.created_at,
         updatedAt: staffMember.updated_at,
