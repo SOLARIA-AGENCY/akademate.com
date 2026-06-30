@@ -13,6 +13,7 @@ describe('CEP_DEFAULT_WEBSITE', () => {
     expect(paths).toContain('/blog')
     expect(paths).toContain('/faq')
     expect(paths).toContain('/contacto')
+    expect(paths).toContain('/aproem')
   })
 
   it('uses CEP visual identity defaults', () => {
@@ -28,5 +29,6 @@ describe('CEP_DEFAULT_WEBSITE', () => {
     expect(navHrefs).toContain('/cursos')
     expect(navHrefs).toContain('/ciclos')
     expect(navHrefs).toContain('/convocatorias')
+    expect(navHrefs).toContain('/aproem')
   })
 })

@@ -157,6 +157,9 @@ export function PublicHeaderClient({
             <a href="/quienes-somos" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Quiénes somos
             </a>
+            <a href="/aproem" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+              APROEM
+            </a>
             <a href="/p/ciclos" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Ciclos FP
             </a>
@@ -224,6 +227,13 @@ export function PublicHeaderClient({
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Quiénes somos
+              </a>
+              <a
+                href="/aproem"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                APROEM
               </a>
               <a
                 href="/p/ciclos"

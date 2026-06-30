@@ -319,6 +319,7 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
                   <li>Teléfono: <a href="tel:+34922219257" className="font-semibold text-[#f2014b] hover:underline">922 21 92 57</a></li>
                   <li>Email: <a href="mailto:info@cursostenerife.es" className="font-semibold text-[#f2014b] hover:underline">info@cursostenerife.es</a></li>
                   <li>Horario: L-V 10:00-14:00 y 16:00-20:00</li>
+                  <li><a href="/aproem" className="font-semibold text-[#f2014b] hover:underline">APROEM y Becas</a></li>
                 </ul>
               </div>
               <div className="flex flex-col items-center gap-3 lg:items-end">
@@ -352,6 +353,7 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
                 &copy; 2026 CEP FORMACIÓN
               </p>
               <nav aria-label="Páginas legales" className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                <a href="/aproem" className="transition hover:text-slate-950">APROEM</a>
                 <a href="/p/legal/privacidad" className="transition hover:text-slate-950">Privacidad</a>
                 <a href="/p/legal/terminos" className="transition hover:text-slate-950">Términos</a>
                 <a href="/p/legal/cookies" className="transition hover:text-slate-950">Cookies</a>

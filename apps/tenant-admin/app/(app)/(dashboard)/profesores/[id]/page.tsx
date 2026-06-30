@@ -119,7 +119,10 @@ interface StaffStatusEvent {
   importBatch?: string | null
   changedAt: string
   notes?: string | null
+  changedById?: number | string | null
+  changedByName?: string | null
   changedByEmail?: string | null
+  changedByFallback?: boolean
 }
 
 const isPlaceholderPhoto = (photo?: string | null) =>
@@ -854,6 +857,22 @@ export default function ProfesorDetailPage() {
                       {event.source ? (
                         <p className="mt-1 text-xs text-muted-foreground">Origen: {event.source}</p>
                       ) : null}
+                      {event.changedByName || event.changedByEmail ? (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Usuario:{' '}
+                          <span className="font-medium text-foreground">
+                            {event.changedByName || event.changedByEmail}
+                          </span>
+                          {event.changedByName && event.changedByEmail ? (
+                            <span> · {event.changedByEmail}</span>
+                          ) : null}
+                          {event.changedByFallback ? <span> · alta original</span> : null}
+                        </p>
+                      ) : (
+                        <p className="mt-1 text-xs italic text-muted-foreground">
+                          Usuario no registrado
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>

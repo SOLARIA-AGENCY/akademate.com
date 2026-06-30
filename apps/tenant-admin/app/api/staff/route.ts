@@ -14,6 +14,7 @@ import {
   STAFF_EMAIL_ERROR,
   STAFF_NIF_ERROR,
 } from '@/lib/staff-contact'
+import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
 
 /**
  * Initialize Payload CMS instance.
@@ -291,6 +292,12 @@ function resolveMediaUrl(filename?: string | null, url?: string | null): string 
   return '/placeholder-avatar.svg'
 }
 
+function normalizeChangedById(value: string | number | null | undefined): number | undefined {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
+  if (typeof value === 'string' && /^\d+$/.test(value)) return Number(value)
+  return undefined
+}
+
 async function createStaffStatusEvent(args: {
   payload: Payload
   staffId: number
@@ -300,6 +307,7 @@ async function createStaffStatusEvent(args: {
   source?: 'manual' | 'excel_import' | 'audit' | 'system'
   importBatch?: string | null
   notes?: string | null
+  changedById?: string | number | null
 }) {
   const create = args.payload.create as unknown as (
     options: Record<string, unknown>
@@ -316,6 +324,7 @@ async function createStaffStatusEvent(args: {
       import_batch: args.importBatch ?? undefined,
       changed_at: new Date().toISOString(),
       notes: args.notes ?? undefined,
+      changed_by: normalizeChangedById(args.changedById),
     },
   })
 }
@@ -641,6 +650,7 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = await initPayload()
+    const authContext = await getAuthenticatedUserContext(request, payload)
 
     // Crear miembro del personal
     const createStaff = payload.create as unknown as (
@@ -693,6 +703,7 @@ export async function POST(request: NextRequest) {
         : 'Alta creada manualmente',
       source: lastImportBatch ? 'excel_import' : 'manual',
       importBatch: lastImportBatch,
+      changedById: authContext?.userId,
     })
 
     return NextResponse.json({
@@ -775,6 +786,8 @@ export async function PUT(request: NextRequest) {
           : nextStatus === 'temporary_leave'
             ? 'Baja temporal manual desde ficha docente'
             : 'Baja manual desde ficha docente')
+      const payload = await initPayload()
+      const authContext = await getAuthenticatedUserContext(request, payload)
 
       const updatedRows = await sql.begin(async (tx) => {
         const updated = await tx`
@@ -803,6 +816,7 @@ export async function PUT(request: NextRequest) {
               reason,
               source,
               import_batch,
+              changed_by_id,
               changed_at,
               updated_at,
               created_at
@@ -814,6 +828,7 @@ export async function PUT(request: NextRequest) {
               ${statusReason},
               'manual',
               ${body.lastImportBatch ?? current.last_import_batch},
+              ${normalizeChangedById(authContext?.userId) ?? null},
               now(),
               now(),
               now()
@@ -836,6 +851,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const payload = await initPayload()
+    const authContext = await getAuthenticatedUserContext(request, payload)
     const current = (await payload.findByID({
       collection: 'staff',
       id: parseInt(id),
@@ -931,6 +947,7 @@ export async function PUT(request: NextRequest) {
         reason: body.inactiveReason || 'Cambio de estado laboral',
         source: body.lastImportBatch ? 'excel_import' : 'manual',
         importBatch: body.lastImportBatch,
+        changedById: authContext?.userId,
       })
     } else if (body.contractType && body.contractType !== current.contract_type) {
       await createStaffStatusEvent({
@@ -941,6 +958,7 @@ export async function PUT(request: NextRequest) {
         reason: `Cambio de contrato: ${current.contract_type} -> ${body.contractType}`,
         source: body.lastImportBatch ? 'excel_import' : 'manual',
         importBatch: body.lastImportBatch,
+        changedById: authContext?.userId,
       })
     }
 
@@ -987,6 +1005,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const payload = await initPayload()
+    const authContext = await getAuthenticatedUserContext(request, payload)
     const current = (await payload.findByID({
       collection: 'staff',
       id: parseInt(id),
@@ -1020,6 +1039,7 @@ export async function DELETE(request: NextRequest) {
       newStatus: 'inactive',
       reason: 'Desactivación manual desde API',
       source: 'manual',
+      changedById: authContext?.userId,
     })
 
     return NextResponse.json({

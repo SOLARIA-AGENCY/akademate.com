@@ -32,9 +32,20 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       e.import_batch,
       e.changed_at,
       e.notes,
-      u.email AS changed_by_email
+      COALESCE(u.id, CASE WHEN e.previous_status = 'created' THEN creator.id END) AS changed_by_id,
+      COALESCE(u.name, CASE WHEN e.previous_status = 'created' THEN creator.name END) AS changed_by_name,
+      COALESCE(u.email, CASE WHEN e.previous_status = 'created' THEN creator.email END) AS changed_by_email,
+      CASE
+        WHEN e.changed_by_id IS NULL
+          AND e.previous_status = 'created'
+          AND creator.id IS NOT NULL
+        THEN true
+        ELSE false
+      END AS changed_by_fallback
     FROM staff_status_events e
     LEFT JOIN users u ON u.id = e.changed_by_id
+    LEFT JOIN staff s ON s.id = e.staff_id
+    LEFT JOIN users creator ON creator.id = s.created_by_id
     WHERE e.staff_id = ${staffId}
     ORDER BY e.changed_at DESC, e.id DESC
     LIMIT 100
@@ -51,8 +62,10 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       importBatch: event.import_batch,
       changedAt: event.changed_at,
       notes: event.notes,
+      changedById: event.changed_by_id,
+      changedByName: event.changed_by_name,
       changedByEmail: event.changed_by_email,
+      changedByFallback: event.changed_by_fallback,
     })),
   })
 }
-

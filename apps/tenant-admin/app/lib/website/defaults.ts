@@ -17,6 +17,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
     items: [
       { kind: 'link', label: 'Inicio', href: '/' },
       { kind: 'link', label: 'Quiénes Somos', href: '/quienes-somos' },
+      { kind: 'link', label: 'APROEM', href: '/aproem' },
       { kind: 'dropdown', source: 'cycles_by_level', label: 'Ciclos', href: '/ciclos' },
       {
         kind: 'dropdown',
@@ -49,6 +50,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
           { label: 'Ciclos formativos', href: '/ciclos' },
           { label: 'Cursos', href: '/cursos' },
           { label: 'Convocatorias', href: '/convocatorias' },
+          { label: 'APROEM y Becas', href: '/aproem' },
           { label: 'Empleo', href: '/empleo' },
           { label: 'Sedes', href: '/sedes' },
         ],
@@ -57,6 +59,7 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
         title: 'Información',
         links: [
           { label: 'Blog', href: '/blog' },
+          { label: 'APROEM', href: '/aproem' },
           { label: 'FAQ', href: '/faq' },
           { label: 'Contacto', href: '/contacto' },
         ],
@@ -387,6 +390,16 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
       seo: {
         title: 'Quiénes Somos | CEP Formación',
         description: 'Historia, misión, visión y valores de CEP Formación en Tenerife.',
+      },
+      sections: [],
+    },
+    {
+      title: 'APROEM',
+      path: '/aproem',
+      pageKind: 'standard',
+      seo: {
+        title: 'APROEM | Becas y acción social en CEP Formación',
+        description: 'Programa de Becas APROEM, Programa Impulsa y acciones sociales vinculadas a CEP Formación.',
       },
       sections: [],
     },

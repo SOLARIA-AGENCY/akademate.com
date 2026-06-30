@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getPayload, type Payload, type SanitizedConfig } from 'payload'
 import * as XLSX from 'xlsx'
 import configPromise from '@payload-config'
+import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
 
 type EmploymentStatus = 'active' | 'temporary_leave' | 'inactive'
 type ContractType = 'general_regime' | 'full_time' | 'part_time' | 'freelance'
@@ -108,6 +109,12 @@ function relationId(
   if (value && typeof value === 'object' && 'id' in value)
     return relationId(value.id as number | string | null)
   return null
+}
+
+function normalizeChangedById(value: string | number | null | undefined): number | undefined {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
+  if (typeof value === 'string' && /^\d+$/.test(value)) return Number(value)
+  return undefined
 }
 
 function existingQualifiedAreaIds(staff?: StaffDoc): number[] {
@@ -326,7 +333,12 @@ function matchStaff(
   return { reason: 'sin coincidencia' }
 }
 
-async function createStatusEvent(payload: Payload, action: ImportAction, importBatch: string) {
+async function createStatusEvent(
+  payload: Payload,
+  action: ImportAction,
+  importBatch: string,
+  changedById?: string | number | null
+) {
   if (!action.staffId || !['create', 'update', 'inactivate'].includes(action.type)) return
   const create = payload.create as unknown as (options: Record<string, unknown>) => Promise<unknown>
   await create({
@@ -342,11 +354,17 @@ async function createStatusEvent(payload: Payload, action: ImportAction, importB
       import_batch: importBatch,
       changed_at: new Date().toISOString(),
       notes: action.name,
+      changed_by: normalizeChangedById(changedById),
     },
   })
 }
 
-async function applyActions(payload: Payload, actions: ImportAction[], importBatch: string) {
+async function applyActions(
+  payload: Payload,
+  actions: ImportAction[],
+  importBatch: string,
+  changedById?: string | number | null
+) {
   const create = payload.create as unknown as (
     options: Record<string, unknown>
   ) => Promise<StaffDoc>
@@ -366,7 +384,7 @@ async function applyActions(payload: Payload, actions: ImportAction[], importBat
       })
       action.staffId = created.id
       applied.push(action)
-      await createStatusEvent(payload, action, importBatch)
+      await createStatusEvent(payload, action, importBatch, changedById)
       continue
     }
 
@@ -378,7 +396,7 @@ async function applyActions(payload: Payload, actions: ImportAction[], importBat
         data: action.payload,
       })
       applied.push(action)
-      await createStatusEvent(payload, action, importBatch)
+      await createStatusEvent(payload, action, importBatch, changedById)
     }
   }
 
@@ -391,6 +409,7 @@ export async function POST(request: NextRequest) {
     const apply = url.searchParams.get('apply') === 'true' || url.searchParams.get('apply') === '1'
     const importBatch = `cep-personal-${new Date().toISOString().replace(/[:.]/g, '-')}`
     const payload = await initPayload()
+    const authContext = await getAuthenticatedUserContext(request, payload)
     const [{ personalRows, retiredRows, source }, campusMap, staffResult, coursesResult] =
       await Promise.all([
         loadWorkbookRows(request),
@@ -567,7 +586,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const applied = apply ? await applyActions(payload, actions, importBatch) : []
+    const applied = apply
+      ? await applyActions(payload, actions, importBatch, authContext?.userId)
+      : []
     const summary = actions.reduce<Record<string, number>>((acc, action) => {
       acc[action.type] = (acc[action.type] ?? 0) + 1
       return acc

@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
-const { payloadMock, sqlMock } = vi.hoisted(() => ({
+const { authMock, payloadMock, sqlMock } = vi.hoisted(() => ({
+  authMock: vi.fn(),
   payloadMock: {
     find: vi.fn(),
     findByID: vi.fn(),
@@ -23,6 +24,10 @@ vi.mock('postgres', () => ({
   default: vi.fn(() => sqlMock),
 }))
 
+vi.mock('@/app/api/leads/_lib/auth', () => ({
+  getAuthenticatedUserContext: authMock,
+}))
+
 async function loadRoute() {
   process.env.DATABASE_URL = 'postgres://test:test@localhost:5432/test'
   vi.resetModules()
@@ -32,6 +37,7 @@ async function loadRoute() {
 describe('/api/staff qualified areas', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    authMock.mockResolvedValue(null)
     sqlMock.unsafe.mockResolvedValue([])
     payloadMock.findByID.mockResolvedValue({
       id: 44,
@@ -176,6 +182,42 @@ describe('/api/staff qualified areas', () => {
         collection: 'staff',
         data: expect.objectContaining({
           qualified_areas: [7, 9],
+        }),
+      })
+    )
+  })
+
+  it('records the authenticated user in the staff status event when creating staff', async () => {
+    authMock.mockResolvedValue({ userId: 9, tenantId: 1 })
+    const { POST } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff', {
+      method: 'POST',
+      body: JSON.stringify({
+        staffType: 'profesor',
+        firstName: 'Docente',
+        lastName: 'Auditado',
+        email: 'auditado@example.com',
+        position: 'Docente',
+        hireDate: '2026-06-01',
+        assignedCampuses: [1],
+        qualifiedAreas: [7],
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await POST(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff-status-events',
+        data: expect.objectContaining({
+          staff: 44,
+          previous_status: 'created',
+          new_status: 'active',
+          changed_by: 9,
         }),
       })
     )

@@ -27,7 +27,7 @@ function getRelationId(relation: unknown): string | null {
 }
 
 const LEVEL_META: Record<string, { label: string; bgColor: string; textColor: string }> = {
-  grado_medio: { label: 'Grado Medio · CFGM', bgColor: '#2563EB', textColor: '#FFFFFF' },
+  grado_medio: { label: 'Grado Medio · CFGM', bgColor: '#16A34A', textColor: '#FFFFFF' },
   grado_superior: { label: 'Grado Superior · CFGS', bgColor: '#E3003A', textColor: '#FFFFFF' },
 }
 
@@ -35,12 +35,26 @@ function getCycleSubtitle(cycle: any): string | null {
   const slug = String(cycle?.slug || '')
   const name = String(cycle?.name || '').toLowerCase()
   if (slug.includes('farmacia') || name.includes('farmacia')) {
-    return 'Ciclo Formativo de Grado Medio (LOE) · Ref. SANMS · Semipresencial'
+    return 'Ciclo Formativo de Grado Medio (LOE)'
   }
   if (slug.includes('higiene-bucodental') || name.includes('higiene')) {
-    return 'Ciclo Formativo de Grado Superior (LOE) · Ref. SANSS · Semipresencial'
+    return 'Ciclo Formativo de Grado Superior (LOE)'
   }
   return null
+}
+
+function getCycleReference(cycle: any): string | null {
+  const slug = String(cycle?.slug || '')
+  const name = String(cycle?.name || '').toLowerCase()
+  if (slug.includes('farmacia') || name.includes('farmacia')) return 'Ref. SANMS'
+  if (slug.includes('higiene-bucodental') || name.includes('higiene')) return 'Ref. SANSS'
+  return null
+}
+
+function getPracticeHours(cycle: any): number | null {
+  const value = cycle?.duration?.practiceHours
+  const numberValue = typeof value === 'number' ? value : Number.parseInt(String(value || ''), 10)
+  return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : null
 }
 
 function getCycleChips(cycle: any): string[] {
@@ -49,10 +63,13 @@ function getCycleChips(cycle: any): string[] {
     'Titulación oficial reconocida por el Ministerio de Educación',
     'Modalidad semipresencial (1 día/semana presencial)',
   ]
-  const practiceHours = cycle?.duration?.practiceHours
-  chips.push(practiceHours && Number.isFinite(practiceHours) ? `${practiceHours}h de prácticas en empresa` : '500h de prácticas en empresa')
-  const hasFSE = Array.isArray(cycle?.scholarships)
-    && cycle.scholarships.some((s: any) => {
+  const practiceHours = getPracticeHours(cycle)
+  chips.push(
+    practiceHours ? `${practiceHours}h de prácticas en empresa` : '500h de prácticas en empresa'
+  )
+  const hasFSE =
+    Array.isArray(cycle?.scholarships) &&
+    cycle.scholarships.some((s: any) => {
       const name = String(s?.name || '').toLowerCase()
       const description = String(s?.description || '').toLowerCase()
       return name.includes('fondo social europeo') || description.includes('fondo social europeo')
@@ -84,7 +101,7 @@ export default async function CiclosCatalogPage() {
           active: { equals: true },
           course_type: { in: ['ciclo_medio', 'ciclo_superior'] },
         },
-        tenant.tenantId,
+        tenant.tenantId
       ) as any,
       limit: 100,
       depth: 1,
@@ -92,77 +109,151 @@ export default async function CiclosCatalogPage() {
 
     for (const course of coursesResult.docs as any[]) {
       const cycleId = getRelationId(course.cycle)
-      if (cycleId && cycleIds.includes(cycleId) && course.featured_image && !courseImagesByCycleId.has(cycleId)) {
+      if (
+        cycleId &&
+        cycleIds.includes(cycleId) &&
+        course.featured_image &&
+        !courseImagesByCycleId.has(cycleId)
+      ) {
         courseImagesByCycleId.set(cycleId, course.featured_image)
       }
     }
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Ciclos Formativos</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Formación Profesional oficial de Grado Medio y Superior. Titulaciones reconocidas por el Ministerio de Educación y con plena validez en todo el territorio nacional.
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto mb-12 max-w-4xl text-center">
+        <p className="mb-3 text-sm font-black uppercase tracking-[0.28em] text-[var(--brand)]">
+          Titulación oficial
+        </p>
+        <h1 className="text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
+          Ciclos Formativos
+        </h1>
+        <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-slate-600">
+          Formación Profesional oficial de{' '}
+          <strong className="font-bold text-slate-950">Grado Medio</strong> y{' '}
+          <strong className="font-bold text-slate-950">Grado Superior</strong>, con orientación
+          académica, acompañamiento cercano y prácticas profesionales.
         </p>
       </div>
 
       {cycles.length === 0 ? (
-        <div className="text-center py-16 text-gray-500">
+        <div className="py-16 text-center text-slate-500">
           <p className="text-lg">Próximamente disponibles</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
           {cycles.map((cycle: any) => {
-            const imageUrl = resolveImageUrl(courseImagesByCycleId.get(String(cycle.id))) || resolveImageUrl(cycle.image)
+            const imageUrl =
+              resolveImageUrl(courseImagesByCycleId.get(String(cycle.id))) ||
+              resolveImageUrl(cycle.image)
             const levelMeta = LEVEL_META[cycle.level] ?? null
             const subtitle = getCycleSubtitle(cycle)
+            const reference = getCycleReference(cycle)
+            const practiceHours = getPracticeHours(cycle)
             const chips = getCycleChips(cycle)
             return (
-              <Link key={cycle.id} href={`/ciclos/${cycle.slug}`} className="group">
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
-                  {/* Image */}
-                  <div className="relative h-48 bg-gradient-to-br brand-bg">
+              <Link key={cycle.id} href={`/ciclos/${cycle.slug}`} className="group h-full">
+                <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[var(--brand)] hover:shadow-2xl">
+                  <div className="relative min-h-72 bg-slate-950">
                     {imageUrl && (
-                      <img src={imageUrl} alt={cycle.name} className="w-full h-full object-cover" />
+                      <img
+                        src={imageUrl}
+                        alt={cycle.name}
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/25 to-transparent" />
+                    <div className="absolute left-5 right-5 top-5 flex flex-wrap items-center justify-between gap-3">
                       <span
-                        className="inline-block px-2 py-1 rounded text-xs font-semibold mb-2"
-                        style={levelMeta ? { backgroundColor: levelMeta.bgColor, color: levelMeta.textColor } : undefined}
+                        className="inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.18em]"
+                        style={
+                          levelMeta
+                            ? { backgroundColor: levelMeta.bgColor, color: levelMeta.textColor }
+                            : undefined
+                        }
                       >
                         {levelMeta?.label || cycle.level}
                       </span>
-                      <h2 className="text-xl font-bold text-white">{cycle.name}</h2>
+                      {reference ? (
+                        <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-800">
+                          {reference}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="absolute bottom-6 left-5 right-5">
+                      <h2 className="text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl">
+                        {cycle.name}
+                      </h2>
+                      {subtitle ? (
+                        <p className="mt-2 text-sm font-semibold text-white/85">{subtitle}</p>
+                      ) : null}
                     </div>
                   </div>
-                  {/* Content */}
-                  <div className="p-5 space-y-4">
-                    {subtitle ? (
-                      <p className="text-sm text-gray-700">{subtitle}</p>
-                    ) : null}
+
+                  <div className="flex flex-1 flex-col p-6 sm:p-7">
                     {cycle.description && (
-                      <p className="text-sm text-gray-600 line-clamp-3 mb-4">{cycle.description}</p>
+                      <p className="text-base leading-7 text-slate-600">
+                        <em>{cycle.description}</em>
+                      </p>
                     )}
-                    <div className="flex flex-wrap gap-2">
+
+                    <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                          Modalidad
+                        </p>
+                        <p className="mt-2 text-sm font-bold text-slate-950">Semipresencial</p>
+                        <p className="mt-1 text-xs leading-5 text-slate-600">
+                          Un día presencial a la semana.
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                          Prácticas
+                        </p>
+                        <p className="mt-2 text-sm font-bold text-slate-950">
+                          {practiceHours ? `${practiceHours} horas` : '500 horas'}
+                        </p>
+                        <p className="mt-1 text-xs leading-5 text-slate-600">
+                          Formación práctica en empresa.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap gap-2">
                       {chips.map((chip) => (
-                        <span key={`${cycle.id}-${chip}`} className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-[11px] font-medium text-gray-700">
+                        <span
+                          key={`${cycle.id}-${chip}`}
+                          className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-[11px] font-bold text-slate-700"
+                        >
                           {chip}
                         </span>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      {cycle.duration?.totalHours && (
-                        <span className="text-gray-500">{cycle.duration.totalHours}h</span>
-                      )}
-                      {cycle.duration?.modality && (
-                        <span className="text-gray-500 capitalize">{cycle.duration.modality}</span>
-                      )}
-                      <span className="brand-text font-medium group-hover:brand-text">Ver más &rarr;</span>
+
+                    <div className="mt-auto flex flex-col gap-4 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="text-sm text-slate-600">
+                        {cycle.duration?.totalHours ? (
+                          <p>
+                            <strong className="font-bold text-slate-950">
+                              {cycle.duration.totalHours}h
+                            </strong>{' '}
+                            de formación
+                          </p>
+                        ) : (
+                          <p>
+                            <strong className="font-bold text-slate-950">Formación oficial</strong>{' '}
+                            con validez nacional
+                          </p>
+                        )}
+                      </div>
+                      <span className="inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-5 py-3 text-sm font-black text-white shadow-sm transition group-hover:bg-[var(--brand-dark)]">
+                        Ver ciclo
+                      </span>
                     </div>
                   </div>
-                </div>
+                </article>
               </Link>
             )
           })}

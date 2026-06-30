@@ -13,8 +13,13 @@ describe('website page catalog', () => {
     expect(page?.publicPath).toBe('/quienes-somos')
   })
 
+  it('contains APROEM page for public navigation', () => {
+    const page = getCatalogPageBySlug('aproem')
+    expect(page).not.toBeNull()
+    expect(page?.publicPath).toBe('/aproem')
+  })
+
   it('returns null for unknown slug', () => {
     expect(getCatalogPageBySlug('unknown-page')).toBeNull()
   })
 })
-

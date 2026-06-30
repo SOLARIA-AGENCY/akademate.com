@@ -40,6 +40,14 @@ export const WEBSITE_PAGE_CATALOG: WebsitePageCatalogItem[] = [
     sections: ['hero', 'historia', 'sedeCards', 'certificaciones', 'cta'],
   },
   {
+    slug: 'aproem',
+    title: 'APROEM',
+    path: '/aproem',
+    publicPath: '/aproem',
+    pageKind: 'standard',
+    sections: ['hero', 'becas', 'programaImpulsa', 'impactoSocial', 'reconocimiento', 'cta'],
+  },
+  {
     slug: 'cursos',
     title: 'Cursos',
     path: '/cursos',
@@ -76,4 +84,3 @@ export const WEBSITE_PAGE_CATALOG: WebsitePageCatalogItem[] = [
 export function getCatalogPageBySlug(slug: string): WebsitePageCatalogItem | null {
   return WEBSITE_PAGE_CATALOG.find((page) => page.slug === slug) ?? null
 }
-

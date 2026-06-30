@@ -104,6 +104,7 @@ const publicRoutes = [
   '/site/',
   '/blog',
   '/empleo',
+  '/aproem',
   '/agencia-colocacion',
   '/faq',
   '/presentacion',
