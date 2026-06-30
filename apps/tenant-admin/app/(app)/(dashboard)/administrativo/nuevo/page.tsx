@@ -14,7 +14,6 @@ import { Input } from '@payload-config/components/ui/input'
 import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
-import { Checkbox } from '@payload-config/components/ui/checkbox'
 import { formatSpanishPhoneInput } from '@/lib/phone'
 import { formatStaffEmailInput, formatStaffNifInput } from '@/lib/staff-contact'
 import {
@@ -24,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@payload-config/components/ui/select'
-import { ArrowLeft, Save, Loader2, Briefcase } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, Briefcase, MapPin, X } from 'lucide-react'
 
 interface Campus {
   id: number
@@ -52,15 +51,20 @@ export default function NewAdministrativoPage() {
 
   const [formData, setFormData] = useState({
     firstName: '',
-    lastName: '',
+    firstSurname: '',
+    secondSurname: '',
     nif: '',
     email: '',
     phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
     position: '',
     contractType: 'full_time',
     employmentStatus: 'active',
     bio: '',
     hireDate: new Date().toISOString().split('T')[0],
+    baseCampusId: null as number | null,
     assignedCampuses: [] as number[],
   })
 
@@ -89,6 +93,14 @@ export default function NewAdministrativoPage() {
     setError(null)
 
     try {
+      if (!formData.baseCampusId) {
+        throw new Error('Selecciona una sede base antes de crear este administrativo.')
+      }
+      const lastName = [formData.firstSurname, formData.secondSurname]
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .join(' ')
+
       const response = await fetch('/api/staff', {
         method: 'POST',
         headers: {
@@ -97,15 +109,21 @@ export default function NewAdministrativoPage() {
         body: JSON.stringify({
           staffType: 'administrativo',
           firstName: formData.firstName,
-          lastName: formData.lastName,
+          firstSurname: formData.firstSurname,
+          secondSurname: formData.secondSurname,
+          lastName,
           nif: formData.nif || undefined,
           email: formData.email,
           phone: formData.phone,
+          address: formData.address || undefined,
+          city: formData.city || undefined,
+          postalCode: formData.postalCode || undefined,
           position: formData.position,
           contractType: formData.contractType,
           employmentStatus: formData.employmentStatus,
           hireDate: formData.hireDate,
           bio: formData.bio,
+          baseCampusId: formData.baseCampusId,
           assignedCampuses: formData.assignedCampuses,
         }),
       })
@@ -141,17 +159,47 @@ export default function NewAdministrativoPage() {
     setFormData((prev) => ({ ...prev, phone: formatSpanishPhoneInput(prev.phone) }))
   }
 
-  const toggleCampus = (campusId: number) => {
+  const handleBaseCampusChange = (value: string) => {
+    const campusId = Number(value)
+    if (Number.isNaN(campusId)) return
     setFormData((prev) => ({
       ...prev,
+      baseCampusId: campusId,
       assignedCampuses: prev.assignedCampuses.includes(campusId)
-        ? prev.assignedCampuses.filter((id) => id !== campusId)
+        ? prev.assignedCampuses
         : [...prev.assignedCampuses, campusId],
     }))
   }
 
+  const handleAddAssignedCampus = (value: string) => {
+    const campusId = Number(value)
+    if (Number.isNaN(campusId)) return
+    setFormData((prev) => ({
+      ...prev,
+      baseCampusId: prev.baseCampusId ?? campusId,
+      assignedCampuses: prev.assignedCampuses.includes(campusId)
+        ? prev.assignedCampuses
+        : [...prev.assignedCampuses, campusId],
+    }))
+  }
+
+  const handleRemoveAssignedCampus = (campusId: number) => {
+    setFormData((prev) => {
+      if (prev.baseCampusId === campusId) return prev
+      return {
+        ...prev,
+        assignedCampuses: prev.assignedCampuses.filter((id) => id !== campusId),
+      }
+    })
+  }
+
+  const selectedCampuses = campuses.filter((campus) => formData.assignedCampuses.includes(campus.id))
+  const availableCampuses = campuses.filter(
+    (campus) => !formData.assignedCampuses.includes(campus.id)
+  )
+
   return (
-    <div className="space-y-6 max-w-4xl" data-oid="bt1gpq8">
+    <div className="mx-auto max-w-6xl space-y-6" data-oid="bt1gpq8">
       <PageHeader
         title="Nuevo Personal Administrativo"
         description="Añade un nuevo miembro del personal administrativo"
@@ -187,7 +235,7 @@ export default function NewAdministrativoPage() {
             )}
 
             {/* Personal Info */}
-            <div className="grid gap-4 md:grid-cols-2" data-oid="uwnq3id">
+            <div className="grid gap-4 md:grid-cols-3" data-oid="uwnq3id">
               <div className="space-y-2" data-oid="x98blfb">
                 <Label htmlFor="firstName" data-oid="0d-r6jt">
                   Nombre{' '}
@@ -208,27 +256,38 @@ export default function NewAdministrativoPage() {
               </div>
 
               <div className="space-y-2" data-oid=".457_xx">
-                <Label htmlFor="lastName" data-oid="z3t-cep">
-                  Apellidos{' '}
+                <Label htmlFor="firstSurname" data-oid="z3t-cep">
+                  Primer apellido{' '}
                   <span className="text-destructive" data-oid="akuv28v">
                     *
                   </span>
                 </Label>
                 <Input
-                  id="lastName"
-                  value={formData.lastName}
+                  id="firstSurname"
+                  value={formData.firstSurname}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleChange('lastName', e.target.value)
+                    handleChange('firstSurname', e.target.value)
                   }
                   required
-                  placeholder="González López"
+                  placeholder="González"
                   data-oid="jdc:yja"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="secondSurname">Segundo apellido</Label>
+                <Input
+                  id="secondSurname"
+                  value={formData.secondSurname}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleChange('secondSurname', e.target.value)
+                  }
+                  placeholder="López"
                 />
               </div>
             </div>
 
             {/* Contact Info */}
-            <div className="grid gap-4 md:grid-cols-2" data-oid="cwaizc1">
+            <div className="grid gap-4 md:grid-cols-3" data-oid="cwaizc1">
               <div className="space-y-2">
                 <Label htmlFor="nif">NIF/DNI</Label>
                 <Input
@@ -277,6 +336,41 @@ export default function NewAdministrativoPage() {
                   onBlur={handlePhoneBlur}
                   placeholder="+34 922 123 456"
                   data-oid="8abhs:6"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-[2fr_1fr_140px]">
+              <div className="space-y-2">
+                <Label htmlFor="address">Dirección</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleChange('address', e.target.value)
+                  }
+                  placeholder="Calle, número, piso..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">Ciudad</Label>
+                <Input
+                  id="city"
+                  value={formData.city}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleChange('city', e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postalCode">Código postal</Label>
+                <Input
+                  id="postalCode"
+                  value={formData.postalCode}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleChange('postalCode', e.target.value)
+                  }
+                  inputMode="numeric"
                 />
               </div>
             </div>
@@ -376,48 +470,104 @@ export default function NewAdministrativoPage() {
               </div>
             </div>
 
-            {/* Assigned Campuses */}
-            <div className="space-y-2" data-oid="ods0f7r">
-              <Label data-oid="i88_eda">
-                Sedes Asignadas{' '}
-                <span className="text-destructive" data-oid="5kb8zyw">
-                  *
-                </span>
-              </Label>
-              {loadingCampuses ? (
-                <div
-                  className="flex items-center gap-2 text-sm text-muted-foreground"
-                  data-oid="yrrwwmq"
-                >
-                  <Loader2 className="h-4 w-4 animate-spin" data-oid="rowdl0m" />
-                  Cargando sedes...
+            <div className="grid gap-4 lg:grid-cols-[minmax(220px,320px)_1fr]">
+              <div className="space-y-2" data-oid="ods0f7r">
+                <Label htmlFor="baseCampus" data-oid="i88_eda">
+                  Sede base{' '}
+                  <span className="text-destructive" data-oid="5kb8zyw">
+                    *
+                  </span>
+                </Label>
+                {loadingCampuses ? (
+                  <div
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                    data-oid="yrrwwmq"
+                  >
+                    <Loader2 className="h-4 w-4 animate-spin" data-oid="rowdl0m" />
+                    Cargando sedes...
+                  </div>
+                ) : campuses.length > 0 ? (
+                  <Select
+                    value={formData.baseCampusId ? String(formData.baseCampusId) : undefined}
+                    onValueChange={handleBaseCampusChange}
+                  >
+                    <SelectTrigger id="baseCampus" aria-label="Sede base">
+                      <SelectValue placeholder="Selecciona una sede base" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {campuses.map((campus) => (
+                        <SelectItem key={campus.id} value={String(campus.id)}>
+                          {campus.name}
+                          {campus.city ? ` - ${campus.city}` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-sm text-muted-foreground" data-oid="7e:dc2w">
+                    No hay sedes disponibles
+                  </p>
+                )}
+              </div>
+              <div className="space-y-3 rounded-lg border p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <Label>Sedes asignadas</Label>
+                  <Select onValueChange={handleAddAssignedCampus}>
+                    <SelectTrigger className="h-9 w-full sm:w-56" aria-label="Añadir sede">
+                      <SelectValue placeholder="Añadir sede" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableCampuses.length === 0 ? (
+                        <SelectItem value="none" disabled>
+                          Todas las sedes asignadas
+                        </SelectItem>
+                      ) : (
+                        availableCampuses.map((campus) => (
+                          <SelectItem key={campus.id} value={String(campus.id)}>
+                            {campus.name}
+                            {campus.city ? ` - ${campus.city}` : ''}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
-              ) : campuses.length > 0 ? (
-                <div className="grid gap-3 md:grid-cols-2 p-4 border rounded-lg" data-oid="vqm7ydt">
-                  {campuses.map((campus) => (
-                    <div key={campus.id} className="flex items-center space-x-2" data-oid="o-sd9dk">
-                      <Checkbox
-                        id={`campus-${campus.id}`}
-                        checked={formData.assignedCampuses.includes(campus.id)}
-                        onCheckedChange={() => toggleCampus(campus.id)}
-                        data-oid=":s-rq8s"
-                      />
-
-                      <label
-                        htmlFor={`campus-${campus.id}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        data-oid="6jqswl8"
-                      >
-                        {campus.name} - {campus.city}
-                      </label>
-                    </div>
-                  ))}
+                <div className="flex flex-wrap gap-2">
+                  {selectedCampuses.length === 0 ? (
+                    <span className="text-sm text-muted-foreground">Sin sedes asignadas</span>
+                  ) : (
+                    selectedCampuses.map((campus) => {
+                      const isBase = campus.id === formData.baseCampusId
+                      return (
+                        <span
+                          key={campus.id}
+                          className="inline-flex max-w-full items-center gap-2 rounded-full border bg-muted px-3 py-1 text-sm"
+                        >
+                          <MapPin className="h-3.5 w-3.5 shrink-0" />
+                          <span className="truncate">
+                            {campus.name}
+                            {campus.city ? ` - ${campus.city}` : ''}
+                          </span>
+                          {isBase ? (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                              Base
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              className="rounded-full p-0.5 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                              onClick={() => handleRemoveAssignedCampus(campus.id)}
+                              aria-label={`Quitar ${campus.name}`}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </span>
+                      )
+                    })
+                  )}
                 </div>
-              ) : (
-                <p className="text-sm text-muted-foreground" data-oid="7e:dc2w">
-                  No hay sedes disponibles
-                </p>
-              )}
+              </div>
             </div>
 
             {/* Bio */}
@@ -450,7 +600,14 @@ export default function NewAdministrativoPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={loading || formData.assignedCampuses.length === 0}
+                disabled={
+                  loading ||
+                  !formData.baseCampusId ||
+                  formData.firstName.trim().length === 0 ||
+                  formData.firstSurname.trim().length === 0 ||
+                  formData.position.trim().length === 0 ||
+                  formData.assignedCampuses.length === 0
+                }
                 data-oid="08-5v05"
               >
                 {loading ? (

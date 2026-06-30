@@ -26,6 +26,7 @@ import {
   Trash2,
   Upload,
   User,
+  X,
 } from 'lucide-react'
 import { formatSpanishPhoneInput } from '@/lib/phone'
 import { formatStaffEmailInput, formatStaffNifInput } from '@/lib/staff-contact'
@@ -47,9 +48,14 @@ interface StaffRecord {
   id: number
   firstName: string
   lastName: string
+  firstSurname?: string | null
+  secondSurname?: string | null
   nif?: string | null
   email?: string
   phone?: string
+  address?: string | null
+  city?: string | null
+  postalCode?: string | null
   position: string
   contractType?: string
   employmentStatus?: string
@@ -59,6 +65,8 @@ interface StaffRecord {
   importReviewStatus?: string | null
   hireDate?: string
   bio?: string
+  baseCampusId?: number | null
+  baseCampus?: Campus | null
   assignedCampuses: Campus[]
   photo?: string
   certifications?: Certification[]
@@ -96,6 +104,18 @@ interface StaffPhotoUploadResponse {
 const isPlaceholderPhoto = (photo?: string | null) =>
   !photo || photo === '/placeholder-avatar.svg' || photo.includes('placeholder-avatar')
 
+const splitSurnameParts = (lastName?: string | null) => {
+  const parts = String(lastName ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  return {
+    firstSurname: parts[0] ?? '',
+    secondSurname: parts.slice(1).join(' '),
+  }
+}
+
 function TeacherPhotoFallback() {
   return (
     <div
@@ -128,16 +148,21 @@ export default function EditProfesorPage() {
   const [photoRemoved, setPhotoRemoved] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
-    lastName: '',
+    firstSurname: '',
+    secondSurname: '',
     nif: '',
     email: '',
     phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
     position: 'Docente',
     contractType: 'full_time',
     employmentStatus: 'active',
     inactiveReason: '',
     bio: '',
     hireDate: '',
+    baseCampusId: null as number | null,
     assignedCampuses: [] as number[],
     qualifiedAreas: [] as number[],
     certifications: [] as Certification[],
@@ -171,21 +196,34 @@ export default function EditProfesorPage() {
         if (!professor) throw new Error('Profesor no encontrado')
         if (cancelled) return
 
+        const surnames = splitSurnameParts(professor.lastName)
+        const assignedCampuses = (professor.assignedCampuses ?? [])
+          .map((campus) => Number(campus.id))
+          .filter(Number.isFinite)
+        const baseCampusId = professor.baseCampusId
+          ? Number(professor.baseCampusId)
+          : assignedCampuses[0] || null
+
         setCampuses(campusJson.data ?? campusJson.docs ?? [])
         setAreas((areaJson.data ?? []).filter((area) => area.active !== false))
         setFormData({
           firstName: professor.firstName ?? '',
-          lastName: professor.lastName ?? '',
+          firstSurname: professor.firstSurname ?? surnames.firstSurname,
+          secondSurname: professor.secondSurname ?? surnames.secondSurname,
           nif: professor.nif ?? '',
           email: professor.email ?? '',
           phone: professor.phone ?? '',
+          address: professor.address ?? '',
+          city: professor.city ?? '',
+          postalCode: professor.postalCode ?? '',
           position: professor.position ?? 'Docente',
           contractType: professor.contractType ?? 'full_time',
           employmentStatus: professor.employmentStatus ?? 'active',
           inactiveReason: professor.inactiveReason ?? '',
           bio: professor.bio ?? '',
           hireDate: professor.hireDate ? String(professor.hireDate).slice(0, 10) : '',
-          assignedCampuses: (professor.assignedCampuses ?? []).map((campus) => Number(campus.id)),
+          baseCampusId,
+          assignedCampuses,
           qualifiedAreas: (professor.qualifiedAreas ?? []).map((area) => Number(area.id)),
           certifications: (professor.certifications ?? []).map((cert) => ({
             id: cert.id,
@@ -241,8 +279,33 @@ export default function EditProfesorPage() {
     if (Number.isNaN(campusId)) return
     setFormData((prev) => ({
       ...prev,
-      assignedCampuses: [campusId],
+      baseCampusId: campusId,
+      assignedCampuses: prev.assignedCampuses.includes(campusId)
+        ? prev.assignedCampuses
+        : [...prev.assignedCampuses, campusId],
     }))
+  }
+
+  const handleAddAssignedCampus = (value: string) => {
+    const campusId = Number(value)
+    if (Number.isNaN(campusId)) return
+    setFormData((prev) => ({
+      ...prev,
+      baseCampusId: prev.baseCampusId ?? campusId,
+      assignedCampuses: prev.assignedCampuses.includes(campusId)
+        ? prev.assignedCampuses
+        : [...prev.assignedCampuses, campusId],
+    }))
+  }
+
+  const handleRemoveAssignedCampus = (campusId: number) => {
+    setFormData((prev) => {
+      if (prev.baseCampusId === campusId) return prev
+      return {
+        ...prev,
+        assignedCampuses: prev.assignedCampuses.filter((id) => id !== campusId),
+      }
+    })
   }
 
   const toggleQualifiedArea = (areaId: number) => {
@@ -286,7 +349,12 @@ export default function EditProfesorPage() {
       setPhotoPreview(URL.createObjectURL(file))
       const body = new FormData()
       body.append('file', file)
-      body.append('alt', `${formData.firstName || 'Profesor'} ${formData.lastName || ''}`.trim())
+      body.append(
+        'alt',
+        `${formData.firstName || 'Profesor'} ${formData.firstSurname || ''} ${
+          formData.secondSurname || ''
+        }`.trim()
+      )
       const response = await fetch('/api/staff-photo', { method: 'POST', body })
       const result = (await response.json().catch(() => ({}))) as StaffPhotoUploadResponse
 
@@ -324,16 +392,29 @@ export default function EditProfesorPage() {
       if (formData.qualifiedAreas.length === 0) {
         throw new Error('Asigna al menos un área habilitada antes de guardar este docente.')
       }
+      if (!formData.baseCampusId) {
+        throw new Error('Selecciona una sede base antes de guardar este docente.')
+      }
+
+      const lastName = [formData.firstSurname, formData.secondSurname]
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .join(' ')
 
       const response = await fetch(`/api/staff?id=${professorId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           firstName: formData.firstName,
-          lastName: formData.lastName,
+          firstSurname: formData.firstSurname,
+          secondSurname: formData.secondSurname,
+          lastName,
           nif: formData.nif || null,
           email: formData.email,
           phone: formData.phone || null,
+          address: formData.address || null,
+          city: formData.city || null,
+          postalCode: formData.postalCode || null,
           position: 'Docente',
           contractType: formData.contractType,
           employmentStatus: formData.employmentStatus,
@@ -352,8 +433,9 @@ export default function EditProfesorPage() {
               title: cert.title.trim(),
               institution: cert.institution.trim(),
               year: cert.year ? Number(cert.year) : new Date().getFullYear(),
-            })),
+          })),
           assignedCampuses: formData.assignedCampuses,
+          baseCampusId: formData.baseCampusId,
           ...(photoRemoved ? { photoId: null } : photoId ? { photoId } : {}),
         }),
       })
@@ -384,8 +466,13 @@ export default function EditProfesorPage() {
     )
   }
 
+  const selectedCampuses = campuses.filter((campus) => formData.assignedCampuses.includes(campus.id))
+  const availableCampuses = campuses.filter(
+    (campus) => !formData.assignedCampuses.includes(campus.id)
+  )
+
   return (
-    <div className="w-full space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6">
       <PageHeader
         title="Editar Profesor"
         description="Actualizar información del profesorado"
@@ -462,7 +549,7 @@ export default function EditProfesorPage() {
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="firstName">Nombre</Label>
                 <Input
@@ -473,17 +560,26 @@ export default function EditProfesorPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Apellidos</Label>
+                <Label htmlFor="firstSurname">Primer apellido</Label>
                 <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange('lastName')}
+                  id="firstSurname"
+                  value={formData.firstSurname}
+                  onChange={handleInputChange('firstSurname')}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="secondSurname">Segundo apellido</Label>
+                <Input
+                  id="secondSurname"
+                  value={formData.secondSurname}
+                  onChange={handleInputChange('secondSurname')}
                   required
                 />
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="nif">NIF/DNI</Label>
                 <Input
@@ -514,6 +610,31 @@ export default function EditProfesorPage() {
                   onChange={handleInputChange('phone')}
                   onBlur={handlePhoneBlur}
                   placeholder="+34 922 123 456"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-[2fr_1fr_140px]">
+              <div className="space-y-2">
+                <Label htmlFor="address">Dirección</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={handleInputChange('address')}
+                  placeholder="Calle, número, piso..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">Ciudad</Label>
+                <Input id="city" value={formData.city} onChange={handleInputChange('city')} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postalCode">Código postal</Label>
+                <Input
+                  id="postalCode"
+                  value={formData.postalCode}
+                  onChange={handleInputChange('postalCode')}
+                  inputMode="numeric"
                 />
               </div>
             </div>
@@ -605,40 +726,100 @@ export default function EditProfesorPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="baseCampus">Sede base asignada</Label>
-              {loadingCampuses ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Cargando sedes...
+            <div className="grid gap-4 lg:grid-cols-[minmax(220px,320px)_1fr]">
+              <div className="space-y-2">
+                <Label htmlFor="baseCampus">Sede base</Label>
+                {loadingCampuses ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Cargando sedes...
+                  </div>
+                ) : campuses.length === 0 ? (
+                  <div className="rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+                    No hay sedes disponibles para asignar.
+                  </div>
+                ) : (
+                  <Select
+                    value={formData.baseCampusId ? String(formData.baseCampusId) : undefined}
+                    onValueChange={handleBaseCampusChange}
+                  >
+                    <SelectTrigger id="baseCampus" aria-label="Sede base">
+                      <SelectValue placeholder="Selecciona una sede base" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {campuses.map((campus) => (
+                        <SelectItem key={campus.id} value={String(campus.id)}>
+                          <span className="inline-flex items-center gap-2">
+                            <MapPin className="h-3.5 w-3.5" />
+                            {campus.name}
+                            {campus.city ? ` - ${campus.city}` : ''}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+
+              <div className="space-y-3 rounded-lg border p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <Label>Sedes asignadas</Label>
+                  <Select onValueChange={handleAddAssignedCampus}>
+                    <SelectTrigger className="h-9 w-full sm:w-56" aria-label="Añadir sede">
+                      <SelectValue placeholder="Añadir sede" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableCampuses.length === 0 ? (
+                        <SelectItem value="none" disabled>
+                          Todas las sedes asignadas
+                        </SelectItem>
+                      ) : (
+                        availableCampuses.map((campus) => (
+                          <SelectItem key={campus.id} value={String(campus.id)}>
+                            {campus.name}
+                            {campus.city ? ` - ${campus.city}` : ''}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
-              ) : campuses.length === 0 ? (
-                <div className="rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
-                  No hay sedes disponibles para asignar.
-                </div>
-              ) : (
-                <Select
-                  value={
-                    formData.assignedCampuses[0] ? String(formData.assignedCampuses[0]) : undefined
-                  }
-                  onValueChange={handleBaseCampusChange}
-                >
-                  <SelectTrigger id="baseCampus" aria-label="Sede base asignada">
-                    <SelectValue placeholder="Selecciona una sede base" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {campuses.map((campus) => (
-                      <SelectItem key={campus.id} value={String(campus.id)}>
-                        <span className="inline-flex items-center gap-2">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {campus.name}
-                          {campus.city ? ` - ${campus.city}` : ''}
+                <div className="flex flex-wrap gap-2">
+                  {selectedCampuses.length === 0 ? (
+                    <span className="text-sm text-muted-foreground">Sin sedes asignadas</span>
+                  ) : (
+                    selectedCampuses.map((campus) => {
+                      const isBase = campus.id === formData.baseCampusId
+                      return (
+                        <span
+                          key={campus.id}
+                          className="inline-flex max-w-full items-center gap-2 rounded-full border bg-muted px-3 py-1 text-sm"
+                        >
+                          <MapPin className="h-3.5 w-3.5 shrink-0" />
+                          <span className="truncate">
+                            {campus.name}
+                            {campus.city ? ` - ${campus.city}` : ''}
+                          </span>
+                          {isBase ? (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                              Base
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              className="rounded-full p-0.5 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                              onClick={() => handleRemoveAssignedCampus(campus.id)}
+                              aria-label={`Quitar ${campus.name}`}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          )}
                         </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+                      )
+                    })
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -718,6 +899,7 @@ export default function EditProfesorPage() {
                 disabled={
                   saving ||
                   uploadingPhoto ||
+                  !formData.baseCampusId ||
                   formData.assignedCampuses.length === 0 ||
                   !hasQualifiedAreas
                 }

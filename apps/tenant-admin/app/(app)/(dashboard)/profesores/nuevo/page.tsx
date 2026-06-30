@@ -32,6 +32,7 @@ import {
   Trash2,
   Upload,
   User,
+  X,
 } from 'lucide-react'
 import { formatSpanishPhoneInput } from '@/lib/phone'
 import { formatStaffEmailInput, formatStaffNifInput } from '@/lib/staff-contact'
@@ -110,15 +111,20 @@ export default function NewProfesorPage() {
 
   const [formData, setFormData] = useState({
     firstName: '',
-    lastName: '',
+    firstSurname: '',
+    secondSurname: '',
     nif: '',
     email: '',
     phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
     position: 'Docente',
     contractType: 'full_time',
     employmentStatus: 'active',
     bio: '',
     hireDate: new Date().toISOString().split('T')[0],
+    baseCampusId: null as number | null,
     assignedCampuses: [] as number[],
     qualifiedAreas: [] as number[],
     certifications: [] as Certification[],
@@ -168,6 +174,14 @@ export default function NewProfesorPage() {
       if (formData.qualifiedAreas.length === 0) {
         throw new Error('Asigna al menos un área habilitada antes de guardar este docente.')
       }
+      if (!formData.baseCampusId) {
+        throw new Error('Selecciona una sede base antes de guardar este docente.')
+      }
+
+      const lastName = [formData.firstSurname, formData.secondSurname]
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .join(' ')
 
       const response = await fetch('/api/staff', {
         method: 'POST',
@@ -177,10 +191,15 @@ export default function NewProfesorPage() {
         body: JSON.stringify({
           staffType: 'profesor',
           firstName: formData.firstName,
-          lastName: formData.lastName,
+          firstSurname: formData.firstSurname,
+          secondSurname: formData.secondSurname,
+          lastName,
           nif: formData.nif || undefined,
           email: formData.email,
           phone: formData.phone,
+          address: formData.address || undefined,
+          city: formData.city || undefined,
+          postalCode: formData.postalCode || undefined,
           position: 'Docente',
           contractType: formData.contractType,
           employmentStatus: formData.employmentStatus,
@@ -192,8 +211,9 @@ export default function NewProfesorPage() {
               title: cert.title.trim(),
               institution: cert.institution.trim(),
               year: cert.year ? Number(cert.year) : new Date().getFullYear(),
-            })),
+          })),
           assignedCampuses: formData.assignedCampuses,
+          baseCampusId: formData.baseCampusId,
           qualifiedAreas: formData.qualifiedAreas,
           photoId: photoId || undefined,
         }),
@@ -240,8 +260,33 @@ export default function NewProfesorPage() {
     if (Number.isNaN(campusId)) return
     setFormData((prev) => ({
       ...prev,
-      assignedCampuses: [campusId],
+      baseCampusId: campusId,
+      assignedCampuses: prev.assignedCampuses.includes(campusId)
+        ? prev.assignedCampuses
+        : [...prev.assignedCampuses, campusId],
     }))
+  }
+
+  const handleAddAssignedCampus = (value: string) => {
+    const campusId = Number(value)
+    if (Number.isNaN(campusId)) return
+    setFormData((prev) => ({
+      ...prev,
+      baseCampusId: prev.baseCampusId ?? campusId,
+      assignedCampuses: prev.assignedCampuses.includes(campusId)
+        ? prev.assignedCampuses
+        : [...prev.assignedCampuses, campusId],
+    }))
+  }
+
+  const handleRemoveAssignedCampus = (campusId: number) => {
+    setFormData((prev) => {
+      if (prev.baseCampusId === campusId) return prev
+      return {
+        ...prev,
+        assignedCampuses: prev.assignedCampuses.filter((id) => id !== campusId),
+      }
+    })
   }
 
   const toggleQualifiedArea = (areaId: number) => {
@@ -260,7 +305,12 @@ export default function NewProfesorPage() {
       setPhotoPreview(URL.createObjectURL(file))
       const body = new FormData()
       body.append('file', file)
-      body.append('alt', `${formData.firstName || 'Profesor'} ${formData.lastName || ''}`.trim())
+      body.append(
+        'alt',
+        `${formData.firstName || 'Profesor'} ${formData.firstSurname || ''} ${
+          formData.secondSurname || ''
+        }`.trim()
+      )
       const response = await fetch('/api/staff-photo', { method: 'POST', body })
       const result = (await response.json().catch(() => ({}))) as StaffPhotoUploadResponse
 
@@ -306,8 +356,13 @@ export default function NewProfesorPage() {
     }))
   }
 
+  const selectedCampuses = campuses.filter((campus) => formData.assignedCampuses.includes(campus.id))
+  const availableCampuses = campuses.filter(
+    (campus) => !formData.assignedCampuses.includes(campus.id)
+  )
+
   return (
-    <div className="w-full space-y-6" data-oid="nqgh2_8">
+    <div className="mx-auto w-full max-w-6xl space-y-6" data-oid="nqgh2_8">
       <PageHeader
         title="Nuevo Profesor"
         description="Añade un nuevo profesor al sistema"
@@ -383,7 +438,7 @@ export default function NewProfesorPage() {
             </div>
 
             {/* Personal Info */}
-            <div className="grid gap-4 md:grid-cols-2" data-oid="lchd9n8">
+            <div className="grid gap-4 md:grid-cols-3" data-oid="lchd9n8">
               <div className="space-y-2" data-oid="-79k8qs">
                 <Label htmlFor="firstName" data-oid="q27hvoa">
                   Nombre{' '}
@@ -402,25 +457,34 @@ export default function NewProfesorPage() {
               </div>
 
               <div className="space-y-2" data-oid="ekzlnto">
-                <Label htmlFor="lastName" data-oid="mpbpc7d">
-                  Apellidos{' '}
+                <Label htmlFor="firstSurname" data-oid="mpbpc7d">
+                  Primer apellido{' '}
                   <span className="text-destructive" data-oid="61qi481">
                     *
                   </span>
                 </Label>
                 <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange('lastName')}
+                  id="firstSurname"
+                  value={formData.firstSurname}
+                  onChange={handleInputChange('firstSurname')}
                   required
-                  placeholder="Pérez García"
+                  placeholder="Pérez"
                   data-oid="g:lz9bb"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="secondSurname">Segundo apellido</Label>
+                <Input
+                  id="secondSurname"
+                  value={formData.secondSurname}
+                  onChange={handleInputChange('secondSurname')}
+                  placeholder="García"
                 />
               </div>
             </div>
 
             {/* Contact Info */}
-            <div className="grid gap-4 md:grid-cols-2" data-oid="grbkuel">
+            <div className="grid gap-4 md:grid-cols-3" data-oid="grbkuel">
               <div className="space-y-2">
                 <Label htmlFor="nif">NIF/DNI</Label>
                 <Input
@@ -464,6 +528,31 @@ export default function NewProfesorPage() {
                   onBlur={handlePhoneBlur}
                   placeholder="+34 922 123 456"
                   data-oid="if68lhd"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-[2fr_1fr_140px]">
+              <div className="space-y-2">
+                <Label htmlFor="address">Dirección</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={handleInputChange('address')}
+                  placeholder="Calle, número, piso..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">Ciudad</Label>
+                <Input id="city" value={formData.city} onChange={handleInputChange('city')} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postalCode">Código postal</Label>
+                <Input
+                  id="postalCode"
+                  value={formData.postalCode}
+                  onChange={handleInputChange('postalCode')}
+                  inputMode="numeric"
                 />
               </div>
             </div>
@@ -564,50 +653,108 @@ export default function NewProfesorPage() {
               </div>
             </div>
 
-            {/* Assigned Campus */}
-            <div className="space-y-2" data-oid="mru1ua6">
-              <Label htmlFor="baseCampus" data-oid="y6ceg6d">
-                Sede base asignada{' '}
-                <span className="text-destructive" data-oid="4anwf0v">
-                  *
-                </span>
-              </Label>
-              {loadingCampuses ? (
-                <div
-                  className="flex items-center gap-2 text-sm text-muted-foreground"
-                  data-oid="9xmhatw"
-                >
-                  <Loader2 className="h-4 w-4 animate-spin" data-oid="akxt0cs" />
-                  Cargando sedes...
+            <div className="grid gap-4 lg:grid-cols-[minmax(220px,320px)_1fr]">
+              <div className="space-y-2" data-oid="mru1ua6">
+                <Label htmlFor="baseCampus" data-oid="y6ceg6d">
+                  Sede base{' '}
+                  <span className="text-destructive" data-oid="4anwf0v">
+                    *
+                  </span>
+                </Label>
+                {loadingCampuses ? (
+                  <div
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                    data-oid="9xmhatw"
+                  >
+                    <Loader2 className="h-4 w-4 animate-spin" data-oid="akxt0cs" />
+                    Cargando sedes...
+                  </div>
+                ) : campuses.length === 0 ? (
+                  <p className="text-sm text-muted-foreground" data-oid="l.qq7gv">
+                    No hay sedes disponibles
+                  </p>
+                ) : (
+                  <Select
+                    value={formData.baseCampusId ? String(formData.baseCampusId) : undefined}
+                    onValueChange={handleBaseCampusChange}
+                    data-oid="8ed4v20"
+                  >
+                    <SelectTrigger id="baseCampus" aria-label="Sede base">
+                      <SelectValue placeholder="Selecciona una sede base" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {campuses.map((campus) => (
+                        <SelectItem key={campus.id} value={String(campus.id)}>
+                          <span className="inline-flex items-center gap-2">
+                            <MapPin className="h-3.5 w-3.5" />
+                            {campus.name}
+                            {campus.city ? ` - ${campus.city}` : ''}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+              <div className="space-y-3 rounded-lg border p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <Label>Sedes asignadas</Label>
+                  <Select onValueChange={handleAddAssignedCampus}>
+                    <SelectTrigger className="h-9 w-full sm:w-56" aria-label="Añadir sede">
+                      <SelectValue placeholder="Añadir sede" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableCampuses.length === 0 ? (
+                        <SelectItem value="none" disabled>
+                          Todas las sedes asignadas
+                        </SelectItem>
+                      ) : (
+                        availableCampuses.map((campus) => (
+                          <SelectItem key={campus.id} value={String(campus.id)}>
+                            {campus.name}
+                            {campus.city ? ` - ${campus.city}` : ''}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
-              ) : campuses.length === 0 ? (
-                <p className="text-sm text-muted-foreground" data-oid="l.qq7gv">
-                  No hay sedes disponibles
-                </p>
-              ) : (
-                <Select
-                  value={
-                    formData.assignedCampuses[0] ? String(formData.assignedCampuses[0]) : undefined
-                  }
-                  onValueChange={handleBaseCampusChange}
-                  data-oid="8ed4v20"
-                >
-                  <SelectTrigger id="baseCampus" aria-label="Sede base asignada">
-                    <SelectValue placeholder="Selecciona una sede base" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {campuses.map((campus) => (
-                      <SelectItem key={campus.id} value={String(campus.id)}>
-                        <span className="inline-flex items-center gap-2">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {campus.name}
-                          {campus.city ? ` - ${campus.city}` : ''}
+                <div className="flex flex-wrap gap-2">
+                  {selectedCampuses.length === 0 ? (
+                    <span className="text-sm text-muted-foreground">Sin sedes asignadas</span>
+                  ) : (
+                    selectedCampuses.map((campus) => {
+                      const isBase = campus.id === formData.baseCampusId
+                      return (
+                        <span
+                          key={campus.id}
+                          className="inline-flex max-w-full items-center gap-2 rounded-full border bg-muted px-3 py-1 text-sm"
+                        >
+                          <MapPin className="h-3.5 w-3.5 shrink-0" />
+                          <span className="truncate">
+                            {campus.name}
+                            {campus.city ? ` - ${campus.city}` : ''}
+                          </span>
+                          {isBase ? (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                              Base
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              className="rounded-full p-0.5 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                              onClick={() => handleRemoveAssignedCampus(campus.id)}
+                              aria-label={`Quitar ${campus.name}`}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          )}
                         </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+                      )
+                    })
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Bio */}
@@ -694,6 +841,7 @@ export default function NewProfesorPage() {
                 disabled={
                   loading ||
                   uploadingPhoto ||
+                  !formData.baseCampusId ||
                   formData.assignedCampuses.length === 0 ||
                   formData.qualifiedAreas.length === 0
                 }

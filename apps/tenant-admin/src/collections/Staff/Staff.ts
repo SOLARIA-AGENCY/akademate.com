@@ -40,11 +40,16 @@ type StaffType = 'profesor' | 'administrativo' | 'jefatura_administracion' | 'ac
 interface StaffData {
   staff_type?: StaffType
   first_name?: string
+  first_surname?: string
+  second_surname?: string
   last_name?: string
   full_name?: string
   nif?: string
   email?: string
   phone?: string
+  address?: string
+  city?: string
+  postal_code?: string
   bio?: string
   photo?: string | number
   position?: string
@@ -66,11 +71,30 @@ interface StaffData {
     year?: number
     document?: string | number
   }[]
+  base_campus?: string | number
   assigned_campuses?: (string | number)[]
   is_active?: boolean
   notes?: string
   created_by?: string | number
   id?: string | number
+}
+
+function splitSurnameParts(lastName: string | undefined): {
+  firstSurname?: string
+  secondSurname?: string
+} {
+  const normalized = normalizeNominativeText(lastName)
+  if (!normalized) return {}
+
+  const [firstSurname, ...rest] = normalized.split(' ')
+  return {
+    firstSurname,
+    secondSurname: rest.join(' ') || undefined,
+  }
+}
+
+function combineSurnameParts(firstSurname?: string, secondSurname?: string): string | undefined {
+  return [firstSurname, secondSurname].filter(Boolean).join(' ').trim() || undefined
 }
 
 /** Field-level access for notes (only Gestor/Admin) */
@@ -84,7 +108,29 @@ const normalizeStaffNominativeFields: CollectionBeforeValidateHook = ({ data }) 
   if (!staffData) return data
 
   staffData.first_name = normalizeNominativeText(staffData.first_name) ?? staffData.first_name
-  staffData.last_name = normalizeNominativeText(staffData.last_name) ?? staffData.last_name
+  staffData.first_surname =
+    normalizeNominativeText(staffData.first_surname) ?? staffData.first_surname
+  staffData.second_surname =
+    normalizeNominativeText(staffData.second_surname) ?? staffData.second_surname
+
+  if (staffData.first_surname !== undefined || staffData.second_surname !== undefined) {
+    const derivedLastName = combineSurnameParts(staffData.first_surname, staffData.second_surname)
+    if (derivedLastName) staffData.last_name = derivedLastName
+  } else if (staffData.last_name !== undefined) {
+    const normalizedLastName = normalizeNominativeText(staffData.last_name) ?? staffData.last_name
+    const split = splitSurnameParts(normalizedLastName)
+    staffData.first_surname = split.firstSurname
+    staffData.second_surname = split.secondSurname
+    staffData.last_name = normalizedLastName
+  }
+
+  staffData.address =
+    typeof staffData.address === 'string' ? staffData.address.trim() || undefined : staffData.address
+  staffData.city = normalizeNominativeText(staffData.city) ?? staffData.city
+  staffData.postal_code =
+    typeof staffData.postal_code === 'string'
+      ? staffData.postal_code.trim() || undefined
+      : staffData.postal_code
   staffData.position = normalizeNominativeText(staffData.position) ?? staffData.position
 
   if (staffData.first_name && staffData.last_name) {
@@ -279,13 +325,33 @@ export const Staff: CollectionConfig = {
       required: true,
       maxLength: 100,
       admin: {
-        description: 'Last name',
+        description: 'Apellidos derivados de primer apellido + segundo apellido',
       },
       validate: (val: unknown): true | string => {
         if (!val) return 'Last name is required'
         if (typeof val !== 'string') return 'Last name must be a string'
         if (val.trim().length < 2) return 'Last name must be at least 2 characters'
         return true
+      },
+    },
+
+    {
+      name: 'first_surname',
+      type: 'text',
+      required: false,
+      maxLength: 100,
+      admin: {
+        description: 'Primer apellido',
+      },
+    },
+
+    {
+      name: 'second_surname',
+      type: 'text',
+      required: false,
+      maxLength: 100,
+      admin: {
+        description: 'Segundo apellido',
       },
     },
 
@@ -396,6 +462,48 @@ export const Staff: CollectionConfig = {
       // PII Protection: Hide from public API
       access: {
         read: ({ req: { user } }) => !!user, // Only authenticated users
+      },
+    },
+
+    {
+      name: 'address',
+      type: 'text',
+      required: false,
+      maxLength: 255,
+      admin: {
+        description: 'Dirección postal interna',
+        placeholder: 'Calle, número, piso',
+      },
+      access: {
+        read: ({ req: { user } }) => !!user,
+      },
+    },
+
+    {
+      name: 'city',
+      type: 'text',
+      required: false,
+      maxLength: 120,
+      admin: {
+        description: 'Ciudad o municipio',
+        placeholder: 'Santa Cruz de Tenerife',
+      },
+      access: {
+        read: ({ req: { user } }) => !!user,
+      },
+    },
+
+    {
+      name: 'postal_code',
+      type: 'text',
+      required: false,
+      maxLength: 12,
+      admin: {
+        description: 'Código postal',
+        placeholder: '38005',
+      },
+      access: {
+        read: ({ req: { user } }) => !!user,
       },
     },
 
@@ -664,6 +772,17 @@ export const Staff: CollectionConfig = {
       },
       validate: (): true | string => {
         return true
+      },
+    },
+    {
+      name: 'base_campus',
+      type: 'relationship',
+      relationTo: 'campuses',
+      required: false,
+      index: true,
+      admin: {
+        description:
+          'Sede base administrativa principal. No limita las sedes operativas asignadas.',
       },
     },
     {

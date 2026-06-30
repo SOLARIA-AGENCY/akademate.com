@@ -75,11 +75,16 @@ interface StaffQueryRow {
   id: number
   staff_type: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico'
   first_name: string
+  first_surname: string | null
+  second_surname: string | null
   last_name: string
   full_name: string | null
   nif: string | null
   email: string | null
   phone: string | null
+  address: string | null
+  city: string | null
+  postal_code: string | null
   position: string
   contract_type: 'general_regime' | 'full_time' | 'part_time' | 'freelance'
   employment_status: 'active' | 'temporary_leave' | 'inactive'
@@ -100,6 +105,9 @@ interface StaffQueryRow {
   photo_id: number | null
   photo_filename: string | null
   photo_url: string | null
+  base_campus_id: number | null
+  base_campus_name: string | null
+  base_campus_city: string | null
   campuses: CampusData[]
   course_runs: CourseRunData[]
   certifications: CertificationData[]
@@ -110,10 +118,15 @@ interface StaffQueryRow {
 interface CreateStaffBody {
   staffType: 'profesor' | 'administrativo' | 'jefatura_administracion' | 'academico'
   firstName: string
-  lastName: string
+  lastName?: string
+  firstSurname?: string
+  secondSurname?: string
   nif?: string
   email: string
   phone?: string
+  address?: string
+  city?: string
+  postalCode?: string
   position: string
   contractType?: 'general_regime' | 'full_time' | 'part_time' | 'freelance'
   employmentStatus?: 'active' | 'temporary_leave' | 'inactive'
@@ -135,6 +148,7 @@ interface CreateStaffBody {
     document?: number
   }[]
   assignedCampuses: (string | number)[]
+  baseCampusId?: string | number | null
   photoId?: string | number
 }
 
@@ -142,9 +156,14 @@ interface CreateStaffBody {
 interface UpdateStaffBody {
   firstName?: string
   lastName?: string
+  firstSurname?: string | null
+  secondSurname?: string | null
   nif?: string | null
   email?: string
   phone?: string | null
+  address?: string | null
+  city?: string | null
+  postalCode?: string | null
   position?: string
   contractType?: 'general_regime' | 'full_time' | 'part_time' | 'freelance'
   employmentStatus?: 'active' | 'temporary_leave' | 'inactive'
@@ -167,16 +186,22 @@ interface UpdateStaffBody {
     document?: number
   }[]
   assignedCampuses?: (string | number)[]
+  baseCampusId?: string | number | null
   isActive?: boolean
 }
 
 /** Data structure for Payload CMS staff updates */
 interface StaffUpdateData {
   first_name?: string
+  first_surname?: string | null
+  second_surname?: string | null
   last_name?: string
   nif?: string | null
   email?: string | null
   phone?: string | null
+  address?: string | null
+  city?: string | null
+  postal_code?: string | null
   position?: string
   contract_type?: 'general_regime' | 'full_time' | 'part_time' | 'freelance'
   employment_status?: 'active' | 'temporary_leave' | 'inactive'
@@ -199,6 +224,7 @@ interface StaffUpdateData {
     document?: number
   }[]
   assigned_campuses?: number[]
+  base_campus?: number | null
   is_active?: boolean
 }
 
@@ -210,6 +236,98 @@ function normalizeQualifiedAreaIds(qualifiedAreas?: (string | number)[]): number
   return (qualifiedAreas ?? [])
     .map((areaId) => (typeof areaId === 'string' ? parseInt(areaId, 10) : areaId))
     .filter((areaId) => Number.isFinite(areaId))
+}
+
+function normalizeCampusIds(campusIds?: (string | number)[] | null): number[] {
+  return Array.from(
+    new Set(
+      (campusIds ?? [])
+        .map((campusId) => (typeof campusId === 'string' ? parseInt(campusId, 10) : campusId))
+        .filter((campusId) => Number.isFinite(campusId))
+    )
+  )
+}
+
+function normalizeNullableText(value?: string | null): string | null {
+  if (value === undefined) return null
+  const trimmed = value?.trim()
+  return trimmed ? trimmed : null
+}
+
+function parseNullableId(value?: string | number | null): number | null {
+  if (value === undefined || value === null || value === '') return null
+  const parsed = typeof value === 'string' ? parseInt(value, 10) : value
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function splitSurnameParts(lastName?: string | null): {
+  firstSurname: string | null
+  secondSurname: string | null
+} {
+  const normalized = normalizeNominativeText(lastName ?? undefined)
+  if (!normalized) return { firstSurname: null, secondSurname: null }
+  const [first, ...rest] = normalized.split(/\s+/)
+  return {
+    firstSurname: first ?? null,
+    secondSurname: rest.length > 0 ? rest.join(' ') : null,
+  }
+}
+
+function combineSurnameParts(
+  firstSurname?: string | null,
+  secondSurname?: string | null,
+  fallbackLastName?: string | null
+): string | null {
+  const normalizedFirst = normalizeNominativeText(firstSurname ?? undefined)
+  const normalizedSecond = normalizeNominativeText(secondSurname ?? undefined)
+  const combined = [normalizedFirst, normalizedSecond].filter(Boolean).join(' ').trim()
+  return combined || normalizeNominativeText(fallbackLastName ?? undefined) || null
+}
+
+function getCurrentCampusIds(current: Staff | undefined | null): number[] {
+  const currentWithCampuses = current as
+    | (Staff & {
+        assigned_campuses?: (number | string | { id?: number | string | null })[] | null
+      })
+    | undefined
+    | null
+  const campuses = currentWithCampuses?.assigned_campuses
+  if (!Array.isArray(campuses)) return []
+  return normalizeCampusIds(
+    campuses.map((campus) => {
+      if (typeof campus === 'number' || typeof campus === 'string') return campus
+      return campus?.id ?? ''
+    })
+  )
+}
+
+function getCurrentBaseCampusId(current: Staff | undefined | null): number | null {
+  const currentWithBase = current as
+    | (Staff & { base_campus?: number | string | { id?: number | string | null } | null })
+    | undefined
+    | null
+  const baseCampus = currentWithBase?.base_campus
+  if (typeof baseCampus === 'number' || typeof baseCampus === 'string') {
+    return parseNullableId(baseCampus)
+  }
+  return parseNullableId(baseCampus?.id ?? null)
+}
+
+function resolveCampusAssignment(
+  assignedCampuses: number[],
+  requestedBaseCampusId?: string | number | null,
+  fallbackBaseCampusId?: number | null
+): { assignedCampuses: number[]; baseCampusId: number | null } {
+  const baseCampusId =
+    requestedBaseCampusId !== undefined ? parseNullableId(requestedBaseCampusId) : fallbackBaseCampusId ?? null
+  const nextAssignedCampuses = [...assignedCampuses]
+  if (baseCampusId && !nextAssignedCampuses.includes(baseCampusId)) {
+    nextAssignedCampuses.push(baseCampusId)
+  }
+  return {
+    assignedCampuses: nextAssignedCampuses,
+    baseCampusId: baseCampusId ?? nextAssignedCampuses[0] ?? null,
+  }
 }
 
 function normalizeCertifications(certifications?: CreateStaffBody['certifications']) {
@@ -427,11 +545,16 @@ export async function GET(request: NextRequest) {
         s.id,
         s.staff_type,
         s.first_name,
+        s.first_surname,
+        s.second_surname,
         s.last_name,
         s.full_name,
         s.nif,
         s.email,
         s.phone,
+        s.address,
+        s.city,
+        s.postal_code,
         s.position,
         s.contract_type,
         s.employment_status,
@@ -452,6 +575,9 @@ export async function GET(request: NextRequest) {
         s.photo_id,
         m.filename as photo_filename,
         m.url as photo_url,
+        s.base_campus_id,
+        base_campus.name as base_campus_name,
+        base_campus.city as base_campus_city,
         COALESCE(
           json_agg(
             DISTINCT jsonb_build_object('id', c.id, 'name', c.name, 'city', c.city)
@@ -502,6 +628,7 @@ export async function GET(request: NextRequest) {
         ) as qualified_areas
       FROM staff s
       LEFT JOIN media m ON s.photo_id = m.id
+      LEFT JOIN campuses base_campus ON base_campus.id = s.base_campus_id
       LEFT JOIN staff_rels sr ON sr.parent_id = s.id AND sr.path = 'assigned_campuses'
       LEFT JOIN campuses c ON c.id = sr.campuses_id
       LEFT JOIN staff_rels sr_area ON sr_area.parent_id = s.id AND sr_area.path = 'qualified_areas'
@@ -513,7 +640,7 @@ export async function GET(request: NextRequest) {
       LEFT JOIN campuses camp ON camp.id = cr.campus_id
       LEFT JOIN staff_certifications cert ON cert._parent_id = s.id
       ${whereClause}
-      GROUP BY s.id, m.filename, m.url
+      GROUP BY s.id, m.filename, m.url, base_campus.name, base_campus.city
       ORDER BY s.created_at DESC
       LIMIT ${limit}
     `
@@ -526,11 +653,16 @@ export async function GET(request: NextRequest) {
         id: member.id,
         staffType: member.staff_type,
         firstName: member.first_name,
+        firstSurname: member.first_surname ?? splitSurnameParts(member.last_name).firstSurname,
+        secondSurname: member.second_surname ?? splitSurnameParts(member.last_name).secondSurname,
         lastName: member.last_name,
         fullName: member.full_name,
         nif: member.nif,
         email: member.email,
         phone: member.phone,
+        address: member.address,
+        city: member.city,
+        postalCode: member.postal_code,
         position: member.position,
         contractType: member.contract_type,
         employmentStatus: member.employment_status,
@@ -550,6 +682,15 @@ export async function GET(request: NextRequest) {
         certifications: member.certifications || [],
         qualifiedAreas: member.qualified_areas || [],
         assignedCampuses: member.campuses || [],
+        baseCampusId: member.base_campus_id ?? member.campuses?.[0]?.id ?? null,
+        baseCampus:
+          member.base_campus_id && member.base_campus_name
+            ? {
+                id: member.base_campus_id,
+                name: member.base_campus_name,
+                city: member.base_campus_city,
+              }
+            : member.campuses?.[0] ?? null,
         courseRuns: member.course_runs || [],
         courseRunsCount: Array.isArray(member.course_runs) ? member.course_runs.length : 0,
         isActive: member.is_active,
@@ -586,9 +727,14 @@ export async function POST(request: NextRequest) {
       staffType,
       firstName,
       lastName,
+      firstSurname,
+      secondSurname,
       nif,
       email,
       phone,
+      address,
+      city,
+      postalCode,
       position,
       contractType,
       employmentStatus,
@@ -605,19 +751,36 @@ export async function POST(request: NextRequest) {
       detectedCourses,
       certifications,
       assignedCampuses,
+      baseCampusId,
       photoId,
     } = body
 
     const normalizedFirstName = normalizeNominativeText(firstName)
-    const normalizedLastName = normalizeNominativeText(lastName)
+    const splitLastName = splitSurnameParts(lastName)
+    const normalizedFirstSurname =
+      normalizeNominativeText(firstSurname) ?? splitLastName.firstSurname
+    const normalizedSecondSurname =
+      normalizeNominativeText(secondSurname) ?? splitLastName.secondSurname
+    const normalizedLastName = combineSurnameParts(
+      normalizedFirstSurname,
+      normalizedSecondSurname,
+      lastName
+    )
     const normalizedPosition = normalizeNominativeText(position)
+    const normalizedAddress = normalizeNullableText(address)
+    const normalizedCity = normalizeNominativeText(city)
+    const normalizedPostalCode = normalizeNullableText(postalCode)
+    const campusAssignment = resolveCampusAssignment(
+      normalizeCampusIds(assignedCampuses),
+      baseCampusId
+    )
 
     // Validaciones básicas
     if (!staffType || !normalizedFirstName || !normalizedLastName || !normalizedPosition) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Campos requeridos: staffType, firstName, lastName, position',
+          error: 'Campos requeridos: staffType, firstName, apellidos, position',
         },
         { status: 400 }
       )
@@ -662,10 +825,15 @@ export async function POST(request: NextRequest) {
       data: {
         staff_type: staffType,
         first_name: normalizedFirstName,
+        first_surname: normalizedFirstSurname ?? undefined,
+        second_surname: normalizedSecondSurname ?? undefined,
         last_name: normalizedLastName,
         nif: normalizedNif ?? undefined,
         email: normalizedEmail ?? undefined,
         phone: normalizedPhone ?? undefined,
+        address: normalizedAddress ?? undefined,
+        city: normalizedCity ?? undefined,
+        postal_code: normalizedPostalCode ?? undefined,
         position: normalizedPosition,
         contract_type: contractType ?? 'full_time',
         employment_status: employmentStatus ?? 'active',
@@ -682,12 +850,11 @@ export async function POST(request: NextRequest) {
         alias_names: aliasNames ?? undefined,
         detected_courses: detectedCourses ?? undefined,
         certifications: normalizeCertifications(certifications),
-        assigned_campuses: (assignedCampuses ?? []).map((id) =>
-          typeof id === 'string' ? parseInt(id) : id
-        ),
+        assigned_campuses: campusAssignment.assignedCampuses,
+        base_campus: campusAssignment.baseCampusId ?? undefined,
         is_active: true,
         data_quality_status:
-          !normalizedEmail || !hireDate || !assignedCampuses || assignedCampuses.length === 0
+          !normalizedEmail || !hireDate || campusAssignment.assignedCampuses.length === 0
             ? 'pending_validation'
             : 'complete',
       },
@@ -866,8 +1033,31 @@ export async function PUT(request: NextRequest) {
       const normalizedFirstName = normalizeNominativeText(body.firstName)
       if (normalizedFirstName) updateData.first_name = normalizedFirstName
     }
-    if (body.lastName !== undefined) {
-      const normalizedLastName = normalizeNominativeText(body.lastName)
+    if (
+      body.firstSurname !== undefined ||
+      body.secondSurname !== undefined ||
+      body.lastName !== undefined
+    ) {
+      const currentWithNames = current as Staff & {
+        first_surname?: string | null
+        second_surname?: string | null
+      }
+      const splitCurrentLastName = splitSurnameParts(current.last_name)
+      const nextFirstSurname =
+        body.firstSurname !== undefined
+          ? normalizeNominativeText(body.firstSurname ?? undefined)
+          : currentWithNames.first_surname ?? splitCurrentLastName.firstSurname
+      const nextSecondSurname =
+        body.secondSurname !== undefined
+          ? normalizeNominativeText(body.secondSurname ?? undefined)
+          : currentWithNames.second_surname ?? splitCurrentLastName.secondSurname
+      const normalizedLastName = combineSurnameParts(
+        nextFirstSurname,
+        nextSecondSurname,
+        body.lastName ?? current.last_name
+      )
+      updateData.first_surname = nextFirstSurname ?? null
+      updateData.second_surname = nextSecondSurname ?? null
       if (normalizedLastName) updateData.last_name = normalizedLastName
     }
     if (body.nif !== undefined) {
@@ -891,6 +1081,9 @@ export async function PUT(request: NextRequest) {
       }
       updateData.phone = normalizedPhone ?? null
     }
+    if (body.address !== undefined) updateData.address = normalizeNullableText(body.address)
+    if (body.city !== undefined) updateData.city = normalizeNominativeText(body.city ?? undefined) ?? null
+    if (body.postalCode !== undefined) updateData.postal_code = normalizeNullableText(body.postalCode)
     if (body.position !== undefined) {
       const normalizedPosition = normalizeNominativeText(body.position)
       if (normalizedPosition) updateData.position = normalizedPosition
@@ -912,10 +1105,21 @@ export async function PUT(request: NextRequest) {
     if (body.aliasNames !== undefined) updateData.alias_names = body.aliasNames
     if (body.detectedCourses !== undefined) updateData.detected_courses = body.detectedCourses
     if (body.certifications) updateData.certifications = normalizeCertifications(body.certifications)
-    if (body.assignedCampuses)
-      updateData.assigned_campuses = body.assignedCampuses.map((cid) =>
-        typeof cid === 'string' ? parseInt(cid) : cid
+    if (body.assignedCampuses !== undefined || body.baseCampusId !== undefined) {
+      const currentAssignedCampuses = getCurrentCampusIds(current)
+      const currentBaseCampusId = getCurrentBaseCampusId(current)
+      const requestedAssignedCampuses =
+        body.assignedCampuses !== undefined
+          ? normalizeCampusIds(body.assignedCampuses)
+          : currentAssignedCampuses
+      const campusAssignment = resolveCampusAssignment(
+        requestedAssignedCampuses,
+        body.baseCampusId,
+        currentBaseCampusId ?? currentAssignedCampuses[0] ?? null
       )
+      updateData.assigned_campuses = campusAssignment.assignedCampuses
+      updateData.base_campus = campusAssignment.baseCampusId
+    }
     if (body.isActive !== undefined) updateData.is_active = body.isActive
 
     const effectiveStaffType = current.staff_type

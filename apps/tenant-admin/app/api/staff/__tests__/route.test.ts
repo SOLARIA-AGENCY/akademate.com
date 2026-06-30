@@ -187,6 +187,90 @@ describe('/api/staff qualified areas', () => {
     )
   })
 
+  it('creates staff with separate surnames and preserves base campus inside assigned campuses', async () => {
+    const { POST } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff', {
+      method: 'POST',
+      body: JSON.stringify({
+        staffType: 'profesor',
+        firstName: 'ELENA',
+        firstSurname: 'MICELLO',
+        secondSurname: 'ROSSI',
+        email: 'elena@example.com',
+        nif: ' y0079474t ',
+        phone: '620442974',
+        address: 'Calle Principal 12',
+        city: 'SANTA CRUZ DE TENERIFE',
+        postalCode: '38001',
+        position: 'DOCENTE VETERINARIA',
+        hireDate: '2026-06-01',
+        assignedCampuses: [1],
+        baseCampusId: 2,
+        qualifiedAreas: [7],
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await POST(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          first_name: 'Elena',
+          first_surname: 'Micello',
+          second_surname: 'Rossi',
+          last_name: 'Micello Rossi',
+          nif: 'Y0079474T',
+          phone: '+34 620 442 974',
+          city: 'Santa Cruz de Tenerife',
+          postal_code: '38001',
+          assigned_campuses: [1, 2],
+          base_campus: 2,
+        }),
+      })
+    )
+  })
+
+  it('adds a changed base campus without removing existing assigned campuses', async () => {
+    payloadMock.findByID.mockResolvedValueOnce({
+      id: 44,
+      staff_type: 'profesor',
+      employment_status: 'active',
+      contract_type: 'full_time',
+      qualified_areas: [7],
+      assigned_campuses: [{ id: 1 }],
+      base_campus: { id: 1 },
+    })
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        baseCampusId: 2,
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        id: 44,
+        data: expect.objectContaining({
+          assigned_campuses: [1, 2],
+          base_campus: 2,
+        }),
+      })
+    )
+  })
+
   it('records the authenticated user in the staff status event when creating staff', async () => {
     authMock.mockResolvedValue({ userId: 9, tenantId: 1 })
     const { POST } = await loadRoute()

@@ -37,11 +37,16 @@ interface StaffDocument {
   id: number;
   staff_type: 'profesor' | 'administrativo';
   first_name: string;
+  first_surname?: string | null;
+  second_surname?: string | null;
   last_name: string;
   full_name?: string;
   nif?: string | null;
   email: string;
   phone?: string;
+  address?: string | null;
+  city?: string | null;
+  postal_code?: string | null;
   position: string;
   contract_type: string;
   employment_status: string;
@@ -55,6 +60,7 @@ interface StaffDocument {
   is_active: boolean;
   photo?: { id: number; filename?: string; url?: string | null } | number;
   assigned_campuses?: (CampusRel | number)[];
+  base_campus?: CampusRel | number | null;
   qualified_areas?: (AreaRel | number)[];
   createdAt: string;
   updatedAt: string;
@@ -64,11 +70,16 @@ interface StaffDetailRow {
   id: number
   staff_type: StaffDocument['staff_type']
   first_name: string
+  first_surname: string | null
+  second_surname: string | null
   last_name: string
   full_name: string | null
   nif: string | null
   email: string | null
   phone: string | null
+  address: string | null
+  city: string | null
+  postal_code: string | null
   position: string
   contract_type: string
   employment_status: string
@@ -83,6 +94,9 @@ interface StaffDetailRow {
   photo_id: number | null
   photo_filename: string | null
   photo_url: string | null
+  base_campus_id: number | null
+  base_campus_name: string | null
+  base_campus_city: string | null
   assigned_campuses: CampusRel[]
   qualified_areas: AreaRel[]
   certifications: CertificationRel[]
@@ -98,6 +112,19 @@ function resolveMediaUrl(filename?: string | null, url?: string | null): string 
   if (url && url.trim().length > 0) return url
   if (filename && filename.trim().length > 0) return `/api/media/file/${filename}`
   return '/placeholder-avatar.svg'
+}
+
+function splitSurnameParts(lastName?: string | null): {
+  firstSurname: string | null
+  secondSurname: string | null
+} {
+  const normalized = lastName?.trim()
+  if (!normalized) return { firstSurname: null, secondSurname: null }
+  const [first, ...rest] = normalized.split(/\s+/)
+  return {
+    firstSurname: first ?? null,
+    secondSurname: rest.length > 0 ? rest.join(' ') : null,
+  }
 }
 
 /**
@@ -132,11 +159,16 @@ export async function GET(
         s.id,
         s.staff_type,
         s.first_name,
+        s.first_surname,
+        s.second_surname,
         s.last_name,
         s.full_name,
         s.nif,
         s.email,
         s.phone,
+        s.address,
+        s.city,
+        s.postal_code,
         s.position,
         s.contract_type,
         s.employment_status,
@@ -151,6 +183,9 @@ export async function GET(
         s.photo_id,
         m.filename AS photo_filename,
         m.url AS photo_url,
+        s.base_campus_id,
+        base_campus.name AS base_campus_name,
+        base_campus.city AS base_campus_city,
         s.created_at,
         s.updated_at,
         COALESCE(campuses.data, '[]'::json) AS assigned_campuses,
@@ -159,6 +194,7 @@ export async function GET(
         COALESCE(course_runs.data, '[]'::json) AS course_runs
       FROM staff s
       LEFT JOIN media m ON m.id = s.photo_id
+      LEFT JOIN campuses base_campus ON base_campus.id = s.base_campus_id
       LEFT JOIN LATERAL (
         SELECT json_agg(
           jsonb_build_object('id', rel.id, 'name', rel.name, 'city', rel.city)
@@ -266,11 +302,17 @@ export async function GET(
         id: staffMember.id,
         staffType: staffMember.staff_type,
         firstName: staffMember.first_name,
+        firstSurname: staffMember.first_surname ?? splitSurnameParts(staffMember.last_name).firstSurname,
+        secondSurname:
+          staffMember.second_surname ?? splitSurnameParts(staffMember.last_name).secondSurname,
         lastName: staffMember.last_name,
         fullName: staffMember.full_name ?? `${staffMember.first_name} ${staffMember.last_name}`,
         nif: staffMember.nif ?? null,
         email: staffMember.email,
         phone: staffMember.phone ?? null,
+        address: staffMember.address ?? null,
+        city: staffMember.city ?? null,
+        postalCode: staffMember.postal_code ?? null,
         position: staffMember.position,
         contractType: staffMember.contract_type,
         employmentStatus: staffMember.employment_status,
@@ -284,6 +326,15 @@ export async function GET(
         photoId: staffMember.photo_id,
         photo,
         assignedCampuses: staffMember.assigned_campuses ?? [],
+        baseCampusId: staffMember.base_campus_id ?? staffMember.assigned_campuses?.[0]?.id ?? null,
+        baseCampus:
+          staffMember.base_campus_id && staffMember.base_campus_name
+            ? {
+                id: staffMember.base_campus_id,
+                name: staffMember.base_campus_name,
+                city: staffMember.base_campus_city,
+              }
+            : staffMember.assigned_campuses?.[0] ?? null,
         qualifiedAreas: staffMember.qualified_areas ?? [],
         certifications: staffMember.certifications ?? [],
         courseRuns: staffMember.course_runs ?? [],
