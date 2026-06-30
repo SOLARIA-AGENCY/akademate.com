@@ -5,6 +5,14 @@ import { getPayload, type Payload, type SanitizedConfig } from 'payload'
 import configPromise from '@payload-config'
 import type { Staff } from '../../../src/payload-types'
 import { normalizeOptionalSpanishPhone, SPANISH_PHONE_ERROR } from '@/lib/phone'
+import {
+  isValidStaffEmail,
+  isValidStaffNif,
+  normalizeStaffEmail,
+  normalizeStaffNif,
+  STAFF_EMAIL_ERROR,
+  STAFF_NIF_ERROR,
+} from '@/lib/staff-contact'
 
 /**
  * Initialize Payload CMS instance.
@@ -165,7 +173,7 @@ interface StaffUpdateData {
   first_name?: string
   last_name?: string
   nif?: string | null
-  email?: string
+  email?: string | null
   phone?: string | null
   position?: string
   contract_type?: 'general_regime' | 'full_time' | 'part_time' | 'freelance'
@@ -235,6 +243,34 @@ function isStatusOnlyUpdate(body: UpdateStaffBody): boolean {
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
+    const message = error.message
+    const normalizedMessage = message.toLowerCase()
+
+    if (
+      normalizedMessage.includes('email') &&
+      (normalizedMessage.includes('unique') ||
+        normalizedMessage.includes('duplicate') ||
+        normalizedMessage.includes('duplicat') ||
+        normalizedMessage.includes('already exists') ||
+        normalizedMessage.includes('ya existe'))
+    ) {
+      return 'Ya existe una ficha de personal con este email.'
+    }
+
+    if (
+      (normalizedMessage.includes('nif') || normalizedMessage.includes('dni')) &&
+      (normalizedMessage.includes('unique') ||
+        normalizedMessage.includes('duplicate') ||
+        normalizedMessage.includes('duplicat') ||
+        normalizedMessage.includes('already exists') ||
+        normalizedMessage.includes('ya existe'))
+    ) {
+      return 'Ya existe una ficha de personal con este DNI/NIF.'
+    }
+
+    if (normalizedMessage.includes('field is invalid: email')) return STAFF_EMAIL_ERROR
+    if (normalizedMessage.includes('field is invalid: nif')) return STAFF_NIF_ERROR
+
     return error.message
   }
   return String(error)
@@ -244,12 +280,6 @@ function resolveMediaUrl(filename?: string | null, url?: string | null): string 
   if (url && url.trim().length > 0) return url
   if (filename && filename.trim().length > 0) return `/api/media/file/${filename}`
   return '/placeholder-avatar.svg'
-}
-
-function normalizeNif(value?: string | null): string | null {
-  if (!value) return null
-  const normalized = value.trim().toUpperCase().replace(/\s+/g, '')
-  return normalized.length > 0 ? normalized : null
 }
 
 async function createStaffStatusEvent(args: {
@@ -587,6 +617,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: SPANISH_PHONE_ERROR }, { status: 400 })
     }
 
+    const normalizedEmail = normalizeStaffEmail(email)
+    if (!isValidStaffEmail(normalizedEmail)) {
+      return NextResponse.json({ success: false, error: STAFF_EMAIL_ERROR }, { status: 400 })
+    }
+
+    const normalizedNif = normalizeStaffNif(nif)
+    if (!isValidStaffNif(normalizedNif)) {
+      return NextResponse.json({ success: false, error: STAFF_NIF_ERROR }, { status: 400 })
+    }
+
     const payload = await initPayload()
 
     // Crear miembro del personal
@@ -600,8 +640,8 @@ export async function POST(request: NextRequest) {
         staff_type: staffType,
         first_name: firstName,
         last_name: lastName,
-        nif: normalizeNif(nif) ?? undefined,
-        email: email || undefined,
+        nif: normalizedNif ?? undefined,
+        email: normalizedEmail ?? undefined,
         phone: normalizedPhone ?? undefined,
         position,
         contract_type: contractType ?? 'full_time',
@@ -624,7 +664,7 @@ export async function POST(request: NextRequest) {
         ),
         is_active: true,
         data_quality_status:
-          !email || !hireDate || !assignedCampuses || assignedCampuses.length === 0
+          !normalizedEmail || !hireDate || !assignedCampuses || assignedCampuses.length === 0
             ? 'pending_validation'
             : 'complete',
       },
@@ -795,8 +835,20 @@ export async function PUT(request: NextRequest) {
 
     if (body.firstName) updateData.first_name = body.firstName
     if (body.lastName) updateData.last_name = body.lastName
-    if (body.nif !== undefined) updateData.nif = normalizeNif(body.nif)
-    if (body.email) updateData.email = body.email
+    if (body.nif !== undefined) {
+      const normalizedNif = normalizeStaffNif(body.nif)
+      if (!isValidStaffNif(normalizedNif)) {
+        return NextResponse.json({ success: false, error: STAFF_NIF_ERROR }, { status: 400 })
+      }
+      updateData.nif = normalizedNif
+    }
+    if (body.email !== undefined) {
+      const normalizedEmail = normalizeStaffEmail(body.email)
+      if (!isValidStaffEmail(normalizedEmail)) {
+        return NextResponse.json({ success: false, error: STAFF_EMAIL_ERROR }, { status: 400 })
+      }
+      updateData.email = normalizedEmail
+    }
     if (body.phone !== undefined) {
       const normalizedPhone = normalizeOptionalSpanishPhone(body.phone)
       if (body.phone !== null && String(body.phone).trim() !== '' && !normalizedPhone) {

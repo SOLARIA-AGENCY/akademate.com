@@ -15,6 +15,8 @@ import { Label } from '@payload-config/components/ui/label'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { PageHeader } from '@payload-config/components/ui/PageHeader'
 import { Checkbox } from '@payload-config/components/ui/checkbox'
+import { formatSpanishPhoneInput } from '@/lib/phone'
+import { formatStaffEmailInput, formatStaffNifInput } from '@/lib/staff-contact'
 import {
   Select,
   SelectContent,
@@ -51,6 +53,7 @@ export default function NewAdministrativoPage() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    nif: '',
     email: '',
     phone: '',
     position: '',
@@ -95,6 +98,7 @@ export default function NewAdministrativoPage() {
           staffType: 'administrativo',
           firstName: formData.firstName,
           lastName: formData.lastName,
+          nif: formData.nif || undefined,
           email: formData.email,
           phone: formData.phone,
           position: formData.position,
@@ -106,18 +110,14 @@ export default function NewAdministrativoPage() {
         }),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to create administrative staff')
-      }
-
       const result = (await response.json()) as StaffApiResponse
 
-      if (!result.success) {
+      if (!response.ok || !result.success) {
         throw new Error(result.error ?? 'Error creating administrative staff')
       }
 
       // Redirect to detail page
-      router.push(`/administrativo/${result.data.id}`)
+      router.push(`/dashboard/administrativo/${result.data.id}`)
     } catch (err) {
       console.error('Error creating administrative staff:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -127,6 +127,18 @@ export default function NewAdministrativoPage() {
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleNifBlur = () => {
+    setFormData((prev) => ({ ...prev, nif: formatStaffNifInput(prev.nif) }))
+  }
+
+  const handleEmailBlur = () => {
+    setFormData((prev) => ({ ...prev, email: formatStaffEmailInput(prev.email) }))
+  }
+
+  const handlePhoneBlur = () => {
+    setFormData((prev) => ({ ...prev, phone: formatSpanishPhoneInput(prev.phone) }))
   }
 
   const toggleCampus = (campusId: number) => {
@@ -217,6 +229,19 @@ export default function NewAdministrativoPage() {
 
             {/* Contact Info */}
             <div className="grid gap-4 md:grid-cols-2" data-oid="cwaizc1">
+              <div className="space-y-2">
+                <Label htmlFor="nif">NIF/DNI</Label>
+                <Input
+                  id="nif"
+                  value={formData.nif}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleChange('nif', e.target.value)
+                  }
+                  onBlur={handleNifBlur}
+                  placeholder="12345678Z"
+                />
+              </div>
+
               <div className="space-y-2" data-oid="fuk_zqm">
                 <Label htmlFor="email" data-oid="fh6okmv">
                   Email{' '}
@@ -231,6 +256,7 @@ export default function NewAdministrativoPage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     handleChange('email', e.target.value)
                   }
+                  onBlur={handleEmailBlur}
                   required
                   placeholder="maria.gonzalez@akademate.com"
                   data-oid="5f6pcxp"
@@ -248,6 +274,7 @@ export default function NewAdministrativoPage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     handleChange('phone', e.target.value)
                   }
+                  onBlur={handlePhoneBlur}
                   placeholder="+34 922 123 456"
                   data-oid="8abhs:6"
                 />
@@ -289,6 +316,7 @@ export default function NewAdministrativoPage() {
                     <SelectValue data-oid="-wrbgrh" />
                   </SelectTrigger>
                   <SelectContent data-oid="logbi19">
+                    <SelectItem value="general_regime">Régimen General</SelectItem>
                     <SelectItem value="full_time" data-oid="7mt4t__">
                       Tiempo Completo
                     </SelectItem>

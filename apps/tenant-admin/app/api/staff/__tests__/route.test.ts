@@ -214,6 +214,102 @@ describe('/api/staff qualified areas', () => {
     )
   })
 
+  it('normalizes email and DNI/NIF when creating staff', async () => {
+    const { POST } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff', {
+      method: 'POST',
+      body: JSON.stringify({
+        staffType: 'administrativo',
+        firstName: 'Admin',
+        lastName: 'Contacto',
+        email: '  ADMIN.CONTACTO@EXAMPLE.COM  ',
+        nif: ' 12345678 z ',
+        position: 'Administración',
+        hireDate: '2026-06-01',
+        assignedCampuses: [1],
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await POST(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          email: 'admin.contacto@example.com',
+          nif: '12345678Z',
+        }),
+      })
+    )
+  })
+
+  it('normalizes and clears email and DNI/NIF when updating staff', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        email: '  DOCENTE.TEST@EXAMPLE.COM  ',
+        nif: '',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          email: 'docente.test@example.com',
+          nif: null,
+        }),
+      })
+    )
+  })
+
+  it('rejects invalid staff email before calling Payload', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        email: 'correo-invalido',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(json.error).toMatch(/email válido/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('rejects invalid DNI/NIF before calling Payload', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        nif: '??',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(json.error).toMatch(/dni|nif|nie/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
   it('normalizes mobile Spanish phone numbers when updating staff', async () => {
     const { PUT } = await loadRoute()
     const request = new NextRequest('http://localhost/api/staff?id=44', {

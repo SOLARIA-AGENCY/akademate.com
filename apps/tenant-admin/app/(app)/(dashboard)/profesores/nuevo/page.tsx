@@ -34,6 +34,7 @@ import {
   User,
 } from 'lucide-react'
 import { formatSpanishPhoneInput } from '@/lib/phone'
+import { formatStaffEmailInput, formatStaffNifInput } from '@/lib/staff-contact'
 
 interface Campus {
   id: number
@@ -220,6 +221,14 @@ export default function NewProfesorPage() {
 
   const handlePhoneBlur = () => {
     setFormData((prev) => ({ ...prev, phone: formatSpanishPhoneInput(prev.phone) }))
+  }
+
+  const handleNifBlur = () => {
+    setFormData((prev) => ({ ...prev, nif: formatStaffNifInput(prev.nif) }))
+  }
+
+  const handleEmailBlur = () => {
+    setFormData((prev) => ({ ...prev, email: formatStaffEmailInput(prev.email) }))
   }
 
   const handleSelectChange = (field: string) => (value: string) => {
@@ -418,6 +427,7 @@ export default function NewProfesorPage() {
                   id="nif"
                   value={formData.nif}
                   onChange={handleInputChange('nif')}
+                  onBlur={handleNifBlur}
                   placeholder="00000000A"
                 />
               </div>
@@ -434,6 +444,7 @@ export default function NewProfesorPage() {
                   type="email"
                   value={formData.email}
                   onChange={handleInputChange('email')}
+                  onBlur={handleEmailBlur}
                   required
                   placeholder="juan.perez@akademate.com"
                   data-oid="e2ld8h0"

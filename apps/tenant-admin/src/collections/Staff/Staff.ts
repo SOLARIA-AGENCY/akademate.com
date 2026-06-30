@@ -2,6 +2,14 @@ import type { CollectionConfig, FieldAccess } from 'payload'
 import { canEditStaff, canManageStaff } from './access'
 import { trackStaffCreator, validateTeachingAreas } from './hooks'
 import { normalizeSpanishPhone, SPANISH_PHONE_ERROR } from '@/lib/phone'
+import {
+  isValidStaffEmail,
+  isValidStaffNif,
+  normalizeStaffEmail,
+  normalizeStaffNif,
+  STAFF_EMAIL_ERROR,
+  STAFF_NIF_ERROR,
+} from '@/lib/staff-contact'
 
 /**
  * Type definitions for Staff collection
@@ -290,8 +298,17 @@ export const Staff: CollectionConfig = {
         description: 'Email address (must be unique)',
       },
       validate: (val: unknown): true | string => {
-        if (!val) return true
-        return true
+        const normalized = normalizeStaffEmail(val)
+        if (!normalized) return true
+        return isValidStaffEmail(normalized) ? true : STAFF_EMAIL_ERROR
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value }) => {
+            const normalized = normalizeStaffEmail(value)
+            return normalized ?? undefined
+          },
+        ],
       },
       // PII Protection: Hide from public API
       access: {
@@ -310,12 +327,15 @@ export const Staff: CollectionConfig = {
         description: 'DNI/NIF/NIE interno del docente o personal. No se muestra en la web pública.',
         placeholder: '12345678Z',
       },
+      validate: (val: unknown): true | string => {
+        const normalized = normalizeStaffNif(val)
+        if (!normalized) return true
+        return isValidStaffNif(normalized) ? true : STAFF_NIF_ERROR
+      },
       hooks: {
         beforeChange: [
           ({ value }): string | undefined => {
-            if (typeof value !== 'string') return undefined
-            const normalized = value.trim().toUpperCase().replace(/\s+/g, '')
-            return normalized.length > 0 ? normalized : undefined
+            return normalizeStaffNif(value) ?? undefined
           },
         ],
       },

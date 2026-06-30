@@ -26,6 +26,7 @@ interface StaffMember {
   firstName: string
   lastName: string
   fullName: string
+  nif?: string | null
   email: string
   phone?: string
   position: string
@@ -74,7 +75,7 @@ export default function AdministrativoDetailPage() {
     async function loadAdmin() {
       try {
         setLoading(true)
-        const response = await fetch('/api/staff?type=administrativo&limit=100')
+        const response = await fetch(`/api/staff/${adminId}`)
 
         if (!response.ok) {
           throw new Error('Failed to load administrative staff data')
@@ -86,10 +87,9 @@ export default function AdministrativoDetailPage() {
           throw new Error('API returned error')
         }
 
-        // Find the specific admin staff member
-        const foundAdmin = result.data.find((s: StaffMember) => s.id.toString() === adminId)
+        const foundAdmin = result.data as StaffMember
 
-        if (!foundAdmin) {
+        if (!foundAdmin || foundAdmin.staffType !== 'administrativo') {
           throw new Error('Administrative staff member not found')
         }
 
@@ -243,6 +243,12 @@ export default function AdministrativoDetailPage() {
                     <a href={`tel:${admin.phone}`} className="hover:underline" data-oid=".1nn7a7">
                       {admin.phone}
                     </a>
+                  </div>
+                )}
+                {admin.nif && (
+                  <div className="flex items-center gap-3 text-sm">
+                    <Briefcase className="h-4 w-4 text-muted-foreground" />
+                    <span>{admin.nif}</span>
                   </div>
                 )}
               </div>
@@ -409,7 +415,10 @@ export default function AdministrativoDetailPage() {
         <Button variant="outline" onClick={() => router.back()} data-oid="7viqv:0">
           Volver
         </Button>
-        <Button onClick={() => router.push(`/administrativo/${adminId}/editar`)} data-oid="l1s868y">
+        <Button
+          onClick={() => router.push(`/dashboard/administrativo/${adminId}/editar`)}
+          data-oid="l1s868y"
+        >
           <Edit className="mr-2 h-4 w-4" data-oid="9ho.u2c" />
           Editar Personal
         </Button>
