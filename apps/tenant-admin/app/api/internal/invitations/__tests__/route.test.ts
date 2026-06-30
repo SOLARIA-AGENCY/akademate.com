@@ -91,7 +91,13 @@ describe('/api/internal/invitations', () => {
     expect(sendMailMock).toHaveBeenCalledWith(expect.objectContaining({
       to: 'info@cursostenerife.es',
       subject: expect.stringContaining('CEP FORMACION'),
+      from: 'CEP FORMACION <noreply@cepcomunicacion.com>',
+      replyTo: 'info@cursostenerife.es',
     }))
+    const sentHtml = sendMailMock.mock.calls[0][0].html as string
+    expect(sentHtml).toContain('https://cepformacion.akademate.com/cep-logo.png')
+    expect(sentHtml).toContain('#F2014B')
+    expect(sentHtml).not.toMatch(/akademate-logo|soporte@akademate/i)
   })
 
   it('rejects an existing pending invitation before sending email', async () => {
@@ -111,6 +117,43 @@ describe('/api/internal/invitations', () => {
     expect(response.status).toBe(409)
     expect(json.error).toMatch(/pendiente/i)
     expect(sendMailMock).not.toHaveBeenCalled()
+  })
+
+  it('sanitizes legacy Akademate branding for CEP invitation emails', async () => {
+    payloadMock.find.mockImplementation(async ({ collection }: { collection: string }) => {
+      if (collection === 'tenants') {
+        return {
+          docs: [{
+            id: 1,
+            name: 'CEP FORMACION',
+            domain: 'cepformacion.akademate.com',
+            branding_primary_color: '#0066CC',
+            branding_logo_url: '/logos/akademate-logo-official.png',
+          }],
+        }
+      }
+      if (collection === 'users') return { docs: [] }
+      return { docs: [] }
+    })
+    const { POST } = await loadInvitationsRoute()
+
+    const response = await POST(new NextRequest('http://localhost/api/internal/invitations', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Colaborador Test',
+        email: 'info@cursostenerife.es',
+        role: 'gestor',
+      }),
+    }))
+
+    expect(response.status).toBe(200)
+    expect(sendMailMock).toHaveBeenCalledWith(expect.objectContaining({
+      replyTo: 'info@cursostenerife.es',
+    }))
+    const sentHtml = sendMailMock.mock.calls[0][0].html as string
+    expect(sentHtml).toContain('https://cepformacion.akademate.com/logos/cep-formacion-logo.png')
+    expect(sentHtml).toContain('#E3003A')
+    expect(sentHtml).not.toMatch(/akademate-logo|#0066CC|soporte@akademate/i)
   })
 
   it('verifies a valid pending invitation token', async () => {

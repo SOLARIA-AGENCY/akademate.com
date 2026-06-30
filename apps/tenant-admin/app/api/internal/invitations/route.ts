@@ -75,6 +75,13 @@ function invitationEmailHtml(params: {
 </body></html>`
 }
 
+function toAbsoluteUrl(url: string, baseUrl: string): string {
+  const trimmed = url.trim()
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  if (trimmed.startsWith('/')) return `${baseUrl}${trimmed}`
+  return `${baseUrl}/${trimmed}`
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -95,22 +102,37 @@ export async function POST(request: NextRequest) {
         ? parseInt(tenantIdRaw, 10)
         : 1
 
+    const domainFromTenant =
+      (typeof tenant?.domain === 'string' && tenant.domain.trim()) || null
     const academyName =
       (typeof tenant?.name === 'string' && tenant.name.trim()) ||
       process.env.NEXT_PUBLIC_TENANT_NAME ||
-      'Akademate'
-    const primaryColor =
+      'CEP FORMACION'
+    const isCepTenant =
+      /cep\s*formaci[oó]n/i.test(academyName) ||
+      /cepformacion|cursostenerife|cepcomunicacion/i.test(domainFromTenant || request.nextUrl.hostname)
+    const configuredPrimaryColor =
       (typeof tenant?.branding_primary_color === 'string' && tenant.branding_primary_color.trim()) ||
       process.env.NEXT_PUBLIC_TENANT_PRIMARY_COLOR ||
-      '#0066CC'
+      '#E3003A'
+    const primaryColor = isCepTenant && /^#?0066cc$/i.test(configuredPrimaryColor)
+      ? '#E3003A'
+      : configuredPrimaryColor
     const requestOrigin = request.nextUrl.origin
     const configuredBaseUrl = process.env.NEXT_PUBLIC_TENANT_URL?.trim()
-    const domainFromTenant =
-      (typeof tenant?.domain === 'string' && tenant.domain.trim()) || null
     const baseUrl = configuredBaseUrl || (domainFromTenant ? `https://${domainFromTenant}` : requestOrigin)
-    const logoUrl =
+    const configuredLogoUrl =
       (typeof tenant?.branding_logo_url === 'string' && tenant.branding_logo_url.trim()) ||
-      `${baseUrl}/logos/akademate-logo-official.png`
+      process.env.NEXT_PUBLIC_TENANT_LOGO_URL ||
+      ''
+    const tenantLogoUrl =
+      isCepTenant && /akademate/i.test(configuredLogoUrl)
+        ? '/logos/cep-formacion-logo.png'
+        : configuredLogoUrl || '/logos/cep-formacion-logo.png'
+    const logoUrl = toAbsoluteUrl(
+      tenantLogoUrl,
+      baseUrl,
+    )
 
     // Check if user already exists
     const existing = await payload.find({
@@ -160,8 +182,10 @@ export async function POST(request: NextRequest) {
 
     const emailResult = await sendMail({
       to: invitationEmail,
-      subject: `${academyName} — Has sido invitado al panel de administracion`,
+      subject: `${academyName} — Has sido invitado al panel de administración`,
       html,
+      from: process.env.SMTP_FROM || `${academyName} <noreply@cepcomunicacion.com>`,
+      replyTo: process.env.SMTP_REPLY_TO || 'info@cursostenerife.es',
     })
 
     return NextResponse.json({
