@@ -15,6 +15,7 @@ import {
 } from './hooks';
 import { spanishPhoneRegex } from './Leads.validation';
 import { isSuperAdmin, getUserTenantId } from '../../access/tenantAccess';
+import { normalizeNominativeText } from '@/lib/nominative-text';
 
 /**
  * User role type for access control
@@ -35,6 +36,16 @@ interface UserLike {
 interface AdminConditionContext {
   user: UserLike | null;
 }
+
+const normalizeLeadNominativeFields: CollectionBeforeValidateHook = ({ data }) => {
+  const leadData = data as { first_name?: string; last_name?: string } | undefined;
+  if (!leadData) return data;
+
+  leadData.first_name = normalizeNominativeText(leadData.first_name) ?? leadData.first_name;
+  leadData.last_name = normalizeNominativeText(leadData.last_name) ?? leadData.last_name;
+
+  return leadData;
+};
 
 /**
  * Leads Collection - GDPR Compliant Lead Management
@@ -793,10 +804,11 @@ export const Leads: CollectionConfig = {
      * Order matters: Execute in sequence
      */
     beforeValidate: [
-      captureConsentMetadata as CollectionBeforeValidateHook, // 1. Capture GDPR consent metadata (timestamp, IP)
-      validateLeadRelationships as CollectionBeforeValidateHook, // 2. Validate foreign keys exist
-      preventDuplicateLead as CollectionBeforeValidateHook, // 3. Check for duplicates (same email+course within 24h)
-      calculateLeadScore as CollectionBeforeValidateHook, // 4. Calculate lead score (0-100)
+      normalizeLeadNominativeFields, // 1. Normalize lead name casing
+      captureConsentMetadata as CollectionBeforeValidateHook, // 2. Capture GDPR consent metadata (timestamp, IP)
+      validateLeadRelationships as CollectionBeforeValidateHook, // 3. Validate foreign keys exist
+      preventDuplicateLead as CollectionBeforeValidateHook, // 4. Check for duplicates (same email+course within 24h)
+      calculateLeadScore as CollectionBeforeValidateHook, // 5. Calculate lead score (0-100)
     ],
 
     /**

@@ -181,6 +181,82 @@ describe('/api/staff qualified areas', () => {
     )
   })
 
+  it('normalizes staff nominative fields when creating staff', async () => {
+    const { POST } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff', {
+      method: 'POST',
+      body: JSON.stringify({
+        staffType: 'profesor',
+        firstName: 'NURIA ESTHER',
+        lastName: 'ÁNGEL RAMOS',
+        email: 'docente@example.com',
+        position: 'DOCENTE DE INGLÉS Y FRANCÉS',
+        hireDate: '2026-06-01',
+        assignedCampuses: [1],
+        qualifiedAreas: [7],
+        certifications: [
+          {
+            title: 'TÉCNICO SUPERIOR EN HIGIENE BUCODENTAL',
+            institution: 'CEP FORMACION',
+            year: 2026,
+          },
+        ],
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await POST(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          first_name: 'Nuria Esther',
+          last_name: 'Ángel Ramos',
+          position: 'Docente de Inglés y Francés',
+          certifications: [
+            expect.objectContaining({
+              title: 'Técnico Superior en Higiene Bucodental',
+              institution: 'CEP Formacion',
+            }),
+          ],
+        }),
+      })
+    )
+  })
+
+  it('normalizes staff nominative fields when updating staff', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        firstName: 'DANIEL',
+        lastName: 'ZAMBRANA ACEDO',
+        position: 'DOCENTE DE ODONTOLOGÍA',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          first_name: 'Daniel',
+          last_name: 'Zambrana Acedo',
+          position: 'Docente de Odontología',
+        }),
+      })
+    )
+  })
+
   it('normalizes fixed Spanish phone numbers when creating staff', async () => {
     const { POST } = await loadRoute()
     const request = new NextRequest('http://localhost/api/staff', {

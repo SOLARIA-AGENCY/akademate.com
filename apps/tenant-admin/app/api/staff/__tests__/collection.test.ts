@@ -1,11 +1,30 @@
 import { describe, expect, it } from 'vitest'
 import { Staff } from '../../../../src/collections/Staff/Staff'
 
-const beforeValidateHook = Staff.hooks?.beforeValidate?.[0] as Function
+const beforeValidateHooks = Staff.hooks?.beforeValidate ?? []
+const normalizeHook = beforeValidateHooks[0] as Function
+const beforeValidateHook = beforeValidateHooks[1] as Function
 
 describe('Staff collection teaching area validation', () => {
   it('has a collection-level beforeValidate hook', () => {
     expect(beforeValidateHook).toBeTypeOf('function')
+  })
+
+  it('normalizes staff names before validation', () => {
+    expect(
+      normalizeHook({
+        data: {
+          first_name: 'NURIA ESTHER',
+          last_name: 'ÁNGEL RAMOS',
+          position: 'DOCENTE DE INGLÉS Y FRANCÉS',
+        },
+      })
+    ).toEqual({
+      first_name: 'Nuria Esther',
+      last_name: 'Ángel Ramos',
+      position: 'Docente de Inglés y Francés',
+      full_name: 'Nuria Esther Ángel Ramos',
+    })
   })
 
   it('rejects creating a teacher without qualified areas', () => {

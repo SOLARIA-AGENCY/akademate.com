@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { normalizeNominativeText } from '@/lib/nominative-text'
 
 export const CourseTypes: CollectionConfig = {
   slug: 'course-types',
@@ -71,6 +72,14 @@ export const CourseTypes: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
   ],
+  hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (data?.name) data.name = normalizeNominativeText(data.name) ?? data.name
+        return data
+      },
+    ],
+  },
   timestamps: true,
   defaultSort: 'name',
 }

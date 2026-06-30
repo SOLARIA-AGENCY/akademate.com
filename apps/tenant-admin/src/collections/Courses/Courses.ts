@@ -3,6 +3,7 @@ import { canManageCourses, canReadCourses, canUpdateCourse } from './access';
 import { validateCourseRelationships, generateSlug } from './hooks';
 import { formatValidationErrors, CourseUpdateSchema } from './Courses.validation';
 import { tenantField } from '../../access/tenantAccess';
+import { normalizeNominativeText } from '@/lib/nominative-text';
 
 /**
  * Courses Collection
@@ -656,6 +657,22 @@ export const Courses: CollectionConfig = {
      */
     beforeValidate: [
       ({ data, req }) => {
+        if (data?.name) data.name = normalizeNominativeText(data.name) ?? data.name;
+        if (Array.isArray(data?.landing_program_blocks)) {
+          data.landing_program_blocks = data.landing_program_blocks.map(
+            (block: { title?: string }) => ({
+              ...block,
+              title: normalizeNominativeText(block.title) ?? block.title,
+            })
+          );
+        }
+        if (Array.isArray(data?.landing_faqs)) {
+          data.landing_faqs = data.landing_faqs.map((faq: { question?: string }) => ({
+            ...faq,
+            question: normalizeNominativeText(faq.question) ?? faq.question,
+          }));
+        }
+
         // Track creator (only on creation, not updates)
         if (req.user && !data?.created_by && !data?.id) {
           data.created_by = req.user.id;

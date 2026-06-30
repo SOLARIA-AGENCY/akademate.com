@@ -4,6 +4,7 @@ import postgres from 'postgres'
 import { getPayload, type Payload, type SanitizedConfig } from 'payload'
 import configPromise from '@payload-config'
 import type { Staff } from '../../../src/payload-types'
+import { normalizeNominativeText } from '@/lib/nominative-text'
 import { normalizeOptionalSpanishPhone, SPANISH_PHONE_ERROR } from '@/lib/phone'
 import {
   isValidStaffEmail,
@@ -208,6 +209,14 @@ function normalizeQualifiedAreaIds(qualifiedAreas?: (string | number)[]): number
   return (qualifiedAreas ?? [])
     .map((areaId) => (typeof areaId === 'string' ? parseInt(areaId, 10) : areaId))
     .filter((areaId) => Number.isFinite(areaId))
+}
+
+function normalizeCertifications(certifications?: CreateStaffBody['certifications']) {
+  return (certifications ?? []).map((certification) => ({
+    ...certification,
+    title: normalizeNominativeText(certification.title) ?? certification.title,
+    institution: normalizeNominativeText(certification.institution) ?? certification.institution,
+  }))
 }
 
 type StaffWithQualifiedAreas = Staff & {
@@ -590,8 +599,12 @@ export async function POST(request: NextRequest) {
       photoId,
     } = body
 
+    const normalizedFirstName = normalizeNominativeText(firstName)
+    const normalizedLastName = normalizeNominativeText(lastName)
+    const normalizedPosition = normalizeNominativeText(position)
+
     // Validaciones básicas
-    if (!staffType || !firstName || !lastName || !position) {
+    if (!staffType || !normalizedFirstName || !normalizedLastName || !normalizedPosition) {
       return NextResponse.json(
         {
           success: false,
@@ -638,12 +651,12 @@ export async function POST(request: NextRequest) {
       overrideAccess: true,
       data: {
         staff_type: staffType,
-        first_name: firstName,
-        last_name: lastName,
+        first_name: normalizedFirstName,
+        last_name: normalizedLastName,
         nif: normalizedNif ?? undefined,
         email: normalizedEmail ?? undefined,
         phone: normalizedPhone ?? undefined,
-        position,
+        position: normalizedPosition,
         contract_type: contractType ?? 'full_time',
         employment_status: employmentStatus ?? 'active',
         inactive_reason: inactiveReason ?? undefined,
@@ -658,7 +671,7 @@ export async function POST(request: NextRequest) {
         qualified_areas: normalizedQualifiedAreas,
         alias_names: aliasNames ?? undefined,
         detected_courses: detectedCourses ?? undefined,
-        certifications: certifications ?? [],
+        certifications: normalizeCertifications(certifications),
         assigned_campuses: (assignedCampuses ?? []).map((id) =>
           typeof id === 'string' ? parseInt(id) : id
         ),
@@ -833,8 +846,14 @@ export async function PUT(request: NextRequest) {
     // Preparar datos de actualización
     const updateData: StaffUpdateData = {}
 
-    if (body.firstName) updateData.first_name = body.firstName
-    if (body.lastName) updateData.last_name = body.lastName
+    if (body.firstName !== undefined) {
+      const normalizedFirstName = normalizeNominativeText(body.firstName)
+      if (normalizedFirstName) updateData.first_name = normalizedFirstName
+    }
+    if (body.lastName !== undefined) {
+      const normalizedLastName = normalizeNominativeText(body.lastName)
+      if (normalizedLastName) updateData.last_name = normalizedLastName
+    }
     if (body.nif !== undefined) {
       const normalizedNif = normalizeStaffNif(body.nif)
       if (!isValidStaffNif(normalizedNif)) {
@@ -856,7 +875,10 @@ export async function PUT(request: NextRequest) {
       }
       updateData.phone = normalizedPhone ?? null
     }
-    if (body.position) updateData.position = body.position
+    if (body.position !== undefined) {
+      const normalizedPosition = normalizeNominativeText(body.position)
+      if (normalizedPosition) updateData.position = normalizedPosition
+    }
     if (body.contractType) updateData.contract_type = body.contractType
     if (body.employmentStatus) updateData.employment_status = body.employmentStatus
     if (body.inactiveReason !== undefined) updateData.inactive_reason = body.inactiveReason
@@ -873,7 +895,7 @@ export async function PUT(request: NextRequest) {
       updateData.qualified_areas = normalizeQualifiedAreaIds(body.qualifiedAreas)
     if (body.aliasNames !== undefined) updateData.alias_names = body.aliasNames
     if (body.detectedCourses !== undefined) updateData.detected_courses = body.detectedCourses
-    if (body.certifications) updateData.certifications = body.certifications
+    if (body.certifications) updateData.certifications = normalizeCertifications(body.certifications)
     if (body.assignedCampuses)
       updateData.assigned_campuses = body.assignedCampuses.map((cid) =>
         typeof cid === 'string' ? parseInt(cid) : cid

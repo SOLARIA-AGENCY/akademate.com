@@ -2,6 +2,75 @@ import type { CollectionConfig } from 'payload';
 import { canManageCycles } from './access/canManageCycles';
 import { cycleSchema, formatValidationErrors } from './Cycles.validation';
 import { tenantField } from '../../access/tenantAccess';
+import { normalizeNominativeText } from '@/lib/nominative-text';
+
+type CycleNominativeData = {
+  name?: string;
+  slug?: string;
+  officialTitle?: string;
+  family?: string;
+  modules?: { name?: string }[];
+  careerPaths?: { title?: string; sector?: string }[];
+  competencies?: { title?: string }[];
+  scholarships?: { name?: string }[];
+  furtherStudies?: { title?: string }[];
+  documents?: { title?: string }[];
+  features?: { title?: string }[];
+};
+
+function normalizeCycleNominativeFields(data: CycleNominativeData | undefined) {
+  if (!data) return data;
+
+  data.name = normalizeNominativeText(data.name) ?? data.name;
+  data.officialTitle = normalizeNominativeText(data.officialTitle) ?? data.officialTitle;
+  data.family = normalizeNominativeText(data.family) ?? data.family;
+
+  if (Array.isArray(data.modules)) {
+    data.modules = data.modules.map((item) => ({
+      ...item,
+      name: normalizeNominativeText(item.name) ?? item.name,
+    }));
+  }
+  if (Array.isArray(data.careerPaths)) {
+    data.careerPaths = data.careerPaths.map((item) => ({
+      ...item,
+      title: normalizeNominativeText(item.title) ?? item.title,
+      sector: normalizeNominativeText(item.sector) ?? item.sector,
+    }));
+  }
+  if (Array.isArray(data.competencies)) {
+    data.competencies = data.competencies.map((item) => ({
+      ...item,
+      title: normalizeNominativeText(item.title) ?? item.title,
+    }));
+  }
+  if (Array.isArray(data.scholarships)) {
+    data.scholarships = data.scholarships.map((item) => ({
+      ...item,
+      name: normalizeNominativeText(item.name) ?? item.name,
+    }));
+  }
+  if (Array.isArray(data.furtherStudies)) {
+    data.furtherStudies = data.furtherStudies.map((item) => ({
+      ...item,
+      title: normalizeNominativeText(item.title) ?? item.title,
+    }));
+  }
+  if (Array.isArray(data.documents)) {
+    data.documents = data.documents.map((item) => ({
+      ...item,
+      title: normalizeNominativeText(item.title) ?? item.title,
+    }));
+  }
+  if (Array.isArray(data.features)) {
+    data.features = data.features.map((item) => ({
+      ...item,
+      title: normalizeNominativeText(item.title) ?? item.title,
+    }));
+  }
+
+  return data;
+}
 
 /**
  * Cycles Collection
@@ -328,6 +397,8 @@ export const Cycles: CollectionConfig = {
   hooks: {
     beforeValidate: [
       ({ data }) => {
+        normalizeCycleNominativeFields(data as CycleNominativeData | undefined);
+
         // Auto-generate slug from name if not provided
         if (data?.name && !data?.slug) {
           data.slug = data.name

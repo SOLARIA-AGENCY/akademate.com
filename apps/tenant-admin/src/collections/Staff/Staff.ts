@@ -1,6 +1,7 @@
-import type { CollectionConfig, FieldAccess } from 'payload'
+import type { CollectionBeforeValidateHook, CollectionConfig, FieldAccess } from 'payload'
 import { canEditStaff, canManageStaff } from './access'
 import { trackStaffCreator, validateTeachingAreas } from './hooks'
+import { normalizeNominativeText } from '@/lib/nominative-text'
 import { normalizeSpanishPhone, SPANISH_PHONE_ERROR } from '@/lib/phone'
 import {
   isValidStaffEmail,
@@ -76,6 +77,31 @@ interface StaffData {
 const notesReadAccess: FieldAccess = ({ req: { user } }) => {
   if (!user) return false
   return hasRole(user) && (user.role === 'admin' || user.role === 'gestor')
+}
+
+const normalizeStaffNominativeFields: CollectionBeforeValidateHook = ({ data }) => {
+  const staffData = data as StaffData | undefined
+  if (!staffData) return data
+
+  staffData.first_name = normalizeNominativeText(staffData.first_name) ?? staffData.first_name
+  staffData.last_name = normalizeNominativeText(staffData.last_name) ?? staffData.last_name
+  staffData.position = normalizeNominativeText(staffData.position) ?? staffData.position
+
+  if (staffData.first_name && staffData.last_name) {
+    staffData.full_name = `${staffData.first_name} ${staffData.last_name}`.trim()
+  } else {
+    staffData.full_name = normalizeNominativeText(staffData.full_name) ?? staffData.full_name
+  }
+
+  if (Array.isArray(staffData.certifications)) {
+    staffData.certifications = staffData.certifications.map((certification) => ({
+      ...certification,
+      title: normalizeNominativeText(certification.title) ?? certification.title,
+      institution: normalizeNominativeText(certification.institution) ?? certification.institution,
+    }))
+  }
+
+  return staffData
 }
 
 /**
@@ -280,9 +306,11 @@ export const Staff: CollectionConfig = {
             // Auto-generate full_name from first_name and last_name
             const staffData = data as StaffData | undefined
             if (staffData?.first_name && staffData?.last_name) {
-              return `${staffData.first_name} ${staffData.last_name}`.trim()
+              const firstName = normalizeNominativeText(staffData.first_name) ?? staffData.first_name
+              const lastName = normalizeNominativeText(staffData.last_name) ?? staffData.last_name
+              return `${firstName} ${lastName}`.trim()
             }
-            return typeof value === 'string' ? value : undefined
+            return normalizeNominativeText(value) ?? (typeof value === 'string' ? value : undefined)
           },
         ],
       },
@@ -763,7 +791,7 @@ export const Staff: CollectionConfig = {
    * Hooks - Business logic and validation
    */
   hooks: {
-    beforeValidate: [validateTeachingAreas],
+    beforeValidate: [normalizeStaffNominativeFields, validateTeachingAreas],
     /**
      * Before Change: Run after validation, before database write
      */

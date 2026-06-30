@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { normalizeNominativeText } from '@/lib/nominative-text';
 
 /**
  * AreasFormativas Collection
@@ -161,6 +162,15 @@ export const AreasFormativas: CollectionConfig = {
       },
     },
   ],
+
+  hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (data?.nombre) data.nombre = normalizeNominativeText(data.nombre) ?? data.nombre;
+        return data;
+      },
+    ],
+  },
 
   /**
    * Timestamps - Auto-track creation and update times

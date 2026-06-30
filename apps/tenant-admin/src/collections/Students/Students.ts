@@ -1,5 +1,6 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload';
 import { tenantField } from '../../access/tenantAccess';
+import { normalizeNominativeText } from '@/lib/nominative-text';
 import {
   canCreateStudent,
   canReadStudents,
@@ -22,6 +23,30 @@ const hasRole = (user: unknown, allowedRoles: readonly UserRole[]): boolean => {
   if (user == null || typeof user !== 'object') return false;
   const userObj = user as { role?: unknown };
   return typeof userObj.role === 'string' && allowedRoles.includes(userObj.role as UserRole);
+};
+
+const normalizeStudentNominativeFields: CollectionBeforeValidateHook = ({ data }) => {
+  const studentData = data as
+    | {
+        first_name?: string;
+        last_name?: string;
+        city?: string;
+        country?: string;
+        emergency_contact_name?: string;
+      }
+    | undefined;
+
+  if (!studentData) return data;
+
+  studentData.first_name = normalizeNominativeText(studentData.first_name) ?? studentData.first_name;
+  studentData.last_name = normalizeNominativeText(studentData.last_name) ?? studentData.last_name;
+  studentData.city = normalizeNominativeText(studentData.city) ?? studentData.city;
+  studentData.country = normalizeNominativeText(studentData.country) ?? studentData.country;
+  studentData.emergency_contact_name =
+    normalizeNominativeText(studentData.emergency_contact_name) ??
+    studentData.emergency_contact_name;
+
+  return studentData;
 };
 
 /**
@@ -718,9 +743,10 @@ export const Students: CollectionConfig = {
      * Order matters: Execute in sequence
      */
     beforeValidate: [
-      captureStudentConsentMetadata, // 1. Auto-capture GDPR consent metadata (timestamp, IP)
-      validateStudentData, // 2. Validate email, phone, DNI, age, emergency contact
-      validateStudentRelationships, // 3. Validate created_by user exists
+      normalizeStudentNominativeFields, // 1. Normalize names and nominative location fields
+      captureStudentConsentMetadata, // 2. Auto-capture GDPR consent metadata (timestamp, IP)
+      validateStudentData, // 3. Validate email, phone, DNI, age, emergency contact
+      validateStudentRelationships, // 4. Validate created_by user exists
     ],
 
     /**

@@ -7,6 +7,7 @@ import {
   canDeleteUsers,
 } from './access';
 import { passwordSchema, emailSchema, phoneSchema } from './Users.validation';
+import { normalizeNominativeText } from '@/lib/nominative-text';
 
 /**
  * TypeScript interfaces for type safety
@@ -25,6 +26,14 @@ interface UserDocument {
 
 interface OperationContext {
   operation: string;
+}
+
+function normalizeUserNominativeFields(data: Record<string, unknown>) {
+  if (data.name !== undefined) {
+    data.name = normalizeNominativeText(data.name) ?? data.name;
+  }
+
+  return data;
 }
 
 /**
@@ -448,6 +457,8 @@ export const Users: CollectionConfig = {
      */
     beforeChange: [
       async ({ req, operation, data, originalDoc }) => {
+        normalizeUserNominativeFields(data);
+
         const typedUser = req.user as unknown as UserDocument | null;
         const typedOriginalDoc = originalDoc as unknown as UserDocument | null;
 

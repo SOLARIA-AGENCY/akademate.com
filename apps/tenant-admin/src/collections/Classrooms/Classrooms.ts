@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload';
 import { canManageClassrooms } from './access/canManageClassrooms';
 import { classroomSchema, formatValidationErrors } from './Classrooms.validation';
 import { tenantField } from '../../access/tenantAccess';
+import { normalizeNominativeText } from '@/lib/nominative-text';
 
 /**
  * Classrooms Collection
@@ -201,7 +202,7 @@ export const Classrooms: CollectionConfig = {
           typedData.code = typedData.code.trim().toUpperCase();
         }
         if (typeof typedData.name === 'string') {
-          typedData.name = typedData.name.trim();
+          typedData.name = normalizeNominativeText(typedData.name) ?? typedData.name.trim();
         }
 
         // Validate with Zod

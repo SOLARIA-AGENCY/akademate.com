@@ -2,12 +2,14 @@ import type { CollectionConfig, FieldHook } from 'payload';
 import { canManageCampuses } from './access/canManageCampuses';
 import { campusSchema, formatValidationErrors } from './Campuses.validation';
 import { tenantField } from '../../access/tenantAccess';
+import { normalizeNominativeText } from '@/lib/nominative-text';
 
 interface CampusData {
   id?: number;
   slug?: string;
   name?: string;
   city?: string;
+  province?: string;
   address?: string;
   postal_code?: string;
   phone?: string;
@@ -325,8 +327,11 @@ export const Campuses: CollectionConfig = {
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-|-$/g, '');
         }
-        if (typedData.name) typedData.name = typedData.name.trim();
-        if (typedData.city) typedData.city = typedData.city.trim();
+        if (typedData.name) typedData.name = normalizeNominativeText(typedData.name) ?? typedData.name.trim();
+        if (typedData.city) typedData.city = normalizeNominativeText(typedData.city) ?? typedData.city.trim();
+        if ('province' in typedData && typeof typedData.province === 'string') {
+          typedData.province = normalizeNominativeText(typedData.province) ?? typedData.province.trim();
+        }
         return typedData;
       },
     ],
