@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { queryFirst } from '@/@payload-config/lib/db'
 
 /**
  * POST /api/internal/invitations/accept
@@ -22,17 +23,22 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = await getPayload({ config: configPromise })
-    const db = (payload as any).db
-
     // Verify token
-    const result = await db.execute({
-      raw: `SELECT id, email, name, role, status, expires_at, tenant_id
-            FROM user_invitations
-            WHERE token = '${token.replace(/'/g, "''")}'
-            LIMIT 1`,
-    })
-
-    const inv = result?.rows?.[0]
+    const inv = await queryFirst<{
+      id: number
+      email: string
+      name: string
+      role: string
+      status: string
+      expires_at: string
+      tenant_id: number | null
+    }>(
+      `SELECT id, email, name, role, status, expires_at, tenant_id
+       FROM user_invitations
+       WHERE token = $1
+       LIMIT 1`,
+      [token],
+    )
     if (!inv) {
       return NextResponse.json({ error: 'Invitacion no encontrada' }, { status: 404 })
     }
@@ -55,9 +61,10 @@ export async function POST(request: NextRequest) {
 
     if (existing.docs.length > 0) {
       // Mark invitation as accepted anyway
-      await db.execute({
-        raw: `UPDATE user_invitations SET status = 'accepted', accepted_at = NOW() WHERE id = ${inv.id}`,
-      })
+      await queryFirst(
+        `UPDATE user_invitations SET status = 'accepted', accepted_at = NOW() WHERE id = $1`,
+        [inv.id],
+      )
       return NextResponse.json({ error: 'Ya existe una cuenta con ese email. Usa el login normal.' }, { status: 409 })
     }
 
@@ -76,9 +83,10 @@ export async function POST(request: NextRequest) {
     })
 
     // Mark invitation as accepted
-    await db.execute({
-      raw: `UPDATE user_invitations SET status = 'accepted', accepted_at = NOW() WHERE id = ${inv.id}`,
-    })
+    await queryFirst(
+      `UPDATE user_invitations SET status = 'accepted', accepted_at = NOW() WHERE id = $1`,
+      [inv.id],
+    )
 
     return NextResponse.json({ success: true })
   } catch (error: any) {

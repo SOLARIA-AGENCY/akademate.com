@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { queryRows } from '@/@payload-config/lib/db'
 
 /**
  * GET /api/internal/users — List users for the admin panel
@@ -23,16 +24,14 @@ export async function GET() {
     })
 
     // Also fetch pending invitations
-    const db = (payload as any).db
     let invitations: any[] = []
     try {
-      const result = await db.execute({
-        raw: `SELECT id, email, name, role, status, created_at, expires_at
-              FROM user_invitations
-              WHERE status = 'pending' AND expires_at > NOW()
-              ORDER BY created_at DESC`,
-      })
-      invitations = result?.rows || []
+      invitations = await queryRows(
+        `SELECT id, email, name, role, status, created_at, expires_at
+         FROM user_invitations
+         WHERE status = 'pending' AND expires_at > NOW()
+         ORDER BY created_at DESC`,
+      )
     } catch { /* table may not exist yet */ }
 
     return NextResponse.json({

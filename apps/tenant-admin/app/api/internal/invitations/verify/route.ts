@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
+import { queryFirst } from '@/@payload-config/lib/db'
 
 /**
  * GET /api/internal/invitations/verify?token=xxx
@@ -16,17 +15,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Token invalido' }, { status: 400 })
     }
 
-    const payload = await getPayload({ config: configPromise })
-    const db = (payload as any).db
-
-    const result = await db.execute({
-      raw: `SELECT id, email, name, role, status, expires_at
-            FROM user_invitations
-            WHERE token = '${token.replace(/'/g, "''")}'
-            LIMIT 1`,
-    })
-
-    const inv = result?.rows?.[0]
+    const inv = await queryFirst<{
+      id: number
+      email: string
+      name: string
+      role: string
+      status: string
+      expires_at: string
+    }>(
+      `SELECT id, email, name, role, status, expires_at
+       FROM user_invitations
+       WHERE token = $1
+       LIMIT 1`,
+      [token],
+    )
     if (!inv) {
       return NextResponse.json({ error: 'Invitacion no encontrada' }, { status: 404 })
     }

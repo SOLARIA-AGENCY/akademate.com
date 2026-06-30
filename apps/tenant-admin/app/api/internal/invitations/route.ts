@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import crypto from 'crypto'
 import { sendMail } from '../../../../src/lib/email/transporter'
+import { queryFirst } from '@/@payload-config/lib/db'
 
 /**
  * POST /api/internal/invitations — Create invitation + send email
@@ -84,7 +85,6 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = await getPayload({ config: configPromise })
-    const db = (payload as any).db
     const tenantQuery = await payload.find({ collection: 'tenants', limit: 1, depth: 0 })
     const tenant = tenantQuery.docs[0] as unknown as Record<string, unknown> | undefined
     const tenantIdRaw = tenant?.id
@@ -125,26 +125,32 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if invitation already pending
-    const existingInv = await db.execute({
-      raw: `SELECT id FROM user_invitations WHERE email = '${email.trim().toLowerCase().replace(/'/g, "''")}' AND status = 'pending' AND expires_at > NOW() LIMIT 1`,
-    })
-    if (existingInv?.rows?.length > 0) {
+    const invitationEmail = email.trim().toLowerCase()
+    const existingInv = await queryFirst<{ id: number }>(
+      `SELECT id
+       FROM user_invitations
+       WHERE email = $1 AND status = 'pending' AND expires_at > NOW()
+       LIMIT 1`,
+      [invitationEmail],
+    )
+    if (existingInv) {
       return NextResponse.json({ error: 'Ya hay una invitacion pendiente para ese email' }, { status: 409 })
     }
 
     // Create invitation
     const token = generateToken()
-    await db.execute({
-      raw: `INSERT INTO user_invitations (email, name, role, token, status, tenant_id)
-            VALUES ('${email.trim().toLowerCase().replace(/'/g, "''")}', '${name.trim().replace(/'/g, "''")}', '${role || 'lectura'}', '${token}', 'pending', ${tenantId})`,
-    })
+    await queryFirst(
+      `INSERT INTO user_invitations (email, name, role, token, status, tenant_id)
+       VALUES ($1, $2, $3, $4, 'pending', $5)`,
+      [invitationEmail, name.trim(), role || 'lectura', token, tenantId],
+    )
 
     // Send invitation email
     const acceptUrl = `${baseUrl}/auth/accept-invite?token=${token}`
 
     const html = invitationEmailHtml({
       name: name.trim(),
-      email: email.trim().toLowerCase(),
+      email: invitationEmail,
       role: role || 'lectura',
       acceptUrl,
       academyName,
@@ -153,7 +159,7 @@ export async function POST(request: NextRequest) {
     })
 
     const emailResult = await sendMail({
-      to: email.trim().toLowerCase(),
+      to: invitationEmail,
       subject: `${academyName} — Has sido invitado al panel de administracion`,
       html,
     })
@@ -176,8 +182,10 @@ export async function DELETE(request: NextRequest) {
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
     const payload = await getPayload({ config: configPromise })
-    const db = (payload as any).db
-    await db.execute({ raw: `UPDATE user_invitations SET status = 'revoked' WHERE id = ${parseInt(id, 10)}` })
+    await queryFirst(
+      `UPDATE user_invitations SET status = 'revoked' WHERE id = $1`,
+      [parseInt(id, 10)],
+    )
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
