@@ -16,9 +16,6 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
   navigation: {
     items: [
       { kind: 'link', label: 'Inicio', href: '/' },
-      { kind: 'link', label: 'Quiénes Somos', href: '/quienes-somos' },
-      { kind: 'link', label: 'APROEM', href: '/aproem' },
-      { kind: 'dropdown', source: 'cycles_by_level', label: 'Ciclos', href: '/ciclos' },
       {
         kind: 'dropdown',
         source: 'manual',
@@ -31,11 +28,14 @@ export const CEP_DEFAULT_WEBSITE: WebsiteConfig = {
           { label: 'Teleformación', href: '/p/cursos?tipo=teleformacion' },
         ],
       },
-      { kind: 'link', label: 'Nuevas formaciones', href: '/#nuevas-formaciones' },
+      { kind: 'dropdown', source: 'cycles_by_level', label: 'Ciclos', href: '/ciclos' },
       { kind: 'link', label: 'Convocatorias', href: '/convocatorias' },
-      { kind: 'dropdown', source: 'campuses', label: 'Sedes', href: '/sedes' },
-      { kind: 'link', label: 'Blog', href: '/blog' },
+      { kind: 'link', label: 'Nuevas formaciones', href: '/#nuevas-formaciones' },
+      { kind: 'link', label: 'Quiénes Somos', href: '/quienes-somos' },
+      { kind: 'link', label: 'APROEM', href: '/aproem' },
       { kind: 'link', label: 'Empleo', href: '/empleo' },
+      { kind: 'link', label: 'Blog', href: '/blog' },
+      { kind: 'dropdown', source: 'campuses', label: 'Sedes', href: '/sedes' },
       { kind: 'link', label: 'FAQ', href: '/faq' },
     ],
     cta: { label: 'Contacto', href: '/contacto' },

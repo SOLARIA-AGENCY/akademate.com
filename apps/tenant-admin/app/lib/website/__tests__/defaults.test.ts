@@ -31,4 +31,21 @@ describe('CEP_DEFAULT_WEBSITE', () => {
     expect(navHrefs).toContain('/convocatorias')
     expect(navHrefs).toContain('/aproem')
   })
+
+  it('keeps the CEP public menu in the requested editorial order', () => {
+    const navLabels = CEP_DEFAULT_WEBSITE.navigation.items
+      .filter((item) => item.label !== 'Inicio' && item.label !== 'Sedes' && item.label !== 'FAQ')
+      .map((item) => item.label)
+
+    expect(navLabels).toEqual([
+      'Cursos',
+      'Ciclos',
+      'Convocatorias',
+      'Nuevas formaciones',
+      'Quiénes Somos',
+      'APROEM',
+      'Empleo',
+      'Blog',
+    ])
+  })
 })

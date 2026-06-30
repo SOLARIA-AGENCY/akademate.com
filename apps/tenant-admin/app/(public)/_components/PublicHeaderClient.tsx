@@ -154,15 +154,6 @@ export function PublicHeaderClient({
             <img src={logoUrl} alt={tenantName} className="h-8 w-auto sm:h-9 object-contain" />
           </a>
           <nav className="hidden lg:flex items-center gap-3">
-            <a href="/quienes-somos" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
-              Quiénes somos
-            </a>
-            <a href="/aproem" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
-              APROEM
-            </a>
-            <a href="/p/ciclos" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
-              Ciclos FP
-            </a>
             <div className="group relative">
               <a
                 href="/p/cursos"
@@ -183,17 +174,26 @@ export function PublicHeaderClient({
                 ))}
               </div>
             </div>
-            <a href="/#nuevas-formaciones" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
-              Nuevas formaciones
+            <a href="/p/ciclos" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+              Ciclos
             </a>
             <a href="/convocatorias" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Convocatorias
             </a>
-            <a href="/blog" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
-              Blog
+            <a href="/#nuevas-formaciones" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+              Nuevas formaciones
+            </a>
+            <a href="/quienes-somos" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+              Quiénes somos
+            </a>
+            <a href="/aproem" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+              APROEM
             </a>
             <a href="/empleo" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Empleo
+            </a>
+            <a href="/blog" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
+              Blog
             </a>
             <a
               href="/p/contacto"
@@ -221,27 +221,6 @@ export function PublicHeaderClient({
         <div id="public-mobile-menu" className="border-t border-slate-200 bg-white shadow-lg lg:hidden">
           <nav className="mx-auto max-w-7xl px-4 py-4 sm:px-6" aria-label="Navegación móvil">
             <div className="grid gap-2">
-              <a
-                href="/quienes-somos"
-                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Quiénes somos
-              </a>
-              <a
-                href="/aproem"
-                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                APROEM
-              </a>
-              <a
-                href="/p/ciclos"
-                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Ciclos FP
-              </a>
               <div className="rounded-2xl bg-slate-50 p-2">
                 <a
                   href="/p/cursos"
@@ -264,11 +243,11 @@ export function PublicHeaderClient({
                 </div>
               </div>
               <a
-                href="/#nuevas-formaciones"
+                href="/p/ciclos"
                 className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Nuevas formaciones
+                Ciclos
               </a>
               <a
                 href="/convocatorias"
@@ -278,11 +257,25 @@ export function PublicHeaderClient({
                 Convocatorias
               </a>
               <a
-                href="/blog"
+                href="/#nuevas-formaciones"
                 className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Blog
+                Nuevas formaciones
+              </a>
+              <a
+                href="/quienes-somos"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Quiénes somos
+              </a>
+              <a
+                href="/aproem"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                APROEM
               </a>
               <a
                 href="/empleo"
@@ -290,6 +283,13 @@ export function PublicHeaderClient({
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Empleo
+              </a>
+              <a
+                href="/blog"
+                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Blog
               </a>
               <div className="grid gap-2 border-t border-slate-200 pt-3">
                 {phone1 ? (
