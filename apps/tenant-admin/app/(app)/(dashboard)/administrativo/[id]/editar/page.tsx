@@ -547,17 +547,7 @@ export default function EditAdministrativoPage() {
               <Button type="button" variant="outline" onClick={() => router.back()} disabled={saving}>
                 Cancelar
               </Button>
-              <Button
-                type="submit"
-                disabled={
-                  saving ||
-                  !formData.baseCampusId ||
-                  formData.firstName.trim().length === 0 ||
-                  formData.firstSurname.trim().length === 0 ||
-                  formData.position.trim().length === 0 ||
-                  formData.assignedCampuses.length === 0
-                }
-              >
+              <Button type="submit" disabled={saving}>
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

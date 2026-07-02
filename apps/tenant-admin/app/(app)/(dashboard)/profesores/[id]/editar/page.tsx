@@ -894,16 +894,7 @@ export default function EditProfesorPage() {
               >
                 Cancelar
               </Button>
-              <Button
-                type="submit"
-                disabled={
-                  saving ||
-                  uploadingPhoto ||
-                  !formData.baseCampusId ||
-                  formData.assignedCampuses.length === 0 ||
-                  !hasQualifiedAreas
-                }
-              >
+              <Button type="submit" disabled={saving || uploadingPhoto}>
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
