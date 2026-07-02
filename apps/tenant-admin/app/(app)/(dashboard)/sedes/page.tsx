@@ -16,7 +16,6 @@ import {
   BookOpen,
   Phone,
   Mail,
-  Plus,
   Printer,
   Download,
 } from 'lucide-react'
@@ -24,7 +23,6 @@ import { SedeListItem } from '@payload-config/components/ui/SedeListItem'
 import { ViewToggle } from '@payload-config/components/ui/ViewToggle'
 import { useViewPreference } from '@payload-config/hooks/useViewPreference'
 import { usePlanLimits } from '@payload-config/hooks/usePlanLimits'
-import { PlanLimitModal } from '@payload-config/components/ui/PlanLimitModal'
 import { UsageBar } from '@payload-config/components/ui/UsageBar'
 import { getLimit } from '@payload-config/lib/planLimits'
 import { downloadCsv, printTable, type ExportColumn } from '@/app/lib/dashboard-export'
@@ -84,13 +82,8 @@ export default function SedesPage() {
   const [sedes, setSedes] = useState<Sede[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [limitModal, setLimitModal] = useState<{
-    open: boolean
-    current: number
-    limit: number
-  } | null>(null)
 
-  const { checkLimit, plan } = usePlanLimits()
+  const { plan } = usePlanLimits()
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -165,15 +158,6 @@ export default function SedesPage() {
     router.push(`/dashboard/sedes/${sedeId}`)
   }
 
-  const handleAdd = () => {
-    const { allowed, limit } = checkLimit('sedes', sedes.length)
-    if (!allowed) {
-      setLimitModal({ open: true, current: sedes.length, limit })
-      return
-    }
-    router.push('/dashboard/sedes/nueva')
-  }
-
   const stats: DashboardStatItem[] = [
     { label: 'Total sedes', value: sedes.length, icon: MapPin },
     {
@@ -213,8 +197,12 @@ export default function SedesPage() {
     <DashboardListingLayout
       title="Sedes"
       actions={
-        <Button onClick={handleAdd} data-oid="hrtnwkn">
-          <Plus className="h-4 w-4" />
+        <Button
+          disabled
+          aria-disabled="true"
+          title="La creación de sedes está restringida al equipo interno de Akademate."
+          data-oid="hrtnwkn"
+        >
           Nueva Sede
         </Button>
       }
@@ -376,17 +364,6 @@ export default function SedesPage() {
             />
           ))}
         </div>
-      )}
-
-      {limitModal && (
-        <PlanLimitModal
-          open={limitModal.open}
-          onClose={() => setLimitModal(null)}
-          resource="sedes"
-          current={limitModal.current}
-          limit={limitModal.limit}
-          plan={plan}
-        />
       )}
     </DashboardListingLayout>
   )

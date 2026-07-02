@@ -221,109 +221,22 @@ function courseLabel(course: Course): string {
 // ---------------------------------------------------------------------------
 
 function InlineSedeForm({
-  onCreated,
   compact = false,
 }: {
   onCreated: (newCampus: Campus) => void
   compact?: boolean
 }) {
-  const [name, setName] = useState('')
-  const [city, setCity] = useState('')
-  const [address, setAddress] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
-
-  const handleCreate = async () => {
-    if (!name.trim()) return
-    setSaving(true)
-    setFormError(null)
-
-    try {
-      const res = await fetch('/api/campuses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          city: city.trim() || undefined,
-          address: address.trim() || undefined,
-          tenant: 1,
-        }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => null)
-        throw new Error(data?.errors?.[0]?.message ?? data?.message ?? `Error ${res.status}`)
-      }
-
-      const data = await res.json()
-      const created: Campus = data.doc ?? data
-      onCreated(created)
-      setName('')
-      setCity('')
-      setAddress('')
-    } catch (err: any) {
-      setFormError(err.message ?? 'Error al crear sede')
-    } finally {
-      setSaving(false)
-    }
-  }
-
   return (
     <div
-      className={`rounded-lg border border-dashed border-primary/30 bg-primary/10 p-4 space-y-3 ${compact ? 'mt-2' : ''}`}
+      className={`rounded-lg border border-dashed border-muted-foreground/30 bg-muted/40 p-4 ${compact ? 'mt-2' : ''}`}
     >
-      <p className="text-sm font-medium text-primary">
-        {compact ? 'Crear nueva sede' : 'Crear sede para continuar'}
+      <p className="text-sm font-medium text-foreground">
+        Creación de sedes restringida
       </p>
-      {formError && <p className="text-xs text-red-600">{formError}</p>}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="space-y-1">
-          <Label htmlFor="new-sede-name" className="text-xs">
-            Nombre *
-          </Label>
-          <Input
-            id="new-sede-name"
-            placeholder="Ej: Sede Central"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="h-8 text-sm"
-          />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="new-sede-city" className="text-xs">
-            Ciudad
-          </Label>
-          <Input
-            id="new-sede-city"
-            placeholder="Ej: Madrid"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="h-8 text-sm"
-          />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="new-sede-address" className="text-xs">
-            Direccion
-          </Label>
-          <Input
-            id="new-sede-address"
-            placeholder="Ej: Calle Mayor 1"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="h-8 text-sm"
-          />
-        </div>
-      </div>
-      <div className="flex justify-end">
-        <Button size="sm" onClick={handleCreate} disabled={!name.trim() || saving} className="h-8">
-          {saving ? (
-            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Check className="mr-1.5 h-3.5 w-3.5" />
-          )}
-          {saving ? 'Creando...' : 'Crear Sede'}
-        </Button>
-      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Las sedes solo pueden ser creadas por el equipo interno. Selecciona una sede existente o
+        solicita el alta fuera de este flujo.
+      </p>
     </div>
   )
 }
@@ -902,7 +815,8 @@ export default function NuevaConvocatoriaPage() {
             </div>
             <h2 className="text-xl font-semibold">Se necesita al menos una sede</h2>
             <p className="text-muted-foreground max-w-md">
-              Necesitas al menos una sede para crear una convocatoria. Puedes crear una aqui mismo:
+              Necesitas al menos una sede para crear una convocatoria. La creación de sedes está
+              restringida al equipo interno.
             </p>
           </div>
           <div className="mt-6 max-w-xl mx-auto">
@@ -1096,10 +1010,11 @@ export default function NuevaConvocatoriaPage() {
               variant="outline"
               size="icon"
               className="h-10 w-10 shrink-0"
-              onClick={() => setShowNewSede((v) => !v)}
-              title="Crear nueva sede"
+              disabled
+              aria-disabled="true"
+              title="La creación de sedes está restringida al equipo interno."
             >
-              {showNewSede ? <ChevronUp className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              <Plus className="h-4 w-4" />
             </Button>
           </div>
           {showNewSede && <InlineSedeForm onCreated={handleSedeCreated} compact />}
