@@ -197,6 +197,18 @@ export default function NewAdministrativoPage() {
   const availableCampuses = campuses.filter(
     (campus) => !formData.assignedCampuses.includes(campus.id)
   )
+  const createBlockedReason =
+    formData.firstName.trim().length === 0
+      ? 'Bloqueado: introduce el nombre.'
+      : formData.firstSurname.trim().length === 0
+        ? 'Bloqueado: introduce el primer apellido.'
+        : formData.position.trim().length === 0
+          ? 'Bloqueado: indica el puesto.'
+          : !formData.baseCampusId
+            ? 'Bloqueado: selecciona una sede base.'
+            : formData.assignedCampuses.length === 0
+              ? 'Bloqueado: añade al menos una sede asignada.'
+              : null
 
   return (
     <div className="mx-auto max-w-6xl space-y-6" data-oid="bt1gpq8">
@@ -600,14 +612,8 @@ export default function NewAdministrativoPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={
-                  loading ||
-                  !formData.baseCampusId ||
-                  formData.firstName.trim().length === 0 ||
-                  formData.firstSurname.trim().length === 0 ||
-                  formData.position.trim().length === 0 ||
-                  formData.assignedCampuses.length === 0
-                }
+                disabled={loading || Boolean(createBlockedReason)}
+                title={createBlockedReason ?? undefined}
                 data-oid="08-5v05"
               >
                 {loading ? (
@@ -622,6 +628,11 @@ export default function NewAdministrativoPage() {
                   </>
                 )}
               </Button>
+              {createBlockedReason ? (
+                <p className="max-w-md text-right text-sm text-destructive">
+                  {createBlockedReason}
+                </p>
+              ) : null}
             </div>
           </CardContent>
         </Card>

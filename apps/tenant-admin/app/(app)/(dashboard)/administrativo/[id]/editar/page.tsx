@@ -205,9 +205,6 @@ export default function EditAdministrativoPage() {
     setError(null)
 
     try {
-      if (!formData.baseCampusId) {
-        throw new Error('Selecciona una sede base antes de guardar este administrativo.')
-      }
       const lastName = [formData.firstSurname, formData.secondSurname]
         .map((value) => value.trim())
         .filter(Boolean)

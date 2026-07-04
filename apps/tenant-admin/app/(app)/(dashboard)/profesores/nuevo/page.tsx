@@ -360,6 +360,14 @@ export default function NewProfesorPage() {
   const availableCampuses = campuses.filter(
     (campus) => !formData.assignedCampuses.includes(campus.id)
   )
+  const createBlockedReason =
+    formData.qualifiedAreas.length === 0
+      ? 'Bloqueado: asigna al menos un área habilitada.'
+      : !formData.baseCampusId
+        ? 'Bloqueado: selecciona una sede base.'
+        : formData.assignedCampuses.length === 0
+          ? 'Bloqueado: añade al menos una sede asignada.'
+          : null
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6" data-oid="nqgh2_8">
@@ -838,13 +846,8 @@ export default function NewProfesorPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={
-                  loading ||
-                  uploadingPhoto ||
-                  !formData.baseCampusId ||
-                  formData.assignedCampuses.length === 0 ||
-                  formData.qualifiedAreas.length === 0
-                }
+                disabled={loading || uploadingPhoto || Boolean(createBlockedReason)}
+                title={createBlockedReason ?? undefined}
                 data-oid="_78ql89"
               >
                 {loading ? (
@@ -859,6 +862,11 @@ export default function NewProfesorPage() {
                   </>
                 )}
               </Button>
+              {createBlockedReason ? (
+                <p className="max-w-md text-right text-sm text-destructive">
+                  {createBlockedReason}
+                </p>
+              ) : null}
             </div>
           </CardContent>
         </Card>

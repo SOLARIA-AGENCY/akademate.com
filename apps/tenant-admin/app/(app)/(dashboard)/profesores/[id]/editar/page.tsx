@@ -169,6 +169,9 @@ export default function EditProfesorPage() {
   })
 
   const hasQualifiedAreas = formData.qualifiedAreas.length > 0
+  const saveBlockedReason = !hasQualifiedAreas
+    ? 'Bloqueado: asigna al menos un área habilitada para poder guardar este docente.'
+    : null
 
   useEffect(() => {
     let cancelled = false
@@ -392,10 +395,6 @@ export default function EditProfesorPage() {
       if (formData.qualifiedAreas.length === 0) {
         throw new Error('Asigna al menos un área habilitada antes de guardar este docente.')
       }
-      if (!formData.baseCampusId) {
-        throw new Error('Selecciona una sede base antes de guardar este docente.')
-      }
-
       const lastName = [formData.firstSurname, formData.secondSurname]
         .map((value) => value.trim())
         .filter(Boolean)
@@ -894,7 +893,11 @@ export default function EditProfesorPage() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={saving || uploadingPhoto}>
+              <Button
+                type="submit"
+                disabled={saving || uploadingPhoto || Boolean(saveBlockedReason)}
+                title={saveBlockedReason ?? undefined}
+              >
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -907,6 +910,9 @@ export default function EditProfesorPage() {
                   </>
                 )}
               </Button>
+              {saveBlockedReason ? (
+                <p className="max-w-md text-right text-sm text-destructive">{saveBlockedReason}</p>
+              ) : null}
             </div>
           </CardContent>
         </Card>
