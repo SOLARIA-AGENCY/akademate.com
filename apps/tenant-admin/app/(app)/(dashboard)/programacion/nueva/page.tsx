@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from '@payload-config/components/ui/card'
 import { Input } from '@payload-config/components/ui/input'
@@ -60,6 +60,12 @@ interface Course {
   area_formativa?: RelationRef
   duration_hours?: number | null
   base_price?: number | null
+}
+
+interface AreaOption {
+  id: string
+  name: string
+  color?: string | null
 }
 
 interface StaffMember {
@@ -132,6 +138,8 @@ type RelationRef =
 // ---------------------------------------------------------------------------
 
 interface FormState {
+  trainingType: string
+  areaId: string
   course: string // course ID (required by API)
   campus: string
   instructor: string
@@ -180,6 +188,14 @@ const ENROLLMENT_STATUS_OPTIONS = [
   { value: 'always_open', label: 'Matrícula permanente' },
 ] as const
 
+const TRAINING_TYPE_OPTIONS = [
+  { value: 'privados', label: 'Curso privado' },
+  { value: 'ocupados', label: 'Curso para ocupados' },
+  { value: 'desempleados', label: 'Curso para desempleados' },
+  { value: 'teleformacion', label: 'Teleformación' },
+  { value: 'ciclo', label: 'Ciclo' },
+] as const
+
 function resolveMediaUrl(media: MediaRef): string | null {
   if (!media) return null
   if (typeof media === 'number') return null
@@ -214,6 +230,29 @@ function normalizeTimeForApi(value: string): string | undefined {
 
 function courseLabel(course: Course): string {
   return course.name || course.title || `Curso ${course.id}`
+}
+
+function normalizeCourseTrainingType(course?: Course | null): string {
+  const raw = `${course?.course_type ?? ''} ${course?.modality ?? ''}`.toLowerCase()
+  if (raw.includes('teleformacion') || raw.includes('online')) return 'teleformacion'
+  if (raw.includes('ocupado')) return 'ocupados'
+  if (raw.includes('desempleado') || raw.includes('fped')) return 'desempleados'
+  if (raw.includes('privado') || raw.includes('private')) return 'privados'
+  return 'privados'
+}
+
+function getCourseTrainingPayloadType(trainingType: string): string {
+  if (trainingType === 'ciclo') return 'cycle'
+  if (trainingType === 'privados') return 'private'
+  return trainingType || 'private'
+}
+
+function normalizeAreaLabel(value?: string | null): string {
+  return (value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
 }
 
 // ---------------------------------------------------------------------------
@@ -402,6 +441,7 @@ export default function NuevaConvocatoriaPage() {
   // Data from API
   const [cycles, setCycles] = useState<Cycle[]>([])
   const [courses, setCourses] = useState<Course[]>([])
+  const [areas, setAreas] = useState<AreaOption[]>([])
   const [staff, setStaff] = useState<StaffMember[]>([])
   const [campuses, setCampuses] = useState<Campus[]>([])
   const [classrooms, setClassrooms] = useState<Classroom[]>([])
@@ -420,6 +460,8 @@ export default function NuevaConvocatoriaPage() {
 
   // Form
   const [form, setForm] = useState<FormState>({
+    trainingType: '',
+    areaId: '',
     course: '',
     campus: '',
     instructor: '',
@@ -439,7 +481,44 @@ export default function NuevaConvocatoriaPage() {
     notes: '',
   })
 
-  // Combined list for the selector
+  const courseAreaId = useCallback(
+    (course?: Course | null) => {
+      const relatedId = relationId(course?.area_formativa)
+      if (relatedId) return relatedId
+
+      const areaName = normalizeAreaLabel(course?.area)
+      if (!areaName) return null
+
+      return (
+        areas.find((area) => normalizeAreaLabel(area.name) === areaName)?.id ??
+        null
+      )
+    },
+    [areas]
+  )
+  const courseAreaName = useCallback(
+    (course?: Course | null) => {
+      const relatedName = relationName(course?.area_formativa)
+      if (relatedName) return relatedName
+      const relatedId = courseAreaId(course)
+      const matchedArea = relatedId ? areas.find((area) => area.id === relatedId) : undefined
+      return matchedArea?.name ?? course?.area ?? null
+    },
+    [areas, courseAreaId]
+  )
+
+  const derivedAreas = useMemo(() => {
+    if (areas.length) return areas
+    const byId = new Map<string, AreaOption>()
+    courses.forEach((course) => {
+      const id = courseAreaId(course)
+      if (!id) return
+      byId.set(id, { id, name: courseAreaName(course) ?? `Área ${id}` })
+    })
+    return Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name, 'es'))
+  }, [areas, courseAreaId, courseAreaName, courses])
+
+  // Combined list for the course/cycle selector, filtered by type and area.
   const programItems: ProgramItem[] = [
     ...cycles.map((c) => ({
       id: `cycle:${c.id}`,
@@ -457,27 +536,43 @@ export default function NuevaConvocatoriaPage() {
         { label: 'Plazas', value: c.capacity ? `${c.capacity}` : 'Por definir' },
       ],
     })),
-    ...courses.map((c) => ({
-      id: `course:${c.id}`,
-      label: courseLabel(c),
-      type: 'course' as const,
-      imageUrl: resolveMediaUrl(c.featured_image),
-      description: c.short_description || 'Curso de formación profesional',
-      meta: [
-        { label: 'Tipo', value: c.course_type || 'Curso' },
-        { label: 'Modalidad', value: c.modality || 'Por definir' },
-        { label: 'Horas', value: c.duration_hours ? `${c.duration_hours} h` : 'Por definir' },
-        { label: 'Precio', value: formatCurrency(c.base_price) },
-      ],
-    })),
-  ]
+    ...courses
+      .filter((c) => {
+        const matchesType = form.trainingType
+          ? normalizeCourseTrainingType(c) === form.trainingType
+          : true
+        const matchesArea = form.areaId ? courseAreaId(c) === form.areaId : true
+        return matchesType && matchesArea
+      })
+      .map((c) => ({
+        id: `course:${c.id}`,
+        label: courseLabel(c),
+        type: 'course' as const,
+        imageUrl: resolveMediaUrl(c.featured_image),
+        description: c.short_description || 'Curso de formación profesional',
+        meta: [
+          { label: 'Tipo', value: c.course_type || 'Curso' },
+          { label: 'Área', value: courseAreaName(c) ?? 'Sin área' },
+          { label: 'Modalidad', value: c.modality || 'Por definir' },
+          { label: 'Horas', value: c.duration_hours ? `${c.duration_hours} h` : 'Por definir' },
+          { label: 'Precio', value: formatCurrency(c.base_price) },
+        ],
+      })),
+  ].filter((item) => {
+    if (!form.trainingType) return true
+    if (form.trainingType === 'ciclo') return item.type === 'cycle'
+    return item.type === 'course'
+  })
   const selectedProgram = programItems.find((item) => item.id === form.course)
   const selectedCourse = form.course.startsWith('course:')
     ? courses.find((course) => String(course.id) === form.course.replace(/^course:/, ''))
     : null
   const selectedCourseAreaId = relationId(selectedCourse?.area_formativa)
   const selectedCourseAreaName =
-    relationName(selectedCourse?.area_formativa) ?? selectedCourse?.area ?? null
+    courseAreaName(selectedCourse) ?? selectedCourse?.area ?? null
+  const effectiveAreaId = selectedCourseAreaId || form.areaId || null
+  const effectiveAreaName =
+    selectedCourseAreaName ?? areas.find((area) => area.id === effectiveAreaId)?.name ?? null
 
   // -------------------------------------------------------------------------
   // Fetch data on mount
@@ -489,14 +584,29 @@ export default function NuevaConvocatoriaPage() {
       setError(null)
 
       try {
-        const [cyclesRes, coursesRes, campusesRes] = await Promise.all([
+        const [cyclesRes, coursesRes, areasRes, campusesRes] = await Promise.all([
           fetch('/api/cycles?limit=100&sort=name&depth=1').then((r) => r.json()),
           fetch('/api/courses?limit=100&sort=name&depth=1').then((r) => r.json()),
+          fetch('/api/areas-formativas', { cache: 'no-cache' }).then((r) => r.json()),
           fetch('/api/campuses?limit=100').then((r) => r.json()),
         ])
 
         setCycles(cyclesRes.docs ?? [])
         setCourses(coursesRes.docs ?? [])
+        const areaDocs = Array.isArray(areasRes.data)
+          ? areasRes.data
+          : Array.isArray(areasRes.docs)
+            ? areasRes.docs
+            : []
+        setAreas(
+          areaDocs
+            .filter((area: any) => area.active !== false && area.activo !== false)
+            .map((area: any) => ({
+              id: String(area.id),
+              name: (area.nombre as string) || (area.name as string) || 'Área',
+              color: (area.color as string) || null,
+            }))
+        )
         setCampuses(campusesRes.docs ?? [])
       } catch (err) {
         console.error('Error fetching data:', err)
@@ -516,7 +626,7 @@ export default function NuevaConvocatoriaPage() {
       status: 'active',
       limit: '100',
     })
-    if (selectedCourseAreaId) params.set('qualifiedArea', selectedCourseAreaId)
+    if (effectiveAreaId) params.set('qualifiedArea', effectiveAreaId)
 
     fetch(`/api/staff?${params.toString()}`, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar docentes'))))
@@ -532,7 +642,7 @@ export default function NuevaConvocatoriaPage() {
     return () => {
       mounted = false
     }
-  }, [selectedCourseAreaId])
+  }, [effectiveAreaId])
 
   useEffect(() => {
     if (!preselectedProfessorId) return
@@ -543,6 +653,32 @@ export default function NuevaConvocatoriaPage() {
     if (!lockedProgramValue) return
     setForm((prev) => (prev.course ? prev : { ...prev, course: lockedProgramValue }))
   }, [lockedProgramValue])
+
+  useEffect(() => {
+    if (!form.course) return
+
+    setForm((prev) => {
+      if (!prev.course) return prev
+
+      if (prev.course.startsWith('cycle:')) {
+        if (prev.trainingType === 'ciclo' && prev.areaId === '') return prev
+        return { ...prev, trainingType: 'ciclo', areaId: '' }
+      }
+
+      const course = courses.find((item) => String(item.id) === prev.course.replace(/^course:/, ''))
+      if (!course) return prev
+
+      const nextTrainingType = normalizeCourseTrainingType(course)
+      const nextAreaId = courseAreaId(course) ?? prev.areaId
+      if (prev.trainingType === nextTrainingType && prev.areaId === nextAreaId) return prev
+
+      return {
+        ...prev,
+        trainingType: nextTrainingType,
+        areaId: nextAreaId,
+      }
+    })
+  }, [courseAreaId, courses, form.course])
 
   useEffect(() => {
     if (!form.campus) {
@@ -609,7 +745,10 @@ export default function NuevaConvocatoriaPage() {
       normalizeTimeForApi(form.schedule_time_end) ?? form.schedule_time_end
     )
     params.set('max_students', String(form.max_students || 0))
-    params.set('training_type', selectedType === 'cycle' ? 'cycle' : 'private')
+    params.set(
+      'training_type',
+      selectedType === 'cycle' ? 'cycle' : getCourseTrainingPayloadType(form.trainingType)
+    )
     for (const day of form.schedule_days) params.append('schedule_days', day)
 
     let mounted = true
@@ -723,7 +862,7 @@ export default function NuevaConvocatoriaPage() {
       body.training_type = 'cycle'
     } else {
       body.course = selectedId
-      body.training_type = 'private'
+      body.training_type = getCourseTrainingPayloadType(form.trainingType)
     }
 
     if (form.start_date) body.start_date = form.start_date
@@ -764,6 +903,8 @@ export default function NuevaConvocatoriaPage() {
   }
 
   const canSubmit =
+    form.trainingType !== '' &&
+    (form.trainingType === 'ciclo' || form.areaId !== '') &&
     form.course !== '' &&
     form.campus !== '' &&
     (!form.start_date || !form.end_date || new Date(form.end_date) >= new Date(form.start_date)) &&
@@ -860,68 +1001,138 @@ export default function NuevaConvocatoriaPage() {
 
       <Card className="p-8 space-y-8">
         {/* ----------------------------------------------------------------- */}
-        {/* Ciclo / Curso */}
+        {/* Tipo, área y programa */}
         {/* ----------------------------------------------------------------- */}
-        <div className="space-y-2">
-          <Label htmlFor="program">Ciclo / Curso *</Label>
-          <Select
-            value={form.course}
-            onValueChange={(v) => updateField('course', v)}
-            disabled={Boolean(lockedProgramValue)}
-          >
-            <SelectTrigger id="program" className={lockedProgramValue ? 'bg-muted/60' : undefined}>
-              <SelectValue placeholder="Seleccionar ciclo o curso" />
-            </SelectTrigger>
-            <SelectContent>
-              {cycles.length > 0 && (
-                <>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                    Ciclos
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_280px_1fr]">
+          <div className="space-y-2">
+            <Label htmlFor="trainingType">Tipo de formación *</Label>
+            <Select
+              value={form.trainingType}
+              onValueChange={(value) =>
+                setForm((prev) => ({
+                  ...prev,
+                  trainingType: value,
+                  areaId: '',
+                  course: '',
+                  instructor: '',
+                }))
+              }
+              disabled={Boolean(lockedProgramValue)}
+            >
+              <SelectTrigger
+                id="trainingType"
+                className={lockedProgramValue ? 'bg-muted/60' : undefined}
+              >
+                <SelectValue placeholder="Seleccionar tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                {TRAINING_TYPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="area">Área</Label>
+            <Select
+              value={form.areaId}
+              onValueChange={(value) =>
+                setForm((prev) => ({ ...prev, areaId: value, course: '', instructor: '' }))
+              }
+              disabled={!form.trainingType || form.trainingType === 'ciclo' || Boolean(lockedProgramValue)}
+            >
+              <SelectTrigger
+                id="area"
+                className={lockedProgramValue || form.trainingType === 'ciclo' ? 'bg-muted/60' : undefined}
+              >
+                <SelectValue
+                  placeholder={
+                    form.trainingType === 'ciclo'
+                      ? 'No aplica a ciclos'
+                      : form.trainingType
+                        ? 'Seleccionar área'
+                        : 'Selecciona tipo'
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {derivedAreas.map((area) => (
+                  <SelectItem key={area.id} value={area.id}>
+                    <span className="flex items-center gap-2">
+                      {area.color ? (
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: area.color }}
+                        />
+                      ) : null}
+                      {area.name}
+                    </span>
+                  </SelectItem>
+                ))}
+                {derivedAreas.length === 0 && (
+                  <div className="px-2 py-4 text-sm text-muted-foreground text-center">
+                    No hay áreas activas disponibles
                   </div>
-                  {cycles.map((c) => (
-                    <SelectItem key={`cycle:${c.id}`} value={`cycle:${c.id}`}>
-                      <span className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                          Ciclo
-                        </Badge>
-                        {c.name}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </>
-              )}
-              {courses.length > 0 && (
-                <>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                    Cursos
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="program">Curso / ciclo *</Label>
+            <Select
+              value={form.course}
+              onValueChange={(v) => updateField('course', v)}
+              disabled={
+                Boolean(lockedProgramValue) ||
+                !form.trainingType ||
+                (form.trainingType !== 'ciclo' && !form.areaId)
+              }
+            >
+              <SelectTrigger
+                id="program"
+                className={lockedProgramValue ? 'bg-muted/60' : undefined}
+              >
+                <SelectValue
+                  placeholder={
+                    !form.trainingType
+                      ? 'Selecciona tipo'
+                      : form.trainingType !== 'ciclo' && !form.areaId
+                        ? 'Selecciona área'
+                        : 'Seleccionar curso/ciclo'
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {programItems.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    <span className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                        {item.type === 'cycle' ? 'Ciclo' : 'Curso'}
+                      </Badge>
+                      {item.label}
+                    </span>
+                  </SelectItem>
+                ))}
+                {programItems.length === 0 && (
+                  <div className="px-2 py-4 text-sm text-muted-foreground text-center">
+                    No hay programas disponibles para el filtro seleccionado
                   </div>
-                  {courses.map((c) => (
-                    <SelectItem key={`course:${c.id}`} value={`course:${c.id}`}>
-                      <span className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                          Curso
-                        </Badge>
-                        {courseLabel(c)}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </>
-              )}
-              {programItems.length === 0 && (
-                <div className="px-2 py-4 text-sm text-muted-foreground text-center">
-                  No hay ciclos ni cursos disponibles
-                </div>
-              )}
-            </SelectContent>
-          </Select>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
           {lockedProgramValue && (
-            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground lg:col-span-3">
               <Lock className="h-3.5 w-3.5" />
               Convocatoria bloqueada al programa desde el que se ha iniciado la creación.
             </p>
           )}
           {selectedProgram && (
-            <div className="mt-4 overflow-hidden rounded-xl border bg-muted/25">
+            <div className="overflow-hidden rounded-xl border bg-muted/25 lg:col-span-3">
               <div className="grid gap-0 md:grid-cols-[180px_1fr]">
                 {selectedProgram.imageUrl ? (
                   <img
