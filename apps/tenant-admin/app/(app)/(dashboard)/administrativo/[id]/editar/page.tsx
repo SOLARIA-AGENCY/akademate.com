@@ -339,7 +339,11 @@ export default function EditAdministrativoPage() {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   value={formData.email}
                   onChange={(event) => handleChange('email', event.target.value)}
                   onBlur={handleEmailBlur}

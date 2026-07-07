@@ -503,6 +503,31 @@ describe('/api/staff qualified areas', () => {
     )
   })
 
+  it('accepts medicinaesteticalujo@yahoo.es as a plain valid email when updating staff', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        email: 'medicinaesteticalujo@yahoo.es',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          email: 'medicinaesteticalujo@yahoo.es',
+        }),
+      })
+    )
+  })
+
   it('rejects invalid staff email before calling Payload', async () => {
     const { PUT } = await loadRoute()
     const request = new NextRequest('http://localhost/api/staff?id=44', {

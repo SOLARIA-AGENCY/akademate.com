@@ -597,7 +597,11 @@ export default function EditProfesorPage() {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   value={formData.email}
                   onChange={handleInputChange('email')}
                   onBlur={handleEmailBlur}

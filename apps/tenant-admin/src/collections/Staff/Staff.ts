@@ -382,7 +382,7 @@ export const Staff: CollectionConfig = {
 
     {
       name: 'email',
-      type: 'email',
+      type: 'text',
       required: false,
       unique: true,
       index: true,

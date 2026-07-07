@@ -326,7 +326,11 @@ export default function NewAdministrativoPage() {
                 </Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   value={formData.email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     handleChange('email', e.target.value)

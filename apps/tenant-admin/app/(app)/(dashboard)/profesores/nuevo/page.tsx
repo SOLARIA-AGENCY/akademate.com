@@ -517,7 +517,11 @@ export default function NewProfesorPage() {
                 </Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   value={formData.email}
                   onChange={handleInputChange('email')}
                   onBlur={handleEmailBlur}
