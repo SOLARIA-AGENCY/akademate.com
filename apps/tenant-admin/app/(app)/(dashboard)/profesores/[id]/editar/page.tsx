@@ -395,6 +395,10 @@ export default function EditProfesorPage() {
       if (formData.qualifiedAreas.length === 0) {
         throw new Error('Asigna al menos un área habilitada antes de guardar este docente.')
       }
+      const normalizedNif = formatStaffNifInput(formData.nif)
+      const normalizedEmail = formatStaffEmailInput(formData.email)
+      setFormData((prev) => ({ ...prev, nif: normalizedNif, email: normalizedEmail }))
+
       const lastName = [formData.firstSurname, formData.secondSurname]
         .map((value) => value.trim())
         .filter(Boolean)
@@ -408,8 +412,8 @@ export default function EditProfesorPage() {
           firstSurname: formData.firstSurname,
           secondSurname: formData.secondSurname,
           lastName,
-          nif: formData.nif || null,
-          email: formData.email,
+          nif: normalizedNif || null,
+          email: normalizedEmail || null,
           phone: formData.phone || null,
           address: formData.address || null,
           city: formData.city || null,

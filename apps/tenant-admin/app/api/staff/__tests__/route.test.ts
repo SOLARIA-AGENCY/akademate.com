@@ -476,12 +476,57 @@ describe('/api/staff qualified areas', () => {
     )
   })
 
+  it('cleans pasted WhatsApp/Excel characters from email and DNI/NIF before updating staff', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        email: '\u00A0MEDICINAESTETICALUJO@YAHOO.ES\u200B',
+        nif: ' DNI 00000000-A\u200B ',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        data: expect.objectContaining({
+          email: 'medicinaesteticalujo@yahoo.es',
+          nif: '00000000A',
+        }),
+      })
+    )
+  })
+
   it('rejects invalid staff email before calling Payload', async () => {
     const { PUT } = await loadRoute()
     const request = new NextRequest('http://localhost/api/staff?id=44', {
       method: 'PUT',
       body: JSON.stringify({
         email: 'correo-invalido',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(json.error).toMatch(/email válido/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('rejects staff email with invalid trailing punctuation before calling Payload', async () => {
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        email: 'medicinaesteticalujo@yahoo.es.',
       }),
       headers: { 'Content-Type': 'application/json' },
     })

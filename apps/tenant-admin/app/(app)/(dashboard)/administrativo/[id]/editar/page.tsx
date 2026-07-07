@@ -205,6 +205,10 @@ export default function EditAdministrativoPage() {
     setError(null)
 
     try {
+      const normalizedNif = formatStaffNifInput(formData.nif)
+      const normalizedEmail = formatStaffEmailInput(formData.email)
+      setFormData((prev) => ({ ...prev, nif: normalizedNif, email: normalizedEmail }))
+
       const lastName = [formData.firstSurname, formData.secondSurname]
         .map((value) => value.trim())
         .filter(Boolean)
@@ -218,8 +222,8 @@ export default function EditAdministrativoPage() {
           firstSurname: formData.firstSurname,
           secondSurname: formData.secondSurname,
           lastName,
-          nif: formData.nif || null,
-          email: formData.email || null,
+          nif: normalizedNif || null,
+          email: normalizedEmail || null,
           phone: formData.phone || null,
           address: formData.address || null,
           city: formData.city || null,

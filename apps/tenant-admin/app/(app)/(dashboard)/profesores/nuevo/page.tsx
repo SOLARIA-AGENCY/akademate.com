@@ -178,6 +178,10 @@ export default function NewProfesorPage() {
         throw new Error('Selecciona una sede base antes de guardar este docente.')
       }
 
+      const normalizedNif = formatStaffNifInput(formData.nif)
+      const normalizedEmail = formatStaffEmailInput(formData.email)
+      setFormData((prev) => ({ ...prev, nif: normalizedNif, email: normalizedEmail }))
+
       const lastName = [formData.firstSurname, formData.secondSurname]
         .map((value) => value.trim())
         .filter(Boolean)
@@ -194,8 +198,8 @@ export default function NewProfesorPage() {
           firstSurname: formData.firstSurname,
           secondSurname: formData.secondSurname,
           lastName,
-          nif: formData.nif || undefined,
-          email: formData.email,
+          nif: normalizedNif || undefined,
+          email: normalizedEmail || undefined,
           phone: formData.phone,
           address: formData.address || undefined,
           city: formData.city || undefined,

@@ -4,12 +4,10 @@ import { trackStaffCreator, validateTeachingAreas } from './hooks'
 import { normalizeNominativeText } from '@/lib/nominative-text'
 import { normalizeSpanishPhone, SPANISH_PHONE_ERROR } from '@/lib/phone'
 import {
-  isValidStaffEmail,
-  isValidStaffNif,
   normalizeStaffEmail,
   normalizeStaffNif,
-  STAFF_EMAIL_ERROR,
-  STAFF_NIF_ERROR,
+  validateStaffEmail,
+  validateStaffNif,
 } from '@/lib/staff-contact'
 
 /**
@@ -392,9 +390,8 @@ export const Staff: CollectionConfig = {
         description: 'Email address (must be unique)',
       },
       validate: (val: unknown): true | string => {
-        const normalized = normalizeStaffEmail(val)
-        if (!normalized) return true
-        return isValidStaffEmail(normalized) ? true : STAFF_EMAIL_ERROR
+        const validation = validateStaffEmail(val)
+        return validation.valid === false ? validation.error : true
       },
       hooks: {
         beforeValidate: [
@@ -422,9 +419,8 @@ export const Staff: CollectionConfig = {
         placeholder: '12345678Z',
       },
       validate: (val: unknown): true | string => {
-        const normalized = normalizeStaffNif(val)
-        if (!normalized) return true
-        return isValidStaffNif(normalized) ? true : STAFF_NIF_ERROR
+        const validation = validateStaffNif(val)
+        return validation.valid === false ? validation.error : true
       },
       hooks: {
         beforeChange: [

@@ -2,9 +2,28 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { requireV1Auth } from '@/lib/v1Auth'
+import { validateStaffEmail, validateStaffNif } from '@/lib/staff-contact'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
+function sanitizeStaffContactPayload(body: Record<string, unknown>) {
+  const sanitized = { ...body }
+
+  if ('email' in body) {
+    const validation = validateStaffEmail(body.email)
+    if (validation.valid === false) return { ok: false as const, error: validation.error }
+    sanitized.email = validation.value ?? undefined
+  }
+
+  if ('nif' in body) {
+    const validation = validateStaffNif(body.nif)
+    if (validation.valid === false) return { ok: false as const, error: validation.error }
+    sanitized.nif = validation.value ?? undefined
+  }
+
+  return { ok: true as const, data: sanitized }
+}
 
 // ============================================================================
 // GET /api/v1/staff
@@ -71,11 +90,23 @@ export async function POST(request: Request) {
       )
     }
 
+    const sanitized = sanitizeStaffContactPayload(body as Record<string, unknown>)
+    if (!sanitized.ok) {
+      return NextResponse.json(
+        { error: sanitized.error, code: 'INVALID_CONTACT' },
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      )
+    }
+
     const payload = await getPayload({ config: configPromise })
 
-    const created = await payload.create({
+    const createStaff = payload.create as unknown as (args: {
+      collection: 'staff'
+      data: Record<string, unknown>
+    }) => Promise<unknown>
+    const created = await createStaff({
       collection: 'staff',
-      data: body,
+      data: sanitized.data,
     })
 
     return NextResponse.json(

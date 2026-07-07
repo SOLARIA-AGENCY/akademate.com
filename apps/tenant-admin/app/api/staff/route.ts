@@ -7,12 +7,10 @@ import type { Staff } from '../../../src/payload-types'
 import { normalizeNominativeText } from '@/lib/nominative-text'
 import { normalizeOptionalSpanishPhone, SPANISH_PHONE_ERROR } from '@/lib/phone'
 import {
-  isValidStaffEmail,
-  isValidStaffNif,
-  normalizeStaffEmail,
-  normalizeStaffNif,
   STAFF_EMAIL_ERROR,
   STAFF_NIF_ERROR,
+  validateStaffEmail,
+  validateStaffNif,
 } from '@/lib/staff-contact'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
 
@@ -802,15 +800,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: SPANISH_PHONE_ERROR }, { status: 400 })
     }
 
-    const normalizedEmail = normalizeStaffEmail(email)
-    if (!isValidStaffEmail(normalizedEmail)) {
-      return NextResponse.json({ success: false, error: STAFF_EMAIL_ERROR }, { status: 400 })
+    const emailValidation = validateStaffEmail(email)
+    if (emailValidation.valid === false) {
+      return NextResponse.json({ success: false, error: emailValidation.error }, { status: 400 })
     }
+    const normalizedEmail = emailValidation.value
 
-    const normalizedNif = normalizeStaffNif(nif)
-    if (!isValidStaffNif(normalizedNif)) {
-      return NextResponse.json({ success: false, error: STAFF_NIF_ERROR }, { status: 400 })
+    const nifValidation = validateStaffNif(nif)
+    if (nifValidation.valid === false) {
+      return NextResponse.json({ success: false, error: nifValidation.error }, { status: 400 })
     }
+    const normalizedNif = nifValidation.value
 
     const payload = await initPayload()
     const authContext = await getAuthenticatedUserContext(request, payload)
@@ -1061,18 +1061,18 @@ export async function PUT(request: NextRequest) {
       if (normalizedLastName) updateData.last_name = normalizedLastName
     }
     if (body.nif !== undefined) {
-      const normalizedNif = normalizeStaffNif(body.nif)
-      if (!isValidStaffNif(normalizedNif)) {
-        return NextResponse.json({ success: false, error: STAFF_NIF_ERROR }, { status: 400 })
+      const nifValidation = validateStaffNif(body.nif)
+      if (nifValidation.valid === false) {
+        return NextResponse.json({ success: false, error: nifValidation.error }, { status: 400 })
       }
-      updateData.nif = normalizedNif
+      updateData.nif = nifValidation.value
     }
     if (body.email !== undefined) {
-      const normalizedEmail = normalizeStaffEmail(body.email)
-      if (!isValidStaffEmail(normalizedEmail)) {
-        return NextResponse.json({ success: false, error: STAFF_EMAIL_ERROR }, { status: 400 })
+      const emailValidation = validateStaffEmail(body.email)
+      if (emailValidation.valid === false) {
+        return NextResponse.json({ success: false, error: emailValidation.error }, { status: 400 })
       }
-      updateData.email = normalizedEmail
+      updateData.email = emailValidation.value
     }
     if (body.phone !== undefined) {
       const normalizedPhone = normalizeOptionalSpanishPhone(body.phone)
