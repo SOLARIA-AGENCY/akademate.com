@@ -1,0 +1,313 @@
+PROGRAMA FORMATIVO
+
+Digitalización de nóminas en la empresa
+
+
+
+
+                                          Abril 2022
+    IDENTIFICACIÓN DE LA ESPECIALIDAD Y PARÁMETROS DEL CONTEXTO FORMATIVO
+
+
+Denominación de la        DIGITALIZACIÓN DE NÓMINAS EN LA EMPRESA
+especialidad:
+Familia Profesional:      ADMINISTRACIÓN Y GESTIÓN
+Área Profesional:          ADMINISTRACIÓN Y AUDITORÍA
+Código:                    ADGD65
+Nivel de cualificación     2
+profesional:
+
+
+
+Objetivo general
+  Identificar el entorno legal y laboral de las relaciones laborales y su gestión informatizada mediante
+  Nomina plus, así como el Nuevo Sistema directo de gestión de los seguros sociales.
+
+
+
+Relación de módulos de formación
+
+  Módulo 1      Nóminas                                                                       50 horas
+
+  Módulo 2      NÓMINAPLUS y Seguros Sociales                                                 50 horas
+
+
+
+Modalidades de impartición
+  Presencial
+
+
+Duración de la formación
+
+  Duración total                              100 horas
+
+
+
+Requisitos de acceso del alumnado
+
+
+  Acreditaciones/           Cumplir como mínimo alguno de los siguientes requisitos:
+  titulaciones               - Certificado de profesionalidad de nivel 1
+                             - Título Profesional Básico (FP Básica)
+                             - Título de Graduado en Educación Secundaria Obligatoria (ESO) o
+                               equivalente
+                             - Título de Técnico (FP Grado Medio) o equivalente
+                             - Certificado de profesionalidad de nivel 2
+                             - Haber superado la prueba de acceso a Ciclos Formativos de Grado
+                               Medio
+                             - Haber superado cualquier prueba oficial de acceso a la universidad.
+  Experiencia               No se requiere.
+  profesional
+
+
+
+
+                                                                                                       2
+Prescripciones de formadores y tutores
+
+  Acreditación                Cumplir como mínimo alguno de los siguientes requisitos:
+  requerida                   - Licenciado, Ingeniero, Arquitecto o el Título de Grado correspondiente u
+                                 otros títulos equivalentes.
+                              - Diplomado, Ingeniero Técnico, Arquitecto Técnico o el Título de Grado
+                                 correspondiente u otros títulos equivalentes.
+                              - Técnico o Técnico Superior de las familias profesionales Administración
+                                 y gestión e informática y comunicaciones
+                              - Certificados de profesionalidad de nivel 3 de las familias profesionales
+                                 Administración y gestión e informática y comunicaciones
+  Experiencia
+  profesional mínima          No se requiere.
+  requerida
+
+  Competencia                 Cumplir como mínimo alguno de los siguientes requisitos:
+  docente
+                              - Certificado de profesionalidad de formador ocupacional
+                              - Certificado de profesionalidad de docencia de la formación profesional
+                                 para el empleo
+                              - Licenciado en Pedagogía, Psicopedagogía, Maestro
+                              - Certificado de aptitud pedagógica o títulos profesionales de
+                                 especialización didáctica
+                              - Acreditar al menos 600 horas en los últimos 10 años en formación
+                                 profesional para el empleo o del sistema educativo
+
+  Otros                       Es requisito indispensable que el personal docente esté certificado en el
+                              programa NOMINAPLUS por el fabricante SAGE.
+
+Requisitos mínimos de espacios, instalaciones y equipamientos
+
+                                                                Superficie m2            Incremento
+                     Espacios formativos                           para 15          Superficie/ participante
+                                                                participantes      (Máximo 30 participantes)
+
+   Aula de gestión                                                  45 m2              2,4 m2/ participante
+
+
+
+          Espacio Formativo                                         Equipamiento
+
+  Aula de gestión                     -    Mesa y silla para el formador
+                                      -    Mesas y sillas para el alumnado
+                                      -    Material de aula
+                                      -    Pizarra
+                                      -    PC instalado en red con posibilidad de impresión de documentos,
+                                           cañón con proyección e Internet para el formador
+                                      -    PCs instalados en red e Internet con posibilidad de impresión para los
+                                           alumnos.
+                                      -    Software específico para el aprendizaje de cada acción formativa:
+                                                Programa de gestión empresarial integral de contabilidad y
+                                                  facturación con tecnología avanzada en movilidad, seguridad y
+                                                  colaboración online que incluye comunicación bancaria,
+                                                  integración con programas ofimáticos, gestión analítica y por
+                                                  presupuestos, gestión avanzada de clientes, conectividad y sea
+                                                  capaz de ofrecer una visión global de la empresa.
+                                                Software Ofimática
+La superficie de los espacios e instalaciones estarán en función de su tipología y del número de
+participantes. Tendrán como mínimo los metros cuadrados que se indican para 15 participantes y el
+equipamiento suficiente para los mismos.
+
+
+
+                                                                                                               3
+En el caso de que aumente el número de participantes, hasta un máximo de 30, la superficie de las aulas
+se incrementará proporcionalmente (según se indica en la tabla en lo relativo a m2/ participante) y el
+equipamiento estará en consonancia con dicho aumento.
+No debe interpretarse que los diversos espacios formativos identificados deban diferenciarse
+necesariamente mediante cerramientos.
+Las instalaciones y equipamientos deberán cumplir con la normativa industrial e higiénico-sanitaria
+correspondiente y responderán a medidas de accesibilidad y seguridad de los participantes.
+En el caso de que la formación se dirija a personas con discapacidad se realizarán las adaptaciones y los
+ajustes razonables para asegurar su participación en condiciones de igualdad.
+
+Ocupaciones y puestos de trabajo relacionados
+
+   -   12121018 Directores de departamento de relaciones laborales y recursos humanos
+   -   26241041 Técnicos medios en recursos humanos, en general
+   -   26241050 Técnicos superiores en recursos humanos, en general
+   -   41121012 Empleados administrativos de servicios de personal
+
+
+Requisitos oficiales de las entidades o centros de formación
+
+  Estar inscrito en el Registro de entidades de formación (Servicios Públicos de Empleo)
+
+
+
+
+                                                                                                       4
+                                  DESARROLLO MODULAR
+
+MÓDULO DE FORMACIÓN 1:         NÓMINAS
+
+  OBJETIVO
+   Cumplimentar los recibos salariales aplicando la normativa de liquidación y el entorno legal
+   actualizado en la contratación.
+
+
+  DURACIÓN: 50 horas
+
+
+
+  RESULTADOS DE APRENDIZAJE
+
+   Conocimientos/ Capacidades cognitivas y prácticas
+
+   • Caracterización del recibo de salarios
+      - Concepto y contenido de la nómina
+      - Encabezamiento: Datos
+      - Devengos
+      - Deducciones
+   • Diferenciación de los devengos salariales
+      - Salario Base
+      - Percepciones salariales
+      - Complementos Salariales.
+   • Diferenciación de los devengos no salariales
+      - Percepciones no salariales
+      - Otras indemnizaciones Mejoras voluntarias
+   • Aplicación de las deducciones
+      - Cuotas de Seguridad Social
+      - Retenciones e ingresos a cuenta del I.R.P.F.
+      - Otras deducciones.
+   • Desarrollo del cálculo de retenciones e ingresos del I.R.P.F.
+      - Obligaciones del preceptor
+      - Comunicación de datos al pagador (modelo 145)
+      - Cálculo de retenciones e ingresos del I.R.P.F.
+      - Regularización del tipo de retención
+      - Tipos especiales de retención
+      - Exclusión de la obligación de retener
+      - Certificado de retenciones e ingresos a cuenta del impuesto sobre la renta de las
+          personas físicas.
+   • Cumplimentación de los modelos de liquidación
+      - Modelo 110
+      - Modelo 190
+
+   Habilidades de gestión, personales y sociales
+
+   • Sensibilización con los derechos laborales y su plasmación en los recibos justificativos de
+     salarios
+   • Capacidad de trabajo en equipo dentro de un departamento de RRHH
+   • Desarrollo de actitudes responsables e independientes en el cálculo de los recibos de salarios
+
+                                                                                                  5
+MÓDULO DE FORMACIÓN 2:          NOMINAPLUS Y SEGUROS SOCIALES
+
+  OBJETIVO
+   Manejar la herramienta informática con el fin de confeccionar las nóminas, boletines de cotización,
+   modelos de retención de Hacienda y los listados correspondientes, asi como los seguros sociales.
+
+
+  DURACIÓN: 50 horas
+
+
+
+  RESULTADOS DE APRENDIZAJE
+
+   Conocimientos/ Capacidades cognitivas y prácticas
+
+   • Introducción a NOMINAPLUS
+       - Descripción de la aplicación informática
+       - Entorno gráfico y menús
+       - Instalación del programa informático
+       - Gestión de usuarios
+   •   Cumplimentación de tablas generales
+       - Delegaciones de Hacienda
+       - Bancos
+       - Tablas de Seguridad Social.
+       - Tablas I.R.P.F.
+       - Tablas bonificaciones
+       - Tablas epígrafes de accidentes
+   • Programación de convenios colectivos
+      - Datos convenio
+      - Categorías.
+      - Paso de Datos
+   • Introducción de datos en el fichero maestro de empresas
+       - Añadir una empresa
+       - Datos de la nómina
+   • Introducción de datos en el fichero maestro de trabajadores
+       - Alta de trabajadores
+       - Datos personales/profesionales
+       - Conceptos retributivos
+       - Cálculo del IRPF.
+       - Alta de incidencias
+       - Incapacidad temporal y maternidad
+       - Absentismo, huelga y permisos
+       - Horas extraordinarias
+   • Elaboración del recibo de salarios
+      - Incidencias
+      - Cálculo de nóminas
+      - Acumulados de nóminas
+   • Confección de impresos oficiales.
+      - Impresos de Seguridad Social (TC/1, TC/2 y TC1/2)
+      - Modelos de Hacienda (110, 111 y 190)
+      - Certificado de Empresa
+      - Certificado de retenciones
+
+
+
+                                                                                                     6
+    • Realización de informes gráficos
+       - Extracción de información
+       - Presentación de información gráfica
+    • Generación de ficheros complementarios
+       - Copias de Seguridad
+       - Perfiles de usuarios y periféricos
+       - Simulaciones
+    • Confección de Modelos de la Seguridad Social, Relación nominal de trabajadores (RNT) y
+      Relación de liquidación de cotizaciones (RLC)
+       - Aplicación multiplataforma SILTRA
+       - Elaboración de ficheros mensuales
+       - Recepción y envío de comunicaciones
+    • Creación de ficheros para el Sistema RED con NOMINAPLUS
+       - Elaboración de ficheros individuales
+       - Envío de datos a la administración
+       - Recepción de comunicaciones
+
+    Habilidades de gestión, personales y sociales
+
+    • Adquisición de capacidades digitales en un entorno de software, siendo conscientes de su
+      utilidad y de la necesidad de actualización permanente.
+    • Capacidad de interpretación de la normativa y su aplicación práctica.
+    • Capacidad de trabajo en equipo en un entorno de software empresarial dentro del marco de los
+      RRHH.
+
+
+
+
+                EVALUACIÓN DEL APRENDIZAJE EN LA ACCIÓN FORMATIVA
+
+
+• La evaluación tendrá un carácter teórico-práctico y se realizará de forma sistemática y continua,
+  durante el desarrollo de cada módulo y al final del curso.
+• Puede incluir una evaluación inicial de carácter diagnóstico para detectar el nivel de partida del
+  alumnado.
+• La evaluación se llevará a cabo mediante los métodos e instrumentos más adecuados para
+  comprobar los distintos resultados de aprendizaje, y que garanticen la fiabilidad y validez de la
+  misma.
+• Cada instrumento de evaluación se acompañará de su correspondiente sistema de corrección y
+  puntuación en el que se explicite, de forma clara e inequívoca, los criterios de medida para
+  evaluar los resultados alcanzados por los participantes.
+• La puntuación final alcanzada se expresará en términos de Apto/ No Apto.
+
+
+
+
+                                                                                                       7
+

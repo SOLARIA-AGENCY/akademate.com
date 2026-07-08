@@ -1,0 +1,291 @@
+         PROGRAMA FORMATIVO DE LA ESPECIALIDAD FORMATIVA
+                           LIDERAZGO ESTRATÉGICO
+                                  ADGD177PO
+
+
+
+
+PROGRAMAS DE FORMACIÓN DIRIGIDOS PRIORITARIAMENTE A TRABAJADORES OCUPADOS
+                                                            Noviembre 2018
+PROGRAMAS DE FORMACIÓN DIRIGIDOS PRIORITARIAMENTE A TRABAJADORES OCUPADOS
+
+                           PROGRAMA DE LA ESPECIALIDAD FORMATIVA:
+                                                LIDERAZGO ESTRATÉGICO
+
+
+
+ DATOS GENERALES DE LA ESPECIALIDAD FORMATIVA
+
+   1. Familia Profesional: ADMINISTRACIÓN Y GESTIÓN
+        Área Profesional: ADMINISTRACIÓN Y AUDITORÍA
+
+   2. Denominación: LIDERAZGO ESTRATÉGICO
+
+   3. Código: ADGD177PO
+
+   4. Objetivo General:         Adquirir los conocimientos y destrezas necesarios para reconocer los rasgos de un
+                                líder efectivo y los diferentes estilos, así como el papel a desempeñar.
+
+
+   5. Número de participantes:              Según normativa, el número máximo de participantes en modalidad presencial es
+                                            de 30.
+   6. Duración:
+     Horas totales:    120                          Modalidad: Indistinta
+         Distribución de horas:
+             Presencial:................. 120
+             Teleformación:........... 120
+   7. Requisitos mínimos de espacios, instalaciones y equipamiento:
+
+      7.1 Espacio formativo:
+
+      AULA POLIVALENTE:
+      El aula contará con las instalaciones y equipos de trabajo suficientes para el desarrollo de la acción formativa.
+      • Superficie: El aula deberá contar con un mínimo de 2m2 por alumno.
+      • Iluminación: luz natural y artificial que cumpla los niveles mínimos preceptivos.
+      • Ventilación: Climatización apropiada.
+      • Acondicionamiento eléctrico de acuerdo a las Normas Electrotécnicas de Baja Tensión y otras normas de
+      aplicación.
+      • Aseos y servicios higiénicos sanitarios en número adecuado.
+      • Condiciones higiénicas, acústicas y de habitabilidad y seguridad, exigidas por la legislación vigente.
+      • Adaptabilidad: en el caso de que la formación se dirija a personas con discapacidad dispondrá de las
+      adaptaciones y los ajustes razonables para asegurar la participación en condiciones de igualdad.
+      • PRL: cumple con los requisitos exigidos en materia de prevención de riesgos laborales
+
+      Cada espacio estará equipado con mobiliario docente adecuado al número de alumnos, así mismo
+      constará de las instalaciones y equipos de trabajo suficientes para el desarrollo del curso.
+
+      7.2 Equipamientos:
+      Se contará con todos los medios y materiales necesarios para el correcto desarrollo formativo.
+
+      - Pizarra.
+      - Rotafolios.
+      - Material de aula.
+      - Medios audivisuales.
+      - Mesa y silla para formador/a.
+      - Mesas y sillas para alumnos/as.
+      - Hardware y Software necesarios para la impartición de la formación.
+      - Conexión a Internet.
+
+
+      Se entregará a los participantes los manuales y el material didáctico necesarios para el adecuado desarrollo
+      de la acción formativa
+Las instalaciones y equipamientos deberán cumplir con la normativa industrial e higiénico sanitaria
+correspondiente y responderán a medidas de accesibilidad universal y seguridad de los participantes.
+En el caso de que la formación se dirija a personas con discapacidad se realizarán las adaptaciones y los
+ajustes razonables para asegurar su participación en condiciones de igualdad.
+7.2.1 En el caso de formación en modalidad teleformación, se requiere el siguiente equipamiento:
+
+Requisitos técnicos de la plataforma de teleformación y del contenido virtual de aprendizaje para
+especialidades formativas no dirigidas a la obtención de certificados de profesionalidad en la
+modalidad de teleformación
+
+                         1. Requisitos técnicos de la plataforma de teleformación
+
+La plataforma de teleformación que se utilice para impartir acciones formativas no conducentes a la
+obtención de certificados de profesionalidad deberá reunir los siguientes requisitos técnicos:
+– Compatibilidad con los estándares SCORM e IMS.
+– Rendimiento, entendido como número de alumnos que soporte la plataforma, velocidad de respuesta del
+servidor a los usuarios, y tiempo de carga de las páginas Web o de descarga de archivos, que permita:
+– Soportar un número de alumnos equivalente al número total de participantes en las acciones formativas
+que esté impartiendo el centro o entidad de formación, garantizando un hospedaje mínimo igual al total del
+alumnado de dichas acciones, considerando un número de usuarios concurrentes del 40% de ese
+alumnado.
+– Disponer de la capacidad de transferencia necesaria para que no se produzca efecto retardo en la
+comunicación audiovisual en tiempo real, debiendo tener el servidor en el que se aloja la plataforma un
+ancho de banda mínimo de 100Mbps, suficiente en bajada y subida.
+– Funcionamiento 24 horas al día, los 7 días de la semana.
+– Compatibilidad tecnológica y posibilidades de integración con cualquier infraestructura informática o
+sistema operativo, base de datos, navegador de Internet de entre los más usuales o servidor web,
+debiendo ser posible utilizar las funciones de la plataforma con complementos (plug-in) y visualizadores
+compatibles. Si se requiriese la instalación adicional de algún soporte para funcionalidades avanzadas, la
+plataforma debe facilitar el acceso al mismo sin coste.
+– Integración de herramientas y recursos necesarios para gestionar, administrar, organizar, diseñar,
+impartir y evaluar acciones formativas a través de Internet, disponiendo, específicamente, de las
+siguientes:
+Herramientas que faciliten la colaboración y la comunicación entre todos los alumnos, tanto de carácter
+asíncrono (foros, tablones, correo, listas, etc.), como síncrono, (sistema de mensajería, chat,
+videoconferencia, etc.).
+Herramientas de desarrollo, gestión e integración de contenidos.
+Herramientas de seguimiento formativo, control del progreso del alumnado y evaluación del aprendizaje.
+Herramientas de administración y gestión del alumnado y de la acción formativa.
+– Disponer del desarrollo informático a través del cual el Servicio Público de Empleo de la Administración
+Competente, de manera automática, realice el seguimiento y control de las acciones formativas impartidas,
+conforme al modelo de datos y protocolo de transmisión establecidos en el anexo II y en la página web de
+dicho organismo, a fin de auditar la actividad de los centros y entidades de formación y evaluar la calidad
+de las acciones formativas.
+Para poder realizar tal seguimiento, el Servicio Público de Empleo de la Administración Competente, con la
+periodicidad que determine, se conectará automáticamente con las plataformas de teleformación, por lo
+que las mismas deberán contar con los desarrollos informáticos que posibiliten tales acciones de
+seguimiento (protocolo de conexión SOAP).
+Sin perjuicio de lo anterior, y de cara al seguimiento puntual de las acciones formativas de certificado de
+profesionalidad que se impartan, será preceptivo proporcionar al Servicio Público de Empleo de la
+Administración Competente una dirección (con sus correspondientes credenciales) de acceso a la
+plataforma, con permiso de administrador, pero sin posibilidad de modificar datos.
+– Niveles de accesibilidad e interactividad que como mínimo cumplan las prioridades 1 y 2 de la Norma
+UNE 139803:2012 o posteriores actualizaciones, según lo estipulado en el Capítulo III del Real Decreto
+1494/2007, de 12 de noviembre.
+– El servidor la plataforma de teleformación ha de cumplir con los requisitos establecidos en la Ley
+Orgánica 15/1999, de 13 de diciembre, de protección de datos de carácter personal, por lo que el
+responsable de dicha plataforma ha de identificar la localización física del servidor y el cumplimento de lo
+establecido sobre transferencias internacionales de datos en los artículos 33 y 34 de dicha Ley Orgánica y
+en el Título VI del Reglamento de desarrollo de la misma, aprobado por Real Decreto 1720/2007, de 21 de
+diciembre.
+– Incluir la imagen institucional del Servicio Público de Empleo de la Administración Competente y de las
+entidades que él designe, con las pautas de imagen corporativa que se establezcan.
+– Disponibilidad de un servicio de atención a usuarios que proporcione soporte técnico y mantenga la
+infraestructura tecnológica y que, de forma estructurada y centralizada, atienda y resuelva las consultas e
+incidencias técnicas del alumnado. El servicio, que deberá estar disponible para el alumnado desde el
+inicio hasta la finalización de la acción formativa, deberá mantener un horario de funcionamiento de
+mañana y de tarde, tendrá que ser accesible mediante teléfono y mensajería electrónica y no podrá
+superar un tiempo de demora en la respuesta superior a 2 días laborables.
+
+                        2. Requisitos técnicos del contenido virtual de aprendizaje
+   Para garantizar la calidad del proceso de aprendizaje del alumnado, el contenido virtual de aprendizaje de
+   las especialidades formativas no dirigidas a la obtención de certificados de profesionalidad mantendrá una
+   estructura y funcionalidad homogénea, cumpliendo los siguientes requisitos:
+   – Como mínimo, ser los establecidos en el correspondiente programa formativo que conste en el fichero
+   de especialidades formativas previsto en el artículo 20.3 del Real Decreto 395/2007, de 23 de marzo y esté
+   asociado a la especialidad formativa para la que se solicita inscripción.
+   – Estar referidos tanto a los conocimientos como a las destrezas prácticas y habilidades recogidas en los
+   objetivos de aprendizaje de los citados programas formativos, de manera que en su conjunto permitan
+   conseguir los resultados de aprendizaje previstos.
+   – Organizarse a través de índices, mapas, tablas de contenido, esquemas, epígrafes o titulares de fácil
+   discriminación y secuenciase pedagógicamente de tal manera que permiten su comprensión y retención.
+   – No ser meramente informativos, promoviendo su aplicación práctica a través de actividades de
+   aprendizaje (autoevaluables o valoradas por el tutor-formador) relevantes para la práctica profesional, que
+   sirvan para verificar el progreso del aprendizaje del alumnado, hacer un seguimiento de sus dificultades de
+   aprendizaje y prestarle el apoyo adecuado.
+   – No ser exclusivamente textuales, incluyendo variados recursos (necesarios y relevantes), tanto estáticos
+   como interactivos (imágenes, gráficos, audio, video, animaciones, enlaces, simulaciones, artículos, foro,
+   chat, etc.). de forma periódica.
+   – Poder ser ampliados o complementados mediante diferentes recursos adicionales a los que el alumnado
+   pueda acceder y consultar a voluntad.
+   – Dar lugar a resúmenes o síntesis y a glosarios que identifiquen y definan los términos o vocablos
+   básicos, relevantes o claves para la comprensión de los aprendizajes.
+   – Evaluar su adquisición durante o a la finalización de la acción formativa a través de actividades de
+   evaluación (ejercicios, preguntas, trabajos, problemas, casos, pruebas, etc.), que permitan medir el
+   rendimiento o desempeño del alumnado.
+
+8. Requisitos necesarios para el ejercicio profesional:
+   (Este epígrafe sólo se cumplimentará si existen requisitos legales para el ejercicio de la profesión)
+
+9. Requisitos oficiales de los centros:
+   (Este epígrafe sólo se cumplimentará si para la impartición de la formación existe algún requisito de homologación /
+   autorización del centro por parte de otra administración competente.
+
+
+10. CONTENIDOS FORMATIVOS:
+
+   1. EL MANDO INTERMEDIO: TÉCNICAS PARA UNA SUPERVISIÓN EFICAZ
+   1. 1. Motivación.
+   1.1.1. Acercamiento a la motivación.
+   1.1.2. Hablando de motivación.
+   1.1.3. Gestión del aprendizaje.
+   1.1.4. Entrenamiento y entrenador.
+   1.2. Gestión del tiempo y del estrés.
+   1.2.1. Introducción: el tiempo.
+   1.2.2. ¿Qué hacer para mejorar?
+   1.2.3. Consecuencia de un uso inadecuado del tiempo: el estrés
+   1.3. Anticipación al cambio.
+   1.3.1. Plan del cambio.
+   1.3.2. Habilidades para el cambio.
+   1.3.3. El papel del directivo.
+   1.4. Iniciativa.
+   1.4.1. La iniciativa en el perfil profesional.
+   1.4.2. Dimensiones de la iniciativa.
+   1.5. Trabajo en equipo.
+   1.5.1. ¿Qué es el trabajo en equipo?
+   1.5.2. Compartir objetivos.
+   1.5.3. Colaborar en el trabajo
+   1.5.4. El método de solución de problemas y toma de decisiones.
+   1.5.5. El desarrollo de los equipos de trabajo.
+   1.6. Desarrollo de equipos.
+   1.6.1. ¿Qué es trabajo en equipo?
+   1.6.2. ¿Cómo se hace?
+
+   1.7. Solución de problemas y trabajo en equipo.
+   1.7.1. Introducción a la solución de problemas en grupo.
+   1.7.2. Definir el problema.
+   1.7.3. El análisis de las causas.
+   1.7.4. Desarrollo e implantación de las soluciones.
+   2. TÉCNICAS DE MANDO Y DIRECCIÓN POR OBJETIVOS I
+   2.1. Liderazgo.
+   2.1.1. Las nuevas relaciones jefes-colaboradores.
+2.1.2. El ejercicio del liderazgo.
+2.2. Liderazgo y motivación.
+2.2.1. ¿Qué es un líder?
+2.2.2. ¿Cómo implicar a nuestros colaboradores?
+2.3. Empowerment y delegación.
+2.3.1. Introducción al Empowerment.
+2.3.2. Capacitar y perfeccionar a los delegados.
+2.3.3. Grupos de trabajo autodirigidos.
+2.3.4. Conclusiones
+2.4. Coaching y mentoring.
+2.4.1. Coaching y Mentoring.
+2.4.2. Entorno en el que nos movemos.
+2.4.3. Habilidades necesarias.
+2.4.4. Proceso de Coaching.
+2.4.5. Herramientas de Coaching.
+2.5. Gestión del cambio.
+2.5.1. Marco del cambio.
+2.5.2. Modelo de gestión del cambio.
+2.5.3. Barreras al cambio y participación.
+2.5.4. El papel del directivo.
+2.5.5. Plan de acción.
+3. TÉCNICAS DE MANDO Y DIRECCIÓN POR OBJETIVOS II
+3.1. Comunicación.
+3.1.1. Las habilidades básicas.
+3.1.2. Apoyos a la comunicación.
+3.1.3. Barreras en la comunicación.
+3.2. Relaciones interpersonales.
+3.2.1. Habilidades de relación personal.
+3.2.2. Relación personal y gestión de personas.
+3.2.3. La relación día a día.
+3.3. Presentaciones eficaces.
+3.3.1. Apoyos y estructura de una presentación.
+3.3.2. Relajación consciente.
+3.3.3. Lenguaje verbal y no verbal.
+3.3.4. El perfil de mi auditorio.
+3.3.5. Cómo superar el miedo escénico.
+3.3.6. Vendiendo mi presentación.
+3.3.7. Yo soy el moderador.
+3.3.8. Tratamiento de actitudes complicadas.
+3.4. Herramientas audiovisuales
+3.4.1. Selección de ayudas visuales
+3.4.2. Elaboración del material audiovisual.
+3.4.3. La organización.
+4. TÉCNICAS DE MANDO Y DIRECCIÓN POR OBJETIVOS III
+4.1. Creación y dirección de equipos de trabajo.
+4.1.1. Trabajo en equipo. ¿Por qué?
+4.1.2. Grupos y equipos en las organizaciones.
+4.1.3. Fases de desarrollo de los equipos.
+4.1.4. Gestión del desarrollo del equipo.
+4.1.5. El papel del líder en el desarrollo del equipo.
+4.1.6. Áreas claves a desarrollar en el equipo.
+4.1.7. Secuencia de actuación para el desarrollo del equipo.
+4.1.8. Tipos de equipos.
+4.2. Claves de gestión.
+4.2.1. La organización y los directivos.
+4.2.2. Planificar.
+4.2.3. Organizar.
+4.2.4. Dirigir.
+4.2.5. Controlar.
+4.2.6. Responsabilidades directivas según el nivel de dirección.
+4.3. Gestión del desempeño.
+4.3.1. Sistema de Gestión del Desempeño.
+4.3.2. La Entrevista de Evaluación del Desempeño.
+4.3.3. Los Tipos de Entrevistas.
+4.4. Gestión por competencias.
+4.4.1. Qué son las competencias.
+4.4.2. Conocimientos.
+4.4.3. Habilidades y otras competencias.
+4.4.4. Competencias y puestos.
+4.5. Toma de decisiones.
+4.5.1. Intervenir ante un problema.
+4.5.2. Toma de decisiones.
+4.6. Solución de conflictos.
+4.6.1. Definición de conflicto.
+4.6.2. Cómo analizar los conflictos.
+4.6.3. Cómo resolver conflictos.
+4.6.4. Prevenir los conflictos.
+

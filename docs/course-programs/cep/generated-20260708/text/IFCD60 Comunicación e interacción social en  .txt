@@ -1,0 +1,614 @@
+PROGRAMA FORMATIVO
+
+Comunicación e interacción social en
+entornos TIC
+
+
+
+                                       Diciembre 2020
+    IDENTIFICACIÓN DE LA ESPECIALIDAD Y PARÁMETROS DEL CONTEXTO FORMATIVO
+
+
+Denominación de la         COMUNICACIÓN E INTERACCIÓN SOCIAL EN ENTORNOS TIC
+especialidad:
+Familia Profesional:       INFORMÁTICA Y COMUNICACIONES
+Área Profesional:          DESARROLLO
+Código:                    IFCD60
+Nivel de cualificación     2
+profesional:
+
+Objetivo general
+  Integrar y utilizar herramientas referidas tanto a habilidades sociales como a comunicación
+  interpersonal, para desenvolverse en ambientes tecnológicos de manera que puedan alcanzarse
+  eficazmente los objetivos laborales y profesionales.
+
+Relación de módulos de formación
+
+  Módulo 1      Comunicación interpersonal según el modelo cliente-servidor                  20 horas
+
+  Módulo 2      Presentación de un producto TIC al cliente                                   35 horas
+
+  Módulo 3      Diseño de una aplicación TIC                                                 45 horas
+
+  Módulo 4      Reacción al conflicto                                                        15 horas
+
+  Módulo 5      Planteamiento frontend-backend para la búsqueda de empleo                    20 horas
+
+
+Modalidades de impartición
+
+  Presencial
+  Teleformación
+
+Duración de la formación
+
+  Duración total en cualquier                  135 horas
+  modalidad de impartición
+                         Teleformación         Duración total de las tutorías presenciales: 0 horas
+
+Requisitos de acceso del alumnado
+
+
+  Acreditaciones/            Cumplir como mínimo alguno de los siguientes requisitos:
+  titulaciones               - Certificado de profesionalidad de nivel 2.
+                             - Haber superado la prueba de acceso a Ciclos Formativos de Grado
+                               Medio.
+                             - Título de Técnico (FP Grado Medio) o equivalente
+                             - Título de Bachiller o equivalente.
+                             - Haber superado cualquier prueba oficial de acceso a la universidad.
+
+  Experiencia                No se requiere.
+  profesional
+
+
+
+                                                                                                        2
+  Modalidad de               Además de lo indicado anteriormente, los participantes han de tener las
+  teleformación              destrezas suficientes para ser usuarios de la plataforma virtual en la que se
+                             apoya la acción formativa.
+
+
+
+  Justificación de los requisitos del alumnado
+  Presentar la titulación académica acreditativa.
+
+
+Prescripciones de formadores y tutores
+
+  Acreditación               Cumplir como mínimo alguno de los siguientes requisitos:
+  requerida                  - Licenciado, Ingeniero, Arquitecto o el Título de Grado correspondiente u
+                                otros títulos equivalentes.
+                             - Diplomado, Ingeniero Técnico, Arquitecto Técnico o el Título de Grado
+                                correspondiente u otros títulos equivalentes.
+                             - Técnico o Técnico Superior de la familia profesional de Servicios
+                                socioculturales y a la comunidad, o de la familia profesional de
+                                Administración y Gestión o de la familia profesional de Informática y
+                                Comunicaciones.
+                             - Certificados de Profesionalidad de nivel 3 en Gestión integrada de
+                                Recursos Humanos, de la familia profesional de Administración y
+                                Gestión; y Mediación Comunitaria de la familia profesional de Servicios
+                                socioculturales y a la comunidad.
+                             - Certificados de Profesionalidad de nivel 3 de la familia profesional de
+                                Informática y Comunicaciones.
+
+  Experiencia
+  profesional mínima         Experiencia mínima de doce meses en el área tecnológica.
+  requerida
+
+  Competencia                Se requiere un mínimo de 500 horas de experiencia docente en la materia
+  docente                    objeto de esta especialidad, o estar en posesión del Certificado de
+                             profesionalidad de Docencia o equivalente de la Formación Profesional para
+                             el Empleo, más una experiencia docente de al menos 300 horas en
+                             especialidades relacionadas.
+
+  Modalidad de               Además de cumplir con las prescripciones establecidas anteriormente, los
+  teleformación              tutores-formadores deben acreditar una formación, de al menos 30 horas,
+                             o experiencia, de al menos 60 horas, en esta modalidad y en la utilización
+                             de las tecnologías de la información y comunicación.
+
+
+  Justificación de las prescripciones de formadores y tutores
+  Los requisitos de formación se acreditarán con la presentación de títulos y certificados oficiales. La
+  experiencia profesional y docente se justificará mediante el documento de vida laboral, certificados de
+  empresa o contratos más la liquidación, que demuestren que se han ejecutado.
+
+
+Requisitos mínimos de espacios, instalaciones y equipamientos
+
+                                                                           2
+                                                                                    Incremento
+                                                            Superficie m       Superficie/ participante
+                     Espacios formativos                       para 15              (Máximo 30
+                                                            participantes          participantes)
+                                                                                       2
+   Aula de gestión                                              45 m
+                                                                       2         2,4 m / participante
+
+
+
+
+                                                                                                          3
+           Espacio Formativo                                     Equipamiento
+
+     Aula de gestión                       -   Mesa y silla para el formador
+                                           -   Mesas y sillas para el alumnado
+                                           -   Material de aula
+                                           -   Pizarra
+                                           -   PC instalado en red con posibilidad de impresión de
+                                               documentos, cañón con proyección e Internet para el formador
+                                           -   PCs instalados en red e Internet con posibilidad de impresión
+                                               para los alumnos.
+                                           -   Software específico para el aprendizaje de cada acción
+                                               formativa.
+
+La superficie de los espacios e instalaciones estarán en función de su tipología y del número de
+participantes. Tendrán como mínimo los metros cuadrados que se indican para 15 participantes y el
+equipamiento suficiente para los mismos.
+En el caso de que aumente el número de participantes, hasta un máximo de 30, la superficie de las
+                                                                                       2
+aulas se incrementará proporcionalmente (según se indica en la tabla en lo relativo a m / participante) y
+el equipamiento estará en consonancia con dicho aumento.
+No debe interpretarse que los diversos espacios formativos identificados deban diferenciarse
+necesariamente mediante cerramientos.
+Las instalaciones y equipamientos deberán cumplir con la normativa industrial e higiénico-sanitaria
+correspondiente y responderán a medidas de accesibilidad y seguridad de los participantes.
+En el caso de que la formación se dirija a personas con discapacidad se realizarán las adaptaciones y
+los ajustes razonables para asegurar su participación en condiciones de igualdad.
+Si la especialidad se imparte en modalidad de teleformación, cuando haya tutorías presenciales, se
+utilizarán los espacios formativos y equipamientos necesarios indicados anteriormente.
+
+Además, en el caso de teleformación, se ha de disponer del siguiente equipamiento.
+
+Plataforma de teleformación:
+La plataforma de teleformación que se utilice para impartir acciones formativas deberá alojar el material
+virtual de aprendizaje correspondiente, poseer capacidad suficiente para desarrollar el proceso de
+aprendizaje y gestionar y garantizar la formación del alumnado, permitiendo la interactividad y el trabajo
+cooperativo, y reunir los siguientes requisitos técnicos de infraestructura, software y servicios:
+      Infraestructura
+ -     Tener un rendimiento, entendido como número de alumnos que soporte la plataforma, velocidad de
+       respuesta del servidor a los usuarios, y tiempo de carga de las páginas Web o de descarga de
+       archivos, que permita:
+        a) Soportar un número de alumnos equivalente al número total de participantes en las acciones
+           formativas de formación profesional para el empleo que esté impartiendo el centro o entidad de
+           formación, garantizando un hospedaje mínimo igual al total del alumnado de dichas acciones,
+           considerando que el número máximo de alumnos por tutor es de 80 y un número de usuarios
+           concurrentes del 40% de ese alumnado.
+        b) Disponer de la capacidad de transferencia necesaria para que no se produzca efecto retardo en
+           la comunicación audiovisual en tiempo real, debiendo tener el servidor en el que se aloja la
+           plataforma un ancho de banda mínimo de 300 Mbs, suficiente en bajada y subida.
+ -     Estar en funcionamiento 24 horas al día, los 7 días de la semana.
+      Software:
+ -     Compatibilidad con el estándar SCORM y paquetes de contenidos IMS.
+ -     Niveles de accesibilidad e interactividad de los contenidos disponibles mediante tecnologías web que
+       como mínimo cumplan las prioridades 1 y 2 de la Norma UNE 139803:2012 o posteriores
+       actualizaciones, según lo estipulado en el capítulo III del Real Decreto 1494/2007, de 12 de
+       noviembre.
+
+                                                                                                               4
+-   El servidor de la plataforma de teleformación ha de cumplir con los requisitos establecidos en la Ley
+    Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos
+    digitales, por lo que el responsable de dicha plataforma ha de identificar la localización física del
+    servidor y el cumplimento de lo establecido sobre transferencias internacionales de datos en los
+    artículos 40 a 43 de la citada Ley Orgánica 3/2018, de 5 de diciembre, así como, en lo que resulte de
+    aplicación, en el Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo, de 27 de abril de
+    2016, relativo a la protección de las personas físicas respecto del tratamiento de datos personales y
+    la libre circulación de estos datos y por el que se deroga la Directiva 95/46/CE.
+-   Compatibilidad tecnológica y posibilidades de integración con cualquier sistema operativo, base de
+    datos, navegador de Internet de los más usuales o servidor web, debiendo ser posible utilizar las
+    funciones de la plataforma con complementos (plug-in) y visualizadores compatibles. Si se requiriese
+    la instalación adicional de algún soporte para funcionalidades avanzadas, la plataforma debe facilitar
+    el acceso al mismo sin coste.
+-   Disponibilidad del servicio web de seguimiento (operativo y en funcionamiento) de las acciones
+    formativas impartidas, conforme al modelo de datos y protocolo de transmisión establecidos en el
+    anexo V de la Orden/TMS/369/2019, de 28 de marzo.
+   Servicios y soporte
+-   Sustentar el material virtual de aprendizaje de la especialidad formativa que a través de ella se
+    imparta.
+-   Disponibilidad de un servicio de atención a usuarios que de soporte técnico y mantenga la
+    infraestructura tecnológica y que, de forma estructurada y centralizada, atienda y resuelva las
+    consultas e incidencias técnicas del alumnado. Las formas de establecer contacto con este servicio,
+    que serán mediante teléfono y mensajería electrónica, tienen que estar disponibles para el alumnado
+    desde el inicio hasta la finalización de la acción formativa, manteniendo un horario de funcionamiento
+    de mañana y de tarde y un tiempo de demora en la respuesta no superior a 48 horas laborables.
+-   Personalización con la imagen institucional de la administración laboral correspondiente, con las
+    pautas de imagen corporativa que se establezcan.
+Con el objeto de gestionar, administrar, organizar, diseñar, impartir y evaluar acciones formativas a
+través de Internet, la plataforma de teleformación integrará las herramientas y recursos necesarios a tal
+fin, disponiendo, específicamente, de herramientas de:
+-   Comunicación, que permitan que cada alumno pueda interaccionar a través del navegador con el
+    tutor-formador, el sistema y con los demás alumnos. Esta comunicación electrónica ha de llevarse a
+    cabo mediante herramientas de comunicación síncronas (aula virtual, chat, pizarra electrónica) y
+    asíncronas (correo electrónico, foro, calendario, tablón de anuncios, avisos). Será obligatorio que
+    cada acción formativa en modalidad de teleformación disponga, como mínimo, de un servicio de
+    mensajería, un foro y un chat.
+-   Colaboración, que permitan tanto el trabajo cooperativo entre los miembros de un grupo, como la
+    gestión de grupos. Mediante tales herramientas ha de ser posible realizar operaciones de alta,
+    modificación o borrado de grupos de alumnos, así como creación de «escenarios virtuales» para el
+    trabajo cooperativo de los miembros de un grupo (directorios o «carpetas» para el intercambio de
+    archivos, herramientas para la publicación de los contenidos, y foros o chats privados para los
+    miembros de cada grupo).
+-   Administración, que permitan la gestión de usuarios (altas, modificaciones, borrado, gestión de la
+    lista de clase, definición, asignación y gestión de permisos, perfiles y roles, autenticación y
+    asignación de niveles de seguridad) y la gestión de acciones formativas.
+-   Gestión de contenidos, que posibiliten el almacenamiento y la gestión de archivos (visualizar
+    archivos, organizarlos en carpetas –directorios- y subcarpetas, copiar, pegar, eliminar, comprimir,
+    descargar o cargar archivos), la publicación organizada y selectiva de los contenidos de dichos
+    archivos, y la creación de contenidos.
+-   Evaluación y control del progreso del alumnado, que permitan la creación, edición y realización de
+    pruebas de evaluación y autoevaluación y de actividades y trabajos evaluables, su autocorrección o
+    su corrección (con retroalimentación), su calificación, la asignación de puntuaciones y la ponderación
+    de las mismas, el registro personalizado y la publicación de calificaciones, la visualización de
+    información estadística sobre los resultados y el progreso de cada alumno y la obtención de informes
+    de seguimiento.
+
+
+
+                                                                                                        5
+Material virtual de aprendizaje:
+El material virtual de aprendizaje para el alumnado mediante el que se imparta la formación se concretará
+en el curso completo en formato multimedia (que mantenga una estructura y funcionalidad homogénea),
+debiendo ajustarse a todos los elementos de la programación (objetivos y resultados de aprendizaje) de
+este programa formativo que figura en el Catálogo de Especialidades Formativas y cuyo contenido cumpla
+estos requisitos:
+ -       Como mínimo, ser el establecido en el citado programa formativo del Catálogo de Especialidades
+         Formativas.
+ -       Estar referido tanto a los objetivos como a los conocimientos/ capacidades cognitivas y prácticas, y
+         habilidades de gestión, personales y sociales, de manera que en su conjunto permitan conseguir los
+         resultados de aprendizaje previstos.
+ -       Organizarse a través de índices, mapas, tablas de contenido, esquemas, epígrafes o titulares de fácil
+         discriminación y secuenciase pedagógicamente de tal manera que permiten su comprensión y
+         retención.
+ -       No ser meramente informativos, promoviendo su aplicación práctica a través de actividades de
+         aprendizaje (autoevaluables o valoradas por el tutor-formador) relevantes para la adquisición de
+         competencias, que sirvan para verificar el progreso del aprendizaje del alumnado, hacer un
+         seguimiento de sus dificultades de aprendizaje y prestarle el apoyo adecuado.
+ -       No ser exclusivamente textuales, incluyendo variados recursos (necesarios y relevantes), tanto
+         estáticos como interactivos (imágenes, gráficos, audio, video, animaciones, enlaces, simulaciones,
+         artículos, foro, chat, etc.). de forma periódica.
+ -       Poder ser ampliados o complementados mediante diferentes recursos adicionales a los que el
+         alumnado pueda acceder y consultar a voluntad.
+ -       Dar lugar a resúmenes o síntesis y a glosarios que identifiquen y definan los términos o vocablos
+         básicos, relevantes o claves para la comprensión de los aprendizajes.
+ -       Evaluar su adquisición durante y a la finalización de la acción formativa a través de actividades de
+         evaluación (ejercicios, preguntas, trabajos, problemas, casos, pruebas, etc.), que permitan medir el
+         rendimiento o desempeño del alumnado.
+
+Aula virtual
+                            Plataforma de aprendizaje que permita la conexión síncrona de docente y
+     Tecnología y
+                            alumnado, con sistema incorporado de audio, vídeo y posibilidad de compartir
+     equipos
+                            archivos, la propia pantalla u otras aplicaciones tanto por el docente como por
+                            los participantes, con registro de los tiempos de conectividad.
+     Otras
+                            El centro deberá garantizar el soporte técnico permanente durante el horario
+     especificaciones
+                            docente del curso que se realice mediante videoconferencias.
+
+
+Ocupaciones y puestos de trabajo relacionados
+
+     -     13211026 Directores de departamento de servicios informáticos, en general
+     -     22201281 Profesores técnicos de formación profesional (informática y comunicaciones)
+     -     23211052 Pedagogos
+     -     23251018 Instructores en tecnología de la información fuera del sistema educativo
+     -     23291029 Formadores de formación para el empleo
+     -     26241023 Orientadores profesionales para la inserción
+     -     26241032 Técnicos medios en orientación profesional
+     -     26241041 Técnicos medios en recursos humanos, en general
+     -     26241050 Técnicos superiores en recursos humanos
+     -     26251017 Especialistas en formación de personal
+     -     26511085 Gestores de redes sociales
+
+
+                                                                                                              6
+  -   2653 Profesionales de la venta de tecnologías de la información y las comunicaciones
+  -   27191013 Auditores-asesores informáticos
+  -   27191022 Ingenieros técnicos en informática, en general
+  -   28231017 Psicólogos industriales
+  -   28231026 Psicólogos pedagógicos
+  -   28231035 Psicólogos en general
+  -   28231044 Psicopedagogos
+
+
+Requisitos oficiales de las entidades o centros de formación
+
+ Estar inscrito en el Registro de entidades de formación (Servicios Públicos de Empleo) .
+
+
+Centro móvil
+
+ Es posible impartir esta especialidad en centro móvil.
+
+
+
+
+                                                                                             7
+                                    DESARROLLO MODULAR
+
+MÓDULO DE FORMACIÓN 1:            COMUNICACIÓN INTERPERSONAL SEGÚN EL MODELO
+                                  CLIENTE-SERVIDOR
+
+  OBJETIVO
+   Crear canales de comunicación eficaces con clientes y colaboradores, adaptándose a los códigos
+   lingüísticos de éstos, y facilitar la interacción fluida mediante la práctica de la asertividad y de la
+   escucha activa, como condición para obtener productos tecnológicos de calidad.
+
+  DURACIÓN EN CUALQUIER MODALIDAD DE IMPARTICIÓN: 20 horas.
+
+                        Teleformación:      Duración de las tutorías presenciales: 0 horas.
+
+  RESULTADOS DE APRENDIZAJE
+
+   Conocimientos/ Capacidades cognitivas y prácticas
+
+    Comunicación en entornos TIC.
+      - Barreras de comunicación entre el cliente y el personal TIC.
+             Dificultad del cliente en expresar lo que quiere.
+             Dificultad del informático para explicarse.
+      - Personalización del lenguaje.
+             Códigos lingüísticos.
+             Claridad del mensaje.
+             Preguntas de sondeo.
+      - Comunicación en entornos remotos.
+    Aplicación de la inteligencia relacional para un diálogo fluido con el cliente.
+      - Detección de necesidades del analfabeto TIC.
+               Inteligencia emocional
+               Empatía
+               Técnicas para animar al receptor a hablar y que la comunicación fluya.
+               Uso de analogías.
+      - Escucha activa
+      - Asertividad en la comunicación.
+      - Diferentes maneras de preguntar.
+      - Comunicación no verbal.
+      - Cultura del servicio.
+
+   Habilidades de gestión, personales y sociales
+    Flexibilidad para adaptarse a las características del receptor analfabeto TIC.
+    Captación de las necesidades del cliente de un producto tecnológico.
+    Responsabilidad en la búsqueda de un servicio de calidad
+
+
+ MÓDULO DE FORMACIÓN 2:              PRESENTACIÓN DE UN PRODUCTO TIC AL CLIENTE
+
+  OBJETIVO
+
+   Alcanzar los objetivos comerciales cultivando relaciones de mutuo beneficio, tras impactar
+   positivamente en el cliente digital, en entornos presenciales y remotos.
+
+
+
+
+                                                                                                         8
+DURACIÓN EN CUALQUIER MODALIDAD DE IMPARTICIÓN: 35 horas.
+
+                     Teleformación:     Duración de las tutorías presenciales: 0 horas.
+
+RESULTADOS DE APRENDIZAJE
+
+ Conocimientos/ Capacidades cognitivas y prácticas
+
+  Cuidado de la imagen personal.
+    - Tono de voz, peinado, maquillaje, vestimenta.
+    - Presentación de nuestra imagen a través del ordenador.
+  Venta del producto TIC.
+    - Atención al beneficio del cliente.
+    - Atención al beneficio del usuario final.
+    - Enfoque en el resultado.
+    - Manejo de expectativas.
+  Aplicación de técnicas de persuasión
+    - Papel de la escucha en las ventas de productos TIC.
+    - Estructuración adecuada para la venta.
+             Problemática del cliente digital.
+             Perspectiva del cliente ante las soluciones que se le presentan.
+             Convencimiento vs. manipulación
+    - Transmisión de confianza y seguridad.
+             Comunicación no verbal en una venta exitosa.
+             Comunicación no verbal en las ventas remotas.
+  Negociación exitosa en el marco Ganar-Ganar.
+    - Negociación de los extras (utilidades adicionales, mejoras al producto, etcétera).
+    - Negociación del tiempo de desarrollo y de los recursos necesarios.
+  Presentación de un proyecto TIC.
+    - Herramientas TIC de apoyo.
+    - Manejo de una herramienta relevante en el sector con la última versión del producto.
+
+ Habilidades de gestión, personales y sociales
+
+  Integración de una cultura orientada a la satisfacción de las necesidades del usuario final.
+  Búsqueda de calidad en la negociación de un producto TIC.
+  Focalización en la optimización de recursos para conseguir el resultado.
+  Manejo de herramientas tecnológicas de calidad en todas las fases del trabajo.
+
+
+MÓDULO DE FORMACIÓN 3:           DISEÑO DE UNA APLICACIÓN TIC
+
+OBJETIVO
+
+ Organizar recursos, gestionar el tiempo, trabajar en equipo, tomar decisiones y liderar
+ proyectos en entornos TC aplicando técnicas y habilidades sociales.
+
+DURACIÓN EN CUALQUIER MODALIDAD DE IMPARTICIÓN: 45 horas.
+
+                     Teleformación:     Duración de las tutorías presenciales: 0 horas.
+
+
+
+
+                                                                                                  9
+RESULTADOS DE APRENDIZAJE
+
+ Conocimientos/ Capacidades cognitivas y prácticas
+
+  Organización del trabajo.
+    - Planificación del trabajo.
+    - Ambientes de desarrollo eficientes.
+    - Técnicas de gestión de tareas en equipos presenciales y remotos.
+    - Distribución del trabajo en el equipo de desarrollo.
+    - Aplicaciones en los entornos profesionales.
+    - Manejo de una aplicación relevante en el sector con la última versión del producto.
+  Gestión del tiempo de un proyecto TIC.
+    - Requisitos funcionales y no funcionales.
+    - Estimación del tiempo para el desarrollo de un producto TIC.
+    - Herramienta GTD.
+    - Método Pomodoro.
+    - Técnicas para evitar la procrastinación.
+    - Priorización de tareas.
+  Liderazgo de proyectos TIC.
+     - Tipos de líderes (agresivo, inhibido, asertivo).
+     - Claves de un liderazgo motivador.
+     - Interacciones entre el propietario del producto y el jefe de proyecto.
+     - Problema del “yo lo resuelvo” en el trabajo en equipo.
+     - Toma de decisiones.
+            Solución más apropiada para el cliente
+            Técnicas para evitar caer en roles cerrados
+            Técnica de los seis sombreros para pensar.
+            Aceptación de sugerencias o alternativas proporcionadas por otros.
+     - Procedimiento para comunicar información valiosa para el equipo.
+            Documentación del trabajo en un equipo de programadores.
+            Control de versiones (versión control).
+
+ Habilidades de gestión, personales y sociales
+  Análisis del trabajo previo al desarrollo de un producto TIC.
+  Orientación a la eficacia y la eficiencia en el trabajo en equipos de desarrollo de productos.
+  Elección del momento de aportar de manera individual o colectiva.
+  Comprensión y control de la dinámica del liderazgo.
+
+MÓDULO DE FORMACIÓN 4:            REACCIÓN AL CONFLICTO
+
+
+OBJETIVO
+
+ Prevenir y solucionar conflictos de manera pacífica en los contextos de estrés más habituales
+ en las empresas de productos tecnológicos regulando las emociones propias.
+
+DURACIÓN EN CUALQUIER MODALIDAD DE IMPARTICIÓN: 15 horas.
+                     Teleformación:      Duración de las tutorías presenciales: 0 horas.
+
+
+
+
+                                                                                                    10
+   RESULTADOS DE APRENDIZAJE
+
+    Conocimientos/ Capacidades cognitivas y prácticas
+
+     Aplicación de técnicas de control del estrés.
+       - Actuación recomendada cuando el proyecto cambia de rango.
+       - Enfrentamiento al caso en el que no se va a cumplir la fecha tope de entrega.
+       - Superación de la crisis cuando falla el test y no se sabe por qué.
+       - Alternativas cuando la previsión de la dificultad de un trabajo ha fallado.
+     Manejo de la interacción social en el conflicto
+       - Estrategias ante situaciones embarazosas.
+       - Estrategias para hacer frente a jefes de proyecto agresivos.
+       - Estrategias para pedir ayuda.
+       - Actitud para hacer y recibir críticas.
+       - Manifestación de desacuerdos con otras decisiones.
+       - Petición de cambios de conducta a los compañeros de equipo.
+       - Estrategias para poner límites.
+     Estrategias para la resolución de conflictos.
+       - Caso del producto que no cubre las necesidades del cliente.
+       - Caso del proyecto que no es eficiente.
+       - Caso del cliente que pone limitaciones temporales no realistas.
+       - Caso en que la calidad está reñida con los medios.
+       - Caso en el que el resultado no coincide con el diseño.
+
+    Habilidades de gestión, personales y sociales
+
+     Priorización de la empatía y el autocontrol en situaciones estresantes.
+     Comunicación asertiva para decir “no” adecuadamente.
+     Ofrecimiento de alternativas viables para el cliente TIC.
+     Iniciativa para la resolución de problemas en el desarrollo de productos.
+
+
+
+MÓDULO DE FORMACIÓN 5:           PLANTEAMIENTO FRONTEND-BACKEND PARA LA BÚSQUEDA
+                                DE EMPLEO
+
+   OBJETIVO
+
+    Desarrollar habilidades para enfrentarse a las entrevistas de trabajo con la seguridad personal y
+    profesional que faciliten el éxito final.
+
+
+   DURACIÓN EN CUALQUIER MODALIDAD DE IMPARTICIÓN: 20 horas.
+
+                        Teleformación:     Duración de las tutorías presenciales: 0 horas.
+
+   RESULTADOS DE APRENDIZAJE
+
+    Conocimientos/ Capacidades cognitivas y prácticas
+     Estudio preliminar de la empresa que ofrece el puesto de trabajo.
+       - Detección de necesidades de la empresa TIC.
+       - Búsqueda y organización de la información relevante.
+
+
+
+
+                                                                                                   11
+      Uso de estrategias para el empoderamiento.
+        - Visualización de las fortalezas.
+                Competencias técnicas.
+                Competencias transversales
+        - Estrategias de superación de las características personales limitantes.
+        - Creatividad en la búsqueda de empleo.
+      Manejo de emociones en las entrevistas de trabajo.
+        - Persuasión en una entrevista de trabajo.
+        - Empatía con el entrevistador.
+        - Impacto positivo en el entrevistador.
+
+     Habilidades de gestión, personales y sociales
+
+      Orientación a la creación de valor dentro de empresas tecnológicas.
+      Proactividad en la búsqueda de empleo
+      Actualización sobre la evolución del sector tecnológico.
+      Énfasis en la propia capacitación y la actitud de servicio ante las empresas.
+      Puesta en valor del propio currículum.
+
+
+                               ORIENTACIONES METODOLÓGICAS
+
+
+La metodología didáctica tendrá un carácter comunicativo, activo y participativo, favoreciendo el trabajo
+en equipo y la autonomía del alumnado.
+El formador integrará, de forma coherente, aspectos relativos a los distintos bloques de contenido, ya
+que no se pueden abordar de forma aislada las habilidades sociales y de comunicación en los entornos
+TIC.
+Se recomienda integrar los diferentes módulos, con sus contenidos, abordándolos como un todo, las
+habilidades sociales y de comunicación en los entornos TIC.
+Se recomienda comenzar la impartición de las unidades de aprendizaje por una o varias dinámicas en
+las que los alumnos tengan la oportunidad de experimentar su grado de desarrollo en las habilidades
+que se van a trabajar, en contextos similares a los que encontrarán más adelante en su vida profesional.
+Estas dinámicas deberán usarse como referencia para el posterior desarrollo teórico-práctico de los
+contenidos. Conviene que se les enfrente a situaciones en las que puedan tomar consciencia de sus
+puntos débiles y de la repercusión negativa que pueden tener estas carencias en el desempeño laboral.
+Se recomienda que los apartados de escucha activa, los relacionados con la imagen personal y la
+comunicación no verbal, el de liderazgo en proyectos TIC, el de resolución de conflictos, estrategias de
+empoderamiento, persuasión y manejo de emociones, se realicen de manera presencial.
+
+
+
+                 EVALUACIÓN DEL APRENDIZAJE EN LA ACCIÓN FORMATIVA
+
+
+ La evaluación tendrá un carácter teórico-práctico y se realizará de forma sistemática y continua,
+  durante el desarrollo de cada módulo y al final del curso.
+ Puede incluir una evaluación inicial de carácter diagnóstico para detectar el nivel de partida del
+  alumnado.
+ La evaluación se llevará a cabo mediante los métodos e instrumentos más adecuados para
+  comprobar los distintos resultados de aprendizaje, y que garanticen la fiabilidad y validez de la
+  misma.
+
+
+
+
+                                                                                                       12
+ Cada instrumento de evaluación se acompañará de su correspondiente sistema de corrección y
+  puntuación en el que se explicite, de forma clara e inequívoca, los criterios de medida para
+  evaluar los resultados alcanzados por los participantes.
+ La puntuación final alcanzada se expresará en términos de Apto/ No Apto.
+
+
+
+
+                                                                                                 13
+

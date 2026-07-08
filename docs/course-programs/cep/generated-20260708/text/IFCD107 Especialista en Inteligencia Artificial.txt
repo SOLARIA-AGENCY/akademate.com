@@ -1,0 +1,551 @@
+PROGRAMA FORMATIVO
+
+Especialista en Inteligencia Artificial
+
+
+
+
+                                          Noviembre 2021
+  IDENTIFICACIÓN DE LA ESPECIALIDAD Y PARÁMETROS DEL CONTEXTO FORMATIVO
+
+
+Denominación de la         ESPECIALISTA EN INTELIGENCIA ARTIFICIAL
+especialidad:
+Familia Profesional:       INFORMÁTICA Y COMUNICACIONES
+Área Profesional:          DESARROLLO
+Código:                    IFCD107
+Nivel de cualificación
+                           3
+profesional:
+
+Objetivo general
+  Utilizar aplicaciones y algoritmos de Inteligencia Artificial, en diferentes proyectos de aplicabilidad
+  en las empresas.
+
+Relación de módulos de formación
+
+   Módulo 1        Fundamentos de Inteligencia Artificial                                     42 horas
+   Módulo 2      Exploración del conjunto de datos                                             5 horas
+   Módulo 3      Algoritmos de Machine Learning                                               40 horas
+   Módulo 4      Redes Neuronales                                                             50 horas
+   Módulo 5      Visualización de resultados                                                   3 horas
+   Módulo 6      Bases de datos en IA                                                          5 horas
+   Módulo 7      Auto Machine Learning                                                        10 horas
+   Módulo 8      Responsible AI                                                                5 horas
+   Módulo 9      Caso práctico en IA                                                          60 horas
+   Módulo 10     Softskills – píldoras formativas                                             10 horas
+
+Modalidades de impartición
+  Presencial
+
+Duración de la formación
+
+  Duración total                                 230 horas
+
+
+Requisitos de acceso del alumnado
+
+  Acreditaciones/              Cumplir como mínimo alguno de los siguientes requisitos:
+  titulaciones                  - Título de Técnico Superior (FP Grado Superior) o equivalente
+                                - Haber superado la prueba de acceso a Ciclos Formativos de Grado
+                                  Superior
+                                - Haber superado cualquier prueba oficial de acceso a la universidad
+                                - Certificado de profesionalidad de nivel 3
+                                - Título de Grado o equivalente
+                                - Título de Postgrado (Máster) o equivalente
+  Experiencia
+                               No se requiere.
+  profesional
+
+  Otros                        Conocimientos previos en programación orientada a objetos utilizando el
+                               lenguaje de programación Java.
+                               Nivel alto de Ingles (Mínimo B1)
+  Justificación de los requisitos del alumnado
+
+  Documentación acreditativa de la titulación.
+
+Prescripciones de formadores y tutores
+
+                                 Licenciado, Ingeniero, Arquitecto o el Título de Grado correspondiente u
+  Acreditación
+                                 otros títulos equivalentes.
+  requerida
+                                 Diplomado, Ingeniero Técnico, Arquitecto Técnico o el Título de Grado
+                                 correspondiente u otros títulos equivalentes.
+
+  Experiencia                    Los tutores-formadores deben acreditar una experiencia docente en la
+  profesional mínima             tecnología de al menos 1 año y en la utilización de las herramientas y
+  requerida                      metodologías que se utilizan durante el curso o, en su defecto, una
+                                 experiencia laboral en la tecnología de al menos 2 años.
+
+  Competencia                    Será requisito que el personal docente acredite poseer competencia
+  docente                        docente según lo establecido en el art. 13.1 del RD 34/2008, de 18 de enero,
+                                 por el que se regulan los certificados de profesionalidad.
+                                 Se requiere una acreditación de experiencia docente contrastada de al
+                                 menos 300 horas en el área de Informática y Comunicaciones, o estar en
+                                 posesión de alguna acreditación oficial que le habilite para la impartición
+                                 docente, o estar en posesión del Certificado del Profesionalidad de
+                                 Docencia de la Formación Profesional para el Empleo.
+
+  Otros                          Será necesario tener formación metodológica o experiencia docente
+
+
+Requisitos mínimos de espacios, instalaciones y equipamientos
+
+                                                                 Superficie m2           Incremento
+                        Espacios formativos                        para 15          Superficie/ participante
+                                                                 participantes     (Máximo 30 participantes)
+
+  Aula de informática                                               45 m2             2,4 m2/ participante
+
+
+
+
+        Espacio Formativo                                          Equipamiento
+
+ Aula de informática                    - Mesa y silla para el formador
+                                        - Mesas y sillas para el alumnado.
+                                        - Material de aula
+                                        - Pizarra
+                                        - Post-it y rotuladores.
+                                        - PC instalado en red con posibilidad de impresión de documentos,cañón
+                                          con proyección e Internet para el formador
+                                        - PCs instalados en red e Internet
+
+ La superficie de los espacios e instalaciones estarán en función de su tipología y del número de
+ participantes. Tendrán como mínimo los metros cuadrados que se indican para 15 participantes y el
+ equipamiento suficiente para los mismos.
+ En el caso de que aumente el número de participantes, hasta un máximo de 30, la superficie de las
+ aulas se incrementará proporcionalmente (según se indica en la tabla en lo relativo a m2/
+ participante) y el equipamiento estará en consonancia con dicho aumento
+ No debe interpretarse que los diversos espacios formativos identificados deban diferenciarse
+ necesariamente mediante cerramientos.
+Las instalaciones y equipamientos deberán cumplir con la normativa industrial e higiénico-sanitaria
+correspondiente y responderán a medidas de accesibilidad y seguridad de los participantes.
+En el caso de que la formación se dirija a personas con discapacidad se realizarán las adaptaciones
+y los ajustes razonables para asegurar su participación en condiciones de igualdad.
+
+Aula virtual
+Si se utiliza el aula virtual han de cumplirse las siguientes indicaciones.
+
+         Características
+-        La impartición de la formación mediante aula virtual se ha de estructurar y organizar de forma
+         que se garantice en todo momento que exista conectividad sincronizada entre las personas
+         formadoras y el alumnado participante, así como bidireccionalidad en las comunicaciones.
+-        Se deberá contar con un registro de conexiones generado por la aplicación del aula virtual en
+         que se identifique, para cada acción formativa desarrollada a través de este medio, las
+         personas participantes en el aula, así como sus fechas y tiempos de conexión.
+-        Durante las actuaciones de seguimiento, al objeto de documentar las mismas, los órganos de
+         control podrán recabar la firma de las personas responsables de formación, personas
+         formadoras y alumnado, en los documentos de recogida de datos, mediante captura de firma
+         digitalizada con datos biométricos.
+         Otras especificaciones
+
+-        Pizarra virtual interactiva. PC instalado en red con posibilidad de impresión de documentos,
+         cañón con proyección e Internet para el formador.
+-        Herramientas de comunicación y audio.
+-        Software específico para el aprendizaje de cada acción formativa:
+             Paquete integrado de ofimática.
+             Visor de documentos en formato pdf.
+             Plataforma de videoconferencia (Zoom).
+-        Conexión a Internet: banda ancha con cable o inalámbrica (3G o 4G/LTE).
+                Altavoces y un micrófono: integrados o con complemento USB o Bluetooth
+                 inalámbricos.
+                Cámara web o cámara web HD: integrada o con complemento USB o bien una
+                 cámara HD o videocámara HD con tarjeta de captura de vídeo.
+                Navegadores: iOS/iPadOS: Safari5+, Chrome y Android: Webkit (predeterminado),
+                 Chrome.
+                Cualquier procesador de 1 GHz de un núcleo o superior (que no sea Intel).
+
+Ocupaciones y puestos de trabajo relacionados
+
+     -   27111037 Ingenieros informáticos
+     -   27111046 Ingenieros técnicos en informática de sistemas
+     -   27121049 Ingenieros técnicos en informática de gestión
+     -   27121012 Analistas de aplicaciones, nivel medio (junior)
+     -   27121030 Analistas-programadores, nivel medio (junior)
+     -   27191013 Consultores informáticos
+     -   27191022 Ingenieros técnicos en informática, en general
+     -   38201017 Programadores de aplicaciones informáticas
+
+
+Requisitos oficiales de las entidades o centros de formación
+
+    Estar inscrito en el Registro de entidades de formación (Servicios Públicos de Empleo)
+                                    DESARROLLO MODULAR
+
+MÓDULO DE FORMACIÓN 1:           FUNDAMENTOS DE INTELIGENCIA ARTIFICIAL
+
+OBJETIVO
+   Adquirir los conceptos básicos, herramientas y lenguajes relacionados con la Inteligencia Artificial y
+   sus diferentes modalidades.
+
+DURACIÓN: 42 horas
+
+
+RESULTADOS DE APRENDIZAJE
+
+  Conocimientos/ Capacidades cognitivas y prácticas
+        Inmersión a la IA explicando sus principales modalidades.
+        Breve noción sobre los principales algoritmos de IA.
+        Análisis de los diferentes tipos de aprendizaje.
+        Fundamentos matemáticos para el entendimiento del funcionamiento de distintos
+         algoritmos basados en IA y conceptos básicos de programación.
+        Implementación de conceptos matemáticos de IA utilizando Python como lenguaje de
+         programación.
+        Fundamentos estadísticos básicos para el entendimiento del funcionamiento de distintos
+         algoritmos, preprocesamiento de datos y análisis de resultados.
+        Implementación de conceptos estadísticos utilizando Python como lenguaje de
+         programación.
+        Puesta en marcha del entorno de trabajo.
+        Detalle de los diferentes softwares y programas utilizados para la implementación de
+         algoritmos basados en IA.
+        Inmersión en el lenguaje Python.
+
+   Habilidades de gestión, personales y sociales
+      Manejo de estrategias de aprendizaje que permitan continuar estudiando de un modo
+       autodirigido o autónomo.
+      Aplicación de los conocimientos adquiridos y capacidad de resolución de problemas en
+       entornos nuevos o poco conocidos.
+      Aplicación de los fundamentos teóricos del lenguaje de programación Python en la
+       implementación de técnicas de procesamiento léxico, sintáctico y semántico asociadas.
+      Capacidad de desarrollo de funciones matemáticas y estadísticas utilizando el lenguaje de
+       programación Python.
+
+
+MÓDULO DE FORMACIÓN 2:           EXPLORACIÓN DEL CONJUNTO DE DATOS
+
+OBJETIVO
+   Adquirir el conocimiento necesario para el tratamiento de los conjuntos de datos relacionados conel
+   entrenamiento de modelos.
+
+DURACIÓN: 5 horas
+
+
+RESULTADOS DE APRENDIZAJE
+
+  Conocimientos/ Capacidades cognitivas y prácticas
+     Reconocimiento de las competencias y funciones de un Data Scientist relacionadas con la
+      explotación, análisis y gestión de los datos en una empresa.
+     Fundamentos de la visualización de los datos de entrada del modelo.
+     Inmersión en las librerías más utilizadas en la visualización de datos.
+     Identificación de las herramientas necesarias para poder examinar los datos en función del
+      tipo de dato.
+     Aplicación práctica de librerías de visualización de datos.
+     Fundamentos del pre-procesado de los datos de entrada del modelo.
+     Inmersión en las librerías más utilizadas en la preparación y limpieza de datos.
+     Identificación de las herramientas necesarias para la limpieza, reducción y preparación de los
+      datos de entrada según tipo.
+     Aplicación práctica de librerías de examinación y pre-procesado de datos.
+
+ Habilidades de gestión, personales y sociales
+     Capacidad de detección de defectos en el conjunto de datos, análisis de sus causas y búsqueda
+      de soluciones;
+     Adquisición de conocimientos que aporten una base u oportunidad de ser originales en el
+      desarrollo y/o aplicación de ideas.
+     Conocimiento de la estructura, organización y fundamentos del tratamiento de datos masivos, su
+      análisis y manipulación.
+
+
+MÓDULO DE FORMACIÓN 3:                 ALGORITMOS DE MACHINE LEARNING
+
+
+OBJETIVO
+   Utilizar diferentes algoritmos de Machine Learning y su aplicabilidad para la resolución de problemas
+   de diversa índole.
+
+
+DURACIÓN: 40 horas
+
+
+RESULTADOS DE APRENDIZAJE
+
+  Conocimientos/ Capacidades cognitivas y prácticas
+    Fundamentos de los conceptos matemáticos básicos para la comprensión de los distintos
+     algoritmos de ML.
+    Definición teórico-práctica de estos conceptos matemáticos.
+    Implementación en Python de dichos conceptos matemáticos.
+    Introducción a los modelos de ML más utilizados.
+    Implementación en Python de estos modelos haciendo uso de las librerías más relevantes.
+    Introducción a los conceptos de sistemas de recomendación y aprendizajes por refuerzo.
+    Identificación del algoritmo más relevante a desarrollar según tipología y aplicabilidad.
+    Aplicabilidad en Python de diferentes casos de uso prácticos como refuerzo a la comprensión de
+     los algoritmos.
+
+ Habilidades de gestión, personales y sociales
+    Capacidad para ser originales en el desarrollo, generación y/o aplicación de ideas.
+    Capacidad para reconocer los ámbitos de aplicación de las técnicas de Big Data/Science en
+     diferentes sectores empresariales y de la sociedad.
+MÓDULO DE FORMACIÓN 4:         REDES NEURONALES
+
+
+OBJETIVO
+  .
+ Aplicar los conceptos de las Redes Neuronales a diferentes campos (Computer Visión, NLP, etc)
+
+DURACIÓN: 50 horas
+
+
+RESULTADOS DE APRENDIZAJE
+
+  Conocimientos/ Capacidades cognitivas y prácticas
+     Fundamentos de los conceptos matemáticos básicos para la comprensión de los distintos
+      algoritmos basados en Redes Neuronales explicados en este módulo.
+     Definición teórico-práctica de estos conceptos matemáticos.
+     Desarrollo en Python de los algoritmos que implementan dichos conceptos.
+     Identificación de los modelos basados en Redes Neuronales más utilizados según
+      aplicación.
+     Implementación en Python de dichos algoritmos haciendo uso de las librerías más
+      relevantes.
+     Identificación del algoritmo más relevante a desarrollar según tipología y aplicabilidad.
+     Aplicabilidad en Python de diferentes casos de uso prácticos como refuerzo a la
+      comprensión de los algoritmos.
+
+ Habilidades de gestión, personales y sociales
+     Generación de nuevas ideas y fomento de la creatividad.
+     Realización de trabajo coordinado con otras personas con un objetivo común.
+     Reconocimiento de los ámbitos de aplicación de las técnicas de Big Data/Science en
+      diferentes sectores empresariales y de la sociedad.
+
+
+
+MÓDULO DE FORMACIÓN 5:             VISUALIZACIÓN DE RESULTADOS
+
+
+OBJETIVO
+ Interpretar los fundamentos y librerías para la representación y visualización de los datos
+ obtenidos de los modelos de Machine Learning.
+
+DURACIÓN: 3 horas
+
+
+RESULTADOS DE APRENDIZAJE
+
+ Conocimientos/ Capacidades cognitivas y prácticas
+    Fundamentos de la visualización de los resultados del modelo.
+    Inmersión en las librerías más utilizadas en la visualización de los resultados de un modelo.
+    Identificación de las herramientas necesarias para evaluación de resultados en función del
+     modelo.
+    Aplicación práctica de librerías de visualización de datos.
+    Visualización del proceso de entrenamiento y búsqueda de puntos de optimización o sesgos en
+     el modelo.
+    Identificación de problemas como vanishing gradient o exploding gradient durante el
+     entrenamiento de redes neuronales.
+    Evaluación de resultados:
+        - Capacidad de visualización de la precisión de un modelo.
+         -   Detección de overfitting en la validación del modelo.
+         -   Identificación de sesgos que puedan haberse inferido de alguna de las entradas del
+             modelo.
+
+   Habilidades de gestión, personales y sociales
+      Comunicación de conclusiones mediante la visualización de datos.
+      Realización de presentaciones e informes orientados a ayudar al cliente en la toma
+       de decisiones basadas en el dato.
+
+
+
+MÓDULO DE FORMACIÓN 6:          BASES DE DATOS EN IA
+
+OBJETIVO
+ Aplicar los diferentes modelos de Bases de datos y su integración con las herramientas de Inteligencia
+ Artificial.
+
+DURACIÓN: 5 horas
+
+
+RESULTADOS DE APRENDIZAJE
+
+ Conocimientos/ Capacidades cognitivas y prácticas
+     Inmersión al lenguaje SQL y a las bases de datos más relevantes:
+        - Introducción al lenguaje SQL, modelo de datos y a las bases de datos más
+           relevantes.
+        - Aplicación práctica de consultas SQL, CRUD.
+        - Nociones básicas DBA.
+        - Buenas prácticas en bases de datos SQL.
+        - Fundamentos de bases de datos NoSQL.
+     Introducción a las bases de datos NoSQL y comparativa con las bases de datos
+      relacionales:
+        - Inmersión a las bases de datos NoSQL más relevantes.
+        - Aplicaciones prácticas sobre bases de datos NoSQL, CRUD.
+        - Nociones básicas DBA
+        - Buenas prácticas en bases de datos NoSQL.
+     Tratamiento y almacenamiento en base de datos de un dataset desde Python.
+     Operaciones CRUD desde Python a una base de datos SQL.
+
+   Habilidades de gestión, personales y sociales
+     Desarrollo de buenas prácticas de almacenamiento de información de forma
+      estructurada en una base de datos.
+     Habilidad para aplicación de la base de datos idónea para una necesidad específica.
+     Organización y planificación de tareas definidas para la realización del diseño del modelo
+      de datos.
+
+
+MÓDULO DE FORMACIÓN 7:          AUTO MACHINE LEARNING
+
+OBJETIVO
+ Utilizar herramientas para la generación, entrenamiento y pruebas de modelos de Machine Learning.
+ Conocer los principios de MLOps y su aplicación.
+
+DURACIÓN: 10 horas
+RESULTADOS DE APRENDIZAJE
+
+  Conocimientos/ Capacidades cognitivas y prácticas
+     Inmersión al Auto Machine Learning y a las plataformas más relevantes.
+     Introducción al Auto ML y a los beneficios que puede proporcionar con respecto a los
+      métodos tradicionales.
+     Tratamiento de datos desde AWS SageMaker.
+     Introducción a la carga y tratamiento de conjuntos de datos sobre el servicio SageMaker.
+     Visualización de datos en SageMaker con la finalidad de obtener información sobre el
+      conjunto de datos.
+     Entrenamiento de modelos ML mediante AutoML
+         - Aplicación práctica y entrenamiendo de modelos sobre SageMaker.
+         - Validación y evaluación de modelos ML sobre SageMaker.
+     Implementación de servicios web ML
+     Desarrollo de servicios web seguros sobre modelos entrenados en SageMaker accesibles
+      mediante API.
+ Habilidades de gestión, personales y sociales
+     Capacidad de desarrollar soluciones accesibles aplicando servicios Auto Machine Learning.
+     Escucha activa y comprensiva de las necesidades del cliente para proponer una solución en el
+      ámbito del ML.
+
+
+MÓDULO DE FORMACIÓN 9:               RESPONSIBLE AI
+
+
+OBJETIVO
+   Aplicar una Inteligencia Artificial Responsable.
+
+DURACIÓN: 5 horas
+
+
+RESULTADOS DE APRENDIZAJE
+
+ Conocimientos/ Capacidades cognitivas y prácticas
+     Comprender y articular los problemas críticos, sociales, legales, políticos y éticos que
+      surgen a lo largo del ciclo de vida de los datos.
+     Comprender conceptos relevantes, que incluyen: ética, moralidad, responsabilidad,
+      derechos digitales, gobernanza de datos, interacción persona-datos, investigación e
+      innovación responsables.
+     Identificar y evaluar problemas éticos actuales en la industria y la ciencia de datos.
+     Aplicar el juicio crítico y la reflexividad profesionales a los problemas morales sin soluciones
+      claras.
+     Evaluar los problemas éticos que enfrenta en su práctica profesional actual.
+     Identificar y aplicar soluciones éticas a esos problemas.
+
+   Habilidades de gestión, personales y sociales
+     Compromiso ético (saber aplicar la evidencia científica en la práctica profesional y mantener
+      un compromiso ético y de integridad intelectual en el planteamiento de la investigación
+      científica, básica y aplicada).
+     Capacidad de crítica y autocrítica.
+     Reconocimiento a la diversidad y a la multiculturalidad.
+     Capacidad y habilidad para la toma de decisiones
+MÓDULO DE FORMACIÓN 10: CASO PRÁCTICO EN IA
+
+OBJETIVO
+   Realizar un proyecto completo por parte del alumno aplicando los diferentes conocimientos de
+   Inteligencia Artificial tratados a lo largo del curso.
+
+DURACIÓN: 60 horas
+
+
+RESULTADOS DE APRENDIZAJE
+
+ Conocimientos/ Capacidades cognitivas y prácticas
+
+      Análisis de los factores relevantes de un problema de IA.
+      Técnicas y herramientas para la toma de decisiones a la hora de abordar el proyecto.
+      Identificación de los entornos, fases y herramientas necesarias para llevar a cabo la
+       solución seleccionada.
+      Gestión y seguimiento de las distintas fases del proyecto de IA.
+      Planificación, diseño y programación de los componentes de un proyecto de forma
+       autónoma.
+
+   Habilidades de gestión, personales y sociales
+      Manejo de diversidad de conocimientos que aporten una base en el desarrollo y/o
+       aplicación de ideas, a menudo en un contexto de investigación.
+
+      Desarrollar hábitos de excelencia y calidad en el ejercicio profesional.
+
+      Capacidad de comunicar conclusiones a públicos especializados y no especializados
+
+      Capacidad para generar nuevas ideas con creatividad.
+
+
+
+
+MÓDULO DE FORMACIÓN 10:             SOFTSKILLS – PILDORAS FORMATIVAS
+
+
+OBJETIVO
+   Poner en práctica el uso de las metodologías ágiles y entender el valor de las habilidades “soft”
+   en la era digital con las que podrán adaptarse en un entorno en constante cambio, así como
+   enfrentarse a los nuevos retos tecnológicos alcanzando óptimos resultados.
+
+DURACIÓN: 10 horas
+
+
+RESULTADOS DE APRENDIZAJE
+
+ Conocimientos/ Capacidades cognitivas y prácticas
+    Iniciación en el desarrollo ágil de proyectos mediante el uso de la metodología Scrum:
+       - Principios y fundamentos de Agile y comparativa con el enfoque tradicional.
+       - Entender los distintos roles y su relación entre ellos.
+       - Conocer las ceremonias y cómo apoyarse en ellas para cumplir con el control de
+           procesos.
+    Introducción a Design Thinking como herramienta para encontrar soluciones innovadoras a
+     través de la creatividad e innovación
+       - Descripción de las diferentes etapas
+       - Uso de técnicas disponibles en las distintas fases.
+     El arte de contar historias (storytelling) como medio para transmitir un mensaje con éxito.
+       - Estructura y elementos
+       - Consejos y ejemplos
+       - Puesta en práctica
+
+   Habilidades de gestión, personales y sociales
+
+     Definición de los fundamentos y modelos de las metodologías ágiles, facilitando su
+      integración en equipos de trabajo que utilizan un enfoque Agile en el desarrollo de
+      proyectos.
+     Desarrollo de técnicas de design thinking como método para entender mejor las
+      necesidades del cliente y ajustarse a las mismas.
+     Desarrollo de habilidades de comunicación e iniciación en el arte del Storytelling con el
+      objetivo de comunicar un mensaje a través de la creación de vínculos emocionales con
+      sus interlocutores.
+     Adquisición de actitudes que fomentan la creatividad e innovación.
+
+
+
+
+                                ORIENTACIONES METODOLÓGICAS
+
+Se deberá utilizar la metodología PBL (aprendizaje basado en la resolución de problemas y retos),
+dado que no solo se persigue la adquisición del conocimiento si no que la experiencia de aprendizaje
+debe permitir también desarrollar las competencia y habilidades propias del perfil profesional al que
+va dirigido esta formación.
+Adicionalmente a los ejercicios prácticos, se debe definir un proyecto en el que trabajen por equipos, con
+una defensa al finalizar el curso de forma que puedan poder poner en práctica las habilidades
+aprendidas durante el curso.
+
+
+
+
+                 EVALUACIÓN DEL APRENDIZAJE EN LA ACCIÓN FORMATIVA
+
+
+ La evaluación tendrá un carácter teórico-práctico y se realizará de forma sistemática y continua,
+  durante el desarrollo de cada módulo y al final del curso.
+ Puede incluir una evaluación inicial de carácter diagnóstico para detectar el nivel de partida del
+  alumnado.
+ La evaluación se llevará a cabo mediante los métodos e instrumentos más adecuados para
+  comprobar los distintos resultados de aprendizaje, y que garanticen la fiabilidad y validez de la
+  misma.
+ Cada instrumento de evaluación se acompañará de su correspondiente sistema de corrección y
+  puntuación en el que se explicite, de forma clara e inequívoca, los criterios de medida para
+  evaluar los resultados alcanzados por los participantes.
+ La puntuación final alcanzada se expresará en términos de Apto/ No Apto.
+ La evaluación del participante deberá contemplar como mínimo los siguientes aspectos:
+      - Resultados de test de conocimiento dirigidos a medir objetivamente el aprendizaje.
+      - Evaluación de los ejercicios prácticos valorando la asimilación de conceptos.
+      - Comportamiento y participación en los equipos de trabajo y debates.
+      - Habilidades demostradas en la defensa del proyecto.
+

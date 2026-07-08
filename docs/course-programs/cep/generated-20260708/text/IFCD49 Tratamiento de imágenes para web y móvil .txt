@@ -1,0 +1,313 @@
+PROGRAMA FORMATIVO
+
+Tratamiento de imágenes para web y móvil
+
+
+
+
+                                       Junio 2020
+DATOS GENERALES DE LAESPECIALIDAD
+
+1.     Familia Profesional:          Informática y comunicaciones
+
+       Área Profesional:             Desarrollo
+
+2.     Denominación:                 Tratamiento de imágenes para web y móvil
+
+3.     Código:                       IFCD49
+
+4.     Nivel de cualificación:       2
+
+5.     Objetivo general:
+       Crear y manipular imágenes para proyectos web o apps de dispositivos móviles con software de
+       tratamiento de imágenes.
+
+6.     Prescripción de los formadores:
+6.1.     Titulación requerida:
+          •   Titulación universitaria: licenciatura, ingeniería, arquitectura, doctorado, título de grado,
+              master oficial, diplomatura, ingeniería o arquitectura técnica u otros títulos equivalentes.
+          •   Ciclo Formativo de Grado Superior en las familias de Informática y Comunicaciones, Imagen
+              y Sonido, Artes Gráficas.
+
+6.2.     Experiencia profesional requerida:
+         Experiencia profesional acreditable mínima de 6 meses relacionada con la especialidad.
+
+6.3.     Competencia docente:
+         Será necesario tener formación metodológica o experiencia docente contrastada de al menos
+         300 horas.
+
+6.4.     Modalidad de teleformación:
+         Además de cumplir con las prescripciones establecidas anteriormente, los tutores-formadores
+         deben acreditar una formación, de al menos 30 horas, o experiencia, de al menos 60 horas, en
+         esta modalidad y en la utilización de las tecnologías de la información y comunicación.
+
+7.     Criterios de acceso del alumnado:
+7.1.     Nivel académico o de conocimientos generales:
+             Título de ESO, ciclo formativo de grado medio u otras titulaciones equivalentes
+         Independientemente de lo anterior, todas las personas aspirantes realizarán una prueba de nivel
+         donde demostrarán conocimientos suficientes para seguir el curso.
+         Es recomendable tener conocimientos de inglés a nivel de comprensión lectora.
+7.2.     Modalidad de teleformación:
+         Además de lo indicado anteriormente, los participantes han de tener las destrezas suficientes
+         para ser usuarios de la plataforma virtual en la que se apoya la acción formativa.
+
+8.     Número de participantes:
+       Máximo 20 participantes para cursos presenciales.
+                                                                                                       2
+9.   Relación secuencial de módulos formativos:
+     Módulo 1. Tratamiento de imágenes para proyectos web
+
+10. Duración:
+
+     Horas totales: 100 horas
+
+     Distribución horas:
+               Presencial:         100 horas
+               Teleformación:      100 horas
+
+11. Requisitos mínimos de espacios, instalaciones y equipamiento
+11.1.       Espacio formativo:
+            
+                                                   2                                    2
+                  Aula informática. Superficie: 45 m para grupos de 15 alumnos (3 m por alumno)
+            Cada espacio estará equipado con mobiliario docente adecuado al número de alumnos, así
+            mismo constará de las instalaciones y equipos de trabajo suficientes para el desarrollo del curso.
+
+11.2.       Equipamiento:
+                Mesa y silla para el formador
+                Mesas y sillas para el alumnado
+                Material de aula
+                Pizarra
+                PC conectados en red con posibilidad de impresión de documentos, cañón con proyección e
+                 internet para el formador
+                PC conectados en red e Internet con posibilidad de impresión para los alumnos
+                Los equipos tendrán unas características equivalentes a las enumeradas a continuación,
+                 consideradas siempre como mínimas:
+                     o CPU: procesador Intel Core i5 de 5ª generación o similar
+                     o 8 GB de RAM
+                     o Disco duro de 500 GB
+                     o Conexión a red ethernet o wifi
+                     o Teclado multimedia
+                     o Ratón sensor óptico de 2 botones y rueda de desplazamiento
+                     o Monitor color de 19"LCD
+                     o Licencia de sistema operativo
+                     o Licencia de software antivirus
+                Licencia de software ofimático necesario para la impartición del curso
+                Otras licencias del software necesario para la impartición del curso
+            A los alumnos se les proporcionará los medios didácticos y el material necesario para el
+            desarrollo del curso.
+            Las instalaciones y equipamientos deberán cumplir la normativa industrial e higiénico sanitaria
+            correspondiente y responderán a medidas de accesibilidad universal y seguridad de los
+            participantes.
+            En caso de que la formación se dirija a personas con discapacidad se realizarán las
+            adaptaciones y los ajustes razonables para asegurar su participación en condiciones de
+            igualdad.
+
+
+
+
+                                                                                                           3
+Aula virtual
+Los equipos de los formadores y alumnos dispondrán de micrófono y cámara de video para
+interactuar a través de un sistema de comunicación telemático de carácter síncrono.
+Características mínimas del software:
+- Aplicación web que tenga soporte para los principales navegadores del mercado
+- Opcionalmente, disponible como una app o programa instalable en los principales sistemas
+  operativos y/o dispositivos
+- Herramienta de compartir pantalla para mostrar documentos, presentaciones, demostraciones,
+  ejecución de programas, y otro contenido
+- Chat
+- Grabación de las sesiones (es conveniente su conservación para acreditar la participación de
+  los alumnos en la acción formativa)
+- Opcionalmente puede disponer de otras herramientas de colaboración que fomenten el trabajo
+  en grupo (transmisión y compartición de archivos, edición…)
+- Sin coste para los alumnos
+- Es conveniente disponer de un registro de conexiones generado por la aplicación en el que se
+  identifique las personas participantes en el aula, así como sus fechas y tiempo de conexión
+
+En el caso de Teleformación se ha de disponer del siguiente equipamiento:
+Plataforma de teleformación:
+La plataforma de teleformación que se utilice para impartir acciones formativas deberá alojar el
+material virtual de aprendizaje correspondiente, poseer capacidad suficiente para desarrollar el
+proceso de aprendizaje y gestionar y garantizar la formación del alumnado, permitiendo la
+interactividad y el trabajo cooperativo, y reunir los siguientes requisitos técnicos de
+infraestructura, software y servicios:
+ Infraestructura
+- Tener un rendimiento, entendido como número de alumnos que soporte la plataforma,
+  velocidad de respuesta del servidor a los usuarios, y tiempo de carga de las páginas Web o de
+  descarga de archivos, que permita:
+  a) Soportar un número de alumnos equivalente al número total de participantes en las
+     acciones formativas de formación profesional para el empleo que esté impartiendo el
+     centro o entidad de formación, garantizando un hospedaje mínimo igual al total del
+     alumnado de dichas acciones, considerando que el número máximo de alumnos por tutor
+     es de 80 y un número de usuarios concurrentes del 40% de ese alumnado.
+  b) Disponer de la capacidad de transferencia necesaria para que no se produzca efecto
+     retardo en la comunicación audiovisual en tiempo real, debiendo tener el servidor en el
+     que se aloja la plataforma un ancho de banda mínimo de 300 Mbs, suficiente en bajada y
+     subida.
+- Estar en funcionamiento 24 horas al día, los 7 días de la semana.
+ Software:
+- Compatibilidad con el estándar SCORM y paquetes de contenidos IMS.
+- Niveles de accesibilidad e interactividad de los contenidos disponibles mediante tecnologías
+  web que como mínimo cumplan las prioridades 1 y 2 de la Norma UNE 139803:2012 o
+  posteriores actualizaciones, según lo estipulado en el capítulo III del Real Decreto 1494/2007,
+  de 12 de noviembre.
+- El servidor de la plataforma de teleformación ha de cumplir con los requisitos establecidos en
+  la Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de
+  los derechos digitales, por lo que el responsable de dicha plataforma ha de identificar la
+  localización física del servidor y el cumplimento de lo establecido sobre transferencias
+  internacionales de datos en los artículos 40 a 43 de la citada Ley Orgánica 3/2018, de 5 de
+  diciembre, así como, en lo que resulte de aplicación, en el Reglamento (UE) 2016/679 del
+  Parlamento Europeo y del Consejo, de 27 de abril de 2016, relativo a la protección de las
+                                                                                              4
+  personas físicas respecto del tratamiento de datos personales y la libre circulación de estos
+  datos y por el que se deroga la Directiva95/46/CE.
+- Compatibilidad tecnológica y posibilidades de integración con cualquier sistema operativo,
+  base de datos, navegador de Internet de los más usuales o servidor web, debiendo ser posible
+  utilizar las funciones de la plataforma con complementos (plug-in) y visualizadores
+  compatibles. Si se requiriese la instalación adicional de algún soporte para funcionalidades
+  avanzadas, la plataforma debe facilitar el acceso al mismo sin coste.
+- Disponibilidad del servicio web de seguimiento (operativo y en funcionamiento) de las
+  acciones formativas impartidas, conforme al modelo de datos y protocolo de transmisión
+  establecidos en el anexo V de la Orden/TMS/369/2019, de 28 de marzo.
+ Servicios y soporte
+- Sustentar el material virtual de aprendizaje de la especialidad formativa que a través de ella se
+  imparta.
+- Disponibilidad de un servicio de atención a usuarios que de soporte técnico y mantenga la
+  infraestructura tecnológica y que, de forma estructurada y centralizada, atienda y resuelva las
+  consultas e incidencias técnicas del alumnado. Las formas de establecer contacto con este
+  servicio, que serán mediante teléfono y mensajería electrónica, tienen que estar disponibles
+  para el alumnado desde el inicio hasta la finalización de la acción formativa, manteniendo un
+  horario de funcionamiento de mañana y de tarde y un tiempo de demora en la respuesta no
+  superior a 48 horas laborables.
+- Personalización con la imagen institucional de la administración laboral correspondiente, con
+  las pautas de imagen corporativa que se establezcan.
+Con el objeto de gestionar, administrar, organizar, diseñar, impartir y evaluar acciones formativas
+a través de Internet, la plataforma de teleformación integrará las herramientas y recursos
+necesarios a tal fin, disponiendo, específicamente, de herramientas de:
+- Comunicación, que permitan que cada alumno pueda interaccionar a través del navegador
+  con el tutor-formador, el sistema y con los demás alumnos. Esta comunicación electrónica ha
+  de llevarse a cabo mediante herramientas de comunicación síncronas (aula virtual, chat,
+  pizarra electrónica) y asíncronas (correo electrónico, foro, calendario, tablón de anuncios,
+  avisos). Será obligatorio que cada acción formativa en modalidad de teleformación disponga,
+  como mínimo, de un servicio de mensajería, un foro y un chat.
+- Colaboración, que permitan tanto el trabajo cooperativo entre los miembros de un grupo, como
+  la gestión de grupos. Mediante tales herramientas ha de ser posible realizar operaciones de
+  alta, modificación o borrado de grupos de alumnos, así como creación de «escenarios
+  virtuales» para el trabajo cooperativo de los miembros de un grupo (directorios o «carpetas»
+  para el intercambio de archivos, herramientas para la publicación de los contenidos, y foros o
+  chats privados para los miembros de cada grupo).
+- Administración, que permitan la gestión de usuarios (altas, modificaciones, borrado, gestión de
+  la lista de clase, definición, asignación y gestión de permisos, perfiles y roles, autenticación y
+  asignación de niveles de seguridad) y la gestión de acciones formativas.
+- Gestión de contenidos, que posibiliten el almacenamiento y la gestión de archivos (visualizar
+  archivos, organizarlos en carpetas –directorios- y subcarpetas, copiar, pegar, eliminar,
+  comprimir, descargar o cargar archivos), la publicación organizada y selectiva de los
+  contenidos de dichos archivos, y la creación de contenidos.
+- Evaluación y control del progreso del alumnado, que permitan la creación, edición y
+  realización de pruebas de evaluación y autoevaluación y de actividades y trabajos evaluables,
+  su autocorrección o su corrección (con retroalimentación), su calificación, la asignación de
+  puntuaciones y la ponderación de las mismas, el registro personalizado y la publicación de
+  calificaciones, la visualización de información estadística sobre los resultados y el progreso de
+  cada alumno y la obtención de informes de seguimiento.
+Material virtual de aprendizaje:
+El material virtual de aprendizaje para el alumnado mediante el que se imparta la formación se
+concretará en el curso completo en formato multimedia (que mantenga una estructura y
+funcionalidad homogénea), debiendo ajustarse a todos los elementos de la programación
+(objetivos y resultados de aprendizaje) de este programa formativo que figura en el Catálogo de
+                                                                                                5
+      Especialidades Formativas y cuyo contenido cumpla estos requisitos:
+      - Como mínimo, ser el establecido en el citado programa formativo del Catálogo de
+        Especialidades Formativas.
+      - Estar referido tanto a los objetivos como a los conocimientos/ capacidades cognitivas y
+        prácticas, y habilidades de gestión, personales y sociales, de manera que en su conjunto
+        permitan conseguir los resultados de aprendizaje previstos.
+      - Organizarse a través de índices, mapas, tablas de contenido, esquemas, epígrafes o titulares
+        de fácil discriminación y secuenciase pedagógicamente de tal manera que permiten su
+        comprensión y retención. No ser meramente informativos, promoviendo su aplicación práctica
+        a través de actividades de aprendizaje (auto-evaluables o valoradas por el tutor-formador)
+        relevantes para la adquisición de competencias, que sirvan para verificar el progreso del
+        aprendizaje del alumnado, hacer un seguimiento de sus dificultades de aprendizaje y prestarle
+        el apoyo adecuado.
+      - No ser exclusivamente textuales, incluyendo variados recursos (necesarios y relevantes),
+        tanto estáticos como interactivos (imágenes, gráficos, audio, video, animaciones, enlaces,
+        simulaciones, artículos, foro, chat, etc.). de forma periódica.
+      - Poder ser ampliados o complementados mediante diferentes recursos adicionales a los que el
+        alumnado pueda acceder y consultar a voluntad.
+      - Dar lugar a resúmenes o síntesis y a glosarios que identifiquen y definan los términos o
+        vocablos básicos, relevantes o claves para la comprensión de los aprendizajes.
+      - Evaluar su adquisición durante y a la finalización de la acción formativa a través de
+        actividades de evaluación (ejercicios, preguntas, trabajos, problemas, casos, pruebas, etc.),
+        que permitan medir el rendimiento o desempeño del alumnado.
+
+12. Ocupación/es de la clasificación de ocupaciones
+    24841012 Diseñadores gráficos y multimedia
+    27111037 Ingenieros informáticos
+    27121030 Analistas-programadores, nivel medio (junior)
+    27121049 Ingenieros técnicos en informática de gestión
+    27131015 Diseñadores de páginas web
+    27131024 Analistas-programadores web y multimedia
+    38121014 Técnicos en informática de gestión
+    38141010 Técnicos de soporte de la web
+    38201017 Programadores de aplicaciones informáticas
+
+13. Evaluación del aprendizaje
+    Durante el proceso de aprendizaje se aplicará una evaluación continua en la que se tendrán en
+    cuenta diferentes instrumentos: ejercicios, actividades, pruebas teóricas, trabajos individuales o en
+    equipo y un proyecto final.
+    Al finalizar, el alumnado defenderá un proyecto tecnológico donde pondrá en práctica los
+    contenidos desarrollados a lo largo del curso y demostrará las competencias técnicas y soft skills
+    trabajadas. El proyecto tendrá diferentes fases, desde el planteamiento y estudio de las
+    necesidades del cliente hasta la entrega y presentación final. La evaluación de este proyecto,
+    entregas parciales y presentación final, formarán parte de la evaluación continua y evaluación final,
+    sin detrimento del uso de otros instrumentos complementarios.
+
+
+
+
+                                                                                                     6
+MÓDULOS FORMATIVOS
+Módulo nº 1
+
+Denominación: Tratamiento de imágenes para web y móvil
+
+Objetivo: Crear y manipular imágenes para proyectos web o apps de dispositivos móviles con software
+de trazado de imágenes.
+
+Duración: 100 horas
+
+Contenidos teórico- prácticos:
+
+Teoría de la imagen y el color aplicados al mundo digital
+
+Creación de imágenes y diseño web
+   - Configuración, parámetros y entorno de trabajo
+   - Extensiones
+   - Herramientas básicas
+   - Herramienta de selección y capas
+   - Interactividad y efectos avanzados
+   - Métodos de diseño para productos digitales
+
+Creación de widgets animados e interfaces de usuario
+   - Configuración, parámetros y entorno de trabajo
+   - Extensiones
+   - Línea de tiempo, banners y publicidad
+   - Herramientas y extensiones para producción web
+   - Maquetación definitiva
+
+Publicación y producto final
+  - Publicación web
+  - Integración con editores de código
+
+Proyecto final
+   - Análisis de las necesidades del cliente
+   - Diseño de la solución y prototipos
+   - Implementación del proyecto
+   - Documentación del proyecto
+   - Presentación del proyecto
+
+
+
+
+                                                                                                  7
+

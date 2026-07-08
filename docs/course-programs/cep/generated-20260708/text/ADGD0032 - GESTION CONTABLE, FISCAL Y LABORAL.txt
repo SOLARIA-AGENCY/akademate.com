@@ -1,0 +1,771 @@
+PROGRAMA FORMATIVO
+
+GESTIÓN CONTABLE, FISCAL Y LABORAL
+
+
+
+
+                                     Febrero 2023
+    IDENTIFICACIÓN DE LA ESPECIALIDAD Y PARÁMETROS DEL CONTEXTO FORMATIVO
+
+Denominación de la
+                                   GESTIÓN CONTABLE, FISCAL Y LABORAL
+especialidad:
+Familia Profesional:               ADMINISTRACIÓN Y GESTIÓN
+Área Profesional:                  ADMINISTRACIÓN Y AUDITORÍA
+Código:                            ADGD0032
+Nivel de cualificación
+                                   2
+profesional:
+
+
+Objetivo general
+ Realizar las tareas de administración contable y fiscal de una empresa utilizando el programa
+ GSE de BSE (Professional Business Suite) y las tareas de administración de contrataciones y
+ nóminas mediante la herramienta GSE Nom.
+Relación de módulos de formación
+
+ Módulo 1           GESTIÓN CONTABLE                                                      120 horas
+ Módulo 2           GESTIÓN FISCAL                                                        120 horas
+ Módulo 3           GESTIÓN LABORAL                                                       100 horas
+Modalidad de impartición
+ Presencial
+ Teleformación
+Duración de la formación
+
+ Duración total en cualquier       340 horas
+ modalidad de impartición
+
+             Teleformación         Duración total de las tutorías presenciales: 0 horas
+Requisitos de acceso del alumnado
+
+  Acreditaciones       Cumplir como mínimo alguno de los siguientes requisitos:
+  / titulaciones
+                         Certificado de profesionalidad de nivel 1
+                         Título Profesional Básico (FP Básica)
+                         Título de Graduado en Educación Secundaria Obligatoria (ESO)
+                         o equivalente
+                         Título de Técnico (FP Grado medio) o equivalente
+                         Certificado de profesionalidad de nivel 2
+                         Haber superado la prueba de acceso a Ciclos Formativos de
+                         Grado Medio
+                         Haber superado cualquier prueba oficial de acceso a la
+                         universidad
+
+  Experiencia          No se requiere
+  profesional
+
+
+
+
+                                                                                               Página 2
+  Modalidad de        Además de lo indicado anteriormente, los participantes han de
+  teleformación       tener las destrezas suficientes para ser usuarios de la plataforma
+                      virtual en la que se apoya la acción formativa.
+
+
+Prescripciones de formadores y tutores
+
+  Acreditación          Cumplir como mínimo alguno de los siguientes requisitos:
+  requerida
+                           • Licenciado, Ingeniero, Arquitecto o el Título de Grado
+                        correspondiente u otros títulos equivalentes.
+                           • Diplomado, Ingeniero Técnico, Arquitecto Técnico o el
+                        Título de Grado correspondiente u otros títulos equivalentes.
+                           • Técnico o Técnico Superior de las familias profesionales
+                        Administración y gestión e informática y comunicaciones.
+                           • Certificado de profesionalidad de nivel 3 de la familia
+                        profesional de informática y comunicaciones.
+  Experiencia           Al menos 1 año de experiencia profesional en temas
+  profesional           relacionados con la especialidad.
+  mínima
+  requerida
+
+  Competencia           Será necesario tener formación metodológica o al menos 6
+  docente               meses de experiencia docente.
+
+  Modalidad de          Además de cumplir con las prescripciones establecidas
+  teleformación         anteriormente, los tutores-formadores deben acreditar una
+                        formación, de al menos 30 horas, o experiencia, de al menos
+                        60 horas, en esta modalidad y en la utilización de las
+                        tecnologías de la información y comunicación.
+
+
+Requisitos mínimos de espacios, instalaciones y equipamientos
+
+                                                                      Incremento Superficie/
+                                                    Superficie m²
+                                                                      participante (Máximo 30
+                Espacios formativos                   para 15
+                                                                           participantes)
+                                                    participantes
+
+   Aula de gestión                                      45.0 m²          2.4 m² / participante
+
+
+       Espacio formativo                                 Equipamiento
+
+                                  - Mesa y silla para el formador
+   Aula de gestión
+                                  - Mesas y sillas para el alumnado
+                                  - Material de aula
+                                  - Pizarra
+                                  - PC instalado en red con posibilidad de impresión de
+                                  documentos, cañón con proyección e Internet para el
+                                  formador
+                                  - PCs instalados en red e Internet con posibilidad de
+                                  impresión para los participantes
+                                  - Software específico para el aprendizaje de cada
+                                  acción formativa.
+
+
+
+
+                                                                                            Página 3
+                                      • Programa de gestión empresarial integral de
+                                   contabilidad y facturación con tecnología avanzada
+                                   en movilidad, seguridad y colaboración online que
+                                   incluye comunicación bancaria, integración con
+                                   programas ofimáticos, gestión analítica y por
+                                   presupuestos, gestión avanzada de clientes,
+                                   conectividad y sea capaz de ofrecer una visión global
+                                   de la empresa.
+                                      • Software ofimático y herramientas necesarias
+                                   para la impartición del curso (versión actualizada).
+
+
+
+
+La superficie de los espacios e instalaciones estarán en función de su tipología y del número de
+participantes. Tendrán como mínimo los metros cuadrados que se indican para 15 participantes y el
+equipamiento suficiente para los mismos.
+
+En el caso de que aumente el número de participantes, hasta un máximo de 30, la superficie de las
+aulas se incrementará proporcionalmente (según se indica en la tabla en lo relativo a
+m²/participante) y el equipamiento estará en consonancia con dicho aumento.
+
+
+
+
+No debe interpretarse que los diversos espacios formativos identificados deban diferenciarse
+necesariamente mediante cerramientos.
+
+Las instalaciones y equipamientos deberán cumplir con la normativa industrial e higiénico-sanitaria
+correspondiente y responderán a medidas de accesibilidad y seguridad de los participantes.
+
+En el caso de que la formación se dirija a personas con discapacidad se realizarán las
+adaptaciones y los ajustes razonables para asegurar su participación en condiciones de igualdad.
+
+
+
+
+                                                                                             Página 4
+Aula virtual
+
+    Características
+
+        • La impartición de la formación mediante aula virtual se ha de estructurar y
+    organizar de forma que se garantice en todo momento que exista conectividad
+    sincronizada entre las personas formadoras y el alumnado participante así como
+    bidireccionalidad en las comunicaciones.
+        • Se deberá contar con un registro de conexiones generado por la aplicación
+    del aula virtual en que se identifique, para cada acción formativa desarrollada a
+    través de este medio, las personas participantes en el aula, así como sus fechas y
+    tiempos de conexión.
+Si la especialidad se imparte en modalidad de teleformación, cuando haya tutorías presenciales, se
+utilizarán los espacios formativos y equipamientos necesarios indicados anteriormente.
+
+Para impartir la formación en modalidad de teleformación, se ha de disponer del siguiente
+equipamiento.
+
+
+Plataforma de teleformación
+La plataforma de teleformación que se utilice para impartir acciones formativas deberá alojar el
+material virtual de aprendizaje correspondiente, poseer capacidad suficiente para desarrollar el
+proceso de aprendizaje y gestionar y garantizar la formación del alumnado, permitiendo la
+interactividad y el trabajo cooperativo, y reunir los siguientes requisitos técnicos de infraestructura,
+software y servicios:
+
+• Infraestructura:
+- Tener un rendimiento, entendido como número de alumnos que soporte la plataforma, velocidad
+  de respuesta del servidor a los usuarios, y tiempo de carga de las páginas Web o de descarga de
+  archivos, que permita:
+
+    a) Soportar un número de alumnos equivalente al número total de participantes en las acciones
+       formativas de formación profesional para el empleo que esté impartiendo el centro o entidad de
+       formación, garantizando un hospedaje mínimo igual al total del alumnado de dichas acciones,
+       considerando que el número máximo de alumnos por tutor es de 80 y un número de usuarios
+       concurrentes del 40% de ese alumnado.
+
+    b) Disponer de la capacidad de transferencia necesaria para que no se produzca efecto retardo
+       en la comunicación audiovisual en tiempo real, debiendo tener el servidor en el que se aloja la
+       plataforma un ancho de banda mínimo de 300 Mbs, suficiente en bajada y subida.
+
+- Estar en funcionamiento 24 horas al día, los 7 días de la semana.
+
+
+• Software:
+
+-   Compatibilidad con el estándar SCORM y paquetes de contenidos IMS.
+
+-   Niveles de accesibilidad e interactividad de los contenidos disponibles mediante tecnologías web
+    que como mínimo cumplan las prioridades 1 y 2 de la Norma UNE 139803:2012 o posteriores
+    actualizaciones, según lo estipulado en el capítulo III del Real Decreto 1494/2007, de 12 de
+    noviembre.
+
+
+
+
+                                                                                               Página 5
+-   El servidor de la plataforma de teleformación ha de cumplir con los requisitos establecidos en la
+    Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los
+    derechos digitales, por lo que el responsable de dicha plataforma ha de identificar la localización
+    física del servidor y el cumplimento de lo establecido sobre transferencias internacionales de
+    datos en los artículos 40 a 43 de la citada Ley Orgánica 3/2018, de 5 de diciembre, así como, en
+    lo que resulte de aplicación, en el Reglamento (UE) 2016/679 del Parlamento Europeo y del
+    Consejo, de 27 de abril de 2016, relativo a la protección de las personas físicas respecto del
+    tratamiento de datos personales y la libre circulación de estos datos y por el que se deroga la
+    Directiva 95/46/CE.
+
+-   Compatibilidad tecnológica y posibilidades de integración con cualquier sistema operativo, base
+    de datos, navegador de Internet de los más usuales o servidor web, debiendo ser posible utilizar
+    las funciones de la plataforma con complementos (plug-in) y visualizadores compatibles. Si se
+    requiriese la instalación adicional de algún soporte para funcionalidades avanzadas, la plataforma
+    debe facilitar el acceso al mismo sin coste.
+
+-   Disponibilidad del servicio web de seguimiento (operativo y en funcionamiento) de las acciones
+    formativas impartidas, conforme al modelo de datos y protocolo de transmisión establecidos en el
+    anexo V de la Orden/TMS/369/2019, de 28 de marzo.
+
+
+• Servicios y soporte:
+- Sustentar el material virtual de aprendizaje de la especialidad formativa que a través de ella se
+  imparta.
+
+- Disponibilidad de un servicio de atención a usuarios que de soporte técnico y mantenga la
+  infraestructura tecnológica y que, de forma estructurada y centralizada, atienda y resuelva las
+  consultas e incidencias técnicas del alumnado. Las formas de establecer contacto con este
+  servicio, que serán mediante teléfono y mensajería electrónica, tienen que estar disponibles para
+  el alumnado desde el inicio hasta la finalización de la acción formativa, manteniendo un horario de
+  funcionamiento de mañana y de tarde y un tiempo de demora en la respuesta no superior a 48
+  horas laborables.
+
+- Personalización con la imagen institucional de la administración laboral correspondiente, con las
+  pautas de imagen corporativa que se establezcan.
+  Con el objeto de gestionar, administrar, organizar, diseñar, impartir y evaluar acciones formativas
+  a través de Internet, la plataforma de teleformación integrará las herramientas y recursos
+  necesarios a tal fin, disponiendo, específicamente, de herramientas de:
+
+    - Comunicación, que permitan que cada alumno pueda interaccionar a través del navegador con
+      el tutor-formador, el sistema y con los demás alumnos. Esta comunicación electrónica ha de
+      llevarse a cabo mediante herramientas de comunicación síncronas (aula virtual, chat, pizarra
+      electrónica) y asíncronas (correo electrónico, foro, calendario, tablón de anuncios, avisos).
+      Será obligatorio que cada acción formativa en modalidad de teleformación disponga, como
+      mínimo, de un servicio de mensajería, un foro y un chat.
+
+    - Colaboración, que permitan tanto el trabajo cooperativo entre los miembros de un grupo, como
+      la gestión de grupos. Mediante tales herramientas ha de ser posible realizar operaciones de
+      alta, modificación o borrado de grupos de alumnos, así como creación de «escenarios
+      virtuales» para el trabajo cooperativo de los miembros de un grupo (directorios o «carpetas»
+      para el intercambio de archivos, herramientas para la publicación de los contenidos, y foros o
+      chats privados para los miembros de cada grupo).
+
+
+
+
+                                                                                              Página 6
+  - Administración, que permitan la gestión de usuarios (altas, modificaciones, borrado, gestión de
+    la lista de clase, definición, asignación y gestión de permisos, perfiles y roles, autenticación y
+    asignación de niveles de seguridad) y la gestión de acciones
+
+  - Gestión de contenidos, que posibiliten el almacenamiento y la gestión de archivos (visualizar
+    archivos, organizarlos en carpetas –directorios- y subcarpetas, copiar, pegar, eliminar,
+    comprimir, descargar o cargar archivos), la publicación organizada y selectiva de los
+    contenidos de dichos archivos, y la creación de contenidos.
+
+  - Evaluación y control del progreso del alumnado, que permitan la creación, edición y realización
+    de pruebas de evaluación y autoevaluación y de actividades y trabajos evaluables, su
+    autocorrección o su corrección (con retroalimentación), su calificación, la asignación de
+    puntuaciones y la ponderación de las mismas, el registro personalizado y la publicación de
+    calificaciones, la visualización de información estadística sobre los resultados y el progreso de
+    cada alumno y la obtención de informes de seguimiento.
+
+
+Material virtual de aprendizaje:
+El material virtual de aprendizaje para el alumnado mediante el que se imparta la formación se
+concretará en el curso completo en formato multimedia (que mantenga una estructura y funcionalidad
+homogénea), debiendo ajustarse a todos los elementos de la programación (objetivos y resultados de
+aprendizaje) de este programa formativo que figura en el Catálogo de Especialidades Formativas y
+cuyo contenido cumpla estos requisitos:
+
+   - Como mínimo, ser el establecido en el citado programa formativo del Catálogo de
+     Especialidades Formativas.
+
+   - Estar referido tanto a los objetivos como a los conocimientos/ capacidades cognitivas y
+     prácticas, y habilidades de gestión, personales y sociales, de manera que en su conjunto
+     permitan conseguir los resultados de aprendizaje previstos.
+
+   - Organizarse a través de índices, mapas, tablas de contenido, esquemas, epígrafes o titulares
+     de fácil discriminación y secuenciase pedagógicamente de tal manera que permiten su
+     comprensión y retención.
+   - No ser meramente informativos, promoviendo su aplicación práctica a través de actividades de
+     aprendizaje (autoevaluables o valoradas por el tutor-formador) relevantes para la adquisición
+     de competencias, que sirvan para verificar el progreso del aprendizaje del alumnado, hacer un
+     seguimiento de sus dificultades de aprendizaje y prestarle el apoyo adecuado.
+
+   - No ser exclusivamente textuales, incluyendo variados recursos (necesarios y relevantes), tanto
+     estáticos como interactivos (imágenes, gráficos, audio, video, animaciones, enlaces,
+     simulaciones, artículos, foro, chat, etc.). de forma periódica.
+
+   - Poder ser ampliados o complementados mediante diferentes recursos adicionales a los que el
+     alumnado pueda acceder y consultar a voluntad.
+
+   - Dar lugar a resúmenes o síntesis y a glosarios que identifiquen y definan los términos o
+     vocablos básicos, relevantes o claves para la comprensión de los aprendizajes.
+
+   - Evaluar su adquisición durante y a la finalización de la acción formativa a través de actividades
+     de evaluación (ejercicios, preguntas, trabajos, problemas, casos, pruebas, etc.), que permitan
+     medir el rendimiento o desempeño del alumnado.
+
+
+
+
+                                                                                             Página 7
+Ocupaciones y puestos de trabajo relacionados
+  26221036 TÉCNICOS MEDIOS EN ORGANIZACIÓN Y ADMINISTRACIÓN DE EMPRESAS, EN
+  GENERAL
+  34031016 TÉCNICOS EN CONTABILIDAD, EN GENERAL
+
+  26111052 TÉCNICOS SUPERIORES EN CONTABILIDAD Y/O FINANZAS, EN GENERAL
+
+  41121012 EMPLEADOS ADMINISTRATIVOS DE SERVICIOS DE PERSONAL
+
+  12121018 DIRECTORES DE DEPARTAMENTO DE RELACIONES LABORALES Y RECURSOS
+  HUMANOS
+  12111015 DIRECTORES DE DEPARTAMENTO DE ADMINISTRACIÓN Y FINANZAS, EN
+  GENERAL
+  26221045 TÉCNICOS SUPERIORES EN ORGANIZACIÓN Y ADMINISTRACIÓN DE
+  EMPRESAS, EN GENERAL
+  26241041 TÉCNICOS MEDIOS EN RECURSOS HUMANOS, EN GENERAL
+
+  41111011 EMPLEADOS ADMINISTRATIVOS DE CONTABILIDAD, EN GENERAL
+
+  26111043 TÉCNICOS MEDIOS EN CONTABILIDAD, EN GENERAL
+
+  26241050 TÉCNICOS SUPERIORES EN RECURSOS HUMANOS, EN GENERAL
+
+Requisitos oficiales de las entidades o centros de formación
+  Estar inscrito en el Registro de entidades de formación (Servicios Públicos de Empleo).
+Centro Móvil
+  Es posible impartir esta especialidad en centro móvil.
+
+
+
+
+                                                                                            Página 8
+                                    DESARROLLO MODULAR
+
+MÓDULO DE FORMACIÓN 1:             GESTIÓN CONTABLE
+
+OBJETIVO
+ Tramitar las obligaciones contables, así como los hechos contables derivados de las operaciones
+ económico-financieras y las obligaciones del cierre contable de una empresa, contabilizando todo
+ ello en el programa PBS (GSE).
+
+DURACIÓN TOTAL EN CUALQUIER MODALIDAD DE IMPARTICIÓN:                                     120 horas
+
+                   Teleformación:                      Duración de las tutorías presenciales: 0 horas
+
+RESULTADOS DE APRENDIZAJE
+
+
+Conocimientos / Capacidades cognitivas y prácticas
+
+   • CONOCIMIENTOS BÁSICOS DE TEORÍA CONTABLE.
+      • La contabilidad como sistema de información.
+      • El patrimonio y su representación.
+      • El método contable.
+      • El ciclo contable.
+      • El P.G.C.:
+          • Marco conceptual de la contabilidad.
+          • Normas de registro y valoración.
+          • Cuentas Anuales.
+          • Cuadro de Cuentas.
+          • Definiciones y relaciones contables.
+   • TRATAMIENTO DE LAS MASAS PATRIMONIALES.
+      • Inmovilizado:
+          • Definición y clasificación.
+          • Inmovilizado Material:
+             • Definición y composición.
+             • Criterios de reconocimiento y valoración.
+             • Correcciones de valor del inmovilizado: La amortización, el deterioro de
+ valor y la pérdida excepcional.
+          • Operaciones relacionadas con el Inmovilizado Material:
+             • Inmovilizado en curso.
+             • Anticipos para inmovilizado.
+             • Mejoras/Ampliaciones/Reparaciones/Sustituciones.
+             • Arrendamiento Financiero.
+          • Inmovilizado Intangible:
+             • Definición y composición.
+             • Criterios de reconocimiento y valoración.
+             • Correcciones de valor del inmovilizado.
+             • La amortización y el deterioro de valor.
+          • Inversiones inmobiliarias.
+          • Inmovilizado Financiero.
+      • Existencias.
+          • Introducción: concepto y clases de existencias.
+          • Precio de adquisición, coste de producción e ingreso por ventas.
+          • Criterios de valoración de inventarios: el inventario permanente.
+             • El método de precio medio ponderado.
+             • El método FIFO.
+          • Variación de existencias.
+          • Operaciones de compra-venta de existencias: especial referencia a las
+
+                                                                                            Página 9
+normas de valoración 10 y 14 del PGC (normas 12 y 16 del PGC pymes).
+       • La pérdida de valor de las existencias: contabilización del deterioro.
+     • Acreedores y deudores por operaciones comerciales.
+       • Acreedores y deudores comerciales.
+       • El riesgo de impago y el deterioro de clientes: métodos de estimación de
+insolvencias.
+       • Relaciones con el personal y las administraciones públicas.
+       • Contabilización de subvenciones a las empresas.
+     • Activos financieros y Pasivos financieros.
+       • Activos Financieros:
+          • Activos financieros a valor razonable con cambios en la cuenta de
+pérdidas y ganancias.
+          • Activos financieros a coste amortizado.
+          • Activos financieros a valor razonable con cambios en Patrimonio Neto.
+          • Activos financieros a coste.
+       • Pasivos Financieros:
+          • Pasivos financieros a coste amortizado.
+          • Pasivos financieros a valor razonable con cambios en la cuenta de
+pérdidas y ganancias.
+     • Financiación Básica.
+     • Contabilización del Impuesto sobre Beneficios (Impuesto Sociedades
+liquidación y contabilización).
+   • COMPRENSIÓN DE LAS CUENTAS ANUALES COMO ESTADOS RESUMEN
+DE LA REALIDAD EMPRESARIAL.
+     • Las Cuentas Anuales: características generales. Modelos normales y
+abreviados (límites).
+     • Regulación legal de las Cuentas Anuales.
+     • Comentario sobre el Régimen Sancionador.
+       • Balance de Situación.
+       • Cuenta de Resultados.
+       • EFE.
+       • ECPN.
+       • Memoria.
+       • Introducción al Análisis Económico-Financiero a través del manejo de las
+Cuentas Anuales:
+          • Metodología Rentabilidad -Riesgo.
+          • Principales indicadores. Análisis porcentual y ratios.
+   • MANEJO DEL PROGRAMA DE GESTIÓN CONTABLE INTEGRADO PBS (GSE)
+DESDE LA APERTURA AL CIERRE DEL EJERCICIO CONTABLE.
+     • Casos Prácticos y Caso de Simulación Real.
+     • Revisión de la contabilidad de cara al cierre de ejercicio: (aspectos a tener en
+consideración de cara al cierre del ejercicio contable).
+
+
+
+
+Habilidades de gestión, personales y sociales
+
+   • Capacidad de trabajo en equipo dentro de un departamento de contabilidad.
+
+                                                                                          Página 10
+   • Demostración de una actitud positiva y empática para la resolución de
+ conflictos en la gestión contable.
+   • Capacidad para la toma de decisión ante los diferentes supuestos económicos
+ objeto de contabilización.
+   • Capacidad de trabajo en equipo dentro de un departamento de RRHH.
+   • Adquisición de capacidades digitales en un entorno de software, siendo
+ conscientes de su utilidad y de la necesidad de actualización permanente.
+   • Capacidad de interpretación de la normativa y su aplicación práctica.
+   • Capacidad de trabajo en equipo en un entorno de software empresarial dentro
+ del marco de los RRHH.
+
+
+
+
+MÓDULO DE FORMACIÓN 2:            GESTIÓN FISCAL
+
+OBJETIVO
+ Gestionar y tramitar las obligaciones fiscales del Impuesto sobre la Renta de las Personas físicas,
+ Sociedades, IVA, Transmisiones patrimoniales (ITP y AJD) y otras obligaciones tributarias con el
+ programa informático de gestión de empresas GSE.
+
+DURACIÓN TOTAL EN CUALQUIER MODALIDAD DE IMPARTICIÓN:                                      120 horas
+
+                   Teleformación:                     Duración de las tutorías presenciales: 0 horas
+
+RESULTADOS DE APRENDIZAJE
+
+
+Conocimientos / Capacidades cognitivas y prácticas
+
+    • CONOCIMIENTOS INTRODUCTORIOS A LA LEY GENERAL TRIBUTARIA.
+ Disposiciones Generales de Ordenamiento Tributario.
+       • Introducción.
+       • Los Tributos: Concepto y Clases.
+       • Las Normas Tributarias.
+       • Las Obligaciones Tributarias.
+       • Los Obligados Tributarios.
+       • La cuantificación de la Obligación Tributaria.
+       • La Deuda Tributaria.
+       • La Extinción de la Deuda Tributaria.
+    • ACERCAMIENTO AL CONVENIO ECONÓMICO AUTONÓMICO.
+    • CONOCIMIENTO DE LOS TRIBUTOS LOCALES.
+       • Impuesto sobre la actividad Económica (IAE).
+       • Impuesto de Bienes Inmuebles (IBI).
+       • IIVTNU (Plusvalía Municipal)
+    • GESTIÓN DEL IMPUESTO SOBRE LA RENTA DE LAS PERSONAS FÍSICAS
+ (I.R.P.F.).
+       • Conceptos Generales.
+          • Definición.
+          • Periodo Impositivo y Devengo.
+          • Obligados a presentar declaración.
+          • Rentas Exentas y Rentas no Sujetas.
+          • Obligados a presentar declaración.
+          • Periodo Impositivo y Devengo.
+
+                                                                                           Página 11
+     • Base Imponible.
+       • Rendimientos de Trabajo Personal.
+       • Rendimientos de Capital.
+       • Rendimientos de Actividades Empresariales y Profesionales.
+       • Variaciones Patrimoniales.
+       • Imputaciones de Renta.
+     • Base Liquidable.
+       • Reducciones.
+     • Cuota Íntegra.
+       • Cálculo.
+       • Deducciones.
+     • Deuda Tributaria.
+       • Retenciones y Pagos a Cuenta.
+  • GESTIÓN DEL IMPUESTO SOBRE SOCIEDADES.
+     • Diferencias permanentes y temporales.
+       • Concepto.
+       • Clases.
+       • Calculo.
+     • Concepto de Base Imponible Negativa.
+       • Cálculo e Implicaciones.
+       • Compensaciones. Periodos.
+     • Diferimiento de la Carga Fiscal.
+       • Temporalidad.
+       • Legislación.
+     • Divergencias entre Contabilidad y Fiscalidad.
+       • La Normativa Contable y la Normativa Fiscal.
+       • La Conciliación entre ambas Normativas.
+  • IMPUESTO SOBRE EL VALOR AÑADIDO (I.V.A.)
+     • Hecho Imponible. Exenciones. Lugar de Realización.
+       • Sujeción y No Sujeción.
+       • Exenciones.
+       • Ámbito de Aplicación.
+     • Base Imponible. Sujeto Pasivo.
+       • Importe Facturado.
+       • Supuestos de No Comprensión en B. I.
+       • Sujeto Pasivo. Sujeto Activo.
+     • Deducciones y Devoluciones.
+       • Supuestos de Deducción.
+       • Supuestos de No Deducción.
+       • La Regla de Prorrata.
+       • Devolución a Exportadores.
+       • Declaraciones a Compensar.
+     • Tipos Impositivos.
+       • Normal.
+       • Reducido.
+       • Superreducido.
+       • Recargo de Equivalencia.
+       • Tipos Especiales.
+     • Gestión y Liquidación del Impuesto.
+       • Obligados a Declarar.
+       • Las Declaraciones Trimestrales.
+       • La Declaración Anual.
+       • El Pago del Impuesto.
+  • IMPUESTO DE TRANSMISIONES PATRIMONIALES Y SOBRE ACTOS
+JURÍDICOS DOCUMENTADOS (ITP y AJD)
+     • Hecho Imponible. Exenciones.
+       • Sujeción y No Sujeción.
+       • Exenciones.
+
+                                                                      Página 12
+       • Ámbito de Aplicación.
+    • Base Imponible.
+    • Sujeto Pasivo.
+    • Tipos Impositivos.
+    • Gestión y Liquidación del Impuesto.
+  • OTRAS OBLIGACIONES TRIBUTARIAS.
+    • El calendario Fiscal.
+    • Modelos Informativos.
+  • PROGRAMAS DE AYUDAS.
+    • Impuestos y modelos informativos.
+    • IRPF y Patrimonio.
+    • Transmisiones Patrimoniales y AJD.
+  • DOMINIO DE APLICACIONES INFORMÁTICAS DE GESTIÓN TRIBUTARIA
+CON EL PROGRAMA GSE.
+
+
+Habilidades de gestión, personales y sociales
+
+  • Demostración de una actitud positiva y empática para la resolución de
+conflictos en la gestión fiscal.
+  • Sensibilización ante la importancia del cumplimiento del Sistema fiscal español.
+  • Capacidad para la toma de decisión ante los diferentes supuestos económicos
+objeto de contabilización.
+  • Capacidad de trabajo en equipo dentro de un departamento de RRHH.
+  • Adquisición de capacidades digitales en un entorno de software, siendo
+conscientes de su utilidad y de la necesidad de actualización permanente.
+  • Capacidad de interpretación de la normativa y su aplicación práctica.
+  • Capacidad de trabajo en equipo en un entorno de software empresarial dentro
+del marco de los RRHH.
+
+
+
+
+                                                                                       Página 13
+MÓDULO DE FORMACIÓN 3:           GESTIÓN LABORAL
+
+OBJETIVO
+ Gestionar la confección de las nóminas, boletines de cotización, modelos de retención de
+ Hacienda y los listados correspondientes, así como los seguros sociales, manejando la
+ herramienta informática GSE Nom.
+
+DURACIÓN TOTAL EN CUALQUIER MODALIDAD DE IMPARTICIÓN:                                   100 horas
+
+                   Teleformación:                    Duración de las tutorías presenciales: 0 horas
+
+RESULTADOS DE APRENDIZAJE
+
+
+Conocimientos / Capacidades cognitivas y prácticas
+
+   • CONFECCIÓN DE NÓMINAS.
+      • Caracterización del recibo de salarios.
+        • Concepto y contenido de la nómina.
+        • Encabezamiento: Datos.
+        • Devengos.
+        • Deducciones.
+      • Diferenciación de los devengos salariales.
+        • Salario Base.
+        • Percepciones salariales.
+        • Complementos Salariales.
+      • Diferenciación de los devengos no salariales.
+        • Percepciones no salariales.
+        • Otras indemnizaciones.
+        • Mejoras voluntarias.
+      • Aplicación de las deducciones.
+        • Cuotas de Seguridad Social
+        • Retenciones e ingresos a cuenta del impuesto sobre la renta de las
+ personas físicas (I.R.P.F.)
+        • Otras deducciones.
+      • Desarrollo del cálculo de retenciones e ingresos del I.R.P.F.
+        • Obligaciones del preceptor.
+        • Comunicación de datos al pagador (modelo 145).
+        • Cálculo de retenciones e ingresos del I.R.P.F..
+        • Regularización del tipo de retención.
+        • Tipos especiales de retención.
+        • Exclusión de la obligación de retener.
+        • Certificado de retenciones e ingresos a cuenta del I.R.P.F..
+      • Cumplimentación de los modelos de liquidación.
+        • Modelo 110.
+        • Modelo 190.
+
+
+
+
+   • GESTIÓN DE NÓMINAS Y SEGUROS SOCIALES CON LA APLICACIÓN "GSE
+
+
+                                                                                            Página 14
+Nom".
+     • Introducción a GSE Nom.
+        • Descripción de la aplicación informática.
+        • Entorno gráfico y menús.
+        • Instalación del programa informático.
+        • Gestión de usuarios.
+     • Cumplimentación de tablas generales.
+        • Delegaciones de Hacienda.
+        • Bancos.
+        • Tablas de Seguridad Social..
+        • Tablas I.R.P.F..
+        • Tablas bonificaciones.
+        • Tablas epígrafes de accidentes.
+     • Programación de convenios colectivos.
+        • Datos convenio.
+        • Categorías.
+        • Paso de Datos.
+     • Introducción de datos en el fichero maestro de empresas.
+        • Añadir una empresa.
+        • Datos de la nómina.
+     • Introducción de datos en el fichero maestro de trabajadores.
+        • Alta de trabajadores.
+        • Datos personales/profesionales.
+        • Conceptos retributivos.
+        • Cálculo del IRPF.
+        • Alta de incidencias.
+        • Incapacidad temporal y maternidad.
+        • Absentismo, huelga y permisos.
+        • Horas extraordinarias.
+     • Elaboración del recibo de salarios.
+        • Incidencias.
+        • Cálculo de nóminas.
+        • Acumulados de nóminas.
+     • Confección de impresos oficiales.
+        • Impresos de Seguridad Social (TC/1, TC/2 y TC1/2).
+        • Modelos de Hacienda (110, 111 y 190).
+        • Certificado de Empresa.
+        • Certificado de retenciones.
+     • Realización de informes gráficos.
+        • Extracción de información.
+        • Presentación de información gráfica.
+     • Generación de ficheros complementarios.
+        • Copias de seguridad.
+        • Perfiles de usuarios y periféricos.
+        • Simulaciones.
+     • Confección de Modelos de la Seguridad Social, Relación nominal de
+trabajadores (RNT) y Relación de liquidación de cotizaciones (RLC).
+        • Aplicación multiplataforma SILTRA.
+        • Elaboración de ficheros mensuales.
+        • Recepción y envío de comunicaciones.
+     • Creación de ficheros con GSE Nom.
+        • Elaboración de ficheros individuales.
+        • Envío de datos a la administración.
+        • Recepción de comunicaciones.
+
+
+
+
+                                                                           Página 15
+Habilidades de gestión, personales y sociales
+
+   • Sensibilización con los derechos laborales y su plasmación en los recibos
+justificativos de salarios.
+   • Desarrollo de actitudes responsables independientes en el cálculo de los recibos
+de salarios.
+   • Adquisición de capacidades digitales en un entorno de software, siendo
+conscientes de su utilidad y de la necesidad de actualización permanente.
+   • Capacidad de interpretación de la normativa y su aplicación práctica.
+   • Capacidad de trabajo en equipo en un entorno de software empresarial dentro
+del marco de los RRHH.
+
+
+
+
+                EVALUACIÓN DEL APRENDIZAJE EN LA ACCIÓN FORMATIVA
+• La evaluación tendrá un carácter teórico-práctico y se realizará de forma sistemática y continua,
+durante el desarrollo de cada módulo y al final del curso.
+• Puede incluir una evaluación inicial de carácter diagnóstico para detectar el nivel de partida del
+alumnado.
+• La evaluación se llevará a cabo mediante los métodos e instrumentos más adecuados para
+comprobar los distintos resultados de aprendizaje, y que garanticen la fiabilidad y validez de la
+misma.
+• Cada instrumento de evaluación se acompañará de su correspondiente sistema de corrección y
+puntuación en el que se explicite, de forma clara e inequívoca, los criterios de medida para evaluar
+los resultados alcanzados por los participantes.
+• La puntuación final alcanzada se expresará en términos de Apto/ No Apto.
+
+
+
+
+                                                                                          Página 16
+

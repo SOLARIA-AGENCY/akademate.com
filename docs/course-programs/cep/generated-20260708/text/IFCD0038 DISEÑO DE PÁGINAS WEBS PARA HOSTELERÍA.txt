@@ -1,0 +1,498 @@
+PROGRAMA FORMATIVO
+
+DISEÑO DE PÁGINAS WEBS PARA HOSTELERÍA
+
+
+
+
+                                         Diciembre 2022
+    IDENTIFICACIÓN DE LA ESPECIALIDAD Y PARÁMETROS DEL CONTEXTO FORMATIVO
+
+Denominación de la
+                                  DISEÑO DE PÁGINAS WEBS PARA HOSTELERÍA
+especialidad:
+Familia Profesional:              INFORMÁTICA Y COMUNICACIONES
+Área Profesional:                 DESARROLLO
+Código:                           IFCD0038
+Nivel de cualificación
+                                  1
+profesional:
+
+
+Objetivo general
+ Diseñar, crear y publicar una página web desde cero, además del diseño y tratamiento de
+ imágenes y la creación de hojas de estilo entre otros elementos.
+
+
+Relación de módulos de formación
+                    ANTECEDENTES DE LA COMUNICACIÓN EN
+ Módulo 1                                                                                30 horas
+                    HOSTELERÍA
+                    ELEMENTOS BÁSICOS PARA EL DISEÑO WEB.
+ Módulo 2                                                                                35 horas
+                    BITMAPS Y VECTORES
+ Módulo 3           LAYOUT, HTML Y CSS                                                   35 horas
+Modalidad de impartición
+ Presencial
+ Teleformación
+Duración de la formación
+
+ Duración total en cualquier      100 horas
+ modalidad de impartición
+
+             Teleformación        Duración total de las tutorías presenciales: 0 horas
+Requisitos de acceso del alumnado
+
+  Acreditaciones       No se requieren acreditaciones/titulaciones. No obstante, se han
+  / titulaciones       de poseer las habilidades de comunicación lingüística suficientes
+                       que permitan cursar con aprovechamiento la formación.
+  Experiencia          No se requiere
+  profesional
+
+  Modalidad de         Además de lo indicado anteriormente, los participantes han de
+  teleformación        tener las destrezas suficientes para ser usuarios de la plataforma
+                       virtual en la que se apoya la acción formativa.
+
+
+Prescripciones de formadores y tutores
+
+
+
+
+                                                                                              Página 2
+  Acreditación          Cumplir como mínimo alguno de los siguientes requisitos:
+  requerida             -        Licenciado, Ingeniero, Arquitecto o el Título de Grado
+                        correspondiente u otros títulos equivalentes.
+                        -        Diplomado, Ingeniero Técnico, Arquitecto Técnico o el
+                        Título de Grado correspondiente u otros títulos equivalentes.
+                        -        Técnico o Técnico Superior de la familia profesional
+                        Informática y comunicaciones.
+                        -        Certificados de profesionalidad de nivel 2 o 3 de la
+                        familia profesional Informática y comunicaciones
+  Experiencia           Cuando no se posea titulación específica relacionada con el
+  profesional           ámbito objeto de la formación, se requerirá al menos, 1 año de
+  mínima                experiencia laboral en estas materias.
+  requerida
+
+  Competencia           Cumplir como mínimo alguno de los siguientes requisitos:
+  docente               -       Certificado de profesionalidad de Docencia de la
+                        Formación Profesional para el Empleo o equivalente, o tener
+                        formación en metodología didáctica para adultos (mínimo 300
+                        horas).
+                        -       Acreditar una experiencia docente superior a 300
+                        horas.
+                        -       Titulaciones universitarias de Psicología/ Pedagogía/ o
+                        Psicopedagogía, Máster Universitario de Formación de
+                        Formadores u otras acreditaciones oficiales equivalentes.
+                        -       Curso de capacitación docente: formación de
+                        formadores o equivalente.
+  Modalidad de          Además de cumplir con las prescripciones establecidas
+  teleformación         anteriormente, los tutores-formadores deben acreditar una
+                        formación, de al menos 30 horas, o experiencia, de al menos
+                        60 horas, en esta modalidad y en la utilización de las
+                        tecnologías de la información y comunicación.
+
+
+Requisitos mínimos de espacios, instalaciones y equipamientos
+
+                                                                      Incremento Superficie/
+                                                    Superficie m²
+                                                                      participante (Máximo 30
+                Espacios formativos                   para 15
+                                                                           participantes)
+                                                    participantes
+
+   Aula de gestión                                      45.0 m²          2.4 m² / participante
+
+
+       Espacio formativo                                  Equipamiento
+
+                                  - Mesa y silla para el formador
+   Aula de gestión
+                                  - Mesas y sillas para el alumnado
+                                  - Material de aula
+                                  - Pizarra
+                                  - PC instalado en red con posibilidad de impresión de
+                                  documentos, cañón con proyección e Internet para el
+                                  formador
+                                  - PCs instalados en red e Internet con posibilidad de
+                                  impresión para los participantes
+                                  - Software específico para el aprendizaje de cada
+
+
+
+
+                                                                                            Página 3
+                                    acción formativa.
+
+La superficie de los espacios e instalaciones estarán en función de su tipología y del número de
+participantes. Tendrán como mínimo los metros cuadrados que se indican para 15 participantes y el
+equipamiento suficiente para los mismos.
+
+En el caso de que aumente el número de participantes, hasta un máximo de 30, la superficie de las
+aulas se incrementará proporcionalmente (según se indica en la tabla en lo relativo a
+m²/participante) y el equipamiento estará en consonancia con dicho aumento.
+
+
+
+
+No debe interpretarse que los diversos espacios formativos identificados deban diferenciarse
+necesariamente mediante cerramientos.
+
+Las instalaciones y equipamientos deberán cumplir con la normativa industrial e higiénico-sanitaria
+correspondiente y responderán a medidas de accesibilidad y seguridad de los participantes.
+
+En el caso de que la formación se dirija a personas con discapacidad se realizarán las
+adaptaciones y los ajustes razonables para asegurar su participación en condiciones de igualdad.
+
+
+
+
+Aula virtual
+
+    Características
+
+        • La impartición de la formación mediante aula virtual se ha de estructurar y
+    organizar de forma que se garantice en todo momento que exista conectividad
+    sincronizada entre las personas formadoras y el alumnado participante así como
+    bidireccionalidad en las comunicaciones.
+        • Se deberá contar con un registro de conexiones generado por la aplicación
+    del aula virtual en que se identifique, para cada acción formativa desarrollada a
+    través de este medio, las personas participantes en el aula, así como sus fechas y
+    tiempos de conexión.
+Si la especialidad se imparte en modalidad de teleformación, cuando haya tutorías presenciales, se
+utilizarán los espacios formativos y equipamientos necesarios indicados anteriormente.
+
+Para impartir la formación en modalidad de teleformación, se ha de disponer del siguiente
+equipamiento.
+
+
+Plataforma de teleformación
+La plataforma de teleformación que se utilice para impartir acciones formativas deberá alojar el
+material virtual de aprendizaje correspondiente, poseer capacidad suficiente para desarrollar el
+proceso de aprendizaje y gestionar y garantizar la formación del alumnado, permitiendo la
+interactividad y el trabajo cooperativo, y reunir los siguientes requisitos técnicos de infraestructura,
+software y servicios:
+
+• Infraestructura:
+- Tener un rendimiento, entendido como número de alumnos que soporte la plataforma, velocidad
+  de respuesta del servidor a los usuarios, y tiempo de carga de las páginas Web o de descarga de
+  archivos, que permita:
+
+
+
+                                                                                               Página 4
+    a) Soportar un número de alumnos equivalente al número total de participantes en las acciones
+       formativas de formación profesional para el empleo que esté impartiendo el centro o entidad de
+       formación, garantizando un hospedaje mínimo igual al total del alumnado de dichas acciones,
+       considerando que el número máximo de alumnos por tutor es de 80 y un número de usuarios
+       concurrentes del 40% de ese alumnado.
+
+    b) Disponer de la capacidad de transferencia necesaria para que no se produzca efecto retardo
+       en la comunicación audiovisual en tiempo real, debiendo tener el servidor en el que se aloja la
+       plataforma un ancho de banda mínimo de 300 Mbs, suficiente en bajada y subida.
+
+- Estar en funcionamiento 24 horas al día, los 7 días de la semana.
+
+
+• Software:
+
+-   Compatibilidad con el estándar SCORM y paquetes de contenidos IMS.
+
+-   Niveles de accesibilidad e interactividad de los contenidos disponibles mediante tecnologías web
+    que como mínimo cumplan las prioridades 1 y 2 de la Norma UNE 139803:2012 o posteriores
+    actualizaciones, según lo estipulado en el capítulo III del Real Decreto 1494/2007, de 12 de
+    noviembre.
+-   El servidor de la plataforma de teleformación ha de cumplir con los requisitos establecidos en la
+    Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los
+    derechos digitales, por lo que el responsable de dicha plataforma ha de identificar la localización
+    física del servidor y el cumplimento de lo establecido sobre transferencias internacionales de
+    datos en los artículos 40 a 43 de la citada Ley Orgánica 3/2018, de 5 de diciembre, así como, en
+    lo que resulte de aplicación, en el Reglamento (UE) 2016/679 del Parlamento Europeo y del
+    Consejo, de 27 de abril de 2016, relativo a la protección de las personas físicas respecto del
+    tratamiento de datos personales y la libre circulación de estos datos y por el que se deroga la
+    Directiva 95/46/CE.
+
+-   Compatibilidad tecnológica y posibilidades de integración con cualquier sistema operativo, base
+    de datos, navegador de Internet de los más usuales o servidor web, debiendo ser posible utilizar
+    las funciones de la plataforma con complementos (plug-in) y visualizadores compatibles. Si se
+    requiriese la instalación adicional de algún soporte para funcionalidades avanzadas, la plataforma
+    debe facilitar el acceso al mismo sin coste.
+
+-   Disponibilidad del servicio web de seguimiento (operativo y en funcionamiento) de las acciones
+    formativas impartidas, conforme al modelo de datos y protocolo de transmisión establecidos en el
+    anexo V de la Orden/TMS/369/2019, de 28 de marzo.
+
+
+• Servicios y soporte:
+- Sustentar el material virtual de aprendizaje de la especialidad formativa que a través de ella se
+  imparta.
+
+- Disponibilidad de un servicio de atención a usuarios que de soporte técnico y mantenga la
+  infraestructura tecnológica y que, de forma estructurada y centralizada, atienda y resuelva las
+  consultas e incidencias técnicas del alumnado. Las formas de establecer contacto con este
+  servicio, que serán mediante teléfono y mensajería electrónica, tienen que estar disponibles para
+  el alumnado desde el inicio hasta la finalización de la acción formativa, manteniendo un horario de
+  funcionamiento de mañana y de tarde y un tiempo de demora en la respuesta no superior a 48
+  horas laborables.
+
+- Personalización con la imagen institucional de la administración laboral correspondiente, con las
+  pautas de imagen corporativa que se establezcan.
+
+
+                                                                                              Página 5
+  Con el objeto de gestionar, administrar, organizar, diseñar, impartir y evaluar acciones formativas
+  a través de Internet, la plataforma de teleformación integrará las herramientas y recursos
+  necesarios a tal fin, disponiendo, específicamente, de herramientas de:
+
+  - Comunicación, que permitan que cada alumno pueda interaccionar a través del navegador con
+    el tutor-formador, el sistema y con los demás alumnos. Esta comunicación electrónica ha de
+    llevarse a cabo mediante herramientas de comunicación síncronas (aula virtual, chat, pizarra
+    electrónica) y asíncronas (correo electrónico, foro, calendario, tablón de anuncios, avisos).
+    Será obligatorio que cada acción formativa en modalidad de teleformación disponga, como
+    mínimo, de un servicio de mensajería, un foro y un chat.
+
+  - Colaboración, que permitan tanto el trabajo cooperativo entre los miembros de un grupo, como
+    la gestión de grupos. Mediante tales herramientas ha de ser posible realizar operaciones de
+    alta, modificación o borrado de grupos de alumnos, así como creación de «escenarios
+    virtuales» para el trabajo cooperativo de los miembros de un grupo (directorios o «carpetas»
+    para el intercambio de archivos, herramientas para la publicación de los contenidos, y foros o
+    chats privados para los miembros de cada grupo).
+
+  - Administración, que permitan la gestión de usuarios (altas, modificaciones, borrado, gestión de
+    la lista de clase, definición, asignación y gestión de permisos, perfiles y roles, autenticación y
+    asignación de niveles de seguridad) y la gestión de acciones
+
+  - Gestión de contenidos, que posibiliten el almacenamiento y la gestión de archivos (visualizar
+    archivos, organizarlos en carpetas –directorios- y subcarpetas, copiar, pegar, eliminar,
+    comprimir, descargar o cargar archivos), la publicación organizada y selectiva de los
+    contenidos de dichos archivos, y la creación de contenidos.
+
+  - Evaluación y control del progreso del alumnado, que permitan la creación, edición y realización
+    de pruebas de evaluación y autoevaluación y de actividades y trabajos evaluables, su
+    autocorrección o su corrección (con retroalimentación), su calificación, la asignación de
+    puntuaciones y la ponderación de las mismas, el registro personalizado y la publicación de
+    calificaciones, la visualización de información estadística sobre los resultados y el progreso de
+    cada alumno y la obtención de informes de seguimiento.
+
+
+Material virtual de aprendizaje:
+El material virtual de aprendizaje para el alumnado mediante el que se imparta la formación se
+concretará en el curso completo en formato multimedia (que mantenga una estructura y funcionalidad
+homogénea), debiendo ajustarse a todos los elementos de la programación (objetivos y resultados de
+aprendizaje) de este programa formativo que figura en el Catálogo de Especialidades Formativas y
+cuyo contenido cumpla estos requisitos:
+
+   - Como mínimo, ser el establecido en el citado programa formativo del Catálogo de
+     Especialidades Formativas.
+
+   - Estar referido tanto a los objetivos como a los conocimientos/ capacidades cognitivas y
+     prácticas, y habilidades de gestión, personales y sociales, de manera que en su conjunto
+     permitan conseguir los resultados de aprendizaje previstos.
+
+   - Organizarse a través de índices, mapas, tablas de contenido, esquemas, epígrafes o titulares
+     de fácil discriminación y secuenciase pedagógicamente de tal manera que permiten su
+     comprensión y retención.
+
+
+
+
+                                                                                             Página 6
+   - No ser meramente informativos, promoviendo su aplicación práctica a través de actividades de
+     aprendizaje (autoevaluables o valoradas por el tutor-formador) relevantes para la adquisición
+     de competencias, que sirvan para verificar el progreso del aprendizaje del alumnado, hacer un
+     seguimiento de sus dificultades de aprendizaje y prestarle el apoyo adecuado.
+
+   - No ser exclusivamente textuales, incluyendo variados recursos (necesarios y relevantes), tanto
+     estáticos como interactivos (imágenes, gráficos, audio, video, animaciones, enlaces,
+     simulaciones, artículos, foro, chat, etc.). de forma periódica.
+
+   - Poder ser ampliados o complementados mediante diferentes recursos adicionales a los que el
+     alumnado pueda acceder y consultar a voluntad.
+
+   - Dar lugar a resúmenes o síntesis y a glosarios que identifiquen y definan los términos o
+     vocablos básicos, relevantes o claves para la comprensión de los aprendizajes.
+
+   - Evaluar su adquisición durante y a la finalización de la acción formativa a través de actividades
+     de evaluación (ejercicios, preguntas, trabajos, problemas, casos, pruebas, etc.), que permitan
+     medir el rendimiento o desempeño del alumnado.
+
+
+
+Ocupaciones y puestos de trabajo relacionados
+  12211023 DIRECTORES DE DEPARTAMENTO DE COMERCIALIZACIÓN Y VENTAS, EN
+
+  12211032 DIRECTORES DE DEPARTAMENTO DE MARKETING
+
+  2719 ANALISTAS Y DISEÑADORES DE SOFTWARE Y MULTIMEDIA NO CLASIFICADOS
+
+  12211041 DIRECTORES DE DEPARTAMENTO DE TELEMARKETING
+
+  27131024 ANALISTAS-PROGRAMADORES WEB Y MULTIMEDIA
+
+  2484 DISEÑADORES GRÁFICOS Y MULTIMEDIA
+
+  27131015 DISEÑADORES DE PÁGINAS WEB
+
+  2713 ANALISTAS, PROGRAMADORES Y DISEÑADORES WEB Y MULTIMEDIA
+
+  12221026 DIRECTORES DE GABINETE DE PRENSA
+
+  12221017 DIRECTORES DE DEPARTAMENTOS DE PUBLICIDAD Y/O RELACIONES
+
+  12211014 DIRECTORES COMERCIALES, EN GENERAL
+
+  2653 PROFESIONALES DE LA VENTA DE TECNOLOGÍAS DE LA INFORMACIÓN Y LAS
+
+  2651 PROFESIONALES DE LA PUBLICIDAD Y LA COMERCIALIZACIÓN
+
+Requisitos oficiales de las entidades o centros de formación
+  Estar inscrito en el Registro de entidades de formación (Servicios Públicos de Empleo).
+
+
+
+
+                                                                                             Página 7
+Centro Móvil
+  Es posible impartir esta especialidad en centro móvil.
+
+
+
+
+                                                           Página 8
+                                    DESARROLLO MODULAR
+                                   ANTECEDENTES DE LA COMUNICACIÓN EN HOSTELERÍA
+MÓDULO DE FORMACIÓN 1:
+
+OBJETIVO
+ Conocer la historia del diseño y los elementos básicos que lo componen.
+
+DURACIÓN TOTAL EN CUALQUIER MODALIDAD DE IMPARTICIÓN:                                       30 horas
+
+                   Teleformación:                      Duración de las tutorías presenciales: 0 horas
+
+RESULTADOS DEL APRENDIZAJE
+
+
+Conocimientos / Capacidades cognitivas y prácticas
+ •     Introducción a los antecedentes del diseño y la comunicación en la hostelería:
+     - Conocimiento acerca de la historia del diseño.
+     - Comunicación y publicidad.
+     - Conocimiento acerca de la teoría de la percepción.
+     - Identificación de elementos básicos que intervienen en el diseño.
+     - Conocimiento de la composición de un diseño.
+     - Identificación acerca de las fases del diseño.
+     - Definición y aspectos del diseño digital.
+ •     Identificación de los procesos a seguir en un buen diseño:
+     - Aproximación e investigación inicial.
+     - Realización de bocetos.
+     - Planificación.
+
+
+Habilidades de gestión, personales y sociales
+ •        Asimilación de la importancia de tener diseñada una buena estrategia de
+ comunicación en hostelería.
+ •        Desarrollo de competencias digitales aplicadas al sector de la hostelería.
+ •        Mejora de la capacidad de atención al prestar más atención a lo que los
+ clientes demandan.
+ •        Desarrollo de las capacidades de comunicación enfocadas en el cliente.
+
+
+
+
+                                                                                            Página 9
+                                  ELEMENTOS BÁSICOS PARA EL DISEÑO WEB. BITMAPS Y
+MÓDULO DE FORMACIÓN 2:
+                                  VECTORES
+OBJETIVO
+ Aplicar los elementos básicos para el diseño web utilizando BITMAPS y Vectores.
+
+
+DURACIÓN TOTAL EN CUALQUIER MODALIDAD DE IMPARTICIÓN:                                     35 horas
+
+                   Teleformación:                    Duración de las tutorías presenciales: 0 horas
+
+RESULTADOS DEL APRENDIZAJE
+
+
+Conocimientos / Capacidades cognitivas y prácticas
+ •     Introducción a la Tipografía:
+     - Uso del color.
+     - Creación de formas
+     - Uso de imágenes.
+     - Gestión del contenido audiovisual.
+     - Aplicación de efectos (Sombras, d, fiat y otros).
+ •     Aplicación de Bitmaps y vectores:
+     - Definición y aplicación de Bitmaps. Imágenes rasterizadas.
+     - Definición y uso de vectores.
+     - Conversión imágenes de vectorial a bitmap y viceversa.
+
+
+Habilidades de gestión, personales y sociales
+ •      Desarrollo de competencias digitales aplicadas al sector de la hostelería.
+ •      Capacidad para prestar atención al detalle en la realización de un diseño.
+ •      Capacidad creativa.
+
+
+
+
+                                                                                         Página 10
+MÓDULO DE FORMACIÓN 3:            LAYOUT, HTML Y CSS
+
+OBJETIVO
+ Utilizar herramientas para el diseño web: LAYOUT, HTML y CSS.
+
+DURACIÓN TOTAL EN CUALQUIER MODALIDAD DE IMPARTICIÓN:                                       35 horas
+
+                   Teleformación:                     Duración de las tutorías presenciales: 0 horas
+
+RESULTADOS DEL APRENDIZAJE
+
+
+Conocimientos / Capacidades cognitivas y prácticas
+ •      Composición del LAYOUT:
+     - Uso de la rejilla.
+     - Composición.
+     - Identificación de elementos.
+     - Uso de los espacios vacíos.
+     - Mantenimiento de la coherencia y consistencia.
+ •     Manejo de HTML:
+     - Conocimiento de los conceptos básicos del lenguaje HTML.
+     - Aplicación de las herramientas necesarias para la creación web.
+     - Comprensión de la estructura en HTML.
+ •     Manejo de CSS:
+     - Aplicación de las sintaxis.
+     - Estructuración de las reglas en la hoja de estilo.
+     - Conocimiento de las principales propiedades CSS y CSS3.
+
+Habilidades de gestión, personales y sociales
+ •       Desarrollo de competencias digitales aplicadas al sector de la hostelería.
+ •       Capacidad de atención al detalle para evitar cometer errores en el diseño de
+ la página web.
+
+
+
+
+                 EVALUACIÓN DEL APRENDIZAJE EN LA ACCIÓN FORMATIVA
+ • La evaluación tendrá un carácter teórico-práctico y se realizará de forma sistemática y continua,
+ durante el desarrollo de cada módulo y al final del curso.
+ • Puede incluir una evaluación inicial de carácter diagnóstico para detectar el nivel de partida del
+ alumnado.
+ • La evaluación se llevará a cabo mediante los métodos e instrumentos más adecuados para
+ comprobar los distintos resultados de aprendizaje, y que garanticen la fiabilidad y validez de la
+ misma.
+ • Cada instrumento de evaluación se acompañará de su correspondiente sistema de corrección y
+ puntuación en el que se explicite, de forma clara e inequívoca, los criterios de medida para evaluar
+ los resultados alcanzados por los participantes.
+
+
+
+
+                                                                                           Página 11
+• La puntuación final alcanzada se expresará en términos de Apto/ No Apto.
+
+
+
+
+                                                                             Página 12
+

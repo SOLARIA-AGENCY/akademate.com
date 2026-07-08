@@ -98,6 +98,14 @@ function levelLabel(level: string | undefined): string {
   return level ? map[level] || level.replace(/_/g, ' ').toUpperCase() : 'FORMACION CEP'
 }
 
+function textFromListItem(item: any): string {
+  if (typeof item === 'string') return item.trim()
+  if (item && typeof item === 'object') {
+    return String(item.text ?? item.title ?? item.objective ?? '').trim()
+  }
+  return ''
+}
+
 function normalizeStudyType(value: unknown): string {
   return String(value ?? '')
     .normalize('NFD')
@@ -522,7 +530,15 @@ export default async function ConvocatoriaLandingPage({ params }: Props) {
                           {block?.body ? <p className="mt-2 text-sm leading-6 text-gray-600">{block.body}</p> : null}
                           {Array.isArray(block?.items) && block.items.length > 0 ? (
                             <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                              {block.items.map((item: string) => <li key={item} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#f2014b]" />{item}</li>)}
+                              {block.items.map((item: any, itemIndex: number) => {
+                                const itemText = textFromListItem(item)
+                                return itemText ? (
+                                  <li key={`${itemText}-${itemIndex}`} className="flex gap-2">
+                                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#f2014b]" />
+                                    {itemText}
+                                  </li>
+                                ) : null
+                              })}
                             </ul>
                           ) : null}
                         </div>
