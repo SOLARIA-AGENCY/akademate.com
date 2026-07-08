@@ -24,6 +24,8 @@ import {
   getPublicConvocationHref,
   getRunPrice,
 } from '@/app/lib/public-convocations'
+import { queryRows } from '@payload-config/lib/db'
+import { normalizeNominativeText } from '@/lib/nominative-text'
 
 const BRAND_RED = '#f2014b'
 
@@ -112,19 +114,149 @@ function cleanPublicCopy(value: string | null | undefined, fallback?: string): s
 
 function getStaffName(staff: any): string {
   const fullName = staff?.full_name || `${staff?.first_name || ''} ${staff?.last_name || ''}`.trim()
-  return fullName || 'Docente CEP'
+  return normalizeNominativeText(fullName) || fullName || 'Docente CEP'
 }
 
 function getStaffSpecialtyLabel(staff: any): string {
-  if (typeof staff?.position === 'string' && staff.position.trim()) return staff.position.trim()
+  if (typeof staff?.position === 'string' && staff.position.trim()) {
+    return normalizeNominativeText(staff.position) || staff.position.trim()
+  }
   const specialties = Array.isArray(staff?.specialties) ? staff.specialties : []
   if (specialties.length) {
-    return specialties
+    const specialtyLabel = specialties
       .slice(0, 2)
       .map((value: string) => value.replace(/-/g, ' '))
       .join(' · ')
+    return normalizeNominativeText(specialtyLabel) || specialtyLabel
   }
   return 'Docente especializado'
+}
+
+function getRelationId(value: any): string | null {
+  if (value === null || value === undefined) return null
+  if (typeof value === 'object' && value.id !== undefined && value.id !== null) return String(value.id)
+  return String(value)
+}
+
+function getCourseRunTitle(run: any): string | null {
+  const course = run?.course
+  const cycle = run?.cycle
+  const title =
+    (typeof course === 'object' && (course?.name || course?.title)) ||
+    (typeof cycle === 'object' && (cycle?.name || cycle?.title)) ||
+    run?.course_name ||
+    run?.cycle_name ||
+    run?.codigo
+
+  if (typeof title !== 'string') return null
+  return normalizeNominativeText(title) || title.trim() || null
+}
+
+async function getFirstCourseRunTitleByStaffId(
+  payload: any,
+  staffIds: string[],
+  tenantId: string
+): Promise<Map<string, string>> {
+  const firstTitleByStaffId = new Map<string, string>()
+  if (!staffIds.length) return firstTitleByStaffId
+
+  try {
+    const courseRunsResult = await payload.find({
+      collection: 'course-runs',
+      where: withTenantScope(
+        {
+          or: [
+            { instructor: { in: staffIds } },
+            { instructors: { in: staffIds } },
+          ],
+        },
+        tenantId
+      ) as any,
+      depth: 1,
+      limit: 300,
+      sort: '-start_date',
+    })
+
+    for (const run of courseRunsResult.docs as any[]) {
+      const title = getCourseRunTitle(run)
+      if (!title) continue
+
+      const runStaffIds = new Set<string>()
+      const instructorId = getRelationId(run.instructor)
+      if (instructorId) runStaffIds.add(instructorId)
+      for (const instructor of Array.isArray(run.instructors) ? run.instructors : []) {
+        const id = getRelationId(instructor)
+        if (id) runStaffIds.add(id)
+      }
+
+      for (const staffId of runStaffIds) {
+        if (staffIds.includes(staffId) && !firstTitleByStaffId.has(staffId)) {
+          firstTitleByStaffId.set(staffId, title)
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('[PublicHome] Payload course-runs lookup for teacher carousel failed, falling back to SQL', error)
+  }
+
+  if (firstTitleByStaffId.size === staffIds.length) return firstTitleByStaffId
+
+  try {
+    const numericStaffIds = staffIds
+      .map((id) => Number.parseInt(id, 10))
+      .filter((id) => Number.isFinite(id) && id > 0)
+    if (!numericStaffIds.length) return firstTitleByStaffId
+
+    const rows = await queryRows<{ staff_id: number | string; course_name: string | null }>(
+      `
+        SELECT DISTINCT ON (rel.staff_id)
+          rel.staff_id,
+          COALESCE(course.name, cycle.name, rel.codigo) AS course_name
+        FROM (
+          SELECT
+            cr.id,
+            cr.codigo,
+            cr.start_date,
+            cr.course_id,
+            cr.cycle_id,
+            cr.instructor_id AS staff_id
+          FROM course_runs cr
+          WHERE cr.instructor_id = ANY($1::int[])
+
+          UNION ALL
+
+          SELECT
+            cr.id,
+            cr.codigo,
+            cr.start_date,
+            cr.course_id,
+            cr.cycle_id,
+            crr.staff_id AS staff_id
+          FROM course_runs cr
+          JOIN course_runs_rels crr
+            ON crr.parent_id = cr.id
+           AND crr.path = 'instructors'
+          WHERE crr.staff_id = ANY($1::int[])
+        ) rel
+        LEFT JOIN courses course ON course.id = rel.course_id
+        LEFT JOIN cycles cycle ON cycle.id = rel.cycle_id
+        WHERE rel.staff_id IS NOT NULL
+        ORDER BY rel.staff_id, rel.start_date DESC NULLS LAST, rel.id DESC
+      `,
+      [numericStaffIds]
+    )
+
+    for (const row of rows) {
+      const staffId = String(row.staff_id)
+      if (firstTitleByStaffId.has(staffId)) continue
+      const title = normalizeNominativeText(row.course_name) || row.course_name?.trim()
+      if (title) firstTitleByStaffId.set(staffId, title)
+    }
+  } catch (error) {
+    console.warn('[PublicHome] SQL course-runs lookup for teacher carousel failed', error)
+  }
+
+  return firstTitleByStaffId
 }
 
 function getRunCourseId(run: any): string | null {
@@ -960,16 +1092,21 @@ async function CategoryGridSection({
 
 async function TeamGridSection({
   section,
+  tenantId,
 }: {
   section: Extract<WebsiteSection, { kind: 'teamGrid' }>
+  tenantId: string
 }) {
   const payload = await getPayload({ config: configPromise })
   const staffResult = await payload.find({
     collection: 'staff',
-    where: {
-      staff_type: { equals: 'profesor' },
-      employment_status: { equals: 'active' },
-    } as any,
+    where: withTenantScope(
+      {
+        staff_type: { equals: 'profesor' },
+        employment_status: { equals: 'active' },
+      },
+      tenantId
+    ) as any,
     depth: 1,
     limit: 60,
     sort: 'full_name',
@@ -977,24 +1114,24 @@ async function TeamGridSection({
   const subtitle = section.subtitle?.includes('Presentación editorial')
     ? 'Conoce a nuestro equipo docente y su experiencia profesional por áreas.'
     : section.subtitle
-  const staffMembers = (staffResult.docs as any[])
+
+  const staffWithPhoto = (staffResult.docs as any[]).filter((staff) => resolveImageUrl(staff.photo))
+  const courseRunTitleByStaffId = await getFirstCourseRunTitleByStaffId(
+    payload,
+    staffWithPhoto.map((staff) => String(staff.id)),
+    tenantId
+  )
+
+  const staffMembers = staffWithPhoto
     .map((staff) => {
-    const name = getStaffName(staff)
-    return {
-      id: staff.id,
-      name,
-      role: getStaffSpecialtyLabel(staff),
-      image: resolveImageUrl(staff.photo),
-      areas: (Array.isArray(staff.qualified_areas) ? staff.qualified_areas : [])
-        .filter((area: any) => area && typeof area === 'object')
-        .map((area: any) => ({
-          name: String(area.nombre || area.name || '').trim(),
-          color: area.color || null,
-        }))
-        .filter((area: { name: string }) => area.name),
-    }
-  })
-    .filter((member) => member.image)
+      const name = getStaffName(staff)
+      return {
+        id: staff.id,
+        name,
+        role: courseRunTitleByStaffId.get(String(staff.id)) || getStaffSpecialtyLabel(staff),
+        image: resolveImageUrl(staff.photo),
+      }
+    })
   const members = staffMembers
 
   return (
@@ -1165,7 +1302,7 @@ async function renderSection(
     case 'categoryGrid':
       return <CategoryGridSection section={section} />
     case 'teamGrid':
-      return <TeamGridSection section={section} />
+      return <TeamGridSection section={section} tenantId={tenantId} />
     case 'leadForm':
       return <LeadFormSection section={section} brandColor={brandColor} />
     default:

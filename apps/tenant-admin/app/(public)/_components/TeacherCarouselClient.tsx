@@ -7,7 +7,6 @@ type TeacherCarouselMember = {
   name: string
   role: string
   image: string
-  areas: Array<{ name: string; color?: string | null }>
 }
 
 export function TeacherCarouselClient({ members }: { members: TeacherCarouselMember[] }) {
@@ -16,7 +15,11 @@ export function TeacherCarouselClient({ members }: { members: TeacherCarouselMem
 
   if (members.length === 0) return null
 
-  const loopMembers = members.length > 4 ? [...members, ...members] : members
+  const baseLoopMembers = Array.from(
+    { length: Math.max(1, Math.ceil(6 / members.length)) },
+    () => members
+  ).flat()
+  const loopMembers = [...baseLoopMembers, ...baseLoopMembers]
 
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
     const track = trackRef.current
@@ -74,20 +77,10 @@ export function TeacherCarouselClient({ members }: { members: TeacherCarouselMem
                   Docente
                 </span>
                 <h3 className="mt-4 min-h-[2.75rem] text-sm font-black leading-snug text-slate-900">{member.name}</h3>
-                <p className="mt-1 text-sm capitalize text-slate-600">{member.role}</p>
-                {member.areas.length > 0 ? (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {member.areas.slice(0, 2).map((area) => (
-                      <span
-                        key={`${member.name}-${area.name}`}
-                        className="rounded-full px-2.5 py-1 text-[10px] font-black leading-none"
-                        style={{ backgroundColor: `${area.color || '#f2014b'}18`, color: area.color || '#b00032' }}
-                      >
-                        {area.name}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
+                <p className="mt-3 text-[11px] font-black uppercase tracking-[0.12em] text-slate-400">Imparte</p>
+                <p className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-slate-700">
+                  {member.role}
+                </p>
               </div>
             </article>
           ))}
