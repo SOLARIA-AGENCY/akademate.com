@@ -8,7 +8,9 @@ import { normalizeNominativeText } from '@/lib/nominative-text'
 import { normalizeOptionalSpanishPhone, SPANISH_PHONE_ERROR } from '@/lib/phone'
 import {
   STAFF_EMAIL_ERROR,
+  STAFF_EMAIL_DUPLICATE_ERROR,
   STAFF_NIF_ERROR,
+  STAFF_NIF_DUPLICATE_ERROR,
   validateStaffEmail,
   validateStaffNif,
 } from '@/lib/staff-contact'
@@ -400,6 +402,51 @@ function getErrorMessage(error: unknown): string {
     return error.message
   }
   return String(error)
+}
+
+type StaffIdentityField = 'email' | 'nif'
+
+type StaffIdentityConflict = {
+  id?: number | string | null
+  first_name?: string | null
+  last_name?: string | null
+  full_name?: string | null
+}
+
+function formatStaffIdentityConflictMessage(
+  field: StaffIdentityField,
+  conflict: StaffIdentityConflict
+): string {
+  const baseMessage = field === 'email' ? STAFF_EMAIL_DUPLICATE_ERROR : STAFF_NIF_DUPLICATE_ERROR
+  const label =
+    conflict.full_name?.trim() ||
+    [conflict.first_name, conflict.last_name].filter(Boolean).join(' ').trim()
+
+  return label ? `${baseMessage} Ya está asignado a ${label}.` : baseMessage
+}
+
+async function findStaffIdentityConflict(args: {
+  payload: Payload
+  field: StaffIdentityField
+  value: string | null
+  currentId?: number
+}): Promise<StaffIdentityConflict | null> {
+  if (!args.value) return null
+
+  const result = await args.payload.find({
+    collection: 'staff',
+    overrideAccess: true,
+    depth: 0,
+    limit: 2,
+    where: {
+      [args.field]: {
+        equals: args.value,
+      },
+    },
+  })
+
+  const docs = (result.docs ?? []) as StaffIdentityConflict[]
+  return docs.find((doc) => Number(doc.id) !== args.currentId) ?? null
 }
 
 function resolveMediaUrl(filename?: string | null, url?: string | null): string {
@@ -815,6 +862,30 @@ export async function POST(request: NextRequest) {
     const payload = await initPayload()
     const authContext = await getAuthenticatedUserContext(request, payload)
 
+    const emailConflict = await findStaffIdentityConflict({
+      payload,
+      field: 'email',
+      value: normalizedEmail,
+    })
+    if (emailConflict) {
+      return NextResponse.json(
+        { success: false, error: formatStaffIdentityConflictMessage('email', emailConflict) },
+        { status: 409 }
+      )
+    }
+
+    const nifConflict = await findStaffIdentityConflict({
+      payload,
+      field: 'nif',
+      value: normalizedNif,
+    })
+    if (nifConflict) {
+      return NextResponse.json(
+        { success: false, error: formatStaffIdentityConflictMessage('nif', nifConflict) },
+        { status: 409 }
+      )
+    }
+
     // Crear miembro del personal
     const createStaff = payload.create as unknown as (
       args: Record<string, unknown>
@@ -1019,9 +1090,10 @@ export async function PUT(request: NextRequest) {
 
     const payload = await initPayload()
     const authContext = await getAuthenticatedUserContext(request, payload)
+    const staffId = parseInt(id)
     const current = (await payload.findByID({
       collection: 'staff',
-      id: parseInt(id),
+      id: staffId,
       overrideAccess: true,
       depth: 0,
     })) as unknown as Staff
@@ -1135,9 +1207,39 @@ export async function PUT(request: NextRequest) {
       )
     }
 
+    if (Object.prototype.hasOwnProperty.call(updateData, 'email')) {
+      const emailConflict = await findStaffIdentityConflict({
+        payload,
+        field: 'email',
+        value: updateData.email ?? null,
+        currentId: staffId,
+      })
+      if (emailConflict) {
+        return NextResponse.json(
+          { success: false, error: formatStaffIdentityConflictMessage('email', emailConflict) },
+          { status: 409 }
+        )
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updateData, 'nif')) {
+      const nifConflict = await findStaffIdentityConflict({
+        payload,
+        field: 'nif',
+        value: updateData.nif ?? null,
+        currentId: staffId,
+      })
+      if (nifConflict) {
+        return NextResponse.json(
+          { success: false, error: formatStaffIdentityConflictMessage('nif', nifConflict) },
+          { status: 409 }
+        )
+      }
+    }
+
     const staffMember = (await payload.update({
       collection: 'staff',
-      id: parseInt(id),
+      id: staffId,
       overrideAccess: true,
       data: updateData as unknown as Record<string, unknown>,
     })) as unknown as Staff
@@ -1145,7 +1247,7 @@ export async function PUT(request: NextRequest) {
     if (body.employmentStatus && body.employmentStatus !== current.employment_status) {
       await createStaffStatusEvent({
         payload,
-        staffId: parseInt(id),
+        staffId,
         previousStatus: current.employment_status as 'active' | 'temporary_leave' | 'inactive',
         newStatus: body.employmentStatus,
         reason: body.inactiveReason || 'Cambio de estado laboral',

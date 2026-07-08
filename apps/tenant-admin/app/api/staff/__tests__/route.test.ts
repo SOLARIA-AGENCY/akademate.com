@@ -50,6 +50,10 @@ describe('/api/staff qualified areas', () => {
       id: 44,
       full_name: 'Docente Test',
     })
+    payloadMock.find.mockResolvedValue({
+      docs: [],
+      totalDocs: 0,
+    })
     payloadMock.create.mockImplementation(async ({ collection, data }: any) => {
       if (collection === 'staff') {
         return { id: 44, full_name: 'Docente Test', ...data }
@@ -528,6 +532,73 @@ describe('/api/staff qualified areas', () => {
     )
   })
 
+  it('rejects duplicated staff email with a clear conflict message before calling Payload update', async () => {
+    payloadMock.find.mockResolvedValueOnce({
+      docs: [
+        {
+          id: 23,
+          first_name: 'Luis',
+          last_name: 'José González',
+          email: 'medicinaesteticalujo@yahoo.es',
+        },
+      ],
+      totalDocs: 1,
+    })
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        email: 'medicinaesteticalujo@yahoo.es',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(json.error).toMatch(/ya existe una ficha de personal con este email/i)
+    expect(json.error).toMatch(/Luis José González/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('allows keeping the same email on the current staff record', async () => {
+    payloadMock.find.mockResolvedValueOnce({
+      docs: [
+        {
+          id: 44,
+          first_name: 'Docente',
+          last_name: 'Test',
+          email: 'medicinaesteticalujo@yahoo.es',
+        },
+      ],
+      totalDocs: 1,
+    })
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        email: 'medicinaesteticalujo@yahoo.es',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(payloadMock.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'staff',
+        id: 44,
+        data: expect.objectContaining({
+          email: 'medicinaesteticalujo@yahoo.es',
+        }),
+      })
+    )
+  })
+
   it('rejects invalid staff email before calling Payload', async () => {
     const { PUT } = await loadRoute()
     const request = new NextRequest('http://localhost/api/staff?id=44', {
@@ -579,6 +650,36 @@ describe('/api/staff qualified areas', () => {
 
     expect(response.status).toBe(400)
     expect(json.error).toMatch(/dni|nif|nie/i)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('rejects duplicated DNI/NIF with a clear conflict message before calling Payload update', async () => {
+    payloadMock.find.mockResolvedValueOnce({
+      docs: [
+        {
+          id: 23,
+          first_name: 'Luis',
+          last_name: 'José González',
+          nif: '08938823B',
+        },
+      ],
+      totalDocs: 1,
+    })
+    const { PUT } = await loadRoute()
+    const request = new NextRequest('http://localhost/api/staff?id=44', {
+      method: 'PUT',
+      body: JSON.stringify({
+        nif: '08938823B',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const response = await PUT(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(json.error).toMatch(/ya existe una ficha de personal con este dni/i)
+    expect(json.error).toMatch(/Luis José González/i)
     expect(payloadMock.update).not.toHaveBeenCalled()
   })
 
