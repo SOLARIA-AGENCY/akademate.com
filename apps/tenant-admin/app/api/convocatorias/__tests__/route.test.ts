@@ -5,6 +5,7 @@ const { payloadMock } = vi.hoisted(() => ({
   payloadMock: {
     find: vi.fn(),
     findByID: vi.fn(),
+    auth: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
   },
@@ -24,6 +25,7 @@ async function loadRoute() {
 describe('/api/convocatorias instructor assignment', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    payloadMock.auth.mockResolvedValue({ user: { id: 11, role: 'admin', tenant: 1 } })
     payloadMock.findByID.mockImplementation(async ({ collection }: any) => {
       if (collection === 'course-runs') {
         return {

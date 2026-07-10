@@ -140,14 +140,27 @@ interface CourseRunCreateData {
 }
 
 interface LoosePayloadClient {
-  create: (args: { collection: string; data: Record<string, unknown> }) => Promise<{ id: string | number }>;
-  findByID: (args: { collection: string; id: string | number; depth?: number }) => Promise<Record<string, unknown>>;
+  create: (args: { collection: string; data: Record<string, unknown>; user?: unknown }) => Promise<{ id: string | number }>;
+  findByID: (args: { collection: string; id: string | number; depth?: number; user?: unknown }) => Promise<Record<string, unknown>>;
   update: (args: {
     collection: string;
     id: string | number;
     data: Record<string, unknown>;
     overrideAccess?: boolean;
+    user?: unknown;
   }) => Promise<Record<string, unknown>>;
+}
+
+type PayloadRequestUser = Record<string, unknown>;
+
+async function authenticateRequest(
+  request: NextRequest,
+  payload: Awaited<ReturnType<typeof getPayload>>,
+): Promise<PayloadRequestUser | null> {
+  const result = await payload.auth({ headers: request.headers });
+  return result.user && typeof result.user === 'object'
+    ? (result.user as unknown as PayloadRequestUser)
+    : null;
 }
 
 // ============================================================================
@@ -518,11 +531,19 @@ export async function POST(request: NextRequest) {
 
      
     const payload = await getPayload({ config: configPromise });
+    const user = await authenticateRequest(request, payload);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required', code: 'AUTH_REQUIRED' },
+        { status: 401 },
+      );
+    }
 
     // Verificar que el curso existe
     const course = await payload.findByID({
       collection: 'courses',
       id: parseInt(courseId),
+      user,
     });
 
     if (!course) {
@@ -608,6 +629,7 @@ export async function POST(request: NextRequest) {
     const convocation = await payloadLoose.create({
       collection: 'course-runs',
       data: courseRunData as unknown as Record<string, unknown>,
+      user,
     });
 
     return NextResponse.json({
@@ -655,18 +677,27 @@ export async function PATCH(request: NextRequest) {
     }
 
     const payload = await getPayload({ config: configPromise })
+    const user = await authenticateRequest(request, payload);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required', code: 'AUTH_REQUIRED' },
+        { status: 401 },
+      );
+    }
     const payloadLoose = payload as unknown as LoosePayloadClient
 
     const current = await payloadLoose.findByID({
       collection: 'course-runs',
       id: convocatoriaId,
       depth: 2,
+      user,
     })
 
     const professor = await payloadLoose.findByID({
       collection: 'staff',
       id: profesorId,
       depth: 1,
+      user,
     }) as StaffLike
 
     if (!professor) {
@@ -713,7 +744,7 @@ export async function PATCH(request: NextRequest) {
     const updated = await payloadLoose.update({
       collection: 'course-runs',
       id: convocatoriaId,
-      overrideAccess: true,
+      user,
       data: {
         instructor: Number.isNaN(Number(profesorId)) ? profesorId : Number(profesorId),
         instructors: instructorIds.map((id) => (Number.isNaN(Number(id)) ? id : Number(id))),
@@ -747,6 +778,13 @@ export async function GET(request: NextRequest) {
 
      
     const payload = await getPayload({ config: configPromise });
+    const user = await authenticateRequest(request, payload);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required', code: 'AUTH_REQUIRED' },
+        { status: 401 },
+      );
+    }
 
     // Build dynamic where clause
     const whereClause: CourseRunWhereClause = {};
@@ -765,6 +803,7 @@ export async function GET(request: NextRequest) {
       limit: 100,
       sort: '-start_date',
       depth: 2, // Populate course and campus relationships
+      user,
     });
 
     const courseIds = Array.from(
@@ -787,6 +826,7 @@ export async function GET(request: NextRequest) {
           } as unknown as Record<string, unknown>,
           limit: 200,
           depth: 0,
+          user,
         });
 
         for (const campaign of campaigns.docs as CampaignLike[]) {
