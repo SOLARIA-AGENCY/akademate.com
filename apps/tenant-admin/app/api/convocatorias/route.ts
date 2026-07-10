@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 import type { CourseRun, Course, Campus } from '../../../src/payload-types';
 import {
   evaluateInstructorAreaQualification,
@@ -141,7 +142,13 @@ interface CourseRunCreateData {
 
 interface LoosePayloadClient {
   create: (args: { collection: string; data: Record<string, unknown>; user?: unknown }) => Promise<{ id: string | number }>;
-  findByID: (args: { collection: string; id: string | number; depth?: number; user?: unknown }) => Promise<Record<string, unknown>>;
+  findByID: (args: {
+    collection: string;
+    id: string | number;
+    depth?: number;
+    overrideAccess?: boolean;
+    user?: unknown;
+  }) => Promise<Record<string, unknown>>;
   update: (args: {
     collection: string;
     id: string | number;
@@ -152,6 +159,38 @@ interface LoosePayloadClient {
 }
 
 type PayloadRequestUser = Record<string, unknown>;
+
+function getSessionToken(request: NextRequest): string | null {
+  const payloadToken = request.cookies.get('payload-token')?.value;
+  if (payloadToken) return payloadToken;
+
+  for (const cookieName of ['akademate_session', 'cep_session']) {
+    const rawSession = request.cookies.get(cookieName)?.value;
+    if (!rawSession) continue;
+
+    const candidates = [rawSession];
+    try {
+      const decoded = decodeURIComponent(rawSession);
+      if (decoded !== rawSession) candidates.push(decoded);
+    } catch {
+      // Continue with the raw legacy cookie representation.
+    }
+
+    for (const candidate of candidates) {
+      try {
+        const parsed = JSON.parse(candidate) as Record<string, unknown>;
+        const token = [parsed.token, parsed.socketToken, parsed.payloadToken, parsed.jwt].find(
+          (value): value is string => typeof value === 'string' && value.trim().length > 0,
+        );
+        if (token) return token;
+      } catch {
+        // Continue with the next supported legacy cookie representation.
+      }
+    }
+  }
+
+  return null;
+}
 
 async function authenticateRequest(
   request: NextRequest,
@@ -173,16 +212,16 @@ async function authenticateRequest(
     }),
   ];
 
-  const payloadToken = request.cookies.get('payload-token')?.value;
-  if (payloadToken) {
+  const sessionToken = getSessionToken(request);
+  if (sessionToken) {
     headerAttempts.push(
-      new Headers({ cookie: `payload-token=${payloadToken}`, DisableAutologin: 'true' }),
+      new Headers({ cookie: `payload-token=${sessionToken}`, DisableAutologin: 'true' }),
       new Headers({
-        authorization: `JWT ${payloadToken}`,
+        authorization: `JWT ${sessionToken}`,
         DisableAutologin: 'true',
       }),
       new Headers({
-        authorization: `Bearer ${payloadToken}`,
+        authorization: `Bearer ${sessionToken}`,
         DisableAutologin: 'true',
       }),
     );
@@ -199,7 +238,31 @@ async function authenticateRequest(
     }
   }
 
-  return null;
+  if (!sessionToken || !process.env.PAYLOAD_SECRET) return null;
+
+  try {
+    const verified = await jwtVerify(
+      sessionToken,
+      new TextEncoder().encode(process.env.PAYLOAD_SECRET),
+    );
+    const collection = verified.payload.collection;
+    const id = verified.payload.id ?? verified.payload.sub;
+    if (collection !== 'users' || (typeof id !== 'string' && typeof id !== 'number')) {
+      return null;
+    }
+
+    const user = await payload.findByID({
+      collection: 'users',
+      id,
+      depth: 0,
+      overrideAccess: true,
+    });
+    return user && typeof user === 'object'
+      ? (user as unknown as PayloadRequestUser)
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 // ============================================================================

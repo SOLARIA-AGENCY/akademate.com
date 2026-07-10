@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
-const { payloadMock } = vi.hoisted(() => ({
+const { payloadMock, jwtVerifyMock } = vi.hoisted(() => ({
   payloadMock: {
     find: vi.fn(),
     findByID: vi.fn(),
@@ -9,6 +9,7 @@ const { payloadMock } = vi.hoisted(() => ({
     create: vi.fn(),
     update: vi.fn(),
   },
+  jwtVerifyMock: vi.fn(),
 }))
 
 vi.mock('payload', () => ({
@@ -16,6 +17,7 @@ vi.mock('payload', () => ({
 }))
 
 vi.mock('@payload-config', () => ({ default: {} }))
+vi.mock('jose', () => ({ jwtVerify: jwtVerifyMock }))
 
 async function loadRoute() {
   vi.resetModules()
@@ -25,6 +27,7 @@ async function loadRoute() {
 describe('/api/convocatorias instructor assignment', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    jwtVerifyMock.mockRejectedValue(new Error('invalid test token'))
     payloadMock.auth.mockResolvedValue({ user: { id: 11, role: 'admin', tenant: 1 } })
     payloadMock.findByID.mockImplementation(async ({ collection }: any) => {
       if (collection === 'course-runs') {
@@ -100,6 +103,31 @@ describe('/api/convocatorias instructor assignment', () => {
       headers: expect.any(Headers),
     }))
     expect(payloadMock.auth.mock.calls.some(([args]) => args.headers.get('authorization') === 'JWT session-token')).toBe(true)
+  })
+
+  it('loads the user after verifying the token when Payload user access blocks auth lookup', async () => {
+    const previousSecret = process.env.PAYLOAD_SECRET
+    process.env.PAYLOAD_SECRET = 'test-secret'
+    payloadMock.auth.mockResolvedValue({ user: null })
+    jwtVerifyMock.mockResolvedValue({ payload: { collection: 'users', id: 11 } })
+    payloadMock.find.mockResolvedValue({ docs: [], totalDocs: 0 })
+
+    try {
+      const { GET } = await loadRoute()
+      const response = await GET(new NextRequest('http://localhost/api/convocatorias', {
+        headers: { cookie: 'payload-token=signed-token' },
+      }))
+
+      expect(response.status).toBe(200)
+      expect(payloadMock.findByID).toHaveBeenCalledWith(expect.objectContaining({
+        collection: 'users',
+        id: 11,
+        overrideAccess: true,
+      }))
+    } finally {
+      if (previousSecret === undefined) delete process.env.PAYLOAD_SECRET
+      else process.env.PAYLOAD_SECRET = previousSecret
+    }
   })
 
   it('rejects assigning a teacher from another training area through the legacy endpoint', async () => {
