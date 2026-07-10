@@ -81,6 +81,27 @@ describe('/api/convocatorias instructor assignment', () => {
     expect(payloadMock.update).not.toHaveBeenCalled()
   })
 
+  it('tries Payload JWT extraction when the request only provides the session cookie', async () => {
+    payloadMock.auth.mockImplementation(async ({ headers }: { headers: Headers }) => {
+      return headers.get('authorization') === 'JWT session-token'
+        ? { user: { id: 11, role: 'admin', tenant: 1 } }
+        : { user: null }
+    })
+    payloadMock.find.mockResolvedValue({ docs: [], totalDocs: 0 })
+
+    const { GET } = await loadRoute()
+    const response = await GET(new NextRequest('http://localhost/api/convocatorias', {
+      headers: { cookie: 'payload-token=session-token' },
+    }))
+
+    expect(response.status).toBe(200)
+    expect(payloadMock.auth).toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'users',
+      headers: expect.any(Headers),
+    }))
+    expect(payloadMock.auth.mock.calls.some(([args]) => args.headers.get('authorization') === 'JWT session-token')).toBe(true)
+  })
+
   it('rejects assigning a teacher from another training area through the legacy endpoint', async () => {
     payloadMock.findByID.mockImplementation(async ({ collection }: any) => {
       if (collection === 'course-runs') {

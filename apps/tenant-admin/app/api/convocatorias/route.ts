@@ -157,10 +157,49 @@ async function authenticateRequest(
   request: NextRequest,
   payload: Awaited<ReturnType<typeof getPayload>>,
 ): Promise<PayloadRequestUser | null> {
-  const result = await payload.auth({ headers: request.headers });
-  return result.user && typeof result.user === 'object'
-    ? (result.user as unknown as PayloadRequestUser)
-    : null;
+  const auth = payload.auth as unknown as (args: {
+    collection: string;
+    headers: Headers;
+  }) => Promise<{ user?: unknown } | null>;
+  const requestHeaders = new Headers(request.headers);
+  const authorization = requestHeaders.get('authorization');
+  const cookie = requestHeaders.get('cookie');
+  const headerAttempts = [
+    requestHeaders,
+    new Headers({
+      ...(cookie ? { cookie } : {}),
+      ...(authorization ? { authorization } : {}),
+      DisableAutologin: 'true',
+    }),
+  ];
+
+  const payloadToken = request.cookies.get('payload-token')?.value;
+  if (payloadToken) {
+    headerAttempts.push(
+      new Headers({ cookie: `payload-token=${payloadToken}`, DisableAutologin: 'true' }),
+      new Headers({
+        authorization: `JWT ${payloadToken}`,
+        DisableAutologin: 'true',
+      }),
+      new Headers({
+        authorization: `Bearer ${payloadToken}`,
+        DisableAutologin: 'true',
+      }),
+    );
+  }
+
+  for (const headers of headerAttempts) {
+    try {
+      const result = await auth({ collection: 'users', headers });
+      if (result?.user && typeof result.user === 'object') {
+        return result.user as unknown as PayloadRequestUser;
+      }
+    } catch {
+      // Try the next supported Payload extraction strategy.
+    }
+  }
+
+  return null;
 }
 
 // ============================================================================
