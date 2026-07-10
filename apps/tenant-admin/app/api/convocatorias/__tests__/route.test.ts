@@ -288,4 +288,49 @@ describe('/api/convocatorias instructor assignment', () => {
       certificacion: 'CEP',
     })
   })
+
+  it('keeps cycle convocations when the course relation is null', async () => {
+    payloadMock.find.mockImplementation(async ({ collection }: any) => {
+      if (collection === 'course-runs') {
+        return {
+          docs: [{
+            id: 1,
+            codigo: 'SC-2026-001',
+            course: null,
+            campus: { id: 1, name: 'Sede Santa Cruz' },
+            classroom: null,
+            start_date: '2026-09-21T00:00:00.000Z',
+            end_date: '2028-06-30T00:00:00.000Z',
+            schedule_days: ['monday'],
+            schedule_time_start: '17:00',
+            schedule_time_end: '21:00',
+            status: 'enrollment_open',
+            enrollment_status: 'open',
+            planning_status: 'published',
+            training_type: 'cycle',
+            shift: 'afternoon',
+            max_students: 18,
+            current_enrollments: 0,
+            notes: null,
+            instructors: [],
+            instructor: null,
+          }],
+          totalDocs: 1,
+        }
+      }
+      return { docs: [], totalDocs: 0 }
+    })
+
+    const { GET } = await loadRoute()
+    const response = await GET(new NextRequest('http://localhost/api/convocatorias'))
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json.data[0]).toMatchObject({
+      codigo: 'SC-2026-001',
+      cursoNombre: 'Curso',
+      campusNombre: 'Sede Santa Cruz',
+      aulaNombre: 'Sin aula',
+    })
+  })
 })

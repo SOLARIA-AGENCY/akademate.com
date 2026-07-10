@@ -944,31 +944,34 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: (convocations.docs as PopulatedCourseRun[]).map((conv) => {
+        const course = conv.course && typeof conv.course === 'object' ? conv.course : null;
+        const campus = conv.campus && typeof conv.campus === 'object' ? conv.campus : null;
+        const classroom = conv.classroom && typeof conv.classroom === 'object' ? conv.classroom : null;
         // Extract course image URL
         const courseId = getRelationId(conv.course);
         const campaign = courseId ? campaignByCourse.get(courseId) : undefined;
-        const cursoImagen = typeof conv.course === 'object' && conv.course !== null
-          ? resolveMediaUrl(conv.course.featured_image)
+        const cursoImagen = course
+          ? resolveMediaUrl(course.featured_image)
           : null;
         const dias = conv.schedule_days ?? [];
         const excelMetadata = extractExcelPlanningMetadata(conv.notes);
         const sheetMetadata = getExcelPlanningMetadataFromSheet(
-          typeof conv.course === 'object' ? conv.course.name : null,
+          course?.name ?? null,
           conv.start_date,
         );
 
         return {
           id: conv.id,
           codigo: conv.codigo,
-          cursoId: typeof conv.course === 'object' ? conv.course.id : conv.course,
-          cursoNombre: typeof conv.course === 'object' ? conv.course.name : 'Curso',
-          cursoTipo: typeof conv.course === 'object' ? conv.course.course_type : undefined,
+          cursoId: course?.id ?? (typeof conv.course === 'number' || typeof conv.course === 'string' ? conv.course : undefined),
+          cursoNombre: course?.name ?? 'Curso',
+          cursoTipo: course?.course_type,
           cursoImagen,
-          campusId: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.id : conv.campus,
-          campusNombre: typeof conv.campus === 'object' && conv.campus !== null ? conv.campus.name : 'Sin sede',
-          aulaId: typeof conv.classroom === 'object' && conv.classroom !== null ? conv.classroom.id : conv.classroom,
-          aulaNombre: typeof conv.classroom === 'object' && conv.classroom !== null ? (conv.classroom.name ?? conv.classroom.code ?? 'Aula') : 'Sin aula',
-          aulaCapacidad: typeof conv.classroom === 'object' && conv.classroom !== null ? conv.classroom.capacity : undefined,
+          campusId: campus?.id ?? (typeof conv.campus === 'number' || typeof conv.campus === 'string' ? conv.campus : undefined),
+          campusNombre: campus?.name ?? 'Sin sede',
+          aulaId: classroom?.id ?? (typeof conv.classroom === 'number' || typeof conv.classroom === 'string' ? conv.classroom : undefined),
+          aulaNombre: classroom?.name ?? classroom?.code ?? 'Sin aula',
+          aulaCapacidad: classroom?.capacity,
           fechaInicio: conv.start_date,
           fechaFin: conv.end_date,
           dias,
