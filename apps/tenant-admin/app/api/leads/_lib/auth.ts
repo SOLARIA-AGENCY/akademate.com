@@ -173,7 +173,7 @@ export async function getAuthenticatedUserContext(
   if (!token) return null
 
   const payloadAuth = await authViaPayload(payload, token)
-  if (payloadAuth?.tenantId !== null) return payloadAuth
+  if (payloadAuth && payloadAuth.tenantId !== null) return payloadAuth
 
   const jwtAuth = await authViaJWT(payload, token)
   if (jwtAuth) return jwtAuth
