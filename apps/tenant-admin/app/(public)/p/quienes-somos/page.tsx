@@ -99,6 +99,25 @@ export default function QuienesSomosPage() {
         </div>
       </section>
 
+      <section id="reconocimiento" className="border-y border-orange-100 bg-orange-50/70 py-14 sm:py-16">
+        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+          <div className="justify-self-center rounded-full bg-white p-3 shadow-sm ring-1 ring-orange-200">
+            <img
+              src="/website/cep/recognition/mencion-honorifica-premios-nacionales-educacion-2026.png"
+              alt="CEP Formación, centro reconocido con Mención Honorífica en los I Premios Nacionales de Educación 2026"
+              className="h-auto w-48 sm:w-56"
+              loading="lazy"
+            />
+          </div>
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-orange-700">Reconocimiento nacional</p>
+            <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Mención Honorífica en los I Premios Nacionales de Educación 2026</h2>
+            <p className="mt-4 text-base leading-7 text-slate-700">Un reconocimiento que refuerza nuestro compromiso con una formación útil, cercana y orientada a transformar oportunidades profesionales.</p>
+            <p className="mt-3 text-sm leading-6 text-slate-600">La distinción corresponde a la categoría indicada en el emblema oficial: Promoción del aprendizaje esencial.</p>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-gray-50 py-14 sm:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-center text-2xl font-bold sm:text-3xl">Cómo trabajamos</h2>

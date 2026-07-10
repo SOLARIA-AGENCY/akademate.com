@@ -1,4 +1,4 @@
-import type React from 'react'
+import { Fragment, type ReactNode } from 'react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
@@ -1279,7 +1279,7 @@ async function renderSection(
   section: WebsiteSection,
   brandColor: string,
   tenantId: string
-): Promise<React.ReactNode> {
+): Promise<ReactNode> {
   switch (section.kind) {
     case 'heroCarousel':
       return <HeroCarouselSection section={section} brandColor={brandColor} />
@@ -1308,6 +1308,27 @@ async function renderSection(
     default:
       return null
   }
+}
+
+function CepRecognitionStrip() {
+  return (
+    <section className="border-y border-orange-100 bg-white">
+      <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 sm:px-6 md:grid-cols-[auto_1fr_auto] lg:px-8">
+        <img
+          src="/website/cep/recognition/mencion-honorifica-premios-nacionales-educacion-2026.png"
+          alt="CEP Formación, centro reconocido con Mención Honorífica en los I Premios Nacionales de Educación 2026"
+          loading="lazy"
+          decoding="async"
+          className="h-28 w-28 justify-self-center object-contain sm:h-32 sm:w-32"
+        />
+        <div className="text-center md:text-left">
+          <h2 className="text-2xl font-black tracking-tight text-slate-950">Mención Honorífica en los I Premios Nacionales de Educación 2026</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Centro reconocido en la categoría oficial indicada en el emblema. Un reconocimiento al compromiso de CEP Formación con el aprendizaje y la mejora continua.</p>
+        </div>
+        <Link href="/quienes-somos#reconocimiento" className="justify-self-center rounded-full border border-orange-300 bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:border-orange-400 hover:bg-orange-50 md:justify-self-end">Conocer el reconocimiento</Link>
+      </div>
+    </section>
+  )
 }
 
 function normalizeHomeSections(sections: WebsiteSection[]): WebsiteSection[] {
@@ -1347,11 +1368,15 @@ export async function WebsiteRenderer({
     ? normalizeHomeSections(page.sections)
     : page.sections.filter((section) => section.enabled !== false)
   const sections = await Promise.all(
-    visibleSections.map(async (section, index) => (
-      <div key={section.id || `${section.kind}-${index}`}>
-        {await renderSection(section, brandColor, tenant.tenantId)}
-      </div>
-    ))
+    visibleSections.map(async (section, index) => {
+      const renderedSection = await renderSection(section, brandColor, tenant.tenantId)
+      return (
+        <Fragment key={section.id || `${section.kind}-${index}`}>
+          <div>{renderedSection}</div>
+          {page.pageKind === 'home' && tenant.isCepTenant && section.kind === 'heroCarousel' ? <CepRecognitionStrip /> : null}
+        </Fragment>
+      )
+    })
   )
   return <>{sections}</>
 }

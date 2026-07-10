@@ -287,7 +287,7 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
 
         <footer className="border-t border-slate-200 bg-white text-slate-700">
           <div className="bg-slate-50 py-12">
-            <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-4 lg:px-8">
+            <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-5 lg:px-8">
               <div className="flex flex-col items-center lg:items-start">
                 <img
                   src={website.visualIdentity.logoPrimary || tenant.logo}
@@ -320,6 +320,16 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
                   <li>Email: <a href="mailto:info@cursostenerife.es" className="font-semibold text-[#f2014b] hover:underline">info@cursostenerife.es</a></li>
                   <li>Horario: L-V 10:00-14:00 y 16:00-20:00</li>
                   <li><a href="/aproem" className="font-semibold text-[#f2014b] hover:underline">APROEM y Becas</a></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-900">Participa</h3>
+                <ul className="mt-4 space-y-2.5 text-sm font-semibold text-slate-700">
+                  <li><a href="/colabora?tipo=trabaja-con-nosotros#solicitud" className="transition hover:text-[#f2014b]">Trabaja con nosotros</a></li>
+                  <li><a href="/colabora?tipo=practicas-en-cep#solicitud" className="transition hover:text-[#f2014b]">Haz prácticas en CEP</a></li>
+                  <li><a href="/colabora?tipo=imparte-formacion#solicitud" className="transition hover:text-[#f2014b]">Bolsa de docentes</a></li>
+                  <li><a href="/colabora?tipo=empresa-practicas#solicitud" className="transition hover:text-[#f2014b]">Empresas de prácticas</a></li>
+                  <li><a href="/colabora?tipo=formacion-empresas#solicitud" className="transition hover:text-[#f2014b]">Formación para empresas</a></li>
                 </ul>
               </div>
               <div className="flex flex-col items-center gap-3 lg:items-end">

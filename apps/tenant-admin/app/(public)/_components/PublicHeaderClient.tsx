@@ -23,6 +23,15 @@ const COURSE_MENU_ITEMS = [
   { label: 'Teleformación', href: '/p/cursos?tipo=teleformacion' },
 ]
 
+const COLLABORATION_MENU_ITEMS = [
+  { label: 'Bolsa de empleo', href: '/empleo' },
+  { label: 'Trabaja con nosotros', href: '/colabora?tipo=trabaja-con-nosotros#solicitud' },
+  { label: 'Haz prácticas con nosotros', href: '/colabora?tipo=practicas-en-cep#solicitud' },
+  { label: 'Imparte formación', href: '/colabora?tipo=imparte-formacion#solicitud' },
+  { label: 'Empresas y proyectos', href: '/colabora?tipo=proyecto-colaborativo#solicitud' },
+  { label: 'Formación para empresas', href: '/colabora?tipo=formacion-empresas#solicitud' },
+]
+
 export function PublicHeaderClient({
   brandColor,
   tenantName,
@@ -189,9 +198,26 @@ export function PublicHeaderClient({
             <a href="/aproem" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               APROEM
             </a>
-            <a href="/empleo" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
-              Empleo
-            </a>
+            <div className="group relative">
+              <a
+                href="/colabora"
+                className="inline-flex items-center gap-1 text-sm font-medium text-gray-600 brand-hover transition-colors"
+              >
+                Colabora
+                <ChevronDown className="h-4 w-4" aria-hidden="true" />
+              </a>
+              <div className="invisible absolute right-0 top-full z-50 w-72 translate-y-2 rounded-2xl border border-slate-200 bg-white p-2 opacity-0 shadow-xl transition group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                {COLLABORATION_MENU_ITEMS.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </div>
             <a href="/blog" className="text-sm font-medium text-gray-600 brand-hover transition-colors">
               Blog
             </a>
@@ -277,13 +303,27 @@ export function PublicHeaderClient({
               >
                 APROEM
               </a>
-              <a
-                href="/empleo"
-                className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Empleo
-              </a>
+              <div className="rounded-2xl bg-slate-50 p-2">
+                <a
+                  href="/colabora"
+                  className="block rounded-xl px-3 py-3 text-sm font-black text-slate-950 transition hover:bg-white"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Colabora
+                </a>
+                <div className="grid gap-1">
+                  {COLLABORATION_MENU_ITEMS.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-white hover:text-slate-950"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
               <a
                 href="/blog"
                 className="rounded-xl px-3 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
