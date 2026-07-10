@@ -26,6 +26,7 @@ import {
   getStudyTypeVisualMap,
 } from '@/app/lib/server/published-courses'
 import { getPublicStudyTypeFallbackImage } from '@/app/lib/website/study-types'
+import { getPublicCourseFaqs, sanitizePublicCourseCopy } from '@/app/lib/website/public-course-content'
 import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -477,62 +478,10 @@ export default async function CursoLandingPage({ params }: Props) {
     ...eligibleRelatedCourses.slice(0, 20)
   ]).slice(0, 4)
 
-  const teleformacionFallbackFaqs = [
-    {
-      q: '¿Cuándo puedo empezar?',
-      a: 'Puedes empezar cuando quieras una vez formalizada la matrícula. La matrícula está abierta de forma permanente.'
-    },
-    {
-      q: '¿La formación es presencial?',
-      a: 'No. La formación se realiza 100% online, desde casa y sin desplazamientos.'
-    },
-    {
-      q: '¿Tengo horarios obligatorios?',
-      a: 'No hay horario fijo de aula. Puedes avanzar a tu ritmo dentro de las condiciones del curso.'
-    },
-    {
-      q: '¿Tendré acompañamiento durante el curso?',
-      a: 'Sí. Cuentas con acompañamiento tutorial online para resolver dudas y avanzar con seguridad.'
-    },
-    {
-      q: '¿Cómo accedo al curso?',
-      a: 'Tras completar la matrícula, el equipo de CEP te indica los pasos de acceso y funcionamiento del curso online.'
-    },
-    {
-      q: '¿Recibo certificado?',
-      a: 'Sí. Al finalizar la formación según los requisitos del programa, recibirás la certificación correspondiente.'
-    },
-  ]
-
-  const fallbackFaqs = isTeleformacion ? teleformacionFallbackFaqs : [
-    {
-      q: '¿Qué aprenderé en este curso?',
-      a: 'Aprenderás a recomendar nutricosmética y complementos alimenticios con criterios claros, seguros y basados en evidencia, relacionando nutrición, piel, estética, bienestar y rendimiento físico.'
-    },
-    {
-      q: '¿A quién va dirigido?',
-      a: 'Está dirigido a profesionales del ámbito de la salud, la estética, el bienestar y el deporte que quieran ampliar conocimientos y aplicarlos de forma responsable en su práctica profesional.'
-    },
-    {
-      q: '¿Qué requisitos de acceso tiene?',
-      a: 'Puedes acceder con 2º de ESO o EGB. Si tienes experiencia previa en salud, estética, bienestar o deporte, el equipo de CEP puede orientarte sobre el encaje del curso con tu perfil.'
-    },
-    {
-      q: '¿Cuánto dura y cómo se imparte?',
-      a: 'El curso tiene 48 horas de formación, organizadas en 12 sesiones de 4 horas. La modalidad es presencial, con clases una vez por semana y grupos reducidos.'
-    },
-    {
-      q: '¿Qué contenidos incluye el programa?',
-      a: 'Incluye fundamentos de nutricosmética, complementos alimenticios, vitaminas, minerales, colágeno, microbiota, salud de piel, cabello y uñas, antioxidantes, sueño, estrés, adaptógenos, contraindicaciones y recomendación profesional.'
-    },
-    {
-      q: '¿Qué salidas o continuidad formativa tiene?',
-      a: 'Al terminar puedes ampliar conocimientos con Auxiliar de Farmacia, Auxiliar de Enfermería, Auxiliar en Clínicas Estéticas, Quiromasaje Holístico, Entrenamiento Personal, Dietética y Nutrición o Dermocosmética.'
-    }
-  ]
-  const faqs = course.landingFaqs?.length
-    ? course.landingFaqs.map((faq: any) => ({ q: faq.question, a: faq.answer }))
-    : fallbackFaqs
+  const faqs = getPublicCourseFaqs({
+    landingFaqs: course.landingFaqs,
+    isOnline: isTeleformacion,
+  })
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -875,14 +824,14 @@ export default async function CursoLandingPage({ params }: Props) {
                           {section.title}
                         </h3>
                         {section.body && (
-                          <p className="mt-2 text-sm leading-relaxed text-gray-600">{section.body}</p>
+                          <p className="mt-2 text-sm leading-relaxed text-gray-600">{sanitizePublicCourseCopy(section.body)}</p>
                         )}
                         {section.items.length > 0 && (
                           <ul className="mt-4 space-y-3">
                             {section.items.map((item, i) => (
                               <li key={i} className="flex gap-3 text-base leading-relaxed text-gray-700">
                                 <span className="mt-2 h-2 w-2 shrink-0 rounded-full brand-bg" />
-                                <span>{item}</span>
+                                <span>{sanitizePublicCourseCopy(item)}</span>
                               </li>
                             ))}
                           </ul>
