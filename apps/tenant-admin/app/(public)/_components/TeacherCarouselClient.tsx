@@ -7,17 +7,22 @@ type TeacherCarouselMember = {
   name: string
   role: string
   image: string
+  // Kept optional for compatibility with older public-home payloads. The
+  // carousel no longer renders area badges, but legacy data may still carry
+  // them while a deployment is rolling.
+  areas?: Array<{ name: string; color?: string | null }>
 }
 
 export function TeacherCarouselClient({ members }: { members: TeacherCarouselMember[] }) {
   const trackRef = useRef<HTMLDivElement | null>(null)
   const dragState = useRef<{ pointerId: number; startX: number; scrollLeft: number } | null>(null)
 
-  if (members.length === 0) return null
+  const safeMembers = Array.isArray(members) ? members : []
+  if (safeMembers.length === 0) return null
 
   const baseLoopMembers = Array.from(
-    { length: Math.max(1, Math.ceil(6 / members.length)) },
-    () => members
+    { length: Math.max(1, Math.ceil(6 / safeMembers.length)) },
+    () => safeMembers
   ).flat()
   const loopMembers = [...baseLoopMembers, ...baseLoopMembers]
 
