@@ -13,6 +13,7 @@ import {
   type PublicStudyType,
 } from '@/app/lib/website/study-types'
 import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
+import { normalizeNominativeText } from '@/lib/nominative-text'
 
 type CourseDoc = {
   id: number | string
@@ -408,7 +409,7 @@ function mapCourseDocToPublishedCourse(
     id: String(course.id),
     codigo: String(course.codigo || ''),
     slug: String(course.slug || ''),
-    nombre: String(course.name || course.title || 'Curso sin nombre'),
+    nombre: normalizeNominativeText(course.name || course.title) || 'Curso sin nombre',
     tipo: String(course.course_type || ''),
     studyType: normalizedStudyType,
     studyTypeLabel: visual?.label || 'Sin tipo',

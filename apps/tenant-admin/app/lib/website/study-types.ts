@@ -29,7 +29,9 @@ export const PUBLIC_STUDY_TYPE_FALLBACK_IMAGES: Record<PublicStudyType, string> 
   teleformacion: '/website/cep/courses/fallback-teleformacion.png',
 }
 
-export const DEFAULT_PUBLIC_COURSE_FALLBACK_IMAGE = '/placeholder-course.svg'
+// Keep an editorial image on public cards even when an operator has not yet
+// uploaded a course-specific asset or selected an unknown legacy type.
+export const DEFAULT_PUBLIC_COURSE_FALLBACK_IMAGE = '/website/cep/courses/fallback-privados.png'
 
 export function normalizeStudyType(value: string | null | undefined): NormalizedStudyType | null {
   if (!value) return null

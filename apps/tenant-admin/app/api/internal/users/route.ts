@@ -85,7 +85,10 @@ export async function POST(request: NextRequest) {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         password,
-        role: role || 'lectura',
+        // This is CEP's internal administrative-user flow, not public signup.
+        // A new collaborator needs the same academic management surface as the
+        // rest of the CEP operations team unless an administrator selects a role.
+        role: role || 'gestor',
         phone: phone || undefined,
         is_active: true,
         tenant: 1,

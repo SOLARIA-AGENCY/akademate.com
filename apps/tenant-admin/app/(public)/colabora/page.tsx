@@ -10,12 +10,54 @@ export const metadata = {
 export const dynamic = 'force-dynamic'
 
 const opportunities = [
-  { id: 'trabaja-con-nosotros', icon: BriefcaseBusiness, title: 'Trabaja con nosotros', body: 'Buscamos personas con vocación, iniciativa y ganas de crecer en docencia, coordinación, orientación, administración, marketing y gestión.', cta: 'Enviar candidatura' },
-  { id: 'practicas-en-cep', icon: School, title: 'Haz prácticas con nosotros', body: 'Conoce un centro de formación profesional, participa en proyectos reales y aprende acompañado por un equipo cercano.', cta: 'Solicitar prácticas' },
-  { id: 'imparte-formacion', icon: Presentation, title: 'Imparte formación con nosotros', body: 'Incorporamos especialistas con experiencia profesional y capacidad para inspirar, acompañar y enseñar.', cta: 'Entrar en la bolsa docente' },
-  { id: 'proyecto-colaborativo', icon: Handshake, title: 'Propón un proyecto', body: 'Escuchamos iniciativas de formación, empleo, innovación, bienestar, responsabilidad social y desarrollo de personas.', cta: 'Presentar un proyecto' },
-  { id: 'empresa-practicas', icon: UsersRound, title: 'Sé empresa colaboradora de prácticas', body: 'Conecta con alumnado preparado, participa en su desarrollo y crea un vínculo con el talento que viene.', cta: 'Ser empresa colaboradora' },
-  { id: 'formacion-empresas', icon: Building2, title: 'Formación para empresas', body: 'Diseñamos programas a medida, presenciales, online o mixtos, para responder a las necesidades reales de cada equipo.', cta: 'Solicitar propuesta' },
+  {
+    id: 'trabaja-con-nosotros', icon: BriefcaseBusiness, title: 'Trabaja con nosotros', image: '/website/cep/colabora/trabaja-con-nosotros.png', cta: 'Enviar candidatura',
+    paragraphs: [
+      'En CEP Formación creemos que las personas son el motor de nuestro proyecto. Si compartes nuestra pasión por la educación, la innovación y el desarrollo de las personas, nos encantará conocerte.',
+      'Buscamos profesionales comprometidos, con vocación, iniciativa y ganas de seguir creciendo para puestos docentes y áreas de administración, coordinación, orientación, formación, marketing y gestión.',
+      'Valoramos especialmente la implicación, la calidad humana, el trabajo en equipo y el deseo de contribuir a transformar vidas a través de la formación. Si quieres formar parte de una organización con más de 28 años formando profesionales, envíanos tu currículum y cuéntanos qué puedes aportar.',
+    ],
+  },
+  {
+    id: 'practicas-en-cep', icon: School, title: 'Haz prácticas con nosotros', image: '/website/cep/colabora/practicas-en-cep.png', cta: 'Solicitar prácticas',
+    paragraphs: [
+      '¿Estás estudiando un ciclo formativo, un grado universitario o una especialización y necesitas realizar tus prácticas?',
+      'En CEP Formación abrimos nuestras puertas a estudiantes que quieran aprender en un entorno dinámico, profesional y comprometido con la excelencia. Podrás conocer el funcionamiento de un centro de formación referente, participar en proyectos reales y adquirir experiencia junto a un equipo que te acompañará durante todo el proceso.',
+      'Si buscas un lugar donde crecer profesionalmente y desarrollar tus competencias, envíanos tu solicitud. Estudiaremos la posibilidad de incorporarte a nuestro programa de prácticas.',
+    ],
+  },
+  {
+    id: 'imparte-formacion', icon: Presentation, title: 'Imparte formación con nosotros', image: '/website/cep/colabora/imparte-formacion.png', cta: 'Entrar en la bolsa docente',
+    paragraphs: [
+      'En CEP Formación buscamos profesionales apasionados por compartir su conocimiento y contribuir al desarrollo de nuevas generaciones de profesionales.',
+      'Colaboramos con expertos de diferentes ámbitos para impartir formación privada, certificados profesionales, formación para empresas, acciones subvencionadas y programas especializados.',
+      'Valoramos el dominio técnico, la capacidad de comunicación, la cercanía con el alumnado, la innovación metodológica y el compromiso con la calidad. Si deseas incorporarte a nuestra bolsa de docentes, cuéntanos cuál es tu especialidad.',
+    ],
+  },
+  {
+    id: 'proyecto-colaborativo', icon: Handshake, title: '¿Tienes un proyecto? Colabora con CEP Formación', image: '/website/cep/colabora/proyecto-colaborativo.png', cta: 'Presentar un proyecto',
+    paragraphs: [
+      'En CEP Formación creemos en las alianzas que generan impacto. Si eres profesional, empresa, institución, asociación o entidad y tienes una idea o iniciativa que pueda aportar valor a la sociedad, queremos escucharte.',
+      'Estamos abiertos a desarrollar proyectos conjuntos relacionados con formación, innovación, empleo, orientación profesional, responsabilidad social, bienestar, educación emocional, digitalización y cualquier iniciativa que contribuya al crecimiento de las personas y las organizaciones.',
+      'Las grandes ideas nacen cuando diferentes talentos trabajan juntos. Cuéntanos tu propuesta y exploremos nuevas oportunidades de colaboración.',
+    ],
+  },
+  {
+    id: 'empresa-practicas', icon: UsersRound, title: 'Centro colaborador de prácticas', image: '/website/cep/colabora/empresa-practicas.png', cta: 'Ser empresa colaboradora',
+    paragraphs: [
+      '¿Quieres incorporar alumnado en prácticas a tu empresa? Colaborar con CEP Formación es una oportunidad para conocer nuevos profesionales, aportar al desarrollo del talento y establecer un vínculo directo con futuros trabajadores.',
+      'Seleccionamos cuidadosamente al alumnado y realizamos un seguimiento continuo durante todo el periodo de prácticas para garantizar una experiencia satisfactoria tanto para la empresa como para el estudiante.',
+      'Si tu organización desea formar parte de nuestra red de empresas colaboradoras, estaremos encantados de informarte sobre el procedimiento y las diferentes modalidades de colaboración.',
+    ],
+  },
+  {
+    id: 'formacion-empresas', icon: Building2, title: 'Formación para empresas', image: '/website/cep/colabora/formacion-empresas.png', cta: 'Solicitar propuesta',
+    paragraphs: [
+      'Cada empresa es única y sus necesidades formativas también. En CEP Formación diseñamos programas a medida para ayudar a las organizaciones a desarrollar el talento de sus equipos, mejorar la productividad y afrontar nuevos retos.',
+      'Ofrecemos formación presencial, online y mixta, adaptándonos a objetivos, horarios y características de cada organización. Podemos ayudarte con habilidades directivas, competencias digitales, inteligencia artificial, atención al cliente, idiomas, bienestar laboral, prevención y liderazgo.',
+      'Nuestro equipo estudiará tu proyecto y elaborará una propuesta personalizada. Invertir en formación es invertir en el futuro de tu empresa.',
+    ],
+  },
 ]
 
 const commitments = [
@@ -55,17 +97,22 @@ export default function ColaboraPage() {
             <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Una puerta de entrada para cada forma de sumar</h2>
             <p className="mt-4 text-lg leading-8 text-slate-600">Elige la vía que mejor encaja contigo. Cada solicitud llega al equipo adecuado desde el primer momento.</p>
           </div>
-          <div className="mt-12 grid gap-x-10 gap-y-12 lg:grid-cols-2">
+          <div className="mt-12 grid gap-8 lg:grid-cols-2">
             {opportunities.map((opportunity) => {
               const Icon = opportunity.icon
               return (
-                <article key={opportunity.id} className="group border-t border-slate-200 pt-6">
-                  <Icon className="h-8 w-8 text-[#f2014b]" aria-hidden="true" />
-                  <h3 className="mt-5 text-2xl font-black tracking-tight">{opportunity.title}</h3>
-                  <p className="mt-3 max-w-xl text-base leading-7 text-slate-600">{opportunity.body}</p>
-                  <a href={`/colabora?tipo=${opportunity.id}#solicitud`} className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#f2014b] transition group-hover:gap-3">
-                    {opportunity.cta}<ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </a>
+                <article key={opportunity.id} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+                  <img src={opportunity.image} alt="" loading="lazy" decoding="async" className="h-52 w-full object-cover" />
+                  <div className="p-7">
+                    <Icon className="h-8 w-8 text-[#f2014b]" aria-hidden="true" />
+                    <h3 className="mt-5 text-2xl font-black tracking-tight text-slate-950">{opportunity.title}</h3>
+                    <div className="mt-4 space-y-3 text-base leading-7 text-slate-600">
+                      {opportunity.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                    </div>
+                    <a href={`/colabora?tipo=${opportunity.id}#solicitud`} className="mt-6 inline-flex items-center gap-2 text-sm font-black text-[#f2014b] transition group-hover:gap-3">
+                      {opportunity.cta}<ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </div>
                 </article>
               )
             })}

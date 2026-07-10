@@ -5,7 +5,7 @@ import configPromise from '@payload-config'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
-import { normalizeStudyType } from '@/app/lib/website/study-types'
+import { getPublicStudyTypeFallbackImage, normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
 import { TeacherCarouselClient } from './TeacherCarouselClient'
 import { BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-react'
@@ -84,7 +84,7 @@ function getCourseTypeColor(courseType: string | null | undefined): string {
 }
 
 function getCourseTitle(course: any): string {
-  return String(course?.title || course?.name || 'Curso CEP')
+  return normalizeNominativeText(course?.title || course?.name) || 'Curso CEP'
 }
 
 function getCourseDescription(course: any): string {
@@ -705,7 +705,10 @@ async function CourseListSection({
             {docs.map((course: any) => {
               const title = getCourseTitle(course)
               const description = getCourseDescription(course)
-              const imageUrl = resolveImageUrl(course.featured_image) || resolveImageUrl(course.image)
+              const imageUrl =
+                resolveImageUrl(course.featured_image) ||
+                resolveImageUrl(course.image) ||
+                getPublicStudyTypeFallbackImage(course.course_type)
               const nextRun = nextRunByCourse.get(String(course.id))
               const campus = typeof nextRun?.campus === 'object' && nextRun.campus ? nextRun.campus : null
               const normalizedStudyType = normalizeStudyType(String(course.course_type || ''))
@@ -780,13 +783,14 @@ async function CycleListSection({
         <div className="mt-10 grid gap-8 lg:grid-cols-2">
           {result.docs.map((cycle: any) => {
             const imageUrl = resolveImageUrl(cycle.image)
+            const cycleName = normalizeNominativeText(cycle.name) || cycle.name
             const levelMeta = getCycleLevelMeta(cycle.level)
             const subtitle = getCycleSubtitle(cycle)
             const chips = getCycleChips(cycle)
             return (
               <Link key={cycle.id} href={`/ciclos/${cycle.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl">
                 <div className="relative h-72 overflow-hidden">
-                  {imageUrl ? <img src={imageUrl} alt={cycle.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
+                  {imageUrl ? <img src={imageUrl} alt={cycleName} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                   <div className="absolute bottom-5 left-5 right-5">
                     <p
@@ -795,7 +799,7 @@ async function CycleListSection({
                     >
                       {levelMeta?.label || cycle.level}
                     </p>
-                    <h3 className="text-3xl font-black leading-tight text-white">{cycle.name}</h3>
+                    <h3 className="text-3xl font-black leading-tight text-white">{cycleName}</h3>
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col space-y-4 p-6">
@@ -891,13 +895,16 @@ async function ConvocationListSection({
                 </svg>
                 <span>{group.title}{group.city ? ` — ${group.city}` : ''}</span>
               </div>
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {group.docs.map((conv: any) => {
             const course = typeof conv.course === 'object' ? conv.course : null
             const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
-            const displayName = cycle?.name || course?.name || course?.title || conv.codigo
+            const displayName = normalizeNominativeText(cycle?.name || course?.name || course?.title || conv.codigo) || conv.codigo
             const imageUrl =
-              resolveImageUrl(course?.featured_image) || resolveImageUrl(course?.image) || resolveImageUrl(cycle?.image)
+              resolveImageUrl(course?.featured_image) ||
+              resolveImageUrl(course?.image) ||
+              resolveImageUrl(cycle?.image) ||
+              getPublicStudyTypeFallbackImage(course?.course_type || (cycle ? 'ciclo_superior' : null))
             const convocationBadge = getConvocationBadge({ course, cycle, conv, groupKey, displayName })
             const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
             const isCycleRun = Boolean(cycle)

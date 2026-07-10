@@ -111,6 +111,10 @@ export async function POST(request: NextRequest) {
     const isCepTenant =
       /cep\s*formaci[oó]n/i.test(academyName) ||
       /cepformacion|cursostenerife|cepcomunicacion/i.test(domainFromTenant || request.nextUrl.hostname)
+    // CEP operates its dashboard collaboratively: internal invitations must
+    // start with academic-management access unless an explicit role is chosen.
+    // Public registration remains read-only in its separate endpoint.
+    const invitationRole = role || (isCepTenant ? 'gestor' : 'lectura')
     const configuredPrimaryColor =
       (typeof tenant?.branding_primary_color === 'string' && tenant.branding_primary_color.trim()) ||
       process.env.NEXT_PUBLIC_TENANT_PRIMARY_COLOR ||
@@ -164,7 +168,7 @@ export async function POST(request: NextRequest) {
     await queryFirst(
       `INSERT INTO user_invitations (email, name, role, token, status, tenant_id)
        VALUES ($1, $2, $3, $4, 'pending', $5)`,
-      [invitationEmail, name.trim(), role || 'lectura', token, tenantId],
+      [invitationEmail, name.trim(), invitationRole, token, tenantId],
     )
 
     // Send invitation email
@@ -173,7 +177,7 @@ export async function POST(request: NextRequest) {
     const html = invitationEmailHtml({
       name: name.trim(),
       email: invitationEmail,
-      role: role || 'lectura',
+      role: invitationRole,
       acceptUrl,
       academyName,
       logoUrl,
