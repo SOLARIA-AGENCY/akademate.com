@@ -1365,9 +1365,10 @@ export async function WebsiteRenderer({
   brandColor: string
 }) {
   const tenant = await getTenantHostBranding()
+  const pageSections = Array.isArray(page.sections) ? page.sections : []
   const visibleSections = page.pageKind === 'home'
-    ? normalizeHomeSections(page.sections)
-    : page.sections.filter((section) => section.enabled !== false)
+    ? normalizeHomeSections(pageSections)
+    : pageSections.filter((section) => section.enabled !== false)
   const sections = await Promise.all(
     visibleSections.map(async (section, index) => {
       const renderedSection = await renderSection(section, brandColor, tenant.tenantId)

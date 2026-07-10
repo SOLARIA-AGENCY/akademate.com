@@ -124,7 +124,11 @@ export function getDefaultSectionsForPageKind(pageKind: WebsitePage['pageKind'])
 
 export function normalizeWebsitePage(page: WebsitePage): WebsitePage {
   const slug = page.slug && page.slug.trim() !== '' ? sanitizeSlug(page.slug) : slugFromPath(page.path)
-  const baseSections = page.sections.length ? page.sections : getDefaultSectionsForPageKind(page.pageKind)
+  // Tenant notes can contain website pages created before `sections` was
+  // mandatory. Treat those legacy records as an empty section list instead of
+  // failing the whole public site while normalizing the configuration.
+  const pageSections = Array.isArray(page.sections) ? page.sections : []
+  const baseSections = pageSections.length ? pageSections : getDefaultSectionsForPageKind(page.pageKind)
   return {
     ...page,
     slug,
