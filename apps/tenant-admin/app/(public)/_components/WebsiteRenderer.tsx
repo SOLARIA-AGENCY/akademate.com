@@ -1100,13 +1100,14 @@ async function TeamGridSection({
   const payload = await getPayload({ config: configPromise })
   const staffResult = await payload.find({
     collection: 'staff',
-    where: withTenantScope(
-      {
-        staff_type: { equals: 'profesor' },
-        employment_status: { equals: 'active' },
-      },
-      tenantId
-    ) as any,
+    // Staff predates tenant scoping and does not expose a `tenant` field in
+    // Payload. Applying withTenantScope here makes the public home fail before
+    // rendering. Course runs remain tenant-scoped when resolving each teacher's
+    // teaching assignment below.
+    where: {
+      staff_type: { equals: 'profesor' },
+      employment_status: { equals: 'active' },
+    } as any,
     depth: 1,
     limit: 60,
     sort: 'full_name',
