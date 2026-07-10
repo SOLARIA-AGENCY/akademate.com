@@ -88,11 +88,19 @@ export async function GET(
       );
     }
 
+    const authUser = await payload.findByID({
+      collection: 'users',
+      id: authContext.userId,
+      depth: 0,
+      overrideAccess: true,
+    });
+
     const result = await payload.find({
       collection: 'courses',
       where: withTenantScope({ id: { equals: numericId } }, authContext.tenantId) as any,
       limit: 1,
       depth: 2,
+      user: authUser,
     });
     const curso = (result.docs[0] ?? null) as unknown as CourseDocument | null;
 
@@ -195,11 +203,19 @@ export async function PATCH(
       );
     }
 
+    const authUser = await payload.findByID({
+      collection: 'users',
+      id: authContext.userId,
+      depth: 0,
+      overrideAccess: true,
+    });
+
     const existing = await payload.find({
       collection: 'courses',
       where: withTenantScope({ id: { equals: numericId } }, authContext.tenantId) as any,
       limit: 1,
       depth: 0,
+      user: authUser,
     });
 
     if (!existing.docs[0]) {
@@ -213,6 +229,7 @@ export async function PATCH(
       collection: 'courses',
       id: numericId,
       data: body,
+      user: authUser,
     });
 
     return NextResponse.json({ success: true, data: updated });
