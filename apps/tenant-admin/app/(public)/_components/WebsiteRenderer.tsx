@@ -5,7 +5,7 @@ import configPromise from '@payload-config'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
-import { getPublicStudyTypeFallbackImage, normalizeStudyType } from '@/app/lib/website/study-types'
+import { getGeneratedCourseImage, getPublicStudyTypeFallbackImage, normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
 import { TeacherCarouselClient } from './TeacherCarouselClient'
 import { BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-react'
@@ -706,9 +706,10 @@ async function CourseListSection({
               const title = getCourseTitle(course)
               const description = getCourseDescription(course)
               const imageUrl =
-                resolveImageUrl(course.featured_image) ||
-                resolveImageUrl(course.image) ||
-                getPublicStudyTypeFallbackImage(course.course_type)
+      resolveImageUrl(course.featured_image) ||
+      resolveImageUrl(course.image) ||
+      getGeneratedCourseImage(course.codigo) ||
+      getPublicStudyTypeFallbackImage(course.course_type)
               const nextRun = nextRunByCourse.get(String(course.id))
               const campus = typeof nextRun?.campus === 'object' && nextRun.campus ? nextRun.campus : null
               const normalizedStudyType = normalizeStudyType(String(course.course_type || ''))
@@ -901,10 +902,11 @@ async function ConvocationListSection({
             const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
             const displayName = normalizeNominativeText(cycle?.name || course?.name || course?.title || conv.codigo) || conv.codigo
             const imageUrl =
-              resolveImageUrl(course?.featured_image) ||
-              resolveImageUrl(course?.image) ||
-              resolveImageUrl(cycle?.image) ||
-              getPublicStudyTypeFallbackImage(course?.course_type || (cycle ? 'ciclo_superior' : null))
+      resolveImageUrl(course?.featured_image) ||
+      resolveImageUrl(course?.image) ||
+      resolveImageUrl(cycle?.image) ||
+      getGeneratedCourseImage(course?.codigo) ||
+      getPublicStudyTypeFallbackImage(course?.course_type || (cycle ? 'ciclo_superior' : null))
             const convocationBadge = getConvocationBadge({ course, cycle, conv, groupKey, displayName })
             const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
             const isCycleRun = Boolean(cycle)

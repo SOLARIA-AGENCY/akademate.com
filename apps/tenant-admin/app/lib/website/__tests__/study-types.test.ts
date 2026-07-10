@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   getPublicStudyTypeFallbackImage,
+  getGeneratedCourseImage,
   normalizePublicStudyType,
   normalizeStudyType,
   toDashboardStudyType,
@@ -49,5 +50,10 @@ describe('normalizeStudyType', () => {
     expect(getPublicStudyTypeFallbackImage('teleformacion')).toBe('/website/cep/courses/fallback-teleformacion.png')
     expect(getPublicStudyTypeFallbackImage('ciclo-superior')).toBe('/website/cep/courses/fallback-privados.png')
     expect(getPublicStudyTypeFallbackImage('legacy-unknown-type')).toBe('/website/cep/courses/fallback-privados.png')
+  })
+
+  it('uses generated covers for known legacy courses without Media', () => {
+    expect(getGeneratedCourseImage('SEPE-HOTR0020-DESE')).toBe('/website/cep/courses/generated/logistica-cocina-aprovisionamiento.png')
+    expect(getGeneratedCourseImage('unknown')).toBeNull()
   })
 })

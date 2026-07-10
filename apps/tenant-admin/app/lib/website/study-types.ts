@@ -33,6 +33,25 @@ export const PUBLIC_STUDY_TYPE_FALLBACK_IMAGES: Record<PublicStudyType, string> 
 // uploaded a course-specific asset or selected an unknown legacy type.
 export const DEFAULT_PUBLIC_COURSE_FALLBACK_IMAGE = '/website/cep/courses/fallback-privados.png'
 
+// Generated editorial covers for legacy CEP records that were imported without
+// a Media relation. Keeping this mapping here guarantees a real cover during
+// the transition while operators complete the media catalog in the dashboard.
+export const CEP_GENERATED_COURSE_IMAGES: Record<string, string> = {
+  'PRIV-AUXFARM-PARA': '/website/cep/courses/generated/farmacia-parafarmacia.png',
+  'SCLN-CMED-cfgm-farmacia-y-parafarmacia': '/website/cep/courses/generated/farmacia-parafarmacia.png',
+  'SBD-TELE-dietetica-y-nutricion-online-priv': '/website/cep/courses/generated/dietetica-nutricion-online.png',
+  'SEPE-HOTR0020-DESE': '/website/cep/courses/generated/logistica-cocina-aprovisionamiento.png',
+  'SBD-TELE-nutricion-deportiva-online-100h': '/website/cep/courses/generated/nutricion-deportiva-online.png',
+  'SBD-TELE-nutricion-en-la-practica-deportiva-online-200h': '/website/cep/courses/generated/nutricion-practica-deportiva-online.png',
+  'EAG-PRIV-seminario-practico-gestion-unycop': '/website/cep/courses/generated/seminario-gestion-unycop.png',
+  'PRIV-GESTORVET': '/website/cep/courses/generated/seminario-gestorvet.png',
+}
+
+export function getGeneratedCourseImage(codigo: string | null | undefined): string | null {
+  if (!codigo) return null
+  return CEP_GENERATED_COURSE_IMAGES[codigo.trim()] ?? null
+}
+
 export function normalizeStudyType(value: string | null | undefined): NormalizedStudyType | null {
   if (!value) return null
   const normalized = value

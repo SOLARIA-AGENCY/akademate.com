@@ -5,6 +5,7 @@ import configPromise from '@payload-config'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import {
   getPublicStudyTypeFallbackImage,
+  getGeneratedCourseImage,
   isPublicStudyType,
   normalizePublicStudyType,
   normalizeStudyType,
@@ -402,6 +403,7 @@ function mapCourseDocToPublishedCourse(
   const imageUrl =
     resolveMediaImageUrl(course.featured_image) ??
     resolveMediaImageUrl(course.image) ??
+    getGeneratedCourseImage(course.codigo) ??
     getPublicStudyTypeFallbackImage(course.course_type)
   const runMeta = toEnrollmentStatus(runs, normalizedStudyType)
 
