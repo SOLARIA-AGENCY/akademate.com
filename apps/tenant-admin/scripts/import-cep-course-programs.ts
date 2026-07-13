@@ -178,6 +178,24 @@ function tenantWhere(tenantId: number) {
   return { tenant: { equals: tenantId } }
 }
 
+async function detectMaterialsCollection(payload: PayloadClient): Promise<boolean> {
+  try {
+    await payload.find({
+      collection: 'materials',
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    return true
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    if (/materials/i.test(message) && (/failed query/i.test(message) || /does not exist/i.test(message))) {
+      return false
+    }
+    throw error
+  }
+}
+
 async function findScriptUser(_payload: PayloadClient, tenantId: number): Promise<ScriptUser> {
   return { id: 0, role: 'admin', tenant: tenantId, collection: 'users' }
 }
@@ -393,7 +411,12 @@ async function ensureMaterial(
   mediaId: number | string | null,
   scriptUser: ScriptUser,
   apply: boolean,
+  materialsAvailable: boolean,
 ) {
+  if (!materialsAvailable) {
+    return { id: null, changed: false, fields: [] as string[] }
+  }
+
   const existing = await payload.find({
     collection: 'materials',
     where: {
@@ -525,6 +548,7 @@ async function processEntry(
   entry: CourseProgramEntry,
   options: Options,
   scriptUser: ScriptUser,
+  materialsAvailable: boolean,
 ): Promise<ResultAction> {
   try {
     const courseResult = await createCourseIfMissing(payload, entry, options, scriptUser)
@@ -546,12 +570,24 @@ async function processEntry(
         pdfFilename: entry.pdfFilename,
         status: 'would-update',
         courseId,
-        changedFields: [...courseResult.fields, 'media.create', 'materials.create'],
+        changedFields: [
+          ...courseResult.fields,
+          'media.create',
+          ...(materialsAvailable ? ['materials.create'] : []),
+        ],
       }
     }
 
     const media = await ensureMediaFromPdf(payload, entry, scriptUser, options.apply)
-    const material = await ensureMaterial(payload, entry, courseId, media.id, scriptUser, options.apply)
+    const material = await ensureMaterial(
+      payload,
+      entry,
+      courseId,
+      media.id,
+      scriptUser,
+      options.apply,
+      materialsAvailable,
+    )
     const courseUpdate = buildCourseUpdate(entry, course, options.replaceCourseFields, media.id)
 
     if (options.apply && courseUpdate.changedFields.length > 0) {
@@ -650,11 +686,12 @@ async function main() {
 
   const payload = await getPayload({ config })
   const scriptUser = await findScriptUser(payload, options.tenantId)
+  const materialsAvailable = await detectMaterialsCollection(payload)
   const results: ResultAction[] = []
   const cleanup: CleanupAction[] = []
 
   for (const entry of CEP_COURSE_PROGRAM_ENTRIES) {
-    results.push(await processEntry(payload, entry, options, scriptUser))
+    results.push(await processEntry(payload, entry, options, scriptUser, materialsAvailable))
   }
   for (const slug of CEP_DEPRECATED_COURSE_SLUGS) {
     cleanup.push(await deactivateDeprecatedCourse(payload, slug, options, scriptUser))
@@ -671,6 +708,7 @@ async function main() {
     skipped: results.filter((result) => result.status === 'skip').length,
     conflicts: results.filter((result) => result.status === 'conflict').length,
     errors: results.filter((result) => result.status === 'error').length,
+    materialsAvailable,
     cleanup,
     results,
   }

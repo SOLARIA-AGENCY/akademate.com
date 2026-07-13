@@ -1,5 +1,6 @@
 import { existsSync } from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
 import { describe, expect, test } from 'vitest'
 
@@ -9,7 +10,7 @@ import {
   cleanPublicCourseText,
 } from './cep-course-programs-data'
 
-const generatedImages = path.resolve(process.cwd(), 'public/website/cep/courses/generated')
+const generatedImages = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../public/website/cep/courses/generated')
 
 describe('CEP course program source contract', () => {
   test('keeps the three newly ingested programs distinct', () => {
