@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { getPayload } from 'payload'
+import postgres from 'postgres'
 
 import config from '../src/payload.config'
 import {
@@ -21,6 +22,7 @@ type Options = {
 }
 
 type PayloadClient = Awaited<ReturnType<typeof getPayload>>
+type SqlClient = ReturnType<typeof postgres>
 
 type ScriptUser = {
   id: number | string
@@ -334,9 +336,6 @@ async function createCourseIfMissing(
     landing_target_audience: entry.targetAudience ?? 'Personas interesadas en formación profesionalizante del área.',
     landing_access_requirements: entry.accessRequirements ?? 'Consulta las condiciones de acceso con CEP Formación.',
     landing_outcomes: entry.outcomes ?? null,
-    landing_objectives: landingObjectives(entry),
-    landing_program_blocks: landingProgramBlocks(entry),
-    landing_faqs: landingFaqs(entry),
   }
   if (entry.durationHours != null) createData.duration_hours = entry.durationHours
 
@@ -497,9 +496,6 @@ function buildCourseUpdate(
     landing_target_audience: entry.targetAudience ?? 'Personas interesadas en formación profesionalizante del área.',
     landing_access_requirements: entry.accessRequirements ?? 'Consulta las condiciones de acceso con CEP Formación.',
     landing_outcomes: entry.outcomes ?? null,
-    landing_objectives: landingObjectives(entry),
-    landing_program_blocks: landingProgramBlocks(entry),
-    landing_faqs: landingFaqs(entry),
   }
 
   const fieldRules: Array<[string, unknown]> = [
@@ -541,12 +537,99 @@ function buildCourseUpdate(
   return { data, changedFields }
 }
 
+function databaseUri(): string {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL
+  if (process.env.DATABASE_URI) return process.env.DATABASE_URI
+
+  const { DATABASE_USER, DATABASE_PASSWORD, DATABASE_HOST, DATABASE_PORT, DATABASE_NAME } = process.env
+  if (DATABASE_USER && DATABASE_PASSWORD && DATABASE_HOST && DATABASE_PORT && DATABASE_NAME) {
+    return `postgresql://${encodeURIComponent(DATABASE_USER)}:${encodeURIComponent(DATABASE_PASSWORD)}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`
+  }
+
+  throw new Error('Missing database config. Set DATABASE_URL/DATABASE_URI or DATABASE_USER/PASSWORD/HOST/PORT/NAME before applying landing content.')
+}
+
+async function ensureLandingContent(
+  sql: SqlClient,
+  entry: CourseProgramEntry,
+  courseId: number | string,
+  replaceCourseFields: boolean,
+): Promise<string[]> {
+  const numericCourseId = Number(courseId)
+  if (!Number.isInteger(numericCourseId)) throw new Error(`Invalid numeric course id for landing content: ${courseId}`)
+
+  const [objectiveCount, blockCount, faqCount] = await Promise.all([
+    sql<{ count: number }[]>`SELECT COUNT(*)::int AS count FROM courses_landing_objectives WHERE _parent_id = ${numericCourseId}`,
+    sql<{ count: number }[]>`SELECT COUNT(*)::int AS count FROM courses_landing_program_blocks WHERE _parent_id = ${numericCourseId}`,
+    sql<{ count: number }[]>`SELECT COUNT(*)::int AS count FROM courses_landing_faqs WHERE _parent_id = ${numericCourseId}`,
+  ])
+
+  const shouldWriteObjectives = replaceCourseFields || Number(objectiveCount[0]?.count ?? 0) === 0
+  const shouldWriteBlocks = replaceCourseFields || Number(blockCount[0]?.count ?? 0) === 0
+  const shouldWriteFaqs = replaceCourseFields || Number(faqCount[0]?.count ?? 0) === 0
+  if (!shouldWriteObjectives && !shouldWriteBlocks && !shouldWriteFaqs) return []
+
+  await sql.begin(async (transaction) => {
+    if (shouldWriteObjectives) {
+      await transaction`DELETE FROM courses_landing_objectives WHERE _parent_id = ${numericCourseId}`
+      for (const [index, item] of landingObjectives(entry).entries()) {
+        await transaction`
+          INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
+          VALUES (${index + 1}, ${numericCourseId}, 'landing_objectives', ${item.text})
+        `
+      }
+    }
+
+    if (shouldWriteBlocks) {
+      await transaction`
+        DELETE FROM courses_landing_program_blocks_items
+        WHERE _parent_id IN (
+          SELECT id FROM courses_landing_program_blocks WHERE _parent_id = ${numericCourseId}
+        )
+      `
+      await transaction`DELETE FROM courses_landing_program_blocks WHERE _parent_id = ${numericCourseId}`
+      for (const [blockIndex, block] of landingProgramBlocks(entry).entries()) {
+        const inserted = await transaction<{ id: number }[]>`
+          INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
+          VALUES (${blockIndex + 1}, ${numericCourseId}, 'landing_program_blocks', ${block.title}, ${block.body ?? null})
+          RETURNING id
+        `
+        const blockId = inserted[0]?.id
+        if (!blockId) throw new Error(`Could not create landing program block for course ${numericCourseId}`)
+        for (const [itemIndex, item] of (block.items ?? []).entries()) {
+          await transaction`
+            INSERT INTO courses_landing_program_blocks_items (_order, _parent_id, path, text)
+            VALUES (${itemIndex + 1}, ${blockId}, 'items', ${item.text})
+          `
+        }
+      }
+    }
+
+    if (shouldWriteFaqs) {
+      await transaction`DELETE FROM courses_landing_faqs WHERE _parent_id = ${numericCourseId}`
+      for (const [index, faq] of landingFaqs(entry).entries()) {
+        await transaction`
+          INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+          VALUES (${index + 1}, ${numericCourseId}, 'landing_faqs', ${faq.question}, ${faq.answer})
+        `
+      }
+    }
+  })
+
+  return [
+    ...(shouldWriteObjectives ? ['courses.landing_objectives'] : []),
+    ...(shouldWriteBlocks ? ['courses.landing_program_blocks'] : []),
+    ...(shouldWriteFaqs ? ['courses.landing_faqs'] : []),
+  ]
+}
+
 async function processEntry(
   payload: PayloadClient,
   entry: CourseProgramEntry,
   options: Options,
   scriptUser: ScriptUser,
   materialsAvailable: boolean,
+  sql: SqlClient | null,
 ): Promise<ResultAction> {
   try {
     const courseResult = await createCourseIfMissing(payload, entry, options, scriptUser)
@@ -595,14 +678,22 @@ async function processEntry(
         data: courseUpdate.data,
         overrideAccess: true,
         depth: 0,
+        skipValidation: true,
       })
     }
+
+    const landingFields = options.apply
+      ? sql
+        ? await ensureLandingContent(sql, entry, courseId, options.replaceCourseFields)
+        : []
+      : ['courses.landing_objectives', 'courses.landing_program_blocks', 'courses.landing_faqs']
 
     const changedFields = [
       ...courseResult.fields,
       ...(media.changed ? ['media.create'] : []),
       ...material.fields,
       ...courseUpdate.changedFields,
+      ...landingFields,
     ]
 
     return {
@@ -683,17 +774,20 @@ async function main() {
   assertDatabaseConfig()
 
   const payload = await getPayload({ config })
+  const sql = options.apply ? postgres(databaseUri(), { max: 1 }) : null
   const scriptUser = await findScriptUser(payload, options.tenantId)
   const materialsAvailable = await detectMaterialsCollection(payload)
   const results: ResultAction[] = []
   const cleanup: CleanupAction[] = []
 
   for (const entry of CEP_COURSE_PROGRAM_ENTRIES) {
-    results.push(await processEntry(payload, entry, options, scriptUser, materialsAvailable))
+    results.push(await processEntry(payload, entry, options, scriptUser, materialsAvailable, sql))
   }
   for (const slug of CEP_DEPRECATED_COURSE_SLUGS) {
     cleanup.push(await deactivateDeprecatedCourse(payload, slug, options, scriptUser))
   }
+
+  if (sql) await sql.end()
 
   const summary = {
     mode: options.apply ? 'apply' : 'dry-run',
