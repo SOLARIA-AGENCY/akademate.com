@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-const isDevLoginEnabled =
-  process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== 'false'
+function isDevLoginEnabled(): boolean {
+  if (process.env.NODE_ENV === 'production') return false
+  return process.env.NODE_ENV === 'development' || process.env.ALLOW_DEV_LOGIN === 'true'
+}
 
 function resolveRedirect(request: NextRequest): string {
   if (request.method === 'GET') {
@@ -47,16 +49,16 @@ function createResponse(redirectPath: string) {
 }
 
 export async function GET(request: NextRequest) {
-  if (!isDevLoginEnabled) {
-    return NextResponse.json({ error: 'Dev login is disabled' }, { status: 403 })
+  if (!isDevLoginEnabled()) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
   const redirectPath = resolveRedirect(request)
   return createResponse(redirectPath)
 }
 
 export async function POST(request: NextRequest) {
-  if (!isDevLoginEnabled) {
-    return NextResponse.json({ error: 'Dev login is disabled' }, { status: 403 })
+  if (!isDevLoginEnabled()) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
   let redirectPath = '/dashboard'

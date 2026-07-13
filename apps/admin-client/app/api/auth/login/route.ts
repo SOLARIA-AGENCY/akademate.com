@@ -55,7 +55,8 @@ export async function POST(request: Request) {
 
     // Dev path: allow pre-authenticated user payload (used by legacy helpers / launchpad)
     const devLoginEnabled =
-      process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== 'false'
+      process.env.NODE_ENV !== 'production' &&
+      (process.env.NODE_ENV === 'development' || process.env.ALLOW_DEV_LOGIN === 'true')
     if (!password) {
       if (!devLoginEnabled) {
         return NextResponse.json(

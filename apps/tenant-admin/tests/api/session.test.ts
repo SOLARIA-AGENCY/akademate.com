@@ -31,7 +31,16 @@ describe('Session API', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     delete process.env.ENFORCE_HTTPS
-    getPayloadMock.mockResolvedValue({ findByID: vi.fn() })
+    getPayloadMock.mockResolvedValue({
+      findByID: vi.fn().mockResolvedValue({
+        id: 'verified-user',
+        email: 'verified@akademate.com',
+        name: 'Verified User',
+        role: 'gestor',
+        tenantId: 1,
+      }),
+    })
+    getAuthenticatedUserContextMock.mockResolvedValue({ userId: 'verified-user', tenantId: 1 })
   })
 
   it('GET returns unauthenticated when no session cookie exists', async () => {
@@ -147,7 +156,7 @@ describe('Session API', () => {
     expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ id: 7, overrideAccess: true }))
   })
 
-  it('POST validates payload and returns 400 for invalid body', async () => {
+  it('POST rejects a body without a verifiable token', async () => {
     const store = createCookieStore()
     vi.mocked(cookies).mockResolvedValue(store as any)
 
@@ -159,19 +168,19 @@ describe('Session API', () => {
     const response = await POST(request)
     const payload = await response.json()
 
-    expect(response.status).toBe(400)
-    expect(payload.error).toBe('Invalid session payload')
+    expect(response.status).toBe(401)
+    expect(payload.error).toBe('Invalid session token')
     expect(store.set).not.toHaveBeenCalled()
   })
 
-  it('POST writes both neutral and legacy cookies', async () => {
+  it('POST writes both cookies using the verified database user', async () => {
     const store = createCookieStore()
     vi.mocked(cookies).mockResolvedValue(store as any)
 
     const request = new Request('http://localhost/api/auth/session', {
       method: 'POST',
       body: JSON.stringify({
-        user: { id: 'u3', email: 'user@akademate.com', role: 'admin' },
+        user: { id: 'attacker', email: 'attacker@akademate.com', role: 'superadmin' },
         token: 'socket-123',
       }),
     })
@@ -187,7 +196,8 @@ describe('Session API', () => {
     const secondCall = store.set.mock.calls[1]
     expect(firstCall[0]).toBe('akademate_session')
     expect(secondCall[0]).toBe('cep_session')
-    expect(firstCall[1]).toContain('user@akademate.com')
+    expect(firstCall[1]).toContain('verified@akademate.com')
+    expect(firstCall[1]).not.toContain('attacker@akademate.com')
     expect(firstCall[2]).toMatchObject({
       httpOnly: true,
       secure: false,
@@ -205,7 +215,8 @@ describe('Session API', () => {
     const request = new Request('http://localhost/api/auth/session', {
       method: 'POST',
       body: JSON.stringify({
-        user: { id: 'u4', email: 'secure@akademate.com' },
+        user: { id: 'attacker', email: 'attacker@akademate.com' },
+        token: 'socket-456',
       }),
     })
 
@@ -214,6 +225,24 @@ describe('Session API', () => {
     expect(store.set).toHaveBeenCalledTimes(2)
     expect(store.set.mock.calls[0][2]).toMatchObject({ secure: true })
     expect(store.set.mock.calls[1][2]).toMatchObject({ secure: true })
+  })
+
+  it('POST rejects a token that Payload cannot authenticate', async () => {
+    getAuthenticatedUserContextMock.mockResolvedValue(null)
+    const store = createCookieStore()
+    vi.mocked(cookies).mockResolvedValue(store as any)
+
+    const request = new Request('http://localhost/api/auth/session', {
+      method: 'POST',
+      body: JSON.stringify({
+        user: { id: 'attacker', email: 'attacker@akademate.com', role: 'superadmin' },
+        token: 'forged-or-expired-token',
+      }),
+    })
+
+    const response = await POST(request)
+    expect(response.status).toBe(401)
+    expect(store.set).not.toHaveBeenCalled()
   })
 
   it('DELETE removes both session cookie names', async () => {

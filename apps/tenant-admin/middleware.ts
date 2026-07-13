@@ -272,9 +272,18 @@ export function middleware(request: NextRequest) {
   const origin = request.headers.get('origin')
   const host = request.headers.get('host') ?? request.nextUrl.host
 
-  // Always allow tenant dev-login endpoint in development/staging workflows.
+  // Development login must be unreachable in production, regardless of env flags.
   if (pathname === '/api/auth/dev-login' || pathname === '/api/auth/dev-login/') {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
     return NextResponse.next()
+  }
+
+  if (pathname === '/api/dev/auto-login' || pathname === '/api/dev/auto-login/') {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
   }
 
   // =========================================================================

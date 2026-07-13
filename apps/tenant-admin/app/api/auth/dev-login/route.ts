@@ -5,8 +5,10 @@ import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
 
 export const dynamic = 'force-dynamic'
 
-const isDevLoginEnabled =
-  process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true'
+function isDevLoginEnabled(): boolean {
+  if (process.env.NODE_ENV === 'production') return false
+  return process.env.NODE_ENV === 'development' || process.env.ALLOW_DEV_LOGIN === 'true'
+}
 
 const DEV_CREDENTIAL_CANDIDATES = [
   {
@@ -47,8 +49,8 @@ async function resolveRedirectPath(request: NextRequest): Promise<string> {
 }
 
 async function handleDevLogin(request: NextRequest) {
-  if (!isDevLoginEnabled) {
-    return NextResponse.json({ error: 'Dev auth bypass disabled' }, { status: 403 })
+  if (!isDevLoginEnabled()) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
   const redirectPath = await resolveRedirectPath(request)

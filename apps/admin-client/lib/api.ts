@@ -63,7 +63,8 @@ export async function clearSession() {
 
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
   const usePayloadAuth = process.env.NEXT_PUBLIC_USE_PAYLOAD_AUTH === 'true'
-  const devLoginEnabled = process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== 'false'
+  const devLoginEnabled =
+    process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === 'true'
 
   if (usePayloadAuth) {
     const baseUrl = API_URL ?? 'http://localhost:3003'

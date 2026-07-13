@@ -8,6 +8,10 @@
  */
 
 import { NextResponse } from 'next/server';
+import { getHealthHeaders } from './health-lib';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export function GET() {
   return NextResponse.json(
@@ -19,9 +23,7 @@ export function GET() {
     },
     {
       status: 200,
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-      },
+      headers: getHealthHeaders(),
     }
   );
 }

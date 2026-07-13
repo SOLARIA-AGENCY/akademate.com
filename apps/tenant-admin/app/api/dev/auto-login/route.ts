@@ -8,6 +8,11 @@ import { NextResponse, type NextRequest } from 'next/server';
  * Usage: GET /api/dev/auto-login?redirect=/admin
  */
 export async function GET(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production' ||
+      (process.env.NODE_ENV !== 'development' && process.env.ALLOW_DEV_AUTO_LOGIN !== 'true')) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const url = new URL(request.url);
   const redirectTo = url.searchParams.get('redirect') ?? '/admin';
 
@@ -45,7 +50,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const secure = process.env.NODE_ENV === 'production';
+  const secure = process.env.NODE_ENV !== 'development';
   const cookie = [
     `payload-token=${token}`,
     'Path=/',

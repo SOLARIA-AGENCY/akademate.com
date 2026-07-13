@@ -14,6 +14,13 @@ interface SessionUser {
   email: string
   name?: string
   role?: string
+  tenantId?: string | number
+}
+
+function getCookieValue(request: Request, name: string): string | null {
+  const cookieHeader = request.headers.get('cookie') ?? ''
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`))
+  return match?.[1] ?? null
 }
 
 /**
@@ -87,19 +94,48 @@ export async function GET(request?: NextRequest) {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { user?: SessionUser; token?: string }
-    if (!body.user?.email) {
-      return NextResponse.json({ error: 'Invalid session payload' }, { status: 400 })
+    const body = (await request.json()) as { token?: unknown }
+    const cookieToken = getCookieValue(request, 'payload-token')
+    const bodyToken = typeof body.token === 'string' ? body.token.trim() : ''
+    const token = cookieToken || bodyToken
+
+    if (!token || token.length > 4096) {
+      return NextResponse.json({ error: 'Invalid session token' }, { status: 401 })
+    }
+
+    const payload = await getPayload({ config: configPromise })
+    const authRequest = new NextRequest(request.url, {
+      headers: { cookie: `payload-token=${token}` },
+    })
+    const authenticated = await getAuthenticatedUserContext(authRequest, payload)
+    if (!authenticated) {
+      return NextResponse.json({ error: 'Invalid session token' }, { status: 401 })
+    }
+
+    const verifiedUser = await payload.findByID({
+      collection: 'users',
+      id: authenticated.userId,
+      depth: 0,
+      overrideAccess: true,
+    }) as SessionUser | null
+
+    if (!verifiedUser?.email) {
+      return NextResponse.json({ error: 'Invalid session user' }, { status: 401 })
+    }
+
+    const sessionUser: SessionUser = {
+      id: verifiedUser.id,
+      email: verifiedUser.email,
+      name: verifiedUser.name,
+      role: verifiedUser.role,
+      tenantId: verifiedUser.tenantId ?? authenticated.tenantId ?? undefined,
     }
 
     const cookieStore = await cookies()
     const cookieDomain = resolveSharedCookieDomain(
       request.headers.get('x-forwarded-host') || request.headers.get('host')
     )
-    const sessionValue = JSON.stringify({
-      user: body.user,
-      token: body.token ?? '',
-    })
+    const sessionValue = JSON.stringify({ user: sessionUser, token })
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.ENFORCE_HTTPS === 'true',

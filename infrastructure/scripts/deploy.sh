@@ -198,7 +198,7 @@ health_check() {
     # Check Tenant App
     retry_count=0
     while [ $retry_count -lt $max_retries ]; do
-        if http_check "http://localhost:${TENANT_PORT:-3009}"; then
+        if http_check "http://localhost:${TENANT_PORT:-3009}/api/health/ready"; then
             log_success "Tenant App is healthy"
             break
         fi
@@ -237,11 +237,6 @@ warmup_endpoints() {
     http_check "http://localhost:${ADMIN_PORT:-3004}/login" || true
     http_check "http://localhost:${TENANT_PORT:-3009}/auth/login" || true
     http_check "http://localhost:${PORTAL_PORT:-3008}" || true
-
-    if command -v curl &> /dev/null; then
-        curl -s -o /dev/null -X POST "http://localhost:${ADMIN_PORT:-3004}/api/auth/dev-login" || true
-        curl -s -o /dev/null -X POST "http://localhost:${TENANT_PORT:-3009}/api/auth/dev-login" || true
-    fi
 
     log_success "Warmup completed"
 }
