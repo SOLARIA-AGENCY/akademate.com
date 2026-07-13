@@ -1,5 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cookies } from 'next/headers'
+import { NextRequest } from 'next/server'
+
+const { getPayloadMock, getAuthenticatedUserContextMock } = vi.hoisted(() => ({
+  getPayloadMock: vi.fn(),
+  getAuthenticatedUserContextMock: vi.fn(),
+}))
+
+vi.mock('payload', () => ({ getPayload: getPayloadMock }))
+vi.mock('@payload-config', () => ({ default: {} }))
+vi.mock('@/app/api/leads/_lib/auth', () => ({
+  getAuthenticatedUserContext: getAuthenticatedUserContextMock,
+}))
+
 import { DELETE, GET, POST } from '@/app/api/auth/session/route'
 
 vi.mock('next/headers', () => ({
@@ -18,6 +31,7 @@ describe('Session API', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     delete process.env.ENFORCE_HTTPS
+    getPayloadMock.mockResolvedValue({ findByID: vi.fn() })
   })
 
   it('GET returns unauthenticated when no session cookie exists', async () => {
@@ -84,6 +98,53 @@ describe('Session API', () => {
     const payload = await response.json()
 
     expect(payload).toEqual({ user: null, authenticated: false })
+  })
+
+  it('GET rejects stale session metadata when the server cannot validate its token', async () => {
+    const store = createCookieStore()
+    const sessionValue = JSON.stringify({
+      user: { id: 'u7', email: 'stale@akademate.com' },
+      token: 'expired-token',
+    })
+    store.get.mockImplementation((name: string) =>
+      name === 'akademate_session' ? { value: sessionValue } : undefined
+    )
+    vi.mocked(cookies).mockResolvedValue(store as any)
+    getAuthenticatedUserContextMock.mockResolvedValue(null)
+
+    const response = await GET(new NextRequest('http://localhost/api/auth/session', {
+      headers: { cookie: `akademate_session=${encodeURIComponent(sessionValue)}` },
+    }))
+
+    expect(await response.json()).toEqual({ user: null, authenticated: false })
+  })
+
+  it('GET returns the current database user after validating the token', async () => {
+    const store = createCookieStore()
+    store.get.mockImplementation((name: string) =>
+      name === 'payload-token' ? { value: 'fresh-token' } : undefined
+    )
+    vi.mocked(cookies).mockResolvedValue(store as any)
+    const findByID = vi.fn().mockResolvedValue({
+      id: 7,
+      email: 'veronica.chacare@cursostenerife.es',
+      name: 'Verónica Chacare',
+      role: 'gestor',
+    })
+    getPayloadMock.mockResolvedValue({ findByID })
+    getAuthenticatedUserContextMock.mockResolvedValue({ userId: 7, tenantId: 1 })
+
+    const response = await GET(new NextRequest('http://localhost/api/auth/session', {
+      headers: { cookie: 'payload-token=fresh-token' },
+    }))
+    const payload = await response.json()
+
+    expect(payload).toMatchObject({
+      authenticated: true,
+      user: { id: 7, email: 'veronica.chacare@cursostenerife.es', role: 'gestor' },
+      socketToken: 'fresh-token',
+    })
+    expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ id: 7, overrideAccess: true }))
   })
 
   it('POST validates payload and returns 400 for invalid body', async () => {

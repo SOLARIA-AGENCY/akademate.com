@@ -1,6 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { getPayload } from 'payload'
+import configPromise from '@payload-config'
 import { resolveSharedCookieDomain } from '@/app/api/_lib/cookie-domain'
+import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
 
 export const dynamic = 'force-dynamic'
 const SESSION_COOKIE = 'akademate_session'
@@ -20,23 +23,62 @@ interface SessionUser {
  * Used by client components (e.g. RealtimeProvider) that need auth data
  * without exposing the raw token in JS-accessible storage.
  */
-export async function GET() {
+export async function GET(request?: NextRequest) {
   try {
     const cookieStore = await cookies()
     const serializedSession =
       cookieStore.get(SESSION_COOKIE)?.value || cookieStore.get(LEGACY_SESSION_COOKIE)?.value
-    if (serializedSession) {
-      const parsedSession = JSON.parse(serializedSession) as { user?: SessionUser; token?: string }
-      if (parsedSession.user) {
+    const parsedSession = serializedSession
+      ? (JSON.parse(serializedSession) as { user?: SessionUser; token?: string })
+      : null
+
+    // Route handlers receive NextRequest in production. Keep the no-request
+    // branch for direct unit calls, but never trust client session metadata in
+    // a real browser request: the JWT is the source of truth for access.
+    if (!request) {
+      if (parsedSession?.user) {
         return NextResponse.json({
           authenticated: true,
           user: parsedSession.user,
           socketToken: parsedSession.token ?? '',
         })
       }
+      return NextResponse.json({ user: null, authenticated: false })
     }
 
-    return NextResponse.json({ user: null, authenticated: false })
+    const payload = await getPayload({ config: configPromise })
+    const authenticated = await getAuthenticatedUserContext(request, payload)
+    if (!authenticated) {
+      return NextResponse.json({ user: null, authenticated: false })
+    }
+
+    const user = await payload.findByID({
+      collection: 'users',
+      id: authenticated.userId,
+      depth: 0,
+      overrideAccess: true,
+    }) as SessionUser | null
+
+    if (!user?.email) {
+      return NextResponse.json({ user: null, authenticated: false })
+    }
+
+    const token =
+      cookieStore.get('payload-token')?.value ??
+      parsedSession?.token ??
+      ''
+
+    return NextResponse.json({
+      authenticated: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+      socketToken: token,
+    })
+
   } catch (error) {
     console.error('[/api/auth/session] Error:', error)
     return NextResponse.json({ user: null, authenticated: false })

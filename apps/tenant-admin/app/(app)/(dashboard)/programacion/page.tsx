@@ -876,6 +876,12 @@ export default function ProgramacionPage() {
         fetch('/api/staff?type=profesor&status=active&limit=2000', { cache: 'no-cache' }),
       ])
 
+      if ([convsRes, coursesRes, areasRes, campusRes, classroomsRes, staffRes].some((response) => response.status === 401)) {
+        setListMessage('Tu sesión ha caducado. Vuelve a iniciar sesión para acceder a la programación.')
+        router.replace('/auth/login?redirect=%2Fprogramacion')
+        return
+      }
+
       if (convsRes.ok) {
         const convsData = await convsRes.json()
         const items = Array.isArray(convsData.data) ? convsData.data : []

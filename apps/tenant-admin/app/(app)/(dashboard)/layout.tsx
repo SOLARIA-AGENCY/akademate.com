@@ -83,11 +83,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           credentials: 'include',
           cache: 'no-store',
         })
-        if (!response.ok) return
+        if (!response.ok) {
+          router.replace(`/auth/login?redirect=${encodeURIComponent(pathname || '/dashboard')}`)
+          return
+        }
 
         const payload = (await response.json()) as SessionResponse
         const user = payload.user
-        if (!payload.authenticated || !user?.email) return
+        if (!payload.authenticated || !user?.email) {
+          // A stale browser session used to leave the dashboard visible while
+          // its protected API calls returned 401 and rendered empty lists.
+          // Send the user through login instead of presenting misleading data.
+          await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+          router.replace(`/auth/login?redirect=${encodeURIComponent(pathname || '/dashboard')}`)
+          return
+        }
 
         const displayName = user.name?.trim() || user.email
         const initials =
@@ -110,7 +120,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     void loadSession()
-  }, [])
+  }, [pathname, router])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 767px)')
