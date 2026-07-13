@@ -388,8 +388,6 @@ async function ensureMediaFromPdf(
     collection: 'media',
     data: {
       alt: entry.materialTitle,
-      caption: `Programa PDF CEP: ${entry.courseName}`,
-      folder: 'courses/cep-programs',
     },
     file: {
       data: binary,
