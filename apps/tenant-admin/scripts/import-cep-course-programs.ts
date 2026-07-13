@@ -623,6 +623,25 @@ async function ensureLandingContent(
   ]
 }
 
+async function updateCourseScalars(
+  sql: SqlClient,
+  courseId: number | string,
+  data: Record<string, unknown>,
+): Promise<void> {
+  const databaseData: Record<string, unknown> = {}
+  for (const [field, value] of Object.entries(data)) {
+    const databaseField = field === 'dossier_pdf' ? 'dossier_pdf_id' : field
+    databaseData[databaseField] = field === 'long_description' ? JSON.stringify(value) : value
+  }
+
+  if (Object.keys(databaseData).length === 0) return
+  await sql`
+    UPDATE courses
+    SET ${sql(databaseData)}, updated_at = NOW()
+    WHERE id = ${Number(courseId)}
+  `
+}
+
 async function processEntry(
   payload: PayloadClient,
   entry: CourseProgramEntry,
@@ -672,14 +691,18 @@ async function processEntry(
     const courseUpdate = buildCourseUpdate(entry, course, options.replaceCourseFields, media.id)
 
     if (options.apply && courseUpdate.changedFields.length > 0) {
-      await payload.update({
-        collection: 'courses',
-        id: courseId,
-        data: courseUpdate.data,
-        overrideAccess: true,
-        depth: 0,
-        skipValidation: true,
-      })
+      if (sql) {
+        await updateCourseScalars(sql, courseId, courseUpdate.data)
+      } else {
+        await payload.update({
+          collection: 'courses',
+          id: courseId,
+          data: courseUpdate.data,
+          overrideAccess: true,
+          depth: 0,
+          skipValidation: true,
+        })
+      }
     }
 
     const landingFields = options.apply
@@ -721,6 +744,7 @@ async function deactivateDeprecatedCourse(
   slug: string,
   options: Options,
   scriptUser: ScriptUser,
+  sql: SqlClient | null,
 ): Promise<CleanupAction> {
   try {
     const course = await findCourseBySlug(payload, slug, options.tenantId)
@@ -744,13 +768,17 @@ async function deactivateDeprecatedCourse(
     }
 
     if (options.apply) {
-      await payload.update({
-        collection: 'courses',
-        id: course.id as number | string,
-        data: updateData,
-        overrideAccess: true,
-        depth: 0,
-      })
+      if (sql) {
+        await updateCourseScalars(sql, course.id as number | string, updateData)
+      } else {
+        await payload.update({
+          collection: 'courses',
+          id: course.id as number | string,
+          data: updateData,
+          overrideAccess: true,
+          depth: 0,
+        })
+      }
     }
 
     return {
@@ -784,7 +812,7 @@ async function main() {
     results.push(await processEntry(payload, entry, options, scriptUser, materialsAvailable, sql))
   }
   for (const slug of CEP_DEPRECATED_COURSE_SLUGS) {
-    cleanup.push(await deactivateDeprecatedCourse(payload, slug, options, scriptUser))
+    cleanup.push(await deactivateDeprecatedCourse(payload, slug, options, scriptUser, sql))
   }
 
   if (sql) await sql.end()
