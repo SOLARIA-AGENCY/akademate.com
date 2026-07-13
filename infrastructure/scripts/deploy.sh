@@ -241,6 +241,32 @@ warmup_endpoints() {
     log_success "Warmup completed"
 }
 
+check_production_smoke_config() {
+    if [ "$NODE_ENV" != "production" ]; then
+        return 0
+    fi
+
+    if [ -z "${SMOKE_AUTH_EMAIL:-}" ] || [ -z "${SMOKE_AUTH_PASSWORD:-}" ]; then
+        log_error "Production deploy requires SMOKE_AUTH_EMAIL and SMOKE_AUTH_PASSWORD from the secret manager"
+        return 1
+    fi
+}
+
+run_authenticated_smoke() {
+    if [ "$NODE_ENV" != "production" ]; then
+        return 0
+    fi
+
+    local smoke_script="${SCRIPT_DIR}/smoke-authenticated.sh"
+    if [ ! -x "$smoke_script" ]; then
+        log_error "Authenticated smoke script is missing or not executable: ${smoke_script}"
+        return 1
+    fi
+
+    log_info "Running authenticated smoke with the technical account..."
+    "$smoke_script" "${SMOKE_AUTH_URL:-http://localhost:${TENANT_PORT:-3009}}"
+}
+
 show_status() {
     log_info "Service Status:"
     cd "$DOCKER_DIR"
@@ -282,6 +308,8 @@ main() {
             ;;
     esac
 
+    check_production_smoke_config
+
     build_services "$service"
     deploy_services "$service"
     refresh_proxy "$service"
@@ -293,6 +321,7 @@ main() {
 
     health_check
     warmup_endpoints
+    run_authenticated_smoke
     show_status
 
     echo ""
