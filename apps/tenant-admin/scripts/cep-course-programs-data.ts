@@ -11,7 +11,32 @@ export type CourseProgramEntry = {
   durationHours: number | null
   shortDescription: string
   longDescriptionLines: string[]
+  targetAudience?: string
+  accessRequirements?: string
+  outcomes?: string
   notes?: string[]
+}
+
+const PUBLIC_LABEL_REPLACEMENTS: Array<[RegExp, string]> = [
+  [/Contenido detectado:/gi, 'Contenido:'],
+  [/Salidas profesionales detectadas:/gi, 'Salidas profesionales:'],
+  [/Salidas detectadas:/gi, 'Salidas profesionales:'],
+  [/Duración detectada:/gi, 'Duración:'],
+  [/Duracion detectada:/gi, 'Duración:'],
+  [/Caracter[ií]sticas detectadas:/gi, 'Características:'],
+  [/Organizaci[oó]n detectada:/gi, 'Organización:'],
+  [/Modalidad detectada:/gi, 'Modalidad:'],
+  [/Requisitos detectados:/gi, 'Requisitos:'],
+]
+
+export function cleanPublicCourseText(value: string): string {
+  return PUBLIC_LABEL_REPLACEMENTS.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), value)
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+export function cleanPublicCourseLines(lines: string[]): string[] {
+  return lines.map(cleanPublicCourseText).filter(Boolean)
 }
 
 export const CEP_DEPRECATED_COURSE_SLUGS = ['proteccion-bienestar-animal-y-marco-legal-actual-priv']
@@ -347,42 +372,27 @@ export const CEP_COURSE_PROGRAM_ENTRIES: CourseProgramEntry[] = [
     notes: ['Crear curso si no existe, aunque tambien pueda existir como ciclo.'],
   },
   {
-    pdfFilename: 'QUIROMASAJE HOLISTO.pdf',
-    textFilename: 'QUIROMASAJE HOLISTO.txt',
-    courseSlug: 'quiromasaje-priv',
-    courseName: 'Quiromasaje',
-    materialTitle: 'Programa oficial - Quiromasaje Holistico',
-    modality: 'presencial',
-    durationHours: 100,
-    shortDescription:
-      'Formacion avanzada de quiromasaje y terapias manuales con enfoque holistico, tecnica manual, sensibilidad terapeutica, cadenas musculares, protocolos personalizados y orientacion laboral.',
-    longDescriptionLines: [
-      'El curso forma como quiromasajista profesional con alta preparacion tecnica y sensibilidad terapeutica.',
-      'Trabaja un masaje que no solo trata el cuerpo, sino que acompana al cliente en el plano emocional, trabajando cadenas musculares y protocolos personalizados.',
-      'Incluye orientacion laboral para dar los primeros pasos profesionales con seguridad y confianza.',
-      'Contenido detectado: bases del quiromasaje, quiromasaje holistico, terapias complementarias, trabajo por cadenas y personalizacion, emprendimiento y desarrollo personal.',
-      'Enfoque CEP: tecnica precisa, presencia consciente, integracion emocional, masaje adaptado, escucha manual, digitopuntura, reflexoterapia, masaje deportivo y circulatorio.',
-    ],
-    notes: ['Decision validada: el mismo PDF aplica a Quiromasaje y Quiromasaje - 11 meses.'],
-  },
-  {
-    pdfFilename: 'QUIROMASAJE HOLISTO.pdf',
-    textFilename: 'QUIROMASAJE HOLISTO.txt',
+    pdfFilename: 'QUIROMASAJE HOLISTO (1).pdf',
+    textFilename: 'QUIROMASAJE HOLISTO (1).txt',
     courseSlug: 'quiromasaje-11-meses-priv',
-    courseName: 'Quiromasaje - 11 meses',
-    materialTitle: 'Programa oficial - Quiromasaje Holistico',
+    courseName: 'Quiromasaje Holístico',
+    materialTitle: 'Programa oficial - Quiromasaje Holístico',
     modality: 'presencial',
     durationHours: 176,
     shortDescription:
-      'Formacion avanzada de quiromasaje y terapias manuales con enfoque holistico, tecnica manual, sensibilidad terapeutica, cadenas musculares, protocolos personalizados y orientacion laboral.',
+      'Curso avanzado de quiromasaje y terapias manuales con enfoque holístico, práctica técnica, terapias complementarias y orientación profesional.',
     longDescriptionLines: [
-      'El curso forma como quiromasajista profesional con alta preparacion tecnica y sensibilidad terapeutica.',
-      'Trabaja un masaje que no solo trata el cuerpo, sino que acompana al cliente en el plano emocional, trabajando cadenas musculares y protocolos personalizados.',
-      'Incluye orientacion laboral para dar los primeros pasos profesionales con seguridad y confianza.',
-      'Contenido detectado: bases del quiromasaje, quiromasaje holistico, terapias complementarias, trabajo por cadenas y personalizacion, emprendimiento y desarrollo personal.',
-      'Enfoque CEP: tecnica precisa, presencia consciente, integracion emocional, masaje adaptado, escucha manual, digitopuntura, reflexoterapia, masaje deportivo y circulatorio.',
+      'Formación avanzada para trabajar el quiromasaje con precisión técnica, sensibilidad terapéutica y una visión integral del bienestar.',
+      'El programa aborda las bases del quiromasaje, el masaje holístico, las terapias complementarias, el trabajo por cadenas musculares y la personalización de protocolos.',
+      'Incluye contenidos de emprendimiento y desarrollo personal para facilitar los primeros pasos profesionales.',
+      'La formación tiene una duración de 176 horas distribuidas en 44 sesiones durante 11 meses, con una sesión presencial semanal.',
+      'Incluye la posibilidad de realizar 100 horas de prácticas en empresa.',
     ],
-    notes: ['Decision validada: el mismo PDF aplica a Quiromasaje y Quiromasaje - 11 meses.'],
+    targetAudience: 'Personas interesadas en especializarse en quiromasaje, terapias manuales y bienestar corporal.',
+    accessRequirements: 'No se requieren estudios previos.',
+    outcomes:
+      'Salidas profesionales en centros de bienestar, clínicas, centros de fisioterapia, spas, centros deportivos, servicios a domicilio y talleres especializados.',
+    notes: ['Se conserva el slug histórico para no romper enlaces ni convocatorias existentes.'],
   },
   {
     pdfFilename: 'PELUQUERIA CANINA Y FELINA.pdf',
@@ -401,26 +411,53 @@ export const CEP_COURSE_PROGRAM_ENTRIES: CourseProgramEntry[] = [
     ],
   },
   {
-    pdfFilename: 'NUTRICOSMÉTICA.pdf',
-    textFilename: 'NUTRICOSMÉTICA.txt',
+    pdfFilename: 'NUTRICOSMÉTICA (2).pdf',
+    textFilename: 'NUTRICOSMÉTICA (2).txt',
     courseSlug: 'nutricosmetica-priv',
-    courseName: 'Nutricosmetica',
-    materialTitle: 'Programa oficial - Nutricosmetica y Complementos Alimenticios',
+    courseName: 'Nutricosmética y Complementos Alimenticios',
+    materialTitle: 'Programa oficial - Nutricosmética y Complementos Alimenticios',
     modality: 'presencial',
     courseType: 'privado',
     areaCode: 'SBD',
     createIfMissing: true,
     durationHours: 48,
     shortDescription:
-      'Especializacion tecnica en nutricosmetica y complementos alimenticios, integrando nutricion, estetica, bienestar y deporte con recomendaciones eticas basadas en evidencia.',
+      'Especialización técnica en nutricosmética y complementos alimenticios, integrando nutrición, estética, bienestar y deporte con recomendaciones éticas basadas en evidencia.',
     longDescriptionLines: [
-      'Especializacion tecnica en nutricosmetica que fusiona ciencia y practica profesional.',
-      'Permite realizar recomendaciones eticas basadas en evidencia, integrando nutricion, estetica y deporte para elevar la calidad de atencion y confianza de clientes.',
-      'Dirigido a profesionales de salud, estetica, bienestar y deporte que quieran ampliar conocimientos en nutricosmetica y complementos alimenticios.',
-      'Contenido detectado: fundamentos de nutricosmetica, complementos alimenticios, vitaminas y minerales, proteinas, aminoacidos, colageno, lipidos, acidos grasos esenciales, microbiota, antioxidantes, salud de piel, cabello y unas, nutricosmetica en la mujer, sueño, estres, adaptogenos e integracion profesional.',
-      'Caracteristicas detectadas: 48 horas o 12 sesiones de 4 h, clases presenciales una vez por semana, grupos reducidos y contenido teorico-practico.',
+      'Especialización que combina fundamentos científicos y aplicación práctica en contextos de salud, estética, bienestar y deporte.',
+      'Permite formular recomendaciones responsables basadas en evidencia y mejorar la atención profesional.',
+      'El programa incluye vitaminas y minerales, proteínas, aminoácidos, colágeno, lípidos, microbiota, antioxidantes, salud de piel, cabello y uñas, sueño, estrés y adaptógenos.',
+      'La formación tiene una duración de 48 horas distribuidas en 12 sesiones presenciales de 4 horas, una vez por semana, en grupos reducidos.',
     ],
+    targetAudience: 'Profesionales y estudiantes de salud, estética, bienestar y deporte que quieran ampliar sus conocimientos.',
+    accessRequirements: 'Acceso recomendado con 2.º de ESO o EGB.',
+    outcomes: 'Aplicación profesional de conocimientos de nutricosmética y complementos alimenticios en entornos de salud, estética, bienestar y deporte.',
     notes: ['Crear curso si no existe.'],
+  },
+  {
+    pdfFilename: 'SEMINARIO GESTORVET.pdf',
+    textFilename: 'SEMINARIO GESTORVET.txt',
+    courseSlug: 'seminario-gestorvet-priv',
+    courseName: 'Seminario Práctico de Gestión Gestorvet',
+    materialTitle: 'Programa oficial - Seminario Práctico de Gestión Gestorvet',
+    modality: 'presencial',
+    courseType: 'privado',
+    areaCode: 'VETA',
+    createIfMissing: true,
+    durationHours: 9,
+    shortDescription:
+      'Seminario práctico de gestión veterinaria con Gestorvet para organizar la actividad diaria de una clínica, mejorar los procesos y trabajar con información ordenada.',
+    longDescriptionLines: [
+      'Seminario práctico para aprender a utilizar Gestorvet en la gestión diaria de una clínica veterinaria.',
+      'Trabaja la organización de citas, clientes, pacientes, historiales y tareas internas.',
+      'Incluye recepción, stock, almacén, punto de venta, recordatorios, mensajes, caja y seguimiento de la actividad.',
+      'Aborda facturación, proveedores, paneles, informes, incidencias y optimización de procesos.',
+      'La formación tiene una duración de 9 horas distribuidas en 3 sesiones presenciales de 3 horas, con grupos reducidos.',
+    ],
+    targetAudience: 'Estudiantes y profesionales de Auxiliar de Veterinaria y Ayudante Técnico Veterinario.',
+    accessRequirements: 'Acceso recomendado con 2.º de ESO o EGB.',
+    outcomes: 'Aplicación práctica de Gestorvet en la organización, atención y gestión administrativa de una clínica veterinaria.',
+    notes: ['No se ha indicado precio ni tipo de certificación en el PDF.'],
   },
   {
     pdfFilename: 'Nutrición Deportiva Online 100h.pdf',
@@ -462,7 +499,7 @@ export const CEP_COURSE_PROGRAM_ENTRIES: CourseProgramEntry[] = [
       'Permite conocer necesidades nutricionales especificas de personas que practican deporte.',
       'Proporciona conocimientos para elaborar un plan alimentario adecuado para actividad deportiva profesional o de mantenimiento.',
       'Salidas detectadas: consultas dieteticas, franquicias de nutricion, equipos de elaboracion de dietas en centros de estetica, gimnasios y clubes deportivos.',
-      'Duracion detectada: 200 h.',
+      'Duración: 200 h.',
     ],
     notes: ['Crear curso si no existe.'],
   },

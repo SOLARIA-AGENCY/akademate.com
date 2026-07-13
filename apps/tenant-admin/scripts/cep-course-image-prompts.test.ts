@@ -26,6 +26,17 @@ describe('cep-course-image-prompts', () => {
     expect(dentalOnline?.prompt).toContain('naranja calido y tecnologico propio de teleformacion')
   })
 
+  test('new CEP course image catalog keeps distinct visual prompts', () => {
+    const holistic = CEP_PRIVATE_COURSE_IMAGE_PROMPTS.find((course) => course.slug === 'quiromasaje-11-meses-priv')
+    const nutricosmetica = CEP_PRIVATE_COURSE_IMAGE_PROMPTS.find((course) => course.slug === 'nutricosmetica-priv')
+    const gestorvet = CEP_PRIVATE_COURSE_IMAGE_PROMPTS.find((course) => course.slug === 'seminario-gestorvet-priv')
+
+    expect(holistic?.name).toBe('Quiromasaje Holístico')
+    expect(nutricosmetica?.prompt).toContain('Nutricosmética y Complementos Alimenticios')
+    expect(gestorvet?.prompt).toContain('gestión Gestorvet')
+    expect([holistic, nutricosmetica, gestorvet].every((course) => !course?.prompt.includes('texto legible') || course.prompt.includes('sin texto'))).toBe(true)
+  })
+
   test('ocupados catalog is available for future green-accent prompts', () => {
     expect(getCatalogForCourseType('ocupados')).toEqual([])
   })

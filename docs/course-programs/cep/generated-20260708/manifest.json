@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-08T10:03:27.116Z",
+  "generatedAt": "2026-07-13T15:01:46.517Z",
   "stats": {
     "totalSources": 50,
-    "dedupedSources": 45,
-    "ready": 43,
+    "dedupedSources": 46,
+    "ready": 44,
     "skipped": 2,
     "missingDownloads": []
   },
@@ -356,24 +356,23 @@
     },
     {
       "sourceKind": "cep-private-program",
-      "pdfFilename": "QUIROMASAJE HOLISTO.pdf",
-      "sourcePath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/originals/QUIROMASAJE HOLISTO.pdf",
+      "pdfFilename": "QUIROMASAJE HOLISTO (1).pdf",
+      "sourcePath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/originals/QUIROMASAJE HOLISTO (1).pdf",
       "sourceHash": "d76361b226c895c8c638e3046115762ae30afa0fb01d98bbf1df06e6853bedc3",
-      "textPath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/text/QUIROMASAJE HOLISTO.txt",
-      "title": "Quiromasaje",
-      "slug": "quiromasaje-priv",
+      "textPath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/text/QUIROMASAJE HOLISTO (1).txt",
+      "title": "Quiromasaje Holístico",
+      "slug": "quiromasaje-11-meses-priv",
       "officialCode": null,
       "courseType": "privado",
       "areaCode": "SBD",
       "modality": "presencial",
-      "durationHours": 100,
+      "durationHours": 176,
       "hasShortDescription": true,
       "objectives": 3,
       "programBlocks": 1,
       "status": "ready",
       "notes": [
-        "Decision validada: el mismo PDF aplica a Quiromasaje y Quiromasaje - 11 meses.",
-        "Duplicado omitido por hash: QUIROMASAJE HOLISTO.pdf"
+        "Se conserva el slug histórico para no romper enlaces ni convocatorias existentes."
       ]
     },
     {
@@ -397,11 +396,11 @@
     },
     {
       "sourceKind": "cep-private-program",
-      "pdfFilename": "NUTRICOSMÉTICA.pdf",
-      "sourcePath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/originals/NUTRICOSMÉTICA.pdf",
+      "pdfFilename": "NUTRICOSMÉTICA (2).pdf",
+      "sourcePath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/originals/NUTRICOSMÉTICA (2).pdf",
       "sourceHash": "5b730cdde44ae0dd641e12d685d60112e817c69eb8d89653c392005a32209cb1",
-      "textPath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/text/NUTRICOSMÉTICA.txt",
-      "title": "Nutricosmetica",
+      "textPath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/text/NUTRICOSMÉTICA (2).txt",
+      "title": "Nutricosmética y Complementos Alimenticios",
       "slug": "nutricosmetica-priv",
       "officialCode": null,
       "courseType": "privado",
@@ -414,6 +413,27 @@
       "status": "ready",
       "notes": [
         "Crear curso si no existe."
+      ]
+    },
+    {
+      "sourceKind": "cep-private-program",
+      "pdfFilename": "SEMINARIO GESTORVET.pdf",
+      "sourcePath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/originals/SEMINARIO GESTORVET.pdf",
+      "sourceHash": "1e2fc93886f59b33e1312b36c1d2e13eff85ab08fb402a385a7b6bfa75e49216",
+      "textPath": "/Users/carlosjperez/Documents/GitHub/akademate.com/docs/course-programs/cep/text/SEMINARIO GESTORVET.txt",
+      "title": "Seminario Práctico de Gestión Gestorvet",
+      "slug": "seminario-gestorvet-priv",
+      "officialCode": null,
+      "courseType": "privado",
+      "areaCode": "VETA",
+      "modality": "presencial",
+      "durationHours": 9,
+      "hasShortDescription": true,
+      "objectives": 3,
+      "programBlocks": 1,
+      "status": "ready",
+      "notes": [
+        "No se ha indicado precio ni tipo de certificación en el PDF."
       ]
     },
     {
@@ -468,7 +488,7 @@
       "slug": "seminario-practico-gestion-unycop",
       "officialCode": null,
       "courseType": "privado",
-      "areaCode": "EAG",
+      "areaCode": "SCLN",
       "modality": "presencial",
       "durationHours": 12,
       "hasShortDescription": true,

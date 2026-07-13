@@ -179,12 +179,14 @@ async function run() {
     },
   })
 
-  const courseById = new Map<number, CourseDoc>()
-  for (const doc of courses.docs as CourseDoc[]) courseById.set(Number(doc.id), doc)
+  const courseBySlug = new Map<string, CourseDoc>()
+  for (const doc of courses.docs as CourseDoc[]) {
+    if (doc.slug) courseBySlug.set(doc.slug, doc)
+  }
 
   const targets = catalog
     .filter((course) => {
-      const current = courseById.get(course.courseId)
+      const current = courseBySlug.get(course.slug)
       if (!current) return false
       if (options.replaceExisting) return true
       return !resolveMediaId(current.featured_image)
@@ -197,20 +199,20 @@ async function run() {
 
   if (!options.apply) {
     for (const target of targets) {
-      console.log(`DRY-RUN\t${target.courseId}\t${target.slug}\t${target.name}`)
+      console.log(`DRY-RUN\t${target.slug}\t${target.name}`)
     }
     console.log('Run with --apply to generate, upload and link the images.')
     return
   }
 
   for (const target of targets) {
-    const courseDoc = courseById.get(target.courseId)
+    const courseDoc = courseBySlug.get(target.slug)
     if (!courseDoc) {
-      console.log(`SKIP\t${target.courseId}\tmissing-course`)
+      console.log(`SKIP\t${target.slug}\tmissing-course`)
       continue
     }
 
-    console.log(`GENERATE\t${target.courseId}\t${target.name}`)
+    console.log(`GENERATE\t${target.slug}\t${target.name}`)
     const raw = await generateImageBuffer(target.prompt, options.model)
     const optimized = await optimizeGeneratedImage(raw)
     const media = await uploadGeneratedImage(payload, actingUser, target, optimized)
@@ -222,7 +224,7 @@ async function run() {
       user: actingUser,
     })
 
-    console.log(`LINKED\t${target.courseId}\tmedia:${media.id}`)
+    console.log(`LINKED\t${target.slug}\tmedia:${media.id}`)
   }
 }
 

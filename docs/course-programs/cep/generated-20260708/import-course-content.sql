@@ -18,7 +18,7 @@ upsert_course AS (
   )
   SELECT
     'VETA-PRIV-adiestramiento-canino-i-priv', 'adiestramiento-canino-i-priv', 'Adiestramiento Canino I', 'Formacion en tecnicas de adiestramiento de base aplicadas a perros, modificacion de conductas no deseadas, cuidados basicos, primeros auxilios y orientacion laboral.',
-    '[{"type":"paragraph","children":[{"text":"El curso de Adiestramiento Canino ofrece conocimientos sobre tecnicas de adiestramiento de base aplicadas a perros."}]},{"type":"paragraph","children":[{"text":"Incluye modificacion de conductas no deseadas, cuidados basicos, primeros auxilios y modulo de orientacion laboral."}]},{"type":"paragraph","children":[{"text":"Prepara para trabajar como adiestrador canino o aplicar estos conocimientos con animales propios."}]},{"type":"paragraph","children":[{"text":"Salidas detectadas: educacion basica y correccion de conductas, deportes caninos, perros de asistencia y terapia, perros de trabajo, seguridad, rescate, deteccion, servicios a domicilio y online."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: modulo de tecnicas de adiestramiento de base, modificacion de conductas no deseadas y cuidados higienicos aplicados a perros."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Decision validada: el mismo PDF aplica a Adiestramiento Canino I y II."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso de Adiestramiento Canino ofrece conocimientos sobre tecnicas de adiestramiento de base aplicadas a perros."}]},{"type":"paragraph","children":[{"text":"Incluye modificacion de conductas no deseadas, cuidados basicos, primeros auxilios y modulo de orientacion laboral."}]},{"type":"paragraph","children":[{"text":"Prepara para trabajar como adiestrador canino o aplicar estos conocimientos con animales propios."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales: educacion basica y correccion de conductas, deportes caninos, perros de asistencia y terapia, perros de trabajo, seguridad, rescate, deteccion, servicios a domicilio y online."}]},{"type":"paragraph","children":[{"text":"Contenido: modulo de tecnicas de adiestramiento de base, modificacion de conductas no deseadas y cuidados higienicos aplicados a perros."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 72,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -84,7 +84,11 @@ CROSS JOIN (VALUES
   (3, 'modulo de tecnicas de adiestramiento de base, modificacion de conductas no deseadas y cuidados higienicos aplicados a perros.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'adiestramiento-canino-i-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'adiestramiento-canino-i-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 72 horas.' FROM courses WHERE slug = 'adiestramiento-canino-i-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'adiestramiento-canino-i-priv';
 
 
 -- Auxiliar Clinico Veterinario :: ACV AUXILIAR CLINICO VETERINARIO.pdf
@@ -100,7 +104,7 @@ upsert_course AS (
   )
   SELECT
     'VETA-PRIV-auxiliar-clinico-veterinario-priv', 'auxiliar-clinico-veterinario-priv', 'Auxiliar Clinico Veterinario', 'Formacion para adquirir conocimientos del funcionamiento de una clinica veterinaria, funciones del auxiliar, atencion a perros y gatos, nociones de animales exoticos y orientacion laboral.',
-    '[{"type":"paragraph","children":[{"text":"El curso de Auxiliar Clinico Veterinario ofrece conocimientos imprescindibles sobre el funcionamiento de una clinica veterinaria y las funciones del auxiliar."}]},{"type":"paragraph","children":[{"text":"Incluye contenidos sobre perros y gatos, introduccion a animales exoticos y un modulo de orientacion laboral."}]},{"type":"paragraph","children":[{"text":"El objetivo es adquirir confianza, habilidades y conocimientos para trabajar en clinicas, hospitales veterinarios, tiendas de animales, centros de acogida u ONG."}]},{"type":"paragraph","children":[{"text":"Enfoque CEP: cuidado clinico, bienestar animal, manejo del estres en consulta y aprendizaje practico."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"El PDF tambien menciona 350 h; se toma 108 h como duracion principal detectada."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso de Auxiliar Clinico Veterinario ofrece conocimientos imprescindibles sobre el funcionamiento de una clinica veterinaria y las funciones del auxiliar."}]},{"type":"paragraph","children":[{"text":"Incluye contenidos sobre perros y gatos, introduccion a animales exoticos y un modulo de orientacion laboral."}]},{"type":"paragraph","children":[{"text":"El objetivo es adquirir confianza, habilidades y conocimientos para trabajar en clinicas, hospitales veterinarios, tiendas de animales, centros de acogida u ONG."}]},{"type":"paragraph","children":[{"text":"Enfoque CEP: cuidado clinico, bienestar animal, manejo del estres en consulta y aprendizaje practico."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 108,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -165,7 +169,11 @@ CROSS JOIN (VALUES
   (2, 'El objetivo es adquirir confianza, habilidades y conocimientos para trabajar en clinicas, hospitales veterinarios, tiendas de animales, centros de acogida u ONG.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'auxiliar-clinico-veterinario-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'auxiliar-clinico-veterinario-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 108 horas.' FROM courses WHERE slug = 'auxiliar-clinico-veterinario-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'auxiliar-clinico-veterinario-priv';
 
 
 -- Agente Funerario (Tanatopraxia y Tanatoestetica) :: AGENTE FUNERARIO.pdf
@@ -181,7 +189,7 @@ upsert_course AS (
   )
   SELECT
     'SCLN-PRIV-agente-funerario-tanatopraxia-y-tanatoestetica-priv', 'agente-funerario-tanatopraxia-y-tanatoestetica-priv', 'Agente Funerario (Tanatopraxia y Tanatoestetica)', 'Formacion en tanatopraxia, tanatoestetica, anatomia y fisiologia humana, alteraciones postmortem, embalsamamiento, prevencion de riesgos, bioseguridad y gestion funeraria.',
-    '[{"type":"paragraph","children":[{"text":"El curso prepara para conocer el origen y la historia de la tanatopraxia y adquirir conocimientos basicos sobre anatomia y fisiologia humana."}]},{"type":"paragraph","children":[{"text":"Trabaja la identificacion de alteraciones postmortem, su tratamiento y el proceso de embalsamamiento."}]},{"type":"paragraph","children":[{"text":"Incluye prevencion de riesgos laborales, bioseguridad y gestion funeraria."}]},{"type":"paragraph","children":[{"text":"Enfoque CEP: servicio funerario integral, trato solemne, acompanamiento a familias, gestion y protocolo con cumplimiento sanitario, legal y mortuorio."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"El PDF tambien menciona 120 h; se toma 160 h como duracion principal detectada."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso prepara para conocer el origen y la historia de la tanatopraxia y adquirir conocimientos basicos sobre anatomia y fisiologia humana."}]},{"type":"paragraph","children":[{"text":"Trabaja la identificacion de alteraciones postmortem, su tratamiento y el proceso de embalsamamiento."}]},{"type":"paragraph","children":[{"text":"Incluye prevencion de riesgos laborales, bioseguridad y gestion funeraria."}]},{"type":"paragraph","children":[{"text":"Enfoque CEP: servicio funerario integral, trato solemne, acompanamiento a familias, gestion y protocolo con cumplimiento sanitario, legal y mortuorio."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 160,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -246,7 +254,11 @@ CROSS JOIN (VALUES
   (2, 'Incluye prevencion de riesgos laborales, bioseguridad y gestion funeraria.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'agente-funerario-tanatopraxia-y-tanatoestetica-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'agente-funerario-tanatopraxia-y-tanatoestetica-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 160 horas.' FROM courses WHERE slug = 'agente-funerario-tanatopraxia-y-tanatoestetica-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'agente-funerario-tanatopraxia-y-tanatoestetica-priv';
 
 
 -- Ayudante Tecnico Veterinario (ATV) :: ATV AYUDANTE TECNICO VETERINARIO.pdf
@@ -327,7 +339,11 @@ CROSS JOIN (VALUES
   (2, 'El objetivo es adquirir confianza, habilidades y conocimientos para trabajar como ATV en clinicas, centros veterinarios, tiendas de animales, ONG o nucleos zoologicos.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'ayudante-tecnico-veterinario-atv-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'ayudante-tecnico-veterinario-atv-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 120 horas.' FROM courses WHERE slug = 'ayudante-tecnico-veterinario-atv-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'ayudante-tecnico-veterinario-atv-priv';
 
 
 -- Farmacia y Dermocosmetica :: AUX FARMACIA, PARAFARMACIA Y DERMOCOSMÉTICA.pdf
@@ -343,7 +359,7 @@ upsert_course AS (
   )
   SELECT
     'SCLN-PRIV-farmacia-y-dermocosmetica-priv', 'farmacia-y-dermocosmetica-priv', 'Farmacia y Dermocosmetica', 'Formacion sobre funcionamiento de oficina de farmacia, funciones del auxiliar, parafarmacia, dermocosmetica, atencion sanitaria profesional y orientacion laboral.',
-    '[{"type":"paragraph","children":[{"text":"El curso ofrece conocimientos imprescindibles del funcionamiento de una oficina de farmacia y las funciones del auxiliar de farmacia."}]},{"type":"paragraph","children":[{"text":"Trabaja farmacia, parafarmacia, dermocosmetica, almacen de medicamentos, atencion al paciente y asesoramiento personalizado."}]},{"type":"paragraph","children":[{"text":"Prepara para trabajar como auxiliar en farmacias, parafarmacias, perfumerias, almacen de medicamentos o empresas del sector."}]},{"type":"paragraph","children":[{"text":"El PDF indica clases presenciales una vez por semana y modalidad online bajo consulta."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"El PDF tambien menciona 350 h; se toma 120 h como duracion principal del curso."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso ofrece conocimientos imprescindibles del funcionamiento de una oficina de farmacia y las funciones del auxiliar de farmacia."}]},{"type":"paragraph","children":[{"text":"Trabaja farmacia, parafarmacia, dermocosmetica, almacen de medicamentos, atencion al paciente y asesoramiento personalizado."}]},{"type":"paragraph","children":[{"text":"Prepara para trabajar como auxiliar en farmacias, parafarmacias, perfumerias, almacen de medicamentos o empresas del sector."}]},{"type":"paragraph","children":[{"text":"El PDF indica clases presenciales una vez por semana y modalidad online bajo consulta."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 120,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -408,7 +424,11 @@ CROSS JOIN (VALUES
   (2, 'Prepara para trabajar como auxiliar en farmacias, parafarmacias, perfumerias, almacen de medicamentos o empresas del sector.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'farmacia-y-dermocosmetica-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'farmacia-y-dermocosmetica-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 120 horas.' FROM courses WHERE slug = 'farmacia-y-dermocosmetica-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'farmacia-y-dermocosmetica-priv';
 
 
 -- Auxiliar de Clinicas Esteticas :: AUXILIAR CLINICAS ESTETICAS.pdf
@@ -424,7 +444,7 @@ upsert_course AS (
   )
   SELECT
     'SCLN-PRIV-auxiliar-de-clinicas-esteticas-priv', 'auxiliar-de-clinicas-esteticas-priv', 'Auxiliar de Clinicas Esteticas', 'Formacion practica orientada a profesionales de cosmetologia, estetica, peluqueria, unas, asesoria de imagen, dermofarmacia, farmacia y centros esteticos.',
-    '[{"type":"paragraph","children":[{"text":"El programa presenta una formacion vinculada a servicios y tratamientos de estetica, cosmeticos y especialidades complementarias."}]},{"type":"paragraph","children":[{"text":"Esta dirigido a profesionales de cosmetologia, estetica, peluqueria, unas, asesoria de imagen personal, dermofarmacia, farmacia, sanitarios y responsables de centros."}]},{"type":"paragraph","children":[{"text":"Incluye aprendizaje practico, orientacion laboral y acompanamiento profesional."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"El PDF contiene textos de enfoque diferenciador que parecen arrastrados de veterinaria; revisar antes de publicar descripcion larga definitiva."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El programa presenta una formacion vinculada a servicios y tratamientos de estetica, cosmeticos y especialidades complementarias."}]},{"type":"paragraph","children":[{"text":"Esta dirigido a profesionales de cosmetologia, estetica, peluqueria, unas, asesoria de imagen personal, dermofarmacia, farmacia, sanitarios y responsables de centros."}]},{"type":"paragraph","children":[{"text":"Incluye aprendizaje practico, orientacion laboral y acompanamiento profesional."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 120,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -488,7 +508,11 @@ CROSS JOIN (VALUES
   (1, 'Incluye aprendizaje practico, orientacion laboral y acompanamiento profesional.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'auxiliar-de-clinicas-esteticas-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'auxiliar-de-clinicas-esteticas-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 120 horas.' FROM courses WHERE slug = 'auxiliar-de-clinicas-esteticas-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'auxiliar-de-clinicas-esteticas-priv';
 
 
 -- Auxiliar de Enfermeria :: AUXILIAR DE ENFERMERÍA.pdf
@@ -504,7 +528,7 @@ upsert_course AS (
   )
   SELECT
     'SCLN-PRIV-auxiliar-de-enfermeria-priv', 'auxiliar-de-enfermeria-priv', 'Auxiliar de Enfermeria', 'Formacion en tecnicas auxiliares de enfermeria, anatomia, cuidados basicos, documentacion, higiene del medio hospitalario y orientacion laboral.',
-    '[{"type":"paragraph","children":[{"text":"El curso de Tecnicas Auxiliares en Enfermeria ofrece conocimientos sobre anatomia, tecnicas basicas de enfermeria, documentacion e higiene del medio hospitalario."}]},{"type":"paragraph","children":[{"text":"Prepara para trabajar como auxiliar en centros medicos, hospitales concertados, consultas privadas y otros entornos sanitarios."}]},{"type":"paragraph","children":[{"text":"Enfoque CEP: vision integral del cuidado, trato humano, apoyo emocional, aplicacion de cuidados basicos, higiene, movilizacion, constantes y prevencion de riesgos."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"El PDF tambien menciona 300 h; se toma 120 h como duracion principal del curso."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso de Tecnicas Auxiliares en Enfermeria ofrece conocimientos sobre anatomia, tecnicas basicas de enfermeria, documentacion e higiene del medio hospitalario."}]},{"type":"paragraph","children":[{"text":"Prepara para trabajar como auxiliar en centros medicos, hospitales concertados, consultas privadas y otros entornos sanitarios."}]},{"type":"paragraph","children":[{"text":"Enfoque CEP: vision integral del cuidado, trato humano, apoyo emocional, aplicacion de cuidados basicos, higiene, movilizacion, constantes y prevencion de riesgos."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 120,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -568,7 +592,11 @@ CROSS JOIN (VALUES
   (1, 'Prepara para trabajar como auxiliar en centros medicos, hospitales concertados, consultas privadas y otros entornos sanitarios.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'auxiliar-de-enfermeria-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'auxiliar-de-enfermeria-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 120 horas.' FROM courses WHERE slug = 'auxiliar-de-enfermeria-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'auxiliar-de-enfermeria-priv';
 
 
 -- Auxiliar de Odontologia e Higiene online :: AUXILIAR DE ODONTOLOGIA ONLINE.pdf
@@ -584,7 +612,7 @@ upsert_course AS (
   )
   SELECT
     'SCLN-PRIV-auxiliar-de-odontologia-e-higiene-online-priv', 'auxiliar-de-odontologia-e-higiene-online-priv', 'Auxiliar de Odontologia e Higiene online', 'Curso online sobre funcionamiento de clinica odontologica, funciones del auxiliar de odontologia, higiene bucodental, protocolos clinicos y orientacion laboral.',
-    '[{"type":"paragraph","children":[{"text":"El curso online ofrece conocimientos imprescindibles del funcionamiento de una clinica odontologica y las funciones del auxiliar de odontologia."}]},{"type":"paragraph","children":[{"text":"Prepara para trabajar como auxiliar en clinicas dentales, recepcionista en clinicas odontologicas, apoyo en cirugia oral, ortodoncia o implantologia y comercial de productos odontologicos."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: clinica dental, equipo odontologico, anatomia bucal y dientes, control de infecciones, desinfeccion y esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral."}]}]'::jsonb, 'online'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso online ofrece conocimientos imprescindibles del funcionamiento de una clinica odontologica y las funciones del auxiliar de odontologia."}]},{"type":"paragraph","children":[{"text":"Prepara para trabajar como auxiliar en clinicas dentales, recepcionista en clinicas odontologicas, apoyo en cirugia oral, ortodoncia o implantologia y comercial de productos odontologicos."}]},{"type":"paragraph","children":[{"text":"Contenido: clinica dental, equipo odontologico, anatomia bucal y dientes, control de infecciones, desinfeccion y esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral."}]}]'::jsonb, 'online'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 300,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -634,7 +662,7 @@ SELECT 1, id, 'landing_objectives', 'El curso online ofrece conocimientos impres
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 2, id, 'landing_objectives', 'Prepara para trabajar como auxiliar en clinicas dentales, recepcionista en clinicas odontologicas, apoyo en cirugia oral, ortodoncia o implantologia y comercial de productos odontologicos.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-online-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 3, id, 'landing_objectives', 'Contenido detectado: clinica dental, equipo odontologico, anatomia bucal y dientes, control de infecciones, desinfeccion y esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-online-priv';
+SELECT 3, id, 'landing_objectives', 'Contenido: clinica dental, equipo odontologico, anatomia bucal y dientes, control de infecciones, desinfeccion y esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-online-priv';
 WITH block AS (
   INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
   SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Curso online sobre funcionamiento de clinica odontologica, funciones del auxiliar de odontologia, higiene bucodental, protocolos clinicos y orientacion laboral.'
@@ -649,7 +677,11 @@ CROSS JOIN (VALUES
   (2, 'clinica dental, equipo odontologico, anatomia bucal y dientes, control de infecciones, desinfeccion y esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-online-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad online.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-online-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 300 horas.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-online-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-online-priv';
 
 
 -- Auxiliar de Odontologia e Higiene :: AUXILIAR ODONTOLOGÍA INTENSIVO.pdf
@@ -665,7 +697,7 @@ upsert_course AS (
   )
   SELECT
     'SCLN-PRIV-auxiliar-de-odontologia-e-higiene-priv', 'auxiliar-de-odontologia-e-higiene-priv', 'Auxiliar de Odontologia e Higiene', 'Curso presencial intensivo sobre funcionamiento de clinica odontologica, funciones del auxiliar de odontologia, higiene bucodental y practicas en empresa.',
-    '[{"type":"paragraph","children":[{"text":"El curso presencial ofrece conocimientos imprescindibles del funcionamiento de una clinica odontologica y las funciones del auxiliar de odontologia."}]},{"type":"paragraph","children":[{"text":"Organizacion detectada: clases presenciales un dia en semana, clases teorico-practicas, grupos reducidos, 300 h de practicas en empresas y duracion de 6 meses o 24 sesiones."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: clinica dental, equipo odontologico, anatomia de cavidad bucal y dientes, control de infecciones, desinfeccion, esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso presencial ofrece conocimientos imprescindibles del funcionamiento de una clinica odontologica y las funciones del auxiliar de odontologia."}]},{"type":"paragraph","children":[{"text":"Organización: clases presenciales un dia en semana, clases teorico-practicas, grupos reducidos, 300 h de practicas en empresas y duracion de 6 meses o 24 sesiones."}]},{"type":"paragraph","children":[{"text":"Contenido: clinica dental, equipo odontologico, anatomia de cavidad bucal y dientes, control de infecciones, desinfeccion, esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 120,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -713,9 +745,9 @@ SELECT id AS course_id FROM target;
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 1, id, 'landing_objectives', 'El curso presencial ofrece conocimientos imprescindibles del funcionamiento de una clinica odontologica y las funciones del auxiliar de odontologia.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 2, id, 'landing_objectives', 'Organizacion detectada: clases presenciales un dia en semana, clases teorico-practicas, grupos reducidos, 300 h de practicas en empresas y duracion de 6 meses o 24 sesiones.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-priv';
+SELECT 2, id, 'landing_objectives', 'Organización: clases presenciales un dia en semana, clases teorico-practicas, grupos reducidos, 300 h de practicas en empresas y duracion de 6 meses o 24 sesiones.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 3, id, 'landing_objectives', 'Contenido detectado: clinica dental, equipo odontologico, anatomia de cavidad bucal y dientes, control de infecciones, desinfeccion, esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-priv';
+SELECT 3, id, 'landing_objectives', 'Contenido: clinica dental, equipo odontologico, anatomia de cavidad bucal y dientes, control de infecciones, desinfeccion, esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-priv';
 WITH block AS (
   INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
   SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Curso presencial intensivo sobre funcionamiento de clinica odontologica, funciones del auxiliar de odontologia, higiene bucodental y practicas en empresa.'
@@ -726,11 +758,15 @@ INSERT INTO courses_landing_program_blocks_items (_order, _parent_id, path, text
 SELECT source.item_order, block.id, 'items', source.item_text
 FROM block
 CROSS JOIN (VALUES
-  (1, 'Organizacion detectada: clases presenciales un dia en semana, clases teorico-practicas, grupos reducidos, 300 h de practicas en empresas y duracion de 6 meses o 24 sesiones.'),
+  (1, 'Organización: clases presenciales un dia en semana, clases teorico-practicas, grupos reducidos, 300 h de practicas en empresas y duracion de 6 meses o 24 sesiones.'),
   (2, 'clinica dental, equipo odontologico, anatomia de cavidad bucal y dientes, control de infecciones, desinfeccion, esterilizacion, farmacologia, endodoncia, protesis, patologias, periodoncia y cirugia oral.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 120 horas.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'auxiliar-de-odontologia-e-higiene-priv';
 
 
 -- Dietetica y Nutricion :: DIETETICA Y NUTRICION.pdf
@@ -746,11 +782,11 @@ upsert_course AS (
   )
   SELECT
     'SBD-PRIV-dietetica-y-nutricion-priv', 'dietetica-y-nutricion-priv', 'Dietetica y Nutricion', 'Formacion en anatomia, fisiologia, dietetica y nutricion, alimentacion en distintas etapas de la vida, dietas y orientacion laboral.',
-    '[{"type":"paragraph","children":[{"text":"El curso de Dietetica y Nutricion ofrece conocimientos de anatomia, dietetica y nutricion, alimentacion en diferentes etapas de la vida y dietas."}]},{"type":"paragraph","children":[{"text":"Incluye modulo de orientacion laboral dinamico y actualizado."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales detectadas: caterings, herbolarios, gimnasios y apertura de herbolario propio."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: modulo de anatomia-fisiologia y modulo de dietetica y nutricion."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso de Dietetica y Nutricion ofrece conocimientos de anatomia, dietetica y nutricion, alimentacion en diferentes etapas de la vida y dietas."}]},{"type":"paragraph","children":[{"text":"Incluye modulo de orientacion laboral dinamico y actualizado."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales: caterings, herbolarios, gimnasios y apertura de herbolario propio."}]},{"type":"paragraph","children":[{"text":"Contenido: modulo de anatomia-fisiologia y modulo de dietetica y nutricion."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 150,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
-    'Consultar requisitos de acceso con CEP Formación.', 'Salidas profesionales detectadas: caterings, herbolarios, gimnasios y apertura de herbolario propio.',
+    'Consultar requisitos de acceso con CEP Formación.', 'Salidas profesionales: caterings, herbolarios, gimnasios y apertura de herbolario propio.',
     'Dietetica y Nutricion | CEP Formación', 'Formacion en anatomia, fisiologia, dietetica y nutricion, alimentacion en distintas etapas de la vida, dietas y orientacion laboral.', now(), now()
   FROM area
   ON CONFLICT (slug) DO UPDATE SET
@@ -796,7 +832,7 @@ SELECT 1, id, 'landing_objectives', 'El curso de Dietetica y Nutricion ofrece co
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 2, id, 'landing_objectives', 'Incluye modulo de orientacion laboral dinamico y actualizado.' FROM courses WHERE slug = 'dietetica-y-nutricion-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 3, id, 'landing_objectives', 'Salidas profesionales detectadas: caterings, herbolarios, gimnasios y apertura de herbolario propio.' FROM courses WHERE slug = 'dietetica-y-nutricion-priv';
+SELECT 3, id, 'landing_objectives', 'Salidas profesionales: caterings, herbolarios, gimnasios y apertura de herbolario propio.' FROM courses WHERE slug = 'dietetica-y-nutricion-priv';
 WITH block AS (
   INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
   SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Formacion en anatomia, fisiologia, dietetica y nutricion, alimentacion en distintas etapas de la vida, dietas y orientacion laboral.'
@@ -811,7 +847,11 @@ CROSS JOIN (VALUES
   (2, 'modulo de anatomia-fisiologia y modulo de dietetica y nutricion.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'dietetica-y-nutricion-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'dietetica-y-nutricion-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 150 horas.' FROM courses WHERE slug = 'dietetica-y-nutricion-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'dietetica-y-nutricion-priv';
 
 
 -- Dietetica y Nutricion Online :: DIETETICA Y NUTRICION ONLINE.pdf
@@ -827,10 +867,10 @@ upsert_course AS (
   )
   SELECT
     'SBD-TELE-dietetica-y-nutricion-online-priv', 'dietetica-y-nutricion-online-priv', 'Dietetica y Nutricion Online', 'Curso online de dietetica y nutricion con anatomia, estudio de alimentos, necesidades nutricionales, dietas, alimentacion en distintas etapas de la vida y practicas en empresa.',
-    '[{"type":"paragraph","children":[{"text":"El curso online de Dietetica y Nutricion ofrece conocimientos de anatomia, dietetica y nutricion, alimentacion en las diferentes etapas de la vida y dietas."}]},{"type":"paragraph","children":[{"text":"Organizacion detectada: aprendizaje online, campus virtual, aprendizaje colaborativo y practicas en empresa."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: necesidades nutricionales y estudio de nutrientes, estudio de alimentos, aspectos dieteticos y nutricionales en distintas etapas de la vida."}]},{"type":"paragraph","children":[{"text":"Caracteristicas detectadas: 400 horas de formacion y modalidad online."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Crear curso si no existe: variante online diferenciada del curso presencial."}]}]'::jsonb, 'online'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso online de Dietetica y Nutricion ofrece conocimientos de anatomia, dietetica y nutricion, alimentacion en las diferentes etapas de la vida y dietas."}]},{"type":"paragraph","children":[{"text":"Organización: aprendizaje online, campus virtual, aprendizaje colaborativo y practicas en empresa."}]},{"type":"paragraph","children":[{"text":"Contenido: necesidades nutricionales y estudio de nutrientes, estudio de alimentos, aspectos dieteticos y nutricionales en distintas etapas de la vida."}]},{"type":"paragraph","children":[{"text":"Características: 400 horas de formacion y modalidad online."}]}]'::jsonb, 'online'::enum_courses_modality,
     'teleformacion'::enum_courses_course_type, area.id, 400,
     true, false, 1, 'active'::enum_courses_operational_status,
-    true, 'Personas que cumplen los requisitos de acceso de la convocatoria formativa.',
+    true, 'Personas interesadas en formación profesionalizante del área.',
     'Consultar requisitos técnicos y de acceso al campus virtual.', NULL,
     'Dietetica y Nutricion Online | CEP Formación', 'Curso online de dietetica y nutricion con anatomia, estudio de alimentos, necesidades nutricionales, dietas, alimentacion en distintas etapas de la vida y practicas en empresa.', now(), now()
   FROM area
@@ -875,9 +915,9 @@ SELECT id AS course_id FROM target;
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 1, id, 'landing_objectives', 'El curso online de Dietetica y Nutricion ofrece conocimientos de anatomia, dietetica y nutricion, alimentacion en las diferentes etapas de la vida y dietas.' FROM courses WHERE slug = 'dietetica-y-nutricion-online-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 2, id, 'landing_objectives', 'Organizacion detectada: aprendizaje online, campus virtual, aprendizaje colaborativo y practicas en empresa.' FROM courses WHERE slug = 'dietetica-y-nutricion-online-priv';
+SELECT 2, id, 'landing_objectives', 'Organización: aprendizaje online, campus virtual, aprendizaje colaborativo y practicas en empresa.' FROM courses WHERE slug = 'dietetica-y-nutricion-online-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 3, id, 'landing_objectives', 'Contenido detectado: necesidades nutricionales y estudio de nutrientes, estudio de alimentos, aspectos dieteticos y nutricionales en distintas etapas de la vida.' FROM courses WHERE slug = 'dietetica-y-nutricion-online-priv';
+SELECT 3, id, 'landing_objectives', 'Contenido: necesidades nutricionales y estudio de nutrientes, estudio de alimentos, aspectos dieteticos y nutricionales en distintas etapas de la vida.' FROM courses WHERE slug = 'dietetica-y-nutricion-online-priv';
 WITH block AS (
   INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
   SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Curso online de dietetica y nutricion con anatomia, estudio de alimentos, necesidades nutricionales, dietas, alimentacion en distintas etapas de la vida y practicas en empresa.'
@@ -888,11 +928,15 @@ INSERT INTO courses_landing_program_blocks_items (_order, _parent_id, path, text
 SELECT source.item_order, block.id, 'items', source.item_text
 FROM block
 CROSS JOIN (VALUES
-  (1, 'Organizacion detectada: aprendizaje online, campus virtual, aprendizaje colaborativo y practicas en empresa.'),
+  (1, 'Organización: aprendizaje online, campus virtual, aprendizaje colaborativo y practicas en empresa.'),
   (2, 'necesidades nutricionales y estudio de nutrientes, estudio de alimentos, aspectos dieteticos y nutricionales en distintas etapas de la vida.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'dietetica-y-nutricion-online-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad online.' FROM courses WHERE slug = 'dietetica-y-nutricion-online-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 400 horas.' FROM courses WHERE slug = 'dietetica-y-nutricion-online-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'dietetica-y-nutricion-online-priv';
 
 
 -- Entrenamiento Personal :: ENTRENAMIENTO PERSONAL.pdf
@@ -972,7 +1016,11 @@ CROSS JOIN (VALUES
   (1, 'Trabaja el diseno de programas de ejercicio seguro y efectivo adaptados al estado de salud, capacidad, necesidades y metas del cliente.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'entrenamiento-personal-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'entrenamiento-personal-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 120 horas.' FROM courses WHERE slug = 'entrenamiento-personal-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'entrenamiento-personal-priv';
 
 
 -- Especializacion Clinica Avanzada para ACV :: ESPECIALISTA EN URGENCIAS, LABORATORIO Y REHABILITACIÓN VETERINARIA.pdf.pdf
@@ -988,11 +1036,11 @@ upsert_course AS (
   )
   SELECT
     'SCLN-PRIV-especializacion-clinica-avanzada-para-acv-priv', 'especializacion-clinica-avanzada-para-acv-priv', 'Especializacion Clinica Avanzada para ACV', 'Especializacion para ACV en urgencias veterinarias, triaje, primeros auxilios, monitorizacion, laboratorio clinico, hospitalizacion, fisioterapia y rehabilitacion veterinaria.',
-    '[{"type":"paragraph","children":[{"text":"El curso permite actuar con seguridad y criterio en urgencias veterinarias, realizando triaje, primeros auxilios, monitorizacion y asistencia en situaciones criticas."}]},{"type":"paragraph","children":[{"text":"Incluye manejo del material de urgencias, fluidoterapia, sondas, drenajes y cuidados del paciente hospitalizado."}]},{"type":"paragraph","children":[{"text":"Trabaja competencias practicas en laboratorio clinico veterinario: recogida, procesado e interpretacion basica de muestras."}]},{"type":"paragraph","children":[{"text":"Introduce las bases de fisioterapia y rehabilitacion veterinaria para apoyar la recuperacion funcional de los pacientes."}]},{"type":"paragraph","children":[{"text":"Salidas detectadas: clinicas veterinarias con urgencias, hospitales veterinarios, centros de rehabilitacion animal, clinicas con laboratorio interno, hospitalizacion y UCI veterinaria."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: urgencias, triaje, material de urgencias, fluidoterapia, sondas, urgencias cardiovasculares, hematologicas, metabolicas, gastrointestinales, urologicas, reproductivas, neurologicas, traumatologicas y toxicologicas."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Decision validada: aunque el titulo del PDF no coincide exacto, aplica a Especializacion Clinica Avanzada para ACV."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso permite actuar con seguridad y criterio en urgencias veterinarias, realizando triaje, primeros auxilios, monitorizacion y asistencia en situaciones criticas."}]},{"type":"paragraph","children":[{"text":"Incluye manejo del material de urgencias, fluidoterapia, sondas, drenajes y cuidados del paciente hospitalizado."}]},{"type":"paragraph","children":[{"text":"Trabaja competencias practicas en laboratorio clinico veterinario: recogida, procesado e interpretacion basica de muestras."}]},{"type":"paragraph","children":[{"text":"Introduce las bases de fisioterapia y rehabilitacion veterinaria para apoyar la recuperacion funcional de los pacientes."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales: clinicas veterinarias con urgencias, hospitales veterinarios, centros de rehabilitacion animal, clinicas con laboratorio interno, hospitalizacion y UCI veterinaria."}]},{"type":"paragraph","children":[{"text":"Contenido: urgencias, triaje, material de urgencias, fluidoterapia, sondas, urgencias cardiovasculares, hematologicas, metabolicas, gastrointestinales, urologicas, reproductivas, neurologicas, traumatologicas y toxicologicas."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 108,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
-    'Consultar requisitos de acceso con CEP Formación.', 'Salidas detectadas: clinicas veterinarias con urgencias, hospitales veterinarios, centros de rehabilitacion animal, clinicas con laboratorio interno, hospitalizacion y UCI veterinaria.',
+    'Consultar requisitos de acceso con CEP Formación.', 'Salidas profesionales: clinicas veterinarias con urgencias, hospitales veterinarios, centros de rehabilitacion animal, clinicas con laboratorio interno, hospitalizacion y UCI veterinaria.',
     'Especializacion Clinica Avanzada para ACV | CEP Formación', 'Especializacion para ACV en urgencias veterinarias, triaje, primeros auxilios, monitorizacion, laboratorio clinico, hospitalizacion, fisioterapia y rehabilitacion veterinaria.', now(), now()
   FROM area
   ON CONFLICT (slug) DO UPDATE SET
@@ -1054,7 +1102,11 @@ CROSS JOIN (VALUES
   (3, 'urgencias, triaje, material de urgencias, fluidoterapia, sondas, urgencias cardiovasculares, hematologicas, metabolicas, gastrointestinales, urologicas, reproductivas, neurologicas, traumatologicas y toxicologicas.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'especializacion-clinica-avanzada-para-acv-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'especializacion-clinica-avanzada-para-acv-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 108 horas.' FROM courses WHERE slug = 'especializacion-clinica-avanzada-para-acv-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'especializacion-clinica-avanzada-para-acv-priv';
 
 
 -- Instructor o Instructora de Pilates :: INSTRUCTOR PILATES.pdf
@@ -1070,11 +1122,11 @@ upsert_course AS (
   )
   SELECT
     'SBD-PRIV-instructora-de-pilates-priv', 'instructora-de-pilates-priv', 'Instructor o Instructora de Pilates', 'Formacion en metodo Pilates, anatomia aplicada al movimiento, correccion postural, respiracion, planificacion de clases y adaptaciones por niveles.',
-    '[{"type":"paragraph","children":[{"text":"El curso forma en los principios y fundamentos del metodo Pilates con base solida en anatomia aplicada al movimiento."}]},{"type":"paragraph","children":[{"text":"Incluye correccion postural, control de la respiracion, planificacion de clases y adaptaciones por niveles."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales detectadas: estudios de Pilates, spas, balnearios, hoteles wellness, gimnasios, centros deportivos, clinicas de fisioterapia, rehabilitacion, centros de estetica, bienestar integral, eventos, residencias y autoempleo."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: historia y filosofia del metodo, Joseph Hubertus Pilates, alineacion corporal y posicion neutra."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"No se actualiza duration_hours: el PDF solo detecta 3 h como asistencia semanal, no duracion total."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso forma en los principios y fundamentos del metodo Pilates con base solida en anatomia aplicada al movimiento."}]},{"type":"paragraph","children":[{"text":"Incluye correccion postural, control de la respiracion, planificacion de clases y adaptaciones por niveles."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales: estudios de Pilates, spas, balnearios, hoteles wellness, gimnasios, centros deportivos, clinicas de fisioterapia, rehabilitacion, centros de estetica, bienestar integral, eventos, residencias y autoempleo."}]},{"type":"paragraph","children":[{"text":"Contenido: historia y filosofia del metodo, Joseph Hubertus Pilates, alineacion corporal y posicion neutra."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, NULL,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
-    'Consultar requisitos de acceso con CEP Formación.', 'Salidas profesionales detectadas: estudios de Pilates, spas, balnearios, hoteles wellness, gimnasios, centros deportivos, clinicas de fisioterapia, rehabilitacion, centros de estetica, bienestar integral, eventos, residencias y autoempleo.',
+    'Consultar requisitos de acceso con CEP Formación.', 'Salidas profesionales: estudios de Pilates, spas, balnearios, hoteles wellness, gimnasios, centros deportivos, clinicas de fisioterapia, rehabilitacion, centros de estetica, bienestar integral, eventos, residencias y autoempleo.',
     'Instructor o Instructora de Pilates | CEP Formación', 'Formacion en metodo Pilates, anatomia aplicada al movimiento, correccion postural, respiracion, planificacion de clases y adaptaciones por niveles.', now(), now()
   FROM area
   ON CONFLICT (slug) DO UPDATE SET
@@ -1120,7 +1172,7 @@ SELECT 1, id, 'landing_objectives', 'El curso forma en los principios y fundamen
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 2, id, 'landing_objectives', 'Incluye correccion postural, control de la respiracion, planificacion de clases y adaptaciones por niveles.' FROM courses WHERE slug = 'instructora-de-pilates-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 3, id, 'landing_objectives', 'Salidas profesionales detectadas: estudios de Pilates, spas, balnearios, hoteles wellness, gimnasios, centros deportivos, clinicas de fisioterapia, rehabilitacion, centros de estetica, bienestar integral, eventos, residencias y autoempleo.' FROM courses WHERE slug = 'instructora-de-pilates-priv';
+SELECT 3, id, 'landing_objectives', 'Salidas profesionales: estudios de Pilates, spas, balnearios, hoteles wellness, gimnasios, centros deportivos, clinicas de fisioterapia, rehabilitacion, centros de estetica, bienestar integral, eventos, residencias y autoempleo.' FROM courses WHERE slug = 'instructora-de-pilates-priv';
 WITH block AS (
   INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
   SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Formacion en metodo Pilates, anatomia aplicada al movimiento, correccion postural, respiracion, planificacion de clases y adaptaciones por niveles.'
@@ -1135,7 +1187,9 @@ CROSS JOIN (VALUES
   (2, 'historia y filosofia del metodo, Joseph Hubertus Pilates, alineacion corporal y posicion neutra.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'instructora-de-pilates-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'instructora-de-pilates-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'instructora-de-pilates-priv';
 
 
 -- Instructor o Instructora de Yoga :: INSTRUCTOR YOGA.pdf
@@ -1151,7 +1205,7 @@ upsert_course AS (
   )
   SELECT
     'SBD-PRIV-instructora-de-yoga-priv', 'instructora-de-yoga-priv', 'Instructor o Instructora de Yoga', 'Formacion integral de instructor/a de Yoga basada en Hatha Yoga, con trabajo de cuerpo, mente y emociones para crecimiento personal o ejercicio profesional.',
-    '[{"type":"paragraph","children":[{"text":"Curso basado en Hatha Yoga, enriquecido con experiencia docente en yoga y terapia transpersonal."}]},{"type":"paragraph","children":[{"text":"Ofrece ensenanza integral de cuerpo, mente y emociones para el desempeno del instructor o instructora."}]},{"type":"paragraph","children":[{"text":"Organizacion detectada: clases presenciales teorico-practicas, grupos reducidos y duracion de 200 h."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: Yoga, Tantra, universo y ser humano, chakras, energia, mente, salud, higiene, habitos saludables, terapias saludables, dieta vegetariana o vegana y medicina natural."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"Curso basado en Hatha Yoga, enriquecido con experiencia docente en yoga y terapia transpersonal."}]},{"type":"paragraph","children":[{"text":"Ofrece ensenanza integral de cuerpo, mente y emociones para el desempeno del instructor o instructora."}]},{"type":"paragraph","children":[{"text":"Organización: clases presenciales teorico-practicas, grupos reducidos y duracion de 200 h."}]},{"type":"paragraph","children":[{"text":"Contenido: Yoga, Tantra, universo y ser humano, chakras, energia, mente, salud, higiene, habitos saludables, terapias saludables, dieta vegetariana o vegana y medicina natural."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 200,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -1201,7 +1255,7 @@ SELECT 1, id, 'landing_objectives', 'Curso basado en Hatha Yoga, enriquecido con
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 2, id, 'landing_objectives', 'Ofrece ensenanza integral de cuerpo, mente y emociones para el desempeno del instructor o instructora.' FROM courses WHERE slug = 'instructora-de-yoga-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 3, id, 'landing_objectives', 'Organizacion detectada: clases presenciales teorico-practicas, grupos reducidos y duracion de 200 h.' FROM courses WHERE slug = 'instructora-de-yoga-priv';
+SELECT 3, id, 'landing_objectives', 'Organización: clases presenciales teorico-practicas, grupos reducidos y duracion de 200 h.' FROM courses WHERE slug = 'instructora-de-yoga-priv';
 WITH block AS (
   INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
   SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Formacion integral de instructor/a de Yoga basada en Hatha Yoga, con trabajo de cuerpo, mente y emociones para crecimiento personal o ejercicio profesional.'
@@ -1212,11 +1266,15 @@ INSERT INTO courses_landing_program_blocks_items (_order, _parent_id, path, text
 SELECT source.item_order, block.id, 'items', source.item_text
 FROM block
 CROSS JOIN (VALUES
-  (1, 'Organizacion detectada: clases presenciales teorico-practicas, grupos reducidos y duracion de 200 h.'),
+  (1, 'Organización: clases presenciales teorico-practicas, grupos reducidos y duracion de 200 h.'),
   (2, 'Yoga, Tantra, universo y ser humano, chakras, energia, mente, salud, higiene, habitos saludables, terapias saludables, dieta vegetariana o vegana y medicina natural.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'instructora-de-yoga-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'instructora-de-yoga-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 200 horas.' FROM courses WHERE slug = 'instructora-de-yoga-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'instructora-de-yoga-priv';
 
 
 -- CFGM Farmacia y Parafarmacia :: CFGM FARMACIA.pdf
@@ -1232,11 +1290,11 @@ upsert_course AS (
   )
   SELECT
     'SCLN-CMED-cfgm-farmacia-y-parafarmacia', 'cfgm-farmacia-y-parafarmacia', 'CFGM Farmacia y Parafarmacia', 'Ciclo Formativo de Grado Medio de Farmacia y Parafarmacia con salidas en oficinas de farmacia, parafarmacias, farmacia hospitalaria, almacenes, distribucion y laboratorios.',
-    '[{"type":"paragraph","children":[{"text":"Ciclo Formativo de Grado Medio de Farmacia y Parafarmacia autorizado por MEC 38017275."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales detectadas: tecnico en oficinas de farmacia, parafarmacias, establecimientos sanitarios, farmacia hospitalaria, almacenes de distribucion farmaceutica, empresas de distribucion farmaceutica y sanitaria, laboratorios farmaceuticos o cosmeticos."}]},{"type":"paragraph","children":[{"text":"Otros ambitos: parafarmacias y tiendas de salud, clinicas y centros sanitarios, empresas de dermocosmetica u ortopedia, gestion y distribucion de medicamentos en almacenes y hospitales."}]},{"type":"paragraph","children":[{"text":"Requisitos detectados: ESO o Graduado Escolar, prueba de acceso a Grado Medio, Tecnico Auxiliar de FP o titulacion equivalente o superior."}]},{"type":"paragraph","children":[{"text":"Modalidad detectada: semipresencial. Duracion detectada: 500 h."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Crear curso si no existe, aunque tambien pueda existir como ciclo."}]}]'::jsonb, 'hibrido'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"Ciclo Formativo de Grado Medio de Farmacia y Parafarmacia autorizado por MEC 38017275."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales: tecnico en oficinas de farmacia, parafarmacias, establecimientos sanitarios, farmacia hospitalaria, almacenes de distribucion farmaceutica, empresas de distribucion farmaceutica y sanitaria, laboratorios farmaceuticos o cosmeticos."}]},{"type":"paragraph","children":[{"text":"Otros ambitos: parafarmacias y tiendas de salud, clinicas y centros sanitarios, empresas de dermocosmetica u ortopedia, gestion y distribucion de medicamentos en almacenes y hospitales."}]},{"type":"paragraph","children":[{"text":"Requisitos: ESO o Graduado Escolar, prueba de acceso a Grado Medio, Tecnico Auxiliar de FP o titulacion equivalente o superior."}]},{"type":"paragraph","children":[{"text":"Modalidad: semipresencial. Duración: 500 h."}]}]'::jsonb, 'hibrido'::enum_courses_modality,
     'ciclo_medio'::enum_courses_course_type, area.id, 500,
     true, false, 1, 'active'::enum_courses_operational_status,
-    true, 'Personas que cumplen los requisitos de acceso de la convocatoria formativa.',
-    'Consultar requisitos de acceso con CEP Formación.', 'Salidas profesionales detectadas: tecnico en oficinas de farmacia, parafarmacias, establecimientos sanitarios, farmacia hospitalaria, almacenes de distribucion farmaceutica, empresas de distribucion farmaceutica y sanitaria, laboratorios farmaceuticos o cosmeticos.',
+    true, 'Personas interesadas en formación profesionalizante del área.',
+    'Consultar requisitos de acceso con CEP Formación.', 'Salidas profesionales: tecnico en oficinas de farmacia, parafarmacias, establecimientos sanitarios, farmacia hospitalaria, almacenes de distribucion farmaceutica, empresas de distribucion farmaceutica y sanitaria, laboratorios farmaceuticos o cosmeticos.',
     'CFGM Farmacia y Parafarmacia | CEP Formación', 'Ciclo Formativo de Grado Medio de Farmacia y Parafarmacia con salidas en oficinas de farmacia, parafarmacias, farmacia hospitalaria, almacenes, distribucion y laboratorios.', now(), now()
   FROM area
   ON CONFLICT (slug) DO UPDATE SET
@@ -1280,7 +1338,7 @@ SELECT id AS course_id FROM target;
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 1, id, 'landing_objectives', 'Ciclo Formativo de Grado Medio de Farmacia y Parafarmacia autorizado por MEC 38017275.' FROM courses WHERE slug = 'cfgm-farmacia-y-parafarmacia';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 2, id, 'landing_objectives', 'Salidas profesionales detectadas: tecnico en oficinas de farmacia, parafarmacias, establecimientos sanitarios, farmacia hospitalaria, almacenes de distribucion farmaceutica, empresas de distribucion farmaceutica y sanitaria, laboratorios farmaceuticos o cosmeticos.' FROM courses WHERE slug = 'cfgm-farmacia-y-parafarmacia';
+SELECT 2, id, 'landing_objectives', 'Salidas profesionales: tecnico en oficinas de farmacia, parafarmacias, establecimientos sanitarios, farmacia hospitalaria, almacenes de distribucion farmaceutica, empresas de distribucion farmaceutica y sanitaria, laboratorios farmaceuticos o cosmeticos.' FROM courses WHERE slug = 'cfgm-farmacia-y-parafarmacia';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 3, id, 'landing_objectives', 'Otros ambitos: parafarmacias y tiendas de salud, clinicas y centros sanitarios, empresas de dermocosmetica u ortopedia, gestion y distribucion de medicamentos en almacenes y hospitales.' FROM courses WHERE slug = 'cfgm-farmacia-y-parafarmacia';
 WITH block AS (
@@ -1294,13 +1352,17 @@ SELECT source.item_order, block.id, 'items', source.item_text
 FROM block
 CROSS JOIN (VALUES
   (1, 'Ciclo Formativo de Grado Medio de Farmacia y Parafarmacia autorizado por MEC 38017275.'),
-  (2, 'Salidas profesionales detectadas: tecnico en oficinas de farmacia, parafarmacias, establecimientos sanitarios, farmacia hospitalaria, almacenes de distribucion farmaceutica, empresas de distribucion farmaceutica y sanitaria, laboratorios farmaceuticos o cosmeticos.'),
+  (2, 'Salidas profesionales: tecnico en oficinas de farmacia, parafarmacias, establecimientos sanitarios, farmacia hospitalaria, almacenes de distribucion farmaceutica, empresas de distribucion farmaceutica y sanitaria, laboratorios farmaceuticos o cosmeticos.'),
   (3, 'Otros ambitos: parafarmacias y tiendas de salud, clinicas y centros sanitarios, empresas de dermocosmetica u ortopedia, gestion y distribucion de medicamentos en almacenes y hospitales.'),
-  (4, 'Requisitos detectados: ESO o Graduado Escolar, prueba de acceso a Grado Medio, Tecnico Auxiliar de FP o titulacion equivalente o superior.'),
-  (5, 'Modalidad detectada: semipresencial. Duracion detectada: 500 h.')
+  (4, 'Requisitos: ESO o Graduado Escolar, prueba de acceso a Grado Medio, Tecnico Auxiliar de FP o titulacion equivalente o superior.'),
+  (5, 'Modalidad: semipresencial. Duración: 500 h.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'cfgm-farmacia-y-parafarmacia';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad híbrida.' FROM courses WHERE slug = 'cfgm-farmacia-y-parafarmacia';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 500 horas.' FROM courses WHERE slug = 'cfgm-farmacia-y-parafarmacia';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'cfgm-farmacia-y-parafarmacia';
 
 
 -- CFGS Higiene Bucodental :: CFGS HIGIENE BUCODENTAL.pdf
@@ -1316,11 +1378,11 @@ upsert_course AS (
   )
   SELECT
     'SCLN-CSUP-cfgs-higiene-bucodental', 'cfgs-higiene-bucodental', 'CFGS Higiene Bucodental', 'Ciclo Formativo de Grado Superior de Higiene Bucodental con salidas como higienista bucodental, tecnico especialista, educador en salud bucodental y especialista en prevencion dental.',
-    '[{"type":"paragraph","children":[{"text":"Ciclo Formativo de Grado Superior de Higiene Bucodental autorizado por MEC 38017275."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales detectadas: higienista bucodental en sector privado y publico, tecnico especialista en higiene bucodental, educador en salud bucodental y especialista en prevencion y profilaxis dental."}]},{"type":"paragraph","children":[{"text":"Otros ambitos: clinicas odontologicas privadas, centros sanitarios, programas de salud publica y prevencion bucodental, empresas del sector dental, clinicas de ortodoncia, periodoncia o implantologia."}]},{"type":"paragraph","children":[{"text":"Requisitos detectados: Bachiller o BUP, prueba de acceso a Grado Superior, Tecnico Medio de FP o titulacion equivalente o superior."}]},{"type":"paragraph","children":[{"text":"Modalidad detectada: semipresencial. Duracion detectada: 500 h."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Crear curso si no existe, aunque tambien pueda existir como ciclo."}]}]'::jsonb, 'hibrido'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"Ciclo Formativo de Grado Superior de Higiene Bucodental autorizado por MEC 38017275."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales: higienista bucodental en sector privado y publico, tecnico especialista en higiene bucodental, educador en salud bucodental y especialista en prevencion y profilaxis dental."}]},{"type":"paragraph","children":[{"text":"Otros ambitos: clinicas odontologicas privadas, centros sanitarios, programas de salud publica y prevencion bucodental, empresas del sector dental, clinicas de ortodoncia, periodoncia o implantologia."}]},{"type":"paragraph","children":[{"text":"Requisitos: Bachiller o BUP, prueba de acceso a Grado Superior, Tecnico Medio de FP o titulacion equivalente o superior."}]},{"type":"paragraph","children":[{"text":"Modalidad: semipresencial. Duración: 500 h."}]}]'::jsonb, 'hibrido'::enum_courses_modality,
     'ciclo_superior'::enum_courses_course_type, area.id, 500,
     true, false, 1, 'active'::enum_courses_operational_status,
-    true, 'Personas que cumplen los requisitos de acceso de la convocatoria formativa.',
-    'Consultar requisitos de acceso con CEP Formación.', 'Salidas profesionales detectadas: higienista bucodental en sector privado y publico, tecnico especialista en higiene bucodental, educador en salud bucodental y especialista en prevencion y profilaxis dental.',
+    true, 'Personas interesadas en formación profesionalizante del área.',
+    'Consultar requisitos de acceso con CEP Formación.', 'Salidas profesionales: higienista bucodental en sector privado y publico, tecnico especialista en higiene bucodental, educador en salud bucodental y especialista en prevencion y profilaxis dental.',
     'CFGS Higiene Bucodental | CEP Formación', 'Ciclo Formativo de Grado Superior de Higiene Bucodental con salidas como higienista bucodental, tecnico especialista, educador en salud bucodental y especialista en prevencion dental.', now(), now()
   FROM area
   ON CONFLICT (slug) DO UPDATE SET
@@ -1364,7 +1426,7 @@ SELECT id AS course_id FROM target;
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 1, id, 'landing_objectives', 'Ciclo Formativo de Grado Superior de Higiene Bucodental autorizado por MEC 38017275.' FROM courses WHERE slug = 'cfgs-higiene-bucodental';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 2, id, 'landing_objectives', 'Salidas profesionales detectadas: higienista bucodental en sector privado y publico, tecnico especialista en higiene bucodental, educador en salud bucodental y especialista en prevencion y profilaxis dental.' FROM courses WHERE slug = 'cfgs-higiene-bucodental';
+SELECT 2, id, 'landing_objectives', 'Salidas profesionales: higienista bucodental en sector privado y publico, tecnico especialista en higiene bucodental, educador en salud bucodental y especialista en prevencion y profilaxis dental.' FROM courses WHERE slug = 'cfgs-higiene-bucodental';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
 SELECT 3, id, 'landing_objectives', 'Otros ambitos: clinicas odontologicas privadas, centros sanitarios, programas de salud publica y prevencion bucodental, empresas del sector dental, clinicas de ortodoncia, periodoncia o implantologia.' FROM courses WHERE slug = 'cfgs-higiene-bucodental';
 WITH block AS (
@@ -1378,16 +1440,20 @@ SELECT source.item_order, block.id, 'items', source.item_text
 FROM block
 CROSS JOIN (VALUES
   (1, 'Ciclo Formativo de Grado Superior de Higiene Bucodental autorizado por MEC 38017275.'),
-  (2, 'Salidas profesionales detectadas: higienista bucodental en sector privado y publico, tecnico especialista en higiene bucodental, educador en salud bucodental y especialista en prevencion y profilaxis dental.'),
+  (2, 'Salidas profesionales: higienista bucodental en sector privado y publico, tecnico especialista en higiene bucodental, educador en salud bucodental y especialista en prevencion y profilaxis dental.'),
   (3, 'Otros ambitos: clinicas odontologicas privadas, centros sanitarios, programas de salud publica y prevencion bucodental, empresas del sector dental, clinicas de ortodoncia, periodoncia o implantologia.'),
-  (4, 'Requisitos detectados: Bachiller o BUP, prueba de acceso a Grado Superior, Tecnico Medio de FP o titulacion equivalente o superior.'),
-  (5, 'Modalidad detectada: semipresencial. Duracion detectada: 500 h.')
+  (4, 'Requisitos: Bachiller o BUP, prueba de acceso a Grado Superior, Tecnico Medio de FP o titulacion equivalente o superior.'),
+  (5, 'Modalidad: semipresencial. Duración: 500 h.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'cfgs-higiene-bucodental';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad híbrida.' FROM courses WHERE slug = 'cfgs-higiene-bucodental';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 500 horas.' FROM courses WHERE slug = 'cfgs-higiene-bucodental';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'cfgs-higiene-bucodental';
 
 
--- Quiromasaje :: QUIROMASAJE HOLISTO.pdf
+-- Quiromasaje Holístico :: QUIROMASAJE HOLISTO (1).pdf
 WITH area AS (
   SELECT id FROM areas_formativas WHERE codigo = 'SBD' LIMIT 1
 ),
@@ -1399,13 +1465,13 @@ upsert_course AS (
     meta_title, meta_description, updated_at, created_at
   )
   SELECT
-    'SBD-PRIV-quiromasaje-priv', 'quiromasaje-priv', 'Quiromasaje', 'Formacion avanzada de quiromasaje y terapias manuales con enfoque holistico, tecnica manual, sensibilidad terapeutica, cadenas musculares, protocolos personalizados y orientacion laboral.',
-    '[{"type":"paragraph","children":[{"text":"El curso forma como quiromasajista profesional con alta preparacion tecnica y sensibilidad terapeutica."}]},{"type":"paragraph","children":[{"text":"Trabaja un masaje que no solo trata el cuerpo, sino que acompana al cliente en el plano emocional, trabajando cadenas musculares y protocolos personalizados."}]},{"type":"paragraph","children":[{"text":"Incluye orientacion laboral para dar los primeros pasos profesionales con seguridad y confianza."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: bases del quiromasaje, quiromasaje holistico, terapias complementarias, trabajo por cadenas y personalizacion, emprendimiento y desarrollo personal."}]},{"type":"paragraph","children":[{"text":"Enfoque CEP: tecnica precisa, presencia consciente, integracion emocional, masaje adaptado, escucha manual, digitopuntura, reflexoterapia, masaje deportivo y circulatorio."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Decision validada: el mismo PDF aplica a Quiromasaje y Quiromasaje - 11 meses."}]}]'::jsonb, 'presencial'::enum_courses_modality,
-    'privado'::enum_courses_course_type, area.id, 100,
+    'SBD-PRIV-quiromasaje-11-meses-priv', 'quiromasaje-11-meses-priv', 'Quiromasaje Holístico', 'Curso avanzado de quiromasaje y terapias manuales con enfoque holístico, práctica técnica, terapias complementarias y orientación profesional.',
+    '[{"type":"paragraph","children":[{"text":"Formación avanzada para trabajar el quiromasaje con precisión técnica, sensibilidad terapéutica y una visión integral del bienestar."}]},{"type":"paragraph","children":[{"text":"El programa aborda las bases del quiromasaje, el masaje holístico, las terapias complementarias, el trabajo por cadenas musculares y la personalización de protocolos."}]},{"type":"paragraph","children":[{"text":"Incluye contenidos de emprendimiento y desarrollo personal para facilitar los primeros pasos profesionales."}]},{"type":"paragraph","children":[{"text":"La formación tiene una duración de 176 horas distribuidas en 44 sesiones durante 11 meses, con una sesión presencial semanal."}]},{"type":"paragraph","children":[{"text":"Incluye la posibilidad de realizar 100 horas de prácticas en empresa."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    'privado'::enum_courses_course_type, area.id, 176,
     true, false, 1, 'active'::enum_courses_operational_status,
-    true, 'Personas interesadas en formación profesionalizante del área.',
-    'Consultar requisitos de acceso con CEP Formación.', 'El curso forma como quiromasajista profesional con alta preparacion tecnica y sensibilidad terapeutica.',
-    'Quiromasaje | CEP Formación', 'Formacion avanzada de quiromasaje y terapias manuales con enfoque holistico, tecnica manual, sensibilidad terapeutica, cadenas musculares, protocolos personalizados y orientacion laboral.', now(), now()
+    true, 'Personas interesadas en especializarse en quiromasaje, terapias manuales y bienestar corporal.',
+    'No se requieren estudios previos.', 'Salidas profesionales en centros de bienestar, clínicas, centros de fisioterapia, spas, centros deportivos, servicios a domicilio y talleres especializados.',
+    'Quiromasaje Holístico | CEP Formación', 'Curso avanzado de quiromasaje y terapias manuales con enfoque holístico, práctica técnica, terapias complementarias y orientación profesional.', now(), now()
   FROM area
   ON CONFLICT (slug) DO UPDATE SET
     name = EXCLUDED.name,
@@ -1428,7 +1494,7 @@ upsert_course AS (
 target AS (
   SELECT id FROM upsert_course
   UNION ALL
-  SELECT id FROM courses WHERE slug = 'quiromasaje-priv' AND NOT EXISTS (SELECT 1 FROM upsert_course)
+  SELECT id FROM courses WHERE slug = 'quiromasaje-11-meses-priv' AND NOT EXISTS (SELECT 1 FROM upsert_course)
   LIMIT 1
 ),
 clean_objectives AS (
@@ -1446,27 +1512,33 @@ clean_faqs AS (
 )
 SELECT id AS course_id FROM target;
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 1, id, 'landing_objectives', 'El curso forma como quiromasajista profesional con alta preparacion tecnica y sensibilidad terapeutica.' FROM courses WHERE slug = 'quiromasaje-priv';
+SELECT 1, id, 'landing_objectives', 'Formación avanzada para trabajar el quiromasaje con precisión técnica, sensibilidad terapéutica y una visión integral del bienestar.' FROM courses WHERE slug = 'quiromasaje-11-meses-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 2, id, 'landing_objectives', 'Trabaja un masaje que no solo trata el cuerpo, sino que acompana al cliente en el plano emocional, trabajando cadenas musculares y protocolos personalizados.' FROM courses WHERE slug = 'quiromasaje-priv';
+SELECT 2, id, 'landing_objectives', 'El programa aborda las bases del quiromasaje, el masaje holístico, las terapias complementarias, el trabajo por cadenas musculares y la personalización de protocolos.' FROM courses WHERE slug = 'quiromasaje-11-meses-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 3, id, 'landing_objectives', 'Incluye orientacion laboral para dar los primeros pasos profesionales con seguridad y confianza.' FROM courses WHERE slug = 'quiromasaje-priv';
+SELECT 3, id, 'landing_objectives', 'Incluye contenidos de emprendimiento y desarrollo personal para facilitar los primeros pasos profesionales.' FROM courses WHERE slug = 'quiromasaje-11-meses-priv';
 WITH block AS (
   INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
-  SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Formacion avanzada de quiromasaje y terapias manuales con enfoque holistico, tecnica manual, sensibilidad terapeutica, cadenas musculares, protocolos personalizados y orientacion laboral.'
-  FROM courses WHERE slug = 'quiromasaje-priv'
+  SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Curso avanzado de quiromasaje y terapias manuales con enfoque holístico, práctica técnica, terapias complementarias y orientación profesional.'
+  FROM courses WHERE slug = 'quiromasaje-11-meses-priv'
   RETURNING id
 )
 INSERT INTO courses_landing_program_blocks_items (_order, _parent_id, path, text)
 SELECT source.item_order, block.id, 'items', source.item_text
 FROM block
 CROSS JOIN (VALUES
-  (1, 'Trabaja un masaje que no solo trata el cuerpo, sino que acompana al cliente en el plano emocional, trabajando cadenas musculares y protocolos personalizados.'),
-  (2, 'Incluye orientacion laboral para dar los primeros pasos profesionales con seguridad y confianza.'),
-  (3, 'bases del quiromasaje, quiromasaje holistico, terapias complementarias, trabajo por cadenas y personalizacion, emprendimiento y desarrollo personal.')
+  (1, 'Formación avanzada para trabajar el quiromasaje con precisión técnica, sensibilidad terapéutica y una visión integral del bienestar.'),
+  (2, 'Incluye contenidos de emprendimiento y desarrollo personal para facilitar los primeros pasos profesionales.'),
+  (3, 'Incluye la posibilidad de realizar 100 horas de prácticas en empresa.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'quiromasaje-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'quiromasaje-11-meses-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 176 horas.' FROM courses WHERE slug = 'quiromasaje-11-meses-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Qué requisitos de acceso hay?', 'No se requieren estudios previos.' FROM courses WHERE slug = 'quiromasaje-11-meses-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 4, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'quiromasaje-11-meses-priv';
 
 
 -- Peluqueria Canina y Felina :: PELUQUERIA CANINA Y FELINA.pdf
@@ -1547,10 +1619,14 @@ CROSS JOIN (VALUES
   (2, 'Prepara para trabajar como peluquero/a canino/a en centro propio, guarderias caninas, albergues, tiendas de mascotas, centros veterinarios o servicio a domicilio.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'peluqueria-canina-y-felina-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'peluqueria-canina-y-felina-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 72 horas.' FROM courses WHERE slug = 'peluqueria-canina-y-felina-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'peluqueria-canina-y-felina-priv';
 
 
--- Nutricosmetica :: NUTRICOSMÉTICA.pdf
+-- Nutricosmética y Complementos Alimenticios :: NUTRICOSMÉTICA (2).pdf
 WITH area AS (
   SELECT id FROM areas_formativas WHERE codigo = 'SBD' LIMIT 1
 ),
@@ -1562,13 +1638,13 @@ upsert_course AS (
     meta_title, meta_description, updated_at, created_at
   )
   SELECT
-    'SBD-PRIV-nutricosmetica-priv', 'nutricosmetica-priv', 'Nutricosmetica', 'Especializacion tecnica en nutricosmetica y complementos alimenticios, integrando nutricion, estetica, bienestar y deporte con recomendaciones eticas basadas en evidencia.',
-    '[{"type":"paragraph","children":[{"text":"Especializacion tecnica en nutricosmetica que fusiona ciencia y practica profesional."}]},{"type":"paragraph","children":[{"text":"Permite realizar recomendaciones eticas basadas en evidencia, integrando nutricion, estetica y deporte para elevar la calidad de atencion y confianza de clientes."}]},{"type":"paragraph","children":[{"text":"Dirigido a profesionales de salud, estetica, bienestar y deporte que quieran ampliar conocimientos en nutricosmetica y complementos alimenticios."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: fundamentos de nutricosmetica, complementos alimenticios, vitaminas y minerales, proteinas, aminoacidos, colageno, lipidos, acidos grasos esenciales, microbiota, antioxidantes, salud de piel, cabello y unas, nutricosmetica en la mujer, sueño, estres, adaptogenos e integracion profesional."}]},{"type":"paragraph","children":[{"text":"Caracteristicas detectadas: 48 horas o 12 sesiones de 4 h, clases presenciales una vez por semana, grupos reducidos y contenido teorico-practico."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Crear curso si no existe."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    'SBD-PRIV-nutricosmetica-priv', 'nutricosmetica-priv', 'Nutricosmética y Complementos Alimenticios', 'Especialización técnica en nutricosmética y complementos alimenticios, integrando nutrición, estética, bienestar y deporte con recomendaciones éticas basadas en evidencia.',
+    '[{"type":"paragraph","children":[{"text":"Especialización que combina fundamentos científicos y aplicación práctica en contextos de salud, estética, bienestar y deporte."}]},{"type":"paragraph","children":[{"text":"Permite formular recomendaciones responsables basadas en evidencia y mejorar la atención profesional."}]},{"type":"paragraph","children":[{"text":"El programa incluye vitaminas y minerales, proteínas, aminoácidos, colágeno, lípidos, microbiota, antioxidantes, salud de piel, cabello y uñas, sueño, estrés y adaptógenos."}]},{"type":"paragraph","children":[{"text":"La formación tiene una duración de 48 horas distribuidas en 12 sesiones presenciales de 4 horas, una vez por semana, en grupos reducidos."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 48,
     true, false, 1, 'active'::enum_courses_operational_status,
-    true, 'Personas interesadas en formación profesionalizante del área.',
-    'Consultar requisitos de acceso con CEP Formación.', NULL,
-    'Nutricosmetica | CEP Formación', 'Especializacion tecnica en nutricosmetica y complementos alimenticios, integrando nutricion, estetica, bienestar y deporte con recomendaciones eticas basadas en evidencia.', now(), now()
+    true, 'Profesionales y estudiantes de salud, estética, bienestar y deporte que quieran ampliar sus conocimientos.',
+    'Acceso recomendado con 2.º de ESO o EGB.', 'Aplicación profesional de conocimientos de nutricosmética y complementos alimenticios en entornos de salud, estética, bienestar y deporte.',
+    'Nutricosmética y Complementos Alimenticios | CEP Formación', 'Especialización técnica en nutricosmética y complementos alimenticios, integrando nutrición, estética, bienestar y deporte con recomendaciones éticas basadas en evidencia.', now(), now()
   FROM area
   ON CONFLICT (slug) DO UPDATE SET
     name = EXCLUDED.name,
@@ -1609,14 +1685,14 @@ clean_faqs AS (
 )
 SELECT id AS course_id FROM target;
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 1, id, 'landing_objectives', 'Especializacion tecnica en nutricosmetica que fusiona ciencia y practica profesional.' FROM courses WHERE slug = 'nutricosmetica-priv';
+SELECT 1, id, 'landing_objectives', 'Especialización que combina fundamentos científicos y aplicación práctica en contextos de salud, estética, bienestar y deporte.' FROM courses WHERE slug = 'nutricosmetica-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 2, id, 'landing_objectives', 'Permite realizar recomendaciones eticas basadas en evidencia, integrando nutricion, estetica y deporte para elevar la calidad de atencion y confianza de clientes.' FROM courses WHERE slug = 'nutricosmetica-priv';
+SELECT 2, id, 'landing_objectives', 'Permite formular recomendaciones responsables basadas en evidencia y mejorar la atención profesional.' FROM courses WHERE slug = 'nutricosmetica-priv';
 INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
-SELECT 3, id, 'landing_objectives', 'Dirigido a profesionales de salud, estetica, bienestar y deporte que quieran ampliar conocimientos en nutricosmetica y complementos alimenticios.' FROM courses WHERE slug = 'nutricosmetica-priv';
+SELECT 3, id, 'landing_objectives', 'El programa incluye vitaminas y minerales, proteínas, aminoácidos, colágeno, lípidos, microbiota, antioxidantes, salud de piel, cabello y uñas, sueño, estrés y adaptógenos.' FROM courses WHERE slug = 'nutricosmetica-priv';
 WITH block AS (
   INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
-  SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Especializacion tecnica en nutricosmetica y complementos alimenticios, integrando nutricion, estetica, bienestar y deporte con recomendaciones eticas basadas en evidencia.'
+  SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Especialización técnica en nutricosmética y complementos alimenticios, integrando nutrición, estética, bienestar y deporte con recomendaciones éticas basadas en evidencia.'
   FROM courses WHERE slug = 'nutricosmetica-priv'
   RETURNING id
 )
@@ -1624,10 +1700,103 @@ INSERT INTO courses_landing_program_blocks_items (_order, _parent_id, path, text
 SELECT source.item_order, block.id, 'items', source.item_text
 FROM block
 CROSS JOIN (VALUES
-  (1, 'fundamentos de nutricosmetica, complementos alimenticios, vitaminas y minerales, proteinas, aminoacidos, colageno, lipidos, acidos grasos esenciales, microbiota, antioxidantes, salud de piel, cabello y unas, nutricosmetica en la mujer, sueño, estres, adaptogenos e integracion profesional.')
+  (1, 'El programa incluye vitaminas y minerales, proteínas, aminoácidos, colágeno, lípidos, microbiota, antioxidantes, salud de piel, cabello y uñas, sueño, estrés y adaptógenos.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'nutricosmetica-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'nutricosmetica-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 48 horas.' FROM courses WHERE slug = 'nutricosmetica-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Qué requisitos de acceso hay?', 'Acceso recomendado con 2.º de ESO o EGB.' FROM courses WHERE slug = 'nutricosmetica-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 4, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'nutricosmetica-priv';
+
+
+-- Seminario Práctico de Gestión Gestorvet :: SEMINARIO GESTORVET.pdf
+WITH area AS (
+  SELECT id FROM areas_formativas WHERE codigo = 'VETA' LIMIT 1
+),
+upsert_course AS (
+  INSERT INTO courses (
+    codigo, slug, name, short_description, long_description, modality, course_type,
+    area_formativa_id, duration_hours, active, featured, tenant_id, operational_status,
+    landing_enabled, landing_target_audience, landing_access_requirements, landing_outcomes,
+    meta_title, meta_description, updated_at, created_at
+  )
+  SELECT
+    'VETA-PRIV-seminario-gestorvet-priv', 'seminario-gestorvet-priv', 'Seminario Práctico de Gestión Gestorvet', 'Seminario práctico de gestión veterinaria con Gestorvet para organizar la actividad diaria de una clínica, mejorar los procesos y trabajar con información ordenada.',
+    '[{"type":"paragraph","children":[{"text":"Seminario práctico para aprender a utilizar Gestorvet en la gestión diaria de una clínica veterinaria."}]},{"type":"paragraph","children":[{"text":"Trabaja la organización de citas, clientes, pacientes, historiales y tareas internas."}]},{"type":"paragraph","children":[{"text":"Incluye recepción, stock, almacén, punto de venta, recordatorios, mensajes, caja y seguimiento de la actividad."}]},{"type":"paragraph","children":[{"text":"Aborda facturación, proveedores, paneles, informes, incidencias y optimización de procesos."}]},{"type":"paragraph","children":[{"text":"La formación tiene una duración de 9 horas distribuidas en 3 sesiones presenciales de 3 horas, con grupos reducidos."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    'privado'::enum_courses_course_type, area.id, 9,
+    true, false, 1, 'active'::enum_courses_operational_status,
+    true, 'Estudiantes y profesionales de Auxiliar de Veterinaria y Ayudante Técnico Veterinario.',
+    'Acceso recomendado con 2.º de ESO o EGB.', 'Aplicación práctica de Gestorvet en la organización, atención y gestión administrativa de una clínica veterinaria.',
+    'Seminario Práctico de Gestión Gestorvet | CEP Formación', 'Seminario práctico de gestión veterinaria con Gestorvet para organizar la actividad diaria de una clínica, mejorar los procesos y trabajar con información ordenada.', now(), now()
+  FROM area
+  ON CONFLICT (slug) DO UPDATE SET
+    name = EXCLUDED.name,
+    short_description = COALESCE(EXCLUDED.short_description, courses.short_description),
+    long_description = COALESCE(EXCLUDED.long_description, courses.long_description),
+    modality = EXCLUDED.modality,
+    course_type = COALESCE(EXCLUDED.course_type, courses.course_type),
+    area_formativa_id = COALESCE(EXCLUDED.area_formativa_id, courses.area_formativa_id),
+    duration_hours = COALESCE(EXCLUDED.duration_hours, courses.duration_hours),
+    operational_status = 'active'::enum_courses_operational_status,
+    landing_enabled = true,
+    landing_target_audience = COALESCE(EXCLUDED.landing_target_audience, courses.landing_target_audience),
+    landing_access_requirements = COALESCE(EXCLUDED.landing_access_requirements, courses.landing_access_requirements),
+    landing_outcomes = COALESCE(EXCLUDED.landing_outcomes, courses.landing_outcomes),
+    meta_title = COALESCE(EXCLUDED.meta_title, courses.meta_title),
+    meta_description = COALESCE(EXCLUDED.meta_description, courses.meta_description),
+    updated_at = now()
+  RETURNING id
+),
+target AS (
+  SELECT id FROM upsert_course
+  UNION ALL
+  SELECT id FROM courses WHERE slug = 'seminario-gestorvet-priv' AND NOT EXISTS (SELECT 1 FROM upsert_course)
+  LIMIT 1
+),
+clean_objectives AS (
+  DELETE FROM courses_landing_objectives WHERE _parent_id IN (SELECT id FROM target)
+),
+clean_items AS (
+  DELETE FROM courses_landing_program_blocks_items
+  WHERE _parent_id IN (SELECT id FROM courses_landing_program_blocks WHERE _parent_id IN (SELECT id FROM target))
+),
+clean_blocks AS (
+  DELETE FROM courses_landing_program_blocks WHERE _parent_id IN (SELECT id FROM target)
+),
+clean_faqs AS (
+  DELETE FROM courses_landing_faqs WHERE _parent_id IN (SELECT id FROM target)
+)
+SELECT id AS course_id FROM target;
+INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
+SELECT 1, id, 'landing_objectives', 'Seminario práctico para aprender a utilizar Gestorvet en la gestión diaria de una clínica veterinaria.' FROM courses WHERE slug = 'seminario-gestorvet-priv';
+INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
+SELECT 2, id, 'landing_objectives', 'Trabaja la organización de citas, clientes, pacientes, historiales y tareas internas.' FROM courses WHERE slug = 'seminario-gestorvet-priv';
+INSERT INTO courses_landing_objectives (_order, _parent_id, path, text)
+SELECT 3, id, 'landing_objectives', 'Incluye recepción, stock, almacén, punto de venta, recordatorios, mensajes, caja y seguimiento de la actividad.' FROM courses WHERE slug = 'seminario-gestorvet-priv';
+WITH block AS (
+  INSERT INTO courses_landing_program_blocks (_order, _parent_id, path, title, body)
+  SELECT 1, id, 'landing_program_blocks', 'Programa formativo', 'Seminario práctico de gestión veterinaria con Gestorvet para organizar la actividad diaria de una clínica, mejorar los procesos y trabajar con información ordenada.'
+  FROM courses WHERE slug = 'seminario-gestorvet-priv'
+  RETURNING id
+)
+INSERT INTO courses_landing_program_blocks_items (_order, _parent_id, path, text)
+SELECT source.item_order, block.id, 'items', source.item_text
+FROM block
+CROSS JOIN (VALUES
+  (1, 'Trabaja la organización de citas, clientes, pacientes, historiales y tareas internas.'),
+  (2, 'Incluye recepción, stock, almacén, punto de venta, recordatorios, mensajes, caja y seguimiento de la actividad.')
+) AS source(item_order, item_text);
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'seminario-gestorvet-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 9 horas.' FROM courses WHERE slug = 'seminario-gestorvet-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Qué requisitos de acceso hay?', 'Acceso recomendado con 2.º de ESO o EGB.' FROM courses WHERE slug = 'seminario-gestorvet-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 4, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'seminario-gestorvet-priv';
 
 
 -- Nutricion Deportiva Online :: Nutrición Deportiva Online 100h.pdf
@@ -1643,11 +1812,11 @@ upsert_course AS (
   )
   SELECT
     'SBD-TELE-nutricion-deportiva-online-100h', 'nutricion-deportiva-online-100h', 'Nutricion Deportiva Online', 'Curso online de nutricion deportiva orientado a rendimiento, nutricion aplicada a actividad fisica, estrategia nutricional, competiciones y acompanamiento psicologico.',
-    '[{"type":"paragraph","children":[{"text":"El curso permite conocer la mejora del rendimiento deportivo a traves de la nutricion y la dietetica."}]},{"type":"paragraph","children":[{"text":"Incluye conocimientos generales sobre nutricion aplicada a tipos de actividad fisica, estrategia nutricional en entrenamientos y competiciones desde nivel amateur hasta elite."}]},{"type":"paragraph","children":[{"text":"Aborda la parte psicologica del acompanamiento y el papel de la nutricion en diferentes pruebas deportivas."}]},{"type":"paragraph","children":[{"text":"Salidas detectadas: caterings, herbolarios y gimnasios."}]},{"type":"paragraph","children":[{"text":"Caracteristicas detectadas: 100 horas, 100% online y practicas en empresas."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Crear curso si no existe."}]}]'::jsonb, 'online'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso permite conocer la mejora del rendimiento deportivo a traves de la nutricion y la dietetica."}]},{"type":"paragraph","children":[{"text":"Incluye conocimientos generales sobre nutricion aplicada a tipos de actividad fisica, estrategia nutricional en entrenamientos y competiciones desde nivel amateur hasta elite."}]},{"type":"paragraph","children":[{"text":"Aborda la parte psicologica del acompanamiento y el papel de la nutricion en diferentes pruebas deportivas."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales: caterings, herbolarios y gimnasios."}]},{"type":"paragraph","children":[{"text":"Características: 100 horas, 100% online y practicas en empresas."}]}]'::jsonb, 'online'::enum_courses_modality,
     'teleformacion'::enum_courses_course_type, area.id, 100,
     true, false, 1, 'active'::enum_courses_operational_status,
-    true, 'Personas que cumplen los requisitos de acceso de la convocatoria formativa.',
-    'Consultar requisitos técnicos y de acceso al campus virtual.', 'Salidas detectadas: caterings, herbolarios y gimnasios.',
+    true, 'Personas interesadas en formación profesionalizante del área.',
+    'Consultar requisitos técnicos y de acceso al campus virtual.', 'Salidas profesionales: caterings, herbolarios y gimnasios.',
     'Nutricion Deportiva Online | CEP Formación', 'Curso online de nutricion deportiva orientado a rendimiento, nutricion aplicada a actividad fisica, estrategia nutricional, competiciones y acompanamiento psicologico.', now(), now()
   FROM area
   ON CONFLICT (slug) DO UPDATE SET
@@ -1707,7 +1876,11 @@ CROSS JOIN (VALUES
   (1, 'Incluye conocimientos generales sobre nutricion aplicada a tipos de actividad fisica, estrategia nutricional en entrenamientos y competiciones desde nivel amateur hasta elite.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'nutricion-deportiva-online-100h';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad online.' FROM courses WHERE slug = 'nutricion-deportiva-online-100h';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 100 horas.' FROM courses WHERE slug = 'nutricion-deportiva-online-100h';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'nutricion-deportiva-online-100h';
 
 
 -- Nutricion en la Practica Deportiva Online :: Nutrición en la Práctica Deportiva Online 200h.pdf
@@ -1723,11 +1896,11 @@ upsert_course AS (
   )
   SELECT
     'SBD-TELE-nutricion-en-la-practica-deportiva-online-200h', 'nutricion-en-la-practica-deportiva-online-200h', 'Nutricion en la Practica Deportiva Online', 'Curso online de dietetica y nutricion aplicada a la practica deportiva, necesidades nutricionales especificas y elaboracion de planes alimentarios para actividad fisica.',
-    '[{"type":"paragraph","children":[{"text":"El curso ofrece conceptos basicos de dietetica y nutricion aplicados a personas que realizan actividad deportiva."}]},{"type":"paragraph","children":[{"text":"Permite conocer necesidades nutricionales especificas de personas que practican deporte."}]},{"type":"paragraph","children":[{"text":"Proporciona conocimientos para elaborar un plan alimentario adecuado para actividad deportiva profesional o de mantenimiento."}]},{"type":"paragraph","children":[{"text":"Salidas detectadas: consultas dieteticas, franquicias de nutricion, equipos de elaboracion de dietas en centros de estetica, gimnasios y clubes deportivos."}]},{"type":"paragraph","children":[{"text":"Duracion detectada: 200 h."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Crear curso si no existe."}]}]'::jsonb, 'online'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso ofrece conceptos basicos de dietetica y nutricion aplicados a personas que realizan actividad deportiva."}]},{"type":"paragraph","children":[{"text":"Permite conocer necesidades nutricionales especificas de personas que practican deporte."}]},{"type":"paragraph","children":[{"text":"Proporciona conocimientos para elaborar un plan alimentario adecuado para actividad deportiva profesional o de mantenimiento."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales: consultas dieteticas, franquicias de nutricion, equipos de elaboracion de dietas en centros de estetica, gimnasios y clubes deportivos."}]},{"type":"paragraph","children":[{"text":"Duración: 200 h."}]}]'::jsonb, 'online'::enum_courses_modality,
     'teleformacion'::enum_courses_course_type, area.id, 200,
     true, false, 1, 'active'::enum_courses_operational_status,
-    true, 'Personas que cumplen los requisitos de acceso de la convocatoria formativa.',
-    'Consultar requisitos técnicos y de acceso al campus virtual.', 'Salidas detectadas: consultas dieteticas, franquicias de nutricion, equipos de elaboracion de dietas en centros de estetica, gimnasios y clubes deportivos.',
+    true, 'Personas interesadas en formación profesionalizante del área.',
+    'Consultar requisitos técnicos y de acceso al campus virtual.', 'Salidas profesionales: consultas dieteticas, franquicias de nutricion, equipos de elaboracion de dietas en centros de estetica, gimnasios y clubes deportivos.',
     'Nutricion en la Practica Deportiva Online | CEP Formación', 'Curso online de dietetica y nutricion aplicada a la practica deportiva, necesidades nutricionales especificas y elaboracion de planes alimentarios para actividad fisica.', now(), now()
   FROM area
   ON CONFLICT (slug) DO UPDATE SET
@@ -1787,16 +1960,20 @@ CROSS JOIN (VALUES
   (1, 'El curso ofrece conceptos basicos de dietetica y nutricion aplicados a personas que realizan actividad deportiva.'),
   (2, 'Permite conocer necesidades nutricionales especificas de personas que practican deporte.'),
   (3, 'Proporciona conocimientos para elaborar un plan alimentario adecuado para actividad deportiva profesional o de mantenimiento.'),
-  (4, 'Salidas detectadas: consultas dieteticas, franquicias de nutricion, equipos de elaboracion de dietas en centros de estetica, gimnasios y clubes deportivos.'),
-  (5, 'Duracion detectada: 200 h.')
+  (4, 'Salidas profesionales: consultas dieteticas, franquicias de nutricion, equipos de elaboracion de dietas en centros de estetica, gimnasios y clubes deportivos.'),
+  (5, 'Duración: 200 h.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'nutricion-en-la-practica-deportiva-online-200h';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad online.' FROM courses WHERE slug = 'nutricion-en-la-practica-deportiva-online-200h';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 200 horas.' FROM courses WHERE slug = 'nutricion-en-la-practica-deportiva-online-200h';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'nutricion-en-la-practica-deportiva-online-200h';
 
 
 -- Seminario Practico Gestion Unycop :: SEMINARIO UNYCOP.pdf.pdf
 WITH area AS (
-  SELECT id FROM areas_formativas WHERE codigo = 'EAG' LIMIT 1
+  SELECT id FROM areas_formativas WHERE codigo = 'SCLN' LIMIT 1
 ),
 upsert_course AS (
   INSERT INTO courses (
@@ -1806,8 +1983,8 @@ upsert_course AS (
     meta_title, meta_description, updated_at, created_at
   )
   SELECT
-    'EAG-PRIV-seminario-practico-gestion-unycop', 'seminario-practico-gestion-unycop', 'Seminario Practico Gestion Unycop', 'Seminario practico de gestion Unycop para farmacia, con trabajo sobre almacen, mostrador, receta electronica/manual, pedidos, incidencias, devoluciones, clientes y facturacion.',
-    '[{"type":"paragraph","children":[{"text":"Seminario practico sobre programa de gestion en farmacia con vision global y practica de Unycop."}]},{"type":"paragraph","children":[{"text":"Trabaja gestiones de almacen y mostrador a nivel practico."}]},{"type":"paragraph","children":[{"text":"Dirigido a estudiantes o titulados de Tecnico Medio en Farmacia y Parafarmacia que quieran complementar su formacion con gestion practica."}]},{"type":"paragraph","children":[{"text":"Contenido detectado: almacen, recepcion de pedido diario, encargos, financiados, no financiados, recepcion de pedido directo o transfer, entrada directa, incidencias, devoluciones, reclamaciones, mostrador, receta electronica, receta manual, receta de organismos, busqueda de datos de paciente, sustitucion, ventas, ficha de cliente y factura."}]},{"type":"paragraph","children":[{"text":"Caracteristicas detectadas: clases presenciales, practicas, grupos reducidos, 12 horas en 3 sesiones de 4 horas."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Crear curso si no existe."}]}]'::jsonb, 'presencial'::enum_courses_modality,
+    'SCLN-PRIV-seminario-practico-gestion-unycop', 'seminario-practico-gestion-unycop', 'Seminario Practico Gestion Unycop', 'Seminario practico de gestion Unycop para farmacia, con trabajo sobre almacen, mostrador, receta electronica/manual, pedidos, incidencias, devoluciones, clientes y facturacion.',
+    '[{"type":"paragraph","children":[{"text":"Seminario practico sobre programa de gestion en farmacia con vision global y practica de Unycop."}]},{"type":"paragraph","children":[{"text":"Trabaja gestiones de almacen y mostrador a nivel practico."}]},{"type":"paragraph","children":[{"text":"Dirigido a estudiantes o titulados de Tecnico Medio en Farmacia y Parafarmacia que quieran complementar su formacion con gestion practica."}]},{"type":"paragraph","children":[{"text":"Contenido: almacen, recepcion de pedido diario, encargos, financiados, no financiados, recepcion de pedido directo o transfer, entrada directa, incidencias, devoluciones, reclamaciones, mostrador, receta electronica, receta manual, receta de organismos, busqueda de datos de paciente, sustitucion, ventas, ficha de cliente y factura."}]},{"type":"paragraph","children":[{"text":"Características: clases presenciales, practicas, grupos reducidos, 12 horas en 3 sesiones de 4 horas."}]}]'::jsonb, 'presencial'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 12,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -1872,7 +2049,11 @@ CROSS JOIN (VALUES
   (2, 'almacen, recepcion de pedido diario, encargos, financiados, no financiados, recepcion de pedido directo o transfer, entrada directa, incidencias, devoluciones, reclamaciones, mostrador, receta electronica, receta manual, receta de organismos, busqueda de datos de paciente, sustitucion, ventas, ficha de cliente y factura.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'seminario-practico-gestion-unycop';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad presencial.' FROM courses WHERE slug = 'seminario-practico-gestion-unycop';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 12 horas.' FROM courses WHERE slug = 'seminario-practico-gestion-unycop';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'seminario-practico-gestion-unycop';
 
 
 -- Proteccion, Bienestar Animal y Marco Legal :: PROTECCION, BIENESTAR ANIMAL Y MARCO LEGAL.pdf
@@ -1888,7 +2069,7 @@ upsert_course AS (
   )
   SELECT
     'VETA-PRIV-proteccion-bienestar-animal-y-marco-legal-priv', 'proteccion-bienestar-animal-y-marco-legal-priv', 'Proteccion, Bienestar Animal y Marco Legal', 'Formacion online sobre cuidados esenciales de especies animales domesticas y exoticas, bienestar animal y marco normativo actualizado en España.',
-    '[{"type":"paragraph","children":[{"text":"El curso prepara para conocer cuidados esenciales basicos de determinadas especies animales, tanto exoticas como domesticas."}]},{"type":"paragraph","children":[{"text":"Es util para perfiles que trabajan como cuidadores o conservadores en zoologicos, centros caninos y centros de recuperacion de especies silvestres."}]},{"type":"paragraph","children":[{"text":"Incluye una vision actualizada del marco normativo referente al bienestar animal en España."}]},{"type":"paragraph","children":[{"text":"Salidas detectadas: protectoras, asociaciones de bienestar animal, apoyo en programas de conservacion y entornos vinculados al cuidado animal."}]},{"type":"paragraph","children":[{"text":"El PDF indica modalidad online y duracion de 200 h."}]},{"type":"paragraph","children":[{"text":"Notas de extracción:"}]},{"type":"paragraph","children":[{"text":"Decision validada: se aplica al curso base; la variante con slug actual queda obsoleta."}]}]'::jsonb, 'online'::enum_courses_modality,
+    '[{"type":"paragraph","children":[{"text":"El curso prepara para conocer cuidados esenciales basicos de determinadas especies animales, tanto exoticas como domesticas."}]},{"type":"paragraph","children":[{"text":"Es util para perfiles que trabajan como cuidadores o conservadores en zoologicos, centros caninos y centros de recuperacion de especies silvestres."}]},{"type":"paragraph","children":[{"text":"Incluye una vision actualizada del marco normativo referente al bienestar animal en España."}]},{"type":"paragraph","children":[{"text":"Salidas profesionales: protectoras, asociaciones de bienestar animal, apoyo en programas de conservacion y entornos vinculados al cuidado animal."}]},{"type":"paragraph","children":[{"text":"El PDF indica modalidad online y duracion de 200 h."}]}]'::jsonb, 'online'::enum_courses_modality,
     'privado'::enum_courses_course_type, area.id, 200,
     true, false, 1, 'active'::enum_courses_operational_status,
     true, 'Personas interesadas en formación profesionalizante del área.',
@@ -1953,7 +2134,11 @@ CROSS JOIN (VALUES
   (2, 'Incluye una vision actualizada del marco normativo referente al bienestar animal en España.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'proteccion-bienestar-animal-y-marco-legal-priv';
+SELECT 1, id, 'landing_faqs', '¿En qué modalidad se imparte la formación?', 'La formación se imparte en modalidad online.' FROM courses WHERE slug = 'proteccion-bienestar-animal-y-marco-legal-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 2, id, 'landing_faqs', '¿Cuánto dura el curso?', 'La formación tiene una duración de 200 horas.' FROM courses WHERE slug = 'proteccion-bienestar-animal-y-marco-legal-priv';
+INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT 3, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'proteccion-bienestar-animal-y-marco-legal-priv';
 
 
 -- Organización del transporte y la distribución :: COML0209 - ORGANIZACION DEL TRANSPORTE Y LA DISTRIBUCION.pdf
@@ -2032,7 +2217,7 @@ CROSS JOIN (VALUES
   (4, 'MF1013_3: Transporte de larga distancia. (90 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'organizacion-del-transporte-y-la-distribucion-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'organizacion-del-transporte-y-la-distribucion-des';
 
 
 -- LOGISTICA EN LA COCINA. APROVISIONAMIENTO DE MATERIAS PRIMAS :: HOTR0020 - LOGISTICA EN LA COCINA. APROVISIONAMIENTO DE MATERIAS PRIMAS.pdf
@@ -2109,7 +2294,7 @@ CROSS JOIN (VALUES
   (2, '45 horas')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'logistica-en-la-cocina-aprovisionamiento-de-materias-primas-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'logistica-en-la-cocina-aprovisionamiento-de-materias-primas-des';
 
 
 -- FISCALIDAD EN LAS PYMES Y USO DE PROGRAMA DE GESTION FISCAL INTEGRADO :: ADGN16 - FISCALIDAD EN LAS PYMES Y USO DE PROGRAMA DE GESTION FISCAL INTEGRADO.pdf
@@ -2185,7 +2370,7 @@ CROSS JOIN (VALUES
   (1, 'Fiscalidad en las pymes y uso de programa de gestión fiscal integrado (60 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'fiscalidad-en-las-pymes-y-uso-de-programa-de-gestion-fiscal-integrado-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'fiscalidad-en-las-pymes-y-uso-de-programa-de-gestion-fiscal-integrado-des';
 
 
 -- FINANCIACION Y PLANIFICACION FINANCIERA. NUEVAS HERRAMIENTAS DE FINANCIACION :: ADGN11 - FINANCIACION Y PLANIFICACION FINANCIERA. NUEVAS HERRAMIENTAS DE FINANCIACION.pdf
@@ -2264,7 +2449,7 @@ CROSS JOIN (VALUES
   (4, 'Fuentes de financiación adaptadas al modelo cooperativo. (15 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'financiacion-y-planificacion-financiera-nuevas-herramientas-de-financiacion-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'financiacion-y-planificacion-financiera-nuevas-herramientas-de-financiacion-des';
 
 
 -- LIDERAZGO ESTRATÉGICO :: ADGD177PO - LIDERAZGO ESTRATEGICO.pdf
@@ -2355,7 +2540,7 @@ CROSS JOIN (VALUES
   (16, '3.1. Comunicación.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'liderazgo-estrategico-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'liderazgo-estrategico-des';
 
 
 -- TRANSFORMACIÓN DIGITAL DE LA EMPRESA :: ADGD352PO - TRANSFORMACION DIGITAL EN LA EMPRESA.pdf
@@ -2444,7 +2629,7 @@ CROSS JOIN (VALUES
   (14, '4.3. Digitalizar la mentalidad de la empresa.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'transformacion-digital-en-la-empresa-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'transformacion-digital-en-la-empresa-des';
 
 
 -- LIDERAZGO Y DIRECCIÓN DE ORGANIZACIONES :: ADGD078PO - LIDERAZGO Y DIRECCION DE ORGANIZACIONES.pdf
@@ -2525,7 +2710,7 @@ CROSS JOIN (VALUES
   (6, '4. TÉCNICAS DE NEGOCIACIÓN Y MEDIACIÓN. RESOLUCCIÓN DE CONFLICTOS.')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'liderazgo-y-direccion-de-organizaciones-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'liderazgo-y-direccion-de-organizaciones-des';
 
 
 -- DIGITALIZACION DE NOMINAS EN LA EMRPESA :: ADGD65 - DIGITALIZACION DE NOMINAS EN LA EMRPESA.pdf
@@ -2602,7 +2787,7 @@ CROSS JOIN (VALUES
   (2, 'NÓMINAPLUS y Seguros Sociales (50 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'digitalizacion-de-nominas-en-la-empresa-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'digitalizacion-de-nominas-en-la-empresa-des';
 
 
 -- GESTION CONTABLE, FISCAL Y LABORAL :: ADGD0032 - GESTION CONTABLE, FISCAL Y LABORAL.pdf
@@ -2680,7 +2865,7 @@ CROSS JOIN (VALUES
   (3, 'GESTIÓN LABORAL (100 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'gestion-contable-fiscal-y-laboral-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'gestion-contable-fiscal-y-laboral-des';
 
 
 -- Especialista en Inteligencia Artificial :: IFCD107 Especialista en Inteligencia Artificial.pdf
@@ -2765,7 +2950,7 @@ CROSS JOIN (VALUES
   (10, 'Softskills – píldoras formativas (10 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'especialista-en-inteligencia-artificial-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'especialista-en-inteligencia-artificial-des';
 
 
 -- Gestión informatizada de ventas con programa :: ADGG24 Gestión informatizada de ventas con programa .pdf
@@ -2841,7 +3026,7 @@ CROSS JOIN (VALUES
   (1, 'Gestión informatizada de ventas con programa de gestión integrado (50 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'gestion-informatizada-de-ventas-con-programa-de-gestion-integrado-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'gestion-informatizada-de-ventas-con-programa-de-gestion-integrado-des';
 
 
 -- Comunicación e interacción social en :: IFCD60 Comunicación e interacción social en  .pdf
@@ -2921,7 +3106,7 @@ CROSS JOIN (VALUES
   (5, 'Planteamiento frontend-backend para la búsqueda de empleo (20 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'comunicacion-e-interaccion-social-en-entornos-tic-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'comunicacion-e-interaccion-social-en-entornos-tic-des';
 
 
 -- DIRECCION DE PERSONAS Y DESARROLLO DEL TALENTO :: ADGD068PO DIRECCION DE PERSONAS Y DESARROLLO DEL TALENTO.pdf
@@ -3012,7 +3197,7 @@ CROSS JOIN (VALUES
   (16, '4.1. Las competencias profesionales')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'direccion-de-personas-y-desarrollo-del-talento-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'direccion-de-personas-y-desarrollo-del-talento-des';
 
 
 -- INTRODUCCIÓN A LA INTELIGENCIA ARTIFICIAL :: IFCT117 INTRODUCCIÓN A LA INTELIGENCIA ARTIFICIAL.pdf
@@ -3088,7 +3273,7 @@ CROSS JOIN (VALUES
   (1, 'INTRODUCCIÓN A LA INTELIGENCIA ARTIFICIAL. (25 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'introduccion-a-la-inteligencia-artificial-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'introduccion-a-la-inteligencia-artificial-des';
 
 
 -- DISEÑO DE PÁGINAS WEBS PARA HOSTELERÍA :: IFCD0038 DISEÑO DE PÁGINAS WEBS PARA HOSTELERÍA.pdf
@@ -3166,7 +3351,7 @@ CROSS JOIN (VALUES
   (3, 'LAYOUT, HTML Y CSS (35 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'diseno-de-paginas-web-para-hosteleria-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'diseno-de-paginas-web-para-hosteleria-des';
 
 
 -- Digitalización y RRSS como estrategia :: ADGG06 Digitalización y RRSS como estrategia .pdf
@@ -3244,7 +3429,7 @@ CROSS JOIN (VALUES
   (3, 'Email Marketing (40 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'digitalizacion-y-rrss-como-estrategia-corporativa-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'digitalizacion-y-rrss-como-estrategia-corporativa-des';
 
 
 -- CONTABILIDAD INFORMATIZAD :: ADGD0046 CONTABILIDAD INFORMATIZAD .pdf
@@ -3322,7 +3507,7 @@ CROSS JOIN (VALUES
   (3, 'Otras herramientas contables (5 h)')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'contabilidad-informatizada-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'contabilidad-informatizada-des';
 
 
 -- Tratamiento de imágenes para web y móvil :: IFCD49 Tratamiento de imágenes para web y móvil .pdf
@@ -3400,7 +3585,7 @@ CROSS JOIN (VALUES
   (3, '13. Evaluación del aprendizaje')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'tratamiento-de-imagenes-para-web-y-movil-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'tratamiento-de-imagenes-para-web-y-movil-des';
 
 
 -- Inglés C1 :: SSCE05 INGLÉS C1 .pdf
@@ -3491,7 +3676,7 @@ CROSS JOIN (VALUES
   (16, '4. Funciones o actos de habla fáticos y solidarios, que se realizan para establecer o')
 ) AS source(item_order, item_text);
 INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = 'ingles-c1-des';
+SELECT 1, id, 'landing_faqs', '¿Cómo puedo solicitar información?', 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.' FROM courses WHERE slug = 'ingles-c1-des';
 
 
 COMMIT;

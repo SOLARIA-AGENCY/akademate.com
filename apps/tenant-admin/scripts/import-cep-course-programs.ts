@@ -7,6 +7,8 @@ import config from '../src/payload.config'
 import {
   CEP_COURSE_PROGRAM_ENTRIES,
   CEP_DEPRECATED_COURSE_SLUGS,
+  cleanPublicCourseLines,
+  cleanPublicCourseText,
   courseProgramRichText,
   type CourseProgramEntry,
 } from './cep-course-programs-data'
@@ -73,6 +75,56 @@ function inferCourseType(entry: CourseProgramEntry): NonNullable<CourseProgramEn
   if (entry.courseType) return entry.courseType
   if (entry.modality === 'online') return 'teleformacion'
   return 'privado'
+}
+
+function landingObjectives(entry: CourseProgramEntry) {
+  return cleanPublicCourseLines(entry.longDescriptionLines).slice(0, 3).map((text) => ({ text }))
+}
+
+function landingProgramBlocks(entry: CourseProgramEntry) {
+  const items = cleanPublicCourseLines(entry.longDescriptionLines)
+    .filter((line) => !/^La formación tiene una duración/i.test(line))
+    .slice(0, 8)
+    .map((text) => ({ text }))
+
+  return [
+    {
+      title: 'Programa formativo',
+      body: entry.shortDescription,
+      items,
+    },
+  ]
+}
+
+function landingFaqs(entry: CourseProgramEntry) {
+  const modality = entry.modality === 'online' ? 'online' : entry.modality === 'hibrido' ? 'híbrida' : 'presencial'
+  const faqs = [
+    {
+      question: '¿En qué modalidad se imparte la formación?',
+      answer: `La formación se imparte en modalidad ${modality}.`,
+    },
+  ]
+
+  if (entry.durationHours != null) {
+    faqs.push({
+      question: '¿Cuánto dura el curso?',
+      answer: `La formación tiene una duración de ${entry.durationHours} horas.`,
+    })
+  }
+
+  if (entry.accessRequirements) {
+    faqs.push({
+      question: '¿Qué requisitos de acceso hay?',
+      answer: cleanPublicCourseText(entry.accessRequirements),
+    })
+  }
+
+  faqs.push({
+    question: '¿Cómo puedo solicitar información?',
+    answer: 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.',
+  })
+
+  return faqs
 }
 
 function parseArgs(argv: string[]): Options {
@@ -257,10 +309,16 @@ async function createCourseIfMissing(
     featured: false,
     short_description: entry.shortDescription,
     long_description: courseProgramRichText([
-      ...entry.longDescriptionLines,
-      ...(entry.notes?.length ? ['Notas de extraccion:', ...entry.notes.map((note) => `- ${note}`)] : []),
+      ...cleanPublicCourseLines(entry.longDescriptionLines),
     ]),
     operational_status: 'active',
+    landing_enabled: true,
+    landing_target_audience: entry.targetAudience ?? 'Personas interesadas en formación profesionalizante del área.',
+    landing_access_requirements: entry.accessRequirements ?? 'Consulta las condiciones de acceso con CEP Formación.',
+    landing_outcomes: entry.outcomes ?? null,
+    landing_objectives: landingObjectives(entry),
+    landing_program_blocks: landingProgramBlocks(entry),
+    landing_faqs: landingFaqs(entry),
   }
   if (entry.durationHours != null) createData.duration_hours = entry.durationHours
 
@@ -352,7 +410,7 @@ async function ensureMaterial(
   if (existing.docs[0]) {
     const doc = existing.docs[0] as Record<string, unknown>
     const existingFileId = relationId(doc.file)
-    const needsFile = mediaId != null && existingFileId == null
+    const needsFile = mediaId != null && existingFileId !== mediaId
     const needsPublish = doc.is_published !== true
 
     if (!needsFile && !needsPublish) {
@@ -400,16 +458,31 @@ async function ensureMaterial(
   return { id: (created as { id: number | string }).id, changed: true, fields: ['materials.create'] }
 }
 
-function buildCourseUpdate(entry: CourseProgramEntry, course: Record<string, unknown>, replaceCourseFields: boolean) {
+function buildCourseUpdate(
+  entry: CourseProgramEntry,
+  course: Record<string, unknown>,
+  replaceCourseFields: boolean,
+  dossierMediaId: number | string | null,
+) {
   const data: Record<string, unknown> = {}
   const changedFields: string[] = []
 
   const desiredLongDescription = courseProgramRichText([
-    ...entry.longDescriptionLines,
-    ...(entry.notes?.length ? ['Notas de extraccion:', ...entry.notes.map((note) => `- ${note}`)] : []),
+    ...cleanPublicCourseLines(entry.longDescriptionLines),
   ])
 
+  const desiredLandingFields: Record<string, unknown> = {
+    landing_enabled: true,
+    landing_target_audience: entry.targetAudience ?? 'Personas interesadas en formación profesionalizante del área.',
+    landing_access_requirements: entry.accessRequirements ?? 'Consulta las condiciones de acceso con CEP Formación.',
+    landing_outcomes: entry.outcomes ?? null,
+    landing_objectives: landingObjectives(entry),
+    landing_program_blocks: landingProgramBlocks(entry),
+    landing_faqs: landingFaqs(entry),
+  }
+
   const fieldRules: Array<[string, unknown]> = [
+    ['name', entry.courseName],
     ['short_description', entry.shortDescription],
     ['long_description', desiredLongDescription],
     ['modality', entry.modality],
@@ -422,10 +495,26 @@ function buildCourseUpdate(entry: CourseProgramEntry, course: Record<string, unk
   for (const [field, value] of fieldRules) {
     const current = course[field]
     const isEmpty = current == null || current === '' || (Array.isArray(current) && current.length === 0)
-    if (replaceCourseFields || isEmpty) {
+    const isHistoricalHolisticRename = field === 'name' && entry.courseSlug === 'quiromasaje-11-meses-priv'
+    if (replaceCourseFields || isEmpty || isHistoricalHolisticRename) {
       data[field] = value
       changedFields.push(`courses.${field}`)
     }
+  }
+
+  for (const [field, value] of Object.entries(desiredLandingFields)) {
+    const current = course[field]
+    const isEmpty = current == null || current === '' || (Array.isArray(current) && current.length === 0)
+    if (replaceCourseFields || isEmpty || (field === 'landing_enabled' && current !== true)) {
+      data[field] = value
+      changedFields.push(`courses.${field}`)
+    }
+  }
+
+  const existingDossierId = relationId(course.dossier_pdf)
+  if (dossierMediaId != null && (replaceCourseFields || existingDossierId == null || existingDossierId !== dossierMediaId)) {
+    data.dossier_pdf = dossierMediaId
+    changedFields.push('courses.dossier_pdf')
   }
 
   return { data, changedFields }
@@ -463,9 +552,7 @@ async function processEntry(
 
     const media = await ensureMediaFromPdf(payload, entry, scriptUser, options.apply)
     const material = await ensureMaterial(payload, entry, courseId, media.id, scriptUser, options.apply)
-    const courseUpdate = courseResult.created
-      ? { data: {}, changedFields: [] as string[] }
-      : buildCourseUpdate(entry, course, options.replaceCourseFields)
+    const courseUpdate = buildCourseUpdate(entry, course, options.replaceCourseFields, media.id)
 
     if (options.apply && courseUpdate.changedFields.length > 0) {
       await payload.update({

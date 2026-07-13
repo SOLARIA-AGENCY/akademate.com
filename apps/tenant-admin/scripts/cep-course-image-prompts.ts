@@ -11,7 +11,7 @@ export type CourseDomainStyle =
   | 'wellness'
 
 export type CourseImagePrompt = {
-  courseId: number
+  courseId?: number
   slug: string
   name: string
   courseType: CourseAccent
@@ -370,12 +370,32 @@ const PRIVATE_PROMPT_SEEDS: Array<[PromptSeed, string]> = [
     {
       courseId: 28,
       slug: 'quiromasaje-11-meses-priv',
-      name: 'Quiromasaje - 11 meses',
+      name: 'Quiromasaje Holístico',
       courseType: 'privado',
       delivery: 'presencial',
       domainStyle: 'wellness',
     },
-    'Curso de Quiromasaje de 11 meses: cabina de masaje profesional con terapeuta trabajando tecnica manual completa y contexto de aprendizaje avanzado o supervision profesional, sensacion de formacion extensa, solida y especializada.',
+    'Curso de Quiromasaje Holístico: aula profesional de terapias manuales con docente supervisando una práctica de masaje sobre camilla, estudiante aplicando una técnica corporal con precisión y contexto formativo avanzado, ambiente sereno, limpio y especializado, sin mostrar procedimientos médicos invasivos.',
+  ],
+  [
+    {
+      slug: 'nutricosmetica-priv',
+      name: 'Nutricosmética y Complementos Alimenticios',
+      courseType: 'privado',
+      delivery: 'presencial',
+      domainStyle: 'healthcare',
+    },
+    'Curso de Nutricosmética y Complementos Alimenticios: profesionales de salud, estética y bienestar trabajando en un aula luminosa con muestras neutras de complementos, material de estudio y conversación formativa, sin marcas ni etiquetas legibles, tono científico, responsable y profesional.',
+  ],
+  [
+    {
+      slug: 'seminario-gestorvet-priv',
+      name: 'Seminario Práctico de Gestión Gestorvet',
+      courseType: 'privado',
+      delivery: 'presencial',
+      domainStyle: 'animals',
+    },
+    'Seminario práctico de gestión Gestorvet: aula veterinaria profesional con alumnado adulto aprendiendo la organización de una clínica mediante ordenador, agenda, recepción, pacientes y control de stock visibles como contexto, sin marcas ni texto legible, ambiente colaborativo y didáctico.',
   ],
   [
     {

@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-- ✓ PDFs almacenados en repo: 24/24
-- ✓ Texto extraido: 24/24
-- ✓ Matching final: 24 PDFs cubiertos, 26 relaciones curso-PDF preparadas (incluye PDFs aplicados a 2 cursos)
+- ✓ PDFs almacenados en repo: 27/27
+- ✓ Texto extraido: 27/27
+- ✓ Matching final: 27 PDFs cubiertos, con Gestorvet, Nutricosmética y Quiromasaje Holístico incorporados
 - ⚠ Validacion pendiente: cruzar contra BD real de Payload/Postgres antes de aplicar cambios
-- ✓ Creacion preparada si no existen: Nutricosmetica, Nutricion Deportiva Online 100h, Nutricion en la Practica Deportiva Online 200h, Seminario Unycop, Dietetica y Nutricion Online, CFGM Farmacia y Parafarmacia, CFGS Higiene Bucodental
+- ✓ Creación preparada si no existen: Nutricosmética, Seminario Gestorvet, Quiromasaje Holístico, Nutrición Deportiva Online 100h, Nutrición en la Práctica Deportiva Online 200h, Seminario Unycop, Dietética y Nutrición Online, CFGM Farmacia y Parafarmacia, CFGS Higiene Bucodental
 
 ## Inventory
 
@@ -29,12 +29,13 @@
 | `ESPECIALISTA EN URGENCIAS, LABORATORIO Y REHABILITACIÓN VETERINARIA.pdf.pdf` | 8 | 1298 | Presencial | 108h / 100h | Especializacion Clinica Avanzada para ACV | ✓ aplicar |
 | `INSTRUCTOR PILATES.pdf` | 6 | 856 | Presencial | 3h detectada en asistencia | Instructor o Instructora de Pilates | ✓ adjuntar + extraer duracion real manualmente |
 | `INSTRUCTOR YOGA.pdf` | 8 | 1278 | Presencial | 200h | Instructor o Instructora de Yoga | ✓ adjuntar |
-| `NUTRICOSMÉTICA.pdf` | 5 | 466 | Presencial | 48h / 4h | Nutricosmetica | ✓ crear si no existe |
+| `NUTRICOSMÉTICA (2).pdf` | 5 | 466 | Presencial | 48h / 4h | Nutricosmética y Complementos Alimenticios (`nutricosmetica-priv`) | ✓ crear si no existe + almacenar PDF |
 | `Nutrición Deportiva Online 100h.pdf` | 6 | 1040 | 100% online | 100h | Nutricion Deportiva Online | ✓ crear si no existe |
 | `Nutrición en la Práctica Deportiva Online 200h.pdf` | 7 | 1346 | Online | 200h / 6h / 150h | Nutricion en la Practica Deportiva Online | ✓ crear si no existe |
 | `PELUQUERIA CANINA Y FELINA.pdf` | 7 | 1090 | Presencial | 72h | Peluqueria Canina y Felina | ✓ adjuntar |
 | `PROTECCION, BIENESTAR ANIMAL Y MARCO LEGAL.pdf` | 6 | 976 | Online | 200h | Proteccion, Bienestar Animal y Marco Legal | ✓ aplicar al curso base; despublicar version actual |
-| `QUIROMASAJE HOLISTO.pdf` | 6 | 911 | Presencial | 100h / 176h | Quiromasaje y Quiromasaje - 11 meses | ✓ aplicar a ambos |
+| `QUIROMASAJE HOLISTO (1).pdf` | 6 | 911 | Presencial | 176h / 100h prácticas opcionales | Quiromasaje Holístico (`quiromasaje-11-meses-priv`) | ✓ aplicar solo al curso holístico + almacenar PDF |
+| `SEMINARIO GESTORVET.pdf` | 5 | 1320 | Presencial | 9h | Seminario Práctico de Gestión Gestorvet (`seminario-gestorvet-priv`) | ✓ crear si no existe + almacenar PDF |
 | `SEMINARIO UNYCOP.pdf.pdf` | 5 | 404 | Presencial | 12h | Seminario Practico Gestion Unycop | ✓ crear si no existe |
 
 ## Course Matching Checklist
@@ -43,13 +44,13 @@
 - [x] Extraer texto a `docs/course-programs/cep/text/`
 - [x] Crear inventario inicial
 - [x] Matching preliminar contra seeds/scripts del catalogo CEP
-- [x] Preparar dataset de 26 relaciones curso-PDF en `apps/tenant-admin/scripts/cep-course-programs-data.ts`
-- [x] Preparar creacion de 7 cursos si faltan
+- [x] Preparar dataset de relaciones curso-PDF en `apps/tenant-admin/scripts/cep-course-programs-data.ts`
+- [x] Preparar creación de cursos nuevos si faltan
 - [x] Preparar importador idempotente en `apps/tenant-admin/scripts/import-cep-course-programs.ts`
 - [ ] Ejecutar consulta contra BD real de Payload/Postgres para obtener `id`, `slug`, `course_type`, `duration_hours`, `modality`, `short_description`, `long_description`
 - [ ] Confirmar cursos con matching ambiguo:
   - [x] Adiestramiento Canino: aplicar a I y II
-  - [x] Quiromasaje: aplicar a base y 11 meses
+  - [x] Quiromasaje: mantener el curso genérico separado; aplicar el PDF solo a Quiromasaje Holístico
   - [x] Proteccion/Bienestar Animal: aplicar al curso base y despublicar version actual
   - [x] Especialista Urgencias/Laboratorio/Rehabilitacion Veterinaria: aplicar a `Especializacion Clinica Avanzada para ACV`
   - [x] Nutricosmetica: crear curso si falta
@@ -57,10 +58,20 @@
   - [x] `CFGM FARMACIA.pdf`: crear curso si falta
   - [x] `CFGS HIGIENE BUCODENTAL.pdf`: crear curso si falta
 - [x] Crear cursos faltantes aprobados en importador
-- [ ] Subir PDFs a Media con tenant CEP
-- [ ] Crear `materials` tipo `pdf` enlazados a cada curso
+- [x] Conservar PDFs originales y texto extraído en `docs/course-programs/cep/originals/` y `docs/course-programs/cep/text/`
+- [x] Preparar subida de PDFs a Media con tenant CEP
+- [x] Preparar creación/actualización de `materials` tipo `pdf` enlazados a cada curso
+- [x] Preparar portadas visuales para Gestorvet, Nutricosmética y Quiromasaje Holístico
 - [ ] Actualizar metadatos de curso desde programa validado
 - [ ] Validar publicacion en web publica y campus
+
+## Visual Assets
+
+| Curso | Asset | Estado |
+| --- | --- | --- |
+| Seminario Práctico de Gestión Gestorvet | `apps/tenant-admin/public/website/cep/courses/generated/seminario-gestorvet.png` | ✓ generado y mapeado |
+| Nutricosmética y Complementos Alimenticios | `apps/tenant-admin/public/website/cep/courses/generated/nutricosmetica.png` | ✓ generado y mapeado |
+| Quiromasaje Holístico | `apps/tenant-admin/public/website/cep/courses/generated/quiromasaje-holistico.png` | ✓ generado y mapeado |
 
 ## Data Extraction Plan
 
@@ -99,7 +110,9 @@
 | Dietetica y Nutricion Online | teleformacion | Salud/Bienestar | online | 400h | Variante online distinta del curso presencial |
 | Nutricion Deportiva Online | teleformacion | Salud/Bienestar | online | 100h | Programa propio |
 | Nutricion en la Practica Deportiva Online | teleformacion | Salud/Bienestar | online | 200h | Programa propio |
-| Nutricosmetica | privado | Salud/Bienestar | presencial | 48h | Programa propio |
+| Nutricosmética y Complementos Alimenticios | privado | Salud/Bienestar | presencial | 48h | Programa propio |
+| Seminario Práctico de Gestión Gestorvet | privado | Veterinaria | presencial | 9h | Seminario práctico específico |
+| Quiromasaje Holístico | privado | Salud/Bienestar | presencial | 176h | Variante avanzada distinta de Quiromasaje |
 | Seminario Practico Gestion Unycop | privado | Sanitaria | presencial | 12h | Seminario practico especifico |
 | CFGM Farmacia y Parafarmacia | ciclo_medio | Sanitaria | hibrido | 500h | Ciclo/curso creado si falta |
 | CFGS Higiene Bucodental | ciclo_superior | Sanitaria | hibrido | 500h | Ciclo/curso creado si falta |

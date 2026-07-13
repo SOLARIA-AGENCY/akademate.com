@@ -1,10 +1,10 @@
 # CEP Course Content Import Report
 
-Generated at: 2026-07-08T10:03:27.116Z
+Generated at: 2026-07-13T15:01:46.517Z
 
 - Total sources: 50
-- Deduped sources: 45
-- Ready for import: 43
+- Deduped sources: 46
+- Ready for import: 44
 - Skipped/non-course sources: 2
 
 | Status | Kind | Code | Course | Slug | Area | Hours | Notes |
@@ -26,12 +26,13 @@ Generated at: 2026-07-08T10:03:27.116Z
 | ready | cep-private-program |  | Instructor o Instructora de Yoga | instructora-de-yoga-priv | SBD | 200 |  |
 | ready | cep-private-program |  | CFGM Farmacia y Parafarmacia | cfgm-farmacia-y-parafarmacia | SCLN | 500 | Crear curso si no existe, aunque tambien pueda existir como ciclo. |
 | ready | cep-private-program |  | CFGS Higiene Bucodental | cfgs-higiene-bucodental | SCLN | 500 | Crear curso si no existe, aunque tambien pueda existir como ciclo. |
-| ready | cep-private-program |  | Quiromasaje | quiromasaje-priv | SBD | 100 | Decision validada: el mismo PDF aplica a Quiromasaje y Quiromasaje - 11 meses.; Duplicado omitido por hash: QUIROMASAJE HOLISTO.pdf |
+| ready | cep-private-program |  | Quiromasaje Holístico | quiromasaje-11-meses-priv | SBD | 176 | Se conserva el slug histórico para no romper enlaces ni convocatorias existentes. |
 | ready | cep-private-program |  | Peluqueria Canina y Felina | peluqueria-canina-y-felina-priv | VETA | 72 |  |
-| ready | cep-private-program |  | Nutricosmetica | nutricosmetica-priv | SBD | 48 | Crear curso si no existe. |
+| ready | cep-private-program |  | Nutricosmética y Complementos Alimenticios | nutricosmetica-priv | SBD | 48 | Crear curso si no existe. |
+| ready | cep-private-program |  | Seminario Práctico de Gestión Gestorvet | seminario-gestorvet-priv | VETA | 9 | No se ha indicado precio ni tipo de certificación en el PDF. |
 | ready | cep-private-program |  | Nutricion Deportiva Online | nutricion-deportiva-online-100h | SBD | 100 | Crear curso si no existe. |
 | ready | cep-private-program |  | Nutricion en la Practica Deportiva Online | nutricion-en-la-practica-deportiva-online-200h | SBD | 200 | Crear curso si no existe. |
-| ready | cep-private-program |  | Seminario Practico Gestion Unycop | seminario-practico-gestion-unycop | EAG | 12 | Crear curso si no existe. |
+| ready | cep-private-program |  | Seminario Practico Gestion Unycop | seminario-practico-gestion-unycop | SCLN | 12 | Crear curso si no existe. |
 | ready | cep-private-program |  | Proteccion, Bienestar Animal y Marco Legal | proteccion-bienestar-animal-y-marco-legal-priv | VETA | 200 | Decision validada: se aplica al curso base; la variante con slug actual queda obsoleta. |
 | ready | official-specialty-pdf | COML0209 | Organización del transporte y la distribución | organizacion-del-transporte-y-la-distribucion-des | EAG | 420 | No se detectó denominación de especialidad en el PDF. |
 | ready | official-specialty-pdf | HOTR0020 | LOGISTICA EN LA COCINA. APROVISIONAMIENTO DE MATERIAS PRIMAS | logistica-en-la-cocina-aprovisionamiento-de-materias-primas-des | EAG | 75 | No se detectó denominación de especialidad en el PDF. |

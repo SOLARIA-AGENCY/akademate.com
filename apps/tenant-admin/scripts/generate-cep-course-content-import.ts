@@ -8,6 +8,8 @@ import { buildSlugBase, classifyAreaCode, normalizeCourseTitle } from './import-
 import { parsePdfExtractedText } from './import-cursostenerife-catalog'
 import {
   CEP_COURSE_PROGRAM_ENTRIES,
+  cleanPublicCourseLines,
+  cleanPublicCourseText,
   courseProgramRichText,
   type CourseProgramEntry,
 } from './cep-course-programs-data'
@@ -36,6 +38,8 @@ type NormalizedCourseContent = {
   programBlocks: Array<{ title: string; body: string | null; items: string[] }>
   requirements: string | null
   outcomes: string | null
+  targetAudience: string | null
+  faqs: Array<{ question: string; answer: string }>
   status: 'ready' | 'skipped'
   notes: string[]
 }
@@ -242,11 +246,12 @@ function privateEntryToContent(entry: CourseProgramEntry): NormalizedCourseConte
   const sourcePath = path.join(CEP_PROGRAM_ROOT, 'originals', entry.pdfFilename)
   const textPath = path.join(CEP_PROGRAM_ROOT, 'text', entry.textFilename)
   const title = entry.courseName
-  const areaCode = areaFromTitle(title, null)
-  const objectives = entry.longDescriptionLines.slice(0, 3)
-  const programItems = entry.longDescriptionLines
-    .filter((line) => /contenido detectado|modulo|incluye|trabaja|organizacion detectada/i.test(line))
-    .map((line) => line.replace(/^Contenido detectado:\s*/i, '').trim())
+  const areaCode = entry.areaCode ?? areaFromTitle(title, null)
+  const publicLines = cleanPublicCourseLines(entry.longDescriptionLines)
+  const objectives = publicLines.slice(0, 3)
+  const programItems = publicLines
+    .filter((line) => /contenido:|módulo|modulo|incluye|trabaja|organización:/i.test(line))
+    .map((line) => line.replace(/^Contenido:\s*/i, '').trim())
 
   return {
     sourceKind: 'cep-private-program',
@@ -266,19 +271,35 @@ function privateEntryToContent(entry: CourseProgramEntry): NormalizedCourseConte
     durationHours: entry.durationHours,
     shortDescription: entry.shortDescription,
     longDescription: longText([
-      ...entry.longDescriptionLines,
-      ...(entry.notes?.length ? ['Notas de extracción:', ...entry.notes] : []),
+      ...publicLines,
     ]),
     objectives,
     programBlocks: [
       {
         title: 'Programa formativo',
         body: entry.shortDescription,
-        items: programItems.length > 0 ? programItems : entry.longDescriptionLines.slice(0, 5),
+        items: programItems.length > 0 ? programItems : publicLines.slice(0, 5),
       },
     ],
-    requirements: entry.modality === 'online' ? 'Consultar requisitos técnicos y de acceso al campus virtual.' : 'Consultar requisitos de acceso con CEP Formación.',
-    outcomes: entry.longDescriptionLines.find((line) => /trabajar|salidas|prepara/i.test(line)) ?? null,
+    requirements: entry.accessRequirements ?? (entry.modality === 'online' ? 'Consultar requisitos técnicos y de acceso al campus virtual.' : 'Consultar requisitos de acceso con CEP Formación.'),
+    outcomes: entry.outcomes ?? publicLines.find((line) => /trabajar|salidas|prepara/i.test(line)) ?? null,
+    targetAudience: entry.targetAudience ?? 'Personas interesadas en formación profesionalizante del área.',
+    faqs: [
+      {
+        question: '¿En qué modalidad se imparte la formación?',
+        answer: `La formación se imparte en modalidad ${entry.modality === 'online' ? 'online' : entry.modality === 'hibrido' ? 'híbrida' : 'presencial'}.`,
+      },
+      ...(entry.durationHours != null
+        ? [{ question: '¿Cuánto dura el curso?', answer: `La formación tiene una duración de ${entry.durationHours} horas.` }]
+        : []),
+      ...(entry.accessRequirements
+        ? [{ question: '¿Qué requisitos de acceso hay?', answer: cleanPublicCourseText(entry.accessRequirements) }]
+        : []),
+      {
+        question: '¿Cómo puedo solicitar información?',
+        answer: 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.',
+      },
+    ],
     status: existsSync(sourcePath) ? 'ready' : 'skipped',
     notes: entry.notes ?? [],
   }
@@ -344,6 +365,13 @@ function officialPdfToContent(pdfPath: string): NormalizedCourseContent {
     programBlocks: moduleItems.length > 0 ? [{ title: 'Módulos formativos', body: null, items: moduleItems }] : [],
     requirements,
     outcomes: objective,
+    targetAudience: 'Personas que cumplen los requisitos de acceso de la convocatoria formativa.',
+    faqs: [
+      {
+        question: '¿Cómo puedo solicitar información?',
+        answer: 'Contacta con CEP Formación para confirmar próximas convocatorias, horarios y matrícula.',
+      },
+    ],
     status: isPoster || (!objectiveSource && moduleSource.length === 0) ? 'skipped' : 'ready',
     notes: [
       isPoster ? 'Cartel publicitario: indexado como fuente, no usado para poblar ficha de curso.' : '',
@@ -388,7 +416,7 @@ upsert_course AS (
     ${sqlJson(item.longDescription)}, ${sqlString(item.modality)}::enum_courses_modality,
     ${sqlString(item.courseType)}::enum_courses_course_type, area.id, ${item.durationHours == null ? 'NULL' : item.durationHours},
     true, false, 1, 'active'::enum_courses_operational_status,
-    true, ${sqlString(item.courseType === 'privado' ? 'Personas interesadas en formación profesionalizante del área.' : 'Personas que cumplen los requisitos de acceso de la convocatoria formativa.')},
+    true, ${sqlString(item.targetAudience)},
     ${sqlString(item.requirements)}, ${sqlString(item.outcomes)},
     ${sqlString(`${item.title} | CEP Formación`)}, ${sqlString(item.shortDescription)}, now(), now()
   FROM area
@@ -451,8 +479,12 @@ ${block.items.map((blockItem, itemIndex) => `  (${itemIndex + 1}, ${sqlString(bl
     return blockSql
   })
   .join('\n')}
-INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
-SELECT 1, id, 'landing_faqs', '¿Dónde se guarda la información de esta convocatoria?', 'La ficha del curso es la fuente canónica y las convocatorias publicadas reutilizan estos datos.' FROM courses WHERE slug = ${sqlString(item.slug)};
+${item.faqs
+  .map(
+    (faq, index) => `INSERT INTO courses_landing_faqs (_order, _parent_id, path, question, answer)
+SELECT ${index + 1}, id, 'landing_faqs', ${sqlString(faq.question)}, ${sqlString(faq.answer)} FROM courses WHERE slug = ${sqlString(item.slug)};`,
+  )
+  .join('\n')}
 `
 }
 
