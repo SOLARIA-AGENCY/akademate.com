@@ -5,6 +5,7 @@ import { readFile } from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { getPayload } from 'payload'
+import postgres from 'postgres'
 import configPromise from '@payload-config'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -39,9 +40,22 @@ function hasApplyFlag() {
   return process.argv.includes('--apply')
 }
 
+function databaseUri(): string {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL
+  if (process.env.DATABASE_URI) return process.env.DATABASE_URI
+
+  const { DATABASE_USER, DATABASE_PASSWORD, DATABASE_HOST, DATABASE_PORT, DATABASE_NAME } = process.env
+  if (DATABASE_USER && DATABASE_PASSWORD && DATABASE_HOST && DATABASE_PORT && DATABASE_NAME) {
+    return `postgresql://${encodeURIComponent(DATABASE_USER)}:${encodeURIComponent(DATABASE_PASSWORD)}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`
+  }
+
+  throw new Error('Missing database config. Set DATABASE_URL/DATABASE_URI or DATABASE_USER/PASSWORD/HOST/PORT/NAME.')
+}
+
 async function main() {
   const payload = await getPayload({ config: configPromise })
   const apply = hasApplyFlag()
+  const sql = apply ? postgres(databaseUri(), { max: 1 }) : null
   const report: Array<Record<string, unknown>> = []
 
   for (const asset of assets) {
@@ -84,7 +98,6 @@ async function main() {
       collection: 'media',
       data: {
         alt: `Imagen de portada: ${courseLabel}`,
-        folder: 'courses/generated',
       },
       file: {
         data,
@@ -94,15 +107,16 @@ async function main() {
       },
       overrideAccess: true,
     })
-    await payload.update({
-      collection: 'courses',
-      id: course.id,
-      data: { featured_image: media.id },
-      overrideAccess: true,
-    })
+    if (!sql) throw new Error('Database client is required when applying course images')
+    await sql`
+      UPDATE courses
+      SET featured_image_id = ${Number(media.id)}, updated_at = NOW()
+      WHERE id = ${Number(course.id)}
+    `
     report.push({ status: 'linked', courseId: course.id, mediaId: media.id, file: filename })
   }
 
+  if (sql) await sql.end()
   console.log(JSON.stringify({ apply, report }, null, 2))
 }
 
