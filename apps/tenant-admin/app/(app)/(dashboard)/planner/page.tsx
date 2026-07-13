@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { CampaignBadge } from '@payload-config/components/ui/CampaignBadge'
 import type { CampaignState } from '@payload-config/components/ui/CampaignBadge'
+import { DAY_FILTERS, cardMatchesDay, type PlannerDayKey } from './planner-days'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -216,7 +217,9 @@ function firstDayOrder(card: Pick<KanbanCard, 'dias'>): number {
   return orders.length > 0 ? Math.min(...orders) : 99
 }
 
-function sortCardsByWeekday<T extends Pick<KanbanCard, 'dias' | 'horaInicio' | 'curso'>>(cards: T[]): T[] {
+function sortCardsByWeekday<T extends Pick<KanbanCard, 'dias' | 'horaInicio' | 'curso'>>(
+  cards: T[]
+): T[] {
   return [...cards].sort((a, b) => {
     const byDay = firstDayOrder(a) - firstDayOrder(b)
     if (byDay !== 0) return byDay
@@ -409,19 +412,56 @@ function OccupancyMatrix({
   sedeFilter: string
   sedeName?: string
 }) {
+  const [selectedDay, setSelectedDay] = useState<PlannerDayKey>('all')
   const visibleAulas = aulas.filter((aula) => aula.campusId === sedeFilter)
   const visibleCards = cards.filter((card) => card.sedeId === sedeFilter)
+  const selectedDayCards = visibleCards.filter((card) => cardMatchesDay(card, selectedDay))
 
   if (visibleAulas.length === 0) return null
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between gap-3">
-          <CardTitle className="text-sm">
-            Matriz de ocupación por aula y turno · {sedeName ?? 'Sede seleccionada'}
-          </CardTitle>
-          <Badge variant="outline">{visibleCards.length} convocatorias</Badge>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <CardTitle className="text-sm">
+              Matriz de ocupación por aula y turno · {sedeName ?? 'Sede seleccionada'}
+            </CardTitle>
+            <div className="flex shrink-0 items-center gap-2">
+              {selectedDay !== 'all' ? (
+                <Badge variant="secondary" className="hidden sm:inline-flex">
+                  {selectedDayCards.length}{' '}
+                  {selectedDayCards.length === 1 ? 'convocatoria ese día' : 'convocatorias ese día'}
+                </Badge>
+              ) : null}
+              <Badge variant="outline">{visibleCards.length} convocatorias</Badge>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 rounded-md border bg-muted/20 p-1.5 sm:flex-row sm:items-center sm:justify-between">
+            <span className="px-2 text-[11px] font-semibold text-muted-foreground">
+              Día de ocupación
+            </span>
+            <div
+              aria-label="Seleccionar día de ocupación"
+              className="grid grid-cols-3 gap-1 sm:flex sm:flex-wrap"
+              role="tablist"
+            >
+              {DAY_FILTERS.map((day) => (
+                <Button
+                  key={day.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedDay === day.key}
+                  variant={selectedDay === day.key ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setSelectedDay(day.key)}
+                  className="h-7 px-2.5 text-xs"
+                >
+                  {day.label}
+                </Button>
+              ))}
+            </div>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -450,7 +490,18 @@ function OccupancyMatrix({
                     const shiftCards = sortCardsByWeekday(
                       aulaCards.filter((card) => card.turno === shift)
                     )
-                    const occupied = shiftCards.reduce(
+                    const orderedShiftCards =
+                      selectedDay === 'all'
+                        ? shiftCards
+                        : [...shiftCards].sort(
+                            (a, b) =>
+                              Number(cardMatchesDay(b, selectedDay)) -
+                              Number(cardMatchesDay(a, selectedDay))
+                          )
+                    const occupancyCards = shiftCards.filter((card) =>
+                      cardMatchesDay(card, selectedDay)
+                    )
+                    const occupied = occupancyCards.reduce(
                       (sum, card) =>
                         sum + Math.min(card.plazas || 0, aula.capacity || card.plazas || 0),
                       0
@@ -475,14 +526,16 @@ function OccupancyMatrix({
                                 style={{ width: `${ratio}%` }}
                               />
                             </div>
-                            {shiftCards.map((card) => {
+                            {orderedShiftCards.map((card) => {
                               const style = courseTypeStyle(card.tipo)
+                              const matchesSelectedDay = cardMatchesDay(card, selectedDay)
                               return (
                                 <Button
                                   key={card.id}
                                   type="button"
                                   variant="outline"
-                                  className={`flex min-h-16 w-full overflow-hidden rounded-md border text-left shadow-sm transition hover:shadow-md ${style.bg} ${style.border}`}
+                                  aria-label={`${card.curso} · ${formatSchedule(card)}`}
+                                  className={`flex min-h-16 w-full overflow-hidden rounded-md border text-left shadow-sm transition hover:shadow-md ${style.bg} ${style.border} ${matchesSelectedDay ? 'ring-1 ring-primary/40' : 'opacity-40 saturate-50'}`}
                                   onClick={() =>
                                     window.location.assign(`/dashboard/programacion/${card.id}`)
                                   }
