@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { tenantField } from '../../access/tenantAccess';
 
 /**
  * Modules Collection - Course Module Management
@@ -174,6 +175,7 @@ export const Modules: CollectionConfig = {
         update: () => false,
       },
     },
+    tenantField,
   ],
 
   hooks: {

@@ -1,338 +1,130 @@
 /**
- * Campus Gamification API
+ * Campus Gamification API.
  *
- * Returns student's gamification data: badges, points, streaks, level.
+ * Gamification is derived from the Campus tables and is read-only. It does
+ * not depend on the legacy Payload collections used by the former LMS route.
  */
 
-import type { NextRequest} from 'next/server';
-import { NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
-import { getPayload } from 'payload';
-import config from '@payload-config';
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { campusEnvironmentError, campusGamificationEnabled } from '@/src/lib/campus/environment'
+import { campusSql, readCampusSession } from '@/src/lib/campus/auth'
+import { buildCampusGamification, type CampusProgressActivity } from '@/src/lib/campus/gamification'
 
-// ============================================================================
-// Type Definitions
-// ============================================================================
-
-interface GamificationBadgeRecord {
-  badgeId: string;
-}
-
-interface GamificationDocument {
-  totalPoints?: number;
-  currentStreak?: number;
-  longestStreak?: number;
-  badges?: GamificationBadgeRecord[];
-}
-
-interface LessonProgressDocument {
-  completedAt?: string;
-  updatedAt?: string;
-}
-
-interface BadgeDefinition {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  category: 'learning' | 'achievement' | 'streak' | 'special';
-  requirement: string;
-  pointsRequired?: number;
-  coursesRequired?: number;
-  streakRequired?: number;
-}
-
-interface RecentActivityItem {
-  id: string;
-  type: 'points' | 'badge';
-  title: string;
-  description: string;
-  points: number;
-  earnedAt: string;
-}
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
-);
-
-async function verifyToken(request: NextRequest) {
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) {
-    return null;
-  }
-
-  try {
-    const token = authHeader.split(' ')[1];
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload;
-  } catch {
-    return null;
-  }
-}
-
-// Badge definitions - could be moved to CMS later
-const BADGE_DEFINITIONS: BadgeDefinition[] = [
-  {
-    id: 'first-lesson',
-    name: 'Primera Leccion',
-    description: 'Completa tu primera leccion',
-    icon: 'book',
-    category: 'learning',
-    requirement: 'Completa 1 leccion',
-    pointsRequired: 1,
-  },
-  {
-    id: 'fast-learner',
-    name: 'Aprendiz Rapido',
-    description: 'Completa 10 lecciones',
-    icon: 'zap',
-    category: 'learning',
-    requirement: 'Completa 10 lecciones',
-    pointsRequired: 10,
-  },
-  {
-    id: 'dedicated',
-    name: 'Dedicado',
-    description: 'Completa 50 lecciones',
-    icon: 'target',
-    category: 'learning',
-    requirement: 'Completa 50 lecciones',
-    pointsRequired: 50,
-  },
-  {
-    id: 'scholar',
-    name: 'Erudito',
-    description: 'Completa tu primer curso',
-    icon: 'award',
-    category: 'achievement',
-    requirement: 'Completa 1 curso',
-    coursesRequired: 1,
-  },
-  {
-    id: 'streak-3',
-    name: 'En Racha',
-    description: 'Estudia 3 dias seguidos',
-    icon: 'flame',
-    category: 'streak',
-    requirement: 'Racha de 3 dias',
-    streakRequired: 3,
-  },
-  {
-    id: 'streak-7',
-    name: 'Semana Perfecta',
-    description: 'Estudia 7 dias seguidos',
-    icon: 'flame',
-    category: 'streak',
-    requirement: 'Racha de 7 dias',
-    streakRequired: 7,
-  },
-  {
-    id: 'streak-30',
-    name: 'Mes Imparable',
-    description: 'Estudia 30 dias seguidos',
-    icon: 'flame',
-    category: 'streak',
-    requirement: 'Racha de 30 dias',
-    streakRequired: 30,
-  },
-  {
-    id: 'early-bird',
-    name: 'Madrugador',
-    description: 'Estudia antes de las 8am',
-    icon: 'star',
-    category: 'special',
-    requirement: 'Estudia antes de las 8am',
-  },
-];
-
-// Calculate level from total points
-function calculateLevel(points: number): { level: number; progress: number; nextLevelPoints: number } {
-  const pointsPerLevel = 100;
-  const level = Math.floor(points / pointsPerLevel) + 1;
-  const currentLevelPoints = (level - 1) * pointsPerLevel;
-  const nextLevelPoints = level * pointsPerLevel;
-  const progress = Math.round(((points - currentLevelPoints) / pointsPerLevel) * 100);
-
-  return { level, progress, nextLevelPoints };
+function disabledResponse(): NextResponse {
+  return NextResponse.json(
+    {
+      success: true,
+      data: {
+        totalPoints: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+        level: 1,
+        levelProgress: 0,
+        nextLevelPoints: 100,
+        badges: [],
+        recentActivity: [],
+        stats: {
+          coursesCompleted: 0,
+          lessonsCompleted: 0,
+          hoursLearned: 0,
+          daysActive: 0,
+        },
+      },
+    },
+    { headers: { 'Cache-Control': 'private, no-store' } },
+  )
 }
 
 export async function GET(request: NextRequest) {
+  const environmentError = campusEnvironmentError()
+  if (environmentError) return environmentError
+
+  const session = await readCampusSession(request)
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'Sesión no autorizada' }, { status: 401 })
+  }
+
+  if (!campusGamificationEnabled()) return disabledResponse()
+  if (!campusSql) {
+    return NextResponse.json(
+      { success: false, error: 'La base de datos del campus no está disponible en este entorno' },
+      { status: 503 },
+    )
+  }
+
+  const studentId = Number(session.student.id)
+  const tenantId = Number(session.student.tenantId)
+  if (!Number.isInteger(studentId) || studentId <= 0 || !Number.isInteger(tenantId) || tenantId <= 0) {
+    return NextResponse.json(
+      { success: false, error: 'La sesión del campus no tiene un ámbito válido' },
+      { status: 403 },
+    )
+  }
+
   try {
-    const decoded = await verifyToken(request);
-    if (decoded?.type !== 'campus') {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const progressRows = await campusSql`
+      SELECT
+        COALESCE(lp.completed_at, lp.updated_at) AS completed_at,
+        COALESCE(lp.time_spent, 0)::int AS time_spent_minutes
+      FROM lesson_progress lp
+      INNER JOIN campus_enrollments ce
+        ON ce.enrollment_id = lp.enrollment_id
+       AND ce.student_id = ${studentId}
+       AND ce.tenant_id = ${tenantId}
+       AND ce.status = 'active'
+      WHERE lp.tenant_id = ${tenantId}
+        AND lp.is_completed = true
+      ORDER BY completed_at DESC NULLS LAST
+      LIMIT 2000
+    `
 
-     
-    const payload = await getPayload({ config });
-    const studentId = decoded.sub!;
+    const completedCoursesRows = await campusSql`
+      SELECT COUNT(DISTINCT ce.enrollment_id)::int AS completed_courses
+      FROM campus_enrollments ce
+      INNER JOIN enrollments e ON e.id = ce.enrollment_id
+      WHERE ce.student_id = ${studentId}
+        AND ce.tenant_id = ${tenantId}
+        AND ce.status = 'active'
+        AND e.status::text = 'completed'
+    `
 
-    // Get student stats from enrollments and progress
-    let lessonsCompleted = 0;
-    let coursesCompleted = 0;
-    let hoursLearned = 0;
-    let totalPoints = 0;
-    let currentStreak = 0;
-    let longestStreak = 0;
-    let daysActive = 0;
-    const earnedBadgeIds: string[] = [];
+    const activities: CampusProgressActivity[] = progressRows.map((row) => ({
+      completedAt: row.completed_at ? new Date(row.completed_at).toISOString() : null,
+      timeSpentMinutes: Number(row.time_spent_minutes ?? 0),
+    }))
+    const result = buildCampusGamification(
+      activities,
+      Number(completedCoursesRows[0]?.completed_courses ?? 0),
+    )
 
-    // Try to get gamification record
-    try {
-      const gamificationResult = await payload.find({
-        collection: 'studentGamification' as 'media',
-        where: {
-          student: { equals: studentId },
-        },
-        limit: 1,
-      });
-
-      if (gamificationResult.docs.length > 0) {
-        const gamification = gamificationResult.docs[0] as unknown as GamificationDocument;
-        totalPoints = gamification.totalPoints ?? 0;
-        currentStreak = gamification.currentStreak ?? 0;
-        longestStreak = gamification.longestStreak ?? 0;
-        earnedBadgeIds.push(
-          ...(gamification.badges ?? []).map((b: GamificationBadgeRecord) => b.badgeId)
-        );
-      }
-    } catch {
-      console.log('[Gamification] Collection not available, using fallback');
-    }
-
-    // Get lesson progress stats
-    try {
-      const progressResult = await payload.find({
-        collection: 'lessonProgress' as 'media',
-        where: {
-          student: { equals: studentId },
-          status: { equals: 'completed' },
-        },
-      });
-
-      lessonsCompleted = progressResult.docs.length;
-
-      // Estimate hours from lessons (15 min average per lesson)
-      hoursLearned = Math.round((lessonsCompleted * 15) / 60);
-
-      // Calculate points if not stored (10 points per lesson)
-      if (totalPoints === 0) {
-        totalPoints = lessonsCompleted * 10;
-      }
-
-      // Get unique days active
-      const uniqueDays = new Set(
-        (progressResult.docs as unknown as LessonProgressDocument[]).map((doc) =>
-          new Date(doc.completedAt ?? doc.updatedAt ?? '').toDateString()
-        )
-      );
-      daysActive = uniqueDays.size;
-    } catch {
-      console.log('[Gamification] Progress collection not available');
-    }
-
-    // Get completed courses count
-    try {
-      const enrollmentsResult = await payload.find({
-        collection: 'enrollments',
-        where: {
-          student: { equals: studentId },
-          status: { equals: 'completed' },
-        },
-      });
-      coursesCompleted = enrollmentsResult.docs.length;
-    } catch {
-      console.log('[Gamification] Enrollments not available');
-    }
-
-    // Calculate level
-    const { level, progress: levelProgress, nextLevelPoints } = calculateLevel(totalPoints);
-
-    // Determine which badges are earned
-    const badges = BADGE_DEFINITIONS.map((badge) => {
-      let isEarned = earnedBadgeIds.includes(badge.id);
-      let progress = 0;
-
-      // Check if badge should be earned based on stats
-      if (!isEarned) {
-        if ('pointsRequired' in badge && badge.pointsRequired) {
-          progress = Math.min(100, Math.round((lessonsCompleted / badge.pointsRequired) * 100));
-          isEarned = lessonsCompleted >= badge.pointsRequired;
-        } else if ('coursesRequired' in badge && badge.coursesRequired) {
-          progress = Math.min(100, Math.round((coursesCompleted / badge.coursesRequired) * 100));
-          isEarned = coursesCompleted >= badge.coursesRequired;
-        } else if ('streakRequired' in badge && badge.streakRequired) {
-          progress = Math.min(100, Math.round((longestStreak / badge.streakRequired) * 100));
-          isEarned = longestStreak >= badge.streakRequired;
-        }
-      }
-
-      return {
-        id: badge.id,
-        name: badge.name,
-        description: badge.description,
-        icon: badge.icon,
-        category: badge.category,
-        isEarned,
-        progress: isEarned ? 100 : progress,
-        requirement: badge.requirement,
-        earnedAt: isEarned ? new Date().toISOString() : undefined,
-      };
-    });
-
-    // Generate recent activity (mock for now, would come from activity log)
-    const recentActivity: RecentActivityItem[] = [];
-
-    if (lessonsCompleted > 0) {
-      recentActivity.push({
-        id: '1',
-        type: 'points',
-        title: 'Leccion Completada',
-        description: 'Has ganado puntos por completar una leccion',
-        points: 10,
-        earnedAt: new Date().toISOString(),
-      });
-    }
-
-    const earnedBadges = badges.filter((b) => b.isEarned);
-    if (earnedBadges.length > 0) {
-      recentActivity.push({
-        id: '2',
-        type: 'badge',
-        title: `Insignia: ${earnedBadges[0].name}`,
-        description: earnedBadges[0].description,
-        points: 50,
-        earnedAt: new Date().toISOString(),
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        totalPoints,
-        currentStreak,
-        longestStreak,
-        level,
-        levelProgress,
-        nextLevelPoints,
-        badges,
-        recentActivity,
-        stats: {
-          coursesCompleted,
-          lessonsCompleted,
-          hoursLearned,
-          daysActive,
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          totalPoints: result.stats.totalPoints,
+          currentStreak: result.stats.currentStreak,
+          longestStreak: result.stats.longestStreak,
+          level: result.level,
+          levelProgress: result.levelProgress,
+          nextLevelPoints: result.nextLevelPoints,
+          badges: result.badges,
+          recentActivity: result.recentActivity,
+          stats: {
+            coursesCompleted: result.stats.coursesCompleted,
+            lessonsCompleted: result.stats.lessonsCompleted,
+            hoursLearned: result.stats.hoursLearned,
+            daysActive: result.stats.daysActive,
+          },
         },
       },
-    });
+      { headers: { 'Cache-Control': 'private, no-store' } },
+    )
   } catch (error) {
-    console.error('[Gamification] Error:', error);
+    console.error('[Campus Gamification] Error:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to load gamification data' },
-      { status: 500 }
-    );
+      { success: false, error: 'No se han podido cargar los datos de progreso' },
+      { status: 500 },
+    )
   }
 }

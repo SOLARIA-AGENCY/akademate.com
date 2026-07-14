@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { tenantField } from '../../access/tenantAccess';
 
 /**
  * LessonProgress Collection - Student Progress Tracking
@@ -220,6 +221,7 @@ export const LessonProgress: CollectionConfig = {
         description: 'Student notes for this lesson',
       },
     },
+    tenantField,
   ],
 
   hooks: {

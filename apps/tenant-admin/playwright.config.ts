@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const baseURL = process.env.CAMPUS_E2E_BASE_URL || process.env.TEST_URL || 'http://localhost:3009'
+const usesExternalServer = Boolean(process.env.CAMPUS_E2E_BASE_URL)
+
 /**
  * Playwright E2E Test Configuration for Tenant Admin (Campus Virtual)
  * @see https://playwright.dev/docs/test-configuration
@@ -22,7 +25,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.TEST_URL || 'http://localhost:3009',
+    baseURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -59,10 +62,12 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:3009',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  webServer: usesExternalServer
+    ? undefined
+    : {
+        command: 'pnpm dev',
+        url: 'http://localhost:3009',
+        reuseExistingServer: !process.env.CI,
+        timeout: 120 * 1000,
+      },
 })

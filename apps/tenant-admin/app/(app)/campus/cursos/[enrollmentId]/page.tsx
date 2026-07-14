@@ -99,9 +99,7 @@ function CourseView() {
       setError(null)
 
       const response = await fetch(`/api/lms/enrollments/${enrollmentId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('campus_token')}`,
-        },
+        credentials: 'include',
       })
 
       if (!response.ok) {

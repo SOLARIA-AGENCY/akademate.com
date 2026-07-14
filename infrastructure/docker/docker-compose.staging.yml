@@ -3,16 +3,23 @@
 # Use with: docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
 # =============================================================================
 
+name: akademate-campus-staging
+
 services:
   # =============================================================================
   # Database - Staging (same images, different resources)
   # =============================================================================
 
   postgres:
+    container_name: akademate-campus-staging-postgres
+    ports: !override
+      - "${CAMPUS_STAGING_POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - campus_staging_postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-akademate_stg}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
-      POSTGRES_DB: ${POSTGRES_DB:-akademate_staging}
+      POSTGRES_USER: ${CAMPUS_STAGING_POSTGRES_USER:-akademate_campus_stg}
+      POSTGRES_PASSWORD: ${CAMPUS_STAGING_POSTGRES_PASSWORD:?CAMPUS_STAGING_POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${CAMPUS_STAGING_POSTGRES_DB:-akademate_campus_staging}
     deploy:
       resources:
         limits:
@@ -23,6 +30,11 @@ services:
           memory: 512M
 
   redis:
+    container_name: akademate-campus-staging-redis
+    ports: !override
+      - "${CAMPUS_STAGING_REDIS_PORT:-56379}:6379"
+    volumes:
+      - campus_staging_redis_data:/data
     deploy:
       resources:
         limits:
@@ -37,15 +49,21 @@ services:
   # =============================================================================
 
   payload:
+    container_name: akademate-campus-staging-payload
+    build:
+      args:
+        PAYLOAD_SECRET: ${CAMPUS_STAGING_PAYLOAD_SECRET:?CAMPUS_STAGING_PAYLOAD_SECRET required}
+    ports: !override
+      - "${CAMPUS_STAGING_PAYLOAD_PORT:-3303}:3003"
     environment:
       NODE_ENV: staging
-      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?PAYLOAD_SECRET required}
-      DATABASE_URL: postgres://${POSTGRES_USER:-akademate_stg}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-akademate_staging}
+      PAYLOAD_SECRET: ${CAMPUS_STAGING_PAYLOAD_SECRET:?CAMPUS_STAGING_PAYLOAD_SECRET required}
+      DATABASE_URL: postgres://${CAMPUS_STAGING_POSTGRES_USER:-akademate_campus_stg}:${CAMPUS_STAGING_POSTGRES_PASSWORD}@postgres:5432/${CAMPUS_STAGING_POSTGRES_DB:-akademate_campus_staging}
       REDIS_URL: redis://redis:6379
-      S3_BUCKET: ${S3_BUCKET:-akademate-staging-media}
-      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?S3_ACCESS_KEY_ID required}
-      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?S3_SECRET_ACCESS_KEY required}
-      S3_REGION: ${S3_REGION:-eu-west-1}
+      S3_BUCKET: ${CAMPUS_STAGING_S3_BUCKET:-akademate-campus-staging-media}
+      S3_ACCESS_KEY_ID: ${CAMPUS_STAGING_S3_ACCESS_KEY_ID:?CAMPUS_STAGING_S3_ACCESS_KEY_ID required}
+      S3_SECRET_ACCESS_KEY: ${CAMPUS_STAGING_S3_SECRET_ACCESS_KEY:?CAMPUS_STAGING_S3_SECRET_ACCESS_KEY required}
+      S3_REGION: ${CAMPUS_STAGING_S3_REGION:-eu-west-1}
       # Staging-specific
       LOG_LEVEL: info
       OTEL_ENABLED: ${OTEL_ENABLED:-false}
@@ -56,10 +74,18 @@ services:
           memory: 1G
 
   web:
+    container_name: akademate-campus-staging-web
+    ports: !override
+      - "${CAMPUS_STAGING_WEB_PORT:-3606}:3006"
     environment:
       NODE_ENV: staging
       PAYLOAD_CMS_URL: http://payload:3003
-      PAYLOAD_API_KEY: ${PAYLOAD_API_KEY}
+      PAYLOAD_API_KEY: ${CAMPUS_STAGING_PAYLOAD_API_KEY:-}
+      DATABASE_URL: postgres://${CAMPUS_STAGING_POSTGRES_USER:-akademate_campus_stg}:${CAMPUS_STAGING_POSTGRES_PASSWORD}@postgres:5432/${CAMPUS_STAGING_POSTGRES_DB:-akademate_campus_staging}
+      BETTER_AUTH_SECRET: ${CAMPUS_STAGING_BETTER_AUTH_SECRET:?CAMPUS_STAGING_BETTER_AUTH_SECRET required}
+      BETTER_AUTH_URL: ${CAMPUS_STAGING_WEB_URL:-http://localhost:3606}
+      NEXT_PUBLIC_WEB_URL: ${CAMPUS_STAGING_WEB_URL:-http://localhost:3606}
+      NEXT_PUBLIC_TENANT_URL: ${CAMPUS_STAGING_TENANT_URL:-http://localhost:3609}
       LOG_LEVEL: info
     deploy:
       resources:
@@ -68,10 +94,13 @@ services:
           memory: 512M
 
   admin:
+    container_name: akademate-campus-staging-admin
+    ports: !override
+      - "${CAMPUS_STAGING_ADMIN_PORT:-3604}:3004"
     environment:
       NODE_ENV: staging
       PAYLOAD_CMS_URL: http://payload:3003
-      PAYLOAD_API_KEY: ${PAYLOAD_API_KEY}
+      PAYLOAD_API_KEY: ${CAMPUS_STAGING_PAYLOAD_API_KEY:-}
       LOG_LEVEL: info
     deploy:
       resources:
@@ -79,13 +108,93 @@ services:
           cpus: '0.5'
           memory: 512M
 
+  tenant:
+    container_name: akademate-campus-staging-tenant
+    ports: !override
+      - "${CAMPUS_STAGING_TENANT_PORT:-3609}:3009"
+    environment:
+      NODE_ENV: staging
+      CAMPUS_INTERNAL_ENABLED: 'true'
+      CAMPUS_ENVIRONMENT: staging
+      CAMPUS_JWT_SECRET: ${CAMPUS_STAGING_JWT_SECRET:?CAMPUS_STAGING_JWT_SECRET required for staging}
+      CAMPUS_PUBLIC_URL: ${CAMPUS_STAGING_PUBLIC_URL:-http://localhost:3609}
+      CAMPUS_GAMIFICATION_ENABLED: 'false'
+      DATABASE_URL: postgres://${CAMPUS_STAGING_POSTGRES_USER:-akademate_campus_stg}:${CAMPUS_STAGING_POSTGRES_PASSWORD}@postgres:5432/${CAMPUS_STAGING_POSTGRES_DB:-akademate_campus_staging}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${CAMPUS_STAGING_POSTGRES_DB:-akademate_campus_staging}
+      DATABASE_USER: ${CAMPUS_STAGING_POSTGRES_USER:-akademate_campus_stg}
+      DATABASE_PASSWORD: ${CAMPUS_STAGING_POSTGRES_PASSWORD}
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SMTP_SECURE: 'false'
+      PAYLOAD_CMS_URL: http://payload:3003
+      PAYLOAD_API_KEY: ${CAMPUS_STAGING_PAYLOAD_API_KEY:-}
+      NEXT_PUBLIC_WEB_URL: ${CAMPUS_STAGING_WEB_URL:-http://localhost:3606}
+      NEXT_PUBLIC_TENANT_URL: ${CAMPUS_STAGING_TENANT_URL:-http://localhost:3609}
+
+  campus:
+    container_name: akademate-campus-staging-campus
+    profiles: ["legacy"]
+    ports: !override
+      - "${CAMPUS_STAGING_CAMPUS_PORT:-3605}:3005"
+    environment:
+      NODE_ENV: staging
+      NEXT_PUBLIC_CAMPUS_API_URL: ${CAMPUS_STAGING_API_URL:-http://localhost:3609}
+      PAYLOAD_CMS_URL: http://payload:3003
+      PAYLOAD_API_KEY: ${CAMPUS_STAGING_PAYLOAD_API_KEY:-}
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: akademate-campus-staging-mailpit
+    restart: unless-stopped
+    ports:
+      - "${CAMPUS_STAGING_MAILPIT_UI_PORT:-18025}:8025"
+      - "${CAMPUS_STAGING_MAILPIT_SMTP_PORT:-11025}:1025"
+    networks:
+      - akademate-network
+
+  portal:
+    container_name: akademate-campus-staging-portal
+    profiles: ["legacy"]
+    ports: !override
+      - "${CAMPUS_STAGING_PORTAL_PORT:-3608}:3008"
+    environment:
+      NODE_ENV: staging
+      NEXT_PUBLIC_WEB_URL: ${CAMPUS_STAGING_WEB_URL:-http://localhost:3606}
+      NEXT_PUBLIC_ADMIN_URL: ${CAMPUS_STAGING_ADMIN_URL:-http://localhost:3604}
+      NEXT_PUBLIC_TENANT_URL: ${CAMPUS_STAGING_TENANT_URL:-http://localhost:3609}
+      NEXT_PUBLIC_PAYLOAD_URL: ${CAMPUS_STAGING_PAYLOAD_URL:-http://localhost:3303}
+      NEXT_PUBLIC_CAMPUS_URL: ${CAMPUS_STAGING_CAMPUS_URL:-http://localhost:3605}
+
   # =============================================================================
   # Nginx - Staging (relaxed rate limiting for testing)
   # =============================================================================
 
   nginx:
+    container_name: akademate-campus-staging-nginx
+    profiles: ["legacy"]
+    ports: !override
+      - "${CAMPUS_STAGING_HTTP_PORT:-38088}:80"
+      - "${CAMPUS_STAGING_HTTPS_PORT:-38443}:443"
     volumes:
       - ./nginx/nginx.staging.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - certbot_data:/var/www/certbot:ro
-      - ssl_certs:/etc/letsencrypt:ro
+      - campus_staging_certbot_data:/var/www/certbot:ro
+      - campus_staging_ssl_certs:/etc/letsencrypt:ro
+
+  certbot:
+    container_name: akademate-campus-staging-certbot
+    profiles: ["legacy"]
+    volumes: !override
+      - campus_staging_certbot_data:/var/www/certbot
+      - campus_staging_ssl_certs:/etc/letsencrypt
+
+volumes:
+  campus_staging_postgres_data:
+  campus_staging_redis_data:
+  campus_staging_certbot_data:
+  campus_staging_ssl_certs:
+
+  # The base compose keeps these names for production. They remain declared
+  # for compatibility, but staging services never mount them.

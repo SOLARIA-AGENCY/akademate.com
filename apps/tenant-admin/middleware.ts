@@ -91,6 +91,9 @@ const publicRoutes = [
   '/api/users/me', // Allow preflight for auth check
   '/api/users/first-register', // Payload create-first-user (no auth yet)
   '/api/auth/session', // Session write after login (token may not be in cookie yet)
+  '/api/campus/', // Campus routes enforce their own student session and enrollment ownership
+  '/api/lms/', // LMS routes enforce campus_session and enrollment ownership themselves
+  '/campus', // Student campus pages render their own session-gated experience
   '/api/email/', // Email endpoints (called from authenticated frontend)
   '/api/internal/invitations/verify', // Invitation token verification (public)
   '/api/internal/invitations/accept', // Accept invitation (public — token-based auth)
@@ -115,6 +118,14 @@ const publicRoutes = [
   // DEV-ONLY: design-system accessible without auth for Onlook visual editing
   ...(process.env.NODE_ENV !== 'production' ? ['/design-system', '/shadcn-preview'] : []),
 ]
+
+function isPublicRoute(pathname: string): boolean {
+  return publicRoutes.some((route) => (
+    route.endsWith('/')
+      ? pathname.startsWith(route)
+      : pathname === route || pathname.startsWith(`${route}/`)
+  ))
+}
 
 // Static asset paths to ignore
 const staticPaths = [
@@ -385,7 +396,7 @@ export function middleware(request: NextRequest) {
   // For API routes, add CORS headers to all responses
   if (pathname.startsWith('/api/')) {
     // Skip auth check for public API routes
-    if (publicRoutes.some(route => pathname.startsWith(route))) {
+    if (isPublicRoute(pathname)) {
       const response = NextResponse.next()
       const corsHeaders = getCorsHeaders(origin)
       Object.entries(corsHeaders).forEach(([key, value]) => {
@@ -398,7 +409,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Skip middleware for public routes (non-API)
-  if (publicRoutes.some(route => pathname.startsWith(route))) {
+  if (isPublicRoute(pathname)) {
     return NextResponse.next()
   }
 

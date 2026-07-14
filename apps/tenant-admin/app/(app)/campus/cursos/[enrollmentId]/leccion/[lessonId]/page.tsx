@@ -105,9 +105,7 @@ function LessonView() {
       setError(null)
 
       const response = await fetch(`/api/lms/lessons/${lessonId}?enrollmentId=${enrollmentId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('campus_token')}`,
-        },
+        credentials: 'include',
       })
 
       if (!response.ok) {
@@ -152,14 +150,14 @@ function LessonView() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('campus_token')}`,
           },
+          credentials: 'include',
           body: JSON.stringify({
             enrollmentId,
             lessonId,
-            progressPercent: Math.round(progress),
-            videoPosition: position,
-            completed,
+            isCompleted: completed,
+            timeSpent: Math.max(0, Math.round(position ?? 0)),
+            lastPosition: Math.max(0, Math.round(position ?? 0)),
           }),
         })
 

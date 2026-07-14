@@ -91,9 +91,7 @@ function AchievementsView() {
       setLoading(true)
 
       const response = await fetch('/api/campus/gamification', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('campus_token')}`,
-        },
+        credentials: 'include',
       })
 
       if (response.ok) {

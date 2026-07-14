@@ -1,180 +1,153 @@
 /**
- * LMS Enrollments List API
+ * Protected LMS enrollment list for the internal Campus Virtual.
  *
- * GET /api/lms/enrollments - List enrollments for current user
- * POST /api/lms/enrollments - Create new enrollment (admin only)
+ * The campus_enrollments bridge is the authorization source. This endpoint
+ * does not query the historical Payload enrollment graph, which can hydrate
+ * unrelated administrative subcollections that are absent in staging.
  */
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { campusEnvironmentError } from '@/src/lib/campus/environment'
+import { campusSql, readCampusSession } from '@/src/lib/campus/auth'
 
-import { getPayload } from 'payload'
-import configPromise from '@payload-config';
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
-
-/** Course data structure */
-interface CourseData {
-  id: string;
-  title: string;
-  thumbnail?: string;
+function positiveInteger(value: string | null, fallback: number): number {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback
 }
 
-/** Course run data structure */
-interface CourseRunData {
-  id: string;
-  title: string;
-  course?: CourseData | string;
+function numericIds(values: string[]): number[] {
+  return values.map(Number).filter((value) => Number.isInteger(value) && value > 0)
 }
 
-/** Enrollment document from Payload */
-interface EnrollmentDocument {
-  id: string;
-  status: string;
-  createdAt: string;
-  course_run?: CourseRunData | string;
-}
-
-/** Lesson progress document from Payload */
-interface LessonProgressDocument {
-  id: string;
-  status: string;
-}
-
-/** Query filter for equals condition */
-interface EqualsFilter {
-  equals: string;
-}
-
-/** Where clause for enrollment queries */
-interface EnrollmentWhereClause {
-  student?: EqualsFilter;
-  status?: EqualsFilter;
-}
-
-interface LoosePayloadClient {
-  find: (args: {
-    collection: string;
-    where?: Record<string, unknown>;
-    limit?: number;
-    page?: number;
-    depth?: number;
-    sort?: string;
-  }) => Promise<{
-    docs: unknown[];
-    page: number;
-    limit: number;
-    totalDocs: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-  }>;
-}
-
-/**
- * GET /api/lms/enrollments
- *
- * Query params:
- * - userId: Filter by user ID
- * - status: Filter by status (active, completed, cancelled)
- * - limit: Number of results (default 20)
- * - page: Page number (default 1)
- */
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') ?? '20', 10);
-    const page = parseInt(searchParams.get('page') ?? '1', 10);
+  const environmentError = campusEnvironmentError()
+  if (environmentError) return environmentError
+  if (!campusSql) {
+    return NextResponse.json({ success: false, error: 'Base del Campus no disponible.' }, { status: 503 })
+  }
 
-     
-    const payload = await getPayload({ config: configPromise });
-    const payloadLoose = payload as unknown as LoosePayloadClient;
+  const session = await readCampusSession(request)
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'Sesión no autorizada.' }, { status: 401 })
+  }
 
-    // Build where clause
-    const where: EnrollmentWhereClause = {};
-    if (userId) {
-      where.student = { equals: userId };
-    }
-    if (status) {
-      where.status = { equals: status };
-    }
+  const tenantId = Number(session.student.tenantId)
+  const enrollmentIds = numericIds(session.enrollments.map((enrollment) => enrollment.id))
+  if (!Number.isInteger(tenantId) || tenantId <= 0) {
+    return NextResponse.json({ success: false, error: 'La sesión no tiene tenant válido.' }, { status: 403 })
+  }
 
-    const enrollments = await payloadLoose.find({
-      collection: 'enrollments',
-      where: where as unknown as Record<string, unknown>,
-      limit,
-      page,
-      depth: 2,
-      sort: '-createdAt',
-    });
+  const { searchParams } = new URL(request.url)
+  const status = searchParams.get('status')?.trim() || null
+  const limit = Math.min(100, positiveInteger(searchParams.get('limit'), 20))
+  const page = positiveInteger(searchParams.get('page'), 1)
+  const offset = (page - 1) * limit
 
-    // Enhance with progress summary
-    const enrollmentsWithProgress = await Promise.all(
-      enrollments.docs.map(async (enrollment) => {
-        const enrollmentRecord = enrollment as unknown as EnrollmentDocument;
-        // lesson-progress may be unavailable in partially migrated environments.
-        let completed = 0;
-        let total = 0;
-        try {
-          const progress = await payloadLoose.find({
-            collection: 'lesson-progress',
-            where: { enrollment: { equals: enrollmentRecord.id } },
-            limit: 500,
-          });
-          completed = progress.docs.filter(
-            (p) => (p as unknown as LessonProgressDocument).status === 'completed'
-          ).length;
-          total = progress.totalDocs;
-        } catch (progressError) {
-          console.warn(
-            '[LMS Enrollments] lesson-progress unavailable, returning zero progress',
-            progressError
-          );
-        }
-
-        return {
-          id: enrollmentRecord.id,
-          status: enrollmentRecord.status,
-          enrolledAt: enrollmentRecord.createdAt,
-          courseRun: typeof enrollmentRecord.course_run === 'object'
-            ? {
-                id: enrollmentRecord.course_run.id,
-                title: enrollmentRecord.course_run.title,
-                course: typeof enrollmentRecord.course_run.course === 'object'
-                  ? {
-                      id: enrollmentRecord.course_run.course.id,
-                      title: enrollmentRecord.course_run.course.title,
-                      thumbnail: enrollmentRecord.course_run.course.thumbnail,
-                    }
-                  : null,
-              }
-            : null,
-          progress: {
-            completed,
-            total,
-            percent: total > 0 ? Math.round((completed / total) * 100) : 0,
-          },
-        };
-      })
-    );
-
+  if (enrollmentIds.length === 0) {
     return NextResponse.json({
       success: true,
-      data: enrollmentsWithProgress,
+      data: [],
+      meta: { page, limit, totalDocs: 0, totalPages: 0, hasNextPage: false, hasPrevPage: false },
+    })
+  }
+
+  try {
+    const enrollmentIdList = campusSql.array(enrollmentIds)
+    const countRows = await campusSql`
+      SELECT COUNT(*)::int AS total
+      FROM enrollments e
+      WHERE e.id = ANY(${enrollmentIdList}::int[])
+        AND (${status}::text IS NULL OR e.status::text = ${status})
+    `
+    const totalDocs = Number((countRows[0] as Record<string, unknown> | undefined)?.total ?? 0)
+
+    const rows = await campusSql`
+      WITH lesson_totals AS (
+        SELECT m.course_id, COUNT(l.id)::int AS total_lessons
+        FROM modules m
+        INNER JOIN lessons l ON l.module_id = m.id
+          AND l.tenant_id = ${tenantId}
+          AND l.is_published = true
+        WHERE m.tenant_id = ${tenantId}
+          AND m.is_published = true
+        GROUP BY m.course_id
+      ),
+      progress_totals AS (
+        SELECT lp.enrollment_id,
+               COUNT(*) FILTER (WHERE lp.is_completed = true)::int AS completed_lessons
+        FROM lesson_progress lp
+        INNER JOIN lessons l ON l.id = lp.lesson_id
+          AND l.tenant_id = ${tenantId}
+          AND l.is_published = true
+        INNER JOIN modules m ON m.id = l.module_id
+          AND m.tenant_id = ${tenantId}
+          AND m.is_published = true
+        WHERE lp.tenant_id = ${tenantId}
+          AND lp.enrollment_id = ANY(${enrollmentIdList}::int[])
+        GROUP BY lp.enrollment_id
+      )
+      SELECT
+        e.id,
+        e.status::text AS status,
+        e.created_at,
+        e.enrolled_at,
+        cr.id AS course_run_id,
+        cr.codigo AS course_run_title,
+        cr.course_id,
+        c.name AS course_title,
+        COALESCE(lt.total_lessons, 0)::int AS total_lessons,
+        COALESCE(pt.completed_lessons, 0)::int AS completed_lessons
+      FROM enrollments e
+      INNER JOIN course_runs cr ON cr.id = e.course_run_id
+      INNER JOIN courses c ON c.id = cr.course_id
+      LEFT JOIN lesson_totals lt ON lt.course_id = cr.course_id
+      LEFT JOIN progress_totals pt ON pt.enrollment_id = e.id
+      WHERE e.id = ANY(${enrollmentIdList}::int[])
+        AND (${status}::text IS NULL OR e.status::text = ${status})
+      ORDER BY e.created_at DESC, e.id DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `
+
+    const data = rows.map((row) => {
+      const enrollment = row as Record<string, unknown>
+      const totalLessons = Number(enrollment.total_lessons ?? 0)
+      const completedLessons = Number(enrollment.completed_lessons ?? 0)
+      return {
+        id: String(enrollment.id),
+        status: String(enrollment.status ?? 'pending'),
+        enrolledAt: enrollment.enrolled_at ?? enrollment.created_at ?? null,
+        courseRun: {
+          id: String(enrollment.course_run_id),
+          title: String(enrollment.course_run_title ?? ''),
+          course: {
+            id: String(enrollment.course_id),
+            title: String(enrollment.course_title ?? 'Curso'),
+            thumbnail: null,
+          },
+        },
+        progress: {
+          completed: completedLessons,
+          total: totalLessons,
+          percent: totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0,
+        },
+      }
+    })
+
+    const totalPages = totalDocs > 0 ? Math.ceil(totalDocs / limit) : 0
+    return NextResponse.json({
+      success: true,
+      data,
       meta: {
-        page: enrollments.page,
-        limit: enrollments.limit,
-        totalDocs: enrollments.totalDocs,
-        totalPages: enrollments.totalPages,
-        hasNextPage: enrollments.hasNextPage,
-        hasPrevPage: enrollments.hasPrevPage,
+        page,
+        limit,
+        totalDocs,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1 && totalDocs > 0,
       },
-    });
-  } catch (error: unknown) {
-    console.error('[LMS Enrollments] Error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to fetch enrollments';
-    return NextResponse.json(
-      { success: false, error: message },
-      { status: 500 }
-    );
+    }, { headers: { 'Cache-Control': 'private, no-store' } })
+  } catch (error) {
+    console.error('[LMS Enrollments] Error:', error)
+    return NextResponse.json({ success: false, error: 'No se pudieron cargar las matrículas.' }, { status: 500 })
   }
 }

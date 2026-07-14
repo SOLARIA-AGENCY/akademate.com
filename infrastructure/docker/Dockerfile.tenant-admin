@@ -11,6 +11,10 @@ RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 # =============================================================================
 FROM base AS build
 
+# Native optional dependencies (for example bufferutil) should compile during
+# the isolated build instead of silently falling back to slower JS versions.
+RUN apk add --no-cache python3 make g++
+
 # Build-time env vars baked into the Next.js client bundle.
 ARG NEXT_PUBLIC_DEFAULT_TENANT_ID=1
 ARG NEXT_PUBLIC_WEB_URL=https://akademate.com

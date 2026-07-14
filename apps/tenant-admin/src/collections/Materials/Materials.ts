@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { tenantField } from '../../access/tenantAccess';
 
 /**
  * Materials Collection - Learning Materials
@@ -218,6 +219,7 @@ export const Materials: CollectionConfig = {
         update: () => false,
       },
     },
+    tenantField,
   ],
 
   hooks: {

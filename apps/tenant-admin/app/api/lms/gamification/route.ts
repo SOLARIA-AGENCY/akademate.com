@@ -13,6 +13,8 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { campusEnvironmentError } from '@/src/lib/campus/environment';
+import { readCampusSession } from '@/src/lib/campus/auth';
 
 // ============================================================================
 // Gamification Type Definitions
@@ -167,16 +169,14 @@ async function getGamificationPayload(): Promise<GamificationPayload> {
  */
 export async function GET(request: NextRequest) {
     try {
-        const { searchParams } = new URL(request.url);
-        const userId = searchParams.get('userId');
-        const type = searchParams.get('type'); // badges, points, streaks, leaderboard
+        const environmentError = campusEnvironmentError();
+        if (environmentError) return environmentError;
+        const session = await readCampusSession(request);
+        if (!session) return NextResponse.json({ success: false, error: 'Sesion no autorizada' }, { status: 401 });
 
-        if (!userId && type !== 'leaderboard') {
-            return NextResponse.json(
-                { success: false, error: 'userId is required' },
-                { status: 400 }
-            );
-        }
+        const { searchParams } = new URL(request.url);
+        const type = searchParams.get('type'); // badges, points, streaks, leaderboard
+        const userId = session.student.id;
 
         const gamificationPayload = await getGamificationPayload();
 
@@ -261,98 +261,22 @@ export async function GET(request: NextRequest) {
     }
 }
 
-/** Request body for awarding points */
-interface AwardPointsRequest {
-    userId: string;
-    points: number;
-    reason: string;
-    sourceType?: PointsTransaction['sourceType'];
-    sourceId?: string;
-}
-
 /**
  * POST /api/lms/gamification
  *
- * Award points to a user
+ * Point awards are deliberately not exposed to the browser. A future trusted
+ * server-side event handler can call the planned persistence layer directly.
  */
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json() as AwardPointsRequest;
-        const { userId, points, reason, sourceType, sourceId } = body;
+    const environmentError = campusEnvironmentError();
+    if (environmentError) return environmentError;
+    const session = await readCampusSession(request);
+    if (!session) return NextResponse.json({ success: false, error: 'Sesion no autorizada' }, { status: 401 });
 
-        if (!userId || !points || !reason) {
-            return NextResponse.json(
-                { success: false, error: 'userId, points, and reason are required' },
-                { status: 400 }
-            );
-        }
-
-        const gamificationPayload = await getGamificationPayload();
-
-        // Create points transaction
-        // Note: points-transactions collection is planned but not yet implemented
-        const transactionData: Omit<PointsTransaction, 'id' | 'createdAt' | 'updatedAt'> = {
-            user: userId,
-            points,
-            reason,
-            sourceType: sourceType ?? 'manual',
-            sourceId: sourceId ?? null,
-        };
-        const transaction = await gamificationPayload.create({
-            collection: 'points-transactions',
-            data: transactionData,
-        });
-
-        // Update user streak
-        // Note: user-streaks collection is planned but not yet implemented
-        const existingStreak = await gamificationPayload.find({
-            collection: 'user-streaks',
-            where: { user: { equals: userId } },
-            limit: 1,
-        });
-
-        if (existingStreak.docs.length > 0) {
-            const streak: UserStreak = existingStreak.docs[0];
-            const lastActivity = streak.lastActivityAt ? new Date(streak.lastActivityAt) : null;
-            const today = new Date();
-            const isConsecutiveDay =
-                lastActivity &&
-                today.getTime() - lastActivity.getTime() < 48 * 60 * 60 * 1000; // Within 48 hours
-
-            const newCurrentStreak = isConsecutiveDay ? (streak.currentStreak || 0) + 1 : 1;
-            const streakUpdateData: Partial<Omit<UserStreak, 'id' | 'createdAt' | 'updatedAt'>> = {
-                currentStreak: newCurrentStreak,
-                longestStreak: Math.max(streak.longestStreak || 0, newCurrentStreak),
-                lastActivityAt: today.toISOString(),
-            };
-            await gamificationPayload.update({
-                collection: 'user-streaks',
-                id: streak.id,
-                data: streakUpdateData,
-            });
-        } else {
-            const newStreakData: Omit<UserStreak, 'id' | 'createdAt' | 'updatedAt'> = {
-                user: userId,
-                currentStreak: 1,
-                longestStreak: 1,
-                lastActivityAt: new Date().toISOString(),
-            };
-            await gamificationPayload.create({
-                collection: 'user-streaks',
-                data: newStreakData,
-            });
-        }
-
-        return NextResponse.json({
-            success: true,
-            data: transaction,
-            message: `Awarded ${points} points to user`,
-        });
-    } catch (error: unknown) {
-        console.error('[LMS Gamification] Error:', error);
-        return NextResponse.json(
-            { success: false, error: getErrorMessage(error) || 'Failed to award points' },
-            { status: 500 }
-        );
-    }
+    // Points must be awarded by a trusted server-side event, never by a
+    // browser-controlled userId/points payload.
+    return NextResponse.json(
+        { success: false, error: 'La asignacion de puntos requiere un evento interno autorizado' },
+        { status: 403 },
+    );
 }

@@ -41,7 +41,7 @@ export default defineConfig({
       '**/__tests__/matriculas/BulkEnrollmentDialog.test.tsx',
       // API route tests requiring request handlers
       '**/app/api/cursos/__tests__/**',
-      '**/app/api/lms/__tests__/**',
+      '**/app/api/lms/__tests__/lms.test.ts',
       '**/app/api/billing/**/__tests__/**',
     ],
     coverage: {

@@ -1,265 +1,194 @@
 /**
- * LMS Module API Routes
+ * Protected LMS module endpoint for the internal Campus Virtual.
  *
- * GET /api/lms/modules/:id - Get module with lessons
+ * This route intentionally reads the minimal LMS schema directly. Payload
+ * hydration also loads historical academic relations that are not required by
+ * a student and may not exist in an isolated staging database.
  */
-
-import { getPayload } from 'payload'
-import configPromise from '@payload-config';
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
-import { isLessonProgressStorageAvailable } from '../../_lib/lessonProgressStorage';
-
-// ============================================================================
-// TypeScript Interfaces for LMS Data
-// ============================================================================
-
-interface LmsModule {
-  id: string;
-  title: string;
-  description?: string;
-  order?: number;
-  estimatedMinutes?: number;
-  unlockDate?: string;
-  status?: string;
-}
-
-interface LmsLesson {
-  id: string;
-  title: string;
-  description?: string;
-  content?: unknown;
-  order?: number;
-  estimatedMinutes?: number;
-  isMandatory?: boolean;
-  status?: string;
-  resources?: LmsResource[];
-}
-
-interface LmsResource {
-  id?: string;
-  title?: string;
-  url?: string;
-  type?: string;
-}
-
-interface LmsMaterial {
-  id: string;
-  title: string;
-  type?: string;
-  url?: string;
-  fileSize?: number;
-}
-
-interface LessonProgress {
-  id: string;
-  lesson: string | { id: string };
-  enrollment: string | { id: string };
-  status: 'not_started' | 'in_progress' | 'completed';
-  progressPercent: number;
-  completedAt?: string;
-}
-
-type ProgressByLesson = Record<string, LessonProgress>;
-
-// ============================================================================
-// Type Guards
-// ============================================================================
-
-function isLmsModule(value: unknown): value is LmsModule {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'id' in value &&
-    'title' in value
-  );
-}
-
-function isLmsLesson(value: unknown): value is LmsLesson {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'id' in value &&
-    'title' in value
-  );
-}
-
-function isLmsMaterial(value: unknown): value is LmsMaterial {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'id' in value &&
-    'title' in value
-  );
-}
-
-function isLessonProgress(value: unknown): value is LessonProgress {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'lesson' in value &&
-    'status' in value
-  );
-}
-
-function extractLessonId(lesson: string | { id: string }): string {
-  if (typeof lesson === 'string') {
-    return lesson;
-  }
-  return lesson.id;
-}
-
-// ============================================================================
-// Route Params
-// ============================================================================
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { campusEnvironmentError } from '@/src/lib/campus/environment'
+import {
+  campusEnrollmentBelongsToStudent,
+  campusSql,
+  readCampusSession,
+} from '@/src/lib/campus/auth'
 
 interface RouteParams {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }
 
-/**
- * GET /api/lms/modules/:id
- *
- * Returns module with all lessons and materials.
- * Optionally includes progress for a specific enrollment.
- *
- * Query params:
- * - enrollmentId: Include progress for this enrollment
- */
+interface ProgressSummary {
+  id: string
+  status: 'not_started' | 'in_progress' | 'completed'
+  progressPercent: number
+  lastPosition: number
+  completedAt?: string
+}
+
+function numericId(value: string | null): number | null {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
+}
+
+function isoDate(value: unknown): string | undefined {
+  if (!value) return undefined
+  const date = value instanceof Date ? value : new Date(String(value))
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString()
+}
+
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const environmentError = campusEnvironmentError()
+  if (environmentError) return environmentError
+  if (!campusSql) {
+    return NextResponse.json({ success: false, error: 'Base del Campus no disponible.' }, { status: 503 })
+  }
+
+  const { id: moduleId } = await params
+  const { searchParams } = new URL(request.url)
+  const enrollmentId = searchParams.get('enrollmentId')
+  const moduleNumericId = numericId(moduleId)
+  const enrollmentNumericId = numericId(enrollmentId)
+
+  if (!moduleNumericId) {
+    return NextResponse.json({ success: false, error: 'El módulo no es válido.' }, { status: 400 })
+  }
+  if (!enrollmentNumericId) {
+    return NextResponse.json({ success: false, error: 'enrollmentId es obligatorio y debe ser válido.' }, { status: 400 })
+  }
+
+  const session = await readCampusSession(request)
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'Sesión no autorizada.' }, { status: 401 })
+  }
+
+  const enrollmentAccess = session.enrollments.find((item) => item.id === String(enrollmentNumericId))
+  if (!enrollmentAccess || !(await campusEnrollmentBelongsToStudent(session.student.id, String(enrollmentNumericId)))) {
+    return NextResponse.json({ success: false, error: 'La matrícula no está autorizada.' }, { status: 403 })
+  }
+
+  const tenantId = numericId(String(session.student.tenantId))
+  const courseId = numericId(enrollmentAccess.courseId)
+  if (!tenantId || !courseId) {
+    return NextResponse.json({ success: false, error: 'La matrícula no tiene un contexto académico válido.' }, { status: 403 })
+  }
+
   try {
-    const hasLessonProgressStorage = await isLessonProgressStorageAvailable();
-    const { id: moduleId } = await params;
-    const { searchParams } = new URL(request.url);
-    const enrollmentId = searchParams.get('enrollmentId');
-
-    if (!moduleId) {
-      return NextResponse.json(
-        { success: false, error: 'Module ID is required' },
-        { status: 400 }
-      );
+    const moduleRows = await campusSql`
+      SELECT id, title, description, "order", unlock_date, estimated_duration_minutes, course_id
+      FROM modules
+      WHERE id = ${moduleNumericId}
+        AND course_id = ${courseId}
+        AND tenant_id = ${tenantId}
+        AND is_published = true
+      LIMIT 1
+    `
+    const moduleRow = moduleRows[0] as Record<string, unknown> | undefined
+    if (!moduleRow) {
+      return NextResponse.json({ success: false, error: 'Módulo no encontrado.' }, { status: 404 })
     }
 
-     
-    const payload = await getPayload({ config: configPromise });
+    const lessonRows = await campusSql`
+      SELECT id, title, content, "order", estimated_duration_minutes,
+             requires_completion, video_url, video_duration_seconds
+      FROM lessons
+      WHERE module_id = ${moduleNumericId}
+        AND tenant_id = ${tenantId}
+        AND is_published = true
+      ORDER BY "order" ASC, id ASC
+    `
+    const lessonIds = lessonRows.map((row) => Number((row as Record<string, unknown>).id)).filter(Number.isInteger)
 
-    // 1. Get module details
-    const moduleResult = await payload.findByID({
-      collection: 'modules' as 'users',
-      id: moduleId,
-      depth: 1,
-    });
+    const materialRows = await campusSql`
+      SELECT id, title, material_type, external_url, file_size_bytes
+      FROM materials
+      WHERE module_id = ${moduleNumericId}
+        AND tenant_id = ${tenantId}
+        AND is_published = true
+      ORDER BY "order" ASC, id ASC
+    `
 
-    if (!moduleResult || !isLmsModule(moduleResult)) {
-      return NextResponse.json(
-        { success: false, error: 'Module not found' },
-        { status: 404 }
-      );
-    }
+    const progressRows = lessonIds.length === 0
+      ? []
+      : await campusSql`
+          SELECT id, lesson_id, is_completed, watched_percentage, last_position, completed_at
+          FROM lesson_progress
+          WHERE enrollment_id = ${enrollmentNumericId}
+            AND tenant_id = ${tenantId}
+            AND lesson_id = ANY(${campusSql.array(lessonIds)}::int[])
+        `
+    const progressByLesson = new Map<string, ProgressSummary>(
+      progressRows.map((row): [string, ProgressSummary] => {
+        const progress = row as Record<string, unknown>
+        const isCompleted = progress.is_completed === true
+        const progressPercent = Number(progress.watched_percentage ?? 0)
+        return [String(progress.lesson_id), {
+          id: String(progress.id),
+          status: isCompleted ? 'completed' : progressPercent > 0 ? 'in_progress' : 'not_started',
+          progressPercent,
+          lastPosition: Number(progress.last_position ?? 0),
+          completedAt: isoDate(progress.completed_at),
+        }]
+      }),
+    )
 
-    const moduleData: LmsModule = moduleResult;
-
-    // 2. Get lessons for this module
-    const lessonsResult = await payload.find({
-      collection: 'lessons' as 'users',
-      where: { module: { equals: moduleId } },
-      sort: 'order',
-      depth: 1,
-      limit: 100,
-    });
-
-    const lessonDocs = lessonsResult.docs.filter(isLmsLesson) as unknown as LmsLesson[];
-
-    // 3. Get materials for this module
-    const materialsResult = await payload.find({
-      collection: 'materials' as 'users',
-      where: { module: { equals: moduleId } },
-      sort: 'order',
-      depth: 1,
-      limit: 100,
-    });
-
-    const materialDocs = materialsResult.docs.filter(isLmsMaterial) as unknown as LmsMaterial[];
-
-    // 4. Get progress if enrollmentId provided
-    const progressByLesson: ProgressByLesson = {};
-    if (enrollmentId && hasLessonProgressStorage) {
-      const progressResult = await payload.find({
-        collection: 'lesson-progress' as 'users',
-        where: {
-          enrollment: { equals: enrollmentId },
-          lesson: { in: lessonDocs.map((l) => l.id) },
+    const lessons = lessonRows.map((row) => {
+      const lesson = row as Record<string, unknown>
+      const id = String(lesson.id)
+      return {
+        id,
+        title: String(lesson.title ?? ''),
+        description: null,
+        content: lesson.content ?? null,
+        order: Number(lesson.order ?? 0),
+        estimatedMinutes: Number(lesson.estimated_duration_minutes ?? 0),
+        isMandatory: lesson.requires_completion !== false,
+        status: 'published',
+        videoUrl: lesson.video_url ?? null,
+        videoDuration: Number(lesson.video_duration_seconds ?? 0),
+        progress: progressByLesson.get(id) ?? {
+          status: 'not_started',
+          progressPercent: 0,
+          lastPosition: 0,
         },
-        limit: 100,
-      });
-
-      for (const doc of progressResult.docs) {
-        if (isLessonProgress(doc)) {
-          const lessonId = extractLessonId(doc.lesson);
-          progressByLesson[lessonId] = doc;
-        }
+        resources: [],
       }
-    }
+    })
 
-    // 5. Build response
-    const completedLessonsCount = Object.values(progressByLesson).filter(
-      (p: LessonProgress) => p.status === 'completed'
-    ).length;
-
-    const response = {
+    const completedLessons = lessons.filter((lesson) => lesson.progress.status === 'completed').length
+    return NextResponse.json({
       success: true,
       data: {
         module: {
-          id: moduleData.id,
-          title: moduleData.title,
-          description: moduleData.description,
-          order: moduleData.order,
-          estimatedMinutes: moduleData.estimatedMinutes,
-          unlockDate: moduleData.unlockDate,
-          status: moduleData.status,
+          id: String(moduleRow.id),
+          title: String(moduleRow.title ?? ''),
+          description: moduleRow.description ?? null,
+          order: Number(moduleRow.order ?? 0),
+          estimatedMinutes: Number(moduleRow.estimated_duration_minutes ?? 0),
+          unlockDate: isoDate(moduleRow.unlock_date),
+          status: 'published',
         },
-        lessons: lessonDocs.map((lesson: LmsLesson) => ({
-          id: lesson.id,
-          title: lesson.title,
-          description: lesson.description,
-          content: lesson.content,
-          order: lesson.order,
-          estimatedMinutes: lesson.estimatedMinutes,
-          isMandatory: lesson.isMandatory,
-          status: lesson.status,
-          progress: progressByLesson[lesson.id] ?? {
-            status: 'not_started',
-            progressPercent: 0,
-          },
-          resources: lesson.resources ?? [],
-        })),
-        materials: materialDocs.map((material: LmsMaterial) => ({
-          id: material.id,
-          title: material.title,
-          type: material.type,
-          url: material.url,
-          fileSize: material.fileSize,
-        })),
+        lessons,
+        materials: materialRows.map((row) => {
+          const material = row as Record<string, unknown>
+          return {
+            id: String(material.id),
+            title: String(material.title ?? ''),
+            type: String(material.material_type ?? 'document'),
+            url: `/api/lms/materials/${String(material.id)}?enrollmentId=${enrollmentNumericId}`,
+            fileSize: material.file_size_bytes === null ? undefined : Number(material.file_size_bytes),
+          }
+        }),
         stats: {
-          totalLessons: lessonDocs.length,
-          totalMaterials: materialDocs.length,
-          completedLessons: completedLessonsCount,
-          progressPercent:
-            lessonDocs.length > 0
-              ? Math.round((completedLessonsCount / lessonDocs.length) * 100)
-              : 0,
+          totalLessons: lessons.length,
+          totalMaterials: materialRows.length,
+          completedLessons,
+          progressPercent: lessons.length > 0 ? Math.round((completedLessons / lessons.length) * 100) : 0,
         },
       },
-    };
-
-    return NextResponse.json(response);
-  } catch (error: unknown) {
-    console.error('[LMS Module] Error:', error);
-    const errorMessage =
-      error instanceof Error ? error.message : 'Failed to fetch module';
-    return NextResponse.json(
-      { success: false, error: errorMessage },
-      { status: 500 }
-    );
+    }, { headers: { 'Cache-Control': 'private, no-store' } })
+  } catch (error) {
+    console.error('[LMS Module] Error:', error)
+    return NextResponse.json({ success: false, error: 'No se pudo cargar el módulo.' }, { status: 500 })
   }
 }

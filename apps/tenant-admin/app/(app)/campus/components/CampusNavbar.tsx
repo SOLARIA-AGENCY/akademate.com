@@ -7,6 +7,7 @@
  */
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useSession } from '../providers/SessionProvider'
 import { BookOpen, GraduationCap, User, LogOut, Trophy } from 'lucide-react'
 import { Button } from '@payload-config/components/ui/button'
@@ -21,6 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@payload-config/components/ui/avatar'
 
 export function CampusNavbar() {
+  const router = useRouter()
   const { student, isAuthenticated, logout } = useSession()
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -71,6 +73,7 @@ export function CampusNavbar() {
                 <Button
                   variant="ghost"
                   className="relative h-10 w-10 rounded-full"
+                  aria-label="Abrir menu de usuario"
                   data-oid="-go2_me"
                 >
                   <Avatar className="h-10 w-10" data-oid="34:9qk3">
@@ -117,7 +120,10 @@ export function CampusNavbar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator data-oid="5a0z7aa" />
                 <DropdownMenuItem
-                  onClick={logout}
+                  onClick={async () => {
+                    await logout()
+                    router.replace('/campus/login')
+                  }}
                   className="cursor-pointer text-destructive"
                   data-oid="hnwmhd2"
                 >

@@ -1,358 +1,173 @@
 /**
- * LMS Lesson API
- *
- * Returns lesson details with materials and progress for a specific enrollment.
+ * Protected LMS lesson endpoint for the internal Campus Virtual.
  */
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { campusEnvironmentError } from '@/src/lib/campus/environment'
+import {
+  campusEnrollmentBelongsToStudent,
+  campusSql,
+  readCampusSession,
+} from '@/src/lib/campus/auth'
 
-import type { NextRequest} from 'next/server';
-import { NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
-import { getPayload } from 'payload';
-import config from '@payload-config';
-
-// ============================================================================
-// Type Definitions
-// ============================================================================
-
-/** Generic Payload document with common fields */
-interface PayloadDocument {
-  id: string;
-  createdAt?: string;
-  updatedAt?: string;
+interface LessonRouteParams {
+  params: Promise<{ id: string }>
 }
 
-/** File/media attachment */
-interface PayloadFile {
-  id?: string;
-  url?: string;
-  filesize?: number;
-  filename?: string;
-  mimeType?: string;
+function numericId(value: string | null): number | null {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
 }
 
-/** Student reference */
-interface StudentRef extends PayloadDocument {
-  email?: string;
-  name?: string;
+function isoDate(value: unknown): string | undefined {
+  if (!value) return undefined
+  const date = value instanceof Date ? value : new Date(String(value))
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString()
 }
 
-/** Course data */
-interface CourseData extends PayloadDocument {
-  title?: string;
-  description?: string;
-}
+export async function GET(request: NextRequest, { params }: LessonRouteParams) {
+  const environmentError = campusEnvironmentError()
+  if (environmentError) return environmentError
+  if (!campusSql) {
+    return NextResponse.json({ success: false, error: 'Base del Campus no disponible.' }, { status: 503 })
+  }
 
-/** Course run with course reference */
-interface CourseRunData extends PayloadDocument {
-  course?: CourseData | string;
-  startDate?: string;
-  endDate?: string;
-}
+  const { id: lessonId } = await params
+  const enrollmentId = new URL(request.url).searchParams.get('enrollmentId')
+  const lessonNumericId = numericId(lessonId)
+  const enrollmentNumericId = numericId(enrollmentId)
+  if (!lessonNumericId || !enrollmentNumericId) {
+    return NextResponse.json({ success: false, error: 'lessonId y enrollmentId deben ser válidos.' }, { status: 400 })
+  }
 
-/** Module data */
-interface ModuleData extends PayloadDocument {
-  title?: string;
-  description?: string;
-  order?: number;
-}
+  const session = await readCampusSession(request)
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'Sesión no autorizada.' }, { status: 401 })
+  }
+  const enrollmentAccess = session.enrollments.find((item) => item.id === String(enrollmentNumericId))
+  if (!enrollmentAccess || !(await campusEnrollmentBelongsToStudent(session.student.id, String(enrollmentNumericId)))) {
+    return NextResponse.json({ success: false, error: 'La matrícula no está autorizada.' }, { status: 403 })
+  }
 
-/** Lesson data structure */
-interface LessonData extends PayloadDocument {
-  title?: string;
-  description?: string;
-  content?: string;
-  order?: number;
-  estimatedMinutes?: number;
-  isMandatory?: boolean;
-  video?: PayloadFile;
-  videoUrl?: string;
-  videoDuration?: number;
-  module?: ModuleData | string;
-}
-
-/** Enrollment data structure */
-interface EnrollmentData extends PayloadDocument {
-  student?: StudentRef | string;
-  course_run?: CourseRunData;
-  courseRun?: CourseRunData;
-  status?: string;
-}
-
-/** Lesson progress data */
-interface LessonProgressData extends PayloadDocument {
-  enrollment?: string;
-  lesson?: string;
-  status?: 'not_started' | 'in_progress' | 'completed';
-  progressPercent?: number;
-  videoProgress?: number;
-  lastPosition?: number;
-  completedAt?: string;
-}
-
-/** Material data structure */
-interface MaterialData extends PayloadDocument {
-  title?: string;
-  type?: string;
-  file?: PayloadFile;
-  url?: string;
-  lesson?: string;
-}
-
-/** Formatted material for API response */
-interface FormattedMaterial {
-  id: string;
-  title?: string;
-  type: string;
-  url?: string;
-  size?: string;
-}
-
-/** Lesson navigation reference */
-interface LessonNavRef {
-  id: string;
-  title?: string;
-}
-
-interface ProgressState {
-  status: 'not_started' | 'in_progress' | 'completed';
-  progressPercent: number;
-  videoProgress: number;
-  lastPosition: number;
-  completedAt?: string;
-}
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.CAMPUS_JWT_SECRET ?? 'campus-secret-key-change-in-production'
-);
-
-async function verifyToken(request: NextRequest) {
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) {
-    return null;
+  const tenantId = numericId(String(session.student.tenantId))
+  const courseId = numericId(enrollmentAccess.courseId)
+  if (!tenantId || !courseId) {
+    return NextResponse.json({ success: false, error: 'La matrícula no tiene contexto académico válido.' }, { status: 403 })
   }
 
   try {
-    const token = authHeader.split(' ')[1];
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload;
-  } catch {
-    return null;
-  }
-}
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const decoded = await verifyToken(request);
-    if (decoded?.type !== 'campus') {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const { id: lessonId } = await params;
-    const { searchParams } = new URL(request.url);
-    const enrollmentId = searchParams.get('enrollmentId');
-
-    if (!enrollmentId) {
-      return NextResponse.json(
-        { success: false, error: 'enrollmentId is required' },
-        { status: 400 }
-      );
-    }
-
-     
-    const payload = await getPayload({ config });
-    const studentId = decoded.sub!;
-
-    // Verify enrollment belongs to student
-    const enrollment = await payload.findByID({
-      collection: 'enrollments' as 'payload-locked-documents',
-      id: enrollmentId,
-      depth: 3,
-    }) as unknown as EnrollmentData | null;
-
-    if (!enrollment) {
-      return NextResponse.json(
-        { success: false, error: 'Enrollment not found' },
-        { status: 404 }
-      );
-    }
-
-    const enrollmentStudent = typeof enrollment.student === 'object' && enrollment.student !== null
-      ? enrollment.student.id
-      : enrollment.student;
-
-    if (String(enrollmentStudent) !== studentId) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized access to this enrollment' },
-        { status: 403 }
-      );
-    }
-
-    // Get lesson
-    const lesson = await payload.findByID({
-      collection: 'lessons' as 'payload-locked-documents',
-      id: lessonId,
-      depth: 2,
-    }) as unknown as LessonData | null;
-
+    const lessonRows = await campusSql`
+      SELECT
+        l.id,
+        l.title,
+        l.content,
+        l."order",
+        l.estimated_duration_minutes,
+        l.requires_completion,
+        l.video_url,
+        l.video_duration_seconds,
+        m.id AS module_id,
+        m.title AS module_title,
+        m.course_id,
+        c.id AS course_id,
+        c.name AS course_title
+      FROM lessons l
+      INNER JOIN modules m ON m.id = l.module_id
+        AND m.tenant_id = ${tenantId}
+        AND m.is_published = true
+      INNER JOIN courses c ON c.id = m.course_id
+      WHERE l.id = ${lessonNumericId}
+        AND l.tenant_id = ${tenantId}
+        AND l.is_published = true
+        AND m.course_id = ${courseId}
+      LIMIT 1
+    `
+    const lesson = lessonRows[0] as Record<string, unknown> | undefined
     if (!lesson) {
-      return NextResponse.json(
-        { success: false, error: 'Lesson not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Lección no encontrada.' }, { status: 404 })
     }
 
-    // Get lesson progress
-    let progressData: ProgressState = {
-      status: 'not_started',
-      progressPercent: 0,
-      videoProgress: 0,
-      lastPosition: 0,
-      completedAt: undefined,
-    };
+    const [progressRows, materialRows, navigationRows] = await Promise.all([
+      campusSql`
+        SELECT id, is_completed, watched_percentage, last_position, completed_at
+        FROM lesson_progress
+        WHERE enrollment_id = ${enrollmentNumericId}
+          AND lesson_id = ${lessonNumericId}
+          AND tenant_id = ${tenantId}
+        LIMIT 1
+      `,
+      campusSql`
+        SELECT id, title, material_type, file_size_bytes
+        FROM materials
+        WHERE lesson_id = ${lessonNumericId}
+          AND tenant_id = ${tenantId}
+          AND is_published = true
+        ORDER BY "order" ASC, id ASC
+      `,
+      campusSql`
+        SELECT id, title, "order"
+        FROM lessons
+        WHERE module_id = ${Number(lesson.module_id)}
+          AND tenant_id = ${tenantId}
+          AND is_published = true
+        ORDER BY "order" ASC, id ASC
+      `,
+    ])
 
-    try {
-      const progressResult = await payload.find({
-        collection: 'lessonProgress' as 'payload-locked-documents',
-        where: {
-          enrollment: { equals: enrollmentId },
-          lesson: { equals: lessonId },
-        },
-        limit: 1,
-      }) as unknown as { docs: LessonProgressData[] };
-
-      if (progressResult.docs.length > 0) {
-        const progress = progressResult.docs[0];
-        progressData = {
-          status: progress.status ?? 'not_started',
-          progressPercent: progress.progressPercent ?? 0,
-          videoProgress: progress.videoProgress ?? 0,
-          lastPosition: progress.lastPosition ?? 0,
-          completedAt: progress.completedAt,
-        };
-      }
-    } catch {
-      // lessonProgress collection might not exist
-      console.log('[LMS Lesson] Progress collection not available');
-    }
-
-    // Get module info
-    const module: ModuleData | null = typeof lesson.module === 'object' && lesson.module !== null
-      ? lesson.module
-      : null;
-
-    // Get course info
-    const courseRun = enrollment.course_run ?? enrollment.courseRun;
-    const course: CourseData | null = typeof courseRun?.course === 'object' && courseRun.course !== null
-      ? courseRun.course
-      : null;
-
-    // Get materials for this lesson
-    let materials: FormattedMaterial[] = [];
-    try {
-      const materialsResult = await payload.find({
-        collection: 'materials' as 'payload-locked-documents',
-        where: {
-          lesson: { equals: lessonId },
-        },
-        depth: 1,
-      }) as unknown as { docs: MaterialData[] };
-
-      materials = materialsResult.docs.map((material: MaterialData): FormattedMaterial => ({
-        id: material.id,
-        title: material.title,
-        type: material.type ?? 'document',
-        url: material.file?.url ?? material.url,
-        size: material.file?.filesize
-          ? `${(material.file.filesize / 1024 / 1024).toFixed(1)} MB`
-          : undefined,
-      }));
-    } catch {
-      // Materials collection might not exist
-      console.log('[LMS Lesson] Materials collection not available');
-    }
-
-    // Get navigation (previous/next lessons)
-    const navigation: {
-      previousLesson: LessonNavRef | undefined;
-      nextLesson: LessonNavRef | undefined;
-    } = {
-      previousLesson: undefined,
-      nextLesson: undefined,
-    };
-
-    if (module?.id) {
-      try {
-        const lessonsResult = await payload.find({
-          collection: 'lessons' as 'payload-locked-documents',
-          where: {
-            module: { equals: module.id },
-          },
-          sort: 'order',
-        }) as unknown as { docs: LessonData[] };
-
-        const currentIndex = lessonsResult.docs.findIndex(
-          (l: LessonData) => String(l.id) === String(lessonId)
-        );
-
-        if (currentIndex > 0) {
-          const prev = lessonsResult.docs[currentIndex - 1];
-          navigation.previousLesson = { id: prev.id, title: prev.title };
-        }
-
-        if (currentIndex < lessonsResult.docs.length - 1) {
-          const next = lessonsResult.docs[currentIndex + 1];
-          navigation.nextLesson = { id: next.id, title: next.title };
-        }
-      } catch {
-        console.log('[LMS Lesson] Navigation fetch failed');
-      }
-    }
+    const progress = progressRows[0] as Record<string, unknown> | undefined
+    const isCompleted = progress?.is_completed === true
+    const progressPercent = Number(progress?.watched_percentage ?? 0)
+    const orderedLessons = navigationRows.map((row) => row as Record<string, unknown>)
+    const currentIndex = orderedLessons.findIndex((item) => String(item.id) === String(lesson.id))
+    const previous = currentIndex > 0 ? orderedLessons[currentIndex - 1] : undefined
+    const next = currentIndex >= 0 && currentIndex < orderedLessons.length - 1
+      ? orderedLessons[currentIndex + 1]
+      : undefined
 
     return NextResponse.json({
       success: true,
       data: {
         lesson: {
-          id: lesson.id,
-          title: lesson.title,
-          description: lesson.description,
-          content: lesson.content,
-          order: lesson.order ?? 1,
-          estimatedMinutes: lesson.estimatedMinutes ?? 0,
-          isMandatory: lesson.isMandatory ?? false,
-          videoUrl: lesson.video?.url ?? lesson.videoUrl,
-          videoDuration: lesson.videoDuration,
+          id: String(lesson.id),
+          title: String(lesson.title ?? ''),
+          description: null,
+          content: lesson.content ?? null,
+          order: Number(lesson.order ?? 0),
+          estimatedMinutes: Number(lesson.estimated_duration_minutes ?? 0),
+          isMandatory: lesson.requires_completion !== false,
+          videoUrl: lesson.video_url ?? null,
+          videoDuration: Number(lesson.video_duration_seconds ?? 0),
         },
-        module: module
-          ? {
-              id: module.id,
-              title: module.title,
-            }
-          : null,
-        course: course
-          ? {
-              id: course.id,
-              title: course.title,
-            }
-          : null,
-        enrollment: {
-          id: enrollment.id,
+        module: { id: String(lesson.module_id), title: String(lesson.module_title ?? '') },
+        course: { id: String(lesson.course_id), title: String(lesson.course_title ?? 'Curso') },
+        enrollment: { id: String(enrollmentNumericId) },
+        progress: {
+          status: isCompleted ? 'completed' : progressPercent > 0 ? 'in_progress' : 'not_started',
+          progressPercent,
+          videoProgress: progressPercent,
+          lastPosition: Number(progress?.last_position ?? 0),
+          completedAt: isoDate(progress?.completed_at),
         },
-        progress: progressData,
-        materials,
-        navigation,
+        materials: materialRows.map((row) => {
+          const material = row as Record<string, unknown>
+          return {
+            id: String(material.id),
+            title: String(material.title ?? ''),
+            type: String(material.material_type ?? 'document'),
+            url: `/api/lms/materials/${String(material.id)}?enrollmentId=${enrollmentNumericId}`,
+            size: material.file_size_bytes === null || material.file_size_bytes === undefined
+              ? undefined
+              : `${(Number(material.file_size_bytes) / 1024 / 1024).toFixed(1)} MB`,
+          }
+        }),
+        navigation: {
+          previousLesson: previous ? { id: String(previous.id), title: String(previous.title ?? '') } : undefined,
+          nextLesson: next ? { id: String(next.id), title: String(next.title ?? '') } : undefined,
+        },
       },
-    });
+    }, { headers: { 'Cache-Control': 'private, no-store' } })
   } catch (error) {
-    console.error('[LMS Lesson] Error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to load lesson' },
-      { status: 500 }
-    );
+    console.error('[LMS Lesson] Error:', error)
+    return NextResponse.json({ success: false, error: 'No se pudo cargar la lección.' }, { status: 500 })
   }
 }

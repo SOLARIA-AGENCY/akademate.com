@@ -27,6 +27,7 @@ import { PlanningConflicts } from './collections/PlanningConflicts/PlanningConfl
 import { Classrooms } from './collections/Classrooms/Classrooms';
 import { Enrollments } from './collections/Enrollments/Enrollments';
 import { Students } from './collections/Students/Students';
+import { CampusEnrollments } from './collections/CampusEnrollments/CampusEnrollments';
 import { Leads } from './collections/Leads/Leads';
 import { Campaigns } from './collections/Campaigns/Campaigns';
 import { AdsTemplates } from './collections/AdsTemplates/AdsTemplates';
@@ -94,6 +95,7 @@ export const getPayloadConfig = () => buildConfig({
     PlanningConflicts, // ✅ Operational planning conflict tracking
     Students, // ✅ Learner profiles with PII protection
     Enrollments, // ✅ Student registrations in course runs
+    CampusEnrollments, // ✅ Explicit bridge for isolated Campus access
 
     // Personal
     Staff, // ✅ Professors and administrative staff

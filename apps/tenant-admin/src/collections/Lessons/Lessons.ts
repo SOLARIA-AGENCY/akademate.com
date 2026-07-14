@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { tenantField } from '../../access/tenantAccess';
 
 /**
  * Type definitions for Lessons collection
@@ -318,6 +319,7 @@ export const Lessons: CollectionConfig = {
         update: () => false,
       },
     },
+    tenantField,
   ],
 
   hooks: {

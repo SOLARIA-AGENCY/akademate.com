@@ -4,7 +4,7 @@
  * Campus Virtual Session Provider
  *
  * Provides authentication context for the Campus Virtual (student-facing LMS).
- * Uses JWT tokens stored in cookies or localStorage.
+ * Uses the httpOnly Campus session cookie.
  */
 
 import type { ReactNode } from 'react'
@@ -90,25 +90,11 @@ export function SessionProvider({ children }: SessionProviderProps) {
       setIsLoading(true)
       setError(null)
 
-      // Check for token in localStorage (campus uses separate auth)
-      const token = localStorage.getItem('campus_token')
-
-      if (!token) {
-        setStudent(null)
-        setEnrollments([])
-        return
-      }
-
-      // Validate token and get student data
-      const response = await fetch('/api/campus/session', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch('/api/campus/auth/session', {
+        credentials: 'include',
       })
 
       if (!response.ok) {
-        // Token expired or invalid
-        localStorage.removeItem('campus_token')
         setStudent(null)
         setEnrollments([])
         return
@@ -135,8 +121,9 @@ export function SessionProvider({ children }: SessionProviderProps) {
       setIsLoading(true)
       setError(null)
 
-      const response = await fetch('/api/campus/login', {
+      const response = await fetch('/api/campus/auth/login', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       })
@@ -146,11 +133,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
       if (!response.ok || !data.success) {
         setError(data.error ?? 'Login failed')
         return false
-      }
-
-      // Store token
-      if (data.token) {
-        localStorage.setItem('campus_token', data.token)
       }
 
       // Set student and enrollments
@@ -172,17 +154,14 @@ export function SessionProvider({ children }: SessionProviderProps) {
       setIsLoading(true)
 
       // Call logout API
-      await fetch('/api/campus/logout', {
+      await fetch('/api/campus/auth/logout', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('campus_token')}`,
-        },
+        credentials: 'include',
       })
     } catch (err) {
       console.error('[SessionProvider] Logout error:', err)
     } finally {
       // Always clear local state
-      localStorage.removeItem('campus_token')
       setStudent(null)
       setEnrollments([])
       setIsLoading(false)

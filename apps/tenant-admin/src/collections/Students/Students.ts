@@ -686,6 +686,35 @@ export const Students: CollectionConfig = {
       },
     },
 
+    {
+      name: 'password_hash',
+      type: 'text',
+      maxLength: 255,
+      admin: {
+        hidden: true,
+        readOnly: true,
+        description: 'Campus credential hash. Never exposed to operators or API responses.',
+      },
+      access: {
+        read: () => false,
+        update: ({ req: { user } }) => Boolean(user && hasRole(user, ['gestor', 'admin'])),
+      },
+    },
+
+    {
+      name: 'last_login_at',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        description: 'Last successful Campus access.',
+      },
+      access: {
+        read: ({ req: { user } }) => Boolean(user && hasRole(user, ['gestor', 'admin'])),
+        update: () => false,
+      },
+    },
+
     // ============================================================================
     // INTERNAL NOTES
     // ============================================================================

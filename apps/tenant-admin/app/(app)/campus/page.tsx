@@ -57,9 +57,7 @@ function CampusDashboard() {
 
         // Fetch student's enrollments
         const response = await fetch('/api/campus/dashboard', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('campus_token')}`,
-          },
+          credentials: 'include',
         })
 
         if (response.ok) {
