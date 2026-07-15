@@ -31,6 +31,7 @@ import {
   Lock,
   XCircle,
 } from 'lucide-react'
+import { getInstructorAvailability, type InstructorTimeConflict } from '@/app/lib/planning/instructor-availability'
 
 // ---------------------------------------------------------------------------
 // Types for API responses
@@ -108,6 +109,7 @@ interface AvailabilityState {
   blockers: AvailabilityMessage[]
   warnings: AvailabilityMessage[]
   unavailableInstructorIds?: Array<string | number>
+  unavailableInstructors?: InstructorTimeConflict[]
 }
 
 // Combined item for the course/cycle selector
@@ -626,8 +628,6 @@ export default function NuevaConvocatoriaPage() {
       status: 'active',
       limit: '100',
     })
-    if (effectiveAreaId) params.set('qualifiedArea', effectiveAreaId)
-
     fetch(`/api/staff?${params.toString()}`, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar docentes'))))
       .then((data) => {
@@ -642,7 +642,7 @@ export default function NuevaConvocatoriaPage() {
     return () => {
       mounted = false
     }
-  }, [effectiveAreaId])
+  }, [])
 
   useEffect(() => {
     if (!preselectedProfessorId) return
@@ -1379,18 +1379,22 @@ export default function NuevaConvocatoriaPage() {
                 <SelectContent>
                   <SelectItem value="_none">Sin profesor asignado</SelectItem>
                   {staff.map((s) => {
-                    const unavailable =
-                      availability?.unavailableInstructorIds?.some(
-                        (id) => String(id) === String(s.id)
-                      ) ?? false
+                    const instructorAvailability = getInstructorAvailability({
+                      instructor: s,
+                      requiredAreaId: effectiveAreaId,
+                      requiredAreaName: effectiveAreaName,
+                      timeConflicts: availability?.unavailableInstructors ?? [],
+                    })
                     return (
-                      <SelectItem key={s.id} value={String(s.id)} disabled={unavailable}>
-                        <span className="flex items-center gap-2">
+                      <SelectItem key={s.id} value={String(s.id)} disabled={instructorAvailability.disabled}>
+                        <span className="flex items-start gap-2">
                           <User className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span>{staffDisplayName(s)}</span>
-                          {unavailable && (
-                            <span className="text-xs text-red-600">No disponible</span>
-                          )}
+                          <span className="min-w-0">
+                            <span className="block">{staffDisplayName(s)}</span>
+                            {instructorAvailability.reasons.map((reason) => (
+                              <span key={reason} className="block text-xs text-red-600">{reason}</span>
+                            ))}
+                          </span>
                         </span>
                       </SelectItem>
                     )
@@ -1418,8 +1422,8 @@ export default function NuevaConvocatoriaPage() {
             />
           )}
           <p className="text-xs text-muted-foreground">
-            Los docentes se filtran por el área habilitada del curso cuando existe. Los ocupados en
-            la misma franja aparecen deshabilitados.
+            Los docentes no seleccionables muestran el motivo: área pendiente, área no compatible o
+            convocatoria que ocupa la misma franja.
           </p>
         </div>
 
@@ -1447,7 +1451,7 @@ export default function NuevaConvocatoriaPage() {
             )}
             {availability?.blockers.map((item, index) => (
               <p key={`blocker-${index}`} className="text-sm text-red-700">
-                {item.message}
+                <span className="font-medium">No disponible: </span>{item.message}
               </p>
             ))}
             {availability?.warnings.map((item, index) => (

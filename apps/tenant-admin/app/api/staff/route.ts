@@ -14,6 +14,7 @@ import {
   validateStaffEmail,
   validateStaffNif,
 } from '@/lib/staff-contact'
+import { formatStaffApiError } from '@/src/lib/staff-api-error'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
 
 /**
@@ -368,42 +369,6 @@ function isStatusOnlyUpdate(body: UpdateStaffBody): boolean {
   return Object.keys(body).length > 0 && Object.keys(body).every((key) => allowedKeys.has(key))
 }
 
-/** Helper to extract error message from unknown error */
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    const message = error.message
-    const normalizedMessage = message.toLowerCase()
-
-    if (
-      normalizedMessage.includes('email') &&
-      (normalizedMessage.includes('unique') ||
-        normalizedMessage.includes('duplicate') ||
-        normalizedMessage.includes('duplicat') ||
-        normalizedMessage.includes('already exists') ||
-        normalizedMessage.includes('ya existe'))
-    ) {
-      return 'Ya existe una ficha de personal con este email.'
-    }
-
-    if (
-      (normalizedMessage.includes('nif') || normalizedMessage.includes('dni')) &&
-      (normalizedMessage.includes('unique') ||
-        normalizedMessage.includes('duplicate') ||
-        normalizedMessage.includes('duplicat') ||
-        normalizedMessage.includes('already exists') ||
-        normalizedMessage.includes('ya existe'))
-    ) {
-      return 'Ya existe una ficha de personal con este DNI/NIF.'
-    }
-
-    if (normalizedMessage.includes('field is invalid: email')) return STAFF_EMAIL_ERROR
-    if (normalizedMessage.includes('field is invalid: nif')) return STAFF_NIF_ERROR
-
-    return error.message
-  }
-  return String(error)
-}
-
 type StaffIdentityField = 'email' | 'nif'
 
 type StaffIdentityConflict = {
@@ -747,7 +712,7 @@ export async function GET(request: NextRequest) {
   } catch (error: unknown) {
     console.error('Error fetching staff:', error)
     return NextResponse.json(
-      { success: false, error: getErrorMessage(error) || 'Error al obtener personal' },
+      { success: false, error: formatStaffApiError(error, 'load') },
       { status: 500 }
     )
   }
@@ -957,7 +922,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: getErrorMessage(error) || 'Error al crear miembro del personal',
+        error: formatStaffApiError(error, 'save'),
       },
       { status: 500 }
     )
@@ -1281,7 +1246,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: getErrorMessage(error) || 'Error al actualizar miembro del personal',
+        error: formatStaffApiError(error, 'save'),
       },
       { status: 500 }
     )
@@ -1357,7 +1322,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: getErrorMessage(error) || 'Error al eliminar miembro del personal',
+        error: formatStaffApiError(error, 'delete'),
       },
       { status: 500 }
     )

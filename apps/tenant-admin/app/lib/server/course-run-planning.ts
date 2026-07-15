@@ -75,11 +75,21 @@ export type PlanningOccupancySlot = {
   conflicts: PlanningConflict[]
 }
 
+export type UnavailableInstructor = {
+  instructorId: string | number
+  conflictingRunId: string | number
+  conflictingRunCode?: string
+  scheduleDays: string[]
+  scheduleTimeStart?: string | null
+  scheduleTimeEnd?: string | null
+}
+
 export type PlanningAvailability = {
   blockers: PlanningConflict[]
   warnings: PlanningConflict[]
   occupancy?: PlanningOccupancySlot[]
   unavailableInstructorIds?: Array<string | number>
+  unavailableInstructors?: UnavailableInstructor[]
 }
 
 export type CourseRunAvailabilityOptions = {
@@ -275,6 +285,7 @@ export async function evaluateCourseRunAvailability(
   const blockers: PlanningConflict[] = []
   const warnings: PlanningConflict[] = []
   const unavailableInstructorIds: Array<string | number> = []
+  const unavailableInstructors: UnavailableInstructor[] = []
   const classroomId = relationId(candidate.classroom)
   const instructorIds = [
     relationId(candidate.instructor),
@@ -323,10 +334,23 @@ export async function evaluateCourseRunAvailability(
     }
   }
 
-  function addUnavailableInstructorIds(ids: Array<string | number>) {
+  function addUnavailableInstructorIds(ids: Array<string | number>, run: CourseRunPlanningDoc, overlappingDays: string[]) {
     for (const id of ids) {
       if (!unavailableInstructorIds.some((current) => String(current) === String(id))) {
         unavailableInstructorIds.push(id)
+      }
+      const alreadyRecorded = unavailableInstructors.some((item) =>
+        String(item.instructorId) === String(id) && String(item.conflictingRunId) === String(run.id),
+      )
+      if (!alreadyRecorded) {
+        unavailableInstructors.push({
+          instructorId: id,
+          conflictingRunId: run.id,
+          conflictingRunCode: run.codigo,
+          scheduleDays: overlappingDays,
+          scheduleTimeStart: run.schedule_time_start,
+          scheduleTimeEnd: run.schedule_time_end,
+        })
       }
     }
   }
@@ -364,7 +388,7 @@ export async function evaluateCourseRunAvailability(
     }
 
     const runInstructorIds = [relationId(run.instructor), ...relationIds(run.instructors)].filter((id): id is string | number => id != null)
-    addUnavailableInstructorIds(runInstructorIds)
+    addUnavailableInstructorIds(runInstructorIds, run, overlappingDays)
     if (instructorIds.length > 0 && instructorIds.some((id) => runInstructorIds.some((other) => String(other) === String(id)))) {
       const conflict: PlanningConflict = {
         type: 'instructor_overlap',
@@ -383,6 +407,7 @@ export async function evaluateCourseRunAvailability(
     warnings,
     occupancy,
     ...(unavailableInstructorIds.length ? { unavailableInstructorIds } : {}),
+    ...(unavailableInstructors.length ? { unavailableInstructors } : {}),
   }
 }
 

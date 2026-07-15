@@ -278,7 +278,7 @@ describe('evaluateCourseRunAvailability', () => {
     ])
   })
 
-  it('reports unavailable instructor ids for overlapping planning slots', async () => {
+  it('reports unavailable instructors with the conflicting convocatoria and schedule', async () => {
     const payload = payloadWithRuns([{
       id: 22,
       codigo: 'N-2026-022',
@@ -301,6 +301,24 @@ describe('evaluateCourseRunAvailability', () => {
 
     expect(availability.blockers).toEqual([])
     expect(availability.unavailableInstructorIds).toEqual([77, 78])
+    expect(availability.unavailableInstructors).toEqual([
+      {
+        instructorId: 77,
+        conflictingRunId: 22,
+        conflictingRunCode: 'N-2026-022',
+        scheduleDays: ['monday'],
+        scheduleTimeStart: '09:00:00',
+        scheduleTimeEnd: '11:00:00',
+      },
+      {
+        instructorId: 78,
+        conflictingRunId: 22,
+        conflictingRunCode: 'N-2026-022',
+        scheduleDays: ['monday'],
+        scheduleTimeStart: '09:00:00',
+        scheduleTimeEnd: '11:00:00',
+      },
+    ])
   })
 
   it('ignores conflicts outside overlapping dates, days or times', async () => {

@@ -17,6 +17,7 @@ import * as migration_20260630_staff_profile_campuses from './20260630_staff_pro
 import * as migration_20260713_campus_virtual_internal from './20260713_campus_virtual_internal'
 import * as migration_20260714_staging_tenant_schema_compat from './20260714_staging_tenant_schema_compat'
 import * as migration_20260714_staging_users_auth_compat from './20260714_staging_users_auth_compat'
+import * as migration_20260715_payload_locked_documents_campus_enrollments from './20260715_payload_locked_documents_campus_enrollments'
 
 export const migrations = [
   {
@@ -113,5 +114,10 @@ export const migrations = [
     up: migration_20260714_staging_users_auth_compat.up,
     down: migration_20260714_staging_users_auth_compat.down,
     name: '20260714_staging_users_auth_compat',
+  },
+  {
+    up: migration_20260715_payload_locked_documents_campus_enrollments.up,
+    down: migration_20260715_payload_locked_documents_campus_enrollments.down,
+    name: '20260715_payload_locked_documents_campus_enrollments',
   },
 ]

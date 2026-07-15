@@ -40,6 +40,7 @@ import { StaffStatusEvents } from './collections/StaffStatusEvents/StaffStatusEv
 import { Tenants } from './collections/Tenants/Tenants'
 import { ApiKeys } from './collections/ApiKeys/ApiKeys';
 import { CourseTypes } from './collections/CourseTypes/CourseTypes';
+import { isCampusEnrollmentModuleEnabled } from './lib/campus-enrollment-module';
 
 // LMS Collections
 import { Modules } from './collections/Modules/Modules';
@@ -95,7 +96,10 @@ export const getPayloadConfig = () => buildConfig({
     PlanningConflicts, // ✅ Operational planning conflict tracking
     Students, // ✅ Learner profiles with PII protection
     Enrollments, // ✅ Student registrations in course runs
-    CampusEnrollments, // ✅ Explicit bridge for isolated Campus access
+    ...(isCampusEnrollmentModuleEnabled({
+      nodeEnv: process.env.NODE_ENV,
+      campusEnvironment: process.env.CAMPUS_ENVIRONMENT,
+    }) ? [CampusEnrollments] : []), // Isolated until the Campus module is production-ready
 
     // Personal
     Staff, // ✅ Professors and administrative staff

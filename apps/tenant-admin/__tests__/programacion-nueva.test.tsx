@@ -120,7 +120,7 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText('Curso / ciclo *')).toBeInTheDocument()
     })
     expect(screen.getByTitle('Crear nuevo profesor')).toBeInTheDocument()
   })
@@ -135,7 +135,7 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText('Curso / ciclo *')).toBeInTheDocument()
     })
     expect(screen.getByText('Sede *')).toBeInTheDocument()
     expect(screen.getByText('Profesor')).toBeInTheDocument()
@@ -151,11 +151,8 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Seleccionar ciclo o curso')).toBeInTheDocument()
+      expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
     })
-    // The select content shows cycles and courses sections
-    expect(screen.getByText('Ciclos')).toBeInTheDocument()
-    expect(screen.getByText('Cursos')).toBeInTheDocument()
     expect(screen.getByText('Desarrollo Web')).toBeInTheDocument()
     expect(screen.getByText('Marketing Digital')).toBeInTheDocument()
   })
@@ -188,7 +185,7 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText('Curso / ciclo *')).toBeInTheDocument()
     })
 
     const submitButton = screen.getByRole('button', { name: /Crear Convocatoria/ })
@@ -224,7 +221,7 @@ describe('NuevaConvocatoriaPage', () => {
     })
   })
 
-  it('reloads teachers filtered by the selected course area', async () => {
+  it('keeps active teachers visible after selecting a course area so the selector can explain why each one is unavailable', async () => {
     mockAllFetches({
       cycles: sampleCycles,
       courses: sampleCourses,
@@ -234,18 +231,24 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText('Curso / ciclo *')).toBeInTheDocument()
     })
 
-    const selects = screen.getAllByTestId('select')
-    fireEvent.change(selects[0], { target: { value: 'course:1' } })
+    fireEvent.change(screen.getByLabelText('Tipo de formación *'), { target: { value: 'privados' } })
+    fireEvent.change(screen.getByLabelText('Área'), { target: { value: '7' } })
+    fireEvent.change(screen.getByLabelText('Curso / ciclo *'), { target: { value: 'course:1' } })
 
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/staff?type=profesor&status=active&limit=100&qualifiedArea=7'),
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    const staffCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls.filter(
+      ([url]) => String(url).includes('/api/staff?'),
+    )
+
+    expect(staffCalls).toEqual([
+      [
+        '/api/staff?type=profesor&status=active&limit=100',
         expect.objectContaining({ cache: 'no-store' }),
-      )
-    })
+      ],
+    ])
   })
 
   it('creates inline teachers with the selected course qualified area', async () => {
@@ -258,10 +261,12 @@ describe('NuevaConvocatoriaPage', () => {
     render(<NuevaConvocatoriaPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Ciclo / Curso *')).toBeInTheDocument()
+      expect(screen.getByText('Curso / ciclo *')).toBeInTheDocument()
     })
 
-    fireEvent.change(screen.getAllByTestId('select')[0], { target: { value: 'course:1' } })
+    fireEvent.change(screen.getByLabelText('Tipo de formación *'), { target: { value: 'privados' } })
+    fireEvent.change(screen.getByLabelText('Área'), { target: { value: '7' } })
+    fireEvent.change(screen.getByLabelText('Curso / ciclo *'), { target: { value: 'course:1' } })
     fireEvent.click(screen.getByTitle('Crear nuevo profesor'))
 
     await waitFor(() => {
