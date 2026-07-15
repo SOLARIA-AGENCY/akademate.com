@@ -21,7 +21,8 @@ fi
 cookie_file="$(mktemp)"
 login_body="$(mktemp)"
 session_body="$(mktemp)"
-trap 'rm -f "$cookie_file" "$login_body" "$session_body"' EXIT
+convocatorias_body="$(mktemp)"
+trap 'rm -f "$cookie_file" "$login_body" "$session_body" "$convocatorias_body"' EXIT
 
 base_url="${BASE_URL%/}"
 
@@ -49,6 +50,14 @@ node -e '
 
 curl --fail --silent --show-error \
   --cookie "$cookie_file" \
-  "$base_url/api/convocatorias" >/dev/null
+  "$base_url/api/convocatorias" >"$convocatorias_body"
+
+node -e '
+  const fs = require("node:fs")
+  const body = JSON.parse(fs.readFileSync(process.argv[1], "utf8"))
+  if (body.success !== true || !Array.isArray(body.data) || body.warning) {
+    throw new Error("convocatorias response is not operational")
+  }
+' "$convocatorias_body"
 
 echo "Authenticated smoke passed for $base_url"
