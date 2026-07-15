@@ -3,6 +3,8 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { PublicPageHero } from '../../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../_components/public-hero-assets'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,10 +51,16 @@ export default async function PublicSedesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-semibold text-slate-950">Nuestras sedes</h1>
-      <p className="mt-4 max-w-3xl text-slate-600">Dos centros en Tenerife con atención académica personalizada, instalaciones propias y equipo docente especializado.</p>
-      <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+    <div>
+      <PublicPageHero
+        eyebrow="Estamos cerca de ti"
+        title="Nuestras sedes"
+        description="Dos centros en Tenerife con atención académica personalizada, instalaciones propias y equipo docente especializado."
+        imageSrc={CEP_PUBLIC_HERO_ASSETS.sedes}
+        imageAlt="Estudiantes y coordinadora en un campus de Tenerife"
+      />
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {campusResult.docs.map((campus: any) => (
           <article key={campus.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
             {resolveImageUrl(campus.image) ? (
@@ -76,6 +84,7 @@ export default async function PublicSedesPage() {
             </div>
           </article>
         ))}
+      </div>
       </div>
     </div>
   )

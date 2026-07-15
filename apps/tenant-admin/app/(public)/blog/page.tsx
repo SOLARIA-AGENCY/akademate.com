@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { STATIC_BLOG_POSTS } from './staticPosts'
+import { PublicPageHero } from '../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../_components/public-hero-assets'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,19 +45,13 @@ export default async function BlogIndexPage() {
 
   return (
     <div className="bg-white">
-      <section className="border-b border-slate-200 bg-slate-950 text-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <span className="inline-flex rounded-full bg-[#f2014b] px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
-            Blog CEP
-          </span>
-          <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight sm:text-5xl">
-            Orientación, formación y empleo para decidir con criterio
-          </h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-white/75">
-            Artículos prácticos sobre cursos, teleformación, empleabilidad y próximos pasos profesionales.
-          </p>
-        </div>
-      </section>
+      <PublicPageHero
+        eyebrow="Blog CEP"
+        title="Orientación, formación y empleo para decidir con criterio"
+        description="Artículos prácticos sobre cursos, teleformación, empleabilidad y próximos pasos profesionales."
+        imageSrc={CEP_PUBLIC_HERO_ASSETS.blog}
+        imageAlt="Estudiante consultando recursos de formación"
+      />
 
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

@@ -13,6 +13,8 @@ import {
   getPublicConvocationHref,
   getRunPrice,
 } from '@/app/lib/public-convocations'
+import { PublicPageHero } from '../../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../_components/public-hero-assets'
 
 export const metadata: Metadata = {
   title: 'Convocatorias Abiertas',
@@ -55,13 +57,17 @@ export default async function ConvocatoriasPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Convocatorias Abiertas</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Inscríbete en nuestras convocatorias activas.
-        </p>
-      </div>
+    <div>
+      <PublicPageHero
+        eyebrow="Plazas y próximas fechas"
+        title="Convocatorias Abiertas"
+        description="Consulta las próximas fechas, sedes y modalidades disponibles e inscríbete en la formación que encaja contigo."
+        imageSrc={CEP_PUBLIC_HERO_ASSETS.convocatorias}
+        imageAlt="Estudiantes conversando con una coordinadora en una sede de formación"
+        actions={[{ href: '/cursos', label: 'Explorar cursos', variant: 'secondary' }]}
+      />
+
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 
       {convocatorias.length === 0 ? (
         <div className="text-center py-16 text-gray-500">
@@ -174,6 +180,7 @@ export default async function ConvocatoriasPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

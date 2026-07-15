@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from '@payload-config/components/ui/select'
 import { Textarea } from '@payload-config/components/ui/textarea'
+import { PublicPageHero } from '../../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../_components/public-hero-assets'
 
 export default function ContactoPage() {
   const searchParams = useSearchParams()
@@ -113,14 +115,16 @@ export default function ContactoPage() {
   }
 
   return (
-    <div style={{ minHeight: '80vh', padding: '40px 20px', fontFamily: 'Arial, sans-serif', background: '#f4f4f5' }}>
+    <>
+      <PublicPageHero
+        eyebrow="Orientación personalizada"
+        title="Contacta con nosotros"
+        description="Resolvemos tus dudas sobre cursos, ciclos, convocatorias y próximos pasos formativos."
+        imageSrc={CEP_PUBLIC_HERO_ASSETS.orientacion}
+        imageAlt="Asesora conversando con una estudiante"
+      />
+      <div style={{ minHeight: '80vh', padding: '40px 20px', fontFamily: 'Arial, sans-serif', background: '#f4f4f5' }}>
       <div style={{ maxWidth: 900, margin: '0 auto' }}>
-
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <h1 style={{ fontSize: 32, color: '#111', margin: '0 0 8px', fontWeight: 700 }}>Contacta con nosotros</h1>
-          <p style={{ fontSize: 16, color: '#6b7280', margin: 0 }}>Resolvemos todas tus dudas sobre nuestra oferta formativa</p>
-        </div>
 
         <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' as const }}>
 
@@ -269,5 +273,6 @@ export default function ContactoPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../../_components/public-hero-assets'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,7 +53,7 @@ export default async function SedePublicPage({ params }: Props) {
   const campus = await getCampus(slug)
   if (!campus || campus.active === false) notFound()
 
-  const imageUrl = resolveImageUrl(campus.image)
+  const imageUrl = resolveImageUrl(campus.image) || CEP_PUBLIC_HERO_ASSETS.sedes
   const photos = Array.isArray(campus.photos) ? campus.photos : []
   const staff = Array.isArray(campus.staff_members)
     ? campus.staff_members.filter((member: any) => typeof member === 'object' && member?.staff_type === 'profesor')

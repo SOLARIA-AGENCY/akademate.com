@@ -3,6 +3,8 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import Link from 'next/link'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { PublicPageHero } from '../../../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../../_components/public-hero-assets'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
 
 export const dynamic = 'force-dynamic'
@@ -83,12 +85,15 @@ export default async function PublicSedeDetailPage({ params }: { params: Promise
   const canEmbedMap = mapsUrl.includes('google.com/maps/embed')
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-      {resolveImageUrl(campus.image) ? (
-        <img src={resolveImageUrl(campus.image) ?? ''} alt={campus.name} className="h-[28rem] w-full rounded-3xl object-cover" />
-      ) : null}
-      <h1 className="mt-10 text-4xl font-semibold text-slate-950">{campus.name}</h1>
-      <p className="mt-4 text-lg text-slate-600">{campus.description || defaultDescription}</p>
+    <div>
+      <PublicPageHero
+        eyebrow="Sede CEP Formación"
+        title={campus.name}
+        description={campus.description || defaultDescription}
+        imageSrc={resolveImageUrl(campus.image) ?? CEP_PUBLIC_HERO_ASSETS.sedes}
+        imageAlt={campus.name}
+      />
+      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mt-10 grid gap-6 rounded-3xl border border-slate-200 bg-white p-8 md:grid-cols-2">
         <div>
           <h2 className="text-lg font-semibold text-slate-950">Datos de contacto</h2>
@@ -174,6 +179,7 @@ export default async function PublicSedeDetailPage({ params }: { params: Promise
           </div>
         )}
       </section>
+      </div>
     </div>
   )
 }

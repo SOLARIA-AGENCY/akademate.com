@@ -7,6 +7,8 @@ import {
 } from '@/app/lib/server/published-courses'
 import { getPublicStudyTypeFallbackImage, normalizePublicStudyType } from '@/app/lib/website/study-types'
 import { CoursesCatalogView, type CourseGroup } from './CoursesCatalogView'
+import { PublicPageHero } from '../../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../_components/public-hero-assets'
 
 export const metadata: Metadata = {
   title: 'Cursos | Formación Profesional',
@@ -19,10 +21,6 @@ function getReadableTypeLabel(type: string | null | undefined): string {
   const normalized = normalizePublicStudyType(type)
   if (!normalized || !(normalized in DEFAULT_STUDY_TYPE_VISUALS)) return 'Catálogo de cursos'
   return DEFAULT_STUDY_TYPE_VISUALS[normalized as keyof typeof DEFAULT_STUDY_TYPE_VISUALS].label
-}
-
-function buildHeroStyle(color: string) {
-  return { background: `linear-gradient(135deg, ${color} 0%, #0f172a 100%)` }
 }
 
 const COURSE_SECTIONS = [
@@ -60,10 +58,13 @@ export function buildCourseGroups(courses: Awaited<ReturnType<typeof getPublishe
 export default async function CursosCatalogPage({
   searchParams,
 }: {
-  searchParams?: { tipo?: string | string[] }
+  searchParams?: Promise<{ tipo?: string | string[] }>
 }) {
   const tenant = await getTenantHostBranding()
-  const rawTipo = Array.isArray(searchParams?.tipo) ? searchParams?.tipo[0] : searchParams?.tipo
+  const resolvedSearchParams = await searchParams
+  const rawTipo = Array.isArray(resolvedSearchParams?.tipo)
+    ? resolvedSearchParams.tipo[0]
+    : resolvedSearchParams?.tipo
   const selectedStudyType = normalizePublicStudyType(rawTipo)
   const studyTypeVisualMap = await getStudyTypeVisualMap()
   const selectedStudyTypeMeta =
@@ -81,33 +82,28 @@ export default async function CursosCatalogPage({
   })
 
   const heroColor = selectedStudyTypeMeta?.color || tenant.primaryColor || '#0F172A'
-  const heroImageUrl = selectedStudyType ? getPublicStudyTypeFallbackImage(selectedStudyType) : null
+  const heroImageUrl =
+    (selectedStudyType ? getPublicStudyTypeFallbackImage(selectedStudyType) : null) ||
+    CEP_PUBLIC_HERO_ASSETS.cursos
   const pageLabel = getReadableTypeLabel(rawTipo)
   const visibleSections = buildCourseGroups(courses)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div
-        className="relative mb-12 overflow-hidden rounded-3xl px-6 py-10 text-white shadow-sm sm:px-10"
-        style={!heroImageUrl ? buildHeroStyle(heroColor) : undefined}
-      >
-        {heroImageUrl ? (
-          <img
-            src={heroImageUrl}
-            alt={selectedStudyTypeMeta?.label || 'Cursos'}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold mb-3">Cursos</h1>
-          <p className="text-lg text-white/85 max-w-3xl">
-            {selectedStudyTypeMeta
-              ? `${pageLabel}. Programas orientados a empleabilidad real y formación aplicada en Canarias.`
-              : 'Cursos especializados de formación profesional y desarrollo de competencias.'}
-          </p>
-        </div>
-      </div>
+    <div>
+      <PublicPageHero
+        eyebrow={selectedStudyTypeMeta?.label || 'Catálogo formativo'}
+        title="Cursos"
+        description={
+          selectedStudyTypeMeta
+            ? `${pageLabel}. Programas orientados a empleabilidad real y formación aplicada en Canarias.`
+            : 'Cursos especializados de formación profesional y desarrollo de competencias.'
+        }
+        imageSrc={heroImageUrl}
+        imageAlt={selectedStudyTypeMeta?.label || 'Estudiantes en una formación profesional'}
+        actions={[{ href: '/convocatorias', label: 'Ver próximas fechas' }]}
+      />
+
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 
       {courses.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-gray-500">
@@ -125,6 +121,7 @@ export default async function CursosCatalogPage({
       ) : (
         <CoursesCatalogView groups={visibleSections} visualMap={studyTypeVisualMap} fallbackColor={heroColor} />
       )}
+      </div>
     </div>
   )
 }

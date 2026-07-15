@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { findStaticBlogPost } from '../staticPosts'
+import { PublicPageHero } from '../../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../_components/public-hero-assets'
 
 export const dynamic = 'force-dynamic'
 
@@ -129,15 +131,13 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
   return (
     <article className="bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <header className="bg-slate-950 text-white">
-        <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f2014b]">
-            {category} · {readingTime ? `${readingTime} · ` : ''}{new Date(date).toLocaleDateString('es-ES')}
-          </p>
-          <h1 className="mt-5 text-4xl font-black leading-tight tracking-tight sm:text-5xl">{title}</h1>
-          {excerpt ? <p className="mt-5 text-lg leading-8 text-white/75">{excerpt}</p> : null}
-        </div>
-      </header>
+      <PublicPageHero
+        eyebrow={`${category} · ${readingTime ? `${readingTime} · ` : ''}${new Date(date).toLocaleDateString('es-ES')}`}
+        title={title}
+        description={excerpt}
+        imageSrc={imageUrl ?? CEP_PUBLIC_HERO_ASSETS.blog}
+        imageAlt={title}
+      />
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-8">
         <div>
         {imageUrl ? <img src={imageUrl} alt={title} className="h-[28rem] w-full rounded-2xl object-cover shadow-lg" /> : null}

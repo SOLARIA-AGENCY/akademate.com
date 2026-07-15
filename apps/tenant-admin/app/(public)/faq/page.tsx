@@ -1,5 +1,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { PublicPageHero } from '../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../_components/public-hero-assets'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,16 +26,24 @@ export default async function FaqIndexPage() {
   })
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-semibold text-slate-950">Preguntas frecuentes</h1>
-      <p className="mt-4 text-slate-600">Contenido dinámico para resolver dudas habituales sobre matrícula, oferta y funcionamiento.</p>
-      <div className="mt-10 space-y-4">
+    <div>
+      <PublicPageHero
+        eyebrow="Te acompañamos antes de matricularte"
+        title="Preguntas frecuentes"
+        description="Resuelve tus dudas sobre matrícula, oferta formativa, modalidades y el funcionamiento de CEP Formación."
+        imageSrc={CEP_PUBLIC_HERO_ASSETS.orientacion}
+        imageAlt="Asesora orientando a una estudiante"
+        actions={[{ href: '/contacto', label: 'Hablar con orientación' }]}
+      />
+      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="space-y-4">
         {result.docs.map((faq: any) => (
           <details key={faq.id} className="rounded-2xl border border-slate-200 bg-white p-6">
             <summary className="cursor-pointer text-lg font-semibold text-slate-950">{faq.question}</summary>
             <p className="mt-4 text-sm leading-7 text-slate-600">{extractPlainText(faq.answer) || 'Respuesta disponible próximamente.'}</p>
           </details>
         ))}
+      </div>
       </div>
     </div>
   )

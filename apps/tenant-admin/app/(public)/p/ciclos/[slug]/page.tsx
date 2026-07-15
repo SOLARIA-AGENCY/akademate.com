@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { LeadForm } from './LeadForm'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../../_components/public-hero-assets'
 
 export const dynamic = 'force-dynamic'
 
@@ -149,7 +150,10 @@ export default async function CicloLandingPage({ params }: Props) {
     depth: 1,
   })
   const linkedCourse = (linkedCoursesResult.docs as any[]).find((course) => getRelationId(course.cycle) === String(cycle.id))
-  const imageUrl = resolveImageUrl(linkedCourse?.featured_image) || resolveImageUrl(cycle.image)
+  const imageUrl =
+    resolveImageUrl(linkedCourse?.featured_image) ||
+    resolveImageUrl(cycle.image) ||
+    CEP_PUBLIC_HERO_ASSETS.ciclos
   const modules = cycle.modules || []
   const requirements = cycle.requirements || []
   const careerPaths = cycle.careerPaths || []

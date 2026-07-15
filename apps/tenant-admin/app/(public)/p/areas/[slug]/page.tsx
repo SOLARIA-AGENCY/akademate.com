@@ -15,6 +15,8 @@ import {
   PublicInfoGrid,
   PublicMediaBadge,
 } from '../../../_components/PublicShadcnPrimitives'
+import { PublicPageHero } from '../../../_components/PublicPageHero'
+import { getAreaHeroAsset } from '../../../_components/public-hero-assets'
 import { Card, CardContent } from '@payload-config/components/ui/card'
 
 export const dynamic = 'force-dynamic'
@@ -145,15 +147,14 @@ export default async function PublicAreaPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-white">
-      <section className="bg-slate-950 px-4 py-16 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <p className="text-sm font-black uppercase tracking-[0.28em] text-red-200">Área de formación</p>
-          <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">{title}</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-white/75">
-            Programas disponibles en esta especialidad, con modalidad, duración y convocatorias actualizadas.
-          </p>
-        </div>
-      </section>
+      <PublicPageHero
+        eyebrow="Área de formación"
+        title={title}
+        description="Programas disponibles en esta especialidad, con modalidad, duración y convocatorias actualizadas."
+        imageSrc={getAreaHeroAsset(slug)}
+        imageAlt={`Formación de ${title}`}
+        actions={[{ href: '/cursos', label: 'Ver todo el catálogo', variant: 'secondary' }]}
+      />
 
       <section className="mx-auto max-w-7xl space-y-14 px-4 py-14 sm:px-6 lg:px-8">
         {groupedCourses.map((group) => (

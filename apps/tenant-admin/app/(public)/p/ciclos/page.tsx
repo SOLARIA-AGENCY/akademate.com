@@ -4,6 +4,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { PublicPageHero } from '../../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../../_components/public-hero-assets'
 
 export const metadata: Metadata = {
   title: 'Ciclos Formativos',
@@ -121,21 +123,23 @@ export default async function CiclosCatalogPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto mb-12 max-w-4xl text-center">
-        <p className="mb-3 text-sm font-black uppercase tracking-[0.28em] text-[var(--brand)]">
-          Titulación oficial
-        </p>
-        <h1 className="text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-          Ciclos Formativos
-        </h1>
-        <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-slate-600">
-          Formación Profesional oficial de{' '}
-          <strong className="font-bold text-slate-950">Grado Medio</strong> y{' '}
-          <strong className="font-bold text-slate-950">Grado Superior</strong>, con orientación
-          académica, acompañamiento cercano y prácticas profesionales.
-        </p>
-      </div>
+    <div>
+      <PublicPageHero
+        eyebrow="Titulación oficial"
+        title="Ciclos Formativos"
+        description={
+          <>
+            Formación Profesional oficial de <strong className="font-bold text-white">Grado Medio</strong> y{' '}
+            <strong className="font-bold text-white">Grado Superior</strong>, con orientación académica,
+            acompañamiento cercano y prácticas profesionales.
+          </>
+        }
+        imageSrc={CEP_PUBLIC_HERO_ASSETS.ciclos}
+        imageAlt="Estudiantes y docente en un entorno de formación profesional"
+        actions={[{ href: '/convocatorias', label: 'Ver convocatorias' }]}
+      />
+
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 
       {cycles.length === 0 ? (
         <div className="py-16 text-center text-slate-500">
@@ -259,6 +263,7 @@ export default async function CiclosCatalogPage() {
           })}
         </div>
       )}
+      </div>
     </div>
   )
 }

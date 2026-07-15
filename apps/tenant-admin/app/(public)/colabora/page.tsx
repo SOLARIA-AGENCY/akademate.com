@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { ArrowRight, BriefcaseBusiness, Building2, Handshake, HeartHandshake, Lightbulb, Presentation, School, UsersRound } from 'lucide-react'
 import { ColaboraForm } from './ColaboraForm'
+import { PublicPageHero } from '../_components/PublicPageHero'
+import { CEP_PUBLIC_HERO_ASSETS } from '../_components/public-hero-assets'
 
 export const metadata = {
   title: 'Colabora con CEP Formación | Empleo, prácticas, docencia y empresas',
@@ -70,24 +72,27 @@ export default function ColaboraPage() {
   return (
     <main className="bg-white text-slate-950">
       <section className="relative overflow-hidden bg-slate-950 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_83%_18%,rgba(242,1,75,0.3),transparent_35%)]" aria-hidden="true" />
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
-          <div className="flex flex-col justify-center">
-            <h1 className="max-w-3xl text-balance text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">Crece, enseña y colabora con CEP Formación</h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/78">Abrimos oportunidades para profesionales, estudiantes, empresas y entidades que quieren generar impacto a través de la formación.</p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <a href="#oportunidades" className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f2014b] px-6 text-sm font-black text-white transition hover:bg-[#d0013f]">Ver oportunidades</a>
-              <a href="#solicitud" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 text-sm font-black text-white transition hover:bg-white/10">Enviar una solicitud</a>
+        <PublicPageHero
+          eyebrow="Red CEP Formación"
+          title="Crece, enseña y colabora con CEP Formación"
+          description="Abrimos oportunidades para profesionales, estudiantes, empresas y entidades que quieren generar impacto a través de la formación."
+          imageSrc={CEP_PUBLIC_HERO_ASSETS.colabora}
+          imageAlt="Profesionales colaborando alrededor de una mesa"
+          actions={[
+            { href: '#oportunidades', label: 'Ver oportunidades' },
+            { href: '#solicitud', label: 'Enviar una solicitud', variant: 'secondary' },
+          ]}
+        />
+      </section>
+
+      <section className="border-b border-slate-200 bg-slate-50">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:grid-cols-3 sm:px-6 lg:px-8">
+          {commitments.map((commitment, index) => (
+            <div key={commitment} className="border-l-2 border-[#f2014b] px-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#f2014b]">0{index + 1}</p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{commitment}</p>
             </div>
-          </div>
-          <div className="grid content-center gap-4 sm:grid-cols-3 lg:grid-cols-1">
-            {commitments.map((commitment, index) => (
-              <div key={commitment} className="border-l-2 border-[#f2014b] bg-white/[0.06] px-5 py-5">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#ff8bb3]">0{index + 1}</p>
-                <p className="mt-2 text-sm font-semibold leading-6 text-white/90">{commitment}</p>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </section>
 
