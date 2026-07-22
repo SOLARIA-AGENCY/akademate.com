@@ -85,4 +85,24 @@ describe('Dashboard listing primitives', () => {
     expect(stat.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(search.compareDocumentPosition(content) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
+
+  it('supports a compact single-line desktop toolbar without preventing mobile wrapping', () => {
+    const { container } = render(
+      <DashboardToolbar
+        desktopSingleLine
+        searchValue=""
+        onSearchChange={() => undefined}
+        filters={<button type="button">Estado</button>}
+        actions={<button type="button">Exportar</button>}
+      />
+    )
+
+    const row = container.querySelector('[data-slot="dashboard-toolbar-row"]')
+    const search = container.querySelector('[data-slot="dashboard-toolbar-search"]')
+    const filters = container.querySelector('[data-slot="dashboard-toolbar-filters"]')
+
+    expect(row).toHaveClass('flex-wrap', 'lg:flex-nowrap')
+    expect(search).toHaveClass('basis-full', 'lg:basis-auto')
+    expect(filters).toHaveClass('w-full', 'lg:w-auto', 'lg:flex-nowrap')
+  })
 })

@@ -347,6 +347,7 @@ export default function ProfesoresPage() {
       stats={stats}
       toolbar={
         <DashboardToolbar
+          desktopSingleLine
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
           searchPlaceholder="Buscar por nombre, email, departamento..."
@@ -357,12 +358,16 @@ export default function ProfesoresPage() {
                 onValueChange={setFilterDepartment}
                 data-oid="mrhrz82"
               >
-                <SelectTrigger className="w-full min-w-[200px] md:w-[240px]" data-oid="9cxbj.j">
-                  <SelectValue placeholder="Todos los departamentos" data-oid="d9jzw43" />
+                <SelectTrigger
+                  aria-label="Filtrar por departamento"
+                  className="w-full min-w-[160px] sm:w-[180px]"
+                  data-oid="9cxbj.j"
+                >
+                  <SelectValue placeholder="Departamento" data-oid="d9jzw43" />
                 </SelectTrigger>
                 <SelectContent data-oid="el2al_u">
                   <SelectItem value="all" data-oid="r-jroyq">
-                    Todos los departamentos
+                    Departamento
                   </SelectItem>
                   {departments.map((dept) => (
                     <SelectItem key={dept} value={dept} data-oid="a.:d.aa">
@@ -373,12 +378,16 @@ export default function ProfesoresPage() {
               </Select>
 
               <Select value={filterStatus} onValueChange={setFilterStatus} data-oid="h95d028">
-                <SelectTrigger className="w-full min-w-[180px] md:w-[210px]" data-oid="hfo3rek">
-                  <SelectValue placeholder="Todos los estados" data-oid="sbtozd9" />
+                <SelectTrigger
+                  aria-label="Filtrar por estado"
+                  className="w-full min-w-[140px] sm:w-[150px]"
+                  data-oid="hfo3rek"
+                >
+                  <SelectValue placeholder="Estado" data-oid="sbtozd9" />
                 </SelectTrigger>
                 <SelectContent data-oid="7b:8uhb">
                   <SelectItem value="all" data-oid="f-e6w5g">
-                    Todos los estados
+                    Estado
                   </SelectItem>
                   <SelectItem value="active" data-oid="tm3l5zf">
                     Activos
@@ -407,19 +416,33 @@ export default function ProfesoresPage() {
                 }}
                 data-oid="0d.n:bw"
               >
-                Limpiar filtros
+                Limpiar
               </Button>
             ) : null
           }
           actions={
             <>
-              <Button type="button" variant="outline" size="sm" onClick={handlePrint}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
+                aria-label="Imprimir profesores"
+                title="Imprimir profesores"
+              >
                 <Printer className="h-4 w-4" />
-                Imprimir
+                <span className="hidden xl:inline">Imprimir</span>
               </Button>
-              <Button type="button" variant="outline" size="sm" onClick={handleCsv}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCsv}
+                aria-label="Descargar profesores en CSV"
+                title="Descargar profesores en CSV"
+              >
                 <Download className="h-4 w-4" />
-                Descargar CSV
+                <span className="hidden xl:inline">Descargar CSV</span>
               </Button>
             </>
           }

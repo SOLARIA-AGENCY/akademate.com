@@ -129,6 +129,7 @@ export interface DashboardToolbarProps {
   clearAction?: React.ReactNode
   actions?: React.ReactNode
   viewToggle?: React.ReactNode
+  desktopSingleLine?: boolean
   className?: string
 }
 
@@ -140,14 +141,27 @@ export function DashboardToolbar({
   clearAction,
   actions,
   viewToggle,
+  desktopSingleLine = false,
   className,
 }: DashboardToolbarProps) {
   return (
     <Card className={cn('border-border/80 shadow-sm', className)}>
       <CardContent className="p-4 sm:p-5">
-        <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
+        <div
+          className={cn(
+            'flex flex-wrap items-center gap-3 xl:flex-nowrap',
+            desktopSingleLine && 'lg:flex-nowrap lg:gap-2'
+          )}
+          data-slot="dashboard-toolbar-row"
+        >
           {typeof searchValue === 'string' && onSearchChange ? (
-            <div className="relative min-w-[240px] flex-1">
+            <div
+              className={cn(
+                'relative min-w-[240px] flex-1',
+                desktopSingleLine && 'min-w-0 basis-full sm:basis-64 lg:min-w-48 lg:basis-auto'
+              )}
+              data-slot="dashboard-toolbar-search"
+            >
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={searchValue}
@@ -157,9 +171,28 @@ export function DashboardToolbar({
               />
             </div>
           ) : null}
-          {filters ? <div className="flex flex-1 flex-wrap items-center gap-3 xl:flex-none">{filters}</div> : null}
+          {filters ? (
+            <div
+              className={cn(
+                'flex flex-1 flex-wrap items-center gap-3 xl:flex-none',
+                desktopSingleLine && 'w-full lg:w-auto lg:flex-none lg:flex-nowrap lg:gap-2'
+              )}
+              data-slot="dashboard-toolbar-filters"
+            >
+              {filters}
+            </div>
+          ) : null}
           {clearAction ? <div className="flex flex-wrap items-center gap-2">{clearAction}</div> : null}
-          {actions ? <div className="flex flex-wrap items-center gap-2 xl:ml-auto">{actions}</div> : null}
+          {actions ? (
+            <div
+              className={cn(
+                'flex flex-wrap items-center gap-2 xl:ml-auto',
+                desktopSingleLine && 'lg:ml-auto lg:flex-nowrap'
+              )}
+            >
+              {actions}
+            </div>
+          ) : null}
           {viewToggle ? <div className="ml-auto flex items-center">{viewToggle}</div> : null}
         </div>
       </CardContent>

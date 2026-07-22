@@ -99,6 +99,27 @@ describe('PersonalListItem', () => {
     expect(screen.getByText('Sede Norte')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Ver ficha' })).toBeInTheDocument()
   })
+
+  it('keeps the profile action compact and right-aligned instead of stretching across the row', () => {
+    render(
+      <PersonalListItem
+        teacher={{
+          id: '12',
+          firstName: 'Sandra',
+          lastName: 'Martínez Ballesteros',
+          position: 'Docente',
+          staffType: 'profesor',
+          active: true,
+          qualifiedAreas: [{ id: 5, nombre: 'Área Sanitaria y Clínica' }],
+        }}
+      />
+    )
+
+    const action = screen.getByRole('button', { name: 'Ver ficha' })
+
+    expect(action).toHaveClass('w-fit', 'sm:justify-self-end', 'lg:row-start-1')
+    expect(action).not.toHaveClass('w-full')
+  })
 })
 
 describe('StaffCard', () => {
