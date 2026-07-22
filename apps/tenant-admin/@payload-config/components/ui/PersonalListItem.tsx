@@ -215,7 +215,7 @@ export function PersonalListItem({
 
         <Button
           size="sm"
-          className="col-start-2 h-8 w-fit max-w-full justify-self-start px-4 text-xs font-semibold uppercase tracking-wide sm:justify-self-end lg:col-start-auto lg:row-start-1 lg:h-8 lg:justify-self-end"
+          className="col-start-2 h-8 w-fit max-w-full justify-self-start px-4 text-xs font-semibold uppercase tracking-wide sm:justify-self-end lg:col-start-3 lg:row-start-1 lg:h-8 lg:justify-self-end"
           onClick={(e) => {
             e.stopPropagation()
             onClick?.()

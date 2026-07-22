@@ -117,7 +117,12 @@ describe('PersonalListItem', () => {
 
     const action = screen.getByRole('button', { name: 'Ver ficha' })
 
-    expect(action).toHaveClass('w-fit', 'sm:justify-self-end', 'lg:row-start-1')
+    expect(action).toHaveClass(
+      'w-fit',
+      'sm:justify-self-end',
+      'lg:col-start-3',
+      'lg:row-start-1'
+    )
     expect(action).not.toHaveClass('w-full')
   })
 })
