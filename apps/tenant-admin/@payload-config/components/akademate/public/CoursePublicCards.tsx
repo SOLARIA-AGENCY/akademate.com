@@ -21,7 +21,28 @@ export interface PublicCourseCardData {
   enrollmentStatus?: 'open' | 'published' | 'none' | string | null
   imagenPortada: string
   areaColor?: string | null
-  nextRun?: { campusLabel?: string | null; href?: string | null; startDate?: string | null } | null
+  nextRun?: {
+    campusLabel?: string | null
+    campusHref?: string | null
+    href?: string | null
+    startDate?: string | null
+  } | null
+}
+
+export function normalizePublicCampusLabel(value: string | null | undefined): string {
+  const rawName = String(value || '').split(' · ')[0].trim()
+  const normalized = rawName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+
+  if (normalized.includes('santa cruz')) return 'Sede CEP SANTA CRUZ'
+  if (normalized.includes('norte')) return 'Sede CEP NORTE'
+  if (normalized.includes('sur')) return 'Sede CEP SUR'
+  if (!rawName) return 'Sede por confirmar'
+
+  const location = rawName.replace(/^sede\s+/i, '').replace(/^cep\s+/i, '').trim()
+  return location ? `Sede CEP ${location.toLocaleUpperCase('es-ES')}` : 'Sede por confirmar'
 }
 
 export function getPublicCourseUi(course: PublicCourseCardData) {
@@ -40,7 +61,10 @@ export function getPublicCourseUi(course: PublicCourseCardData) {
     imageUrl: course.imagenPortada,
     availabilityLabel: startLabel,
     statusLabel: isOpen ? 'Matrícula abierta' : 'Próximamente',
-    campusLabel: isTeleformacion ? '100% online · desde casa' : course.nextRun?.campusLabel || 'Sede por confirmar',
+    campusLabel: isTeleformacion
+      ? '100% online'
+      : normalizePublicCampusLabel(course.nextRun?.campusLabel),
+    campusHref: isTeleformacion ? null : course.nextRun?.campusHref || null,
     modalityLabel: isTeleformacion ? 'Online a tu ritmo' : course.modality === 'online' ? 'Online' : 'Presencial',
     description: isTeleformacion && !course.descripcion
       ? 'Formación online para avanzar a tu ritmo, con matrícula abierta permanente.'
@@ -107,11 +131,8 @@ export function CoursePublicListItem({
     const href = course.enrollmentStatus === 'open' && course.nextRun?.href ? course.nextRun.href : `/p/cursos/${course.slug}`
     const accentColor = course.areaColor || typeColor
     return (
-      <Link href={href} className="group block">
-        <div
-          className="grid gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm transition hover:border-rose-200 hover:bg-rose-50/35 hover:shadow-md sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
-        >
-          <div className="min-w-0">
+      <div className="group grid gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm transition hover:border-rose-200 hover:bg-rose-50/35 hover:shadow-md sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+          <Link href={href} className="min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400">
             <div className="flex min-w-0 items-center gap-3">
               <span className="h-10 w-14 shrink-0 overflow-hidden rounded-lg border-2 bg-slate-100" style={{ borderColor: accentColor }}>
                 <img src={ui.imageUrl} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
@@ -120,7 +141,7 @@ export function CoursePublicListItem({
                 {course.nombre}
               </h3>
             </div>
-          </div>
+          </Link>
           <div className="flex flex-wrap items-center gap-2 sm:justify-end">
             <span className={`inline-flex w-fit items-center justify-center rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white ${ui.isOpen ? 'bg-green-600' : 'bg-slate-500'}`}>
               {ui.statusLabel}
@@ -130,15 +151,25 @@ export function CoursePublicListItem({
                 Inicio {ui.availabilityLabel}
               </span>
             ) : null}
-            <span className="inline-flex max-w-full items-center justify-center truncate rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-bold text-slate-700 ring-1 ring-inset ring-slate-200" title={ui.campusLabel}>
-              {ui.campusLabel}
-            </span>
-            <span className="inline-flex w-fit items-center justify-center rounded-full bg-[#f2014b] px-3 py-1.5 text-xs font-black text-white transition group-hover:bg-[#d0013f]">
+            {ui.campusHref ? (
+              <Link
+                href={ui.campusHref}
+                aria-label={`Abrir ${ui.campusLabel}`}
+                className="inline-flex h-7 w-44 shrink-0 items-center justify-center truncate rounded-full bg-slate-100 px-3 text-[11px] font-bold uppercase tracking-wide text-slate-700 ring-1 ring-inset ring-slate-200 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                title={ui.campusLabel}
+              >
+                {ui.campusLabel}
+              </Link>
+            ) : (
+              <span className="inline-flex h-7 w-44 shrink-0 items-center justify-center truncate rounded-full bg-slate-100 px-3 text-[11px] font-bold uppercase tracking-wide text-slate-700 ring-1 ring-inset ring-slate-200" title={ui.campusLabel}>
+                {ui.campusLabel}
+              </span>
+            )}
+            <Link href={href} className="inline-flex w-fit items-center justify-center rounded-full bg-[#f2014b] px-3 py-1.5 text-xs font-black text-white transition hover:bg-[#d0013f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400">
               Ver curso
-            </span>
+            </Link>
           </div>
-        </div>
-      </Link>
+      </div>
     )
   }
 

@@ -71,7 +71,12 @@ type CourseRunDoc = {
   schedule_time_end?: string | null
   max_students?: number | null
   current_enrollments?: number | null
-  campus?: { name?: string | null; city?: string | null } | number | null
+  campus?: {
+    id?: number | string | null
+    name?: string | null
+    city?: string | null
+    slug?: string | null
+  } | number | null
 }
 
 type CourseTypeDoc = {
@@ -135,6 +140,7 @@ export type PublishedCourse = {
     endDate: string | null
     scheduleLabel: string
     campusLabel: string
+    campusHref: string | null
     availableSeats: number | null
   } | null
   totalConvocatorias: number
@@ -240,7 +246,13 @@ function toScheduleLabel(run: CourseRunDoc | null): string {
 
 function toCampusLabel(campus: CourseRunDoc['campus']): string {
   if (!campus || typeof campus !== 'object') return ''
-  return [campus.name, campus.city].filter(Boolean).join(' · ')
+  return String(campus.name || '').trim()
+}
+
+function toCampusHref(campus: CourseRunDoc['campus']): string | null {
+  if (!campus || typeof campus !== 'object') return null
+  const identifier = String(campus.slug || campus.id || '').trim()
+  return identifier ? `/p/sedes/${identifier}` : null
 }
 
 function toEnrollmentStatus(
@@ -287,6 +299,7 @@ function toEnrollmentStatus(
           endDate: nextRun.end_date ?? null,
           scheduleLabel: toScheduleLabel(nextRun),
           campusLabel: toCampusLabel(nextRun.campus),
+          campusHref: toCampusHref(nextRun.campus),
           availableSeats,
         }
       : null,
