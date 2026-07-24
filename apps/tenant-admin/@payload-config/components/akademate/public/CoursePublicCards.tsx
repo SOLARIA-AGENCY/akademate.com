@@ -5,6 +5,7 @@ import { Card, CardContent } from '@payload-config/components/ui/card'
 import { PublicCardCta } from './PublicCardCta'
 import { PublicInfoGrid, PublicInfoRows } from './PublicInfo'
 import { PublicMediaBadge } from './PublicBadges'
+import { formatPublicDate } from '@/app/lib/public-convocations'
 
 export interface PublicCourseCardData {
   id: string | number
@@ -20,17 +21,25 @@ export interface PublicCourseCardData {
   enrollmentStatus?: 'open' | 'published' | 'none' | string | null
   imagenPortada: string
   areaColor?: string | null
-  nextRun?: { campusLabel?: string | null; href?: string | null } | null
+  nextRun?: { campusLabel?: string | null; href?: string | null; startDate?: string | null } | null
 }
 
 export function getPublicCourseUi(course: PublicCourseCardData) {
   const isTeleformacion = course.studyType === 'teleformacion'
   const isSubsidized = course.studyType === 'ocupados' || course.studyType === 'desempleados'
+  const isOpen = course.enrollmentStatus === 'open'
+  const startLabel = isTeleformacion
+    ? 'Inicio inmediato'
+    : isOpen && course.nextRun?.startDate
+      ? formatPublicDate(course.nextRun.startDate, { day: '2-digit', month: 'short', year: 'numeric' })
+      : 'Fecha por confirmar'
   return {
     isTeleformacion,
     isSubsidized,
+    isOpen,
     imageUrl: course.imagenPortada,
-    availabilityLabel: isTeleformacion ? 'Inicio inmediato' : course.enrollmentLabel || 'Próximamente',
+    availabilityLabel: startLabel,
+    statusLabel: isOpen ? 'Matrícula abierta' : 'Próximamente',
     campusLabel: isTeleformacion ? '100% online · desde casa' : course.nextRun?.campusLabel || 'Sede por confirmar',
     modalityLabel: isTeleformacion ? 'Online a tu ritmo' : course.modality === 'online' ? 'Online' : 'Presencial',
     description: isTeleformacion && !course.descripcion
@@ -64,6 +73,7 @@ export function CoursePublicCard({ course }: { course: PublicCourseCardData }) {
           <div className="mb-4 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wide">
             <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{course.area || 'Formación'}</span>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{ui.modalityLabel}</span>
+            <span className={`rounded-full px-3 py-1 text-white ${ui.isOpen ? 'bg-green-600' : 'bg-slate-500'}`}>{ui.statusLabel}</span>
           </div>
           <p className="line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-slate-600">{ui.description}</p>
           <PublicInfoGrid
@@ -112,11 +122,17 @@ export function CoursePublicListItem({
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-            {course.enrollmentStatus === 'open' ? (
-              <span className="inline-flex w-fit items-center justify-center rounded-full bg-green-600 px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white">
-                Matrícula abierta
+            <span className={`inline-flex w-fit items-center justify-center rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white ${ui.isOpen ? 'bg-green-600' : 'bg-slate-500'}`}>
+              {ui.statusLabel}
+            </span>
+            {ui.isOpen ? (
+              <span className="inline-flex w-fit items-center justify-center rounded-full bg-rose-50 px-3 py-1.5 text-[11px] font-black text-rose-700 ring-1 ring-inset ring-rose-200">
+                Inicio {ui.availabilityLabel}
               </span>
             ) : null}
+            <span className="inline-flex max-w-full items-center justify-center truncate rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-bold text-slate-700 ring-1 ring-inset ring-slate-200" title={ui.campusLabel}>
+              {ui.campusLabel}
+            </span>
             <span className="inline-flex w-fit items-center justify-center rounded-full bg-[#f2014b] px-3 py-1.5 text-xs font-black text-white transition group-hover:bg-[#d0013f]">
               Ver curso
             </span>

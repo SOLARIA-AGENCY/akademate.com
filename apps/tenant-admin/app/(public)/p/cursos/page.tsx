@@ -9,6 +9,7 @@ import { getPublicStudyTypeFallbackImage, normalizePublicStudyType } from '@/app
 import { CoursesCatalogView, type CourseGroup } from './CoursesCatalogView'
 import { PublicPageHero } from '../../_components/PublicPageHero'
 import { CEP_PUBLIC_HERO_ASSETS } from '../../_components/public-hero-assets'
+import { compareCoursesByPublicAvailability } from '@/app/lib/public-course-availability'
 
 export const metadata: Metadata = {
   title: 'Cursos | Formación Profesional',
@@ -50,7 +51,9 @@ export function buildCourseGroups(courses: Awaited<ReturnType<typeof getPublishe
   return COURSE_SECTIONS
     .map((section) => ({
       ...section,
-      courses: courses.filter((course) => course.studyType === section.key),
+      courses: courses
+        .filter((course) => course.studyType === section.key)
+        .sort(compareCoursesByPublicAvailability),
     }))
     .filter((section) => section.courses.length > 0)
 }

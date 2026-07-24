@@ -8,6 +8,10 @@ import type { WebsitePage, WebsiteSection } from '@/app/lib/website/types'
 import { getGeneratedCourseImage, getPublicStudyTypeFallbackImage, normalizeStudyType } from '@/app/lib/website/study-types'
 import { HeroCarouselClient } from './HeroCarouselClient'
 import { TeacherCarouselClient } from './TeacherCarouselClient'
+import {
+  OpenConvocationsCarouselClient,
+  type OpenConvocationCard,
+} from './OpenConvocationsCarouselClient'
 import { BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-react'
 import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses'
 import { buildCourseGroups } from '../p/cursos/page'
@@ -17,6 +21,9 @@ import { Button } from '@payload-config/components/ui/button'
 import { Input } from '@payload-config/components/ui/input'
 import { Textarea } from '@payload-config/components/ui/textarea'
 import { getCourseRunEnrollmentStatusInfo } from '@/app/lib/course-run-enrollment-status'
+import {
+  selectEligiblePublicOpenRuns,
+} from '@/app/lib/public-course-availability'
 import {
   formatPublicCurrency,
   formatPublicDate,
@@ -846,30 +853,43 @@ async function ConvocationListSection({
     collection: 'course-runs',
     where: withTenantScope({ status: { in: ['published', 'enrollment_open'] } }, tenantId) as any,
     depth: 2,
-    limit: section.limit ?? 12,
+    limit: 1000,
     sort: 'start_date',
   })
 
-  const sortedDocs = [...(result.docs as any[])].sort((a, b) => {
-    const aCycle = a.cycle ? 0 : 1
-    const bCycle = b.cycle ? 0 : 1
-    if (aCycle !== bCycle) return aCycle - bCycle
-    return new Date(a.start_date || '9999-12-31').getTime() - new Date(b.start_date || '9999-12-31').getTime()
-  })
+  const openRuns = selectEligiblePublicOpenRuns(result.docs as any[])
 
-  const grouped = new Map<string, { title: string; city?: string; docs: any[] }>()
-  for (const conv of sortedDocs) {
+  const cards: OpenConvocationCard[] = openRuns.map((conv) => {
+    const course = typeof conv.course === 'object' ? conv.course : null
+    const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
     const campus = typeof conv.campus === 'object' && conv.campus ? conv.campus : null
-    const key = campus?.id ? String(campus.id) : 'online'
-    if (!grouped.has(key)) {
-      grouped.set(key, {
-        title: campus?.name || 'Modalidad Online / Sin sede fija',
-        city: campus?.city || undefined,
-        docs: [],
-      })
+    const displayName = normalizeNominativeText(cycle?.name || course?.name || course?.title || conv.codigo) || conv.codigo
+    const imageUrl =
+      resolveImageUrl(course?.featured_image) ||
+      resolveImageUrl(course?.image) ||
+      resolveImageUrl(cycle?.image) ||
+      getGeneratedCourseImage(course?.codigo) ||
+      getPublicStudyTypeFallbackImage(course?.course_type || (cycle ? 'ciclo_superior' : null))
+    const groupKey = campus?.id ? String(campus.id) : 'online'
+    const badge = getConvocationBadge({ course, cycle, conv, groupKey, displayName })
+    const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
+
+    return {
+      id: String(conv.id),
+      href: getPublicConvocationHref(conv),
+      title: displayName,
+      imageUrl,
+      badge,
+      enrollmentLabel: enrollmentInfo.publicLabel,
+      startDateLabel: formatPublicDate(conv.start_date, { day: '2-digit', month: 'short', year: 'numeric' }),
+      campusLabel: campus?.name || 'Modalidad Online / Sin sede fija',
+      scheduleLabel: formatRunSchedule(conv),
+      priceLabel: formatPublicCurrency(getRunPrice(conv, course, cycle)),
+      areaColor:
+        (course?.area_formativa && typeof course.area_formativa === 'object' && course.area_formativa.color) ||
+        getCourseTypeColor(course?.course_type || conv?.course_type),
     }
-    grouped.get(key)!.docs.push(conv)
-  }
+  })
 
   return (
     <section className="bg-slate-950 text-white">
@@ -886,76 +906,13 @@ async function ConvocationListSection({
             Ver todas
           </Link>
         </div>
-        <div className="mt-10 space-y-10">
-          {Array.from(grouped.entries()).map(([groupKey, group]) => (
-            <div key={groupKey}>
-              <div className="mb-5 flex items-center gap-2 text-sm font-semibold text-white/90">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-4.35 7-10a7 7 0 1 0-14 0c0 5.65 7 10 7 10Z" />
-                  <circle cx="12" cy="11" r="2.5" />
-                </svg>
-                <span>{group.title}{group.city ? ` — ${group.city}` : ''}</span>
-              </div>
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {group.docs.map((conv: any) => {
-            const course = typeof conv.course === 'object' ? conv.course : null
-            const cycle = typeof conv.cycle === 'object' ? conv.cycle : null
-            const displayName = normalizeNominativeText(cycle?.name || course?.name || course?.title || conv.codigo) || conv.codigo
-            const imageUrl =
-      resolveImageUrl(course?.featured_image) ||
-      resolveImageUrl(course?.image) ||
-      resolveImageUrl(cycle?.image) ||
-      getGeneratedCourseImage(course?.codigo) ||
-      getPublicStudyTypeFallbackImage(course?.course_type || (cycle ? 'ciclo_superior' : null))
-            const convocationBadge = getConvocationBadge({ course, cycle, conv, groupKey, displayName })
-            const enrollmentInfo = getCourseRunEnrollmentStatusInfo(conv)
-            const isCycleRun = Boolean(cycle)
-            const areaColor =
-              (course?.area_formativa && typeof course.area_formativa === 'object' && course.area_formativa.color) ||
-              getCourseTypeColor(course?.course_type || conv?.course_type)
-            return (
-              <Link
-                key={conv.id}
-                href={getPublicConvocationHref(conv)}
-                className={`group overflow-hidden rounded-3xl border bg-white transition hover:-translate-y-1 hover:shadow-2xl ${isCycleRun ? 'xl:col-span-2' : ''}`}
-                style={{ borderColor: areaColor }}
-              >
-                <div className={isCycleRun ? 'relative h-52' : 'relative h-40'}>
-                  {imageUrl ? <img src={imageUrl} alt={displayName} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full" style={{ backgroundColor: brandColor }} />}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  {convocationBadge ? (
-                    <span
-                      className="absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] shadow-lg"
-                      style={{ backgroundColor: convocationBadge.bgColor, color: convocationBadge.textColor }}
-                    >
-                      {convocationBadge.label}
-                    </span>
-                  ) : null}
-                  <div className="absolute bottom-5 left-5 right-5">
-                    <span className="mb-3 inline-flex rounded-full bg-green-600 px-3 py-1 text-xs font-semibold uppercase text-white">
-                      {enrollmentInfo.publicLabel}
-                    </span>
-                    <h3 className={isCycleRun ? 'text-2xl font-black leading-tight text-white' : 'line-clamp-2 text-lg font-black leading-tight text-white'}>{displayName}</h3>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-4 p-5 text-slate-950 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="grid gap-1 text-sm text-slate-700">
-                    <p><span className="font-semibold text-slate-950">Fecha:</span> {formatPublicDate(conv.start_date, { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-                    <p><span className="font-semibold text-slate-950">Sede:</span> {group.title}</p>
-                    <p><span className="font-semibold text-slate-950">Horario:</span> {formatRunSchedule(conv)}</p>
-                    <p><span className="font-semibold text-slate-950">Precio:</span> {formatPublicCurrency(getRunPrice(conv, course, cycle))}</p>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-[#f2014b] px-4 py-2 text-sm font-black text-white transition group-hover:bg-[#d0013f]">
-                    Ver convocatoria
-                  </span>
-                </div>
-              </Link>
-            )
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
+        {cards.length > 0 ? (
+          <OpenConvocationsCarouselClient cards={cards} brandColor={brandColor} />
+        ) : (
+          <div className="mt-10 rounded-3xl border border-white/15 bg-white/5 p-8 text-white/75">
+            No hay convocatorias con matrícula abierta en este momento. Consulta el listado completo para conocer las próximas fechas.
+          </div>
+        )}
       </div>
     </section>
   )
