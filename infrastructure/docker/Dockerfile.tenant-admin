@@ -51,8 +51,12 @@ RUN pnpm build
 # =============================================================================
 FROM base AS runner
 
+ARG VCS_REF=unknown
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV APP_REVISION=${VCS_REF}
+LABEL org.opencontainers.image.revision=${VCS_REF}
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

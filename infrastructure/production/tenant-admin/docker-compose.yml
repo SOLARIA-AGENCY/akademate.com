@@ -36,7 +36,9 @@ services:
     build:
       context: /opt/akademate/repo
       dockerfile: infrastructure/docker/Dockerfile.tenant-admin
-    image: akademate-tenant:latest
+      args:
+        VCS_REF: ${AKADEMATE_IMAGE_TAG:-unknown}
+    image: akademate-tenant:${AKADEMATE_IMAGE_TAG:-latest}
     container_name: akademate-tenant
     restart: unless-stopped
     depends_on:
@@ -57,6 +59,7 @@ services:
       NEXT_PUBLIC_WEB_URL: https://akademate.com
       NEXT_PUBLIC_TENANT_URL: https://app.akademate.com
       NEXT_TELEMETRY_DISABLED: "1"
+      APP_REVISION: ${AKADEMATE_IMAGE_TAG:-unknown}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       SMTP_USER: ${SMTP_USER}

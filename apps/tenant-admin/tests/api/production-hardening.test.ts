@@ -12,6 +12,7 @@ const originalNodeEnv = process.env.NODE_ENV
 const originalDevBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS
 const originalAllowDevLogin = process.env.ALLOW_DEV_LOGIN
 const originalAllowDevAutoLogin = process.env.ALLOW_DEV_AUTO_LOGIN
+const originalAppRevision = process.env.APP_REVISION
 
 function restoreEnvironment() {
   if (originalNodeEnv === undefined) delete process.env.NODE_ENV
@@ -25,6 +26,9 @@ function restoreEnvironment() {
 
   if (originalAllowDevAutoLogin === undefined) delete process.env.ALLOW_DEV_AUTO_LOGIN
   else process.env.ALLOW_DEV_AUTO_LOGIN = originalAllowDevAutoLogin
+
+  if (originalAppRevision === undefined) delete process.env.APP_REVISION
+  else process.env.APP_REVISION = originalAppRevision
 }
 
 afterEach(restoreEnvironment)
@@ -37,9 +41,14 @@ describe('production hardening', () => {
   })
 
   it('returns live without consulting dependencies', async () => {
+    process.env.APP_REVISION = '0123456789abcdef'
     const response = getLive()
     expect(response.status).toBe(200)
-    expect(await response.json()).toMatchObject({ status: 'ok', check: 'live' })
+    expect(await response.json()).toMatchObject({
+      status: 'ok',
+      check: 'live',
+      revision: '0123456789abcdef',
+    })
   })
 
   it('fails readiness closed when the database is not configured', async () => {
