@@ -42,6 +42,16 @@ type CourseRunDoc = CourseRunPlanningDoc & {
   training_type?: string
   practice_hours?: string | null
   certification_type?: string | null
+  created_by?: RelationValue
+}
+
+function canPatchCourseRun(
+  role: string | null,
+  userId: string | number,
+  courseRun: CourseRunDoc,
+): boolean {
+  if (role === 'superadmin' || role === 'admin' || role === 'gestor') return true
+  return role === 'marketing' && sameId(courseRun.created_by, userId)
 }
 
 const COURSE_RUN_STATUSES = new Set([
@@ -98,6 +108,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     })
     const current = existing.docs[0] as CourseRunDoc | undefined
     if (!current) return NextResponse.json({ error: 'Convocatoria no encontrada' }, { status: 404 })
+    if (!canPatchCourseRun(authContext.role, authContext.userId, current)) {
+      return NextResponse.json({ error: 'No tienes permisos para modificar esta convocatoria.' }, { status: 403 })
+    }
 
     const body = (await request.json()) as Record<string, unknown>
     const data: Record<string, unknown> = {}

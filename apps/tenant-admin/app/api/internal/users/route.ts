@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { queryRows } from '@/@payload-config/lib/db'
+import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
 
 /**
  * GET /api/internal/users — List users for the admin panel
@@ -11,12 +12,32 @@ import { queryRows } from '@/@payload-config/lib/db'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+const USER_MANAGER_ROLES = new Set(['superadmin', 'admin', 'gestor'])
+const ASSIGNABLE_ROLES = new Set(['admin', 'gestor', 'marketing', 'asesor', 'lectura'])
+
+function canAssignRole(actorRole: string, targetRole: string): boolean {
+  if (actorRole === 'superadmin') return ASSIGNABLE_ROLES.has(targetRole)
+  if (actorRole === 'admin') return targetRole !== 'superadmin' && ASSIGNABLE_ROLES.has(targetRole)
+  return actorRole === 'gestor' && !['superadmin', 'admin'].includes(targetRole) && ASSIGNABLE_ROLES.has(targetRole)
+}
+
+export async function GET(request: NextRequest) {
   try {
     const payload = await getPayload({ config: configPromise })
+    const authContext = await getAuthenticatedUserContext(request, payload)
+    if (!authContext) return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    if (!authContext.role || !USER_MANAGER_ROLES.has(authContext.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+    if (authContext.role !== 'superadmin' && !authContext.tenantId) {
+      return NextResponse.json({ error: 'Tenant scope required' }, { status: 403 })
+    }
 
     const users = await payload.find({
       collection: 'users',
+      ...(authContext.role === 'superadmin'
+        ? {}
+        : { where: { tenant: { equals: authContext.tenantId } } }),
       limit: 100,
       sort: '-createdAt',
       depth: 0,
@@ -26,11 +47,14 @@ export async function GET() {
     // Also fetch pending invitations
     let invitations: any[] = []
     try {
+      const invitationParams = authContext.role === 'superadmin' ? [] : [authContext.tenantId]
       invitations = await queryRows(
         `SELECT id, email, name, role, status, created_at, expires_at
          FROM user_invitations
          WHERE status = 'pending' AND expires_at > NOW()
+           ${authContext.role === 'superadmin' ? '' : 'AND tenant_id = $1'}
          ORDER BY created_at DESC`,
+        invitationParams,
       )
     } catch { /* table may not exist yet */ }
 
@@ -78,6 +102,19 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = await getPayload({ config: configPromise })
+    const authContext = await getAuthenticatedUserContext(request, payload)
+    if (!authContext) return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    if (!authContext.role || !USER_MANAGER_ROLES.has(authContext.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+    if (!authContext.tenantId) {
+      return NextResponse.json({ error: 'Tenant scope required' }, { status: 403 })
+    }
+
+    const requestedRole = typeof role === 'string' && role.trim() ? role.trim() : 'gestor'
+    if (!canAssignRole(authContext.role, requestedRole)) {
+      return NextResponse.json({ error: 'No puedes asignar ese rol' }, { status: 403 })
+    }
 
     const user = await (payload as any).create({
       collection: 'users',
@@ -88,10 +125,10 @@ export async function POST(request: NextRequest) {
         // This is CEP's internal administrative-user flow, not public signup.
         // A new collaborator needs the same academic management surface as the
         // rest of the CEP operations team unless an administrator selects a role.
-        role: role || 'gestor',
+        role: requestedRole,
         phone: phone || undefined,
         is_active: true,
-        tenant: 1,
+        tenant: authContext.tenantId,
       },
       overrideAccess: true,
     })

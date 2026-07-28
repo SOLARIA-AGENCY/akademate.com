@@ -19,6 +19,7 @@ describe('getAuthenticatedUserContext', () => {
     const payload = {
       auth: vi.fn().mockResolvedValue(null),
       db: { drizzle: { execute: vi.fn().mockResolvedValue({ rows: [{ tenant_id: 1 }] }) } },
+      findByID: vi.fn().mockResolvedValue({ id: 4, tenant: 1, role: 'gestor' }),
     }
 
     try {
@@ -29,7 +30,7 @@ describe('getAuthenticatedUserContext', () => {
         payload,
       )
 
-      expect(context).toEqual({ userId: 4, tenantId: 1 })
+      expect(context).toEqual({ userId: 4, tenantId: 1, role: 'gestor' })
       expect(jwtVerifyMock).toHaveBeenCalledOnce()
     } finally {
       if (previousSecret === undefined) delete process.env.PAYLOAD_SECRET

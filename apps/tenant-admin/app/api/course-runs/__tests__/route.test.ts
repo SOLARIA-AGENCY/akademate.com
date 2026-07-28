@@ -129,7 +129,7 @@ function installFindRouter(options?: {
 describe('/api/course-runs/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    authMock.mockResolvedValue({ userId: 31, tenantId })
+    authMock.mockResolvedValue({ userId: 31, tenantId, role: 'gestor' })
     payloadMock.update.mockResolvedValue({ ...currentRun, campus: { id: 1, name: 'Sede Norte' } })
     payloadMock.create.mockImplementation(async ({ data }: any) => ({ id: Math.random(), ...data }))
     installFindRouter()
@@ -141,6 +141,36 @@ describe('/api/course-runs/[id]', () => {
 
     expect(response.status).toBe(401)
     expect(payloadMock.find).not.toHaveBeenCalled()
+  })
+
+  it('rejects a read-only user before updating through overrideAccess', async () => {
+    authMock.mockResolvedValue({ userId: 31, tenantId, role: 'lectura' })
+
+    const response = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ start_date: '2026-09-15T00:00:00.000Z' }),
+    }), params())
+
+    expect(response.status).toBe(403)
+    expect(payloadMock.update).not.toHaveBeenCalled()
+  })
+
+  it('allows marketing to update only a run they created', async () => {
+    authMock.mockResolvedValue({ userId: 31, tenantId, role: 'marketing' })
+    installFindRouter({ currentOverrides: { created_by: 99 } })
+
+    const denied = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ start_date: '2026-09-15T00:00:00.000Z' }),
+    }), params())
+    expect(denied.status).toBe(403)
+
+    installFindRouter({ currentOverrides: { created_by: 31 } })
+    const allowed = await PATCH(new NextRequest('http://localhost/api/course-runs/84', {
+      method: 'PATCH',
+      body: JSON.stringify({ start_date: '2026-09-15T00:00:00.000Z' }),
+    }), params())
+    expect(allowed.status).toBe(200)
   })
 
   it('reads course runs through tenant scope', async () => {

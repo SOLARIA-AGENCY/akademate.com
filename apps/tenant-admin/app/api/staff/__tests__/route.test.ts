@@ -37,7 +37,7 @@ async function loadRoute() {
 describe('/api/staff qualified areas', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    authMock.mockResolvedValue(null)
+    authMock.mockResolvedValue({ userId: 9, tenantId: 1, role: 'gestor' })
     sqlMock.unsafe.mockResolvedValue([])
     payloadMock.findByID.mockResolvedValue({
       id: 44,
@@ -60,6 +60,27 @@ describe('/api/staff qualified areas', () => {
       }
       return { id: 1, ...data }
     })
+  })
+
+  it.each([
+    ['GET', 'http://localhost/api/staff'],
+    ['POST', 'http://localhost/api/staff'],
+    ['PUT', 'http://localhost/api/staff?id=44'],
+    ['DELETE', 'http://localhost/api/staff?id=44'],
+  ] as const)('rejects unauthenticated %s before reading or writing staff data', async (method, url) => {
+    authMock.mockResolvedValue(null)
+    const route = await loadRoute()
+    const response = await route[method](new NextRequest(url, {
+      method,
+      ...(method === 'POST' || method === 'PUT'
+        ? { body: JSON.stringify({}), headers: { 'Content-Type': 'application/json' } }
+        : {}),
+    }))
+
+    expect(response.status).toBe(401)
+    expect(sqlMock.unsafe).not.toHaveBeenCalled()
+    expect(payloadMock.create).not.toHaveBeenCalled()
+    expect(payloadMock.update).not.toHaveBeenCalled()
   })
 
   it('filters active teachers by qualified area when requested', async () => {

@@ -3,6 +3,12 @@ import { jwtVerify } from 'jose'
 
 const SESSION_COOKIE_NAMES = ['akademate_session', 'cep_session'] as const
 
+export type AuthenticatedUserContext = {
+  userId: string | number
+  tenantId: number | null
+  role: string | null
+}
+
 function toPositiveInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value
   if (typeof value === 'string' && /^\d+$/.test(value)) return parseInt(value, 10)
@@ -79,10 +85,7 @@ async function findTenantIdByUserId(payload: any, userId: string | number): Prom
   }
 }
 
-async function authViaPayload(payload: any, token: string): Promise<{
-  userId: string | number
-  tenantId: number | null
-} | null> {
+async function authViaPayload(payload: any, token: string): Promise<AuthenticatedUserContext | null> {
   const attempts = [
     new Headers({ cookie: `payload-token=${token}` }),
     new Headers({
@@ -105,6 +108,7 @@ async function authViaPayload(payload: any, token: string): Promise<{
           id?: string | number
           tenantId?: string | number
           tenant?: string | number | { id?: string | number }
+          role?: string
         }
       } | null
 
@@ -120,6 +124,7 @@ async function authViaPayload(payload: any, token: string): Promise<{
       return {
         userId,
         tenantId,
+        role: typeof authResult?.user?.role === 'string' ? authResult.user.role : null,
       }
     } catch {
       // Continue with next strategy
@@ -129,10 +134,7 @@ async function authViaPayload(payload: any, token: string): Promise<{
   return null
 }
 
-async function authViaJWT(payload: any, token: string): Promise<{
-  userId: string | number
-  tenantId: number | null
-} | null> {
+async function authViaJWT(payload: any, token: string): Promise<AuthenticatedUserContext | null> {
   const secret = process.env.PAYLOAD_SECRET
   if (!secret) return null
 
@@ -142,10 +144,6 @@ async function authViaJWT(payload: any, token: string): Promise<{
     if (!userId) return null
 
     const tenantFromDb = await findTenantIdByUserId(payload, userId)
-    if (tenantFromDb !== null) {
-      return { userId, tenantId: tenantFromDb }
-    }
-
     const user = await payload.findByID({
       collection: 'users',
       id: userId,
@@ -154,11 +152,13 @@ async function authViaJWT(payload: any, token: string): Promise<{
     }) as {
       tenantId?: string | number
       tenant?: string | number | { id?: string | number }
+      role?: string
     } | null
 
     return {
       userId,
-      tenantId: resolveTenantId(user),
+      tenantId: tenantFromDb ?? resolveTenantId(user),
+      role: typeof user?.role === 'string' ? user.role : null,
     }
   } catch {
     return null
@@ -168,7 +168,7 @@ async function authViaJWT(payload: any, token: string): Promise<{
 export async function getAuthenticatedUserContext(
   request: NextRequest,
   payload: any,
-): Promise<{ userId: string | number; tenantId: number | null } | null> {
+): Promise<AuthenticatedUserContext | null> {
   const token = request.cookies.get('payload-token')?.value ?? parseSessionToken(request)
   if (!token) return null
 

@@ -510,6 +510,12 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const payload = await initPayload()
+    const authContext = await getAuthenticatedUserContext(request, payload)
+    if (!authContext?.tenantId) {
+      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const rawStaffType =
       searchParams.get('type') ??
@@ -767,6 +773,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const payload = await initPayload()
+    const authContext = await getAuthenticatedUserContext(request, payload)
+    if (!authContext?.tenantId) {
+      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
+    }
+
     const body = (await request.json()) as CreateStaffBody
     const {
       staffType,
@@ -858,9 +870,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: nifValidation.error }, { status: 400 })
     }
     const normalizedNif = nifValidation.value
-
-    const payload = await initPayload()
-    const authContext = await getAuthenticatedUserContext(request, payload)
 
     const emailConflict = await findStaffIdentityConflict({
       payload,
@@ -978,6 +987,12 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
+    const payload = await initPayload()
+    const authContext = await getAuthenticatedUserContext(request, payload)
+    if (!authContext?.tenantId) {
+      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 
@@ -1024,9 +1039,6 @@ export async function PUT(request: NextRequest) {
           : nextStatus === 'temporary_leave'
             ? 'Baja temporal manual desde ficha docente'
             : 'Baja manual desde ficha docente')
-      const payload = await initPayload()
-      const authContext = await getAuthenticatedUserContext(request, payload)
-
       const updatedRows = await sql.begin(async (tx) => {
         const updated = await tx`
           UPDATE staff
@@ -1088,8 +1100,6 @@ export async function PUT(request: NextRequest) {
       })
     }
 
-    const payload = await initPayload()
-    const authContext = await getAuthenticatedUserContext(request, payload)
     const staffId = parseInt(id)
     const current = (await payload.findByID({
       collection: 'staff',
@@ -1303,6 +1313,12 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
+    const payload = await initPayload()
+    const authContext = await getAuthenticatedUserContext(request, payload)
+    if (!authContext?.tenantId) {
+      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 
@@ -1310,8 +1326,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'ID requerido' }, { status: 400 })
     }
 
-    const payload = await initPayload()
-    const authContext = await getAuthenticatedUserContext(request, payload)
     const current = (await payload.findByID({
       collection: 'staff',
       id: parseInt(id),
