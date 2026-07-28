@@ -40,6 +40,7 @@ import { StaffStatusEvents } from './collections/StaffStatusEvents/StaffStatusEv
 import { Tenants } from './collections/Tenants/Tenants'
 import { ApiKeys } from './collections/ApiKeys/ApiKeys';
 import { CourseTypes } from './collections/CourseTypes/CourseTypes';
+import { getCepMultiEntityShadowCollections } from './collections/MultiEntityShadow/MultiEntityShadow';
 
 // LMS Collections
 import { Modules } from './collections/Modules/Modules';
@@ -135,6 +136,9 @@ export const getPayloadConfig = () => buildConfig({
 
     // ===== CATALOG =====
     CourseTypes, // ✅ Course types by audience (Desempleados, Ocupados, Teleformacion)
+
+    // ===== CEP MULTI-ENTITY SHADOW (default-off, deny-all, non-production only) =====
+    ...getCepMultiEntityShadowCollections(),
   ],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET ?? 'YOUR_SECRET_HERE',
