@@ -24,19 +24,19 @@ export function LegalPage({
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main id="contenido" className="flex-1 bg-background px-4 py-12 sm:px-6 sm:py-16">
+      <main id="content" className="flex-1 bg-background px-4 py-12 sm:px-6 sm:py-16">
         <article className="mx-auto max-w-3xl">
           <Link href="/" className="text-sm font-medium text-primary hover:underline">
-            ← Volver a Akademate
+            ← Back to Akademate
           </Link>
           <header className="mt-8 border-b pb-8">
-            <p className="text-sm font-medium text-primary">Información legal de Akademate</p>
+            <p className="text-sm font-medium text-primary">Akademate legal information</p>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
             <p className="mt-4 leading-7 text-muted-foreground">{description}</p>
             <p className="mt-4 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm leading-6 text-amber-950">
               {legalDraftNotice}
             </p>
-            <p className="mt-4 text-sm text-muted-foreground">Última actualización: {legalLastUpdated}</p>
+            <p className="mt-4 text-sm text-muted-foreground">Last updated: {legalLastUpdated}</p>
           </header>
 
           <div className="space-y-10 py-10">
@@ -54,8 +54,8 @@ export function LegalPage({
           </div>
 
           <aside className="border-t py-8 text-sm leading-7 text-muted-foreground">
-            <h2 className="font-semibold text-foreground">Identidad del prestador</h2>
-            <p className="mt-3">Prestador: {legalCompany.name}.</p>
+            <h2 className="font-semibold text-foreground">Provider identity</h2>
+            <p className="mt-3">Provider: {legalCompany.name}.</p>
             <dl className="mt-3 space-y-3">
               {[
                 legalCompany.registryCode,
@@ -72,8 +72,8 @@ export function LegalPage({
             </dl>
           </aside>
 
-          <nav aria-label="Documentos legales" className="border-t py-8">
-            <h2 className="text-sm font-semibold">Documentos relacionados</h2>
+          <nav aria-label="Legal documents" className="border-t py-8">
+            <h2 className="text-sm font-semibold">Related documents</h2>
             <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-3">
               {legalLinks.map((link) => (
                 <li key={link.href}>

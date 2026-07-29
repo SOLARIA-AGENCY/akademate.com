@@ -11,7 +11,7 @@ describe('central legal contract', () => {
     expect(legalCompany.name).toBe('SOLARIA AGENCY OÜ')
     for (const field of [legalCompany.registryCode, legalCompany.vatId, legalCompany.registeredOffice, legalCompany.operatingAddress, legalCompany.privacyContact]) {
       expect(field.value).toBeNull()
-      expect(formatLegalField(field)).toMatch(/pendiente|provisional/i)
+      expect(formatLegalField(field)).toMatch(/pending/i)
     }
     expect(JSON.stringify(legalCompany)).not.toMatch(/FORMACI[ÓO]N CEP CANARIAS|cursostenerife|Plaza José Antonio/i)
   })
@@ -24,14 +24,14 @@ describe('central legal contract', () => {
 
   it('renders badges as regulatory information, never certification', () => {
     const markup = renderToStaticMarkup(React.createElement(ComplianceBadges))
-    expect(markup).toContain('Privacidad y RGPD')
-    expect(markup).toContain('Transparencia de IA')
-    expect(markup).toContain('no constituye certificación ni sello oficial')
-    expect(legalDraftNotice).toContain('No constituye asesoramiento jurídico')
+    expect(markup).toContain('Privacy and GDPR')
+    expect(markup).toContain('AI transparency')
+    expect(markup).toContain('not a certification or official seal')
+    expect(legalDraftNotice).toContain('not legal advice')
   })
 
   it('documents why no consent manager is installed', () => {
     expect(trackingPolicy.currentStatus).toBe('no-non-essential-trackers')
-    expect(trackingPolicy.activationGate).toMatch(/consentimiento granular y fail-closed/i)
+    expect(trackingPolicy.activationGate).toMatch(/granular fail-closed consent/i)
   })
 })

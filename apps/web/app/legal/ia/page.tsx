@@ -1,13 +1,10 @@
 import type { Metadata } from 'next'
 import { LegalPage } from '@/components/legal/LegalPage'
 
-export const metadata: Metadata = { title: 'Transparencia de IA', alternates: { canonical: '/legal/ia' } }
-
-export default function AiTransparencyPage() {
-  return <LegalPage title="Transparencia de IA" description="Disponibilidad, límites y controles aplicables a integraciones de inteligencia artificial y MCP." sections={[
-    { title: 'Disponibilidad', content: <p>Existe una integración técnica MCP en el producto. Las herramientas, proveedores, credenciales y datos accesibles dependen del despliegue y de la autorización de cada organización. No se afirma compatibilidad universal.</p> },
-    { title: 'Supervisión humana', content: <p>Las salidas pueden ser inexactas o incompletas. Deben revisarse antes de ejecutar o publicar acciones y no sustituyen decisiones educativas, legales, financieras o de alto impacto.</p> },
-    { title: 'Datos y permisos', content: <p>Cada integración debe limitarse al tenant, rol, recurso y finalidad autorizados. Activar un proveedor externo requiere validar contrato, flujo de datos y configuración.</p> },
-    { title: 'Sin certificación', content: <p>Esta información no es un sello de RGPD, Reglamento de IA o seguridad, ni una aprobación regulatoria. Una evaluación independiente puede seguir siendo necesaria.</p> },
-  ]} />
-}
+export const metadata: Metadata = { title: 'AI transparency', alternates: { canonical: '/legal/ia' } }
+export default function AiTransparencyPage() { return <LegalPage title="AI transparency" description="How AI-assisted tools, human oversight and data boundaries are approached in Akademate." sections={[
+  { title: 'AI-assisted operations', content: <p>Akademate can connect AI-assisted tools to operational workflows through governed interfaces, including MCP. Available tools, providers, credentials and accessible data are determined by the organisation’s deployment and authorisation model.</p> },
+  { title: 'Human oversight', content: <p>AI output can be incomplete or inaccurate. Meaningful educational, legal, financial or high-impact decisions require appropriate human review.</p> },
+  { title: 'Data and permissions', content: <p>Each integration must remain within the authorised organisation, role, resource and purpose. External providers require the relevant contractual, data-flow and configuration review.</p> },
+  { title: 'Regulatory information', content: <p>References to GDPR, the EU AI Act, ISO 27001, SOC 2 or security frameworks describe governance orientation. They are not official seals, regulatory approval or a claim that a certification or audit report has been obtained.</p> },
+]} /> }

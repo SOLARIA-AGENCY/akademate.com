@@ -1,163 +1,196 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Boxes, Building2, CheckCircle2, CircleDashed, ServerCog, Settings2 } from 'lucide-react'
-import { ComplianceBadges } from '@/components/legal/ComplianceBadges'
+import { ArrowRight, Bot, CalendarDays, Check, Network, Sparkles, UsersRound } from 'lucide-react'
+import { AcademyProof } from '@/components/marketing/AcademyProof'
+import { GovernanceFrameworks } from '@/components/marketing/GovernanceFrameworks'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { aiCapability, publicCapabilities } from '@/lib/product-capabilities'
+import { blogPosts } from '@/lib/blog-posts'
+import { operatingJourney, plans } from '@/lib/marketing-content'
 
 export const metadata: Metadata = {
-  title: 'Akademate | Gestión académica para centros de formación',
-  description:
-    'Base SaaS de gestión académica en preparación para apertura multitenant y despliegues Enterprise aislados bajo contrato.',
+  title: 'The AI-assisted operating system for academies',
+  description: 'Run students, courses, schedules, teams, communications and insight from one connected academy operating system.',
   alternates: { canonical: '/' },
 }
 
-const statusStyle = {
-  available: { icon: CheckCircle2, className: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
-  configured: { icon: Settings2, className: 'text-blue-700 bg-blue-50 border-blue-200' },
-  validation: { icon: CircleDashed, className: 'text-amber-800 bg-amber-50 border-amber-200' },
-} as const
+const aiActions = [
+  'Surface the next operational action',
+  'Prepare clear summaries and communications',
+  'Work inside role and organisation boundaries',
+  'Keep people in control of meaningful decisions',
+] as const
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="min-h-screen bg-white text-[#071633]">
       <Header />
-      <main id="contenido" className="flex-1">
-        <section className="relative overflow-hidden border-b px-4 py-20 sm:px-6 sm:py-28">
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.12),transparent_42%)]" />
-          <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.15fr_0.85fr]">
-            <div>
-              <p className="inline-flex rounded-full border bg-background px-3 py-1 text-sm font-medium text-primary">
-                SaaS multitenant en preparación · Enterprise bajo contrato
-              </p>
-              <h1 className="mt-6 max-w-4xl text-4xl font-bold tracking-tight sm:text-6xl">
-                Una base de producto, dos modelos de servicio claramente separados
+      <main id="content">
+        <section className="hero-enter relative flex min-h-[calc(100svh-73px)] items-end overflow-hidden bg-[#071633] text-white">
+          <Image
+            src="/images/marketing/akademate-hero-operations.jpg"
+            alt="Academy director coordinating a teaching day while an adult class takes place"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[62%_center]"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,15,39,.94)_0%,rgba(3,15,39,.78)_38%,rgba(3,15,39,.16)_72%,rgba(3,15,39,.08)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(3,15,39,.6),transparent_45%)]" />
+          <div className="relative mx-auto w-full max-w-7xl px-4 pb-8 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8 lg:pb-24">
+            <div className="max-w-3xl">
+              <p className="hero-item text-sm font-semibold uppercase tracking-[0.22em] text-blue-200">AI-assisted academy operations</p>
+              <h1 className="hero-item mt-4 max-w-3xl text-[2.55rem] font-semibold leading-[.98] tracking-[-0.055em] sm:mt-5 sm:text-6xl lg:text-[5.4rem] lg:leading-[.96]">
+                Run your academy from one intelligent operating system.
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
-                akademate.com presenta el futuro SaaS multitenant, todavía no abierto al alta pública. Los clientes Enterprise reciben una instancia aislada, configurada y operada bajo su propio contrato.
+              <p className="hero-item mt-5 max-w-2xl text-base leading-7 text-white/85 sm:mt-7 sm:text-xl sm:leading-8">
+                Bring students, courses, schedules, teams, communications and insight into one connected workspace — built for in-person and online education.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/contacto" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:bg-primary/90">
-                  Hablar sobre tu centro <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              <div className="hero-item mt-6 flex flex-row gap-2 sm:mt-9 sm:gap-3">
+                <Link href="/contacto?asunto=demo" className="button-primary-light group px-4 sm:px-6">
+                  Book a demo <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </Link>
-                <Link href="/login" className="inline-flex min-h-11 items-center justify-center rounded-md border bg-background px-5 py-3 font-medium hover:bg-muted">
-                  Acceso clientes
-                </Link>
-              </div>
-              <div className="mt-8 max-w-xl">
-                <ComplianceBadges />
+                <Link href="/features" className="button-ghost-light px-4 sm:px-6"><span className="sm:hidden">Explore</span><span className="hidden sm:inline">Explore the platform</span></Link>
               </div>
             </div>
-
-            <aside className="rounded-3xl border bg-card p-7 shadow-sm" aria-label="Límite de la promesa de producto">
-              <Building2 className="h-9 w-9 text-primary" aria-hidden="true" />
-              <h2 className="mt-5 text-xl font-semibold">Separación de producto y despliegue</h2>
-              <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                Las capacidades visibles describen la base general de Akademate. CEP Formación opera en su despliegue Enterprise aislado; su configuración no define automáticamente el futuro SaaS multitenant.
-              </p>
-              <ul className="mt-6 space-y-3 text-sm">
-                <li className="rounded-lg bg-muted/60 p-3">akademate.com: superficie del SaaS general en preparación.</li>
-                <li className="rounded-lg bg-muted/60 p-3">Enterprise: instancia aislada por cliente y alcance contractual.</li>
-                <li className="rounded-lg bg-muted/60 p-3">CEP: cliente Enterprise de referencia, no plantilla legal pública.</li>
-              </ul>
-            </aside>
           </div>
         </section>
 
-        <section id="modelos" className="border-b px-4 py-20 sm:px-6">
+        <AcademyProof />
+
+        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-3xl">
-              <p className="text-sm font-semibold text-primary">Modelos de servicio</p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Dos sistemas paralelos, responsabilidades distintas</h2>
-              <p className="mt-4 leading-7 text-muted-foreground">Comparten una base de producto, pero no comparten automáticamente despliegue, datos, configuración, identidad legal del cliente ni contrato.</p>
+              <p className="section-kicker">One connected operation</p>
+              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">From first enquiry to lasting learner progress.</h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Akademate connects the moments that make an academy work, so every team sees the same journey and knows what comes next.</p>
             </div>
-            <div className="mt-10 grid gap-6 lg:grid-cols-2">
-              <article className="rounded-3xl border bg-card p-7">
-                <Boxes className="h-8 w-8 text-primary" aria-hidden="true" />
-                <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-primary">akademate.com</p>
-                <h3 className="mt-2 text-2xl font-semibold">Akademate SaaS multitenant</h3>
-                <p className="mt-4 leading-7 text-muted-foreground">Superficie corporativa y futura oferta SaaS compartida. Se abrirá más adelante cuando alta, planes, aislamiento, permisos y operación superen sus gates. Hoy no se presenta como autoservicio disponible.</p>
-                <p className="mt-5 rounded-xl bg-muted/60 p-4 text-sm font-medium">Estado: producto y apertura multitenant en preparación.</p>
-              </article>
-              <article className="rounded-3xl border bg-card p-7">
-                <ServerCog className="h-8 w-8 text-primary" aria-hidden="true" />
-                <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-primary">Plan Enterprise</p>
-                <h3 className="mt-2 text-2xl font-semibold">Instancia aislada por cliente</h3>
-                <p className="mt-4 leading-7 text-muted-foreground">Despliegue dedicado, configuración y alcance definidos bajo contrato. cepformacion.akademate.com es la instancia Enterprise aislada de CEP Formación. El patrón podrá aplicarse a otros clientes sin reutilizar su identidad, datos o acuerdos.</p>
-                <p className="mt-5 rounded-xl bg-muted/60 p-4 text-sm font-medium">Estado: disponible únicamente mediante implantación y contrato específicos.</p>
-              </article>
-            </div>
+
+            <ol className="mt-16 grid border-y border-slate-200 md:grid-cols-5">
+              {operatingJourney.map((item) => (
+                <li key={item.step} className="group border-b border-slate-200 py-8 md:border-b-0 md:border-r md:px-6 first:md:pl-0 last:md:border-r-0">
+                  <span className="font-mono text-xs text-blue-700">{item.step}</span>
+                  <h3 className="mt-10 text-2xl font-semibold tracking-tight">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
-        <section id="capacidades" className="scroll-mt-24 px-4 py-20 sm:px-6">
-          <div className="mx-auto max-w-7xl">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold text-primary">Capacidades y estado</p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Qué existe y bajo qué límite</h2>
-              <p className="mt-4 leading-7 text-muted-foreground">
-                Cada tarjeta separa capacidad técnica de disponibilidad comercial u operativa.
-              </p>
-            </div>
-            <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {publicCapabilities.map((capability) => {
-                const style = statusStyle[capability.status]
-                const Icon = style.icon
-                return (
-                  <article key={capability.title} className="rounded-2xl border bg-card p-6">
-                    <div className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-semibold ${style.className}`}>
-                      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                      {capability.statusLabel}
-                    </div>
-                    <h3 className="mt-5 text-lg font-semibold">{capability.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{capability.description}</p>
-                    <p className="mt-4 border-t pt-4 text-xs leading-5 text-muted-foreground">
-                      Límite: {capability.evidenceBoundary}
-                    </p>
-                  </article>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section id="integraciones" className="scroll-mt-24 border-y bg-muted/30 px-4 py-20 sm:px-6">
-          <div className="mx-auto max-w-5xl rounded-3xl border bg-background p-7 sm:p-10">
-            <p className="text-sm font-semibold text-primary">IA y MCP</p>
-            <div className="mt-3 grid gap-8 lg:grid-cols-2">
+        <section className="overflow-hidden bg-[#071633] text-white">
+          <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+              <div className="media-reveal relative aspect-[3/2] overflow-hidden rounded-[2rem]">
+                <Image src="/images/marketing/akademate-in-person-academy.jpg" alt="Adult vocational academy class working with a teacher" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+              </div>
               <div>
-                <h2 className="text-3xl font-bold tracking-tight">{aiCapability.title}</h2>
-                <p className="mt-4 leading-7 text-muted-foreground">{aiCapability.description}</p>
-                <p className="mt-5 inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
-                  {aiCapability.statusLabel}
-                </p>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-200">On campus</p>
+                <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">The teaching day, orchestrated.</h2>
+                <p className="mt-6 text-lg leading-8 text-blue-100/80">Coordinate cohorts, rooms, teachers, attendance and learner context without rebuilding the day across separate tools.</p>
+                <div className="mt-10 grid gap-6 sm:grid-cols-2">
+                  <FeatureLine icon={CalendarDays} title="Schedules that connect" text="Programmes, course runs, rooms and people in one planning context." />
+                  <FeatureLine icon={UsersRound} title="Every learner visible" text="Enrolment, attendance and progress stay part of the same journey." />
+                </div>
               </div>
-              <ul className="space-y-3">
-                {aiCapability.limitations.map((limitation) => (
-                  <li key={limitation} className="rounded-xl border bg-muted/30 p-4 text-sm leading-6 text-muted-foreground">
-                    {limitation}
-                  </li>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-20">
+            <div className="order-2 lg:order-1">
+              <p className="section-kicker">Online and hybrid</p>
+              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">One academy, wherever learning happens.</h2>
+              <p className="mt-6 text-lg leading-8 text-slate-600">Connect the digital learner experience to the same programmes, teams and operational rhythm that run your physical academy.</p>
+              <Link href="/blog/one-operation-in-person-online-academies" className="mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900">
+                Read the operating model <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
+            <div className="media-reveal relative order-1 aspect-[3/2] overflow-hidden rounded-[2rem] lg:order-2">
+              <Image src="/images/marketing/akademate-online-academy.jpg" alt="Adult educator delivering a live online lesson from an academy studio" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+            </div>
+          </div>
+        </section>
+
+        <section id="ai" className="bg-blue-700 px-4 py-20 text-white sm:px-6 lg:px-8 lg:py-28">
+          <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:gap-20">
+            <div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10"><Sparkles className="h-7 w-7" aria-hidden="true" /></div>
+              <p className="mt-8 text-sm font-semibold uppercase tracking-[0.22em] text-blue-100">AI inside the operation</p>
+              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Assistance that understands the work.</h2>
+              <p className="mt-6 text-lg leading-8 text-blue-50/85">Akademate brings AI to the context where academy teams plan, communicate and decide — with permissions and human review built into the workflow.</p>
+            </div>
+            <div className="rounded-[2rem] bg-[#071633] p-6 shadow-2xl shadow-blue-950/20 sm:p-9">
+              <div className="flex items-center gap-3 border-b border-white/10 pb-6">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500"><Bot className="h-5 w-5" aria-hidden="true" /></div>
+                <div><p className="font-semibold">Akademate intelligence</p><p className="text-sm text-blue-200">Contextual · permission-aware · human-led</p></div>
+              </div>
+              <ul className="mt-7 space-y-5">
+                {aiActions.map((action) => (
+                  <li key={action} className="flex items-start gap-4 text-blue-50"><span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20"><Check className="h-4 w-4" aria-hidden="true" /></span>{action}</li>
                 ))}
               </ul>
+              <Link href="/features#ai" className="mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-white hover:text-blue-200">Explore AI-assisted operations <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
             </div>
-            <Link href="/legal/ia" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
-              Leer transparencia de IA <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
           </div>
         </section>
 
-        <section className="px-4 py-20 text-center sm:px-6">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="text-3xl font-bold tracking-tight">Validemos el encaje antes de prometer un alcance</h2>
-            <p className="mt-4 leading-7 text-muted-foreground">Cuéntanos tus procesos, sedes e integraciones. La respuesta comercial debe distinguir lo disponible, lo configurable y lo que requiere desarrollo.</p>
-            <Link href="/contacto" className="mt-8 inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:bg-primary/90">
-              Contactar
-            </Link>
+        <GovernanceFrameworks />
+
+        <section id="pricing" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div><p className="section-kicker">Plans</p><h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Choose how Akademate runs for you.</h2></div>
+              <Link href="/pricing" className="inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900">Compare plans <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            </div>
+            <div className="mt-14 grid overflow-hidden rounded-[2rem] border border-slate-200 lg:grid-cols-2">
+              {plans.map((plan, index) => (
+                <article key={plan.name} className={`p-8 sm:p-12 ${index === 1 ? 'bg-[#071633] text-white' : 'bg-white'}`}>
+                  <p className={`text-sm font-semibold uppercase tracking-[0.18em] ${index === 1 ? 'text-blue-200' : 'text-blue-700'}`}>{plan.label}</p>
+                  <h3 className="mt-4 text-4xl font-semibold tracking-tight">{plan.name}</h3>
+                  <p className={`mt-5 max-w-xl leading-7 ${index === 1 ? 'text-blue-100/75' : 'text-slate-600'}`}>{plan.description}</p>
+                  <ul className="mt-8 space-y-3">
+                    {plan.features.slice(0, 4).map((feature) => <li key={feature} className="flex items-center gap-3 text-sm"><Check className={`h-4 w-4 ${index === 1 ? 'text-blue-300' : 'text-blue-700'}`} aria-hidden="true" />{feature}</li>)}
+                  </ul>
+                  <Link href={`/contacto?asunto=${plan.subject}`} className={index === 1 ? 'button-primary-light mt-9' : 'button-primary-dark mt-9'}>{plan.cta} <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-slate-50 px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex items-end justify-between gap-6"><div><p className="section-kicker">Field notes</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Ideas for running a better academy.</h2></div><Link href="/blog" className="hidden min-h-11 items-center gap-2 font-semibold text-blue-700 sm:inline-flex">View all resources <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link></div>
+            <div className="mt-12 grid gap-8 lg:grid-cols-2">
+              {blogPosts.map((post) => (
+                <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
+                  <div className="relative aspect-[16/9] overflow-hidden rounded-3xl"><Image src={post.image} alt={post.imageAlt} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover transition duration-700 group-hover:scale-[1.03]" /></div>
+                  <div className="mt-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-blue-700"><span>{post.category}</span><span className="h-1 w-1 rounded-full bg-blue-300" /><span>{post.readingTime}</span></div>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight transition-colors group-hover:text-blue-700 sm:text-3xl">{post.title}</h3>
+                  <p className="mt-3 max-w-2xl leading-7 text-slate-600">{post.excerpt}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-[#071633] px-6 py-16 text-center text-white sm:px-12 lg:py-24">
+            <Network className="mx-auto h-9 w-9 text-blue-300" aria-hidden="true" />
+            <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Your academy already has a rhythm. Give it one operating system.</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-blue-100/75">See how Akademate can connect your programmes, teams and learner journeys.</p>
+            <Link href="/contacto?asunto=demo" className="button-primary-light mt-9">Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
           </div>
         </section>
       </main>
       <Footer />
     </div>
   )
+}
+
+function FeatureLine({ icon: Icon, title, text }: { icon: typeof CalendarDays; title: string; text: string }) {
+  return <div><Icon className="h-6 w-6 text-blue-300" aria-hidden="true" /><h3 className="mt-4 font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-blue-100/65">{text}</p></div>
 }

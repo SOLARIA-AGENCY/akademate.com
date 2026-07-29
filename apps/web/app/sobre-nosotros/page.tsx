@@ -1,51 +1,17 @@
 import type { Metadata } from 'next'
-import { Building2, Scale, Wrench } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { ArrowRight, Compass, Layers3, Sparkles } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { legalCompany } from '@/lib/legal-config'
 
-export const metadata: Metadata = {
-  title: 'Sobre Akademate',
-  description: 'Producto SaaS de SOLARIA AGENCY OÜ para la operación de centros de formación.',
-  alternates: { canonical: '/sobre-nosotros' },
-}
+export const metadata: Metadata = { title: 'Company', description: 'Akademate is building the AI-assisted operating system for modern academies.', alternates: { canonical: '/sobre-nosotros' } }
 
 const principles = [
-  { icon: Building2, title: 'Producto para organizaciones reales', text: 'El alcance se define por procesos, sedes, datos y responsabilidades de cada centro.' },
-  { icon: Wrench, title: 'Configuración antes que ficción', text: 'Una capacidad técnica no se presenta como activa hasta que integración, permisos y operación estén validados.' },
-  { icon: Scale, title: 'Claims defendibles', text: 'Privacidad, IA y seguridad se explican como prácticas y límites; no como certificaciones inexistentes.' },
+  { icon: Compass, title: 'Operate with context', text: 'Connect the decisions, people and learner journeys behind the academy.' },
+  { icon: Layers3, title: 'One system, clear responsibility', text: 'Bring teams together while keeping roles and organisational boundaries meaningful.' },
+  { icon: Sparkles, title: 'Use AI where work happens', text: 'Assist people inside real workflows, with human judgement at the centre.' },
 ] as const
 
-export default function AboutPage() {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main id="contenido" className="flex-1">
-        <section className="border-b bg-muted/30 px-4 py-16 sm:px-6 sm:py-20">
-          <div className="mx-auto max-w-4xl">
-            <p className="text-sm font-semibold text-primary">Sobre Akademate</p>
-            <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Software académico construido con límites explícitos</h1>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-              Akademate es un producto SaaS prestado por {legalCompany.name}. akademate.com prepara la futura oferta multitenant; los clientes Enterprise reciben instancias aisladas bajo contrato, como el despliegue específico de CEP Formación.
-            </p>
-          </div>
-        </section>
-        <section className="px-4 py-16 sm:px-6">
-          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
-            {principles.map(({ icon: Icon, title, text }) => (
-              <article key={title} className="rounded-2xl border bg-card p-6">
-                <Icon className="h-7 w-7 text-primary" aria-hidden="true" />
-                <h2 className="mt-5 text-lg font-semibold">{title}</h2>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
-              </article>
-            ))}
-          </div>
-          <div className="mx-auto mt-12 max-w-3xl rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm leading-7 text-amber-950">
-            Los datos registrales, fiscales y domicilios del prestador permanecen marcados como pendientes de validación en las páginas legales. No publicamos nombres de equipo, cifras de clientes ni perfiles sociales sin una fuente validada.
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
-  )
-}
+export default function AboutPage() { return <div className="min-h-screen bg-white text-[#071633]"><Header /><main id="content"><section className="grid min-h-[70svh] items-stretch lg:grid-cols-2"><div className="flex items-center px-4 py-20 sm:px-8 lg:px-[max(2rem,calc((100vw-80rem)/2))]"><div className="max-w-xl"><p className="section-kicker">About Akademate</p><h1 className="mt-5 text-5xl font-semibold tracking-[-0.055em] sm:text-7xl">Academies deserve an operating system built around their work.</h1><p className="mt-7 text-lg leading-8 text-slate-600">Akademate is a product of {legalCompany.name}, created to connect the commercial, academic and learning operations that modern education teams run every day.</p><Link href="/contacto?asunto=demo" className="button-primary-dark mt-9">Meet Akademate <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link></div></div><div className="relative min-h-[480px]"><Image src="/images/marketing/akademate-in-person-academy.jpg" alt="Adult learners and teacher working together in a modern academy" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" /></div></section><section className="bg-[#071633] px-4 py-20 text-white sm:px-6 lg:px-8 lg:py-28"><div className="mx-auto max-w-7xl"><p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-200">Our point of view</p><h2 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Technology should make an academy feel more human, not more fragmented.</h2><div className="mt-14 grid border-y border-white/15 md:grid-cols-3">{principles.map(({ icon: Icon, title, text }) => <article key={title} className="border-b border-white/15 py-8 md:border-b-0 md:border-r md:px-8 first:md:pl-0 last:md:border-r-0"><Icon className="h-7 w-7 text-blue-300" aria-hidden="true" /><h3 className="mt-8 text-xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-6 text-blue-100/65">{text}</p></article>)}</div></div></section></main><Footer /></div> }

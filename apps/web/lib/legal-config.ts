@@ -13,46 +13,46 @@ const pending = (label: string, publicNote: string): LegalField => ({
 export const legalCompany = {
   name: 'SOLARIA AGENCY OÜ',
   registryCode: pending(
-    'Código registral estonio',
-    'Pendiente de validación documental antes de publicación definitiva.'
+    'Estonian registry code',
+    'Pending documentary validation before final publication.'
   ),
   vatId: pending(
-    'Identificador fiscal / IVA',
-    'Pendiente de validación fiscal antes de publicación definitiva.'
+    'Tax / VAT identifier',
+    'Pending tax validation before final publication.'
   ),
   registeredOffice: pending(
-    'Domicilio social en Estonia',
-    'Pendiente de validación registral antes de publicación definitiva.'
+    'Registered office in Estonia',
+    'Pending registry validation before final publication.'
   ),
   operatingAddress: pending(
-    'Dirección operativa en Malmö',
-    'Pendiente de validación interna antes de publicación definitiva.'
+    'Operating address in Malmö',
+    'Pending internal validation before final publication.'
   ),
   privacyContact: pending(
-    'Contacto de privacidad',
-    'Canal específico pendiente de validación. Mientras tanto, las consultas pueden dirigirse al canal general hola@akademate.com.'
+    'Privacy contact',
+    'Dedicated channel pending validation. In the meantime, enquiries may be sent to hola@akademate.com.'
   ),
 } as const
 
-export const legalLastUpdated = '29 de julio de 2026'
+export const legalLastUpdated = '29 July 2026'
 
 export const legalDraftNotice =
-  'Borrador informativo pendiente de revisión profesional. No constituye asesoramiento jurídico, certificación, sello oficial ni declaración de conformidad.'
+  'Informational draft pending professional review. It is not legal advice, a certification, an official seal or a declaration of conformity.'
 
 export const legalLinks = [
-  { title: 'Privacidad', href: '/legal/privacidad' },
-  { title: 'Términos', href: '/legal/terminos' },
+  { title: 'Privacy', href: '/legal/privacidad' },
+  { title: 'Terms', href: '/legal/terminos' },
   { title: 'Cookies', href: '/legal/cookies' },
-  { title: 'Subencargados y proveedores', href: '/legal/subencargados' },
-  { title: 'Transparencia de IA', href: '/legal/ia' },
+  { title: 'Subprocessors and providers', href: '/legal/subencargados' },
+  { title: 'AI transparency', href: '/legal/ia' },
 ] as const
 
 export const trackingPolicy = {
   currentStatus: 'no-non-essential-trackers',
   statement:
-    'La web pública no carga actualmente analítica ni marketing de terceros. No se instala un gestor de consentimiento porque no hay finalidades no esenciales que autorizar.',
+    'The public website does not currently load third-party analytics or marketing. No consent manager is installed because there are no non-essential purposes to authorise.',
   activationGate:
-    'Antes de incorporar GA4, GTM, Meta Pixel o tecnología equivalente deberá añadirse consentimiento granular y fail-closed, actualizar el inventario de cookies y demostrar que ningún tracker carga antes de autorizar.',
+    'Before GA4, GTM, Meta Pixel or equivalent technology is introduced, granular fail-closed consent must be added, the cookie inventory updated and the absence of pre-consent tracking demonstrated.',
 } as const
 
 export function formatLegalField(field: LegalField) {

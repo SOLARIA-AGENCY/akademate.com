@@ -1,13 +1,10 @@
 import type { Metadata } from 'next'
 import { LegalPage } from '@/components/legal/LegalPage'
 
-export const metadata: Metadata = { title: 'Subencargados y proveedores', alternates: { canonical: '/legal/subencargados' } }
-
-export default function SubprocessorsPage() {
-  return <LegalPage title="Subencargados y proveedores" description="Estado del inventario público de proveedores que pueden intervenir en la prestación de Akademate." sections={[
-    { title: 'Estado del inventario', content: <p>La lista contractual, ubicaciones, transferencias y funciones está pendiente de validación antes de su publicación definitiva. No convertimos dependencias presentes en el código o documentación de infraestructura en una afirmación contractual automática.</p> },
-    { title: 'Categorías previsibles', content: <p>Según la configuración contratada pueden intervenir proveedores de alojamiento, red y seguridad, almacenamiento, correo, soporte, observabilidad, pagos o inteligencia artificial. Una categoría no prueba que un proveedor esté activo para un cliente.</p> },
-    { title: 'Cambios y garantías', content: <p>Cuando un proveedor trate datos por cuenta de un cliente, su función, ubicación y salvaguardas deberán reflejarse en el contrato o anexo aplicable, junto con el mecanismo de información de cambios.</p> },
-    { title: 'Solicitud de información', content: <p>Hasta validar el inventario público, los clientes deben solicitar la versión contractual vigente mediante su canal de relación con SOLARIA.</p> },
-  ]} />
-}
+export const metadata: Metadata = { title: 'Subprocessors and providers', alternates: { canonical: '/legal/subencargados' } }
+export default function SubprocessorsPage() { return <LegalPage title="Subprocessors and providers" description="Information about provider categories that may support delivery of Akademate." sections={[
+  { title: 'Provider inventory', content: <p>The contractual list of providers, locations, transfers and functions is being validated before final publication. A dependency in source code does not by itself establish that a provider processes customer data.</p> },
+  { title: 'Provider categories', content: <p>Depending on the contracted configuration, providers may support hosting, network security, storage, email, support, observability, payments or artificial intelligence.</p> },
+  { title: 'Changes and safeguards', content: <p>Where a provider processes data for a customer, its function, location and safeguards should appear in the applicable contract or annex together with the agreed change-notification mechanism.</p> },
+  { title: 'Requesting information', content: <p>Customers may request the current contractual inventory through their Akademate relationship channel.</p> },
+]} /> }

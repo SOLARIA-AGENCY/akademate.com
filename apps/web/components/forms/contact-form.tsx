@@ -31,7 +31,7 @@ export function ContactForm() {
     setFeedback('')
     if (!form.privacyAccepted) {
       setStatus('error')
-      setFeedback('Debes aceptar la política de privacidad antes de enviar la solicitud.')
+      setFeedback('Please accept the privacy policy before sending your request.')
       return
     }
     setStatus('loading')
@@ -54,13 +54,13 @@ export function ContactForm() {
         }),
       })
       const data = await response.json().catch(() => ({})) as { error?: string }
-      if (!response.ok) throw new Error(data.error ?? 'No se pudo enviar la solicitud')
+      if (!response.ok) throw new Error(data.error ?? 'We could not send your request')
       setStatus('success')
-      setFeedback('Solicitud recibida. Conserva esta confirmación; no implica aceptación comercial ni un plazo de respuesta garantizado.')
+      setFeedback('Thanks — your request has been received.')
       setForm({ name: '', email: '', phone: '', subject: '', message: '', website: '', privacyAccepted: false })
     } catch (error) {
       setStatus('error')
-      setFeedback(error instanceof Error ? error.message : 'No se pudo enviar la solicitud')
+      setFeedback(error instanceof Error ? error.message : 'We could not send your request')
     }
   }
 
@@ -74,25 +74,25 @@ export function ContactForm() {
         </p>
       ) : null}
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Nombre y apellidos" id="name" required><input id="name" required maxLength={200} autoComplete="name" className={fieldClass} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></Field>
+        <Field label="Full name" id="name" required><input id="name" required maxLength={200} autoComplete="name" className={fieldClass} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></Field>
         <Field label="Email" id="email" required><input id="email" required type="email" maxLength={254} autoComplete="email" className={fieldClass} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></Field>
       </div>
-      <Field label="Teléfono (opcional)" id="phone"><input id="phone" type="tel" maxLength={40} autoComplete="tel" className={fieldClass} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></Field>
-      <Field label="Asunto" id="subject" required>
+      <Field label="Phone (optional)" id="phone"><input id="phone" type="tel" maxLength={40} autoComplete="tel" className={fieldClass} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></Field>
+      <Field label="What would you like to discuss?" id="subject" required>
         <select id="subject" required className={fieldClass} value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })}>
-          <option value="">Selecciona un asunto</option><option value="demo">Evaluar una implantación</option><option value="pricing">Alcance y precios</option><option value="support">Soporte de cliente</option><option value="partnership">Colaboración</option><option value="privacy">Privacidad</option><option value="other">Otro</option>
+          <option value="">Select a topic</option><option value="demo">Product demo</option><option value="pricing">Plans and commercial scope</option><option value="support">Customer support</option><option value="partnership">Enterprise or partnership</option><option value="privacy">Privacy</option><option value="other">Other</option>
         </select>
       </Field>
-      <Field label="Mensaje" id="message" required><textarea id="message" required minLength={10} maxLength={4000} rows={6} className={fieldClass} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} /></Field>
+      <Field label="Tell us about your academy" id="message" required><textarea id="message" required minLength={10} maxLength={4000} rows={6} className={fieldClass} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} /></Field>
       <div className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
-        <label htmlFor="website">Sitio web</label><input id="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(event) => setForm({ ...form, website: event.target.value })} />
+        <label htmlFor="website">Website</label><input id="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(event) => setForm({ ...form, website: event.target.value })} />
       </div>
       <label className="flex items-start gap-3 text-sm leading-6 text-muted-foreground">
         <input type="checkbox" required checked={form.privacyAccepted} onChange={(event) => setForm({ ...form, privacyAccepted: event.target.checked })} className="mt-1 h-4 w-4" />
-        <span>Acepto la <Link href="/legal/privacidad" className="font-medium text-primary hover:underline">política de privacidad</Link> para gestionar esta consulta. No acepto marketing por defecto.</span>
+        <span>I accept the <Link href="/legal/privacidad" className="font-medium text-primary hover:underline">privacy policy</Link> so Akademate can respond to this request. Marketing consent is not selected.</span>
       </label>
       <button type="submit" disabled={status === 'loading'} className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-        {status === 'loading' ? 'Enviando…' : 'Enviar solicitud'}
+        {status === 'loading' ? 'Sending…' : 'Send request'}
       </button>
     </form>
   )
