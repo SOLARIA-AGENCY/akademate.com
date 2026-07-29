@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 
 const benefits = [
-  'Sin permanencia ni compromisos',
-  'Soporte técnico incluido',
-  'Migración de datos gratuita',
-  'Actualizaciones automáticas',
+  'Alcance documentado',
+  'Capacidades verificadas por entorno',
+  'Sin alta automática',
+  'Condiciones por escrito',
 ]
 
 export function CTASection() {
@@ -19,13 +19,7 @@ export function CTASection() {
             className="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-x-1/2 -translate-y-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]"
             aria-hidden="true"
           >
-            <circle
-              cx={512}
-              cy={512}
-              r={512}
-              fill="url(#cta-gradient)"
-              fillOpacity="0.15"
-            />
+            <circle cx={512} cy={512} r={512} fill="url(#cta-gradient)" fillOpacity="0.15" />
             <defs>
               <radialGradient id="cta-gradient">
                 <stop stopColor="#fff" />
@@ -39,8 +33,8 @@ export function CTASection() {
               ¿Listo para transformar tu academia?
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-primary-foreground/80">
-              Únete a más de 50 academias que ya gestionan su formación con Akademate.
-              Prueba gratis durante 14 días, sin tarjeta de crédito.
+              Cuéntanos las necesidades de tu centro y responderemos con el alcance que podemos
+              demostrar.
             </p>
 
             {/* Benefits list */}
@@ -62,7 +56,7 @@ export function CTASection() {
                 href="/registro"
                 className="inline-flex items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-medium text-primary shadow-sm hover:bg-white/90"
               >
-                Empezar prueba gratuita
+                Solicitar evaluación
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
               <Link

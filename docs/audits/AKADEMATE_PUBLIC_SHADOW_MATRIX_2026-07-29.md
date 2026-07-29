@@ -1,0 +1,27 @@
+# Akademate public shadow-feature matrix — 2026-07-29
+
+Scope: `apps/web` compared with the current CEP/tenant implementation. The CEP worktree was read-only. This is local source evidence, not production or certification evidence.
+
+| Area               | Before                                                               | Source evidence                                                                               | Public decision after audit                                                                       | Backlog / gate                                                                        |
+| ------------------ | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| SaaS / tenants     | “SaaS todo-en-uno” and safe organizational permissions               | Tenant models exist; API/MCP tenant isolation is not consistently enforced                    | Reformulated as software in development/evaluation                                                | Cross-tenant handler tests and authenticated runtime proof                            |
+| Multi-site         | Advertised without qualification                                     | Campus collections and tenant-filtered public surfaces exist                                  | Bounded statement: organization by sites is modeled; availability depends on scope                | Verify configured tenant data and public deployment                                   |
+| Multi-entity       | Implied by broad SaaS language                                       | Only an uncommitted local draft/migration exists                                              | Hidden from offer; described as internal evolution only                                           | Migration, backfill, ACL reconciliation, staging/rollback                             |
+| Courses / students | Full lifecycle claim                                                 | Collections and UI exist; enrollment/student models and API isolation remain incomplete       | Bounded to implemented surfaces, not end-to-end guarantee                                         | Unify identity model and prove tenant isolation                                       |
+| Payments / billing | “Integrated payments” and automatic billing                          | Stripe code exists; request-to-tenant authorization lacks sufficient evidence                 | Removed from active public capability                                                             | Authenticated tenant/customer binding, IDOR tests, signed webhook and reconciliation  |
+| Analytics          | “Real-time advanced analytics”                                       | Internal dashboard and optional GA4 paths exist; fallback and V1 scope gaps remain            | Reformulated as operational views/data sources dependent on configuration                         | Tenant isolation, source-health and live-config proof                                 |
+| AI / MCP           | Any assistant can execute secure actions                             | MCP package exists; operational assistant coverage and safe tenant authorization are unproven | Reformulated as integrations under evaluation with human review                                   | Backend authorization, traceability, data contract and adversarial tests              |
+| Permissions        | “Every action respects roles”                                        | RBAC exists; scoped roles are draft and sensitive handlers vary                               | No blanket security claim                                                                         | Route-by-route tenant/entity/role coverage                                            |
+| Privacy / legal    | Broken links, inconsistent identity, implied consent in registration | No web legal contract; CEP-specific pages are not transferable                                | Central SOLARIA AGENCY OÜ identity, explicit placeholders, five legal pages, informational badges | Verify registry, VAT, full Malmö address, privacy contact, counsel review             |
+| Trackers / cookies | No consent UI and no declared web trackers                           | Static scan finds no GA4/GTM/Meta in `apps/web`                                               | No empty banner; optional registry is empty and fail-closed                                       | If a tracker is added, document provider/purpose and gate loading on granular consent |
+
+## Three break attempts per significant boundary
+
+- Legal identity: missing registry/IVA are visible placeholders; Malmö address cannot be mistaken for complete; badges explicitly deny certification.
+- Consent API: omitted/false/string consent rejected; missing policy version rejected; CMS outage returns failure.
+- Trackers: null consent, explicit rejection and unrelated-category consent all block loading; only an affirmative matching category permits it.
+- Links: canonical root legal routes are unique; obsolete `/legal/*` variants were removed so footer, forms and sitemap share one contract.
+
+## Explicitly not changed
+
+No permissions, roles, tenant data, finance data, database, production configuration, push or deployment was changed.

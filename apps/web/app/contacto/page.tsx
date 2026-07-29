@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { Mail, Phone, MapPin, Clock } from 'lucide-react'
+import { Mail, MapPin } from 'lucide-react'
+import { PUBLIC_LEGAL } from '@/lib/public-legal'
 import { ContactForm } from '@/components/forms/contact-form'
 
 export const metadata: Metadata = {
@@ -36,7 +37,7 @@ export default function ContactPage() {
               <div className="rounded-2xl border bg-background p-8 shadow-sm">
                 <h2 className="text-xl font-semibold">Envíanos un mensaje</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Rellena el formulario y te responderemos en menos de 24 horas.
+                  Rellena el formulario y responderemos tan pronto como sea posible.
                 </p>
 
                 <ContactForm />
@@ -59,22 +60,7 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-medium">Email</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        info@akademate.com
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        soporte@akademate.com
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <Phone className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Teléfono</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        +34 912345678
+                        {PUBLIC_LEGAL.contactEmail}
                       </p>
                     </div>
                   </div>
@@ -86,39 +72,18 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-medium">Oficina</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Calle Principal 123<br />
-                        28001 Madrid, España
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <Clock className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Horario de atención</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Lunes a Viernes: 9:00 - 18:00<br />
-                        Sábado y Domingo: Cerrado
+                        {PUBLIC_LEGAL.correspondenceAddress}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* FAQ link */}
                 <div className="rounded-lg border bg-muted/30 p-6">
-                  <h3 className="font-medium">¿Preguntas frecuentes?</h3>
+                  <h3 className="font-medium">Antes de enviar</h3>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Consulta nuestra sección de FAQ donde encontrarás respuestas
-                    a las preguntas más comunes.
+                    No incluyas datos de alumnos, salud, pagos, credenciales ni otra información
+                    sensible.
                   </p>
-                  <a
-                    href="/faq"
-                    className="mt-4 inline-block text-sm font-medium text-primary hover:underline"
-                  >
-                    Ver FAQ →
-                  </a>
                 </div>
               </div>
             </div>

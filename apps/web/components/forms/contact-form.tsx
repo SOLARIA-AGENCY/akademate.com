@@ -11,7 +11,7 @@ export function ContactForm() {
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [gdprAccepted, setGdprAccepted] = useState(false)
-  const [captchaAccepted, setCaptchaAccepted] = useState(false)
+  const [website, setWebsite] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -33,11 +33,6 @@ export function ContactForm() {
 
     if (!gdprAccepted) {
       setErrorMessage('Debes aceptar la política de privacidad para continuar.')
-      return
-    }
-
-    if (!captchaAccepted) {
-      setErrorMessage('Completa la verificación anti-spam para continuar.')
       return
     }
 
@@ -64,7 +59,9 @@ export function ContactForm() {
           message: `[${subject}] ${message}`.trim(),
           gdpr_consent: gdprAccepted,
           privacy_policy_accepted: gdprAccepted,
+          privacy_policy_version: '2026-07-29',
           marketing_consent: false,
+          website,
           utm,
         }),
       })
@@ -80,7 +77,7 @@ export function ContactForm() {
       setSubject('')
       setMessage('')
       setGdprAccepted(false)
-      setCaptchaAccepted(false)
+      setWebsite('')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Error al enviar el mensaje.')
     } finally {
@@ -205,18 +202,16 @@ export function ContactForm() {
         </label>
       </div>
 
-      <div className="flex items-start gap-2">
+      <div className="absolute -left-[10000px]" aria-hidden="true">
+        <label htmlFor="website">Sitio web</label>
         <input
-          type="checkbox"
-          id="captcha"
-          name="captcha"
-          checked={captchaAccepted}
-          onChange={(event) => setCaptchaAccepted(event.target.checked)}
-          className="mt-1 rounded border-gray-300"
+          id="website"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={website}
+          onChange={(event) => setWebsite(event.target.value)}
         />
-        <label htmlFor="captcha" className="text-sm text-muted-foreground">
-          Verificación anti-spam (marca para continuar)
-        </label>
       </div>
 
       <button

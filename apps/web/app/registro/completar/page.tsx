@@ -12,6 +12,7 @@ export default function CompletarRegistroPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -22,6 +23,10 @@ export default function CompletarRegistroPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    if (!privacyAccepted) {
+      setError('Debes aceptar la política de privacidad para continuar.')
+      return
+    }
     setLoading(true)
 
     try {
@@ -35,6 +40,8 @@ export default function CompletarRegistroPage() {
           asunto: 'demo',
           mensaje: `Academia: ${form.academyName}\n\nRegistro vía Google OAuth`,
           gdpr_consent: true,
+          privacy_policy_accepted: true,
+          privacy_policy_version: '2026-07-29',
         }),
       })
 
@@ -127,6 +134,22 @@ export default function CompletarRegistroPage() {
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
+
+            <label className="flex items-start gap-2 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={privacyAccepted}
+                onChange={(event) => setPrivacyAccepted(event.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                Acepto la{' '}
+                <a className="text-primary underline" href="/privacidad">
+                  política de privacidad
+                </a>{' '}
+                para gestionar esta solicitud. No incluye comunicaciones comerciales.
+              </span>
+            </label>
 
             <div className="space-y-2">
               <label htmlFor="phone" className="block text-sm font-medium">

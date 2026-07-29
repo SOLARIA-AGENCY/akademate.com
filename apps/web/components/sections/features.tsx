@@ -1,11 +1,4 @@
-import {
-  BookOpen,
-  Users,
-  CreditCard,
-  BarChart3,
-  Calendar,
-  MessageSquare,
-} from 'lucide-react'
+import { BookOpen, Users, CreditCard, BarChart3, Calendar, MessageSquare } from 'lucide-react'
 
 const features = [
   {
@@ -23,25 +16,25 @@ const features = [
   {
     name: 'Pagos y Facturación',
     description:
-      'Integración con pasarelas de pago. Facturación automática, planes de pago y gestión de cobros.',
+      'Integraciones de pago previstas, sujetas a configuración, autorización y validación contractual.',
     icon: CreditCard,
   },
   {
     name: 'Analíticas Avanzadas',
     description:
-      'Dashboards con métricas de negocio: conversión, retención, ingresos. Exportación de informes personalizados.',
+      'Vistas operativas y fuentes integrables; la disponibilidad y frescura dependen de cada entorno.',
     icon: BarChart3,
   },
   {
     name: 'Calendario y Horarios',
     description:
-      'Planifica clases, exámenes y eventos. Sincronización con Google Calendar. Notificaciones automáticas.',
+      'Planifica clases, exámenes y eventos. Las sincronizaciones externas se confirman por configuración.',
     icon: Calendar,
   },
   {
     name: 'Comunicación',
     description:
-      'Mensajería interna, emails automatizados y notificaciones push. Mantén a tus alumnos informados.',
+      'Herramientas de comunicación disponibles según el alcance activado para cada organización.',
     icon: MessageSquare,
   },
 ]
@@ -59,8 +52,8 @@ export function FeaturesSection() {
             Todo lo que necesitas para gestionar tu academia
           </p>
           <p className="mt-4 text-lg text-muted-foreground">
-            Herramientas diseñadas específicamente para centros de formación,
-            desde la captación de leads hasta la gestión de certificados.
+            Herramientas diseñadas específicamente para centros de formación, desde la captación de
+            leads hasta la gestión de certificados.
           </p>
         </div>
 
@@ -76,9 +69,7 @@ export function FeaturesSection() {
                   <feature.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold">{feature.name}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {feature.description}
-                </p>
+                <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
               </div>
             ))}
           </div>

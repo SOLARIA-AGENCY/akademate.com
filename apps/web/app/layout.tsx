@@ -16,19 +16,23 @@ const fontMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://akademate.com'),
   title: {
-    default: 'Akademate - Plataforma de Formación',
+    default: 'Akademate | Operación para centros de formación',
     template: '%s | Akademate',
   },
-  description: 'Plataforma SaaS multi-tenant para academias y centros de formación',
-  keywords: ['formación', 'cursos', 'academia', 'educación', 'lms'],
-  authors: [{ name: 'SOLARIA Agency' }],
+  description:
+    'Akademate es un SaaS en desarrollo para la operación académica y administrativa de centros de formación.',
+  keywords: ['software para academias', 'gestión académica', 'centros de formación'],
+  authors: [{ name: 'SOLARIA AGENCY OÜ' }],
   icons: {
     icon: '/favicon.png',
     apple: '/apple-touch-icon.png',
     shortcut: '/favicon.png',
   },
   openGraph: {
-    title: 'Akademate - Plataforma de Formación',
+    title: 'Akademate | Operación para centros de formación',
+    description:
+      'Software en desarrollo con capacidades y límites comunicados de forma verificable.',
+    url: 'https://akademate.com',
     type: 'website',
     locale: 'es_ES',
     siteName: 'Akademate',
@@ -38,6 +42,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'Akademate',
+    description: 'Operación académica y administrativa para centros de formación.',
   },
   robots: {
     index: true,
@@ -45,11 +51,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
   const themeCookie = cookieStore.get('akademate_theme')?.value
   const themeVars: Record<string, string> = {}

@@ -1,115 +1,70 @@
 import Link from 'next/link'
-import { GraduationCap } from 'lucide-react'
-
-const footerLinks = {
-  platform: [
-    { name: 'Cursos', href: '/cursos' },
-    { name: 'Instructores', href: '/instructores' },
-    { name: 'Precios', href: '/precios' },
-    { name: 'FAQ', href: '/faq' },
-  ],
-  company: [
-    { name: 'Sobre Nosotros', href: '/sobre-nosotros' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Contacto', href: '/contacto' },
-    { name: 'Empleo', href: '/empleo' },
-  ],
-  legal: [
-    { name: 'Privacidad', href: '/privacidad' },
-    { name: 'Términos', href: '/terminos' },
-    { name: 'Cookies', href: '/cookies' },
-  ],
-}
+import { Info, ShieldCheck } from 'lucide-react'
+import { PUBLIC_LEGAL, PUBLIC_LEGAL_LINKS } from '@/lib/public-legal'
 
 export function Footer() {
-  const currentYear = new Date().getFullYear()
-
   return (
     <footer className="border-t bg-muted/30">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-          {/* Brand */}
-          <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2">
-              <GraduationCap className="h-8 w-8 text-primary" />
-              <span className="footer-company-name font-bold text-xl">Akademate</span>
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="grid gap-8 md:grid-cols-[1.2fr_1fr_1fr]">
+          <div>
+            <Link href="/" className="text-lg font-bold">
+              Akademate
             </Link>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Plataforma SaaS para academias y centros de formación.
-              Gestiona cursos, alumnos y matrículas en un solo lugar.
+            <p className="mt-3 max-w-sm text-sm text-muted-foreground">
+              Software en desarrollo para la operación de centros de formación. Las capacidades
+              previstas se validan antes de ofrecerse contractualmente.
             </p>
-            <div className="mt-4 space-y-1 text-sm text-muted-foreground">
-              <p className="footer-email">hola@akademate.com</p>
-              <p className="footer-phone">+34 912345678</p>
-            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Titular: {PUBLIC_LEGAL.operatorName} · {PUBLIC_LEGAL.registeredCountry}
+            </p>
           </div>
-
-          {/* Platform links */}
           <div>
-            <h3 className="text-sm font-semibold">Plataforma</h3>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.platform.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
+            <h2 className="text-sm font-semibold">Información</h2>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link href="/sobre-nosotros">Sobre Akademate</Link>
+              </li>
+              <li>
+                <Link href="/contacto">Contacto</Link>
+              </li>
+              <li>
+                <Link href="/accesos">Acceso a la plataforma</Link>
+              </li>
             </ul>
           </div>
-
-          {/* Company links */}
           <div>
-            <h3 className="text-sm font-semibold">Empresa</h3>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal links */}
-          <div>
-            <h3 className="text-sm font-semibold">Legal</h3>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.legal.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    {link.name}
-                  </Link>
+            <h2 className="text-sm font-semibold">Legal</h2>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              {PUBLIC_LEGAL_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href}>{link.name}</Link>
                 </li>
               ))}
             </ul>
           </div>
         </div>
-
-        {/* Bottom bar */}
-        <div className="mt-12 border-t pt-8">
-          <p className="text-center text-sm text-muted-foreground">
-            &copy; {currentYear} Akademate. Todos los derechos reservados.
-            Desarrollado por{' '}
-            <a
-              href="https://www.solaria.agency"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium hover:text-foreground"
-            >
-              SOLARIA Agency
-            </a>
+        <div className="mt-8 flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} {PUBLIC_LEGAL.operatorName}. Información sujeta a
+            confirmación legal.
           </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/privacidad"
+              className="inline-flex min-h-11 items-center gap-1 rounded-full border px-3 py-1 text-xs"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Privacidad y RGPD <span className="sr-only">Información, no certificación</span>
+            </Link>
+            <Link
+              href="/transparencia-ia"
+              className="inline-flex min-h-11 items-center gap-1 rounded-full border px-3 py-1 text-xs"
+            >
+              <Info className="h-3.5 w-3.5" />
+              Transparencia de IA <span className="sr-only">Información, no certificación</span>
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

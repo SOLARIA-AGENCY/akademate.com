@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Play } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 export function HeroSection() {
   return (
@@ -22,7 +22,7 @@ export function HeroSection() {
           {/* Badge */}
           <div className="mb-8 inline-flex items-center rounded-full border bg-background px-4 py-1.5 text-sm">
             <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-500" />
-            <span className="text-muted-foreground">Nueva plataforma disponible</span>
+            <span className="text-muted-foreground">Producto en evaluación</span>
           </div>
 
           {/* Headline */}
@@ -33,8 +33,8 @@ export function HeroSection() {
 
           {/* Subheadline */}
           <p className="mt-6 text-lg leading-8 text-muted-foreground">
-            Akademate es la plataforma todo-en-uno para gestionar tu centro de formación.
-            Cursos, matrículas, pagos y comunicación con alumnos en un solo lugar.
+            Akademate es la plataforma todo-en-uno para gestionar tu centro de formación. Cursos,
+            matrículas, pagos y comunicación con alumnos en un solo lugar.
           </p>
 
           {/* CTAs */}
@@ -43,37 +43,20 @@ export function HeroSection() {
               href="/registro"
               className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
             >
-              Empezar ahora
+              Solicitar información
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
-              href="/tour"
+              href="/transparencia-ia"
               className="inline-flex items-center justify-center rounded-md border px-6 py-3 text-sm font-medium hover:bg-accent"
             >
-              <Play className="mr-2 h-4 w-4" />
-              Ver video tour
+              Ver límites y transparencia
             </Link>
           </div>
 
-          {/* Social proof */}
-          <div className="mt-16 flex flex-col items-center gap-4">
-            <p className="text-sm text-muted-foreground">
-              +50 academias confían en Akademate
-            </p>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <svg
-                  key={star}
-                  className="h-5 w-5 fill-yellow-400"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              ))}
-              <span className="ml-2 text-sm font-medium">4.9/5</span>
-              <span className="text-sm text-muted-foreground">(120+ reseñas)</span>
-            </div>
-          </div>
+          <p className="mt-12 text-sm text-muted-foreground">
+            La disponibilidad se confirma por entorno y contrato.
+          </p>
         </div>
       </div>
     </section>

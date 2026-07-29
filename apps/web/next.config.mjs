@@ -3,6 +3,11 @@ import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+const scriptSources = ["'self'", "'unsafe-inline'"]
+
+if (process.env.NODE_ENV === 'development') {
+  scriptSources.push("'unsafe-eval'")
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -65,7 +70,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'",
+              `script-src ${scriptSources.join(' ')}`,
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
