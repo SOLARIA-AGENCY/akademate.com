@@ -2,6 +2,10 @@
 
 import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import {
+  PUBLIC_CONSENT_EVENT,
+  readPublicConsent,
+} from './PublicConsentManager'
 
 function readParam(searchParams: URLSearchParams | null, key: string): string | undefined {
   const value = searchParams?.get(key) || ''
@@ -30,28 +34,39 @@ export function PublicPageViewTracker() {
       return
     }
 
-    const eventId =
-      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-        ? crypto.randomUUID()
-        : `pv-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    let tracked = false
 
-    const pathWithQuery = searchQuery ? `${pathname}?${searchQuery}` : pathname
+    const trackIfConsented = () => {
+      if (tracked || !readPublicConsent()?.analytics) return
+      tracked = true
 
-    void fetch('/api/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        path: pathWithQuery,
-        referrer: document.referrer || null,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString(),
-        event_id: eventId,
-        utm_source: readParam(searchParams, 'utm_source'),
-        utm_medium: readParam(searchParams, 'utm_medium'),
-        utm_campaign: readParam(searchParams, 'utm_campaign'),
-        meta_campaign_id: readMetaCampaignId(searchParams),
-      }),
-    }).catch(() => {})
+      const eventId =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `pv-${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+      const pathWithQuery = searchQuery ? `${pathname}?${searchQuery}` : pathname
+
+      void fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path: pathWithQuery,
+          referrer: document.referrer || null,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          event_id: eventId,
+          utm_source: readParam(searchParams, 'utm_source'),
+          utm_medium: readParam(searchParams, 'utm_medium'),
+          utm_campaign: readParam(searchParams, 'utm_campaign'),
+          meta_campaign_id: readMetaCampaignId(searchParams),
+        }),
+      }).catch(() => {})
+    }
+
+    trackIfConsented()
+    window.addEventListener(PUBLIC_CONSENT_EVENT, trackIfConsented)
+    return () => window.removeEventListener(PUBLIC_CONSENT_EVENT, trackIfConsented)
   }, [pathname, searchParams, searchQuery])
 
   return null

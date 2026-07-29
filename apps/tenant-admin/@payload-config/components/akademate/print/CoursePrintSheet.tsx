@@ -68,7 +68,7 @@ export function CoursePrintSheet({
   formatDateRange,
   logoUrl = '/logos/cep-formacion-logo.png',
   contactPhone = '+34 922 533 533',
-  contactEmail = 'info@cepformacion.com',
+  contactEmail = 'info@cursostenerife.es',
 }: CoursePrintSheetProps) {
   const objectives = textList(course.landing_objectives).slice(0, 5)
   const programBlocks = (course.landing_program_blocks ?? []).slice(0, 4)

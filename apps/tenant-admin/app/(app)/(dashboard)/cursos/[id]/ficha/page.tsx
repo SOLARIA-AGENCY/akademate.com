@@ -70,7 +70,7 @@ const MODALITY_LABELS: Record<string, string> = {
 const NUTRICOSMETICA_DOSSIER_URL = '/uploads/cep-course-programs/NUTRICOSMÉTICA.pdf'
 const PUBLIC_BASE_URL = 'https://cepformacion.akademate.com'
 const CONTACT_PHONE = '+34 922 533 533'
-const CONTACT_EMAIL = 'info@cepformacion.com'
+const CONTACT_EMAIL = 'info@cursostenerife.es'
 const CEP_LOGO_URL = '/logos/cep-formacion-logo.png'
 const PDF_FALLBACK_TEXT = 'PDF del programa no disponible todavía.'
 

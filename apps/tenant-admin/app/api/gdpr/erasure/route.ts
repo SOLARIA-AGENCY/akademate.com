@@ -16,6 +16,11 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHash } from 'crypto';
 import type { Payload } from 'payload';
+import {
+    authenticateGdprActor,
+    canAccessGdprSubject,
+    type GdprSubject,
+} from '@/app/api/gdpr/_lib/authorization';
 
 /**
  * Request body for GDPR erasure endpoint
@@ -119,14 +124,33 @@ export async function POST(request: NextRequest) {
 
          
         const payload: Payload = await getPayload({ config: configPromise });
+        const actor = await authenticateGdprActor(request, payload);
+        if (!actor) {
+            return NextResponse.json(
+                { success: false, error: 'Authentication required', code: 'AUTH_REQUIRED' },
+                { status: 401 }
+            );
+        }
 
         // Verify user exists
-        const user = await payload.findByID({ collection: 'users', id: userId }).catch(() => null) as UserRecord | null;
+        const user = await payload.findByID({
+            collection: 'users',
+            id: userId,
+            depth: 0,
+            overrideAccess: true,
+        }).catch(() => null) as UserRecord | null;
 
         if (!user) {
             return NextResponse.json(
                 { success: false, error: 'User not found' },
                 { status: 404 }
+            );
+        }
+
+        if (!canAccessGdprSubject(actor, user as unknown as GdprSubject)) {
+            return NextResponse.json(
+                { success: false, error: 'Forbidden', code: 'GDPR_SUBJECT_FORBIDDEN' },
+                { status: 403 }
             );
         }
 

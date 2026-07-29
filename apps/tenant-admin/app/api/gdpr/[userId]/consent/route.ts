@@ -8,6 +8,11 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest} from 'next/server';
 import { NextResponse } from 'next/server';
+import {
+  authenticateGdprActor,
+  canAccessGdprSubject,
+  type GdprSubject,
+} from '@/app/api/gdpr/_lib/authorization';
 
 interface ConsentState {
   marketing_email: boolean;
@@ -89,6 +94,35 @@ export async function GET(
      
     const payload = await getPayload({ config: configPromise });
 
+    const actor = await authenticateGdprActor(request, payload);
+    if (!actor) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required', code: 'AUTH_REQUIRED' },
+        { status: 401 }
+      );
+    }
+
+    const subject = await payload.findByID({
+      collection: 'users',
+      id: userId,
+      depth: 0,
+      overrideAccess: true,
+    }).catch(() => null);
+
+    if (!subject) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    if (!canAccessGdprSubject(actor, subject as unknown as GdprSubject)) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden', code: 'GDPR_SUBJECT_FORBIDDEN' },
+        { status: 403 }
+      );
+    }
+
     const logs = await payload.find({
       collection: 'audit-logs',
       where: {
@@ -155,6 +189,35 @@ export async function POST(
 
      
     const payload = await getPayload({ config: configPromise });
+    const actor = await authenticateGdprActor(request, payload);
+    if (!actor) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required', code: 'AUTH_REQUIRED' },
+        { status: 401 }
+      );
+    }
+
+    const subject = await payload.findByID({
+      collection: 'users',
+      id: userId,
+      depth: 0,
+      overrideAccess: true,
+    }).catch(() => null);
+
+    if (!subject) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    if (!canAccessGdprSubject(actor, subject as unknown as GdprSubject)) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden', code: 'GDPR_SUBJECT_FORBIDDEN' },
+        { status: 403 }
+      );
+    }
+
     const updatedAt = new Date().toISOString();
 
     const auditLogData: AuditLogCreateData = {

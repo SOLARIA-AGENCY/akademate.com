@@ -1039,7 +1039,7 @@ export async function POST(request: NextRequest) {
     const tenantLogoUrl = toAbsoluteUrl(tenantBaseUrl, rawTenantLogoUrl)
     const contactEmail =
       (typeof tenant?.contact_email === 'string' && tenant.contact_email.trim()) ||
-      (isCepTenant ? 'info@cepformacion.com' : '') ||
+      (isCepTenant ? 'info@cursostenerife.es' : '') ||
       process.env.SMTP_REPLY_TO ||
       'soporte@akademate.com'
     const contactPhone =

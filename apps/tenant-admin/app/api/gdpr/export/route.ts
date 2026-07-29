@@ -14,6 +14,11 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import {
+    authenticateGdprActor,
+    canAccessGdprSubject,
+    type GdprSubject,
+} from '@/app/api/gdpr/_lib/authorization';
 
 // ============================================================================
 // GDPR Export Types
@@ -215,12 +220,24 @@ export async function POST(request: NextRequest) {
 
          
         const payload = await getPayload({ config: configPromise });
+        const actor = await authenticateGdprActor(request, payload);
+        if (!actor) {
+            return NextResponse.json(
+                { success: false, error: 'Authentication required', code: 'AUTH_REQUIRED' },
+                { status: 401 }
+            );
+        }
         const warnings: Array<{ collection: string; error: string }> = [];
 
         // Query user first
         let user: UserDocument | null = null;
         try {
-            user = await payload.findByID({ collection: 'users', id: userId }) as UserDocument;
+            user = await payload.findByID({
+                collection: 'users',
+                id: userId,
+                depth: 0,
+                overrideAccess: true,
+            }) as UserDocument;
         } catch {
             user = null;
         }
@@ -229,6 +246,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { success: false, error: 'User not found' },
                 { status: 404 }
+            );
+        }
+
+        if (!canAccessGdprSubject(actor, user as unknown as GdprSubject)) {
+            return NextResponse.json(
+                { success: false, error: 'Forbidden', code: 'GDPR_SUBJECT_FORBIDDEN' },
+                { status: 403 }
             );
         }
 

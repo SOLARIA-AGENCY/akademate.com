@@ -156,7 +156,7 @@ function prioritizeScholarships(
 
 const PUBLIC_BASE_URL = 'https://cepformacion.akademate.com'
 const CONTACT_PHONE = '+34 922 533 533'
-const CONTACT_EMAIL = 'info@cepformacion.com'
+const CONTACT_EMAIL = 'info@cursostenerife.es'
 const CEP_LOGO_URL = '/logos/cep-formacion-logo.png'
 
 // ---------------------------------------------------------------------------

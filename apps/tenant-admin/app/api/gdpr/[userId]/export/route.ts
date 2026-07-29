@@ -15,6 +15,11 @@ import configPromise from '@payload-config';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
+import {
+  authenticateGdprActor,
+  canAccessGdprSubject,
+  type GdprSubject,
+} from '@/app/api/gdpr/_lib/authorization';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -112,13 +117,41 @@ export async function GET(
      
     const payload: Payload = await getPayload({ config: configPromise });
 
+    const actor = await authenticateGdprActor(request, payload);
+    if (!actor) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required', code: 'AUTH_REQUIRED' },
+        { status: 401 }
+      );
+    }
+
     // Cast to extended payload for accessing planned LMS collections
     const extendedPayload = payload as unknown as ExtendedPayload;
 
-    // Collect all user data across collections
-    // Note: Some collections (lesson-progress, user-badges, etc.) are planned but not yet implemented
+    const user = await payload.findByID({
+      collection: 'users',
+      id: userId,
+      depth: 0,
+      overrideAccess: true,
+    }).catch(() => null);
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    if (!canAccessGdprSubject(actor, user as unknown as GdprSubject)) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden', code: 'GDPR_SUBJECT_FORBIDDEN' },
+        { status: 403 }
+      );
+    }
+
+    // Collect personal data only after authentication and subject authorization.
+    // Note: Some collections (lesson-progress, user-badges, etc.) are planned but not yet implemented.
     const [
-      user,
       enrollments,
       submissions,
       lessonProgress,
@@ -128,7 +161,6 @@ export async function GET(
       attendance,
       certificates,
     ] = await Promise.all([
-      payload.findByID({ collection: 'users', id: userId }).catch(() => null),
       payload.find({ collection: 'enrollments', where: { user: { equals: userId } }, depth: 2 }),
       extendedPayload
         .find({
@@ -168,13 +200,6 @@ export async function GET(
           return { docs: [] };
         }),
     ]);
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      );
-    }
 
     const exportData = {
       exportedAt: new Date().toISOString(),

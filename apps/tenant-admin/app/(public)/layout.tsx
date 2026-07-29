@@ -7,6 +7,11 @@ import { getTenantWebsite } from '@/app/lib/website/server'
 import { PublicHeaderClient } from './_components/PublicHeaderClient'
 import { PublicPageViewTracker } from './_components/PublicPageViewTracker'
 import { Button } from '@payload-config/components/ui/button'
+import { ComplianceBadges } from '@/app/components/legal/ComplianceBadges'
+import {
+  CookiePreferencesButton,
+  PublicConsentManager,
+} from './_components/PublicConsentManager'
 
 function getIconMimeType(url: string): string {
   if (url.endsWith('.svg')) return 'image/svg+xml'
@@ -186,11 +191,6 @@ async function getTenantData(): Promise<TenantData> {
   }
 }
 
-function toPublicFooterHref(href: string): string {
-  if (href.startsWith('/legal/')) return `/p${href}`
-  return href
-}
-
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const tenant = await getTenantData()
   const website = await getTenantWebsite()
@@ -198,67 +198,13 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <html lang="es" suppressHydrationWarning>
-      <head>
-        {tenant.gtmContainerId && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${tenant.gtmContainerId}');`,
-            }}
-          />
-        )}
-        {tenant.metaPixelId && (
-          <>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '${tenant.metaPixelId}');
-fbq('track', 'PageView');`,
-              }}
-            />
-            <noscript>
-              <img
-                height="1"
-                width="1"
-                style={{ display: 'none' }}
-                src={`https://www.facebook.com/tr?id=${tenant.metaPixelId}&ev=PageView&noscript=1`}
-                alt=""
-              />
-            </noscript>
-          </>
-        )}
-        {tenant.ga4MeasurementId && (
-          <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${tenant.ga4MeasurementId}`} />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
-              }}
-            />
-          </>
-        )}
-      </head>
+      <head />
       <body className="min-h-screen bg-white text-gray-900 antialiased">
-        {tenant.gtmContainerId && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${tenant.gtmContainerId}`}
-              height="0"
-              width="0"
-              style={{ display: 'none', visibility: 'hidden' }}
-            />
-          </noscript>
-        )}
+        <PublicConsentManager
+          metaPixelId={tenant.metaPixelId}
+          ga4MeasurementId={tenant.ga4MeasurementId}
+          gtmContainerId={tenant.gtmContainerId}
+        />
         <PublicPageViewTracker />
         {/* Inject brand color as CSS variable */}
         <style>{`
@@ -333,6 +279,7 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
                 </ul>
               </div>
               <div className="flex flex-col items-center gap-3 lg:items-end">
+                <ComplianceBadges />
                 <img
                   src="/website/cep/logos/footer/logo-certificaciones.jpg"
                   alt="Certificaciones de calidad"
@@ -364,9 +311,13 @@ gtag('config', '${tenant.ga4MeasurementId}', { anonymize_ip: true });`,
               </p>
               <nav aria-label="Páginas legales" className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
                 <a href="/aproem" className="transition hover:text-slate-950">APROEM</a>
+                <a href="/p/legal" className="transition hover:text-slate-950">Centro legal</a>
                 <a href="/p/legal/privacidad" className="transition hover:text-slate-950">Privacidad</a>
                 <a href="/p/legal/terminos" className="transition hover:text-slate-950">Términos</a>
                 <a href="/p/legal/cookies" className="transition hover:text-slate-950">Cookies</a>
+                <a href="/p/legal/ia" className="transition hover:text-slate-950">Transparencia y AI Act</a>
+                <a href="/p/legal/subencargados" className="transition hover:text-slate-950">Subencargados</a>
+                <CookiePreferencesButton />
               </nav>
             </div>
           </div>

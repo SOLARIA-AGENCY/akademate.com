@@ -1,208 +1,71 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import PrivacidadPage from '../../app/(app)/legal/privacidad/page'
-import TerminosPage from '../../app/(app)/legal/terminos/page'
-import CookiesPage from '../../app/(app)/legal/cookies/page'
+import { describe, expect, it } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import PrivacyPage from '../../app/(public)/p/legal/privacidad/page'
+import TermsPage from '../../app/(public)/p/legal/terminos/page'
+import CookiesPage from '../../app/(public)/p/legal/cookies/page'
+import LegalCenterPage from '../../app/(public)/p/legal/page'
 
-describe('Legal Pages', () => {
-  describe('Privacy Policy Page', () => {
-    it('renders privacy policy title', () => {
-      render(<PrivacidadPage data-oid="5giw4l-" />)
-      expect(screen.getByText('Política de Privacidad')).toBeInTheDocument()
-    })
+describe('CEP public legal center', () => {
+  it('publishes one navigable legal center without presenting badges as certifications', () => {
+    render(<LegalCenterPage />)
 
-    it('displays company information', () => {
-      render(<PrivacidadPage data-oid="nxf707p" />)
-      const companyNames = screen.getAllByText(/CEP FORMACIÓN Y COMUNICACIÓN S\.L\./i)
-      expect(companyNames.length).toBeGreaterThan(0)
-      expect(companyNames[0]).toBeInTheDocument()
-    })
-
-    it('shows data subject rights section', () => {
-      render(<PrivacidadPage data-oid="8m516xi" />)
-      expect(screen.getByText(/Derechos de los Interesados/i)).toBeInTheDocument()
-      expect(screen.getAllByText(/Acceso/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Rectificación/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Supresión/i).length).toBeGreaterThan(0)
-    })
-
-    it('includes contact information', () => {
-      render(<PrivacidadPage data-oid="szbiz71" />)
-      const emails = screen.getAllByText(/privacidad@cepcomunicacion\.com/i)
-      expect(emails.length).toBeGreaterThan(0)
-    })
-
-    it('has back button that calls router.back()', () => {
-      render(<PrivacidadPage data-oid="_0-r:bx" />)
-      const backButton = screen.getByRole('button', { name: /volver/i })
-      expect(backButton).toBeInTheDocument()
-      // Router functionality is mocked in setup.ts, just verify button exists
-    })
-
-    it('shows last updated date', () => {
-      render(<PrivacidadPage data-oid="8zgtaei" />)
-      const currentDate = new Date().toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-      expect(screen.getByText(new RegExp(currentDate))).toBeInTheDocument()
-    })
-
-    it('displays all required RGPD sections', () => {
-      render(<PrivacidadPage data-oid=":a:k-wn" />)
-
-      // Check for required sections
-      expect(screen.getByText(/Responsable del Tratamiento/i)).toBeInTheDocument()
-      expect(screen.getByText(/Datos Personales que Tratamos/i)).toBeInTheDocument()
-      expect(screen.getByText(/Finalidad del Tratamiento/i)).toBeInTheDocument()
-      expect(screen.getByText(/Base Legal del Tratamiento/i)).toBeInTheDocument()
-      expect(screen.getByText(/Conservación de Datos/i)).toBeInTheDocument()
-      expect(screen.getAllByText(/Medidas de Seguridad/i).length).toBeGreaterThan(0)
-    })
+    expect(screen.getByRole('heading', { name: /centro legal y regulatorio/i })).toBeInTheDocument()
+    const links = screen.getAllByRole('link')
+    expect(links.some((link) => link.getAttribute('href') === '/p/legal/privacidad')).toBe(true)
+    expect(links.some((link) => link.getAttribute('href') === '/p/legal/ia')).toBe(true)
+    expect(screen.getAllByText(/no.*certificaciones/i).length).toBeGreaterThan(0)
   })
 
-  describe('Terms & Conditions Page', () => {
-    it('renders terms and conditions title', () => {
-      render(<TerminosPage data-oid="helof.b" />)
-      expect(screen.getByText('Términos y Condiciones de Uso')).toBeInTheDocument()
-    })
+  it('identifies CEP as controller and Solaria as technology processor', () => {
+    render(<PrivacyPage />)
 
-    it('displays 5 user role types', () => {
-      render(<TerminosPage data-oid="zy0z6ol" />)
-      expect(screen.getAllByText(/Administradores/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Gestores/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Marketing/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Asesores/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Lectura/i).length).toBeGreaterThan(0)
-    })
-
-    it('shows services offered section', () => {
-      render(<TerminosPage data-oid="-qfmo8k" />)
-      expect(screen.getByText(/Servicios Ofrecidos/i)).toBeInTheDocument()
-      expect(screen.getByText(/Gestión de cursos/i)).toBeInTheDocument()
-    })
-
-    it('includes economic conditions', () => {
-      render(<TerminosPage data-oid="26esxan" />)
-      expect(screen.getByText(/Condiciones Económicas/i)).toBeInTheDocument()
-      expect(screen.getByText(/Matrícula y pagos/i)).toBeInTheDocument()
-      expect(screen.getByText(/cancelación y reembolsos/i)).toBeInTheDocument()
-    })
-
-    it('displays intellectual property section', () => {
-      render(<TerminosPage data-oid="xt0r7cb" />)
-      expect(screen.getByText(/Propiedad Intelectual/i)).toBeInTheDocument()
-    })
-
-    it('shows jurisdiction information', () => {
-      render(<TerminosPage data-oid="oh1voru" />)
-      const locations = screen.getAllByText(/Santa Cruz de Tenerife/i)
-      expect(locations.length).toBeGreaterThan(0)
-    })
-
-    it('has functional back navigation', () => {
-      render(<TerminosPage data-oid="x:mo919" />)
-      const backButton = screen.getByRole('button', { name: /volver/i })
-      expect(backButton).toBeInTheDocument()
-      // Router functionality is mocked in setup.ts, just verify button exists
-    })
+    expect(screen.getByText('FORMACIÓN CEP CANARIAS S.L.')).toBeInTheDocument()
+    expect(screen.getByText(/SOLARIA AGENCY OÜ/)).toBeInTheDocument()
+    expect(screen.getAllByText('privacidad@cursostenerife.es').length).toBeGreaterThan(0)
+    expect(screen.getByText(/capítulo V del RGPD/i)).toBeInTheDocument()
   })
 
-  describe('Cookie Policy Page', () => {
-    it('renders cookie policy title', () => {
-      render(<CookiesPage data-oid=":.b.69n" />)
-      expect(screen.getByText('Política de Cookies')).toBeInTheDocument()
-    })
+  it('does not require an identity document by default and states the RGPD response window', () => {
+    render(<PrivacyPage />)
 
-    it('explains what cookies are', () => {
-      render(<CookiesPage data-oid="0u59-fm" />)
-      expect(screen.getByText(/¿Qué son las cookies\?/i)).toBeInTheDocument()
-    })
-
-    it('displays all cookie types', () => {
-      render(<CookiesPage data-oid="0sd0zdl" />)
-      expect(screen.getAllByText(/Cookies Técnicas/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Cookies Analíticas/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Cookies de Marketing/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Cookies de Preferencias/i).length).toBeGreaterThan(0)
-    })
-
-    it('lists technical cookies with details', () => {
-      render(<CookiesPage data-oid="ncl8no7" />)
-      expect(screen.getByText(/payload-token/i)).toBeInTheDocument()
-      expect(screen.getByText(/cep_user/i)).toBeInTheDocument()
-      expect(screen.getByText(/csrf_token/i)).toBeInTheDocument()
-    })
-
-    it('shows third-party cookie providers', () => {
-      render(<CookiesPage data-oid="y2bmb.:" />)
-      expect(screen.getAllByText(/Google Analytics/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Meta.*Facebook/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/Plausible/i).length).toBeGreaterThan(0)
-    })
-
-    it('includes browser management instructions', () => {
-      render(<CookiesPage data-oid="1a4z_zq" />)
-      expect(screen.getByText(/Google Chrome/i)).toBeInTheDocument()
-      expect(screen.getByText(/Mozilla Firefox/i)).toBeInTheDocument()
-      expect(screen.getByText(/Safari/i)).toBeInTheDocument()
-      expect(screen.getByText(/Microsoft Edge/i)).toBeInTheDocument()
-    })
-
-    it('displays legal basis for cookies', () => {
-      render(<CookiesPage data-oid="x_nmj22" />)
-      expect(screen.getByText(/LSSI/i)).toBeInTheDocument()
-      expect(screen.getByText(/RGPD/i)).toBeInTheDocument()
-    })
-
-    it('has back button functionality', () => {
-      render(<CookiesPage data-oid="2jf3cz1" />)
-      const backButton = screen.getByRole('button', { name: /volver/i })
-      expect(backButton).toBeInTheDocument()
-      // Router functionality is mocked in setup.ts, just verify button exists
-    })
-
-    it('shows cookie duration information', () => {
-      render(<CookiesPage data-oid="_-khlnq" />)
-      expect(screen.getAllByText(/Duración/i).length).toBeGreaterThan(0)
-    })
-
-    it('includes warning about blocking cookies', () => {
-      render(<CookiesPage data-oid="knz2fq0" />)
-      expect(screen.getByText(/Bloquear todas las cookies puede afectar/i)).toBeInTheDocument()
-    })
+    expect(screen.getByText(/no se exige con carácter general adjuntar una copia completa/i)).toBeInTheDocument()
+    expect(screen.getByText(/en un mes, prorrogable/i)).toBeInTheDocument()
   })
 
-  describe('Common Legal Page Features', () => {
-    it.each([
-      ['Privacy', PrivacidadPage],
-      ['Terms', TerminosPage],
-      ['Cookies', CookiesPage],
-    ])('%s page has consistent styling', (name, Component) => {
-      const { container } = render(<Component data-oid="hgd_g-z" />)
-      const mainDiv = container.firstChild
-      expect(mainDiv).toHaveClass('max-w-4xl', 'mx-auto', 'space-y-6', 'p-6')
-    })
+  it('describes retention through documented criteria instead of indefinite generic storage', () => {
+    render(<PrivacyPage />)
 
-    it.each([
-      ['Privacy', PrivacidadPage],
-      ['Terms', TerminosPage],
-      ['Cookies', CookiesPage],
-    ])('%s page displays last update date', (name, Component) => {
-      render(<Component data-oid="1qi3:sz" />)
-      expect(screen.getByText(/Última actualización/i)).toBeInTheDocument()
-    })
+    expect(screen.getByText(/registro interno de actividades de tratamiento/i)).toBeInTheDocument()
+    expect(screen.queryByText(/datos académicos:.*indefinidamente/i)).not.toBeInTheDocument()
+  })
 
-    it.each([
-      ['Privacy', PrivacidadPage],
-      ['Terms', TerminosPage],
-      ['Cookies', CookiesPage],
-    ])('%s page includes contact section', (name, Component) => {
-      render(<Component data-oid="16-fy63" />)
-      // Privacy page has "Email de contacto" instead of "Contacto" heading
-      const contactElements = screen.queryAllByText(/Contacto|contact/i)
-      expect(contactElements.length).toBeGreaterThan(0)
-    })
+  it('keeps permissions and feature availability conditional on authorization and configuration', () => {
+    render(<TermsPage />)
+
+    expect(screen.getByText(/dependen del rol, sede, permisos y configuración/i)).toBeInTheDocument()
+    expect(screen.getByText(/no implica acceso general a finanzas/i)).toBeInTheDocument()
+    expect(screen.queryByText(/acceso total al sistema/i)).not.toBeInTheDocument()
+  })
+
+  it('does not invent generic cancellation percentages or waive consumer jurisdiction', () => {
+    render(<TermsPage />)
+
+    expect(screen.getByText(/no se establece aquí un porcentaje genérico de reembolso/i)).toBeInTheDocument()
+    expect(screen.getByText(/sin imponer una renuncia anticipada a su fuero/i)).toBeInTheDocument()
+    expect(screen.queryByText(/reembolso del 50%/i)).not.toBeInTheDocument()
+  })
+
+  it('documents only configurable analytics and marketing providers', () => {
+    render(<CookiesPage />)
+
+    expect(screen.getByText(/Google Analytics 4/i)).toBeInTheDocument()
+    expect(screen.getByText(/Meta Pixel/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Plausible Analytics/i)).not.toBeInTheDocument()
+  })
+
+  it('exposes the working cookie preference control', () => {
+    render(<CookiesPage />)
+
+    expect(screen.getByRole('button', { name: /preferencias de cookies/i })).toBeInTheDocument()
   })
 })

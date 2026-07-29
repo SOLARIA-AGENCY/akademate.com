@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const { mockPayload } = vi.hoisted(() => ({
+const { mockPayload, authContextMock } = vi.hoisted(() => ({
     mockPayload: {
         findByID: vi.fn(),
         find: vi.fn(),
@@ -16,6 +16,7 @@ const { mockPayload } = vi.hoisted(() => ({
         delete: vi.fn(),
         count: vi.fn(),
     },
+    authContextMock: vi.fn(),
 }));
 
 vi.mock('@payloadcms/next/utilities', () => ({
@@ -23,6 +24,10 @@ vi.mock('@payloadcms/next/utilities', () => ({
 }));
 
 vi.mock('@payload-config', () => ({ default: {} }));
+
+vi.mock('@/app/api/leads/_lib/auth', () => ({
+    getAuthenticatedUserContext: authContextMock,
+}));
 
 // Import after mocking
 import { POST as exportHandler } from '../export/route';
@@ -34,6 +39,21 @@ import { POST as erasureHandler } from '../erasure/route';
 describe('GDPR Export API', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        authContextMock.mockResolvedValue({ userId: 'user-123', tenantId: 1, role: 'lectura' });
+    });
+
+    it('rejects a present but invalid cookie on the legacy export endpoint', async () => {
+        authContextMock.mockResolvedValue(null);
+        const request = new NextRequest('http://localhost/api/gdpr/export', {
+            method: 'POST',
+            headers: { cookie: 'payload-token=invalid-audit-token' },
+            body: JSON.stringify({ userId: 'user-123' }),
+        });
+
+        const response = await exportHandler(request);
+
+        expect(response.status).toBe(401);
+        expect(mockPayload.findByID).not.toHaveBeenCalled();
     });
 
     it('should return 400 if userId is missing', async () => {
@@ -97,6 +117,69 @@ describe('GDPR Export API', () => {
 describe('GDPR Export API (User Param)', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        authContextMock.mockResolvedValue({ userId: 'user-123', tenantId: 1, role: 'lectura' });
+    });
+
+    it('rejects a present but invalid session cookie', async () => {
+        authContextMock.mockResolvedValue(null);
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/export', {
+            method: 'GET',
+            headers: { cookie: 'payload-token=invalid-audit-token' },
+        });
+
+        const response = await exportByIdHandler(request, { params: { userId: 'user-123' } });
+
+        expect(response.status).toBe(401);
+        expect(mockPayload.findByID).not.toHaveBeenCalled();
+    });
+
+    it('rejects an authenticated user exporting another subject', async () => {
+        authContextMock.mockResolvedValue({ userId: 'other-user', tenantId: 1, role: 'lectura' });
+        mockPayload.findByID.mockResolvedValue({ id: 'user-123', tenant: 1 });
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/export', {
+            method: 'GET',
+            headers: { cookie: 'payload-token=valid-token' },
+        });
+
+        const response = await exportByIdHandler(request, { params: { userId: 'user-123' } });
+
+        expect(response.status).toBe(403);
+        expect(mockPayload.find).not.toHaveBeenCalled();
+    });
+
+    it('allows a tenant admin to export a subject in the same tenant', async () => {
+        authContextMock.mockResolvedValue({ userId: 'admin-1', tenantId: 1, role: 'admin' });
+        mockPayload.findByID.mockResolvedValue({
+            id: 'user-123',
+            tenant: 1,
+            email: 'test@example.com',
+            name: 'Test User',
+            createdAt: '2025-01-01',
+            updatedAt: '2025-01-01',
+        });
+        mockPayload.find.mockResolvedValue({ docs: [] });
+        mockPayload.create.mockResolvedValue({});
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/export', {
+            method: 'GET',
+            headers: { cookie: 'payload-token=valid-token' },
+        });
+
+        const response = await exportByIdHandler(request, { params: { userId: 'user-123' } });
+
+        expect(response.status).toBe(200);
+    });
+
+    it('rejects a tenant admin exporting a subject from another tenant', async () => {
+        authContextMock.mockResolvedValue({ userId: 'admin-1', tenantId: 1, role: 'admin' });
+        mockPayload.findByID.mockResolvedValue({ id: 'user-123', tenant: 2 });
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/export', {
+            method: 'GET',
+            headers: { cookie: 'payload-token=valid-token' },
+        });
+
+        const response = await exportByIdHandler(request, { params: { userId: 'user-123' } });
+
+        expect(response.status).toBe(403);
     });
 
     it('should return 400 if userId is missing', async () => {
@@ -157,6 +240,21 @@ describe('GDPR Export API (User Param)', () => {
 describe('GDPR Erasure API', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        authContextMock.mockResolvedValue({ userId: 'user-123', tenantId: 1, role: 'lectura' });
+    });
+
+    it('rejects a present but invalid cookie on the legacy erasure endpoint', async () => {
+        authContextMock.mockResolvedValue(null);
+        const request = new NextRequest('http://localhost/api/gdpr/erasure', {
+            method: 'POST',
+            headers: { cookie: 'payload-token=invalid-audit-token' },
+            body: JSON.stringify({ userId: 'user-123', confirmDeletion: true }),
+        });
+
+        const response = await erasureHandler(request);
+
+        expect(response.status).toBe(401);
+        expect(mockPayload.findByID).not.toHaveBeenCalled();
     });
 
     it('should return 400 if userId is missing', async () => {
@@ -252,6 +350,21 @@ describe('GDPR Erasure API', () => {
 describe('GDPR Delete API (User Param)', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        authContextMock.mockResolvedValue({ userId: 'user-123', tenantId: 1, role: 'lectura' });
+    });
+
+    it('rejects erasure with an invalid session cookie', async () => {
+        authContextMock.mockResolvedValue(null);
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/delete', {
+            method: 'POST',
+            headers: { cookie: 'payload-token=invalid-audit-token' },
+            body: JSON.stringify({ confirmDeletion: true }),
+        });
+
+        const response = await deleteByIdHandler(request, { params: { userId: 'user-123' } });
+
+        expect(response.status).toBe(401);
+        expect(mockPayload.findByID).not.toHaveBeenCalled();
     });
 
     it('should return 400 if userId is missing', async () => {
@@ -347,6 +460,20 @@ describe('GDPR Delete API (User Param)', () => {
 describe('GDPR Consent API (User Param)', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        authContextMock.mockResolvedValue({ userId: 'user-123', tenantId: 1, role: 'lectura' });
+    });
+
+    it('rejects consent lookup with an invalid session cookie', async () => {
+        authContextMock.mockResolvedValue(null);
+        const request = new NextRequest('http://localhost/api/gdpr/user-123/consent', {
+            method: 'GET',
+            headers: { cookie: 'payload-token=invalid-audit-token' },
+        });
+
+        const response = await consentGetHandler(request, { params: { userId: 'user-123' } });
+
+        expect(response.status).toBe(401);
+        expect(mockPayload.find).not.toHaveBeenCalled();
     });
 
     it('should return 400 if userId is missing', async () => {

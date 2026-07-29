@@ -120,7 +120,7 @@ export function PublicHeaderClient({
     ? ''
     : 'transition-transform duration-300 ease-out'
 
-  const supportEmail = isCepTenant ? 'info@cepformacion.com' : 'hola@akademate.com'
+  const supportEmail = isCepTenant ? 'info@cursostenerife.es' : 'hola@akademate.com'
 
   return (
     <header
