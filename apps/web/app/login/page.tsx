@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 export const metadata: Metadata = {
   title: 'Acceso al Dashboard — Akademate',
   description: 'Accede al panel de gestión de tu academia.',
+  robots: { index: false, follow: false },
 }
 
 export default function LoginPage() {

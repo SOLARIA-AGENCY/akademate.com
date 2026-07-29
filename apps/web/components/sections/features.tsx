@@ -21,27 +21,27 @@ const features = [
     icon: Users,
   },
   {
-    name: 'Pagos y Facturación',
+    name: 'Cobros según configuración',
     description:
-      'Integración con pasarelas de pago. Facturación automática, planes de pago y gestión de cobros.',
+      'Seguimiento administrativo e integraciones disponibles solo cuando estén configuradas y contratadas.',
     icon: CreditCard,
   },
   {
-    name: 'Analíticas Avanzadas',
+    name: 'Informes operativos',
     description:
-      'Dashboards con métricas de negocio: conversión, retención, ingresos. Exportación de informes personalizados.',
+      'Vistas y exportaciones sobre los datos disponibles, sin prometer analítica universal en tiempo real.',
     icon: BarChart3,
   },
   {
     name: 'Calendario y Horarios',
     description:
-      'Planifica clases, exámenes y eventos. Sincronización con Google Calendar. Notificaciones automáticas.',
+      'Planifica clases, exámenes y eventos. Las sincronizaciones externas dependen de integración verificada.',
     icon: Calendar,
   },
   {
     name: 'Comunicación',
     description:
-      'Mensajería interna, emails automatizados y notificaciones push. Mantén a tus alumnos informados.',
+      'Canales y notificaciones según los módulos y proveedores habilitados para el centro.',
     icon: MessageSquare,
   },
 ]
@@ -60,7 +60,7 @@ export function FeaturesSection() {
           </p>
           <p className="mt-4 text-lg text-muted-foreground">
             Herramientas diseñadas específicamente para centros de formación,
-            desde la captación de leads hasta la gestión de certificados.
+            desde la captación de leads hasta la operación de matrículas y convocatorias.
           </p>
         </div>
 

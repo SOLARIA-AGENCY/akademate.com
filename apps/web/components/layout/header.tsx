@@ -4,21 +4,14 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-const navigation = [
-  { name: 'Inicio', href: '/' },
-  { name: 'Accesos', href: '/accesos' },
-  { name: 'Design System', href: '/design-system' },
-  { name: 'Cursos', href: '/cursos' },
-  { name: 'Sobre Nosotros', href: '/sobre-nosotros' },
-  { name: 'Blog', href: '/blog' },
-  { name: 'Contacto', href: '/contacto' },
-]
+import { publicNavigation } from '@/lib/public-site'
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:shadow-lg">Saltar al contenido</a>
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <div className="flex lg:flex-1">
@@ -38,8 +31,10 @@ export function Header() {
             type="button"
             className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-foreground"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
           >
-            <span className="sr-only">Abrir menú</span>
+            <span className="sr-only">{mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
             {mobileMenuOpen ? (
               <X className="h-6 w-6" aria-hidden="true" />
             ) : (
@@ -50,7 +45,7 @@ export function Header() {
 
         {/* Desktop navigation */}
         <div className="hidden lg:flex lg:gap-x-8">
-          {navigation.map((item) => (
+          {publicNavigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
@@ -64,29 +59,30 @@ export function Header() {
         {/* CTA buttons */}
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
           <Link
-            href="/portal/login"
+            href="/accesos"
             className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
-            Iniciar sesión
+            Acceder
           </Link>
           <Link
             href="/registro"
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
           >
-            Registrarse
+            Solicitar acceso
           </Link>
         </div>
       </nav>
 
       {/* Mobile menu */}
       <div
+        id="mobile-navigation"
         className={cn(
           'lg:hidden',
           mobileMenuOpen ? 'block' : 'hidden'
         )}
       >
         <div className="space-y-1 px-4 pb-4">
-          {navigation.map((item) => (
+          {publicNavigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
@@ -98,18 +94,18 @@ export function Header() {
           ))}
           <div className="mt-4 space-y-2">
             <Link
-              href="/portal/login"
+              href="/accesos"
               className="block w-full rounded-md border px-4 py-2 text-center text-sm font-medium"
               onClick={() => { setMobileMenuOpen(false) }}
             >
-              Iniciar sesión
+              Acceder
             </Link>
             <Link
               href="/registro"
               className="block w-full rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground"
               onClick={() => { setMobileMenuOpen(false) }}
             >
-              Registrarse
+              Solicitar acceso
             </Link>
           </div>
         </div>

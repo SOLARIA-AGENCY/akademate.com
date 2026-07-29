@@ -3,17 +3,22 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Mail, Phone, MapPin, Clock } from 'lucide-react'
 import { ContactForm } from '@/components/forms/contact-form'
+import { Suspense } from 'react'
+import { getPublicLegalIdentity } from '@/lib/public-site'
+import { PendingValue } from '@/components/legal/legal-page'
 
 export const metadata: Metadata = {
   title: 'Contacto',
-  description: 'Ponte en contacto con nosotros para más información sobre Akademate',
+  description: 'Consulta el encaje, alcance y disponibilidad de Akademate para tu centro.',
+  alternates: { canonical: '/contacto' },
 }
 
 export default function ContactPage() {
+  const identity = getPublicLegalIdentity()
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Hero */}
         <section className="bg-gradient-to-b from-primary/5 to-background py-12">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -36,10 +41,12 @@ export default function ContactPage() {
               <div className="rounded-2xl border bg-background p-8 shadow-sm">
                 <h2 className="text-xl font-semibold">Envíanos un mensaje</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Rellena el formulario y te responderemos en menos de 24 horas.
+                  Rellena el formulario y revisaremos contigo el alcance disponible.
                 </p>
 
-                <ContactForm />
+                <Suspense fallback={<p className="mt-8 text-sm text-muted-foreground">Cargando formulario…</p>}>
+                  <ContactForm />
+                </Suspense>
               </div>
 
               {/* Contact info */}
@@ -47,7 +54,7 @@ export default function ContactPage() {
                 <div>
                   <h2 className="text-xl font-semibold">Información de contacto</h2>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    También puedes contactarnos directamente a través de estos canales.
+                    Los datos definitivos permanecen como placeholders hasta su confirmación documental.
                   </p>
                 </div>
 
@@ -59,10 +66,7 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-medium">Email</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        info@akademate.com
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        soporte@akademate.com
+                        <PendingValue value={identity.legalEmail} />
                       </p>
                     </div>
                   </div>
@@ -74,7 +78,7 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-medium">Teléfono</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        +34 912345678
+                        <PendingValue value="Pendiente de confirmación documental antes de publicación contractual" />
                       </p>
                     </div>
                   </div>
@@ -86,8 +90,7 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-medium">Oficina</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Calle Principal 123<br />
-                        28001 Madrid, España
+                        <PendingValue value={identity.registeredAddress} />
                       </p>
                     </div>
                   </div>
@@ -97,27 +100,25 @@ export default function ContactPage() {
                       <Clock className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Horario de atención</h3>
+                      <h3 className="font-medium">Entidad operadora</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Lunes a Viernes: 9:00 - 18:00<br />
-                        Sábado y Domingo: Cerrado
+                        {identity.legalName}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* FAQ link */}
+                {/* Scope note */}
                 <div className="rounded-lg border bg-muted/30 p-6">
-                  <h3 className="font-medium">¿Preguntas frecuentes?</h3>
+                  <h3 className="font-medium">Antes de enviar</h3>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Consulta nuestra sección de FAQ donde encontrarás respuestas
-                    a las preguntas más comunes.
+                    No incluyas datos sensibles, credenciales ni información personal de alumnado.
                   </p>
                   <a
-                    href="/faq"
+                    href="/legal/privacidad"
                     className="mt-4 inline-block text-sm font-medium text-primary hover:underline"
                   >
-                    Ver FAQ →
+                    Revisar privacidad →
                   </a>
                 </div>
               </div>

@@ -10,6 +10,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:public": "vitest run --config vitest.public.config.ts",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },

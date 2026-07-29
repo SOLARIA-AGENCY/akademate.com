@@ -1,115 +1,58 @@
 import Link from 'next/link'
 import { GraduationCap } from 'lucide-react'
+import { RegulatoryNotice } from '@/components/legal/regulatory-notice'
+import { getPublicLegalIdentity, publicLegalRoutes } from '@/lib/public-site'
 
-const footerLinks = {
-  platform: [
-    { name: 'Cursos', href: '/cursos' },
-    { name: 'Instructores', href: '/instructores' },
-    { name: 'Precios', href: '/precios' },
-    { name: 'FAQ', href: '/faq' },
-  ],
-  company: [
-    { name: 'Sobre Nosotros', href: '/sobre-nosotros' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Contacto', href: '/contacto' },
-    { name: 'Empleo', href: '/empleo' },
-  ],
-  legal: [
-    { name: 'Privacidad', href: '/privacidad' },
-    { name: 'Términos', href: '/terminos' },
-    { name: 'Cookies', href: '/cookies' },
-  ],
+const productLinks = [
+  { name: 'Capacidades', href: '/#capacidades' },
+  { name: 'Cursos', href: '/cursos' },
+  { name: 'Accesos', href: '/accesos' },
+] as const
+
+const companyLinks = [
+  { name: 'Sobre Akademate', href: '/sobre-nosotros' },
+  { name: 'Blog', href: '/blog' },
+  { name: 'Contacto', href: '/contacto' },
+] as const
+
+function LinkList({ links }: { links: readonly { name: string; href: string }[] }) {
+  return (
+    <ul className="mt-4 space-y-2">
+      {links.map((link) => (
+        <li key={link.href}>
+          <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground">
+            {link.name}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  )
 }
 
 export function Footer() {
-  const currentYear = new Date().getFullYear()
+  const identity = getPublicLegalIdentity()
 
   return (
     <footer className="border-t bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-          {/* Brand */}
-          <div className="lg:col-span-1">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+          <div>
             <Link href="/" className="flex items-center gap-2">
-              <GraduationCap className="h-8 w-8 text-primary" />
-              <span className="footer-company-name font-bold text-xl">Akademate</span>
+              <GraduationCap className="h-8 w-8 text-primary" aria-hidden="true" />
+              <span className="footer-company-name text-xl font-bold">Akademate</span>
             </Link>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Plataforma SaaS para academias y centros de formación.
-              Gestiona cursos, alumnos y matrículas en un solo lugar.
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">
+              Plataforma SaaS para la gestión académica y operativa de centros de formación.
             </p>
-            <div className="mt-4 space-y-1 text-sm text-muted-foreground">
-              <p className="footer-email">hola@akademate.com</p>
-              <p className="footer-phone">+34 912345678</p>
-            </div>
+            <p className="mt-4 text-xs text-muted-foreground">Operada por {identity.legalName}</p>
           </div>
-
-          {/* Platform links */}
-          <div>
-            <h3 className="text-sm font-semibold">Plataforma</h3>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.platform.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company links */}
-          <div>
-            <h3 className="text-sm font-semibold">Empresa</h3>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal links */}
-          <div>
-            <h3 className="text-sm font-semibold">Legal</h3>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.legal.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div><h2 className="text-sm font-semibold">Producto</h2><LinkList links={productLinks} /></div>
+          <div><h2 className="text-sm font-semibold">Empresa</h2><LinkList links={companyLinks} /></div>
+          <div><h2 className="text-sm font-semibold">Legal</h2><LinkList links={publicLegalRoutes} /></div>
         </div>
-
-        {/* Bottom bar */}
-        <div className="mt-12 border-t pt-8">
-          <p className="text-center text-sm text-muted-foreground">
-            &copy; {currentYear} Akademate. Todos los derechos reservados.
-            Desarrollado por{' '}
-            <a
-              href="https://www.solaria.agency"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium hover:text-foreground"
-            >
-              SOLARIA Agency
-            </a>
-          </p>
+        <div className="mt-10 flex flex-col gap-4 border-t pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Akademate · {identity.legalName}</p>
+          <RegulatoryNotice />
         </div>
       </div>
     </footer>

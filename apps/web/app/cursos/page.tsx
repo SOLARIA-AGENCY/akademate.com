@@ -61,7 +61,8 @@ interface CoursesResponse {
 
 export const metadata: Metadata = {
   title: 'Cursos',
-  description: 'Explora nuestro catálogo de cursos de formación profesional',
+  description: 'Consulta el catálogo público disponible en Akademate.',
+  alternates: { canonical: '/cursos' },
 }
 
 /** Typed CMS client interface for getCourses */
@@ -169,7 +170,7 @@ export default async function CoursesPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Hero section */}
         <section className="bg-gradient-to-b from-primary/5 to-background py-12">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

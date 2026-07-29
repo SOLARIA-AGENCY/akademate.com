@@ -11,7 +11,7 @@ export function ContactForm() {
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [gdprAccepted, setGdprAccepted] = useState(false)
-  const [captchaAccepted, setCaptchaAccepted] = useState(false)
+  const [website, setWebsite] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -33,11 +33,6 @@ export function ContactForm() {
 
     if (!gdprAccepted) {
       setErrorMessage('Debes aceptar la política de privacidad para continuar.')
-      return
-    }
-
-    if (!captchaAccepted) {
-      setErrorMessage('Completa la verificación anti-spam para continuar.')
       return
     }
 
@@ -65,6 +60,7 @@ export function ContactForm() {
           gdpr_consent: gdprAccepted,
           privacy_policy_accepted: gdprAccepted,
           marketing_consent: false,
+          website,
           utm,
         }),
       })
@@ -80,7 +76,7 @@ export function ContactForm() {
       setSubject('')
       setMessage('')
       setGdprAccepted(false)
-      setCaptchaAccepted(false)
+      setWebsite('')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Error al enviar el mensaje.')
     } finally {
@@ -91,13 +87,13 @@ export function ContactForm() {
   return (
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
       {errorMessage && (
-        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div role="alert" className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {errorMessage}
         </div>
       )}
 
       {successMessage && (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div role="status" className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           {successMessage}
         </div>
       )}
@@ -198,25 +194,16 @@ export function ContactForm() {
         />
         <label htmlFor="gdpr" className="text-sm text-muted-foreground">
           Acepto la{' '}
-          <a href="/privacidad" className="text-primary hover:underline">
+          <a href="/legal/privacidad" className="text-primary hover:underline">
             política de privacidad
           </a>{' '}
           y el tratamiento de mis datos para gestionar mi consulta. *
         </label>
       </div>
 
-      <div className="flex items-start gap-2">
-        <input
-          type="checkbox"
-          id="captcha"
-          name="captcha"
-          checked={captchaAccepted}
-          onChange={(event) => setCaptchaAccepted(event.target.checked)}
-          className="mt-1 rounded border-gray-300"
-        />
-        <label htmlFor="captcha" className="text-sm text-muted-foreground">
-          Verificación anti-spam (marca para continuar)
-        </label>
+      <div className="hidden" aria-hidden="true">
+        <label htmlFor="website">No rellenar este campo</label>
+        <input id="website" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
       </div>
 
       <button

@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 
 const benefits = [
-  'Sin permanencia ni compromisos',
-  'Soporte técnico incluido',
-  'Migración de datos gratuita',
-  'Actualizaciones automáticas',
+  'Solicitud sin compromiso',
+  'Revisión de módulos necesarios',
+  'Alcance confirmado por escrito',
+  'Sin activación automática',
 ]
 
 export function CTASection() {
@@ -39,8 +39,8 @@ export function CTASection() {
               ¿Listo para transformar tu academia?
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-primary-foreground/80">
-              Únete a más de 50 academias que ya gestionan su formación con Akademate.
-              Prueba gratis durante 14 días, sin tarjeta de crédito.
+              Revisamos necesidades, integraciones y límites antes de presentar una propuesta.
+              La solicitud no activa una cuenta ni fija condiciones comerciales.
             </p>
 
             {/* Benefits list */}
@@ -62,7 +62,7 @@ export function CTASection() {
                 href="/registro"
                 className="inline-flex items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-medium text-primary shadow-sm hover:bg-white/90"
               >
-                Empezar prueba gratuita
+                Solicitar acceso
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
               <Link

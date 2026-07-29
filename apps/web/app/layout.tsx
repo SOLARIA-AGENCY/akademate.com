@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     default: 'Akademate - Plataforma de Formación',
     template: '%s | Akademate',
   },
-  description: 'Plataforma SaaS multi-tenant para academias y centros de formación',
+  description: 'Plataforma SaaS configurable para la gestión académica y operativa de centros de formación.',
   keywords: ['formación', 'cursos', 'academia', 'educación', 'lms'],
-  authors: [{ name: 'SOLARIA Agency' }],
+  authors: [{ name: 'SOLARIA AGENCY OÜ' }],
   icons: {
     icon: '/favicon.png',
     apple: '/apple-touch-icon.png',
@@ -32,9 +32,6 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'es_ES',
     siteName: 'Akademate',
-  },
-  alternates: {
-    canonical: '/',
   },
   twitter: {
     card: 'summary_large_image',

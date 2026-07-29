@@ -4,6 +4,7 @@ import { LoginGateway } from '@/app/login/LoginGateway'
 export const metadata: Metadata = {
   title: 'AKADEMATE SAAS PLATFORM',
   description: 'Acceso principal a todas las superficies de AKADEMATE.',
+  robots: { index: false, follow: false },
 }
 
 export default function AccessPage() {
