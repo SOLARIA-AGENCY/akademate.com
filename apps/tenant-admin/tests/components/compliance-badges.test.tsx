@@ -24,6 +24,7 @@ describe('CEP compliance public surfaces', () => {
       'src',
       expect.stringContaining('/website/cep/logos/compliance/eu-ai-act.png'),
     )
+    expect(screen.getByLabelText('Información regulatoria')).toHaveClass('flex-nowrap')
     expect(screen.getByText(/no constituye certificación/i)).toBeInTheDocument()
     expect(screen.queryByText(/certificad[oa]/i)).not.toBeInTheDocument()
   })

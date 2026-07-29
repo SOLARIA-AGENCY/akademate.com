@@ -17,5 +17,7 @@ describe('AreaPublicCard', () => {
     })
     expect(heading).toHaveClass('line-clamp-3', 'min-h-[4.75rem]')
     expect(heading).not.toHaveClass('line-clamp-2')
+    expect(heading.parentElement).toHaveClass('min-h-[11.75rem]')
+    expect(screen.getByText('Ver formaciones')).toHaveClass('mt-5')
   })
 })

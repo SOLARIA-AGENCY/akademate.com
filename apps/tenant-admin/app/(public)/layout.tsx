@@ -279,7 +279,6 @@ export default async function PublicLayout({ children }: { children: React.React
                 </ul>
               </div>
               <div className="flex flex-col items-center gap-3 lg:items-end">
-                <ComplianceBadges />
                 <img
                   src="/website/cep/logos/footer/logo-certificaciones.jpg"
                   alt="Certificaciones de calidad"
@@ -301,6 +300,7 @@ export default async function PublicLayout({ children }: { children: React.React
                   decoding="async"
                   className="h-auto w-52 max-w-full object-contain"
                 />
+                <ComplianceBadges className="mt-2" />
               </div>
             </div>
           </div>

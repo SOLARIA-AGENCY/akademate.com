@@ -22,11 +22,11 @@ export function AreaPublicCard({
           <img src={imageUrl} alt={title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent" />
         </div>
-        <CardContent className="flex min-h-[9.5rem] flex-col p-6">
+        <CardContent className="flex min-h-[11.75rem] flex-col p-6">
           <h3 className="line-clamp-3 min-h-[4.75rem] text-xl font-black uppercase leading-tight text-slate-950">
             {title.replace(/^Área\s+/i, '')}
           </h3>
-          <PublicCardCta className="mt-auto min-h-11 w-fit min-w-[11rem]">Ver formaciones</PublicCardCta>
+          <PublicCardCta className="mt-5 min-h-11 w-fit min-w-[11rem]">Ver formaciones</PublicCardCta>
         </CardContent>
       </Card>
     </Link>

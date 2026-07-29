@@ -10,7 +10,7 @@ const COMPLIANCE_MARKS = [
     ariaLabel: 'Privacidad y RGPD',
     width: 2000,
     height: 2000,
-    className: 'h-16 w-16 brightness-0',
+    className: 'h-12 w-12 brightness-0',
   },
   {
     key: 'ai-act',
@@ -20,7 +20,7 @@ const COMPLIANCE_MARKS = [
     ariaLabel: 'Transparencia y AI Act',
     width: 846,
     height: 215,
-    className: 'h-12 w-auto max-w-[12rem]',
+    className: 'h-9 w-auto max-w-[9rem]',
   },
 ] as const
 
@@ -37,7 +37,7 @@ export function ComplianceBadges({
 
   return (
     <div
-      className={`flex flex-wrap items-center justify-center gap-5 lg:justify-end ${className}`.trim()}
+      className={`flex flex-nowrap items-center justify-center gap-3 lg:justify-end ${className}`.trim()}
       aria-label="Información regulatoria"
     >
       {COMPLIANCE_MARKS.map((mark) => (
