@@ -1,131 +1,47 @@
 import type { Metadata } from 'next'
-import { Header } from '@/components/layout/header'
+import { Building2, Scale, Wrench } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
-import { Users, Target, HeartHandshake } from 'lucide-react'
+import { Header } from '@/components/layout/header'
+import { legalCompany } from '@/lib/legal-config'
 
 export const metadata: Metadata = {
-  title: 'Sobre Nosotros',
-  description: 'Conoce la historia, el equipo y la mision de Akademate.',
+  title: 'Sobre Akademate',
+  description: 'Producto SaaS de SOLARIA AGENCY OÜ para la operación de centros de formación.',
+  alternates: { canonical: '/sobre-nosotros' },
 }
 
-const values = [
-  {
-    title: 'Mision clara',
-    description: 'Empoderar a academias con tecnologia accesible y efectiva.',
-    icon: Target,
-  },
-  {
-    title: 'Compromiso real',
-    description: 'Acompanamos a los equipos docentes en cada etapa.',
-    icon: HeartHandshake,
-  },
-  {
-    title: 'Comunidad',
-    description: 'Construimos una red de academias que crecen juntas.',
-    icon: Users,
-  },
-]
-
-const team = [
-  { name: 'Alicia Romero', role: 'CEO' },
-  { name: 'Carlos Vega', role: 'CTO' },
-  { name: 'Lucia Torres', role: 'Product Lead' },
-  { name: 'Javier Gomez', role: 'Growth' },
-]
+const principles = [
+  { icon: Building2, title: 'Producto para organizaciones reales', text: 'El alcance se define por procesos, sedes, datos y responsabilidades de cada centro.' },
+  { icon: Wrench, title: 'Configuración antes que ficción', text: 'Una capacidad técnica no se presenta como activa hasta que integración, permisos y operación estén validados.' },
+  { icon: Scale, title: 'Claims defendibles', text: 'Privacidad, IA y seguridad se explican como prácticas y límites; no como certificaciones inexistentes.' },
+] as const
 
 export default function AboutPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1">
-        <section className="bg-gradient-to-b from-primary/5 to-background py-12">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-3xl text-center">
-              <p className="company-name text-sm font-semibold text-primary">Akademate</p>
-              <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                Akademate impulsa la formacion moderna
-              </h1>
-              <p className="company-description mt-4 text-lg text-muted-foreground">
-                Somos una plataforma SaaS para academias que quieren crecer sin perder el foco en sus alumnos.
-              </p>
-              <p className="mt-4 text-sm text-muted-foreground">
-                50+ academias y centros confian en nuestra tecnologia.
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Nuestra mision, valores y vision guian cada producto que lanzamos.
-              </p>
-              <div className="social-links mt-6 flex items-center justify-center gap-4 text-sm">
-                <a
-                  className="social-twitter text-primary hover:underline"
-                  href="https://twitter.com/akademate"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Twitter
-                </a>
-                <a
-                  className="social-linkedin text-primary hover:underline"
-                  href="https://linkedin.com/in/akademate"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  LinkedIn
-                </a>
-                <a
-                  className="social-instagram text-primary hover:underline"
-                  href="https://instagram.com/akademate"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Instagram
-                </a>
-              </div>
-            </div>
+      <main id="contenido" className="flex-1">
+        <section className="border-b bg-muted/30 px-4 py-16 sm:px-6 sm:py-20">
+          <div className="mx-auto max-w-4xl">
+            <p className="text-sm font-semibold text-primary">Sobre Akademate</p>
+            <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Software académico construido con límites explícitos</h1>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
+              Akademate es un producto SaaS prestado por {legalCompany.name}. akademate.com prepara la futura oferta multitenant; los clientes Enterprise reciben instancias aisladas bajo contrato, como el despliegue específico de CEP Formación.
+            </p>
           </div>
         </section>
-
-        <section className="py-12">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-              {values.map((value) => {
-                const Icon = value.icon
-                return (
-                  <div key={value.title} className="rounded-2xl border bg-background p-6 shadow-sm">
-                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <Icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <h2 className="text-lg font-semibold">{value.title}</h2>
-                    <p className="mt-2 text-sm text-muted-foreground">{value.description}</p>
-                  </div>
-                )
-              })}
-            </div>
+        <section className="px-4 py-16 sm:px-6">
+          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
+            {principles.map(({ icon: Icon, title, text }) => (
+              <article key={title} className="rounded-2xl border bg-card p-6">
+                <Icon className="h-7 w-7 text-primary" aria-hidden="true" />
+                <h2 className="mt-5 text-lg font-semibold">{title}</h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
+              </article>
+            ))}
           </div>
-        </section>
-
-        <section className="py-12">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-8">
-              <h2 className="text-2xl font-semibold">Nuestro equipo</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Un equipo multidisciplinar con experiencia en educacion y tecnologia.
-              </p>
-              <p className="team-count mt-2 text-sm font-medium text-primary">50+ Academias</p>
-            </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {team.map((member) => (
-                <div key={member.name} className="team-card rounded-xl border bg-background p-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                    {member.name
-                      .split(' ')
-                      .map((word) => word[0])
-                      .join('')}
-                  </div>
-                  <h3 className="mt-4 text-base font-semibold">{member.name}</h3>
-                  <p className="text-sm text-muted-foreground">{member.role}</p>
-                </div>
-              ))}
-            </div>
+          <div className="mx-auto mt-12 max-w-3xl rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm leading-7 text-amber-950">
+            Los datos registrales, fiscales y domicilios del prestador permanecen marcados como pendientes de validación en las páginas legales. No publicamos nombres de equipo, cifras de clientes ni perfiles sociales sin una fuente validada.
           </div>
         </section>
       </main>

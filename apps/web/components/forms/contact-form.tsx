@@ -1,231 +1,103 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
+const validSubjects = ['demo', 'pricing', 'support', 'partnership', 'privacy', 'other'] as const
+
 export function ContactForm() {
   const searchParams = useSearchParams()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [subject, setSubject] = useState('')
-  const [message, setMessage] = useState('')
-  const [gdprAccepted, setGdprAccepted] = useState(false)
-  const [captchaAccepted, setCaptchaAccepted] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const requestedSubject = searchParams.get('asunto')
+  const initialSubject = validSubjects.includes(requestedSubject as (typeof validSubjects)[number])
+    ? requestedSubject ?? ''
+    : ''
+  const [form, setForm] = useState({
+    name: '', email: '', phone: '', subject: initialSubject, message: '', website: '', privacyAccepted: false,
+  })
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [feedback, setFeedback] = useState('')
 
-  const utm = useMemo(() => {
-    return {
-      source: searchParams.get('utm_source') ?? undefined,
-      medium: searchParams.get('utm_medium') ?? undefined,
-      campaign: searchParams.get('utm_campaign') ?? undefined,
-      term: searchParams.get('utm_term') ?? undefined,
-      content: searchParams.get('utm_content') ?? undefined,
-    }
-  }, [searchParams])
+  const utm = useMemo(() => ({
+    source: searchParams.get('utm_source') ?? '',
+    medium: searchParams.get('utm_medium') ?? '',
+    campaign: searchParams.get('utm_campaign') ?? '',
+    term: searchParams.get('utm_term') ?? '',
+    content: searchParams.get('utm_content') ?? '',
+  }), [searchParams])
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setErrorMessage(null)
-    setSuccessMessage(null)
-
-    if (!gdprAccepted) {
-      setErrorMessage('Debes aceptar la política de privacidad para continuar.')
+    setFeedback('')
+    if (!form.privacyAccepted) {
+      setStatus('error')
+      setFeedback('Debes aceptar la política de privacidad antes de enviar la solicitud.')
       return
     }
-
-    if (!captchaAccepted) {
-      setErrorMessage('Completa la verificación anti-spam para continuar.')
-      return
-    }
-
-    const nameParts = name.trim().split(' ').filter(Boolean)
-    const firstName = nameParts.shift() ?? ''
-    const lastName = nameParts.join(' ') || 'Sin Apellido'
-
-    if (!firstName) {
-      setErrorMessage('El nombre es obligatorio.')
-      return
-    }
-
-    setIsSubmitting(true)
-
+    setStatus('loading')
+    const [firstName, ...lastNameParts] = form.name.trim().split(/\s+/)
     try {
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           first_name: firstName,
-          last_name: lastName,
-          email,
-          phone,
-          message: `[${subject}] ${message}`.trim(),
-          gdpr_consent: gdprAccepted,
-          privacy_policy_accepted: gdprAccepted,
+          last_name: lastNameParts.join(' '),
+          email: form.email,
+          phone: form.phone,
+          subject: form.subject,
+          message: form.message,
+          website: form.website,
+          privacy_policy_accepted: form.privacyAccepted,
           marketing_consent: false,
           utm,
         }),
       })
-
-      if (!response.ok) {
-        throw new Error('No se pudo enviar el mensaje. Inténtalo de nuevo.')
-      }
-
-      setSuccessMessage('Mensaje enviado correctamente. Te responderemos pronto.')
-      setName('')
-      setEmail('')
-      setPhone('')
-      setSubject('')
-      setMessage('')
-      setGdprAccepted(false)
-      setCaptchaAccepted(false)
+      const data = await response.json().catch(() => ({})) as { error?: string }
+      if (!response.ok) throw new Error(data.error ?? 'No se pudo enviar la solicitud')
+      setStatus('success')
+      setFeedback('Solicitud recibida. Conserva esta confirmación; no implica aceptación comercial ni un plazo de respuesta garantizado.')
+      setForm({ name: '', email: '', phone: '', subject: '', message: '', website: '', privacyAccepted: false })
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Error al enviar el mensaje.')
-    } finally {
-      setIsSubmitting(false)
+      setStatus('error')
+      setFeedback(error instanceof Error ? error.message : 'No se pudo enviar la solicitud')
     }
   }
 
+  const fieldClass = 'mt-1 w-full rounded-md border bg-background px-3 py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+
   return (
-    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-      {errorMessage && (
-        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {errorMessage}
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          {successMessage}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium">
-            Nombre y apellidos *
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="Tu nombre"
-          />
-        </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium">
-            Email *
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="tu@email.com"
-          />
-        </div>
+    <form className="mt-8 space-y-5" onSubmit={handleSubmit} noValidate>
+      {feedback ? (
+        <p role={status === 'error' ? 'alert' : 'status'} className={`rounded-lg border p-3 text-sm ${status === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
+          {feedback}
+        </p>
+      ) : null}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Nombre y apellidos" id="name" required><input id="name" required maxLength={200} autoComplete="name" className={fieldClass} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></Field>
+        <Field label="Email" id="email" required><input id="email" required type="email" maxLength={254} autoComplete="email" className={fieldClass} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></Field>
       </div>
-
-      <div>
-        <label htmlFor="phone" className="block text-sm font-medium">
-          Teléfono
-        </label>
-        <input
-          type="tel"
-          id="phone"
-          name="phone"
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          placeholder="+34 612 345 678"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="subject" className="block text-sm font-medium">
-          Asunto *
-        </label>
-        <select
-          id="subject"
-          name="subject"
-          required
-          value={subject}
-          onChange={(event) => setSubject(event.target.value)}
-          className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <option value="">Selecciona un asunto</option>
-          <option value="demo">Solicitar demo</option>
-          <option value="pricing">Información de precios</option>
-          <option value="support">Soporte técnico</option>
-          <option value="partnership">Colaboraciones</option>
-          <option value="other">Otro</option>
+      <Field label="Teléfono (opcional)" id="phone"><input id="phone" type="tel" maxLength={40} autoComplete="tel" className={fieldClass} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></Field>
+      <Field label="Asunto" id="subject" required>
+        <select id="subject" required className={fieldClass} value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })}>
+          <option value="">Selecciona un asunto</option><option value="demo">Evaluar una implantación</option><option value="pricing">Alcance y precios</option><option value="support">Soporte de cliente</option><option value="partnership">Colaboración</option><option value="privacy">Privacidad</option><option value="other">Otro</option>
         </select>
+      </Field>
+      <Field label="Mensaje" id="message" required><textarea id="message" required minLength={10} maxLength={4000} rows={6} className={fieldClass} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} /></Field>
+      <div className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+        <label htmlFor="website">Sitio web</label><input id="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(event) => setForm({ ...form, website: event.target.value })} />
       </div>
-
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium">
-          Mensaje *
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          required
-          rows={5}
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-          className="mt-1 w-full rounded-md border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          placeholder="¿En qué podemos ayudarte?"
-        />
-      </div>
-
-      <div className="flex items-start gap-2">
-        <input
-          type="checkbox"
-          id="gdpr"
-          name="gdpr"
-          checked={gdprAccepted}
-          onChange={(event) => setGdprAccepted(event.target.checked)}
-          className="mt-1 rounded border-gray-300"
-        />
-        <label htmlFor="gdpr" className="text-sm text-muted-foreground">
-          Acepto la{' '}
-          <a href="/privacidad" className="text-primary hover:underline">
-            política de privacidad
-          </a>{' '}
-          y el tratamiento de mis datos para gestionar mi consulta. *
-        </label>
-      </div>
-
-      <div className="flex items-start gap-2">
-        <input
-          type="checkbox"
-          id="captcha"
-          name="captcha"
-          checked={captchaAccepted}
-          onChange={(event) => setCaptchaAccepted(event.target.checked)}
-          className="mt-1 rounded border-gray-300"
-        />
-        <label htmlFor="captcha" className="text-sm text-muted-foreground">
-          Verificación anti-spam (marca para continuar)
-        </label>
-      </div>
-
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-70"
-      >
-        {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
+      <label className="flex items-start gap-3 text-sm leading-6 text-muted-foreground">
+        <input type="checkbox" required checked={form.privacyAccepted} onChange={(event) => setForm({ ...form, privacyAccepted: event.target.checked })} className="mt-1 h-4 w-4" />
+        <span>Acepto la <Link href="/legal/privacidad" className="font-medium text-primary hover:underline">política de privacidad</Link> para gestionar esta consulta. No acepto marketing por defecto.</span>
+      </label>
+      <button type="submit" disabled={status === 'loading'} className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+        {status === 'loading' ? 'Enviando…' : 'Enviar solicitud'}
       </button>
     </form>
   )
+}
+
+function Field({ label, id, required = false, children }: { label: string; id: string; required?: boolean; children: React.ReactNode }) {
+  return <div><label htmlFor={id} className="text-sm font-medium">{label}{required ? ' *' : ''}</label>{children}</div>
 }

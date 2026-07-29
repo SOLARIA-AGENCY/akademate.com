@@ -1,43 +1,44 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { MAX_PUBLIC_FORM_BYTES, waitlistSchema } from '@/lib/public-lead-schema'
 
 const CMS_URL = process.env.PAYLOAD_CMS_URL ?? 'http://localhost:3003'
 
 export async function POST(request: NextRequest) {
+  const contentLength = Number(request.headers.get('content-length') ?? 0)
+  if (contentLength > MAX_PUBLIC_FORM_BYTES) {
+    return NextResponse.json({ error: 'Solicitud demasiado grande' }, { status: 413 })
+  }
+
+  let rawBody: unknown
   try {
-    const body = await request.json() as { email?: string }
-    const email = body.email?.trim()
+    rawBody = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
+  }
 
-    if (!email || !email.includes('@')) {
-      return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
-    }
+  const parsed = waitlistSchema.safeParse(rawBody)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Email o consentimiento inválido' }, { status: 400 })
+  }
+  if (parsed.data.website) return NextResponse.json({ success: true }, { status: 202 })
 
-    // Guardar en Payload CMS como lead con source=waitlist
+  try {
     const response = await fetch(`${CMS_URL}/api/leads`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email,
-        source: 'waitlist',
+        email: parsed.data.email,
+        source: 'akademate_public_waitlist',
         status: 'new',
-        notes: 'Registro desde landing coming soon akademate.com',
+        gdpr_consent: true,
+        privacy_policy_accepted: true,
       }),
     })
-
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({})) as { message?: string }
-      // Si ya existe el email (409 conflict), devolver éxito igualmente
-      if (response.status === 409) {
-        return NextResponse.json({ success: true, message: 'Ya estás en la lista' })
-      }
-      return NextResponse.json(
-        { error: data.message ?? 'Error al registrar el email' },
-        { status: 500 }
-      )
-    }
-
+    if (response.status === 409) return NextResponse.json({ success: true })
+    if (!response.ok) return NextResponse.json({ error: 'No se pudo registrar la solicitud' }, { status: 502 })
     return NextResponse.json({ success: true })
   } catch {
-    return NextResponse.json({ error: 'Error de conexión' }, { status: 500 })
+    return NextResponse.json({ error: 'El servicio de contacto no está disponible' }, { status: 502 })
   }
 }

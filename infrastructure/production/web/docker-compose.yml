@@ -20,6 +20,7 @@ services:
     environment:
       NODE_ENV: production
       NEXT_TELEMETRY_DISABLED: "1"
+      APP_REVISION: ${APP_REVISION:-unknown}
       # Payload CMS — cuando esté desplegado
       PAYLOAD_CMS_URL: ${PAYLOAD_CMS_URL:-http://localhost:3003}
       PAYLOAD_API_KEY: ${PAYLOAD_API_KEY:-}

@@ -7,23 +7,10 @@ const __dirname = path.dirname(__filename)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  poweredByHeader: false,
 
   // Transpile workspace packages
   transpilePackages: ['@akademate/ui', '@akademate/types', '@akademate/api'],
-
-  // pg has native bindings — must not be webpack-bundled
-  serverExternalPackages: ['pg', 'pg-native'],
-
-  // Force-include packages into standalone trace (nft resolves symlinks to actual files)
-  outputFileTracingIncludes: {
-    '/api/auth/[...all]': [
-      './node_modules/better-auth/**',
-      './node_modules/@better-auth/**',
-      './node_modules/pg/**',
-      './node_modules/pg-pool/**',
-      './node_modules/drizzle-orm/**',
-    ],
-  },
 
   experimental: {},
 

@@ -1,119 +1,70 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
-const navigation = [
-  { name: 'Inicio', href: '/' },
-  { name: 'Accesos', href: '/accesos' },
-  { name: 'Design System', href: '/design-system' },
-  { name: 'Cursos', href: '/cursos' },
-  { name: 'Sobre Nosotros', href: '/sobre-nosotros' },
-  { name: 'Blog', href: '/blog' },
-  { name: 'Contacto', href: '/contacto' },
-]
+import { publicNavigation } from '@/lib/public-navigation'
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <div className="flex lg:flex-1">
-          <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2.5">
-            <img
-              src="/logos/akademate-icon-48.png"
-              alt="Akademate"
-              className="h-8 w-8 flex-shrink-0"
-            />
-            <span className="font-bold text-xl tracking-tight">AKADEMATE</span>
-          </Link>
-        </div>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+      <a
+        href="#contenido"
+        className="sr-only z-[60] rounded-md bg-background px-4 py-2 focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:ring-2 focus:ring-ring"
+      >
+        Saltar al contenido
+      </a>
+      <nav aria-label="Navegación principal" className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Image src="/logos/akademate-icon-48.png" alt="" width={32} height={32} priority />
+          <span className="font-bold tracking-tight">AKADEMATE</span>
+        </Link>
 
-        {/* Mobile menu button */}
-        <div className="flex lg:hidden">
-          <button
-            type="button"
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-foreground"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <span className="sr-only">Abrir menú</span>
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" aria-hidden="true" />
-            ) : (
-              <Menu className="h-6 w-6" aria-hidden="true" />
-            )}
-          </button>
-        </div>
+        <button
+          type="button"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md lg:hidden"
+          aria-expanded={mobileMenuOpen}
+          aria-controls="menu-movil"
+          onClick={() => setMobileMenuOpen((open) => !open)}
+        >
+          <span className="sr-only">{mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
+          {mobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+        </button>
 
-        {/* Desktop navigation */}
-        <div className="hidden lg:flex lg:gap-x-8">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
+        <div className="hidden items-center gap-7 lg:flex">
+          {publicNavigation.map((item) => (
+            <Link key={item.href} href={item.href} className="text-sm font-medium text-muted-foreground hover:text-foreground">
               {item.name}
             </Link>
           ))}
-        </div>
-
-        {/* CTA buttons */}
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-          <Link
-            href="/portal/login"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            Iniciar sesión
-          </Link>
-          <Link
-            href="/registro"
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
-          >
-            Registrarse
+          <Link href="/login" className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted">
+            Acceso clientes
           </Link>
         </div>
       </nav>
 
-      {/* Mobile menu */}
-      <div
-        className={cn(
-          'lg:hidden',
-          mobileMenuOpen ? 'block' : 'hidden'
-        )}
-      >
-        <div className="space-y-1 px-4 pb-4">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
-              onClick={() => { setMobileMenuOpen(false) }}
-            >
-              {item.name}
-            </Link>
-          ))}
-          <div className="mt-4 space-y-2">
-            <Link
-              href="/portal/login"
-              className="block w-full rounded-md border px-4 py-2 text-center text-sm font-medium"
-              onClick={() => { setMobileMenuOpen(false) }}
-            >
-              Iniciar sesión
-            </Link>
-            <Link
-              href="/registro"
-              className="block w-full rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground"
-              onClick={() => { setMobileMenuOpen(false) }}
-            >
-              Registrarse
+      {mobileMenuOpen ? (
+        <div id="menu-movil" className="border-t px-4 py-4 lg:hidden">
+          <div className="mx-auto grid max-w-7xl gap-1">
+            {publicNavigation.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-md px-3 py-3 text-base font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+            <Link href="/login" className="mt-2 rounded-md border px-3 py-3 text-center font-medium">
+              Acceso clientes
             </Link>
           </div>
         </div>
-      </div>
+      ) : null}
     </header>
   )
 }

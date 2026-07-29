@@ -16,10 +16,10 @@ const fontMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://akademate.com'),
   title: {
-    default: 'Akademate - Plataforma de Formación',
+    default: 'Akademate - SaaS académico y Enterprise',
     template: '%s | Akademate',
   },
-  description: 'Plataforma SaaS multi-tenant para academias y centros de formación',
+  description: 'SaaS académico en preparación para apertura multitenant y despliegues Enterprise aislados bajo contrato.',
   keywords: ['formación', 'cursos', 'academia', 'educación', 'lms'],
   authors: [{ name: 'SOLARIA Agency' }],
   icons: {
@@ -28,13 +28,10 @@ export const metadata: Metadata = {
     shortcut: '/favicon.png',
   },
   openGraph: {
-    title: 'Akademate - Plataforma de Formación',
+    title: 'Akademate - SaaS académico y Enterprise',
     type: 'website',
     locale: 'es_ES',
     siteName: 'Akademate',
-  },
-  alternates: {
-    canonical: '/',
   },
   twitter: {
     card: 'summary_large_image',

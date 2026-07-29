@@ -1,11 +1,5 @@
-import type { Metadata } from 'next'
-import { LoginGateway } from '@/app/login/LoginGateway'
-
-export const metadata: Metadata = {
-  title: 'AKADEMATE SAAS PLATFORM',
-  description: 'Acceso principal a todas las superficies de AKADEMATE.',
-}
+import { redirect } from 'next/navigation'
 
 export default function AccessPage() {
-  return <LoginGateway />
+  redirect('/login')
 }
