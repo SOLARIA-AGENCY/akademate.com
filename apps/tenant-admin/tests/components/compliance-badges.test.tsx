@@ -19,6 +19,7 @@ describe('CEP compliance public surfaces', () => {
       'src',
       expect.stringContaining('/website/cep/logos/compliance/gdpr-logo.png'),
     )
+    expect(screen.getByRole('img', { name: 'RGPD' })).toHaveClass('brightness-0')
     expect(screen.getByRole('img', { name: 'EU Artificial Intelligence Act' })).toHaveAttribute(
       'src',
       expect.stringContaining('/website/cep/logos/compliance/eu-ai-act.png'),

@@ -10,7 +10,7 @@ const COMPLIANCE_MARKS = [
     ariaLabel: 'Privacidad y RGPD',
     width: 2000,
     height: 2000,
-    className: 'h-16 w-16',
+    className: 'h-16 w-16 brightness-0',
   },
   {
     key: 'ai-act',
