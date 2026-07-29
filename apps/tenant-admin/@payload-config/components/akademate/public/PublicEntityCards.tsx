@@ -23,7 +23,7 @@ export function AreaPublicCard({
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent" />
         </div>
         <CardContent className="flex min-h-[9.5rem] flex-col p-6">
-          <h3 className="line-clamp-2 min-h-[3.5rem] text-xl font-black uppercase leading-tight text-slate-950">
+          <h3 className="line-clamp-3 min-h-[4.75rem] text-xl font-black uppercase leading-tight text-slate-950">
             {title.replace(/^Área\s+/i, '')}
           </h3>
           <PublicCardCta className="mt-auto min-h-11 w-fit min-w-[11rem]">Ver formaciones</PublicCardCta>

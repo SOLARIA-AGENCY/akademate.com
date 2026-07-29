@@ -15,8 +15,14 @@ describe('CEP compliance public surfaces', () => {
       'href',
       '/p/legal/ia',
     )
-    expect(screen.getByText('RGPD')).toBeInTheDocument()
-    expect(screen.getByText('ACT')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'RGPD' })).toHaveAttribute(
+      'src',
+      expect.stringContaining('/website/cep/logos/compliance/gdpr-logo.png'),
+    )
+    expect(screen.getByRole('img', { name: 'EU Artificial Intelligence Act' })).toHaveAttribute(
+      'src',
+      expect.stringContaining('/website/cep/logos/compliance/eu-ai-act.png'),
+    )
     expect(screen.getByText(/no constituye certificación/i)).toBeInTheDocument()
     expect(screen.queryByText(/certificad[oa]/i)).not.toBeInTheDocument()
   })

@@ -1,27 +1,28 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
-function RegulatoryMark({ kind }: { kind: 'rgpd' | 'ai-act' }) {
-  if (kind === 'rgpd') {
-    return (
-      <span
-        aria-hidden="true"
-        className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#003399] text-[11px] font-black tracking-[0.08em] text-white shadow-sm"
-      >
-        RGPD
-      </span>
-    )
-  }
-
-  return (
-    <span
-      aria-hidden="true"
-      className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-violet-700 text-center text-[10px] font-black leading-[0.95] tracking-[0.04em] text-white shadow-sm"
-    >
-      <span>AI</span>
-      <span>ACT</span>
-    </span>
-  )
-}
+const COMPLIANCE_MARKS = [
+  {
+    key: 'rgpd',
+    hrefKey: 'privacyHref' as const,
+    src: '/website/cep/logos/compliance/gdpr-logo.png',
+    alt: 'RGPD',
+    ariaLabel: 'Privacidad y RGPD',
+    width: 2000,
+    height: 2000,
+    className: 'h-16 w-16',
+  },
+  {
+    key: 'ai-act',
+    hrefKey: 'aiHref' as const,
+    src: '/website/cep/logos/compliance/eu-ai-act.png',
+    alt: 'EU Artificial Intelligence Act',
+    ariaLabel: 'Transparencia y AI Act',
+    width: 846,
+    height: 215,
+    className: 'h-12 w-auto max-w-[12rem]',
+  },
+] as const
 
 export function ComplianceBadges({
   privacyHref = '/p/legal/privacidad',
@@ -32,41 +33,31 @@ export function ComplianceBadges({
   aiHref?: string
   className?: string
 }) {
-  const badgeClass =
-    'group inline-flex min-h-16 min-w-[13.5rem] items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2'
+  const hrefs = { privacyHref, aiHref }
 
   return (
     <div
-      className={`flex flex-wrap items-center justify-center gap-3 lg:justify-end ${className}`.trim()}
+      className={`flex flex-wrap items-center justify-center gap-5 lg:justify-end ${className}`.trim()}
       aria-label="Información regulatoria"
     >
-      <Link
-        href={privacyHref}
-        className={badgeClass}
-        aria-label="Privacidad y RGPD"
-        title="Información regulatoria; no constituye certificación"
-      >
-        <RegulatoryMark kind="rgpd" />
-        <span>
-          <span className="block text-sm font-bold text-slate-950">Privacidad y RGPD</span>
-          <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">Aviso, derechos y contacto</span>
-        </span>
-      </Link>
-      <Link
-        href={aiHref}
-        className={badgeClass}
-        aria-label="Transparencia y AI Act"
-        title="Información regulatoria; no constituye certificación"
-      >
-        <RegulatoryMark kind="ai-act" />
-        <span>
-          <span className="block text-sm font-bold text-slate-950">Transparencia y AI Act</span>
-          <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">Usos, límites y supervisión</span>
-        </span>
-      </Link>
-      <span className="basis-full text-center text-[11px] leading-4 text-slate-500 lg:text-right">
-        Información regulatoria; no constituye certificación.
-      </span>
+      {COMPLIANCE_MARKS.map((mark) => (
+        <Link
+          key={mark.key}
+          href={hrefs[mark.hrefKey]}
+          className="inline-flex rounded-md p-1 opacity-80 transition hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+          aria-label={mark.ariaLabel}
+          title="Información regulatoria; no constituye certificación"
+        >
+          <Image
+            src={mark.src}
+            alt={mark.alt}
+            width={mark.width}
+            height={mark.height}
+            className={`${mark.className} object-contain`}
+          />
+        </Link>
+      ))}
+      <span className="sr-only">Información regulatoria; no constituye certificación.</span>
     </div>
   )
 }
