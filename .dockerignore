@@ -14,6 +14,12 @@ coverage
 dist
 build
 *.log
+*.sql
+*.sql.gz
+*.dump
+*.tar.gz
+backups
+deploy*.tar*
 .env
 .env.*
 **/.env

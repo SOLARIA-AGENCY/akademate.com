@@ -16,6 +16,7 @@ tmp/
 # Env / logs
 .env
 .env.*
+!infrastructure/akademate-next/.env.example
 .pnpm-debug.log*
 npm-debug.log*
 yarn-error.log*
@@ -34,3 +35,4 @@ token.txt
 *.tsbuildinfo
 *.cookies
 .playwright-mcp/Manus-Setup-1-4-1.dmg
+.codex-loop-runs/

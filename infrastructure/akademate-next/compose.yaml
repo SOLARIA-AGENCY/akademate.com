@@ -1,0 +1,117 @@
+name: akademate-next
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${AKADEMATE_NEXT_DB_NAME:?AKADEMATE_NEXT_DB_NAME is required}
+      POSTGRES_USER: ${AKADEMATE_NEXT_DB_USER:?AKADEMATE_NEXT_DB_USER is required}
+      POSTGRES_PASSWORD: ${AKADEMATE_NEXT_DB_PASSWORD:?AKADEMATE_NEXT_DB_PASSWORD is required}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - akademate_next_postgres_data:/var/lib/postgresql/data
+    networks:
+      - akademate_next_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    environment:
+      AKADEMATE_NEXT_REDIS_PASSWORD: ${AKADEMATE_NEXT_REDIS_PASSWORD:?AKADEMATE_NEXT_REDIS_PASSWORD is required}
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${AKADEMATE_NEXT_REDIS_PASSWORD:?AKADEMATE_NEXT_REDIS_PASSWORD is required}"]
+    ports:
+      - "127.0.0.1:56379:6379"
+    volumes:
+      - akademate_next_redis_data:/data
+    networks:
+      - akademate_next_internal
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a '$${AKADEMATE_NEXT_REDIS_PASSWORD}' ping | grep PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  tenant-admin:
+    image: akademate-next-tenant:${AKADEMATE_NEXT_IMAGE_TAG:-local}
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.tenant-admin
+      args:
+        VCS_REF: ${AKADEMATE_NEXT_REVISION:-local-uncommitted}
+        NEXT_PUBLIC_WEB_URL: ${AKADEMATE_NEXT_TENANT_URL:-http://localhost:3109}
+        NEXT_PUBLIC_TENANT_URL: ${AKADEMATE_NEXT_TENANT_URL:-http://localhost:3109}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      AKADEMATE_RUNTIME: next
+      AKADEMATE_ENVIRONMENT: ${AKADEMATE_NEXT_ENV:-local}
+      APP_REVISION: ${AKADEMATE_NEXT_REVISION:-local-uncommitted}
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${AKADEMATE_NEXT_DB_USER}:${AKADEMATE_NEXT_DB_PASSWORD}@postgres:5432/${AKADEMATE_NEXT_DB_NAME}
+      REDIS_URL: redis://:${AKADEMATE_NEXT_REDIS_PASSWORD}@redis:6379/0
+      PAYLOAD_SECRET: ${AKADEMATE_NEXT_PAYLOAD_SECRET:?AKADEMATE_NEXT_PAYLOAD_SECRET is required}
+      BETTER_AUTH_SECRET: ${AKADEMATE_NEXT_AUTH_SECRET:?AKADEMATE_NEXT_AUTH_SECRET is required}
+      BETTER_AUTH_URL: ${AKADEMATE_NEXT_TENANT_URL:-http://localhost:3109}
+      PAYLOAD_PUBLIC_SERVER_URL: ${AKADEMATE_NEXT_TENANT_URL:-http://localhost:3109}
+      NEXT_PUBLIC_TENANT_URL: ${AKADEMATE_NEXT_TENANT_URL:-http://localhost:3109}
+      NEXT_PUBLIC_CAMPUS_URL: ${AKADEMATE_NEXT_CAMPUS_URL:-http://localhost:3105}
+      OBJECT_STORAGE_BUCKET: ${AKADEMATE_NEXT_STORAGE_BUCKET:?AKADEMATE_NEXT_STORAGE_BUCKET is required}
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "127.0.0.1:${AKADEMATE_NEXT_TENANT_PORT:-3109}:3009"
+    volumes:
+      - akademate_next_media_data:/app/apps/tenant-admin/public/media
+    networks:
+      - akademate_next_internal
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3009/api/health/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+
+  campus:
+    image: akademate-next-campus:${AKADEMATE_NEXT_IMAGE_TAG:-local}
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.campus
+    restart: unless-stopped
+    depends_on:
+      tenant-admin:
+        condition: service_healthy
+    environment:
+      AKADEMATE_RUNTIME: next
+      AKADEMATE_ENVIRONMENT: ${AKADEMATE_NEXT_ENV:-local}
+      APP_REVISION: ${AKADEMATE_NEXT_REVISION:-local-uncommitted}
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://tenant-admin:3009
+      NEXT_PUBLIC_CAMPUS_URL: ${AKADEMATE_NEXT_CAMPUS_URL:-http://localhost:3105}
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "127.0.0.1:${AKADEMATE_NEXT_CAMPUS_PORT:-3105}:3005"
+    networks:
+      - akademate_next_internal
+
+networks:
+  akademate_next_internal:
+    name: akademate_next_internal
+    internal: true
+
+volumes:
+  akademate_next_postgres_data:
+    name: akademate_next_postgres_data
+  akademate_next_redis_data:
+    name: akademate_next_redis_data
+  akademate_next_media_data:
+    name: akademate_next_media_data
