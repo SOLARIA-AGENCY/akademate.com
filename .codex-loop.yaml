@@ -1,0 +1,20 @@
+max_cycles: 5
+checks:
+  level_1:
+    - name: program-docs
+      command: node scripts/verify-akademate-program-docs.mjs
+    - name: diff-integrity
+      command: git diff --check
+
+evidence_policy:
+  final_report: required
+  list_unverified: required
+  preserve_raw_failures: required
+
+stop_rules:
+  - same_failure_twice
+  - max_cycles
+  - weakened_tests
+  - new_regression
+  - user_changes_at_risk
+  - insufficient_evidence
