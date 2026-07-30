@@ -7,6 +7,8 @@ checks:
       command: node scripts/verify-akademate-next-isolation.mjs
     - name: learning-membership-access
       command: node --experimental-strip-types --test packages/learning/src/*.test.ts
+    - name: next-runtime-collection-boundary
+      command: node --experimental-strip-types --test apps/tenant-admin/src/runtime/select-runtime-collections.test.ts
     - name: next-compose
       command: docker compose --env-file infrastructure/akademate-next/.env.example -f infrastructure/akademate-next/compose.yaml config --quiet
     - name: diff-integrity

@@ -52,3 +52,28 @@ export function validateDockerContext(dockerignoreText) {
   }
   return { sensitiveArtifactsExcluded: true }
 }
+
+export function validateNextRuntimeCollectionBoundary(payloadConfigText) {
+  assert(
+    /import\s*\{[^}]*\bselectRuntimeCollections\b[^}]*\}\s*from\s*['"]\.\/runtime\/select-runtime-collections['"]/s.test(payloadConfigText),
+    'Payload config must import the Next runtime collection selector',
+  )
+  assert(
+    /collections:\s*selectRuntimeCollections\(\s*runtime,\s*baseCollections,\s*nextOnlyCollections,\s*legacyOnlyCollections,?\s*\)/s.test(payloadConfigText),
+    'Payload collections must be materialized through the Next runtime boundary',
+  )
+  assert(
+    /await\s+loadNextRuntimeCollections\(\s*runtime,\s*async\s*\(\)\s*=>\s*\{[\s\S]*?await\s+import\(['"]\.\/runtime\/next-only-collections['"]\)/.test(payloadConfigText),
+    'Next-only collections must be loaded dynamically after the runtime gate',
+  )
+  assert(
+    !/^\s*import(?:\s+[^'"\n]+\s+from)?\s*['"]\.\/runtime\/next-only-collections['"]/m.test(payloadConfigText),
+    'Payload config must not statically import Next-only collections',
+  )
+  assert(
+    /const\s+legacyOnlyCollections\s*=\s*isAkademateNextRuntime\(runtime\)\s*\?\s*\[\]\s*:\s*getCepMultiEntityShadowCollections\(\)/s.test(payloadConfigText),
+    'CEP shadow collections must be excluded from the Next runtime',
+  )
+
+  return { runtimeBoundary: 'fail-closed' }
+}

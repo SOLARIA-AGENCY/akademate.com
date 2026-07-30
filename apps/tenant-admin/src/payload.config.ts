@@ -1,4 +1,4 @@
-import { buildConfig } from 'payload';
+import { buildConfig, type CollectionConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { s3Storage } from '@payloadcms/storage-s3';
@@ -41,6 +41,11 @@ import { Tenants } from './collections/Tenants/Tenants'
 import { ApiKeys } from './collections/ApiKeys/ApiKeys';
 import { CourseTypes } from './collections/CourseTypes/CourseTypes';
 import { getCepMultiEntityShadowCollections } from './collections/MultiEntityShadow/MultiEntityShadow';
+import {
+  isAkademateNextRuntime,
+  loadNextRuntimeCollections,
+  selectRuntimeCollections,
+} from './runtime/select-runtime-collections';
 
 // LMS Collections
 import { Modules } from './collections/Modules/Modules';
@@ -60,7 +65,66 @@ import { UserStreaks } from './collections/UserStreaks/UserStreaks';
 
 // Export factory function for lazy evaluation (ESM + --env-file compatibility)
 // Ensures process.env is read AFTER environment variables are loaded
-export const getPayloadConfig = () => buildConfig({
+const baseCollections: CollectionConfig[] = [
+  // ===== SYSTEM (Multi-tenant) =====
+  Tenants,
+  Users,
+
+  // ===== Core entities =====
+  Cycles,
+  Campuses,
+  Classrooms,
+  AreasFormativas,
+  EntidadesFinanciadoras,
+  Courses,
+  CourseRuns,
+  CourseRunSessions,
+  PlanningConflicts,
+  Students,
+  Enrollments,
+  CampusEnrollments,
+  Staff,
+  StaffStatusEvents,
+
+  // Marketing and content
+  Campaigns,
+  AdsTemplates,
+  Leads,
+  BlogPosts,
+  FAQs,
+  Media,
+
+  // Existing LMS and gamification
+  Modules,
+  Lessons,
+  LessonProgress,
+  Materials,
+  Submissions,
+  Attendance,
+  Certificates,
+  Badges,
+  UserBadges,
+  PointsTransactions,
+  UserStreaks,
+
+  // Compliance, API and catalog
+  AuditLogs,
+  ApiKeys,
+  CourseTypes,
+
+]
+
+export const getPayloadConfig = async () => {
+  const runtime = process.env.AKADEMATE_RUNTIME
+  const nextOnlyCollections = await loadNextRuntimeCollections(runtime, async () => {
+    const module = await import('./runtime/next-only-collections')
+    return module.nextOnlyCollections
+  })
+  const legacyOnlyCollections = isAkademateNextRuntime(runtime)
+    ? []
+    : getCepMultiEntityShadowCollections()
+
+  return buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
   admin: {
     user: Users.slug, // CRITICAL: Specify auth collection
@@ -76,70 +140,12 @@ export const getPayloadConfig = () => buildConfig({
       titleSuffix: '- Akademate',
     },
   },
-  collections: [
-    // Collections will be added here as they are implemented following TDD methodology
-    // ===== SYSTEM (Multi-tenant) =====
-    Tenants, // Multi-tenant support - Academies/Organizations
-    Users, // IMPORTANT: Users collection MUST be first for auth to work properly
-
-    // ===== Core entities =====
-    Cycles,
-    Campuses,
-    Classrooms, // ✅ Classrooms/aulas within campuses
-    AreasFormativas, // ✅ Knowledge areas for course categorization
-    EntidadesFinanciadoras, // ✅ Funding entities (grants, subsidies)
-
-    // Courses
-    Courses,
-    CourseRuns, // ✅ Scheduled course instances
-    CourseRunSessions, // ✅ Concrete class sessions generated from course runs
-    PlanningConflicts, // ✅ Operational planning conflict tracking
-    Students, // ✅ Learner profiles with PII protection
-    Enrollments, // ✅ Student registrations in course runs
-    CampusEnrollments, // ✅ Explicit bridge for isolated Campus access
-
-    // Personal
-    Staff, // ✅ Professors and administrative staff
-    StaffStatusEvents, // ✅ Staff status history and import audit trail
-
-    // Marketing
-    Campaigns, // ✅ Marketing campaign tracking with UTM & analytics
-    AdsTemplates, // ✅ Reusable ad templates (email, social, display ads)
-    Leads, // ✅ Phase 1: Implemented with GDPR compliance
-
-    // Content
-    BlogPosts, // ✅ Blog content with SEO optimization
-    FAQs, // ✅ Frequently Asked Questions
-    Media, // ✅ File uploads with S3 storage
-
-    // LMS - Learning Management System
-    Modules, // ✅ Course modules (structural units)
-    Lessons, // ✅ Individual lessons within modules
-    LessonProgress, // ✅ Student progress tracking per lesson
-    Materials, // ✅ Learning materials and downloadable resources
-    Submissions, // ✅ Assignment and quiz submissions
-    Attendance, // ✅ Student attendance tracking
-    Certificates, // ✅ Course completion certificates
-
-    // Gamification
-    Badges, // ✅ Badge definitions
-    UserBadges, // ✅ Badges earned by users
-    PointsTransactions, // ✅ Points ledger (earned/spent)
-    UserStreaks, // ✅ Learning streak tracking
-
-    // Compliance & System
-    AuditLogs, // ✅ GDPR Article 30 compliance - Immutable audit trail
-    // SEOMetadata,
-
-    // ===== API ACCESS =====
-    ApiKeys, // ✅ Programmatic API access via Bearer tokens
-
-    // ===== CATALOG =====
-    CourseTypes, // ✅ Course types by audience (Desempleados, Ocupados, Teleformacion)
-
-    // ===== CEP MULTI-ENTITY SHADOW (default-off, deny-all, non-production only) =====
-    ...getCepMultiEntityShadowCollections(),
-  ],
+  collections: selectRuntimeCollections(
+    runtime,
+    baseCollections,
+    nextOnlyCollections,
+    legacyOnlyCollections,
+  ),
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET ?? 'YOUR_SECRET_HERE',
   typescript: {
@@ -201,7 +207,8 @@ export const getPayloadConfig = () => buildConfig({
     process.env.NEXT_PUBLIC_TENANT_URL ?? '',
     ...parseCsvEnv(process.env.PAYLOAD_ALLOWED_ORIGINS),
   ].filter(Boolean))],
-});
+  });
+}
 
 // Note: Use named export getPayloadConfig() for lazy evaluation
 // This ensures process.env is read AFTER --env-file loads variables

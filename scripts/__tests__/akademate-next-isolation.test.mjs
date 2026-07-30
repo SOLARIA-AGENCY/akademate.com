@@ -3,12 +3,17 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { validateDockerContext, validateNextIsolation } from '../lib/akademate-next-isolation.mjs'
+import {
+  validateDockerContext,
+  validateNextIsolation,
+  validateNextRuntimeCollectionBoundary,
+} from '../lib/akademate-next-isolation.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const composeText = readFileSync(path.join(root, 'infrastructure/akademate-next/compose.yaml'), 'utf8')
 const envText = readFileSync(path.join(root, 'infrastructure/akademate-next/.env.example'), 'utf8')
 const dockerignoreText = readFileSync(path.join(root, '.dockerignore'), 'utf8')
+const payloadConfigText = readFileSync(path.join(root, 'apps/tenant-admin/src/payload.config.ts'), 'utf8')
 
 test('accepts the committed isolated Next contract', () => {
   assert.deepEqual(validateNextIsolation({ composeText, envText }), {
@@ -65,5 +70,39 @@ test('requires backup and release archives to stay outside the Docker context', 
   assert.throws(
     () => validateDockerContext(dockerignoreText.replace('*.sql.gz\n', '')),
     /Docker context must exclude \*\.sql\.gz/,
+  )
+})
+
+test('requires Payload collections to pass through the fail-closed Next runtime boundary', () => {
+  assert.deepEqual(validateNextRuntimeCollectionBoundary(payloadConfigText), {
+    runtimeBoundary: 'fail-closed',
+  })
+
+  assert.throws(
+    () => validateNextRuntimeCollectionBoundary(
+      payloadConfigText.replace("await import('./runtime/next-only-collections')", "await import('./runtime/shared-collections')"),
+    ),
+    /Next-only collections must be loaded dynamically after the runtime gate/,
+  )
+  assert.throws(
+    () => validateNextRuntimeCollectionBoundary(
+      payloadConfigText.replace('selectRuntimeCollections(', 'selectCollections('),
+    ),
+    /Payload collections must be materialized through the Next runtime boundary/,
+  )
+  assert.throws(
+    () => validateNextRuntimeCollectionBoundary(
+      `${payloadConfigText}\nimport './runtime/next-only-collections'`,
+    ),
+    /must not statically import Next-only collections/,
+  )
+  assert.throws(
+    () => validateNextRuntimeCollectionBoundary(
+      payloadConfigText.replace(
+        'isAkademateNextRuntime(runtime)\n    ? []\n    : getCepMultiEntityShadowCollections()',
+        'false\n    ? []\n    : getCepMultiEntityShadowCollections()',
+      ),
+    ),
+    /CEP shadow collections must be excluded from the Next runtime/,
   )
 })
