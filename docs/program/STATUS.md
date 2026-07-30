@@ -22,8 +22,8 @@ Last updated: 2026-07-30
 - [x] Master plan and checklists created.
 - [x] Screen inventory generated and verified: 231 tracked screens.
 - [x] Governance checks green.
-- [ ] Documentation committed.
-- [ ] Documentation pushed.
+- [x] Documentation committed: `f947d2f3`.
+- [x] Documentation pushed: `origin/codex/akademate-program-governance`.
 - [ ] Shadow custody manifests generated.
 - [ ] First compatible CEP candidate selected.
 
