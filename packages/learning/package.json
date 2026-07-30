@@ -8,7 +8,8 @@
     "./access": "./src/access.ts",
     "./conversation-access": "./src/conversation-access.ts",
     "./messaging": "./src/messaging.ts",
-    "./assessment": "./src/assessment.ts"
+    "./assessment": "./src/assessment.ts",
+    "./repository": "./src/repository.ts"
   },
   "scripts": {
     "test": "node --experimental-strip-types --test src/*.test.ts"
