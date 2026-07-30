@@ -315,7 +315,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       ADD CONSTRAINT "payload_locked_documents_rels_learning_conversations_fk"
       FOREIGN KEY ("learning_conversations_id") REFERENCES "learning_conversations"("id") ON DELETE cascade;
     ALTER TABLE "payload_locked_documents_rels"
-      ADD CONSTRAINT "payload_locked_documents_rels_learning_conversation_participants_fk"
+      ADD CONSTRAINT "pld_rels_learning_conversation_participants_fk"
       FOREIGN KEY ("learning_conversation_participants_id") REFERENCES "learning_conversation_participants"("id") ON DELETE cascade;
     ALTER TABLE "payload_locked_documents_rels"
       ADD CONSTRAINT "payload_locked_documents_rels_learning_messages_fk"
@@ -334,7 +334,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       ON "payload_locked_documents_rels" ("learning_memberships_id");
     CREATE INDEX "payload_locked_documents_rels_learning_conversations_idx"
       ON "payload_locked_documents_rels" ("learning_conversations_id");
-    CREATE INDEX "payload_locked_documents_rels_learning_conversation_participants_idx"
+    CREATE INDEX "pld_rels_learning_conversation_participants_idx"
       ON "payload_locked_documents_rels" ("learning_conversation_participants_id");
     CREATE INDEX "payload_locked_documents_rels_learning_messages_idx"
       ON "payload_locked_documents_rels" ("learning_messages_id");

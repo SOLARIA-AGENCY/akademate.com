@@ -63,3 +63,10 @@ test('declares the identity links required by learning memberships', () => {
     assert.ok(names?.includes('user_account'))
   }
 })
+
+test('uses the physical baseline course name column instead of a shadow title field', () => {
+  const courses = nextOnlyCollections.find(({ slug }) => slug === 'courses')
+  const names = courses?.fields.map((field) => 'name' in field ? field.name : null)
+  assert.ok(names?.includes('name'))
+  assert.equal(names?.includes('title'), false)
+})

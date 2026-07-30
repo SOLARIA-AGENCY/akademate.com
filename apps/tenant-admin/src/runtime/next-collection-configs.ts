@@ -69,7 +69,7 @@ export const NextCourses: CollectionConfig = {
   ...timestamped,
   slug: 'courses',
   fields: [
-    { name: 'title', type: 'text', required: true },
+    { name: 'name', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, index: true },
     relation('tenant', 'tenants', false),
   ],
