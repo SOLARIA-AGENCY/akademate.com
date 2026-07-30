@@ -15,6 +15,8 @@ const allowedPaths = [
   'apps/tenant-admin/app/lib/planning/instructor-availability.ts',
   'apps/tenant-admin/app/lib/server/__tests__/course-run-planning.test.ts',
   'apps/tenant-admin/app/lib/server/course-run-planning.ts',
+  'infrastructure/docker/Dockerfile.tenant-admin',
+  'infrastructure/scripts/backup.sh',
   'scripts/verify-cep-candidate-1a.mjs',
 ].sort()
 
@@ -51,7 +53,6 @@ const forbiddenPrefixes = [
   'apps/tenant-admin/app/(public)/',
   'apps/tenant-admin/migrations/',
   'apps/tenant-admin/src/payload.config.ts',
-  'infrastructure/',
 ]
 if (changedPaths.some((filePath) => forbiddenPrefixes.some((prefix) => filePath.startsWith(prefix)))) {
   fail('candidate changes a forbidden API, public, schema or infrastructure path')

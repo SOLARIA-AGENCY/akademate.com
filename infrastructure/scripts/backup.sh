@@ -2,7 +2,7 @@
 # Akademate.com - Database Backup Script
 # Usage: ./backup.sh [output_dir]
 
-set -e
+set -euo pipefail
 
 # =============================================================================
 # Configuration
