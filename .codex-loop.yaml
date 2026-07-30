@@ -3,6 +3,8 @@ checks:
   level_1:
     - name: next-isolation-tests
       command: node --test scripts/__tests__/akademate-next-isolation.test.mjs
+    - name: next-database-role-tests
+      command: node --test scripts/__tests__/akademate-next-db-roles.test.mjs
     - name: next-isolation-contract
       command: node scripts/verify-akademate-next-isolation.mjs
     - name: learning-membership-access

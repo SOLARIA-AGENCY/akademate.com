@@ -34,7 +34,8 @@ export function validateNextIsolation({ composeText, envText }) {
 
   for (const variable of [
     'AKADEMATE_NEXT_DB_NAME=akademate_next',
-    'AKADEMATE_NEXT_DB_USER=akademate_next',
+    'AKADEMATE_NEXT_DB_OWNER_USER=akademate_next_owner',
+    'AKADEMATE_NEXT_DB_APP_USER=akademate_next_app',
     'AKADEMATE_NEXT_STORAGE_BUCKET=akademate-next-',
   ]) {
     assert(envText.includes(variable), `environment contract missing ${variable}`)
@@ -76,4 +77,62 @@ export function validateNextRuntimeCollectionBoundary(payloadConfigText) {
   )
 
   return { runtimeBoundary: 'fail-closed' }
+}
+
+export function validateNextDatabaseRoles({ composeText, envText, initRoleText }) {
+  const migrateSection = composeText.split('\n  migrate:')[1]?.split('\n  tenant-admin:')[0] ?? ''
+  const tenantAdminSection = composeText.split('\n  tenant-admin:')[1]?.split('\n  campus:')[0] ?? ''
+  const postgresSection = composeText.split('\n  postgres:')[1]?.split('\n  redis:')[0] ?? ''
+
+  assert(
+    envText.includes('AKADEMATE_NEXT_DB_OWNER_USER=akademate_next_owner')
+      && envText.includes('AKADEMATE_NEXT_DB_APP_USER=akademate_next_app'),
+    'database owner and application identities must be explicit and distinct',
+  )
+  assert(
+    /POSTGRES_USER:\s*\$\{AKADEMATE_NEXT_DB_OWNER_USER:/.test(postgresSection),
+    'PostgreSQL bootstrap must use the dedicated owner role',
+  )
+  assert(
+    /DATABASE_URL:\s*postgresql:\/\/\$\{AKADEMATE_NEXT_DB_OWNER_USER\}:\$\{AKADEMATE_NEXT_DB_OWNER_PASSWORD\}/.test(migrateSection),
+    'migration job must connect with the owner role',
+  )
+  assert(
+    /DATABASE_URL:\s*postgresql:\/\/\$\{AKADEMATE_NEXT_DB_APP_USER\}:\$\{AKADEMATE_NEXT_DB_APP_PASSWORD\}/.test(tenantAdminSection)
+      && !tenantAdminSection.includes('AKADEMATE_NEXT_DB_OWNER_PASSWORD'),
+    'tenant-admin must connect with the non-owner application role',
+  )
+  assert(
+    /migrate:\s*\n\s*condition:\s*service_completed_successfully/.test(tenantAdminSection),
+    'tenant-admin must wait for the migration job to complete',
+  )
+  assert(
+    /AKADEMATE_RUNTIME:\s*next/.test(migrateSection)
+      && /PAYLOAD_DB_PUSH:\s*["']?false["']?/.test(migrateSection)
+      && /command:\s*\["pnpm",\s*"exec",\s*"payload",\s*"migrate"\]/.test(migrateSection),
+    'migration job must be explicit, Next-only and push-disabled',
+  )
+  assert(
+    composeText.includes('./postgres-init/010-create-app-role.sh:/docker-entrypoint-initdb.d/010-create-app-role.sh:ro'),
+    'PostgreSQL must install the non-owner application role at initialization',
+  )
+
+  for (const capability of [
+    'NOSUPERUSER',
+    'NOCREATEDB',
+    'NOCREATEROLE',
+    'NOINHERIT',
+    'NOREPLICATION',
+    'NOBYPASSRLS',
+  ]) {
+    assert(initRoleText.includes(capability), 'application role must explicitly disable privileged capabilities')
+  }
+  assert(!/\bSUPERUSER\b/.test(initRoleText) && !/\bBYPASSRLS\b/.test(initRoleText), 'application role must explicitly disable privileged capabilities')
+  assert(
+    initRoleText.includes('ALTER DEFAULT PRIVILEGES IN SCHEMA public')
+      && initRoleText.includes('GRANT USAGE, SELECT ON ALL SEQUENCES'),
+    'application role must receive bounded current and future schema privileges',
+  )
+
+  return { databaseRoles: 'separated' }
 }
