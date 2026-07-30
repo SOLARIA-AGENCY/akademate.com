@@ -69,15 +69,32 @@ Last updated: 2026-07-30
 ## Campus
 
 - [ ] Canonical student campus.
-- [ ] Teacher portal.
+- [ ] Teacher workspace with a role-specific shell and minimum privileges.
+- [ ] Administrative backoffice remains separate from teacher/student shells.
+- [ ] Teacher course preparation and content authoring.
+- [ ] Teacher attendance, assignment and grade workflows.
 - [ ] Modules, lessons and materials.
 - [ ] Live class links.
 - [ ] Assignments and submissions.
-- [ ] Quizzes and grading.
+- [ ] Quizzes, rubric-based grading and gradebook.
+- [ ] Student feedback and grade publication controls.
 - [ ] Progress rules.
 - [ ] Certificates and verification.
 - [ ] Announcements and support.
 - [ ] Mobile/PWA experience.
+
+## Internal communication
+
+- [ ] Tenant-scoped conversations.
+- [ ] Course-run and enrolment membership enforced server-side.
+- [ ] Teacher/student direct threads only within an authorized academic context.
+- [ ] Course channels, announcements and assignment discussions.
+- [ ] Message attachments in tenant-namespaced storage.
+- [ ] Read receipts, notification preferences and unread counts.
+- [ ] Moderation, reporting, retention and audit events.
+- [ ] Block deleted, suspended or cross-tenant users fail-closed.
+- [ ] Realtime transport with durable persistence and retry.
+- [ ] Mobile-accessible composer, history and attachment UX.
 
 ## Integrations
 

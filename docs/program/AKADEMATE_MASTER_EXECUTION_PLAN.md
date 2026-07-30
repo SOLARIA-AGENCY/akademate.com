@@ -5,9 +5,9 @@ Last updated: 2026-07-30
 
 Preserve CEP Formación as the live Enterprise MVP while building an isolated,
 general Akademate operating system for in-person, virtual and hybrid academies.
-Only compatible and reversible CEP changes may reach production. Akademate Next
-must inherit proven product behavior without inheriting CEP identity, data,
-contracts or deployment responsibility.
+No change from this Akademate Next lane may be built, staged, routed or deployed to CEP.
+Akademate Next must inherit proven product behavior without inheriting CEP
+identity, data, contracts or deployment responsibility.
 
 AI is an optional add-on. It is not the product category, primary sales message
 or a dependency of admissions, planning, teaching, billing or reporting.
@@ -16,8 +16,8 @@ or a dependency of admissions, planning, teaching, billing or reporting.
 
 - [x] CEP and Akademate Next are separate release lanes.
 - [x] CEP live SHA is recorded.
-- [ ] Tag and archive the exact CEP deployment evidence.
-- [ ] CEP backup restore is proven before the first shadow candidate.
+- [x] CEP deployment is delegated to task `019f8964-2942-7642-89e7-f09495627e65`.
+- [x] This lane performs no CEP image, restart, traffic, data or deployment action.
 - [ ] Next has a different database, Redis namespace, storage namespace and secrets.
 - [ ] Next images and Compose project names cannot resolve to CEP services.
 - [ ] CI contains a guard that rejects CEP domains and production identifiers in Next deploy inputs.
@@ -51,13 +51,12 @@ work through isolated, causal ports.
 
 ## Release trains
 
-### Train A — CEP compatible maintenance
+### Train A — CEP preservation boundary
 
-- Security/session hardening.
-- Test harness isolation.
-- Authenticated health and release smoke.
-- Explicit UX fixes with no data model expansion.
-- Read-only shadow observation after restored-staging proof.
+- Record served SHA/image evidence read-only.
+- Preserve candidate evidence and hand it off to the dedicated CEP task.
+- Use CEP only as product-reference evidence.
+- Defer any future migration to a separately authorized program.
 
 ### Train B — Akademate Next
 
@@ -91,18 +90,13 @@ work through isolated, causal ports.
 - [ ] Execute Release A focal checks in an approved dependency environment.
 - [ ] Establish baseline test and build commands per workspace.
 
-### Phase 1 — CEP release foundation
+### Phase 1 — CEP freeze boundary
 
-- [ ] Tag the live baseline.
-- [ ] Rehearse backup and restore on a production copy.
-- [ ] Integrate session v2 and dev-auth fail-closed changes in a clean candidate branch.
-- [ ] Integrate least-privilege authenticated smoke.
-- [ ] Verify migrations are expand-only or explicitly `no_schema_change`.
-- [ ] Deploy a candidate container without traffic.
-- [ ] Run anonymous, staff, campus and public smoke tests.
-- [ ] Audit desktop/mobile visuals and console/network.
-- [ ] Switch traffic only after all gates pass.
-- [ ] Verify exact live SHA and compare CEP business flows.
+- [x] Record the live revision and image identity read-only.
+- [x] Preserve Candidate 1A and hand it off to the dedicated CEP task.
+- [x] Prohibit this Akademate Next lane from building, staging, restarting or routing CEP.
+- [x] Prohibit database, role, permission, finance and customer-data changes.
+- [ ] Re-check live identity read-only only when required for future migration design.
 
 ### Phase 2 — Akademate Next isolation
 
@@ -133,8 +127,10 @@ work through isolated, causal ports.
 - [ ] Scheduling, conflicts, substitutions and resources.
 - [ ] Attendance and justified absence workflows.
 - [ ] Academic finance, invoices, instalments, refunds and dunning.
-- [ ] Teacher portal.
-- [ ] Student campus, assessments, progress and certificates.
+- [ ] Administrative backoffice for authorized operational staff.
+- [ ] Teacher workspace for course preparation, lessons, assignments, attendance and grading.
+- [ ] Student campus for learning, submissions, feedback, grades and certificates.
+- [ ] Course-scoped teacher/student messaging with moderation and retention.
 - [ ] Tenant website, checkout and consent-aware analytics.
 - [ ] Operational reporting.
 
@@ -185,7 +181,7 @@ work through isolated, causal ports.
 
 | Milestone | Target after start | Exit condition |
 | --- | ---: | --- |
-| CEP Release Foundation | 4–8 weeks | compatible release + rollback evidence |
+| Akademate Next Isolation | 2–4 weeks | independent runtime and deny-list proven |
 | Generic Next Parity | 10–14 weeks | synthetic academy completes core flows |
 | SaaS Beta | 16–22 weeks | tenant onboarding + campus + payments |
 | Complete Platform | 22–30 weeks | integrations + finance + Enterprise gates |

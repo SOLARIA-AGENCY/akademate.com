@@ -1,10 +1,12 @@
-# CEP Shadow Release Checklist
+# CEP Shadow Release Checklist — Archived / No Deploy
 Last updated: 2026-07-30
 
 ## Scope
 
-This checklist governs any attempt to integrate undeployed shadow work into the
-live CEP Enterprise MVP. It does not authorize a release by itself.
+CEP integration/deployment has been delegated to task
+`019f8964-2942-7642-89e7-f09495627e65`. The deployment sections below remain
+active only in that dedicated task. This Akademate Next lane must not execute
+them or mutate the live CEP Enterprise MVP.
 
 ## Forbidden operations
 
@@ -16,6 +18,8 @@ live CEP Enterprise MVP. It does not authorize a release by itself.
 - [x] No shared financial overview across legal entities.
 - [x] No unreviewed secrets or provider connections.
 - [x] No deploy based only on a passing health endpoint.
+- [x] Candidate 1A and its evidence handed off to the dedicated CEP task.
+- [x] No CEP build, staging, restart, routing or deployment in the active Akademate Next lane.
 
 ## Shadow custody
 

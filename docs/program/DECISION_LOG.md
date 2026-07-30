@@ -14,3 +14,4 @@ Last updated: 2026-07-30
 | D-009 | CEP migration is a later, independently authorized program. | Accepted | Requires two reconciled rehearsals and rollback. |
 | D-010 | Reject `b455374e` as a direct CEP release candidate. | Accepted | It diverges from live at `703ee84` and its aggregate diff changes 108 files, including schema and CEP public assets. |
 | D-011 | Reconstruct Candidate 1A from live and port planning availability only. | Accepted | It preserves current CEP collections, legal surface and deployment line while isolating one reviewable behavior. |
+| D-012 | Delegate all CEP integration/deployment to task `019f8964-2942-7642-89e7-f09495627e65`. | Accepted | This lane is exclusive to Akademate SaaS/Next and cannot mutate CEP runtime or data. |

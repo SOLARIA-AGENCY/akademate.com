@@ -8,7 +8,7 @@ Last updated: 2026-07-30
 - Candidate commit: `721eb57d`.
 - Branch: `codex/cep-candidate-1a-planning`.
 - Worktree: isolated from all user-owned dirty worktrees.
-- Production state: not deployed.
+- Production state: not deployed in this lane; handed off to the dedicated CEP task.
 
 ## Included behavior
 
@@ -49,11 +49,12 @@ Last updated: 2026-07-30
 3. Duplicate provider conflicts do not duplicate UI reasons; this test initially
    failed and caused a deduplication patch before commit.
 
-## Release decision
+## Final program decision
 
-Candidate source is accepted for release engineering. Deployment remains denied
-until image build, backup restore, isolated candidate runtime, authenticated
-smoke, visual/network QA and rollback proof are recorded.
+Candidate source and evidence were handed off to task
+`019f8964-2942-7642-89e7-f09495627e65` for any CEP continuation. This task will
+not build, stage, route or deploy it. All active work here moves to an isolated
+Akademate Next runtime.
 
 The repository's generic Compose/deploy scripts are not authority for the live
 CEP runtime: their container names, database target and migration behavior do
