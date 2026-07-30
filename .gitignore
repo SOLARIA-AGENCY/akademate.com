@@ -34,3 +34,4 @@ token.txt
 *.tsbuildinfo
 *.cookies
 .playwright-mcp/Manus-Setup-1-4-1.dmg
+.codex-loop-runs/

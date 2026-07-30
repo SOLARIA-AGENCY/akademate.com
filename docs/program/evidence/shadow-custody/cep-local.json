@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "label": "cep-local",
+  "repository": "akademate-cep-multi-entity",
+  "head": "0ca1b43ea229fc531dab79388925fc73e8077eab",
+  "branch": "codex/cep-multi-entity-scopes",
+  "upstream": "origin/codex/cep-multi-entity-scopes",
+  "entryCount": 12,
+  "redactedEntryCount": 0,
+  "categoryCounts": {
+    "source": 11,
+    "test": 1
+  },
+  "dirtyEntriesSha256": "addfc47900612f09dff5f5f9f96de2e587966fc73b8e1266d3a81f96d51812a5",
+  "stateSha256": "9d1411871e0aae32209e22e332a5b79d1588d4a93c77d1faffddef1afe3432ff",
+  "entries": [
+    {
+      "status": "??",
+      "path": "apps/web/app/legal/cookies/page.tsx",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 1621,
+      "worktreeSha256": "c8891a5a24d88919ad9f2c53f391093f20bbe26f01e672b09e77ce3abb336759",
+      "headBlob": null,
+      "indexBlob": null
+    },
+    {
+      "status": "??",
+      "path": "apps/web/app/legal/ia/page.tsx",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 2082,
+      "worktreeSha256": "9b2591b83b6acb178908a5d3e495e0dcb9b5f6570d7eef93fab5b6b632bb0029",
+      "headBlob": null,
+      "indexBlob": null
+    },
+    {
+      "status": "??",
+      "path": "apps/web/app/legal/privacidad/page.tsx",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 2545,
+      "worktreeSha256": "faf06ae851d8c9a0f9c58f3f582f8d26a2d1c072f7087c6ded4b75e7b4dc6a41",
+      "headBlob": null,
+      "indexBlob": null
+    },
+    {
+      "status": "??",
+      "path": "apps/web/app/legal/subencargados/page.tsx",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 1777,
+      "worktreeSha256": "daf58c1f2a7766e3f71d318d6f619431599de705292f96b915d7543b8d633b66",
+      "headBlob": null,
+      "indexBlob": null
+    },
+    {
+      "status": "??",
+      "path": "apps/web/app/legal/terminos/page.tsx",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 2125,
+      "worktreeSha256": "cd36f4305c688e639529a62afa9fcc1f7201a1fa7b1bdd1c97704fcaf93e5ae0",
+      "headBlob": null,
+      "indexBlob": null
+    },
+    {
+      "status": " M",
+      "path": "apps/web/app/page.tsx",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 12491,
+      "worktreeSha256": "d60e20b3dd6d9b0f2dbdc7d42e8cb812f6bec8285a17d766b2562db11b405ffb",
+      "headBlob": "ca5219706c3956b9bef48d5e55a996917b02fec7",
+      "indexBlob": "ca5219706c3956b9bef48d5e55a996917b02fec7"
+    },
+    {
+      "status": " M",
+      "path": "apps/web/components/layout/footer.tsx",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 3881,
+      "worktreeSha256": "f92851b20e2ae3d8af34bf34849c31a85156507e1428090aebb753e802b81e78",
+      "headBlob": "72d3c8bd059f17ff7e09a6f143fd1677c0a17e7c",
+      "indexBlob": "72d3c8bd059f17ff7e09a6f143fd1677c0a17e7c"
+    },
+    {
+      "status": "??",
+      "path": "apps/web/components/legal/ComplianceBadges.tsx",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 1335,
+      "worktreeSha256": "061faf2f92ab2003dbcf3ba4f7cd700ee9f8d6e3c03b9030f2609343166e2b47",
+      "headBlob": null,
+      "indexBlob": null
+    },
+    {
+      "status": "??",
+      "path": "apps/web/components/legal/LegalPage.tsx",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 3200,
+      "worktreeSha256": "8eb801fe4259f5a41b6acdfcf007db8d152f0710105f1012a0c2806a0a7c3c03",
+      "headBlob": null,
+      "indexBlob": null
+    },
+    {
+      "status": "??",
+      "path": "apps/web/lib/legal-config.test.ts",
+      "category": "test",
+      "exists": true,
+      "kind": "file",
+      "size": 1579,
+      "worktreeSha256": "c3c2de764d1e11087f4e53f69c63a59decb78133e3f8ff72de19a0c5882702b3",
+      "headBlob": null,
+      "indexBlob": null
+    },
+    {
+      "status": "??",
+      "path": "apps/web/lib/legal-config.ts",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 675,
+      "worktreeSha256": "f60dc6fea68627e86cf690979c96b3f1d2089f5242a5976816f36b44345bec08",
+      "headBlob": null,
+      "indexBlob": null
+    },
+    {
+      "status": " M",
+      "path": "apps/web/vitest.config.ts",
+      "category": "source",
+      "exists": true,
+      "kind": "file",
+      "size": 470,
+      "worktreeSha256": "b8b416d1eacd85c7538daaff7bcab6c52b411b8d937d2b1d483efb2bc6923b1b",
+      "headBlob": "b559e8f14d11ffeb23dd4e264d276c2b906001a1",
+      "indexBlob": "b559e8f14d11ffeb23dd4e264d276c2b906001a1"
+    }
+  ]
+}

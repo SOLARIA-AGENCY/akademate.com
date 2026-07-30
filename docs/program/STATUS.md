@@ -24,10 +24,12 @@ Last updated: 2026-07-30
 - [x] Governance checks green.
 - [x] Documentation committed: `f947d2f3`.
 - [x] Documentation pushed: `origin/codex/akademate-program-governance`.
-- [ ] Shadow custody manifests generated.
-- [ ] First compatible CEP candidate selected.
+- [x] Shadow custody manifests generated and verified: 598 entries across four sources.
+- [x] Divergent `b455374e` rejected as a direct CEP candidate.
+- [~] Candidate 1A scope identified; clean live-based reconstruction pending.
 
 ## Active blocker
 
-Shadow changes are mixed across user-owned dirty worktrees. They must be
-content-addressed and separated before any candidate branch can be created.
+Candidate 1A must be reconstructed from live `0ca1b43`. Its source commit has
+conflicts in `staff/route.ts` and `payload.config.ts`; neither file may be
+resolved by accepting the divergent branch wholesale.

@@ -12,3 +12,5 @@ Last updated: 2026-07-30
 | D-007 | Shadcn primitives and product patterns converge in `packages/ui`. | Accepted | Application-local forks require an ADR. |
 | D-008 | Design audit is screen-by-screen, desktop/mobile and state-complete. | Accepted | Source-only review cannot close a rendered screen. |
 | D-009 | CEP migration is a later, independently authorized program. | Accepted | Requires two reconciled rehearsals and rollback. |
+| D-010 | Reject `b455374e` as a direct CEP release candidate. | Accepted | It diverges from live at `703ee84` and its aggregate diff changes 108 files, including schema and CEP public assets. |
+| D-011 | Reconstruct Candidate 1A from live and port planning availability only. | Accepted | It preserves current CEP collections, legal surface and deployment line while isolating one reviewable behavior. |

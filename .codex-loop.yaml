@@ -5,6 +5,10 @@ checks:
       command: node scripts/verify-akademate-program-docs.mjs
     - name: diff-integrity
       command: git diff --check
+    - name: shadow-custody-tests
+      command: node --test scripts/__tests__/shadow-custody.test.mjs
+    - name: shadow-custody-manifests
+      command: node scripts/verify-shadow-custody.mjs
 
 evidence_policy:
   final_report: required

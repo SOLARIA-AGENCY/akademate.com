@@ -33,6 +33,7 @@ placing the live CEP Formación tenant at risk.
 - [Screen inventory](./SCREEN_INVENTORY.md)
 - [Decision log](./DECISION_LOG.md)
 - [Current status](./STATUS.md)
+- [Shadow custody report](./SHADOW_CUSTODY_REPORT.md)
 
 ## Status legend
 

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "label": "clean-release-commits",
+  "repository": "akademate-fix-production-schema-planning-availability",
+  "head": "b455374e1015dd5741b2e637c4c49361b04443f2",
+  "branch": "codex/fix-production-schema-planning-availability",
+  "upstream": "origin/codex/fix-production-schema-planning-availability",
+  "entryCount": 0,
+  "redactedEntryCount": 0,
+  "categoryCounts": {},
+  "dirtyEntriesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "stateSha256": "5f8e1eb6c1ccde9643168eb3ac34a621ee71a65e32307bee826f106b01747452",
+  "entries": []
+}
