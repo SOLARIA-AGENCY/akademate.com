@@ -4,14 +4,14 @@ Last updated: 2026-07-30
 ## Isolation
 
 - [x] Branch/worktree created from accepted CEP MVP baseline.
-- [~] Dedicated database namespace and owner/app roles defined; instance not started.
+- [x] Dedicated local database namespace and owner/app roles started and verified.
 - [x] Dedicated Redis namespace defined in isolated Compose.
 - [ ] Dedicated object storage namespace.
 - [~] Dedicated secret contract defined; real secrets not provisioned.
 - [x] Dedicated Compose project and images defined.
 - [ ] Dedicated staging hostname.
 - [x] CEP identifiers denied by static isolation guard.
-- [ ] Synthetic demo data only.
+- [x] Local database validation used synthetic cross-tenant data only.
 - [ ] No runtime API bridge to CEP.
 
 ## Genericization
@@ -33,7 +33,7 @@ Last updated: 2026-07-30
 - [ ] Tenant derived from identity, never trusted from request body.
 - [ ] Handler-local authorization.
 - [ ] Payload collection ACLs.
-- [~] Non-owner/NOBYPASSRLS app role defined; learning RLS migration and live proof pending.
+- [x] Non-owner/NOBYPASSRLS app role and forced learning RLS verified locally.
 - [ ] Signed sessions and rotation.
 - [ ] MFA for privileged roles.
 - [ ] Audit logs.
@@ -85,11 +85,13 @@ Last updated: 2026-07-30
 
 ## Internal communication
 
-- [~] Tenant-scoped conversation authorization implemented; persistence pending.
+- [~] Tenant-scoped conversation authorization and schema implemented; transactional adapter pending.
 - [x] Course-run learning membership enforced in the domain access contract.
 - [x] Explicit conversation participant required in addition to academic membership.
 - [x] In-memory repository contract enforces reference scope and idempotency.
 - [x] Next-only collection code is not evaluated outside exact runtime `next`.
+- [x] Seven canonical learning tables migrate only in exact runtime `next`.
+- [x] Cross-tenant reads/writes, outsider access, draft-grade visibility and duplicate commands challenged locally.
 - [ ] Course channels, announcements and assignment discussions.
 - [ ] Message attachments in tenant-namespaced storage.
 - [ ] Read receipts, notification preferences and unread counts.

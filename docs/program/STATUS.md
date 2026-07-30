@@ -37,15 +37,20 @@ Last updated: 2026-07-30
 - [x] Durable in-memory learning repository contract committed and pushed: `2de0813f`.
 - [x] Fail-closed Next collection runtime boundary committed and pushed: `4970449b`.
 - [x] Database owner/migrator and non-bypass app roles separated in Compose: `d208a6c1`.
+- [x] Next-only Payload migration chain and seven learning tables committed and pushed: `4e653739`.
+- [x] Canonical 13-collection Next manifest committed and pushed: `43564692`.
+- [x] Clean local migration and RLS proof completed; final schema alignment pushed: `0e941a17`.
 - [ ] Learning/chat persistence and role-specific shells implemented.
 
 ## Active blocker
 
-The academic persistence target is the isolated `tenant-admin` Payload database
-with integer IDs. The UUID Drizzle lineage in `packages/db` is not the runtime
-authority for Next learning. Before creating the seven canonical learning tables,
-Next must add explicit user-account links for student/staff profiles and execute
-the migration through the owner job while the app remains a non-bypass role.
+The seven canonical learning tables now exist in the isolated local Next database
+with integer IDs, forced RLS and a `NOSUPERUSER`/`NOBYPASSRLS` application role.
+The next blocker is the transactional adapter: command endpoints must derive the
+principal and tenant from the authenticated server context, set the PostgreSQL
+RLS context inside one transaction and never expose generic Payload CRUD for the
+deny-all learning collections. Payload CLI migration tracking and a deployed
+artifact remain unverified.
 
 CEP release work continues only in task
 `019f8964-2942-7642-89e7-f09495627e65`, never from this Next lane.

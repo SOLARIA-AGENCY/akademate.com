@@ -49,6 +49,9 @@ Baseline audited: `0ca1b43ea229fc531dab79388925fc73e8077eab`.
 - `2de0813f`: reference repository contract for durable learning records.
 - `4970449b`: dynamic, fail-closed Payload collection runtime boundary.
 - `d208a6c1`: separate database owner/migrator and non-bypass application role.
+- `4e653739`: Next-only integer learning migration with forced RLS.
+- `43564692`: canonical deny-all Next collection manifest.
+- `0e941a17`: physical course-field alignment and PostgreSQL-safe identifiers.
 
 These commits are domain/infrastructure foundations. They do not yet prove a
 rendered teacher portal, student delivery, gradebook or live chat.
@@ -65,3 +68,17 @@ rendered teacher portal, student delivery, gradebook or live chat.
   Payload users before a learning membership can be persisted.
 - Existing Payload `Submissions` and the split UUID assignments/grades tables
   are not reusable for the canonical workflow.
+
+## Local persistence evidence
+
+- A fresh isolated PostgreSQL 16 database accepted the exact three-migration
+  Next chain: baseline, student tenant scope and canonical learning schema.
+- All seven learning tables reported both `relrowsecurity=true` and
+  `relforcerowsecurity=true`.
+- The application role reported `rolsuper=false`, `rolcreaterole=false`,
+  `rolcreatedb=false` and `rolbypassrls=false`.
+- Adversarial synthetic checks rejected missing context, cross-tenant access,
+  non-participant chat writes, student grade writes, duplicate message commands
+  and cross-scope submissions. Draft grades remained hidden until publication.
+- This is local SQL/runtime evidence. It does not prove Payload CLI migration
+  bookkeeping, a rendered campus flow, staging or production deployment.
