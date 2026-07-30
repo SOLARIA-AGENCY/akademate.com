@@ -245,7 +245,7 @@ describe('NuevaConvocatoriaPage', () => {
 
     expect(staffCalls).toEqual([
       [
-        '/api/staff?type=profesor&status=active&limit=100',
+        '/api/staff?type=profesor&status=active&limit=500',
         expect.objectContaining({ cache: 'no-store' }),
       ],
     ])

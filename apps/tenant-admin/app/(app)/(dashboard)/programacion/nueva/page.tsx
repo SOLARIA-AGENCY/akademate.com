@@ -31,7 +31,11 @@ import {
   Lock,
   XCircle,
 } from 'lucide-react'
-import { getInstructorAvailability, type InstructorTimeConflict } from '@/app/lib/planning/instructor-availability'
+import {
+  filterInstructorOptions,
+  prepareInstructorOptions,
+  type InstructorTimeConflict,
+} from '@/app/lib/planning/instructor-availability'
 
 // ---------------------------------------------------------------------------
 // Types for API responses
@@ -232,6 +236,15 @@ function normalizeTimeForApi(value: string): string | undefined {
 
 function courseLabel(course: Course): string {
   return course.name || course.title || `Curso ${course.id}`
+}
+
+function staffDisplayName(staffMember: StaffMember): string {
+  return staffMember.fullName ||
+    [staffMember.first_name ?? staffMember.firstName, staffMember.last_name ?? staffMember.lastName]
+      .filter(Boolean)
+      .join(' ') ||
+    staffMember.email ||
+    String(staffMember.id)
 }
 
 function normalizeCourseTrainingType(course?: Course | null): string {
@@ -455,6 +468,7 @@ export default function NuevaConvocatoriaPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [availability, setAvailability] = useState<AvailabilityState | null>(null)
+  const [instructorSearch, setInstructorSearch] = useState('')
 
   // Inline creation form toggles
   const [showNewSede, setShowNewSede] = useState(false)
@@ -575,6 +589,20 @@ export default function NuevaConvocatoriaPage() {
   const effectiveAreaId = selectedCourseAreaId || form.areaId || null
   const effectiveAreaName =
     selectedCourseAreaName ?? areas.find((area) => area.id === effectiveAreaId)?.name ?? null
+  const instructorOptions = useMemo(() => prepareInstructorOptions({
+    instructors: staff,
+    requiredAreaId: effectiveAreaId,
+    requiredAreaName: effectiveAreaName,
+    timeConflicts: availability?.unavailableInstructors ?? [],
+    getName: staffDisplayName,
+  }), [availability?.unavailableInstructors, effectiveAreaId, effectiveAreaName, staff])
+  const visibleInstructorOptions = useMemo(() => filterInstructorOptions({
+    options: instructorOptions,
+    query: instructorSearch,
+    getName: staffDisplayName,
+    preserveInstructorIds: form.instructor ? [form.instructor] : [],
+  }), [form.instructor, instructorOptions, instructorSearch])
+  const availableInstructorCount = instructorOptions.filter((option) => !option.disabled).length
 
   // -------------------------------------------------------------------------
   // Fetch data on mount
@@ -626,7 +654,7 @@ export default function NuevaConvocatoriaPage() {
     const params = new URLSearchParams({
       type: 'profesor',
       status: 'active',
-      limit: '100',
+      limit: '500',
     })
     fetch(`/api/staff?${params.toString()}`, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar docentes'))))
@@ -813,12 +841,6 @@ export default function NuevaConvocatoriaPage() {
         : [...prev.schedule_days, day],
     }))
   }
-
-  const staffDisplayName = (s: StaffMember) =>
-    s.fullName ||
-    [s.first_name ?? s.firstName, s.last_name ?? s.lastName].filter(Boolean).join(' ') ||
-    s.email ||
-    s.id
 
   // Inline creation callbacks
   const handleSedeCreated = useCallback((newCampus: Campus) => {
@@ -1367,6 +1389,12 @@ export default function NuevaConvocatoriaPage() {
         {/* ----------------------------------------------------------------- */}
         <div className="space-y-2">
           <Label htmlFor="instructor">Profesor</Label>
+          <Input
+            aria-label="Buscar docente"
+            value={instructorSearch}
+            onChange={(event) => setInstructorSearch(event.target.value)}
+            placeholder="Buscar docente o motivo de no disponibilidad"
+          />
           <div className="flex items-center gap-2">
             <div className="flex-1">
               <Select
@@ -1378,20 +1406,14 @@ export default function NuevaConvocatoriaPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="_none">Sin profesor asignado</SelectItem>
-                  {staff.map((s) => {
-                    const instructorAvailability = getInstructorAvailability({
-                      instructor: s,
-                      requiredAreaId: effectiveAreaId,
-                      requiredAreaName: effectiveAreaName,
-                      timeConflicts: availability?.unavailableInstructors ?? [],
-                    })
+                  {visibleInstructorOptions.map(({ instructor: s, disabled, reasons }) => {
                     return (
-                      <SelectItem key={s.id} value={String(s.id)} disabled={instructorAvailability.disabled}>
+                      <SelectItem key={s.id} value={String(s.id)} disabled={disabled}>
                         <span className="flex items-start gap-2">
                           <User className="h-3.5 w-3.5 text-muted-foreground" />
                           <span className="min-w-0">
                             <span className="block">{staffDisplayName(s)}</span>
-                            {instructorAvailability.reasons.map((reason) => (
+                            {reasons.map((reason) => (
                               <span key={reason} className="block text-xs text-red-600">{reason}</span>
                             ))}
                           </span>
@@ -1422,8 +1444,8 @@ export default function NuevaConvocatoriaPage() {
             />
           )}
           <p className="text-xs text-muted-foreground">
-            Los docentes no seleccionables muestran el motivo: área pendiente, área no compatible o
-            convocatoria que ocupa la misma franja.
+            {availableInstructorCount} disponibles · {instructorOptions.length - availableInstructorCount} no disponibles.
+            Los disponibles aparecen primero; los demás conservan el motivo de bloqueo.
           </p>
         </div>
 

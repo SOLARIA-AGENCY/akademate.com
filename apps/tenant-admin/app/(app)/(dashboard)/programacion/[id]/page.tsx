@@ -35,7 +35,11 @@ import {
   getCourseRunEnrollmentStatusInfo,
   resolveCourseRunEnrollmentStatus,
 } from '@/app/lib/course-run-enrollment-status'
-import { getInstructorAvailability, type InstructorTimeConflict } from '@/app/lib/planning/instructor-availability'
+import {
+  filterInstructorOptions,
+  prepareInstructorOptions,
+  type InstructorTimeConflict,
+} from '@/app/lib/planning/instructor-availability'
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' | 'success' }> = {
   draft: { label: 'Sin publicar', variant: 'secondary' },
@@ -247,6 +251,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     shift: 'morning',
   })
   const [instructorForm, setInstructorForm] = React.useState({ instructor: '', instructors: [] as string[] })
+  const [instructorSearch, setInstructorSearch] = React.useState('')
 
   React.useEffect(() => {
     let mounted = true
@@ -294,7 +299,7 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     const params = new URLSearchParams({
       type: 'profesor',
       status: 'active',
-      limit: '200',
+      limit: '500',
     })
     fetch(`/api/staff?${params.toString()}`, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('No se pudieron cargar docentes'))))
@@ -668,6 +673,23 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
     course && typeof course.area_formativa === 'object' && course.area_formativa
       ? course.area_formativa.nombre || course.area_formativa.name || null
       : null
+  const instructorOptions = prepareInstructorOptions({
+    instructors: staffCandidates,
+    requiredAreaId,
+    requiredAreaName,
+    timeConflicts: instructorTimeConflicts,
+    getName: getInstructorName,
+  })
+  const visibleInstructorOptions = filterInstructorOptions({
+    options: instructorOptions,
+    query: instructorSearch,
+    getName: getInstructorName,
+    preserveInstructorIds: [
+      instructorForm.instructor,
+      ...instructorForm.instructors,
+    ].filter(Boolean),
+  })
+  const availableInstructorCount = instructorOptions.filter((option) => !option.disabled).length
   const sessionConfigComplete = Boolean(
     conv.start_date &&
     conv.end_date &&
@@ -1231,6 +1253,18 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="instructor-search" className="text-xs font-medium text-muted-foreground">Buscar docentes</Label>
+                    <Input
+                      id="instructor-search"
+                      value={instructorSearch}
+                      onChange={(event) => setInstructorSearch(event.target.value)}
+                      placeholder="Nombre o motivo de no disponibilidad"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {availableInstructorCount} disponibles · {instructorOptions.length - availableInstructorCount} no disponibles. Los disponibles aparecen primero.
+                    </p>
+                  </div>
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-xs font-medium text-muted-foreground">Docente principal</Label>
                     <Select
@@ -1245,18 +1279,12 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="_none">Sin docente asignado</SelectItem>
-                        {staffCandidates.map((member) => {
+                        {visibleInstructorOptions.map(({ instructor: member, disabled: unavailable, reasons }) => {
                           const memberId = String(member.id)
-                          const memberAvailability = getInstructorAvailability({
-                            instructor: member,
-                            requiredAreaId,
-                            requiredAreaName,
-                            timeConflicts: instructorTimeConflicts,
-                          })
-                          const disabled = memberAvailability.disabled && memberId !== instructorForm.instructor
+                          const disabled = unavailable && memberId !== instructorForm.instructor
                           return (
                             <SelectItem key={member.id} value={memberId} disabled={disabled}>
-                              {getInstructorName(member)}{memberAvailability.reasons.length ? ` · ${memberAvailability.reasons.join(' ')}` : ''}
+                              {getInstructorName(member)}{reasons.length ? ` · ${reasons.join(' ')}` : ''}
                             </SelectItem>
                           )
                         })}
@@ -1267,22 +1295,16 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                   <div className="space-y-2">
                     <Label className="text-xs font-medium text-muted-foreground">Co-docentes</Label>
                     <div className="max-h-64 space-y-2 overflow-y-auto rounded-lg border bg-muted/20 p-2">
-                      {staffCandidates.map((member) => {
+                      {visibleInstructorOptions.map(({ instructor: member, disabled, reasons }) => {
                         const memberId = String(member.id)
-                        const memberAvailability = getInstructorAvailability({
-                          instructor: member,
-                          requiredAreaId,
-                          requiredAreaName,
-                          timeConflicts: instructorTimeConflicts,
-                        })
                         const isPrimary = memberId === instructorForm.instructor
                         const selected = instructorForm.instructors.includes(memberId)
-                        const unavailable = (memberAvailability.disabled && !selected) || isPrimary
+                        const unavailable = (disabled && !selected) || isPrimary
                         const hasTimeConflict = instructorTimeConflicts.some((item) => String(item.instructorId) === memberId)
                         return (
                           <label
                             key={`co-instructor-${member.id}`}
-                            className={`flex items-start gap-3 rounded-md border bg-background p-3 text-sm ${unavailable ? 'opacity-70' : 'cursor-pointer hover:border-primary/40'} ${hasTimeConflict ? 'border-red-200 bg-red-50 text-red-800' : ''} ${memberAvailability.reasons.some((reason) => reason.startsWith('Sin áreas') || reason.startsWith('No habilitado')) ? 'border-amber-200 bg-amber-50 text-amber-900' : ''}`}
+                            className={`flex items-start gap-3 rounded-md border bg-background p-3 text-sm ${unavailable ? 'opacity-70' : 'cursor-pointer hover:border-primary/40'} ${hasTimeConflict ? 'border-red-200 bg-red-50 text-red-800' : ''} ${reasons.some((reason) => reason.startsWith('Sin áreas') || reason.startsWith('No habilitado')) ? 'border-amber-200 bg-amber-50 text-amber-900' : ''}`}
                           >
                             <Checkbox
                               checked={selected}
@@ -1298,9 +1320,9 @@ export default function ConvocatoriaDetailPage({ params }: Props) {
                               <span className="block truncate font-medium">{getInstructorName(member)}</span>
                               <span className="block text-xs text-muted-foreground">
                                 {isPrimary
-                                  ? ['Seleccionado como principal', ...memberAvailability.reasons].join('. ')
-                                  : memberAvailability.reasons.length
-                                    ? memberAvailability.reasons.join(' ')
+                                  ? ['Seleccionado como principal', ...reasons].join('. ')
+                                  : reasons.length
+                                    ? reasons.join(' ')
                                     : member.position || 'Docente activo'}
                               </span>
                             </span>

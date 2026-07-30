@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { getInstructorAvailability } from '../instructor-availability'
+import {
+  filterInstructorOptions,
+  getInstructorAvailability,
+  prepareInstructorOptions,
+} from '../instructor-availability'
 
 describe('getInstructorAvailability', () => {
   it('explains that a teacher without qualified areas cannot be assigned to an area-bound course', () => {
@@ -108,5 +112,74 @@ describe('getInstructorAvailability', () => {
       disabled: true,
       reasons: ['Ocupado por SC-2026-013: martes, 10:00-12:00.'],
     })
+  })
+
+  it('orders eligible teachers before unavailable teachers without hiding either group', () => {
+    const options = prepareInstructorOptions({
+      instructors: [
+        { id: 1, name: 'Zoe', qualifiedAreas: [] },
+        { id: 2, name: 'Ana', qualifiedAreas: [7] },
+        { id: 3, name: 'Berta', qualifiedAreas: [7] },
+      ],
+      requiredAreaId: 7,
+      requiredAreaName: 'Área Sanitaria y Clínica',
+      timeConflicts: [{
+        instructorId: 3,
+        conflictingRunCode: 'SC-2026-014',
+        scheduleDays: ['monday'],
+      }],
+      getName: (instructor) => instructor.name,
+    })
+
+    expect(options.map((option) => [option.instructor.id, option.disabled])).toEqual([
+      [2, false],
+      [3, true],
+      [1, true],
+    ])
+  })
+
+  it('searches names accent-insensitively and can find an unavailable reason', () => {
+    const options = prepareInstructorOptions({
+      instructors: [
+        { id: 1, name: 'Ángel Cruz', qualifiedAreas: [7] },
+        { id: 2, name: 'Beatriz Pérez', qualifiedAreas: [] },
+      ],
+      requiredAreaId: 7,
+      requiredAreaName: 'Área Sanitaria y Clínica',
+      timeConflicts: [],
+      getName: (instructor) => instructor.name,
+    })
+
+    expect(filterInstructorOptions({
+      options,
+      query: 'angel',
+      getName: (instructor) => instructor.name,
+    }).map((option) => option.instructor.id)).toEqual([1])
+
+    expect(filterInstructorOptions({
+      options,
+      query: 'sin areas',
+      getName: (instructor) => instructor.name,
+    }).map((option) => option.instructor.id)).toEqual([2])
+  })
+
+  it('preserves the currently selected teacher while filtering so an existing assignment is never lost', () => {
+    const options = prepareInstructorOptions({
+      instructors: [
+        { id: 1, name: 'Ana', qualifiedAreas: [7] },
+        { id: 2, name: 'Carlos', qualifiedAreas: [] },
+      ],
+      requiredAreaId: 7,
+      requiredAreaName: 'Área Sanitaria y Clínica',
+      timeConflicts: [],
+      getName: (instructor) => instructor.name,
+    })
+
+    expect(filterInstructorOptions({
+      options,
+      query: 'ana',
+      getName: (instructor) => instructor.name,
+      preserveInstructorIds: [2],
+    }).map((option) => option.instructor.id)).toEqual([1, 2])
   })
 })
