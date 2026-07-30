@@ -112,3 +112,25 @@ test('requires the role-specific profile and does not grant administrators an im
     { allowed: false, reason: 'membership_required', capabilities: [] },
   )
 })
+
+test('rejects unknown runtime roles and malformed validity windows', () => {
+  const baseMembership = {
+    userId: 'user-1',
+    tenantId: 'tenant-1',
+    courseRunId: 'run-1',
+    role: 'student',
+    status: 'active',
+    studentProfileId: 'student-1',
+  } as const
+
+  assert.equal(resolveLearningAccess({
+    principal,
+    context,
+    membership: { ...baseMembership, role: 'observer' as never },
+  }).reason, 'membership_invalid_role')
+  assert.equal(resolveLearningAccess({
+    principal,
+    context,
+    membership: { ...baseMembership, validUntil: 'not-a-date' },
+  }).reason, 'membership_invalid_window')
+})

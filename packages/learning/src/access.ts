@@ -90,6 +90,7 @@ export function resolveLearningAccess({
   if (!sameId(membership.userId, principal.userId)) return denied('user_mismatch')
   if (!sameId(membership.courseRunId, context.courseRunId)) return denied('course_run_mismatch')
   if (membership.status !== 'active') return denied('membership_inactive')
+  if (membership.role !== 'instructor' && membership.role !== 'student') return denied('membership_invalid_role')
 
   const now = Date.parse(context.now ?? new Date().toISOString())
   const validFrom = parseBoundary(membership.validFrom)
