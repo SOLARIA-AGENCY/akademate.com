@@ -44,6 +44,24 @@ Baseline audited: `0ca1b43ea229fc531dab79388925fc73e8077eab`.
 - `65e9beef`: isolated Next Compose/data-plane and deny-list.
 - `b03226ff`: academic membership access contract.
 - `7f6d7801`: explicit conversation-participant access contract.
+- `e3f2b869`: durable message command with derived identity and idempotency key.
+- `4bd5fbcd`: assignment, submission and grade domain workflow.
+- `2de0813f`: reference repository contract for durable learning records.
+- `4970449b`: dynamic, fail-closed Payload collection runtime boundary.
+- `d208a6c1`: separate database owner/migrator and non-bypass application role.
 
 These commits are domain/infrastructure foundations. They do not yet prove a
 rendered teacher portal, student delivery, gradebook or live chat.
+
+## Persistence lineage decision
+
+- The active Next backend is `apps/tenant-admin` and its Payload schema uses
+  integer identifiers.
+- `packages/db` uses a separate UUID/Drizzle lineage and is not the persistence
+  authority for these learning commands.
+- The seven canonical learning tables will be created by a Payload migration
+  registered only for exact runtime `next`.
+- Student and staff profiles require explicit, unique links to tenant-scoped
+  Payload users before a learning membership can be persisted.
+- Existing Payload `Submissions` and the split UUID assignments/grades tables
+  are not reusable for the canonical workflow.

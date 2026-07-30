@@ -32,10 +32,18 @@ Last updated: 2026-07-30
 - [x] Next runtime isolation committed and pushed: `65e9beef`.
 - [x] Academic membership access committed and pushed: `b03226ff`.
 - [x] Conversation participant access committed and pushed: `7f6d7801`.
+- [x] Durable in-memory learning repository contract committed and pushed: `2de0813f`.
+- [x] Fail-closed Next collection runtime boundary committed and pushed: `4970449b`.
+- [x] Database owner/migrator and non-bypass app roles separated in Compose: `d208a6c1`.
 - [ ] Learning/chat persistence and role-specific shells implemented.
 
 ## Active blocker
 
-The active lane must create Akademate Next without resolving to any CEP host,
-container, volume, network, database, secret or storage namespace. CEP release
-work continues only in its dedicated task, not in this Akademate Next lane.
+The academic persistence target is the isolated `tenant-admin` Payload database
+with integer IDs. The UUID Drizzle lineage in `packages/db` is not the runtime
+authority for Next learning. Before creating the seven canonical learning tables,
+Next must add explicit user-account links for student/staff profiles and execute
+the migration through the owner job while the app remains a non-bypass role.
+
+CEP release work continues only in task
+`019f8964-2942-7642-89e7-f09495627e65`, never from this Next lane.
