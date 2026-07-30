@@ -59,6 +59,7 @@ services:
       AKADEMATE_RUNTIME: next
       NODE_ENV: production
       DATABASE_URL: postgresql://${AKADEMATE_NEXT_DB_OWNER_USER}:${AKADEMATE_NEXT_DB_OWNER_PASSWORD}@postgres:5432/${AKADEMATE_NEXT_DB_NAME}
+      AKADEMATE_NEXT_DB_APP_USER: ${AKADEMATE_NEXT_DB_APP_USER:?AKADEMATE_NEXT_DB_APP_USER is required}
       PAYLOAD_SECRET: ${AKADEMATE_NEXT_PAYLOAD_SECRET:?AKADEMATE_NEXT_PAYLOAD_SECRET is required}
       PAYLOAD_DB_PUSH: "false"
     command: ["pnpm", "exec", "payload", "migrate"]

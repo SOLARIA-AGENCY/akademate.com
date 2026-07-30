@@ -17,8 +17,10 @@ import * as migration_20260630_staff_profile_campuses from './20260630_staff_pro
 import * as migration_20260713_campus_virtual_internal from './20260713_campus_virtual_internal'
 import * as migration_20260714_staging_tenant_schema_compat from './20260714_staging_tenant_schema_compat'
 import * as migration_20260714_staging_users_auth_compat from './20260714_staging_users_auth_compat'
+import * as migration_20260730_akademate_next_learning from './20260730_akademate_next_learning'
+import { selectRuntimeMigrations } from '../src/runtime/select-runtime-migrations'
 
-export const migrations = [
+const legacyMigrations = [
   {
     up: migration_20251207_081627.up,
     down: migration_20251207_081627.down,
@@ -115,3 +117,27 @@ export const migrations = [
     name: '20260714_staging_users_auth_compat',
   },
 ]
+
+const nextMigrations = [
+  {
+    up: migration_20251207_081627.up,
+    down: migration_20251207_081627.down,
+    name: '20251207_081627',
+  },
+  {
+    up: migration_20260428_students_tenant.up,
+    down: migration_20260428_students_tenant.down,
+    name: '20260428_students_tenant',
+  },
+  {
+    up: migration_20260730_akademate_next_learning.up,
+    down: migration_20260730_akademate_next_learning.down,
+    name: '20260730_akademate_next_learning',
+  },
+]
+
+export const migrations = selectRuntimeMigrations(
+  process.env.AKADEMATE_RUNTIME,
+  legacyMigrations,
+  nextMigrations,
+)
