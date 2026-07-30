@@ -34,6 +34,7 @@ placing the live CEP Formación tenant at risk.
 - [Decision log](./DECISION_LOG.md)
 - [Current status](./STATUS.md)
 - [Shadow custody report](./SHADOW_CUSTODY_REPORT.md)
+- [CEP Candidate 1A evidence](./evidence/candidates/CEP_CANDIDATE_1A.md)
 
 ## Status legend
 

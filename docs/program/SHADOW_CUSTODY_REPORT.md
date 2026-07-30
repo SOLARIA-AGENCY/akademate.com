@@ -36,8 +36,8 @@ The three unique commits must be treated separately:
 
 ## Candidate extraction order
 
-- [ ] **Candidate 1A — planning availability only.** Rebuild from live
-  `0ca1b43`; no schema toggle, migration, legal/public deletion or smoke account.
+- [x] **Candidate 1A — planning availability only.** Rebuilt from live as
+  `721eb57d`; no schema toggle, migration, legal/public deletion or smoke account.
 - [ ] **Candidate 1B — staff error sanitization.** Separate security patch with
   route-level adversarial tests.
 - [ ] **Candidate 2 — authenticated release smoke.** Implement only after a

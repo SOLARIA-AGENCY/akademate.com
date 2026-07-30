@@ -26,10 +26,11 @@ Last updated: 2026-07-30
 - [x] Documentation pushed: `origin/codex/akademate-program-governance`.
 - [x] Shadow custody manifests generated and verified: 598 entries across four sources.
 - [x] Divergent `b455374e` rejected as a direct CEP candidate.
-- [~] Candidate 1A scope identified; clean live-based reconstruction pending.
+- [x] Candidate 1A reconstructed from live, tested, committed and pushed: `721eb57d`.
+- [ ] Candidate 1A image, staging, authenticated smoke and rollback evidence.
 
 ## Active blocker
 
-Candidate 1A must be reconstructed from live `0ca1b43`. Its source commit has
-conflicts in `staff/route.ts` and `payload.config.ts`; neither file may be
-resolved by accepting the divergent branch wholesale.
+Candidate 1A cannot receive traffic until image build, backup restore, isolated
+runtime smoke, visual/network QA and rollback are evidenced. Its source commit
+is not production evidence.
