@@ -6,7 +6,7 @@ Last updated: 2026-07-30
 
 | Area | Current evidence | Verdict |
 | --- | --- | --- |
-| CEP production | SHA `0ca1b43`, container healthy | MVP live |
+| CEP production | SHA `9438253e`, container healthy; authenticated smoke pending | Candidate 1A.1 live |
 | Tenant/multi-entity shadow | 631/632 tests | one local regression |
 | Finance shadow | 459/459 tests | local green, no integration |
 | Release A | source/runbook inspected | fresh execution blocked by dependency policy |
@@ -28,6 +28,8 @@ Last updated: 2026-07-30
 - [x] Divergent `b455374e` rejected as a direct CEP candidate.
 - [x] Candidate 1A reconstructed from live, tested, committed and pushed: `721eb57d`.
 - [x] Candidate 1A handed off to CEP task `019f8964-2942-7642-89e7-f09495627e65`.
+- [x] Candidate 1A.1 deployed from exact SHA `9438253e`; backup restore, frozen-lockfile image, anonymous smoke and initial observation passed.
+- [ ] Configure the least-privilege CEP smoke principal and close the authenticated admin smoke gate.
 - [x] Akademate Next worktree created: `codex/akademate-next`.
 - [x] Next runtime isolation committed and pushed: `65e9beef`.
 - [x] Academic membership access committed and pushed: `b03226ff`.
