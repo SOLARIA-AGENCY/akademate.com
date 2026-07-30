@@ -65,7 +65,7 @@ import { UserStreaks } from './collections/UserStreaks/UserStreaks';
 
 // Export factory function for lazy evaluation (ESM + --env-file compatibility)
 // Ensures process.env is read AFTER environment variables are loaded
-const baseCollections: CollectionConfig[] = [
+const legacyCollections: CollectionConfig[] = [
   // ===== SYSTEM (Multi-tenant) =====
   Tenants,
   Users,
@@ -122,7 +122,7 @@ export const getPayloadConfig = async () => {
   })
   const legacyOnlyCollections = isAkademateNextRuntime(runtime)
     ? []
-    : getCepMultiEntityShadowCollections()
+    : [...legacyCollections, ...getCepMultiEntityShadowCollections()]
 
   return buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3002',
@@ -142,9 +142,8 @@ export const getPayloadConfig = async () => {
   },
   collections: selectRuntimeCollections(
     runtime,
-    baseCollections,
-    nextOnlyCollections,
     legacyOnlyCollections,
+    nextOnlyCollections,
   ),
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET ?? 'YOUR_SECRET_HERE',

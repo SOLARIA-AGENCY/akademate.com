@@ -110,3 +110,19 @@ test('defines idempotency and cross-scope integrity constraints', () => {
   assert.match(migrationText, /FOREIGN KEY \("tenant_id", "assignment_id", "course_run_id"\)/)
   assert.match(migrationText, /FOREIGN KEY \("tenant_id", "submission_id", "course_run_id", "assignment_id", "student_user_id"\)/)
 })
+
+test('keeps Payload document locks aligned with every new collection', () => {
+  for (const table of TABLES) {
+    assert.match(
+      migrationText,
+      new RegExp(`ADD COLUMN "${table}_id" integer`),
+    )
+    assert.match(
+      migrationText,
+      new RegExp(`FOREIGN KEY \\("${table}_id"\\) REFERENCES "${table}"\\("id"\\)`),
+    )
+    const dropColumn = migrationText.indexOf(`DROP COLUMN "${table}_id"`)
+    const dropTable = migrationText.indexOf(`DROP TABLE "${table}"`)
+    assert.ok(dropColumn >= 0 && dropTable > dropColumn, `${table} lock relation must be dropped first`)
+  }
+})

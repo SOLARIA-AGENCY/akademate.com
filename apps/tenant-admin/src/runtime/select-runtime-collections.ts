@@ -17,13 +17,12 @@ export async function loadNextRuntimeCollections<T>(
 
 export function selectRuntimeCollections<T>(
   runtime: string | undefined,
-  baseCollections: readonly T[],
+  legacyCollections: readonly T[],
   nextOnlyCollections: readonly T[],
-  legacyOnlyCollections: readonly T[] = [],
 ): T[] {
   if (!isAkademateNextRuntime(runtime)) {
-    return [...baseCollections, ...legacyOnlyCollections]
+    return [...legacyCollections]
   }
 
-  return [...baseCollections, ...nextOnlyCollections]
+  return [...nextOnlyCollections]
 }

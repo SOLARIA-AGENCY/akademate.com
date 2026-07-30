@@ -13,6 +13,8 @@ checks:
       command: node --experimental-strip-types --test packages/learning/src/*.test.ts
     - name: next-runtime-collection-boundary
       command: node --experimental-strip-types --test apps/tenant-admin/src/runtime/select-runtime-collections.test.ts
+    - name: next-collection-manifest
+      command: node --experimental-strip-types --test apps/tenant-admin/src/runtime/next-only-collections.test.ts
     - name: next-runtime-migration-boundary
       command: node --experimental-strip-types --test apps/tenant-admin/src/runtime/select-runtime-migrations.test.ts
     - name: next-compose

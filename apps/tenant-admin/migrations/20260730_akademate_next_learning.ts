@@ -164,6 +164,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       "status" varchar DEFAULT 'sent' NOT NULL,
       "edited_at" timestamp(3) with time zone,
       "deleted_at" timestamp(3) with time zone,
+      "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
       "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
       CONSTRAINT "learning_messages_client_id_check"
         CHECK ("client_message_id" ~ '^[A-Za-z0-9][A-Za-z0-9_-]{7,127}$'),
@@ -298,6 +299,51 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       CONSTRAINT "learning_grades_submission_unique"
         UNIQUE ("tenant_id", "submission_id")
     );
+
+    ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "learning_memberships_id" integer;
+    ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "learning_conversations_id" integer;
+    ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "learning_conversation_participants_id" integer;
+    ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "learning_messages_id" integer;
+    ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "learning_assignments_id" integer;
+    ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "learning_submissions_id" integer;
+    ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "learning_grades_id" integer;
+
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD CONSTRAINT "payload_locked_documents_rels_learning_memberships_fk"
+      FOREIGN KEY ("learning_memberships_id") REFERENCES "learning_memberships"("id") ON DELETE cascade;
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD CONSTRAINT "payload_locked_documents_rels_learning_conversations_fk"
+      FOREIGN KEY ("learning_conversations_id") REFERENCES "learning_conversations"("id") ON DELETE cascade;
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD CONSTRAINT "payload_locked_documents_rels_learning_conversation_participants_fk"
+      FOREIGN KEY ("learning_conversation_participants_id") REFERENCES "learning_conversation_participants"("id") ON DELETE cascade;
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD CONSTRAINT "payload_locked_documents_rels_learning_messages_fk"
+      FOREIGN KEY ("learning_messages_id") REFERENCES "learning_messages"("id") ON DELETE cascade;
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD CONSTRAINT "payload_locked_documents_rels_learning_assignments_fk"
+      FOREIGN KEY ("learning_assignments_id") REFERENCES "learning_assignments"("id") ON DELETE cascade;
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD CONSTRAINT "payload_locked_documents_rels_learning_submissions_fk"
+      FOREIGN KEY ("learning_submissions_id") REFERENCES "learning_submissions"("id") ON DELETE cascade;
+    ALTER TABLE "payload_locked_documents_rels"
+      ADD CONSTRAINT "payload_locked_documents_rels_learning_grades_fk"
+      FOREIGN KEY ("learning_grades_id") REFERENCES "learning_grades"("id") ON DELETE cascade;
+
+    CREATE INDEX "payload_locked_documents_rels_learning_memberships_idx"
+      ON "payload_locked_documents_rels" ("learning_memberships_id");
+    CREATE INDEX "payload_locked_documents_rels_learning_conversations_idx"
+      ON "payload_locked_documents_rels" ("learning_conversations_id");
+    CREATE INDEX "payload_locked_documents_rels_learning_conversation_participants_idx"
+      ON "payload_locked_documents_rels" ("learning_conversation_participants_id");
+    CREATE INDEX "payload_locked_documents_rels_learning_messages_idx"
+      ON "payload_locked_documents_rels" ("learning_messages_id");
+    CREATE INDEX "payload_locked_documents_rels_learning_assignments_idx"
+      ON "payload_locked_documents_rels" ("learning_assignments_id");
+    CREATE INDEX "payload_locked_documents_rels_learning_submissions_idx"
+      ON "payload_locked_documents_rels" ("learning_submissions_id");
+    CREATE INDEX "payload_locked_documents_rels_learning_grades_idx"
+      ON "payload_locked_documents_rels" ("learning_grades_id");
 
     CREATE INDEX "learning_memberships_user_course_idx"
       ON "learning_memberships" ("tenant_id", "user_id", "course_run_id");
@@ -600,6 +646,14 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
   assertAkademateNextRuntime(process.env.AKADEMATE_RUNTIME)
 
   await db.execute(sql`
+    ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "learning_grades_id";
+    ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "learning_submissions_id";
+    ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "learning_assignments_id";
+    ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "learning_messages_id";
+    ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "learning_conversation_participants_id";
+    ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "learning_conversations_id";
+    ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "learning_memberships_id";
+
     DROP TABLE "learning_grades";
     DROP TABLE "learning_submissions";
     DROP TABLE "learning_assignments";

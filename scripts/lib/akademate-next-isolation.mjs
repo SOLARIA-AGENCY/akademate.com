@@ -60,7 +60,7 @@ export function validateNextRuntimeCollectionBoundary(payloadConfigText) {
     'Payload config must import the Next runtime collection selector',
   )
   assert(
-    /collections:\s*selectRuntimeCollections\(\s*runtime,\s*baseCollections,\s*nextOnlyCollections,\s*legacyOnlyCollections,?\s*\)/s.test(payloadConfigText),
+    /collections:\s*selectRuntimeCollections\(\s*runtime,\s*legacyOnlyCollections,\s*nextOnlyCollections,?\s*\)/s.test(payloadConfigText),
     'Payload collections must be materialized through the Next runtime boundary',
   )
   assert(
@@ -72,8 +72,8 @@ export function validateNextRuntimeCollectionBoundary(payloadConfigText) {
     'Payload config must not statically import Next-only collections',
   )
   assert(
-    /const\s+legacyOnlyCollections\s*=\s*isAkademateNextRuntime\(runtime\)\s*\?\s*\[\]\s*:\s*getCepMultiEntityShadowCollections\(\)/s.test(payloadConfigText),
-    'CEP shadow collections must be excluded from the Next runtime',
+    /const\s+legacyOnlyCollections\s*=\s*isAkademateNextRuntime\(runtime\)\s*\?\s*\[\]\s*:\s*\[\.\.\.legacyCollections,\s*\.\.\.getCepMultiEntityShadowCollections\(\)\]/s.test(payloadConfigText),
+    'legacy and CEP shadow collections must be excluded from the Next runtime',
   )
 
   return { runtimeBoundary: 'fail-closed' }

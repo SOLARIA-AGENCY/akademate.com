@@ -99,10 +99,10 @@ test('requires Payload collections to pass through the fail-closed Next runtime 
   assert.throws(
     () => validateNextRuntimeCollectionBoundary(
       payloadConfigText.replace(
-        'isAkademateNextRuntime(runtime)\n    ? []\n    : getCepMultiEntityShadowCollections()',
-        'false\n    ? []\n    : getCepMultiEntityShadowCollections()',
+        'isAkademateNextRuntime(runtime)\n    ? []\n    : [...legacyCollections, ...getCepMultiEntityShadowCollections()]',
+        'false\n    ? []\n    : [...legacyCollections, ...getCepMultiEntityShadowCollections()]',
       ),
     ),
-    /CEP shadow collections must be excluded from the Next runtime/,
+    /legacy and CEP shadow collections must be excluded from the Next runtime/,
   )
 })

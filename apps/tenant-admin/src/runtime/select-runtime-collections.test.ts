@@ -8,9 +8,9 @@ import {
 
 type TestCollection = { slug: string }
 
-const baseCollections: TestCollection[] = [
+const legacyCollections: TestCollection[] = [
   { slug: 'tenants' },
-  { slug: 'users' },
+  { slug: 'legacy-submissions' },
 ]
 
 const nextOnlyCollections: TestCollection[] = [
@@ -25,52 +25,48 @@ const nextOnlyCollections: TestCollection[] = [
 
 test('registers Next-only collections for the exact next runtime marker', () => {
   assert.deepEqual(
-    selectRuntimeCollections('next', baseCollections, nextOnlyCollections).map(({ slug }) => slug),
-    [...baseCollections, ...nextOnlyCollections].map(({ slug }) => slug),
+    selectRuntimeCollections('next', legacyCollections, nextOnlyCollections).map(({ slug }) => slug),
+    nextOnlyCollections.map(({ slug }) => slug),
   )
 })
 
 test('registers no Next-only collections when the runtime marker is absent', () => {
-  assert.deepEqual(selectRuntimeCollections(undefined, baseCollections, nextOnlyCollections), baseCollections)
-  assert.deepEqual(selectRuntimeCollections('', baseCollections, nextOnlyCollections), baseCollections)
+  assert.deepEqual(selectRuntimeCollections(undefined, legacyCollections, nextOnlyCollections), legacyCollections)
+  assert.deepEqual(selectRuntimeCollections('', legacyCollections, nextOnlyCollections), legacyCollections)
 })
 
 test('registers no Next-only collections for CEP or unknown runtime markers', () => {
-  const legacyCollections = [{ slug: 'legacy-shadow' }]
   for (const runtime of ['cep', 'production', 'NEXT', ' next ', 'tenant']) {
     const selected = selectRuntimeCollections(
       runtime,
-      baseCollections,
-      nextOnlyCollections,
       legacyCollections,
+      nextOnlyCollections,
     )
     assert.deepEqual(
       selected,
-      [...baseCollections, ...legacyCollections],
+      legacyCollections,
       `runtime ${JSON.stringify(runtime)} must fail closed`,
     )
   }
 })
 
 test('never registers legacy or CEP collections in the Next runtime', () => {
-  const legacyCollections = [{ slug: 'cep-shadow' }]
   const selected = selectRuntimeCollections(
     'next',
-    baseCollections,
-    nextOnlyCollections,
     legacyCollections,
+    nextOnlyCollections,
   )
 
-  assert.equal(selected.some(({ slug }) => slug.includes('cep')), false)
-  assert.deepEqual(selected, [...baseCollections, ...nextOnlyCollections])
+  assert.equal(selected.some(({ slug }) => slug.includes('legacy')), false)
+  assert.deepEqual(selected, nextOnlyCollections)
 })
 
 test('returns a new array without mutating either collection source', () => {
-  const selected = selectRuntimeCollections('next', baseCollections, nextOnlyCollections)
+  const selected = selectRuntimeCollections('next', legacyCollections, nextOnlyCollections)
 
-  assert.notEqual(selected, baseCollections)
+  assert.notEqual(selected, legacyCollections)
   assert.notEqual(selected, nextOnlyCollections)
-  assert.deepEqual(baseCollections.map(({ slug }) => slug), ['tenants', 'users'])
+  assert.deepEqual(legacyCollections.map(({ slug }) => slug), ['tenants', 'legacy-submissions'])
   assert.equal(nextOnlyCollections.length, 7)
 })
 
