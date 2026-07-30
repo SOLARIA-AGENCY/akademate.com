@@ -28,7 +28,11 @@ Last updated: 2026-07-30
 - [x] Divergent `b455374e` rejected as a direct CEP candidate.
 - [x] Candidate 1A reconstructed from live, tested, committed and pushed: `721eb57d`.
 - [x] Candidate 1A handed off to CEP task `019f8964-2942-7642-89e7-f09495627e65`.
-- [ ] Akademate Next isolated worktree/runtime created.
+- [x] Akademate Next worktree created: `codex/akademate-next`.
+- [x] Next runtime isolation committed and pushed: `65e9beef`.
+- [x] Academic membership access committed and pushed: `b03226ff`.
+- [x] Conversation participant access committed and pushed: `7f6d7801`.
+- [ ] Learning/chat persistence and role-specific shells implemented.
 
 ## Active blocker
 

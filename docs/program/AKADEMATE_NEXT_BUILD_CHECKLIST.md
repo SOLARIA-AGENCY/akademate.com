@@ -3,14 +3,14 @@ Last updated: 2026-07-30
 
 ## Isolation
 
-- [ ] Branch/worktree created from accepted CEP MVP baseline.
+- [x] Branch/worktree created from accepted CEP MVP baseline.
 - [ ] Dedicated database.
-- [ ] Dedicated Redis namespace.
+- [x] Dedicated Redis namespace defined in isolated Compose.
 - [ ] Dedicated object storage namespace.
 - [ ] Dedicated secrets.
-- [ ] Dedicated Compose project and images.
+- [x] Dedicated Compose project and images defined.
 - [ ] Dedicated staging hostname.
-- [ ] CEP identifiers denied by deploy guard.
+- [x] CEP identifiers denied by static isolation guard.
 - [ ] Synthetic demo data only.
 - [ ] No runtime API bridge to CEP.
 
@@ -69,8 +69,8 @@ Last updated: 2026-07-30
 ## Campus
 
 - [ ] Canonical student campus.
-- [ ] Teacher workspace with a role-specific shell and minimum privileges.
-- [ ] Administrative backoffice remains separate from teacher/student shells.
+- [~] Teacher workspace architecture and membership capabilities defined; shell pending.
+- [x] Administrative, teacher and student experience boundary accepted in ADR 0007.
 - [ ] Teacher course preparation and content authoring.
 - [ ] Teacher attendance, assignment and grade workflows.
 - [ ] Modules, lessons and materials.
@@ -85,9 +85,9 @@ Last updated: 2026-07-30
 
 ## Internal communication
 
-- [ ] Tenant-scoped conversations.
-- [ ] Course-run and enrolment membership enforced server-side.
-- [ ] Teacher/student direct threads only within an authorized academic context.
+- [~] Tenant-scoped conversation authorization implemented; persistence pending.
+- [x] Course-run learning membership enforced in the domain access contract.
+- [x] Explicit conversation participant required in addition to academic membership.
 - [ ] Course channels, announcements and assignment discussions.
 - [ ] Message attachments in tenant-namespaced storage.
 - [ ] Read receipts, notification preferences and unread counts.
