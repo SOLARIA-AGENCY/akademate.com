@@ -1,6 +1,7 @@
 import type { CollectionConfig, FieldAccess } from 'payload';
 import { canEditStaff, canManageStaff } from './access';
 import { trackStaffCreator } from './hooks';
+import { tenantField, tenantReadAccess } from '../../access/tenantAccess';
 
 /**
  * Type definitions for Staff collection
@@ -176,7 +177,8 @@ export const Staff: CollectionConfig = {
    */
   access: {
     create: canEditStaff, // All authenticated users
-    read: ({ req: { user } }) => {
+    read: (args) => {
+      const { user } = args.req;
       // Public: Only active professors (basic info)
       if (!user) {
         return {
@@ -185,8 +187,8 @@ export const Staff: CollectionConfig = {
         };
       }
 
-      // All authenticated users: read all staff
-      return true;
+      // Authenticated users: only staff from their tenant; SuperAdmin remains global.
+      return tenantReadAccess(args);
     },
     update: canEditStaff, // All authenticated users
     delete: canManageStaff, // Gestor, Admin
@@ -617,6 +619,7 @@ export const Staff: CollectionConfig = {
         update: () => false, // Immutable after creation
       },
     },
+    tenantField,
   ],
 
   /**

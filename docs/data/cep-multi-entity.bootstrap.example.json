@@ -1,0 +1,26 @@
+{
+  "tenantSlug": "cep-formacion",
+  "entities": [
+    {
+      "key": "acatem",
+      "name": "ACATEM",
+      "slug": "acatem",
+      "kind": "operator",
+      "virtualScope": {
+        "name": "ACATEM",
+        "slug": "acatem-virtual"
+      }
+    },
+    {
+      "key": "aproem",
+      "name": "APROEM",
+      "slug": "aproem",
+      "kind": "operator",
+      "virtualScope": {
+        "name": "APROEM",
+        "slug": "aproem-virtual"
+      }
+    }
+  ],
+  "siteRelationships": []
+}

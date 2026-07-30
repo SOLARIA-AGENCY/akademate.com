@@ -125,7 +125,7 @@ const ListInvoicesSchema = z.object({
 
 /**
  * Calculate total tax from invoice total_taxes array
- * Uses Stripe API 2025-12-15.clover format
+ * Uses Stripe API 2026-06-24.dahlia format
  */
 function calculateTotalTax(invoice: Stripe.Invoice): number {
   const totalTaxes = invoice.total_taxes as TaxAmount[] | null | undefined

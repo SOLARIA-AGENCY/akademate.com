@@ -15,8 +15,10 @@ import {
   applyCourseRunPriceSnapshot,
   detectPlanningConflicts,
 } from './hooks';
+import { validateCourseRunScopeAccess } from './hooks/validateCourseRunScopeAccess';
 import { VALID_WEEKDAYS, VALID_STATUSES } from './CourseRuns.validation';
 import { tenantField } from '../../access/tenantAccess';
+import { validateSameTenantRelationships } from '../Organization/common';
 
 /**
  * CourseRuns Collection - Course Instance Management
@@ -202,6 +204,35 @@ export const CourseRuns: CollectionConfig = {
       admin: {
         description: 'Aula o espacio físico donde se imparte la convocatoria',
       },
+    },
+    {
+      name: 'owner_legal_entity',
+      type: 'relationship',
+      relationTo: 'legal-entities',
+      required: false,
+      index: true,
+      admin: { description: 'Entidad juridica titular. Obligatoria al cerrar el backfill multi-entidad.' },
+    },
+    {
+      name: 'managing_legal_entity',
+      type: 'relationship',
+      relationTo: 'legal-entities',
+      index: true,
+      admin: { description: 'Entidad gestora si difiere de la titular.' },
+    },
+    {
+      name: 'funding_legal_entity',
+      type: 'relationship',
+      relationTo: 'legal-entities',
+      index: true,
+      admin: { description: 'Entidad juridica financiadora interna, si aplica.' },
+    },
+    {
+      name: 'operating_scope',
+      type: 'relationship',
+      relationTo: 'operating-scopes',
+      index: true,
+      admin: { description: 'Ambito virtual interno responsable (por ejemplo, ACATEM o APROEM).' },
     },
 
     // ============================================================================
@@ -694,6 +725,20 @@ export const CourseRuns: CollectionConfig = {
     beforeValidate: [
       validateCourseRunDates, // 1. Validate date and time logic
       validateCourseRunRelationships, // 2. Validate foreign keys exist
+      validateSameTenantRelationships([
+        { field: 'course', collection: 'courses' },
+        { field: 'cycle', collection: 'cycles' },
+        { field: 'campus', collection: 'campuses' },
+        { field: 'classroom', collection: 'classrooms' },
+        { field: 'owner_legal_entity', collection: 'legal-entities' },
+        { field: 'managing_legal_entity', collection: 'legal-entities' },
+        { field: 'funding_legal_entity', collection: 'legal-entities' },
+        { field: 'operating_scope', collection: 'operating-scopes' },
+        { field: 'instructor', collection: 'staff' },
+        { field: 'instructors', collection: 'staff', many: true },
+        { field: 'administrative_owner', collection: 'staff' },
+      ]), // 3. Reject cross-tenant relationships
+      validateCourseRunScopeAccess, // 4. Enforce entity/site/virtual scope bindings
       validateEnrollmentCapacity, // 3. Validate capacity constraints
       detectPlanningConflicts, // 4. Block publish/validation when P1 conflicts exist
     ],

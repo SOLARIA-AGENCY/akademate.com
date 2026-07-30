@@ -8,6 +8,7 @@ import type {
   WebsiteNavigationItem,
 } from './types'
 import { normalizePublicStudyType } from './study-types'
+import { publicCampusFilter } from '@/src/domain/organizationScopes'
 
 type CourseTypeDoc = {
   id: string | number
@@ -131,7 +132,7 @@ export async function resolvePublicNavigation(
     needsCampuses
       ? payload.find({
           collection: 'campuses',
-          where: withTenantScope({ active: { equals: true } }, options?.tenantId) as any,
+          where: publicCampusFilter(options?.tenantId ?? '') as any,
           sort: 'name',
           limit: 100,
           depth: 0,

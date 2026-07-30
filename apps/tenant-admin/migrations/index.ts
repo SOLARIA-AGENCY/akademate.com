@@ -6,46 +6,52 @@ import * as migration_20260427_cep_planning_v1 from './20260427_cep_planning_v1'
 import * as migration_20260428_students_tenant from './20260428_students_tenant';
 import * as migration_20260507_course_landing_design from './20260507_course_landing_design';
 import * as migration_20260513_lead_appointments from './20260513_lead_appointments';
+import * as migration_20260728_094713_multi_entity_operating_scopes from './20260728_094713_multi_entity_operating_scopes';
 
 export const migrations = [
   {
     up: migration_20251207_081627.up,
     down: migration_20251207_081627.down,
-    name: '20251207_081627'
+    name: '20251207_081627',
   },
   {
     up: migration_20260417_073500.up,
     down: migration_20260417_073500.down,
-    name: '20260417_073500'
+    name: '20260417_073500',
   },
   {
     up: migration_20260417_160200.up,
     down: migration_20260417_160200.down,
-    name: '20260417_160200'
+    name: '20260417_160200',
   },
   {
     up: migration_20260421_121517.up,
     down: migration_20260421_121517.down,
-    name: '20260421_121517'
+    name: '20260421_121517',
   },
   {
     up: migration_20260427_cep_planning_v1.up,
     down: migration_20260427_cep_planning_v1.down,
-    name: '20260427_cep_planning_v1'
+    name: '20260427_cep_planning_v1',
   },
   {
     up: migration_20260428_students_tenant.up,
     down: migration_20260428_students_tenant.down,
-    name: '20260428_students_tenant'
+    name: '20260428_students_tenant',
   },
   {
     up: migration_20260507_course_landing_design.up,
     down: migration_20260507_course_landing_design.down,
-    name: '20260507_course_landing_design'
+    name: '20260507_course_landing_design',
   },
   {
     up: migration_20260513_lead_appointments.up,
     down: migration_20260513_lead_appointments.down,
-    name: '20260513_lead_appointments'
+    name: '20260513_lead_appointments',
+  },
+  {
+    up: migration_20260728_094713_multi_entity_operating_scopes.up,
+    down: migration_20260728_094713_multi_entity_operating_scopes.down,
+    name: '20260728_094713_multi_entity_operating_scopes'
   },
 ];

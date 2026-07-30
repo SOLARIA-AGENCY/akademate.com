@@ -1,4 +1,5 @@
 import type { Access } from 'payload';
+import { courseRunScopeWhere } from '../../../access/scopedOrganizationAccess';
 
 /**
  * Access Control: canUpdateCourseRun
@@ -22,7 +23,8 @@ import type { Access } from 'payload';
  * - Status transitions should be validated (future enhancement)
  * - Updates are logged for audit trail
  */
-export const canUpdateCourseRun: Access = ({ req: { user } }) => {
+export const canUpdateCourseRun: Access = async ({ req }) => {
+  const { user } = req;
   // Must be authenticated
   if (!user) {
     return false;
@@ -30,16 +32,15 @@ export const canUpdateCourseRun: Access = ({ req: { user } }) => {
 
   // Admin and Gestor can update all course runs
   if (['admin', 'gestor'].includes(user.role)) {
-    return true;
+    return courseRunScopeWhere(req);
   }
 
   // Marketing can update only their own course runs
   if (user.role === 'marketing') {
-    return {
-      created_by: {
-        equals: user.id,
-      },
-    };
+    const scope = await courseRunScopeWhere(req);
+    if (scope === false) return false;
+    if (scope === true) return { created_by: { equals: user.id } };
+    return { and: [scope, { created_by: { equals: user.id } }] };
   }
 
   // Asesor and Lectura cannot update course runs

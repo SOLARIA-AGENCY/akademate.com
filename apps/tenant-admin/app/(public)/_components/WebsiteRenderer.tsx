@@ -11,6 +11,7 @@ import { BriefcaseBusiness, GraduationCap, ShieldCheck, Star } from 'lucide-reac
 import { getPublishedCourses, getStudyTypeVisualMap } from '@/app/lib/server/published-courses'
 import { buildCourseGroups } from '../p/cursos/page'
 import { CoursesCatalogView } from '../p/cursos/CoursesCatalogView'
+import { publicCampusFilter } from '@/src/domain/organizationScopes'
 
 const BRAND_RED = '#f2014b'
 
@@ -500,7 +501,7 @@ async function CourseListSection({
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'courses',
-    where: withTenantScope({ active: { equals: true } }, tenantId) as any,
+    where: publicCampusFilter(tenantId) as any,
     depth: 1,
     limit: section.title?.toLowerCase().includes('nuevas') ? section.limit ?? 6 : 200,
     sort: section.title?.toLowerCase().includes('nuevas') ? '-createdAt' : 'name',

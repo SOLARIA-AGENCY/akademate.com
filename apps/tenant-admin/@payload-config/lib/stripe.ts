@@ -15,7 +15,7 @@ import { z } from 'zod'
 // Environment Configuration
 // ============================================================================
 
-const STRIPE_API_VERSION = '2025-12-15.clover' as const
+const STRIPE_API_VERSION = '2026-06-24.dahlia' as const
 
 /**
  * Gets the Stripe secret key from environment variables
@@ -469,7 +469,7 @@ export async function cancelSubscription(
       subscription = await client.subscriptions.update(subscriptionId, {
         cancel_at_period_end: true,
       })
-      // Note: current_period_end is now on subscription items in Stripe API 2025-12-15.clover
+      // Note: current_period_end is on subscription items in Stripe API 2026-06-24.dahlia
       const periodEnd = subscription.items.data[0]?.current_period_end
       const periodEndDate = periodEnd ? new Date(periodEnd * 1000).toISOString() : 'unknown'
       console.log(

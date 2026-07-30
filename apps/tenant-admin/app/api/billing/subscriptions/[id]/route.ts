@@ -31,7 +31,7 @@ interface LocalSubscription {
   }
 }
 
-/** Subscription item with period properties (Stripe API 2025-12-15.clover) */
+/** Subscription item with period properties (Stripe API 2026-06-24.dahlia) */
 interface LocalSubscriptionItem {
   id: string
   current_period_start?: number

@@ -301,11 +301,17 @@ describe('Campuses Collection', () => {
   // ==========================================================================
 
   describe('access control', () => {
-    it('read access returns true (public)', () => {
+    it('public read access requires tenant context and excludes inactive/internal campuses', () => {
       const readFn = Campuses.access?.read as Function
       expect(readFn).toBeDefined()
-      // read() => true -- no arguments needed for public access
-      expect(readFn({})).toBe(true)
+      expect(readFn({ req: { user: null, headers: new Headers() } })).toBe(false)
+      expect(readFn({ req: { user: null, headers: new Headers({ 'x-tenant-id': '12' }) } })).toEqual({
+        and: [
+          { tenant: { equals: 12 } },
+          { active: { equals: true } },
+          { public_visibility: { equals: 'public' } },
+        ],
+      })
     })
 
     it('create access is defined (canManageCampuses)', () => {

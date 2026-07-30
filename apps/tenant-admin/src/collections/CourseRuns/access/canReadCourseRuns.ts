@@ -1,4 +1,6 @@
 import type { Access } from 'payload';
+import { courseRunScopeWhere } from '../../../access/scopedOrganizationAccess';
+import { getRequestTenantId } from '../../../access/tenantAccess';
 
 /**
  * Access Control: canReadCourseRuns
@@ -21,28 +23,31 @@ import type { Access } from 'payload';
  * - Asesor: Can see all runs (needs context for student advising)
  * - Marketing/Gestor/Admin: Full read access
  */
-export const canReadCourseRuns: Access = ({ req: { user } }) => {
+export const canReadCourseRuns: Access = async ({ req }) => {
+  const { user } = req;
   // Public: Only published or enrollment_open runs
   if (!user) {
+    const tenantId = getRequestTenantId(req);
+    if (tenantId === null) return false;
     return {
-      status: {
-        in: ['published', 'enrollment_open'],
-      },
+      and: [
+        { tenant: { equals: tenantId } },
+        { status: { in: ['published', 'enrollment_open'] } },
+      ],
     };
   }
 
   // Admin, Gestor, Marketing, and Asesor can read all runs
   if (['superadmin', 'admin', 'gestor', 'marketing', 'asesor'].includes(user.role)) {
-    return true;
+    return courseRunScopeWhere(req);
   }
 
   // Lectura: Can read active runs (not draft or cancelled)
   if (user.role === 'lectura') {
-    return {
-      status: {
-        not_in: ['draft', 'cancelled'],
-      },
-    };
+    const scope = await courseRunScopeWhere(req);
+    if (scope === false) return false;
+    if (scope === true) return { status: { not_in: ['draft', 'cancelled'] } };
+    return { and: [scope, { status: { not_in: ['draft', 'cancelled'] } }] };
   }
 
   // Default: No access

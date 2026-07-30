@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
-import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { publicCampusFilter } from '@/src/domain/organizationScopes'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +29,7 @@ async function getCampus(slug: string) {
 
   const result = await payload.find({
     collection: 'campuses',
-    where: withTenantScope(where, tenant.tenantId) as any,
+    where: publicCampusFilter(tenant.tenantId, where) as any,
     limit: 1,
     depth: 2,
   })

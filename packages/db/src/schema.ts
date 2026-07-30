@@ -61,6 +61,10 @@ export const pointsSourceTypeEnum = pgEnum('points_source_type', [
 // Operations enums
 export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent', 'late', 'excused'])
 export const calendarEventTypeEnum = pgEnum('calendar_event_type', ['class', 'exam', 'holiday', 'meeting', 'deadline', 'other'])
+export const legalEntityKindEnum = pgEnum('legal_entity_kind', ['operator', 'employer', 'funder', 'vendor', 'other'])
+export const operatingScopeKindEnum = pgEnum('operating_scope_kind', ['virtual_entity', 'department', 'project', 'cost_center'])
+export const entitySiteRoleEnum = pgEnum('entity_site_role', ['primary_operator', 'shared_operator', 'employer', 'resource_manager'])
+export const financeEntryTypeEnum = pgEnum('finance_entry_type', ['income', 'expense', 'payroll', 'subsidy', 'intercompany', 'adjustment'])
 
 export const tenants = pgTable('tenants', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -71,6 +75,34 @@ export const tenants = pgTable('tenants', {
   mrr: integer('mrr').default(0).notNull(),
   domains: jsonb('domains').$type<string[]>().default([]).notNull(),
   branding: jsonb('branding').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const legalEntities = pgTable('legal_entities', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  slug: text('slug').notNull(),
+  legalName: text('legal_name'),
+  taxId: text('tax_id'),
+  kind: legalEntityKindEnum('kind').default('operator').notNull(),
+  active: boolean('active').default(true).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const operatingScopes = pgTable('operating_scopes', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  legalEntityId: uuid('legal_entity_id').notNull().references(() => legalEntities.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  slug: text('slug').notNull(),
+  kind: operatingScopeKindEnum('kind').default('virtual_entity').notNull(),
+  internalOnly: boolean('internal_only').default(true).notNull(),
+  active: boolean('active').default(true).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
@@ -341,7 +373,22 @@ export const centers = pgTable('centers', {
   capacity: integer('capacity'),
   facilities: jsonb('facilities').$type<string[]>().default([]).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
+  publicVisibility: text('public_visibility').default('public').notNull(),
   metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const siteEntityRelationships = pgTable('site_entity_relationships', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  centerId: uuid('center_id').notNull().references(() => centers.id, { onDelete: 'cascade' }),
+  legalEntityId: uuid('legal_entity_id').notNull().references(() => legalEntities.id, { onDelete: 'cascade' }),
+  role: entitySiteRoleEnum('role').notNull(),
+  isPrimary: boolean('is_primary').default(false).notNull(),
+  validFrom: timestamp('valid_from', { withTimezone: true }),
+  validTo: timestamp('valid_to', { withTimezone: true }),
+  active: boolean('active').default(true).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
@@ -375,6 +422,10 @@ export const courseRuns = pgTable('course_runs', {
   cycleId: uuid('cycle_id').references(() => cycles.id, { onDelete: 'set null' }),
   centerId: uuid('center_id').references(() => centers.id, { onDelete: 'set null' }),
   instructorId: uuid('instructor_id').references(() => instructors.id, { onDelete: 'set null' }),
+  ownerLegalEntityId: uuid('owner_legal_entity_id').references(() => legalEntities.id, { onDelete: 'restrict' }),
+  managingLegalEntityId: uuid('managing_legal_entity_id').references(() => legalEntities.id, { onDelete: 'set null' }),
+  fundingLegalEntityId: uuid('funding_legal_entity_id').references(() => legalEntities.id, { onDelete: 'set null' }),
+  operatingScopeId: uuid('operating_scope_id').references(() => operatingScopes.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   modality: modalityEnum('modality').default('presential').notNull(),
   status: courseRunStatusEnum('status').default('scheduled').notNull(),
@@ -386,6 +437,43 @@ export const courseRuns = pgTable('course_runs', {
   price: decimal('price', { precision: 10, scale: 2 }),
   currency: text('currency').default('EUR').notNull(),
   schedule: jsonb('schedule').$type<Record<string, unknown>>().default({}).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const scopedRoleBindings = pgTable('scoped_role_bindings', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  role: text('role').notNull(),
+  legalEntityId: uuid('legal_entity_id').references(() => legalEntities.id, { onDelete: 'cascade' }),
+  centerId: uuid('center_id').references(() => centers.id, { onDelete: 'cascade' }),
+  operatingScopeId: uuid('operating_scope_id').references(() => operatingScopes.id, { onDelete: 'cascade' }),
+  courseRunId: uuid('course_run_id').references(() => courseRuns.id, { onDelete: 'cascade' }),
+  permissions: jsonb('permissions').$type<string[]>().default([]).notNull(),
+  validFrom: timestamp('valid_from', { withTimezone: true }),
+  validTo: timestamp('valid_to', { withTimezone: true }),
+  active: boolean('active').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const financialEntries = pgTable('financial_entries', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  legalEntityId: uuid('legal_entity_id').notNull().references(() => legalEntities.id, { onDelete: 'restrict' }),
+  counterpartyLegalEntityId: uuid('counterparty_legal_entity_id').references(() => legalEntities.id, { onDelete: 'restrict' }),
+  centerId: uuid('center_id').references(() => centers.id, { onDelete: 'set null' }),
+  operatingScopeId: uuid('operating_scope_id').references(() => operatingScopes.id, { onDelete: 'set null' }),
+  courseRunId: uuid('course_run_id').references(() => courseRuns.id, { onDelete: 'set null' }),
+  reference: text('reference').notNull(),
+  date: timestamp('date', { withTimezone: true }).notNull(),
+  type: financeEntryTypeEnum('type').notNull(),
+  amount: decimal('amount', { precision: 14, scale: 2 }).notNull(),
+  currency: text('currency').default('EUR').notNull(),
+  status: text('status').default('draft').notNull(),
+  description: text('description'),
   metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
@@ -816,6 +904,8 @@ export const verifications = pgTable('verifications', {
 export const schema = {
   // Core
   tenants,
+  legalEntities,
+  operatingScopes,
   users,
   memberships,
   courses,
@@ -832,6 +922,9 @@ export const schema = {
   centers,
   instructors,
   courseRuns,
+  siteEntityRelationships,
+  scopedRoleBindings,
+  financialEntries,
   // LMS
   modules,
   lessons,

@@ -64,6 +64,12 @@ export const getUserTenantId = (user: UserLike | null | undefined): number | nul
   return user.tenant ?? null
 }
 
+export const getRequestTenantId = (req: { headers?: Headers } | null | undefined): string | number | null => {
+  const raw = req?.headers?.get('x-tenant-id')?.trim()
+  if (!raw) return null
+  return /^\d+$/.test(raw) ? Number(raw) : raw
+}
+
 /**
  * Tenant-filtered read access
  * - SuperAdmin: Can read all documents

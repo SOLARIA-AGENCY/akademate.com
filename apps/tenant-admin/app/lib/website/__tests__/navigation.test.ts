@@ -69,7 +69,11 @@ describe('resolvePublicNavigation', () => {
       expect.objectContaining({
         collection: 'campuses',
         where: {
-          and: [{ tenant: { equals: 12 } }, { active: { equals: true } }],
+          and: [
+            { tenant: { equals: 12 } },
+            { active: { equals: true } },
+            { public_visibility: { equals: 'public' } },
+          ],
         },
       })
     )

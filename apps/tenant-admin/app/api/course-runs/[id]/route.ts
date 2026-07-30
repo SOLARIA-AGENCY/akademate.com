@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { getAuthenticatedUserContext } from '@/app/api/leads/_lib/auth'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
+import { buildCourseRunScopeWhere, getScopeBindingsForUser, matchesCourseRunScope } from '@/src/access/scopedOrganizationAccess'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -132,9 +133,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const authContext = await getAuthenticatedUserContext(request, payload as any)
   if (!authContext?.tenantId) return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
 
+  const bindings = await getScopeBindingsForUser(payload, authContext.tenantId, authContext.userId)
+  const scopeWhere = buildCourseRunScopeWhere(authContext.tenantId, bindings)
+
   const result = await payload.find({
     collection: 'course-runs',
-    where: withTenantScope({ id: { equals: id } }, authContext.tenantId) as any,
+    where: { and: [{ id: { equals: id } }, scopeWhere] },
     limit: 1,
     depth: Number(new URL(request.url).searchParams.get('depth') ?? 2),
     overrideAccess: true,
@@ -152,9 +156,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const authContext = await getAuthenticatedUserContext(request, payload as any)
     if (!authContext?.tenantId) return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
 
+    const bindings = await getScopeBindingsForUser(payload, authContext.tenantId, authContext.userId)
+    const scopeWhere = buildCourseRunScopeWhere(authContext.tenantId, bindings)
+
     const existing = await payload.find({
       collection: 'course-runs',
-      where: withTenantScope({ id: { equals: id } }, authContext.tenantId) as any,
+      where: { and: [{ id: { equals: id } }, scopeWhere] },
       limit: 1,
       depth: 0,
       overrideAccess: true,
@@ -176,6 +183,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if ('schedule_time_start' in body) data.schedule_time_start = toTime(body.schedule_time_start) ?? null
     if ('schedule_time_end' in body) data.schedule_time_end = toTime(body.schedule_time_end) ?? null
     if ('shift' in body) data.shift = body.shift || null
+    if ('owner_legal_entity' in body) data.owner_legal_entity = body.owner_legal_entity || null
+    if ('managing_legal_entity' in body) data.managing_legal_entity = body.managing_legal_entity || null
+    if ('funding_legal_entity' in body) data.funding_legal_entity = body.funding_legal_entity || null
+    if ('operating_scope' in body) data.operating_scope = body.operating_scope || null
 
     const startDate = String(data.start_date ?? current.start_date ?? '')
     const endDate = String(data.end_date ?? current.end_date ?? '')
@@ -203,7 +214,22 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
+    for (const [field, collection] of [
+      ['owner_legal_entity', 'legal-entities'],
+      ['managing_legal_entity', 'legal-entities'],
+      ['funding_legal_entity', 'legal-entities'],
+      ['operating_scope', 'operating-scopes'],
+    ] as const) {
+      if (data[field]) {
+        const related = await findTenantDoc(payload, collection, data[field], authContext.tenantId)
+        if (!related) return NextResponse.json({ error: `${field} no pertenece a este tenant.` }, { status: 403 })
+      }
+    }
+
     const candidate = { ...current, ...data, id: current.id } as CourseRunDoc
+    if (!matchesCourseRunScope(candidate as Record<string, unknown>, bindings)) {
+      return NextResponse.json({ error: 'La convocatoria queda fuera de los ambitos autorizados.' }, { status: 403 })
+    }
     const conflict = await validateClassroomAvailability(payload, candidate, authContext.tenantId)
     if (conflict) return NextResponse.json(conflict, { status: 409 })
 

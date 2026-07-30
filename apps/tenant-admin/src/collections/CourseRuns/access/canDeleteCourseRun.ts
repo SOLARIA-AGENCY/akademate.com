@@ -1,4 +1,5 @@
 import type { Access } from 'payload';
+import { courseRunScopeWhere } from '../../../access/scopedOrganizationAccess';
 
 /**
  * Access Control: canDeleteCourseRun
@@ -22,7 +23,8 @@ import type { Access } from 'payload';
  * - Consider soft delete for runs with historical enrollments
  * - Audit log should record all deletions
  */
-export const canDeleteCourseRun: Access = ({ req: { user } }) => {
+export const canDeleteCourseRun: Access = async ({ req }) => {
+  const { user } = req;
   // Must be authenticated
   if (!user) {
     return false;
@@ -30,7 +32,7 @@ export const canDeleteCourseRun: Access = ({ req: { user } }) => {
 
   // Only Admin and Gestor can delete course runs
   if (['admin', 'gestor'].includes(user.role)) {
-    return true;
+    return courseRunScopeWhere(req);
   }
 
   // All other roles cannot delete

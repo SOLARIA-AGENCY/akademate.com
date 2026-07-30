@@ -35,6 +35,7 @@
 
 ## 2. Modelo de Datos (todas con `tenant_id`)
 - Organización/Auth: tenants, users, roles, memberships, invitations, api_keys, feature_flags, limits/quotas, audit_logs, events.
+- Organización multi-entidad: legal_entities, operating_scopes internos, site_entity_relationships temporales, staff_employment_relationships, staff_site_assignments, resource_allocations y scoped_role_bindings.
 - Catálogo: courses, course_runs (convocatorias), cycles, centers (sedes), schedules, pricing, modalities, instructors.
 - Marketing/CRM: leads, contacts, campaigns, ads_templates, blog_posts, pages (CMS seccionables), faq_items, media/assets, redirects, seo_meta.
 - Campus/Alumno: enrollments, modules/lessons, materials (video/pdf/link), assignments, submissions, grades, progress, certificates, announcements, attendance (opcional).
@@ -45,8 +46,11 @@
   - `users`: id, email, name, password_hash, mfa_secret?, last_login, active.
   - `memberships`: user_id, tenant_id, roles[] (enum), status.
   - `courses`: id, tenant_id, title, slug, summary, description (richtext), cycle_id, tags[], featured, active, hero_media, seo_meta.
-  - `course_runs`: id, course_id, tenant_id, center_id, modality, start_date, end_date, schedule, price, seats, status (draft/published/archived), publishedAt.
+  - `course_runs`: id, course_id, tenant_id, center_id, owner_legal_entity_id, managing_legal_entity_id?, funding_legal_entity_id?, operating_scope_id?, modality, start_date, end_date, schedule, price, seats, status, publishedAt.
   - `centers`: id, tenant_id, name, slug, address, city, geo, phones, email, schedule, featured.
+  - `legal_entities`: id, tenant_id, name, legal_name?, tax_id?, kind, active. Nunca representa una ubicacion publica.
+  - `operating_scopes`: id, tenant_id, legal_entity_id, name, kind (virtual_entity/department/project/cost_center), internal_only=true.
+  - `financial_entries`: id, tenant_id, legal_entity_id obligatorio, center_id?, operating_scope_id?, course_run_id?, type, amount, currency, status.
   - `leads`: id, tenant_id, contact info, source/utm, course_id?, course_run_id?, consent flags, status, assigned_to.
   - `enrollments`: id, tenant_id, user_id (alumno), course_id, course_run_id?, status (pending/active/completed/cancelled), payment_status, progress.
   - `pages`: id, tenant_id, slug, title, sections (json), seo_meta, publishedAt.

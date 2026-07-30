@@ -1,7 +1,8 @@
 import type { CollectionConfig, FieldHook } from 'payload';
 import { canManageCampuses } from './access/canManageCampuses';
 import { campusSchema, formatValidationErrors } from './Campuses.validation';
-import { tenantField } from '../../access/tenantAccess';
+import { getRequestTenantId, tenantField, tenantReadAccess } from '../../access/tenantAccess';
+import { publicCampusFilter } from '../../domain/organizationScopes';
 
 interface CampusData {
   id?: number;
@@ -29,12 +30,16 @@ export const Campuses: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'city', 'phone', 'email', 'active'],
+    defaultColumns: ['name', 'city', 'public_visibility', 'phone', 'email', 'active'],
     group: 'Core',
     description: 'Sedes fisicas donde se imparten cursos y ciclos',
   },
   access: {
-    read: () => true,
+    read: ({ req }) => {
+      if (req.user) return tenantReadAccess({ req })
+      const tenantId = getRequestTenantId(req)
+      return tenantId === null ? false : publicCampusFilter(tenantId)
+    },
     create: canManageCampuses,
     update: canManageCampuses,
     delete: canManageCampuses,
@@ -84,6 +89,21 @@ export const Campuses: CollectionConfig = {
       type: 'checkbox',
       defaultValue: true,
       admin: { description: 'Sede operativa', position: 'sidebar' },
+    },
+    {
+      name: 'public_visibility',
+      type: 'select',
+      required: true,
+      defaultValue: 'public',
+      index: true,
+      options: [
+        { label: 'Publica', value: 'public' },
+        { label: 'Solo interna', value: 'internal' },
+      ],
+      admin: {
+        description: 'Solo las sedes fisicas marcadas como publicas pueden aparecer en la web.',
+        position: 'sidebar',
+      },
     },
 
     // ====================================================================

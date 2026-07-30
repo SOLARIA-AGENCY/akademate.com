@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import Link from 'next/link'
 import { withTenantScope } from '@/app/lib/server/tenant-scope'
 import { getTenantHostBranding } from '@/app/lib/server/tenant-host-branding'
+import { publicCampusFilter } from '@/src/domain/organizationScopes'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,7 @@ export default async function PublicSedeDetailPage({ params }: { params: Promise
   const payload = await getPayload({ config: configPromise })
   const campusResult = await payload.find({
     collection: 'campuses',
-    where: withTenantScope({ slug: { equals: slug } }, tenant.tenantId) as any,
+    where: publicCampusFilter(tenant.tenantId, { slug: { equals: slug } }) as any,
     limit: 1,
     depth: 2,
   })

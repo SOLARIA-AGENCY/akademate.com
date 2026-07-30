@@ -10,12 +10,17 @@ import {
   subscriptions,
   tenants,
   users,
+  legalEntities,
+  operatingScopes,
   webhooks,
   // Catalog tables
   cycles,
   centers,
   instructors,
   courseRuns,
+  siteEntityRelationships,
+  scopedRoleBindings,
+  financialEntries,
   // LMS tables
   modules,
   lessons,
@@ -60,9 +65,13 @@ import {
   pointsSourceTypeEnum,
   attendanceStatusEnum,
   calendarEventTypeEnum,
+  legalEntityKindEnum,
+  operatingScopeKindEnum,
+  entitySiteRoleEnum,
+  financeEntryTypeEnum,
 } from './schema'
 
-export const schemaVersion = '0.1.0' // Bumped for new tables
+export const schemaVersion = '0.2.0'
 
 export interface TenantScopedRecord {
   tenant_id: TenantId
@@ -101,6 +110,8 @@ export {
   // Core tables
   tenants,
   users,
+  legalEntities,
+  operatingScopes,
   memberships,
   courses,
   apiKeys,
@@ -113,6 +124,9 @@ export {
   centers,
   instructors,
   courseRuns,
+  siteEntityRelationships,
+  scopedRoleBindings,
+  financialEntries,
   // LMS tables
   modules,
   lessons,
@@ -157,4 +171,8 @@ export {
   pointsSourceTypeEnum,
   attendanceStatusEnum,
   calendarEventTypeEnum,
+  legalEntityKindEnum,
+  operatingScopeKindEnum,
+  entitySiteRoleEnum,
+  financeEntryTypeEnum,
 }

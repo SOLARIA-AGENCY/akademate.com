@@ -64,7 +64,7 @@ function buildWebhookEvent(payload: string, signature: string): Stripe.Event {
 
 /**
  * Extended Invoice type for webhook payload properties that exist at runtime
- * but may not be in the strict Stripe types for API version 2025-12-15.clover
+ * but may not be in the strict Stripe types for API version 2026-06-24.dahlia
  */
 interface StripeInvoiceWebhookData extends Stripe.Invoice {
   charge?: string | Stripe.Charge | null
@@ -176,7 +176,7 @@ async function updateTenantStatus(
 async function upsertSubscription(stripeSubscription: Stripe.Subscription): Promise<void> {
   const tenantId = getTenantIdFromMetadata(stripeSubscription.metadata)
 
-  // Note: current_period_start/end are now on subscription items in Stripe API 2025-12-15.clover
+  // Note: current_period_start/end are on subscription items in Stripe API 2026-06-24.dahlia
   const firstItem = stripeSubscription.items.data[0]
 
   const subscriptionData = {
@@ -230,7 +230,7 @@ async function upsertInvoice(stripeInvoice: Stripe.Invoice): Promise<void> {
   const tenantId = getTenantIdFromMetadata(stripeInvoice.metadata)
 
   // Extract line items
-  // Note: In Stripe API 2025-12-15.clover, line items structure may vary
+  // Note: In Stripe API 2026-06-24.dahlia, line items structure may vary
   const lineItems = stripeInvoice.lines.data.map((line) => {
     const lineWithPrice = line as InvoiceLineItemWithPrice
     return {
@@ -241,7 +241,7 @@ async function upsertInvoice(stripeInvoice: Stripe.Invoice): Promise<void> {
     }
   })
 
-  // Note: tax is now total_taxes array in Stripe API 2025-12-15.clover
+  // Note: tax is represented by total_taxes in Stripe API 2026-06-24.dahlia
   const taxAmount = stripeInvoice.total_taxes?.reduce((sum, tax) => sum + tax.amount, 0) ?? 0
 
   const invoiceData = {
@@ -397,7 +397,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     await upsertInvoice(invoice)
 
     // Create successful payment transaction
-    // Note: In Stripe API 2025-12-15.clover, charge and payment_intent might not be available directly
+    // Note: In Stripe API 2026-06-24.dahlia, charge and payment_intent might not be available directly
     // Using type extension as these properties may exist at runtime via webhooks
     const invoiceData = invoice as StripeInvoiceWebhookData
     const chargeId = invoiceData.charge
@@ -434,7 +434,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     await upsertInvoice(invoice)
 
     // Create failed payment transaction
-    // Note: In Stripe API 2025-12-15.clover, charge and payment_intent might not be available directly
+    // Note: In Stripe API 2026-06-24.dahlia, charge and payment_intent might not be available directly
     // Using type extension as these properties may exist at runtime via webhooks
     const invoiceData = invoice as StripeInvoiceWebhookData
     const paymentIntentId = invoiceData.payment_intent

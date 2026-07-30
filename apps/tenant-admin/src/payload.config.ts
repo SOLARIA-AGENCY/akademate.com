@@ -37,6 +37,16 @@ import { Staff } from './collections/Staff/Staff';
 import { Tenants } from './collections/Tenants/Tenants'
 import { ApiKeys } from './collections/ApiKeys/ApiKeys';
 import { CourseTypes } from './collections/CourseTypes/CourseTypes';
+import {
+  FinanceEntries,
+  LegalEntities,
+  OperatingScopes,
+  ResourceAllocations,
+  ScopedRoleBindings,
+  SiteEntityRelationships,
+  StaffEmploymentRelationships,
+  StaffSiteAssignments,
+} from './collections/Organization';
 
 // LMS Collections
 import { Modules } from './collections/Modules/Modules';
@@ -77,6 +87,16 @@ export const getPayloadConfig = () => buildConfig({
     // ===== SYSTEM (Multi-tenant) =====
     Tenants, // Multi-tenant support - Academies/Organizations
     Users, // IMPORTANT: Users collection MUST be first for auth to work properly
+
+    // ===== INTERNAL ORGANIZATION (never exposed as public campuses) =====
+    LegalEntities,
+    OperatingScopes,
+    SiteEntityRelationships,
+    StaffEmploymentRelationships,
+    StaffSiteAssignments,
+    ResourceAllocations,
+    ScopedRoleBindings,
+    FinanceEntries,
 
     // ===== Core entities =====
     Cycles,
