@@ -1,5 +1,3 @@
-import { createHash } from 'node:crypto'
-
 type ContactLead = {
   kind: 'contact'
   firstName: string
@@ -34,25 +32,22 @@ const subjectLabels: Record<ContactLead['subject'], string> = {
 }
 
 export async function sendPublicNotification(notification: PublicNotification) {
-  const apiKey = process.env.RESEND_API_KEY?.trim()
-  const recipient = process.env.CONTACT_NOTIFICATION_TO?.trim()
-  const from = process.env.CONTACT_FROM_EMAIL?.trim()
+  const mailerUrl = process.env.CONTACT_MAILER_URL?.trim()
+  const mailerToken = process.env.CONTACT_MAILER_TOKEN?.trim()
 
-  if (!apiKey || !recipient || !from) {
+  if (!mailerUrl || !mailerToken) {
     throw new Error('Contact notification service is not configured')
   }
 
-  const response = await fetch('https://api.resend.com/emails', {
+  const response = await fetch(mailerUrl, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${mailerToken}`,
       'Content-Type': 'application/json',
-      'Idempotency-Key': createIdempotencyKey(notification),
     },
     body: JSON.stringify({
-      from,
-      to: [recipient],
-      reply_to: notification.email,
+      kind: notification.kind,
+      replyTo: notification.email,
       subject: notification.kind === 'waitlist'
         ? '[Akademate] New early-access request'
         : `[Akademate] ${subjectLabels[notification.subject]}`,
@@ -64,15 +59,6 @@ export async function sendPublicNotification(notification: PublicNotification) {
   if (!response.ok) {
     throw new Error('Contact notification provider rejected the request')
   }
-}
-
-function createIdempotencyKey(notification: PublicNotification) {
-  const utcDay = new Date().toISOString().slice(0, 10)
-  const fingerprint = createHash('sha256')
-    .update(JSON.stringify(notification))
-    .digest('hex')
-    .slice(0, 32)
-  return `akademate-public-${utcDay}-${fingerprint}`
 }
 
 function renderPlainText(notification: PublicNotification) {

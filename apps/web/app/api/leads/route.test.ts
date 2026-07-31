@@ -17,9 +17,8 @@ function request(body: unknown, headers?: Record<string, string>) {
 }
 
 beforeEach(() => {
-  vi.stubEnv('RESEND_API_KEY', 're_test_key')
-  vi.stubEnv('CONTACT_NOTIFICATION_TO', 'private-destination@example.invalid')
-  vi.stubEnv('CONTACT_FROM_EMAIL', 'Akademate <notifications@example.invalid>')
+  vi.stubEnv('CONTACT_MAILER_URL', 'https://mailer.example.workers.dev')
+  vi.stubEnv('CONTACT_MAILER_TOKEN', 'test-mailer-token')
 })
 
 afterEach(() => {
@@ -54,28 +53,29 @@ describe('public lead endpoint', () => {
     const response = await POST(request(validLead))
     expect(response.status).toBe(200)
     const notification = JSON.parse(upstream.mock.calls.at(0)![1].body as string)
-    expect(upstream.mock.calls.at(0)![0]).toBe('https://api.resend.com/emails')
+    expect(upstream.mock.calls.at(0)![0]).toBe('https://mailer.example.workers.dev')
     expect(notification).toMatchObject({
-      to: ['private-destination@example.invalid'],
-      reply_to: 'ada@example.com',
+      kind: 'contact',
+      replyTo: 'ada@example.com',
       subject: '[Akademate] Demo request',
     })
     const notificationHeaders = upstream.mock.calls.at(0)![1].headers as Record<string, string>
-    expect(notificationHeaders['Idempotency-Key']).toMatch(/^akademate-public-\d{4}-\d{2}-\d{2}-[a-f0-9]{32}$/)
+    expect(notificationHeaders.Authorization).toBe('Bearer test-mailer-token')
+    expect(notification).not.toHaveProperty('to')
     const forwarded = JSON.parse(upstream.mock.calls.at(1)![1].body as string)
     expect(forwarded).toMatchObject({ source: 'akademate_public_contact', gdpr_consent: true, privacy_policy_accepted: true })
     expect(forwarded).not.toHaveProperty('website')
-    expect(await response.text()).not.toContain('private-destination@example.invalid')
+    expect(await response.text()).not.toContain('test-mailer-token')
   })
 
   it('fails closed without private mail configuration and never calls a provider', async () => {
-    vi.stubEnv('RESEND_API_KEY', '')
+    vi.stubEnv('CONTACT_MAILER_TOKEN', '')
     const upstream = vi.fn()
     vi.stubGlobal('fetch', upstream)
     const response = await POST(request(validLead))
     expect(response.status).toBe(502)
     expect(upstream).not.toHaveBeenCalled()
-    expect(await response.text()).not.toContain('private-destination@example.invalid')
+    expect(await response.text()).not.toContain('test-mailer-token')
   })
 
   it('returns a generic error when mail delivery fails without leaking provider details', async () => {
@@ -85,7 +85,7 @@ describe('public lead endpoint', () => {
     expect(response.status).toBe(502)
     const body = await response.text()
     expect(body).toContain('No se pudo enviar la solicitud')
-    expect(body).not.toMatch(/account details|private-destination|resend/i)
+    expect(body).not.toMatch(/account details|test-mailer-token|workers\.dev/i)
   })
 
   it('keeps successful email delivery even when optional CMS persistence fails', async () => {

@@ -13,9 +13,8 @@ function request(body: unknown) {
 }
 
 beforeEach(() => {
-  vi.stubEnv('RESEND_API_KEY', 're_test_key')
-  vi.stubEnv('CONTACT_NOTIFICATION_TO', 'private-destination@example.invalid')
-  vi.stubEnv('CONTACT_FROM_EMAIL', 'Akademate <notifications@example.invalid>')
+  vi.stubEnv('CONTACT_MAILER_URL', 'https://mailer.example.workers.dev')
+  vi.stubEnv('CONTACT_MAILER_TOKEN', 'test-mailer-token')
 })
 
 afterEach(() => {
@@ -34,15 +33,16 @@ describe('public waitlist endpoint', () => {
     expect(response.status).toBe(200)
     const notification = JSON.parse(upstream.mock.calls.at(0)![1].body as string)
     expect(notification).toMatchObject({
-      to: ['private-destination@example.invalid'],
-      reply_to: 'learner@example.com',
+      kind: 'waitlist',
+      replyTo: 'learner@example.com',
       subject: '[Akademate] New early-access request',
     })
-    expect(await response.text()).not.toContain('private-destination@example.invalid')
+    expect(notification).not.toHaveProperty('to')
+    expect(await response.text()).not.toContain('test-mailer-token')
   })
 
   it('fails closed without a mail credential', async () => {
-    vi.stubEnv('RESEND_API_KEY', '')
+    vi.stubEnv('CONTACT_MAILER_TOKEN', '')
     const upstream = vi.fn()
     vi.stubGlobal('fetch', upstream)
     const response = await POST(request({ email: 'learner@example.com', privacy_policy_accepted: true, website: '' }))

@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "akademate-contact-mailer",
+  "main": "src/index.mjs",
+  "compatibility_date": "2026-07-31",
+  "account_id": "522997f4f57193b06db3286d8d6f2778",
+  "workers_dev": true,
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "allowed_sender_addresses": ["info@akademate.com"]
+    }
+  ]
+}
