@@ -124,7 +124,14 @@ La web describirá esta arquitectura como capacidad configurable. La disponibili
 - [x] Fase 5: pricing Launch, Business y Enterprise.
 - [x] Fase 6: SEO, sitemap, accesibilidad, responsive y performance.
 - [x] Fase 7: QA visual, consola/red, test/build y pre-flight de diseño.
-- [ ] Fase 8: commit/push y despliegue independiente de `apps/web` con verificación de artefacto servido.
+- [x] Fase 8: commit/push y despliegue independiente de `apps/web` con verificación de artefacto servido.
+
+## Evidencia de release
+
+- Release público inicial: `fd595da03e62af33d488b3f6dbb51a56e163d663`.
+- Servicio modificado: únicamente `akademate-web`.
+- Verificación live: health con revisión exacta, contenido nuevo servido y 9/9 E2E aprobados.
+- Invariantes: IDs de los tres contenedores tenant sin cambios; ningún despliegue CEP.
 
 ## Quality Gate
 
