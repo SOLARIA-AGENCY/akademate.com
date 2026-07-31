@@ -37,7 +37,7 @@ export const legalCompany = {
 export const legalLastUpdated = '29 July 2026'
 
 export const legalDraftNotice =
-  'Informational draft pending professional review. It is not legal advice, a certification, an official seal or a declaration of conformity.'
+  'Working legal information under professional review. Final registry, tax, address and privacy contact details will be published after documentary validation.'
 
 export const legalLinks = [
   { title: 'Privacy', href: '/legal/privacidad' },

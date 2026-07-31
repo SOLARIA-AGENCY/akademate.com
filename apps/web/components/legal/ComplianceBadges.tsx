@@ -1,31 +1,12 @@
-import Link from 'next/link'
-import { ShieldCheck, Sparkles } from 'lucide-react'
 import React from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 
-const regulatoryNotice = 'Regulatory information; not a certification or official seal'
+const marks = [
+  { href: '/legal/privacidad', src: '/logos/gdpr-logo.png', alt: 'GDPR', label: 'Privacy and GDPR', width: 2000, height: 2000, className: 'h-14 w-14 brightness-0 invert' },
+  { href: '/legal/ia', src: '/logos/eu-ai-act.png', alt: 'EU Artificial Intelligence Act', label: 'Responsible AI', width: 846, height: 215, className: 'h-11 w-auto max-w-[12rem] brightness-0 invert' },
+] as const
 
 export function ComplianceBadges() {
-  return (
-    <div className="flex flex-col items-center gap-2" aria-label={regulatoryNotice}>
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        <Link
-          href="/legal/privacidad"
-          aria-label={`Privacy and GDPR. ${regulatoryNotice}`}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[.06] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
-        >
-          <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-          Privacy and GDPR
-        </Link>
-        <Link
-          href="/legal/ia"
-          aria-label={`AI transparency. ${regulatoryNotice}`}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[.06] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
-        >
-          <Sparkles className="h-4 w-4" aria-hidden="true" />
-          AI transparency
-        </Link>
-      </div>
-      <p className="text-center text-[11px] leading-4 text-blue-100/45">{regulatoryNotice}</p>
-    </div>
-  )
+  return <div className="flex flex-col items-center gap-4 sm:items-end"><p className="text-sm font-semibold text-white">Privacy and responsible AI, built into the conversation.</p><div className="flex flex-nowrap items-center gap-5" aria-label="Privacy and responsible AI information">{marks.map((mark) => <Link key={mark.href} href={mark.href} aria-label={mark.label} className="inline-flex min-h-14 items-center rounded-xl border border-white/10 bg-white/[.06] px-4 opacity-80 transition hover:bg-white/10 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"><Image src={mark.src} alt={mark.alt} width={mark.width} height={mark.height} className={`${mark.className} object-contain`} /></Link>)}</div><p className="text-xs text-blue-100/45">Explore how Akademate approaches privacy, transparency and human oversight.</p></div>
 }

@@ -22,12 +22,14 @@ describe('central legal contract', () => {
     ])
   })
 
-  it('renders badges as regulatory information, never certification', () => {
+  it('renders visual privacy and responsible AI links without certification claims', () => {
     const markup = renderToStaticMarkup(React.createElement(ComplianceBadges))
     expect(markup).toContain('Privacy and GDPR')
-    expect(markup).toContain('AI transparency')
-    expect(markup).toContain('not a certification or official seal')
-    expect(legalDraftNotice).toContain('not legal advice')
+    expect(markup).toContain('Responsible AI')
+    expect(markup).toContain('%2Flogos%2Fgdpr-logo.png')
+    expect(markup).toContain('%2Flogos%2Feu-ai-act.png')
+    expect(markup).not.toMatch(/certified|certification|official seal|approved by/i)
+    expect(legalDraftNotice).toContain('professional review')
   })
 
   it('documents why no consent manager is installed', () => {

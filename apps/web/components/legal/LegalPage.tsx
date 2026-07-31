@@ -30,7 +30,7 @@ export function LegalPage({
             ← Back to Akademate
           </Link>
           <header className="mt-8 border-b pb-8">
-            <p className="text-sm font-medium text-primary">Akademate legal information</p>
+            <p className="text-sm font-medium text-primary">Trust centre</p>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
             <p className="mt-4 leading-7 text-muted-foreground">{description}</p>
             <p className="mt-4 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm leading-6 text-amber-950">
@@ -54,7 +54,7 @@ export function LegalPage({
           </div>
 
           <aside className="border-t py-8 text-sm leading-7 text-muted-foreground">
-            <h2 className="font-semibold text-foreground">Provider identity</h2>
+            <h2 className="font-semibold text-foreground">Company information</h2>
             <p className="mt-3">Provider: {legalCompany.name}.</p>
             <dl className="mt-3 space-y-3">
               {[

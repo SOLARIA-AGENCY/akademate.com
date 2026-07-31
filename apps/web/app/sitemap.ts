@@ -1,10 +1,11 @@
 import type { MetadataRoute } from 'next'
 import { legalLinks } from '@/lib/legal-config'
 import { blogPosts } from '@/lib/blog-posts'
+import { verticals } from '@/lib/marketing-content'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://akademate.com'
-  return ['/', '/features', '/pricing', '/sobre-nosotros', '/blog', ...blogPosts.map((post) => `/blog/${post.slug}`), '/contacto', ...legalLinks.map((link) => link.href)].map((path) => ({
+  return ['/', '/features', '/solutions', ...verticals.map((vertical) => `/solutions/${vertical.slug}`), '/pricing', '/sobre-nosotros', '/blog', ...blogPosts.map((post) => `/blog/${post.slug}`), '/contacto', ...legalLinks.map((link) => link.href)].map((path) => ({
     url: new URL(path, base).toString(),
     lastModified: new Date('2026-07-31T00:00:00.000Z'),
     changeFrequency: path === '/' ? 'weekly' : 'monthly',

@@ -45,7 +45,7 @@ export const verticals = [
     slug: 'seasonal',
     title: 'Camps and seasonal programmes',
     description: 'Launch a reservable programme with dates, capacity, deposits, documents and automated reminders.',
-    image: '/images/marketing/akademate-sports-campus.jpg',
+    image: '/images/marketing/seasonal-campus-checkin.jpg',
     imageAlt: 'Summer sports campus with participant check-in and coached activities',
     capabilities: ['Fast launch', 'Deposits', 'Capacity'],
   },
@@ -69,7 +69,7 @@ export const verticals = [
     slug: 'languages',
     title: 'Language academies',
     description: 'Placement tests, level-based groups, attendance, monthly billing and classroom or online delivery.',
-    image: '/images/marketing/akademate-in-person-academy.jpg',
+    image: '/images/marketing/language-academy.jpg',
     imageAlt: 'Adult learners in a collaborative language academy class',
     capabilities: ['Placement', 'Levels', 'Monthly billing'],
   },
@@ -82,6 +82,65 @@ export const verticals = [
     capabilities: ['Brands', 'Locations', 'Local finance'],
   },
 ] as const
+
+export const solutionDetails = {
+  'professional-training': {
+    headline: 'Fill cohorts faster. Deliver every programme with confidence.',
+    promise: 'Bring applications, documentation, schedules, teaching and learner progress into one connected professional training operation.',
+    outcomes: ['Convert more enquiries into qualified applications', 'Keep documentation and approvals moving', 'Give teachers and learners one reliable campus', 'See cohort performance and revenue together'],
+    workflow: ['Capture interest', 'Review eligibility', 'Confirm enrolment', 'Deliver the programme'],
+    modules: ['Admissions CRM', 'Cohorts and timetables', 'Learner campus', 'Payments and reporting'],
+  },
+  languages: {
+    headline: 'More full classes. Less timetable juggling.',
+    promise: 'Connect placement, levels, recurring schedules, monthly payments and hybrid learning in a language-school experience people love.',
+    outcomes: ['Route learners to the right level', 'Open groups around real demand', 'Automate monthly payment journeys', 'Keep classroom and online progress aligned'],
+    workflow: ['Placement', 'Group matching', 'Recurring booking', 'Progress'],
+    modules: ['Placement and CRM', 'Levels and groups', 'Recurring billing', 'Hybrid campus'],
+  },
+  wellness: {
+    headline: 'Create a studio experience members keep coming back to.',
+    promise: 'Make classes easy to discover, book and renew while your team stays ahead of rooms, instructors, packs and memberships.',
+    outcomes: ['Make repeat booking effortless', 'Protect room and instructor capacity', 'Grow memberships and session packs', 'Understand attendance and retention'],
+    workflow: ['Discover class', 'Book a place', 'Check in', 'Renew membership'],
+    modules: ['Class booking', 'Memberships', 'Instructor schedules', 'Retention insight'],
+  },
+  sports: {
+    headline: 'Run the season. Grow every athlete.',
+    promise: 'Coordinate trials, teams, guardians, schedules, facilities, attendance and development from one sports academy platform.',
+    outcomes: ['Turn trials into confirmed places', 'Keep guardians informed', 'Coordinate teams and facilities', 'Track attendance and development'],
+    workflow: ['Trial', 'Assessment', 'Team placement', 'Season delivery'],
+    modules: ['Trials and assessments', 'Teams and guardians', 'Facilities and schedules', 'Attendance and progress'],
+  },
+  seasonal: {
+    headline: 'Launch your next camp in days, not weeks.',
+    promise: 'Create a polished programme page, take deposits, manage capacity and keep every family informed from booking to the final day.',
+    outcomes: ['Publish a bookable programme quickly', 'Manage weeks, age groups and capacity', 'Collect deposits and documents', 'Automate arrival information and reminders'],
+    workflow: ['Publish', 'Reserve', 'Prepare', 'Welcome'],
+    modules: ['Launch pages', 'Capacity and waitlists', 'Deposits and documents', 'Family communication'],
+  },
+  'performing-arts': {
+    headline: 'Keep every class, studio and performance in rhythm.',
+    promise: 'Connect recurring lessons, teachers, rooms, attendance, family payments and performance preparation in one creative operation.',
+    outcomes: ['Simplify recurring enrolment', 'Coordinate studios and teachers', 'Keep families close to progress', 'Plan performances without fragmented lists'],
+    workflow: ['Choose discipline', 'Join a class', 'Build progress', 'Perform'],
+    modules: ['Recurring lessons', 'Studio scheduling', 'Family accounts', 'Events and progress'],
+  },
+  'online-cohorts': {
+    headline: 'Turn every cohort into a learning community.',
+    promise: 'Bring applications, payments, live sessions, content, assignments, conversation and progress into one branded online academy.',
+    outcomes: ['Create a premium enrolment journey', 'Give learners one digital home', 'Help teachers act on progress', 'Keep community active between sessions'],
+    workflow: ['Apply', 'Onboard', 'Learn together', 'Complete'],
+    modules: ['Cohort admissions', 'Virtual campus', 'Assignments and chat', 'Progress and completion'],
+  },
+  networks: {
+    headline: 'One brand experience. Every location in control.',
+    promise: 'Scale shared programmes, standards and insight while each location keeps the catalogue, permissions and payment responsibility it needs.',
+    outcomes: ['Launch new locations with shared standards', 'Keep local teams focused on their operation', 'Separate domains and payment responsibility', 'See network performance in one view'],
+    workflow: ['Define standards', 'Configure location', 'Operate locally', 'Learn as a network'],
+    modules: ['Brands and domains', 'Location workspaces', 'Scoped finance', 'Network reporting'],
+  },
+} as const
 
 export const featureGroups = [
   {

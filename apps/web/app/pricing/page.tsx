@@ -34,12 +34,12 @@ export default function PricingPage() {
           <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[.9fr 1.1fr] lg:gap-20">
             <div>
               <p className="section-kicker">Plans</p>
-              <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">A plan for every operating horizon.</h1>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">Launch a time-bound programme, run a growing academy or coordinate a multi-site organisation.</p>
+              <h1 className="mt-5 text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">A plan for every stage of your ambition.</h1>
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">Start with one standout programme, transform your whole academy or create a dedicated platform for your network.</p>
               <Link href="/contacto?asunto=demo" className="button-primary-dark mt-9">Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
             </div>
             <div className="media-reveal relative aspect-[4/3] overflow-hidden rounded-[2rem]">
-              <Image src="/images/marketing/akademate-multisite-network.jpg" alt="Education leaders coordinating a multi-location academy network" fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" />
+              <Image src="/images/marketing/pricing-growth-planning.jpg" alt="Academy leadership team planning the next stage of multi-site growth" fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" />
             </div>
           </div>
         </section>
@@ -61,12 +61,12 @@ export default function PricingPage() {
               )
             })}
           </div>
-          <p className="mx-auto mt-7 max-w-7xl text-sm leading-6 text-slate-600">Prices are shaped around programme volume, users, payment model, integrations, migration and infrastructure. No participant payment is mixed with the Akademate SaaS subscription.</p>
+          <p className="mx-auto mt-7 max-w-7xl text-sm leading-6 text-slate-600">Every proposal is shaped around the scale of your programmes, team, integrations and growth plan. Participant revenue always remains separate from your Akademate subscription.</p>
         </section>
 
         <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <h2 className="max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Compare the operating relationship.</h2>
+            <h2 className="max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Choose how far you want to go.</h2>
             <div className="mt-12 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
               <table className="w-full min-w-[900px] border-collapse text-left">
                 <thead><tr className="border-b bg-slate-50"><th className="px-6 py-5 text-sm font-semibold">Capability</th><th className="px-6 py-5 text-sm font-semibold">Launch</th><th className="px-6 py-5 text-sm font-semibold">Business</th><th className="px-6 py-5 text-sm font-semibold">Enterprise</th></tr></thead>
@@ -80,8 +80,8 @@ export default function PricingPage() {
           <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.78fr 1.22fr] lg:items-start lg:gap-20">
             <div>
               <WalletCards className="h-8 w-8 text-blue-700" strokeWidth={1.75} aria-hidden="true" />
-              <h2 className="mt-6 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Participant payments stay separate.</h2>
-              <p className="mt-6 text-lg leading-8 text-slate-600">Akademate connects the offer, booking and finance context while the receiving entity and provider follow the organisation&apos;s legal model.</p>
+              <h2 className="mt-6 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Your revenue, your relationships, your control.</h2>
+              <p className="mt-6 text-lg leading-8 text-slate-600">Connect booking and finance while each payment reaches the right account for your organisation, location or programme.</p>
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
               {[

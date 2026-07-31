@@ -17,13 +17,14 @@ import {
 } from 'lucide-react'
 import { AcademyProof } from '@/components/marketing/AcademyProof'
 import { GovernanceFrameworks } from '@/components/marketing/GovernanceFrameworks'
+import { ProductMoments } from '@/components/marketing/ProductMoments'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { blogPosts } from '@/lib/blog-posts'
-import { integrationPillars, operatingJourney, plans, reservationModes, verticals } from '@/lib/marketing-content'
+import { integrationPillars, operatingJourney, plans, verticals } from '@/lib/marketing-content'
 
 export const metadata: Metadata = {
-  title: 'The operating system for learning businesses',
+  title: 'The operating system for modern academies',
   description: 'Capture demand, reserve places, run programmes, deliver learning and reconcile revenue across in-person and online operations.',
   alternates: { canonical: '/' },
 }
@@ -73,12 +74,12 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(3,15,39,.62),transparent_48%)]" />
           <div className="relative mx-auto w-full max-w-7xl px-4 pb-9 pt-20 sm:px-6 sm:pb-16 lg:px-8 lg:pb-20">
             <div className="max-w-[760px]">
-              <p className="hero-item text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">Education, sport and membership operations</p>
+              <p className="hero-item text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">Built for in-person and online academies</p>
               <h1 className="hero-item mt-4 text-[2.75rem] font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl lg:text-[4.9rem]">
-                One operating system for every learning business.
+                The operating system for modern academies.
               </h1>
               <p className="hero-item mt-5 max-w-2xl text-base leading-7 text-white/85 sm:text-xl sm:leading-8">
-                Capture demand, reserve places, run programmes, deliver learning and reconcile revenue across in-person and online operations.
+                Run enrolment, operations, learning and revenue in one connected experience built for your team, teachers and learners.
               </p>
               <div className="hero-item mt-7 flex flex-wrap gap-3">
                 <Link href="/contacto?asunto=demo" className="button-primary-light group">
@@ -95,8 +96,8 @@ export default function HomePage() {
         <section id="reservations" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">From first click to active participant.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">A configurable reservation and admissions engine moves each person through the right commercial and operational journey.</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Turn every click into a confident next step.</h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Create a booking experience that feels effortless for families and learners, while your team keeps capacity, payments and follow-up under control.</p>
             </div>
 
             <ol className="mt-14 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-6">
@@ -109,22 +110,15 @@ export default function HomePage() {
               ))}
             </ol>
 
-            <div className="mt-12 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-              {reservationModes.map((mode) => (
-                <article key={mode.title} className="border-l-2 border-blue-600 pl-5">
-                  <h3 className="font-semibold">{mode.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{mode.text}</p>
-                </article>
-              ))}
-            </div>
+            <div className="mt-14 grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-center"><div className="media-reveal relative aspect-[4/3] overflow-hidden rounded-[2rem]"><Image src="/images/marketing/reservation-checkin.jpg" alt="Family completing a programme reservation with an academy coordinator" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" /></div><ProductMoments compact initial="reservations" /></div>
           </div>
         </section>
 
         <section id="solutions" className="overflow-hidden bg-[#edf3ff] py-20 lg:py-28">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Built around your operating model.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Start with a vertical profile, then configure booking, access, capacity, payments, terminology and workspaces around the organisation.</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Made for the way your academy works.</h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Whether you run cohorts, classes, memberships, seasons or multiple locations, Akademate adapts around your rhythm.</p>
             </div>
           </div>
 
@@ -145,8 +139,8 @@ export default function HomePage() {
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">One system, purpose-built workspaces.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Each role gets the operational context it needs while the organisation keeps one connected source of truth.</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Give every team a workspace that moves them forward.</h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Admissions, teachers, coaches, finance and leadership see exactly what they need, without losing the bigger picture.</p>
             </div>
             <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-[1.12fr_.88fr]">
               {operatingSurfaces.map(({ icon: Icon, title, text, className }, index) => (
@@ -166,9 +160,9 @@ export default function HomePage() {
         <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-start lg:gap-20">
             <div className="lg:sticky lg:top-28">
-              <p className="section-kicker">Connected growth</p>
-              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Know what brought them in and what happened next.</h2>
-              <p className="mt-6 text-lg leading-8 text-slate-600">Carry campaign, source and conversion context from Meta Ads or another channel into CRM, reservation, payment and enrolment.</p>
+              <p className="section-kicker">Fill every programme</p>
+              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Turn demand into thriving cohorts.</h2>
+              <p className="mt-6 text-lg leading-8 text-slate-600">See which campaigns create real enrolments, follow up at the right moment and keep every opportunity moving.</p>
               <Link href="/features#growth-ads-and-crm" className="mt-8 inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 hover:text-blue-900">
                 Explore growth operations <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
@@ -191,9 +185,9 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-10 lg:grid-cols-[.85fr_1.15fr] lg:items-end">
               <div>
-                <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Payments belong to the operation.</h2>
+                <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Make every payment feel effortless.</h2>
               </div>
-              <p className="max-w-2xl text-lg leading-8 text-slate-600">Resolve the right seller, receiving account, price, tax and policy for every booking. Provider availability is scoped during onboarding.</p>
+              <p className="max-w-2xl text-lg leading-8 text-slate-600">Offer the payment journey each programme needs, from a simple deposit to instalments, memberships and recurring plans.</p>
             </div>
             <div className="mt-14 grid border-y border-blue-200 md:grid-cols-2 lg:grid-cols-4">
               {integrationPillars.map((pillar) => (
@@ -213,8 +207,8 @@ export default function HomePage() {
               <Image src="/images/marketing/akademate-online-academy.jpg" alt="Educator delivering a live online lesson from a professional academy studio" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
             </div>
             <div>
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">A campus for learners. A workspace for teachers.</h2>
-              <p className="mt-6 text-lg leading-8 text-slate-600">Connect lessons, materials, tasks, grades, feedback, progress and internal conversation to the same programme that runs the academy.</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">One place to learn. One place to lead.</h2>
+              <p className="mt-6 text-lg leading-8 text-slate-600">Give learners a campus they want to return to and teachers a clear view of lessons, tasks, feedback and progress.</p>
               <div className="mt-9 grid gap-6 sm:grid-cols-2">
                 <FeatureLine icon={GraduationCap} title="Learner campus" text="Courses, activities, progress, communication and the next action in one place." />
                 <FeatureLine icon={MessageCircleMore} title="Teacher and learner chat" text="Keep course conversation inside the right role, cohort and learning context." />
@@ -227,8 +221,8 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
               <p className="section-kicker">Plans</p>
-              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Start with the operating model you need.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Launch a seasonal programme, run a growing academy or shape a dedicated enterprise deployment.</p>
+              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Choose the next stage of your growth.</h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Launch a standout programme, bring your whole academy together or build a dedicated platform for your network.</p>
             </div>
             <div className="mt-14 grid overflow-hidden rounded-[2rem] border border-slate-200 lg:grid-cols-3">
               {plans.map((plan, index) => (
@@ -251,7 +245,7 @@ export default function HomePage() {
 
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <div className="flex items-end justify-between gap-6"><div><h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Ideas for running a better operation.</h2></div><Link href="/blog" className="hidden min-h-11 items-center gap-2 font-semibold text-blue-700 sm:inline-flex">View resources <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link></div>
+            <div className="flex items-end justify-between gap-6"><div><h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Fresh ideas for ambitious academies.</h2></div><Link href="/blog" className="hidden min-h-11 items-center gap-2 font-semibold text-blue-700 sm:inline-flex">Explore stories and news <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link></div>
             <div className="mt-12 grid gap-8 lg:grid-cols-2">
               {blogPosts.map((post) => (
                 <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">

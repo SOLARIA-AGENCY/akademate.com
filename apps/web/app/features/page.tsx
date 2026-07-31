@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { ProductMoments } from '@/components/marketing/ProductMoments'
 import { featureGroups, integrationPillars, verticals } from '@/lib/marketing-content'
 
 export const metadata: Metadata = {
@@ -45,13 +46,13 @@ export default function FeaturesPage() {
       <Header />
       <main id="content">
         <section className="relative flex min-h-[620px] items-end overflow-hidden bg-[#071633] px-4 py-16 text-white sm:px-6 lg:min-h-[700px] lg:px-8 lg:py-20">
-          <Image src="/images/marketing/akademate-multisite-network.jpg" alt="Education operators coordinating a connected multi-location academy" fill priority sizes="100vw" className="object-cover object-center" />
+          <Image src="/images/marketing/features-operations-team.jpg" alt="Academy team connecting admissions, teaching, finance and programme planning" fill priority sizes="100vw" className="object-cover object-center" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,15,39,.96)_0%,rgba(3,15,39,.78)_46%,rgba(3,15,39,.18)_100%)]" />
           <div className="relative mx-auto w-full max-w-7xl">
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">The complete operating platform</p>
-              <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">Every operational layer, connected.</h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-blue-100/80">Shape how people discover, book, pay, participate and progress across every location and delivery model.</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">One platform. Every team.</p>
+              <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-7xl">Everything your academy needs to grow and deliver brilliantly.</h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-blue-100/80">Create standout journeys for prospects, learners, teachers and teams, from the first campaign to the final result.</p>
               <div className="mt-9 flex flex-wrap gap-3"><Link href="/contacto?asunto=demo" className="button-primary-light">Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link><Link href="/pricing" className="button-ghost-light">Compare plans</Link></div>
             </div>
           </div>
@@ -66,8 +67,8 @@ export default function FeaturesPage() {
         <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">One configurable core.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Different industries use different language, but the same operational structure keeps the platform coherent.</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">See your whole academy move as one.</h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Akademate connects what you offer, when it runs, who can join and how every participant progresses.</p>
             </div>
             <div className="mt-12 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
               {layers.map(([title, text]) => <article key={title} className="border-b border-blue-200 py-8 sm:px-6 lg:border-b-0 lg:border-r first:sm:pl-0 last:lg:border-r-0"><h3 className="text-2xl font-semibold">{title}</h3><p className="mt-4 text-sm leading-6 text-slate-600">{text}</p></article>)}
@@ -75,11 +76,13 @@ export default function FeaturesPage() {
           </div>
         </section>
 
+        <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28"><div className="mx-auto max-w-7xl"><div className="max-w-4xl"><h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Don&apos;t just read the feature list. Try the workflow.</h2><p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Switch between real product moments and explore how Akademate brings reservations, CRM, programmes, campus, payments and insight to life.</p></div><div className="mt-12"><ProductMoments /></div></div></section>
+
         <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl">
-              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">The modules behind the operation.</h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Each module shares organisational context, role boundaries and the same participant journey.</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Powerful modules. One effortless experience.</h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Choose the capabilities your academy needs today and keep every team working from the same connected story.</p>
             </div>
             <div className="mt-14 grid gap-x-12 gap-y-16 lg:grid-cols-2">
               {featureGroups.map((group, index) => {
@@ -102,7 +105,7 @@ export default function FeaturesPage() {
 
         <section id="verticals" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <div className="max-w-4xl"><h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Configured by capability, adapted by vertical.</h2><p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Start with a proven profile, then choose the booking, teaching, payment and governance capabilities that match the organisation.</p></div>
+            <div className="max-w-4xl"><h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Built for your kind of academy.</h2><p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Start with a solution shaped around your programmes, people and commercial model, then make it unmistakably yours.</p></div>
             <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
               {verticals.slice(0, 4).map((vertical) => <article key={vertical.slug} className="group"><div className="media-reveal relative aspect-[4/3] overflow-hidden rounded-[2rem]"><Image src={vertical.image} alt={vertical.imageAlt} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover" /></div><h3 className="mt-5 text-xl font-semibold">{vertical.title}</h3><p className="mt-3 text-sm leading-6 text-slate-600">{vertical.description}</p></article>)}
             </div>
@@ -111,16 +114,16 @@ export default function FeaturesPage() {
 
         <section className="bg-[#eaf1ff] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <p className="section-kicker">Integration architecture</p>
-            <h2 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Connect the providers around the operation.</h2>
+            <p className="section-kicker">Your ecosystem, connected</p>
+            <h2 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Keep the tools you trust. Make the experience feel seamless.</h2>
             <div className="mt-12 grid border-y border-blue-200 sm:grid-cols-2 lg:grid-cols-4">
               {integrationPillars.map((pillar) => <article key={pillar.title} className="border-b border-blue-200 py-8 sm:px-6 lg:border-b-0 lg:border-r first:sm:pl-0 last:lg:border-r-0"><h3 className="text-2xl font-semibold">{pillar.title}</h3><p className="mt-4 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{pillar.providers.join(' / ')}</p><p className="mt-5 text-sm leading-6 text-slate-600">{pillar.text}</p></article>)}
             </div>
-            <p className="mt-7 max-w-3xl text-sm leading-6 text-slate-600">Provider and connector availability is scoped during onboarding around the operating model, country, contract and receiving entity.</p>
+            <p className="mt-7 max-w-3xl text-sm leading-6 text-slate-600">We shape the right integration plan around your market, payment model and existing technology.</p>
           </div>
         </section>
 
-        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28"><div className="mx-auto max-w-5xl text-center"><h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Map the platform to your operation.</h2><p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">We will shape the modules, integrations, terminology and deployment model around how your organisation works.</p><Link href="/contacto?asunto=demo" className="button-primary-dark mt-9">Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link></div></section>
+        <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28"><div className="mx-auto max-w-5xl text-center"><h2 className="text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">Imagine your best academy day. Then make it repeatable.</h2><p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">We will show you how Akademate can simplify the work, sharpen the experience and create more room for growth.</p><Link href="/contacto?asunto=demo" className="button-primary-dark mt-9">See Akademate in action <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link></div></section>
       </main>
       <Footer />
     </div>

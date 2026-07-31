@@ -3,8 +3,8 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { blogPosts } from '@/lib/blog-posts'
-import { academyTypes, featureGroups, governanceFrameworks, integrationPillars, plans, reservationModes, verticals } from '@/lib/marketing-content'
-import { publicNavigation } from '@/lib/public-navigation'
+import { academyTypes, featureGroups, governanceFrameworks, integrationPillars, plans, reservationModes, solutionDetails, verticals } from '@/lib/marketing-content'
+import { publicCompanyLinks, publicNavigation, publicSocialLinks } from '@/lib/public-navigation'
 
 describe('public marketing architecture', () => {
   it('describes the expanded operating platform without making AI the sales moat', () => {
@@ -17,7 +17,7 @@ describe('public marketing architecture', () => {
     const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
     const layout = readFileSync(new URL('../app/layout.tsx', import.meta.url), 'utf8')
     expect(`${home}${layout}`).not.toMatch(/AI-assisted operating system/i)
-    expect(home).toMatch(/One operating system for every learning business/)
+    expect(home).toMatch(/The operating system for modern academies\./)
   })
 
   it('offers Launch, Business and Enterprise without fabricated prices', () => {
@@ -38,6 +38,13 @@ describe('public marketing architecture', () => {
       expect(vertical.capabilities.length).toBeGreaterThanOrEqual(3)
     }
     expect(verticals.map((vertical) => vertical.slug)).toEqual(expect.arrayContaining(['wellness', 'sports', 'seasonal', 'performing-arts', 'networks']))
+    expect(new Set(verticals.map((vertical) => vertical.image)).size).toBe(verticals.length)
+    expect(Object.keys(solutionDetails).sort()).toEqual(verticals.map((vertical) => vertical.slug).sort())
+    for (const detail of Object.values(solutionDetails)) {
+      expect(detail.outcomes).toHaveLength(4)
+      expect(detail.workflow).toHaveLength(4)
+      expect(detail.modules).toHaveLength(4)
+    }
   })
 
   it('names the required payment, finance and growth integration architecture', () => {
@@ -49,19 +56,23 @@ describe('public marketing architecture', () => {
     expect(`${features}${pricing}`).toMatch(/availability is scoped during onboarding|agreed during onboarding/i)
   })
 
-  it('publishes two complete articles with local generated images', () => {
-    expect(blogPosts).toHaveLength(2)
+  it('publishes at least four complete articles and product news with local images', () => {
+    expect(blogPosts.length).toBeGreaterThanOrEqual(4)
+    expect(blogPosts.map((post) => post.slug)).toEqual(expect.arrayContaining([
+      'campaign-click-to-confirmed-place',
+      'akademate-expands-sport-wellness-seasonal',
+    ]))
     for (const post of blogPosts) {
       expect(post.sections.length).toBeGreaterThanOrEqual(4)
       expect(existsSync(new URL(`../public${post.image}`, import.meta.url))).toBe(true)
     }
   })
 
-  it('uses governance frameworks as references rather than certifications', () => {
+  it('presents governance as a roadmap without unsupported certification language', () => {
     expect(governanceFrameworks.map((item) => item.short)).toEqual(expect.arrayContaining(['GDPR', 'EU AI Act', 'ISO 27001', 'SOC 2']))
     const frameworkComponent = readFileSync(new URL('../components/marketing/GovernanceFrameworks.tsx', import.meta.url), 'utf8')
-    expect(frameworkComponent).toMatch(/No certification or official endorsement is implied/)
-    expect(frameworkComponent).not.toMatch(/official seal/i)
+    expect(frameworkComponent).toMatch(/privacy, security and responsible AI roadmap/i)
+    expect(frameworkComponent).not.toMatch(/certified|official endorsement|official seal|approved by/i)
   })
 
   it('does not represent vertical labels or fictional names as customers', () => {
@@ -72,7 +83,37 @@ describe('public marketing architecture', () => {
   })
 
   it('keeps navigation on real routes and replaces AI-first navigation with solutions', () => {
-    expect(publicNavigation.map((item) => item.href)).toEqual(['/features', '/#solutions', '/pricing', '/blog', '/sobre-nosotros'])
+    expect(publicNavigation.map((item) => item.href)).toEqual(['/features', '/solutions', '/pricing', '/blog', '/sobre-nosotros'])
+    expect(publicNavigation.find((item) => item.href === '/blog')?.name).toBe('Blog')
+    expect(publicCompanyLinks.find((item) => item.href === '/blog')?.name).toBe('Blog')
+  })
+
+  it('centralizes accessible Instagram, X and Facebook destinations', () => {
+    expect(publicSocialLinks.map((link) => link.name)).toEqual(['Instagram', 'X', 'Facebook'])
+    expect(publicSocialLinks.map((link) => new URL(link.href).hostname)).toEqual(['www.instagram.com', 'x.com', 'www.facebook.com'])
+    const footer = readFileSync(new URL('../components/layout/footer.tsx', import.meta.url), 'utf8')
+    expect(footer).toContain('target="_blank"')
+    expect(footer).toContain('rel="noreferrer"')
+    expect(footer).toContain('aria-label={`${link.name}: find Akademate`}')
+  })
+
+  it('ships interactive product examples with accessible tabs and real controls', () => {
+    const productMoments = readFileSync(new URL('../components/marketing/ProductMoments.tsx', import.meta.url), 'utf8')
+    expect(productMoments).toContain('role="tablist"')
+    expect(productMoments).toContain('role="tabpanel"')
+    for (const label of ['Reservations', 'Growth & CRM', 'Programmes', 'Campus', 'Payments', 'Insight']) expect(productMoments).toContain(label)
+    expect(productMoments).toContain('<select')
+    expect(productMoments).toContain('<input')
+  })
+
+  it('assigns dedicated imagery to the primary commercial pages', () => {
+    const pages = [
+      ['../app/features/page.tsx', 'features-operations-team.jpg'],
+      ['../app/pricing/page.tsx', 'pricing-growth-planning.jpg'],
+      ['../app/sobre-nosotros/page.tsx', 'about-founder-campus.jpg'],
+      ['../app/contacto/page.tsx', 'contact-consultation.jpg'],
+    ] as const
+    for (const [file, image] of pages) expect(readFileSync(new URL(file, import.meta.url), 'utf8')).toContain(image)
   })
 
   it('ships marketing copy without em-dash design flourishes', () => {

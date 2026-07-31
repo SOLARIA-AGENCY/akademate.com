@@ -56,7 +56,7 @@ export function ContactForm() {
       const data = await response.json().catch(() => ({})) as { error?: string }
       if (!response.ok) throw new Error(data.error ?? 'We could not send your request')
       setStatus('success')
-      setFeedback('Thanks — your request has been received.')
+      setFeedback('Thanks. Your request has been received.')
       setForm({ name: '', email: '', phone: '', subject: '', message: '', website: '', privacyAccepted: false })
     } catch (error) {
       setStatus('error')

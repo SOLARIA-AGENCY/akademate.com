@@ -16,10 +16,10 @@ const fontMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://akademate.com'),
   title: {
-    default: 'Akademate | The operating system for learning businesses',
+    default: 'Akademate | Grow your academy and delight every learner',
     template: '%s | Akademate',
   },
-  description: 'Connect growth, reservations, programmes, campus, communication, payments and finance in one configurable operating system.',
+  description: 'Bring enrolment, operations, learning and revenue together in one academy operating system.',
   keywords: ['academy management', 'education operations', 'booking software', 'sports academy software', 'learning management', 'academy payments'],
   authors: [{ name: 'SOLARIA Agency' }],
   icons: {
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
     shortcut: '/favicon.png',
   },
   openGraph: {
-    title: 'Akademate | The operating system for learning businesses',
-    description: 'One connected system for growth, booking, delivery, campus and finance.',
+    title: 'Akademate | Grow your academy and delight every learner',
+    description: 'One connected experience for enrolment, operations, learning and revenue.',
     type: 'website',
     locale: 'en_GB',
     siteName: 'Akademate',

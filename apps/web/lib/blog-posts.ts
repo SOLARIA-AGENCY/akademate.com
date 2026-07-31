@@ -20,6 +20,42 @@ export type BlogPost = {
 
 export const blogPosts: readonly BlogPost[] = [
   {
+    slug: 'campaign-click-to-confirmed-place',
+    title: 'From campaign click to confirmed place: a better booking journey',
+    excerpt: 'The best academy booking experiences turn curiosity into confidence while keeping capacity, payments and follow-up beautifully organised.',
+    category: 'Growth playbook',
+    date: '2026-07-31',
+    displayDate: '31 July 2026',
+    readingTime: '8 min read',
+    image: '/images/marketing/blog-reservation-journey.jpg',
+    imageAlt: 'Prospective learner choosing and booking a professional programme online',
+    introduction: 'A learner rarely experiences your funnel as a funnel. They see a promise, imagine a future and decide whether the next step feels clear enough to take. Great academy operations connect that emotional moment to a booking journey that is fast, reassuring and easy to complete.',
+    sections: [
+      { title: 'Make the next step match the decision', paragraphs: ['Not every programme should ask for the same commitment. A short class may need instant booking, professional training may need an application and a seasonal camp may begin with a deposit and guardian consent.', 'The strongest journey gives each offer the right path without forcing the team to rebuild forms, emails and spreadsheets every time.'] },
+      { title: 'Let capacity create confidence', paragraphs: ['Availability should feel clear to the participant and actionable to the academy. Place holds, deadlines and waitlists turn uncertainty into a guided decision rather than a string of manual follow-ups.', 'When capacity is connected to the programme run, the team can act on real demand and open the next cohort at the right moment.'], points: ['Show the right availability', 'Protect a place while requirements are completed', 'Promote eligible people from the waitlist', 'Open new capacity around real demand'] },
+      { title: 'Bring payment into the experience', paragraphs: ['Deposits, instalments, memberships and one-off payments are part of how a learner decides and how an academy builds trust.', 'A connected payment journey keeps the offer, receiving account, confirmation and finance status together from the start.'] },
+      { title: 'Measure the journey that matters', paragraphs: ['Campaign clicks are useful, but confirmed places are what make a programme viable. Connect source, enquiry, reservation, payment and attendance to understand which activity creates lasting participation.', 'That visibility helps growth and operations teams make the same decision from the same story.'] },
+    ],
+  },
+  {
+    slug: 'akademate-expands-sport-wellness-seasonal',
+    title: 'Akademate expands for sport, wellness and seasonal programmes',
+    excerpt: 'New operating profiles bring memberships, teams, guardians, session packs, trials, seasons and camps into the Akademate platform vision.',
+    category: 'Product news',
+    date: '2026-07-31',
+    displayDate: '31 July 2026',
+    readingTime: '6 min read',
+    image: '/images/marketing/blog-vertical-expansion.jpg',
+    imageAlt: 'Sports coaches and wellness instructors planning programmes together',
+    introduction: 'Learning businesses are more diverse than a traditional course catalogue. A yoga studio, youth sports academy and summer camp may use different language, but all need a compelling way to attract people, manage capacity, deliver an experience and build lasting relationships.',
+    sections: [
+      { title: 'One platform, different operating rhythms', paragraphs: ['Wellness studios think in classes, instructors, rooms, packs and memberships. Sports academies add trials, teams, age groups, guardians and seasons. Camps concentrate demand, documents and payments into a short launch window.', 'Akademate profiles these differences as configurable capabilities so each organisation can feel purpose-built without becoming an isolated product.'] },
+      { title: 'Booking becomes part of the programme', paragraphs: ['A recurring yoga class needs fast repeat booking. A sports trial may lead to assessment and team placement. A camp needs week selection, capacity, deposits and guardian information.', 'The reservation journey now sits at the centre of how these models are presented across Akademate.'], points: ['Memberships and session packs', 'Trials, assessments and teams', 'Guardian relationships and consent', 'Seasonal capacity and deposits'] },
+      { title: 'A richer participant experience', paragraphs: ['The participant record can represent a learner, member, athlete, player or attendee while keeping attendance, communication and progress connected.', 'Teachers, instructors and coaches receive workspaces aligned to the sessions and people they support.'] },
+      { title: 'Built to grow beyond one location', paragraphs: ['The same profiles can scale into groups and franchises with shared standards, local schedules, custom domains and clear payment responsibility.', 'This creates a path from one studio or programme to a connected network without losing the experience that made the original operation successful.'] },
+    ],
+  },
+  {
     slug: 'ai-assisted-academy-operations',
     title: 'AI-assisted operations: giving academy teams their time back',
     excerpt: 'The most useful AI in education does not replace educators. It removes operational friction around the work only people can do.',

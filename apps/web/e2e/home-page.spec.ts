@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Akademate public commercial surface', () => {
-  test('communicates one operating system, real proof and clear conversion', async ({ page }) => {
+  test('communicates a growth outcome, real proof and clear conversion', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('One operating system for every learning business')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('The operating system for modern academies.')
     await expect(page.getByRole('link', { name: 'Book a demo' }).first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'CEP Formación' })).toBeVisible()
     await expect(page.getByText('Built for modern academy models')).toBeVisible()
@@ -12,16 +12,28 @@ test.describe('Akademate public commercial surface', () => {
     await expect(page.getByRole('heading', { name: 'Enterprise' })).toBeVisible()
     await expect(page.getByText('Dedicated or on-premise').first()).toBeVisible()
     await expect(page.getByText('Stripe / PayPal / SEPA')).toBeVisible()
+    await expect(page.getByRole('banner').getByRole('link', { name: 'Blog' })).toBeVisible()
+    await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Blog' })).toBeVisible()
+    for (const network of ['Instagram', 'X', 'Facebook']) await expect(page.getByRole('link', { name: `${network}: find Akademate` })).toBeVisible()
   })
 
-  test('publishes a complete feature catalogue and two substantive articles', async ({ page }) => {
+  test('publishes a complete feature catalogue, product examples and four substantive articles', async ({ page }) => {
     const featuresResponse = await page.goto('/features')
     expect(featuresResponse?.status()).toBe(200)
     await expect(page.locator('article[id] h3')).toHaveCount(15)
     await expect(page.getByRole('heading', { name: 'Reservations and admissions' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'APIs, webhooks and deployment' })).toBeVisible()
+    await expect(page.getByRole('tablist', { name: 'Akademate product examples' })).toBeVisible()
+    await page.getByRole('tab', { name: 'Payments' }).click()
+    await expect(page.getByLabel('Provider')).toHaveValue('Stripe')
+    await expect(page.getByLabel('Payment model')).toHaveValue('3 monthly instalments')
 
-    for (const path of ['/blog/ai-assisted-academy-operations', '/blog/one-operation-in-person-online-academies']) {
+    for (const path of [
+      '/blog/ai-assisted-academy-operations',
+      '/blog/one-operation-in-person-online-academies',
+      '/blog/campaign-click-to-confirmed-place',
+      '/blog/akademate-expands-sport-wellness-seasonal',
+    ]) {
       const response = await page.goto(path)
       expect(response?.status()).toBe(200)
       await expect(page.locator('article h2')).toHaveCount(5)
@@ -42,14 +54,47 @@ test.describe('Akademate public commercial surface', () => {
     expect(overflow).toBeLessThanOrEqual(1)
   })
 
-  test('legal routes are real and frameworks never imply certification', async ({ page }) => {
+  test('legal routes and visual governance marks resolve without unsupported claims', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText('Reference frameworks for operational alignment. No certification or official endorsement is implied.')).toBeVisible()
+    await expect(page.getByText(/principles shaping our privacy, security and responsible AI roadmap/i)).toBeVisible()
+    await expect(page.getByRole('img', { name: 'GDPR' })).toBeVisible()
+    await expect(page.getByRole('img', { name: 'EU Artificial Intelligence Act' })).toBeVisible()
+    await expect(page.locator('body')).not.toContainText(/certified by|official seal|approved by/i)
     for (const path of ['/legal/privacidad', '/legal/terminos', '/legal/cookies', '/legal/subencargados', '/legal/ia']) {
       const response = await page.goto(path)
       expect(response?.status()).toBe(200)
-      await expect(page.getByText(/Informational draft pending professional review/i).first()).toBeVisible()
+      await expect(page.getByText(/Working legal information under professional review/i).first()).toBeVisible()
     }
+  })
+
+  test('publishes a customer-type index and a complete page for every vertical', async ({ page }) => {
+    const paths = [
+      '/solutions/professional-training', '/solutions/wellness', '/solutions/sports', '/solutions/seasonal',
+      '/solutions/performing-arts', '/solutions/online-cohorts', '/solutions/languages', '/solutions/networks',
+    ]
+    const response = await page.goto('/solutions')
+    expect(response?.status()).toBe(200)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Your model is unique. Your operating system should fit it.')
+    await expect(page.locator('main a[href^="/solutions/"]')).toHaveCount(8)
+    const verticalImages = page.locator('main img')
+    await expect(verticalImages).toHaveCount(8)
+    for (let index = 0; index < await verticalImages.count(); index += 1) {
+      const image = verticalImages.nth(index)
+      await image.scrollIntoViewIfNeeded()
+      await expect(image).toHaveJSProperty('complete', true)
+      await expect.poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+    }
+
+    const headings = new Set<string>()
+    for (const path of paths) {
+      const verticalResponse = await page.goto(path)
+      expect(verticalResponse?.status()).toBe(200)
+      const heading = (await page.getByRole('heading', { level: 1 }).textContent())?.trim() ?? ''
+      expect(heading.length).toBeGreaterThan(20)
+      headings.add(heading)
+      await expect(page.getByRole('tablist', { name: 'Akademate product examples' })).toBeVisible()
+    }
+    expect(headings.size).toBe(paths.length)
   })
 
   test('does not request third-party analytics or marketing', async ({ page }) => {
@@ -79,7 +124,7 @@ test.describe('Akademate public commercial surface', () => {
   })
 
   test('all internal links on commercial pages resolve without dead routes or fragments', async ({ page, request }) => {
-    for (const sourcePath of ['/', '/features', '/pricing']) {
+    for (const sourcePath of ['/', '/features', '/pricing', '/solutions', '/blog']) {
       await page.goto(sourcePath)
       const hrefs = await page.locator('a[href]').evaluateAll((links) => links.map((link) => link.getAttribute('href')).filter(Boolean) as string[])
 
@@ -111,7 +156,7 @@ test.describe('Akademate public commercial surface', () => {
     page.on('console', (message) => {
       if (message.type() === 'error') failures.push(`console:${message.text()}`)
     })
-    for (const path of ['/', '/features', '/pricing', '/blog', '/blog/ai-assisted-academy-operations', '/blog/one-operation-in-person-online-academies', '/sobre-nosotros', '/contacto']) {
+    for (const path of ['/', '/features', '/pricing', '/solutions', '/blog', '/blog/campaign-click-to-confirmed-place', '/blog/akademate-expands-sport-wellness-seasonal', '/sobre-nosotros', '/contacto']) {
       const response = await page.goto(path)
       expect(response?.status()).toBe(200)
       await page.waitForLoadState('networkidle')
