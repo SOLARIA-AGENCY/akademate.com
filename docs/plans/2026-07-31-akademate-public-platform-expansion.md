@@ -129,8 +129,10 @@ La web describirá esta arquitectura como capacidad configurable. La disponibili
 ## Evidencia de release
 
 - Release público inicial: `fd595da03e62af33d488b3f6dbb51a56e163d663`.
+- Release público actual: `48ad1af4aef16ba1a290776f730b655ff765ce30`.
 - Servicio modificado: únicamente `akademate-web`.
-- Verificación live: health con revisión exacta, contenido nuevo servido y 9/9 E2E aprobados.
+- Relay transaccional: Worker `akademate-contact-mailer`, versión `b70659cd-545d-491d-af35-b0076fc207c6`.
+- Verificación live: health con revisión exacta, contenido nuevo servido, formulario real `200` y 10/10 E2E aprobados.
 - Invariantes: IDs de los tres contenedores tenant sin cambios; ningún despliegue CEP.
 
 ## Quality Gate

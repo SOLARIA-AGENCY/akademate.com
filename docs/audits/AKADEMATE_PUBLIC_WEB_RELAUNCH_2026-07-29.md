@@ -3,9 +3,9 @@
 ## Scope
 
 - Surface: `apps/web` at `akademate.com` and `www.akademate.com`.
-- Positioning: the AI-assisted operating system for modern academies.
+- Positioning: the operating system for modern academies, with AI assistance as an optional capability rather than the primary sales moat.
 - Commercial language: English-first, confident and outcome-led.
-- Plans: Business (managed cloud) and Enterprise (on-premise or private cloud), without public prices.
+- Plans: Launch, Business and Enterprise (dedicated or on-premise), without public prices.
 - Customer proof: CEP Formación only. Additional carousel entries describe academy types, not fictional customers.
 
 ## Visual thesis
@@ -15,9 +15,10 @@ Calm, intelligent control for modern academies: Akademate cobalt, deep ink, warm
 ## Public architecture
 
 - `/`: commercial landing and primary conversion journey.
-- `/features`: 13 operational groups and 65 named capabilities.
+- `/features`: 15 operational groups plus interactive product workflows.
 - `/pricing`: Business and Enterprise plan narratives, comparison and FAQ.
-- `/blog`: editorial index.
+- `/solutions`: customer-type index with eight detailed vertical pages.
+- `/blog`: editorial index with four articles and product news.
 - `/blog/ai-assisted-academy-operations`: original article and image.
 - `/blog/one-operation-in-person-online-academies`: original article and image.
 - `/sobre-nosotros`: company narrative.
@@ -31,8 +32,8 @@ Official product surfaces from Classter, iSAMS, OpenEduCat and openSIS were revi
 ## Trust boundaries
 
 - GDPR, EU AI Act, ISO 27001, SOC 2 and OWASP appear as reference frameworks for operational alignment.
-- The website explicitly states that no certification or official endorsement is implied.
-- No official EU, GDPR, AI Act, ISO or SOC logos are used.
+- GDPR and EU AI Act visual marks link to the corresponding privacy and transparency information; they are not described as certifications or official endorsements.
+- ISO 27001, SOC 2 and OWASP remain roadmap/reference frameworks and are not presented as completed audits or certifications.
 - No fictional organisation is represented as an Akademate customer.
 - No analytics or marketing tracker is present; a consent manager remains unnecessary until a non-essential purpose is introduced.
 
@@ -44,14 +45,16 @@ Official product surfaces from Classter, iSAMS, OpenEduCat and openSIS were revi
 - `blog-ai-assisted-operations.jpg`
 - `blog-hybrid-academy.jpg`
 
-All five images were generated independently for Akademate, contain no embedded text or UI, and were converted to production JPEG assets. Combined size is approximately 1.8 MB.
+Fourteen images were generated independently for Akademate, contain no embedded text or UI, and were converted to production JPEG assets. Primary commercial pages and customer types use dedicated imagery.
 
 ## Local evidence
 
 - TypeScript: pass.
-- Vitest: 19/19.
-- Next production build: pass, 66 static/dynamic routes generated.
+- Vitest: 32/32.
+- Cloudflare contact relay: 5/5 adversarial tests.
+- Next production build: pass, 77 static/dynamic routes generated.
 - Playwright adversarial suite: mobile, links/routes, blog 404, legal copy, consent fail-closed, tracker absence, console and network.
 - Browser visual QA: 1440×1000 and 390×844; no document overflow, broken images or console errors.
+- Live Playwright suite: 10/10 against the served production artifact.
 
 Production is only considered updated after the deployed `/api/health` revision matches the commit SHA and the live pages pass independent visual/network verification.
