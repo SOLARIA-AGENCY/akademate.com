@@ -3,21 +3,23 @@ import { expect, test } from '@playwright/test'
 test.describe('Akademate public commercial surface', () => {
   test('communicates one operating system, real proof and clear conversion', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('one intelligent operating system')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('One operating system for every learning business')
     await expect(page.getByRole('link', { name: 'Book a demo' }).first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'CEP Formación' })).toBeVisible()
     await expect(page.getByText('Built for modern academy models')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Business' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Launch' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Business', exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Enterprise' })).toBeVisible()
-    await expect(page.getByText('On-premise or private cloud').first()).toBeVisible()
+    await expect(page.getByText('Dedicated or on-premise').first()).toBeVisible()
+    await expect(page.getByText('Stripe / PayPal / SEPA')).toBeVisible()
   })
 
   test('publishes a complete feature catalogue and two substantive articles', async ({ page }) => {
     const featuresResponse = await page.goto('/features')
     expect(featuresResponse?.status()).toBe(200)
-    await expect(page.locator('article[id] > div h2')).toHaveCount(13)
-    await expect(page.getByRole('heading', { name: 'Admissions and CRM' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Integrations and deployment' })).toBeVisible()
+    await expect(page.locator('article[id] h3')).toHaveCount(15)
+    await expect(page.getByRole('heading', { name: 'Reservations and admissions' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'APIs, webhooks and deployment' })).toBeVisible()
 
     for (const path of ['/blog/ai-assisted-academy-operations', '/blog/one-operation-in-person-online-academies']) {
       const response = await page.goto(path)
@@ -60,6 +62,44 @@ test.describe('Akademate public commercial surface', () => {
     expect(trackerRequests).toEqual([])
   })
 
+  test('loads every marketing image when its card enters the viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    const images = page.locator('main img')
+    const count = await images.count()
+    expect(count).toBeGreaterThanOrEqual(10)
+
+    for (let index = 0; index < count; index += 1) {
+      const image = images.nth(index)
+      await image.scrollIntoViewIfNeeded()
+      await expect(image).toHaveJSProperty('complete', true)
+      await expect.poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+      await expect(image).toHaveAttribute('alt', /.+/)
+    }
+  })
+
+  test('all internal links on commercial pages resolve without dead routes or fragments', async ({ page, request }) => {
+    for (const sourcePath of ['/', '/features', '/pricing']) {
+      await page.goto(sourcePath)
+      const hrefs = await page.locator('a[href]').evaluateAll((links) => links.map((link) => link.getAttribute('href')).filter(Boolean) as string[])
+
+      for (const href of [...new Set(hrefs)]) {
+        if (href.startsWith('mailto:') || href.startsWith('http')) continue
+        const [path, fragment] = href.split('#')
+        if (fragment && (!path || path === '/' || path === sourcePath)) {
+          const targetPath = path || sourcePath
+          if (targetPath !== sourcePath) await page.goto(targetPath)
+          await expect(page.locator(`#${fragment}`)).toHaveCount(1)
+          if (targetPath !== sourcePath) await page.goto(sourcePath)
+          continue
+        }
+
+        const response = await request.get(path || sourcePath)
+        expect(response.status(), `${sourcePath} links to ${href}`).toBeLessThan(400)
+      }
+    }
+  })
+
   test('key commercial routes load without failed assets or console errors', async ({ page }) => {
     const failures: string[] = []
     page.on('requestfailed', (request) => {
@@ -88,6 +128,7 @@ test.describe('Akademate public commercial surface', () => {
     await page.goto('/contacto?asunto=demo')
     await page.getByLabel(/Full name/).fill('Ada Lovelace')
     await page.getByLabel(/Email/).fill('ada@example.com')
+    await page.getByLabel(/What would you like to discuss/).selectOption('demo')
     await page.getByLabel(/Tell us about your academy/).fill('We need to connect in-person and online delivery across two locations.')
     await page.getByRole('button', { name: 'Send request' }).click()
     expect(postCount).toBe(0)

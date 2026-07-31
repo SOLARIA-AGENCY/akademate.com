@@ -6,9 +6,9 @@ import { publicCompanyLinks } from '@/lib/public-navigation'
 
 const productLinks = [
   { name: 'Features', href: '/features' },
-  { name: 'AI-assisted operations', href: '/#ai' },
+  { name: 'Reservations', href: '/#reservations' },
+  { name: 'Solutions', href: '/#solutions' },
   { name: 'Pricing', href: '/pricing' },
-  { name: 'Sign in', href: '/login' },
 ] as const
 
 export function Footer() {
@@ -18,7 +18,7 @@ export function Footer() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
           <div>
             <Link href="/" className="flex items-center gap-2.5"><Image src="/logos/akademate-icon-48.png" alt="" width={34} height={34} /><span className="text-sm font-extrabold tracking-[0.12em]">AKADEMATE</span></Link>
-            <p className="mt-5 max-w-sm text-sm leading-7 text-blue-100/65">The AI-assisted operating system for modern academies — across classrooms, online learning and every team behind them.</p>
+            <p className="mt-5 max-w-sm text-sm leading-7 text-blue-100/65">The operating system for learning businesses, across growth, reservations, delivery, campus and finance.</p>
             <p className="mt-5 text-xs text-blue-100/50">A product by {legalCompany.name}</p>
           </div>
           <FooterColumn title="Product" links={productLinks} />

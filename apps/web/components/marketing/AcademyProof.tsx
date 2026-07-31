@@ -10,13 +10,13 @@ export function AcademyProof() {
             <Image src="/logos/customers/cep-formacion.png" alt="CEP Formación" width={220} height={65} className="h-auto w-full" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">Running with Akademate</p>
+            <p className="text-xs font-semibold text-blue-200">Running with Akademate</p>
             <h2 id="academy-proof-title" className="mt-2 text-lg font-semibold">CEP Formación</h2>
           </div>
         </div>
 
         <div className="min-w-0 overflow-hidden">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">Built for modern academy models</p>
+          <p className="mb-4 text-xs font-semibold text-blue-200">Built for modern academy models</p>
           <div className="academy-rail flex w-max items-center gap-3 motion-reduce:transform-none">
             {[...academyTypes, ...academyTypes].map((type, index) => (
               <span

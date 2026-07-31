@@ -16,11 +16,11 @@ const fontMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://akademate.com'),
   title: {
-    default: 'Akademate — The AI-assisted operating system for academies',
+    default: 'Akademate | The operating system for learning businesses',
     template: '%s | Akademate',
   },
-  description: 'Run students, courses, schedules, teams, communications and insight from one connected academy operating system.',
-  keywords: ['academy management', 'education operations', 'student management', 'LMS', 'AI for academies'],
+  description: 'Connect growth, reservations, programmes, campus, communication, payments and finance in one configurable operating system.',
+  keywords: ['academy management', 'education operations', 'booking software', 'sports academy software', 'learning management', 'academy payments'],
   authors: [{ name: 'SOLARIA Agency' }],
   icons: {
     icon: '/favicon.png',
@@ -28,12 +28,12 @@ export const metadata: Metadata = {
     shortcut: '/favicon.png',
   },
   openGraph: {
-    title: 'Akademate — The AI-assisted operating system for academies',
-    description: 'One connected operating system for in-person, online and hybrid academies.',
+    title: 'Akademate | The operating system for learning businesses',
+    description: 'One connected system for growth, booking, delivery, campus and finance.',
     type: 'website',
     locale: 'en_GB',
     siteName: 'Akademate',
-    images: [{ url: '/images/marketing/akademate-hero-operations.jpg', width: 1716, height: 917, alt: 'Modern academy operations with Akademate' }],
+    images: [{ url: '/images/marketing/akademate-hero-operations.jpg', width: 1716, height: 917, alt: 'Modern learning business operations with Akademate' }],
   },
   twitter: {
     card: 'summary_large_image',

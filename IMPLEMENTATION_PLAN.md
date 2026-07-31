@@ -64,6 +64,15 @@
 - GDPR y seguridad validados.
 - Documentación mínima lista.
 
+## Expansión pública Akademate 2026-07-31
+
+La ampliación de producto y comunicación basada en el motor de reservas/admisiones, verticales configurables, dominios, pagos, finanzas, campus y captación se gobierna desde:
+
+- `docs/prompts/2026-07-31-akademate-public-expansion-prompt.md`
+- `docs/plans/2026-07-31-akademate-public-platform-expansion.md`
+
+Esta línea afecta únicamente a la web pública SaaS. CEP queda expresamente fuera de alcance.
+
 ## Ralph Loop 2026-02-20 — Remediación Dashboard CEP (ejecución)
 1. Estabilizar routing/layout en App Router para evitar runtime en navegación.
 2. Cerrar fallos críticos de accesibilidad funcional (sidebar, administración, marketing, leads).

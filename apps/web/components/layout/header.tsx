@@ -29,7 +29,6 @@ export function Header() {
         </div>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link href="/login" className="inline-flex min-h-11 items-center px-3 text-sm font-semibold text-slate-700 hover:text-blue-700">Sign in</Link>
           <Link href="/contacto?asunto=demo" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#071633] px-5 text-sm font-semibold text-white hover:bg-blue-800">Book a demo <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
         </div>
 
@@ -43,8 +42,7 @@ export function Header() {
         <div id="mobile-menu" className="border-t bg-white px-4 py-5 lg:hidden">
           <div className="mx-auto grid max-w-7xl gap-1">
             {publicNavigation.map((item) => <Link key={item.href} href={item.href} className="rounded-xl px-3 py-3 text-base font-semibold text-slate-700 hover:bg-slate-100" onClick={() => setMobileMenuOpen(false)}>{item.name}</Link>)}
-            <div className="mt-4 grid grid-cols-2 gap-3 border-t pt-4">
-              <Link href="/login" className="inline-flex min-h-12 items-center justify-center rounded-full border font-semibold" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
+            <div className="mt-4 border-t pt-4">
               <Link href="/contacto?asunto=demo" className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#071633] font-semibold text-white" onClick={() => setMobileMenuOpen(false)}>Book a demo</Link>
             </div>
           </div>

@@ -123,6 +123,12 @@ html {
   animation: academy-rail 28s linear infinite;
 }
 
+.journey-step {
+  animation: journey-rise linear both;
+  animation-timeline: view();
+  animation-range: entry 8% cover 28%;
+}
+
 @keyframes hero-rise {
   from { opacity: 0; transform: translateY(22px); }
   to { opacity: 1; transform: translateY(0); }
@@ -133,8 +139,13 @@ html {
   to { transform: translateX(calc(-50% - .375rem)); }
 }
 
+@keyframes journey-rise {
+  from { opacity: .35; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero-item, .academy-rail { animation: none; }
+  .hero-item, .academy-rail, .journey-step { animation: none; }
   .media-reveal img { transition: none; }
 }
