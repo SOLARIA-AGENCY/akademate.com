@@ -47,7 +47,7 @@ Set secrets through `wrangler secret put`; never place values in shell history, 
 ## Current release evidence
 
 - Web revision: `48ad1af4aef16ba1a290776f730b655ff765ce30`
-- Worker version: `b70659cd-545d-491d-af35-b0076fc207c6`
+- Worker version: `1faa9a92-5a14-4dbd-a897-7d9572841c5c` (code plus both runtime secrets).
 - Email Routing rule: literal public contact address, enabled; catch-all disabled.
 - Live checks: authenticated relay `200`, public form `200`, alias send accepted.
 
